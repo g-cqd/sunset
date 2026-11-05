@@ -1,7 +1,8 @@
 ---
 status: accepted
 date: 2026-11-05
-supersedes-in-part: 0017 (the tooling: bench/repro.sh and the probe's QUICK mode are research tools, not the benchmark harness)
+supersedes-in-part: 0017
+superseded-in-part-by: 0019 (wall-clock threshold) (the tooling: bench/repro.sh and the probe's QUICK mode are research tools, not the benchmark harness)
 ---
 
 # 0018 — Benchmarks rely on ordo-one/benchmark, under the standard contention profile
