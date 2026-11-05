@@ -103,3 +103,23 @@ Each: red tests first, scalar oracle, guard-page, exhaustive, fuzz, mutation; pr
 - The cost of the state machine and cell writes in a Swift parser (the true bottleneck): needs the T0 parser probe (roadmap 0002) before any more kernel work is justified.
 - How the numbers move on other Apple chips (M1/M2/M4) and x86; this is an M3.
 - Whether Swift's `Span` inner loops reach the C kernels' speed without `unsafe` escapes.
+
+## 7. Addendum: a Swift VT model (T0.4, first result) [probed]
+
+Headless Swift model on six vtebench-equivalent streams (1 MiB, 120×40, 64 KiB chunks, `swiftc -O`, best of 15; `probes/vtmodel.swift`), ms per MiB, lower is better:
+
+| Stream | scalar scan | `any(mask)` SIMD | `max()` SIMD | hybrid |
+|---|---|---|---|---|
+| scrolling (`y\n`, 2-byte runs) | 8.65 | 37.09 | 9.29 | 9.20 |
+| scrolling_fullscreen (120-byte runs) | 1.04 | 4.82 | **0.72** | 0.77 |
+| scrolling_top_region | 9.81 | 40.86 | 9.84 | 9.87 |
+| dense_cells (SGR per cell) | 6.91 | 8.49 | 6.97 | 6.58 |
+| medium_cells (vim session) | 4.65 | 8.29 | 4.70 | 4.70 |
+| unicode | 1.76 | 1.85 | 1.98 | 1.97 |
+
+All four variants end in the same screen (checksum) and hand tests pass (wrap, scroll, SGR); that is **not** a conformance claim.
+
+- **A SIMD formulation can cost 4×:** Swift's `any((v .< 0x20) .| (v .>= 0x7F))` compiles badly; the unsigned trick `(v &- 0x20).max() >= 0x5F` removes the penalty and gives 1.4× on long runs. Rule for Sunset: every SIMD idiom in Swift is measured before use; the C kernels in Aemi remain the safer route.
+- **Scanning does not matter much; the state machine and cell writes dominate, and the whole model costs 1–10 ms per MiB.** At 17 ns per `y\n` pair (print, LF, row-map rotate, clear one 960-byte row) the scrolling stream costs 8.7 ms per MiB, against 46 ms (Ghostty) and 76 ms (Alacritty)
+  for the same workload end to end in the first noisy competitor pass. These are **not comparable** (the terminals include PTY, rendering, locking and more features; the model does less), but it says the parse and cell core is not where Sunset would lose on these workloads, and gives the budget: Sunset's real core may spend 2–3× the model and still beat the best terminal here. To be re-measured with scrollback, paged styles, graphemes and the safe `Span` version.
+- Row indirection (logical → physical row ids, rotated on scroll) makes scrolling regions as cheap as full-screen scrolling (9.8 vs 8.7 ms), the trick kitty (`line_map`) and Ghostty (offset rows) use.
