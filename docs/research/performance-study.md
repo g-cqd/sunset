@@ -104,3 +104,7 @@ Sunset is "better" on an axis only when it beats the best of the four on that ax
 - Whether Swift can match C++/Zig SIMD scanning without `unsafe` escapes beyond what StrictMemorySafety tolerates (white paper: every `unsafe` justified); `SIMD16<UInt8>` and Aemi's C kernels are the options.
 - Swift's actual cost of `Span`/`RawSpan` bounds checks in the parser's inner loop (probe).
 - Whether Metal `bytesNoCopy` buffers over `mmap` pages behave as needed on all supported Macs and under memory pressure (`MADV_FREE_REUSABLE` interplay, and the GPU mapping of decommitted pages).
+
+## 5. Update, measured on this machine (2026-11-05; see roadmap 0014 and bench/)
+
+First competitor numbers now exist: vtebench (noisy, load average 7–17; wall times, Ghostty fastest on all rows) and idle/footprint (deterministic counters, one sample each). Footprint after 1 M lines with 100,000 lines of scrollback: WezTerm 81 MB, Ghostty 136 MB, Alacritty 412 MB, kitty 470 MB; idle wakeups per second: Alacritty 0.3, kitty 0.5–4.4, WezTerm 5.7, Ghostty 15–16. Sunset's targets are the best of each column (roadmap 0014). Sunset's own cold-history measurement (ADR-0013: 27 B per row structural + LZ4, 100,000 rows ≈ 2.7 MB) says the scrollback is not where its footprint will go; the application baseline (Swift runtime, Metal, atlas, fonts) is.

@@ -21,3 +21,11 @@ bench/repro.sh 10 8 spin interactive -- env QUICK=1 /tmp/probe/vtmodel/v2   # N 
 ```
 `stats.py` summarises `name=value` lines. The probe in QUICK mode emits wall p50/p90, instructions retired and cycles per MiB (from `proc_pid_rusage`).
 Result in one line: wall times under any load drift between sessions (compare interleaved only); instructions retired did not move (0.0 % cv) and are the gate.
+
+## Idle cost and footprint (roadmap 0014 step 3)
+
+```sh
+bench/idle.sh <kitty|ghostty|wezterm|alacritty> <lines> [settle-s] [sample-s]   # prints N lines, waits for the output to finish, settles, samples the terminal process
+```
+`rusage_sample.c` reads `proc_pid_rusage` (physical footprint, interrupt wakeups, instructions, cycles, CPU time). These counters do not depend on machine load the way wall times do. Scrollback is 100,000 lines where the terminal counts lines (Ghostty: 100,000,000 bytes); cursor blink and other defaults are each terminal's own.
+Results: `results/2026-11-05/idle-0-lines.txt`, `idle-1M-lines.txt` (one sample each).

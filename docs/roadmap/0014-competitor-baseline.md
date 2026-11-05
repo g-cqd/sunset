@@ -19,3 +19,15 @@ Install the three missing terminals as oracles (ADR-0004; `brew install --cask g
 
 **Done (first pass):** `bench/compete.sh` + `bench/summarize.py` run vtebench in each terminal with the same grid, font and no config; results in `bench/results/2026-11-05/` (see its caveats: load average 7–17, 10 samples, one pass). **Not done:** idle wakeups, physical footprint, startup, latency proxy, a quiet-machine repeat. Next: install or build `vtebench` (Alacritty's tool), drive each terminal as a process (TerminalKit's `Scripts/verify-reset-ladder.py` is the model), record numbers in the diary.
 Caveat to keep: the terminals' own default settings differ (vsync, fonts, shaders); the harness fixes font, size, window and settings for all.
+
+## Idle and footprint (2026-11-05, one sample each, scrollback 100,000 lines / Ghostty 100 MB, 120x40, JetBrains Mono 14, no config)
+
+| Terminal | footprint at launch | footprint after 1 M lines (peak) | idle wakeups/s | idle Minstr/s |
+|---|---|---|---|---|
+| kitty 0.49.2 | 101.6 MB | 469.8 MB (534.4) | 4.4 (0.5 later) | 2.4 (0.9 later) |
+| Ghostty 1.4.0 | 133.6 MB | **136.0 MB** (237.8) | **15.2–16.4** | 5.3–6.9 |
+| WezTerm 20240203 | **63.0 MB** | **81.1 MB** (136.9) | 5.7–5.8 | 3.7 (0.7 later) |
+| Alacritty 0.18.0-dev | 78.4 MB | 411.6 MB (521.0) | **0.3** | **0.04–0.13** |
+
+Bar for Sunset (to beat the best of each column): launch < 63 MB; after 1 M lines < 81 MB; idle wakeups <= 0.3/s; idle instructions < 0.04 M/s. A first sample of the first run of the 1 M-line case was taken while the terminals were still rendering (kitty 494 Minstr/s, WezTerm 2,480 Minstr/s); the script now waits for the output to finish.
+Reading, not a result: WezTerm's and Ghostty's compact scrollback shows (both under 140 MB after 1 M lines); kitty's and Alacritty's cell-per-column storage costs 330–390 MB more. Ghostty's idle wakeups (15/s) are the highest here, Alacritty's the lowest. GPU memory accounting in `phys_footprint` is not verified.
