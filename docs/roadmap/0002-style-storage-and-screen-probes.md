@@ -26,3 +26,4 @@ Settles ADR-0005/0012–0016 with numbers; every probe in the same harness, rele
 - A measured side result: hot generic code must stay `internal` behind a non-generic facade (ADR-0020).
 - Probe 5 (Metal direct read): done, not supported (ADR-0021). Probes 6 (scheduling, idle wakeups) and 7 (reflow, backpressure) not started; probes 1-4 as above.
 - Probe 2 (cold history): done on real text; ADR-0013 accepted. Truecolor-heavy re-probe left.
+- Probe 3 (handoff): replicated in a quiet window; ADR-0014 accepted. Still owed: the same under the ADR-0017 hog profile.
