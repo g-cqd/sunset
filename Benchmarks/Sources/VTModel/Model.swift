@@ -242,3 +242,9 @@ final class Model<C: CellType> {
     }
 }
 
+extension Model {
+    /// Copies the visible rows, in logical order, into `dst` (rows * cols cells): what a renderer needs for one frame.
+    func snapshot(into dst: UnsafeMutablePointer<C>) {
+        for y in 0..<rows { (dst + y * cols).update(from: rowPtr(y), count: cols) }
+    }
+}

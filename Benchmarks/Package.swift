@@ -19,7 +19,8 @@ let strictSettings: [SwiftSetting] = [
     .enableUpcomingFeature("MemberImportVisibility"),
     .treatAllWarnings(as: .error)
 ]
-let probeSettings: [SwiftSetting] = [.swiftLanguageMode(.v6)]
+// -cross-module-optimization: without it the generic Model<C> is not specialised across the module boundary and costs 7x the instructions (diary 2026-11-05-01).
+let probeSettings: [SwiftSetting] = [.swiftLanguageMode(.v6), .unsafeFlags(["-cross-module-optimization"])]
 
 let package = Package(
     name: "benchmarks",
@@ -35,12 +36,15 @@ let package = Package(
             path: "Sources/BenchmarkSupport",
             swiftSettings: strictSettings
         ),
+        .target(name: "VTModel", path: "Sources/VTModel", swiftSettings: probeSettings),
         .executableTarget(
             name: "VTModelBenchmarks",
-            dependencies: [.product(name: "Benchmark", package: "benchmark"), "BenchmarkSupport"],
+            dependencies: [.product(name: "Benchmark", package: "benchmark"), "BenchmarkSupport", "VTModel"],
             path: "Benchmarks/VTModelBenchmarks",
             swiftSettings: probeSettings,
             plugins: [.plugin(name: "BenchmarkPlugin", package: "benchmark")]
-        )
+        ),
+        // Not a benchmark: who holds the screen when a renderer wants a frame (sunset roadmap 0002 probe T0.3, ADR-0014).
+        .executableTarget(name: "HandoffProbe", dependencies: ["VTModel"], path: "Probes/HandoffProbe", swiftSettings: probeSettings)
     ]
 )
