@@ -1,4 +1,4 @@
-# The terminal (name undecided) — Project White Paper
+# Sunset — Project White Paper
 
 The rules this package runs on. **Paste this at the start of every iteration.** They are adopted from TerminalKit's white paper
 (`g-cqd/TerminalKit`, `docs/WHITE-PAPER.md`), which is the same law that governs `ask`; where the three diverge, that is a defect to

@@ -22,3 +22,13 @@ Intended design; why is in the ADRs; measurements are in the diary. **Nothing is
 ## Verification ladder (white paper §3, §9)
 
 byte-exact tests → oracle model → real-emulator differential tests (kitty, ghostty, wezterm, Terminal.app, SwiftTerm, libghostty as processes) → `vttest`, `esctest`, `vtebench` → fuzzing and session replay.
+
+## Performance architecture (hypotheses from research/performance-study.md; each gated by a probe, roadmap 0002 and 0014)
+
+- Hot cell ≤ 8 bytes, page-local reference-counted styles, offsets not pointers, bitmap-allocated graphemes (ADR-0012).
+- Cold scrollback re-encoded structurally and decoded per row; retired pages returned to the OS (ADR-0013).
+- Reader owns the screen; the renderer never takes a lock: frame-wanted flag, dirty rows published to a triple buffer (ADR-0014).
+- Parse straight into cells in vector-scanned runs, no intermediate action objects; SIMD path differentially tested against a scalar path.
+- GPU reads cell memory directly on unified-memory Macs; side buffer for shaped rows (ADR-0015, a bet).
+- Frames latched late against vsync; nothing scheduled when nothing changed (ADR-0016).
+- Bounded everything; synchronized output has a timeout.
