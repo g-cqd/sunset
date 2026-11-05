@@ -1,6 +1,7 @@
 ---
 status: accepted
 date: 2026-11-05
+superseded-in-part-by: 0018 (tooling)
 ---
 
 # 0017 — Benchmarks run under a standard heavy-contention profile; the gate is a deterministic metric
