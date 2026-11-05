@@ -114,7 +114,7 @@ proves nothing.
 
 - **Benchmarks run under the standard heavy-contention profile** (one spinning thread per logical CPU at the benchmark's QoS; ADR-0017), report **p50/p90/p99 of per-pass times** and name the profile and ambient load, and compare variants **interleaved in one window**.
 - **Benchmarks are ordo-one/benchmark suites** in a package of their own, pinned exactly, release only (ADR-0018); hand probes are research, not gates.
-- **Regression gates are deterministic**: instructions retired per unit of work (`proc_pid_rusage`), allocations, bytes. Wall percentiles are the realism check.
+- **Regression gates are deterministic**: instructions retired per unit of work (`proc_pid_rusage`), allocations, bytes. Wall percentiles are the realism check, reported and read by a person, never a threshold (ADR-0019).
 
 - **No optimisation without a measurement showing the bottleneck and a second measurement proving the
   fix** — before/after, same harness, same inputs, same build, with units.
