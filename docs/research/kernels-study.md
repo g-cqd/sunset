@@ -133,3 +133,7 @@ All four variants end in the same screen (checksum) and hand tests pass (wrap, s
 - **Cold structural encoding of evicted rows, live in the parse loop (single thread, allocating, deliberately naive):** on an 8.5 MiB coloured log built from real text, **57 bytes per row** against 960 for a hot row of 120 cells (5.9%, 0.47 B/cell, matching the 0.45 B/cell of the earlier synthetic probe), 7 B/row on near-empty rows; encode 0.1–0.45 µs per row (+7.5 ms/MiB on the log stream if done on the parse thread), a cold walk of 138,233 rows in 5 ms (**36 ns per row**).
   Evicted rows are immutable, so encoding belongs on a worker thread, costing the parser nothing; the numbers above are an upper bound for it. Encoders for 8, 16 and 32-byte cells produce identical output on both streams (checked).
 - Still not measured: the real transcript corpus, truecolor-heavy output, reflow, LZ4 after structural (kernel not written), page-local style sets with splits.
+
+### 7c. Real-text cold history (T0.2) [probed, deterministic]
+
+On 16 and 64 MiB of rendered ask-session text (ADR-0013 evidence): LZ4 of raw 8-byte-cell pages 100.6 B/row; structural 59.8; **structural then LZ4: 27.3 (3.7× smaller than LZ4 of raw)**. So the LZ4 kernel's job in Sunset is compressing small structural segments (cold history, snapshots), not raw cell pages, and the structural encoder/decoder is the first codec to write (roadmap 0015, item "structural row encoder").

@@ -10,6 +10,8 @@ package class Screen {
     package var cursorRow: Int { fatalError() }
     package var coldRows: Int { fatalError() }
     package var coldBytes: Int { fatalError() }
+    package var coldData: [UInt8] { fatalError() }
+    package func setEvictSink(_ f: @escaping (UnsafeRawBufferPointer) -> Void) { fatalError() }
 }
 @inline(__always) func snapshotWords(_ m: Model<C8>, into dst: UnsafeMutablePointer<UInt64>) {
     for y in 0..<m.rows { (dst + y * m.cols).update(from: UnsafeRawPointer(m.rowPtr(y)).assumingMemoryBound(to: UInt64.self), count: m.cols) }
@@ -23,6 +25,8 @@ final class Screen8: Screen {
     override var cursorRow: Int { m.cy }
     override var coldRows: Int { m.coldRows }
     override var coldBytes: Int { m.cold.count }
+    override var coldData: [UInt8] { m.cold }
+    override func setEvictSink(_ f: @escaping (UnsafeRawBufferPointer) -> Void) { m.evictHook = f }
 }
 final class Screen16: Screen {
     let m: Model<C16>
@@ -33,6 +37,8 @@ final class Screen16: Screen {
     override var cursorRow: Int { m.cy }
     override var coldRows: Int { m.coldRows }
     override var coldBytes: Int { m.cold.count }
+    override var coldData: [UInt8] { m.cold }
+    override func setEvictSink(_ f: @escaping (UnsafeRawBufferPointer) -> Void) { m.evictHook = f }
 }
 final class Screen32: Screen {
     let m: Model<C32>
@@ -43,6 +49,8 @@ final class Screen32: Screen {
     override var cursorRow: Int { m.cy }
     override var coldRows: Int { m.coldRows }
     override var coldBytes: Int { m.cold.count }
+    override var coldData: [UInt8] { m.cold }
+    override func setEvictSink(_ f: @escaping (UnsafeRawBufferPointer) -> Void) { m.evictHook = f }
 }
 package enum CellKind: String, CaseIterable { case c8 = "C8", c16 = "C16", c32 = "C32" }
 package func makeScreen(_ kind: CellKind, sb: Int = 0, cold: Bool = false) -> Screen {

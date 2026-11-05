@@ -47,6 +47,8 @@ let package = Package(
         // Not a benchmark: who holds the screen when a renderer wants a frame (sunset roadmap 0002 probe T0.3, ADR-0014).
         // Not a benchmark: GPU reads the screen's cells vs CPU-rebuilt instances (sunset roadmap 0002 probe T0.5, ADR-0015).
         .executableTarget(name: "MetalProbe", path: "Probes/MetalProbe", swiftSettings: probeSettings),
+        // Not a benchmark: bytes per cell of cold history, structural encoding vs the platform's compressors, on real text (sunset roadmap 0002 probes T0.2).
+        .executableTarget(name: "ColdHistoryProbe", dependencies: ["VTModel"], path: "Probes/ColdHistoryProbe", swiftSettings: [.swiftLanguageMode(.v5)]),
         .executableTarget(name: "HandoffProbe", dependencies: ["VTModel"], path: "Probes/HandoffProbe", swiftSettings: probeSettings)
     ]
 )
