@@ -1,5 +1,6 @@
 ---
-status: proposed
+status: rejected
+superseded-by: 0021
 date: 2026-11-05
 ---
 
@@ -16,3 +17,5 @@ Page-aligned `mmap` screen pages wrapped as Metal buffers (`makeBuffer(bytesNoCo
 ## Open
 
 Micro-benchmark first: CPU-rebuilt instances vs direct cell reads at 120×40 and 300×80, frame CPU and GPU time. Risks: writer/GPU consistency, the shaping side channel, `bytesNoCopy` behaviour with decommitted pages. Reject if the win is not material.
+
+**Result (2026-11-05, probe T0.5):** not pursued; see ADR-0021.

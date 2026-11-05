@@ -24,3 +24,4 @@ Settles ADR-0005/0012–0016 with numbers; every probe in the same harness, rele
 - Probes 3, 5, 6, 7 not started.
 - Probe 3 (handoff): built (`Benchmarks/Probes/HandoffProbe`); unfair-lock starvation confirmed (p99 up to 384 ms, max 1.03 s); ranking of the other variants not established at load 39-43; re-run owed.
 - A measured side result: hot generic code must stay `internal` behind a non-generic facade (ADR-0020).
+- Probe 5 (Metal direct read): done, not supported (ADR-0021). Probes 6 (scheduling, idle wakeups) and 7 (reflow, backpressure) not started; probes 1-4 as above.
