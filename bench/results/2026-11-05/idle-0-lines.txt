@@ -1,0 +1,5 @@
+kitty      lines=0        pid=75994 (kitty) footprint_MB=101.6 peak_footprint_MB=166.3 intr_wakeups_per_s=4.4 idle_wakeups_per_s=0.0 Minstr_per_s=2.432 Mcyc_per_s=4.495 cpu_ms_per_s=0.05
+ghostty    lines=0        pid=76290 (ghostty) footprint_MB=133.6 peak_footprint_MB=138.9 intr_wakeups_per_s=14.8 idle_wakeups_per_s=0.0 Minstr_per_s=5.729 Mcyc_per_s=8.661 cpu_ms_per_s=0.08
+./idle.sh: line 29: 76536 Terminated: 15          /Applications/WezTerm.app/Contents/MacOS/wezterm --config-file /dev/null --config "scrollback_lines=100000" --config "initial_cols=$COLS" --config "initial_rows=$ROWS" --config "font_size=$SIZE" --config "font=wezterm.font('$FONT')" start --always-new-process -- sh -c "$CMD" > /dev/null 2>&1
+alacritty  lines=0        pid=76828 (alacritty) footprint_MB=78.4 peak_footprint_MB=179.3 intr_wakeups_per_s=0.3 idle_wakeups_per_s=0.0 Minstr_per_s=0.125 Mcyc_per_s=0.165 cpu_ms_per_s=0.00
+wezterm    lines=0        pid=77570 (wezterm-gui) footprint_MB=63.0 peak_footprint_MB=119.8 intr_wakeups_per_s=5.7 idle_wakeups_per_s=0.0 Minstr_per_s=3.702 Mcyc_per_s=3.549 cpu_ms_per_s=0.03
