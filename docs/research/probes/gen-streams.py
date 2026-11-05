@@ -5,9 +5,9 @@ import os
 B = "/tmp/ref/vtebench/benchmarks"; cols, lines = 120, 40
 os.makedirs("/tmp/probe/vtstreams", exist_ok=True)
 def w(name, data): open(f"/tmp/probe/vtstreams/{name}.bin", "wb").write(data); print(name, len(data))
-w("scrolling", b"y\n" * 524288)
-fs = b"".join((chr(65 + i % 26) * cols).encode() + b"\n" for i in range(26)); w("scrolling_fullscreen", fs * (1048576 // len(fs) + 1))
-w("scrolling_top_region", b"\x1b[?1049h\x1b[2;40r" + b"y\n" * 524288)
+w("scrolling", b"y\r\n" * 349525)   # ONLCR: the tty turns \n into \r\n before the terminal sees it
+fs = b"".join((chr(65 + i % 26) * cols).encode() + b"\r\n" for i in range(26)); w("scrolling_fullscreen", fs * (1048576 // len(fs) + 1))
+w("scrolling_top_region", b"\x1b[?1049h\x1b[2;40r" + b"y\r\n" * 349525)
 out = bytearray(); offset = 0
 while len(out) < 1048576:
     for ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
@@ -19,4 +19,4 @@ while len(out) < 1048576:
         if len(out) >= 1048576: break
 w("dense_cells", bytes(out))
 vs = open(f"{B}/sync_medium_cells/vim_session", "rb").read(); w("medium_cells", vs * (1048576 // len(vs) + 1))
-sy = open(f"{B}/unicode/symbols", "rb").read(); w("unicode", sy * (1048576 // len(sy) + 1))
+sy = open(f"{B}/unicode/symbols", "rb").read().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"); w("unicode", sy * (1048576 // len(sy) + 1))

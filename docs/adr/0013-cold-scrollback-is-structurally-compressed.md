@@ -16,3 +16,7 @@ Rows that have scrolled out of the hot region are re-encoded as UTF-8 text + sty
 ## Open
 
 Bytes per cell and decode µs per row on the ADR-0021 corpus (139 agent transcripts, 225 MB, local) for raw, LZ4-of-page and structural; and on truecolor-heavy synthetic output, where structure may lose. If LZ4-of-page wins on both, this ADR is rejected.
+
+## Evidence so far (research/kernels-study.md §§2, 7b)
+
+Synthetic pages from real text: structural 0.45 B/cell vs LZ4_RAW of raw pages 0.82 (platform LZ4, 4.1 GB/s decode). Live encoder on an 8.5 MiB coloured log: 57 B per row (5.9% of a 120-cell hot row), cold walk 36 ns/row, encode 0.1–0.45 µs/row single-threaded and naive. Real transcript corpus and truecolor output still open.
