@@ -1,8 +1,7 @@
-# The terminal (name undecided)
+# Sunset
 
-A terminal emulator written in Swift on our own tooling: kitty-graphics compatible and modern-protocol complete, built for performance, safety, resilience, reliability and security,
-with colour accuracy, GPU acceleration and good typography as first-class goals. macOS first; Linux is a real target. The repository directory is `terminal-tbd` until the name is chosen; nothing
-in the code or documents should bake the placeholder in. (`Aemi*` names are for dependencies, never end products.)
+Sunset is a terminal emulator written in Swift on our own tooling: kitty-graphics compatible and modern-protocol complete, built for performance, safety, resilience, reliability and security,
+with colour accuracy, GPU acceleration and good typography as first-class goals. macOS first; Linux is a real target. (`Aemi*` names are for dependencies, never end products; the name was chosen by the owner on 2026-11-05, ADR-0011.)
 
 **Status: design and research. No code yet.**
 

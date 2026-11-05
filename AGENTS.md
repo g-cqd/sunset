@@ -1,4 +1,4 @@
-# Working in the terminal repository
+# Working in Sunset
 
 Read [docs/WHITE-PAPER.md](docs/WHITE-PAPER.md) first; it binds everything below.
 

@@ -1,6 +1,7 @@
 ---
 status: accepted
 date: 2026-11-05
+name-superseded-by: 0011
 ---
 
 # 0001 — A repository of its own, our own emulator core, name undecided
