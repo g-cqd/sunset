@@ -55,6 +55,7 @@ final class Model<C: CellType> {
     var style = Style(), styleId: UInt64 = 0
     var styles: [Style: UInt16] = [Style(): 0]; var styleCount = 1
     var cold = [UInt8](); var coldRows = 0; let coldOn: Bool
+    var evictHook: ((UnsafeRawBufferPointer) -> Void)?              // receives the raw bytes of a row as it leaves the hot ring (research probes)
     var state = 0; var params = [Int](repeating: 0, count: 16); var nparams = 0; var cur = -1; var csiPrivate = false
 
     init(cols: Int, rows: Int, sbCap: Int, cold: Bool) {
@@ -119,6 +120,7 @@ final class Model<C: CellType> {
             else {                                                                    // reuse the oldest hot scrollback row (encode it cold first)
                 slot = sbRing[sbHead]; sbHead = (sbHead + 1) % sbCap; sbCount -= 1
                 if coldOn { encodeCold(cells + Int(slot) * cols) }
+                if let h = evictHook { h(UnsafeRawBufferPointer(start: cells + Int(slot) * cols, count: cols * MemoryLayout<C>.stride)) }
             }
             sbRing[(sbHead + sbCount) % sbCap] = retired; sbCount += 1
             rowMap[rows - 1] = slot
