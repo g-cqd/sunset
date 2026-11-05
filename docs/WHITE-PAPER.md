@@ -112,6 +112,9 @@ proves nothing.
 
 ## 2. Performance doctrine
 
+- **Benchmarks run under the standard heavy-contention profile** (one spinning thread per logical CPU at the benchmark's QoS; ADR-0017), report **p50/p90/p99 of per-pass times** and name the profile and ambient load, and compare variants **interleaved in one window**.
+- **Regression gates are deterministic**: instructions retired per unit of work (`proc_pid_rusage`), allocations, bytes. Wall percentiles are the realism check.
+
 - **No optimisation without a measurement showing the bottleneck and a second measurement proving the
   fix** — before/after, same harness, same inputs, same build, with units.
 - **Release only.** A debug build measures a program nobody ships.

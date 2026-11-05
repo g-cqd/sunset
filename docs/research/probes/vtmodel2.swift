@@ -5,6 +5,14 @@ import Foundation
 @inline(__always) func nowNs() -> UInt64 { clock_gettime_nsec_np(CLOCK_UPTIME_RAW) }
 struct Style: Hashable { var fg: UInt32 = 0, bg: UInt32 = 0, attrs: UInt8 = 0 }
 
+
+func procCounters() -> (instructions: UInt64, cycles: UInt64) {
+    var ri = rusage_info_v4()
+    let rc = withUnsafeMutablePointer(to: &ri) { p in p.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) { proc_pid_rusage(getpid(), RUSAGE_INFO_V4, $0) } }
+    precondition(rc == 0, "proc_pid_rusage failed")
+    return (ri.ri_instructions, ri.ri_cycles)
+}
+
 protocol CellType {
     static var zero: Self { get }
     static var inlineStyle: Bool { get }
@@ -257,6 +265,20 @@ do { let m = Model<C8>(cols: 10, rows: 3, sbCap: 4, cold: true)
      precondition(txt(0) == "six" || txt(1) == "seven", "visible rows wrong: \(txt(0))|\(txt(1))|\(txt(2))")
      precondition(m.sbCount == 4 && m.coldRows >= 1, "scrollback accounting wrong: sb \(m.sbCount) cold \(m.coldRows)") }
 
+if ProcessInfo.processInfo.environment["QUICK"] != nil {
+    // per-pass times: p50 and p90 over 41 passes (percentiles, not the best run: under contention the best run hides what a user gets)
+    var line = "QUICK"
+    for n in ["scrolling", "dense_cells", "log"] {
+        let d = load(n); var xs: [Double] = []; var ins: [Double] = [], cyc: [Double] = []
+        for _ in 0..<41 {
+            let m = Model<C8>(cols: 120, rows: 40, sbCap: 0, cold: false); let c0 = procCounters(); let t0 = nowNs(); runChunked(m, d); let dt = Double(nowNs() - t0) / 1e6; let c1 = procCounters()
+            let scale = 1048576 / Double(d.count); xs.append(dt * scale); ins.append(Double(c1.instructions - c0.instructions) * scale / 1e6); cyc.append(Double(c1.cycles - c0.cycles) * scale / 1e6)
+        }
+        xs.sort(); ins.sort(); cyc.sort()
+        line += String(format: " %@_p50=%.3f %@_p90=%.3f %@_Minstr=%.3f %@_Mcyc=%.3f", n as NSString, xs[20], n as NSString, xs[36], n as NSString, ins[20], n as NSString, cyc[20])
+    }
+    print(line); exit(0)
+}
 let streams = ["scrolling", "scrolling_fullscreen", "scrolling_top_region", "dense_cells", "medium_cells", "unicode", "log"]
 print("== A. cell width (T0.1 proxy): ms per MiB, scrollback off, lower is better; bytes per cell 8 / 16 / 32 (32 = colours inline, no style table)")
 print(String(format: "%-22@ %8@ %8@ %8@", "stream" as NSString, "C8" as NSString, "C16" as NSString, "C32" as NSString))
