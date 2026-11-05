@@ -1,0 +1,13 @@
+median ms (p90 ms) per sample; samples n; lower is better
+
+benchmark                                    alacritty               ghostty           kitty-tuned                 kitty               wezterm
+dense_cells                               28 (41) n=10          14 (16) n=10          22 (24) n=10          22 (29) n=10          23 (25) n=10
+medium_cells                              18 (20) n=10          14 (16) n=10          15 (17) n=10          18 (20) n=10          74 (84) n=10
+scrolling                                76 (139) n=10          46 (53) n=10        116 (179) n=10        153 (235) n=10        150 (152) n=10
+scrolling_bottom_region                  98 (134) n=10          31 (33) n=10          56 (69) n=10         88 (103) n=10        138 (140) n=10
+scrolling_bottom_small_region             47 (56) n=10          31 (32) n=10          54 (67) n=10         82 (104) n=10        122 (137) n=10
+scrolling_fullscreen                     96 (167) n=10          39 (43) n=10        228 (235) n=10         432 (452) n=6        157 (158) n=10
+scrolling_top_region                      60 (65) n=10          25 (28) n=10          42 (54) n=10          81 (99) n=10        128 (129) n=10
+scrolling_top_small_region                32 (34) n=10          27 (28) n=10          54 (64) n=10         92 (115) n=10        117 (125) n=10
+sync_medium_cells                         25 (26) n=10          10 (11) n=10          33 (38) n=10          38 (39) n=10        234 (274) n=10
+unicode                                   18 (22) n=10           9 (10) n=10         364 (425) n=8        190 (403) n=10         93 (215) n=10
