@@ -19,3 +19,7 @@ Read (research/performance-study.md): Ghostty's cell is 8 bytes (codepoint or an
 ## Open (probe T0, roadmap 0002)
 
 Time and bytes per cell on ASCII, SGR-dense and truecolor-gradient streams for: 8 B + page styles, 16 B + page styles, inline colours (kitty-like), interned global table. Refines and, if confirmed, supersedes ADR-0005.
+
+## Evidence so far (research/kernels-study.md §7b, probes/vtmodel2.swift; noisy machine)
+
+8 / 16 / 32-byte cells in one Swift state machine: scrolling 5.2 / 7.6 / 19.9 ms/MiB (quiet window), ratios stable under load; SGR-dense stream 5.7 / 5.7 / 4.6 (inline colours skip a style lookup). Supports the 8-byte hot cell; shows the style lookup is the cost to engineer (cache last style; page-local table). Not yet probed: page-local tables with page splits, truecolor gradients over many pages.

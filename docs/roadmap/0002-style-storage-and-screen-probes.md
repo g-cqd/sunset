@@ -15,3 +15,10 @@ Settles ADR-0005/0012–0016 with numbers; every probe in the same harness, rele
 5. Metal micro-benchmark: CPU-rebuilt instances vs direct cell reads (ADR-0015).
 6. Frame scheduling proxy and idle wakeups (ADR-0016).
 7. Reflow cost on a large scrollback; reader backpressure with a slow consumer.
+
+## Progress (2026-11-05)
+
+- Probe 1 (cell format): first round done on an 8/16/32-byte model (kernels-study §7b); page splits and truecolor gradients open.
+- Probe 2 (cold history): live structural encoder measured on a real-text log; real transcript corpus open.
+- Probe 4 (parser): Swift model floor measured (0.6–10 ms/MiB on vtebench-like streams, noisy); safe `Span` variant, graphemes, paged styles open. Note a stream-generator error (missing ONLCR) found and fixed.
+- Probes 3, 5, 6, 7 not started.
