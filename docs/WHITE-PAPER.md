@@ -194,7 +194,7 @@ dependency is an architectural decision**.
 
 - **Only our own tooling** (the Aemi family and the other g-cqd packages). Generic pieces are promoted into Aemi when a second consumer is plausible.
 - **Platform APIs are not dependencies** (libc; Metal, CoreText, CoreGraphics, AppKit; the kernel PTY, Vulkan, Wayland/X11 on Linux), and are
-  reached through a seam, never from the platform-free core. See ADR-0002 (pending confirmation).
+  reached through a seam, never from the platform-free core. See ADR-0002 (accepted: g-cqd and Aemi-Studio packages freely, Apple/swiftlang ones on approval).
 - **Other terminals (kitty, ghostty, wezterm, Terminal.app) and other emulator libraries (SwiftTerm, libghostty) are oracles**: run as separate
   processes in tests and benchmarks, never linked.
 
