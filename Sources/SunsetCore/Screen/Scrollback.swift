@@ -7,12 +7,14 @@
 struct Scrollback: Sendable {
     static let chunkLines = 128
 
-    /// A line is kept without its trailing blank cells (see `push`): `ends[i]` is where line `i` ends in `cells`, and it starts where line `i - 1` ended.
+    /// A line is kept without its trailing blank cells (see `push`): `ends[i]` is where line `i` ends in `cells` (it starts where line `i - 1` ended), and
+    /// the top bit says that the line continues on the next (it wrapped): one array to append to per line instead of two.
     private struct Chunk: Sendable {
         var cells = ContiguousArray<Cell>()
         var ends = ContiguousArray<UInt32>()
-        var wrapped = ContiguousArray<Bool>()
     }
+
+    private static let wrappedBit: UInt32 = 1 << 31
 
     let columns: Int
     let limit: Int
@@ -35,18 +37,18 @@ struct Scrollback: Sendable {
     var storedCells: Int { chunks.reduce(0) { $0 + $1.cells.count } }
 
     /// Lines held in memory, the ones past the limit that are not yet released included.
-    var storedLines: Int { chunks.reduce(0) { $0 + $1.wrapped.count } }
+    var storedLines: Int { chunks.reduce(0) { $0 + $1.ends.count } }
 
     subscript(line: Int, column: Int) -> Cell {
         let (chunk, index) = locate(line)
-        let start = index == 0 ? 0 : Int(chunks[chunk].ends[index - 1])
-        let end = Int(chunks[chunk].ends[index])
+        let start = index == 0 ? 0 : Int(chunks[chunk].ends[index - 1] & ~Self.wrappedBit)
+        let end = Int(chunks[chunk].ends[index] & ~Self.wrappedBit)
         return column < end - start ? chunks[chunk].cells[start + column] : .empty
     }
 
     func isWrapped(_ line: Int) -> Bool {
         let (chunk, index) = locate(line)
-        return chunks[chunk].wrapped[index]
+        return chunks[chunk].ends[index] & Self.wrappedBit != 0
     }
 
     private func locate(_ line: Int) -> (chunk: Int, index: Int) {
@@ -70,11 +72,10 @@ struct Scrollback: Sendable {
         precondition(line.count == columns, "a scrollback line is as wide as the screen was")
         if count == limit { dropOldest() }
         var newest = chunks.count - 1
-        if newest < 0 || chunks[newest].wrapped.count == Self.chunkLines {
+        if newest < 0 || chunks[newest].ends.count == Self.chunkLines {
             var fresh = spare ?? Chunk()
             spare = nil
             fresh.ends.reserveCapacity(Self.chunkLines)
-            fresh.wrapped.reserveCapacity(Self.chunkLines)
             chunks.append(fresh)
             newest = chunks.count - 1
         }
@@ -84,9 +85,8 @@ struct Scrollback: Sendable {
             if used > 0, let base = cells.baseAddress {
                 chunks[newest].cells.append(contentsOf: UnsafeBufferPointer(start: base, count: used))
             }
-            chunks[newest].ends.append(UInt32(chunks[newest].cells.count))
+            chunks[newest].ends.append(UInt32(chunks[newest].cells.count) | (isWrapped ? Self.wrappedBit : 0))
         }
-        chunks[newest].wrapped.append(isWrapped)
         count += 1
     }
 
@@ -98,7 +98,6 @@ struct Scrollback: Sendable {
             var released = chunks.removeFirst()
             released.cells.removeAll(keepingCapacity: true)
             released.ends.removeAll(keepingCapacity: true)
-            released.wrapped.removeAll(keepingCapacity: true)
             spare = released
             head = 0
         }
