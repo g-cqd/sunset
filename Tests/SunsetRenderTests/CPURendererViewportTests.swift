@@ -48,7 +48,7 @@ import Testing
         rig.frame("\u{1B}[3;3Hxy", scrolledBack: 2)
         var fresh = Surface(width: rig.surface.width, height: rig.surface.height)
         CPURenderer(metrics: metrics, glyphs: BoxGlyphSource())
-            .render(rig.terminal.screen, into: &fresh, scrolledBack: 2)
+            .render(rig.terminal.screen, into: &fresh, view: FrameView(scrolledBack: 2))
         #expect(fresh.pixels == rig.surface.pixels)
     }
 }

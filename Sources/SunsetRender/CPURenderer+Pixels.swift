@@ -47,6 +47,16 @@ extension CPURenderer {
         return Surface.pack(RGB(UInt8(red), UInt8(green), UInt8(blue)))
     }
 
+    /// The colours a style is drawn in, after inverse and faint.
+    func colors(of style: CellStyle, frame: Frame) -> (foreground: RGB, background: RGB) {
+        let palette = frame.screen.palette
+        var foreground = palette.resolve(style.foreground) ?? frame.foreground
+        var background = palette.resolve(style.background) ?? frame.background
+        if style.attributes.contains(.inverse) { swap(&foreground, &background) }
+        if style.attributes.contains(.faint) { foreground = mix(foreground, background) }
+        return (foreground, background)
+    }
+
     func mix(_ first: RGB, _ second: RGB) -> RGB {
         RGB(
             UInt8((Int(first.red) + Int(second.red)) / 2),

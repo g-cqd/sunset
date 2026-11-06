@@ -30,6 +30,8 @@ import SunsetRenderMac
     @ObservationIgnored var selection: Selection?
     @ObservationIgnored var gesture: SelectionGesture?
     @ObservationIgnored var lastScreen: Screen?
+    /// The link under the pointer (an id into the last screen's link table), drawn underlined; 0 for none.
+    @ObservationIgnored var hoveredLink: UInt16 = 0
     /// Whether the program asked for the mouse (as of the last frame): its events go to it, not to the selection.
     var programHasMouse: Bool { (lastScreen?.modes.mouseTracking ?? .none) != .none }
     @ObservationIgnored var lastMotionCell: (column: Int, row: Int)?
@@ -181,8 +183,11 @@ import SunsetRenderMac
                 for: snapshot,
                 cursorVisible: phase || !snapshot.cursorBlinks,
                 textBlinkVisible: phase,
-                scrolledBack: self?.viewport.scrolledBack ?? 0,
-                selection: self?.selection
+                view: FrameView(
+                    scrolledBack: self?.viewport.scrolledBack ?? 0,
+                    selection: self?.selection,
+                    hoveredLink: self?.hoveredLink ?? 0
+                )
             )
             self?.presented(frame, title: snapshot.title, blinks: snapshot.cursorBlinks)
         }

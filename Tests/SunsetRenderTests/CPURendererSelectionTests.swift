@@ -71,7 +71,7 @@ import Testing
             rig.frame(cursorVisible: false, selection: selection)
             var fresh = Surface(width: rig.surface.width, height: rig.surface.height)
             CPURenderer(metrics: metrics, glyphs: BoxGlyphSource())
-                .render(rig.terminal.screen, into: &fresh, cursorVisible: false, selection: selection)
+                .render(rig.terminal.screen, into: &fresh, cursorVisible: false, view: FrameView(selection: selection))
             #expect(fresh.pixels == rig.surface.pixels, "\(selection)")
         }
     }

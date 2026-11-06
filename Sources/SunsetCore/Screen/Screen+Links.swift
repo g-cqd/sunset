@@ -4,6 +4,17 @@ extension Screen {
     /// The address of the link a cell belongs to, or nil.
     public func link(of cell: Cell) -> String? { links[styles[cell.styleID].link] }
 
+    /// The id of the link at a cell (stable while the screen lives; 0 is none), as a renderer is told which one is hovered.
+    public func linkID(row: Int, column: Int) -> UInt16? {
+        let id = styles[grid[row, column].styleID].link
+        return id == 0 ? nil : id
+    }
+
+    public func viewportLinkID(row: Int, column: Int, scrolledBack: Int) -> UInt16? {
+        let id = styles[viewportCell(row: row, column: column, scrolledBack: scrolledBack).styleID].link
+        return id == 0 ? nil : id
+    }
+
     public func link(row: Int, column: Int) -> String? { link(of: grid[row, column]) }
 
     public func viewportLink(row: Int, column: Int, scrolledBack: Int) -> String? {

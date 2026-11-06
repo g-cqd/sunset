@@ -26,6 +26,7 @@ public final class CPURenderer: CellRenderer {
     private var lastBlink = true
     private var lastScrolledBack = 0
     private var lastSelection: Selection?
+    private var lastHoveredLink: UInt16 = 0
     private var lastSelectionRows: ClosedRange<Int>?
     private var lastSize: (columns: Int, rows: Int)?
 
@@ -41,6 +42,7 @@ public final class CPURenderer: CellRenderer {
         lastPalette = nil
         lastScrolledBack = 0
         lastSelection = nil
+        lastHoveredLink = 0
         lastSelectionRows = nil
         lastSize = nil
     }
@@ -52,8 +54,7 @@ public final class CPURenderer: CellRenderer {
         into surface: inout Surface,
         cursorVisible: Bool = true,
         textBlinkVisible: Bool = true,
-        scrolledBack: Int = 0,
-        selection: Selection? = nil
+        view: FrameView = FrameView()
     ) {
         let size = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         precondition(
@@ -61,11 +62,13 @@ public final class CPURenderer: CellRenderer {
             "the surface is smaller than the grid"
         )
         let reverse = screen.modes.reverseVideo
-        let scrolledBack = min(max(scrolledBack, 0), screen.scrollbackCount)
+        let scrolledBack = min(max(view.scrolledBack, 0), screen.scrollbackCount)
+        let (selection, hoveredLink) = (view.selection, view.hoveredLink)
         let sizeChanged = lastSize.map { $0.columns != screen.columns || $0.rows != screen.rows } ?? true
         let full =
             sizeChanged || lastPalette != screen.palette || reverse != lastReverse || textBlinkVisible != lastBlink
-            || scrolledBack != lastScrolledBack || (scrolledBack > 0 && screen.hasDirtyRows)
+            || hoveredLink != lastHoveredLink || scrolledBack != lastScrolledBack
+            || (scrolledBack > 0 && screen.hasDirtyRows)
         let background = Surface.pack(reverse ? screen.palette.foreground : screen.palette.background)
         if full { fill(&surface, x: 0, y: 0, width: surface.width, height: surface.height, color: background) }
 
@@ -82,7 +85,8 @@ public final class CPURenderer: CellRenderer {
             background: reverse ? screen.palette.foreground : screen.palette.background,
             blinkVisible: textBlinkVisible,
             scrolledBack: scrolledBack,
-            selection: selection
+            selection: selection,
+            hoveredLink: hoveredLink
         )
         // The rows the selection covers now or covered in the last frame are drawn again when it changed.
         let selectionRows = selectionRows(of: selection, in: frame)
@@ -101,6 +105,7 @@ public final class CPURenderer: CellRenderer {
         lastBlink = textBlinkVisible
         lastScrolledBack = scrolledBack
         lastSelection = selection
+        lastHoveredLink = hoveredLink
         lastSelectionRows = selectionRows
         lastSize = (screen.columns, screen.rows)
     }
@@ -132,16 +137,7 @@ public final class CPURenderer: CellRenderer {
             drawCell(cell, at: Placement(row: row, column: column, span: span), frame: frame, surface: &surface)
             column += span
         }
-    }
-
-    /// The colours a style is drawn in, after inverse and faint.
-    func colors(of style: CellStyle, frame: Frame) -> (foreground: RGB, background: RGB) {
-        let palette = frame.screen.palette
-        var foreground = palette.resolve(style.foreground) ?? frame.foreground
-        var background = palette.resolve(style.background) ?? frame.background
-        if style.attributes.contains(.inverse) { swap(&foreground, &background) }
-        if style.attributes.contains(.faint) { foreground = mix(foreground, background) }
-        return (foreground, background)
+        if frame.hoveredLink != 0 { underlineHoveredLink(row: row, frame: frame, surface: &surface) }
     }
 
     func drawCell(_ cell: Cell, at place: Placement, frame: Frame, surface: inout Surface) {

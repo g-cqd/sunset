@@ -26,13 +26,14 @@ extension TerminalNSView {
     override func otherMouseDragged(with event: NSEvent) { report(.motion, .middle, event) }
 
     override func mouseMoved(with event: NSEvent) { report(.motion, .none, event) }
+    override func mouseExited(with event: NSEvent) { model.hover(pixelX: nil, pixelY: nil) }
 
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         if let trackingArea { removeTrackingArea(trackingArea) }
         let area = NSTrackingArea(
             rect: bounds,
-            options: [.mouseMoved, .activeInKeyWindow, .inVisibleRect],
+            options: [.mouseMoved, .mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect],
             owner: self,
             userInfo: nil
         )
