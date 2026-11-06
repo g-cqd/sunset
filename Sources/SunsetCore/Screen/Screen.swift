@@ -1,30 +1,104 @@
+/// The terminal's screen: a grid of cells, the cursor, the modes that shape editing, the scroll region and the alternate screen. It is the sink the
+/// parser feeds (`Screen+Sink.swift`). The screen is the truth; whoever draws it reads it and keeps its own caches (ADR-0024).
 public struct Screen: Sendable {
     public let columns: Int
     public let rows: Int
 
-    public init(columns: Int, rows: Int) {
-        self.columns = columns
-        self.rows = rows
+    var grid: Grid
+    /// The other screen: the alternate one while the primary is shown, and the reverse.
+    var other: Grid
+    public internal(set) var isAlternate = false
+    var styles = StyleTable()
+
+    var column = 0
+    var row = 0
+    var pendingWrap = false
+    var pen = CellStyle()
+    var penID: UInt16 = 0
+    var penIDIsCurrent = true
+    /// The style of cells that erasing makes: only the pen's background (back-colour erase).
+    var eraseID: UInt16 = 0
+    var eraseIDIsCurrent = true
+    var top = 0
+    var bottom: Int
+    var tabStops: ContiguousArray<Bool>
+    var lastPrinted: UInt32 = 0
+    var saved: SavedCursor?
+    var savedBeforeAlternate: SavedCursor?
+
+    var autoWrap = true
+    var originMode = false
+    var insertMode = false
+    var newLineMode = false
+    public internal(set) var cursorVisible = true
+
+    var dirtyRows: ContiguousArray<Bool>
+    public internal(set) var generation: UInt64 = 0
+    public internal(set) var bellCount = 0
+
+    struct SavedCursor: Sendable {
+        var column: Int
+        var row: Int
+        var pendingWrap: Bool
+        var pen: CellStyle
+        var originMode: Bool
     }
 
-    public func text(row: Int) -> String { "" }
-    public var cursorRow: Int { 0 }
-    public var cursorColumn: Int { 0 }
-}
+    public init(columns: Int, rows: Int) {
+        precondition(columns > 0 && rows > 0, "a screen has at least one cell")
+        self.columns = columns
+        self.rows = rows
+        grid = Grid(columns: columns, rows: rows)
+        other = Grid(columns: columns, rows: rows)
+        bottom = rows - 1
+        tabStops = Screen.defaultTabStops(columns)
+        dirtyRows = ContiguousArray(repeating: true, count: rows)
+    }
 
-extension Screen: VTSink {
-    public mutating func printASCII(_ run: Span<UInt8>) {}
-    public mutating func print(_ scalar: Unicode.Scalar) {}
-    public mutating func execute(_ control: UInt8) {}
-    public mutating func escape(_ intermediates: Intermediates, final: UInt8) {}
-    public mutating func csi(_ parameters: Parameters, marker: UInt8, intermediates: Intermediates, final: UInt8) {}
-    public mutating func stringStart(
-        _ kind: StringKind,
-        parameters: Parameters,
-        marker: UInt8,
-        intermediates: Intermediates,
-        final: UInt8
-    ) {}
-    public mutating func stringBytes(_ bytes: Span<UInt8>) {}
-    public mutating func stringEnd(completed: Bool) {}
+    static func defaultTabStops(_ columns: Int) -> ContiguousArray<Bool> {
+        ContiguousArray((0 ..< columns).map { $0 > 0 && $0 % 8 == 0 })
+    }
+
+    // MARK: Reading
+
+    public var cursorRow: Int { row }
+    public var cursorColumn: Int { column }
+
+    public func cell(row: Int, column: Int) -> Cell { grid[row, column] }
+    public func style(of cell: Cell) -> CellStyle { styles[cell.styleID] }
+    public func style(row: Int, column: Int) -> CellStyle { styles[grid[row, column].styleID] }
+    /// Whether the line at `row` continues on the next one (it wrapped).
+    public func isWrapped(row: Int) -> Bool { grid.wrapped[Int(grid.rowMap[row])] }
+
+    /// The row as text: empty cells are spaces, the second half of a wide character is skipped, trailing spaces are dropped.
+    public func text(row: Int) -> String {
+        var scalars = String.UnicodeScalarView()
+        for column in 0 ..< columns {
+            let cell = grid[row, column]
+            if cell.width == .spacerTail { continue }
+            scalars.append(Unicode.Scalar(cell.scalar == 0 ? 0x20 : cell.scalar) ?? "\u{FFFD}")
+        }
+        var text = String(scalars)
+        while text.last == " " { text.removeLast() }
+        return text
+    }
+
+    // MARK: Dirty rows (what a renderer must redraw, ADR-0024)
+
+    public func isDirty(row: Int) -> Bool { dirtyRows[row] }
+
+    /// Marks every row clean: the renderer has taken what it needed.
+    public mutating func clearDirty() {
+        for index in dirtyRows.indices { dirtyRows[index] = false }
+    }
+
+    mutating func markDirty(_ row: Int) {
+        dirtyRows[row] = true
+        generation &+= 1
+    }
+
+    mutating func markDirty(_ range: ClosedRange<Int>) {
+        for row in range { dirtyRows[row] = true }
+        generation &+= 1
+    }
 }

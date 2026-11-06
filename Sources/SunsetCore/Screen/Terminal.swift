@@ -7,6 +7,9 @@ public struct Terminal: Sendable {
         screen = Screen(columns: columns, rows: rows)
     }
 
+    /// Marks every row clean: the renderer has taken what it needed (ADR-0024).
+    public mutating func clearDirty() { screen.clearDirty() }
+
     public mutating func feed(_ bytes: Span<UInt8>) {
         parser.parse(bytes, into: &screen)
     }

@@ -1,0 +1,45 @@
+[25 / 101] MallocInterposerC
+[32 / 103] MallocInterposerC
+[45 / 102] MallocInterposerSwift
+[48 / 98] MallocInterposerSwift
+[49 / 98] MallocInterposerSwift-product
+parser/ascii (1 MiB)
+│ Instructions (M) *       │        10 │        11 │        11 │        11 │        11 │        11 │        11 │       300 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       300 │
+│ Time (wall clock) (μs) * │       769 │       826 │       832 │      2998 │     15106 │     55837 │     85716 │       300 │
+parser/cursor_moves (1 MiB)
+│ Instructions (M) *       │        81 │        81 │        81 │        81 │        81 │        82 │        82 │        97 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │        97 │
+│ Time (wall clock) (ms) * │         8 │        22 │        40 │        58 │        76 │        96 │        96 │        97 │
+parser/osc_titles (1 MiB)
+│ Instructions (M) *       │        21 │        21 │        21 │        21 │        21 │        21 │        21 │       300 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       300 │
+│ Time (wall clock) (μs) * │      1728 │      1777 │      2031 │      7344 │     23560 │     82182 │    149660 │       300 │
+parser/sgr_truecolor (1 MiB)
+│ Instructions (M) *       │        87 │        87 │        87 │        87 │        87 │        87 │        87 │        98 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │        98 │
+│ Time (wall clock) (ms) * │        10 │        26 │        39 │        51 │        66 │       120 │       120 │        98 │
+parser/unicode (1 MiB)
+│ Instructions (M) *       │        44 │        44 │        44 │        44 │        44 │        45 │        45 │       203 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       203 │
+│ Time (wall clock) (ms) * │         5 │         6 │        15 │        31 │        42 │        60 │        65 │       203 │
+terminal/ascii (1 MiB, 120x40)
+│ Instructions (M) *       │        50 │        50 │        50 │        50 │        50 │        51 │        51 │       128 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       128 │
+│ Time (wall clock) (ms) * │         3 │         3 │         8 │        23 │        44 │        62 │        68 │       128 │
+terminal/cursor_moves (1 MiB, 120x40)
+│ Instructions (M) *       │       142 │       142 │       142 │       142 │       142 │       142 │       142 │        46 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │        46 │
+│ Time (wall clock) (ms) * │        11 │        30 │        39 │        56 │        76 │        97 │        97 │        46 │
+terminal/osc_titles (1 MiB, 120x40)
+│ Instructions (M) *       │       102 │       102 │       102 │       102 │       102 │       102 │       102 │        70 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │        70 │
+│ Time (wall clock) (ms) * │         7 │        15 │        25 │        38 │        47 │        70 │        70 │        70 │
+terminal/sgr_truecolor (1 MiB, 120x40)
+│ Instructions (M) *       │       153 │       153 │       153 │       153 │       153 │       154 │       154 │        29 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │        29 │
+│ Time (wall clock) (ms) * │        14 │        41 │        61 │        75 │        92 │       117 │       117 │        29 │
+terminal/unicode (1 MiB, 120x40)
+│ Instructions (M) *       │       268 │       268 │       268 │       268 │       269 │       269 │       269 │        20 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │        20 │
+│ Time (wall clock) (ms) * │        51 │        84 │        95 │       102 │       116 │       158 │       158 │        20 │
