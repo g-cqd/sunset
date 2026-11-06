@@ -52,6 +52,9 @@ public struct VTParser: Sendable {
     var lowest: UInt8 = 0x80
     var highest: UInt8 = 0xBF
 
+    /// What an invalid UTF-8 sequence becomes.
+    static let replacement: Unicode.Scalar = "\u{FFFD}"
+
     public init(maxStringLength: Int = 1 << 20) {
         self.maxStringLength = maxStringLength
     }

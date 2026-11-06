@@ -1,15 +1,3 @@
-public struct RGB: Sendable, Equatable {
-    public var red: UInt8
-    public var green: UInt8
-    public var blue: UInt8
-
-    public init(_ red: UInt8, _ green: UInt8, _ blue: UInt8) {
-        self.red = red
-        self.green = green
-        self.blue = blue
-    }
-}
-
 /// The colours the program can read and change with OSC 4 and 10-12: the 256-colour palette and the default foreground, background and cursor
 /// colours. The host seeds it from the theme; a reset (OSC 104, 110-112) goes back to the seed.
 public struct Palette: Sendable, Equatable {

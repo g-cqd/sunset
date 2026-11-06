@@ -2,8 +2,6 @@ import Testing
 
 @testable import SunsetCore
 
-private let esc = "\u{1B}"
-
 @Suite("Character sets") struct ScreenCharsetTests {
     @Test func `DEC special graphics draw lines`() {
         #expect(make("\(esc)(0lqqk\r\nx  x\r\nmqqj\(esc)(B", 4, 3).lines == ["┌──┐", "│  │", "└──┘"])

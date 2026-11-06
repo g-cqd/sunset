@@ -75,10 +75,9 @@ public final class CPURenderer: CellRenderer {
             "the surface is smaller than the grid"
         )
         let reverse = screen.modes.reverseVideo
+        let sizeChanged = lastSize.map { $0.columns != screen.columns || $0.rows != screen.rows } ?? true
         let full =
-            lastSize == nil || lastSize!.columns != screen.columns || lastSize!.rows != screen.rows
-            || lastPalette != screen.palette
-            || reverse != lastReverse || textBlinkVisible != lastBlink
+            sizeChanged || lastPalette != screen.palette || reverse != lastReverse || textBlinkVisible != lastBlink
         let background = Surface.pack(reverse ? screen.palette.foreground : screen.palette.background)
         if full { fill(&surface, x: 0, y: 0, width: surface.width, height: surface.height, color: background) }
 

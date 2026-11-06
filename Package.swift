@@ -33,6 +33,8 @@ let package = Package(
         .executable(name: "sunset-render", targets: ["SunsetRenderTool"])
     ],
     dependencies: [
+        // Tests: the family's seeded generator, allocation counting and fuzz helpers (AemiTestKit). Pinned like TerminalKit's, which resolves the same revision.
+        .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "e30aad82377cbea62171cc722a88041e97021db2"),
         // Our own tooling (ADR-0002): terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
         .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "59668133b73f3d8ab77a347e03bbc778d929a2e6")
     ],
@@ -51,7 +53,7 @@ let package = Package(
         ),
         .testTarget(
             name: "SunsetRenderTests",
-            dependencies: ["SunsetRender", "SunsetCore"],
+            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetRender", "SunsetCore"],
             path: "Tests/SunsetRenderTests",
             swiftSettings: strictSettings
         ),
@@ -63,7 +65,7 @@ let package = Package(
         ),
         .testTarget(
             name: "SunsetRenderMacTests",
-            dependencies: ["SunsetRenderMac", "SunsetRender"],
+            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetRenderMac", "SunsetRender"],
             path: "Tests/SunsetRenderMacTests",
             swiftSettings: strictSettings
         ),
@@ -93,13 +95,13 @@ let package = Package(
         ),
         .testTarget(
             name: "SunsetHostTests",
-            dependencies: ["SunsetHost"],
+            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetHost"],
             path: "Tests/SunsetHostTests",
             swiftSettings: strictSettings
         ),
         .testTarget(
             name: "SunsetCoreTests",
-            dependencies: ["SunsetCore"],
+            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetCore"],
             path: "Tests/SunsetCoreTests",
             swiftSettings: strictSettings
         )
