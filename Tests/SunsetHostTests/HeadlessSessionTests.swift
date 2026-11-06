@@ -22,6 +22,14 @@ private func sh(_ script: String, columns: Int = 80, rows: Int = 24, environment
         #expect(session.wait { $0.screen.text(row: 0).hasPrefix("ttys") })
     }
 
+    @Test func `the terminal is the controlling terminal and the child's group is its foreground group`() throws {
+        // What job-control shells need (fish refused to start without it): tcgetpgrp works on stdin and /dev/tty can be opened.
+        let session = try sh(
+            "/usr/bin/perl -e 'use POSIX; print POSIX::tcgetpgrp(0) == getpgrp() ? \"foreground\" : \"not\"; print open(my $t, \"<\", \"/dev/tty\") ? \" devtty\" : \" nodevtty\"'"
+        )
+        #expect(session.wait { $0.screen.text(row: 0) == "foreground devtty" })
+    }
+
     @Test func `the window size is the one asked for, and a resize reaches the program`() throws {
         let session = try sh("stty size; read x; stty size", columns: 80, rows: 24)
         #expect(session.wait { $0.screen.text(row: 0) == "24 80" })
@@ -51,14 +59,7 @@ private func sh(_ script: String, columns: Int = 80, rows: Int = 24, environment
     @Test func `the exit status is reported`() throws {
         let session = try sh("exit 3")
         #expect(session.waitForExit())
-        var status = session.process.exitStatus()
-        var attempts = 0
-        while status == nil, attempts < 100 {
-            _ = session.pump(timeoutMilliseconds: 20)
-            status = session.process.exitStatus()
-            attempts += 1
-        }
-        #expect(status == 3)
+        #expect(session.process.exitStatusBlocking(waitingUpTo: 5000) == 3)
     }
 
     @Test func `the environment names the terminal and can be extended`() throws {
