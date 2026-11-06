@@ -69,6 +69,12 @@ public struct VTParser: Sendable {
                 while end < count, input[end] >= 0x20, input[end] < 0x7F { end += 1 }
                 sink.printASCII(input.extracting(index ..< end))
                 index = end
+            } else if state == .ground, pendingContinuations == 0, byte >= 0xC2,
+                let (scalar, length) = wholeScalar(in: input, at: index)
+            {
+                // A whole, valid sequence of two to four bytes is in the input: no state machine step per byte.
+                sink.print(scalar)
+                index += length
             } else if state == .string, !heldC2, isStringData(byte) {
                 var end = index + 1
                 while end < count, isStringData(input[end]) { end += 1 }
