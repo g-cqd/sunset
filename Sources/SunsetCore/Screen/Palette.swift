@@ -6,9 +6,9 @@ public struct Palette: Sendable, Equatable {
     public internal(set) var background: RGB
     public internal(set) var cursor: RGB
     private let seed: ContiguousArray<RGB>
-    private let seedForeground: RGB
-    private let seedBackground: RGB
-    private let seedCursor: RGB
+    private var seedForeground: RGB
+    private var seedBackground: RGB
+    private var seedCursor: RGB
 
     /// xterm's default colours.
     public init() {
@@ -54,6 +54,22 @@ public struct Palette: Sendable, Equatable {
                     UInt8(truncatingIfNeeded: color.packed)
                 )
             default: nil
+        }
+    }
+
+    /// The host's theme changes the default colours: both the colours in force and the ones a program's reset returns to.
+    mutating func setDefaults(foreground newForeground: RGB?, background newBackground: RGB?, cursor newCursor: RGB?) {
+        if let newForeground {
+            foreground = newForeground
+            seedForeground = newForeground
+        }
+        if let newBackground {
+            background = newBackground
+            seedBackground = newBackground
+        }
+        if let newCursor {
+            cursor = newCursor
+            seedCursor = newCursor
         }
     }
 

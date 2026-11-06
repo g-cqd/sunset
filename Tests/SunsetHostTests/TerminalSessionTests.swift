@@ -170,4 +170,14 @@ private func started(_ script: String, columns: Int = 80, rows: Int = 24) async 
         }
         #expect(sawClosed)
     }
+
+    @Test func `the host's default colours reach the screen, and the consumer is told`() async throws {
+        let session = try await started("sleep 5")
+        await session.setDefaultColors(foreground: RGB(9, 8, 7), background: RGB(1, 2, 3), cursor: nil)
+        let screen = await session.takeSnapshot()
+        #expect(screen.palette.foreground == RGB(9, 8, 7))
+        #expect(screen.palette.background == RGB(1, 2, 3))
+        #expect(screen.hasDirtyRows, "the renderer is to draw the new colours")
+        await session.stop()
+    }
 }

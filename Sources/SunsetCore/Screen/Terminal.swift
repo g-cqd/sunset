@@ -35,3 +35,12 @@ public struct Terminal: Sendable {
         text.withUTF8 { buffer in feed(buffer.span) }
     }
 }
+
+extension Terminal {
+    /// Sets the default foreground, background and cursor colours from the host's theme (nil leaves one as it is). A program's reset of them (OSC 110-112)
+    /// goes back to these. The palette's 256 entries are not touched. The whole screen is drawn again.
+    public mutating func setDefaultColors(foreground: RGB?, background: RGB?, cursor: RGB?) {
+        screen.palette.setDefaults(foreground: foreground, background: background, cursor: cursor)
+        screen.markDirty(0 ... screen.rows - 1)
+    }
+}
