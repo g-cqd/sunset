@@ -62,6 +62,7 @@ import SunsetRenderMac
             tasks = [
                 Task { await session.start() },
                 Task { [weak self] in await self?.watch(session) },
+                Task { [weak self] in await self?.watchHostEvents(session) },
                 Task { [weak self, events = input.stream] in
                     await Self.forward(events, to: session) { self?.unclaimed($0) }
                 },

@@ -18,6 +18,10 @@ public actor TerminalSession {
     /// What happened, newest first when the consumer is slow: only the latest update is kept.
     public nonisolated let updates: AsyncStream<Update>
     private let continuation: AsyncStream<Update>.Continuation
+    /// What the program asked the host to do (clipboard, notifications; ADR-0010), in order. The host applies its policy; a consumer that falls behind loses
+    /// the oldest.
+    public nonisolated let hostEvents: AsyncStream<HostEvent>
+    private let hostContinuation: AsyncStream<HostEvent>.Continuation
     private var terminal: Terminal
     private var reading: Task<Void, Never>?
     public private(set) var isClosed = false
@@ -39,6 +43,10 @@ public actor TerminalSession {
             directory: directory
         )
         (updates, continuation) = AsyncStream.makeStream(of: Update.self, bufferingPolicy: .bufferingNewest(1))
+        (hostEvents, hostContinuation) = AsyncStream.makeStream(
+            of: HostEvent.self,
+            bufferingPolicy: .bufferingNewest(64)
+        )
     }
 
     /// Starts reading the program's output. Call once.
@@ -54,6 +62,7 @@ public actor TerminalSession {
         bytes.withUnsafeBufferPointer { terminal.feed($0.span) }
         let replies = terminal.takeReplies()
         if !replies.isEmpty { process.send(replies) }
+        for event in terminal.takeEvents() { hostContinuation.yield(event) }
         continuation.yield(.changed)
     }
 
@@ -62,6 +71,7 @@ public actor TerminalSession {
         let status = await process.exitStatus(waitingUpTo: 2000)
         continuation.yield(.closed(status: status))
         continuation.finish()
+        hostContinuation.finish()
     }
 
     /// A copy of the screen as it is now; the dirty marks are the changes since the last snapshot, and the live screen's are cleared (see above).
