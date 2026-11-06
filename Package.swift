@@ -29,6 +29,8 @@ let package = Package(
         .library(name: "SunsetCore", targets: ["SunsetCore"]),
         // The host: a program on a pseudo-terminal feeding the core, with no window (roadmap 0004). The only target that imports the platform.
         .library(name: "SunsetHost", targets: ["SunsetHost"]),
+        // The configuration file: schema, defaults, validation and the difference between two configurations (roadmap 0017). Platform-free.
+        .library(name: "SunsetConfig", targets: ["SunsetConfig"]),
         // The CPU renderer: cells to pixels, the reference the GPU renderer is held to (ADR-0024). Platform-free; glyphs come from a `GlyphSource`.
         .library(name: "SunsetRender", targets: ["SunsetRender"]),
         // The macOS glyph source (CoreText), the platform seam of the renderer.
@@ -44,7 +46,9 @@ let package = Package(
         // Tests: the family's seeded generator, allocation counting and fuzz helpers (AemiTestKit). Pinned like TerminalKit's, which resolves the same revision.
         .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "e30aad82377cbea62171cc722a88041e97021db2"),
         // Our own tooling (ADR-0002): terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
-        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "59668133b73f3d8ab77a347e03bbc778d929a2e6")
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "59668133b73f3d8ab77a347e03bbc778d929a2e6"),
+        // The configuration file (roadmap 0017): JSON read by AemiJSON's engine. Pinned by revision, as the family does.
+        .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "aec8895f1bc9bdaf2104b0d0ebe91e4a93b3c374")
     ],
     targets: [
         .target(
@@ -92,7 +96,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "SunsetApp",
-            dependencies: ["SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
+            dependencies: ["SunsetConfig", "SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings
         ),
@@ -100,6 +104,18 @@ let package = Package(
             name: "SunsetRenderTool",
             dependencies: ["SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
             path: "Sources/SunsetRenderTool",
+            swiftSettings: strictSettings
+        ),
+        .target(
+            name: "SunsetConfig",
+            dependencies: [.product(name: "AemiJSONCore", package: "AemiJSON")],
+            path: "Sources/SunsetConfig",
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "SunsetConfigTests",
+            dependencies: ["SunsetConfig"],
+            path: "Tests/SunsetConfigTests",
             swiftSettings: strictSettings
         ),
         .target(
