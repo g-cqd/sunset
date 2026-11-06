@@ -10,6 +10,8 @@ import SunsetRenderMac
 @MainActor @Observable final class TerminalModel {
     private(set) var title = "Sunset"
     private(set) var isRunning = true
+    /// Whether text is selected (observed, so that the Copy menu item follows it).
+    var hasSelection = false
 
     @ObservationIgnored var presentFrame: (RenderedFrame) -> Void = { _ in }
     @ObservationIgnored var setDisplayLinkPaused: (Bool) -> Void = { _ in }
@@ -25,6 +27,11 @@ import SunsetRenderMac
     @ObservationIgnored private var cursorBlinks = true
     @ObservationIgnored private var viewPixels = (width: 0, height: 0)
     @ObservationIgnored var viewport = Viewport()
+    @ObservationIgnored var selection: Selection?
+    @ObservationIgnored var gesture: SelectionGesture?
+    @ObservationIgnored var lastScreen: Screen?
+    /// Whether the program asked for the mouse (as of the last frame): its events go to it, not to the selection.
+    var programHasMouse: Bool { (lastScreen?.modes.mouseTracking ?? .none) != .none }
     @ObservationIgnored var lastMotionCell: (column: Int, row: Int)?
     @ObservationIgnored let input = AsyncStream.makeStream(of: InputEvent.self)
     @ObservationIgnored private let sizes = AsyncStream.makeStream(
@@ -168,11 +175,13 @@ import SunsetRenderMac
         Task { [weak self] in
             let snapshot = await session.takeSnapshot()
             self?.viewport.follow(historyCount: snapshot.scrollbackCount)
+            self?.lastScreen = snapshot
             let frame = await renderer.frame(
                 for: snapshot,
                 cursorVisible: phase || !snapshot.cursorBlinks,
                 textBlinkVisible: phase,
-                scrolledBack: self?.viewport.scrolledBack ?? 0
+                scrolledBack: self?.viewport.scrolledBack ?? 0,
+                selection: self?.selection
             )
             self?.presented(frame, title: snapshot.title, blinks: snapshot.cursorBlinks)
         }

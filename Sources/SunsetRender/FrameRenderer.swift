@@ -17,9 +17,13 @@ public actor FrameRenderer {
     public nonisolated var cellMetrics: RenderMetrics { metrics }
 
     /// Draws `screen` (a snapshot: its dirty rows are what changed since the frame before) and returns the whole surface.
-    public func frame(for screen: Screen, cursorVisible: Bool, textBlinkVisible: Bool, scrolledBack: Int = 0)
-        -> RenderedFrame
-    {
+    public func frame(
+        for screen: Screen,
+        cursorVisible: Bool,
+        textBlinkVisible: Bool,
+        scrolledBack: Int = 0,
+        selection: Selection? = nil
+    ) -> RenderedFrame {
         let pixels = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         if surface == nil || size?.columns != screen.columns || size?.rows != screen.rows {
             surface = Surface(width: pixels.width, height: pixels.height)
@@ -33,7 +37,8 @@ public actor FrameRenderer {
             into: &drawn,
             cursorVisible: cursorVisible,
             textBlinkVisible: textBlinkVisible,
-            scrolledBack: scrolledBack
+            scrolledBack: scrolledBack,
+            selection: selection
         )
         let result = RenderedFrame(width: drawn.width, height: drawn.height, bytes: drawn.rgbaBytes)
         surface = drawn

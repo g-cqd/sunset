@@ -6,9 +6,18 @@ extension Screen {
         row + scrollback.count - min(max(scrolledBack, 0), scrollback.count)
     }
 
+    /// The cell at `column` of `line`, the lines counted from the oldest of the history.
+    func absoluteCell(line: Int, column: Int) -> Cell {
+        line < scrollback.count ? scrollback[line, column] : grid[line - scrollback.count, column]
+    }
+
+    /// Whether `line` continues on the next one (it wrapped).
+    func isAbsoluteWrapped(line: Int) -> Bool {
+        line < scrollback.count ? scrollback.isWrapped(line) : isWrapped(row: line - scrollback.count)
+    }
+
     public func viewportCell(row: Int, column: Int, scrolledBack: Int) -> Cell {
-        let line = line(row: row, scrolledBack: scrolledBack)
-        return line < scrollback.count ? scrollback[line, column] : grid[line - scrollback.count, column]
+        absoluteCell(line: line(row: row, scrolledBack: scrolledBack), column: column)
     }
 
     public func viewportText(row: Int, scrolledBack: Int) -> String {
@@ -23,7 +32,6 @@ extension Screen {
 
     /// Whether the line continues on the next one (it wrapped).
     public func isViewportWrapped(row: Int, scrolledBack: Int) -> Bool {
-        let line = line(row: row, scrolledBack: scrolledBack)
-        return line < scrollback.count ? scrollback.isWrapped(line) : isWrapped(row: line - scrollback.count)
+        isAbsoluteWrapped(line: line(row: row, scrolledBack: scrolledBack))
     }
 }

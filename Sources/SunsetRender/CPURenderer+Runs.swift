@@ -14,6 +14,7 @@ extension CPURenderer {
             default: break
         }
         if let cursor = frame.cursor, cursor.row == row, cursor.column == column { return false }
+        if frame.isSelected(row: row, column: column) { return false }
         let attributes = frame.screen.style(of: cell).attributes
         return !attributes.contains(.invisible) && !(attributes.contains(.blink) && !frame.blinkVisible)
     }

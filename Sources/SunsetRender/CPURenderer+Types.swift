@@ -11,6 +11,18 @@ extension CPURenderer {
         var blinkVisible: Bool
         /// How many lines of history the window is scrolled back.
         var scrolledBack = 0
+        var selection: Selection?
+
+        /// The line (counted from the oldest of the history) the top row of the window shows.
+        var firstLine: Int { screen.scrollbackCount - scrolledBack }
+
+        func isSelected(row: Int, column: Int) -> Bool {
+            selection?.contains(line: firstLine + row, column: column) ?? false
+        }
+
+        func isSelected(row: Int, column: Int, span: Int) -> Bool {
+            (0 ..< span).contains { isSelected(row: row, column: column + $0) }
+        }
 
         func cell(row: Int, column: Int) -> Cell {
             screen.viewportCell(row: row, column: column, scrolledBack: scrolledBack)
