@@ -1,0 +1,390 @@
+diff --git a/Sources/SunsetHost/OutputPump.swift b/Sources/SunsetHost/OutputPump.swift
+index 4043c8d..6f38cdf 100644
+--- a/Sources/SunsetHost/OutputPump.swift
++++ b/Sources/SunsetHost/OutputPump.swift
+@@ -1,73 +1,238 @@
+ internal import Darwin
++internal import Foundation
+ internal import Synchronization
+ 
+-/// Reads a pseudo-terminal's output on the thread that calls `run`, and hands every read to the caller at once, on that same thread.
++/// Moves a pseudo-terminal's output to the caller of `run` in two stages on two threads, the way Ghostty does (`termio/Exec.zig`, read there): a *gather*
++/// thread drains the kernel's queue into one of four rotating 64 KiB buffers, and the thread that called `run` (the *parse* stage) takes each filled buffer
++/// in order and hands it to the caller. While one buffer is parsed the next are being filled, so the child is not left waiting on a full kernel queue.
+ ///
+-/// A terminal's output arrives from the kernel in pieces of about a kilobyte (measured: 4 MB in 3154 reads). With a hop to another task for each piece (a
+-/// wake-up of a pool thread, an actor turn, and back) the hops cost more than the parse itself: 116 000 pieces a second, 70 % of the work of the app was
+-/// that overhead. Here the thread that reads also parses (the caller locks what it parses into), the way the fast terminals do, so a piece costs two system
+-/// calls and the parse. While the caller works the reader is not reading, and the child is slowed by the kernel's buffer (the backpressure a terminal must
+-/// give). It waits on the master and on a pipe that `stop` writes to, with no timeout: an idle terminal does not wake up.
++/// Why: the macOS tty queue hands the master about 1 KiB per read whatever the size asked for (measured here: 4 MB in 3154 reads). With one thread that reads
++/// and then parses, the child stalls during every parse.
++///
++/// Latency stays what it was for interactive output: a batch is delivered at the first moment the queue is empty unless the stream is *saturated* (a kilobyte or
++/// more gathered, so the writer filled the queue). Only then are the writer's microsecond refill gaps bridged, by up to 16 immediate re-reads and then a poll of
++/// 1 ms, and never for longer than 3 ms per batch; the parse stage cuts a bridge short the moment it has nothing left to parse. The gather stage waits with
++/// no timeout when there is nothing to read and the parse stage when there is nothing to parse: an idle terminal does not wake up. The ring is bounded, so
++/// when the parse stage falls behind the gather stage stops and the child is slowed by the kernel's queue (the backpressure a terminal must give).
+ final class OutputPump: Sendable {
++    static let slotCount = 4
++    static let slotSize = 64 * 1024
++    private static let saturation = 1024
++    private static let spinLimit = 16
++    private static let bridgeMilliseconds: Int32 = 1
++    private static let budget = Duration.milliseconds(3)
++
++    private struct Ring {
++        var lengths = [Int](repeating: 0, count: OutputPump.slotCount)
++        var head = 0
++        var tail = 0
++        var count = 0
++        /// The gather stage has ended (end of output, an error, or `stop`).
++        var done = false
++        var gatherExited = false
++        var stopped = false
++        var parseWaiting = false
++        var gatherWaiting = false
++        var bridging = false
++    }
++
+     private let master: Int32
+-    private let stopRead: Int32
+-    private let stopWrite: Int32
++    private let ring = Mutex(Ring())
+     private let polls = Mutex(0)
+-    private static let readSize = 128 * 1024
++    /// Written by `stop`, never drained: once set it stays set.
++    private let stopWake = PumpWake()
++    /// A batch was published (for a parse stage that is waiting).
++    private let readyWake = PumpWake()
++    /// A buffer was freed (for a gather stage that is waiting for one).
++    private let freeWake = PumpWake()
++    /// The parse stage has run out of work (for a gather stage that is bridging a gap).
++    private let idleWake = PumpWake()
+ 
+-    init(master: Int32) {
+-        self.master = master
+-        var ends: [Int32] = [-1, -1]
+-        if pipe(&ends) == 0 {
+-            for end in ends {
+-                _ = fcntl(end, F_SETFL, fcntl(end, F_GETFL) | O_NONBLOCK)
+-                _ = fcntl(end, F_SETFD, FD_CLOEXEC)
+-            }
+-        } else {
+-            ends = [-1, -1]
+-        }
+-        (stopRead, stopWrite) = (ends[0], ends[1])
+-    }
++    init(master: Int32) { self.master = master }
+ 
+-    deinit {
+-        if stopRead >= 0 { close(stopRead) }
+-        if stopWrite >= 0 { close(stopWrite) }
+-    }
++    deinit { for wake in [stopWake, readyWake, freeWake, idleWake] { wake.close() } }
+ 
+-    /// How many times the pump has gone to wait: an idle terminal must not make it wake.
++    /// How many times the gather stage has gone to wait for output: an idle terminal must not make it wake.
+     var wakeups: Int { polls.withLock { $0 } }
+ 
++    /// Bytes gathered and not yet consumed (the batch being parsed included).
++    var pendingBytes: Int {
++        ring.withLock { ring in
++            (0 ..< ring.count).reduce(0) { $0 + ring.lengths[(ring.tail + $1) % Self.slotCount] }
++        }
++    }
++
+     /// Ends `run` (a `stop` before the run began ends it as soon as it starts).
+     func stop() {
+-        guard stopWrite >= 0 else { return }
+-        var byte: UInt8 = 1
+-        _ = unsafe write(stopWrite, &byte, 1)
++        ring.withLock { $0.stopped = true }
++        stopWake.poke()
++        readyWake.poke()
++        freeWake.poke()
+     }
+ 
+-    /// Reads until the output ends or `stop`, calling `body` with each piece, in order. Blocks the calling thread.
++    // MARK: Parse stage
++
++    /// Calls `body` with each batch of output, in order, until the output ends or `stop`. Blocks the calling thread (this is the parse stage); the gather stage
++    /// runs on a thread of its own that this starts and joins.
+     func run(_ body: (UnsafeBufferPointer<UInt8>) -> Void) {
+         _ = fcntl(master, F_SETFL, fcntl(master, F_GETFL) | O_NONBLOCK)
+-        var buffer = [UInt8](repeating: 0, count: Self.readSize)
++        let storage = UnsafeMutablePointer<UInt8>.allocate(capacity: Self.slotCount * Self.slotSize)
++        let address = UInt(bitPattern: storage)
++        let pump = self
++        Thread.detachNewThread { pump.gather(into: address) }
++        defer {
++            stop()
++            // The gather stage still reads into the buffers until it has seen the stop: wait for it before they are freed.
++            while !ring.withLock({ $0.gatherExited }) {
++                var wait = pollfd(fd: readyWake.readEnd, events: Int16(POLLIN), revents: 0)
++                _ = unsafe poll(&wait, 1, 20)
++            }
++            unsafe storage.deallocate()
++        }
+         while true {
+-            // Read first: under a flood there is always something, and the wait is a system call saved per piece.
+-            let count = buffer.withUnsafeMutableBytes { raw -> Int in
+-                unsafe Darwin.read(master, raw.baseAddress, raw.count)
++            enum Step {
++                case batch(Int, Int)
++                case wait, finished
+             }
+-            if count > 0 {
+-                buffer.withUnsafeBufferPointer { body(UnsafeBufferPointer(rebasing: $0[0 ..< count])) }
+-                continue
++            let step = ring.withLock { ring -> Step in
++                if ring.stopped { return .finished }
++                if ring.count > 0 { return .batch(ring.tail, ring.lengths[ring.tail]) }
++                if ring.done { return .finished }
++                ring.parseWaiting = true
++                return .wait
+             }
+-            if count == 0 { return }
++            switch step {
++                case .finished:
++                    return
++                case .wait:
++                    var waits = [
++                        pollfd(fd: stopWake.readEnd, events: Int16(POLLIN), revents: 0),
++                        pollfd(fd: readyWake.readEnd, events: Int16(POLLIN), revents: 0)
++                    ]
++                    _ = unsafe poll(&waits, 2, -1)
++                    readyWake.drain()
++                    ring.withLock { $0.parseWaiting = false }
++                case .batch(let slot, let length):
++                    let start = unsafe UnsafePointer(storage + slot * Self.slotSize)
++                    body(unsafe UnsafeBufferPointer(start: start, count: length))
++                    let (wakeGather, interruptBridge) = ring.withLock { ring -> (Bool, Bool) in
++                        ring.tail = (ring.tail + 1) % Self.slotCount
++                        ring.count -= 1
++                        return (ring.gatherWaiting, ring.count == 0 && ring.bridging)
++                    }
++                    if wakeGather { freeWake.poke() }
++                    if interruptBridge { idleWake.poke() }
++            }
++        }
++    }
++
++    // MARK: Gather stage
++
++    private enum Read {
++        case data(Int)
++        case again, ended
++    }
++
++    private func read(into pointer: UnsafeMutablePointer<UInt8>, capacity: Int) -> Read {
++        while true {
++            let count = unsafe Darwin.read(master, pointer, capacity)
++            if count > 0 { return .data(count) }
++            if count == 0 { return .ended }
+             if errno == EINTR { continue }
+-            guard errno == EAGAIN else { return }
+-            polls.withLock { $0 += 1 }
+-            var waits = [
+-                pollfd(fd: stopRead, events: Int16(POLLIN), revents: 0),
+-                pollfd(fd: master, events: Int16(POLLIN), revents: 0)
+-            ]
+-            let ready = unsafe poll(&waits, 2, -1)
+-            if ready < 0, errno != EINTR { return }
+-            if waits[0].revents != 0 { return }
++            return errno == EAGAIN ? .again : .ended
++        }
++    }
++
++    private func gather(into address: UInt) {
++        guard let storage = UnsafeMutablePointer<UInt8>(bitPattern: address) else { return }
++        defer {
++            ring.withLock { ring in
++                ring.done = true
++                ring.gatherExited = true
++            }
++            readyWake.poke()
++        }
++        while true {
++            // A free buffer: wait for one without a timeout (the parse stage frees them), or for the stop.
++            while true {
++                let outcome = ring.withLock { ring -> Bool? in
++                    if ring.stopped { return nil }
++                    if ring.count < Self.slotCount {
++                        ring.gatherWaiting = false
++                        return true
++                    }
++                    ring.gatherWaiting = true
++                    return false
++                }
++                guard let free = outcome else { return }
++                if free { break }
++                var waits = [
++                    pollfd(fd: stopWake.readEnd, events: Int16(POLLIN), revents: 0),
++                    pollfd(fd: freeWake.readEnd, events: Int16(POLLIN), revents: 0)
++                ]
++                _ = unsafe poll(&waits, 2, -1)
++                freeWake.drain()
++            }
++            let slot = ring.withLock { $0.head }
++            let buffer = unsafe storage + slot * Self.slotSize
++            var filled = 0
++            var ended = false
++            let started = ContinuousClock.now
++            fill: while filled < Self.slotSize {
++                switch read(into: unsafe buffer + filled, capacity: Self.slotSize - filled) {
++                    case .data(let count):
++                        filled += count
++                    case .ended:
++                        ended = true
++                        break fill
++                    case .again:
++                        if filled == 0 {
++                            // Nothing to deliver yet: wait for output (no timeout) or the stop.
++                            polls.withLock { $0 += 1 }
++                            var waits = [
++                                pollfd(fd: stopWake.readEnd, events: Int16(POLLIN), revents: 0),
++                                pollfd(fd: master, events: Int16(POLLIN), revents: 0)
++                            ]
++                            _ = unsafe poll(&waits, 2, -1)
++                            if waits[0].revents != 0 { return }
++                            continue fill
++                        }
++                        guard filled >= Self.saturation, ContinuousClock.now - started < Self.budget else { break fill }
++                        // A saturated stream: the writer refills the kernel's queue within microseconds, so try again at once before sleeping.
++                        var again = false
++                        for _ in 0 ..< Self.spinLimit {
++                            if case .data(let count) = read(
++                                into: unsafe buffer + filled,
++                                capacity: Self.slotSize - filled
++                            ) {
++                                filled += count
++                                again = true
++                                break
++                            }
++                        }
++                        if again { continue fill }
++                        ring.withLock { $0.bridging = true }
++                        var waits = [
++                            pollfd(fd: stopWake.readEnd, events: Int16(POLLIN), revents: 0),
++                            pollfd(fd: idleWake.readEnd, events: Int16(POLLIN), revents: 0),
++                            pollfd(fd: master, events: Int16(POLLIN), revents: 0)
++                        ]
++                        _ = unsafe poll(&waits, 3, Self.bridgeMilliseconds)
++                        ring.withLock { $0.bridging = false }
++                        idleWake.drain()
++                        if waits[2].revents == 0 { break fill }
++                }
++            }
++            if filled > 0 {
++                let wakeParse = ring.withLock { ring -> Bool in
++                    ring.lengths[ring.head] = filled
++                    ring.head = (ring.head + 1) % Self.slotCount
++                    ring.count += 1
++                    return ring.parseWaiting
++                }
++                if wakeParse { readyWake.poke() }
++            }
++            if ended { return }
+         }
+     }
+ }
+diff --git a/Sources/SunsetHost/PumpWake.swift b/Sources/SunsetHost/PumpWake.swift
+new file mode 100644
+index 0000000..32fe94e
+--- /dev/null
++++ b/Sources/SunsetHost/PumpWake.swift
+@@ -0,0 +1,38 @@
++internal import Darwin
++
++/// A pipe used as a wake-up signal: `poke` makes the read end readable, `drain` empties it. Poll the read end together with other descriptors to wait for
++/// "something happened or the terminal has output" without a timeout. Both ends are non-blocking and close-on-exec; -1 when the pipe could not be made.
++struct PumpWake: Sendable {
++    let readEnd: Int32
++    let writeEnd: Int32
++
++    init() {
++        var ends: [Int32] = [-1, -1]
++        if pipe(&ends) == 0 {
++            for end in ends {
++                _ = fcntl(end, F_SETFL, fcntl(end, F_GETFL) | O_NONBLOCK)
++                _ = fcntl(end, F_SETFD, FD_CLOEXEC)
++            }
++        } else {
++            ends = [-1, -1]
++        }
++        (readEnd, writeEnd) = (ends[0], ends[1])
++    }
++
++    func poke() {
++        guard writeEnd >= 0 else { return }
++        var byte: UInt8 = 1
++        _ = unsafe write(writeEnd, &byte, 1)
++    }
++
++    func drain() {
++        guard readEnd >= 0 else { return }
++        var scratch = [UInt8](repeating: 0, count: 16)
++        while unsafe read(readEnd, &scratch, scratch.count) > 0 {}
++    }
++
++    func close() {
++        if readEnd >= 0 { Darwin.close(readEnd) }
++        if writeEnd >= 0 { Darwin.close(writeEnd) }
++    }
++}
+diff --git a/Tests/SunsetHostTests/OutputPumpTests.swift b/Tests/SunsetHostTests/OutputPumpTests.swift
+index 43b70c4..7849a41 100644
+--- a/Tests/SunsetHostTests/OutputPumpTests.swift
++++ b/Tests/SunsetHostTests/OutputPumpTests.swift
+@@ -1,4 +1,5 @@
+ import Darwin
++import Synchronization
+ import Testing
+ 
+ @testable import SunsetHost
+@@ -54,4 +55,44 @@ import Testing
+         #expect(ContinuousClock.now - start < .milliseconds(100))
+         process.hangUp()
+     }
++
++    /// Written after the pump, not before it (the stage that fills buffers while another parses is the point of it): it holds the property in place.
++    @Test func `while the parse stage is busy the gather stage reads ahead, up to the ring, and no further`()
++        async throws
++    {
++        let process = try spawn("head -c 8000000 /dev/zero | tr '\\0' x")
++        let pump = process.pump
++        let release = Atomic<Bool>(false)
++        let running = Task(executorPreference: process.readThread) {
++            var total = 0
++            pump.run { bytes in
++                if total == 0 { while !release.load(ordering: .acquiring) { _ = usleep(1000) } }
++                total += bytes.count
++            }
++            return total
++        }
++        try await Task.sleep(for: .milliseconds(600))
++        let ahead = pump.pendingBytes
++        #expect(ahead >= 2 * OutputPump.slotSize, "read ahead only \(ahead) bytes")
++        #expect(ahead <= OutputPump.slotCount * OutputPump.slotSize, "read ahead \(ahead) bytes, more than the ring")
++        release.store(true, ordering: .releasing)
++        #expect(await running.value == 8_000_000)
++    }
++
++    @Test func `a short output is delivered at once, not held back to fill a buffer`() async throws {
++        let process = try spawn("sleep 0.3; printf hi; sleep 5")
++        let pump = process.pump
++        let arrived = Mutex<ContinuousClock.Instant?>(nil)
++        let running = Task(executorPreference: process.readThread) {
++            pump.run { _ in arrived.withLock { $0 = $0 ?? .now } }
++        }
++        let started = ContinuousClock.now
++        try await Task.sleep(for: .milliseconds(700))
++        let delivered = arrived.withLock { $0 }
++        #expect(delivered != nil)
++        if let delivered { #expect(delivered - started < .milliseconds(550), "took \(delivered - started)") }
++        pump.stop()
++        await running.value
++        process.hangUp()
++    }
+ }
