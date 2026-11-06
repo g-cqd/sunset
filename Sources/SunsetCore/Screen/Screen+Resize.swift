@@ -32,7 +32,9 @@ extension Screen {
             limit: scrollback.limit
         )
         let result = reflow.run()
+        let evicted = scrollback.evicted
         scrollback = result.scrollback
+        scrollback.evicted = evicted
         if isAlternate {
             other = result.grid
             grid = cutOrPad(grid, columns: newColumns, rows: newRows)

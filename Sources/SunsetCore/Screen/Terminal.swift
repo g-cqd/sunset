@@ -20,6 +20,9 @@ public struct Terminal: Sendable {
     /// The bytes the terminal wants sent back to the program (answers to queries), in order; the host writes them to the PTY.
     public mutating func takeReplies() -> [UInt8] { screen.takeReplies() }
 
+    /// What the program asked the host to do (clipboard, notifications), in order; the host applies its policy (ADR-0010).
+    public mutating func takeEvents() -> [HostEvent] { screen.takeEvents() }
+
     /// Changes the size of the screen. The primary screen is re-wrapped (lines that wrapped are joined and split again), the alternate one is cut or padded.
     public mutating func resize(columns: Int, rows: Int) { screen.resize(columns: columns, rows: rows) }
 

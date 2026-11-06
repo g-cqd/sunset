@@ -41,7 +41,11 @@ let package = Package(
     targets: [
         .target(
             name: "SunsetCore",
-            dependencies: [.product(name: "TerminalKitText", package: "TerminalKit")],
+            dependencies: [
+                .product(name: "TerminalKitText", package: "TerminalKit"),
+                // Base64, percent-decoding and UTF-8 validation for the OSC sequences that carry data (ADR-0010).
+                .product(name: "AemiKernel", package: "aemi")
+            ],
             path: "Sources/SunsetCore",
             swiftSettings: strictSettings
         ),

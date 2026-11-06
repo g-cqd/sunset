@@ -47,6 +47,7 @@ public struct Screen: Sendable {
     var titleStack = ContiguousArray<ContiguousArray<UInt8>>()
     var oscBuffer = ContiguousArray<UInt8>()
     var oscActive = false
+    var host = HostState()
     var oscOverflowed = false
     public internal(set) var cursorShape = CursorShape.block
     public internal(set) var cursorBlinks = true
@@ -108,6 +109,11 @@ public struct Screen: Sendable {
         while text.last == " " { text.removeLast() }
         return text
     }
+
+    /// The directory the shell reported (OSC 7), the progress the program reported (OSC 9;4) and the prompt marks (OSC 133), oldest first.
+    public var workingDirectory: WorkingDirectory? { host.workingDirectory }
+    public var progress: ProgressState { host.progress }
+    public var promptMarks: [PromptMark] { host.marks }
 
     public var cursorRow: Int { row }
     public var cursorColumn: Int { column }
