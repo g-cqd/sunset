@@ -9,6 +9,8 @@ final class TerminalNSView: NSView {
     var optionAsMeta = false
     private var displayLink: CADisplayLink?
     var markedText = NSAttributedString()
+    var trackingArea: NSTrackingArea?
+    var scrollRemainder = 0.0
 
     init(model: TerminalModel) {
         self.model = model

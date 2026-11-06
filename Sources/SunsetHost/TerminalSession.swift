@@ -81,6 +81,18 @@ public actor TerminalSession {
         )
     }
 
+    /// Sends a mouse event as the program asked for it. Returns whether the program has the mouse (tracking on, even if this event is one it does not want):
+    /// false means the window can use the event itself (select, scroll).
+    @discardableResult
+    public func send(_ event: MouseEvent) -> Bool {
+        let modes = terminal.screen.modes
+        guard let bytes = MouseEncoder.encode(event, tracking: modes.mouseTracking, format: modes.mouseFormat) else {
+            return false
+        }
+        process.send(bytes)
+        return true
+    }
+
     /// Sends typed text (composed by the input system) as the program should read it.
     public func send(text: String) { process.send(Array(text.utf8)) }
 

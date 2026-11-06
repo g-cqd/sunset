@@ -56,6 +56,23 @@ private func started(_ script: String, columns: Int = 80, rows: Int = 24) async 
         )
     }
 
+    @Test func `a mouse event reaches the program only when it asked for the mouse, in the format it chose`()
+        async throws
+    {
+        let session = try await started(
+            "stty raw -echo; sleep 1; printf '\\033[?1000h\\033[?1006h'; dd bs=1 count=9 2>/dev/null | od -An -tx1"
+        )
+        let press = MouseEvent(.press, .left, column: 1, row: 2)
+        #expect(await session.send(press) == false, "the program has not asked for the mouse yet")
+        #expect(await waitFor(session) { $0.modes.mouseTracking == .normal && $0.modes.mouseFormat == .sgr })
+        #expect(await session.send(press) == true)
+        #expect(
+            await waitFor(session) {
+                $0.text(row: 0).split(separator: " ").joined(separator: " ") == "1b 5b 3c 30 3b 32 3b 33 4d"
+            }
+        )
+    }
+
     @Test func `a resize reaches the program and the screen`() async throws {
         let session = try await started("stty size; read x; stty size")
         #expect(await waitFor(session) { $0.text(row: 0) == "24 80" })

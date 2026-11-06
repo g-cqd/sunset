@@ -24,6 +24,8 @@ import SunsetRenderMac
     @ObservationIgnored private var cursorPhase = true
     @ObservationIgnored private var cursorBlinks = true
     @ObservationIgnored private var viewPixels = (width: 0, height: 0)
+    @ObservationIgnored private var grid: GridSize?
+    @ObservationIgnored private var lastMotionCell: (column: Int, row: Int)?
     @ObservationIgnored private let input = AsyncStream.makeStream(of: InputEvent.self)
     @ObservationIgnored private let sizes = AsyncStream.makeStream(
         of: GridSize.self,
@@ -74,6 +76,9 @@ import SunsetRenderMac
         )
     }
 
+    /// The height of a cell in points (a trackpad scrolls in points).
+    var cellHeightInPoints: Double { Double(renderer?.cellMetrics.cellHeight ?? 16) / scale }
+
     func stop() {
         for task in tasks { task.cancel() }
         tasks = []
@@ -90,12 +95,45 @@ import SunsetRenderMac
         input.continuation.yield(event)
     }
 
+    /// The pointer did something at a point of the surface (device pixels, from the top left). Motion within one cell is not repeated, as terminals do not.
+    func mouse(
+        _ action: MouseEvent.Action,
+        _ button: MouseEvent.Button,
+        pixelX: Int,
+        pixelY: Int,
+        modifiers: InputModifiers
+    ) {
+        guard let metrics = renderer?.cellMetrics, let grid else { return }
+        let cell = metrics.cell(atPixelX: pixelX, pixelY: pixelY, columns: grid.columns, rows: grid.rows)
+        if action == .motion {
+            if let last = lastMotionCell, last == cell { return }
+            lastMotionCell = cell
+        } else {
+            lastMotionCell = cell
+        }
+        let inGrid = metrics.gridPixel(x: pixelX, y: pixelY, columns: grid.columns, rows: grid.rows)
+        input.continuation.yield(
+            .mouse(
+                MouseEvent(
+                    action,
+                    button,
+                    column: cell.column,
+                    row: cell.row,
+                    modifiers: modifiers,
+                    pixelX: inGrid.x,
+                    pixelY: inGrid.y
+                )
+            )
+        )
+    }
+
     private static func forward(_ events: AsyncStream<InputEvent>, to session: TerminalSession) async {
         for await event in events {
             switch event {
                 case .key(let press): await session.send(press)
                 case .text(let text): await session.send(text: text)
                 case .paste(let text): await session.paste(text)
+                case .mouse(let event): await session.send(event)
             }
         }
     }
@@ -110,6 +148,7 @@ import SunsetRenderMac
         }
         viewPixels = (pixelWidth, pixelHeight)
         guard let size = currentGrid() else { return }
+        grid = size
         if session == nil {
             startIfReady()
         } else {

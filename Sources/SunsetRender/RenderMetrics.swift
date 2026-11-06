@@ -24,3 +24,29 @@ public struct RenderMetrics: Sendable, Equatable {
         (columns * cellWidth + 2 * paddingX, rows * cellHeight + 2 * paddingY)
     }
 }
+
+extension RenderMetrics {
+    /// The cell under a pixel of the surface; a pixel in the padding or outside the grid is the nearest cell on the edge (a drag that leaves the window still
+    /// reports the edge).
+    public func cell(atPixelX x: Int, pixelY y: Int, columns: Int, rows: Int) -> (column: Int, row: Int) {
+        let column = min(max((x - paddingX).floorDivided(by: cellWidth), 0), max(columns - 1, 0))
+        let row = min(max((y - paddingY).floorDivided(by: cellHeight), 0), max(rows - 1, 0))
+        return (column, row)
+    }
+
+    /// A pixel of the surface as a pixel of the grid (the padding left out), kept inside the grid.
+    public func gridPixel(x: Int, y: Int, columns: Int, rows: Int) -> (x: Int, y: Int) {
+        (
+            min(max(x - paddingX, 0), max(columns * cellWidth - 1, 0)),
+            min(max(y - paddingY, 0), max(rows * cellHeight - 1, 0))
+        )
+    }
+}
+
+extension Int {
+    /// Division that rounds toward negative infinity, so a pixel left of the grid is column -1, not 0.
+    fileprivate func floorDivided(by divisor: Int) -> Int {
+        let quotient = self / divisor
+        return self % divisor < 0 ? quotient - 1 : quotient
+    }
+}
