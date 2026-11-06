@@ -94,6 +94,18 @@ private func started(_ script: String, columns: Int = 80, rows: Int = 24) async 
         #expect(await session.send(MouseEvent(.press, .wheelUp, column: 1, row: 1)) == false)
     }
 
+    @Test func `what the program asks of the host arrives as events, in order, once`() async throws {
+        let session = try await started(
+            "printf '\\033]52;c;aGk=\\007\\033]9;done\\007'; sleep 1"
+        )
+        var seen: [HostEvent] = []
+        for await event in session.hostEvents {
+            seen.append(event)
+            if seen.count == 2 { break }
+        }
+        #expect(seen == [.clipboardWrite("hi"), .notification(title: "", body: "done")])
+    }
+
     @Test func `a resize reaches the program and the screen`() async throws {
         let session = try await started("stty size; read x; stty size")
         #expect(await waitFor(session) { $0.text(row: 0) == "24 80" })
