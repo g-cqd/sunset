@@ -86,13 +86,23 @@ extension Screen {
             pendingWrap = state.pendingWrap
             pen = state.pen
             modes.origin = state.originMode
+            charsets = state.charsets
+            shifted = state.shifted
             penChanged()
         }
         markDirty(0 ... rows - 1)
     }
 
     private func currentCursor() -> SavedCursor {
-        SavedCursor(column: column, row: row, pendingWrap: pendingWrap, pen: pen, originMode: modes.origin)
+        SavedCursor(
+            column: column,
+            row: row,
+            pendingWrap: pendingWrap,
+            pen: pen,
+            originMode: modes.origin,
+            charsets: charsets,
+            shifted: shifted
+        )
     }
 
     private mutating func clearGrid() {
@@ -145,6 +155,8 @@ extension Screen {
         bottom = rows - 1
         saved = nil
         pendingWrap = false
+        charsets = (.ascii, .ascii)
+        shifted = false
         cursorShape = .block
         cursorBlinks = true
     }
