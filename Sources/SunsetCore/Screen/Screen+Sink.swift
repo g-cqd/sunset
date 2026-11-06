@@ -13,6 +13,8 @@ extension Screen: VTSink {
         switch control {
             case 0x07: bellCount &+= 1
             case 0x08: backspace()
+            case 0x0E: shifted = true
+            case 0x0F: shifted = false
             case 0x09: tab(forward: 1)
             case 0x0A, 0x0B, 0x0C: lineFeed()
             case 0x0D: carriageReturn()
@@ -27,6 +29,14 @@ extension Screen: VTSink {
     }
 
     public mutating func escape(_ intermediates: Intermediates, final: UInt8) {
+        if intermediates.count == 1, intermediates.first == 0x28 || intermediates.first == 0x29 {
+            if intermediates.first == 0x28 {
+                charsets.g0 = Charset(designator: final)
+            } else {
+                charsets.g1 = Charset(designator: final)
+            }
+            return
+        }
         if intermediates.count == 1, intermediates.first == 0x23 {
             if final == 0x38 { alignmentTest() }
             return

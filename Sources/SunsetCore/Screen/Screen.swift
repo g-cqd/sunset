@@ -23,6 +23,9 @@ public struct Screen: Sendable {
     var bottom: Int
     var tabStops: ContiguousArray<Bool>
     var lastPrinted: UInt32 = 0
+    var charsets: (g0: Charset, g1: Charset) = (.ascii, .ascii)
+    /// 0 when G0 is shifted in (SI), 1 for G1 (SO).
+    var shifted = false
     var saved: SavedCursor?
     var savedBeforeAlternate: SavedCursor?
 
@@ -49,6 +52,8 @@ public struct Screen: Sendable {
         var pendingWrap: Bool
         var pen: CellStyle
         var originMode: Bool
+        var charsets: (g0: Charset, g1: Charset)
+        var shifted: Bool
     }
 
     public init(columns: Int, rows: Int) {

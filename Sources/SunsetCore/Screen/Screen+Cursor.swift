@@ -69,16 +69,36 @@ extension Screen {
     }
 
     mutating func saveCursor() {
-        saved = SavedCursor(column: column, row: row, pendingWrap: pendingWrap, pen: pen, originMode: modes.origin)
+        saved = SavedCursor(
+            column: column,
+            row: row,
+            pendingWrap: pendingWrap,
+            pen: pen,
+            originMode: modes.origin,
+            charsets: charsets,
+            shifted: shifted
+        )
     }
 
     mutating func restoreCursor() {
-        let state = saved ?? SavedCursor(column: 0, row: 0, pendingWrap: false, pen: CellStyle(), originMode: false)
+        let state =
+            saved
+            ?? SavedCursor(
+                column: 0,
+                row: 0,
+                pendingWrap: false,
+                pen: CellStyle(),
+                originMode: false,
+                charsets: (.ascii, .ascii),
+                shifted: false
+            )
         column = min(state.column, columns - 1)
         row = min(state.row, rows - 1)
         pendingWrap = state.pendingWrap
         pen = state.pen
         modes.origin = state.originMode
+        charsets = state.charsets
+        shifted = state.shifted
         penChanged()
     }
 
