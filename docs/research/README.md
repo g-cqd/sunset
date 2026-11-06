@@ -7,3 +7,5 @@ Reading behind the design. Vendor numbers are the vendor's. A note is a set of c
 - [Kernel study](kernels-study.md): what Aemi's C/SIMD kernel tier offers, three probes (stage-1 scanning, cell diff, page compression with the platform's LZ4 as the bar), and which kernels are worth adding. Probes in [probes/](probes/).
 - [kitty notes](kitty.md): what the kitty source and docs say about architecture and protocols (commit bdbf9f5, read 2026-11-05).
 - Reverse engineering of system frameworks for typography, colour and compositing (CoreText, CoreGraphics, QuartzCore) is shared with [TerminalUI's research](https://github.com/g-cqd/TerminalUI/tree/main/docs/research) (R9, R10).
+
+- `competitors-architecture-and-neon.md` (2026-11-06): how Alacritty and Ghostty move bytes to pixels (read from source), what differs in Sunset, today's fill/blend probes (`probes/fill-blend.c`), and a ranked list of changes and kernels.
