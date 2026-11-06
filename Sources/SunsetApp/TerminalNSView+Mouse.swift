@@ -61,7 +61,19 @@ extension TerminalNSView {
             pixelX: Int((point.x * scale).rounded(.down)),
             pixelY: Int((point.y * scale).rounded(.down)),
             modifiers: KeyboardMapping.modifiers(event.modifierFlags),
-            clickCount: event.clickCount
+            clickCount: Self.clickCount(of: event)
         )
+    }
+
+    /// `NSEvent.clickCount` is only valid for mouse button events: asking a scroll wheel or a moved-pointer event raises an Objective-C exception, which
+    /// AppKit swallows and which ended `report` before it reached the model, so that the wheel never scrolled the history.
+    private static func clickCount(of event: NSEvent) -> Int {
+        switch event.type {
+            case .leftMouseDown, .leftMouseUp, .leftMouseDragged, .rightMouseDown, .rightMouseUp, .rightMouseDragged,
+                .otherMouseDown, .otherMouseUp, .otherMouseDragged:
+                event.clickCount
+            default:
+                0
+        }
     }
 }
