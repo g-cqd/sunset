@@ -29,14 +29,7 @@ public struct Surface: Sendable {
 
     /// The pixels as bytes, red first: what an image file or a texture upload wants.
     public var rgbaBytes: [UInt8] {
-        var bytes: [UInt8] = []
-        bytes.reserveCapacity(pixels.count * 4)
-        for value in pixels {
-            bytes.append(UInt8(truncatingIfNeeded: value))
-            bytes.append(UInt8(truncatingIfNeeded: value >> 8))
-            bytes.append(UInt8(truncatingIfNeeded: value >> 16))
-            bytes.append(UInt8(truncatingIfNeeded: value >> 24))
-        }
-        return bytes
+        // A pixel is one little-endian `UInt32` (red in the lowest byte), so the memory already is red, green, blue, alpha: one bulk copy.
+        pixels.withUnsafeBytes { [UInt8]($0) }
     }
 }

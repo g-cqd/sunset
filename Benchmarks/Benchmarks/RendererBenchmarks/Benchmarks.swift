@@ -30,6 +30,15 @@ let benchmarks: @Sendable () -> Void = {
     let metrics = RenderMetrics(cellWidth: 8, cellHeight: 16)
     let size = metrics.surfaceSize(columns: 120, rows: 40)
 
+    Benchmark("present/surface to bytes (1640x976 pixels, a retina window)") { benchmark in
+        let surface = Surface(width: 1640, height: 976)
+        benchmark.startMeasurement()
+        for _ in benchmark.scaledIterations {
+            blackHole(surface.rgbaBytes.count)
+        }
+        benchmark.stopMeasurement()
+    }
+
     Benchmark("render/full frame (120x40, 960x640 pixels)") { benchmark in
         let terminal = filledTerminal()
         var surface = Surface(width: size.width, height: size.height)
