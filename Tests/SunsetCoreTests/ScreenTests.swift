@@ -125,6 +125,16 @@ private let esc = "\u{1B}"
         #expect(make("\(esc)[10G\(esc)[Z").cursor == [0, 8])
     }
 
+    @Test
+    func
+        `a back-tab, backspace or cursor-left that moves the cursor clears the pending wrap, so the next character lands where the cursor is`()
+    {
+        // Ten columns, text in the last one (wrap pending), then the cursor moves back: what is typed next goes at the new cursor, not on the next line (ghostty wraps it, which no one wants).
+        #expect(make("0123456789\(esc)[ZX").lines == ["01234567X9", "", "", ""])
+        #expect(make("0123456789\u{08}X").lines == ["01234567X9", "", "", ""])
+        #expect(make("0123456789\(esc)[2DX").lines == ["0123456X89", "", "", ""])
+    }
+
     @Test func `IND NEL RI`() {
         #expect(make("ab\(esc)Dc").lines == ["ab", "  c", "", ""])
         #expect(make("ab\(esc)Ec").lines == ["ab", "c", "", ""])

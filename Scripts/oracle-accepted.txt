@@ -9,4 +9,4 @@ alacritty	18-queries	xcpr	alacritty does not answer DECXCPR
 alacritty	18-queries	dec-reverse	alacritty does not recognise mode 5
 alacritty	18-queries	dec-blink	alacritty reports mode 12 as reset; Sunset and ghostty report the blink state (set by default)
 alacritty	18-queries	dec-colm	alacritty does not recognise mode 3
-ghostty	02-tabs	*	after text in the last column, back-tab: ghostty keeps the pending wrap (the next character wraps), Sunset and kitty clear it; which is right is not decided (needs xterm's behaviour or esctest)
+ghostty	02-tabs	*	after text in the last column, back-tab: ghostty keeps the pending wrap (the next character wraps), Sunset and kitty clear it; SETTLED in Sunset's favour: the cursor has moved, so the next character belongs at the new cursor; wrapping it to the next line is surprising to a person reading the screen and contradicts the DEC rule that cursor movement clears the last-column flag (ADR-0030 addendum 2)
