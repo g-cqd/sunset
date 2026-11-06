@@ -22,9 +22,9 @@ struct CPURendererRig {
     }
 
     /// Feeds text and draws a frame (and clears the dirty marks, as a host does).
-    mutating func frame(_ text: String = "", cursorVisible: Bool = true) {
+    mutating func frame(_ text: String = "", cursorVisible: Bool = true, scrolledBack: Int = 0) {
         terminal.feed(text)
-        renderer.render(terminal.screen, into: &surface, cursorVisible: cursorVisible)
+        renderer.render(terminal.screen, into: &surface, cursorVisible: cursorVisible, scrolledBack: scrolledBack)
         terminal.clearDirty()
     }
 

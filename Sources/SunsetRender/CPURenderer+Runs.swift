@@ -22,11 +22,11 @@ extension CPURenderer {
     /// shaped together) and returns its length; nil when there is no such run and the cell is drawn alone.
     func drawRun(row: Int, column: Int, frame: Frame, surface: inout Surface) -> Int? {
         let screen = frame.screen
-        let first = screen.cell(row: row, column: column)
+        let first = frame.cell(row: row, column: column)
         guard isRunnable(first, row: row, column: column, frame: frame) else { return nil }
         var length = 1
         while column + length < screen.columns, length < Self.maxRun {
-            let next = screen.cell(row: row, column: column + length)
+            let next = frame.cell(row: row, column: column + length)
             guard next.styleID == first.styleID, isRunnable(next, row: row, column: column + length, frame: frame)
             else { break }
             length += 1
@@ -35,9 +35,9 @@ extension CPURenderer {
         let style = screen.style(of: first)
         let bold = style.attributes.contains(.bold)
         let italic = style.attributes.contains(.italic)
-        let entry = shaped(row: row, column: column, length: length, bold: bold, italic: italic, screen: screen)
+        let entry = shaped(row: row, column: column, length: length, bold: bold, italic: italic, frame: frame)
         for offset in 0 ..< length {
-            let cell = screen.cell(row: row, column: column + offset)
+            let cell = frame.cell(row: row, column: column + offset)
             drawCell(
                 cell,
                 at: Placement(row: row, column: column + offset, span: 1, drawGlyph: false),
@@ -61,16 +61,16 @@ extension CPURenderer {
 
     /// The shaped run for these cells, from the cache or made by the glyph source. The lookup compares the cells with the entry's scalars, so it neither
     /// allocates nor trusts the hash alone.
-    private func shaped(row: Int, column: Int, length: Int, bold: Bool, italic: Bool, screen: Screen) -> RunEntry {
+    private func shaped(row: Int, column: Int, length: Int, bold: Bool, italic: Bool, frame: Frame) -> RunEntry {
         var hash: UInt64 = 0xCBF2_9CE4_8422_2325 ^ (bold ? 1 : 0) ^ (italic ? 2 : 0)
         for offset in 0 ..< length {
-            hash = (hash ^ UInt64(screen.cell(row: row, column: column + offset).scalar)) &* 0x0000_0100_0000_01B3
+            hash = (hash ^ UInt64(frame.cell(row: row, column: column + offset).scalar)) &* 0x0000_0100_0000_01B3
         }
         if let entries = runCache[hash] {
             for entry in entries where entry.bold == bold && entry.italic == italic && entry.scalars.count == length {
                 var same = true
                 for offset in 0 ..< length
-                where entry.scalars[offset] != screen.cell(row: row, column: column + offset).scalar {
+                where entry.scalars[offset] != frame.cell(row: row, column: column + offset).scalar {
                     same = false
                     break
                 }
@@ -80,7 +80,7 @@ extension CPURenderer {
         var scalars: [UInt32] = []
         var text = String.UnicodeScalarView()
         for offset in 0 ..< length {
-            let value = screen.cell(row: row, column: column + offset).scalar
+            let value = frame.cell(row: row, column: column + offset).scalar
             scalars.append(value)
             text.append(Unicode.Scalar(value) ?? "\u{FFFD}")
         }

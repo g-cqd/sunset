@@ -24,29 +24,8 @@ public final class CPURenderer: CellRenderer {
     private var lastPalette: Palette?
     private var lastReverse = false
     private var lastBlink = true
+    private var lastScrolledBack = 0
     private var lastSize: (columns: Int, rows: Int)?
-
-    /// What one frame draws with: the screen, the cursor, the default colours (swapped by reverse video) and the blink phase.
-    struct Frame {
-        var screen: Screen
-        var cursor: CursorDrawn?
-        var foreground: RGB
-        var background: RGB
-        var blinkVisible: Bool
-    }
-
-    /// Where a cell (or a double-width pair) is on the surface.
-    struct Box {
-        var x: Int
-        var y: Int
-        var width: Int
-    }
-
-    struct CursorDrawn: Equatable {
-        var row: Int
-        var column: Int
-        var shape: CursorShape
-    }
 
     public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool = false) {
         self.metrics = metrics
@@ -58,6 +37,7 @@ public final class CPURenderer: CellRenderer {
     public func invalidate() {
         lastCursor = nil
         lastPalette = nil
+        lastScrolledBack = 0
         lastSize = nil
     }
 
@@ -67,7 +47,8 @@ public final class CPURenderer: CellRenderer {
         _ screen: Screen,
         into surface: inout Surface,
         cursorVisible: Bool = true,
-        textBlinkVisible: Bool = true
+        textBlinkVisible: Bool = true,
+        scrolledBack: Int = 0
     ) {
         let size = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         precondition(
@@ -75,13 +56,16 @@ public final class CPURenderer: CellRenderer {
             "the surface is smaller than the grid"
         )
         let reverse = screen.modes.reverseVideo
+        let scrolledBack = min(max(scrolledBack, 0), screen.scrollbackCount)
         let sizeChanged = lastSize.map { $0.columns != screen.columns || $0.rows != screen.rows } ?? true
         let full =
             sizeChanged || lastPalette != screen.palette || reverse != lastReverse || textBlinkVisible != lastBlink
+            || scrolledBack != lastScrolledBack || (scrolledBack > 0 && screen.hasDirtyRows)
         let background = Surface.pack(reverse ? screen.palette.foreground : screen.palette.background)
         if full { fill(&surface, x: 0, y: 0, width: surface.width, height: surface.height, color: background) }
 
-        let showCursor = cursorVisible && screen.modes.cursorVisible && screen.cursorRow < screen.rows
+        let showCursor =
+            scrolledBack == 0 && cursorVisible && screen.modes.cursorVisible && screen.cursorRow < screen.rows
         let cursor =
             showCursor
             ? CursorDrawn(row: screen.cursorRow, column: screen.cursorColumn, shape: screen.cursorShape) : nil
@@ -91,7 +75,8 @@ public final class CPURenderer: CellRenderer {
             cursor: cursor,
             foreground: reverse ? screen.palette.background : screen.palette.foreground,
             background: reverse ? screen.palette.foreground : screen.palette.background,
-            blinkVisible: textBlinkVisible
+            blinkVisible: textBlinkVisible,
+            scrolledBack: scrolledBack
         )
         for row in 0 ..< screen.rows {
             let touchesCursor = cursorMoved && (cursor?.row == row || lastCursor?.row == row)
@@ -102,6 +87,7 @@ public final class CPURenderer: CellRenderer {
         lastPalette = screen.palette
         lastReverse = reverse
         lastBlink = textBlinkVisible
+        lastScrolledBack = scrolledBack
         lastSize = (screen.columns, screen.rows)
     }
 
@@ -119,7 +105,7 @@ public final class CPURenderer: CellRenderer {
         )
         var column = 0
         while column < frame.screen.columns {
-            let cell = frame.screen.cell(row: row, column: column)
+            let cell = frame.cell(row: row, column: column)
             if cell.width == .spacerTail {
                 column += 1
                 continue
@@ -132,14 +118,6 @@ public final class CPURenderer: CellRenderer {
             drawCell(cell, at: Placement(row: row, column: column, span: span), frame: frame, surface: &surface)
             column += span
         }
-    }
-
-    /// A cell (or a double-width pair) to draw, and whether its glyph is drawn here (a run draws its glyphs itself).
-    struct Placement {
-        var row: Int
-        var column: Int
-        var span: Int
-        var drawGlyph = true
     }
 
     /// The colours a style is drawn in, after inverse and faint.

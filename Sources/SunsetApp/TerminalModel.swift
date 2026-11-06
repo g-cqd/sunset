@@ -15,18 +15,18 @@ import SunsetRenderMac
     @ObservationIgnored var setDisplayLinkPaused: (Bool) -> Void = { _ in }
     @ObservationIgnored var onExit: () -> Void = {}
 
-    @ObservationIgnored private var session: TerminalSession?
-    @ObservationIgnored private var renderer: FrameRenderer?
-    @ObservationIgnored private var scale = 2.0
+    @ObservationIgnored var session: TerminalSession?
+    @ObservationIgnored var renderer: FrameRenderer?
+    @ObservationIgnored var scale = 2.0
     @ObservationIgnored private var font = FontSettings()
     @ObservationIgnored private var frameWanted = false
     @ObservationIgnored private var renderInFlight = false
-    @ObservationIgnored private var cursorPhase = true
+    @ObservationIgnored var cursorPhase = true
     @ObservationIgnored private var cursorBlinks = true
     @ObservationIgnored private var viewPixels = (width: 0, height: 0)
-    @ObservationIgnored private var grid: GridSize?
-    @ObservationIgnored private var lastMotionCell: (column: Int, row: Int)?
-    @ObservationIgnored private let input = AsyncStream.makeStream(of: InputEvent.self)
+    @ObservationIgnored var viewport = Viewport()
+    @ObservationIgnored var lastMotionCell: (column: Int, row: Int)?
+    @ObservationIgnored let input = AsyncStream.makeStream(of: InputEvent.self)
     @ObservationIgnored private let sizes = AsyncStream.makeStream(
         of: GridSize.self,
         bufferingPolicy: .bufferingNewest(1)
@@ -55,7 +55,9 @@ import SunsetRenderMac
             tasks = [
                 Task { await session.start() },
                 Task { [weak self] in await self?.watch(session) },
-                Task { [events = input.stream] in await Self.forward(events, to: session) },
+                Task { [weak self, events = input.stream] in
+                    await Self.forward(events, to: session) { self?.unclaimed($0) }
+                },
                 Task { [sizes = sizes.stream] in
                     for await size in sizes { await session.resize(columns: size.columns, rows: size.rows) }
                 },
@@ -68,7 +70,7 @@ import SunsetRenderMac
     }
 
     /// The grid that fits the view now, or nil before the view has a size.
-    private func currentGrid() -> GridSize? {
+    func currentGrid() -> GridSize? {
         guard viewPixels.width > 0, viewPixels.height > 0, let metrics = renderer?.cellMetrics else { return nil }
         return GridSize(
             columns: max(2, (viewPixels.width - 2 * Self.padding) / metrics.cellWidth),
@@ -87,57 +89,6 @@ import SunsetRenderMac
         if let session { Task { await session.stop() } }
     }
 
-    // MARK: Input
-
-    /// Keys, text and pastes go to the program one at a time, in the order they happened, encoded by the session for the modes it has *now*.
-    func send(_ event: InputEvent) {
-        cursorPhase = true
-        input.continuation.yield(event)
-    }
-
-    /// The pointer did something at a point of the surface (device pixels, from the top left). Motion within one cell is not repeated, as terminals do not.
-    func mouse(
-        _ action: MouseEvent.Action,
-        _ button: MouseEvent.Button,
-        pixelX: Int,
-        pixelY: Int,
-        modifiers: InputModifiers
-    ) {
-        guard let metrics = renderer?.cellMetrics, let grid else { return }
-        let cell = metrics.cell(atPixelX: pixelX, pixelY: pixelY, columns: grid.columns, rows: grid.rows)
-        if action == .motion {
-            if let last = lastMotionCell, last == cell { return }
-            lastMotionCell = cell
-        } else {
-            lastMotionCell = cell
-        }
-        let inGrid = metrics.gridPixel(x: pixelX, y: pixelY, columns: grid.columns, rows: grid.rows)
-        input.continuation.yield(
-            .mouse(
-                MouseEvent(
-                    action,
-                    button,
-                    column: cell.column,
-                    row: cell.row,
-                    modifiers: modifiers,
-                    pixelX: inGrid.x,
-                    pixelY: inGrid.y
-                )
-            )
-        )
-    }
-
-    private static func forward(_ events: AsyncStream<InputEvent>, to session: TerminalSession) async {
-        for await event in events {
-            switch event {
-                case .key(let press): await session.send(press)
-                case .text(let text): await session.send(text: text)
-                case .paste(let text): await session.paste(text)
-                case .mouse(let event): await session.send(event)
-            }
-        }
-    }
-
     // MARK: Size and font
 
     /// The view's size in device pixels changed: the grid is as many whole cells as fit.
@@ -148,7 +99,6 @@ import SunsetRenderMac
         }
         viewPixels = (pixelWidth, pixelHeight)
         guard let size = currentGrid() else { return }
-        grid = size
         if session == nil {
             startIfReady()
         } else {
@@ -200,7 +150,7 @@ import SunsetRenderMac
         }
     }
 
-    private func requestFrame() {
+    func requestFrame() {
         frameWanted = true
         setDisplayLinkPaused(false)
     }
@@ -217,10 +167,12 @@ import SunsetRenderMac
         let phase = cursorPhase
         Task { [weak self] in
             let snapshot = await session.takeSnapshot()
+            self?.viewport.follow(historyCount: snapshot.scrollbackCount)
             let frame = await renderer.frame(
                 for: snapshot,
                 cursorVisible: phase || !snapshot.cursorBlinks,
-                textBlinkVisible: phase
+                textBlinkVisible: phase,
+                scrolledBack: self?.viewport.scrolledBack ?? 0
             )
             self?.presented(frame, title: snapshot.title, blinks: snapshot.cursorBlinks)
         }
