@@ -31,6 +31,7 @@ import SunsetRenderMac
     @ObservationIgnored var gesture: SelectionGesture?
     @ObservationIgnored var lastScreen: Screen?
     /// The link under the pointer (an id into the last screen's link table), drawn underlined; 0 for none.
+    @ObservationIgnored var scrollbackLimit = 10_000
     @ObservationIgnored var hoveredLink: UInt16 = 0
     /// Whether the program asked for the mouse (as of the last frame): its events go to it, not to the selection.
     var programHasMouse: Bool { (lastScreen?.modes.mouseTracking ?? .none) != .none }
@@ -47,10 +48,11 @@ import SunsetRenderMac
 
     /// Remembers what to run; the program starts when the view first has a size, so that it never sees a window of the wrong size (a shell that draws its
     /// prompt in a 2-column terminal and is then resized leaves a mess behind).
-    func start(command: [String], environment: [String: String], font: FontSettings) {
+    func start(command: [String], environment: [String: String], font: FontSettings, scrollback: Int? = nil) {
         guard session == nil, pending == nil else { return }
         self.font = font
         pending = (command, environment)
+        scrollbackLimit = scrollback ?? 10_000
         makeRenderer()
         startIfReady()
     }
@@ -59,7 +61,13 @@ import SunsetRenderMac
         guard session == nil, let (command, environment) = pending, let size = currentGrid() else { return }
         pending = nil
         do {
-            let session = try TerminalSession(command, columns: size.columns, rows: size.rows, environment: environment)
+            let session = try TerminalSession(
+                command,
+                columns: size.columns,
+                rows: size.rows,
+                environment: environment,
+                scrollbackLimit: scrollbackLimit
+            )
             self.session = session
             tasks = [
                 Task { await session.start() },

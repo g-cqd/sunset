@@ -105,4 +105,26 @@ let benchmarks: @Sendable () -> Void = {
             blackHole(terminal.screen.cursorRow)
         }
     }
+    // The app's pattern under a flood: output arrives in reads of 8 KiB, and a snapshot of the screen is held while the next read is parsed (the window's last
+    // frame). With a full history (100 000 lines) a snapshot that shares the history must not make the next write copy it.
+    if let flood = streams.first(where: { $0.0 == "ascii" })?.1 {
+        Benchmark("terminal/flood with a snapshot per read (100k lines of history)") { benchmark in
+            var terminal = Terminal(columns: 120, rows: 40, scrollbackLimit: 100_000)
+            for _ in 0 ..< 110 { flood.withUnsafeBufferPointer { terminal.feed($0.span) } }
+            var held = terminal.screen
+            benchmark.startMeasurement()
+            for _ in benchmark.scaledIterations {
+                var offset = 0
+                while offset < flood.count {
+                    let end = min(offset + 8192, flood.count)
+                    flood[offset ..< end].withUnsafeBufferPointer { terminal.feed($0.span) }
+                    held = terminal.screen
+                    terminal.clearDirty()
+                    offset = end
+                }
+            }
+            benchmark.stopMeasurement()
+            blackHole(held.scrollbackCount)
+        }
+    }
 }

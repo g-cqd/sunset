@@ -6,8 +6,9 @@ struct LaunchOptions: Sendable {
     var fontName: String?
     var fontSize: Double?
     var ligatures: Bool?
+    var scrollback: Int?
 
-    /// `sunset-app [--font NAME] [--size PT] [--ligatures] [-- command [args...]]`; the user's shell (as a login shell) when no command is given.
+    /// `sunset-app [--font NAME] [--size PT] [--ligatures] [--scrollback LINES] [-- command [args...]]`; the user's shell (as a login shell) when no command is given.
     static func parse(_ arguments: [String], environment: [String: String]) -> LaunchOptions {
         var options = LaunchOptions(command: [])
         var rest = arguments.dropFirst()
@@ -17,6 +18,7 @@ struct LaunchOptions: Sendable {
                 case "--font": options.fontName = rest.popFirst()
                 case "--size": options.fontSize = rest.popFirst().flatMap(Double.init)
                 case "--ligatures": options.ligatures = true
+                case "--scrollback": options.scrollback = rest.popFirst().flatMap(Int.init)
                 case "--":
                     options.command = Array(rest)
                     rest = []
