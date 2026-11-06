@@ -100,6 +100,8 @@ extension Screen {
             writer.number(line)
             writer.byte(0x3B)
             writer.number(place)
+            // DECXCPR also names the page (always the first).
+            if isPrivate { writer.text(";1") }
             writer.byte(0x52)
         }
     }
@@ -145,7 +147,7 @@ extension Screen {
             case 6: return flag(modes.origin)
             case 7: return flag(modes.autoWrap)
             case 9: return flag(modes.mouseTracking == .x10)
-            case 12: return flag(modes.cursorBlink)
+            case 12: return flag(cursorBlinks)
             case 25: return flag(modes.cursorVisible)
             case 47, 1047, 1049: return flag(isAlternate)
             case 1000: return flag(modes.mouseTracking == .normal)

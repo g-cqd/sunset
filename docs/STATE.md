@@ -9,11 +9,11 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
   - `Sources/SunsetCore/Parser`: `VTParser` (byte state machine, ADR-0023), `VTSink`, `Parameters`, `Intermediates`, `ParseCounter` (concrete front for other modules).
   - `Sources/SunsetCore/Screen`: `Terminal` (parser + screen, `feed`), `Screen` (the sink: grid, cursor, modes, regions, SGR, alternate screen, dirty rows), `Cell` (8 bytes), `CellStyle`, `StyleTable`, `Grid` (ADR-0025).
   - Dependency: `TerminalKitText` (display widths) from g-cqd/TerminalKit by revision `5966813`; ADR-0002 accepted: g-cqd and Aemi-Studio packages freely, Apple/swiftlang on approval.
-  - Tests: `swift test -c release --enable-testable-imports` → 160 pass (150 core + 10 host) (parser, properties, screen, differential against a naive model, replies and modes).
+  - Tests: `swift test -c release --enable-testable-imports` → 161 pass (151 core + 10 host) (parser, properties, screen, differential against a naive model, replies and modes).
   - Replies: `Terminal.takeReplies()` (bounded queue, ADR-0026); `Screen.modes` (what the host needs), `keyboardFlags`, `cursorShape`.
   - Benchmarks: `Benchmarks/Benchmarks/ParserBenchmarks` (`cd Benchmarks && swift package benchmark --no-progress --target ParserBenchmarks`); baseline in `bench/results/2026-11-05/parser-baseline.txt`.
 
-  - `Sources/SunsetHost` (the platform seam): `PTYProcess`, `HeadlessSession`; `Sources/SunsetRun` (`sunset-run`, prints a program's screen); `Scripts/oracle-compare.sh` + `Scripts/oracle-streams/*.sh` (17 streams, all equal to kitty's text and styles, ADR-0030).
+  - `Sources/SunsetHost` (the platform seam): `PTYProcess`, `HeadlessSession`; `Sources/SunsetRun` (`sunset-run`, prints a program's screen); `Scripts/oracle-compare.sh` + `Scripts/oracle-streams/*.sh` (18 streams: text and styles against kitty, text against ghostty via `Scripts/oracle-ghostty.sh`, replies against kitty, ghostty and alacritty (built with cargo); understood differences in `Scripts/oracle-accepted.txt`; ADR-0030). Needs a GUI session, local only.
 
 ## Measured (instructions per 1 MiB, p50, release; 0 mallocs on all)
 

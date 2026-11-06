@@ -1,7 +1,7 @@
 // sunset-run: runs a program in a headless Sunset terminal and prints the screen. A tool for looking at what a real program does to the emulator, and
 // the way a comparison with another terminal starts (roadmap 0004, 0005).
 //
-//   sunset-run [--cols N] [--rows N] [--wait MS] [--keys TEXT] [--then-wait MS] [--plain] [--cells] -- command [args...]
+//   sunset-run [--cols N] [--rows N] [--wait MS] [--keys TEXT] [--then-wait MS] [--plain] [--cells] [--env K=V] [--until-exit MS] -- command [args...]
 //
 // --keys is sent after --wait; \e \n \r \t \\ are escapes in it. The screen is printed after --then-wait more milliseconds (default 500).
 internal import Darwin
@@ -15,6 +15,8 @@ var waitThen = 500
 var keys = ""
 var plain = false
 var cells = false
+var untilExit = 0
+var environment: [String: String] = [:]
 var command: [String] = []
 var arguments = Array(CommandLine.arguments.dropFirst())
 while let argument = arguments.first {
@@ -27,6 +29,12 @@ while let argument = arguments.first {
         case "--keys": keys = arguments.removeFirst()
         case "--plain": plain = true
         case "--cells": cells = true
+        case "--until-exit": untilExit = Int(arguments.removeFirst()) ?? 0
+        case "--env":
+            let pair = arguments.removeFirst()
+            if let split = pair.firstIndex(of: "=") {
+                environment[String(pair[..<split])] = String(pair[pair.index(after: split)...])
+            }
         case "--":
             command = arguments
             arguments = []
@@ -100,8 +108,12 @@ func printCells(_ screen: Screen) {
 }
 
 func run() throws {
-    let session = try HeadlessSession(command, columns: columns, rows: rows)
-    _ = session.wait(timeoutMilliseconds: waitFirst) { _ in false }
+    let session = try HeadlessSession(command, columns: columns, rows: rows, environment: environment)
+    if untilExit > 0 {
+        _ = session.waitForExit(timeoutMilliseconds: untilExit)
+    } else {
+        _ = session.wait(timeoutMilliseconds: waitFirst) { _ in false }
+    }
     if !keys.isEmpty { try session.send(unescape(keys)) }
     _ = session.wait(timeoutMilliseconds: waitThen) { _ in false }
     let screen = session.terminal.screen
