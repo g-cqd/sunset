@@ -22,6 +22,8 @@ public actor TerminalSession {
     /// the oldest.
     public nonisolated let hostEvents: AsyncStream<HostEvent>
     private let hostContinuation: AsyncStream<HostEvent>.Continuation
+    /// The most output parsed in one go.
+    private static let batchLimit = 256 * 1024
     private var terminal: Terminal
     private var reading: Task<Void, Never>?
     public private(set) var isClosed = false
@@ -53,7 +55,21 @@ public actor TerminalSession {
     public func start() {
         guard reading == nil else { return }
         reading = Task { [process] in
-            while !Task.isCancelled, let bytes = await process.read() { ingest(bytes) }
+            let pump = process.pump
+            pump.start()
+            for await _ in pump.signals {
+                // Everything that has arrived, in batches: a flood is parsed in a few big pieces, and between them (the yield) the frame consumer and the
+                // keys get their turn on this actor.
+                while !Task.isCancelled {
+                    let batch = pump.take(limit: Self.batchLimit)
+                    if batch.isEmpty { break }
+                    ingest(batch)
+                    await Task.yield()
+                }
+            }
+            pump.stop()
+            let rest = pump.take(limit: .max)
+            if !rest.isEmpty { ingest(rest) }
             await finish()
         }
     }
@@ -130,6 +146,7 @@ public actor TerminalSession {
     /// Stops reading and asks the program to end (it receives SIGHUP when the session goes away).
     public func stop() {
         reading?.cancel()
+        process.pump.stop()
         process.hangUp()
     }
 }

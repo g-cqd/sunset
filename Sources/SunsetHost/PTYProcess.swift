@@ -12,6 +12,8 @@ public final class PTYProcess: Sendable {
     let writeThread = DedicatedThread.start()
     let outbox: AsyncStream<[UInt8]>.Continuation
     let counters = Counters()
+    /// Reads the output continuously on `readThread` (the way `TerminalSession` reads; `read()` is the pull for tools and tests).
+    let pump: OutputPump
     /// A pipe that wakes the waiting reader when its task is cancelled (the reader waits with no timeout; -1 when the pipe could not be made, and it then falls back
     /// to waking every 50 ms to look).
     let cancelRead: Int32
@@ -27,6 +29,9 @@ public final class PTYProcess: Sendable {
     /// The most input kept waiting for a child that is not reading it (a paste into a stuck program must not grow memory without bound).
     public static let pendingWriteLimit = 1 << 20
 
+    /// The most output kept waiting for the consumer before the reader stops reading (and the child is slowed by the kernel's buffer).
+    static let outputBacklogLimit = 1 << 20
+
     init(master: Int32, processID: Int32) {
         self.master = master
         self.processID = processID
@@ -40,6 +45,7 @@ public final class PTYProcess: Sendable {
             ends = [-1, -1]
         }
         (cancelRead, cancelWrite) = (ends[0], ends[1])
+        pump = OutputPump(master: master, thread: readThread, limit: Self.outputBacklogLimit)
         let (stream, continuation) = AsyncStream.makeStream(of: [UInt8].self, bufferingPolicy: .unbounded)
         outbox = continuation
         let fileDescriptor = master
@@ -55,6 +61,7 @@ public final class PTYProcess: Sendable {
 
     deinit {
         outbox.finish()
+        pump.stop()
         readThread.stop()
         writeThread.stop()
         close(master)
