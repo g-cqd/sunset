@@ -123,6 +123,12 @@ public actor TerminalSession {
         process.send(PasteEncoder.encode(text, bracketed: core.terminal.withLock { $0.screen.modes.bracketedPaste }))
     }
 
+    /// The theme's default colours (nil leaves one as it is); the screen is drawn again.
+    public func setDefaultColors(foreground: RGB?, background: RGB?, cursor: RGB?) {
+        core.terminal.withLock { $0.setDefaultColors(foreground: foreground, background: background, cursor: cursor) }
+        continuation.yield(.changed)
+    }
+
     public func resize(columns: Int, rows: Int) {
         core.terminal.withLock { $0.resize(columns: columns, rows: rows) }
         process.resize(columns: columns, rows: rows)

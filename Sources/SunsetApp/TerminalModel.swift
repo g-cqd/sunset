@@ -36,6 +36,8 @@ import SunsetRenderMac
     /// The link under the pointer (an id into the last screen's link table), drawn underlined; 0 for none.
     @ObservationIgnored var scrollbackLimit = 10_000
     @ObservationIgnored var blinkSchedule = BlinkSchedule()
+    /// The theme's default colours (the configuration file's), applied to the terminal when it starts and whenever they change.
+    @ObservationIgnored var defaultColors = DefaultColors()
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
     @ObservationIgnored var lastActivity = ContinuousClock.now
     @ObservationIgnored var hoveredLink: UInt16 = 0
@@ -76,7 +78,14 @@ import SunsetRenderMac
             )
             self.session = session
             tasks = [
-                Task { await session.start() },
+                Task { [colors = defaultColors] in
+                    await session.setDefaultColors(
+                        foreground: colors.foreground,
+                        background: colors.background,
+                        cursor: colors.cursor
+                    )
+                    await session.start()
+                },
                 Task { [weak self] in await self?.watch(session) },
                 Task { [weak self] in await self?.watchHostEvents(session) },
                 Task { [weak self, events = input.stream] in

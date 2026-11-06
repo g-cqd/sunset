@@ -25,6 +25,8 @@ struct TerminalScene: View {
         )
     }
 
+    private var colors: DefaultColors { DefaultColors(config.configuration.colors) }
+
     private var blinkSchedule: BlinkSchedule {
         BlinkSchedule(stopAfter: config.configuration.cursorBlinkTimeout.map { Duration.seconds($0) })
     }
@@ -41,6 +43,7 @@ struct TerminalScene: View {
                 environment["TERM"] = "xterm-256color"
                 model.onExit = { dismiss() }
                 model.blinkSchedule = blinkSchedule
+                model.defaultColors = colors
                 model.start(
                     command: launch.command,
                     environment: environment,
@@ -49,6 +52,7 @@ struct TerminalScene: View {
                 )
             }
             .onChange(of: font) { _, newFont in model.apply(font: newFont) }
+            .onChange(of: colors) { _, newColors in model.apply(colors: newColors) }
             .onChange(of: blinkSchedule) { _, schedule in model.blinkSchedule = schedule }
             .onDisappear { model.stop() }
     }
