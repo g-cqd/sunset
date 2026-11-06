@@ -82,17 +82,17 @@ public final class CPURenderer: CellRenderer {
             showCursor
             ? CursorDrawn(row: screen.cursorRow, column: screen.cursorColumn, shape: screen.cursorShape) : nil
         let cursorMoved = cursor != lastCursor
+        let frame = Frame(
+            screen: screen,
+            cursor: cursor,
+            foreground: reverse ? screen.palette.background : screen.palette.foreground,
+            background: reverse ? screen.palette.foreground : screen.palette.background,
+            blinkVisible: textBlinkVisible
+        )
         for row in 0 ..< screen.rows {
             let touchesCursor = cursorMoved && (cursor?.row == row || lastCursor?.row == row)
             guard full || touchesCursor || screen.isDirty(row: row) else { continue }
-            drawRow(
-                row,
-                screen: screen,
-                surface: &surface,
-                cursor: cursor,
-                reverse: reverse,
-                blinkVisible: textBlinkVisible
-            )
+            drawRow(row, frame: frame, surface: &surface)
         }
         lastCursor = cursor
         lastPalette = screen.palette
