@@ -1,3 +1,4 @@
+import IOSurface
 import Observation
 import SunsetCore
 import SunsetHost
@@ -13,7 +14,9 @@ import SunsetRenderMac
     /// Whether text is selected (observed, so that the Copy menu item follows it).
     var hasSelection = false
 
-    @ObservationIgnored var presentFrame: (RenderedFrame) -> Void = { _ in }
+    @ObservationIgnored var presentFrame: (IOSurface) -> Void = { _ in }
+    /// Keeps the frames in `IOSurface`s the window's layer shows (no image is made and converted on the CPU for each frame).
+    @ObservationIgnored let presenter = IOSurfacePresenter()
     @ObservationIgnored var setDisplayLinkPaused: (Bool) -> Void = { _ in }
     @ObservationIgnored var onExit: () -> Void = {}
 
@@ -32,6 +35,9 @@ import SunsetRenderMac
     @ObservationIgnored var lastScreen: Screen?
     /// The link under the pointer (an id into the last screen's link table), drawn underlined; 0 for none.
     @ObservationIgnored var scrollbackLimit = 10_000
+    @ObservationIgnored var blinkSchedule = BlinkSchedule()
+    /// When something last happened (a key, or output): the cursor stops blinking a while after.
+    @ObservationIgnored var lastActivity = ContinuousClock.now
     @ObservationIgnored var hoveredLink: UInt16 = 0
     /// Whether the program asked for the mouse (as of the last frame): its events go to it, not to the selection.
     var programHasMouse: Bool { (lastScreen?.modes.mouseTracking ?? .none) != .none }
@@ -145,7 +151,9 @@ import SunsetRenderMac
     private func watch(_ session: TerminalSession) async {
         for await update in session.updates {
             switch update {
-                case .changed: requestFrame()
+                case .changed:
+                    lastActivity = .now
+                    requestFrame()
                 case .closed:
                     isRunning = false
                     onExit()
@@ -155,8 +163,11 @@ import SunsetRenderMac
 
     private func blink() async {
         while !Task.isCancelled {
-            try? await Task.sleep(for: .milliseconds(550))
-            guard cursorBlinks else {
+            let idle = ContinuousClock.now - lastActivity
+            try? await Task.sleep(for: blinkSchedule.wait(afterIdle: idle))
+            let stillIdle = ContinuousClock.now - lastActivity
+            guard cursorBlinks, blinkSchedule.blinks(afterIdle: stillIdle) else {
+                // Solid: no blinking when the program turned it off, or after a long time without input or output.
                 if !cursorPhase {
                     cursorPhase = true
                     requestFrame()
@@ -183,30 +194,32 @@ import SunsetRenderMac
         frameWanted = false
         renderInFlight = true
         let phase = cursorPhase
+        let presenter = presenter
         Task { [weak self] in
             let snapshot = await session.takeSnapshot()
             self?.viewport.follow(historyCount: snapshot.scrollbackCount)
             self?.lastScreen = snapshot
-            let frame = await renderer.frame(
-                for: snapshot,
+            let changed = await renderer.present(
+                snapshot,
                 cursorVisible: phase || !snapshot.cursorBlinks,
                 textBlinkVisible: phase,
                 view: FrameView(
                     scrolledBack: self?.viewport.scrolledBack ?? 0,
                     selection: self?.selection,
                     hoveredLink: self?.hoveredLink ?? 0
-                )
+                ),
+                to: presenter
             )
-            self?.presented(frame, title: snapshot.title, blinks: snapshot.cursorBlinks)
+            self?.presented(changed: changed, title: snapshot.title, blinks: snapshot.cursorBlinks)
         }
     }
 
-    private func presented(_ frame: RenderedFrame, title newTitle: String, blinks: Bool) {
+    private func presented(changed: Bool, title newTitle: String, blinks: Bool) {
         renderInFlight = false
         cursorBlinks = blinks
         let shown = newTitle.isEmpty ? "Sunset" : newTitle
         if shown != title { title = shown }
-        presentFrame(frame)
+        if changed, let latest = presenter.latest { presentFrame(latest) }
         // Something may have changed while this frame was being drawn.
         if frameWanted { setDisplayLinkPaused(false) }
     }

@@ -26,6 +26,8 @@ public final class CPURenderer: CellRenderer {
     private var lastBlink = true
     /// How many rows were drawn in all (a counter for tests and probes: a frame that changes nothing must draw nothing).
     var rowsDrawn = 0
+    /// The pixel rows of the surface the last frame wrote to (the whole surface after a full redraw), nil when it wrote nothing: what a presenter has to upload.
+    public internal(set) var changedPixelRows: ClosedRange<Int>?
     /// Which rows were drawn with blinking text: only those change when the blink phase does.
     var blinkRows: [Bool] = []
     private var lastScrolledBack = 0
@@ -77,7 +79,11 @@ public final class CPURenderer: CellRenderer {
         if blinkRows.count != screen.rows { blinkRows = [Bool](repeating: false, count: screen.rows) }
         let blinkChanged = textBlinkVisible != lastBlink
         let background = Surface.pack(reverse ? screen.palette.foreground : screen.palette.background)
-        if full { fill(&surface, x: 0, y: 0, width: surface.width, height: surface.height, color: background) }
+        changedPixelRows = nil
+        if full {
+            fill(&surface, x: 0, y: 0, width: surface.width, height: surface.height, color: background)
+            changedPixelRows = 0 ... surface.height - 1
+        }
 
         let showCursor =
             scrolledBack == 0 && cursorVisible && screen.modes.cursorVisible && screen.cursorRow < screen.rows

@@ -1,4 +1,5 @@
 import AppKit
+import IOSurface
 import SunsetRender
 
 /// The AppKit side of a terminal: a layer-backed view that shows the frames the model hands it, takes the keyboard, and tells the model its size in device
@@ -19,7 +20,7 @@ final class TerminalNSView: NSView {
         layerContentsRedrawPolicy = .never
         layer?.contentsGravity = .topLeft
         layer?.isOpaque = true
-        model.presentFrame = { [weak self] frame in self?.show(frame) }
+        model.presentFrame = { [weak self] surface in self?.show(surface) }
         model.setDisplayLinkPaused = { [weak self] paused in self?.displayLink?.isPaused = paused }
     }
 
@@ -64,23 +65,8 @@ final class TerminalNSView: NSView {
         )
     }
 
-    private func show(_ frame: RenderedFrame) {
-        guard let provider = CGDataProvider(data: Data(frame.bytes) as CFData),
-            let image = CGImage(
-                width: frame.width,
-                height: frame.height,
-                bitsPerComponent: 8,
-                bitsPerPixel: 32,
-                bytesPerRow: frame.width * 4,
-                space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue),
-                provider: provider,
-                decode: nil,
-                shouldInterpolate: false,
-                intent: .defaultIntent
-            )
-        else { return }
-        layer?.contents = image
+    private func show(_ surface: IOSurface) {
+        layer?.contents = surface
     }
 
     isolated deinit { displayLink?.invalidate() }

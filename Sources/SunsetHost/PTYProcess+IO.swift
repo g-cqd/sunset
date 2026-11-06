@@ -8,19 +8,45 @@ extension PTYProcess {
     /// on a thread of its own, so it never ties up the cooperative pool; the reader pulls, so a reader that falls behind makes the child wait in the kernel's
     /// buffer (the backpressure a terminal has to give).
     public func read() async -> [UInt8]? {
-        let fileDescriptor = master
-        let waiting = Task(executorPreference: readThread) { PTYProcess.blockingRead(fileDescriptor) }
+        let (fileDescriptor, wake, counters) = (master, cancelRead, counters)
+        let waiting = Task(executorPreference: readThread) {
+            PTYProcess.blockingRead(fileDescriptor, wake: wake, counters: counters)
+        }
+        let cancelWrite = cancelWrite
         return await withTaskCancellationHandler {
             await waiting.value
         } onCancel: {
             waiting.cancel()
+            if cancelWrite >= 0 {
+                var byte: UInt8 = 1
+                _ = unsafe Darwin.write(cancelWrite, &byte, 1)
+            }
         }
     }
 
-    static func blockingRead(_ fileDescriptor: Int32) -> [UInt8]? {
+    /// Waits for output with no timeout, on the master and on the cancellation pipe: an idle terminal does not wake up to look. Without the pipe it looks
+    /// every 50 ms.
+    static func blockingRead(_ fileDescriptor: Int32, wake: Int32, counters: Counters) -> [UInt8]? {
         var buffer = [UInt8](repeating: 0, count: 64 * 1024)
+        var scratch = [UInt8](repeating: 0, count: 16)
         while !Task.isCancelled {
-            switch read(fileDescriptor, into: &buffer, timeoutMilliseconds: 50) {
+            var waits = [
+                pollfd(fd: fileDescriptor, events: Int16(POLLIN), revents: 0),
+                pollfd(fd: wake, events: Int16(POLLIN), revents: 0)
+            ]
+            let ready = unsafe poll(&waits, wake >= 0 ? 2 : 1, wake >= 0 ? -1 : 50)
+            counters.readWakeups.withLock { $0 += 1 }
+            if ready < 0 {
+                if errno == EINTR { continue }
+                return nil
+            }
+            if wake >= 0, waits[1].revents != 0 {
+                // A cancellation (maybe one of an earlier read: the loop looks at this task's own flag).
+                while unsafe Darwin.read(wake, &scratch, scratch.count) > 0 {}
+                continue
+            }
+            guard waits[0].revents != 0 else { continue }
+            switch read(fileDescriptor, into: &buffer, timeoutMilliseconds: 0) {
                 case .data(let count): return Array(buffer[0 ..< count])
                 case .timeout: continue
                 case .closed: return nil
