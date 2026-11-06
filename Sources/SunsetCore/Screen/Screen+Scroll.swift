@@ -46,19 +46,30 @@ extension Screen {
         }
     }
 
-    /// Rotates the row map of a range in place (three reversals: no allocation).
+    /// Rotates the row map of a range in place: one line (the common scroll) moves the rest down with a single copy; more take three reversals. Both work
+    /// on the buffer itself, so a scroll does not pay for a uniqueness check and a bounds check per row.
     private mutating func rotateRows(_ range: ClosedRange<Int>, leftBy n: Int) {
         guard n > 0, n < range.count else { return }
-        reverseRows(range.lowerBound, range.lowerBound + n - 1)
-        reverseRows(range.lowerBound + n, range.upperBound)
-        reverseRows(range.lowerBound, range.upperBound)
+        grid.rowMap.withUnsafeMutableBufferPointer { map in
+            guard let start = map.baseAddress.map({ $0 + range.lowerBound }) else { return }
+            let count = range.count
+            if n == 1 {
+                let first = start.pointee
+                start.update(from: start + 1, count: count - 1)
+                (start + count - 1).pointee = first
+                return
+            }
+            Self.reverse(start, 0, n - 1)
+            Self.reverse(start, n, count - 1)
+            Self.reverse(start, 0, count - 1)
+        }
     }
 
-    private mutating func reverseRows(_ first: Int, _ last: Int) {
+    private static func reverse(_ start: UnsafeMutablePointer<Int32>, _ first: Int, _ last: Int) {
         var low = first
         var high = last
         while low < high {
-            grid.rowMap.swapAt(low, high)
+            swap(&start[low], &start[high])
             low += 1
             high -= 1
         }
@@ -66,8 +77,13 @@ extension Screen {
 
     private mutating func blankRows(_ rows: ClosedRange<Int>) {
         let blank = Cell(scalar: 0, width: .narrow, style: currentEraseID())
+        let width = columns
         for row in rows {
-            grid.fill(row: row, from: 0, to: columns - 1, with: blank)
+            let start = grid.base(row)
+            grid.cells.withUnsafeMutableBufferPointer { cells in
+                guard let base = cells.baseAddress else { return }
+                (base + start).update(repeating: blank, count: width)
+            }
             grid.wrapped[Int(grid.rowMap[row])] = false
         }
     }

@@ -37,6 +37,14 @@ private func sgrDense(_ size: Int) -> [UInt8] {
     return out
 }
 
+/// What vtebench's `scrolling` writes: a line feed after every two bytes, so every line scrolls the screen.
+private func lineFeeds(_ size: Int) -> [UInt8] {
+    var bytes: [UInt8] = []
+    bytes.reserveCapacity(size)
+    while bytes.count < size { bytes += [0x79, 0x0A] }
+    return bytes
+}
+
 private func cursorMoves(_ size: Int) -> [UInt8] {
     var out: [UInt8] = []
     var generator = Generator()
@@ -78,7 +86,7 @@ let benchmarks: @Sendable () -> Void = {
     let size = 1 << 20
     let streams: [(String, [UInt8])] = [
         ("ascii", ascii(size)), ("sgr_truecolor", sgrDense(size)), ("cursor_moves", cursorMoves(size)),
-        ("unicode", unicode(size)),
+        ("unicode", unicode(size)), ("line_feeds", lineFeeds(size)),
         ("osc_titles", titles(size))
     ]
     for (name, data) in streams {

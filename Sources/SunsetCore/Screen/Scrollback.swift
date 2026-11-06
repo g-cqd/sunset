@@ -62,15 +62,17 @@ struct Scrollback: Sendable {
         }
         precondition(line.count == columns, "a scrollback line is as wide as the screen was")
         if count == limit { dropOldest() }
-        if chunks.last.map({ $0.wrapped.count == Self.chunkLines }) ?? true {
+        var newest = chunks.count - 1
+        if newest < 0 || chunks[newest].wrapped.count == Self.chunkLines {
             var fresh = spare ?? Chunk()
             spare = nil
             fresh.cells.reserveCapacity(Self.chunkLines * columns)
             fresh.wrapped.reserveCapacity(Self.chunkLines)
             chunks.append(fresh)
+            newest = chunks.count - 1
         }
-        chunks[chunks.count - 1].cells.append(contentsOf: line)
-        chunks[chunks.count - 1].wrapped.append(isWrapped)
+        chunks[newest].cells.append(contentsOf: line)
+        chunks[newest].wrapped.append(isWrapped)
         count += 1
     }
 
