@@ -18,7 +18,11 @@ let package = Package(
     platforms: [.macOS(.v26)],
     products: [
         // The headless emulator core: VT parser, then screen, modes and replies (roadmap 0003).
-        .library(name: "SunsetCore", targets: ["SunsetCore"])
+        .library(name: "SunsetCore", targets: ["SunsetCore"]),
+        // The host: a program on a pseudo-terminal feeding the core, with no window (roadmap 0004). The only target that imports the platform.
+        .library(name: "SunsetHost", targets: ["SunsetHost"]),
+        // Runs a program in a headless terminal and prints the screen.
+        .executable(name: "sunset-run", targets: ["SunsetRun"])
     ],
     dependencies: [
         // Our own tooling (ADR-0002): terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
@@ -29,6 +33,24 @@ let package = Package(
             name: "SunsetCore",
             dependencies: [.product(name: "TerminalKitText", package: "TerminalKit")],
             path: "Sources/SunsetCore",
+            swiftSettings: strictSettings
+        ),
+        .target(
+            name: "SunsetHost",
+            dependencies: ["SunsetCore"],
+            path: "Sources/SunsetHost",
+            swiftSettings: strictSettings
+        ),
+        .executableTarget(
+            name: "SunsetRun",
+            dependencies: ["SunsetCore", "SunsetHost"],
+            path: "Sources/SunsetRun",
+            swiftSettings: [.swiftLanguageMode(.v5)]  // a script-style main with globals
+        ),
+        .testTarget(
+            name: "SunsetHostTests",
+            dependencies: ["SunsetHost"],
+            path: "Tests/SunsetHostTests",
             swiftSettings: strictSettings
         ),
         .testTarget(
