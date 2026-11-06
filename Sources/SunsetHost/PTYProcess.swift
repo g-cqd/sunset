@@ -29,9 +29,6 @@ public final class PTYProcess: Sendable {
     /// The most input kept waiting for a child that is not reading it (a paste into a stuck program must not grow memory without bound).
     public static let pendingWriteLimit = 1 << 20
 
-    /// The most output kept waiting for the consumer before the reader stops reading (and the child is slowed by the kernel's buffer).
-    static let outputBacklogLimit = 1 << 20
-
     init(master: Int32, processID: Int32) {
         self.master = master
         self.processID = processID
@@ -45,7 +42,7 @@ public final class PTYProcess: Sendable {
             ends = [-1, -1]
         }
         (cancelRead, cancelWrite) = (ends[0], ends[1])
-        pump = OutputPump(master: master, thread: readThread, limit: Self.outputBacklogLimit)
+        pump = OutputPump(master: master)
         let (stream, continuation) = AsyncStream.makeStream(of: [UInt8].self, bufferingPolicy: .unbounded)
         outbox = continuation
         let fileDescriptor = master
