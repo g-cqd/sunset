@@ -21,6 +21,8 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
 
   - **App**: `Sources/SunsetApp` (`swift run sunset-app -- /opt/homebrew/bin/fish`): SwiftUI `App`/Settings/Commands + an AppKit terminal view, a `TerminalSession` actor and a `FrameRenderer` actor, no Dispatch (ADR-0033). Quality rules: `docs/quality.md` (strict safety, one type per file, 250 lines, no GCD, Swift 6.4.2).
 
+  - App input done: keys, text (input method), paste, mouse reporting (all xterm modes and formats). Not done: selection/copy, scrollback viewport (the renderer draws the active screen only: it needs a viewport offset over scrollback + screen), find, tabs/splits.
+
 ## Measured (instructions per 1 MiB, p50, release; 0 mallocs on all)
 
 Parser alone: ASCII 11 M · UTF-8 44 M · OSC 21 M · cursor moves 81 M · SGR 87 M.
