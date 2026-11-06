@@ -1,0 +1,23 @@
+[25 / 101] MallocInterposerC
+[45 / 102] MallocInterposerSwift
+[67 / 77] MallocInterposerSwift-product
+parser/ascii (1 MiB)
+│ Instructions (M) *       │        10 │        11 │        11 │        11 │        11 │        11 │        11 │       300 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       300 │
+│ Time (wall clock) (μs) * │       741 │       828 │       828 │      1015 │      1433 │      2603 │      6862 │       300 │
+parser/cursor_moves (1 MiB)
+│ Instructions (M) *       │        81 │        81 │        81 │        81 │        81 │        81 │        82 │       300 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       300 │
+│ Time (wall clock) (ms) * │         8 │         9 │        10 │        11 │        12 │        15 │        19 │       300 │
+parser/osc_titles (1 MiB)
+│ Instructions (M) *       │        21 │        21 │        21 │        21 │        21 │        21 │        21 │       300 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       300 │
+│ Time (wall clock) (μs) * │      1716 │      1919 │      1937 │      2218 │      3138 │      5911 │      6246 │       300 │
+parser/sgr_truecolor (1 MiB)
+│ Instructions (M) *       │        87 │        87 │        87 │        87 │        87 │        87 │        87 │       300 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       300 │
+│ Time (wall clock) (ms) * │         9 │        10 │        10 │        11 │        12 │        15 │        19 │       300 │
+parser/unicode (1 MiB)
+│ Instructions (M) *       │        44 │        44 │        44 │        44 │        44 │        44 │        45 │       300 │
+│ Malloc (total) *         │         0 │         0 │         0 │         0 │         0 │         0 │         0 │       300 │
+│ Time (wall clock) (μs) * │      4692 │      5079 │      5235 │      5911 │      6337 │      7467 │      7881 │       300 │

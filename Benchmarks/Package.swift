@@ -27,7 +27,8 @@ let package = Package(
     platforms: [.macOS(.v26)],
     dependencies: [
         // Exact, like every other pin in the ecosystem: a harness that moves under the numbers changes the numbers.
-        .package(url: "https://github.com/ordo-one/benchmark", exact: "1.38.0")
+        .package(url: "https://github.com/ordo-one/benchmark", exact: "1.38.0"),
+        .package(name: "Sunset", path: "..")
     ],
     targets: [
         .target(
@@ -44,11 +45,32 @@ let package = Package(
             swiftSettings: probeSettings,
             plugins: [.plugin(name: "BenchmarkPlugin", package: "benchmark")]
         ),
+        // The real parser (roadmap 0003), strict settings.
+        .executableTarget(
+            name: "ParserBenchmarks",
+            dependencies: [
+                .product(name: "Benchmark", package: "benchmark"), "BenchmarkSupport",
+                .product(name: "SunsetCore", package: "Sunset")
+            ],
+            path: "Benchmarks/ParserBenchmarks",
+            swiftSettings: strictSettings,
+            plugins: [.plugin(name: "BenchmarkPlugin", package: "benchmark")]
+        ),
         // Not a benchmark: who holds the screen when a renderer wants a frame (sunset roadmap 0002 probe T0.3, ADR-0014).
         // Not a benchmark: GPU reads the screen's cells vs CPU-rebuilt instances (sunset roadmap 0002 probe T0.5, ADR-0015).
         .executableTarget(name: "MetalProbe", path: "Probes/MetalProbe", swiftSettings: probeSettings),
         // Not a benchmark: bytes per cell of cold history, structural encoding vs the platform's compressors, on real text (sunset roadmap 0002 probes T0.2).
-        .executableTarget(name: "ColdHistoryProbe", dependencies: ["VTModel"], path: "Probes/ColdHistoryProbe", swiftSettings: [.swiftLanguageMode(.v5)]),
-        .executableTarget(name: "HandoffProbe", dependencies: ["VTModel"], path: "Probes/HandoffProbe", swiftSettings: probeSettings)
+        .executableTarget(
+            name: "ColdHistoryProbe",
+            dependencies: ["VTModel"],
+            path: "Probes/ColdHistoryProbe",
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
+        .executableTarget(
+            name: "HandoffProbe",
+            dependencies: ["VTModel"],
+            path: "Probes/HandoffProbe",
+            swiftSettings: probeSettings
+        )
     ]
 )
