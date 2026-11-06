@@ -45,10 +45,7 @@ enum BoxDrawing {
             default:
                 guard let weights = arms[scalar] else { return false }
                 drawArms(
-                    left: weights[0],
-                    right: weights[1],
-                    up: weights[2],
-                    down: weights[3],
+                    Arms(left: weights[0], right: weights[1], up: weights[2], down: weights[3]),
                     into: &canvas,
                     light: light
                 )
