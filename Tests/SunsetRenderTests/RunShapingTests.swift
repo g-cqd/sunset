@@ -39,7 +39,8 @@ import Testing
         var rig = RunShapingRig(ligatures: true)
         rig.frame("a b")
         #expect(rig.source.runs.isEmpty)
-        #expect(rig.source.singles == ["a", " ", "b"])
+        // A blank in the default style draws nothing, so the source is not asked for it.
+        #expect(rig.source.singles == ["a", "b"])
     }
 
     @Test func `the same text is shaped once`() {

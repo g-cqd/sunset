@@ -17,6 +17,7 @@ extension CPURenderer {
             height: metrics.cellHeight,
             color: Surface.pack(frame.background)
         )
+        let plainRow = frame.cursor?.row != row && frame.selection == nil && frame.hoveredLink == 0
         var column = 0
         while column < frame.screen.columns {
             let cell = frame.cell(row: row, column: column)
@@ -26,6 +27,11 @@ extension CPURenderer {
             }
             if ligatures, let length = drawRun(row: row, column: column, frame: frame, surface: &surface) {
                 column += length
+                continue
+            }
+            // A blank cell in the default style, with no cursor, selection or link on the row, draws nothing: the strip was cleared to the background already.
+            if cell.styleID == 0, cell.width == .narrow, cell.scalar == 0 || cell.scalar == 0x20, plainRow {
+                column += 1
                 continue
             }
             let span = cell.width == .wide && column + 1 < frame.screen.columns ? 2 : 1
