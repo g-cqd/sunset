@@ -4,7 +4,8 @@ public import SunsetRender
 
 /// Rasterises text with a macOS font (any installed monospaced font; CoreText substitutes fonts for what it lacks: CJK, emoji). `metrics` gives the cell
 /// size that font implies.
-public final class CoreTextGlyphSource: GlyphSource {
+// SAFETY: every stored property is immutable after `init`, and CoreText fonts are safe to use from any thread (they are immutable by contract).
+public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
     public let metrics: RenderMetrics
     private let regular: CTFont
     private let bold: CTFont

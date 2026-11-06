@@ -71,8 +71,23 @@ public actor TerminalSession {
         return screen
     }
 
-    /// Sends keys or a paste to the program, in order with everything else sent.
+    /// Sends bytes to the program, in order with everything else sent.
     public func send(_ bytes: [UInt8]) { process.send(bytes) }
+
+    /// Sends a key, encoded for the modes the program has set *now* (application cursor keys, the keyboard protocol's flags).
+    public func send(_ press: KeyPress) {
+        process.send(
+            KeyEncoder.encode(press, modes: terminal.screen.modes, keyboardFlags: terminal.screen.keyboardFlags)
+        )
+    }
+
+    /// Sends typed text (composed by the input system) as the program should read it.
+    public func send(text: String) { process.send(Array(text.utf8)) }
+
+    /// Sends a paste: bracketed when the program asked for that.
+    public func paste(_ text: String) {
+        process.send(PasteEncoder.encode(text, bracketed: terminal.screen.modes.bracketedPaste))
+    }
 
     public func resize(columns: Int, rows: Int) {
         terminal.resize(columns: columns, rows: rows)

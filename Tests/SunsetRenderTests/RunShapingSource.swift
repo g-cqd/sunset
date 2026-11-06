@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetRender
 
 /// A source that shapes runs: a run containing "->" is one glyph over the whole run (a ligature), any other run is drawn as the box glyphs one by one.
-final class RunShapingSource: GlyphSource {
+final class RunShapingSource: GlyphSource, @unchecked Sendable {
     nonisolated(unsafe) var runs: [String] = []
     nonisolated(unsafe) var singles: [String] = []
     var shapesRuns: Bool { true }

@@ -1,0 +1,20 @@
+import SwiftUI
+
+/// Sunset, the app: one window per terminal, a Settings window, a Paste command. SwiftUI owns the scenes, the settings and the menus; the terminal view
+/// itself is AppKit (`TerminalNSView`).
+@main struct SunsetApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
+    private let launch = LaunchOptions.parse(CommandLine.arguments, environment: ProcessInfo.processInfo.environment)
+
+    var body: some Scene {
+        WindowGroup {
+            TerminalScene(launch: launch)
+        }
+        .defaultSize(width: 820, height: 520)
+        .commands { TerminalCommands() }
+
+        Settings {
+            SettingsView()
+        }
+    }
+}
