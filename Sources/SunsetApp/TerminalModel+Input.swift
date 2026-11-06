@@ -6,6 +6,7 @@ extension TerminalModel {
     /// Keys, text and pastes go to the program one at a time, in the order they happened, encoded by the session for the modes it has *now*.
     func send(_ event: InputEvent) {
         cursorPhase = true
+        lastActivity = .now
         if case .mouse = event {} else { clearSelection() }
         if !viewport.isLive {
             viewport.toLive()

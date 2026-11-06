@@ -69,7 +69,9 @@ let package = Package(
         ),
         .testTarget(
             name: "SunsetRenderMacTests",
-            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetRenderMac", "SunsetRender"],
+            dependencies: [
+                .product(name: "AemiTestKit", package: "aemi"), "SunsetRenderMac", "SunsetRender", "SunsetCore"
+            ],
             path: "Tests/SunsetRenderMacTests",
             swiftSettings: strictSettings
         ),

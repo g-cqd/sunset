@@ -12,11 +12,16 @@ public final class PTYProcess: Sendable {
     let writeThread = DedicatedThread.start()
     let outbox: AsyncStream<[UInt8]>.Continuation
     let counters = Counters()
+    /// A pipe that wakes the waiting reader when its task is cancelled (the reader waits with no timeout; -1 when the pipe could not be made, and it then falls back
+    /// to waking every 50 ms to look).
+    let cancelRead: Int32
+    let cancelWrite: Int32
 
     /// Bytes waiting to be written and sends dropped: shared with the writer task.
     final class Counters: Sendable {
         let queued = Mutex(0)
         let dropped = Mutex(0)
+        let readWakeups = Mutex(0)
     }
 
     /// The most input kept waiting for a child that is not reading it (a paste into a stuck program must not grow memory without bound).
@@ -25,6 +30,16 @@ public final class PTYProcess: Sendable {
     init(master: Int32, processID: Int32) {
         self.master = master
         self.processID = processID
+        var ends: [Int32] = [-1, -1]
+        if pipe(&ends) == 0 {
+            for end in ends {
+                _ = fcntl(end, F_SETFL, fcntl(end, F_GETFL) | O_NONBLOCK)
+                _ = fcntl(end, F_SETFD, FD_CLOEXEC)
+            }
+        } else {
+            ends = [-1, -1]
+        }
+        (cancelRead, cancelWrite) = (ends[0], ends[1])
         let (stream, continuation) = AsyncStream.makeStream(of: [UInt8].self, bufferingPolicy: .unbounded)
         outbox = continuation
         let fileDescriptor = master
@@ -43,12 +58,17 @@ public final class PTYProcess: Sendable {
         readThread.stop()
         writeThread.stop()
         close(master)
+        if cancelRead >= 0 { close(cancelRead) }
+        if cancelWrite >= 0 { close(cancelWrite) }
         if !reaped.withLock({ $0 }) {
             kill(processID, SIGHUP)
             var status: Int32 = 0
             _ = unsafe waitpid(processID, &status, WNOHANG)
         }
     }
+
+    /// How many times the thread that waits for output has woken up: a program that prints nothing must not wake it (an idle terminal costs wakeups).
+    public var readWakeups: Int { counters.readWakeups.withLock { $0 } }
 
     /// The master side of the pseudo-terminal, for a host that waits for output with its own event source (read it only through `read`).
     public var fileDescriptor: Int32 { master }

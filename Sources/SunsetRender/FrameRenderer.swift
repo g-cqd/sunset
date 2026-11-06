@@ -23,6 +23,29 @@ public actor FrameRenderer {
         textBlinkVisible: Bool,
         view: FrameView = FrameView()
     ) -> RenderedFrame {
+        let drawn = draw(screen, cursorVisible: cursorVisible, textBlinkVisible: textBlinkVisible, view: view)
+        let result = RenderedFrame(width: drawn.width, height: drawn.height, bytes: drawn.rgbaBytes)
+        surface = drawn
+        return result
+    }
+
+    /// Draws `screen` and hands the presenter the pixel rows that changed, in place of returning the frame as bytes. Returns whether anything changed (when
+    /// nothing did, the presenter is not called).
+    public func present(
+        _ screen: Screen,
+        cursorVisible: Bool,
+        textBlinkVisible: Bool,
+        view: FrameView = FrameView(),
+        to presenter: some FramePresenter
+    ) -> Bool {
+        let drawn = draw(screen, cursorVisible: cursorVisible, textBlinkVisible: textBlinkVisible, view: view)
+        defer { surface = drawn }
+        guard let rows = renderer.changedPixelRows else { return false }
+        presenter.present(drawn, changedRows: rows)
+        return true
+    }
+
+    private func draw(_ screen: Screen, cursorVisible: Bool, textBlinkVisible: Bool, view: FrameView) -> Surface {
         let pixels = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         if surface == nil || size?.columns != screen.columns || size?.rows != screen.rows {
             surface = Surface(width: pixels.width, height: pixels.height)
@@ -38,8 +61,6 @@ public actor FrameRenderer {
             textBlinkVisible: textBlinkVisible,
             view: view
         )
-        let result = RenderedFrame(width: drawn.width, height: drawn.height, bytes: drawn.rgbaBytes)
-        surface = drawn
-        return result
+        return drawn
     }
 }
