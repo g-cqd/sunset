@@ -13,6 +13,14 @@ let strictSettings: [SwiftSetting] = [
     .treatAllWarnings(as: .error)
 ]
 
+// Debug builds of the modules that do the work are optimised too: unoptimised Swift is 20 to 70 times slower on these loops (measured: a flood of 200 000 lines cost
+// 52 G instructions in a debug build, against 2.4 G in release), which makes the app unusable to try. Assertions, preconditions and bounds checks stay on, and
+// the app and the tests are still built for debugging. Set SUNSET_UNOPTIMIZED=1 to get the fully unoptimised build back (to step through the core in a debugger).
+let optimized = Context.environment["SUNSET_UNOPTIMIZED"] == nil
+let workSettings: [SwiftSetting] =
+    strictSettings + (optimized ? [.unsafeFlags(["-O"], .when(configuration: .debug))] : [])
+let workCSettings: [CSetting] = optimized ? [.unsafeFlags(["-O2"], .when(configuration: .debug))] : []
+
 let package = Package(
     name: "Sunset",
     platforms: [.macOS(.v26)],
@@ -44,33 +52,35 @@ let package = Package(
             dependencies: [
                 .product(name: "TerminalKitText", package: "TerminalKit"),
                 // Base64, percent-decoding and UTF-8 validation for the OSC sequences that carry data (ADR-0010).
-                .product(name: "AemiKernel", package: "aemi")
+                .product(name: "AemiKernel", package: "aemi"),
+                "CSunsetKernels"
             ],
             path: "Sources/SunsetCore",
-            swiftSettings: strictSettings
+            swiftSettings: workSettings
         ),
         // Pixel kernels in C with NEON and a scalar fallback (docs/research/competitors-architecture-and-neon.md); each has a scalar reference it is tested against.
         .target(
             name: "CSunsetKernels",
-            path: "Sources/CSunsetKernels"
+            path: "Sources/CSunsetKernels",
+            cSettings: workCSettings
         ),
         .target(
             name: "SunsetRender",
             dependencies: ["SunsetCore", "CSunsetKernels"],
             path: "Sources/SunsetRender",
-            swiftSettings: strictSettings
+            swiftSettings: workSettings
         ),
         .testTarget(
             name: "SunsetRenderTests",
             dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetRender", "SunsetCore"],
             path: "Tests/SunsetRenderTests",
-            swiftSettings: strictSettings
+            swiftSettings: workSettings
         ),
         .target(
             name: "SunsetRenderMac",
             dependencies: ["SunsetRender"],
             path: "Sources/SunsetRenderMac",
-            swiftSettings: strictSettings
+            swiftSettings: workSettings
         ),
         .testTarget(
             name: "SunsetRenderMacTests",

@@ -52,13 +52,22 @@ extension PTYProcess {
         directory: UnsafeMutablePointer<CChar>?
     ) -> Never {
         if let directory { _ = chdir(directory) }
-        for number in [SIGPIPE, SIGINT, SIGQUIT, SIGTERM, SIGHUP, SIGCHLD, SIGTSTP, SIGTTIN, SIGTTOU] {
+        // No allocation and no runtime calls here: this is the child of a multi-threaded process, and a lock another thread held at the fork (the allocator's) is
+        // never released in the child. A range loop and an array literal in an unoptimised build are runtime calls that can allocate.
+        var number: Int32 = 1
+        while number < 32 {
+            // SIGKILL and SIGSTOP cannot be changed (the call fails, harmlessly).
             _ = Darwin.signal(number, SIG_DFL)
+            number += 1
         }
         var none = sigset_t()
         sigemptyset(&none)
         _ = unsafe sigprocmask(SIG_SETMASK, &none, nil)
-        for descriptor in 3 ..< 256 { close(Int32(descriptor)) }
+        var descriptor: Int32 = 3
+        while descriptor < 256 {
+            close(descriptor)
+            descriptor += 1
+        }
         unsafe execve(executable, argv, envv)
         _exit(127)
     }
