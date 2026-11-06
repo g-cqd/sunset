@@ -30,7 +30,7 @@ private func screen(_ input: String, _ columns: Int = 10, _ rows: Int = 4) -> Sc
         #expect(answer("\(esc)[5n") == "\(esc)[0n")
         #expect(answer("\(esc)[6n") == "\(esc)[1;1R")
         #expect(answer("\(esc)[3;5H\(esc)[6n") == "\(esc)[3;5R")
-        #expect(answer("\(esc)[?6n") == "\(esc)[?1;1R")
+        #expect(answer("\(esc)[?6n") == "\(esc)[?1;1;1R")
         #expect(answer("\(esc)[7n") == "")
         #expect(answer("0123456789\(esc)[6n") == "\(esc)[1;10R", "a pending wrap reports the last column")
     }
@@ -56,6 +56,14 @@ private func screen(_ input: String, _ columns: Int = 10, _ rows: Int = 4) -> Sc
         #expect(answer("\(esc)[?3$p") == "\(esc)[?3;4$y", "DECCOLM is permanently reset: we never resize on request")
         #expect(answer("\(esc)[?2026h\(esc)[?2026$p") == "\(esc)[?2026;1$y")
         #expect(answer("\(esc)[?2004$p") == "\(esc)[?2004;2$y")
+    }
+
+    @Test func `cursor blinking is one state for mode 12 and DECSCUSR`() {
+        #expect(answer("\(esc)[?12$p") == "\(esc)[?12;1$y")
+        #expect(answer("\(esc)[?12l\(esc)[?12$p") == "\(esc)[?12;2$y")
+        #expect(answer("\(esc)[2 q\(esc)[?12$p") == "\(esc)[?12;2$y")
+        #expect(answer("\(esc)[2 q\(esc)[?12h\(esc)[?12$p") == "\(esc)[?12;1$y")
+        #expect(answer("\(esc)[?12l\(esc)[5 q\(esc)[?12$p") == "\(esc)[?12;1$y")
     }
 
     @Test func `terminal name and version`() {

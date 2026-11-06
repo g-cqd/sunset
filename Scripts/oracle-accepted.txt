@@ -1,0 +1,12 @@
+# Differences between Sunset and an oracle that are understood and accepted. Format: oracle, stream, key (a reply name, or * for the whole stream), reason (tab separated).
+# Anything not listed here fails Scripts/oracle-compare.sh.
+kitty	18-queries	xcpr	kitty leaves the page number out of DECXCPR; xterm, ghostty and Sunset include it
+kitty	18-queries	dec-blink	kitty does not recognise mode 12 (reports 0); Sunset and ghostty report the blink state
+kitty	18-queries	dec-colm	Sunset reports DECCOLM as permanently reset on purpose (it never resizes on request, ADR-0026); kitty and ghostty say reset
+kitty	18-queries	cursor-after-wrap	kitty reports the cursor on the next line after a write in the last column; xterm, ghostty, alacritty and Sunset keep it on the last column with the wrap pending
+ghostty	18-queries	dec-colm	as for kitty
+alacritty	18-queries	xcpr	alacritty does not answer DECXCPR
+alacritty	18-queries	dec-reverse	alacritty does not recognise mode 5
+alacritty	18-queries	dec-blink	alacritty reports mode 12 as reset; Sunset and ghostty report the blink state (set by default)
+alacritty	18-queries	dec-colm	alacritty does not recognise mode 3
+ghostty	02-tabs	*	after text in the last column, back-tab: ghostty keeps the pending wrap (the next character wraps), Sunset and kitty clear it; which is right is not decided (needs xterm's behaviour or esctest)

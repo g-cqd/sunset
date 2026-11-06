@@ -19,7 +19,7 @@ extension Screen {
                 modes.origin = enabled
                 moveTo(row: 1, column: 1)
             case 7: modes.autoWrap = enabled
-            case 12: modes.cursorBlink = enabled
+            case 12: cursorBlinks = enabled
             case 25: modes.cursorVisible = enabled
             case 9: setTracking(.x10, enabled)
             case 1000: setTracking(.normal, enabled)

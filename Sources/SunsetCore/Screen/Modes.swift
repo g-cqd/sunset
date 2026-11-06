@@ -28,7 +28,6 @@ public struct Modes: Sendable, Equatable {
     public var reverseVideo = false
     public var origin = false
     public var autoWrap = true
-    public var cursorBlink = false
     public var cursorVisible = true
     public var mouseTracking = MouseTracking.none
     public var mouseFormat = MouseFormat.x10
