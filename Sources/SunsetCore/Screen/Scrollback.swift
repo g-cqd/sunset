@@ -7,8 +7,10 @@
 struct Scrollback: Sendable {
     static let chunkLines = 128
 
+    /// A line is kept without its trailing blank cells (see `push`): `ends[i]` is where line `i` ends in `cells`, and it starts where line `i - 1` ended.
     private struct Chunk: Sendable {
         var cells = ContiguousArray<Cell>()
+        var ends = ContiguousArray<UInt32>()
         var wrapped = ContiguousArray<Bool>()
     }
 
@@ -29,12 +31,17 @@ struct Scrollback: Sendable {
         self.limit = max(0, limit)
     }
 
+    /// Cells held in memory: a line is kept without its trailing blank cells.
+    var storedCells: Int { chunks.reduce(0) { $0 + $1.cells.count } }
+
     /// Lines held in memory, the ones past the limit that are not yet released included.
     var storedLines: Int { chunks.reduce(0) { $0 + $1.wrapped.count } }
 
     subscript(line: Int, column: Int) -> Cell {
         let (chunk, index) = locate(line)
-        return chunks[chunk].cells[index * columns + column]
+        let start = index == 0 ? 0 : Int(chunks[chunk].ends[index - 1])
+        let end = Int(chunks[chunk].ends[index])
+        return column < end - start ? chunks[chunk].cells[start + column] : .empty
     }
 
     func isWrapped(_ line: Int) -> Bool {
@@ -50,8 +57,8 @@ struct Scrollback: Sendable {
     /// Whether the chunk that holds `line` is stored in memory shared with a chunk of `other` (a copy not written to since): a copy must not pay for the lines.
     func sharesStorage(line: Int, with other: Scrollback) -> Bool {
         let (chunk, _) = locate(line)
-        let address = chunks[chunk].cells.withUnsafeBufferPointer { $0.baseAddress }
-        return other.chunks.contains { $0.cells.withUnsafeBufferPointer { $0.baseAddress } == address }
+        let address = chunks[chunk].ends.withUnsafeBufferPointer { $0.baseAddress }
+        return other.chunks.contains { $0.ends.withUnsafeBufferPointer { $0.baseAddress } == address }
     }
 
     /// Adds a line at the newest end, dropping the oldest when full.
@@ -66,12 +73,19 @@ struct Scrollback: Sendable {
         if newest < 0 || chunks[newest].wrapped.count == Self.chunkLines {
             var fresh = spare ?? Chunk()
             spare = nil
-            fresh.cells.reserveCapacity(Self.chunkLines * columns)
+            fresh.ends.reserveCapacity(Self.chunkLines)
             fresh.wrapped.reserveCapacity(Self.chunkLines)
             chunks.append(fresh)
             newest = chunks.count - 1
         }
-        chunks[newest].cells.append(contentsOf: line)
+        // Only the cells up to the last one that is not blank: a line of text is mostly a few cells and then blanks, and the blanks are implied.
+        line.withUnsafeBufferPointer { cells in
+            let used = CellKernels.usedLength(cells)
+            if used > 0, let base = cells.baseAddress {
+                chunks[newest].cells.append(contentsOf: UnsafeBufferPointer(start: base, count: used))
+            }
+            chunks[newest].ends.append(UInt32(chunks[newest].cells.count))
+        }
         chunks[newest].wrapped.append(isWrapped)
         count += 1
     }
@@ -83,6 +97,7 @@ struct Scrollback: Sendable {
         if head == Self.chunkLines {
             var released = chunks.removeFirst()
             released.cells.removeAll(keepingCapacity: true)
+            released.ends.removeAll(keepingCapacity: true)
             released.wrapped.removeAll(keepingCapacity: true)
             spare = released
             head = 0
@@ -100,15 +115,15 @@ struct Scrollback: Sendable {
     /// Rewrites every cell's style id, newest line first (style table compaction: when the table cannot hold every style, the oldest lines are the ones
     /// that lose theirs).
     mutating func mapStyles(_ map: (UInt16) -> UInt16) {
-        var line = count - 1
-        while line >= 0 {
-            let (chunk, index) = locate(line)
-            let base = index * columns
-            for column in 0 ..< columns {
-                let cell = chunks[chunk].cells[base + column]
-                chunks[chunk].cells[base + column] = cell.withStyle(map(cell.styleID))
+        var chunk = chunks.count - 1
+        while chunk >= 0 {
+            var index = chunks[chunk].cells.count - 1
+            while index >= 0 {
+                let cell = chunks[chunk].cells[index]
+                chunks[chunk].cells[index] = cell.withStyle(map(cell.styleID))
+                index -= 1
             }
-            line -= 1
+            chunk -= 1
         }
     }
 }

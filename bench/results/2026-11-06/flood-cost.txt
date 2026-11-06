@@ -1,0 +1,12 @@
+bench/flood-cost.sh <terminal> 1000000   (yes '<70-char line>' | head -n 1000000 = 68 MB; 120x40, JetBrains Mono 14, default config, windows visible)
+One run each, taken in sequence at load ~4 (a quiet moment; the same script at load ~8 gave kitty 1.17 s / alacritty 1.41 s / ghostty 2.56 s / wezterm 3.12 s, so wall times
+move with the machine, the instruction and cycle counts much less). Sunset = release build at commit after "trimmed history lines".
+
+kitty      flood_wall= 1.15s  Ginstr= 12.51  Gcycles=  4.70  cpu= 1.32s  peak_footprint=536.3MB
+alacritty  flood_wall= 1.19s  Ginstr= 17.16  Gcycles=  5.36  cpu= 1.65s  peak_footprint=508.3MB
+sunset     flood_wall= 1.05s  Ginstr= 12.02  Gcycles=  4.02  cpu= 1.12s  peak_footprint=117.5MB
+ghostty    flood_wall= 1.44s  Ginstr= 44.51  Gcycles= 10.80  cpu= 3.01s  peak_footprint=225.4MB
+wezterm    flood_wall= 1.71s  Ginstr= 50.99  Gcycles=  9.05  cpu= 2.52s  peak_footprint=141.6MB
+
+Sunset before this session's renderer work (same script, interleaved): flood_wall 1.05-1.07 s, 14.4-14.7 G instr, 4.6 Gcycles, cpu 1.26-1.34 s, 132-136 MB.
+Debug build (200 000 lines): unoptimised 1.83 s, 52.3 G instr; with the work modules optimised 0.22 s, 2.7 G instr.
