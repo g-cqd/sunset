@@ -5,6 +5,8 @@ public struct CellStyle: Sendable, Hashable {
     public var underlineColor = Color.default
     public var attributes: Attributes = []
     public var underline = UnderlineStyle.none
+    /// The hyperlink the cell belongs to: an id into the screen's link table (OSC 8), 0 for none.
+    public var link: UInt16 = 0
 
     public init() {}
 }

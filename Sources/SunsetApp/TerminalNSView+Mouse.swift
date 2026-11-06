@@ -2,7 +2,19 @@ import AppKit
 import SunsetCore
 
 extension TerminalNSView {
-    override func mouseDown(with event: NSEvent) { report(.press, .left, event) }
+    override func mouseDown(with event: NSEvent) {
+        if event.modifierFlags.contains(.command) {
+            let point = convert(event.locationInWindow, from: nil)
+            let scale = window?.backingScaleFactor ?? 2
+            if model.openLink(
+                pixelX: Int((point.x * scale).rounded(.down)),
+                pixelY: Int((point.y * scale).rounded(.down))
+            ) {
+                return
+            }
+        }
+        report(.press, .left, event)
+    }
     override func mouseUp(with event: NSEvent) { report(.release, .left, event) }
     override func mouseDragged(with event: NSEvent) { report(.motion, .left, event) }
     override func rightMouseDown(with event: NSEvent) { report(.press, .right, event) }
