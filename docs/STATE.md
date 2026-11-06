@@ -15,7 +15,7 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
 
   - `Sources/SunsetHost` (the platform seam): `PTYProcess`, `HeadlessSession`; `Sources/SunsetRun` (`sunset-run`, prints a program's screen); `Scripts/oracle-compare.sh` + `Scripts/oracle-streams/*.sh` (18 streams: text and styles against kitty, text against ghostty via `Scripts/oracle-ghostty.sh`, replies against kitty, ghostty and alacritty (built with cargo); understood differences in `Scripts/oracle-accepted.txt`; ADR-0030). Needs a GUI session, local only.
 
-  - `Sources/SunsetRender` (CPU renderer, ADR-0031; platform-free), `SunsetRenderMac` (CoreText glyphs), `sunset-render` (PNG of a program's screen, headless: no window). The renderer benchmark: `swift package benchmark --target RendererBenchmarks` (27 M instructions a full 120x40 frame, 0 mallocs).
+  - `Sources/SunsetRender` (CPU renderer, ADR-0031; platform-free), `SunsetRenderMac` (CoreText glyphs), `sunset-render` (PNG of a program's screen, headless: no window). The renderer benchmark: `swift package benchmark --target RendererBenchmarks` (28 M instructions a full 120x40 frame, 0 mallocs).
 
 ## Measured (instructions per 1 MiB, p50, release; 0 mallocs on all)
 
