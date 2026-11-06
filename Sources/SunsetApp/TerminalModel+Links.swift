@@ -18,4 +18,18 @@ extension TerminalModel {
         }
         return true
     }
+
+    /// The pointer is at a point of the surface (or left it: nil): the link there, if any, is the hovered one.
+    func hover(pixelX: Int?, pixelY: Int?) {
+        var id: UInt16 = 0
+        if let pixelX, let pixelY, let screen = lastScreen, let metrics = renderer?.cellMetrics,
+            let size = currentGrid()
+        {
+            let cell = metrics.cell(atPixelX: pixelX, pixelY: pixelY, columns: size.columns, rows: size.rows)
+            id = screen.viewportLinkID(row: cell.row, column: cell.column, scrolledBack: viewport.scrolledBack) ?? 0
+        }
+        guard id != hoveredLink else { return }
+        hoveredLink = id
+        requestFrame()
+    }
 }

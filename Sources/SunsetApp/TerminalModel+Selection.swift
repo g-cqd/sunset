@@ -13,6 +13,7 @@ extension TerminalModel {
         modifiers: InputModifiers,
         clickCount: Int
     ) {
+        hover(pixelX: pixelX, pixelY: pixelY)
         let isWheel = button != .left && button != .right && button != .middle && button != .none
         if isWheel || (programHasMouse && !modifiers.contains(.shift)) {
             sendMouse(action, button, pixelX: pixelX, pixelY: pixelY, modifiers: modifiers)

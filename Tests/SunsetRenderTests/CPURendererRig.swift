@@ -26,15 +26,15 @@ struct CPURendererRig {
         _ text: String = "",
         cursorVisible: Bool = true,
         scrolledBack: Int = 0,
-        selection: Selection? = nil
+        selection: Selection? = nil,
+        hoveredLink: UInt16 = 0
     ) {
         terminal.feed(text)
         renderer.render(
             terminal.screen,
             into: &surface,
             cursorVisible: cursorVisible,
-            scrolledBack: scrolledBack,
-            selection: selection
+            view: FrameView(scrolledBack: scrolledBack, selection: selection, hoveredLink: hoveredLink)
         )
         terminal.clearDirty()
     }

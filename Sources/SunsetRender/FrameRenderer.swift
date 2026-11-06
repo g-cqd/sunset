@@ -21,8 +21,7 @@ public actor FrameRenderer {
         for screen: Screen,
         cursorVisible: Bool,
         textBlinkVisible: Bool,
-        scrolledBack: Int = 0,
-        selection: Selection? = nil
+        view: FrameView = FrameView()
     ) -> RenderedFrame {
         let pixels = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         if surface == nil || size?.columns != screen.columns || size?.rows != screen.rows {
@@ -37,8 +36,7 @@ public actor FrameRenderer {
             into: &drawn,
             cursorVisible: cursorVisible,
             textBlinkVisible: textBlinkVisible,
-            scrolledBack: scrolledBack,
-            selection: selection
+            view: view
         )
         let result = RenderedFrame(width: drawn.width, height: drawn.height, bytes: drawn.rgbaBytes)
         surface = drawn
