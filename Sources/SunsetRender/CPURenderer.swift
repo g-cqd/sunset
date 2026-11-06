@@ -5,7 +5,11 @@ public import SunsetCore
 /// everything when the palette, the size, reverse video or the blink phase changed. The caller clears the screen's dirty marks after a frame.
 public final class CPURenderer: CellRenderer {
     public let metrics: RenderMetrics
-    private let glyphs: any GlyphSource
+    let glyphs: any GlyphSource
+    /// Shape runs of cells together (ligatures and contextual alternates) when the glyph source can; a run never spans a cell with the cursor on it.
+    public let ligatures: Bool
+    var runCache: [UInt64: [RunEntry]] = [:]
+    var runCacheCount = 0
 
     private struct GlyphKey: Hashable {
         var id: UInt32
@@ -23,7 +27,7 @@ public final class CPURenderer: CellRenderer {
     private var lastSize: (columns: Int, rows: Int)?
 
     /// What one frame draws with: the screen, the cursor, the default colours (swapped by reverse video) and the blink phase.
-    private struct Frame {
+    struct Frame {
         var screen: Screen
         var cursor: CursorDrawn?
         var foreground: RGB
@@ -32,21 +36,22 @@ public final class CPURenderer: CellRenderer {
     }
 
     /// Where a cell (or a double-width pair) is on the surface.
-    private struct Box {
+    struct Box {
         var x: Int
         var y: Int
         var width: Int
     }
 
-    private struct CursorDrawn: Equatable {
+    struct CursorDrawn: Equatable {
         var row: Int
         var column: Int
         var shape: CursorShape
     }
 
-    public init(metrics: RenderMetrics, glyphs: any GlyphSource) {
+    public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool = false) {
         self.metrics = metrics
         self.glyphs = glyphs
+        self.ligatures = ligatures && glyphs.shapesRuns
     }
 
     /// Forget what was drawn: the next frame draws everything (a new surface, a lost one).
@@ -120,31 +125,52 @@ public final class CPURenderer: CellRenderer {
                 column += 1
                 continue
             }
+            if ligatures, let length = drawRun(row: row, column: column, frame: frame, surface: &surface) {
+                column += length
+                continue
+            }
             let span = cell.width == .wide && column + 1 < frame.screen.columns ? 2 : 1
-            drawCell(cell, row: row, column: column, span: span, frame: frame, surface: &surface)
+            drawCell(cell, at: Placement(row: row, column: column, span: span), frame: frame, surface: &surface)
             column += span
         }
     }
 
-    private func drawCell(_ cell: Cell, row: Int, column: Int, span: Int, frame: Frame, surface: inout Surface) {
-        let screen = frame.screen
-        let style = screen.style(of: cell)
-        let palette = screen.palette
+    /// A cell (or a double-width pair) to draw, and whether its glyph is drawn here (a run draws its glyphs itself).
+    struct Placement {
+        var row: Int
+        var column: Int
+        var span: Int
+        var drawGlyph = true
+    }
+
+    /// The colours a style is drawn in, after inverse and faint.
+    func colors(of style: CellStyle, frame: Frame) -> (foreground: RGB, background: RGB) {
+        let palette = frame.screen.palette
         var foreground = palette.resolve(style.foreground) ?? frame.foreground
         var background = palette.resolve(style.background) ?? frame.background
         if style.attributes.contains(.inverse) { swap(&foreground, &background) }
         if style.attributes.contains(.faint) { foreground = mix(foreground, background) }
+        return (foreground, background)
+    }
+
+    func drawCell(_ cell: Cell, at place: Placement, frame: Frame, surface: inout Surface) {
+        let screen = frame.screen
+        let style = screen.style(of: cell)
+        let palette = screen.palette
+        var (foreground, background) = colors(of: style, frame: frame)
         let cursor = frame.cursor
-        let onCursor = cursor.map { $0.row == row && $0.column >= column && $0.column < column + span } ?? false
+        let onCursor =
+            cursor.map { $0.row == place.row && $0.column >= place.column && $0.column < place.column + place.span }
+            ?? false
         if onCursor, cursor?.shape == .block {
             let cellBackground = background
             background = palette.cursor
             foreground = cellBackground
         }
         let box = Box(
-            x: metrics.paddingX + column * metrics.cellWidth,
-            y: metrics.paddingY + row * metrics.cellHeight,
-            width: span * metrics.cellWidth
+            x: metrics.paddingX + place.column * metrics.cellWidth,
+            y: metrics.paddingY + place.row * metrics.cellHeight,
+            width: place.span * metrics.cellWidth
         )
         if background != frame.background || onCursor {
             fill(
@@ -157,7 +183,9 @@ public final class CPURenderer: CellRenderer {
             )
         }
         let hidden = style.attributes.contains(.invisible) || (style.attributes.contains(.blink) && !frame.blinkVisible)
-        if cell.scalar != 0, !hidden, let bitmap = bitmap(for: cell, style: style, wide: span == 2, screen: screen) {
+        if place.drawGlyph, cell.scalar != 0, !hidden,
+            let bitmap = bitmap(for: cell, style: style, wide: place.span == 2, screen: screen)
+        {
             blit(bitmap, into: &surface, cellX: box.x, cellY: box.y, cellWidth: box.width, color: foreground)
         }
         let lineColor = palette.resolve(style.underlineColor) ?? foreground
@@ -202,121 +230,5 @@ public final class CPURenderer: CellRenderer {
         )
         cache[key] = .some(made)
         return made
-    }
-
-    // MARK: Pixels
-
-    private func fill(_ surface: inout Surface, x: Int, y: Int, width: Int, height: Int, color: UInt32) {
-        let x0 = max(0, x)
-        let x1 = min(surface.width, x + width)
-        let y0 = max(0, y)
-        let y1 = min(surface.height, y + height)
-        guard x0 < x1, y0 < y1 else { return }
-        for row in y0 ..< y1 {
-            let base = row * surface.width
-            for column in x0 ..< x1 { surface.pixels[base + column] = color }
-        }
-    }
-
-    /// Blends the glyph's coverage over what is there, inside the cell(s) it belongs to.
-    private func blit(
-        _ bitmap: GlyphBitmap,
-        into surface: inout Surface,
-        cellX: Int,
-        cellY: Int,
-        cellWidth: Int,
-        color: RGB
-    ) {
-        for row in 0 ..< bitmap.height {
-            let y = cellY + bitmap.top + row
-            guard y >= cellY, y < cellY + metrics.cellHeight, y < surface.height else { continue }
-            for column in 0 ..< bitmap.width {
-                let x = cellX + bitmap.left + column
-                guard x >= cellX, x < cellX + cellWidth, x < surface.width else { continue }
-                let alpha = Int(bitmap.coverage[row * bitmap.width + column])
-                if alpha == 0 { continue }
-                let index = y * surface.width + x
-                surface.pixels[index] = alpha == 255 ? Surface.pack(color) : blend(surface.pixels[index], color, alpha)
-            }
-        }
-    }
-
-    @inline(__always) private func blend(_ below: UInt32, _ color: RGB, _ alpha: Int) -> UInt32 {
-        let inverse = 255 - alpha
-        let red = (Int(color.red) * alpha + Int(below & 0xFF) * inverse + 127) / 255
-        let green = (Int(color.green) * alpha + Int((below >> 8) & 0xFF) * inverse + 127) / 255
-        let blue = (Int(color.blue) * alpha + Int((below >> 16) & 0xFF) * inverse + 127) / 255
-        return Surface.pack(RGB(UInt8(red), UInt8(green), UInt8(blue)))
-    }
-
-    private func mix(_ first: RGB, _ second: RGB) -> RGB {
-        RGB(
-            UInt8((Int(first.red) + Int(second.red)) / 2),
-            UInt8((Int(first.green) + Int(second.green)) / 2),
-            UInt8((Int(first.blue) + Int(second.blue)) / 2)
-        )
-    }
-
-    // MARK: Decorations
-
-    private func drawDecorations(_ style: CellStyle, box: Box, surface: inout Surface, line: RGB, strike: RGB) {
-        let (x, y, width) = (box.x, box.y, box.width)
-        let thickness = metrics.lineThickness
-        let packedLine = Surface.pack(line)
-        switch style.underline {
-            case .none: break
-            case .single:
-                fill(&surface, x: x, y: y + metrics.underlineY, width: width, height: thickness, color: packedLine)
-            case .double:
-                fill(&surface, x: x, y: y + metrics.underlineY, width: width, height: thickness, color: packedLine)
-                fill(
-                    &surface,
-                    x: x,
-                    y: max(0, y + metrics.underlineY - 2 * thickness),
-                    width: width,
-                    height: thickness,
-                    color: packedLine
-                )
-            case .curly:
-                let wave = [0, 1, 2, 1]
-                for offset in 0 ..< width {
-                    fill(
-                        &surface,
-                        x: x + offset,
-                        y: y + metrics.underlineY - 1 + wave[offset % 4],
-                        width: 1,
-                        height: thickness,
-                        color: packedLine
-                    )
-                }
-            case .dotted:
-                for offset in stride(from: 0, to: width, by: 2) {
-                    fill(
-                        &surface,
-                        x: x + offset,
-                        y: y + metrics.underlineY,
-                        width: 1,
-                        height: thickness,
-                        color: packedLine
-                    )
-                }
-            case .dashed:
-                for offset in 0 ..< width where offset % 4 != 3 {
-                    fill(
-                        &surface,
-                        x: x + offset,
-                        y: y + metrics.underlineY,
-                        width: 1,
-                        height: thickness,
-                        color: packedLine
-                    )
-                }
-        }
-        if style.attributes.contains(.strikethrough) {
-            fill(&surface, x: x, y: y + metrics.strikeY, width: width, height: thickness, color: Surface.pack(strike))
-        }
-        if style.attributes.contains(.overline) {
-            fill(&surface, x: x, y: y + metrics.overlineY, width: width, height: thickness, color: Surface.pack(strike))
-        }
     }
 }
