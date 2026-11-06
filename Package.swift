@@ -59,6 +59,12 @@ let package = Package(
             path: "Sources/SunsetRenderMac",
             swiftSettings: strictSettings
         ),
+        .testTarget(
+            name: "SunsetRenderMacTests",
+            dependencies: ["SunsetRenderMac", "SunsetRender"],
+            path: "Tests/SunsetRenderMacTests",
+            swiftSettings: strictSettings
+        ),
         .executableTarget(
             name: "SunsetRenderTool",
             dependencies: ["SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
