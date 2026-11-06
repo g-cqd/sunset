@@ -28,6 +28,14 @@ public struct Screen: Sendable {
 
     /// The modes the program has set; the host reads the ones that shape input (`Modes`).
     public internal(set) var modes = Modes()
+    /// The window title and icon label set by the program (control characters removed), and the colours it can read and change.
+    public internal(set) var titleBytes = ContiguousArray<UInt8>()
+    public internal(set) var iconBytes = ContiguousArray<UInt8>()
+    public internal(set) var palette = Palette()
+    var titleStack = ContiguousArray<ContiguousArray<UInt8>>()
+    var oscBuffer = ContiguousArray<UInt8>()
+    var oscActive = false
+    var oscOverflowed = false
     public internal(set) var cursorShape = CursorShape.block
     public internal(set) var cursorBlinks = true
 
@@ -68,6 +76,9 @@ public struct Screen: Sendable {
     var replies = ContiguousArray<UInt8>()
     var keyboard = KeyboardState()
     var otherKeyboard = KeyboardState()
+
+    public var title: String { String(decoding: titleBytes, as: UTF8.self) }
+    public var iconName: String { String(decoding: iconBytes, as: UTF8.self) }
 
     public var cursorRow: Int { row }
     public var cursorColumn: Int { column }

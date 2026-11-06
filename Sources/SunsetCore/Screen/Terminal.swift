@@ -3,8 +3,9 @@ public struct Terminal: Sendable {
     public private(set) var screen: Screen
     private var parser = VTParser()
 
-    public init(columns: Int, rows: Int) {
+    public init(columns: Int, rows: Int, palette: Palette = Palette()) {
         screen = Screen(columns: columns, rows: rows)
+        screen.palette = palette
     }
 
     /// Marks every row clean: the renderer has taken what it needed (ADR-0024).

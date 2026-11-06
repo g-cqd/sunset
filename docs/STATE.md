@@ -9,7 +9,7 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
   - `Sources/SunsetCore/Parser`: `VTParser` (byte state machine, ADR-0023), `VTSink`, `Parameters`, `Intermediates`, `ParseCounter` (concrete front for other modules).
   - `Sources/SunsetCore/Screen`: `Terminal` (parser + screen, `feed`), `Screen` (the sink: grid, cursor, modes, regions, SGR, alternate screen, dirty rows), `Cell` (8 bytes), `CellStyle`, `StyleTable`, `Grid` (ADR-0025).
   - Dependency: `TerminalKitText` (display widths) from g-cqd/TerminalKit by revision `5966813`; ADR-0002 accepted: g-cqd and Aemi-Studio packages freely, Apple/swiftlang on approval.
-  - Tests: `swift test -c release --enable-testable-imports` → 85 pass (parser, properties, screen, differential against a naive model, replies and modes).
+  - Tests: `swift test -c release --enable-testable-imports` → 104 pass (parser, properties, screen, differential against a naive model, replies and modes).
   - Replies: `Terminal.takeReplies()` (bounded queue, ADR-0026); `Screen.modes` (what the host needs), `keyboardFlags`, `cursorShape`.
   - Benchmarks: `Benchmarks/Benchmarks/ParserBenchmarks` (`cd Benchmarks && swift package benchmark --no-progress --target ParserBenchmarks`); baseline in `bench/results/2026-11-05/parser-baseline.txt`.
 

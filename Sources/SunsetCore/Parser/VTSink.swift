@@ -10,6 +10,12 @@ public enum StringKind: UInt8, Sendable {
     case sos
 }
 
+/// How a string ended: by BEL, by ST (ESC \\ or U+009C, or an ESC that began another sequence), or not at all (cancelled by CAN or SUB).
+/// A reply to a query should end the way the query did.
+public enum StringTerminator: UInt8, Sendable {
+    case bel, st, none
+}
+
 /// Receives what the parser recognised. Every method has a defined meaning for every input; a sink never sees a partial sequence.
 public protocol VTSink {
     /// A run of printable ASCII (0x20...0x7E), as a span of the input, so a sink can copy it in bulk.
@@ -34,5 +40,5 @@ public protocol VTSink {
     /// Content bytes of the current string, in order, possibly in several pieces.
     mutating func stringBytes(_ bytes: Span<UInt8>)
     /// The string ended. `completed` is false when it was cancelled (CAN, SUB) or was longer than the limit and the rest dropped.
-    mutating func stringEnd(completed: Bool)
+    mutating func stringEnd(completed: Bool, terminator: StringTerminator)
 }
