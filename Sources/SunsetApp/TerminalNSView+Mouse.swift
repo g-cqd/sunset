@@ -42,12 +42,13 @@ extension TerminalNSView {
     private func report(_ action: MouseEvent.Action, _ button: MouseEvent.Button, _ event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
         let scale = window?.backingScaleFactor ?? 2
-        model.mouse(
+        model.pointer(
             action,
             button,
             pixelX: Int((point.x * scale).rounded(.down)),
             pixelY: Int((point.y * scale).rounded(.down)),
-            modifiers: KeyboardMapping.modifiers(event.modifierFlags)
+            modifiers: KeyboardMapping.modifiers(event.modifierFlags),
+            clickCount: event.clickCount
         )
     }
 }

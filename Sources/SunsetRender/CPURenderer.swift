@@ -25,6 +25,8 @@ public final class CPURenderer: CellRenderer {
     private var lastReverse = false
     private var lastBlink = true
     private var lastScrolledBack = 0
+    private var lastSelection: Selection?
+    private var lastSelectionRows: ClosedRange<Int>?
     private var lastSize: (columns: Int, rows: Int)?
 
     public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool = false) {
@@ -38,6 +40,8 @@ public final class CPURenderer: CellRenderer {
         lastCursor = nil
         lastPalette = nil
         lastScrolledBack = 0
+        lastSelection = nil
+        lastSelectionRows = nil
         lastSize = nil
     }
 
@@ -48,7 +52,8 @@ public final class CPURenderer: CellRenderer {
         into surface: inout Surface,
         cursorVisible: Bool = true,
         textBlinkVisible: Bool = true,
-        scrolledBack: Int = 0
+        scrolledBack: Int = 0,
+        selection: Selection? = nil
     ) {
         let size = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         precondition(
@@ -76,11 +81,18 @@ public final class CPURenderer: CellRenderer {
             foreground: reverse ? screen.palette.background : screen.palette.foreground,
             background: reverse ? screen.palette.foreground : screen.palette.background,
             blinkVisible: textBlinkVisible,
-            scrolledBack: scrolledBack
+            scrolledBack: scrolledBack,
+            selection: selection
         )
+        // The rows the selection covers now or covered in the last frame are drawn again when it changed.
+        let selectionRows = selectionRows(of: selection, in: frame)
+        let selectionChanged = selection != lastSelection
         for row in 0 ..< screen.rows {
             let touchesCursor = cursorMoved && (cursor?.row == row || lastCursor?.row == row)
-            guard full || touchesCursor || screen.isDirty(row: row) else { continue }
+            let touchesSelection =
+                selectionChanged
+                && ((selectionRows?.contains(row) ?? false) || (lastSelectionRows?.contains(row) ?? false))
+            guard full || touchesCursor || touchesSelection || screen.isDirty(row: row) else { continue }
             drawRow(row, frame: frame, surface: &surface)
         }
         lastCursor = cursor
@@ -88,6 +100,8 @@ public final class CPURenderer: CellRenderer {
         lastReverse = reverse
         lastBlink = textBlinkVisible
         lastScrolledBack = scrolledBack
+        lastSelection = selection
+        lastSelectionRows = selectionRows
         lastSize = (screen.columns, screen.rows)
     }
 
@@ -135,6 +149,8 @@ public final class CPURenderer: CellRenderer {
         let style = screen.style(of: cell)
         let palette = screen.palette
         var (foreground, background) = colors(of: style, frame: frame)
+        let selected = frame.isSelected(row: place.row, column: place.column, span: place.span)
+        if selected { swap(&foreground, &background) }
         let cursor = frame.cursor
         let onCursor =
             cursor.map { $0.row == place.row && $0.column >= place.column && $0.column < place.column + place.span }
@@ -149,7 +165,7 @@ public final class CPURenderer: CellRenderer {
             y: metrics.paddingY + place.row * metrics.cellHeight,
             width: place.span * metrics.cellWidth
         )
-        if background != frame.background || onCursor {
+        if background != frame.background || onCursor || selected {
             fill(
                 &surface,
                 x: box.x,

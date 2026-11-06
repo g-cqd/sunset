@@ -6,6 +6,7 @@ extension TerminalModel {
     /// Keys, text and pastes go to the program one at a time, in the order they happened, encoded by the session for the modes it has *now*.
     func send(_ event: InputEvent) {
         cursorPhase = true
+        if case .mouse = event {} else { clearSelection() }
         if !viewport.isLive {
             viewport.toLive()
             requestFrame()
@@ -14,7 +15,7 @@ extension TerminalModel {
     }
 
     /// The pointer did something at a point of the surface (device pixels, from the top left). Motion within one cell is not repeated, as terminals do not.
-    func mouse(
+    func sendMouse(
         _ action: MouseEvent.Action,
         _ button: MouseEvent.Button,
         pixelX: Int,

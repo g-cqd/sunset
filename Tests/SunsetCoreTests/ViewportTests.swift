@@ -57,4 +57,14 @@ import Testing
         viewport.toLive()
         #expect(viewport.isLive)
     }
+
+    @Test func `the first line on show counts from the oldest line of the history`() {
+        var viewport = Viewport()
+        viewport.follow(historyCount: 100)
+        #expect(viewport.firstLine == 100)
+        viewport.scroll(by: 30)
+        #expect(viewport.firstLine == 70)
+        viewport.follow(historyCount: 105)
+        #expect(viewport.firstLine == 70, "the text on show did not move")
+    }
 }
