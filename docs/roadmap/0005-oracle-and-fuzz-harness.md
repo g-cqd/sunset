@@ -10,4 +10,4 @@ The same byte stream into ours and into kitty, ghostty, wezterm, SwiftTerm and l
 
 ## Progress (2026-11-05): kitty as an oracle (ADR-0030)
 
-`Scripts/oracle-compare.sh` compares screen text with kitty on 15 streams: all the same. Not done: styles, cursor, replies, resize, ghostty and wezterm, `esctest`/`vttest`, fuzzing (differential or crash), session replay.
+`Scripts/oracle-compare.sh` compares screen text and styles with kitty on 17 streams: all the same. Not done: styles, cursor, replies, resize, ghostty and wezterm, `esctest`/`vttest`, fuzzing (differential or crash), session replay.

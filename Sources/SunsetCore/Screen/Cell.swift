@@ -9,6 +9,8 @@ public struct Color: Sendable, Hashable {
     }
 
     public var isDefault: Bool { raw == 0 }
+    /// The colour as stored (tag in the top byte, then the palette index or the three bytes): for tools that print or compare colours.
+    public var packed: UInt32 { raw }
 }
 
 public enum UnderlineStyle: UInt8, Sendable {

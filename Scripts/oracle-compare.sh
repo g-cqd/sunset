@@ -32,6 +32,9 @@ for stream in "${streams[@]}"; do
         sleep 0.4
     done
     printf '%s\n' "$current" > "$out/$name.kitty.raw"
+    # The same screen with its styles, as SGR text: replayed through Sunset below so that cells and styles can be compared on both sides.
+    "$kitty/kitten" @ --to "unix:$sock" get-text --extent screen --ansi 2>/dev/null \
+        | perl -pe 'chomp if eof' > "$out/$name.kitty.ansi"  # the dump ends with a newline that would scroll a full screen on replay
     "$kitty/kitten" @ --to "unix:$sock" close-window >/dev/null 2>&1
     kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null
     # Trailing empty rows are not content.
@@ -39,16 +42,21 @@ for stream in "${streams[@]}"; do
     "$run" --cols 80 --rows 24 --wait 1500 --then-wait 300 --plain -- /bin/sh "$stream" > "$out/$name.sunset" 2>/dev/null
     # Kitty's dump keeps the tab characters a tab moved over; we have blank cells. For the streams about tabs the runs of blanks are squeezed on both
     # sides, so only the characters and their order are compared (a weaker check, said so here).
+    # Styles: kitty's ANSI dump replayed through Sunset against the stream run directly (skipped for tab streams: the dump holds tab characters).
+    "$run" --cols 80 --rows 24 --wait 1500 --then-wait 300 --cells -- /bin/sh "$stream" > "$out/$name.sunset.cells" 2>/dev/null
+    "$run" --cols 80 --rows 24 --wait 800 --then-wait 300 --cells -- /bin/cat "$out/$name.kitty.ansi" > "$out/$name.kitty.cells" 2>/dev/null
     case "$name" in
         *tabs*)
             tr -s ' \t' '  ' < "$out/$name.kitty" > "$out/$name.kitty.sq"; mv "$out/$name.kitty.sq" "$out/$name.kitty"
             tr -s ' \t' '  ' < "$out/$name.sunset" > "$out/$name.sunset.sq"; mv "$out/$name.sunset.sq" "$out/$name.sunset" ;;
     esac
-    if diff -u "$out/$name.kitty" "$out/$name.sunset" > "$out/$name.diff"; then
+    # Skipped: tab streams (tab characters in the dump) and the scroll-with-colour stream (the dump drops blank rows that only carry a background, so rows shift).
+    case "$name" in *tabs* | *bce-scroll*) : > "$out/$name.cells.diff" ;; *) diff -u "$out/$name.kitty.cells" "$out/$name.sunset.cells" > "$out/$name.cells.diff" ;; esac
+    if diff -u "$out/$name.kitty" "$out/$name.sunset" > "$out/$name.diff" && [ ! -s "$out/$name.cells.diff" ]; then
         echo "same     $name"
     else
         echo "DIFFERS  $name"
-        sed -e 's/^/    /' "$out/$name.diff" | head -40
+        sed -e 's/^/    /' "$out/$name.diff" "$out/$name.cells.diff" | head -60
         failed=1
     fi
 done
