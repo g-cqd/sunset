@@ -45,22 +45,15 @@ extension CPURenderer {
                     let y = cellY + bitmap.top + row
                     let line = unsafe base + y * stride + cellX + bitmap.left
                     let alphas = unsafe source + row * bitmap.width
-                    for column in columns {
-                        let alpha = Int(unsafe alphas[column])
-                        if alpha == 0 { continue }
-                        unsafe line[column] = alpha == 255 ? solid : blend(unsafe line[column], color, alpha)
-                    }
+                    PixelKernels.blend(
+                        unsafe line + columns.lowerBound,
+                        coverage: unsafe alphas + columns.lowerBound,
+                        count: columns.count,
+                        color: solid
+                    )
                 }
             }
         }
-    }
-
-    @inline(__always) private func blend(_ below: UInt32, _ color: RGB, _ alpha: Int) -> UInt32 {
-        let inverse = 255 - alpha
-        let red = (Int(color.red) * alpha + Int(below & 0xFF) * inverse + 127) / 255
-        let green = (Int(color.green) * alpha + Int((below >> 8) & 0xFF) * inverse + 127) / 255
-        let blue = (Int(color.blue) * alpha + Int((below >> 16) & 0xFF) * inverse + 127) / 255
-        return Surface.pack(RGB(UInt8(red), UInt8(green), UInt8(blue)))
     }
 
     /// The colours a style is drawn in, after inverse and faint.

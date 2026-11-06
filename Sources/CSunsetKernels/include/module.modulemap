@@ -1,0 +1,4 @@
+module CSunsetKernels {
+    header "csunset_kernels.h"
+    export *
+}

@@ -49,9 +49,14 @@ let package = Package(
             path: "Sources/SunsetCore",
             swiftSettings: strictSettings
         ),
+        // Pixel kernels in C with NEON and a scalar fallback (docs/research/competitors-architecture-and-neon.md); each has a scalar reference it is tested against.
+        .target(
+            name: "CSunsetKernels",
+            path: "Sources/CSunsetKernels"
+        ),
         .target(
             name: "SunsetRender",
-            dependencies: ["SunsetCore"],
+            dependencies: ["SunsetCore", "CSunsetKernels"],
             path: "Sources/SunsetRender",
             swiftSettings: strictSettings
         ),
