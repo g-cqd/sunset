@@ -1,7 +1,7 @@
 // sunset-run: runs a program in a headless Sunset terminal and prints the screen. A tool for looking at what a real program does to the emulator, and
 // the way a comparison with another terminal starts (roadmap 0004, 0005).
 //
-//   sunset-run [--cols N] [--rows N] [--wait MS] [--keys TEXT] [--then-wait MS] [--plain] [--cells] [--env K=V] [--until-exit MS] -- command [args...]
+//   sunset-run [--cols N] [--rows N] [--wait MS] [--keys TEXT] [--then-wait MS] [--plain] [--cells] [--env K=V] [--until-exit MS] [--resize COLSxROWS] -- command [args...]
 //
 // --keys is sent after --wait; \e \n \r \t \\ are escapes in it. The screen is printed after --then-wait more milliseconds (default 500).
 internal import Darwin
@@ -16,6 +16,7 @@ var keys = ""
 var plain = false
 var cells = false
 var untilExit = 0
+var resizeTo: (columns: Int, rows: Int)?
 var environment: [String: String] = [:]
 var command: [String] = []
 var arguments = Array(CommandLine.arguments.dropFirst())
@@ -30,6 +31,9 @@ while let argument = arguments.first {
         case "--plain": plain = true
         case "--cells": cells = true
         case "--until-exit": untilExit = Int(arguments.removeFirst()) ?? 0
+        case "--resize":
+            let parts = arguments.removeFirst().split(separator: "x").compactMap { Int($0) }
+            if parts.count == 2 { resizeTo = (parts[0], parts[1]) }
         case "--env":
             let pair = arguments.removeFirst()
             if let split = pair.firstIndex(of: "=") {
@@ -86,7 +90,7 @@ func lastColumn(of row: Int, in screen: Screen) -> Int {
 }
 
 /// Every non-blank row as runs of cells with one style.
-func printCells(_ screen: Screen) {
+@MainActor func printCells(_ screen: Screen) {
     for row in 0 ..< screen.rows {
         let last = lastColumn(of: row, in: screen)
         if last < 0 { continue }
@@ -109,7 +113,7 @@ func printCells(_ screen: Screen) {
 }
 
 /// Only the text, as logical lines: rows that wrapped are joined (as kitty's screen dump joins them), trailing spaces and empty lines dropped.
-func printPlain(_ screen: Screen) {
+@MainActor func printPlain(_ screen: Screen) {
     // Only the text, as logical lines: rows that wrapped are joined (as kitty's screen dump joins them), trailing spaces and empty lines dropped.
     var lines: [String] = []
     var current = ""
@@ -129,12 +133,16 @@ func printPlain(_ screen: Screen) {
     for line in lines { print(line) }
 }
 
-func run() throws {
+@MainActor func run() throws {
     let session = try HeadlessSession(command, columns: columns, rows: rows, environment: environment)
     if untilExit > 0 {
         _ = session.waitForExit(timeoutMilliseconds: untilExit)
     } else {
         _ = session.wait(timeoutMilliseconds: waitFirst) { _ in false }
+    }
+    if let resizeTo {
+        session.resize(columns: resizeTo.columns, rows: resizeTo.rows)
+        _ = session.wait(timeoutMilliseconds: waitThen) { _ in false }
     }
     if !keys.isEmpty { try session.send(unescape(keys)) }
     _ = session.wait(timeoutMilliseconds: waitThen) { _ in false }

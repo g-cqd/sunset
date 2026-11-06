@@ -1,0 +1,199 @@
+import Observation
+import SunsetCore
+import SunsetHost
+import SunsetRender
+import SunsetRenderMac
+
+/// The state of one terminal window: the program (a `TerminalSession` actor), the renderer (a `FrameRenderer` actor) and what the window shows. It lives on
+/// the main actor; the reading, parsing and drawing happen on the two actors, and only values cross: snapshots of the screen one way, finished frames
+/// the other. Frames are pulled at the display's pace (the display link asks, `tick()` answers) and only while something changed.
+@MainActor @Observable final class TerminalModel {
+    private(set) var title = "Sunset"
+    private(set) var isRunning = true
+
+    @ObservationIgnored var presentFrame: (RenderedFrame) -> Void = { _ in }
+    @ObservationIgnored var setDisplayLinkPaused: (Bool) -> Void = { _ in }
+    @ObservationIgnored var onExit: () -> Void = {}
+
+    @ObservationIgnored private var session: TerminalSession?
+    @ObservationIgnored private var renderer: FrameRenderer?
+    @ObservationIgnored private var scale = 2.0
+    @ObservationIgnored private var font = FontSettings()
+    @ObservationIgnored private var frameWanted = false
+    @ObservationIgnored private var renderInFlight = false
+    @ObservationIgnored private var cursorPhase = true
+    @ObservationIgnored private var cursorBlinks = true
+    @ObservationIgnored private var viewPixels = (width: 0, height: 0)
+    @ObservationIgnored private let input = AsyncStream.makeStream(of: InputEvent.self)
+    @ObservationIgnored private let sizes = AsyncStream.makeStream(
+        of: GridSize.self,
+        bufferingPolicy: .bufferingNewest(1)
+    )
+    @ObservationIgnored private var tasks: [Task<Void, Never>] = []
+    @ObservationIgnored private var pending: (command: [String], environment: [String: String])?
+
+    private static let padding = 8
+
+    /// Remembers what to run; the program starts when the view first has a size, so that it never sees a window of the wrong size (a shell that draws its
+    /// prompt in a 2-column terminal and is then resized leaves a mess behind).
+    func start(command: [String], environment: [String: String], font: FontSettings) {
+        guard session == nil, pending == nil else { return }
+        self.font = font
+        pending = (command, environment)
+        makeRenderer()
+        startIfReady()
+    }
+
+    private func startIfReady() {
+        guard session == nil, let (command, environment) = pending, let size = currentGrid() else { return }
+        pending = nil
+        do {
+            let session = try TerminalSession(command, columns: size.columns, rows: size.rows, environment: environment)
+            self.session = session
+            tasks = [
+                Task { await session.start() },
+                Task { [weak self] in await self?.watch(session) },
+                Task { [events = input.stream] in await Self.forward(events, to: session) },
+                Task { [sizes = sizes.stream] in
+                    for await size in sizes { await session.resize(columns: size.columns, rows: size.rows) }
+                },
+                Task { [weak self] in await self?.blink() }
+            ]
+        } catch {
+            title = "Sunset: cannot start \(command.first ?? "the program")"
+            isRunning = false
+        }
+    }
+
+    /// The grid that fits the view now, or nil before the view has a size.
+    private func currentGrid() -> GridSize? {
+        guard viewPixels.width > 0, viewPixels.height > 0, let metrics = renderer?.cellMetrics else { return nil }
+        return GridSize(
+            columns: max(2, (viewPixels.width - 2 * Self.padding) / metrics.cellWidth),
+            rows: max(1, (viewPixels.height - 2 * Self.padding) / metrics.cellHeight)
+        )
+    }
+
+    func stop() {
+        for task in tasks { task.cancel() }
+        tasks = []
+        input.continuation.finish()
+        sizes.continuation.finish()
+        if let session { Task { await session.stop() } }
+    }
+
+    // MARK: Input
+
+    /// Keys, text and pastes go to the program one at a time, in the order they happened, encoded by the session for the modes it has *now*.
+    func send(_ event: InputEvent) {
+        cursorPhase = true
+        input.continuation.yield(event)
+    }
+
+    private static func forward(_ events: AsyncStream<InputEvent>, to session: TerminalSession) async {
+        for await event in events {
+            switch event {
+                case .key(let press): await session.send(press)
+                case .text(let text): await session.send(text: text)
+                case .paste(let text): await session.paste(text)
+            }
+        }
+    }
+
+    // MARK: Size and font
+
+    /// The view's size in device pixels changed: the grid is as many whole cells as fit.
+    func viewResized(pixelWidth: Int, pixelHeight: Int, scale newScale: Double) {
+        if newScale != scale {
+            scale = newScale
+            makeRenderer()
+        }
+        viewPixels = (pixelWidth, pixelHeight)
+        guard let size = currentGrid() else { return }
+        if session == nil {
+            startIfReady()
+        } else {
+            sizes.continuation.yield(size)
+        }
+        requestFrame()
+    }
+
+    func apply(font newFont: FontSettings) {
+        guard newFont != font else { return }
+        font = newFont
+        makeRenderer()
+        viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
+    }
+
+    private func makeRenderer() {
+        let glyphs = CoreTextGlyphSource(fontName: font.name, size: font.size * scale, features: font.features)
+        var metrics = glyphs.metrics
+        metrics.paddingX = Self.padding
+        metrics.paddingY = Self.padding
+        renderer = FrameRenderer(metrics: metrics, glyphs: glyphs, ligatures: font.ligatures)
+    }
+
+    // MARK: Frames
+
+    private func watch(_ session: TerminalSession) async {
+        for await update in session.updates {
+            switch update {
+                case .changed: requestFrame()
+                case .closed:
+                    isRunning = false
+                    onExit()
+            }
+        }
+    }
+
+    private func blink() async {
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .milliseconds(550))
+            guard cursorBlinks else {
+                if !cursorPhase {
+                    cursorPhase = true
+                    requestFrame()
+                }
+                continue
+            }
+            cursorPhase.toggle()
+            requestFrame()
+        }
+    }
+
+    private func requestFrame() {
+        frameWanted = true
+        setDisplayLinkPaused(false)
+    }
+
+    /// The display link fired: draw a frame if one is wanted and none is being drawn; pause the link when there is nothing to draw.
+    func tick() {
+        guard frameWanted else {
+            setDisplayLinkPaused(true)
+            return
+        }
+        guard !renderInFlight, let session, let renderer else { return }
+        frameWanted = false
+        renderInFlight = true
+        let phase = cursorPhase
+        Task { [weak self] in
+            let snapshot = await session.takeSnapshot()
+            let frame = await renderer.frame(
+                for: snapshot,
+                cursorVisible: phase || !snapshot.cursorBlinks,
+                textBlinkVisible: phase
+            )
+            self?.presented(frame, title: snapshot.title, blinks: snapshot.cursorBlinks)
+        }
+    }
+
+    private func presented(_ frame: RenderedFrame, title newTitle: String, blinks: Bool) {
+        renderInFlight = false
+        cursorBlinks = blinks
+        let shown = newTitle.isEmpty ? "Sunset" : newTitle
+        if shown != title { title = shown }
+        presentFrame(frame)
+        // Something may have changed while this frame was being drawn.
+        if frameWanted { setDisplayLinkPaused(false) }
+    }
+}

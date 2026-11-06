@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetRender
 
 /// Records what the renderer asks for.
-final class RecordingGlyphSource: GlyphSource {
+final class RecordingGlyphSource: GlyphSource, @unchecked Sendable {
     nonisolated(unsafe) var requests: [String] = []
     func glyph(for text: String, bold: Bool, italic: Bool, columns: Int, metrics: RenderMetrics) -> GlyphBitmap? {
         requests.append("\(text)|\(bold ? "b" : "")\(italic ? "i" : "")|\(columns)")

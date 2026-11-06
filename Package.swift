@@ -73,13 +73,13 @@ let package = Package(
             name: "SunsetApp",
             dependencies: ["SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
             path: "Sources/SunsetApp",
-            swiftSettings: [.swiftLanguageMode(.v5)]  // AppKit shell; the strict settings are for the libraries
+            swiftSettings: strictSettings
         ),
         .executableTarget(
             name: "SunsetRenderTool",
             dependencies: ["SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
             path: "Sources/SunsetRenderTool",
-            swiftSettings: [.swiftLanguageMode(.v5)]  // a script-style main with globals
+            swiftSettings: strictSettings
         ),
         .target(
             name: "SunsetHost",
@@ -91,7 +91,7 @@ let package = Package(
             name: "SunsetRun",
             dependencies: ["SunsetCore", "SunsetHost"],
             path: "Sources/SunsetRun",
-            swiftSettings: [.swiftLanguageMode(.v5)]  // a script-style main with globals
+            swiftSettings: strictSettings
         ),
         .testTarget(
             name: "SunsetHostTests",

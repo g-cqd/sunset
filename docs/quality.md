@@ -9,7 +9,7 @@ comes from and what enforces it. Everything here fails the pre-commit hook, `swi
 | No implicitly unwrapped optionals | owner n3 | `.swift-format` (`NeverUseImplicitlyUnwrappedOptionals`), `.swiftlint.yml` (`implicitly_unwrapped_optional`) |
 | `fatalError` carries a message; no `unowned` captures | owner n3 | `.swiftlint.yml` (`fatal_error_message`, `unowned_variable_capture`) |
 | Contract violations are `precondition`s with a sentence, never silent clamps | white paper §4 | review; used at constructors (`Screen`, `Surface`, `RenderMetrics`, `Palette`) |
-| Swift 6 language mode, strict memory safety, `ExistentialAny`, `InternalImportsByDefault`, `MemberImportVisibility`, warnings are errors | white paper §4 | `Package.swift` `strictSettings` (all libraries; the executables are being moved to Swift 6 mode) |
+| Swift 6 language mode, strict memory safety, `ExistentialAny`, `InternalImportsByDefault`, `MemberImportVisibility`, warnings are errors | white paper §4 | `Package.swift` `strictSettings` (every target) |
 | Swift 6.4.2 | owner, 2026-11-06 | `.swift-version`, `.ci/action.json` |
 | Function body 60 lines (error 80), type body 200 (error 400), file 300 (error 500), cyclomatic complexity 10 (error 15), tuples of 3, 6 parameters, nesting 3/5 | ask's `.swiftlint.yml`, the strictest in the family (the canonical file allows 80/300/500/15) | `.swiftlint.yml` |
 | One top-level type per file, named for it (`Type+Feature.swift` for extensions); no file past 250 lines, tests included; `@Suite` structs count; generated files exempt | ask ADR-0021, AemiFormal ADR-0004 (`SourceStructureTests`) | `SourceStructureTests` inside `swift test` |
@@ -20,6 +20,6 @@ comes from and what enforces it. Everything here fails the pre-commit hook, `swi
 
 ## Not yet enforced (owed)
 
-- Executables (`sunset-run`, `sunset-render`, `sunset-app`) are still in Swift 5 language mode.
+- (Done) every target, the executables included, is in Swift 6 language mode with the strict settings.
 - No check that every public declaration is documented beyond swift-format's `AllPublicDeclarationsHaveDocumentation` (off in the family's file).
 - The other analyzers the family runs (deadwood, dolly, arcleak, fcheck: see TerminalKit's `Scripts/quality.sh`) are not wired here; swift-ci runs the ones in `.ci/action.json` once the repository is pushed.

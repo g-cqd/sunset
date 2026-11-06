@@ -9,7 +9,7 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
   - `Sources/SunsetCore/Parser`: `VTParser` (byte state machine, ADR-0023), `VTSink`, `Parameters`, `Intermediates`, `ParseCounter` (concrete front for other modules).
   - `Sources/SunsetCore/Screen`: `Terminal` (parser + screen, `feed`), `Screen` (the sink: grid, cursor, modes, regions, SGR, alternate screen, dirty rows), `Cell` (8 bytes), `CellStyle`, `StyleTable`, `Grid` (ADR-0025).
   - Dependency: `TerminalKitText` (display widths) from g-cqd/TerminalKit by revision `5966813`; ADR-0002 accepted: g-cqd and Aemi-Studio packages freely, Apple/swiftlang on approval.
-  - Tests: `swift test -c release --enable-testable-imports` → 203 pass (152 core + 10 host + 36 render + 5 CoreText) (parser, properties, screen, differential against a naive model, replies and modes).
+  - Tests: `swift test -c release --enable-testable-imports` → 231 pass (171 core + 19 host + 36 render + 5 CoreText) (parser, properties, screen, differential against a naive model, replies and modes).
   - Replies: `Terminal.takeReplies()` (bounded queue, ADR-0026); `Screen.modes` (what the host needs), `keyboardFlags`, `cursorShape`.
   - Benchmarks: `Benchmarks/Benchmarks/ParserBenchmarks` (`cd Benchmarks && swift package benchmark --no-progress --target ParserBenchmarks`); baseline in `bench/results/2026-11-05/parser-baseline.txt`.
 
@@ -18,6 +18,8 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
   - `Sources/SunsetRender` (CPU renderer, ADR-0031; platform-free), `SunsetRenderMac` (CoreText glyphs), `sunset-render` (PNG of a program's screen, headless: no window). The renderer benchmark: `swift package benchmark --target RendererBenchmarks` (28 M instructions a full 120x40 frame, 0 mallocs).
 
   - Renderer additions: box drawing, blocks and braille drawn to the cell (ADR-0031 addendum); ligatures and OpenType features via run shaping (ADR-0032; `sunset-render --ligatures --feature zero`).
+
+  - **App**: `Sources/SunsetApp` (`swift run sunset-app -- /opt/homebrew/bin/fish`): SwiftUI `App`/Settings/Commands + an AppKit terminal view, a `TerminalSession` actor and a `FrameRenderer` actor, no Dispatch (ADR-0033). Quality rules: `docs/quality.md` (strict safety, one type per file, 250 lines, no GCD, Swift 6.4.2).
 
 ## Measured (instructions per 1 MiB, p50, release; 0 mallocs on all)
 
