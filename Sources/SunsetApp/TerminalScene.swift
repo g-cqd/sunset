@@ -31,7 +31,12 @@ struct TerminalScene: View {
                 environment["COLORTERM"] = "truecolor"
                 environment["TERM"] = "xterm-256color"
                 model.onExit = { dismiss() }
-                model.start(command: launch.command, environment: environment, font: font)
+                model.start(
+                    command: launch.command,
+                    environment: environment,
+                    font: font,
+                    scrollback: launch.scrollback
+                )
             }
             .onChange(of: font) { _, newFont in model.apply(font: newFont) }
             .onDisappear { model.stop() }

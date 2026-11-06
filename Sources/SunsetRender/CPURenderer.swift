@@ -24,6 +24,10 @@ public final class CPURenderer: CellRenderer {
     private var lastPalette: Palette?
     private var lastReverse = false
     private var lastBlink = true
+    /// How many rows were drawn in all (a counter for tests and probes: a frame that changes nothing must draw nothing).
+    var rowsDrawn = 0
+    /// Which rows were drawn with blinking text: only those change when the blink phase does.
+    var blinkRows: [Bool] = []
     private var lastScrolledBack = 0
     private var lastSelection: Selection?
     private var lastHoveredLink: UInt16 = 0
@@ -45,6 +49,7 @@ public final class CPURenderer: CellRenderer {
         lastHoveredLink = 0
         lastSelectionRows = nil
         lastSize = nil
+        blinkRows = []
     }
 
     /// Draws the rows that need it. `cursorVisible` is the host's blink phase for the cursor (and the program's own show/hide is respected too);
@@ -66,9 +71,11 @@ public final class CPURenderer: CellRenderer {
         let (selection, hoveredLink) = (view.selection, view.hoveredLink)
         let sizeChanged = lastSize.map { $0.columns != screen.columns || $0.rows != screen.rows } ?? true
         let full =
-            sizeChanged || lastPalette != screen.palette || reverse != lastReverse || textBlinkVisible != lastBlink
+            sizeChanged || lastPalette != screen.palette || reverse != lastReverse
             || hoveredLink != lastHoveredLink || scrolledBack != lastScrolledBack
             || (scrolledBack > 0 && screen.hasDirtyRows)
+        if blinkRows.count != screen.rows { blinkRows = [Bool](repeating: false, count: screen.rows) }
+        let blinkChanged = textBlinkVisible != lastBlink
         let background = Surface.pack(reverse ? screen.palette.foreground : screen.palette.background)
         if full { fill(&surface, x: 0, y: 0, width: surface.width, height: surface.height, color: background) }
 
@@ -96,7 +103,8 @@ public final class CPURenderer: CellRenderer {
             let touchesSelection =
                 selectionChanged
                 && ((selectionRows?.contains(row) ?? false) || (lastSelectionRows?.contains(row) ?? false))
-            guard full || touchesCursor || touchesSelection || screen.isDirty(row: row) else { continue }
+            let blinks = blinkChanged && blinkRows[row]
+            guard full || blinks || touchesCursor || touchesSelection || screen.isDirty(row: row) else { continue }
             drawRow(row, frame: frame, surface: &surface)
         }
         lastCursor = cursor
@@ -111,34 +119,6 @@ public final class CPURenderer: CellRenderer {
     }
 
     // MARK: Rows and cells
-
-    private func drawRow(_ row: Int, frame: Frame, surface: inout Surface) {
-        // The row's strip is cleared first so that nothing of an earlier frame shows through.
-        fill(
-            &surface,
-            x: 0,
-            y: metrics.paddingY + row * metrics.cellHeight,
-            width: surface.width,
-            height: metrics.cellHeight,
-            color: Surface.pack(frame.background)
-        )
-        var column = 0
-        while column < frame.screen.columns {
-            let cell = frame.cell(row: row, column: column)
-            if cell.width == .spacerTail {
-                column += 1
-                continue
-            }
-            if ligatures, let length = drawRun(row: row, column: column, frame: frame, surface: &surface) {
-                column += length
-                continue
-            }
-            let span = cell.width == .wide && column + 1 < frame.screen.columns ? 2 : 1
-            drawCell(cell, at: Placement(row: row, column: column, span: span), frame: frame, surface: &surface)
-            column += span
-        }
-        if frame.hoveredLink != 0 { underlineHoveredLink(row: row, frame: frame, surface: &surface) }
-    }
 
     func drawCell(_ cell: Cell, at place: Placement, frame: Frame, surface: inout Surface) {
         let screen = frame.screen
@@ -171,7 +151,9 @@ public final class CPURenderer: CellRenderer {
                 color: Surface.pack(background)
             )
         }
-        let hidden = style.attributes.contains(.invisible) || (style.attributes.contains(.blink) && !frame.blinkVisible)
+        let blinks = style.attributes.contains(.blink)
+        if blinks { blinkRows[place.row] = true }
+        let hidden = style.attributes.contains(.invisible) || (blinks && !frame.blinkVisible)
         if place.drawGlyph, cell.scalar != 0, !hidden,
             let bitmap = bitmap(for: cell, style: style, wide: place.span == 2, screen: screen)
         {
