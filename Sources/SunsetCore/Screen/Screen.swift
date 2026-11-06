@@ -171,7 +171,10 @@ public struct Screen: Sendable {
     }
 
     mutating func markDirty(_ range: ClosedRange<Int>) {
-        for row in range { dirtyRows[row] = true }
+        dirtyRows.withUnsafeMutableBufferPointer { flags in
+            guard let base = flags.baseAddress else { return }
+            (base + range.lowerBound).update(repeating: true, count: range.count)
+        }
         generation &+= 1
     }
 }

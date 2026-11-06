@@ -16,8 +16,11 @@ extension Screen {
         line < scrollback.count ? scrollback.isWrapped(line) : isWrapped(row: line - scrollback.count)
     }
 
+    /// The cell at a place of the window; a place outside the screen is an empty cell (a caller may hold a position worked out for a window size this
+    /// snapshot predates: a resize in between).
     public func viewportCell(row: Int, column: Int, scrolledBack: Int) -> Cell {
-        absoluteCell(line: line(row: row, scrolledBack: scrolledBack), column: column)
+        guard row >= 0, row < rows, column >= 0, column < columns else { return .empty }
+        return absoluteCell(line: line(row: row, scrolledBack: scrolledBack), column: column)
     }
 
     public func viewportText(row: Int, scrolledBack: Int) -> String {
