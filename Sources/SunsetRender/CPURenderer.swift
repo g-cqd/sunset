@@ -188,6 +188,11 @@ public final class CPURenderer: CellRenderer {
             wide: wide
         )
         if let cached = cache[key] { return cached }
+        // Lines, blocks and braille are drawn to the cell, not taken from the font.
+        if !cell.isCluster, let own = BuiltInGlyphs.bitmap(for: cell.scalar, metrics: metrics, columns: wide ? 2 : 1) {
+            cache[key] = .some(own)
+            return own
+        }
         let made = glyphs.glyph(
             for: screen.text(of: cell),
             bold: key.bold,
