@@ -103,6 +103,17 @@ extension Screen {
         }
     }
 
+    /// `CSI Ps t`: 18 reports the size in characters, 22 and 23 save and restore the title. Everything else (moving, resizing, iconifying, reports of
+    /// the title or position) is refused, so a program cannot reach the window or read it back (ADR-0026).
+    mutating func windowOperation(_ parameters: Parameters) {
+        switch parameters[0] {
+            case 18: reportSize()
+            case 22 where parameters[1] == 0 || parameters[1] == 2: pushTitle()
+            case 23 where parameters[1] == 0 || parameters[1] == 2: popTitle()
+            default: break
+        }
+    }
+
     /// DSR: 5 asks whether the terminal is working (always "ok"), 6 asks for the cursor position.
     mutating func deviceStatus(_ request: Int, private isPrivate: Bool) {
         switch request {

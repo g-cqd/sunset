@@ -47,6 +47,6 @@ public struct ParseCounter: Sendable {
             final: UInt8
         ) { strings += 1 }
         mutating func stringBytes(_ bytes: Span<UInt8>) { stringBytes += bytes.count }
-        mutating func stringEnd(completed: Bool) {}
+        mutating func stringEnd(completed: Bool, terminator: StringTerminator) {}
     }
 }

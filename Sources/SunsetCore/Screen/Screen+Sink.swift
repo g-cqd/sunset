@@ -140,7 +140,7 @@ extension Screen: VTSink {
             case 0x73: saveCursor()
             case 0x6E: deviceStatus(parameters[0], private: false)
             case 0x63: if parameters[0] == 0 { reportDeviceAttributes() }
-            case 0x74: if parameters[0] == 18 { reportSize() }
+            case 0x74: windowOperation(parameters)
             case 0x75: restoreCursor()
             default: break
         }
@@ -152,7 +152,9 @@ extension Screen: VTSink {
         marker: UInt8,
         intermediates: Intermediates,
         final: UInt8
-    ) {}
-    public mutating func stringBytes(_ bytes: Span<UInt8>) {}
-    public mutating func stringEnd(completed: Bool) {}
+    ) { oscStart(kind) }
+    public mutating func stringBytes(_ bytes: Span<UInt8>) { oscAppend(bytes) }
+    public mutating func stringEnd(completed: Bool, terminator: StringTerminator) {
+        oscEnd(completed: completed, terminator: terminator)
+    }
 }

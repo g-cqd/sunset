@@ -23,3 +23,7 @@ Not done: grapheme clusters, charsets, left/right margins, resize/reflow, scroll
 
 Done: reply queue, DA1/DA2, DSR/CPR/DECXCPR, window size, DECRQM, XTVERSION, DECSCUSR, DECSTR, mode state for the host (mouse, bracketed paste, focus, sync output, keypad), kitty keyboard flag stack; 85 tests.
 Not done: OSC (titles, colour queries, 8, 52, 7, 133), DECRQSS/XTGETTCAP, title stack, graphemes, charsets, resize/reflow, scrollback, kitty mouse/graphics, `esctest`/`vttest`, oracle comparison of every reply.
+
+## Progress (2026-11-05, OSC): ADR-0027
+
+Done: string terminator in the sink, OSC 0/1/2 titles (sanitised, never reported), title stack, OSC 4/104 and 10-12/110-112 with queries, host-seeded palette; 104 tests. Not done: OSC 8, 52, 7, 133 and notifications (need ADR-0010), named colours, DECRQSS/XTGETTCAP, graphemes, charsets, resize/reflow, scrollback, kitty mouse/graphics, `esctest`/`vttest`, oracle comparison.

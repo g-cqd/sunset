@@ -33,7 +33,7 @@ extension VTParser {
         if heldC2 {
             heldC2 = false
             if byte == 0x9C {
-                endString(completed: true, into: &sink)
+                endString(completed: true, terminator: .st, into: &sink)
                 return true
             }
             deliverByte(0xC2, to: &sink)
@@ -41,11 +41,11 @@ extension VTParser {
         }
         switch byte {
             case 0x18, 0x1A:
-                endString(completed: false, into: &sink)
+                endString(completed: false, terminator: .none, into: &sink)
             case 0x1B:
                 state = .stringEscape
             case 0x07 where kind == .osc:
-                endString(completed: true, into: &sink)
+                endString(completed: true, terminator: .bel, into: &sink)
             case 0xC2:
                 heldC2 = true
             default:
@@ -55,14 +55,14 @@ extension VTParser {
     }
 
     mutating func stringEscape<Sink: VTSink>(_ byte: UInt8, into sink: inout Sink) -> Bool {
-        endString(completed: true, into: &sink)
+        endString(completed: true, terminator: .st, into: &sink)
         if byte == 0x5C { return true }
         enterEscape()
         return false
     }
 
-    mutating func endString<Sink: VTSink>(completed: Bool, into sink: inout Sink) {
-        if !suppressed { sink.stringEnd(completed: completed && !truncated) }
+    mutating func endString<Sink: VTSink>(completed: Bool, terminator: StringTerminator, into sink: inout Sink) {
+        if !suppressed { sink.stringEnd(completed: completed && !truncated, terminator: terminator) }
         suppressed = false
         heldC2 = false
         state = .ground

@@ -63,7 +63,11 @@ struct Recorder: VTSink {
             events.append(.stringBytes(piece))
         }
     }
-    mutating func stringEnd(completed: Bool) { events.append(.stringEnd(completed: completed)) }
+    var endings: [StringTerminator] = []
+    mutating func stringEnd(completed: Bool, terminator: StringTerminator) {
+        events.append(.stringEnd(completed: completed))
+        endings.append(terminator)
+    }
 
     private func list(_ parameters: Parameters) -> [Int] { (0 ..< parameters.count).map { parameters[$0] } }
     private func bytes(_ intermediates: Intermediates) -> [UInt8] {
@@ -301,5 +305,21 @@ func text(_ string: String) -> [Event] { string.unicodeScalars.map { .text($0) }
 
     @Test func `a non-ASCII byte inside a sequence abandons it and is read afresh`() {
         #expect(parse("\u{1B}[1é") == text("é"))
+    }
+
+    @Test func `a string reports how it ended`() {
+        func endings(_ text: String) -> [StringTerminator] {
+            var parser = VTParser()
+            var sink = Recorder()
+            var bytes = text
+            bytes.withUTF8 { parser.parse($0.span, into: &sink) }
+            return sink.endings
+        }
+        #expect(endings("\u{1B}]0;a\u{7}") == [.bel])
+        #expect(endings("\u{1B}]0;a\u{1B}\\") == [.st])
+        #expect(endings("\u{9D}0;a\u{9C}") == [.st])
+        #expect(endings("\u{1B}]0;a\u{1B}[H") == [.st])
+        #expect(endings("\u{1B}]0;a\u{18}") == [.none])
+        #expect(endings("\u{1B}P1qa\u{7}\u{1B}\\") == [.st], "BEL is content inside a DCS, not a terminator")
     }
 }
