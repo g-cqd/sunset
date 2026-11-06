@@ -10,9 +10,12 @@ extension CPURenderer {
         let y0 = max(0, y)
         let y1 = min(surface.height, y + height)
         guard x0 < x1, y0 < y1 else { return }
-        for row in y0 ..< y1 {
-            let base = row * surface.width
-            for column in x0 ..< x1 { surface.pixels[base + column] = color }
+        let stride = surface.width
+        // One access to the buffer for the whole rectangle, and one store loop a row: with the array's subscript every pixel paid for a uniqueness check and
+        // a bounds check (measured: a blank retina frame was 58 M instructions, 19 a pixel).
+        surface.pixels.withUnsafeMutableBufferPointer { pixels in
+            guard let base = pixels.baseAddress else { return }
+            for row in y0 ..< y1 { unsafe (base + row * stride + x0).update(repeating: color, count: x1 - x0) }
         }
     }
 
@@ -25,16 +28,29 @@ extension CPURenderer {
         cellWidth: Int,
         color: RGB
     ) {
-        for row in 0 ..< bitmap.height {
-            let y = cellY + bitmap.top + row
-            guard y >= cellY, y < cellY + metrics.cellHeight, y < surface.height else { continue }
-            for column in 0 ..< bitmap.width {
-                let x = cellX + bitmap.left + column
-                guard x >= cellX, x < cellX + cellWidth, x < surface.width else { continue }
-                let alpha = Int(bitmap.coverage[row * bitmap.width + column])
-                if alpha == 0 { continue }
-                let index = y * surface.width + x
-                surface.pixels[index] = alpha == 255 ? Surface.pack(color) : blend(surface.pixels[index], color, alpha)
+        // The part of the bitmap that is inside the cell(s) and the surface, worked out once: rows `rows`, columns `columns` of the bitmap.
+        let leftEdge = max(cellX, 0)
+        let rightEdge = min(cellX + cellWidth, surface.width)
+        let topEdge = max(cellY, 0)
+        let bottomEdge = min(cellY + metrics.cellHeight, surface.height)
+        let columns = max(leftEdge - (cellX + bitmap.left), 0) ..< min(rightEdge - (cellX + bitmap.left), bitmap.width)
+        let rows = max(topEdge - (cellY + bitmap.top), 0) ..< min(bottomEdge - (cellY + bitmap.top), bitmap.height)
+        guard !columns.isEmpty, !rows.isEmpty else { return }
+        let solid = Surface.pack(color)
+        let stride = surface.width
+        bitmap.coverage.withUnsafeBufferPointer { coverage in
+            surface.pixels.withUnsafeMutableBufferPointer { pixels in
+                guard let base = pixels.baseAddress, let source = coverage.baseAddress else { return }
+                for row in rows {
+                    let y = cellY + bitmap.top + row
+                    let line = unsafe base + y * stride + cellX + bitmap.left
+                    let alphas = unsafe source + row * bitmap.width
+                    for column in columns {
+                        let alpha = Int(unsafe alphas[column])
+                        if alpha == 0 { continue }
+                        unsafe line[column] = alpha == 255 ? solid : blend(unsafe line[column], color, alpha)
+                    }
+                }
             }
         }
     }

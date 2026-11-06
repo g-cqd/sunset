@@ -18,6 +18,24 @@ private func filledTerminal() -> Terminal {
     return terminal
 }
 
+/// Glyphs with antialiased coverage, like a font's (about 60 % of the pixels empty, 15 % solid, the rest in between), made from the scalar so that the same
+/// text gives the same pixels: the cost of blending a glyph, which `BoxGlyphSource` (solid boxes) does not show.
+private struct CoverageGlyphSource: GlyphSource {
+    func glyph(for text: String, bold: Bool, italic: Bool, columns: Int, metrics: RenderMetrics) -> GlyphBitmap? {
+        guard let scalar = text.unicodeScalars.first, scalar.value > 0x20 else { return nil }
+        let width = metrics.cellWidth * columns - 4
+        let height = metrics.cellHeight - 8
+        var state = UInt64(scalar.value) &* 0x9E37_79B9_7F4A_7C15
+        var coverage = [UInt8](repeating: 0, count: width * height)
+        for index in coverage.indices {
+            state = state &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
+            let draw = Int(state >> 33) % 100
+            coverage[index] = draw < 60 ? 0 : draw < 75 ? 255 : UInt8(truncatingIfNeeded: state >> 40)
+        }
+        return GlyphBitmap(width: width, height: height, left: 2, top: 4, coverage: coverage)
+    }
+}
+
 let benchmarks: @Sendable () -> Void = {
     Benchmark.defaultConfiguration = .init(
         metrics: [.wallClock, .instructions, .mallocCountTotal],
@@ -85,5 +103,25 @@ let benchmarks: @Sendable () -> Void = {
         }
         benchmark.stopMeasurement()
         blackHole(surface.pixels[0])
+    }
+
+    // A retina window: cells of 17x37 pixels (JetBrains Mono at 14 pt, scale 2), 120x40, antialiased glyphs. What a full redraw costs in the app.
+    let retina = RenderMetrics(cellWidth: 17, cellHeight: 37)
+    let retinaSize = retina.surfaceSize(columns: 120, rows: 40)
+    for (name, filled) in [("blank", false), ("text", true)] {
+        Benchmark("render/retina full frame, \(name) (120x40, \(retinaSize.width)x\(retinaSize.height) pixels)") {
+            benchmark in
+            let terminal = filled ? filledTerminal() : Terminal(columns: 120, rows: 40)
+            var surface = Surface(width: retinaSize.width, height: retinaSize.height)
+            let renderer = CPURenderer(metrics: retina, glyphs: CoverageGlyphSource())
+            renderer.render(terminal.screen, into: &surface)
+            benchmark.startMeasurement()
+            for _ in benchmark.scaledIterations {
+                renderer.invalidate()
+                renderer.render(terminal.screen, into: &surface)
+            }
+            benchmark.stopMeasurement()
+            blackHole(surface.pixels[0])
+        }
     }
 }
