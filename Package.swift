@@ -21,8 +21,14 @@ let package = Package(
         .library(name: "SunsetCore", targets: ["SunsetCore"]),
         // The host: a program on a pseudo-terminal feeding the core, with no window (roadmap 0004). The only target that imports the platform.
         .library(name: "SunsetHost", targets: ["SunsetHost"]),
+        // The CPU renderer: cells to pixels, the reference the GPU renderer is held to (ADR-0024). Platform-free; glyphs come from a `GlyphSource`.
+        .library(name: "SunsetRender", targets: ["SunsetRender"]),
+        // The macOS glyph source (CoreText), the platform seam of the renderer.
+        .library(name: "SunsetRenderMac", targets: ["SunsetRenderMac"]),
         // Runs a program in a headless terminal and prints the screen.
-        .executable(name: "sunset-run", targets: ["SunsetRun"])
+        .executable(name: "sunset-run", targets: ["SunsetRun"]),
+        // Runs a program in a headless terminal and writes what the CPU renderer draws of its screen as a PNG.
+        .executable(name: "sunset-render", targets: ["SunsetRenderTool"])
     ],
     dependencies: [
         // Our own tooling (ADR-0002): terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
@@ -34,6 +40,30 @@ let package = Package(
             dependencies: [.product(name: "TerminalKitText", package: "TerminalKit")],
             path: "Sources/SunsetCore",
             swiftSettings: strictSettings
+        ),
+        .target(
+            name: "SunsetRender",
+            dependencies: ["SunsetCore"],
+            path: "Sources/SunsetRender",
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "SunsetRenderTests",
+            dependencies: ["SunsetRender", "SunsetCore"],
+            path: "Tests/SunsetRenderTests",
+            swiftSettings: strictSettings
+        ),
+        .target(
+            name: "SunsetRenderMac",
+            dependencies: ["SunsetRender"],
+            path: "Sources/SunsetRenderMac",
+            swiftSettings: strictSettings
+        ),
+        .executableTarget(
+            name: "SunsetRenderTool",
+            dependencies: ["SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
+            path: "Sources/SunsetRenderTool",
+            swiftSettings: [.swiftLanguageMode(.v5)]  // a script-style main with globals
         ),
         .target(
             name: "SunsetHost",

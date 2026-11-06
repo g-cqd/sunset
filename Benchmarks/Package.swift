@@ -56,6 +56,17 @@ let package = Package(
             swiftSettings: strictSettings,
             plugins: [.plugin(name: "BenchmarkPlugin", package: "benchmark")]
         ),
+        // The CPU renderer (ADR-0024).
+        .executableTarget(
+            name: "RendererBenchmarks",
+            dependencies: [
+                .product(name: "Benchmark", package: "benchmark"), "BenchmarkSupport",
+                .product(name: "SunsetCore", package: "Sunset"), .product(name: "SunsetRender", package: "Sunset")
+            ],
+            path: "Benchmarks/RendererBenchmarks",
+            swiftSettings: strictSettings,
+            plugins: [.plugin(name: "BenchmarkPlugin", package: "benchmark")]
+        ),
         // Not a benchmark: who holds the screen when a renderer wants a frame (sunset roadmap 0002 probe T0.3, ADR-0014).
         // Not a benchmark: GPU reads the screen's cells vs CPU-rebuilt instances (sunset roadmap 0002 probe T0.5, ADR-0015).
         .executableTarget(name: "MetalProbe", path: "Probes/MetalProbe", swiftSettings: probeSettings),

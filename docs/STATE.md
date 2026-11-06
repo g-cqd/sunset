@@ -9,11 +9,13 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
   - `Sources/SunsetCore/Parser`: `VTParser` (byte state machine, ADR-0023), `VTSink`, `Parameters`, `Intermediates`, `ParseCounter` (concrete front for other modules).
   - `Sources/SunsetCore/Screen`: `Terminal` (parser + screen, `feed`), `Screen` (the sink: grid, cursor, modes, regions, SGR, alternate screen, dirty rows), `Cell` (8 bytes), `CellStyle`, `StyleTable`, `Grid` (ADR-0025).
   - Dependency: `TerminalKitText` (display widths) from g-cqd/TerminalKit by revision `5966813`; ADR-0002 accepted: g-cqd and Aemi-Studio packages freely, Apple/swiftlang on approval.
-  - Tests: `swift test -c release --enable-testable-imports` → 161 pass (151 core + 10 host) (parser, properties, screen, differential against a naive model, replies and modes).
+  - Tests: `swift test -c release --enable-testable-imports` → 181 pass (152 core + 10 host + 19 render) (parser, properties, screen, differential against a naive model, replies and modes).
   - Replies: `Terminal.takeReplies()` (bounded queue, ADR-0026); `Screen.modes` (what the host needs), `keyboardFlags`, `cursorShape`.
   - Benchmarks: `Benchmarks/Benchmarks/ParserBenchmarks` (`cd Benchmarks && swift package benchmark --no-progress --target ParserBenchmarks`); baseline in `bench/results/2026-11-05/parser-baseline.txt`.
 
   - `Sources/SunsetHost` (the platform seam): `PTYProcess`, `HeadlessSession`; `Sources/SunsetRun` (`sunset-run`, prints a program's screen); `Scripts/oracle-compare.sh` + `Scripts/oracle-streams/*.sh` (18 streams: text and styles against kitty, text against ghostty via `Scripts/oracle-ghostty.sh`, replies against kitty, ghostty and alacritty (built with cargo); understood differences in `Scripts/oracle-accepted.txt`; ADR-0030). Needs a GUI session, local only.
+
+  - `Sources/SunsetRender` (CPU renderer, ADR-0031; platform-free), `SunsetRenderMac` (CoreText glyphs), `sunset-render` (PNG of a program's screen, headless: no window). The renderer benchmark: `swift package benchmark --target RendererBenchmarks` (27 M instructions a full 120x40 frame, 0 mallocs).
 
 ## Measured (instructions per 1 MiB, p50, release; 0 mallocs on all)
 
@@ -25,7 +27,7 @@ Terminal (parser + screen, 120x40): ASCII 50 M · cursor moves 142 M · OSC 102 
 1. Replies and modes (DA1/DA2, DSR/CPR, DECRQM, XTVERSION, OSC 4/10/11/12 queries), OSC titles/hyperlinks, DECSCUSR, soft reset, kitty keyboard flags, mouse modes, synchronized output.
 2. Cold compressed history (ADR-0013), left/right margins. Done since: grapheme clusters (ADR-0029), charsets, scrollback ring, resize with reflow (ADR-0028).
 3. Widen the oracle comparison: styles and cursor, replies, resize, ghostty and wezterm; `esctest`/`vttest` fixtures with a published gap list; fuzzing; profile the CSI path.
-4. Renderer seam (ADR-0024, proposed): CPU renderer first, then Metal, a runtime toggle `auto|gpu|cpu`, pixel differential as the first gate. Probes 6 and 7 of roadmap 0002; PTY host.
+4. Renderer: CPU renderer v1 is done (ADR-0031); next procedural box drawing, colour emoji, selection overlay, then Metal behind `CellRenderer` with the run-time toggle `auto|gpu|cpu` and the pixel differential as the first gate (ADR-0024). Probes 6 and 7 of roadmap 0002; PTY host.
 
 ## CI (not yet run on GitHub)
 
