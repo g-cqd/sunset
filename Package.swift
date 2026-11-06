@@ -20,8 +20,17 @@ let package = Package(
         // The headless emulator core: VT parser, then screen, modes and replies (roadmap 0003).
         .library(name: "SunsetCore", targets: ["SunsetCore"])
     ],
+    dependencies: [
+        // Our own tooling (ADR-0002): terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "59668133b73f3d8ab77a347e03bbc778d929a2e6")
+    ],
     targets: [
-        .target(name: "SunsetCore", path: "Sources/SunsetCore", swiftSettings: strictSettings),
+        .target(
+            name: "SunsetCore",
+            dependencies: [.product(name: "TerminalKitText", package: "TerminalKit")],
+            path: "Sources/SunsetCore",
+            swiftSettings: strictSettings
+        ),
         .testTarget(
             name: "SunsetCoreTests",
             dependencies: ["SunsetCore"],

@@ -29,7 +29,7 @@ with colour accuracy, GPU acceleration and good typography as first-class goals.
 ## Dependencies
 
 Only our own tooling: [TerminalKit](https://github.com/g-cqd/TerminalKit) and the Aemi family, with generic pieces promoted into Aemi. Platform APIs are reached through seams.
-Other terminals and emulator libraries are *test oracles run as separate processes*, never linked. See [ADR-0002](docs/adr/0002-only-our-own-tooling-platform-apis-through-seams.md) (pending one confirmation).
+Other terminals and emulator libraries are *test oracles run as separate processes*, never linked. See [ADR-0002](docs/adr/0002-only-our-own-tooling-platform-apis-through-seams.md) (accepted: g-cqd and Aemi-Studio packages freely, Apple and swiftlang ones on approval).
 
 ## Relationship to TerminalUI
 
