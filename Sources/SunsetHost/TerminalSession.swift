@@ -81,15 +81,25 @@ public actor TerminalSession {
         )
     }
 
-    /// Sends a mouse event as the program asked for it. Returns whether the program has the mouse (tracking on, even if this event is one it does not want):
-    /// false means the window can use the event itself (select, scroll).
+    /// Sends a mouse event as the program asked for it. Returns whether the program has it (tracking on, even if this event is one it does not want; or the
+    /// wheel on the alternate screen with alternate scroll on, which becomes the arrow keys): false means the window can use the event itself (select, scroll
+    /// the history).
     @discardableResult
     public func send(_ event: MouseEvent) -> Bool {
-        let modes = terminal.screen.modes
-        guard let bytes = MouseEncoder.encode(event, tracking: modes.mouseTracking, format: modes.mouseFormat) else {
-            return false
+        let screen = terminal.screen
+        let modes = screen.modes
+        guard modes.mouseTracking != .none else {
+            guard screen.isAlternate, modes.alternateScroll, event.action == .press else { return false }
+            switch event.button {
+                case .wheelUp: send(KeyPress(.up))
+                case .wheelDown: send(KeyPress(.down))
+                default: return false
+            }
+            return true
         }
-        process.send(bytes)
+        if let bytes = MouseEncoder.encode(event, tracking: modes.mouseTracking, format: modes.mouseFormat) {
+            process.send(bytes)
+        }
         return true
     }
 

@@ -73,6 +73,27 @@ private func started(_ script: String, columns: Int = 80, rows: Int = 24) async 
         )
     }
 
+    @Test func `on the alternate screen with alternate scroll on, the wheel is the arrow keys`() async throws {
+        let session = try await started(
+            "stty raw -echo; printf '\\033[?1049h\\033[?1007h'; dd bs=1 count=6 2>/dev/null | od -An -tx1"
+        )
+        #expect(await waitFor(session) { $0.isAlternate && $0.modes.alternateScroll })
+        let up = MouseEvent(.press, .wheelUp, column: 1, row: 1)
+        let down = MouseEvent(.press, .wheelDown, column: 1, row: 1)
+        #expect(await session.send(up) == true, "the program has the wheel now")
+        #expect(await session.send(down) == true)
+        #expect(
+            await waitFor(session) {
+                $0.text(row: 0).split(separator: " ").joined(separator: " ") == "1b 5b 41 1b 5b 42"
+            }
+        )
+    }
+
+    @Test func `the wheel on the primary screen with no mouse tracking is left to the window`() async throws {
+        let session = try await started("sleep 3")
+        #expect(await session.send(MouseEvent(.press, .wheelUp, column: 1, row: 1)) == false)
+    }
+
     @Test func `a resize reaches the program and the screen`() async throws {
         let session = try await started("stty size; read x; stty size")
         #expect(await waitFor(session) { $0.text(row: 0) == "24 80" })

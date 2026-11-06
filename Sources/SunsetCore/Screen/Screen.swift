@@ -149,6 +149,7 @@ public struct Screen: Sendable {
     // MARK: Dirty rows (what a renderer must redraw, ADR-0024)
 
     public func isDirty(row: Int) -> Bool { dirtyRows[row] }
+    public var hasDirtyRows: Bool { dirtyRows.contains(true) }
 
     /// Marks every row clean: the renderer has taken what it needed.
     public mutating func clearDirty() {
