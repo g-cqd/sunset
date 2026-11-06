@@ -27,6 +27,8 @@ let package = Package(
         .library(name: "SunsetRenderMac", targets: ["SunsetRenderMac"]),
         // Runs a program in a headless terminal and prints the screen.
         .executable(name: "sunset-run", targets: ["SunsetRun"]),
+        // The first app shell: a window, one program, the CPU renderer.
+        .executable(name: "sunset-app", targets: ["SunsetApp"]),
         // Runs a program in a headless terminal and writes what the CPU renderer draws of its screen as a PNG.
         .executable(name: "sunset-render", targets: ["SunsetRenderTool"])
     ],
@@ -64,6 +66,12 @@ let package = Package(
             dependencies: ["SunsetRenderMac", "SunsetRender"],
             path: "Tests/SunsetRenderMacTests",
             swiftSettings: strictSettings
+        ),
+        .executableTarget(
+            name: "SunsetApp",
+            dependencies: ["SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
+            path: "Sources/SunsetApp",
+            swiftSettings: [.swiftLanguageMode(.v5)]  // AppKit shell; the strict settings are for the libraries
         ),
         .executableTarget(
             name: "SunsetRenderTool",
