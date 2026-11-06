@@ -26,11 +26,10 @@ public struct Screen: Sendable {
     var saved: SavedCursor?
     var savedBeforeAlternate: SavedCursor?
 
-    var autoWrap = true
-    var originMode = false
-    var insertMode = false
-    var newLineMode = false
-    public internal(set) var cursorVisible = true
+    /// The modes the program has set; the host reads the ones that shape input (`Modes`).
+    public internal(set) var modes = Modes()
+    public internal(set) var cursorShape = CursorShape.block
+    public internal(set) var cursorBlinks = true
 
     var dirtyRows: ContiguousArray<Bool>
     public internal(set) var generation: UInt64 = 0
@@ -53,6 +52,7 @@ public struct Screen: Sendable {
         bottom = rows - 1
         tabStops = Screen.defaultTabStops(columns)
         dirtyRows = ContiguousArray(repeating: true, count: rows)
+        replies.reserveCapacity(256)
     }
 
     static func defaultTabStops(_ columns: Int) -> ContiguousArray<Bool> {
@@ -60,6 +60,14 @@ public struct Screen: Sendable {
     }
 
     // MARK: Reading
+
+    /// The kitty keyboard protocol flags in force on the screen shown.
+    public var keyboardFlags: UInt8 { keyboard.flags }
+    public internal(set) var droppedReplies = 0
+    /// Answers waiting for the host (`Terminal.takeReplies`), bounded by `replyLimit`.
+    var replies = ContiguousArray<UInt8>()
+    var keyboard = KeyboardState()
+    var otherKeyboard = KeyboardState()
 
     public var cursorRow: Int { row }
     public var cursorColumn: Int { column }

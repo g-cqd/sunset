@@ -10,7 +10,7 @@ extension Screen {
         while index < count {
             if pendingWrap {
                 pendingWrap = false
-                if autoWrap { wrap() }
+                if modes.autoWrap { wrap() }
             }
             let take = min(columns - column, count - index)
             let id = currentPenID()
@@ -43,15 +43,15 @@ extension Screen {
         guard width > 0 else { return }
         if pendingWrap {
             pendingWrap = false
-            if autoWrap { wrap() }
+            if modes.autoWrap { wrap() }
         }
         if width == 2, column == columns - 1 {
-            guard autoWrap else { return }
+            guard modes.autoWrap else { return }
             // No room for both halves: leave the last cell blank and continue on the next line.
             grid[row, column] = Cell(scalar: 0, width: .narrow, style: currentEraseID())
             wrap()
         }
-        if insertMode { insertCells(width) }
+        if modes.insert { insertCells(width) }
         let id = currentPenID()
         clearWideEdges(row: row, from: column, to: column + width - 1)
         if width == 2 {
