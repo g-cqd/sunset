@@ -1,134 +1,73 @@
 internal import Darwin
 internal import Synchronization
 
-/// Reads a pseudo-terminal's output on a thread of its own, continuously, into a buffer that the consumer empties in batches.
+/// Reads a pseudo-terminal's output on the thread that calls `run`, and hands every read to the caller at once, on that same thread.
 ///
-/// The consumer used to pull one read at a time (a task on the reader thread per read, a hop to the consumer, the next read only after the parse): while the
-/// output was parsed nobody read, so a program that writes a lot waited in the kernel's small buffer, and every read cost thread switches. Now the reader
-/// never waits for the parse, and what arrived meanwhile comes as one batch. It stops reading when `limit` bytes wait (the child is then slowed by the
-/// kernel's buffer, as a terminal must), and goes on when the consumer has taken some.
+/// A terminal's output arrives from the kernel in pieces of about a kilobyte (measured: 4 MB in 3154 reads). With a hop to another task for each piece (a
+/// wake-up of a pool thread, an actor turn, and back) the hops cost more than the parse itself: 116 000 pieces a second, 70 % of the work of the app was
+/// that overhead. Here the thread that reads also parses (the caller locks what it parses into), the way the fast terminals do, so a piece costs two system
+/// calls and the parse. While the caller works the reader is not reading, and the child is slowed by the kernel's buffer (the backpressure a terminal must
+/// give). It waits on the master and on a pipe that `stop` writes to, with no timeout: an idle terminal does not wake up.
 final class OutputPump: Sendable {
-    /// One element per change of the buffer (an element still waiting for the consumer is kept, not queued again); finishes when the output has ended.
-    let signals: AsyncStream<Void>
-
-    private struct State {
-        var pending: [UInt8] = []
-        /// The reader is waiting for the consumer to take some.
-        var blocked = false
-        var wakeups = 0
-    }
-
-    private let state = Mutex(State())
-    private let continuation: AsyncStream<Void>.Continuation
     private let master: Int32
-    private let thread: DedicatedThread
-    private let limit: Int
-    /// Wake the reader: `stop` and `take` write to these (the reader waits with no timeout).
     private let stopRead: Int32
     private let stopWrite: Int32
-    private let resumeRead: Int32
-    private let resumeWrite: Int32
+    private let polls = Mutex(0)
     private static let readSize = 128 * 1024
 
-    init(master: Int32, thread: DedicatedThread, limit: Int) {
-        (signals, continuation) = AsyncStream.makeStream(of: Void.self, bufferingPolicy: .bufferingNewest(1))
+    init(master: Int32) {
         self.master = master
-        self.thread = thread
-        self.limit = limit
-        (stopRead, stopWrite) = Self.makePipe()
-        (resumeRead, resumeWrite) = Self.makePipe()
+        var ends: [Int32] = [-1, -1]
+        if pipe(&ends) == 0 {
+            for end in ends {
+                _ = fcntl(end, F_SETFL, fcntl(end, F_GETFL) | O_NONBLOCK)
+                _ = fcntl(end, F_SETFD, FD_CLOEXEC)
+            }
+        } else {
+            ends = [-1, -1]
+        }
+        (stopRead, stopWrite) = (ends[0], ends[1])
     }
 
     deinit {
-        for descriptor in [stopRead, stopWrite, resumeRead, resumeWrite] where descriptor >= 0 { close(descriptor) }
+        if stopRead >= 0 { close(stopRead) }
+        if stopWrite >= 0 { close(stopWrite) }
     }
 
-    private static func makePipe() -> (Int32, Int32) {
-        var ends: [Int32] = [-1, -1]
-        guard pipe(&ends) == 0 else { return (-1, -1) }
-        for end in ends {
-            _ = fcntl(end, F_SETFL, fcntl(end, F_GETFL) | O_NONBLOCK)
-            _ = fcntl(end, F_SETFD, FD_CLOEXEC)
-        }
-        return (ends[0], ends[1])
-    }
+    /// How many times the pump has gone to wait: an idle terminal must not make it wake.
+    var wakeups: Int { polls.withLock { $0 } }
 
-    /// Starts reading. Call once.
-    func start() {
-        let pump = self
-        Task(executorPreference: thread) { pump.run() }
-    }
-
-    /// Ends the reading (the stream finishes).
-    func stop() { Self.poke(stopWrite) }
-
-    /// Up to `limit` bytes of what has arrived, in order; empty when nothing waits.
-    func take(limit count: Int) -> [UInt8] {
-        let (batch, wasBlocked) = state.withLock { state -> ([UInt8], Bool) in
-            let taken: [UInt8]
-            if state.pending.count <= count {
-                taken = state.pending
-                state.pending = []
-            } else {
-                taken = Array(state.pending[0 ..< count])
-                state.pending.removeSubrange(0 ..< count)
-            }
-            let resume = state.blocked && state.pending.count < limit
-            if resume { state.blocked = false }
-            return (taken, resume)
-        }
-        if wasBlocked { Self.poke(resumeWrite) }
-        return batch
-    }
-
-    var pendingBytes: Int { state.withLock { $0.pending.count } }
-    var wakeups: Int { state.withLock { $0.wakeups } }
-
-    private static func poke(_ descriptor: Int32) {
-        guard descriptor >= 0 else { return }
+    /// Ends `run` (a `stop` before the run began ends it as soon as it starts).
+    func stop() {
+        guard stopWrite >= 0 else { return }
         var byte: UInt8 = 1
-        _ = unsafe write(descriptor, &byte, 1)
+        _ = unsafe write(stopWrite, &byte, 1)
     }
 
-    private static func empty(_ descriptor: Int32) {
-        var scratch = [UInt8](repeating: 0, count: 16)
-        while unsafe read(descriptor, &scratch, scratch.count) > 0 {}
-    }
-
-    private func run() {
-        defer { continuation.finish() }
+    /// Reads until the output ends or `stop`, calling `body` with each piece, in order. Blocks the calling thread.
+    func run(_ body: (UnsafeBufferPointer<UInt8>) -> Void) {
+        _ = fcntl(master, F_SETFL, fcntl(master, F_GETFL) | O_NONBLOCK)
         var buffer = [UInt8](repeating: 0, count: Self.readSize)
         while true {
-            let isFull = state.withLock { state -> Bool in
-                state.wakeups += 1
-                let full = state.pending.count >= limit
-                if full { state.blocked = true }
-                return full
-            }
-            var waits = [
-                pollfd(fd: stopRead, events: Int16(POLLIN), revents: 0),
-                pollfd(fd: isFull ? resumeRead : master, events: Int16(POLLIN), revents: 0)
-            ]
-            let ready = unsafe poll(&waits, 2, -1)
-            if ready < 0 {
-                if errno == EINTR { continue }
-                return
-            }
-            if waits[0].revents != 0 { return }
-            guard waits[1].revents != 0 else { continue }
-            if isFull {
-                Self.empty(resumeRead)
-                continue
-            }
+            // Read first: under a flood there is always something, and the wait is a system call saved per piece.
             let count = buffer.withUnsafeMutableBytes { raw -> Int in
                 unsafe Darwin.read(master, raw.baseAddress, raw.count)
             }
             if count > 0 {
-                state.withLock { $0.pending.append(contentsOf: buffer[0 ..< count]) }
-                continuation.yield()
-            } else if count == 0 || (errno != EINTR && errno != EAGAIN) {
-                return
+                buffer.withUnsafeBufferPointer { body(UnsafeBufferPointer(rebasing: $0[0 ..< count])) }
+                continue
             }
+            if count == 0 { return }
+            if errno == EINTR { continue }
+            guard errno == EAGAIN else { return }
+            polls.withLock { $0 += 1 }
+            var waits = [
+                pollfd(fd: stopRead, events: Int16(POLLIN), revents: 0),
+                pollfd(fd: master, events: Int16(POLLIN), revents: 0)
+            ]
+            let ready = unsafe poll(&waits, 2, -1)
+            if ready < 0, errno != EINTR { return }
+            if waits[0].revents != 0 { return }
         }
     }
 }

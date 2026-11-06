@@ -1,4 +1,5 @@
 public import SunsetCore
+internal import Synchronization
 
 /// A program running in a terminal, owned by an actor: the output is read as it arrives (the reader pulls, so the child is slowed by the kernel's buffer
 /// and not by our memory), parsed into the screen, the terminal's replies are written back, and a frame consumer is told that something changed.
@@ -22,9 +23,7 @@ public actor TerminalSession {
     /// the oldest.
     public nonisolated let hostEvents: AsyncStream<HostEvent>
     private let hostContinuation: AsyncStream<HostEvent>.Continuation
-    /// The most output parsed in one go.
-    private static let batchLimit = 256 * 1024
-    private var terminal: Terminal
+    private let core: SessionCore
     private var reading: Task<Void, Never>?
     public private(set) var isClosed = false
 
@@ -36,7 +35,7 @@ public actor TerminalSession {
         directory: String? = nil,
         scrollbackLimit: Int = 10_000
     ) throws {
-        terminal = Terminal(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit)
+        core = SessionCore(Terminal(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit))
         process = try PTYProcess.spawn(
             command,
             environment: environment,
@@ -54,32 +53,17 @@ public actor TerminalSession {
     /// Starts reading the program's output. Call once.
     public func start() {
         guard reading == nil else { return }
-        reading = Task { [process] in
-            let pump = process.pump
-            pump.start()
-            for await _ in pump.signals {
-                // Everything that has arrived, in batches: a flood is parsed in a few big pieces, and between them (the yield) the frame consumer and the
-                // keys get their turn on this actor.
-                while !Task.isCancelled {
-                    let batch = pump.take(limit: Self.batchLimit)
-                    if batch.isEmpty { break }
-                    ingest(batch)
-                    await Task.yield()
-                }
+        let (process, core, updates, events) = (process, core, continuation, hostContinuation)
+        // On the reader thread, not on this actor: the thread that reads also parses (see `OutputPump`), and tells the consumer once per snapshot.
+        reading = Task.detached(executorPreference: process.readThread) { [self] in
+            process.pump.run { piece in
+                let (replies, hostEvents) = core.ingest(piece)
+                if !replies.isEmpty { process.send(replies) }
+                for event in hostEvents { events.yield(event) }
+                if !core.announced.exchange(true, ordering: .acquiringAndReleasing) { updates.yield(.changed) }
             }
-            pump.stop()
-            let rest = pump.take(limit: .max)
-            if !rest.isEmpty { ingest(rest) }
             await finish()
         }
-    }
-
-    private func ingest(_ bytes: [UInt8]) {
-        bytes.withUnsafeBufferPointer { terminal.feed($0.span) }
-        let replies = terminal.takeReplies()
-        if !replies.isEmpty { process.send(replies) }
-        for event in terminal.takeEvents() { hostContinuation.yield(event) }
-        continuation.yield(.changed)
     }
 
     private func finish() async {
@@ -92,9 +76,12 @@ public actor TerminalSession {
 
     /// A copy of the screen as it is now; the dirty marks are the changes since the last snapshot, and the live screen's are cleared (see above).
     public func takeSnapshot() -> Screen {
-        let screen = terminal.screen
-        terminal.clearDirty()
-        return screen
+        core.announced.store(false, ordering: .releasing)
+        return core.terminal.withLock { terminal in
+            let screen = terminal.screen
+            terminal.clearDirty()
+            return screen
+        }
     }
 
     /// Sends bytes to the program, in order with everything else sent.
@@ -102,9 +89,8 @@ public actor TerminalSession {
 
     /// Sends a key, encoded for the modes the program has set *now* (application cursor keys, the keyboard protocol's flags).
     public func send(_ press: KeyPress) {
-        process.send(
-            KeyEncoder.encode(press, modes: terminal.screen.modes, keyboardFlags: terminal.screen.keyboardFlags)
-        )
+        let (modes, flags) = core.terminal.withLock { ($0.screen.modes, $0.screen.keyboardFlags) }
+        process.send(KeyEncoder.encode(press, modes: modes, keyboardFlags: flags))
     }
 
     /// Sends a mouse event as the program asked for it. Returns whether the program has it (tracking on, even if this event is one it does not want; or the
@@ -112,7 +98,7 @@ public actor TerminalSession {
     /// the history).
     @discardableResult
     public func send(_ event: MouseEvent) -> Bool {
-        let screen = terminal.screen
+        let screen = core.terminal.withLock { $0.screen }
         let modes = screen.modes
         guard modes.mouseTracking != .none else {
             guard screen.isAlternate, modes.alternateScroll, event.action == .press else { return false }
@@ -134,11 +120,11 @@ public actor TerminalSession {
 
     /// Sends a paste: bracketed when the program asked for that.
     public func paste(_ text: String) {
-        process.send(PasteEncoder.encode(text, bracketed: terminal.screen.modes.bracketedPaste))
+        process.send(PasteEncoder.encode(text, bracketed: core.terminal.withLock { $0.screen.modes.bracketedPaste }))
     }
 
     public func resize(columns: Int, rows: Int) {
-        terminal.resize(columns: columns, rows: rows)
+        core.terminal.withLock { $0.resize(columns: columns, rows: rows) }
         process.resize(columns: columns, rows: rows)
         continuation.yield(.changed)
     }

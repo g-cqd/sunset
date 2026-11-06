@@ -45,6 +45,18 @@ private func lineFeeds(_ size: Int) -> [UInt8] {
     return bytes
 }
 
+/// What vtebench's `scrolling_fullscreen` writes: lines of 120 letters, each ended by the pseudo-terminal's CR LF.
+private func fullLines(_ size: Int) -> [UInt8] {
+    var bytes: [UInt8] = []
+    bytes.reserveCapacity(size + 130)
+    var letter: UInt8 = 0x41
+    while bytes.count < size {
+        bytes += [UInt8](repeating: letter, count: 120) + [0x0D, 0x0A]
+        letter = letter == 0x5A ? 0x41 : letter + 1
+    }
+    return bytes
+}
+
 private func cursorMoves(_ size: Int) -> [UInt8] {
     var out: [UInt8] = []
     var generator = Generator()
@@ -86,7 +98,7 @@ let benchmarks: @Sendable () -> Void = {
     let size = 1 << 20
     let streams: [(String, [UInt8])] = [
         ("ascii", ascii(size)), ("sgr_truecolor", sgrDense(size)), ("cursor_moves", cursorMoves(size)),
-        ("unicode", unicode(size)), ("line_feeds", lineFeeds(size)),
+        ("unicode", unicode(size)), ("line_feeds", lineFeeds(size)), ("full_lines", fullLines(size)),
         ("osc_titles", titles(size))
     ]
     for (name, data) in streams {
@@ -117,7 +129,7 @@ let benchmarks: @Sendable () -> Void = {
     // frame). With a full history (100 000 lines) a snapshot that shares the history must not make the next write copy it.
     if let flood = streams.first(where: { $0.0 == "ascii" })?.1 {
         Benchmark("terminal/flood with a snapshot per read (100k lines of history)") { benchmark in
-            var terminal = Terminal(columns: 120, rows: 40, scrollbackLimit: 100_000)
+            var terminal = Terminal(columns: 120, rows: 40)
             for _ in 0 ..< 110 { flood.withUnsafeBufferPointer { terminal.feed($0.span) } }
             var held = terminal.screen
             benchmark.startMeasurement()

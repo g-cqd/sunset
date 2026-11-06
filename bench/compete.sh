@@ -16,7 +16,7 @@ case "$T" in
   ghostty)   open -na /Applications/Ghostty.app --args --config-default-files=false --font-family="$FONT" --font-size=$SIZE --window-width=$COLS --window-height=$ROWS --confirm-close-surface=false --quit-after-last-window-closed=true -e sh -c "$CMD" >/dev/null 2>&1; PID="" ;;
   wezterm)   /Applications/WezTerm.app/Contents/MacOS/wezterm --config-file /dev/null --config "initial_cols=$COLS" --config "initial_rows=$ROWS" --config "font_size=$SIZE" --config "font=wezterm.font('$FONT')" start --always-new-process -- sh -c "$CMD" >/dev/null 2>&1 & PID=$! ;;
   alacritty) /tmp/ref/alacritty/target/release/alacritty --config-file /dev/null -o "window.dimensions.columns=$COLS" -o "window.dimensions.lines=$ROWS" -o "font.size=$SIZE" -o "font.normal.family=\"$FONT\"" -e sh -c "$CMD" >/dev/null 2>&1 & PID=$! ;;
-  sunset)    "$(cd "$(dirname "$0")/.." && pwd)/.build/release/sunset-app" --font "$FONT" --size $SIZE --scrollback 100000 -- sh -c "$CMD" >/dev/null 2>&1 & PID=$! ;;
+  sunset)    "${SUNSET_BIN:-$(cd "$(dirname "$0")/.." && pwd)/.build/release/sunset-app}" --font "$FONT" --size $SIZE --scrollback 100000 -- sh -c "$CMD" >/dev/null 2>&1 & PID=$! ;;
   *) echo "unknown terminal $T"; exit 2 ;;
 esac
 for _ in $(seq 1 $((SECS * 12 * 2 + 60))); do [ -f "$DONE" ] && break; sleep 1; done
