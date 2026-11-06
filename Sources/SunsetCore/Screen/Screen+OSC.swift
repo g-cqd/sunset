@@ -59,10 +59,10 @@ extension Screen {
 
     // MARK: Titles
 
-    /// Copies the payload as a title without control characters (C0, DEL and C1 as UTF-8).
+    /// Copies the payload as a title without control characters (C0, DEL and C1 as UTF-8), into the buffers already held (no allocation once warm).
     private mutating func setTitle(from start: Int, icon: Bool, window: Bool) {
-        var clean = ContiguousArray<UInt8>()
-        clean.reserveCapacity(max(0, oscBuffer.count - start))
+        if window { titleBytes.removeAll(keepingCapacity: true) }
+        if icon { iconBytes.removeAll(keepingCapacity: true) }
         var index = start
         while index < oscBuffer.count {
             let byte = oscBuffer[index]
@@ -72,10 +72,9 @@ extension Screen {
                 index += 1
                 continue
             }
-            clean.append(byte)
+            if window { titleBytes.append(byte) }
+            if icon { iconBytes.append(byte) }
         }
-        if window { titleBytes = clean }
-        if icon { iconBytes = clean }
     }
 
     /// CSI 22 t: save the title.

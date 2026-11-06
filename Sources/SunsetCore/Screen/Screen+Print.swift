@@ -54,7 +54,7 @@ extension Screen {
         if width == 2, column == columns - 1 {
             guard modes.autoWrap else { return }
             // No room for both halves: leave the last cell blank and continue on the next line.
-            grid[row, column] = Cell(scalar: 0, width: .narrow, style: currentEraseID())
+            grid[row, column] = Cell(scalar: 0, width: .spacerHead, style: currentEraseID())
             wrap()
         }
         if modes.insert { insertCells(width) }

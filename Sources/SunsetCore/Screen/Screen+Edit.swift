@@ -31,6 +31,9 @@ extension Screen {
                 eraseCells(row: row, from: 0, to: column)
             case 2:
                 eraseRows(0 ... rows - 1)
+            case 3:
+                scrollback.removeAll()
+                markDirty(0 ... rows - 1)
             default:
                 return
         }

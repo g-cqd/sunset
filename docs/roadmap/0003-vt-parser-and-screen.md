@@ -27,3 +27,7 @@ Not done: OSC (titles, colour queries, 8, 52, 7, 133), DECRQSS/XTGETTCAP, title 
 ## Progress (2026-11-05, OSC): ADR-0027
 
 Done: string terminator in the sink, OSC 0/1/2 titles (sanitised, never reported), title stack, OSC 4/104 and 10-12/110-112 with queries, host-seeded palette; 104 tests. Not done: OSC 8, 52, 7, 133 and notifications (need ADR-0010), named colours, DECRQSS/XTGETTCAP, graphemes, charsets, resize/reflow, scrollback, kitty mouse/graphics, `esctest`/`vttest`, oracle comparison.
+
+## Progress (2026-11-05, history and resize): ADR-0028
+
+Done: DEC special graphics and UK charsets (SO/SI, saved with the cursor); scrollback ring; ED 3; resize with reflow (cursor, screen top, wide characters, history), alternate screen cut/padded; style rebuild bounded; 137 tests. Not done: compressed cold history (ADR-0013), OSC 8/52/7/133 (ADR-0010), grapheme clusters, left/right margins, kitty mouse/graphics, `esctest`/`vttest`, oracle comparison (including reflow behaviour).

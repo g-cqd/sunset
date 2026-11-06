@@ -3,7 +3,7 @@ extension Screen {
     mutating func lineFeed() {
         pendingWrap = false
         if row == bottom {
-            scrollUp(from: top, to: bottom, by: 1)
+            scrollUp(from: top, to: bottom, by: 1, saveHistory: true)
         } else if row < rows - 1 {
             row += 1
         }
@@ -20,9 +20,10 @@ extension Screen {
     }
 
     /// The rows `first...last` move up by `count`; the rows that arrive at the bottom are blank.
-    mutating func scrollUp(from first: Int, to last: Int, by count: Int) {
+    mutating func scrollUp(from first: Int, to last: Int, by count: Int, saveHistory: Bool = false) {
         let n = min(count, last - first + 1)
         guard n > 0 else { return }
+        if saveHistory, first == 0, !isAlternate { saveToScrollback(rows: n) }
         rotateRows(first ... last, leftBy: n)
         blankRows(last - n + 1 ... last)
         markDirty(first ... last)
@@ -35,6 +36,14 @@ extension Screen {
         rotateRows(first ... last, leftBy: last - first + 1 - n)
         blankRows(first ... first + n - 1)
         markDirty(first ... last)
+    }
+
+    /// Copies the top `count` screen rows into the history (the line feed that is about to push them off the screen).
+    private mutating func saveToScrollback(rows count: Int) {
+        for target in 0 ..< count {
+            let start = grid.base(target)
+            scrollback.push(grid.cells[start ..< start + columns], wrapped: grid.wrapped[Int(grid.rowMap[target])])
+        }
     }
 
     /// Rotates the row map of a range in place (three reversals: no allocation).

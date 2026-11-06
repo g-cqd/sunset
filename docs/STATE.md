@@ -9,7 +9,7 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
   - `Sources/SunsetCore/Parser`: `VTParser` (byte state machine, ADR-0023), `VTSink`, `Parameters`, `Intermediates`, `ParseCounter` (concrete front for other modules).
   - `Sources/SunsetCore/Screen`: `Terminal` (parser + screen, `feed`), `Screen` (the sink: grid, cursor, modes, regions, SGR, alternate screen, dirty rows), `Cell` (8 bytes), `CellStyle`, `StyleTable`, `Grid` (ADR-0025).
   - Dependency: `TerminalKitText` (display widths) from g-cqd/TerminalKit by revision `5966813`; ADR-0002 accepted: g-cqd and Aemi-Studio packages freely, Apple/swiftlang on approval.
-  - Tests: `swift test -c release --enable-testable-imports` → 104 pass (parser, properties, screen, differential against a naive model, replies and modes).
+  - Tests: `swift test -c release --enable-testable-imports` → 137 pass (parser, properties, screen, differential against a naive model, replies and modes).
   - Replies: `Terminal.takeReplies()` (bounded queue, ADR-0026); `Screen.modes` (what the host needs), `keyboardFlags`, `cursorShape`.
   - Benchmarks: `Benchmarks/Benchmarks/ParserBenchmarks` (`cd Benchmarks && swift package benchmark --no-progress --target ParserBenchmarks`); baseline in `bench/results/2026-11-05/parser-baseline.txt`.
 
@@ -21,9 +21,13 @@ Terminal (parser + screen, 120x40): ASCII 50 M · cursor moves 142 M · OSC 102 
 ## Next
 
 1. Replies and modes (DA1/DA2, DSR/CPR, DECRQM, XTVERSION, OSC 4/10/11/12 queries), OSC titles/hyperlinks, DECSCUSR, soft reset, kitty keyboard flags, mouse modes, synchronized output.
-2. Grapheme clusters, charsets (DEC line drawing), resize and reflow, scrollback (ADR-0013 cold history), left/right margins.
+2. Grapheme clusters, cold compressed history (ADR-0013), left/right margins. Done since: charsets, scrollback ring, resize with reflow (ADR-0028).
 3. `esctest`/`vttest` fixtures with a published gap list; oracle differential (kitty, ghostty, wezterm as processes); profile the CSI and non-ASCII paths.
 4. Renderer seam (ADR-0024, proposed): CPU renderer first, then Metal, a runtime toggle `auto|gpu|cpu`, pixel differential as the first gate. Probes 6 and 7 of roadmap 0002; PTY host.
+
+## CI (not yet run on GitHub)
+
+`.github/workflows/ci.yml` (swift-ci) and `mutation.yml` (daily, CI only; script `Scripts/mutate-changed.sh`), `.ci/action.json`. Mutation testing is not run locally (white paper §1); nothing is pushed, so none of it has run.
 
 ## Not established
 
