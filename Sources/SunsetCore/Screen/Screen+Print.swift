@@ -42,7 +42,7 @@ extension Screen {
     }
 
     mutating func putScalar(_ scalar: Unicode.Scalar) {
-        let width = UnicodeWidth.displayWidth(of: Character(scalar))
+        let width = ScalarWidth.of(scalar)
         if joinable, mayJoin(scalar, width: width), join(scalar) { return }
         afterJoiner = false
         put(scalar.value, width: width)
@@ -112,7 +112,7 @@ extension Screen {
         guard text.count == 1, let character = text.first else { return false }
         guard let id = clusters.intern(cluster) else {
             // Table full: a mark is dropped, anything else starts a cell of its own.
-            return UnicodeWidth.displayWidth(of: Character(scalar)) == 0
+            return ScalarWidth.of(scalar) == 0
         }
         var width = head.width
         if width == .narrow, UnicodeWidth.displayWidth(of: character) == 2, headColumn + 1 < columns {

@@ -72,4 +72,42 @@ extension VTParser {
             default: sink.execute(UInt8(value))
         }
     }
+
+    /// The scalar of a complete, well-formed UTF-8 sequence that starts at `index` (a lead byte of 0xC2 or more), and its length; nil when the sequence is
+    /// cut short by the end of the input, is malformed, or encodes a C1 control (the state machine handles those, and what a partial sequence leaves behind).
+    @inline(__always)
+    func wholeScalar(in input: Span<UInt8>, at index: Int) -> (Unicode.Scalar, Int)? {
+        let lead = input[index]
+        let available = input.count - index
+        switch lead {
+            case 0xC2 ... 0xDF:
+                guard available >= 2, let second = continuation(input[index + 1], 0x80 ... 0xBF) else { return nil }
+                let value = UInt32(lead & 0x1F) << 6 | second
+                return value >= 0xA0 ? Unicode.Scalar(value).map { ($0, 2) } : nil
+            case 0xE0 ... 0xEF:
+                guard available >= 3 else { return nil }
+                let range: ClosedRange<UInt8> =
+                    lead == 0xE0 ? 0xA0 ... 0xBF : lead == 0xED ? 0x80 ... 0x9F : 0x80 ... 0xBF
+                guard let second = continuation(input[index + 1], range),
+                    let third = continuation(input[index + 2], 0x80 ... 0xBF)
+                else { return nil }
+                return Unicode.Scalar(UInt32(lead & 0x0F) << 12 | second << 6 | third).map { ($0, 3) }
+            case 0xF0 ... 0xF4:
+                guard available >= 4 else { return nil }
+                let range: ClosedRange<UInt8> =
+                    lead == 0xF0 ? 0x90 ... 0xBF : lead == 0xF4 ? 0x80 ... 0x8F : 0x80 ... 0xBF
+                guard let second = continuation(input[index + 1], range),
+                    let third = continuation(input[index + 2], 0x80 ... 0xBF),
+                    let fourth = continuation(input[index + 3], 0x80 ... 0xBF)
+                else { return nil }
+                return Unicode.Scalar(UInt32(lead & 0x07) << 18 | second << 12 | third << 6 | fourth).map { ($0, 4) }
+            default:
+                return nil
+        }
+    }
+
+    @inline(__always)
+    private func continuation(_ byte: UInt8, _ range: ClosedRange<UInt8>) -> UInt32? {
+        range.contains(byte) ? UInt32(byte & 0x3F) : nil
+    }
 }
