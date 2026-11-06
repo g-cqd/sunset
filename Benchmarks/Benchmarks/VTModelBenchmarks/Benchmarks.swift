@@ -14,7 +14,8 @@ let benchmarks: @Sendable () -> Void = {
         thresholds: Thresholds.perSuite
     )
     let streams: [(String, [UInt8])] = [
-        ("scrolling", Streams.scrolling), ("scrolling_fullscreen", Streams.fullscreen), ("scrolling_top_region", Streams.topRegion),
+        ("scrolling", Streams.scrolling), ("scrolling_fullscreen", Streams.fullscreen),
+        ("scrolling_top_region", Streams.topRegion),
         ("dense_cells", Streams.denseCells), ("log", Streams.log), ("unicode", Streams.unicode)
     ]
     for (name, data) in streams {
@@ -30,7 +31,13 @@ let benchmarks: @Sendable () -> Void = {
             }
         }
         register(.c8, "C8")
-        if name == "scrolling" || name == "dense_cells" || name == "log" { register(.c16, "C16"); register(.c32, "C32") }
-        if name == "scrolling" || name == "log" { register(.c8, "C8+scrollback", sb: 10_000); register(.c8, "C8+scrollback+cold", sb: 10_000, cold: true) }
+        if name == "scrolling" || name == "dense_cells" || name == "log" {
+            register(.c16, "C16")
+            register(.c32, "C32")
+        }
+        if name == "scrolling" || name == "log" {
+            register(.c8, "C8+scrollback", sb: 10_000)
+            register(.c8, "C8+scrollback+cold", sb: 10_000, cold: true)
+        }
     }
 }

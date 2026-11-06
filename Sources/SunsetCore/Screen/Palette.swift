@@ -54,6 +54,21 @@ public struct Palette: Sendable, Equatable {
         seedCursor = cursor
     }
 
+    /// The colour a cell colour stands for: a palette entry, or the true colour itself; nil for the default (foreground or background depending on where it
+    /// is used, which only the caller knows).
+    public func resolve(_ color: Color) -> RGB? {
+        switch color.packed >> 24 {
+            case 1: colors[Int(color.packed & 0xFF)]
+            case 2:
+                RGB(
+                    UInt8(truncatingIfNeeded: color.packed >> 16),
+                    UInt8(truncatingIfNeeded: color.packed >> 8),
+                    UInt8(truncatingIfNeeded: color.packed)
+                )
+            default: nil
+        }
+    }
+
     mutating func resetColor(_ index: Int) { colors[index] = seed[index] }
     mutating func resetColors() { colors = seed }
     mutating func resetForeground() { foreground = seedForeground }
