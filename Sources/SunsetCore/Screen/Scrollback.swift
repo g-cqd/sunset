@@ -6,6 +6,9 @@ struct Scrollback: Sendable {
     private var wrapped = ContiguousArray<Bool>()
     private var start = 0
     private(set) var count = 0
+    /// How many lines have left the history so far (dropped when it was full, or cleared): with a line's index it makes a number that does not change while
+    /// the history rolls (`PromptMark`).
+    var evicted = 0
 
     init(columns: Int, limit: Int) {
         self.columns = columns
@@ -20,7 +23,10 @@ struct Scrollback: Sendable {
 
     /// Adds a line at the newest end, dropping the oldest when full.
     mutating func push(_ line: ArraySlice<Cell>, wrapped isWrapped: Bool) {
-        guard limit > 0 else { return }
+        guard limit > 0 else {
+            evicted += 1
+            return
+        }
         precondition(line.count == columns, "a scrollback line is as wide as the screen was")
         if count < limit {
             // Not full: start is 0 and the storage is in order.
@@ -33,10 +39,12 @@ struct Scrollback: Sendable {
             cells.replaceSubrange(base ..< base + columns, with: line)
             wrapped[slot] = isWrapped
             start = (start + 1) % count
+            evicted += 1
         }
     }
 
     mutating func removeAll() {
+        evicted += count
         cells.removeAll(keepingCapacity: true)
         wrapped.removeAll(keepingCapacity: true)
         start = 0

@@ -1,22 +1,38 @@
 extension Screen {
     /// The longest OSC payload acted on; a longer one is dropped whole.
     static let oscLimit = 4096
+    /// The most an OSC 52 payload may take (ADR-0010): 1 MiB of base64 and its prefix.
+    static let clipboardLimit = (1 << 20) + 16
     /// How many saved titles the stack keeps.
     static let titleStackDepth = 10
 
     mutating func oscStart(_ kind: StringKind) {
         oscActive = kind == .osc
         oscOverflowed = false
-        oscBuffer.removeAll(keepingCapacity: true)
+        // A big clipboard payload's buffer is let go, not kept for every later title.
+        if oscBuffer.capacity > 1 << 16 { oscBuffer = [] } else { oscBuffer.removeAll(keepingCapacity: true) }
     }
 
     mutating func oscAppend(_ bytes: Span<UInt8>) {
         guard oscActive, !oscOverflowed else { return }
-        guard oscBuffer.count + bytes.count <= Self.oscLimit else {
+        let total = oscBuffer.count + bytes.count
+        guard total <= Self.oscLimit || (total <= Self.clipboardLimit && startsClipboard(adding: bytes)) else {
             oscOverflowed = true
             return
         }
         for index in bytes.indices { oscBuffer.append(bytes[index]) }
+    }
+
+    /// Whether the string being collected is OSC 52 (`52;`), the one code that may be longer than `oscLimit`.
+    private func startsClipboard(adding bytes: Span<UInt8>) -> Bool {
+        var prefix: [UInt8] = []
+        for index in 0 ..< min(oscBuffer.count, 3) { prefix.append(oscBuffer[index]) }
+        var index = 0
+        while prefix.count < 3, index < bytes.count {
+            prefix.append(bytes[index])
+            index += 1
+        }
+        return prefix == [0x35, 0x32, 0x3B]
     }
 
     mutating func oscEnd(completed: Bool, terminator: StringTerminator) {
@@ -26,7 +42,7 @@ extension Screen {
         dispatchOSC(terminator)
     }
 
-    /// `code ; payload`. Codes this terminal does not act on (hyperlinks, clipboard, working directory, prompts, notifications) are ignored.
+    /// `code ; payload`. Codes this terminal does not act on are ignored; the ones that reach outside the screen are in `Screen+OSCHost.swift` (ADR-0010).
     private mutating func dispatchOSC(_ terminator: StringTerminator) {
         var code = 0
         var index = 0
@@ -53,7 +69,7 @@ extension Screen {
             case 110: palette.resetForeground()
             case 111: palette.resetBackground()
             case 112: palette.resetCursor()
-            default: break
+            default: hostOSC(code, from: payload)
         }
     }
 
@@ -92,7 +108,7 @@ extension Screen {
 
     /// The next `;`-separated field of the payload starting at `index`, advancing past its separator. `index` past the end of the buffer means no
     /// payload at all (and after the last field it is set there), so `a;b` has two fields, `a;` two (the second empty) and nothing none.
-    private func nextField(_ index: inout Int) -> Range<Int>? {
+    func nextField(_ index: inout Int) -> Range<Int>? {
         guard index <= oscBuffer.count else { return nil }
         let start = index
         while index < oscBuffer.count, oscBuffer[index] != 0x3B { index += 1 }
@@ -101,7 +117,7 @@ extension Screen {
         return field
     }
 
-    private func number(_ range: Range<Int>) -> Int? {
+    func number(_ range: Range<Int>) -> Int? {
         guard !range.isEmpty, range.count <= 4 else { return nil }
         var value = 0
         for index in range {
