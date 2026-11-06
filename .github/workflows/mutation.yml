@@ -1,0 +1,69 @@
+name: Mutation
+
+# Mutation testing (white paper §1: CI only), once a day, not on every push (owner, 2026-11-01): the Sources files changed in the last day, with no
+# new surviving mutant allowed beyond .ci/baselines/mutation.json; on Mondays, and when run by hand, every file, uploading a fresh
+# baseline to commit by hand.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  mutate:
+    name: Mutation · Sources · macOS
+    runs-on: macos-26
+    timeout-minutes: 240
+    steps:
+      - name: Setup · Check Out Sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Yesterday's main must be in the clone for the diff.
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup · Read .swift-version
+        run: echo "SWIFT_VERSION=$(cat .swift-version)" >> "$GITHUB_ENV"
+      - name: Setup · Install Swift
+        uses: swift-actions/setup-swift@364295d9c23900ce04d4e5cc708387921b4e50f9 # v3.0.0-beta.1
+        with:
+          swift-version: ${{ env.SWIFT_VERSION }}
+      # The mutation tool builds through xcrun, which runs Xcode's own Swift (6.3.3 on macos-26, which cannot read a 6.4 manifest)
+      # unless TOOLCHAINS names another: the one just installed.
+      - name: Setup · Select the Installed Swift for xcrun
+        run: |
+          plist=$(ls -d "$HOME"/Library/Developer/Toolchains/swift-"$SWIFT_VERSION"*.xctoolchain/Info.plist | head -1)
+          echo "TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw "$plist")" >> "$GITHUB_ENV"
+      - name: Cache · Mutation Tool & Verdicts
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          # The tool is pinned by version and SHA-256 in the script, which re-verifies a download; the verdict cache is keyed by
+          # mutant, so a stale one only costs reruns.
+          path: |
+            ~/Library/Caches/g-cqd-mutation
+            .swift-mutation-testing-cache
+          key: mutation-${{ hashFiles('Scripts/mutate-changed.sh') }}-${{ github.sha }}
+          restore-keys: mutation-${{ hashFiles('Scripts/mutate-changed.sh') }}-
+      - name: Plan · Choose Scope
+        id: kind
+        run: |
+          if [ "${{ github.event_name }}" = workflow_dispatch ] || [ "$(date -u +%u)" = 1 ]; then echo "all=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Mutation · Files Changed in the Last Day
+        if: ${{ steps.kind.outputs.all != 'true' }}
+        run: |
+          base=$(git rev-list -1 --before="24 hours ago" HEAD)
+          Scripts/mutate-changed.sh "${base:-$(git rev-list --max-parents=0 HEAD)}"
+      - name: Mutation · Every File & Baseline
+        if: ${{ steps.kind.outputs.all == 'true' }}
+        run: Scripts/mutate-changed.sh --all
+      - name: Artifacts · Upload Mutation Baseline
+        if: ${{ steps.kind.outputs.all == 'true' && always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mutation-baseline
+          path: .ci/baselines/mutation.json

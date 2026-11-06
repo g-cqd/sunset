@@ -1,0 +1,6 @@
+{
+  "project": { "linux": false },
+  "swift": { "versions": ["6.4.1"] },
+  "checks": { "macos-release": ["push", "pull-request", "merge-queue", "tag", "dispatch", "nightly"] },
+  "quality": { "discipline": {} }
+}
