@@ -92,4 +92,17 @@ let benchmarks: @Sendable () -> Void = {
             blackHole(counter.printable &+ counter.csis)
         }
     }
+    // The same bytes into a whole terminal (parser + screen, 120x40): what a program's output costs end to end, headless.
+    for (name, data) in streams {
+        Benchmark("terminal/\(name) (1 MiB, 120x40)") { benchmark in
+            var terminal = Terminal(columns: 120, rows: 40)
+            data.withUnsafeBufferPointer { terminal.feed($0.span) }
+            benchmark.startMeasurement()
+            for _ in benchmark.scaledIterations {
+                data.withUnsafeBufferPointer { terminal.feed($0.span) }
+            }
+            benchmark.stopMeasurement()
+            blackHole(terminal.screen.cursorRow)
+        }
+    }
 }
