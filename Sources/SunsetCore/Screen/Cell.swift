@@ -45,6 +45,8 @@ public enum CellWidth: UInt8, Sendable {
     /// The left half of a double-width character; the next cell is its `spacerTail`.
     case wide = 1
     case spacerTail = 2
+    /// The blank at the end of a row where a double-width character did not fit and went to the next row; a reflow drops it.
+    case spacerHead = 3
 }
 
 /// One screen cell in 8 bytes (ADR-0012): scalar (21 bits; 0 is an empty cell), width class (2 bits), style id (16 bits).

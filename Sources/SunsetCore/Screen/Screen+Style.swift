@@ -31,24 +31,29 @@ extension Screen {
         return styles.intern(style) ?? 0
     }
 
-    /// Rebuilds the style table from the styles the cells (and the saved cursors) still use, and rewrites the cells' ids.
+    /// Rebuilds the style table from the styles the cells still use, and rewrites the cells' ids. The screens come first and always keep their styles;
+    /// the history comes after, newest line first, and once the table is three quarters full its older lines lose their styles (default) instead of
+    /// the table filling up again at once. That bounds the cost: a rebuild happens at most once per 16 384 new styles.
     mutating func compactStyles() {
         var remap = [UInt16?](repeating: nil, count: StyleTable.capacity)
         var fresh = StyleTable()
         let old = styles
-        func map(_ id: UInt16) -> UInt16 {
+        let historyLimit = StyleTable.capacity * 3 / 4
+        func map(_ id: UInt16, history: Bool) -> UInt16 {
             if id == 0 { return 0 }
             if let mapped = remap[Int(id)] { return mapped }
+            if history, fresh.count >= historyLimit { return 0 }
             let mapped = fresh.intern(old[id]) ?? 0
             remap[Int(id)] = mapped
             return mapped
         }
         for index in grid.cells.indices {
-            grid.cells[index] = grid.cells[index].withStyle(map(grid.cells[index].styleID))
+            grid.cells[index] = grid.cells[index].withStyle(map(grid.cells[index].styleID, history: false))
         }
         for index in other.cells.indices {
-            other.cells[index] = other.cells[index].withStyle(map(other.cells[index].styleID))
+            other.cells[index] = other.cells[index].withStyle(map(other.cells[index].styleID, history: false))
         }
+        scrollback.mapStyles { map($0, history: true) }
         styles = fresh
         penIDIsCurrent = false
         eraseIDIsCurrent = false

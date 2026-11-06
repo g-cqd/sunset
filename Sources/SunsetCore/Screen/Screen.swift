@@ -1,10 +1,12 @@
 /// The terminal's screen: a grid of cells, the cursor, the modes that shape editing, the scroll region and the alternate screen. It is the sink the
 /// parser feeds (`Screen+Sink.swift`). The screen is the truth; whoever draws it reads it and keeps its own caches (ADR-0024).
 public struct Screen: Sendable {
-    public let columns: Int
-    public let rows: Int
+    public internal(set) var columns: Int
+    public internal(set) var rows: Int
 
     var grid: Grid
+    /// Lines that scrolled off the top of the primary screen, oldest first (the cold, compressed form is ADR-0013, later).
+    var scrollback: Scrollback
     /// The other screen: the alternate one while the primary is shown, and the reverse.
     var other: Grid
     public internal(set) var isAlternate = false
@@ -56,11 +58,12 @@ public struct Screen: Sendable {
         var shifted: Bool
     }
 
-    public init(columns: Int, rows: Int) {
+    public init(columns: Int, rows: Int, scrollbackLimit: Int = 10_000) {
         precondition(columns > 0 && rows > 0, "a screen has at least one cell")
         self.columns = columns
         self.rows = rows
         grid = Grid(columns: columns, rows: rows)
+        scrollback = Scrollback(columns: columns, limit: scrollbackLimit)
         other = Grid(columns: columns, rows: rows)
         bottom = rows - 1
         tabStops = Screen.defaultTabStops(columns)
@@ -85,6 +88,21 @@ public struct Screen: Sendable {
     public var title: String { String(decoding: titleBytes, as: UTF8.self) }
     public var iconName: String { String(decoding: iconBytes, as: UTF8.self) }
 
+    public var scrollbackCount: Int { scrollback.count }
+    public func scrollbackCell(line: Int, column: Int) -> Cell { scrollback[line, column] }
+    public func isScrollbackWrapped(line: Int) -> Bool { scrollback.isWrapped(line) }
+    public func scrollbackText(line: Int) -> String {
+        var scalars = String.UnicodeScalarView()
+        for column in 0 ..< columns {
+            let cell = scrollback[line, column]
+            if cell.width == .spacerTail || cell.width == .spacerHead { continue }
+            scalars.append(Unicode.Scalar(cell.scalar == 0 ? 0x20 : cell.scalar) ?? "\u{FFFD}")
+        }
+        var text = String(scalars)
+        while text.last == " " { text.removeLast() }
+        return text
+    }
+
     public var cursorRow: Int { row }
     public var cursorColumn: Int { column }
 
@@ -99,7 +117,7 @@ public struct Screen: Sendable {
         var scalars = String.UnicodeScalarView()
         for column in 0 ..< columns {
             let cell = grid[row, column]
-            if cell.width == .spacerTail { continue }
+            if cell.width == .spacerTail || cell.width == .spacerHead { continue }
             scalars.append(Unicode.Scalar(cell.scalar == 0 ? 0x20 : cell.scalar) ?? "\u{FFFD}")
         }
         var text = String(scalars)
