@@ -54,6 +54,7 @@ extension Screen {
         top = 0
         bottom = newRows - 1
         pendingWrap = false
+        joinable = false
         if var state = saved {
             state.row = min(state.row, newRows - 1)
             state.column = min(state.column, newColumns - 1)

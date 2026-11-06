@@ -11,6 +11,13 @@ public struct Screen: Sendable {
     var other: Grid
     public internal(set) var isAlternate = false
     var styles = StyleTable()
+    var clusters: ClusterTable
+    /// Where the last character was written, so that a combining mark or joiner arriving next can join it. Any control, escape or control sequence in
+    /// between ends the chance.
+    var lastHead = (row: 0, column: 0)
+    var joinable = false
+    /// The last scalar absorbed was a zero-width joiner: the next scalar belongs to the cluster too.
+    var afterJoiner = false
 
     var column = 0
     var row = 0
@@ -58,7 +65,8 @@ public struct Screen: Sendable {
         var shifted: Bool
     }
 
-    public init(columns: Int, rows: Int, scrollbackLimit: Int = 10_000) {
+    public init(columns: Int, rows: Int, scrollbackLimit: Int = 10_000, clusterLimit: Int = 1 << 20) {
+        clusters = ClusterTable(limit: clusterLimit)
         precondition(columns > 0 && rows > 0, "a screen has at least one cell")
         self.columns = columns
         self.rows = rows
@@ -94,9 +102,7 @@ public struct Screen: Sendable {
     public func scrollbackText(line: Int) -> String {
         var scalars = String.UnicodeScalarView()
         for column in 0 ..< columns {
-            let cell = scrollback[line, column]
-            if cell.width == .spacerTail || cell.width == .spacerHead { continue }
-            scalars.append(Unicode.Scalar(cell.scalar == 0 ? 0x20 : cell.scalar) ?? "\u{FFFD}")
+            appendText(of: scrollback[line, column], to: &scalars)
         }
         var text = String(scalars)
         while text.last == " " { text.removeLast() }
@@ -117,12 +123,27 @@ public struct Screen: Sendable {
         var scalars = String.UnicodeScalarView()
         for column in 0 ..< columns {
             let cell = grid[row, column]
-            if cell.width == .spacerTail || cell.width == .spacerHead { continue }
-            scalars.append(Unicode.Scalar(cell.scalar == 0 ? 0x20 : cell.scalar) ?? "\u{FFFD}")
+            appendText(of: cell, to: &scalars)
         }
         var text = String(scalars)
         while text.last == " " { text.removeLast() }
         return text
+    }
+
+    /// The text of one cell: its character, or all the scalars of its cluster; a blank is a space and the second half of a wide character nothing.
+    public func text(of cell: Cell) -> String {
+        var scalars = String.UnicodeScalarView()
+        appendText(of: cell, to: &scalars)
+        return String(scalars)
+    }
+
+    func appendText(of cell: Cell, to scalars: inout String.UnicodeScalarView) {
+        if cell.width == .spacerTail || cell.width == .spacerHead { return }
+        if cell.isCluster {
+            for value in clusters.scalars(of: cell.scalar) { scalars.append(Unicode.Scalar(value) ?? "\u{FFFD}") }
+        } else {
+            scalars.append(Unicode.Scalar(cell.scalar == 0 ? 0x20 : cell.scalar) ?? "\u{FFFD}")
+        }
     }
 
     // MARK: Dirty rows (what a renderer must redraw, ADR-0024)

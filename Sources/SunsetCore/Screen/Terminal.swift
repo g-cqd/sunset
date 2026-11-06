@@ -3,8 +3,14 @@ public struct Terminal: Sendable {
     public private(set) var screen: Screen
     private var parser = VTParser()
 
-    public init(columns: Int, rows: Int, scrollbackLimit: Int = 10_000, palette: Palette = Palette()) {
-        screen = Screen(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit)
+    public init(
+        columns: Int,
+        rows: Int,
+        scrollbackLimit: Int = 10_000,
+        clusterLimit: Int = 1 << 20,
+        palette: Palette = Palette()
+    ) {
+        screen = Screen(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit, clusterLimit: clusterLimit)
         screen.palette = palette
     }
 
