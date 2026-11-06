@@ -33,7 +33,7 @@ extension Screen {
 
     /// Sets the row from a 0-based position that origin mode makes relative to the top margin.
     mutating func setRow(_ position: Int) {
-        if originMode {
+        if modes.origin {
             row = min(bottom, max(top, top + position))
         } else {
             row = min(rows - 1, max(0, position))
@@ -69,7 +69,7 @@ extension Screen {
     }
 
     mutating func saveCursor() {
-        saved = SavedCursor(column: column, row: row, pendingWrap: pendingWrap, pen: pen, originMode: originMode)
+        saved = SavedCursor(column: column, row: row, pendingWrap: pendingWrap, pen: pen, originMode: modes.origin)
     }
 
     mutating func restoreCursor() {
@@ -78,7 +78,7 @@ extension Screen {
         row = min(state.row, rows - 1)
         pendingWrap = state.pendingWrap
         pen = state.pen
-        originMode = state.originMode
+        modes.origin = state.originMode
         penChanged()
     }
 

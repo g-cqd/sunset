@@ -7,7 +7,7 @@ extension Screen {
         } else if row < rows - 1 {
             row += 1
         }
-        if newLineMode { column = 0 }
+        if modes.newLine { column = 0 }
     }
 
     mutating func reverseIndex() {
