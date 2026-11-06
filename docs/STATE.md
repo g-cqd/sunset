@@ -13,7 +13,7 @@ Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the 
   - Replies: `Terminal.takeReplies()` (bounded queue, ADR-0026); `Screen.modes` (what the host needs), `keyboardFlags`, `cursorShape`.
   - Benchmarks: `Benchmarks/Benchmarks/ParserBenchmarks` (`cd Benchmarks && swift package benchmark --no-progress --target ParserBenchmarks`); baseline in `bench/results/2026-11-05/parser-baseline.txt`.
 
-  - `Sources/SunsetHost` (the platform seam): `PTYProcess`, `HeadlessSession`; `Sources/SunsetRun` (`sunset-run`, prints a program's screen); `Scripts/oracle-compare.sh` + `Scripts/oracle-streams/*.sh` (15 streams, all equal to kitty's text, ADR-0030).
+  - `Sources/SunsetHost` (the platform seam): `PTYProcess`, `HeadlessSession`; `Sources/SunsetRun` (`sunset-run`, prints a program's screen); `Scripts/oracle-compare.sh` + `Scripts/oracle-streams/*.sh` (17 streams, all equal to kitty's text and styles, ADR-0030).
 
 ## Measured (instructions per 1 MiB, p50, release; 0 mallocs on all)
 
