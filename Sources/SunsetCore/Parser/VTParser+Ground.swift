@@ -29,7 +29,7 @@ extension VTParser {
             case 0xF0: begin(byte & 0x07, continuations: 3, range: 0x90 ... 0xBF)
             case 0xF1 ... 0xF3: begin(byte & 0x07, continuations: 3, range: 0x80 ... 0xBF)
             case 0xF4: begin(byte & 0x07, continuations: 3, range: 0x80 ... 0x8F)
-            default: sink.print(Unicode.Scalar(0xFFFD)!)
+            default: sink.print(VTParser.replacement)
         }
     }
 
@@ -44,7 +44,7 @@ extension VTParser {
     mutating func decodeContinuation<Sink: VTSink>(_ byte: UInt8, into sink: inout Sink) -> Bool {
         guard byte >= lowest, byte <= highest else {
             pendingContinuations = 0
-            sink.print(Unicode.Scalar(0xFFFD)!)
+            sink.print(VTParser.replacement)
             return false
         }
         scalar = scalar << 6 | UInt32(byte & 0x3F)
@@ -58,7 +58,7 @@ extension VTParser {
     private mutating func finishScalar<Sink: VTSink>(_ sink: inout Sink) {
         let value = scalar
         guard value >= 0x80, value <= 0x9F else {
-            sink.print(Unicode.Scalar(value)!)
+            sink.print((Unicode.Scalar(value) ?? VTParser.replacement))
             return
         }
         switch value {

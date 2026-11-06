@@ -1,4 +1,10 @@
-# Canonical SwiftLint configuration for the g-cqd AD-family — METRICS ONLY.
+# SwiftLint configuration for Sunset: the family's canonical metrics file, tightened (owner notes n3 and n4, 2026-11-06) to the strictest values found in the
+# family (ask's metrics) and with the safety rules switched on: no force cast, force try, force unwrap or implicitly unwrapped optional anywhere, no
+# `fatalError` without a message, no unowned capture. Formatting stays swift-format's (`.swift-format`, which also bans force unwrap and force try); the
+# structure rules (one top-level type per file, 250 lines) are SourceStructureTests; swift-ci's `quality.discipline` adds strtod, inline PRNGs, untyped
+# throws and wall-clock assertions. docs/quality.md lists them all.
+#
+# (Origin: Canonical SwiftLint configuration for the g-cqd AD-family — METRICS ONLY.)
 #
 # swift-format (driven by ADBuildTools' Format/Lint plugins) owns ALL style and formatting.
 # SwiftLint is added ONLY for the size/complexity metrics swift-format cannot express:
@@ -23,6 +29,12 @@ only_rules:
   - large_tuple
   - function_parameter_count
   - nesting
+  - force_cast
+  - force_try
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - fatal_error_message
+  - unowned_variable_capture
 
 # Not hand-authored / not shipped source, so excluded from the metrics. SwiftLint resolves these
 # relative to THIS config file's directory, which is why the config is synced to every package root
@@ -31,7 +43,7 @@ only_rules:
 excluded:
   - .build
   - .git
-  - Tests        # test suites are out of the metrics gate for the initial roll-out (revisit in WS3)
+  - docs         # research probes (throwaway models), not shipped source
   - Benchmarks   # ordo-one statistical benchmark suites, not shipped source
   - Plugins      # build/command plugins (BenchCompare, Lint, …) are tooling, not shipped library
   - "**/ADSQLBench/**"  # ADDB's SQL benchmark executable harness (scenario tables), like Benchmarks/ — not a shipped library
@@ -39,23 +51,23 @@ excluded:
   - "**/GeneratedUnicodeTables.swift"  # generated Unicode tables (ADFoundation) — not hand-authored
 
 file_length:
-  warning: 500
-  error: 800
+  warning: 300
+  error: 500
   ignore_comment_only_lines: true
 
 type_body_length:
-  warning: 300
-  error: 450
+  warning: 200
+  error: 400
 
 function_body_length:
-  warning: 80
-  error: 150
+  warning: 60
+  error: 80
 
 cyclomatic_complexity:
   # SQL/JSON code is switch-heavy; a wide switch is not "complex" in the risky sense, so the
   # per-case increment is ignored. Real branching (if/guard/for/while/&&/||) still counts.
-  warning: 15
-  error: 25
+  warning: 10
+  error: 15
   ignores_case_statements: true
 
 large_tuple:

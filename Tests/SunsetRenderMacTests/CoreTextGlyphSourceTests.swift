@@ -45,7 +45,12 @@ import Testing
         // Without ligatures a run is the characters side by side: the same pixels as drawing them one at a time.
         var side = [UInt8](repeating: 0, count: 3 * metrics.cellWidth * metrics.cellHeight)
         for (index, character) in "!==".enumerated() {
-            let single = off.glyph(for: String(character), bold: false, italic: false, columns: 1, metrics: metrics)!
+            guard
+                let single = off.glyph(for: String(character), bold: false, italic: false, columns: 1, metrics: metrics)
+            else {
+                Issue.record("no glyph for \(character)")
+                return
+            }
             for y in 0 ..< metrics.cellHeight {
                 for x in 0 ..< metrics.cellWidth {
                     side[y * 3 * metrics.cellWidth + index * metrics.cellWidth + x] =

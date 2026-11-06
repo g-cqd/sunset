@@ -10,8 +10,10 @@ private func glyph(_ scalar: UInt32, _ width: Int = 8, _ height: Int = 16) -> (
         for: scalar,
         metrics: RenderMetrics(cellWidth: width, cellHeight: height),
         columns: 1
-    )!
-    return (bitmap.coverage, { x, y in bitmap.coverage[y * width + x] })
+    )
+    // A glyph that is not drawn gives no pixels, and the tests that read one fail on the values.
+    let coverage = bitmap?.coverage ?? [UInt8](repeating: 0, count: width * height)
+    return (coverage, { x, y in coverage[y * width + x] })
 }
 
 @Suite("Built-in glyphs") struct BoxDrawingTests {
@@ -84,38 +86,38 @@ private func glyph(_ scalar: UInt32, _ width: Int = 8, _ height: Int = 16) -> (
                         && !(0x256D ... 0x2573).contains($0)
                 }
             func bitmap(_ scalar: UInt32) -> [UInt8] {
-                BuiltInGlyphs.bitmap(for: scalar, metrics: metrics, columns: 1)!.coverage
+                BuiltInGlyphs.bitmap(for: scalar, metrics: metrics, columns: 1)?.coverage ?? []
             }
             func column(_ scalar: UInt32, _ x: Int) -> [UInt8] { (0 ..< height).map { bitmap(scalar)[$0 * width + x] } }
             func row(_ scalar: UInt32, _ y: Int) -> [UInt8] { (0 ..< width).map { bitmap(scalar)[y * width + $0] } }
-            let arms = Dictionary(uniqueKeysWithValues: scalars.map { ($0, armWeights($0)) })
+            func weight(_ scalar: UInt32, _ index: Int) -> Int { armWeights(scalar)[index] }
             for a in scalars {
-                if arms[a]![1] == 0 {
+                if weight(a, 1) == 0 {
                     #expect(
                         column(a, width - 1).allSatisfy { $0 == 0 },
                         "\(String(a, radix: 16)) right edge \(width)x\(height)"
                     )
                 }
-                if arms[a]![0] == 0 {
+                if weight(a, 0) == 0 {
                     #expect(column(a, 0).allSatisfy { $0 == 0 }, "\(String(a, radix: 16)) left edge \(width)x\(height)")
                 }
-                if arms[a]![3] == 0 {
+                if weight(a, 3) == 0 {
                     #expect(
                         row(a, height - 1).allSatisfy { $0 == 0 },
                         "\(String(a, radix: 16)) bottom edge \(width)x\(height)"
                     )
                 }
-                if arms[a]![2] == 0 {
+                if weight(a, 2) == 0 {
                     #expect(row(a, 0).allSatisfy { $0 == 0 }, "\(String(a, radix: 16)) top edge \(width)x\(height)")
                 }
                 for b in scalars {
-                    if arms[a]![1] != 0, arms[a]![1] == arms[b]![0] {
+                    if weight(a, 1) != 0, weight(a, 1) == weight(b, 0) {
                         #expect(
                             column(a, width - 1) == column(b, 0),
                             "\(String(a, radix: 16)) → \(String(b, radix: 16)) \(width)x\(height)"
                         )
                     }
-                    if arms[a]![3] != 0, arms[a]![3] == arms[b]![2] {
+                    if weight(a, 3) != 0, weight(a, 3) == weight(b, 2) {
                         #expect(
                             row(a, height - 1) == row(b, 0),
                             "\(String(a, radix: 16)) ↓ \(String(b, radix: 16)) \(width)x\(height)"

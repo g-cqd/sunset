@@ -1,19 +1,6 @@
-// The platform seam of the renderer on macOS (white paper section 9): glyphs rasterised by CoreText into coverage bitmaps. Nothing else imports CoreText.
 internal import CoreGraphics
 internal import CoreText
 public import SunsetRender
-
-/// An OpenType feature to turn on, off or select a variant of: `liga`, `calt` (ligatures and contextual alternates), `zero` (slashed zero), `ss01`...`ss20`
-/// (stylistic sets), `cv01`..., `ccmp`, ... A value of 0 turns the feature off, 1 on, more picks an alternate where the font has several.
-public struct FontFeature: Sendable, Equatable {
-    public var tag: String
-    public var value: Int
-
-    public init(_ tag: String, _ value: Int = 1) {
-        self.tag = tag
-        self.value = value
-    }
-}
 
 /// Rasterises text with a macOS font (any installed monospaced font; CoreText substitutes fonts for what it lacks: CJK, emoji). `metrics` gives the cell
 /// size that font implies.
@@ -116,7 +103,7 @@ public final class CoreTextGlyphSource: GlyphSource {
             context.setShouldAntialias(true)
             context.setShouldSmoothFonts(false)
             context.setFillColor(gray: 1, alpha: 1)
-            let attributed = CFAttributedStringCreateMutable(nil, 0)!
+            guard let attributed = CFAttributedStringCreateMutable(nil, 0) else { return false }
             CFAttributedStringReplaceString(attributed, CFRange(location: 0, length: 0), text as CFString)
             CFAttributedStringSetAttribute(
                 attributed,
@@ -149,7 +136,7 @@ public final class CoreTextGlyphSource: GlyphSource {
             cellOfUnit.append(cell)
             if scalar.value > 0xFFFF { cellOfUnit.append(cell) }
         }
-        let runs = CTLineGetGlyphRuns(line) as! [CTRun]
+        let runs = (CTLineGetGlyphRuns(line) as? [CTRun]) ?? []
         for run in runs {
             let count = CTRunGetGlyphCount(run)
             guard count > 0 else { continue }
@@ -157,8 +144,17 @@ public final class CoreTextGlyphSource: GlyphSource {
             var indices = [CFIndex](repeating: 0, count: count)
             unsafe CTRunGetGlyphs(run, CFRange(location: 0, length: 0), &glyphs)
             unsafe CTRunGetStringIndices(run, CFRange(location: 0, length: 0), &indices)
-            guard let runFont = (CTRunGetAttributes(run) as? [CFString: Any])?[kCTFontAttributeName] else { continue }
-            let font = runFont as! CTFont
+            // The run's own font (a fallback font for a character the main one lacks), read from the run's attributes.
+            let attributes = CTRunGetAttributes(run)
+            guard
+                let raw = unsafe CFDictionaryGetValue(
+                    attributes,
+                    Unmanaged.passUnretained(kCTFontAttributeName).toOpaque()
+                )
+            else {
+                continue
+            }
+            let font = unsafe Unmanaged<CTFont>.fromOpaque(raw).takeUnretainedValue()
             for index in 0 ..< count {
                 let unit = min(max(0, indices[index]), cellOfUnit.count - 1)
                 var position = CGPoint(x: CGFloat(cellOfUnit[unit] * cellWidth), y: CGFloat(baseline))

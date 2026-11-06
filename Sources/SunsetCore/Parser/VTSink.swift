@@ -1,21 +1,3 @@
-/// What a string-introducing sequence is: its content follows as bytes until the string ends.
-public enum StringKind: UInt8, Sendable {
-    case osc
-    case dcs
-    /// Application program command (the kitty graphics protocol rides on it).
-    case apc
-    /// Privacy message.
-    case pm
-    /// Start of string.
-    case sos
-}
-
-/// How a string ended: by BEL, by ST (ESC \\ or U+009C, or an ESC that began another sequence), or not at all (cancelled by CAN or SUB).
-/// A reply to a query should end the way the query did.
-public enum StringTerminator: UInt8, Sendable {
-    case bel, st, none
-}
-
 /// Receives what the parser recognised. Every method has a defined meaning for every input; a sink never sees a partial sequence.
 public protocol VTSink {
     /// A run of printable ASCII (0x20...0x7E), as a span of the input, so a sink can copy it in bulk.

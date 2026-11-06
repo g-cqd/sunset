@@ -2,8 +2,6 @@ import Testing
 
 @testable import SunsetCore
 
-private let esc = "\u{1B}"
-
 @Suite("Grapheme clusters") struct ScreenGraphemeTests {
     @Test func `a combining mark joins the cell before it`() {
         let h = make("e\u{301}x")

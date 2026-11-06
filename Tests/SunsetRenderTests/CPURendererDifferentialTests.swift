@@ -1,21 +1,8 @@
+import AemiTestKit
 import SunsetCore
 import Testing
 
 @testable import SunsetRender
-
-private struct Random64 {
-    var state: UInt64
-    mutating func next() -> UInt64 {
-        state &+= 0x9E37_79B9_7F4A_7C15
-        var z = state
-        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
-        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
-        return z ^ (z >> 31)
-    }
-    mutating func below(_ bound: Int) -> Int { Int(next() % UInt64(bound)) }
-}
-
-private let esc = "\u{1B}"
 
 /// Pieces of output that between them touch every part of the renderer: text, wide characters, clusters, colours, attributes, cursor moves, scrolling,
 /// erasing, cursor shapes, reverse video, palette changes, the alternate screen.
@@ -33,7 +20,7 @@ private let pieces: [String] = [
 
 @Suite("CPU renderer, differential") struct CPURendererDifferentialTests {
     @Test func `drawing only what changed gives the same pixels as drawing everything`() {
-        var random = Random64(state: 31)
+        var random = SeededRNG(seed: 31)
         let metrics = RenderMetrics(cellWidth: 8, cellHeight: 16)
         for round in 0 ..< 120 {
             let columns = 6 + random.below(14)
@@ -56,9 +43,7 @@ private let pieces: [String] = [
                 CPURenderer(metrics: metrics, glyphs: BoxGlyphSource())
                     .render(terminal.screen, into: &fresh, cursorVisible: blink)
                 if surface.pixels != fresh.pixels {
-                    let first = zip(surface.pixels.indices, zip(surface.pixels, fresh.pixels))
-                        .first { $0.1.0 != $0.1.1 }!
-                        .0
+                    let first = surface.pixels.indices.first { surface.pixels[$0] != fresh.pixels[$0] } ?? 0
                     Issue.record(
                         "round \(round): pixel \(first % surface.width),\(first / surface.width) differs after \(history.debugDescription)"
                     )

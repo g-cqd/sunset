@@ -2,15 +2,18 @@ import Testing
 
 @testable import SunsetCore
 
-private let esc: UInt8 = 0x1B
-private func bytes(_ string: String) -> [UInt8] { Array(string.utf8) }
-private func encode(_ press: KeyPress, application: Bool = false, flags: UInt8 = 0) -> [UInt8] {
+let escapeByte: UInt8 = 0x1B
+
+func bytes(_ string: String) -> [UInt8] { Array(string.utf8) }
+
+func encode(_ press: KeyPress, application: Bool = false, flags: UInt8 = 0) -> [UInt8] {
     var modes = Modes()
     modes.applicationCursorKeys = application
     return KeyEncoder.encode(press, modes: modes, keyboardFlags: flags)
 }
-private func key(_ character: Character, _ modifiers: InputModifiers = [], text: String? = nil) -> KeyPress {
-    KeyPress(.character(character.unicodeScalars.first!), modifiers: modifiers, text: text)
+
+func key(_ character: Unicode.Scalar, _ modifiers: InputModifiers = [], text: String? = nil) -> KeyPress {
+    KeyPress(.character(character), modifiers: modifiers, text: text)
 }
 
 @Suite("Key encoding") struct KeyEncoderTests {
@@ -32,8 +35,8 @@ private func key(_ character: Character, _ modifiers: InputModifiers = [], text:
     }
 
     @Test func `alt sends escape first`() {
-        #expect(encode(key("x", [.option], text: "x")) == [esc, 0x78])
-        #expect(encode(key("c", [.option, .control])) == [esc, 3])
+        #expect(encode(key("x", [.option], text: "x")) == [escapeByte, 0x78])
+        #expect(encode(key("c", [.option, .control])) == [escapeByte, 3])
     }
 
     @Test func `enter, tab, backspace and escape`() {
@@ -91,21 +94,5 @@ private func key(_ character: Character, _ modifiers: InputModifiers = [], text:
         #expect(encode(KeyPress(.up), flags: 1) == bytes("\u{1B}[A"))
         // Flags that are not the first change nothing here.
         #expect(encode(KeyPress(.escape), flags: 2) == [27])
-    }
-}
-
-@Suite("Paste") struct PasteEncoderTests {
-    @Test func `bracketed paste wraps the text`() {
-        #expect(PasteEncoder.encode("hello\nworld", bracketed: true) == bytes("\u{1B}[200~hello\nworld\u{1B}[201~"))
-    }
-
-    @Test func `a paste cannot close its own brackets`() {
-        #expect(PasteEncoder.encode("a\u{1B}[201~b", bracketed: true) == bytes("\u{1B}[200~ab\u{1B}[201~"))
-        // Removing one marker must not leave another behind.
-        #expect(PasteEncoder.encode("a\u{1B}[201\u{1B}[201~~b", bracketed: true) == bytes("\u{1B}[200~ab\u{1B}[201~"))
-    }
-
-    @Test func `without brackets line feeds become carriage returns`() {
-        #expect(PasteEncoder.encode("a\nb\r\nc", bracketed: false) == bytes("a\rb\rc"))
     }
 }

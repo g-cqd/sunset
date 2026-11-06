@@ -72,39 +72,61 @@ func describe(_ color: Color) -> String {
     color.isDefault ? "-" : String(color.packed, radix: 16)
 }
 
-/// Every non-blank row as runs of cells with one style: the text, then the style (colours, attributes, underline). Blank cells count
-/// when they carry a background, except at the end of a row (kitty's ANSI dump drops those, so they cannot be compared).
+/// The text of a run of cells with one style, then the style (colours, attributes, underline).
+func describeRun(_ text: String, _ style: CellStyle) -> String {
+    "\"\(text)\" fg=\(describe(style.foreground)) bg=\(describe(style.background)) attrs=\(style.attributes.rawValue) ul=\(style.underline.rawValue)"
+}
+
+/// The last column of a row that holds a character (kitty's ANSI dump drops blank cells at the end of a row, even with a background, so those cannot be
+/// compared).
+func lastColumn(of row: Int, in screen: Screen) -> Int {
+    var last = screen.columns - 1
+    while last >= 0, screen.cell(row: row, column: last).scalar == 0 { last -= 1 }
+    return last
+}
+
+/// Every non-blank row as runs of cells with one style.
 func printCells(_ screen: Screen) {
     for row in 0 ..< screen.rows {
+        let last = lastColumn(of: row, in: screen)
+        if last < 0 { continue }
         var runs: [String] = []
         var text = ""
         var current: CellStyle?
-        func flush() {
-            guard let style = current, !text.isEmpty else { return }
-            runs.append(
-                "\"\(text)\" fg=\(describe(style.foreground)) bg=\(describe(style.background)) attrs=\(style.attributes.rawValue) ul=\(style.underline.rawValue)"
-            )
-            text = ""
-        }
-        var last = screen.columns - 1
-        while last >= 0 {
-            let cell = screen.cell(row: row, column: last)
-            if cell.scalar != 0 { break }
-            last -= 1
-        }
-        if last < 0 { continue }
         for column in 0 ... last {
             let cell = screen.cell(row: row, column: column)
             let style = screen.style(of: cell)
             if style != current {
-                flush()
+                if let current, !text.isEmpty { runs.append(describeRun(text, current)) }
+                text = ""
                 current = style
             }
             text += screen.text(of: cell)
         }
-        flush()
+        if let current, !text.isEmpty { runs.append(describeRun(text, current)) }
         print("\(row): " + runs.joined(separator: " | "))
     }
+}
+
+/// Only the text, as logical lines: rows that wrapped are joined (as kitty's screen dump joins them), trailing spaces and empty lines dropped.
+func printPlain(_ screen: Screen) {
+    // Only the text, as logical lines: rows that wrapped are joined (as kitty's screen dump joins them), trailing spaces and empty lines dropped.
+    var lines: [String] = []
+    var current = ""
+    for row in 0 ..< screen.rows {
+        var text = ""
+        for column in 0 ..< screen.columns { text += screen.text(of: screen.cell(row: row, column: column)) }
+        if screen.isWrapped(row: row) {
+            current += text
+        } else {
+            var line = current + text
+            while line.last == " " { line.removeLast() }
+            lines.append(line)
+            current = ""
+        }
+    }
+    while lines.last == "" { lines.removeLast() }
+    for line in lines { print(line) }
 }
 
 func run() throws {
@@ -122,23 +144,7 @@ func run() throws {
         return
     }
     if plain {
-        // Only the text, as logical lines: rows that wrapped are joined (as kitty's screen dump joins them), trailing spaces and empty lines dropped.
-        var lines: [String] = []
-        var current = ""
-        for row in 0 ..< screen.rows {
-            var text = ""
-            for column in 0 ..< screen.columns { text += screen.text(of: screen.cell(row: row, column: column)) }
-            if screen.isWrapped(row: row) {
-                current += text
-            } else {
-                var line = current + text
-                while line.last == " " { line.removeLast() }
-                lines.append(line)
-                current = ""
-            }
-        }
-        while lines.last == "" { lines.removeLast() }
-        for line in lines { print(line) }
+        printPlain(screen)
         return
     }
     print(
