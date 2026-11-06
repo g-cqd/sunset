@@ -2,7 +2,9 @@ extension Screen {
     /// The id for the pen's style, interned on first use after it changed.
     mutating func currentPenID() -> UInt16 {
         if !penIDIsCurrent {
-            penID = internStyle(pen)
+            var style = pen
+            style.link = penLink
+            penID = internStyle(style)
             penIDIsCurrent = true
         }
         return penID

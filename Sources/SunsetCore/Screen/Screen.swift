@@ -23,6 +23,9 @@ public struct Screen: Sendable {
     var row = 0
     var pendingWrap = false
     var pen = CellStyle()
+    /// The link open now (OSC 8); part of the style of the cells written, but not of the pen: resetting the colours does not end it.
+    var penLink: UInt16 = 0
+    var links = LinkTable()
     var penID: UInt16 = 0
     var penIDIsCurrent = true
     /// The style of cells that erasing makes: only the pen's background (back-colour erase).

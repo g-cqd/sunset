@@ -11,7 +11,7 @@ date: 2026-11-05
 - OSC payloads are buffered up to 4096 bytes; a longer one is dropped whole. Only completed strings act (CAN/SUB cancel). DCS, APC, PM and SOS are never read as OSC.
 - **Titles** (OSC 0, 1, 2): control characters (C0, DEL, C1 as UTF-8) are removed on the way in; titles are **never reported back** (ADR-0026). A title stack (CSI 22/23 t) keeps ten.
 - **Colours**: OSC 4 and 104 (palette), OSC 10/11/12 and 110/111/112 (default foreground, background, cursor), queries answered as `rgb:RRRR/GGGG/BBBB`. X colour forms `rgb:` (1-4 hex digits per component) and `#` (1-4 digits): one digit is repeated, wider components keep their high eight bits (X's rule, as the terminals following it do). Palette resets go back to the host's seed (`Palette(colors:foreground:background:cursor:)`), by default xterm's colours.
-- **Since ADR-0010 (accepted 2026-11-06)**: OSC 52 write, 7, 9, 9;4, 99, 133, 777 and 1337 (SetMark, CurrentDir) are handled under its policy; OSC 8 (hyperlinks) is still ignored.
+- **Since ADR-0010 (accepted 2026-11-06)**: OSC 52 write, 7, 9, 9;4, 99, 133, 777 and 1337 (SetMark, CurrentDir) are handled under its policy; OSC 8 (hyperlinks) too, as part of the cell style.
 
 ## Evidence
 

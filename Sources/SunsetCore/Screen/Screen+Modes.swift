@@ -150,6 +150,7 @@ extension Screen {
     mutating func softReset() {
         modes = Modes()
         pen = CellStyle()
+        penLink = 0
         penChanged()
         top = 0
         bottom = rows - 1
