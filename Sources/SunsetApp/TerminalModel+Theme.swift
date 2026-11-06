@@ -1,4 +1,5 @@
 import SunsetCore
+import SunsetHost
 
 extension TerminalModel {
     func apply(colors: DefaultColors) {
