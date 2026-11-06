@@ -31,3 +31,7 @@ Done: string terminator in the sink, OSC 0/1/2 titles (sanitised, never reported
 ## Progress (2026-11-05, history and resize): ADR-0028
 
 Done: DEC special graphics and UK charsets (SO/SI, saved with the cursor); scrollback ring; ED 3; resize with reflow (cursor, screen top, wide characters, history), alternate screen cut/padded; style rebuild bounded; 137 tests. Not done: compressed cold history (ADR-0013), OSC 8/52/7/133 (ADR-0010), grapheme clusters, left/right margins, kitty mouse/graphics, `esctest`/`vttest`, oracle comparison (including reflow behaviour).
+
+## Progress (2026-11-05, clusters): ADR-0029
+
+Done: grapheme clusters (combining marks, joiners, flags, emoji modifiers, VS16), 150 tests. Not done: oracle comparison of contested widths, cold history, left/right margins, OSC 8/52/7/133, kitty mouse/graphics, `esctest`/`vttest`.

@@ -10,6 +10,7 @@ extension Screen: VTSink {
     public mutating func print(_ scalar: Unicode.Scalar) { putScalar(scalar) }
 
     public mutating func execute(_ control: UInt8) {
+        joinable = false
         switch control {
             case 0x07: bellCount &+= 1
             case 0x08: backspace()
@@ -29,6 +30,7 @@ extension Screen: VTSink {
     }
 
     public mutating func escape(_ intermediates: Intermediates, final: UInt8) {
+        joinable = false
         if intermediates.count == 1, intermediates.first == 0x28 || intermediates.first == 0x29 {
             if intermediates.first == 0x28 {
                 charsets.g0 = Charset(designator: final)
@@ -59,6 +61,7 @@ extension Screen: VTSink {
     }
 
     public mutating func csi(_ parameters: Parameters, marker: UInt8, intermediates: Intermediates, final: UInt8) {
+        joinable = false
         switch intermediates.count {
             case 0:
                 switch marker {
@@ -162,7 +165,10 @@ extension Screen: VTSink {
         marker: UInt8,
         intermediates: Intermediates,
         final: UInt8
-    ) { oscStart(kind) }
+    ) {
+        joinable = false
+        oscStart(kind)
+    }
     public mutating func stringBytes(_ bytes: Span<UInt8>) { oscAppend(bytes) }
     public mutating func stringEnd(completed: Bool, terminator: StringTerminator) {
         oscEnd(completed: completed, terminator: terminator)

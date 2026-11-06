@@ -29,6 +29,8 @@ extension Screen {
                 }
             }
             lastPrinted = UInt32(run[index + take - 1])
+            lastHead = (row, column + take - 1)
+            joinable = true
             markDirty(row)
             index += take
             column += take
@@ -41,7 +43,20 @@ extension Screen {
 
     mutating func putScalar(_ scalar: Unicode.Scalar) {
         let width = UnicodeWidth.displayWidth(of: Character(scalar))
+        if joinable, mayJoin(scalar, width: width), join(scalar) { return }
+        afterJoiner = false
         put(scalar.value, width: width)
+    }
+
+    /// Cheap test before the real one: only zero-width scalars (marks, joiners, selectors), regional indicators, emoji modifiers, Hangul vowels and
+    /// finals, and a scalar right after a joiner can extend the cluster before them. Everything else (letters, CJK) starts its own cell without any
+    /// allocation.
+    private func mayJoin(_ scalar: Unicode.Scalar, width: Int) -> Bool {
+        if width == 0 || afterJoiner { return true }
+        switch scalar.value {
+            case 0x1F1E6 ... 0x1F1FF, 0x1F3FB ... 0x1F3FF, 0x1160 ... 0x11FF, 0xD7B0 ... 0xD7FF: return true
+            default: return false
+        }
     }
 
     /// Writes one character at the cursor. Zero-width scalars (combining marks, joiners) are dropped for now: grapheme clusters are not modelled yet.
@@ -67,12 +82,56 @@ extension Screen {
             grid[row, column] = Cell(scalar: scalar, width: .narrow, style: id)
         }
         lastPrinted = scalar
+        lastHead = (row, column)
+        joinable = true
         markDirty(row)
         column += width
         if column >= columns {
             column = columns - 1
             pendingWrap = true
         }
+    }
+
+    /// Tries to make `scalar` part of the grapheme cluster of the cell written last. True when it was absorbed (or dropped as a mark that cannot be
+    /// kept); false when it starts a cluster of its own. The test is the standard's: the scalars so far plus this one are a single `Character`.
+    mutating func join(_ scalar: Unicode.Scalar) -> Bool {
+        let (headRow, headColumn) = lastHead
+        guard headRow < rows, headColumn < columns else { return false }
+        let head = grid[headRow, headColumn]
+        guard head.width != .spacerTail, head.width != .spacerHead, head.scalar != 0 else { return false }
+        var cluster = ContiguousArray<UInt32>()
+        if head.isCluster {
+            cluster.append(contentsOf: clusters.scalars(of: head.scalar))
+        } else {
+            cluster.append(head.scalar)
+        }
+        cluster.append(scalar.value)
+        var view = String.UnicodeScalarView()
+        for value in cluster { view.append(Unicode.Scalar(value) ?? "\u{FFFD}") }
+        let text = String(view)
+        guard text.count == 1, let character = text.first else { return false }
+        guard let id = clusters.intern(cluster) else {
+            // Table full: a mark is dropped, anything else starts a cell of its own.
+            return UnicodeWidth.displayWidth(of: Character(scalar)) == 0
+        }
+        var width = head.width
+        if width == .narrow, UnicodeWidth.displayWidth(of: character) == 2, headColumn + 1 < columns {
+            // The cluster has become double-width (an emoji presentation selector, a flag): it takes the next cell too.
+            width = .wide
+            clearWideEdges(row: headRow, from: headColumn + 1, to: headColumn + 1)
+            grid[headRow, headColumn + 1] = Cell(scalar: 0, width: .spacerTail, style: head.styleID)
+            if headRow == row, column == headColumn + 1, !pendingWrap {
+                column += 1
+                if column >= columns {
+                    column = columns - 1
+                    pendingWrap = true
+                }
+            }
+        }
+        grid[headRow, headColumn] = Cell(cluster: id, width: width, style: head.styleID)
+        afterJoiner = scalar.value == 0x200D
+        markDirty(headRow)
+        return true
     }
 
     /// The line continues on the next row: mark it, return the carriage and move down (scrolling at the bottom of the region).
