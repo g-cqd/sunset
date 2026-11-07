@@ -11,4 +11,11 @@ public enum ConfigurationLocation {
         if let base = environment["XDG_CONFIG_HOME"], !base.isEmpty { return trimmed(base) + "/sunset/config.json" }
         return trimmed(home) + "/.config/sunset/config.json"
     }
+
+    /// Where the theme `name` is: `themes/<name>.json` in the directory of the configuration file.
+    public static func themePath(named name: String, besideConfig config: String) -> String {
+        var directory = config
+        if let slash = directory.lastIndex(of: "/") { directory = String(directory[..<slash]) } else { directory = "." }
+        return directory + "/themes/" + name + ".json"
+    }
 }

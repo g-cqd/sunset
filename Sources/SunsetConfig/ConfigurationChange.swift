@@ -1,20 +1,19 @@
 /// A part of the configuration that a new file changed: what the app has to apply to a running terminal.
 public enum ConfigurationChange: Sendable, Equatable {
-    case font, colors, window, scroll, keyboard, scrollback, cursorBlink, renderer
+    case font, colors, window, sidebar, appearance, tabs, theme, scroll, keyboard, scrollback, cursorBlink, renderer
 }
 
 extension Configuration {
     /// The parts of `self` that differ from `old`, each once, in a fixed order.
     public func changes(from old: Configuration) -> [ConfigurationChange] {
-        var changes: [ConfigurationChange] = []
-        if font != old.font { changes.append(.font) }
-        if colors != old.colors { changes.append(.colors) }
-        if window != old.window { changes.append(.window) }
-        if scroll != old.scroll { changes.append(.scroll) }
-        if keyboard != old.keyboard { changes.append(.keyboard) }
-        if scrollbackLines != old.scrollbackLines { changes.append(.scrollback) }
-        if cursorBlinkTimeout != old.cursorBlinkTimeout { changes.append(.cursorBlink) }
-        if renderer != old.renderer { changes.append(.renderer) }
-        return changes
+        let differences: [(ConfigurationChange, Bool)] = [
+            (.font, font != old.font), (.colors, colors != old.colors), (.window, window != old.window),
+            (.sidebar, sidebar != old.sidebar), (.appearance, appearance != old.appearance), (.tabs, tabs != old.tabs),
+            (.theme, theme != old.theme), (.scroll, scroll != old.scroll), (.keyboard, keyboard != old.keyboard),
+            (.scrollback, scrollbackLines != old.scrollbackLines),
+            (.cursorBlink, cursorBlinkTimeout != old.cursorBlinkTimeout),
+            (.renderer, renderer != old.renderer)
+        ]
+        return differences.filter(\.1).map(\.0)
     }
 }

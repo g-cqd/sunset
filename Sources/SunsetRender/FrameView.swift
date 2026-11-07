@@ -8,8 +8,17 @@ public struct FrameView: Sendable, Equatable {
     public var selection: Selection?
     /// A link id from `Screen.linkID` (0 for none), drawn underlined.
     public var hoveredLink: UInt16 = 0
+    /// How opaque the default background is (255: opaque, the normal case; less lets what is behind the window show through, with a window that has a material,
+    /// glass or nothing behind it). Cells with a colour of their own, the cursor, the selection and the text stay opaque.
+    public var backgroundAlpha: UInt8 = 255
 
-    public init(scrolledBack: Int = 0, selection: Selection? = nil, hoveredLink: UInt16 = 0) {
+    public init(
+        scrolledBack: Int = 0,
+        selection: Selection? = nil,
+        hoveredLink: UInt16 = 0,
+        backgroundAlpha: UInt8 = 255
+    ) {
+        self.backgroundAlpha = backgroundAlpha
         self.scrolledBack = scrolledBack
         self.selection = selection
         self.hoveredLink = hoveredLink

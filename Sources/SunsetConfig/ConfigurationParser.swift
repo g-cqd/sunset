@@ -10,7 +10,15 @@ public enum ConfigurationParser {
         public var issues: [ConfigurationIssue]
     }
 
-    public static func parse(_ text: String) throws(ConfigurationError) -> Result {
+    /// Which keys a file may set: all of them, or only the visual ones (a theme).
+    public enum Scope: Sendable { case file, theme }
+
+    /// `base` is what a key the text does not mention keeps (the defaults, or a theme's configuration).
+    public static func parse(
+        _ text: String,
+        base: Configuration = Configuration(),
+        scope: Scope = .file
+    ) throws(ConfigurationError) -> Result {
         let root: JSONValue
         do {
             root = try JSONValue(parsing: text, options: JSONParseOptions(validation: .json5))
@@ -18,7 +26,7 @@ public enum ConfigurationParser {
             throw ConfigurationError.syntax(message: describe(error), offset: offset(of: error))
         }
         guard case .object(let object) = root else { throw ConfigurationError.notAnObject }
-        var reader = Reader()
+        var reader = Reader(configuration: base, scope: scope)
         reader.read(object)
         return Result(configuration: reader.configuration, issues: reader.issues)
     }

@@ -14,6 +14,8 @@ extension CPURenderer {
         var selection: Selection?
         /// The link under the pointer (an id from `Screen.linkID`), drawn underlined; 0 for none.
         var hoveredLink: UInt16 = 0
+        /// How opaque the default background is (see `FrameView.backgroundAlpha`).
+        var backgroundAlpha: UInt8 = 255
 
         /// The line (counted from the oldest of the history) the top row of the window shows.
         var firstLine: Int { screen.scrollbackCount - scrolledBack }

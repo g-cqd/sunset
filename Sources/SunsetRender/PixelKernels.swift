@@ -22,4 +22,23 @@ enum PixelKernels {
     ) {
         unsafe sunset_blend_coverage_scalar(destination, coverage, count, color)
     }
+
+    /// The blend over a premultiplied destination of any alpha (a translucent background): see the header.
+    static func blendPremultiplied(
+        _ destination: UnsafeMutablePointer<UInt32>,
+        coverage: UnsafePointer<UInt8>,
+        count: Int,
+        color: UInt32
+    ) {
+        unsafe sunset_blend_coverage_premul(destination, coverage, count, color)
+    }
+
+    static func blendPremultipliedScalar(
+        _ destination: UnsafeMutablePointer<UInt32>,
+        coverage: UnsafePointer<UInt8>,
+        count: Int,
+        color: UInt32
+    ) {
+        unsafe sunset_blend_coverage_premul_scalar(destination, coverage, count, color)
+    }
 }
