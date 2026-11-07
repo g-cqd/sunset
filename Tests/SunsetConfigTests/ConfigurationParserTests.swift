@@ -96,4 +96,40 @@ import Testing
         #expect(throws: ConfigurationError.notAnObject) { try read("[1, 2]") }
         #expect(throws: ConfigurationError.notAnObject) { try read("3") }
     }
+
+    @Test func `the window section: decorations, where the traffic lights go, the height of the strip that drags`()
+        throws
+    {
+        let result = try read(
+            """
+            { "window": { "decorations": "native", "trafficLights": { "x": 20, "y": 8.5 }, "dragStrip": 24 } }
+            """
+        )
+        #expect(result.issues.isEmpty)
+        #expect(result.configuration.window.decorations == .native)
+        #expect(result.configuration.window.trafficLightsX == 20)
+        #expect(result.configuration.window.trafficLightsY == 8.5)
+        #expect(result.configuration.window.dragStrip == 24)
+    }
+
+    @Test func `the window defaults: no decorations, lights near the corner, a 16 pt strip`() throws {
+        let window = try read("{}").configuration.window
+        #expect(window.decorations == .none)
+        #expect(window.trafficLightsX == 12 && window.trafficLightsY == 12)
+        #expect(window.dragStrip == 16)
+    }
+
+    @Test func `window values that are wrong are reported with their keys`() throws {
+        let result = try read(
+            """
+            { "window": { "decorations": "fancy", "trafficLights": { "x": -4, "z": 1 }, "dragStrip": 500 } }
+            """
+        )
+        #expect(
+            result.issues.map(\.path).sorted() == [
+                "window.decorations", "window.dragStrip", "window.trafficLights.x", "window.trafficLights.z"
+            ]
+        )
+        #expect(result.configuration.window == Configuration.Window())
+    }
 }

@@ -13,6 +13,7 @@ struct Reader {
             switch key {
                 case "font": section("font", value) { reader, object in reader.readFont(object) }
                 case "colors": section("colors", value) { reader, object in reader.readColors(object) }
+                case "window": section("window", value) { reader, object in reader.readWindow(object) }
                 case "scrollback": section("scrollback", value) { reader, object in reader.readScrollback(object) }
                 case "cursor": section("cursor", value) { reader, object in reader.readCursor(object) }
                 case "renderer": readRenderer(value)
@@ -41,6 +42,44 @@ struct Reader {
                 case "ligatures":
                     if let flag = bool("font.ligatures", value) { configuration.font.ligatures = flag }
                 default: unknown("font.\(key)")
+            }
+        }
+    }
+
+    private mutating func readWindow(_ object: Object) {
+        for (key, value) in object {
+            switch key {
+                case "decorations":
+                    guard case .string(let text) = value, let choice = Configuration.Window.Decorations(rawValue: text)
+                    else {
+                        let allowed = Configuration.Window.Decorations.allCases.map(\.rawValue).joined(separator: ", ")
+                        issue("window.decorations", "expected one of \(allowed)")
+                        continue
+                    }
+                    configuration.window.decorations = choice
+                case "trafficLights":
+                    section("window.trafficLights", value) { reader, lights in reader.readTrafficLights(lights) }
+                case "dragStrip":
+                    if let height = number("window.dragStrip", value, range: 0 ... 64) {
+                        configuration.window.dragStrip = height
+                    }
+                default: unknown("window.\(key)")
+            }
+        }
+    }
+
+    private mutating func readTrafficLights(_ object: Object) {
+        for (key, value) in object {
+            switch key {
+                case "x":
+                    if let x = number("window.trafficLights.x", value, range: 0 ... 400) {
+                        configuration.window.trafficLightsX = x
+                    }
+                case "y":
+                    if let y = number("window.trafficLights.y", value, range: 0 ... 400) {
+                        configuration.window.trafficLightsY = y
+                    }
+                default: unknown("window.trafficLights.\(key)")
             }
         }
     }

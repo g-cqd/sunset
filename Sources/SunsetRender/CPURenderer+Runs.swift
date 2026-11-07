@@ -52,7 +52,7 @@ extension CPURenderer {
                 bitmap,
                 into: &surface,
                 cellX: metrics.paddingX + column * metrics.cellWidth,
-                cellY: metrics.paddingY + row * metrics.cellHeight,
+                cellY: metrics.originY + row * metrics.cellHeight,
                 cellWidth: length * metrics.cellWidth,
                 color: colors.foreground
             )

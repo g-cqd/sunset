@@ -144,7 +144,7 @@ public final class CPURenderer: CellRenderer {
         }
         let box = Box(
             x: metrics.paddingX + place.column * metrics.cellWidth,
-            y: metrics.paddingY + place.row * metrics.cellHeight,
+            y: metrics.originY + place.row * metrics.cellHeight,
             width: place.span * metrics.cellWidth
         )
         if background != frame.background || onCursor || selected {

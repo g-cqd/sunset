@@ -28,7 +28,7 @@ import SunsetRenderMac
     @ObservationIgnored private var renderInFlight = false
     @ObservationIgnored var cursorPhase = true
     @ObservationIgnored private var cursorBlinks = true
-    @ObservationIgnored private var viewPixels = (width: 0, height: 0)
+    @ObservationIgnored var viewPixels = (width: 0, height: 0)
     @ObservationIgnored var viewport = Viewport()
     @ObservationIgnored var selection: Selection?
     @ObservationIgnored var gesture: SelectionGesture?
@@ -38,6 +38,8 @@ import SunsetRenderMac
     @ObservationIgnored var blinkSchedule = BlinkSchedule()
     /// The theme's default colours (the configuration file's), applied to the terminal when it starts and whenever they change.
     @ObservationIgnored var defaultColors = DefaultColors()
+    /// Space above the grid in points (the strip that drags a window with no title bar).
+    @ObservationIgnored var topInsetPoints = 0.0
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
     @ObservationIgnored var lastActivity = ContinuousClock.now
     @ObservationIgnored var hoveredLink: UInt16 = 0
@@ -107,7 +109,7 @@ import SunsetRenderMac
         guard viewPixels.width > 0, viewPixels.height > 0, let metrics = renderer?.cellMetrics else { return nil }
         return GridSize(
             columns: max(2, (viewPixels.width - 2 * Self.padding) / metrics.cellWidth),
-            rows: max(1, (viewPixels.height - 2 * Self.padding) / metrics.cellHeight)
+            rows: max(1, (viewPixels.height - 2 * Self.padding - metrics.topInset) / metrics.cellHeight)
         )
     }
 
@@ -147,11 +149,12 @@ import SunsetRenderMac
         viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
     }
 
-    private func makeRenderer() {
+    func makeRenderer() {
         let glyphs = CoreTextGlyphSource(fontName: font.name, size: font.size * scale, features: font.features)
         var metrics = glyphs.metrics
         metrics.paddingX = Self.padding
         metrics.paddingY = Self.padding
+        metrics.topInset = Int((topInsetPoints * scale).rounded())
         renderer = FrameRenderer(metrics: metrics, glyphs: glyphs, ligatures: font.ligatures)
     }
 

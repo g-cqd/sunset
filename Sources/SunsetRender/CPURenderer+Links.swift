@@ -16,7 +16,7 @@ extension CPURenderer {
             let colors = colors(of: style, frame: frame)
             let box = Box(
                 x: metrics.paddingX + (column - 1) * metrics.cellWidth,
-                y: metrics.paddingY + row * metrics.cellHeight,
+                y: metrics.originY + row * metrics.cellHeight,
                 width: span * metrics.cellWidth
             )
             let color = frame.screen.palette.resolve(style.underlineColor) ?? colors.foreground

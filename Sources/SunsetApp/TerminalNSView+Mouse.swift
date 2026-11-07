@@ -2,7 +2,32 @@ import AppKit
 import SunsetCore
 
 extension TerminalNSView {
+    /// A click in the strip drags the window even when the window is not the active one, as a title bar does; elsewhere the first click only activates.
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        guard let event else { return false }
+        return isInDragStrip(event)
+    }
+
+    private func isInDragStrip(_ event: NSEvent) -> Bool {
+        guard model.topInsetPoints > 0 else { return false }
+        let point = convert(event.locationInWindow, from: nil)
+        let fromTop = isFlipped ? point.y : bounds.height - point.y
+        return fromTop >= 0 && fromTop <= model.topInsetPoints
+    }
+
+    /// A press in the strip at the top of a window with no title bar drags the window (a double-click zooms it, as a title bar does).
+    private func dragsWindow(_ event: NSEvent) -> Bool {
+        guard let window, isInDragStrip(event) else { return false }
+        if event.clickCount == 2 {
+            window.performZoom(nil)
+        } else {
+            window.performDrag(with: event)
+        }
+        return true
+    }
+
     override func mouseDown(with event: NSEvent) {
+        if dragsWindow(event) { return }
         if event.modifierFlags.contains(.command) {
             let point = convert(event.locationInWindow, from: nil)
             let scale = window?.backingScaleFactor ?? 2
