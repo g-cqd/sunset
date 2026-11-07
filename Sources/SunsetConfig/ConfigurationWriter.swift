@@ -1,40 +1,65 @@
 /// Writes a configuration as the text of a file: every key, so that the file shows what can be set. Colours not set are written as null, a font with no family
 /// as an empty string, a cursor that blinks for ever as null.
 public enum ConfigurationWriter {
-    public static func text(for configuration: Configuration) -> String {
+    /// Every key of the file with its value as a JSON literal, by dotted path.
+    public static func literals(for configuration: Configuration) -> [String: String] {
         let font = configuration.font
         let colors = configuration.colors
         let window = configuration.window
-        let timeout = configuration.cursorBlinkTimeout.map(number) ?? "null"
-        return """
-            {
-              "font": {
-                "family": \(string(font.family ?? "")),
-                "size": \(number(font.size)),
-                "ligatures": \(font.ligatures),
-                "features": \(string(font.features))
-              },
-              "colors": {
-                "foreground": \(color(colors.foreground)),
-                "background": \(color(colors.background)),
-                "cursor": \(color(colors.cursor))
-              },
-              "window": {
-                "decorations": \(string(window.decorations.rawValue)),
-                "trafficLights": { "x": \(number(window.trafficLightsX)), "y": \(number(window.trafficLightsY)) },
-                "dragStrip": \(number(window.dragStrip))
-              },
-              "scroll": {
-                "trackpad": \(number(configuration.scroll.trackpad)),
-                "wheel": \(number(configuration.scroll.wheel))
-              },
-              "scrollback": { "lines": \(configuration.scrollbackLines) },
-              "cursor": { "blinkTimeout": \(timeout) },
-              "renderer": \(string(configuration.renderer.rawValue)),
-              "keyboard": { "optionAsMeta": \(configuration.keyboard.optionAsMeta) }
-            }
+        return [
+            "font.family": string(font.family ?? ""),
+            "font.size": number(font.size),
+            "font.ligatures": String(font.ligatures),
+            "font.features": string(font.features),
+            "colors.foreground": color(colors.foreground),
+            "colors.background": color(colors.background),
+            "colors.cursor": color(colors.cursor),
+            "window.decorations": string(window.decorations.rawValue),
+            "window.trafficLights.x": number(window.trafficLightsX),
+            "window.trafficLights.y": number(window.trafficLightsY),
+            "window.dragStrip": number(window.dragStrip),
+            "scroll.trackpad": number(configuration.scroll.trackpad),
+            "scroll.wheel": number(configuration.scroll.wheel),
+            "scrollback.lines": String(configuration.scrollbackLines),
+            "cursor.blinkTimeout": configuration.cursorBlinkTimeout.map(number) ?? "null",
+            "renderer": string(configuration.renderer.rawValue),
+            "keyboard.optionAsMeta": String(configuration.keyboard.optionAsMeta)
+        ]
+    }
 
-            """
+    /// The whole file, in the order of `ConfigurationKeys.all`.
+    public static func text(for configuration: Configuration) -> String {
+        let values = literals(for: configuration)
+        var lines: [String] = ["{"]
+        var open: [String] = []
+        let keys = ConfigurationKeys.all
+        for (index, key) in keys.enumerated() {
+            let parts = key.split(separator: ".").map(String.init)
+            let sections = Array(parts.dropLast())
+            // Close the sections that are no longer open, open the new ones.
+            var common = 0
+            while common < open.count, common < sections.count, open[common] == sections[common] { common += 1 }
+            while open.count > common {
+                open.removeLast()
+                lines.append(String(repeating: "  ", count: open.count + 1) + "},")
+            }
+            for name in sections[common...] {
+                lines.append(String(repeating: "  ", count: open.count + 1) + string(name) + ": {")
+                open.append(name)
+            }
+            let last = index == keys.count - 1
+            lines.append(
+                String(repeating: "  ", count: open.count + 1) + string(parts[parts.count - 1]) + ": "
+                    + (values[key] ?? "null")
+                    + (last ? "" : ",")
+            )
+        }
+        while !open.isEmpty {
+            open.removeLast()
+            lines.append(String(repeating: "  ", count: open.count + 1) + "}" + (open.isEmpty ? "" : ","))
+        }
+        lines.append("}")
+        return lines.joined(separator: "\n") + "\n"
     }
 
     private static func number(_ value: Double) -> String {

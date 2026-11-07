@@ -36,7 +36,7 @@ final class AppConfiguration {
     }
 
     /// Changes the configuration the way the Settings window does: at once in memory (so the windows follow while a slider moves), and in the file a moment
-    /// later, as the whole configuration (the comments of a hand-written file are lost; the first save of a session keeps the old file as `config.json.bak`).
+    /// later, by editing it in place (comments and order stay), or whole when there is no readable file; the first save of a session keeps the old file as `config.json.bak`.
     func update(_ edit: (inout Configuration) -> Void) {
         var changed = configuration
         edit(&changed)
@@ -56,8 +56,12 @@ final class AppConfiguration {
     }
 
     private func save() {
-        let text = ConfigurationWriter.text(for: configuration)
         let manager = FileManager.default
+        // An existing file is edited in place (its comments and order stay); a new or unreadable one is written whole.
+        let existing = manager.contents(atPath: path).map { String(decoding: $0, as: UTF8.self) }
+        let text =
+            existing.flatMap { ConfigurationPatcher.saved(configuration, over: $0) }
+            ?? ConfigurationWriter.text(for: configuration)
         do {
             try manager.createDirectory(
                 atPath: (path as NSString).deletingLastPathComponent,
