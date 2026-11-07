@@ -1,11 +1,11 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-07
 ---
 
 # 0034 — One tab model with three presentations; a JSON configuration watched without Dispatch; private blur APIs by run-time lookup
 
-Roadmap 0017 has the requirements and the owner's answers. This ADR records the decisions that shape the code, as **proposed**: each is confirmed or changed by the stage that builds it.
+Roadmap 0017 has the requirements and the owner's answers. This ADR records the decisions that shape the code, ; each was confirmed or changed by the stage that built it (see Evidence).
 
 ## Decision
 
@@ -16,6 +16,13 @@ Roadmap 0017 has the requirements and the owner's answers. This ADR records the 
 - **Tab mode is `none | native | internal`.** `internal` excludes the other two.
 - **Transparent materials cost an alpha channel only when used.**
 
+## Changes made by the build
+
+- **The sidebar is not a view of the system's tabs.** `NSWindowTabGroup` gives no way to hide the system's tab bar from code (`toggleTabBar(_:)` left `isTabBarVisible` true, tried directly and through the responder chain). With the sidebar on, the tabs of a window are terminals of that one window (`TabPresentation.hostsTabsInWindow`), like the built-in bar; the sidebar and the built-in bar are two views of one `TabList`, native tabs are windows grouped by the system.
+- **Two private mechanisms, both looked up by name at run time through InternedStrings with a public fallback:** the window server's background blur (`CGSSetWindowBackgroundBlurRadius`, whole-window blur of a transparent window) and Core Animation's backdrop layer with a Gaussian blur filter (the sidebar's own radius).
+- **Themes** are `themes/<name>.json` beside the config; defaults < theme < file; a theme may set only what is visual.
+- **The Settings window edits the file in place** (`ConfigurationPatcher`), keeping comments and order; what a theme brought is not copied into the user's file.
+
 ## Evidence
 
-None yet: this is a proposal. Stage S1 will add the first tests (schema defaults, error messages, the watcher surviving an atomic save, a diff applied to a running terminal).
+Tests: 66 in `SunsetConfig` (schema, reader, writer round trip, patcher, loader and themes, search), 12 for `TabList` and `TabPresentation`, 7 in `SunsetPrivate`, 9 for the translucent renderer and its NEON kernel. In the running app (screenshots, this machine, macOS 27.0.1): materials, glass (regular and clear, tinted), transparency with and without blur over a coloured backdrop; native tabs, sidebar, built-in bar (top and bottom); switching between none, native, sidebar and built-in bar while three programs ran (same pids alive after each). Not verified: mouse interaction with tabs (drag, click, close buttons), several displays, full screen, other macOS versions for the private names.
