@@ -5,6 +5,8 @@ public struct Configuration: Sendable, Equatable {
         public var family: String?
         public var size = 14.0
         public var ligatures = true
+        /// OpenType features as `tag` or `tag=value`, separated by commas: `zero, ss01, cv02=3`.
+        public var features = ""
         public init() {}
     }
 
@@ -41,6 +43,12 @@ public struct Configuration: Sendable, Equatable {
         public init() {}
     }
 
+    public struct Keyboard: Sendable, Equatable {
+        /// Option sends Escape before the key (Meta) instead of composing a character.
+        public var optionAsMeta = false
+        public init() {}
+    }
+
     public enum Renderer: String, Sendable, Equatable, CaseIterable {
         case auto, gpu, cpu
     }
@@ -49,6 +57,7 @@ public struct Configuration: Sendable, Equatable {
     public var colors = Colors()
     public var window = Window()
     public var scroll = Scroll()
+    public var keyboard = Keyboard()
     /// Lines of history kept per terminal.
     public var scrollbackLines = 10_000
     /// Seconds without input or output after which the cursor stops blinking; nil: it blinks for ever.
@@ -56,4 +65,12 @@ public struct Configuration: Sendable, Equatable {
     public var renderer = Renderer.auto
 
     public init() {}
+}
+
+extension Configuration {
+    /// The cursor's blink timeout as a number for a control: 15 while it blinks for ever (the value a control shows when it is switched back on).
+    public var cursorBlinkTimeoutSeconds: Double {
+        get { cursorBlinkTimeout ?? 15 }
+        set { cursorBlinkTimeout = newValue }
+    }
 }

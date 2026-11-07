@@ -1,4 +1,5 @@
 import AppKit
+import Foundation
 import SunsetConfig
 
 /// The view behind the terminal that acts on its window (see `WindowChrome`).
@@ -8,8 +9,9 @@ final class ChromeView: NSView {
     /// SwiftUI sets the window's style again when the content around it changes; these notice and put ours back.
     private var styleObservations: [NSKeyValueObservation] = []
     private var applying = false
-    /// Where the three buttons were before we moved them, to put them back for `native`.
-    private var originals: [NSWindow.ButtonType: NSPoint] = [:]
+    /// The buttons have been taken out of the title bar (and have to be given back by rebuilding it).
+    private var movedButtons = false
+    private var spacing: Double?
     private static let buttons: [NSWindow.ButtonType] = [.closeButton, .miniaturizeButton, .zoomButton]
 
     override func viewDidMoveToWindow() {
@@ -65,21 +67,36 @@ final class ChromeView: NSView {
         placeButtons()
     }
 
+    /// With no decorations the three system buttons leave the title bar and live in the window's frame view, above the content, so that they can be put
+    /// anywhere in the window (inside the title bar they could only move within its strip). They keep their targets and actions, so close, minimise and zoom
+    /// still work. Back to `native`, the pieces AppKit built for the old title bar are not worth reassembling (it drops its container when the style changes):
+    /// the window's title bar is made again by switching the `titled` style off and on, which gives it new buttons in their place.
     private func placeButtons() {
-        guard let window else { return }
-        let buttons = Self.buttons.compactMap { type in window.standardWindowButton(type).map { (type, $0) } }
-        for (type, button) in buttons where originals[type] == nil { originals[type] = button.frame.origin }
-        for (index, (type, button)) in buttons.enumerated() {
-            guard let container = button.superview else { continue }
-            if settings.decorations == .native {
-                if let origin = originals[type] { button.setFrameOrigin(origin) }
-                continue
+        guard let window, let frame = window.contentView?.superview else { return }
+        if settings.decorations == .native {
+            if movedButtons {
+                movedButtons = false
+                window.styleMask.remove(.titled)
+                window.styleMask.insert(.titled)
+                if window.titlebarAppearsTransparent { window.titlebarAppearsTransparent = false }
+                if window.titleVisibility != .visible { window.titleVisibility = .visible }
             }
-            // From the window's top left corner; the title bar's view is not flipped.
-            let spacing = (originals[.miniaturizeButton]?.x ?? 0) - (originals[.closeButton]?.x ?? 0)
-            let x = settings.trafficLightsX + Double(index) * spacing
-            let y = container.frame.height - settings.trafficLightsY - button.frame.height
-            button.setFrameOrigin(NSPoint(x: x, y: max(y, 0)))
+            return
+        }
+        let buttons = Self.buttons.compactMap { type in window.standardWindowButton(type) }
+        guard buttons.count == 3 else { return }
+        if spacing == nil { spacing = buttons[1].frame.origin.x - buttons[0].frame.origin.x }
+        for (index, button) in buttons.enumerated() {
+            if button.superview !== frame {
+                button.removeFromSuperview()
+                frame.addSubview(button, positioned: .above, relativeTo: nil)
+                movedButtons = true
+            }
+            // From the window's top left corner; the frame view is not flipped, and the buttons stay at the top left when the window is resized.
+            button.autoresizingMask = [.maxXMargin, .minYMargin]
+            let x = settings.trafficLightsX + Double(index) * (spacing ?? 23)
+            let y = frame.bounds.height - settings.trafficLightsY - button.frame.height
+            button.setFrameOrigin(NSPoint(x: x, y: y))
         }
     }
 }

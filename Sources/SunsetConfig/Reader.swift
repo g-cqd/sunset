@@ -6,7 +6,7 @@ struct Reader {
     var configuration = Configuration()
     var issues: [ConfigurationIssue] = []
 
-    private typealias Object = OrderedDictionary<String, JSONValue>
+    typealias Object = OrderedDictionary<String, JSONValue>
 
     mutating func read(_ root: OrderedDictionary<String, JSONValue>) {
         for (key, value) in root {
@@ -14,6 +14,7 @@ struct Reader {
                 case "font": section("font", value) { reader, object in reader.readFont(object) }
                 case "colors": section("colors", value) { reader, object in reader.readColors(object) }
                 case "window": section("window", value) { reader, object in reader.readWindow(object) }
+                case "keyboard": section("keyboard", value) { reader, object in reader.readKeyboard(object) }
                 case "scroll": section("scroll", value) { reader, object in reader.readScroll(object) }
                 case "scrollback": section("scrollback", value) { reader, object in reader.readScrollback(object) }
                 case "cursor": section("cursor", value) { reader, object in reader.readCursor(object) }
@@ -25,7 +26,7 @@ struct Reader {
 
     // MARK: Sections
 
-    private mutating func section(_ path: String, _ value: JSONValue, _ body: (inout Reader, Object) -> Void) {
+    mutating func section(_ path: String, _ value: JSONValue, _ body: (inout Reader, Object) -> Void) {
         guard case .object(let object) = value else {
             issue(path, "expected an object")
             return
@@ -33,138 +34,15 @@ struct Reader {
         body(&self, object)
     }
 
-    private mutating func readFont(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "family":
-                    if let text = string("font.family", value) { configuration.font.family = text.isEmpty ? nil : text }
-                case "size":
-                    if let number = number("font.size", value, range: 4 ... 200) { configuration.font.size = number }
-                case "ligatures":
-                    if let flag = bool("font.ligatures", value) { configuration.font.ligatures = flag }
-                default: unknown("font.\(key)")
-            }
-        }
-    }
-
-    private mutating func readWindow(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "decorations":
-                    guard case .string(let text) = value, let choice = Configuration.Window.Decorations(rawValue: text)
-                    else {
-                        let allowed = Configuration.Window.Decorations.allCases.map(\.rawValue).joined(separator: ", ")
-                        issue("window.decorations", "expected one of \(allowed)")
-                        continue
-                    }
-                    configuration.window.decorations = choice
-                case "trafficLights":
-                    section("window.trafficLights", value) { reader, lights in reader.readTrafficLights(lights) }
-                case "dragStrip":
-                    if let height = number("window.dragStrip", value, range: 0 ... 64) {
-                        configuration.window.dragStrip = height
-                    }
-                default: unknown("window.\(key)")
-            }
-        }
-    }
-
-    private mutating func readScroll(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "trackpad":
-                    if let factor = number("scroll.trackpad", value, range: 0.05 ... 20) {
-                        configuration.scroll.trackpad = factor
-                    }
-                case "wheel":
-                    if let factor = number("scroll.wheel", value, range: 0.05 ... 50) {
-                        configuration.scroll.wheel = factor
-                    }
-                default: unknown("scroll.\(key)")
-            }
-        }
-    }
-
-    private mutating func readTrafficLights(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "x":
-                    if let x = number("window.trafficLights.x", value, range: 0 ... 400) {
-                        configuration.window.trafficLightsX = x
-                    }
-                case "y":
-                    if let y = number("window.trafficLights.y", value, range: 0 ... 400) {
-                        configuration.window.trafficLightsY = y
-                    }
-                default: unknown("window.trafficLights.\(key)")
-            }
-        }
-    }
-
-    private mutating func readColors(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "foreground":
-                    configuration.colors.foreground =
-                        color("colors.foreground", value) ?? configuration.colors.foreground
-                case "background":
-                    configuration.colors.background =
-                        color("colors.background", value) ?? configuration.colors.background
-                case "cursor":
-                    configuration.colors.cursor = color("colors.cursor", value) ?? configuration.colors.cursor
-                default: unknown("colors.\(key)")
-            }
-        }
-    }
-
-    private mutating func readScrollback(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "lines":
-                    if let number = number("scrollback.lines", value, range: 0 ... 10_000_000),
-                        number == number.rounded()
-                    {
-                        configuration.scrollbackLines = Int(number)
-                    }
-                default: unknown("scrollback.\(key)")
-            }
-        }
-    }
-
-    private mutating func readCursor(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "blinkTimeout":
-                    if case .null = value {
-                        configuration.cursorBlinkTimeout = nil
-                    } else if let seconds = number("cursor.blinkTimeout", value, range: 0 ... 86_400) {
-                        configuration.cursorBlinkTimeout = seconds == 0 ? nil : seconds
-                    }
-                default: unknown("cursor.\(key)")
-            }
-        }
-    }
-
-    private mutating func readRenderer(_ value: JSONValue) {
-        guard case .string(let text) = value, let choice = Configuration.Renderer(rawValue: text) else {
-            issue(
-                "renderer",
-                "expected one of \(Configuration.Renderer.allCases.map(\.rawValue).joined(separator: ", "))"
-            )
-            return
-        }
-        configuration.renderer = choice
-    }
-
     // MARK: Values
 
-    private mutating func issue(_ path: String, _ message: String) {
+    mutating func issue(_ path: String, _ message: String) {
         issues.append(ConfigurationIssue(path: path, message: message))
     }
 
-    private mutating func unknown(_ path: String) { issue(path, "unknown key") }
+    mutating func unknown(_ path: String) { issue(path, "unknown key") }
 
-    private mutating func string(_ path: String, _ value: JSONValue) -> String? {
+    mutating func string(_ path: String, _ value: JSONValue) -> String? {
         guard case .string(let text) = value else {
             issue(path, "expected a string")
             return nil
@@ -172,7 +50,7 @@ struct Reader {
         return text
     }
 
-    private mutating func bool(_ path: String, _ value: JSONValue) -> Bool? {
+    mutating func bool(_ path: String, _ value: JSONValue) -> Bool? {
         guard case .bool(let flag) = value else {
             issue(path, "expected true or false")
             return nil
@@ -180,7 +58,7 @@ struct Reader {
         return flag
     }
 
-    private mutating func number(_ path: String, _ value: JSONValue, range: ClosedRange<Double>) -> Double? {
+    mutating func number(_ path: String, _ value: JSONValue, range: ClosedRange<Double>) -> Double? {
         let number: Double
         switch value {
             case .int(let integer): number = Double(integer)
@@ -196,10 +74,10 @@ struct Reader {
         return number
     }
 
-    private func format(_ value: Double) -> String { value == value.rounded() ? String(Int(value)) : String(value) }
+    func format(_ value: Double) -> String { value == value.rounded() ? String(Int(value)) : String(value) }
 
     /// `#rrggbb`.
-    private mutating func color(_ path: String, _ value: JSONValue) -> [UInt8]? {
+    mutating func color(_ path: String, _ value: JSONValue) -> [UInt8]? {
         guard case .string(let text) = value, text.utf8.count == 7, text.hasPrefix("#") else {
             issue(path, "expected a colour written #rrggbb")
             return nil
@@ -216,7 +94,7 @@ struct Reader {
         return bytes
     }
 
-    private func hexValue(_ digit: UInt8) -> UInt8? {
+    func hexValue(_ digit: UInt8) -> UInt8? {
         switch digit {
             case 0x30 ... 0x39: digit - 0x30
             case 0x41 ... 0x46: digit - 0x41 + 10
