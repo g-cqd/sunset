@@ -33,6 +33,14 @@ public struct Configuration: Sendable, Equatable {
         public init() {}
     }
 
+    public struct Scroll: Sendable, Equatable {
+        /// Lines scrolled per cell height of finger travel on a trackpad (1: the text follows the finger).
+        public var trackpad = 1.0
+        /// Lines scrolled per notch of a wheel (the system reports one line per notch, more when it accelerates).
+        public var wheel = 3.0
+        public init() {}
+    }
+
     public enum Renderer: String, Sendable, Equatable, CaseIterable {
         case auto, gpu, cpu
     }
@@ -40,6 +48,7 @@ public struct Configuration: Sendable, Equatable {
     public var font = Font()
     public var colors = Colors()
     public var window = Window()
+    public var scroll = Scroll()
     /// Lines of history kept per terminal.
     public var scrollbackLines = 10_000
     /// Seconds without input or output after which the cursor stops blinking; nil: it blinks for ever.

@@ -40,6 +40,9 @@ import SunsetRenderMac
     @ObservationIgnored var defaultColors = DefaultColors()
     /// Space above the grid in points (the strip that drags a window with no title bar).
     @ObservationIgnored var topInsetPoints = 0.0
+    /// Lines per cell height of trackpad travel, and per wheel notch (the configuration's `scroll`).
+    @ObservationIgnored var scrollTrackpad = 1.0
+    @ObservationIgnored var scrollWheel = 3.0
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
     @ObservationIgnored var lastActivity = ContinuousClock.now
     @ObservationIgnored var hoveredLink: UInt16 = 0

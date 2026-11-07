@@ -14,6 +14,7 @@ struct Reader {
                 case "font": section("font", value) { reader, object in reader.readFont(object) }
                 case "colors": section("colors", value) { reader, object in reader.readColors(object) }
                 case "window": section("window", value) { reader, object in reader.readWindow(object) }
+                case "scroll": section("scroll", value) { reader, object in reader.readScroll(object) }
                 case "scrollback": section("scrollback", value) { reader, object in reader.readScrollback(object) }
                 case "cursor": section("cursor", value) { reader, object in reader.readCursor(object) }
                 case "renderer": readRenderer(value)
@@ -64,6 +65,22 @@ struct Reader {
                         configuration.window.dragStrip = height
                     }
                 default: unknown("window.\(key)")
+            }
+        }
+    }
+
+    private mutating func readScroll(_ object: Object) {
+        for (key, value) in object {
+            switch key {
+                case "trackpad":
+                    if let factor = number("scroll.trackpad", value, range: 0.05 ... 20) {
+                        configuration.scroll.trackpad = factor
+                    }
+                case "wheel":
+                    if let factor = number("scroll.wheel", value, range: 0.05 ... 50) {
+                        configuration.scroll.wheel = factor
+                    }
+                default: unknown("scroll.\(key)")
             }
         }
     }
