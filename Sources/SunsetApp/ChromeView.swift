@@ -5,6 +5,8 @@ import SunsetConfig
 /// The view behind the terminal that acts on its window (see `WindowChrome`).
 final class ChromeView: NSView {
     var settings = Configuration.Window() { didSet { if settings != oldValue { apply() } } }
+    var look = WindowLook() { didSet { if look != oldValue { apply() } } }
+    private let backdrop = WindowBackdrop()
     private var observers: [any NSObjectProtocol] = []
     /// SwiftUI sets the window's style again when the content around it changes; these notice and put ours back.
     private var styleObservations: [NSKeyValueObservation] = []
@@ -64,6 +66,7 @@ final class ChromeView: NSView {
         if window.titlebarAppearsTransparent != hidden { window.titlebarAppearsTransparent = hidden }
         let visibility: NSWindow.TitleVisibility = hidden ? .hidden : .visible
         if window.titleVisibility != visibility { window.titleVisibility = visibility }
+        backdrop.apply(look, to: window)
         placeButtons()
     }
 

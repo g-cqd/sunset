@@ -7,8 +7,12 @@ import SwiftUI
 /// title bar. It sits behind the terminal as a view of its own size and acts on the window it is in.
 struct WindowChrome: NSViewRepresentable {
     var settings: Configuration.Window
+    var look: WindowLook
 
     func makeNSView(context: Context) -> ChromeView { ChromeView() }
 
-    func updateNSView(_ view: ChromeView, context: Context) { view.settings = settings }
+    func updateNSView(_ view: ChromeView, context: Context) {
+        view.settings = settings
+        view.look = look
+    }
 }

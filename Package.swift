@@ -31,6 +31,8 @@ let package = Package(
         .library(name: "SunsetHost", targets: ["SunsetHost"]),
         // The configuration file: schema, defaults, validation and the difference between two configurations (roadmap 0017). Platform-free.
         .library(name: "SunsetConfig", targets: ["SunsetConfig"]),
+        // The private window-server calls the app uses (the blur radius behind a window), looked up by name at run time (roadmap 0017, ADR-0034).
+        .library(name: "SunsetPrivate", targets: ["SunsetPrivate"]),
         // The CPU renderer: cells to pixels, the reference the GPU renderer is held to (ADR-0024). Platform-free; glyphs come from a `GlyphSource`.
         .library(name: "SunsetRender", targets: ["SunsetRender"]),
         // The macOS glyph source (CoreText), the platform seam of the renderer.
@@ -96,7 +98,9 @@ let package = Package(
         ),
         .executableTarget(
             name: "SunsetApp",
-            dependencies: ["SunsetConfig", "SunsetCore", "SunsetHost", "SunsetRender", "SunsetRenderMac"],
+            dependencies: [
+                "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPrivate", "SunsetRender", "SunsetRenderMac"
+            ],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings
         ),
@@ -116,6 +120,19 @@ let package = Package(
             name: "SunsetConfigTests",
             dependencies: ["SunsetConfig"],
             path: "Tests/SunsetConfigTests",
+            swiftSettings: strictSettings
+        ),
+        .target(
+            name: "SunsetPrivate",
+            // The names of the private symbols are not written in the binary as plain strings: InternedStrings (Aemi) stores them obfuscated.
+            dependencies: [.product(name: "InternedStrings", package: "aemi")],
+            path: "Sources/SunsetPrivate",
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "SunsetPrivateTests",
+            dependencies: ["SunsetPrivate"],
+            path: "Tests/SunsetPrivateTests",
             swiftSettings: strictSettings
         ),
         .target(
