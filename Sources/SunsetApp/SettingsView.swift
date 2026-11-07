@@ -8,6 +8,7 @@ struct SettingsView: View {
     let config = AppConfiguration.shared
     @State private var selection: SettingsPane? = .font
     @State private var query = ""
+    @FocusState private var searching: Bool
 
     private var results: [SettingsEntry] { SettingsSearch.matches(query, in: SettingsPane.allEntries) }
     private var isSearching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -22,6 +23,9 @@ struct SettingsView: View {
             detail
         }
         .searchable(text: $query, placement: .sidebar, prompt: "Search")
+        .searchFocused($searching)
+        // The window opens with the search field ready to type in, as System Settings does (not in the first text field of a pane).
+        .onAppear { searching = true }
         .frame(minWidth: 700, minHeight: 480)
         .frame(width: 760, height: 560)
     }
