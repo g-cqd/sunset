@@ -27,7 +27,7 @@ import SunsetRenderMac
     @ObservationIgnored private var frameWanted = false
     @ObservationIgnored private var renderInFlight = false
     @ObservationIgnored var cursorPhase = true
-    @ObservationIgnored private var cursorBlinks = true
+    @ObservationIgnored var cursorBlinks = true
     @ObservationIgnored var viewPixels = (width: 0, height: 0)
     @ObservationIgnored var viewport = Viewport()
     @ObservationIgnored var selection: Selection?
@@ -45,6 +45,12 @@ import SunsetRenderMac
     @ObservationIgnored var scrollWheel = 3.0
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
     @ObservationIgnored var lastActivity = ContinuousClock.now
+    /// The window is the key window (so the cursor blinks) and is on screen (so frames are drawn). Set by the view from the window's notifications.
+    @ObservationIgnored var hasFocus = true
+    @ObservationIgnored var isVisible = true
+    /// Wakes the blink task when it has no timer to wait on (the cursor is solid): activity or the focus coming back.
+    @ObservationIgnored let blinkWake = AsyncStream<Void>
+        .makeStream(of: Void.self, bufferingPolicy: .bufferingNewest(1))
     @ObservationIgnored var hoveredLink: UInt16 = 0
     /// Whether the program asked for the mouse (as of the last frame): its events go to it, not to the selection.
     var programHasMouse: Bool { (lastScreen?.modes.mouseTracking ?? .none) != .none }
@@ -167,30 +173,12 @@ import SunsetRenderMac
         for await update in session.updates {
             switch update {
                 case .changed:
-                    lastActivity = .now
+                    noteActivity()
                     requestFrame()
                 case .closed:
                     isRunning = false
                     onExit()
             }
-        }
-    }
-
-    private func blink() async {
-        while !Task.isCancelled {
-            let idle = ContinuousClock.now - lastActivity
-            try? await Task.sleep(for: blinkSchedule.wait(afterIdle: idle))
-            let stillIdle = ContinuousClock.now - lastActivity
-            guard cursorBlinks, blinkSchedule.blinks(afterIdle: stillIdle) else {
-                // Solid: no blinking when the program turned it off, or after a long time without input or output.
-                if !cursorPhase {
-                    cursorPhase = true
-                    requestFrame()
-                }
-                continue
-            }
-            cursorPhase.toggle()
-            requestFrame()
         }
     }
 
@@ -202,6 +190,10 @@ import SunsetRenderMac
     /// The display link fired: draw a frame if one is wanted and none is being drawn; pause the link when there is nothing to draw.
     func tick() {
         guard frameWanted else {
+            setDisplayLinkPaused(true)
+            return
+        }
+        guard isVisible else {
             setDisplayLinkPaused(true)
             return
         }

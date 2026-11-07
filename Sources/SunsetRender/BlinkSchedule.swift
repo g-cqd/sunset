@@ -10,8 +10,13 @@ public struct BlinkSchedule: Sendable, Equatable {
         self.stopAfter = stopAfter
     }
 
-    public func blinks(afterIdle idle: Duration) -> Bool { stopAfter.map { idle < $0 } ?? true }
+    public func blinks(afterIdle idle: Duration, focused: Bool = true) -> Bool {
+        focused && (stopAfter.map { idle < $0 } ?? true)
+    }
 
-    /// How long to wait before looking again.
-    public func wait(afterIdle idle: Duration) -> Duration { blinks(afterIdle: idle) ? interval : .seconds(2) }
+    /// How long to wait before looking again; nil when nothing needs a timer (the cursor is solid: the next activity or the focus coming back wakes the
+    /// caller, so an idle or hidden terminal does not wake up at all).
+    public func wait(afterIdle idle: Duration, focused: Bool = true) -> Duration? {
+        blinks(afterIdle: idle, focused: focused) ? interval : nil
+    }
 }
