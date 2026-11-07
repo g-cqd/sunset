@@ -32,6 +32,76 @@ public struct Configuration: Sendable, Equatable {
         public var trafficLightsY = 12.0
         /// The height in points of the strip at the top of the window that drags it (with no decorations); 0 for none.
         public var dragStrip = 16.0
+        /// Space between the window's edge and the terminal, in points (0: the text reaches the edge).
+        public var padding = 0.0
+        public var material = Material.opaque
+        /// How opaque the terminal's default background is with `transparent` (0 to 1).
+        public var opacity = 0.8
+        /// The radius of the blur behind a `transparent` window, in points (0 to 100).
+        public var blur = 0.0
+        public init() {}
+    }
+
+    /// What is behind the terminal (and the sidebar).
+    public enum Material: String, Sendable, Equatable, CaseIterable {
+        /// A solid colour.
+        case opaque
+        /// A system material (`NSVisualEffectView`) that blurs what is behind the window.
+        case material
+        /// Liquid Glass (`NSGlassEffectView`, macOS 26).
+        case glass
+        /// Nothing: the desktop shows through the default background, blurred by `blur`.
+        case transparent
+    }
+
+    public struct Sidebar: Sendable, Equatable {
+        public var enabled = false
+        /// Width in points.
+        public var width = 200.0
+        /// Space between the terminal and the window's edge and the sidebar while the sidebar is shown, in points (2 to 4).
+        public var padding = 3.0
+        public var material = Material.material
+        public var blur = 0.0
+        public init() {}
+    }
+
+    /// Looks shared by the window and the sidebar.
+    public struct Appearance: Sendable, Equatable {
+        public enum Glass: String, Sendable, Equatable, CaseIterable {
+            case regular, clear
+        }
+
+        public var glass = Glass.regular
+        /// `#rrggbb`; nil for no tint. One tint for the window and the sidebar.
+        public var tintColor: [UInt8]?
+        public var tintAlpha = 0.25
+        public init() {}
+    }
+
+    public struct Tabs: Sendable, Equatable {
+        public enum Mode: String, Sendable, Equatable, CaseIterable {
+            /// One terminal per window.
+            case none
+            /// The system's tabs (and the sidebar, when on, lists the same tabs).
+            case native
+            /// A tab bar in the terminal window itself; native tabs and the sidebar are off.
+            case `internal`
+        }
+
+        public struct Bar: Sendable, Equatable {
+            public enum Position: String, Sendable, Equatable, CaseIterable {
+                case top, bottom
+            }
+
+            public var position = Position.top
+            public var showTitle = true
+            public var showDirectory = false
+            public var showProgress = true
+            public init() {}
+        }
+
+        public var mode = Mode.native
+        public var bar = Bar()
         public init() {}
     }
 
@@ -58,6 +128,11 @@ public struct Configuration: Sendable, Equatable {
     public var window = Window()
     public var scroll = Scroll()
     public var keyboard = Keyboard()
+    public var sidebar = Sidebar()
+    public var appearance = Appearance()
+    public var tabs = Tabs()
+    /// The name of a theme file (`themes/<name>.json` beside the configuration file), or nil.
+    public var theme: String?
     /// Lines of history kept per terminal.
     public var scrollbackLines = 10_000
     /// Seconds without input or output after which the cursor stops blinking; nil: it blinks for ever.

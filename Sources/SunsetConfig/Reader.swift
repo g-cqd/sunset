@@ -3,17 +3,34 @@ internal import OrderedCollections
 
 /// Walks the parsed object once, key by key, against the schema.
 struct Reader {
-    var configuration = Configuration()
+    var configuration: Configuration
     var issues: [ConfigurationIssue] = []
+    let scope: ConfigurationParser.Scope
+
+    /// The top-level keys a theme may set: everything visual.
+    private static let themeKeys: Set<String> = ["font", "colors", "window", "sidebar", "appearance"]
+
+    init(configuration: Configuration = Configuration(), scope: ConfigurationParser.Scope = .file) {
+        self.configuration = configuration
+        self.scope = scope
+    }
 
     typealias Object = OrderedDictionary<String, JSONValue>
 
     mutating func read(_ root: OrderedDictionary<String, JSONValue>) {
         for (key, value) in root {
+            if scope == .theme, !Self.themeKeys.contains(key) {
+                issue(key, "not allowed in a theme (a theme sets only what is visual)")
+                continue
+            }
             switch key {
                 case "font": section("font", value) { reader, object in reader.readFont(object) }
                 case "colors": section("colors", value) { reader, object in reader.readColors(object) }
                 case "window": section("window", value) { reader, object in reader.readWindow(object) }
+                case "sidebar": section("sidebar", value) { reader, object in reader.readSidebar(object) }
+                case "appearance": section("appearance", value) { reader, object in reader.readAppearance(object) }
+                case "tabs": section("tabs", value) { reader, object in reader.readTabs(object) }
+                case "theme": readTheme(value)
                 case "keyboard": section("keyboard", value) { reader, object in reader.readKeyboard(object) }
                 case "scroll": section("scroll", value) { reader, object in reader.readScroll(object) }
                 case "scrollback": section("scrollback", value) { reader, object in reader.readScrollback(object) }

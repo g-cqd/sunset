@@ -11,30 +11,25 @@ public final class CPURenderer: CellRenderer {
     var runCache: [UInt64: [RunEntry]] = [:]
     var runCacheCount = 0
 
-    private struct GlyphKey: Hashable {
-        var id: UInt32
-        var cluster: Bool
-        var bold: Bool
-        var italic: Bool
-        var wide: Bool
-    }
-
-    private var cache: [GlyphKey: GlyphBitmap?] = [:]
-    private var lastCursor: CursorDrawn?
-    private var lastPalette: Palette?
-    private var lastReverse = false
-    private var lastBlink = true
+    var cache: [GlyphKey: GlyphBitmap?] = [:]
+    var lastCursor: CursorDrawn?
+    var lastPalette: Palette?
+    var lastBackgroundAlpha: UInt8 = 255
+    /// The surface's default background is translucent: text is blended with the kernel that handles a destination of any alpha.
+    var translucent = false
+    var lastReverse = false
+    var lastBlink = true
     /// How many rows were drawn in all (a counter for tests and probes: a frame that changes nothing must draw nothing).
     var rowsDrawn = 0
     /// The pixel rows of the surface the last frame wrote to (the whole surface after a full redraw), nil when it wrote nothing: what a presenter has to upload.
     public internal(set) var changedPixelRows: ClosedRange<Int>?
     /// Which rows were drawn with blinking text: only those change when the blink phase does.
     var blinkRows: [Bool] = []
-    private var lastScrolledBack = 0
-    private var lastSelection: Selection?
-    private var lastHoveredLink: UInt16 = 0
-    private var lastSelectionRows: ClosedRange<Int>?
-    private var lastSize: (columns: Int, rows: Int)?
+    var lastScrolledBack = 0
+    var lastSelection: Selection?
+    var lastHoveredLink: UInt16 = 0
+    var lastSelectionRows: ClosedRange<Int>?
+    var lastSize: (columns: Int, rows: Int)?
 
     public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool = false) {
         self.metrics = metrics
@@ -71,14 +66,15 @@ public final class CPURenderer: CellRenderer {
         let reverse = screen.modes.reverseVideo
         let scrolledBack = min(max(view.scrolledBack, 0), screen.scrollbackCount)
         let (selection, hoveredLink) = (view.selection, view.hoveredLink)
-        let sizeChanged = lastSize.map { $0.columns != screen.columns || $0.rows != screen.rows } ?? true
-        let full =
-            sizeChanged || lastPalette != screen.palette || reverse != lastReverse
-            || hoveredLink != lastHoveredLink || scrolledBack != lastScrolledBack
-            || (scrolledBack > 0 && screen.hasDirtyRows)
+        let full = needsFullRedraw(screen, view: view, reverse: reverse, scrolledBack: scrolledBack)
         if blinkRows.count != screen.rows { blinkRows = [Bool](repeating: false, count: screen.rows) }
         let blinkChanged = textBlinkVisible != lastBlink
-        let background = Surface.pack(reverse ? screen.palette.foreground : screen.palette.background)
+        let backgroundAlpha = view.backgroundAlpha
+        translucent = backgroundAlpha < 255
+        let background = Surface.pack(
+            reverse ? screen.palette.foreground : screen.palette.background,
+            alpha: backgroundAlpha
+        )
         changedPixelRows = nil
         if full {
             fill(&surface, x: 0, y: 0, width: surface.width, height: surface.height, color: background)
@@ -99,7 +95,8 @@ public final class CPURenderer: CellRenderer {
             blinkVisible: textBlinkVisible,
             scrolledBack: scrolledBack,
             selection: selection,
-            hoveredLink: hoveredLink
+            hoveredLink: hoveredLink,
+            backgroundAlpha: backgroundAlpha
         )
         // The rows the selection covers now or covered in the last frame are drawn again when it changed.
         let selectionRows = selectionRows(of: selection, in: frame)
@@ -113,15 +110,13 @@ public final class CPURenderer: CellRenderer {
             guard full || blinks || touchesCursor || touchesSelection || screen.isDirty(row: row) else { continue }
             drawRow(row, frame: frame, surface: &surface)
         }
-        lastCursor = cursor
-        lastPalette = screen.palette
-        lastReverse = reverse
-        lastBlink = textBlinkVisible
-        lastScrolledBack = scrolledBack
-        lastSelection = selection
-        lastHoveredLink = hoveredLink
-        lastSelectionRows = selectionRows
-        lastSize = (screen.columns, screen.rows)
+        remember(
+            frame,
+            cursor: cursor,
+            reverse: reverse,
+            textBlinkVisible: textBlinkVisible,
+            selectionRows: selectionRows
+        )
     }
 
     // MARK: Rows and cells
@@ -182,30 +177,5 @@ public final class CPURenderer: CellRenderer {
                 fill(&surface, x: box.x, y: box.y, width: 2, height: metrics.cellHeight, color: cursorColor)
             }
         }
-    }
-
-    private func bitmap(for cell: Cell, style: CellStyle, wide: Bool, screen: Screen) -> GlyphBitmap? {
-        let key = GlyphKey(
-            id: cell.scalar,
-            cluster: cell.isCluster,
-            bold: style.attributes.contains(.bold),
-            italic: style.attributes.contains(.italic),
-            wide: wide
-        )
-        if let cached = cache[key] { return cached }
-        // Lines, blocks and braille are drawn to the cell, not taken from the font.
-        if !cell.isCluster, let own = BuiltInGlyphs.bitmap(for: cell.scalar, metrics: metrics, columns: wide ? 2 : 1) {
-            cache[key] = .some(own)
-            return own
-        }
-        let made = glyphs.glyph(
-            for: screen.text(of: cell),
-            bold: key.bold,
-            italic: key.italic,
-            columns: wide ? 2 : 1,
-            metrics: metrics
-        )
-        cache[key] = .some(made)
-        return made
     }
 }

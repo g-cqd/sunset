@@ -15,7 +15,7 @@ extension CPURenderer {
             y: metrics.originY + row * metrics.cellHeight,
             width: surface.width,
             height: metrics.cellHeight,
-            color: Surface.pack(frame.background)
+            color: Surface.pack(frame.background, alpha: frame.backgroundAlpha)
         )
         let plainRow = frame.cursor?.row != row && frame.selection == nil && frame.hoveredLink == 0
         var column = 0

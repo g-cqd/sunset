@@ -23,7 +23,25 @@ public enum ConfigurationWriter {
             "scrollback.lines": String(configuration.scrollbackLines),
             "cursor.blinkTimeout": configuration.cursorBlinkTimeout.map(number) ?? "null",
             "renderer": string(configuration.renderer.rawValue),
-            "keyboard.optionAsMeta": String(configuration.keyboard.optionAsMeta)
+            "keyboard.optionAsMeta": String(configuration.keyboard.optionAsMeta),
+            "window.padding": number(window.padding),
+            "window.material": string(window.material.rawValue),
+            "window.opacity": number(window.opacity),
+            "window.blur": number(window.blur),
+            "sidebar.enabled": String(configuration.sidebar.enabled),
+            "sidebar.width": number(configuration.sidebar.width),
+            "sidebar.padding": number(configuration.sidebar.padding),
+            "sidebar.material": string(configuration.sidebar.material.rawValue),
+            "sidebar.blur": number(configuration.sidebar.blur),
+            "appearance.glass": string(configuration.appearance.glass.rawValue),
+            "appearance.tint.color": color(configuration.appearance.tintColor),
+            "appearance.tint.alpha": number(configuration.appearance.tintAlpha),
+            "tabs.mode": string(configuration.tabs.mode.rawValue),
+            "tabs.bar.position": string(configuration.tabs.bar.position.rawValue),
+            "tabs.bar.title": String(configuration.tabs.bar.showTitle),
+            "tabs.bar.directory": String(configuration.tabs.bar.showDirectory),
+            "tabs.bar.progress": String(configuration.tabs.bar.showProgress),
+            "theme": configuration.theme.map(string) ?? "null"
         ]
     }
 

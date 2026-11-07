@@ -18,6 +18,13 @@ public struct Surface: Sendable {
         UInt32(color.red) | UInt32(color.green) << 8 | UInt32(color.blue) << 16 | 0xFF00_0000
     }
 
+    /// A colour at `alpha` (0 to 255) as a premultiplied pixel: each channel times the alpha, rounded.
+    @inline(__always) static func pack(_ color: RGB, alpha: UInt8) -> UInt32 {
+        if alpha == 255 { return pack(color) }
+        func scale(_ channel: UInt8) -> UInt32 { (UInt32(channel) * UInt32(alpha) + 127) / 255 }
+        return UInt32(alpha) << 24 | scale(color.blue) << 16 | scale(color.green) << 8 | scale(color.red)
+    }
+
     public subscript(x: Int, y: Int) -> RGB {
         let value = pixels[y * width + x]
         return RGB(

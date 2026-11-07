@@ -1,0 +1,102 @@
+internal import AemiJSONCore
+internal import OrderedCollections
+
+/// The sections about how the window looks and how its tabs work.
+extension Reader {
+    /// A string that must be one of the cases of `Type` (by raw value); issues the allowed names otherwise.
+    mutating func choice<Type: RawRepresentable & CaseIterable>(_ path: String, _ value: JSONValue, as: Type.Type)
+        -> Type?
+    where Type.RawValue == String {
+        if case .string(let text) = value, let found = Type(rawValue: text) { return found }
+        issue(path, "expected one of \(Type.allCases.map(\.rawValue).joined(separator: ", "))")
+        return nil
+    }
+
+    mutating func readSidebar(_ object: Object) {
+        for (key, value) in object {
+            let path = "sidebar.\(key)"
+            switch key {
+                case "enabled": if let flag = bool(path, value) { configuration.sidebar.enabled = flag }
+                case "width":
+                    if let points = number(path, value, range: 120 ... 480) { configuration.sidebar.width = points }
+                case "padding":
+                    if let points = number(path, value, range: 2 ... 4) { configuration.sidebar.padding = points }
+                case "material":
+                    if let choice = choice(path, value, as: Configuration.Material.self) {
+                        configuration.sidebar.material = choice
+                    }
+                case "blur":
+                    if let radius = number(path, value, range: 0 ... 100) { configuration.sidebar.blur = radius }
+                default: unknown(path)
+            }
+        }
+    }
+
+    mutating func readAppearance(_ object: Object) {
+        for (key, value) in object {
+            switch key {
+                case "glass":
+                    if let choice = choice("appearance.glass", value, as: Configuration.Appearance.Glass.self) {
+                        configuration.appearance.glass = choice
+                    }
+                case "tint": section("appearance.tint", value) { reader, tint in reader.readTint(tint) }
+                default: unknown("appearance.\(key)")
+            }
+        }
+    }
+
+    private mutating func readTint(_ object: Object) {
+        for (key, value) in object {
+            switch key {
+                case "color":
+                    if case .null = value {
+                        configuration.appearance.tintColor = nil
+                    } else if let bytes = color("appearance.tint.color", value) {
+                        configuration.appearance.tintColor = bytes
+                    }
+                case "alpha":
+                    if let alpha = number("appearance.tint.alpha", value, range: 0 ... 1) {
+                        configuration.appearance.tintAlpha = alpha
+                    }
+                default: unknown("appearance.tint.\(key)")
+            }
+        }
+    }
+
+    mutating func readTabs(_ object: Object) {
+        for (key, value) in object {
+            switch key {
+                case "mode":
+                    if let choice = choice("tabs.mode", value, as: Configuration.Tabs.Mode.self) {
+                        configuration.tabs.mode = choice
+                    }
+                case "bar": section("tabs.bar", value) { reader, bar in reader.readTabBar(bar) }
+                default: unknown("tabs.\(key)")
+            }
+        }
+    }
+
+    private mutating func readTabBar(_ object: Object) {
+        for (key, value) in object {
+            let path = "tabs.bar.\(key)"
+            switch key {
+                case "position":
+                    if let choice = choice(path, value, as: Configuration.Tabs.Bar.Position.self) {
+                        configuration.tabs.bar.position = choice
+                    }
+                case "title": if let flag = bool(path, value) { configuration.tabs.bar.showTitle = flag }
+                case "directory": if let flag = bool(path, value) { configuration.tabs.bar.showDirectory = flag }
+                case "progress": if let flag = bool(path, value) { configuration.tabs.bar.showProgress = flag }
+                default: unknown(path)
+            }
+        }
+    }
+
+    mutating func readTheme(_ value: JSONValue) {
+        switch value {
+            case .null: configuration.theme = nil
+            case .string(let name): configuration.theme = name.isEmpty ? nil : name
+            default: issue("theme", "expected the name of a theme, or null")
+        }
+    }
+}

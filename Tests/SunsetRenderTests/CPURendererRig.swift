@@ -7,6 +7,7 @@ import Testing
 struct CPURendererRig {
     var terminal: Terminal
     var surface: Surface
+    var backgroundAlpha: UInt8 = 255
     let renderer: CPURenderer
 
     init(
@@ -34,7 +35,12 @@ struct CPURendererRig {
             terminal.screen,
             into: &surface,
             cursorVisible: cursorVisible,
-            view: FrameView(scrolledBack: scrolledBack, selection: selection, hoveredLink: hoveredLink)
+            view: FrameView(
+                scrolledBack: scrolledBack,
+                selection: selection,
+                hoveredLink: hoveredLink,
+                backgroundAlpha: backgroundAlpha
+            )
         )
         terminal.clearDirty()
     }

@@ -19,4 +19,9 @@ size_t sunset_used_length_u64(const uint64_t *cells, size_t count);
 /// The same, one element at a time: the reference.
 size_t sunset_used_length_u64_scalar(const uint64_t *cells, size_t count);
 
+/// The same blend over a *premultiplied* destination of any alpha: every channel, alpha included, is (c * a + d * (255 - a) + 127) / 255 with the colour opaque,
+/// so a pixel that was transparent becomes partly opaque and an opaque one stays opaque. Coverage 0 leaves a pixel as it is.
+void sunset_blend_coverage_premul(uint32_t *destination, const uint8_t *coverage, size_t count, uint32_t color);
+void sunset_blend_coverage_premul_scalar(uint32_t *destination, const uint8_t *coverage, size_t count, uint32_t color);
+
 #endif

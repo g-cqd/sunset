@@ -22,6 +22,24 @@ import Testing
         configuration.cursorBlinkTimeout = 30
         configuration.renderer = .cpu
         configuration.keyboard.optionAsMeta = true
+        configuration.window.material = .transparent
+        configuration.window.opacity = 0.6
+        configuration.window.blur = 40
+        configuration.window.padding = 6
+        configuration.sidebar.enabled = true
+        configuration.sidebar.width = 240
+        configuration.sidebar.padding = 4
+        configuration.sidebar.material = .glass
+        configuration.sidebar.blur = 12
+        configuration.appearance.glass = .clear
+        configuration.appearance.tintColor = [0x33, 0x66, 0x99]
+        configuration.appearance.tintAlpha = 0.4
+        configuration.tabs.mode = .internal
+        configuration.tabs.bar.position = .bottom
+        configuration.tabs.bar.showTitle = false
+        configuration.tabs.bar.showDirectory = true
+        configuration.tabs.bar.showProgress = false
+        configuration.theme = "nord"
         return configuration
     }
 
@@ -49,7 +67,7 @@ import Testing
     @Test func `every key the reader knows is in the file, so the file shows what can be set`() throws {
         let text = ConfigurationWriter.text(for: Configuration())
         #expect(
-            ConfigurationKeys.all.count == 17,
+            ConfigurationKeys.all.count == 35,
             "a key was added or removed: the list, the reader and the writer move together"
         )
         for key in ConfigurationKeys.all {

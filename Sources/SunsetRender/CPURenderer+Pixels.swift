@@ -45,7 +45,7 @@ extension CPURenderer {
                     let y = cellY + bitmap.top + row
                     let line = unsafe base + y * stride + cellX + bitmap.left
                     let alphas = unsafe source + row * bitmap.width
-                    PixelKernels.blend(
+                    blendRow(
                         unsafe line + columns.lowerBound,
                         coverage: unsafe alphas + columns.lowerBound,
                         count: columns.count,
@@ -53,6 +53,19 @@ extension CPURenderer {
                     )
                 }
             }
+        }
+    }
+
+    @inline(__always) private func blendRow(
+        _ destination: UnsafeMutablePointer<UInt32>,
+        coverage: UnsafePointer<UInt8>,
+        count: Int,
+        color: UInt32
+    ) {
+        if translucent {
+            PixelKernels.blendPremultiplied(destination, coverage: coverage, count: count, color: color)
+        } else {
+            PixelKernels.blend(destination, coverage: coverage, count: count, color: color)
         }
     }
 

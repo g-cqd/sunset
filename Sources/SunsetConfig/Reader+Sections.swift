@@ -32,6 +32,22 @@ extension Reader {
                     configuration.window.decorations = choice
                 case "trafficLights":
                     section("window.trafficLights", value) { reader, lights in reader.readTrafficLights(lights) }
+                case "padding":
+                    if let points = number("window.padding", value, range: 0 ... 32) {
+                        configuration.window.padding = points
+                    }
+                case "material":
+                    if let choice = choice("window.material", value, as: Configuration.Material.self) {
+                        configuration.window.material = choice
+                    }
+                case "opacity":
+                    if let factor = number("window.opacity", value, range: 0 ... 1) {
+                        configuration.window.opacity = factor
+                    }
+                case "blur":
+                    if let radius = number("window.blur", value, range: 0 ... 100) {
+                        configuration.window.blur = radius
+                    }
                 case "dragStrip":
                     if let height = number("window.dragStrip", value, range: 0 ... 64) {
                         configuration.window.dragStrip = height
@@ -85,16 +101,24 @@ extension Reader {
 
     mutating func readColors(_ object: Object) {
         for (key, value) in object {
+            let path = "colors.\(key)"
+            guard ["foreground", "background", "cursor"].contains(key) else {
+                unknown(path)
+                continue
+            }
+            // null means "not set": the terminal's own colour.
+            let bytes: [UInt8]?
+            if case .null = value {
+                bytes = nil
+            } else if let read = color(path, value) {
+                bytes = read
+            } else {
+                continue
+            }
             switch key {
-                case "foreground":
-                    configuration.colors.foreground =
-                        color("colors.foreground", value) ?? configuration.colors.foreground
-                case "background":
-                    configuration.colors.background =
-                        color("colors.background", value) ?? configuration.colors.background
-                case "cursor":
-                    configuration.colors.cursor = color("colors.cursor", value) ?? configuration.colors.cursor
-                default: unknown("colors.\(key)")
+                case "foreground": configuration.colors.foreground = bytes
+                case "background": configuration.colors.background = bytes
+                default: configuration.colors.cursor = bytes
             }
         }
     }
