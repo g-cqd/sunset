@@ -10,6 +10,9 @@ import SunsetRenderMac
 /// the other. Frames are pulled at the display's pace (the display link asks, `tick()` answers) and only while something changed.
 @MainActor @Observable final class TerminalModel {
     private(set) var title = "Sunset"
+    /// The working directory the program reported (OSC 7) and its progress (OSC 9;4), 0 to 1: what a tab can show next to its title.
+    private(set) var directory: String?
+    private(set) var progress: Double?
     private(set) var isRunning = true
     /// Whether text is selected (observed, so that the Copy menu item follows it).
     var hasSelection = false
@@ -224,15 +227,19 @@ import SunsetRenderMac
                 ),
                 to: presenter
             )
-            self?.presented(changed: changed, title: snapshot.title, blinks: snapshot.cursorBlinks)
+            self?.presented(changed: changed, snapshot: snapshot)
         }
     }
 
-    private func presented(changed: Bool, title newTitle: String, blinks: Bool) {
+    private func presented(changed: Bool, snapshot: Screen) {
         renderInFlight = false
-        cursorBlinks = blinks
-        let shown = newTitle.isEmpty ? "Sunset" : newTitle
+        cursorBlinks = snapshot.cursorBlinks
+        let shown = snapshot.title.isEmpty ? "Sunset" : snapshot.title
         if shown != title { title = shown }
+        let path = snapshot.workingDirectory?.path
+        if path != directory { directory = path }
+        let fraction = Self.fraction(of: snapshot.progress)
+        if fraction != progress { progress = fraction }
         if changed, let latest = presenter.latest { presentFrame(latest) }
         // Something may have changed while this frame was being drawn.
         if frameWanted { setDisplayLinkPaused(false) }

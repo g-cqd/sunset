@@ -115,7 +115,7 @@ import Testing
     @Test func `the window defaults: no decorations, lights near the corner, a 16 pt strip`() throws {
         let window = try read("{}").configuration.window
         #expect(window.decorations == .none)
-        #expect(window.trafficLightsX == 12 && window.trafficLightsY == 12)
+        #expect(window.trafficLightsX == 12 && window.trafficLightsY == 1, "centred in the 16 pt strip")
         #expect(window.dragStrip == 16)
     }
 

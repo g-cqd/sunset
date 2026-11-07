@@ -1,5 +1,6 @@
 import AppKit
 import SunsetConfig
+import SunsetHost
 import SwiftUI
 
 /// Gives the window the look the configuration asks for: with `decorations: none` the content fills the window under a transparent title bar with no title, and
@@ -8,11 +9,17 @@ import SwiftUI
 struct WindowChrome: NSViewRepresentable {
     var settings: Configuration.Window
     var look: WindowLook
+    var presentation: TabPresentation
+    var attached: (NSWindow) -> Void
+    var obscuredTop: (Double) -> Void
 
     func makeNSView(context: Context) -> ChromeView { ChromeView() }
 
     func updateNSView(_ view: ChromeView, context: Context) {
         view.settings = settings
         view.look = look
+        view.presentation = presentation
+        view.attached = attached
+        view.obscuredTop = obscuredTop
     }
 }

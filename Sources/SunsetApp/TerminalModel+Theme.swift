@@ -34,4 +34,23 @@ extension TerminalModel {
         backgroundAlpha = alpha
         requestFrame()
     }
+
+    /// The model's settings (colours, padding, alpha, inset) were set directly: bring the renderer, the grid and the colours in line with them.
+    func applyLayout() {
+        if renderer != nil {
+            makeRenderer()
+            viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
+        }
+        if let session {
+            let colors = defaultColors
+            Task {
+                await session.setDefaultColors(
+                    foreground: colors.foreground,
+                    background: colors.background,
+                    cursor: colors.cursor
+                )
+            }
+        }
+        requestFrame()
+    }
 }
