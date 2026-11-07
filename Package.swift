@@ -137,7 +137,7 @@ let package = Package(
         ),
         .target(
             name: "SunsetHost",
-            dependencies: ["SunsetCore"],
+            dependencies: ["SunsetCore", "SunsetConfig"],
             path: "Sources/SunsetHost",
             swiftSettings: strictSettings
         ),
@@ -149,7 +149,7 @@ let package = Package(
         ),
         .testTarget(
             name: "SunsetHostTests",
-            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetHost"],
+            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetHost", "SunsetConfig"],
             path: "Tests/SunsetHostTests",
             swiftSettings: strictSettings
         ),

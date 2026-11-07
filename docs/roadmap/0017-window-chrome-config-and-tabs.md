@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress
 blocked-by: 0009 (the app shell exists), AemiJSON (read, see below)
 date: 2026-11-07
 ---
@@ -44,6 +44,19 @@ The owner's request of 2026-11-06 (kept close to their words), refined by their 
 - **Blur.** Public: `NSVisualEffectView` materials and, on macOS 26, the glass effect view with a tint. Free radius: the private window-server background-blur call (as iTerm2 and Ghostty use), looked up by name at run time; if the name is missing the setting falls back to the nearest material and says so in the log.
 - **No Dispatch for the watcher.** FSEvents needs a dispatch queue, so it is out (`BannedAPITests`); kqueue on a `DedicatedThread` is not.
 - **Cost.** The surface gains an alpha channel only when a transparent material is on; the default stays opaque so the measured costs do not move.
+
+## Status (2026-11-07)
+
+| Stage | State |
+|---|---|
+| S1 configuration, live reload, themes | done (35 keys, JSON5, patching keeps comments, theme files watched) |
+| S2 chrome | done: no title bar, traffic lights anywhere, drag strip; drag by real mouse not yet verified |
+| S3 tab model | done: `TabList` + `TabPresentation` (12 tests), `TabsModel`, `TabRegistry`; native tabs, sidebar, built-in bar, live switching with the programs kept running |
+| S4 sidebar, built-in bar | done: sidebar of the window's tabs, 2-4 pt padding, materials; built-in bar top or bottom, customizable content |
+| S5 materials, blur | done: opaque, material, glass (regular, clear), transparent, one tint, window blur (private call) and sidebar blur (private backdrop layer) |
+| S6 settings window | done: sidebar of panes with search, every option |
+
+One decision came out of the build: **the sidebar is not a view of the system's native tabs.** `NSWindowTabGroup` has no public way to hide the system's tab bar (`toggleTabBar(_:)` changes nothing from code while the group has several windows: tested), so with the sidebar on the tabs of a window are terminals of that one window (like the built-in bar), listed in the sidebar. `native` + sidebar is therefore "tabs in the sidebar", and `native` without it is the system's tabs. `TabPresentation.hostsTabsInWindow` says which.
 
 ## Decisions (2026-11-07)
 

@@ -7,7 +7,7 @@ import SwiftUI
     private let launch = LaunchOptions.parse(CommandLine.arguments, environment: ProcessInfo.processInfo.environment)
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "terminal") {
             TerminalScene(launch: launch)
         }
         .defaultSize(width: 820, height: 520)

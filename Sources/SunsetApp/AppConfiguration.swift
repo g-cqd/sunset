@@ -10,6 +10,8 @@ final class AppConfiguration {
     static let shared = AppConfiguration()
 
     private(set) var configuration = Configuration()
+    /// How the tabs are shown now.
+    var presentation: TabPresentation { configuration.presentation }
     /// Whether a file was found (the settings of the app's own Settings window apply when there is none).
     private(set) var hasFile = false
     private(set) var issues: [ConfigurationIssue] = []
@@ -46,7 +48,7 @@ final class AppConfiguration {
         var changed = configuration
         edit(&changed)
         guard changed != configuration else { return }
-        configuration = changed
+        apply(changed)
         hasFile = true
         scheduleSave()
     }
@@ -88,12 +90,20 @@ final class AppConfiguration {
         }
     }
 
+    /// Sets the configuration; when the way tabs are shown changed, the open terminals move to where the new presentation keeps them.
+    private func apply(_ new: Configuration) {
+        let before = configuration.presentation
+        configuration = new
+        let after = new.presentation
+        if before != after { AppActions.shared.reshape(from: before, to: after) }
+    }
+
     func reload() {
         guard let data = FileManager.default.contents(atPath: path) else {
             // No file: the defaults, and the app's own settings. (A file that was deleted goes back to that too.)
             if hasFile { Self.say("\(path) is gone: back to the defaults") }
             hasFile = false
-            configuration = Configuration()
+            apply(Configuration())
             baseline = configuration
             issues = []
             lastError = nil
@@ -108,7 +118,7 @@ final class AppConfiguration {
                 FileManager.default.contents(atPath: ConfigurationLocation.themePath(named: name, besideConfig: path))
                     .map { String(decoding: $0, as: UTF8.self) }
             }
-            configuration = result.configuration
+            apply(result.configuration)
             baseline = result.configuration
             watchTheme(result.configuration.theme)
             issues = result.issues

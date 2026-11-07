@@ -1,11 +1,17 @@
 import AppKit
 import Foundation
 import SunsetConfig
+import SunsetHost
 
 /// The view behind the terminal that acts on its window (see `WindowChrome`).
 final class ChromeView: NSView {
     var settings = Configuration.Window() { didSet { if settings != oldValue { apply() } } }
     var look = WindowLook() { didSet { if look != oldValue { apply() } } }
+    var presentation = TabPresentation.windows { didSet { if presentation != oldValue { apply() } } }
+    /// Told the window as soon as the view has one (the scene needs it for the sidebar and the tab registry).
+    var attached: (NSWindow) -> Void = { _ in }
+    /// Told how much of the window's top the title bar and the system tab bar cover (`contentLayoutRect`, KVO compliant), in points.
+    var obscuredTop: (Double) -> Void = { _ in }
     private let backdrop = WindowBackdrop()
     private var observers: [any NSObjectProtocol] = []
     /// SwiftUI sets the window's style again when the content around it changes; these notice and put ours back.
@@ -39,9 +45,14 @@ final class ChromeView: NSView {
             window.observe(\.titlebarAppearsTransparent) { [weak self] _, _ in
                 MainActor.assumeIsolated { self?.apply() }
             },
+            window.observe(\.contentLayoutRect, options: [.new]) { [weak self] _, _ in
+                MainActor.assumeIsolated { self?.reportObscured() }
+            },
             window.observe(\.styleMask) { [weak self] _, _ in MainActor.assumeIsolated { self?.apply() } }
         ]
+        attached(window)
         apply()
+        reportObscured()
     }
 
     /// SwiftUI puts the window's style back (the title shows again) when the content around us changes: asserted again on every layout, which is cheap
@@ -49,6 +60,12 @@ final class ChromeView: NSView {
     override func layout() {
         super.layout()
         apply()
+    }
+
+    private func reportObscured() {
+        guard let window, let content = window.contentView else { return }
+        let covered = max(0, content.frame.height - window.contentLayoutRect.maxY)
+        obscuredTop(Double(covered))
     }
 
     isolated deinit { observers.forEach { NotificationCenter.default.removeObserver($0) } }
@@ -67,6 +84,7 @@ final class ChromeView: NSView {
         let visibility: NSWindow.TitleVisibility = hidden ? .hidden : .visible
         if window.titleVisibility != visibility { window.titleVisibility = visibility }
         backdrop.apply(look, to: window)
+        applyTabbing(to: window)
         placeButtons()
     }
 

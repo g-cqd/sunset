@@ -2,7 +2,7 @@ import SunsetConfig
 
 /// The panes of the Settings window, in the order of its sidebar.
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case font, colors, window, scrolling, terminal, keyboard, file
+    case font, colors, appearance, window, sidebar, tabs, scrolling, terminal, keyboard, file
 
     var id: String { rawValue }
 
@@ -10,6 +10,9 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         switch self {
             case .font: "Font"
             case .colors: "Colors"
+            case .appearance: "Appearance"
+            case .sidebar: "Sidebar"
+            case .tabs: "Tabs"
             case .window: "Window"
             case .scrolling: "Scrolling"
             case .terminal: "Terminal"
@@ -23,6 +26,9 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         switch self {
             case .font: "textformat"
             case .colors: "paintpalette"
+            case .appearance: "sparkles"
+            case .sidebar: "sidebar.left"
+            case .tabs: "rectangle.stack"
             case .window: "macwindow"
             case .scrolling: "arrow.up.and.down.text.horizontal"
             case .terminal: "terminal"
@@ -50,6 +56,9 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                     entry("colors.background", "Background", ["color", "colour", "theme"]),
                     entry("colors.cursor", "Cursor", ["caret", "color", "colour"])
                 ]
+            case .appearance: return Self.appearanceEntries(rawValue)
+            case .sidebar: return Self.sidebarEntries(rawValue)
+            case .tabs: return Self.tabEntries(rawValue)
             case .window:
                 return [
                     entry("window.titlebar", "Title bar", ["decorations", "chrome", "frame", "native"]),
@@ -91,4 +100,46 @@ enum SettingsPane: String, CaseIterable, Identifiable {
     }
 
     static var allEntries: [SettingsEntry] { allCases.flatMap(\.entries) }
+
+    private static func entry(_ pane: String, _ id: String, _ title: String, _ keywords: [String]) -> SettingsEntry {
+        SettingsEntry(id: id, pane: pane, title: title, keywords: keywords)
+    }
+
+    private static func appearanceEntries(_ pane: String) -> [SettingsEntry] {
+        [
+            entry(pane, "theme.name", "Theme", ["colors", "scheme", "file", "themes", "nord", "dark", "light"]),
+            entry(
+                pane,
+                "window.material",
+                "Window background",
+                ["material", "glass", "transparent", "opaque", "blur", "vibrancy"]
+            ),
+            entry(pane, "window.opacity", "Background opacity", ["transparent", "alpha", "see through"]),
+            entry(pane, "window.blur", "Window blur", ["radius", "frosted", "background"]),
+            entry(pane, "window.padding", "Padding", ["margin", "space", "edge", "border"]),
+            entry(pane, "appearance.glass", "Glass style", ["liquid glass", "regular", "clear"]),
+            entry(pane, "appearance.tint", "Tint", ["colour", "color", "overlay", "glass"]),
+            entry(pane, "appearance.tintAlpha", "Tint strength", ["alpha", "opacity", "overlay"])
+        ]
+    }
+
+    private static func sidebarEntries(_ pane: String) -> [SettingsEntry] {
+        [
+            entry(pane, "sidebar.enabled", "Show the sidebar", ["tabs", "vertical", "list"]),
+            entry(pane, "sidebar.width", "Width", ["size", "wide"]),
+            entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"]),
+            entry(pane, "sidebar.material", "Sidebar background", ["material", "glass", "transparent", "opaque"]),
+            entry(pane, "sidebar.blur", "Sidebar blur", ["radius", "frosted"])
+        ]
+    }
+
+    private static func tabEntries(_ pane: String) -> [SettingsEntry] {
+        [
+            entry(pane, "tabs.mode", "Tabs", ["native", "internal", "built-in", "none", "windows"]),
+            entry(pane, "tabs.position", "Built-in bar position", ["top", "bottom", "internal"]),
+            entry(pane, "tabs.title", "Show the title", ["tab", "name"]),
+            entry(pane, "tabs.directory", "Show the working directory", ["tab", "folder", "path", "osc 7"]),
+            entry(pane, "tabs.progress", "Show progress", ["tab", "bar", "osc 9", "download"])
+        ]
+    }
 }

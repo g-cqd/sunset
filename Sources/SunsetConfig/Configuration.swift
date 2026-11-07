@@ -27,9 +27,9 @@ public struct Configuration: Sendable, Equatable {
         }
 
         public var decorations = Decorations.none
-        /// Where the traffic lights are, in points from the window's top left corner to the top left of the close button (with no decorations).
+        /// Where the traffic lights are, in points from the window top left corner to the top left of the close button (with no decorations); the default centres them in the 16 pt strip.
         public var trafficLightsX = 12.0
-        public var trafficLightsY = 12.0
+        public var trafficLightsY = 1.0
         /// The height in points of the strip at the top of the window that drags it (with no decorations); 0 for none.
         public var dragStrip = 16.0
         /// Space between the window's edge and the terminal, in points (0: the text reaches the edge).

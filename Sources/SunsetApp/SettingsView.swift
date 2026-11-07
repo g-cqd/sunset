@@ -112,7 +112,7 @@ struct SettingsView: View {
             case "terminal.renderer": renderer
             case "keyboard.meta": Toggle("Option sends Escape (Meta)", isOn: config.binding(\.keyboard.optionAsMeta))
             case "file.location": fileInfo
-            default: EmptyView()
+            default: moreControls(for: id)
         }
     }
 
@@ -168,7 +168,7 @@ struct SettingsView: View {
         }
     }
 
-    private func colorRow(_ name: String, _ keyPath: WritableKeyPath<Configuration, [UInt8]?>, fallback: [UInt8])
+    func colorRow(_ name: String, _ keyPath: WritableKeyPath<Configuration, [UInt8]?>, fallback: [UInt8])
         -> some View
     {
         LabeledContent(name) {
@@ -190,7 +190,7 @@ struct SettingsView: View {
         )
     }
 
-    private func number(
+    func number(
         _ name: String,
         _ keyPath: WritableKeyPath<Configuration, Double>,
         range: ClosedRange<Double>,
