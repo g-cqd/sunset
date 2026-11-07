@@ -63,7 +63,12 @@ import SunsetRenderMac
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
     @ObservationIgnored private var pending: (command: [String], environment: [String: String])?
 
-    private static let padding = 8
+    /// Space around the grid in points (the window's padding, or the sidebar's while the sidebar is shown).
+    @ObservationIgnored var paddingPoints = 0.0
+    /// How opaque the default background is, 0 to 255 (255 with an opaque window).
+    @ObservationIgnored var backgroundAlpha: UInt8 = 255
+
+    var paddingPixels: Int { Int((paddingPoints * scale).rounded()) }
 
     /// Remembers what to run; the program starts when the view first has a size, so that it never sees a window of the wrong size (a shell that draws its
     /// prompt in a 2-column terminal and is then resized leaves a mess behind).
@@ -117,8 +122,8 @@ import SunsetRenderMac
     func currentGrid() -> GridSize? {
         guard viewPixels.width > 0, viewPixels.height > 0, let metrics = renderer?.cellMetrics else { return nil }
         return GridSize(
-            columns: max(2, (viewPixels.width - 2 * Self.padding) / metrics.cellWidth),
-            rows: max(1, (viewPixels.height - 2 * Self.padding - metrics.topInset) / metrics.cellHeight)
+            columns: max(2, (viewPixels.width - 2 * paddingPixels) / metrics.cellWidth),
+            rows: max(1, (viewPixels.height - 2 * paddingPixels - metrics.topInset) / metrics.cellHeight)
         )
     }
 
@@ -161,8 +166,8 @@ import SunsetRenderMac
     func makeRenderer() {
         let glyphs = CoreTextGlyphSource(fontName: font.name, size: font.size * scale, features: font.features)
         var metrics = glyphs.metrics
-        metrics.paddingX = Self.padding
-        metrics.paddingY = Self.padding
+        metrics.paddingX = paddingPixels
+        metrics.paddingY = paddingPixels
         metrics.topInset = Int((topInsetPoints * scale).rounded())
         renderer = FrameRenderer(metrics: metrics, glyphs: glyphs, ligatures: font.ligatures)
     }
@@ -201,6 +206,7 @@ import SunsetRenderMac
         frameWanted = false
         renderInFlight = true
         let phase = cursorPhase
+        let alpha = backgroundAlpha
         let presenter = presenter
         Task { [weak self] in
             let snapshot = await session.takeSnapshot()
@@ -213,7 +219,8 @@ import SunsetRenderMac
                 view: FrameView(
                     scrolledBack: self?.viewport.scrolledBack ?? 0,
                     selection: self?.selection,
-                    hoveredLink: self?.hoveredLink ?? 0
+                    hoveredLink: self?.hoveredLink ?? 0,
+                    backgroundAlpha: alpha
                 ),
                 to: presenter
             )

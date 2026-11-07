@@ -21,4 +21,17 @@ extension TerminalModel {
         makeRenderer()
         viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
     }
+
+    func apply(padding points: Double) {
+        guard points != paddingPoints else { return }
+        paddingPoints = points
+        makeRenderer()
+        viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
+    }
+
+    func apply(backgroundAlpha alpha: UInt8) {
+        guard alpha != backgroundAlpha else { return }
+        backgroundAlpha = alpha
+        requestFrame()
+    }
 }

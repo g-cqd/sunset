@@ -23,6 +23,11 @@ final class AppConfiguration {
     /// The text this process last wrote: a change of the file that is just that is not a change.
     @ObservationIgnored private var lastWritten: String?
     @ObservationIgnored private var madeBackup = false
+    /// What was in force at the last load or save: an edit is written relative to it (so what a theme brought is not copied into the file).
+    @ObservationIgnored private var baseline = Configuration()
+    @ObservationIgnored private var themeWatcher: FileWatcher?
+    @ObservationIgnored private var themeWatching: Task<Void, Never>?
+    @ObservationIgnored private var watchedTheme: String?
 
     private init() {
         path = ConfigurationLocation.path(environment: ProcessInfo.processInfo.environment, home: NSHomeDirectory())
@@ -60,7 +65,7 @@ final class AppConfiguration {
         // An existing file is edited in place (its comments and order stay); a new or unreadable one is written whole.
         let existing = manager.contents(atPath: path).map { String(decoding: $0, as: UTF8.self) }
         let text =
-            existing.flatMap { ConfigurationPatcher.saved(configuration, over: $0) }
+            existing.flatMap { ConfigurationPatcher.saved(configuration, replacing: baseline, over: $0) }
             ?? ConfigurationWriter.text(for: configuration)
         do {
             try manager.createDirectory(
@@ -74,6 +79,7 @@ final class AppConfiguration {
                 try manager.copyItem(atPath: path, toPath: backup)
             }
             lastWritten = text
+            baseline = configuration
             try text.write(toFile: path, atomically: true, encoding: .utf8)
             lastError = nil
         } catch {
@@ -88,16 +94,23 @@ final class AppConfiguration {
             if hasFile { Self.say("\(path) is gone: back to the defaults") }
             hasFile = false
             configuration = Configuration()
+            baseline = configuration
             issues = []
             lastError = nil
+            watchTheme(nil)
             return
         }
         hasFile = true
         let text = String(decoding: data, as: UTF8.self)
         if text == lastWritten { return }
         do {
-            let result = try ConfigurationParser.parse(text)
+            let result = try ConfigurationLoader.load(text) { [path] name in
+                FileManager.default.contents(atPath: ConfigurationLocation.themePath(named: name, besideConfig: path))
+                    .map { String(decoding: $0, as: UTF8.self) }
+            }
             configuration = result.configuration
+            baseline = result.configuration
+            watchTheme(result.configuration.theme)
             issues = result.issues
             lastError = nil
             for issue in result.issues { Self.say("\(path): \(issue.path): \(issue.message)") }
@@ -105,6 +118,28 @@ final class AppConfiguration {
             lastError = Self.describe(error)
             Self.say("\(path): \(lastError ?? "unreadable"); the previous configuration stays in force")
         }
+    }
+
+    /// Watches the file of the theme in force too: editing a theme changes the windows as editing the configuration does.
+    private func watchTheme(_ name: String?) {
+        guard name != watchedTheme else { return }
+        watchedTheme = name
+        themeWatcher?.stop()
+        themeWatching?.cancel()
+        themeWatcher = nil
+        guard let name, ConfigurationLoader.isSafeThemeName(name) else { return }
+        let watcher = FileWatcher(path: ConfigurationLocation.themePath(named: name, besideConfig: path))
+        themeWatcher = watcher
+        watcher.start()
+        themeWatching = Task { [weak self] in
+            for await _ in watcher.changes { self?.reloadForTheme() }
+        }
+    }
+
+    /// The theme's file changed: read the configuration again (it is the same text, so the guard against our own writes is bypassed).
+    private func reloadForTheme() {
+        lastWritten = nil
+        reload()
     }
 
     private static func describe(_ error: ConfigurationError) -> String {

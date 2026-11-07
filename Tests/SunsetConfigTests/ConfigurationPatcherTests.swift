@@ -129,4 +129,17 @@ import Testing
     @Test func `a file that cannot be read is not patched`() {
         #expect(ConfigurationPatcher.saved(Configuration(), over: "{ nope") == nil)
     }
+
+    @Test func `with a theme in force only what the user changed is written, not what the theme brought`() throws {
+        let theme = ##"{ "font": { "family": "Iosevka", "size": 15 }, "colors": { "background": "#2e3440" } }"##
+        let file = "// mine\n{ \"theme\": \"nord\" }\n"
+        let loaded = try ConfigurationLoader.load(file) { _ in theme }.configuration
+        var edited = loaded
+        edited.font.size = 18
+        let result = try #require(ConfigurationPatcher.saved(edited, replacing: loaded, over: file))
+        #expect(result.hasPrefix("// mine\n"))
+        #expect(result.contains("\"size\": 18"))
+        #expect(!result.contains("Iosevka") && !result.contains("2e3440"), "the theme's values stay in the theme")
+        #expect(try ConfigurationLoader.load(result) { _ in theme }.configuration == edited)
+    }
 }

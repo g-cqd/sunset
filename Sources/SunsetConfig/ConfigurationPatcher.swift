@@ -17,10 +17,14 @@ public enum ConfigurationPatcher {
         return String(decoding: current, as: UTF8.self)
     }
 
-    /// `text` changed so that it says `configuration`: only the keys whose value differs from what `text` says now are written. Nil when `text` is not a
+    /// `text` changed so that it says `configuration`: only the keys whose value differs from `old` (the configuration in force before the edit; what `text` says
+    /// when nil) are written. Nil when `text` is not a
     /// readable configuration (the caller then writes the whole file).
-    public static func saved(_ configuration: Configuration, over text: String) -> String? {
-        guard let current = try? ConfigurationParser.parse(text).configuration else { return nil }
+    public static func saved(_ configuration: Configuration, replacing old: Configuration? = nil, over text: String)
+        -> String?
+    {
+        guard let current = old ?? (try? ConfigurationParser.parse(text).configuration) else { return nil }
+        // Only what the edit changed relative to what was in force, not relative to the file: with a theme the file does not hold everything in force.
         let before = ConfigurationWriter.literals(for: current)
         let wanted = ConfigurationWriter.literals(for: configuration).filter { before[$0.key] != $0.value }
         return patch(text, set: wanted)
