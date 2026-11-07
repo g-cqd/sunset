@@ -45,10 +45,19 @@ The owner's request of 2026-11-06 (kept close to their words), refined by their 
 - **No Dispatch for the watcher.** FSEvents needs a dispatch queue, so it is out (`BannedAPITests`); kqueue on a `DedicatedThread` is not.
 - **Cost.** The surface gains an alpha channel only when a transparent material is on; the default stays opaque so the measured costs do not move.
 
-## Open questions for the owner
+## Decisions (2026-11-07)
 
-1. **Blur radius**: in points, 0 to what (100? no limit)? One value for the window and one for the sidebar?
-2. **Glass**: `regular`, `clear`, or both as options? Should the tint be one colour with alpha per target?
-3. **Settings window editing the file**: patch only the keys it owns and keep comments (more work), or rewrite the file (loses comments)?
-4. **Themes**: colour schemes inline in the one file, or separate theme files (`themes/<name>.json`) the file names?
-5. **Built-in tab bar**: top or bottom, and does it show a title only or also the working directory (OSC 7) and progress (OSC 9;4)?
+| Question | Answer |
+|---|---|
+| Settings layout | Sidebar with search (System Settings style; owner note n12 shows both styles) |
+| Blur radius | Separate for window and sidebar, 0 to 100 pt |
+| Settings window and the file | Patch only the keys it changes, keep the user's comments and order (replaces "rewrite the whole file", which is what S6 does until then) |
+| Themes | Separate files, `themes/<name>.json` next to the config; the config names one |
+
+Added from notes: n13 stop blinking when focus is lost (done, see diary), n14 compress idle screens and restore on input or focus, per tab and per window (needs S3).
+
+## Still open
+
+1. **Glass**: `regular`, `clear`, or both? Tint as one colour with alpha per target?
+2. **Built-in tab bar**: top or bottom; a tab shows the title only, or also the working directory (OSC 7) and progress (OSC 9;4)?
+3. **Theme files**: may a theme also set the window material and tint, or only colours?

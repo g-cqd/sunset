@@ -13,6 +13,7 @@ final class TerminalNSView: NSView {
     var markedText = NSAttributedString()
     var trackingArea: NSTrackingArea?
     var scroll = ScrollAccumulator()
+    private var windowObservers: [any NSObjectProtocol] = []
 
     init(model: TerminalModel) {
         self.model = model
@@ -38,8 +39,23 @@ final class TerminalNSView: NSView {
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         displayLink?.invalidate()
-        guard window != nil else { return }
-        window?.makeFirstResponder(self)
+        windowObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        windowObservers = []
+        guard let window else { return }
+        window.makeFirstResponder(self)
+        let names: [Notification.Name] = [
+            NSWindow.didBecomeKeyNotification, NSWindow.didResignKeyNotification,
+            NSWindow.didChangeOcclusionStateNotification,
+            NSWindow.didMiniaturizeNotification, NSWindow.didDeminiaturizeNotification
+        ]
+        for name in names {
+            windowObservers.append(
+                NotificationCenter.default.addObserver(forName: name, object: window, queue: .main) { [weak self] _ in
+                    MainActor.assumeIsolated { self?.reportWindowState() }
+                }
+            )
+        }
+        reportWindowState()
         let link = displayLink(target: self, selector: #selector(displayLinkFired))
         link.isPaused = true
         link.add(to: .main, forMode: .common)
@@ -58,6 +74,12 @@ final class TerminalNSView: NSView {
         reportSize()
     }
 
+    private func reportWindowState() {
+        guard let window else { return }
+        let visible = window.occlusionState.contains(.visible) && !window.isMiniaturized
+        model.windowStateChanged(focused: window.isKeyWindow, visible: visible)
+    }
+
     @objc private func displayLinkFired() { model.tick() }
 
     private func reportSize() {
@@ -73,5 +95,8 @@ final class TerminalNSView: NSView {
         layer?.contents = surface
     }
 
-    isolated deinit { displayLink?.invalidate() }
+    isolated deinit {
+        displayLink?.invalidate()
+        windowObservers.forEach { NotificationCenter.default.removeObserver($0) }
+    }
 }

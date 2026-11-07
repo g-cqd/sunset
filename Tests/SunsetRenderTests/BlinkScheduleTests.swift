@@ -16,9 +16,23 @@ import Testing
         #expect(schedule.blinks(afterIdle: .seconds(100_000)))
     }
 
-    @Test func `while blinking the next look is one interval away, when solid it is a slow look`() {
+    @Test func `while blinking the next look is one interval away, when solid there is nothing to wait for`() {
         let schedule = BlinkSchedule(interval: .milliseconds(500), stopAfter: .seconds(10))
         #expect(schedule.wait(afterIdle: .seconds(1)) == .milliseconds(500))
-        #expect(schedule.wait(afterIdle: .seconds(11)) == .seconds(2))
+        #expect(schedule.wait(afterIdle: .seconds(11)) == nil, "no timer: activity or focus wakes it")
+    }
+
+    @Test func `a terminal that does not have the focus does not blink, however recent its activity`() {
+        let schedule = BlinkSchedule()
+        #expect(schedule.blinks(afterIdle: .zero, focused: true))
+        #expect(!schedule.blinks(afterIdle: .zero, focused: false))
+        #expect(schedule.wait(afterIdle: .zero, focused: false) == nil)
+        #expect(schedule.wait(afterIdle: .zero, focused: true) == schedule.interval)
+    }
+
+    @Test func `with no timeout it still stops when unfocused`() {
+        let schedule = BlinkSchedule(stopAfter: nil)
+        #expect(schedule.blinks(afterIdle: .seconds(100_000), focused: true))
+        #expect(!schedule.blinks(afterIdle: .seconds(100_000), focused: false))
     }
 }
