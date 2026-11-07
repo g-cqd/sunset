@@ -16,12 +16,30 @@ public struct Configuration: Sendable, Equatable {
         public init() {}
     }
 
+    public struct Window: Sendable, Equatable {
+        public enum Decorations: String, Sendable, Equatable, CaseIterable {
+            /// No title bar: the content fills the window, the traffic lights stay (where `trafficLights` puts them) and a strip at the top drags the window.
+            case none
+            /// The system's title bar.
+            case native
+        }
+
+        public var decorations = Decorations.none
+        /// Where the traffic lights are, in points from the window's top left corner to the top left of the close button (with no decorations).
+        public var trafficLightsX = 12.0
+        public var trafficLightsY = 12.0
+        /// The height in points of the strip at the top of the window that drags it (with no decorations); 0 for none.
+        public var dragStrip = 16.0
+        public init() {}
+    }
+
     public enum Renderer: String, Sendable, Equatable, CaseIterable {
         case auto, gpu, cpu
     }
 
     public var font = Font()
     public var colors = Colors()
+    public var window = Window()
     /// Lines of history kept per terminal.
     public var scrollbackLines = 10_000
     /// Seconds without input or output after which the cursor stops blinking; nil: it blinks for ever.

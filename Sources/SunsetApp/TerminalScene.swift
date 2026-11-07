@@ -25,6 +25,11 @@ struct TerminalScene: View {
         )
     }
 
+    private var noDecorations: Bool { config.configuration.window.decorations == .none }
+
+    /// The strip at the top that drags a window with no title bar, in points: the terminal starts below it.
+    private var topInset: Double { noDecorations ? config.configuration.window.dragStrip : 0 }
+
     private var colors: DefaultColors { DefaultColors(config.configuration.colors) }
 
     private var blinkSchedule: BlinkSchedule {
@@ -34,6 +39,8 @@ struct TerminalScene: View {
     var body: some View {
         TerminalRepresentable(model: model, optionAsMeta: optionAsMeta)
             .background(Color.black)
+            .ignoresSafeArea(edges: noDecorations ? .top : [])
+            .background(WindowChrome(settings: config.configuration.window))
             .navigationTitle(model.title)
             .focusedSceneValue(\.terminalModel, model)
             .task {
@@ -44,6 +51,7 @@ struct TerminalScene: View {
                 model.onExit = { dismiss() }
                 model.blinkSchedule = blinkSchedule
                 model.defaultColors = colors
+                model.topInsetPoints = topInset
                 model.start(
                     command: launch.command,
                     environment: environment,
@@ -52,6 +60,7 @@ struct TerminalScene: View {
                 )
             }
             .onChange(of: font) { _, newFont in model.apply(font: newFont) }
+            .onChange(of: topInset) { _, inset in model.apply(topInset: inset) }
             .onChange(of: colors) { _, newColors in model.apply(colors: newColors) }
             .onChange(of: blinkSchedule) { _, schedule in model.blinkSchedule = schedule }
             .onDisappear { model.stop() }

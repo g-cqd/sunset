@@ -4,7 +4,7 @@ extension CPURenderer {
     func drawRow(_ row: Int, frame: Frame, surface: inout Surface) {
         rowsDrawn += 1
         noteChanged(
-            pixelRows: metrics.paddingY + row * metrics.cellHeight ... metrics.paddingY + (row + 1) * metrics.cellHeight
+            pixelRows: metrics.originY + row * metrics.cellHeight ... metrics.originY + (row + 1) * metrics.cellHeight
                 - 1
         )
         blinkRows[row] = false
@@ -12,7 +12,7 @@ extension CPURenderer {
         fill(
             &surface,
             x: 0,
-            y: metrics.paddingY + row * metrics.cellHeight,
+            y: metrics.originY + row * metrics.cellHeight,
             width: surface.width,
             height: metrics.cellHeight,
             color: Surface.pack(frame.background)

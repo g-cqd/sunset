@@ -26,4 +26,13 @@ import Testing
         colours.colors.cursor = [255, 0, 0]
         #expect(colours.changes(from: Configuration()) == [.colors])
     }
+
+    @Test func `a window setting is the window group`() {
+        var new = Configuration()
+        new.window.dragStrip = 20
+        #expect(new.changes(from: Configuration()) == [.window])
+        var moved = Configuration()
+        moved.window.trafficLightsX = 30
+        #expect(moved.changes(from: Configuration()) == [.window])
+    }
 }

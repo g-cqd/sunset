@@ -14,4 +14,11 @@ extension TerminalModel {
             )
         }
     }
+
+    func apply(topInset points: Double) {
+        guard points != topInsetPoints else { return }
+        topInsetPoints = points
+        makeRenderer()
+        viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
+    }
 }
