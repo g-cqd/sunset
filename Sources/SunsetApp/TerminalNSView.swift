@@ -19,7 +19,10 @@ final class TerminalNSView: NSView {
         super.init(frame: .zero)
         wantsLayer = true
         layerContentsRedrawPolicy = .never
-        layer?.contentsGravity = .topLeft
+        // The view is flipped (row 0 at the top), and in a flipped layer-backed view the layer's gravity is flipped with it: `.topLeft` put the picture at
+        // the *bottom*, so it sat lower than the grid the pointer is mapped on by the pixels left over after the last whole row (up to a cell: a click
+        // selected the row below). Measured: first lit row at 34 pt with `.topLeft`, 24 pt with `.bottomLeft`, where the grid starts at 20 pt.
+        layer?.contentsGravity = .bottomLeft
         layer?.isOpaque = true
         model.presentFrame = { [weak self] surface in self?.show(surface) }
         model.setDisplayLinkPaused = { [weak self] paused in self?.displayLink?.isPaused = paused }
