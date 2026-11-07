@@ -42,3 +42,7 @@ Terminal (parser + screen, 120x40): ASCII 50 M · cursor moves 142 M · OSC 102 
 ## Not established
 
 C1/limit policies and the screen's behaviour are unchecked against oracles; no speed comparison with other terminals; ADR-0012 (cell) and ADR-0005 (colour) still proposed; ADR-0024 proposed, no renderer yet.
+
+## Window, configuration, tabs (roadmap 0017, ADR-0034)
+
+Done and committed locally: a JSON5 configuration file (35 keys, `~/.config/sunset/config.json` or `$SUNSET_CONFIG`) watched without Dispatch and applied live; themes as `themes/<name>.json`; a Settings window (sidebar of panes with search) that edits the file in place and keeps its comments; no title bar with traffic lights anywhere in the window and a drag strip; opaque, material, glass, transparent windows and sidebar, one tint, window and sidebar blur (private calls by name through InternedStrings); tabs as system tabs, in a sidebar, or in a built-in bar, switching live without stopping the programs. Not done: compressing idle screens (task t73, owner note n14), mouse-interaction checks of the tab UI, the GPU renderer (t53).
