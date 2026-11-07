@@ -29,13 +29,14 @@ struct SettingsView: View {
                 text: config.textBinding(\.font.family),
                 prompt: Text("Menlo, SF Mono, JetBrains Mono…")
             )
-            LabeledContent("Size") {
-                HStack {
-                    Slider(value: config.binding(\.font.size), in: 4 ... 72, step: 0.5)
-                    Text("\(config.configuration.font.size, specifier: "%.1f") pt").monospacedDigit()
-                        .frame(width: 62, alignment: .trailing)
-                }
-            }
+            NumberRow(
+                name: "Size",
+                value: config.binding(\.font.size),
+                range: 4 ... 200,
+                step: 0.5,
+                unit: "pt",
+                fractionDigits: 1
+            )
             Toggle("Ligatures", isOn: config.binding(\.font.ligatures))
             TextField("Features", text: config.binding(\.font.features), prompt: Text("zero, ss01, cv02=3"))
         }
@@ -78,9 +79,17 @@ struct SettingsView: View {
         Section("Scrolling") {
             number("Trackpad (lines per line of travel)", \.scroll.trackpad, range: 0.05 ... 20, step: 0.05, unit: "×")
             number("Wheel (lines per notch)", \.scroll.wheel, range: 0.05 ... 50, step: 0.05, unit: "×")
-            Stepper(value: config.binding(\.scrollbackLines), in: 0 ... 10_000_000, step: 1000) {
-                Text("History: \(config.configuration.scrollbackLines) lines")
-            }
+            NumberRow(
+                name: "History",
+                value: Binding(
+                    get: { Double(config.configuration.scrollbackLines) },
+                    set: { value in config.update { $0.scrollbackLines = Int(value) } }
+                ),
+                range: 0 ... 10_000_000,
+                step: 1000,
+                unit: "lines",
+                fractionDigits: 0
+            )
             Text("The history length applies to windows opened after the change.").font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -146,12 +155,6 @@ struct SettingsView: View {
         step: Double,
         unit: String
     ) -> some View {
-        LabeledContent(name) {
-            HStack {
-                Slider(value: config.binding(keyPath), in: range, step: step)
-                Text("\(config.configuration[keyPath: keyPath], specifier: "%g") \(unit)").monospacedDigit()
-                    .frame(width: 62, alignment: .trailing)
-            }
-        }
+        NumberRow(name: name, value: config.binding(keyPath), range: range, step: step, unit: unit)
     }
 }
