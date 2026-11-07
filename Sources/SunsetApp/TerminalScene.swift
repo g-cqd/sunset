@@ -8,20 +8,15 @@ struct TerminalScene: View {
     @State private var model = TerminalModel()
     @Environment(\.dismiss) private var dismiss
     private let config = AppConfiguration.shared
-    @AppStorage(SettingsKeys.fontName) private var fontName = "Menlo"
-    @AppStorage(SettingsKeys.fontSize) private var fontSize = 14.0
-    @AppStorage(SettingsKeys.ligatures) private var ligatures = false
-    @AppStorage(SettingsKeys.features) private var features = ""
-    @AppStorage(SettingsKeys.optionAsMeta) private var optionAsMeta = false
 
-    /// The launch options win, then the configuration file (when there is one), then the app's own settings.
+    /// The launch options win, then the configuration (the file, or the defaults).
     private var font: FontSettings {
-        let file = config.hasFile ? config.configuration.font : nil
+        let file = config.configuration.font
         return FontSettings(
-            name: launch.fontName ?? file?.family ?? fontName,
-            size: launch.fontSize ?? file?.size ?? fontSize,
-            ligatures: launch.ligatures ?? file?.ligatures ?? ligatures,
-            featureList: features
+            name: launch.fontName ?? file.family ?? "Menlo",
+            size: launch.fontSize ?? file.size,
+            ligatures: launch.ligatures ?? file.ligatures,
+            featureList: file.features
         )
     }
 
@@ -42,7 +37,7 @@ struct TerminalScene: View {
     }
 
     var body: some View {
-        TerminalRepresentable(model: model, optionAsMeta: optionAsMeta)
+        TerminalRepresentable(model: model, optionAsMeta: config.configuration.keyboard.optionAsMeta)
             .background(Color.black)
             .ignoresSafeArea(edges: noDecorations ? .top : [])
             .background(WindowChrome(settings: config.configuration.window))

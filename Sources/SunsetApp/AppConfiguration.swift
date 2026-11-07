@@ -19,6 +19,10 @@ final class AppConfiguration {
 
     @ObservationIgnored private var watcher: FileWatcher?
     @ObservationIgnored private var watching: Task<Void, Never>?
+    @ObservationIgnored private var saving: Task<Void, Never>?
+    /// The text this process last wrote: a change of the file that is just that is not a change.
+    @ObservationIgnored private var lastWritten: String?
+    @ObservationIgnored private var madeBackup = false
 
     private init() {
         path = ConfigurationLocation.path(environment: ProcessInfo.processInfo.environment, home: NSHomeDirectory())
@@ -28,6 +32,49 @@ final class AppConfiguration {
         watcher.start()
         watching = Task { [weak self] in
             for await _ in watcher.changes { self?.reload() }
+        }
+    }
+
+    /// Changes the configuration the way the Settings window does: at once in memory (so the windows follow while a slider moves), and in the file a moment
+    /// later, as the whole configuration (the comments of a hand-written file are lost; the first save of a session keeps the old file as `config.json.bak`).
+    func update(_ edit: (inout Configuration) -> Void) {
+        var changed = configuration
+        edit(&changed)
+        guard changed != configuration else { return }
+        configuration = changed
+        hasFile = true
+        scheduleSave()
+    }
+
+    private func scheduleSave() {
+        saving?.cancel()
+        saving = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
+            self?.save()
+        }
+    }
+
+    private func save() {
+        let text = ConfigurationWriter.text(for: configuration)
+        let manager = FileManager.default
+        do {
+            try manager.createDirectory(
+                atPath: (path as NSString).deletingLastPathComponent,
+                withIntermediateDirectories: true
+            )
+            if !madeBackup, manager.fileExists(atPath: path) {
+                madeBackup = true
+                let backup = path + ".bak"
+                try? manager.removeItem(atPath: backup)
+                try manager.copyItem(atPath: path, toPath: backup)
+            }
+            lastWritten = text
+            try text.write(toFile: path, atomically: true, encoding: .utf8)
+            lastError = nil
+        } catch {
+            lastError = "could not save \(path): \(error.localizedDescription)"
+            Self.say(lastError ?? "")
         }
     }
 
@@ -42,8 +89,10 @@ final class AppConfiguration {
             return
         }
         hasFile = true
+        let text = String(decoding: data, as: UTF8.self)
+        if text == lastWritten { return }
         do {
-            let result = try ConfigurationParser.parse(String(decoding: data, as: UTF8.self))
+            let result = try ConfigurationParser.parse(text)
             configuration = result.configuration
             issues = result.issues
             lastError = nil
