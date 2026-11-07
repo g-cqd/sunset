@@ -1,5 +1,6 @@
 import AppKit
 import IOSurface
+import SunsetCore
 import SunsetRender
 
 /// The AppKit side of a terminal: a layer-backed view that shows the frames the model hands it, takes the keyboard, and tells the model its size in device
@@ -11,7 +12,7 @@ final class TerminalNSView: NSView {
     private var displayLink: CADisplayLink?
     var markedText = NSAttributedString()
     var trackingArea: NSTrackingArea?
-    var scrollRemainder = 0.0
+    var scroll = ScrollAccumulator()
 
     init(model: TerminalModel) {
         self.model = model

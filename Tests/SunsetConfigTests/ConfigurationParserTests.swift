@@ -132,4 +132,18 @@ import Testing
         )
         #expect(result.configuration.window == Configuration.Window())
     }
+
+    @Test func `the scroll section: trackpad and wheel sensitivity, with defaults of 1 and 3`() throws {
+        let defaults = try read("{}").configuration.scroll
+        #expect(defaults.trackpad == 1 && defaults.wheel == 3)
+        let set = try read(#"{ "scroll": { "trackpad": 0.6, "wheel": 5 } }"#)
+        #expect(set.issues.isEmpty)
+        #expect(set.configuration.scroll.trackpad == 0.6 && set.configuration.scroll.wheel == 5)
+    }
+
+    @Test func `scroll values out of range or of the wrong kind are reported`() throws {
+        let result = try read(#"{ "scroll": { "trackpad": 0, "wheel": "fast", "inertia": true } }"#)
+        #expect(result.issues.map(\.path).sorted() == ["scroll.inertia", "scroll.trackpad", "scroll.wheel"])
+        #expect(result.configuration.scroll == Configuration.Scroll())
+    }
 }

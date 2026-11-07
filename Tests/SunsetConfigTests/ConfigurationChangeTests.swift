@@ -35,4 +35,10 @@ import Testing
         moved.window.trafficLightsX = 30
         #expect(moved.changes(from: Configuration()) == [.window])
     }
+
+    @Test func `a scroll setting is the scroll group`() {
+        var new = Configuration()
+        new.scroll.wheel = 1
+        #expect(new.changes(from: Configuration()) == [.scroll])
+    }
 }

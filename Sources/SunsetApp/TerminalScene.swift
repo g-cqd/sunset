@@ -30,6 +30,11 @@ struct TerminalScene: View {
     /// The strip at the top that drags a window with no title bar, in points: the terminal starts below it.
     private var topInset: Double { noDecorations ? config.configuration.window.dragStrip : 0 }
 
+    private func applyScroll() {
+        model.scrollTrackpad = config.configuration.scroll.trackpad
+        model.scrollWheel = config.configuration.scroll.wheel
+    }
+
     private var colors: DefaultColors { DefaultColors(config.configuration.colors) }
 
     private var blinkSchedule: BlinkSchedule {
@@ -52,6 +57,7 @@ struct TerminalScene: View {
                 model.blinkSchedule = blinkSchedule
                 model.defaultColors = colors
                 model.topInsetPoints = topInset
+                applyScroll()
                 model.start(
                     command: launch.command,
                     environment: environment,
@@ -60,6 +66,7 @@ struct TerminalScene: View {
                 )
             }
             .onChange(of: font) { _, newFont in model.apply(font: newFont) }
+            .onChange(of: config.configuration.scroll) { _, _ in applyScroll() }
             .onChange(of: topInset) { _, inset in model.apply(topInset: inset) }
             .onChange(of: colors) { _, newColors in model.apply(colors: newColors) }
             .onChange(of: blinkSchedule) { _, schedule in model.blinkSchedule = schedule }
