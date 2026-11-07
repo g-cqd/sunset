@@ -56,8 +56,9 @@ The owner's request of 2026-11-06 (kept close to their words), refined by their 
 
 Added from notes: n13 stop blinking when focus is lost (done, see diary), n14 compress idle screens and restore on input or focus, per tab and per window (needs S3).
 
+Answers of the same day to the three that were open: **glass** regular and clear, one tint shared by window and sidebar; **built-in tab bar** customizable (position, what a tab shows: title, working directory, progress), so those are settings, not fixed choices; **themes** may set everything visual (colours, material, tint, blur, font), and the config can still override any of it.
+
 ## Still open
 
-1. **Glass**: `regular`, `clear`, or both? Tint as one colour with alpha per target?
-2. **Built-in tab bar**: top or bottom; a tab shows the title only, or also the working directory (OSC 7) and progress (OSC 9;4)?
-3. **Theme files**: may a theme also set the window material and tint, or only colours?
+1. Precedence between a theme and the config file's own keys (proposed: config file key beats theme, theme beats default).
+2. Whether the font in a theme can be overridden by a launch option (proposed: launch option beats everything).

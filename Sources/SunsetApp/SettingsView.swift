@@ -1,84 +1,119 @@
 import SunsetConfig
 import SwiftUI
 
-/// The Settings window: every option of the configuration file, in sections that follow the file's. Edits go to the file (saved a moment after the last
-/// change) and the open windows follow at once; a hand edit of the file shows up here too.
+/// The Settings window: a sidebar of panes with a search field, in the manner of System Settings. Every option of the configuration file has a control; the
+/// search finds options by name and by related words and shows them (with their controls) whatever pane they are in. Edits go to the file (saved a moment
+/// after the last change) and the open windows follow at once; a hand edit of the file shows up here too.
 struct SettingsView: View {
     let config = AppConfiguration.shared
+    @State private var selection: SettingsPane? = .font
+    @State private var query = ""
+
+    private var results: [SettingsEntry] { SettingsSearch.matches(query, in: SettingsPane.allEntries) }
+    private var isSearching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
 
     var body: some View {
+        NavigationSplitView {
+            List(SettingsPane.allCases, selection: $selection) { pane in
+                Label(pane.title, systemImage: pane.symbol).tag(pane)
+            }
+            .navigationSplitViewColumnWidth(min: 170, ideal: 190, max: 240)
+        } detail: {
+            detail
+        }
+        .searchable(text: $query, placement: .sidebar, prompt: "Search")
+        .frame(minWidth: 700, minHeight: 480)
+        .frame(width: 760, height: 560)
+    }
+
+    @ViewBuilder private var detail: some View {
+        if isSearching {
+            searchResults
+        } else if let pane = selection {
+            Form { rows(of: pane.entries) }
+                .formStyle(.grouped)
+                .navigationTitle(pane.title)
+        }
+    }
+
+    private var searchResults: some View {
         Form {
-            fontSection
-            colorsSection
-            windowSection
-            scrollSection
-            terminalSection
-            keyboardSection
-            fileSection
+            if results.isEmpty {
+                ContentUnavailableView.search(text: query)
+            }
+            ForEach(SettingsSearch.panes(of: results), id: \.self) { paneID in
+                Section(SettingsPane(rawValue: paneID)?.title ?? paneID) {
+                    rows(of: results.filter { $0.pane == paneID })
+                }
+            }
         }
         .formStyle(.grouped)
-        .frame(width: 520, height: 640)
+        .navigationTitle("Search")
     }
 
-    // MARK: Sections
+    private func rows(of entries: [SettingsEntry]) -> some View {
+        ForEach(entries, id: \.id) { entry in control(for: entry.id) }
+    }
 
-    private var fontSection: some View {
-        Section("Font") {
-            TextField(
-                "Family",
-                text: config.textBinding(\.font.family),
-                prompt: Text("Menlo, SF Mono, JetBrains Mono…")
-            )
-            NumberRow(
-                name: "Size",
-                value: config.binding(\.font.size),
-                range: 4 ... 200,
-                step: 0.5,
-                unit: "pt",
-                fractionDigits: 1
-            )
-            Toggle("Ligatures", isOn: config.binding(\.font.ligatures))
-            TextField("Features", text: config.binding(\.font.features), prompt: Text("zero, ss01, cv02=3"))
+    // MARK: Controls
+
+    @ViewBuilder private func control(for id: String) -> some View {
+        switch id {
+            case "font.family":
+                TextField(
+                    "Family",
+                    text: config.textBinding(\.font.family),
+                    prompt: Text("Menlo, SF Mono, JetBrains Mono…")
+                )
+            case "font.size":
+                NumberRow(
+                    name: "Size",
+                    value: config.binding(\.font.size),
+                    range: 4 ... 200,
+                    step: 0.5,
+                    unit: "pt",
+                    fractionDigits: 1
+                )
+            case "font.ligatures": Toggle("Ligatures", isOn: config.binding(\.font.ligatures))
+            case "font.features":
+                TextField("Features", text: config.binding(\.font.features), prompt: Text("zero, ss01, cv02=3"))
+            case "colors.foreground": colorRow("Foreground", \.colors.foreground, fallback: [229, 229, 229])
+            case "colors.background": colorRow("Background", \.colors.background, fallback: [0, 0, 0])
+            case "colors.cursor": colorRow("Cursor", \.colors.cursor, fallback: [229, 229, 229])
+            case "window.titlebar":
+                Picker("Title bar", selection: config.binding(\.window.decorations)) {
+                    Text("None (content under the title bar)").tag(Configuration.Window.Decorations.none)
+                    Text("System").tag(Configuration.Window.Decorations.native)
+                }
+            case "window.dragStrip": number("Drag strip", \.window.dragStrip, range: 0 ... 64, step: 1, unit: "pt")
+            case "window.lightsX":
+                number("Traffic lights, from the left", \.window.trafficLightsX, range: 0 ... 400, step: 1, unit: "pt")
+            case "window.lightsY":
+                number("Traffic lights, from the top", \.window.trafficLightsY, range: 0 ... 400, step: 1, unit: "pt")
+            case "scroll.trackpad":
+                number(
+                    "Trackpad (lines per line of travel)",
+                    \.scroll.trackpad,
+                    range: 0.05 ... 20,
+                    step: 0.05,
+                    unit: "×"
+                )
+            case "scroll.wheel":
+                number("Wheel (lines per notch)", \.scroll.wheel, range: 0.05 ... 50, step: 0.05, unit: "×")
+            case "scroll.history": history
+            case "terminal.blinkForever": Toggle("Cursor blinks for ever", isOn: foreverBinding)
+            case "terminal.blinkTimeout":
+                number("Stop blinking after", \.cursorBlinkTimeoutSeconds, range: 1 ... 3600, step: 1, unit: "s")
+                    .disabled(config.configuration.cursorBlinkTimeout == nil)
+            case "terminal.renderer": renderer
+            case "keyboard.meta": Toggle("Option sends Escape (Meta)", isOn: config.binding(\.keyboard.optionAsMeta))
+            case "file.location": fileInfo
+            default: EmptyView()
         }
     }
 
-    private var colorsSection: some View {
-        Section("Colors") {
-            colorRow("Foreground", \.colors.foreground, fallback: [229, 229, 229])
-            colorRow("Background", \.colors.background, fallback: [0, 0, 0])
-            colorRow("Cursor", \.colors.cursor, fallback: [229, 229, 229])
-        }
-    }
-
-    private func colorRow(_ name: String, _ keyPath: WritableKeyPath<Configuration, [UInt8]?>, fallback: [UInt8])
-        -> some View
-    {
-        LabeledContent(name) {
-            HStack {
-                Toggle("Custom", isOn: config.switchBinding(keyPath, whenOn: fallback)).labelsHidden()
-                ColorPicker(name, selection: config.colorBinding(keyPath, fallback: fallback), supportsOpacity: false)
-                    .labelsHidden()
-                    .disabled(config.configuration[keyPath: keyPath] == nil)
-            }
-        }
-    }
-
-    private var windowSection: some View {
-        Section("Window") {
-            Picker("Title bar", selection: config.binding(\.window.decorations)) {
-                Text("None (content under the title bar)").tag(Configuration.Window.Decorations.none)
-                Text("System").tag(Configuration.Window.Decorations.native)
-            }
-            number("Drag strip", \.window.dragStrip, range: 0 ... 64, step: 1, unit: "pt")
-            number("Traffic lights, from the left", \.window.trafficLightsX, range: 0 ... 400, step: 1, unit: "pt")
-            number("Traffic lights, from the top", \.window.trafficLightsY, range: 0 ... 400, step: 1, unit: "pt")
-        }
-    }
-
-    private var scrollSection: some View {
-        Section("Scrolling") {
-            number("Trackpad (lines per line of travel)", \.scroll.trackpad, range: 0.05 ... 20, step: 0.05, unit: "×")
-            number("Wheel (lines per notch)", \.scroll.wheel, range: 0.05 ... 50, step: 0.05, unit: "×")
+    private var history: some View {
+        VStack(alignment: .leading, spacing: 4) {
             NumberRow(
                 name: "History",
                 value: Binding(
@@ -95,12 +130,8 @@ struct SettingsView: View {
         }
     }
 
-    private var terminalSection: some View {
-        Section("Terminal") {
-            Toggle("Cursor blinks for ever", isOn: foreverBinding)
-            if config.configuration.cursorBlinkTimeout != nil {
-                number("Stop blinking after", \.cursorBlinkTimeoutSeconds, range: 1 ... 3600, step: 1, unit: "s")
-            }
+    private var renderer: some View {
+        VStack(alignment: .leading, spacing: 4) {
             Picker("Renderer", selection: config.binding(\.renderer)) {
                 ForEach(Configuration.Renderer.allCases, id: \.self) { Text($0.rawValue) }
             }
@@ -109,14 +140,8 @@ struct SettingsView: View {
         }
     }
 
-    private var keyboardSection: some View {
-        Section("Keyboard") {
-            Toggle("Option sends Escape (Meta)", isOn: config.binding(\.keyboard.optionAsMeta))
-        }
-    }
-
-    private var fileSection: some View {
-        Section("Configuration file") {
+    private var fileInfo: some View {
+        VStack(alignment: .leading, spacing: 8) {
             Text(config.path).font(.callout).textSelection(.enabled)
             HStack {
                 Button("Reveal in Finder") {
@@ -136,6 +161,19 @@ struct SettingsView: View {
                 "Saving here rewrites the file with every option; comments in a hand-written file are not kept (the previous file is saved as config.json.bak)."
             )
             .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private func colorRow(_ name: String, _ keyPath: WritableKeyPath<Configuration, [UInt8]?>, fallback: [UInt8])
+        -> some View
+    {
+        LabeledContent(name) {
+            HStack {
+                Toggle("Custom", isOn: config.switchBinding(keyPath, whenOn: fallback)).labelsHidden()
+                ColorPicker(name, selection: config.colorBinding(keyPath, fallback: fallback), supportsOpacity: false)
+                    .labelsHidden()
+                    .disabled(config.configuration[keyPath: keyPath] == nil)
+            }
         }
     }
 
