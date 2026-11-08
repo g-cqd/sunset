@@ -2,7 +2,7 @@ import SunsetConfig
 
 /// The panes of the Settings window, in the order of its sidebar.
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case font, colors, appearance, window, sidebar, tabs, scrolling, terminal, keyboard, file
+    case font, colors, appearance, window, sidebar, layout, tabs, scrolling, terminal, keyboard, file
 
     var id: String { rawValue }
 
@@ -12,6 +12,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             case .colors: "Colors"
             case .appearance: "Appearance"
             case .sidebar: "Sidebar"
+            case .layout: "Layout"
             case .tabs: "Tabs"
             case .window: "Window"
             case .scrolling: "Scrolling"
@@ -28,6 +29,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             case .colors: "paintpalette"
             case .appearance: "sparkles"
             case .sidebar: "sidebar.left"
+            case .layout: "ruler"
             case .tabs: "rectangle.stack"
             case .window: "macwindow"
             case .scrolling: "arrow.up.and.down.text.horizontal"
@@ -58,6 +60,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                 ]
             case .appearance: return Self.appearanceEntries(rawValue)
             case .sidebar: return Self.sidebarEntries(rawValue)
+            case .layout: return Self.layoutEntries(rawValue)
             case .tabs: return Self.tabEntries(rawValue)
             case .window:
                 return [
@@ -135,6 +138,32 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"]),
             entry(pane, "sidebar.material", "Sidebar background", ["material", "glass", "transparent", "opaque"]),
             entry(pane, "sidebar.blur", "Sidebar blur", ["radius", "frosted"])
+        ]
+    }
+
+    /// Every metric of `layout.*`: the numbers come from `Configuration.Layout.fields`, so a new one shows up here without a line of its own.
+    private static func layoutEntries(_ pane: String) -> [SettingsEntry] {
+        let numbers = Configuration.Layout.fields.map {
+            entry(
+                pane,
+                "layout.\($0.key)",
+                $0.title,
+                $0.keywords + ["layout", "spacing", "padding", "margin", "radius"]
+            )
+        }
+        return numbers + [
+            entry(
+                pane,
+                "layout.terminalRadius",
+                "Terminal card corner radius",
+                ["rounding", "card", "layout", "window"]
+            ),
+            entry(
+                pane,
+                "layout.panelRadius",
+                "Floating sidebar corner radius",
+                ["rounding", "panel", "layout", "window"]
+            )
         ]
     }
 

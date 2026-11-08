@@ -14,12 +14,14 @@ struct FloatingSidebar: View {
     @State private var reveal = HoverReveal(hideDelay: .milliseconds(350))
 
     private var margin: Double { settings.sidebar.padding }
-    private var radius: Double { ConcentricRadius.inner(outer: windowRadius, inset: margin) }
+    private var radius: Double {
+        settings.layout.panelRadius ?? ConcentricRadius.inner(outer: windowRadius, inset: margin)
+    }
 
     var body: some View {
         ZStack(alignment: .leading) {
             Color.clear
-                .frame(width: 10)
+                .frame(width: settings.layout.revealStripWidth)
                 .contentShape(.rect)
                 .onHover { inside in pointer(inside) }
             if shown { panel.transition(.move(edge: .leading).combined(with: .opacity)) }
@@ -42,7 +44,7 @@ struct FloatingSidebar: View {
             .frame(maxHeight: .infinity)
             .background { SidebarBackdrop(look: panelLook) }
             .clipShape(shape)
-            .overlay { shape.hairline() }
+            .overlay { shape.hairline(settings.layout) }
             .overlay(alignment: .trailing) { SidebarResizeHandle(width: settings.sidebar.width) }
             .padding(.leading, margin)
             .padding(.vertical, margin)
@@ -58,6 +60,7 @@ struct FloatingSidebar: View {
 
     private func pointer(_ inside: Bool) {
         let now = ContinuousClock.now
+        reveal.hideDelay = .seconds(settings.layout.hideDelay)
         reveal.pointer(inside: inside, at: now)
         update(at: now)
         if let at = reveal.hidesAt {
@@ -70,6 +73,6 @@ struct FloatingSidebar: View {
 
     private func update(at time: ContinuousClock.Instant) {
         let visible = reveal.isShown(at: time)
-        if visible != shown { withAnimation(.easeInOut(duration: 0.18)) { shown = visible } }
+        if visible != shown { withAnimation(settings.layout.smooth) { shown = visible } }
     }
 }

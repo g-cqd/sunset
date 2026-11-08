@@ -1,3 +1,4 @@
+import SunsetConfig
 import SwiftUI
 
 /// What the sidebar does to the terminal: it becomes a card (the window's colour around it, rounded corners, a hairline stroke). Without the docked sidebar
@@ -9,13 +10,14 @@ struct TerminalCard: ViewModifier {
     var isCard: Bool
     var margin: Double
     var cornerRadius: Double
+    var layout: Configuration.Layout
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: isCard ? cornerRadius : 0, style: .continuous)
         return
             content
             .clipShape(shape)
-            .overlay { shape.hairline().opacity(isCard ? 1 : 0) }
+            .overlay { shape.hairline(layout).opacity(isCard ? 1 : 0) }
             .padding(isCard ? margin : 0)
     }
 }

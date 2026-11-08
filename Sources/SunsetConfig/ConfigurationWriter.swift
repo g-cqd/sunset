@@ -6,7 +6,11 @@ public enum ConfigurationWriter {
         let font = configuration.font
         let colors = configuration.colors
         let window = configuration.window
-        return [
+        var layout: [String: String] = [:]
+        for field in Configuration.Layout.fields {
+            layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
+        }
+        return layout.merging([
             "font.family": string(font.family ?? ""),
             "font.size": number(font.size),
             "font.ligatures": String(font.ligatures),
@@ -43,8 +47,10 @@ public enum ConfigurationWriter {
             "tabs.bar.title": String(configuration.tabs.bar.showTitle),
             "tabs.bar.directory": String(configuration.tabs.bar.showDirectory),
             "tabs.bar.progress": String(configuration.tabs.bar.showProgress),
+            "layout.terminalRadius": configuration.layout.terminalRadius.map(number) ?? "null",
+            "layout.panelRadius": configuration.layout.panelRadius.map(number) ?? "null",
             "theme": configuration.theme.map(string) ?? "null"
-        ]
+        ]) { first, _ in first }
     }
 
     /// The whole file, in the order of `ConfigurationKeys.all`.

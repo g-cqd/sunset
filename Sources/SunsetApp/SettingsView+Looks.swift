@@ -17,11 +17,11 @@ extension SettingsView {
             case "appearance.tint": colorRow("Tint", \.appearance.tintColor, fallback: [48, 96, 255])
             case "appearance.tintAlpha":
                 number("Tint strength", \.appearance.tintAlpha, range: 0 ... 1, step: 0.05, unit: "")
-            default: sidebarAndTabControls(for: id)
+            default: layoutControls(for: id)
         }
     }
 
-    @ViewBuilder private func sidebarAndTabControls(for id: String) -> some View {
+    @ViewBuilder func sidebarAndTabControls(for id: String) -> some View {
         switch id {
             case "sidebar.enabled":
                 VStack(alignment: .leading, spacing: 4) {

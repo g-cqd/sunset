@@ -1,8 +1,9 @@
+import SunsetConfig
 import SwiftUI
 
 extension InsettableShape {
-    /// The thin line drawn on the terminal card and on the sidebar's tabs and panel: half a point wide, a tenth of the label colour, inside the shape.
-    func hairline() -> some View {
-        strokeBorder(.primary.opacity(0.12), lineWidth: 0.5).allowsHitTesting(false)
+    /// The thin line drawn on the terminal card and on the sidebar's selected tab and panel, inside the shape: its width and opacity are `layout.hairline*`.
+    func hairline(_ layout: Configuration.Layout) -> some View {
+        strokeBorder(.primary.opacity(layout.hairlineOpacity), lineWidth: layout.hairlineWidth).allowsHitTesting(false)
     }
 }

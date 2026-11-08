@@ -12,14 +12,16 @@ struct TabSidebar: View {
     var floating = false
 
     private var margin: Double { settings.sidebar.padding }
-    private var topInset: Double { SidebarHeader.height(margin: margin, floating: floating) }
+    private var layout: Configuration.Layout { settings.layout }
+    private var header: SidebarHeader { SidebarHeader(layout: layout, margin: margin, floating: floating) }
+    private var topInset: Double { header.height }
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: margin) {
+            LazyVStack(spacing: layout.tabSpacing) {
                 ForEach(tabs.list.tabs) { tab in row(tab) }
             }
-            .padding(.horizontal, max(margin - 2, 0))
+            .padding(.horizontal, layout.tabSideInset)
         }
         .scrollIndicators(.never)
         .contentMargins(.top, topInset, for: .scrollContent)
@@ -44,6 +46,7 @@ struct TabSidebar: View {
             showTitle: settings.tabs.bar.showTitle,
             showDirectory: settings.tabs.bar.showDirectory,
             showProgress: settings.tabs.bar.showProgress,
+            layout: layout,
             close: { tabs.close(tab.id) }
         )
         .onTapGesture { tabs.select(tab.id) }
@@ -68,10 +71,10 @@ struct TabSidebar: View {
     /// (pinned) and outlined while it only appears on hover. Its container is a rounded square the size of the hit box, highlighted under the pointer like a
     /// tab, with its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
     private var pinButton: some View {
-        PinButton(pinned: !settings.sidebar.autoHide) {
+        PinButton(pinned: !settings.sidebar.autoHide, layout: layout) {
             AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
         }
         .padding(.trailing, margin)
-        .padding(.top, SidebarHeader.buttonTop(margin: margin, floating: floating))
+        .padding(.top, header.buttonTop)
     }
 }
