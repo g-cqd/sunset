@@ -104,6 +104,12 @@ struct SettingsView: View {
                 )
             case "scroll.wheel":
                 number("Wheel (lines per notch)", \.scroll.wheel, range: 0.05 ... 50, step: 0.05, unit: "×")
+            case "scroll.inertia":
+                VStack(alignment: .leading, spacing: 4) {
+                    number("Wheel inertia", \.scroll.inertia, range: 0 ... 2, step: 0.05, unit: "s")
+                    Text("How long a wheel notch glides (0: none). A trackpad uses the system's own momentum.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             case "scroll.history": history
             case "terminal.blinkForever": Toggle("Cursor blinks for ever", isOn: foreverBinding)
             case "terminal.blinkTimeout":

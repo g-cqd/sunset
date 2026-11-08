@@ -66,22 +66,7 @@ extension TerminalNSView {
         trackingArea = area
     }
 
-    /// One wheel event per whole line scrolled: a trackpad sends points and a wheel sends lines; `ScrollAccumulator` turns them into lines with the
-    /// sensitivities of the configuration and keeps the part of a line not yet scrolled for the next event.
-    override func scrollWheel(with event: NSEvent) {
-        let lines = scroll.lines(
-            delta: event.scrollingDeltaY,
-            precise: event.hasPreciseScrollingDeltas,
-            cellHeight: model.cellHeightInPoints,
-            trackpad: model.scrollTrackpad,
-            wheel: model.scrollWheel
-        )
-        for _ in 0 ..< abs(lines) {
-            report(.press, lines > 0 ? .wheelUp : .wheelDown, event)
-        }
-    }
-
-    private func report(_ action: MouseEvent.Action, _ button: MouseEvent.Button, _ event: NSEvent) {
+    func report(_ action: MouseEvent.Action, _ button: MouseEvent.Button, _ event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
         let scale = window?.backingScaleFactor ?? 2
         model.pointer(

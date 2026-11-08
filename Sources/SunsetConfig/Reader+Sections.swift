@@ -78,6 +78,10 @@ extension Reader {
                     if let factor = number("scroll.wheel", value, range: 0.05 ... 50) {
                         configuration.scroll.wheel = factor
                     }
+                case "inertia":
+                    if let seconds = number("scroll.inertia", value, range: 0 ... 2) {
+                        configuration.scroll.inertia = seconds
+                    }
                 default: unknown("scroll.\(key)")
             }
         }

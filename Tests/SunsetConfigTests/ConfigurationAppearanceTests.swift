@@ -73,6 +73,14 @@ import Testing
         #expect(result.issues.first { $0.path == "sidebar.padding" }?.message.contains("2") == true)
     }
 
+    @Test func `with the sidebar the terminal is a rounded card: the radius is 0 to 24 points, 8 by default`() throws {
+        #expect(Configuration().sidebar.cornerRadius == 8)
+        #expect(try read(#"{ "sidebar": { "cornerRadius": 12 } }"#).configuration.sidebar.cornerRadius == 12)
+        let bad = try read(#"{ "sidebar": { "cornerRadius": 30 } }"#)
+        #expect(bad.issues.map(\.path) == ["sidebar.cornerRadius"])
+        #expect(bad.configuration.sidebar.cornerRadius == 8)
+    }
+
     @Test func `the sidebar and the window are separate: blur 0 to 100 each`() throws {
         let result = try read(#"{ "window": { "blur": 100 }, "sidebar": { "blur": 100 } }"#)
         #expect(result.issues.isEmpty)

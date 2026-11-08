@@ -37,6 +37,12 @@ struct TerminalScene: View {
         // With no title bar the content goes under it; the system's tab bar (when there are tabs) is below the strip and covers more.
         return max(configuration.window.dragStrip, presentation.showsNativeTabBar ? obscured : 0)
     }
+    /// Behind everything: the window's colour (a window material shows through when it is not opaque). It shows around the terminal card while the
+    /// sidebar is shown; otherwise the terminal covers it edge to edge.
+    private var rootColor: Color {
+        guard look.isOpaque else { return .clear }
+        return presentation.showsSidebar ? Color(nsColor: .windowBackgroundColor) : .black
+    }
     private var look: WindowLook { WindowLook(configuration) }
     private var colors: DefaultColors { DefaultColors(configuration.colors) }
 
@@ -59,7 +65,7 @@ struct TerminalScene: View {
             }
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
-        .background(look.isOpaque ? Color.black : Color.clear)
+        .background(rootColor)
         .ignoresSafeArea(edges: noDecorations ? .top : [])
         .background(
             WindowChrome(
@@ -96,6 +102,13 @@ struct TerminalScene: View {
                 translucent: !look.isOpaque
             )
             .id(tabs.list.selectedID)
+            .modifier(
+                TerminalCard(
+                    isCard: presentation.showsSidebar,
+                    margin: configuration.sidebar.padding,
+                    cornerRadius: configuration.sidebar.cornerRadius
+                )
+            )
         } else {
             Color.clear
         }
@@ -161,6 +174,7 @@ struct TerminalScene: View {
         model.backgroundAlpha = configuration.backgroundAlpha
         model.scrollTrackpad = configuration.scroll.trackpad
         model.scrollWheel = configuration.scroll.wheel
+        model.scrollInertia = configuration.scroll.inertia
         model.applyLayout()
     }
 
