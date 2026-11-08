@@ -43,30 +43,38 @@ struct TabSidebar: View {
         }
     }
 
+    @ViewBuilder private func rowContent(_ item: Workspace.Item) -> some View {
+        if item.isSplit {
+            SidebarGroupRow(item: item, tabs: tabs, selected: item.id == tabs.workspace.selectedID, layout: layout)
+        } else {
+            SidebarRow(
+                model: tabs.models[item.focused],
+                selected: item.id == tabs.workspace.selectedID,
+                showTitle: settings.tabs.bar.showTitle,
+                showDirectory: settings.tabs.bar.showDirectory,
+                showProgress: settings.tabs.bar.showProgress,
+                layout: layout,
+                close: { tabs.close(item: item.id) }
+            )
+        }
+    }
+
     private func row(_ item: Workspace.Item) -> some View {
-        SidebarRow(
-            model: tabs.models[item.focused],
-            selected: item.id == tabs.workspace.selectedID,
-            showTitle: settings.tabs.bar.showTitle,
-            showDirectory: settings.tabs.bar.showDirectory,
-            showProgress: settings.tabs.bar.showProgress,
-            layout: layout,
-            close: { tabs.close(item: item.id) }
-        )
-        .onTapGesture { tabs.select(item: item.id) }
-        .draggable(item.id.uuidString)
-        .dropDestination(for: String.self) { items, _ in
-            guard let text = items.first, let id = UUID(uuidString: text),
-                let index = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
-            else { return false }
-            tabs.move(item: id, to: index)
-            return true
-        }
-        .contextMenu {
-            Button("Close Tab") { tabs.close(item: item.id) }
-            Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
-                .disabled(tabs.workspace.count < 2)
-        }
+        rowContent(item)
+            .onTapGesture { tabs.select(item: item.id) }
+            .onDrag { tabs.itemProvider(for: .item(item.id)) }
+            .dropDestination(for: String.self) { items, _ in
+                guard let text = items.first, case .item(let id)? = PaneDragPayload(text: text),
+                    let index = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
+                else { return false }
+                tabs.move(item: id, to: index)
+                return true
+            }
+            .contextMenu {
+                Button("Close Tab") { tabs.close(item: item.id) }
+                Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
+                    .disabled(tabs.workspace.count < 2)
+            }
     }
 
     /// Pins the sidebar beside the terminal (`sidebar.autoHide` off) or lets it hide and float: the sidebar symbol, filled while the sidebar is open
