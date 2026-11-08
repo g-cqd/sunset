@@ -15,6 +15,7 @@ public final class CPURenderer: CellRenderer {
     /// at the first frame that finds it `glyphTableLimit` long.
     var glyphTable = GlyphTable(generation: GlyphGenerations.next())
     var glyphTableLimit = 16_384
+    var resolvedStyles = ResolvedStyles()
     var lastCursor: CursorDrawn?
     var lastPalette: Palette?
     var lastBackgroundAlpha: UInt8 = 255
@@ -62,8 +63,8 @@ public final class CPURenderer: CellRenderer {
         textBlinkVisible: Bool = true,
         view: FrameView = FrameView()
     ) {
-        var table = takeGlyphTable()
-        defer { swap(&table, &glyphTable) }
+        var walk = takeWalk()
+        defer { putBack(&walk) }
         let size = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         precondition(
             surface.width >= size.width && surface.height >= size.height,
@@ -71,7 +72,7 @@ public final class CPURenderer: CellRenderer {
         )
         let reverse = screen.modes.reverseVideo
         let scrolledBack = min(max(view.scrolledBack, 0), screen.scrollbackCount)
-        let (selection, hoveredLink) = (view.selection, view.hoveredLink)
+        let selection = view.selection
         let full = needsFullRedraw(screen, view: view, reverse: reverse, scrolledBack: scrolledBack)
         if blinkRows.count != screen.rows { blinkRows = [Bool](repeating: false, count: screen.rows) }
         let blinkChanged = textBlinkVisible != lastBlink
@@ -96,13 +97,12 @@ public final class CPURenderer: CellRenderer {
         let frame = Frame(
             screen: screen,
             cursor: cursor,
-            foreground: reverse ? screen.palette.background : screen.palette.foreground,
-            background: reverse ? screen.palette.foreground : screen.palette.background,
+            colors: reverse
+                ? (screen.palette.background, screen.palette.foreground)
+                : (screen.palette.foreground, screen.palette.background),
             blinkVisible: textBlinkVisible,
-            scrolledBack: scrolledBack,
-            selection: selection,
-            hoveredLink: hoveredLink,
-            backgroundAlpha: backgroundAlpha
+            view: view,
+            scrolledBack: scrolledBack
         )
         // The rows the selection covers now or covered in the last frame are drawn again when it changed.
         let selectionRows = selectionRows(of: selection, in: frame)
@@ -114,7 +114,7 @@ public final class CPURenderer: CellRenderer {
                 && ((selectionRows?.contains(row) ?? false) || (lastSelectionRows?.contains(row) ?? false))
             let blinks = blinkChanged && blinkRows[row]
             guard full || blinks || touchesCursor || touchesSelection || screen.isDirty(row: row) else { continue }
-            drawRow(row, frame: frame, table: &table, surface: &surface)
+            drawRow(row, frame: frame, walk: &walk, surface: &surface)
         }
         remember(
             frame,
@@ -153,12 +153,11 @@ public final class CPURenderer: CellRenderer {
 
     // MARK: Rows and cells
 
-    func drawCell(_ cell: Cell, at place: Placement, frame: Frame, table: inout GlyphTable, surface: inout Surface) {
-        let screen = frame.screen
-        let style = screen.style(of: cell)
-        let palette = screen.palette
-        var (foreground, background) = colors(of: style, frame: frame)
-        let selected = frame.isSelected(row: place.row, column: place.column, span: place.span)
+    func drawCell(_ cell: Cell, at place: Placement, frame: Frame, walk: inout Walk, surface: inout Surface) {
+        let style = walk.styles.style(cell.styleID, in: frame)
+        var (foreground, background) = (style.foreground, style.background)
+        let selected =
+            frame.selection != nil && frame.isSelected(row: place.row, column: place.column, span: place.span)
         if selected { swap(&foreground, &background) }
         let cursor = frame.cursor
         let onCursor =
@@ -166,7 +165,7 @@ public final class CPURenderer: CellRenderer {
             ?? false
         if onCursor, cursor?.shape == .block {
             let cellBackground = background
-            background = palette.cursor
+            background = frame.palette.cursor
             foreground = cellBackground
         }
         let box = Box(
@@ -187,19 +186,24 @@ public final class CPURenderer: CellRenderer {
                 color: Surface.pack(background)
             )
         }
-        let blinks = style.attributes.contains(.blink)
-        if blinks { blinkRows[place.row] = true }
-        let hidden = style.attributes.contains(.invisible) || (blinks && !frame.blinkVisible)
-        if place.drawGlyph, cell.scalar != 0, !hidden,
-            case let glyph = glyph(for: cell, style: style, wide: place.span == 2, screen: screen, table: &table),
+        if style.blinks { blinkRows[place.row] = true }
+        if place.drawGlyph, cell.scalar != 0, !style.hidden,
+            case let glyph = glyph(for: cell, style: style, wide: place.span == 2, frame: frame, table: &walk.glyphs),
             glyph != 0
         {
-            blit(table[glyph], number: glyph, into: &surface, cell: box, color: foreground)
+            blit(glyph, of: walk.glyphs, into: &surface, cell: box, color: foreground)
         }
-        let lineColor = palette.resolve(style.underlineColor) ?? foreground
-        drawDecorations(style, box: box, surface: &surface, line: lineColor, strike: foreground)
+        if style.decorated {
+            drawDecorations(
+                frame.style(of: cell),
+                box: box,
+                surface: &surface,
+                line: style.line ?? foreground,
+                strike: foreground
+            )
+        }
         if onCursor, let shape = cursor?.shape, shape != .block {
-            drawThinCursor(shape, box: box, color: Surface.pack(palette.cursor), surface: &surface)
+            drawThinCursor(shape, box: box, color: Surface.pack(frame.palette.cursor), surface: &surface)
         }
     }
 

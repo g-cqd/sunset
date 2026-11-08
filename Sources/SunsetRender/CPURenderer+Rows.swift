@@ -1,7 +1,7 @@
 internal import SunsetCore
 
 extension CPURenderer {
-    func drawRow(_ row: Int, frame: Frame, table: inout GlyphTable, surface: inout Surface) {
+    func drawRow(_ row: Int, frame: Frame, walk: inout Walk, surface: inout Surface) {
         rowsDrawn += 1
         noteChanged(
             pixelRows: metrics.originY + row * metrics.cellHeight ... metrics.originY + (row + 1) * metrics.cellHeight
@@ -18,14 +18,23 @@ extension CPURenderer {
             color: Surface.pack(frame.background, alpha: frame.backgroundAlpha)
         )
         let plainRow = frame.cursor?.row != row && frame.selection == nil && frame.hoveredLink == 0
+        let cells = frame.row(row)
         var column = 0
-        while column < frame.screen.columns {
-            let cell = frame.cell(row: row, column: column)
+        while column < frame.columns {
+            let cell = cells[column]
             if cell.width == .spacerTail {
                 column += 1
                 continue
             }
-            if ligatures, let length = drawRun(row: row, column: column, frame: frame, table: &table, surface: &surface)
+            if ligatures,
+                let length = drawRun(
+                    row: row,
+                    column: column,
+                    cells: cells,
+                    frame: frame,
+                    walk: &walk,
+                    surface: &surface
+                )
             {
                 column += length
                 continue
@@ -35,12 +44,12 @@ extension CPURenderer {
                 column += 1
                 continue
             }
-            let span = cell.width == .wide && column + 1 < frame.screen.columns ? 2 : 1
+            let span = cell.width == .wide && column + 1 < frame.columns ? 2 : 1
             drawCell(
                 cell,
                 at: Placement(row: row, column: column, span: span),
                 frame: frame,
-                table: &table,
+                walk: &walk,
                 surface: &surface
             )
             column += span

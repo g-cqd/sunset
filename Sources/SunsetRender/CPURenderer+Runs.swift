@@ -15,50 +15,56 @@ extension CPURenderer {
         }
         if let cursor = frame.cursor, cursor.row == row, cursor.column == column { return false }
         if frame.isSelected(row: row, column: column) { return false }
-        let attributes = frame.screen.style(of: cell).attributes
+        let attributes = frame.style(of: cell).attributes
         return !attributes.contains(.invisible) && !(attributes.contains(.blink) && !frame.blinkVisible)
     }
 
     /// If a run of at least two shapeable cells with one style starts at `column`, draws it (cell backgrounds and decorations one by one, the glyphs
     /// shaped together) and returns its length; nil when there is no such run and the cell is drawn alone.
-    func drawRun(row: Int, column: Int, frame: Frame, table: inout GlyphTable, surface: inout Surface) -> Int? {
-        let screen = frame.screen
-        let first = frame.cell(row: row, column: column)
+    func drawRun(
+        row: Int,
+        column: Int,
+        cells: RowCells,
+        frame: Frame,
+        walk: inout Walk,
+        surface: inout Surface
+    ) -> Int? {
+        let first = cells[column]
         guard isRunnable(first, row: row, column: column, frame: frame) else { return nil }
         var length = 1
-        while column + length < screen.columns, length < Self.maxRun {
-            let next = frame.cell(row: row, column: column + length)
+        while column + length < frame.columns, length < Self.maxRun {
+            let next = cells[column + length]
             guard next.styleID == first.styleID, isRunnable(next, row: row, column: column + length, frame: frame)
             else { break }
             length += 1
         }
         guard length >= 2 else { return nil }
-        let style = screen.style(of: first)
+        let style = frame.style(of: first)
         let bold = style.attributes.contains(.bold)
         let italic = style.attributes.contains(.italic)
         let entry = shaped(
-            row: row,
+            cells: cells,
             columns: column ..< column + length,
             bold: bold,
             italic: italic,
             frame: frame,
-            table: &table
+            table: &walk.glyphs
         )
         for offset in 0 ..< length {
-            let cell = frame.cell(row: row, column: column + offset)
+            let cell = cells[column + offset]
             drawCell(
                 cell,
                 at: Placement(row: row, column: column + offset, span: 1, drawGlyph: false),
                 frame: frame,
-                table: &table,
+                walk: &walk,
                 surface: &surface
             )
         }
         if entry.glyph != 0 {
-            let colors = colors(of: style, frame: frame)
+            let colors = Self.colors(of: style, frame: frame)
             blit(
-                table[entry.glyph],
-                number: entry.glyph,
+                entry.glyph,
+                of: walk.glyphs,
                 into: &surface,
                 cell: Box(
                     x: metrics.paddingX + column * metrics.cellWidth,
@@ -74,7 +80,7 @@ extension CPURenderer {
     /// The shaped run for these cells, from the cache or made by the glyph source. The lookup compares the cells with the entry's scalars, so it neither
     /// allocates nor trusts the hash alone.
     private func shaped(
-        row: Int,
+        cells: RowCells,
         columns: Range<Int>,
         bold: Bool,
         italic: Bool,
@@ -84,13 +90,13 @@ extension CPURenderer {
         let (column, length) = (columns.lowerBound, columns.count)
         var hash: UInt64 = 0xCBF2_9CE4_8422_2325 ^ (bold ? 1 : 0) ^ (italic ? 2 : 0)
         for offset in 0 ..< length {
-            hash = (hash ^ UInt64(frame.cell(row: row, column: column + offset).scalar)) &* 0x0000_0100_0000_01B3
+            hash = (hash ^ UInt64(cells[column + offset].scalar)) &* 0x0000_0100_0000_01B3
         }
         if let entries = runCache[hash] {
             for entry in entries where entry.bold == bold && entry.italic == italic && entry.scalars.count == length {
                 var same = true
                 for offset in 0 ..< length
-                where entry.scalars[offset] != frame.cell(row: row, column: column + offset).scalar {
+                where entry.scalars[offset] != cells[column + offset].scalar {
                     same = false
                     break
                 }
@@ -100,7 +106,7 @@ extension CPURenderer {
         var scalars: [UInt32] = []
         var text = String.UnicodeScalarView()
         for offset in 0 ..< length {
-            let value = frame.cell(row: row, column: column + offset).scalar
+            let value = cells[column + offset].scalar
             scalars.append(value)
             text.append(Unicode.Scalar(value) ?? "\u{FFFD}")
         }

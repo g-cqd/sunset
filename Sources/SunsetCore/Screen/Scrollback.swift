@@ -50,6 +50,14 @@ struct Scrollback: Sendable {
         return column < end - start ? chunks[chunk].cell(at: start + column) : .empty
     }
 
+    /// The cells of `line`, without its trailing blank cells (it is kept without them): one lookup for the line, not one a cell.
+    func cells(line: Int) -> ArraySlice<Cell> {
+        let (chunk, index) = locate(line)
+        let start = index == 0 ? 0 : Int(chunks[chunk].ends[index - 1] & ~Self.wrappedBit)
+        let end = Int(chunks[chunk].ends[index] & ~Self.wrappedBit)
+        return (chunks[chunk].packed?.cells() ?? chunks[chunk].cells)[start ..< end]
+    }
+
     func isWrapped(_ line: Int) -> Bool {
         let (chunk, index) = locate(line)
         return chunks[chunk].ends[index] & Self.wrappedBit != 0

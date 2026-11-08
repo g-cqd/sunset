@@ -75,4 +75,24 @@ import Testing
             #expect(fresh.pixels == rig.surface.pixels, "\(selection)")
         }
     }
+
+    @Test func `a selected underline is in the cell's swapped foreground, unless it has a colour of its own`() {
+        var rig = CPURendererRig()
+        // Column 0: underline without a colour. Column 1: underlined in a colour equal to the foreground. Column 2: in a colour of its own.
+        rig.frame(
+            "\u{1B}[31;4mx\u{1B}[58;2;205;0;0my\u{1B}[58;2;1;2;3mz",
+            cursorVisible: false,
+            selection: Selection(anchor: point(0, 0), head: point(0, 2))
+        )
+        let underline = metrics.underlineY
+        #expect(
+            rig.pixel(row: 0, column: 0, x: 1, y: underline) == black,
+            "the foreground once swapped: the background"
+        )
+        #expect(
+            rig.pixel(row: 0, column: 1, x: 1, y: underline) == RGB(205, 0, 0),
+            "its own colour, though it is the foreground"
+        )
+        #expect(rig.pixel(row: 0, column: 2, x: 1, y: underline) == RGB(1, 2, 3))
+    }
 }

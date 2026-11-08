@@ -6,7 +6,7 @@ public struct DrawFrame: Sendable {
     public let ops: ContiguousArray<DrawOp>
     /// The renderer's glyph table: a glyph operation names its bitmap by its place here (`glyph(of:)`). A place keeps its bitmap from frame to frame while
     /// `glyphGeneration` stays the same, so a backend can remember what it uploaded by place; the table only grows within a generation.
-    public let glyphs: [GlyphBitmap]
+    public let glyphs: ContiguousArray<GlyphBitmap>
     /// Changes when the renderer started its glyph table again: places a backend remembers from an earlier generation mean nothing now. Unique in the process
     /// (no two renderers share one); 0 is never given out, it is for frames made by hand.
     public let glyphGeneration: UInt32
@@ -20,7 +20,7 @@ public struct DrawFrame: Sendable {
         width: Int,
         height: Int,
         ops: ContiguousArray<DrawOp>,
-        glyphs: [GlyphBitmap] = [],
+        glyphs: ContiguousArray<GlyphBitmap> = [],
         glyphGeneration: UInt32 = 0,
         translucent: Bool,
         changedPixelRows: ClosedRange<Int>?
