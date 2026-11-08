@@ -6,9 +6,10 @@ public import SunsetRender
 public import SunsetRenderMac
 internal import Synchronization
 
-/// The Metal renderer behind `IOSurfaceRenderer`: the CPU renderer works out the frame's operations (`CPURenderer.record`), `MetalCompositor` draws them into a
-/// canvas texture that keeps the picture, and the rows that changed are copied on the GPU into one of three `IOSurface`s the layer shows (the one just shown is
-/// never written: the compositor may still be reading it). Each surface remembers the rows it missed, as `IOSurfacePresenter` does.
+/// The Metal renderer behind `IOSurfaceRenderer`: the CPU renderer works out the frame's operations (`CPURenderer.record`) and `MetalCompositor` draws them
+/// straight into the next of three `IOSurface`s the layer shows (the one just shown is never written: the compositor may still be reading it). That surface
+/// is first brought up to the one shown last, on the GPU: the rows it missed are copied from it, and a scroll's rows moved from it. No other texture keeps
+/// the picture (renderer plan, item 5: a frame-sized canvas less per window).
 public actor MetalSurfaceRenderer: IOSurfaceRenderer {
     private static let bufferCount = 3
     /// 'RGBA': the bytes of a pixel are red, green, blue, alpha, as the renderer packs them.
@@ -20,7 +21,6 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
         var missing: [ClosedRange<Int>?] = []
         var shown: Int?
         var size = (width: 0, height: 0)
-        var canvas: (any MTLTexture)?
     }
 
     public nonisolated let cellMetrics: RenderMetrics
@@ -41,6 +41,9 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
         cellMetrics = metrics
         recorder = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures)
     }
+
+    /// How many frame-sized textures the window holds (for tests: memory, n11).
+    var frameBufferCount: Int { ring.textures.count }
 
     public nonisolated var latest: IOSurface? { shown.withLock { $0 } }
     public nonisolated var backend: RendererBackend { .gpu }
@@ -87,16 +90,17 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
             textBlinkVisible: textBlinkVisible,
             view: view
         )
-        guard let changed = frame.changedPixelRows, let canvas = ring.canvas else { return false }
+        guard let changed = frame.changedPixelRows else { return false }
         let target = ((ring.shown ?? Self.bufferCount - 1) + 1) % Self.bufferCount
-        let rows = merge(ring.missing[target], changed)
+        // Without a surface shown yet, the frame draws everything (the renderer was invalidated with the ring).
+        let previous = ring.shown.map { ring.textures[$0] }
+        let missing = ring.missing[target].map { Self.rows($0, without: frame.move) } ?? []
         do {
-            // The surface shown last holds the canvas as it was: a scroll's rows are moved from it.
             try await compositor.apply(
                 frame,
-                to: canvas,
-                copying: (rows, ring.textures[target]),
-                movingFrom: ring.shown.map { ring.textures[$0] }
+                to: ring.textures[target],
+                restoring: previous.map { (missing, $0) },
+                movingFrom: previous
             )
         } catch {
             // The frame was not drawn and the GPU may be gone: the window is told to use the CPU renderer.
@@ -112,6 +116,20 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
         let surface = ring.surfaces[target]
         shown.withLock { $0 = surface }
         return true
+    }
+
+    /// The rows of `rows` that `move` does not write: a surface brought up to date need not copy rows the move replaces.
+    static func rows(_ rows: ClosedRange<Int>, without move: PixelMove?) -> [ClosedRange<Int>] {
+        guard let move, move.height > 0 else { return [rows] }
+        let moved = move.destinationY ... move.destinationY + move.height - 1
+        var left: [ClosedRange<Int>] = []
+        if rows.lowerBound < moved.lowerBound {
+            left.append(rows.lowerBound ... min(rows.upperBound, moved.lowerBound - 1))
+        }
+        if rows.upperBound > moved.upperBound {
+            left.append(max(rows.lowerBound, moved.upperBound + 1) ... rows.upperBound)
+        }
+        return left
     }
 
     private func merge(_ first: ClosedRange<Int>?, _ second: ClosedRange<Int>) -> ClosedRange<Int> {
@@ -142,15 +160,13 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
             surfaces.append(surface)
             textures.append(texture)
         }
-        guard let canvas = compositor.makeTarget(width: width, height: height) else { return false }
         ring = Ring(
             surfaces: surfaces,
             textures: textures,
             // A new surface has none of the frame yet: all of it is missing.
             missing: [ClosedRange<Int>?](repeating: 0 ... height - 1, count: Self.bufferCount),
             shown: nil,
-            size: (width, height),
-            canvas: canvas
+            size: (width, height)
         )
         return true
     }

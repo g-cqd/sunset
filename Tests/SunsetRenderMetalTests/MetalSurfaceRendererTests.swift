@@ -125,4 +125,21 @@ import Testing
         let (_, gpu, _) = try renderers()
         #expect(gpu.latest == nil)
     }
+
+    @Test func `a window holds only the surfaces it shows: no canvas besides them`() async throws {
+        let (_, gpu, _) = try renderers()
+        var terminal = Terminal(columns: 20, rows: 4)
+        terminal.feed("hello")
+        _ = await gpu.present(terminal.screen, cursorVisible: true, textBlinkVisible: true, view: FrameView())
+        #expect(await gpu.frameBufferCount == 3)
+    }
+
+    @Test func `rows a move writes are not copied again, the rest are`() {
+        let move = PixelMove(sourceY: 20, destinationY: 10, height: 50)
+        #expect(MetalSurfaceRenderer.rows(0 ... 99, without: move) == [0 ... 9, 60 ... 99])
+        #expect(MetalSurfaceRenderer.rows(10 ... 59, without: move).isEmpty)
+        #expect(MetalSurfaceRenderer.rows(30 ... 80, without: move) == [60 ... 80])
+        #expect(MetalSurfaceRenderer.rows(0 ... 5, without: move) == [0 ... 5])
+        #expect(MetalSurfaceRenderer.rows(0 ... 5, without: nil) == [0 ... 5])
+    }
 }

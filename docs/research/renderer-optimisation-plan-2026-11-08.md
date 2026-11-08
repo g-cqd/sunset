@@ -188,3 +188,19 @@ floods of many lines a frame (a gain while *k* is under the row count), scrollin
 
 **Next**: item 5. The GPU path now copies two frames' worth per scroll (the move into the canvas, the changed rows out to the shown surface): drawing
 straight into the surface to be shown, after moving into it from the one shown, would do one copy and drop the canvas texture (memory, n11).
+
+### Item 5, GPU part: no canvas (done)
+
+`MetalSurfaceRenderer` draws straight into the next surface of its ring of three. In one command buffer: the rows that surface missed are copied from the
+surface shown last (less the rows the frame's move writes), the move is copied from it, then the operations are drawn. The canvas texture is gone.
+
+- Guards: the ring tests (frames through the rotation, a scroll every frame, concurrent presents, resize) agree with the CPU backend pixel for pixel;
+  skipping the missed-rows copy fails 18 of their checks; a test pins 3 frame buffers per window (it was 4: watched red); the range subtraction has edge tests.
+- Memory, the app with the GPU renderer, one default-size window, `footprint` after 10 s, 2 rounds each: "IOAccelerator (graphics)" **10 MB → 5.28 MB**
+  (both rounds), total 41 / 46 MB → 36 / 36 MB. The canvas was one frame buffer: 10.9 MB for a 120×40 window at the probes' 28 px font, 54 MB at 300×80.
+- Time, `present` end to end (it awaits the GPU), 300 scroll frames, A/B against the commit before, 4 rounds each, load 6-8, median / 10th percentile µs:
+  120×40 no difference beyond noise (p10 558-618 before, 565-630 after); 300×80 p10 lower in every round (1 811 / 1 825 / 1 895 / 2 084 before,
+  1 534 / 1 538 / 1 544 / 1 819 after). Process CPU per frame unchanged (78-88 µs both), as expected: the CPU side did not change.
+
+Not done yet from item 5: taking a free surface with `IOSurfaceIsInUse` so that two usually suffice, and the CPU backend drawing into the IOSurface's memory
+instead of its own `Surface` (it keeps a frame-sized copy and copies the changed rows every frame).

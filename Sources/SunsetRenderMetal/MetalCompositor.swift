@@ -84,23 +84,31 @@ public final class MetalCompositor {
         try await apply(frame, to: target, copying: nil, movingFrom: nil)
     }
 
-    /// Draws the frame into `target` and, in the same command buffer, copies the pixel rows `copy.rows` of it into `copy.destination` (the surface a window
-    /// shows): the GPU moves the changed rows, nothing goes through the CPU. The frame's pixel move (a scroll, `DrawFrame.move`) is copied from `previous`,
-    /// which must hold what `target` held after the frame before (the surface last shown): Metal leaves a copy between overlapping regions of one texture
-    /// undefined, so the rows cannot be moved within `target` itself.
+    /// Draws the frame into `target`, all in one command buffer, in this order:
+    /// - `restore`: copies the rows `restore.rows` of `restore.source` into `target` first (a surface of a ring brought up to the one shown last);
+    /// - the frame's pixel move (a scroll, `DrawFrame.move`), copied from `previous`, which must hold the picture of the frame before (the surface last shown):
+    ///   Metal leaves a copy between overlapping regions of one texture undefined, so the rows cannot be moved within `target` itself;
+    /// - the frame's operations;
+    /// - `copy`: the pixel rows `copy.rows` of `target` copied into `copy.destination`.
+    /// Nothing goes through the CPU.
     public nonisolated(nonsending) func apply(
         _ frame: DrawFrame,
         to target: any MTLTexture,
-        copying copy: (rows: ClosedRange<Int>, destination: any MTLTexture)?,
+        restoring restore: (rows: [ClosedRange<Int>], source: any MTLTexture)? = nil,
+        copying copy: (rows: ClosedRange<Int>, destination: any MTLTexture)? = nil,
         movingFrom previous: (any MTLTexture)? = nil
     ) async throws {
-        guard !frame.ops.isEmpty || copy != nil || frame.move != nil else { return }
+        let restores = restore.map { !$0.rows.isEmpty } ?? false
+        guard !frame.ops.isEmpty || copy != nil || frame.move != nil || restores else { return }
         // The atlas and the instance buffer are written for this frame: the frame before must be finished, which a second caller would break.
         precondition(!drawing, "MetalCompositor.apply is one frame at a time")
         drawing = true
         defer { drawing = false }
         let count = try writeInstances(for: frame)
         guard let commands = queue.makeCommandBuffer() else { throw Failure.commandFailed }
+        for rows in restore?.rows ?? [] {
+            if let source = restore?.source { Self.encodeCopy(rows: rows, of: source, to: target, into: commands) }
+        }
         if let move = frame.move {
             guard let previous else { throw Failure.noMoveSource }
             Self.encode(move, from: previous, to: target, into: commands)
