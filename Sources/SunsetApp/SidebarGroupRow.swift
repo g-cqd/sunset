@@ -15,12 +15,10 @@ struct SidebarGroupRow: View {
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-        return HStack(spacing: 2) {
+        return HStack(spacing: inset) {
             ForEach(item.panes, id: \.self) { pane in part(pane) }
         }
-        .padding(.leading, layout.tabPaddingLeading / 2)
-        .padding(.trailing, layout.tabPaddingTrailing / 2)
-        .padding(.vertical, layout.tabPaddingVertical)
+        .padding(inset)
         .background(shape.fill(containerHighlight))
         .overlay { shape.hairline(layout).opacity(selected ? 1 : 0) }
         .contentShape(shape)
@@ -30,6 +28,9 @@ struct SidebarGroupRow: View {
         .animation(layout.smooth, value: item.focused)
         .animation(layout.smooth, value: activeState)
     }
+
+    /// The same space between the container's edge and the small tabs on all four sides, and between the small tabs.
+    private var inset: Double { layout.tabPaddingVertical }
 
     private func part(_ pane: PaneID) -> some View {
         let lit = selected && pane == item.focused
