@@ -6,11 +6,12 @@ import SwiftUI
 struct PinButton: View {
     let pinned: Bool
     let layout: Configuration.Layout
+    let radius: Double
     let action: () -> Void
     @State private var hovering = false
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: layout.pinButtonRadius, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
         Button(action: action) {
             Image(systemName: "sidebar.left")
                 .symbolVariant(pinned ? .fill : .none)

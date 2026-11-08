@@ -17,7 +17,7 @@ import Testing
 
     @Test func `with no theme named the file is read as it is`() throws {
         let result = try load(#"{ "font": { "size": 12 } }"#, themes: ["nord": nord])
-        #expect(result.configuration.font.size == 12 && result.configuration.font.family == nil)
+        #expect(result.configuration.font.size == 12 && result.configuration.font.family == Configuration().font.family)
         #expect(result.issues.isEmpty)
     }
 
@@ -74,7 +74,7 @@ import Testing
         #expect(!ConfigurationLoader.isSafeThemeName(".hidden"))
         let result = try load(#"{ "theme": "../x" }"#, themes: ["../x": nord])
         #expect(result.issues.contains { $0.path == "theme" })
-        #expect(result.configuration.font.family == nil)
+        #expect(result.configuration.font.family == Configuration().font.family)
     }
 
     @Test func `the theme folder sits next to the file`() {

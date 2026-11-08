@@ -7,21 +7,21 @@ import Testing
         try ConfigurationParser.parse(text)
     }
 
-    @Test func `the defaults: opaque, no padding, no blur, no sidebar, native tabs, regular glass`() throws {
+    @Test func `the defaults: regular material, 4 pt padding, a docked sidebar, native tabs, regular glass`() throws {
         let configuration = try read("{}").configuration
-        #expect(configuration.window.material == .opaque)
+        #expect(configuration.window.material == .material)
         #expect(
-            configuration.window.padding == 0 && configuration.window.blur == 0 && configuration.terminal.opacity == 0.8
+            configuration.window.padding == 4 && configuration.window.blur == 0 && configuration.terminal.opacity == 0
         )
         #expect(
-            !configuration.sidebar.enabled && configuration.sidebar.width == 200 && configuration.sidebar.padding == 6
+            configuration.sidebar.enabled && configuration.sidebar.width == 207 && configuration.sidebar.padding == 4
         )
         #expect(
-            configuration.sidebar.autoHide,
-            "hidden until the pointer is at the leading edge, then a floating glass panel"
+            !configuration.sidebar.autoHide,
+            "docked beside the terminal"
         )
         #expect(configuration.appearance.glass == .regular)
-        #expect(configuration.appearance.tintColor == nil && configuration.appearance.tintAlpha == 0.25)
+        #expect(configuration.appearance.tintColor == nil && configuration.appearance.tintAlpha == 0)
         #expect(configuration.tabs.mode == .native)
         #expect(configuration.tabs.bar == Configuration.Tabs.Bar())
         #expect(configuration.theme == nil)
@@ -110,7 +110,7 @@ import Testing
 
     @Test func `groups: the window look, the sidebar, the tabs and the theme are separate changes`() {
         var new = Configuration()
-        new.sidebar.enabled = true
+        new.sidebar.enabled = false
         #expect(new.changes(from: Configuration()) == [.sidebar])
         var tabs = Configuration()
         tabs.tabs.mode = .none

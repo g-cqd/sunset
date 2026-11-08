@@ -10,6 +10,8 @@ struct TabSidebar: View {
     let settings: Configuration
     /// The floating panel: its traffic lights are a little further from the corner.
     var floating = false
+    /// The floating panel's corner radius: the pin button's corner towards the panel's is concentric with it (same gap to both edges).
+    var panelRadius: Double?
 
     private var margin: Double { settings.sidebar.padding }
     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
@@ -72,10 +74,17 @@ struct TabSidebar: View {
     /// (pinned) and outlined while it only appears on hover. Its container is a rounded square the size of the hit box, highlighted under the pointer like a
     /// tab, with its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
     private var pinButton: some View {
-        PinButton(pinned: !settings.sidebar.autoHide, layout: layout) {
+        PinButton(pinned: !settings.sidebar.autoHide, layout: layout, radius: pinRadius) {
             AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
         }
-        .padding(settings.sidebar.side == .left ? .trailing : .leading, margin)
+        .padding(settings.sidebar.side == .left ? .trailing : .leading, pinGap)
         .padding(.top, header.buttonTop)
+    }
+
+    /// The pin button's distance from the panel's top and from its edge: the same, so that their corners share a centre (docked: the margin).
+    private var pinGap: Double { panelRadius == nil ? margin : header.buttonTop }
+    private var pinRadius: Double {
+        guard let panelRadius else { return layout.pinButtonRadius }
+        return ConcentricRadius.inner(outer: panelRadius, inset: pinGap)
     }
 }
