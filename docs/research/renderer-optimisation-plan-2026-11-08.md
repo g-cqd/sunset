@@ -221,3 +221,15 @@ instead of four.
 
 Not done yet from item 5: the CPU backend drawing into the IOSurface's memory instead of its own `Surface` (it keeps a frame-sized copy and copies the
 changed rows every frame); it is the fallback backend (`auto` picks the GPU when there is a device), and the prerequisite of item 6.
+
+### Item 6: not started, on the evidence
+
+Item 6 (small frames on the CPU) was argued from the GPU path's ~65 µs of process CPU for a one-row frame. Measured what it would save in an idle window
+(the app, one window, `top` POWER and CPU over 20 s and `rusage` over 10 s, 2 rounds each): GPU renderer power 0.03 / 0.04, CPU 0.03 / 0.04 %; CPU renderer
+power 0.11 / 0.22, CPU 0.10 / 0.12 %; 0.015-0.040 M instructions a second either way, i.e. no frames were drawn in that time at all. Typing at 10 keys a
+second would cost the GPU path ~0.6 ms of CPU a second. Neither is worth a second drawing path now; revisit with an owner-run `powermetrics` comparison
+if energy while typing is a concern.
+
+Seen on the way (n11): the GPU build's **peak** footprint is 134.6 MB against 45 MB for the CPU one (steady 41.6 against 45.3 MB). Likely the shader
+compiled from source at start (`makeLibrary(source:)`, ADR-0006); not verified. To look at: when the peak happens, and whether a library compiled once
+and cached (or built into the app) removes it.
