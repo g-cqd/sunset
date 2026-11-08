@@ -12,7 +12,8 @@ struct TabSidebar: View {
     var floating = false
 
     private var margin: Double { settings.sidebar.padding }
-    private var layout: Configuration.Layout { settings.layout }
+    /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
+    private var layout: Configuration.Layout { floating ? settings.layout.floatingTabs : settings.layout }
     private var header: SidebarHeader { SidebarHeader(layout: layout, margin: margin, floating: floating) }
     private var topInset: Double { header.height }
 

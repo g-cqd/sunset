@@ -8,20 +8,20 @@ import SwiftUI
 /// them, and the settings that reach every terminal.
 struct TerminalScene: View {
     let launch: LaunchOptions
-    @State private var tabs = TabsModel()
-    @State private var window: NSWindow?
+    @State var tabs = TabsModel()
+    @State var window: NSWindow?
     /// How much of the window's top the title bar and the system tab bar cover.
     @State private var obscured = 0.0
     /// Whether the floating sidebar (and with it the traffic lights) is out.
-    @State private var floatingShown = false
+    @State var floatingShown = false
     /// The sidebar was just unpinned: the panel starts out (the pointer is where the column was) and goes when the pointer is not on it.
-    @State private var opensAtOnce = false
+    @State var opensAtOnce = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openWindow) private var openWindow
-    private let config = AppConfiguration.shared
+    let config = AppConfiguration.shared
 
-    private var configuration: Configuration { config.configuration }
-    private var presentation: TabPresentation { configuration.presentation }
+    var configuration: Configuration { config.configuration }
+    var presentation: TabPresentation { configuration.presentation }
     private var noDecorations: Bool { configuration.window.decorations == .none }
     private var barAtTop: Bool { presentation.showsBuiltInBar && configuration.tabs.bar.position == .top }
 
@@ -48,38 +48,6 @@ struct TerminalScene: View {
         guard look.isOpaque else { return .clear }
         return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
-    /// The window's corner radius, from AppKit (16 pt on macOS 27.0.1).
-    private var windowRadius: Double {
-        window.flatMap { WindowCornerRadius.of($0) } ?? ConcentricRadius.standardWindow
-    }
-    private var floatsSidebar: Bool { presentation.showsSidebar && configuration.sidebar.autoHide }
-
-    /// With the sidebar the traffic lights are part of it, in the slot at its top (`SidebarHeader`), away from the window's edge: docked they are always
-    /// there; floating they come and go with the panel, which is inset by the margin.
-    private var lights: LightsPlacement? {
-        guard presentation.showsSidebar else { return nil }
-        let margin = configuration.sidebar.padding
-        let origin = SidebarHeader(layout: configuration.layout, margin: margin, floating: !configuration.sidebarDocked)
-            .lightsOrigin
-        return LightsPlacement(
-            x: origin,
-            y: origin,
-            visible: configuration.sidebarDocked || floatingShown
-        )
-    }
-
-    @ViewBuilder private var floatingSidebar: some View {
-        if floatsSidebar {
-            FloatingSidebar(
-                tabs: tabs,
-                settings: configuration,
-                windowRadius: windowRadius,
-                shown: $floatingShown,
-                opensAtOnce: $opensAtOnce
-            )
-            .transition(.opacity)
-        }
-    }
     private var look: WindowLook { WindowLook(configuration) }
     private var colors: DefaultColors { DefaultColors(configuration.colors) }
 
@@ -99,11 +67,11 @@ struct TerminalScene: View {
                         .frame(maxHeight: .infinity)
                         .background { SidebarBackdrop(look: SidebarLook(configuration)) }
                         .background(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
-                        .overlay(alignment: .trailing) { SidebarResizeHandle(width: configuration.sidebar.width) }
                         .transition(.move(edge: .leading).combined(with: .opacity))
                 }
                 terminal
             }
+            .overlay(alignment: .leading) { resizeHandle }
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
             .overlay(alignment: .leading) { floatingSidebar }
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
