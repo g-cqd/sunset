@@ -22,12 +22,8 @@ extension Reader {
                 case "padding":
                     if let points = number(path, value, range: 0 ... 16) { configuration.sidebar.padding = points }
                 case "autoHide": if let flag = bool(path, value) { configuration.sidebar.autoHide = flag }
-                case "material":
-                    if let choice = choice(path, value, as: Configuration.Material.self) {
-                        configuration.sidebar.material = choice
-                    }
-                case "blur":
-                    if let radius = number(path, value, range: 0 ... 100) { configuration.sidebar.blur = radius }
+                // Removed: the sidebar takes the window's material and blur. Files written before still have them; they are ignored without a warning.
+                case "material", "blur": break
                 default: unknown(path)
             }
         }

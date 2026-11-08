@@ -40,10 +40,7 @@ extension Reader {
                     if let choice = choice("window.material", value, as: Configuration.Material.self) {
                         configuration.window.material = choice
                     }
-                case "opacity":
-                    if let factor = number("window.opacity", value, range: 0 ... 1) {
-                        configuration.window.opacity = factor
-                    }
+                case "opacity": readLegacyWindowOpacity(value)
                 case "blur":
                     if let radius = number("window.blur", value, range: 0 ... 100) {
                         configuration.window.blur = radius

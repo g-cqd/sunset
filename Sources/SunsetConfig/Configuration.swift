@@ -35,8 +35,6 @@ public struct Configuration: Sendable, Equatable {
         /// Space between the window's edge and the terminal, in points (0: the text reaches the edge).
         public var padding = 0.0
         public var material = Material.opaque
-        /// How opaque the terminal's default background is with `transparent` (0 to 1).
-        public var opacity = 0.8
         /// The radius of the blur behind a `transparent` window, in points (0 to 100).
         public var blur = 0.0
         public init() {}
@@ -64,9 +62,6 @@ public struct Configuration: Sendable, Equatable {
         /// The sidebar is hidden, and floats over the terminal as a glass panel (holding the traffic lights) while the pointer is at the leading edge; false: it
         /// stays beside the terminal.
         public var autoHide = true
-        /// What is behind the tab list: nothing by default (the window's own colour or material shows).
-        public var material = Material.transparent
-        public var blur = 0.0
         public init() {}
     }
 
@@ -120,6 +115,14 @@ public struct Configuration: Sendable, Equatable {
         public init() {}
     }
 
+    /// What only the terminal screen has of its own (the window's settings, material and blur, also give the sidebar its look).
+    public struct Terminal: Sendable, Equatable {
+        /// How opaque the terminal's default background is when the window is not opaque: 1 shows only the terminal's colour, less lets the window's
+        /// material show through.
+        public var opacity = 0.8
+        public init() {}
+    }
+
     public struct Keyboard: Sendable, Equatable {
         /// Option sends Escape before the key (Meta) instead of composing a character.
         public var optionAsMeta = false
@@ -138,6 +141,7 @@ public struct Configuration: Sendable, Equatable {
     public var sidebar = Sidebar()
     public var appearance = Appearance()
     public var layout = Layout()
+    public var terminal = Terminal()
     public var tabs = Tabs()
     /// The name of a theme file (`themes/<name>.json` beside the configuration file), or nil.
     public var theme: String?

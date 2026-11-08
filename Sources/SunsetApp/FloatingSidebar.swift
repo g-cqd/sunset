@@ -61,7 +61,7 @@ struct FloatingSidebar: View {
             .onHover { inside in pointer(inside) }
     }
 
-    /// Glass, whatever `sidebar.material` says (the docked sidebar has none by default; a floating one needs something to be read over), with the shared tint.
+    /// The panel is always glass (it floats over the terminal and has to be readable there), with the window's blur, glass style and tint.
     private var panelLook: SidebarLook {
         var look = SidebarLook(settings)
         look.material = .glass

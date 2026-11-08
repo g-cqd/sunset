@@ -6,9 +6,13 @@ struct Reader {
     var configuration: Configuration
     var issues: [ConfigurationIssue] = []
     let scope: ConfigurationParser.Scope
+    /// `terminal.opacity` was given: the old `window.opacity` no longer applies after it.
+    var terminalOpacitySet = false
 
     /// The top-level keys a theme may set: everything visual.
-    private static let themeKeys: Set<String> = ["font", "colors", "window", "sidebar", "appearance", "layout"]
+    private static let themeKeys: Set<String> = [
+        "font", "colors", "window", "sidebar", "appearance", "layout", "terminal"
+    ]
 
     init(configuration: Configuration = Configuration(), scope: ConfigurationParser.Scope = .file) {
         self.configuration = configuration
@@ -29,6 +33,7 @@ struct Reader {
                 case "window": section("window", value) { reader, object in reader.readWindow(object) }
                 case "sidebar": section("sidebar", value) { reader, object in reader.readSidebar(object) }
                 case "appearance": section("appearance", value) { reader, object in reader.readAppearance(object) }
+                case "terminal": section("terminal", value) { reader, object in reader.readTerminal(object) }
                 case "layout": section("layout", value) { reader, object in reader.readLayout(object) }
                 case "tabs": section("tabs", value) { reader, object in reader.readTabs(object) }
                 case "theme": readTheme(value)

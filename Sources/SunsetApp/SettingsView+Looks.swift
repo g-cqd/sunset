@@ -6,8 +6,16 @@ extension SettingsView {
     @ViewBuilder func moreControls(for id: String) -> some View {
         switch id {
             case "theme.name": themeField
-            case "window.material": materialPicker("Window background", config.binding(\.window.material))
-            case "window.opacity": number("Background opacity", \.window.opacity, range: 0 ... 1, step: 0.05, unit: "")
+            case "window.material": materialPicker("Window and sidebar background", config.binding(\.window.material))
+            case "terminal.opacity":
+                VStack(alignment: .leading, spacing: 4) {
+                    number("Background opacity", \.terminal.opacity, range: 0 ... 1, step: 0.05, unit: "")
+                    Text(
+                        "How opaque the terminal screen's own background is. It only shows when the window background is not Opaque (Window / Appearance); "
+                            + "the sidebar follows the window's settings."
+                    )
+                    .font(.caption).foregroundStyle(.secondary)
+                }
             case "window.blur": number("Window blur", \.window.blur, range: 0 ... 100, step: 1, unit: "pt")
             case "window.padding": number("Padding", \.window.padding, range: 0 ... 32, step: 1, unit: "pt")
             case "appearance.glass":
@@ -32,8 +40,6 @@ extension SettingsView {
             case "sidebar.width": number("Width", \.sidebar.width, range: 120 ... 480, step: 5, unit: "pt")
             case "sidebar.padding":
                 number("Space around the terminal", \.sidebar.padding, range: 0 ... 16, step: 1, unit: "pt")
-            case "sidebar.material": materialPicker("Sidebar background", config.binding(\.sidebar.material))
-            case "sidebar.blur": number("Sidebar blur", \.sidebar.blur, range: 0 ... 100, step: 1, unit: "pt")
             case "tabs.mode":
                 Picker("Tabs", selection: config.binding(\.tabs.mode)) {
                     Text("None (one terminal per window)").tag(Configuration.Tabs.Mode.none)

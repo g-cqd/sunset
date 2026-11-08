@@ -65,7 +65,6 @@ struct TerminalScene: View {
                         .padding(.leading, configuration.sidebar.padding)
                         .frame(width: configuration.sidebar.width, alignment: .leading)
                         .frame(maxHeight: .infinity)
-                        .background { SidebarBackdrop(look: SidebarLook(configuration)) }
                         .background(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
                         .transition(.move(edge: .leading).combined(with: .opacity))
                 }

@@ -90,6 +90,11 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                 ]
             case .terminal:
                 return [
+                    entry(
+                        "terminal.opacity",
+                        "Background opacity",
+                        ["transparent", "alpha", "see through", "screen", "translucent"]
+                    ),
                     entry("terminal.blinkForever", "Cursor blinks for ever", ["blink", "caret", "idle"]),
                     entry("terminal.blinkTimeout", "Stop blinking after", ["blink", "caret", "idle", "seconds"]),
                     entry("terminal.renderer", "Renderer", ["gpu", "cpu", "metal", "auto", "graphics"])
@@ -122,7 +127,6 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                 "Window background",
                 ["material", "glass", "transparent", "opaque", "blur", "vibrancy"]
             ),
-            entry(pane, "window.opacity", "Background opacity", ["transparent", "alpha", "see through"]),
             entry(pane, "window.blur", "Window blur", ["radius", "frosted", "background"]),
             entry(pane, "window.padding", "Padding", ["margin", "space", "edge", "border"]),
             entry(pane, "appearance.glass", "Glass style", ["liquid glass", "regular", "clear"]),
@@ -135,9 +139,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         [
             entry(pane, "sidebar.enabled", "Show the sidebar", ["tabs", "vertical", "list"]),
             entry(pane, "sidebar.width", "Width", ["size", "wide"]),
-            entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"]),
-            entry(pane, "sidebar.material", "Sidebar background", ["material", "glass", "transparent", "opaque"]),
-            entry(pane, "sidebar.blur", "Sidebar blur", ["radius", "frosted"])
+            entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"])
         ]
     }
 
