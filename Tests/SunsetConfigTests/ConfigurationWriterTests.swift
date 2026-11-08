@@ -66,7 +66,7 @@ import Testing
     @Test func `every key the reader knows is in the file, so the file shows what can be set`() throws {
         let text = ConfigurationWriter.text(for: Configuration())
         #expect(
-            ConfigurationKeys.all.count == 70,
+            ConfigurationKeys.all.count == 71,
             "a key was added or removed: the list, the reader and the writer move together"
         )
         for key in ConfigurationKeys.all {

@@ -23,6 +23,7 @@ import Testing
         #expect(configuration.appearance.glass == .regular)
         #expect(configuration.appearance.tintColor == nil && configuration.appearance.tintAlpha == 0)
         #expect(configuration.tabs.mode == .native)
+        #expect(configuration.tabs.restore, "tabs come back at launch")
         #expect(configuration.tabs.bar == Configuration.Tabs.Bar())
         #expect(configuration.theme == nil)
     }

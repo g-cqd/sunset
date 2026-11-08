@@ -20,7 +20,7 @@ public enum ConfigurationKeys {
         "layout.paneGap", "layout.innerCornerRadius",
         "layout.hideDelay", "layout.animation", "layout.terminalRadius", "layout.panelRadius",
         "appearance.scheme", "appearance.glass", "appearance.tint.color", "appearance.tint.alpha",
-        "tabs.mode", "tabs.bar.position", "tabs.bar.title", "tabs.bar.directory", "tabs.bar.progress",
+        "tabs.mode", "tabs.restore", "tabs.bar.position", "tabs.bar.title", "tabs.bar.directory", "tabs.bar.progress",
         "scroll.trackpad", "scroll.wheel", "scroll.inertia",
         "scrollback.lines", "cursor.blinkTimeout", "renderer",
         "keyboard.optionAsMeta"

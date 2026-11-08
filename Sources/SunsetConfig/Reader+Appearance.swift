@@ -73,6 +73,7 @@ extension Reader {
                     if let choice = choice("tabs.mode", value, as: Configuration.Tabs.Mode.self) {
                         configuration.tabs.mode = choice
                     }
+                case "restore": if let flag = bool("tabs.restore", value) { configuration.tabs.restore = flag }
                 case "bar": section("tabs.bar", value) { reader, bar in reader.readTabBar(bar) }
                 default: unknown("tabs.\(key)")
             }

@@ -7,6 +7,8 @@ struct LaunchOptions: Sendable {
     var fontSize: Double?
     var ligatures: Bool?
     var scrollback: Int?
+    /// A program was named on the command line: this launch is for that program, not for the saved tabs.
+    var namedCommand = false
 
     /// `sunset-app [--font NAME] [--size PT] [--ligatures] [--scrollback LINES] [-- command [args...]]`; the user's shell (as a login shell) when no command is given.
     static func parse(_ arguments: [String], environment: [String: String]) -> LaunchOptions {
@@ -30,6 +32,7 @@ struct LaunchOptions: Sendable {
                     }
             }
         }
+        options.namedCommand = !options.command.isEmpty
         if options.command.isEmpty { options.command = [environment["SHELL"] ?? "/bin/zsh", "-l"] }
         return options
     }

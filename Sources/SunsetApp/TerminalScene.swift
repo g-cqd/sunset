@@ -169,12 +169,21 @@ struct TerminalScene: View {
         AppActions.shared.openTerminalWindow = { openWindow(id: "terminal") }
         tabs.onEmpty = { dismiss() }
         tabs.makeModel = { makeModel() }
+        tabs.onChange = { SessionStore.shared.scheduleSave() }
         if tabs.workspace.isEmpty {
-            // A terminal that was running in another window is waiting for this one, else a new one starts.
-            if AppActions.shared.handoff.isEmpty {
-                tabs.newTab()
-            } else {
+            // A terminal that was running in another window is waiting for this one, else the saved tabs of an earlier run, else a new one starts.
+            if !AppActions.shared.handoff.isEmpty {
                 tabs.adopt(AppActions.shared.handoff.removeFirst())
+            } else if let saved = SessionStore.shared.take() {
+                tabs.restore(saved) {
+                    var isDirectory: ObjCBool = false
+                    return FileManager.default.fileExists(atPath: $0, isDirectory: &isDirectory)
+                        && isDirectory.boolValue
+                }
+                // The other windows of the session open one after the other, each taking the next saved window.
+                if SessionStore.shared.hasPending { AppActions.shared.openTerminalWindow() }
+            } else {
+                tabs.newTab()
             }
         }
     }
