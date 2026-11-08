@@ -245,3 +245,6 @@ Seen on the way (n11): the GPU build's **peak** footprint is 134.6 MB against 45
 - Measured, the app, GPU renderer, one window scrolling 600 lines, `rusage` over 3 s mid-scroll, 2 rounds each: **138.0 / 137.9 MB → 98.0 / 98.0 MB**.
   What is left above the CPU renderer (~34 MB) while drawing is the render-pass pool, which only not using the GPU avoids (item 6's question again, now
   with a memory argument: a window that only blinks or types could stay on the CPU and never wake that pool; not measured).
+
+**Owner's decision (2026-11-09)**: keep the GPU path as it is; the ~50 MB render-pass pool while a window draws (none when quiet) is accepted. Item 6 is
+not pursued.
