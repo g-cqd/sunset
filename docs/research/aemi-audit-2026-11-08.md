@@ -56,3 +56,13 @@ Total that goes: about 10 000 lines (9 500 + 530; the C targets included) of abo
 | SunsetRun, SunsetRenderTool, SunsetPrivate | 171, 105, 111 | |
 
 Problems seen: `SunsetApp` is an executable, so none of its 3 600 lines can be imported by a test (this is why the tab-switch fix of the same day has no regression test); `SunsetHost` depends on `SunsetConfig`, so the session knows the file format; the terminal view, the tab model, the settings and the window chrome sit in one target with no boundary. Proposal for discussion: `SunsetUI` library (everything in `SunsetApp` except `@main`), split by what it is: `SunsetPane` (the content of a tab as a protocol: terminal now, web page later), `SunsetTabs` (tab list, spaces, registry), `SunsetChrome` (window, sidebar, lights), `SunsetSettings`; `SunsetHost` freed from `SunsetConfig`. The executable stays a few lines. This also is the shape the web-page pane (n19) needs.
+
+## Erratum (2026-11-08, same day)
+
+The owner said this audit was wrong, and it was. The "Cannot be dropped" and "Can be dropped" tables above must not be used:
+
+- It was written against the local `aemi` checkout (`e30aad8`); the remote `main` is `0bae2ed` (three commits more, including `AemiLexers` TLA+/Lean for AemiFormal).
+- It read only the top-level `Package.swift` of each project. Nested manifests (Atelier's apps, MacFS, MarkdownLook, tools) were not read. `AemiDiff`, `AemiIO` and `AemiLexers` are used by Atelier; `AemiIO` by MacFS; `AemiLexers` by MarkdownLook; AemiFormal plans to use `AemiIO`, `AemiDigest` and `AemiLexers`.
+- It treated `AemiUI`, `AemiSwift` and `AemiUtilities` as the family that keeps `AemiCore`, `AemiUI` and `AemiTesting` alive. They are zero-code re-export shims, and `AemiUI` (the module) has no consumer at all.
+
+The corrected report is `~/Public/aemi-ui-swift-utilities-report-2026-11-08.md`.
