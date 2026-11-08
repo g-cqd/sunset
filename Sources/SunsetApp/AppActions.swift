@@ -1,4 +1,5 @@
 import AppKit
+import SunsetConfig
 import SunsetHost
 import SunsetPane
 
@@ -57,6 +58,14 @@ final class AppActions {
 
     /// ⌘L: the command bar of the key window (searching its tabs).
     func toggleCommandBar() { keyTabs?.toggleBar() }
+
+    /// ⌘+ and ⌘−: the font of the key window one point bigger or smaller, ⌘0 back to the configured size. Not written to the file.
+    func zoomFont(by points: Double) {
+        guard let tabs = keyTabs else { return }
+        tabs.fontZoom.step(by: points, base: AppConfiguration.shared.configuration.font.size)
+    }
+
+    func resetFontZoom() { keyTabs?.fontZoom.reset() }
 
     // MARK: Splits (the panes of the key window's selected tab)
 

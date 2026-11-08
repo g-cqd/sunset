@@ -31,7 +31,7 @@ struct TerminalScene: View {
         let file = configuration.font
         return FontSettings(
             name: launch.fontName ?? file.family ?? "Menlo",
-            size: launch.fontSize ?? file.size,
+            size: tabs.fontZoom.size(base: launch.fontSize ?? file.size),
             ligatures: launch.ligatures ?? file.ligatures,
             featureList: file.features
         )

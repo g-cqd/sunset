@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SunsetHost
 import SunsetPane
 
 /// The tabs of one window: their order, the selection and the split of each (`Workspace`), and the terminal of each pane. The programs belong to this store,
@@ -22,6 +23,8 @@ final class TabsModel {
     @ObservationIgnored var dragged: PaneDragPayload?
     /// The command bar, when it is open: searching the tabs, or (after the selected tab was dropped on its own content) choosing the tab to split with.
     var bar: CommandBar?
+    /// This window's temporary font size change (⌘+, ⌘−, ⌘0).
+    var fontZoom = FontZoom()
 
     var selectedModel: TerminalModel? { workspace.selectedPane.flatMap { models[$0] } }
     var allModels: [TerminalModel] { workspace.allPanes.compactMap { models[$0] } }
