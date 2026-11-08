@@ -10,8 +10,23 @@ extension TerminalModel {
 
     /// The window gained or lost the key state, or was covered or uncovered.
     func windowStateChanged(focused: Bool, visible: Bool) {
+        gates.windowFocused = focused
+        gates.windowVisible = visible
+        applyState()
+    }
+
+    /// The tabs changed which pane has the keyboard and which tab is shown.
+    func paneStateChanged(focused: Bool, visible: Bool) {
+        guard focused != gates.paneFocused || visible != gates.paneVisible else { return }
+        gates.paneFocused = focused
+        gates.paneVisible = visible
+        applyState()
+    }
+
+    private func applyState() {
         let wasVisible = isVisible
-        hasFocus = focused
+        let visible = gates.isVisible
+        hasFocus = gates.hasFocus
         isVisible = visible
         blinkWake.continuation.yield()
         if visible, !wasVisible { requestFrame() }

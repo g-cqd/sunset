@@ -1,83 +1,131 @@
 import Observation
-import SunsetHost
+import SunsetPane
 
-/// The tabs of one window: the order and the selection (`TabList`) and the terminal of each. The programs belong to this store, not to a view, so the
-/// presentation (built-in bar, or one tab per window with the sidebar listing them) can change while they run. A tab that is not selected is told it has no
-/// focus and is not visible, so that it neither blinks nor draws.
+/// The tabs of one window: their order, the selection and the split of each (`Workspace`), and the terminal of each pane. The programs belong to this store,
+/// not to a view, so the presentation (built-in bar, or one tab per window with the sidebar listing them) can change while they run. A pane that is not
+/// shown is told it has no focus and is not visible, so that it neither blinks nor draws; of the shown panes only the focused one blinks.
 @MainActor @Observable
 final class TabsModel {
-    private(set) var list = TabList()
-    private(set) var models: [TabList.ID: TerminalModel] = [:]
-    /// Makes and configures a terminal for a new tab (the scene knows the launch options and the configuration).
+    private(set) var workspace = Workspace()
+    private(set) var models: [PaneID: TerminalModel] = [:]
+    /// Makes and configures a terminal for a new pane (the scene knows the launch options and the configuration).
     @ObservationIgnored var makeModel: () -> TerminalModel = { TerminalModel() }
     /// The last tab was closed: the window goes.
     @ObservationIgnored var onEmpty: () -> Void = {}
 
-    var selectedModel: TerminalModel? { list.selectedID.flatMap { models[$0] } }
-    var allModels: [TerminalModel] { list.tabs.compactMap { models[$0.id] } }
+    var selectedModel: TerminalModel? { workspace.selectedPane.flatMap { models[$0] } }
+    var allModels: [TerminalModel] { workspace.allPanes.compactMap { models[$0] } }
+
+    // MARK: Adding
 
     /// A new tab, selected, after the current one.
     @discardableResult
     func newTab() -> TerminalModel {
         let model = makeModel()
-        let previous = selectedModel
-        let id = list.add(title: "")
-        models[id] = model
-        model.onExit = { [weak self] in self?.close(id) }
-        previous?.windowStateChanged(focused: false, visible: false)
-        model.windowStateChanged(focused: true, visible: true)
+        register(model, as: workspace.add().pane)
+        return model
+    }
+
+    /// A new terminal beside the focused one, in the same tab, with the keyboard; nil when there is no focused pane.
+    @discardableResult
+    func newSplit(_ edge: PaneEdge) -> TerminalModel? {
+        guard let target = workspace.selectedPane else { return nil }
+        let model = makeModel()
+        guard let pane = workspace.addPane(beside: target, edge: edge) else { return nil }
+        register(model, as: pane)
         return model
     }
 
     /// Takes a terminal that already runs (moved from another window when the presentation changed): a tab like any other, selected.
-    func adopt(_ model: TerminalModel) {
-        let previous = selectedModel
-        let id = list.add(title: "")
-        models[id] = model
-        model.onExit = { [weak self] in self?.close(id) }
-        previous?.windowStateChanged(focused: false, visible: false)
-        model.windowStateChanged(focused: true, visible: true)
+    func adopt(_ model: TerminalModel) { register(model, as: workspace.add().pane) }
+
+    private func register(_ model: TerminalModel, as pane: PaneID) {
+        models[pane] = model
+        model.onExit = { [weak self] in self?.close(pane: pane) }
+        model.onFocusRequest = { [weak self] in self?.focus(pane) }
+        syncStates()
     }
 
-    /// Takes a tab out without stopping its program: the terminal goes to another window. The window is not told it is empty (the caller decides).
-    func detach(_ id: TabList.ID) -> TerminalModel? {
-        guard let model = models[id] else { return nil }
-        let wasSelected = list.selectedID == id
-        list.close(id)
-        models[id] = nil
-        if wasSelected { selectedModel?.windowStateChanged(focused: true, visible: true) }
+    // MARK: Removing
+
+    /// Takes a pane out without stopping its program: the terminal goes to another window. The window is not told it is empty (the caller decides).
+    func detach(pane: PaneID) -> TerminalModel? {
+        guard let model = models[pane] else { return nil }
+        workspace.close(pane: pane)
+        models[pane] = nil
+        syncStates()
         return model
     }
 
-    func close(_ id: TabList.ID) {
-        guard let model = models[id] else { return }
-        let wasSelected = list.selectedID == id
-        list.close(id)
-        models[id] = nil
+    func close(pane: PaneID) {
+        guard let model = models[pane] else { return }
+        workspace.close(pane: pane)
+        models[pane] = nil
         model.stop()
-        if list.isEmpty {
-            onEmpty()
-        } else if wasSelected {
-            selectedModel?.windowStateChanged(focused: true, visible: true)
-        }
+        finishClosing()
     }
 
-    func closeSelected() { if let id = list.selectedID { close(id) } }
+    /// Closes a tab with all its panes.
+    func close(item: Workspace.ItemID) {
+        stop(workspace.close(item: item))
+        finishClosing()
+    }
 
-    func select(_ id: TabList.ID) { change { $0.select(id: id) } }
-    func selectNext() { change { $0.selectNext() } }
-    func selectPrevious() { change { $0.selectPrevious() } }
-    func select(index: Int) { change { $0.select(index: index) } }
-    func move(_ id: TabList.ID, to index: Int) { change { $0.move(id, to: index) } }
+    func closeOthers(than item: Workspace.ItemID) {
+        stop(workspace.closeOthers(than: item))
+        syncStates()
+    }
+
+    /// Closes the focused pane (the tab with its last pane).
+    func closeSelected() { if let pane = workspace.selectedPane { close(pane: pane) } }
 
     /// Stops every program (the window is going).
     func stopAll() { for model in allModels { model.stop() } }
 
-    private func change(_ edit: (inout TabList) -> Void) {
-        let before = list.selectedID
-        edit(&list)
-        guard list.selectedID != before else { return }
-        if let before { models[before]?.windowStateChanged(focused: false, visible: false) }
-        selectedModel?.windowStateChanged(focused: true, visible: true)
+    private func stop(_ panes: [PaneID]) {
+        for pane in panes {
+            models[pane]?.stop()
+            models[pane] = nil
+        }
+    }
+
+    private func finishClosing() {
+        if workspace.isEmpty { onEmpty() } else { syncStates() }
+    }
+
+    // MARK: Selecting and arranging
+
+    func select(item: Workspace.ItemID) { change { $0.select(item: item) } }
+    func selectNext() { change { $0.selectNext() } }
+    func selectPrevious() { change { $0.selectPrevious() } }
+    func select(index: Int) { change { $0.select(index: index) } }
+    func move(item: Workspace.ItemID, to index: Int) { change { $0.move(item: item, to: index) } }
+    func focus(_ pane: PaneID) { change { $0.focus(pane: pane) } }
+    func focusNextPane() { change { $0.focusNext() } }
+    func focusPreviousPane() { change { $0.focusPrevious() } }
+    func drop(item: Workspace.ItemID, onto pane: PaneID, edge: PaneEdge) {
+        change { $0.drop(item: item, onto: pane, edge: edge) }
+    }
+    func movePane(_ pane: PaneID, beside target: PaneID, edge: PaneEdge) {
+        change { $0.movePane(pane, beside: target, edge: edge) }
+    }
+    func detachIntoTab(_ pane: PaneID) { change { $0.detach(pane: pane) } }
+    func setRatio(_ ratio: Double, at path: [SplitBranch], in item: Workspace.ItemID) {
+        change { $0.setRatio(ratio, at: path, in: item) }
+    }
+
+    private func change(_ edit: (inout Workspace) -> Void) {
+        let before = workspace
+        edit(&workspace)
+        if workspace != before { syncStates() }
+    }
+
+    /// Tells every terminal whether it is shown (its tab is the selected one) and whether it has the keyboard (it is that tab's focused pane).
+    private func syncStates() {
+        let shown = Set(workspace.selectedItem?.panes ?? [])
+        let focused = workspace.selectedPane
+        for (pane, model) in models {
+            model.paneStateChanged(focused: pane == focused, visible: shown.contains(pane))
+        }
     }
 }

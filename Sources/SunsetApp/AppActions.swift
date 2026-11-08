@@ -1,5 +1,6 @@
 import AppKit
 import SunsetHost
+import SunsetPane
 
 /// What the menu and the sidebar do that needs the SwiftUI environment (opening a window): the scene hands them over once it has them.
 @MainActor
@@ -54,6 +55,19 @@ final class AppActions {
 
     func closeWindow() { NSApp.keyWindow?.performClose(nil) }
 
+    // MARK: Splits (the panes of the key window's selected tab)
+
+    /// A new terminal beside the focused one, on `edge`.
+    func split(_ edge: PaneEdge) { keyTabs?.newSplit(edge) }
+
+    func focusNextPane() { keyTabs?.focusNextPane() }
+    func focusPreviousPane() { keyTabs?.focusPreviousPane() }
+
+    /// The focused pane of a split leaves it, to a tab of its own.
+    func moveFocusedPaneToTab() {
+        if let tabs = keyTabs, let pane = tabs.workspace.selectedPane { tabs.detachIntoTab(pane) }
+    }
+
     func selectNextTab() {
         if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs = keyTabs {
             tabs.selectNext()
@@ -73,7 +87,7 @@ final class AppActions {
     /// The nth tab (counting from 1; 9 means the last, as in browsers).
     func selectTab(number: Int) {
         if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs = keyTabs {
-            tabs.select(index: number == 9 ? tabs.list.count - 1 : number - 1)
+            tabs.select(index: number == 9 ? tabs.workspace.count - 1 : number - 1)
         } else if let group = NSApp.keyWindow?.tabGroup {
             let index = number == 9 ? group.windows.count - 1 : number - 1
             if group.windows.indices.contains(index) { TabRegistry.shared.select(group.windows[index]) }

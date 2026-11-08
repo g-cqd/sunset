@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetHost
+import SunsetPane
 import SunsetPrivate
 import SunsetRender
 import SwiftUI
@@ -95,7 +96,6 @@ struct TerminalScene: View {
         .onChange(of: configuration.scroll) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.terminalPadding) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.backgroundAlpha) { _, _ in forEachModel(configure) }
-        .onChange(of: topInset) { _, _ in forEachModel(configure) }
         .onChange(of: colors) { _, _ in forEachModel(configure) }
         .onChange(of: blinkSchedule) { _, _ in forEachModel(configure) }
         .onDisappear {
@@ -118,13 +118,14 @@ struct TerminalScene: View {
     }
 
     @ViewBuilder private var terminal: some View {
-        if let model = tabs.selectedModel {
-            TerminalRepresentable(
-                model: model,
+        if tabs.selectedModel != nil {
+            PaneArea(
+                tabs: tabs,
                 optionAsMeta: configuration.keyboard.optionAsMeta,
-                translucent: !look.isOpaque
+                translucent: !look.isOpaque,
+                topInset: topInset,
+                layout: configuration.layout
             )
-            .id(tabs.list.selectedID)
             .modifier(
                 TerminalCard(
                     isCard: configuration.sidebarDocked,
@@ -158,7 +159,7 @@ struct TerminalScene: View {
         AppActions.shared.openTerminalWindow = { openWindow(id: "terminal") }
         tabs.onEmpty = { dismiss() }
         tabs.makeModel = { makeModel() }
-        if tabs.list.isEmpty {
+        if tabs.workspace.isEmpty {
             // A terminal that was running in another window is waiting for this one, else a new one starts.
             if AppActions.shared.handoff.isEmpty {
                 tabs.newTab()
@@ -177,6 +178,7 @@ struct TerminalScene: View {
 
     private func makeModel() -> TerminalModel {
         let model = TerminalModel()
+        model.topInsetPoints = topInset
         configure(model)
         var environment = ProcessInfo.processInfo.environment
         environment["TERM_PROGRAM"] = "sunset"
@@ -194,7 +196,6 @@ struct TerminalScene: View {
     private func configure(_ model: TerminalModel) {
         model.blinkSchedule = blinkSchedule
         model.defaultColors = colors
-        model.topInsetPoints = topInset
         model.paddingPoints = configuration.terminalPadding
         model.backgroundAlpha = configuration.backgroundAlpha
         model.scrollTrackpad = configuration.scroll.trackpad

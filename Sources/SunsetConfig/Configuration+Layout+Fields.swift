@@ -175,6 +175,14 @@ extension Configuration.Layout {
             \.revealStripWidth
         ),
         field(
+            "paneGap",
+            "Gap between split panes",
+            ["split", "divider", "pane", "space"],
+            0 ... 16,
+            1,
+            \.paneGap
+        ),
+        field(
             "hideDelay",
             "Floating sidebar: hide delay",
             ["leave", "floating", "hover"],

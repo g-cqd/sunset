@@ -1,4 +1,5 @@
 import AppKit
+import SunsetPane
 import SwiftUI
 
 /// The menu: copy the selection, paste, select all.
@@ -11,9 +12,21 @@ struct TerminalCommands: Commands {
             Button("New Tab") { AppActions.shared.newTab() }.keyboardShortcut("t")
         }
         CommandGroup(replacing: .saveItem) {
-            Button("Close Tab") { AppActions.shared.closeTab() }.keyboardShortcut("w")
+            Button("Close") { AppActions.shared.closeTab() }.keyboardShortcut("w")
             Button("Close Window") { AppActions.shared.closeWindow() }
                 .keyboardShortcut("w", modifiers: [.command, .shift])
+        }
+        CommandMenu("Panes") {
+            Button("Split Right") { AppActions.shared.split(.right) }.keyboardShortcut("d")
+            Button("Split Down") { AppActions.shared.split(.bottom) }
+                .keyboardShortcut("d", modifiers: [.command, .shift])
+            Divider()
+            Button("Next Pane") { AppActions.shared.focusNextPane() }
+                .keyboardShortcut("]", modifiers: [.command, .option])
+            Button("Previous Pane") { AppActions.shared.focusPreviousPane() }
+                .keyboardShortcut("[", modifiers: [.command, .option])
+            Divider()
+            Button("Move Pane to Its Own Tab") { AppActions.shared.moveFocusedPaneToTab() }
         }
         CommandGroup(after: .windowArrangement) {
             Button("Show Next Tab") { AppActions.shared.selectNextTab() }

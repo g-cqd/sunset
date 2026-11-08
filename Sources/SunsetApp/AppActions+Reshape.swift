@@ -1,5 +1,6 @@
 import AppKit
 import SunsetHost
+import SunsetPane
 
 extension AppActions {
     /// The presentation changed: the terminals move to where the new one keeps them. From one window of tabs (sidebar, built-in bar) to a window each (system
@@ -15,9 +16,9 @@ extension AppActions {
     }
 
     private func spreadTabsIntoWindows(joining group: Bool) {
-        for (window, tabs) in TabRegistry.shared.allWindows() where tabs.list.count > 1 {
-            for tab in tabs.list.tabs.dropFirst() {
-                if let model = tabs.detach(tab.id) { handoff.append(model) }
+        for (window, tabs) in TabRegistry.shared.allWindows() where tabs.workspace.allPanes.count > 1 {
+            for pane in tabs.workspace.allPanes.dropFirst() {
+                if let model = tabs.detach(pane: pane) { handoff.append(model) }
             }
             tabParent = group ? window : nil
             joinsRemaining = group ? handoff.count : 0
@@ -29,11 +30,11 @@ extension AppActions {
         let all = TabRegistry.shared.allWindows()
         guard let target = all.first else { return }
         for (window, tabs) in all.dropFirst() {
-            for tab in tabs.list.tabs {
-                if let model = tabs.detach(tab.id) { target.tabs.adopt(model) }
+            for pane in tabs.workspace.allPanes {
+                if let model = tabs.detach(pane: pane) { target.tabs.adopt(model) }
             }
             window.close()
         }
-        if let first = target.tabs.list.tabs.first?.id { target.tabs.select(first) }
+        if let first = target.tabs.workspace.items.first?.id { target.tabs.select(item: first) }
     }
 }
