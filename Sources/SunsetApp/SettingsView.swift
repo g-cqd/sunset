@@ -85,16 +85,6 @@ struct SettingsView: View {
             case "colors.background": colorRow("Background", \.colors.background, fallback: [0, 0, 0])
             case "colors.cursor": colorRow("Cursor", \.colors.cursor, fallback: [229, 229, 229])
             case "colors.ansi": AnsiPaletteRow(config: config)
-            case "window.titlebar":
-                Picker("Title bar", selection: config.binding(\.window.decorations)) {
-                    Text("None (content under the title bar)").tag(Configuration.Window.Decorations.none)
-                    Text("System").tag(Configuration.Window.Decorations.native)
-                }
-            case "window.dragStrip": number("Drag strip", \.window.dragStrip, range: 0 ... 64, step: 1, unit: "pt")
-            case "window.lightsX":
-                number("Traffic lights, from the left", \.window.trafficLightsX, range: 0 ... 400, step: 1, unit: "pt")
-            case "window.lightsY":
-                number("Traffic lights, from the top", \.window.trafficLightsY, range: 0 ... 400, step: 1, unit: "pt")
             case "scroll.trackpad":
                 number(
                     "Trackpad (lines per line of travel)",
@@ -119,7 +109,7 @@ struct SettingsView: View {
             case "terminal.renderer": renderer
             case "keyboard.meta": Toggle("Option sends Escape (Meta)", isOn: config.binding(\.keyboard.optionAsMeta))
             case "file.location": fileInfo
-            default: moreControls(for: id)
+            default: windowControls(for: id)
         }
     }
 

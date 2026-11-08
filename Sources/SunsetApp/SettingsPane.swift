@@ -71,9 +71,10 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                 return [
                     entry("window.titlebar", "Title bar", ["decorations", "chrome", "frame", "native"]),
                     entry("window.dragStrip", "Drag strip", ["move", "drag", "top"]),
+                    entry("window.lightsSide", "Traffic lights, side", ["close", "mirror", "left", "right", "buttons"]),
                     entry(
                         "window.lightsX",
-                        "Traffic lights, from the left",
+                        "Traffic lights, from their edge",
                         ["close", "minimize", "zoom", "buttons", "position"]
                     ),
                     entry(
@@ -144,6 +145,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
     private static func sidebarEntries(_ pane: String) -> [SettingsEntry] {
         [
             entry(pane, "sidebar.enabled", "Show the sidebar", ["tabs", "vertical", "list"]),
+            entry(pane, "sidebar.side", "Side", ["left", "right", "edge", "mirror"]),
             entry(pane, "sidebar.width", "Width", ["size", "wide"]),
             entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"])
         ]

@@ -59,20 +59,13 @@ struct TerminalScene: View {
         VStack(spacing: 0) {
             if barAtTop { tabBar }
             HStack(spacing: 0) {
-                if configuration.sidebarDocked {
-                    TabSidebar(tabs: tabs, settings: configuration)
-                        .padding(.top, configuration.sidebar.padding)
-                        .padding(.leading, configuration.sidebar.padding)
-                        .frame(width: configuration.sidebar.width, alignment: .leading)
-                        .frame(maxHeight: .infinity)
-                        .background(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
-                        .transition(.move(edge: .leading).combined(with: .opacity))
-                }
+                if configuration.sidebarDocked, sidebarSide == .left { dockedSidebar }
                 terminal
+                if configuration.sidebarDocked, sidebarSide == .right { dockedSidebar }
             }
-            .overlay(alignment: .leading) { resizeHandle }
+            .overlay(alignment: sidebarSide.alignment) { resizeHandle }
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
-            .overlay(alignment: .leading) { floatingSidebar }
+            .overlay(alignment: sidebarSide.alignment) { floatingSidebar }
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
         .background(rootColor)
@@ -112,6 +105,17 @@ struct TerminalScene: View {
     }
 
     // MARK: Parts
+
+    /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge.
+    private var dockedSidebar: some View {
+        TabSidebar(tabs: tabs, settings: configuration)
+            .padding(.top, configuration.sidebar.padding)
+            .padding(sidebarSide.edge, configuration.sidebar.padding)
+            .frame(width: configuration.sidebar.width, alignment: sidebarSide.alignment)
+            .frame(maxHeight: .infinity)
+            .background(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
+            .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
+    }
 
     @ViewBuilder private var terminal: some View {
         if let model = tabs.selectedModel {

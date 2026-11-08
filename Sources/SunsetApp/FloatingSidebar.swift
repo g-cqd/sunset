@@ -13,20 +13,21 @@ struct FloatingSidebar: View {
     @Binding var opensAtOnce: Bool
     @State private var reveal = HoverReveal(hideDelay: .milliseconds(350))
 
+    private var side: Configuration.Side { settings.sidebar.side }
     private var margin: Double { settings.sidebar.padding }
     private var radius: Double {
         settings.layout.panelRadius ?? ConcentricRadius.inner(outer: windowRadius, inset: margin)
     }
 
     var body: some View {
-        ZStack(alignment: .leading) {
+        ZStack(alignment: side.alignment) {
             Color.clear
                 .frame(width: settings.layout.revealStripWidth)
                 .contentShape(.rect)
                 .onHover { inside in pointer(inside) }
-            if shown { panel.transition(.move(edge: .leading).combined(with: .opacity)) }
+            if shown { panel.transition(.move(edge: side.moveEdge).combined(with: .opacity)) }
         }
-        .frame(maxHeight: .infinity, alignment: .leading)
+        .frame(maxHeight: .infinity, alignment: side.alignment)
         .onAppear {
             guard opensAtOnce else { return }
             opensAtOnce = false
@@ -45,7 +46,7 @@ struct FloatingSidebar: View {
             .background { SidebarBackdrop(look: panelLook) }
             .clipShape(shape)
             .overlay { shape.hairline(settings.layout) }
-            .overlay(alignment: .trailing) {
+            .overlay(alignment: side == .left ? .trailing : .leading) {
                 // Centred between the end of the tabs and the panel's edge, so it ends at the edge.
                 SidebarResizeHandle(
                     width: settings.sidebar.width,
@@ -53,10 +54,11 @@ struct FloatingSidebar: View {
                         docked: false,
                         wanted: settings.layout.resizeHandleWidth,
                         tabSideInset: settings.layout.floatingTabSideInset
-                    )
+                    ),
+                    side: side
                 )
             }
-            .padding(.leading, margin)
+            .padding(side.edge, margin)
             .padding(.vertical, margin)
             .onHover { inside in pointer(inside) }
     }

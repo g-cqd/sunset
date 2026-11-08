@@ -9,6 +9,7 @@ extension TerminalScene {
     var windowRadius: Double {
         window.flatMap { WindowCornerRadius.of($0) } ?? ConcentricRadius.standardWindow
     }
+    var sidebarSide: Configuration.Side { configuration.sidebar.side }
     var floatsSidebar: Bool { presentation.showsSidebar && configuration.sidebar.autoHide }
 
     /// With the sidebar the traffic lights are part of it, in the slot at its top (`SidebarHeader`), away from the window's edge: docked they are always
@@ -21,7 +22,8 @@ extension TerminalScene {
         return LightsPlacement(
             x: origin,
             y: origin,
-            visible: configuration.sidebarDocked || floatingShown
+            visible: configuration.sidebarDocked || floatingShown,
+            side: configuration.window.lightsSide.resolved(sidebar: sidebarSide)
         )
     }
 
@@ -39,8 +41,8 @@ extension TerminalScene {
                 margin: configuration.sidebar.padding,
                 tabSideInset: configuration.layout.tabSideInset
             )
-            SidebarResizeHandle(width: configuration.sidebar.width, hitWidth: hit)
-                .padding(.leading, max(centre - hit / 2, 0))
+            SidebarResizeHandle(width: configuration.sidebar.width, hitWidth: hit, side: sidebarSide)
+                .padding(sidebarSide.edge, max(centre - hit / 2, 0))
         }
     }
 
