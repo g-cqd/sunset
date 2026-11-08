@@ -54,8 +54,8 @@ import Testing
                 try await compositor.apply(
                     first,
                     to: target,
-                    copying: first.changedPixelRows.map { ($0, shown) },
-                    movingFrom: shown
+                    previous: shown,
+                    copying: first.changedPixelRows.map { ($0, shown) }
                 )
                 t2.clearDirty()
                 let n = 200
@@ -99,8 +99,8 @@ import Testing
                     try await compositor.apply(
                         f,
                         to: target,
-                        copying: f.changedPixelRows.map { ($0, shown) },
-                        movingFrom: shown
+                        previous: shown,
+                        copying: f.changedPixelRows.map { ($0, shown) }
                     )
                     applyT += us(ContinuousClock.now - c)
                     applyCPU += Double(clock_gettime_nsec_np(CLOCK_PROCESS_CPUTIME_ID) - cpu0) / 1000

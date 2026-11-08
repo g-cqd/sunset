@@ -11,12 +11,12 @@ public final class MetalCompositor {
         /// The frame's glyphs do not fit in the atlas even when it is empty.
         case atlasFull
         case commandFailed
-        /// The frame moves pixels and no texture was given to move them from.
+        /// The frame moves or restores pixels and no picture before was given to take them from.
         case noMoveSource
     }
 
     /// One operation as the shader reads it: the op, with its source moved to where its glyph is in the atlas.
-    private struct Instance {
+    struct Instance {
         var x: Int32, y: Int32, width: Int32, height: Int32
         var color: UInt32
         var glyph: UInt32
@@ -33,11 +33,11 @@ public final class MetalCompositor {
     public let device: any MTLDevice
     private let queue: any MTLCommandQueue
     private let pipeline: any MTLRenderPipelineState
-    private var atlas: GlyphAtlas
-    private var instances: (any MTLBuffer)?
+    var atlas: GlyphAtlas
+    var instances: (any MTLBuffer)?
     /// Where each of the renderer's glyphs is in the atlas, by glyph number - 1 (x -1: not uploaded), for the glyph generation `slotsGeneration`.
-    private var slots: ContiguousArray<SIMD2<Int32>> = []
-    private var slotsGeneration: UInt32?
+    var slots: ContiguousArray<SIMD2<Int32>> = []
+    var slotsGeneration: UInt32?
     private var drawing = false
     /// What the GPU took for the last frame (start to end of its execution) and how many instances it drew: for probes.
     var lastGPUSeconds = 0.0
@@ -81,39 +81,36 @@ public final class MetalCompositor {
     /// Draws the frame's operations into `target`; returns when the GPU has finished (suspended meanwhile: no thread waits). A frame that moves pixels needs
     /// the longer form, with a texture to move them from.
     public nonisolated(nonsending) func apply(_ frame: DrawFrame, to target: any MTLTexture) async throws {
-        try await apply(frame, to: target, copying: nil, movingFrom: nil)
+        try await apply(frame, to: target, previous: nil)
     }
 
-    /// Draws the frame into `target`, all in one command buffer, in this order:
-    /// - `restore`: copies the rows `restore.rows` of `restore.source` into `target` first (a surface of a ring brought up to the one shown last);
-    /// - the frame's pixel move (a scroll, `DrawFrame.move`), copied from `previous`, which must hold the picture of the frame before (the surface last shown):
-    ///   Metal leaves a copy between overlapping regions of one texture undefined, so the rows cannot be moved within `target` itself;
-    /// - the frame's operations;
-    /// - `copy`: the pixel rows `copy.rows` of `target` copied into `copy.destination`.
-    /// Nothing goes through the CPU.
+    /// Draws the frame into `target`, all on the GPU, in one render pass:
+    /// - the rows `restoring` of `previous` are copied first (a surface of a ring brought up to the one shown last);
+    /// - then the frame's pixel move (a scroll, `DrawFrame.move`), also from `previous`, which must hold the picture of the frame before (the surface last
+    ///   shown): rows cannot be moved within `target` itself while it is drawn into;
+    /// - then the frame's operations.
+    /// The copies are quads that read `previous`, not blit commands: the first blit after a pause makes the Metal driver take ~45 MB more of the process's
+    /// footprint for a second or two, on top of the ~50 MB a render pass takes (measured; any size of texture). `copy` (rows of `target` into
+    /// `copy.destination`, after drawing) is a blit, for tests and probes.
     public nonisolated(nonsending) func apply(
         _ frame: DrawFrame,
         to target: any MTLTexture,
-        restoring restore: (rows: [ClosedRange<Int>], source: any MTLTexture)? = nil,
-        copying copy: (rows: ClosedRange<Int>, destination: any MTLTexture)? = nil,
-        movingFrom previous: (any MTLTexture)? = nil
+        previous: (any MTLTexture)? = nil,
+        restoring restore: [ClosedRange<Int>] = [],
+        copying copy: (rows: ClosedRange<Int>, destination: any MTLTexture)? = nil
     ) async throws {
-        let restores = restore.map { !$0.rows.isEmpty } ?? false
-        guard !frame.ops.isEmpty || copy != nil || frame.move != nil || restores else { return }
+        guard !frame.ops.isEmpty || copy != nil || frame.move != nil || !restore.isEmpty else { return }
+        if frame.move != nil || !restore.isEmpty, previous == nil { throw Failure.noMoveSource }
         // The atlas and the instance buffer are written for this frame: the frame before must be finished, which a second caller would break.
         precondition(!drawing, "MetalCompositor.apply is one frame at a time")
         drawing = true
         defer { drawing = false }
-        let count = try writeInstances(for: frame)
+        let count = try writeInstances(
+            for: frame,
+            copies: Self.copies(restoring: restore, move: frame.move, width: target.width)
+        )
         guard let commands = queue.makeCommandBuffer() else { throw Failure.commandFailed }
-        for rows in restore?.rows ?? [] {
-            if let source = restore?.source { Self.encodeCopy(rows: rows, of: source, to: target, into: commands) }
-        }
-        if let move = frame.move {
-            guard let previous else { throw Failure.noMoveSource }
-            Self.encode(move, from: previous, to: target, into: commands)
-        }
-        if count > 0 { try encodeDraw(count, frame: frame, target: target, into: commands) }
+        if count > 0 { try encodeDraw(count, frame: frame, target: target, previous: previous, into: commands) }
         if let copy { Self.encodeCopy(rows: copy.rows, of: target, to: copy.destination, into: commands) }
         let finished = await Self.run(commands)
         lastGPUSeconds = commands.gpuEndTime - commands.gpuStartTime
@@ -135,6 +132,7 @@ public final class MetalCompositor {
         _ count: Int,
         frame: DrawFrame,
         target: any MTLTexture,
+        previous: (any MTLTexture)?,
         into commands: any MTLCommandBuffer
     ) throws {
         guard let buffer = instances else { throw Failure.commandFailed }
@@ -154,6 +152,8 @@ public final class MetalCompositor {
         unsafe encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.size, index: 1)
         unsafe encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.size, index: 1)
         encoder.setFragmentTexture(atlas.texture, index: 0)
+        // Read only by copy quads, which a frame has only with a picture before; something is bound in any case.
+        encoder.setFragmentTexture(previous ?? atlas.texture, index: 1)
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: count)
         encoder.endEncoding()
     }
@@ -176,73 +176,4 @@ public final class MetalCompositor {
 
     /// Glyphs the atlas holds (for tests and probes).
     var atlasGlyphs: Int { atlas.count }
-
-    /// Where glyph number `glyph` of the frame is in the atlas, uploading it the first time; nil when the atlas is full.
-    private func slot(of glyph: UInt32, in frame: DrawFrame) -> SIMD2<Int32>? {
-        let index = Int(glyph) - 1
-        if slots.count < frame.glyphs.count {
-            slots.append(contentsOf: repeatElement(SIMD2(-1, -1), count: frame.glyphs.count - slots.count))
-        }
-        if slots[index].x >= 0 { return slots[index] }
-        guard let place = atlas.place(frame.glyphs[index]) else { return nil }
-        slots[index] = SIMD2(place.x, place.y)
-        return slots[index]
-    }
-
-    /// Forgets every upload: the atlas and the slots start again.
-    private func clearAtlas() {
-        atlas.clear()
-        slots.removeAll(keepingCapacity: true)
-    }
-
-    // MARK: Instances
-
-    /// Writes the frame's instances into the instance buffer; how many. A frame whose glyphs do not fit in what is left of the atlas is written again after
-    /// clearing it.
-    private func writeInstances(for frame: DrawFrame) throws -> Int {
-        guard !frame.ops.isEmpty else { return 0 }
-        if slotsGeneration != frame.glyphGeneration {
-            clearAtlas()
-            slotsGeneration = frame.glyphGeneration
-        }
-        guard let buffer = buffer(forInstances: frame.ops.count) else { throw Failure.commandFailed }
-        let base = unsafe buffer.contents().bindMemory(to: Instance.self, capacity: frame.ops.count)
-        for attempt in 0 ..< 2 {
-            if unsafe write(frame, into: base) { return frame.ops.count }
-            guard attempt == 0 else { break }
-            clearAtlas()
-        }
-        throw Failure.atlasFull
-    }
-
-    /// Whether every glyph of the frame found a place in the atlas.
-    private func write(_ frame: DrawFrame, into base: UnsafeMutablePointer<Instance>) -> Bool {
-        for (index, op) in frame.ops.enumerated() {
-            var instance = Instance(
-                x: op.x,
-                y: op.y,
-                width: op.width,
-                height: op.height,
-                color: op.color,
-                glyph: op.glyph,
-                sourceX: op.sourceX,
-                sourceY: op.sourceY
-            )
-            if op.glyph != 0 {
-                guard let slot = slot(of: op.glyph, in: frame) else { return false }
-                instance.sourceX &+= slot.x
-                instance.sourceY &+= slot.y
-            }
-            unsafe (base + index).initialize(to: instance)
-        }
-        return true
-    }
-
-    private func buffer(forInstances count: Int) -> (any MTLBuffer)? {
-        let needed = count * MemoryLayout<Instance>.stride
-        if let instances, instances.length >= needed { return instances }
-        // Grown in steps, so that a frame a little bigger than the last does not allocate again.
-        instances = device.makeBuffer(length: max(needed * 2, 64 * 1024), options: .storageModeShared)
-        return instances
-    }
 }

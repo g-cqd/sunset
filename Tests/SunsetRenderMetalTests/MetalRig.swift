@@ -66,7 +66,7 @@ struct MetalRig {
         )
         lastMove = list.move
         // As the app does: the frame's rows are copied to a second texture, which the next frame's pixel move reads.
-        try await metal.apply(list, to: target, copying: (0 ... target.height - 1, previous), movingFrom: previous)
+        try await metal.apply(list, to: target, previous: previous, copying: (0 ... target.height - 1, previous))
         terminal.clearDirty()
     }
 
