@@ -155,6 +155,11 @@ extension Reader {
                     } else if let seconds = number("cursor.blinkTimeout", value, range: 0 ... 86_400) {
                         configuration.cursorBlinkTimeout = seconds == 0 ? nil : seconds
                     }
+                case "shape":
+                    if let choice = choice("cursor.shape", value, as: Configuration.CursorShape.self) {
+                        configuration.cursorShape = choice
+                    }
+                case "blink": if let flag = bool("cursor.blink", value) { configuration.cursorBlinks = flag }
                 default: unknown("cursor.\(key)")
             }
         }

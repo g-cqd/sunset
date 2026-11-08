@@ -27,6 +27,19 @@ extension SettingsView {
                 )
             case "window.lightsY":
                 number("Traffic lights, from the top", \.window.trafficLightsY, range: 0 ... 400, step: 1, unit: "pt")
+            case "cursor.shape":
+                VStack(alignment: .leading, spacing: 4) {
+                    Picker("Cursor shape", selection: config.binding(\.cursorShape)) {
+                        Text("Block").tag(Configuration.CursorShape.block)
+                        Text("Underline").tag(Configuration.CursorShape.underline)
+                        Text("Bar").tag(Configuration.CursorShape.bar)
+                    }
+                    Text(
+                        "What programs get unless they choose their own cursor (an editor often does); they get it back when they ask for the default."
+                    )
+                    .font(.caption).foregroundStyle(.secondary)
+                }
+            case "cursor.blink": Toggle("Cursor blinks", isOn: config.binding(\.cursorBlinks))
             default: moreControls(for: id)
         }
     }

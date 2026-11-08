@@ -23,7 +23,7 @@ public enum ConfigurationKeys {
         "tabs.mode", "tabs.restore", "tabs.bar.position", "tabs.bar.icon", "tabs.bar.title", "tabs.bar.directory",
         "tabs.bar.progress",
         "scroll.trackpad", "scroll.wheel", "scroll.inertia",
-        "scrollback.lines", "cursor.blinkTimeout", "renderer",
+        "scrollback.lines", "cursor.shape", "cursor.blink", "cursor.blinkTimeout", "renderer",
         "keyboard.optionAsMeta"
     ]
 }

@@ -43,6 +43,12 @@ public struct Terminal: Sendable {
 }
 
 extension Terminal {
+    /// Sets the cursor style the host wants: it is the cursor now unless a program chose one, and what DECSCUSR 0 and the resets go back to.
+    public mutating func setDefaultCursor(shape: CursorShape, blinks: Bool) {
+        screen.defaultCursor = (shape, blinks)
+        if !screen.cursorChosen { (screen.cursorShape, screen.cursorBlinks) = (shape, blinks) }
+    }
+
     /// Sets the 16 ANSI colours from the host's theme (see `Palette.setAnsi`); the rest of the palette is not touched. The whole screen is drawn again.
     public mutating func setAnsiColors(_ colors: [RGB]) {
         screen.palette.setAnsi(colors)

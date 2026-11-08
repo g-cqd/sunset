@@ -54,6 +54,10 @@ public struct Screen: Sendable {
     var oscOverflowed = false
     public internal(set) var cursorShape = CursorShape.block
     public internal(set) var cursorBlinks = true
+    /// The style the host wants (`Terminal.setDefaultCursor`): what DECSCUSR 0 and the resets go back to, and what the cursor is until a program chooses.
+    var defaultCursor: (shape: CursorShape, blinks: Bool) = (.block, true)
+    /// A program set the style itself (DECSCUSR 1 to 6), so a later change of the default does not undo it.
+    var cursorChosen = false
 
     var dirtyRows: ContiguousArray<Bool>
     public internal(set) var generation: UInt64 = 0

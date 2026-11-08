@@ -50,7 +50,9 @@ struct TerminalScene: View {
         return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
     private var look: WindowLook { WindowLook(configuration) }
-    private var colors: DefaultColors { DefaultColors(configuration.colors) }
+    private var colors: DefaultColors {
+        DefaultColors(configuration.colors, cursorShape: configuration.cursorShape, blinks: configuration.cursorBlinks)
+    }
 
     private var blinkSchedule: BlinkSchedule {
         BlinkSchedule(stopAfter: configuration.cursorBlinkTimeout.map { Duration.seconds($0) })

@@ -133,10 +133,12 @@ extension Screen {
         }
     }
 
-    /// DECSCUSR: 0 and 1 blinking block, 2 steady block, 3/4 underline, 5/6 bar; other values change nothing.
+    /// DECSCUSR: 0 the host's default, 1 blinking block, 2 steady block, 3/4 underline, 5/6 bar; other values change nothing.
     mutating func setCursorStyle(_ style: Int) {
+        cursorChosen = (1 ... 6).contains(style) || (cursorChosen && style != 0)
         switch style {
-            case 0, 1: (cursorShape, cursorBlinks) = (.block, true)
+            case 0: (cursorShape, cursorBlinks) = defaultCursor
+            case 1: (cursorShape, cursorBlinks) = (.block, true)
             case 2: (cursorShape, cursorBlinks) = (.block, false)
             case 3: (cursorShape, cursorBlinks) = (.underline, true)
             case 4: (cursorShape, cursorBlinks) = (.underline, false)
@@ -158,12 +160,15 @@ extension Screen {
         pendingWrap = false
         charsets = (.ascii, .ascii)
         shifted = false
-        cursorShape = .block
-        cursorBlinks = true
+        (cursorShape, cursorBlinks) = defaultCursor
+        cursorChosen = false
     }
 
     /// RIS: back to the state of a new screen of the same size.
     mutating func fullReset() {
+        let style = defaultCursor
         self = Screen(columns: columns, rows: rows)
+        defaultCursor = style
+        (cursorShape, cursorBlinks) = style
     }
 }
