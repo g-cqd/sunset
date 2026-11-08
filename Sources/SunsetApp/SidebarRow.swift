@@ -1,6 +1,7 @@
+import SunsetConfig
 import SwiftUI
 
-/// One tab in the sidebar: 6 pt rounded, padded 8 pt on the leading edge and 3 to 4 pt on the others, the title cut with "…" when it does not fit. While the pointer is over it a 20 × 20 pt close button
+/// One tab in the sidebar (its padding, radius and close button from `layout.*`), the title cut with "…" when it does not fit. While the pointer is over it a close button
 /// appears and the row is highlighted; the selected tab has a stronger highlight, dimmer when the window is not the active one, and the hairline stroke
 /// that the terminal card has (only the selected tab has it).
 struct SidebarRow: View {
@@ -9,29 +10,24 @@ struct SidebarRow: View {
     let showTitle: Bool
     let showDirectory: Bool
     let showProgress: Bool
+    let layout: Configuration.Layout
     let close: () -> Void
     @State private var hovering = false
     @State private var overClose = false
     @Environment(\.controlActiveState) private var activeState
 
-    private static let radius = 6.0
-    /// The one transition between states: short, eased, nothing more.
-    static let smooth = Animation.easeInOut(duration: 0.15)
-    /// The close button's side. The label is at least this tall whether the button shows or not, so that a row does not change height under the pointer.
-    private static let buttonSize = 20.0
-
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: Self.radius, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         return HStack(spacing: 4) {
             TabLabel(model: model, showTitle: showTitle, showDirectory: showDirectory, showProgress: showProgress)
-                .frame(maxWidth: .infinity, minHeight: Self.buttonSize, alignment: .leading)
+                .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
             // Always laid out and only faded, so that the row never changes size and the label does not jump.
             Button(action: close) {
                 Image(systemName: "xmark")
                     .font(.system(size: 9, weight: .semibold))
-                    .frame(width: Self.buttonSize, height: Self.buttonSize)
+                    .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
                     .background(
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
                             .fill(.primary.opacity(overClose ? 0.14 : 0))
                     )
                     .contentShape(.rect)
@@ -42,17 +38,17 @@ struct SidebarRow: View {
             .onHover { overClose = $0 }
             .help("Close Tab")
         }
-        .padding(.leading, 8)
-        .padding(.vertical, 3)
-        .padding(.trailing, 4)
+        .padding(.leading, layout.tabPaddingLeading)
+        .padding(.vertical, layout.tabPaddingVertical)
+        .padding(.trailing, layout.tabPaddingTrailing)
         .background(shape.fill(highlight))
-        .overlay { shape.hairline().opacity(selected ? 1 : 0) }
+        .overlay { shape.hairline(layout).opacity(selected ? 1 : 0) }
         .contentShape(shape)
         .onHover { hovering = $0 }
-        .animation(Self.smooth, value: hovering)
-        .animation(Self.smooth, value: overClose)
-        .animation(Self.smooth, value: selected)
-        .animation(Self.smooth, value: activeState)
+        .animation(layout.smooth, value: hovering)
+        .animation(layout.smooth, value: overClose)
+        .animation(layout.smooth, value: selected)
+        .animation(layout.smooth, value: activeState)
     }
 
     /// Hover and selection variants of the highlight.

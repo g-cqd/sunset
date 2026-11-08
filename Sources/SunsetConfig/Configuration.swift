@@ -137,6 +137,7 @@ public struct Configuration: Sendable, Equatable {
     public var keyboard = Keyboard()
     public var sidebar = Sidebar()
     public var appearance = Appearance()
+    public var layout = Layout()
     public var tabs = Tabs()
     /// The name of a theme file (`themes/<name>.json` beside the configuration file), or nil.
     public var theme: String?

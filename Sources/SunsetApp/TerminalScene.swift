@@ -59,7 +59,8 @@ struct TerminalScene: View {
     private var lights: LightsPlacement? {
         guard presentation.showsSidebar else { return nil }
         let margin = configuration.sidebar.padding
-        let origin = SidebarHeader.lightsOrigin(margin: margin, floating: !configuration.sidebarDocked)
+        let origin = SidebarHeader(layout: configuration.layout, margin: margin, floating: !configuration.sidebarDocked)
+            .lightsOrigin
         return LightsPlacement(
             x: origin,
             y: origin,
@@ -122,8 +123,8 @@ struct TerminalScene: View {
         .navigationTitle(tabs.selectedModel?.title ?? "Sunset")
         .focusedSceneValue(\.terminalModel, tabs.selectedModel)
         .task { start() }
-        .animation(SidebarRow.smooth, value: configuration.sidebar.autoHide)
-        .animation(SidebarRow.smooth, value: configuration.sidebar.padding)
+        .animation(configuration.layout.smooth, value: configuration.sidebar.autoHide)
+        .animation(configuration.layout.smooth, value: configuration.sidebar.padding)
         .onChange(of: configuration.sidebarDocked) { _, docked in
             forEachModel { $0.holdResize(for: .milliseconds(350)) }
             floatingShown = !docked
@@ -156,7 +157,9 @@ struct TerminalScene: View {
                 TerminalCard(
                     isCard: configuration.sidebarDocked,
                     margin: configuration.sidebar.padding,
-                    cornerRadius: ConcentricRadius.inner(outer: windowRadius, inset: configuration.sidebar.padding)
+                    cornerRadius: configuration.layout.terminalRadius
+                        ?? ConcentricRadius.inner(outer: windowRadius, inset: configuration.sidebar.padding),
+                    layout: configuration.layout
                 )
             )
         } else {
