@@ -1,15 +1,17 @@
 import SunsetConfig
 import SwiftUI
 
-/// A strip on the sidebar's trailing edge that resizes it by dragging (`sidebar.width`, 120 to 480 pt): the window follows while it moves and the file is
+/// A strip next to the sidebar's trailing edge (placed by `SidebarHandle`, in the middle of the gap between the tabs and the terminal) that resizes it by dragging (`sidebar.width`, 120 to 480 pt): the window follows while it moves and the file is
 /// written a moment after the last change.
 struct SidebarResizeHandle: View {
     let width: Double
+    /// The width of the hit box.
+    let hitWidth: Double
     @State private var startWidth: Double?
 
     var body: some View {
         Color.clear
-            .frame(width: 8)
+            .frame(width: hitWidth)
             .contentShape(.rect)
             .pointerStyle(.columnResize)
             .gesture(

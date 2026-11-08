@@ -45,7 +45,17 @@ struct FloatingSidebar: View {
             .background { SidebarBackdrop(look: panelLook) }
             .clipShape(shape)
             .overlay { shape.hairline(settings.layout) }
-            .overlay(alignment: .trailing) { SidebarResizeHandle(width: settings.sidebar.width) }
+            .overlay(alignment: .trailing) {
+                // Centred between the end of the tabs and the panel's edge, so it ends at the edge.
+                SidebarResizeHandle(
+                    width: settings.sidebar.width,
+                    hitWidth: SidebarHandle.hitWidth(
+                        docked: false,
+                        wanted: settings.layout.resizeHandleWidth,
+                        tabSideInset: settings.layout.floatingTabSideInset
+                    )
+                )
+            }
             .padding(.leading, margin)
             .padding(.vertical, margin)
             .onHover { inside in pointer(inside) }

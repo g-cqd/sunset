@@ -19,6 +19,38 @@ import Testing
         #expect(layout.terminalRadius == nil && layout.panelRadius == nil, "nil: concentric with the window")
     }
 
+    @Test func `the floating panel has tab metrics of its own, starting equal to the docked ones, and a handle width`()
+        throws
+    {
+        let layout = Configuration().layout
+        #expect(layout.floatingTabSpacing == layout.tabSpacing && layout.floatingTabSideInset == layout.tabSideInset)
+        #expect(layout.floatingTabPaddingLeading == layout.tabPaddingLeading)
+        #expect(layout.floatingTabPaddingTrailing == layout.tabPaddingTrailing)
+        #expect(layout.floatingTabPaddingVertical == layout.tabPaddingVertical)
+        #expect(layout.floatingTabRadius == layout.tabRadius)
+        #expect(layout.floatingCloseButtonSize == layout.closeButtonSize)
+        #expect(layout.floatingCloseButtonRadius == layout.closeButtonRadius)
+        #expect(layout.resizeHandleWidth == 8)
+        let set = try read(
+            #"{ "layout": { "floatingTabSpacing": 2, "floatingTabRadius": 12, "resizeHandleWidth": 12 } }"#
+        )
+        #expect(set.issues.isEmpty)
+        #expect(set.configuration.layout.floatingTabSpacing == 2 && set.configuration.layout.floatingTabRadius == 12)
+        #expect(set.configuration.layout.resizeHandleWidth == 12)
+        #expect(set.configuration.layout.tabSpacing == 6, "the docked metric is untouched")
+    }
+
+    @Test func `the tab metrics the floating panel draws with are its own`() {
+        var layout = Configuration.Layout()
+        layout.floatingTabSpacing = 1
+        layout.floatingTabRadius = 14
+        layout.tabRadius = 3
+        let floating = layout.floatingTabs
+        #expect(floating.tabSpacing == 1 && floating.tabRadius == 14)
+        #expect(layout.tabRadius == 3, "the original is not changed")
+        #expect(floating.lightsInset == layout.lightsInset, "metrics that are not tab metrics are carried over")
+    }
+
     @Test func `every metric can be set in the layout section`() throws {
         let result = try read(
             """
