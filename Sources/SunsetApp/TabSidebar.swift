@@ -50,6 +50,7 @@ struct TabSidebar: View {
             SidebarRow(
                 model: tabs.models[item.focused],
                 selected: item.id == tabs.workspace.selectedID,
+                showIcon: settings.tabs.bar.showIcon,
                 showTitle: settings.tabs.bar.showTitle,
                 showDirectory: settings.tabs.bar.showDirectory,
                 showProgress: settings.tabs.bar.showProgress,

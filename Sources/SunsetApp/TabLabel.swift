@@ -1,13 +1,27 @@
+import SunsetPane
 import SwiftUI
 
 /// What one tab shows: its title, and, as the configuration says, the working directory and the progress the program reported.
 struct TabLabel: View {
     let model: TerminalModel?
+    var showIcon = false
     var showTitle = true
     var showDirectory = false
     var showProgress = true
 
     var body: some View {
+        HStack(spacing: 6) {
+            if showIcon, let model { TabGlyphView(glyph: Self.glyph(of: model)) }
+            lines
+        }
+    }
+
+    /// What the tab is about: the folder the program is in (with its first letter), or the command in front.
+    static func glyph(of model: TerminalModel) -> TabGlyph {
+        TabGlyph.make(directory: model.directory, command: model.foregroundCommand, home: NSHomeDirectory())
+    }
+
+    private var lines: some View {
         VStack(alignment: .leading, spacing: 1) {
             if showTitle { Text(model?.title ?? "Sunset").lineLimit(1) }
             if showDirectory, let directory = model?.directory {

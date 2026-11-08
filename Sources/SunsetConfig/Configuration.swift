@@ -133,6 +133,8 @@ public struct Configuration: Sendable, Equatable {
 
             public var position = Position.bottom
             public var showTitle = true
+            /// A small picture before the title: a folder with the first letter of the directory's name, or a mark for a running command.
+            public var showIcon = true
             public var showDirectory = true
             public var showProgress = true
             public init() {}

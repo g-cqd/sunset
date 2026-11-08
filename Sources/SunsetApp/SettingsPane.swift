@@ -182,6 +182,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             entry(pane, "tabs.mode", "Tabs", ["native", "internal", "built-in", "none", "windows"]),
             entry(pane, "tabs.restore", "Restore tabs at launch", ["session", "reopen", "quit", "windows"]),
             entry(pane, "tabs.position", "Built-in bar position", ["top", "bottom", "internal"]),
+            entry(pane, "tabs.icon", "Show the folder or command icon", ["tab", "glyph", "letter", "picture"]),
             entry(pane, "tabs.title", "Show the title", ["tab", "name"]),
             entry(pane, "tabs.directory", "Show the working directory", ["tab", "folder", "path", "osc 7"]),
             entry(pane, "tabs.progress", "Show progress", ["tab", "bar", "osc 9", "download"])

@@ -47,6 +47,7 @@ public enum ConfigurationWriter {
             "tabs.mode": string(configuration.tabs.mode.rawValue),
             "tabs.restore": String(configuration.tabs.restore),
             "tabs.bar.position": string(configuration.tabs.bar.position.rawValue),
+            "tabs.bar.icon": String(configuration.tabs.bar.showIcon),
             "tabs.bar.title": String(configuration.tabs.bar.showTitle),
             "tabs.bar.directory": String(configuration.tabs.bar.showDirectory),
             "tabs.bar.progress": String(configuration.tabs.bar.showProgress),

@@ -84,6 +84,9 @@ public actor TerminalSession {
         }
     }
 
+    /// The program in front on the terminal (not the shell itself): see `PTYProcess.foregroundCommandName()`.
+    public nonisolated func foregroundCommand() -> String? { process.foregroundCommandName() }
+
     /// Sends bytes to the program, in order with everything else sent.
     public func send(_ bytes: [UInt8]) { process.send(bytes) }
 

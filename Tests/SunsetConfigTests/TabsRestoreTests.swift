@@ -9,4 +9,12 @@ import Testing
         let bad = try ConfigurationParser.parse(#"{ "tabs": { "restore": "no" } }"#)
         #expect(bad.configuration.tabs.restore && bad.issues.map(\.path) == ["tabs.restore"])
     }
+
+    @Test func `tabs.bar.icon is a switch, on by default`() throws {
+        #expect(Configuration().tabs.bar.showIcon)
+        let off = try ConfigurationParser.parse(#"{ "tabs": { "bar": { "icon": false } } }"#)
+        #expect(!off.configuration.tabs.bar.showIcon && off.issues.isEmpty)
+        let bad = try ConfigurationParser.parse(#"{ "tabs": { "bar": { "icon": 1 } } }"#)
+        #expect(bad.configuration.tabs.bar.showIcon && bad.issues.map(\.path) == ["tabs.bar.icon"])
+    }
 }

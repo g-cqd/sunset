@@ -13,6 +13,9 @@ import SunsetRenderMac
     /// The working directory the program reported (OSC 7) and its progress (OSC 9;4), 0 to 1: what a tab can show next to its title.
     private(set) var directory: String?
     private(set) var progress: Double?
+    /// The program in front on the terminal when it is not the shell (`TabGlyph` turns it into the command mark).
+    var foregroundCommand: String?
+    @ObservationIgnored var foregroundCheck: Task<Void, Never>?
     private(set) var isRunning = true
     /// Whether text is selected (observed, so that the Copy menu item follows it).
     var hasSelection = false
@@ -240,6 +243,7 @@ import SunsetRenderMac
         let fraction = Self.fraction(of: snapshot.progress)
         if fraction != progress { progress = fraction }
         if changed, let latest = presenter.latest { presentFrame(latest) }
+        checkForeground()
         // Something may have changed while this frame was being drawn.
         if frameWanted { setDisplayLinkPaused(false) }
     }

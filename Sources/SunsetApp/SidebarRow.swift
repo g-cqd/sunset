@@ -7,6 +7,7 @@ import SwiftUI
 struct SidebarRow: View {
     let model: TerminalModel?
     let selected: Bool
+    let showIcon: Bool
     let showTitle: Bool
     let showDirectory: Bool
     let showProgress: Bool
@@ -19,8 +20,14 @@ struct SidebarRow: View {
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         return HStack(spacing: 4) {
-            TabLabel(model: model, showTitle: showTitle, showDirectory: showDirectory, showProgress: showProgress)
-                .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
+            TabLabel(
+                model: model,
+                showIcon: showIcon,
+                showTitle: showTitle,
+                showDirectory: showDirectory,
+                showProgress: showProgress
+            )
+            .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
             // Always laid out and only faded, so that the row never changes size and the label does not jump.
             Button(action: close) {
                 Image(systemName: "xmark")
