@@ -7,7 +7,8 @@ struct PinButton: View {
     let pinned: Bool
     let layout: Configuration.Layout
     let radius: Double
-    var size: Double?
+    /// Width and height of the container when it is not `layout.pinButtonSize` square.
+    var size: CGSize?
     let action: () -> Void
     @State private var hovering = false
 
@@ -18,7 +19,7 @@ struct PinButton: View {
                 .symbolVariant(pinned ? .fill : .none)
                 .font(.system(size: 13, weight: .regular))
                 .foregroundStyle(hovering ? .primary : .secondary)
-                .frame(width: size ?? layout.pinButtonSize, height: size ?? layout.pinButtonSize)
+                .frame(width: size?.width ?? layout.pinButtonSize, height: size?.height ?? layout.pinButtonSize)
                 .background(shape.fill(.primary.opacity(hovering ? 0.1 : 0)))
                 .contentShape(shape)
         }
