@@ -14,6 +14,8 @@ struct TerminalScene: View {
     @State private var obscured = 0.0
     /// Whether the floating sidebar (and with it the traffic lights) is out.
     @State private var floatingShown = false
+    /// The sidebar was just unpinned: the panel starts out (the pointer is where the column was) and goes when the pointer is not on it.
+    @State private var opensAtOnce = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openWindow) private var openWindow
     private let config = AppConfiguration.shared
@@ -46,28 +48,35 @@ struct TerminalScene: View {
         guard look.isOpaque else { return .clear }
         return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
-    /// Where the sidebar's first row starts: under the traffic lights (their top plus their height, 14 pt, and a gap) when there is no title bar, else
-    /// after the margin.
-    private var sidebarTop: Double {
-        let margin = configuration.sidebar.padding
-        return noDecorations ? max(configuration.window.trafficLightsY + 14 + margin, margin) : margin
-    }
     /// The window's corner radius, from AppKit (16 pt on macOS 27.0.1).
     private var windowRadius: Double {
         window.flatMap { WindowCornerRadius.of($0) } ?? ConcentricRadius.standardWindow
     }
     private var floatsSidebar: Bool { presentation.showsSidebar && configuration.sidebar.autoHide }
 
-    /// While the sidebar floats the traffic lights are part of its panel: at its top left when it shows, hidden when it does not.
+    /// With the sidebar the traffic lights are part of it, in the slot at its top (`SidebarHeader`), away from the window's edge: docked they are always
+    /// there; floating they come and go with the panel, which is inset by the margin.
     private var lights: LightsPlacement? {
-        guard floatsSidebar else { return nil }
-        let inset = configuration.sidebar.padding + FloatingSidebar.lightsInset
-        return LightsPlacement(x: inset, y: inset, visible: floatingShown)
+        guard presentation.showsSidebar else { return nil }
+        let margin = configuration.sidebar.padding
+        let origin = SidebarHeader.lightsOrigin(margin: margin, floating: !configuration.sidebarDocked)
+        return LightsPlacement(
+            x: origin,
+            y: origin,
+            visible: configuration.sidebarDocked || floatingShown
+        )
     }
 
     @ViewBuilder private var floatingSidebar: some View {
         if floatsSidebar {
-            FloatingSidebar(tabs: tabs, settings: configuration, windowRadius: windowRadius, shown: $floatingShown)
+            FloatingSidebar(
+                tabs: tabs,
+                settings: configuration,
+                windowRadius: windowRadius,
+                shown: $floatingShown,
+                opensAtOnce: $opensAtOnce
+            )
+            .transition(.opacity)
         }
     }
     private var look: WindowLook { WindowLook(configuration) }
@@ -82,22 +91,20 @@ struct TerminalScene: View {
             if barAtTop { tabBar }
             HStack(spacing: 0) {
                 if configuration.sidebarDocked {
-                    TabSidebar(
-                        tabs: tabs,
-                        settings: configuration,
-                        topInset: sidebarTop,
-                        lightsMiddle: noDecorations ? configuration.window.trafficLightsY + 7 : sidebarTop / 2
-                    )
-                    .frame(width: configuration.sidebar.width)
-                    .frame(maxHeight: .infinity)
-                    .background { SidebarBackdrop(look: SidebarLook(configuration)) }
-                    .overlay(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
-                    .overlay(alignment: .trailing) { SidebarResizeHandle(width: configuration.sidebar.width) }
+                    TabSidebar(tabs: tabs, settings: configuration)
+                        .padding(.top, configuration.sidebar.padding)
+                        .padding(.leading, configuration.sidebar.padding)
+                        .frame(width: configuration.sidebar.width, alignment: .leading)
+                        .frame(maxHeight: .infinity)
+                        .background { SidebarBackdrop(look: SidebarLook(configuration)) }
+                        .background(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
+                        .overlay(alignment: .trailing) { SidebarResizeHandle(width: configuration.sidebar.width) }
+                        .transition(.move(edge: .leading).combined(with: .opacity))
                 }
                 terminal
             }
-            .overlay(alignment: .leading) { floatingSidebar }
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
+            .overlay(alignment: .leading) { floatingSidebar }
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
         .background(rootColor)
@@ -115,6 +122,13 @@ struct TerminalScene: View {
         .navigationTitle(tabs.selectedModel?.title ?? "Sunset")
         .focusedSceneValue(\.terminalModel, tabs.selectedModel)
         .task { start() }
+        .animation(SidebarRow.smooth, value: configuration.sidebar.autoHide)
+        .animation(SidebarRow.smooth, value: configuration.sidebar.padding)
+        .onChange(of: configuration.sidebarDocked) { _, docked in
+            forEachModel { $0.holdResize(for: .milliseconds(350)) }
+            floatingShown = !docked
+            opensAtOnce = !docked
+        }
         .onChange(of: font) { _, newFont in forEachModel { $0.apply(font: newFont) } }
         .onChange(of: configuration.scroll) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.terminalPadding) { _, _ in forEachModel(configure) }
