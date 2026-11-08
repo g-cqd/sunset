@@ -89,8 +89,11 @@ struct TabSidebar: View {
         ) {
             AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
         }
-        .padding(settings.sidebar.side == .left ? .trailing : .leading, pinGap)
-        .padding(.top, panelRadius == nil ? 0 : header.buttonTop)
+        .padding(
+            settings.sidebar.side == .left ? .trailing : .leading,
+            pinGap + (panelRadius == nil ? header.dockedButtonInset : 0)
+        )
+        .padding(.top, panelRadius == nil ? header.dockedButtonInset : header.buttonTop)
     }
 
     /// The pin button's distance from the panel's top and from its edge: the same, so that their corners share a centre (docked: the container is flush with the terminal card's top and with the tabs' edge).
