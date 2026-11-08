@@ -12,7 +12,7 @@ struct TerminalCard: ViewModifier {
             let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
             content
                 .clipShape(shape)
-                .overlay { shape.strokeBorder(.primary.opacity(0.12), lineWidth: 0.5).allowsHitTesting(false) }
+                .overlay { shape.hairline() }
                 .padding(margin)
         } else {
             content

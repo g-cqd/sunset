@@ -10,6 +10,8 @@ struct TabSidebar: View {
     let settings: Configuration
     /// Where the first row starts, from the window's top: below the traffic lights.
     let topInset: Double
+    /// From the panel's top, the middle of the traffic lights' row: the pin button is centred on it.
+    let lightsMiddle: Double
 
     private var margin: Double { settings.sidebar.padding }
 
@@ -24,6 +26,7 @@ struct TabSidebar: View {
         .contentMargins(.top, topInset, for: .scrollContent)
         .contentMargins(.bottom, margin, for: .scrollContent)
         .mask { fade }
+        .overlay(alignment: .topTrailing) { pinButton }
     }
 
     /// Content that scrolls up past the traffic lights fades out over the height of the strip they sit in; rows at rest start below it, untouched.
@@ -60,5 +63,24 @@ struct TabSidebar: View {
             }
             .disabled(tabs.list.count < 2)
         }
+    }
+
+    /// Keeps the sidebar beside the terminal (pinned) or lets it hide and float (`sidebar.autoHide`).
+    private var pinButton: some View {
+        let pinned = !settings.sidebar.autoHide
+        return Button {
+            AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
+        } label: {
+            Image(systemName: pinned ? "pin.fill" : "pin")
+                .font(.system(size: 10, weight: .medium))
+                .frame(width: 20, height: 20)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.secondary)
+        .help(pinned ? "Let the sidebar hide" : "Keep the sidebar visible")
+        .padding(.trailing, margin)
+        .padding(.top, max(lightsMiddle - 10, 0))
+        .animation(SidebarRow.smooth, value: pinned)
     }
 }

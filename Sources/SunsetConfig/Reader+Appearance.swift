@@ -21,6 +21,7 @@ extension Reader {
                     if let points = number(path, value, range: 120 ... 480) { configuration.sidebar.width = points }
                 case "padding":
                     if let points = number(path, value, range: 0 ... 16) { configuration.sidebar.padding = points }
+                case "autoHide": if let flag = bool(path, value) { configuration.sidebar.autoHide = flag }
                 case "material":
                     if let choice = choice(path, value, as: Configuration.Material.self) {
                         configuration.sidebar.material = choice

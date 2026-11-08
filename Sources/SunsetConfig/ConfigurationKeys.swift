@@ -7,7 +7,7 @@ public enum ConfigurationKeys {
         "colors.foreground", "colors.background", "colors.cursor",
         "window.decorations", "window.trafficLights.x", "window.trafficLights.y", "window.dragStrip", "window.padding",
         "window.material", "window.opacity", "window.blur",
-        "sidebar.enabled", "sidebar.width", "sidebar.padding", "sidebar.material",
+        "sidebar.enabled", "sidebar.width", "sidebar.padding", "sidebar.autoHide", "sidebar.material",
         "sidebar.blur",
         "appearance.glass", "appearance.tint.color", "appearance.tint.alpha",
         "tabs.mode", "tabs.bar.position", "tabs.bar.title", "tabs.bar.directory", "tabs.bar.progress",
