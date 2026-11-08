@@ -40,7 +40,8 @@ extension Configuration {
         public var hairlineWidth = 0.5
         public var hairlineOpacity = 0.12
         public var revealStripWidth = 10.0
-        /// The space between the panes of a split, in points; the divider you drag is in it.
+        /// The space between the panes of a split (and between them and the window's edge) when the sidebar is not docked, in points; with it docked the space is the
+        /// sidebar's `padding`, so that the cards are framed alike.
         public var paneGap = 2.0
         /// Seconds the floating sidebar stays after the pointer leaves it.
         public var hideDelay = 0.35

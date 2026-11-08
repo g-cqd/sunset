@@ -176,7 +176,7 @@ extension Configuration.Layout {
         ),
         field(
             "paneGap",
-            "Gap between split panes",
+            "Gap between split panes (sidebar not docked)",
             ["split", "divider", "pane", "space"],
             0 ... 16,
             1,
