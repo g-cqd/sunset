@@ -91,7 +91,13 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
         let target = ((ring.shown ?? Self.bufferCount - 1) + 1) % Self.bufferCount
         let rows = merge(ring.missing[target], changed)
         do {
-            try await compositor.apply(frame, to: canvas, copying: (rows, ring.textures[target]))
+            // The surface shown last holds the canvas as it was: a scroll's rows are moved from it.
+            try await compositor.apply(
+                frame,
+                to: canvas,
+                copying: (rows, ring.textures[target]),
+                movingFrom: ring.shown.map { ring.textures[$0] }
+            )
         } catch {
             // The frame was not drawn and the GPU may be gone: the window is told to use the CPU renderer.
             recorder.invalidate()

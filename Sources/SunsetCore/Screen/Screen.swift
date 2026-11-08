@@ -60,6 +60,9 @@ public struct Screen: Sendable {
     var cursorChosen = false
 
     var dirtyRows: ContiguousArray<Bool>
+    /// For each row, the row its cells were in at the last `clearDirty`, when only scrolling moved them since; -1 when the row was written or is new
+    /// (`movedFrom(row:)`).
+    var rowOrigins: ContiguousArray<Int32>
     public internal(set) var generation: UInt64 = 0
     public internal(set) var bellCount = 0
 
@@ -84,6 +87,7 @@ public struct Screen: Sendable {
         bottom = rows - 1
         tabStops = Screen.defaultTabStops(columns)
         dirtyRows = ContiguousArray(repeating: true, count: rows)
+        rowOrigins = ContiguousArray(repeating: -1, count: rows)
         replies.reserveCapacity(256)
     }
 
@@ -168,11 +172,15 @@ public struct Screen: Sendable {
 
     /// Marks every row clean: the renderer has taken what it needed.
     public mutating func clearDirty() {
-        for index in dirtyRows.indices { dirtyRows[index] = false }
+        for index in dirtyRows.indices {
+            dirtyRows[index] = false
+            rowOrigins[index] = Int32(index)
+        }
     }
 
     mutating func markDirty(_ row: Int) {
         dirtyRows[row] = true
+        rowOrigins[row] = -1
         generation &+= 1
     }
 
@@ -180,6 +188,10 @@ public struct Screen: Sendable {
         dirtyRows.withUnsafeMutableBufferPointer { flags in
             guard let base = flags.baseAddress else { return }
             (base + range.lowerBound).update(repeating: true, count: range.count)
+        }
+        rowOrigins.withUnsafeMutableBufferPointer { origins in
+            guard let base = origins.baseAddress else { return }
+            (base + range.lowerBound).update(repeating: -1, count: range.count)
         }
         generation &+= 1
     }

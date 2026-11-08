@@ -61,6 +61,22 @@ import Testing
         #expect(gpu.backend == .gpu && cpu.backend == .cpu)
     }
 
+    @Test func `scrolling frame after frame through the rotation moves the pixels and agrees`() async throws {
+        let (cpu, gpu, _) = try renderers()
+        var terminal = Terminal(columns: 30, rows: 6)
+        let view = FrameView(extraPixels: (5, 3))
+        for step in 0 ..< 12 {
+            terminal.feed("\r\nline \(step) \(esc)[3\(step % 7 + 1)mcolour \(esc)[4munder\(esc)[0m ┌─┐ 日本")
+            let first = await cpu.present(terminal.screen, cursorVisible: true, textBlinkVisible: true, view: view)
+            let second = await gpu.present(terminal.screen, cursorVisible: true, textBlinkVisible: true, view: view)
+            terminal.clearDirty()
+            #expect(first && second, "step \(step) draws")
+            let a = try #require(cpu.latest)
+            let b = try #require(gpu.latest)
+            #expect(pixels(a) == pixels(b), "step \(step)")
+        }
+    }
+
     @Test func `a resize starts again and still agrees`() async throws {
         let (cpu, gpu, _) = try renderers()
         var terminal = Terminal(columns: 30, rows: 8)

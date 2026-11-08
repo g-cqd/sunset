@@ -10,6 +10,8 @@ import Testing
     @Test func `recorded frames applied one after the other give the pixels of drawing everything`() {
         var random = SeededRNG(seed: 47)
         let metrics = RenderMetrics(cellWidth: 8, cellHeight: 16)
+        var moves = 0
+        defer { #expect(moves > 100, "frames that moved pixels: \(moves)") }
         for round in 0 ..< 120 {
             let columns = 6 + random.below(14)
             let rows = 3 + random.below(6)
@@ -27,14 +29,15 @@ import Testing
                 terminal.feed(chunk)
                 let blink = random.below(3) != 0
                 let textBlink = random.below(4) != 0
-                recorder.record(
+                let frame = recorder.record(
                     terminal.screen,
                     width: size.width,
                     height: size.height,
                     cursorVisible: blink,
                     textBlinkVisible: textBlink
                 )
-                .replay(onto: &replayed)
+                if frame.move != nil { moves += 1 }
+                frame.replay(onto: &replayed)
                 terminal.clearDirty()
 
                 var fresh = Surface(width: size.width, height: size.height)

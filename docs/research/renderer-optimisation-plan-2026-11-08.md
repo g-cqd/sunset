@@ -151,3 +151,40 @@ most 65 536 entries of 20 bytes); ligature runs and scrolled-back frames in the 
 
 **Next**: the remaining record cost is mostly `drawCell` itself (appending operations, the per-cell box and cursor arithmetic); item 2 (scroll by moving
 pixels) now matters more than shaving it further: a scrolling frame redraws every row.
+
+### Item 2: scrolling moves pixels (done)
+
+- **Core**: `Screen.movedFrom(row:)` says where a row's cells were at the last `clearDirty` when only scrolling moved them (line feed at the bottom, `S`/`T`,
+  inserted and deleted lines, scroll regions); a written or blank-new row has none. Dirty marks keep their meaning (a moved row is dirty), so nothing else
+  that reads them changes. The host clears the marks in the same lock as it takes the snapshot, so the map is relative to the frame before.
+- **Renderer**: when nothing frame-wide changed (no full redraw, no history scrolled back, no selection, no hovered link, now or in the frame before), the
+  longest band of rows moved by one offset is moved on the surface (CPU: one `update(from:count:)`, which Apple documents as allowing overlap) or recorded as
+  `DrawFrame.move`; moved rows are not drawn unless the cursor is on them now or was on their source row. Their blinking-text marks move with them, so a blink
+  phase change draws them as it would have the source.
+- **Metal**: a copy between overlapping regions of one texture is undefined (Apple's documentation of the blit copy), so the move reads the surface shown
+  last, which holds the canvas as it was; no extra texture.
+- **Found on the way**: a wide character wrapping at the last column did not dirty the row it left (fixed with its own test, commit before this one); the
+  differential tests now cover blinking text, the blink phase, and recorded frames replayed one after the other.
+- **Guards**: core tests for the map; a recorded scroll frame moves 5 rows and draws 2; Metal agrees at 0 differing pixels on scrolls in the rig and through
+  the app's ring of three surfaces; the CPU and recorded differential tests (moves in over 100 of their frames) plus 60 further seeds, 180 000 frames, with
+  no difference. Breaking each rule fails them: dropping the "cursor now" or the "cursor before" exclusion, or the blink-mark move, fails a differential
+  test; moving from the wrong ring surface fails the ring test. A third rule I first wrote (blinking source with a phase change) changed nothing when
+  removed: the row is redrawn by the blink rule anyway, so it was taken out.
+
+Measured, RecordProbe (120×40, one line a frame), A/B of the commit before and this one, interleaved, 4 rounds of 3 000 frames, load 4.7-6:
+
+| | before | after |
+|---|---:|---:|
+| record, operations a frame | 4 300 | 113 |
+| record, instructions | 5.49-5.50 G | 0.41 G (feed alone is 0.13 G of it) |
+| CPU backend, instructions | 79.6-79.7 G | 8.1 G |
+| CPU backend, user CPU time, per round | 4.99 / 6.51 / 7.64 / 8.83 s | 0.83 / 1.30 / 1.54 / 1.69 s (**5.0-6.0× less**) |
+
+The CPU backend's remaining cost is mostly the move itself, memory bound (the probe's surface is ~11 MB). The renderer-stages probe (one run, loaded,
+indicative): 120×40 scroll 1 line, CPU render 293 µs (1 971 µs earlier the same day), GPU execution 610 µs (1 408), process CPU in `apply` 92 µs (309).
+
+Not measured: the app end to end (the CPU path also copies the moved band to the shown IOSurface, as it did before, when every row was dirty), energy,
+floods of many lines a frame (a gain while *k* is under the row count), scrolling with a selection (falls back to drawing, by design).
+
+**Next**: item 5. The GPU path now copies two frames' worth per scroll (the move into the canvas, the changed rows out to the shown surface): drawing
+straight into the surface to be shown, after moving into it from the one shown, would do one copy and drop the canvas texture (memory, n11).

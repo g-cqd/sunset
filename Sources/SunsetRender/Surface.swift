@@ -10,6 +10,7 @@ public struct Surface: Sendable {
     /// write to an `inout` value, without the dynamic exclusivity check a class's property costs.
     let records: Bool
     var recorded: ContiguousArray<DrawOp> = []
+    var recordedMove: PixelMove?
 
     public init(width: Int, height: Int) {
         precondition(width > 0 && height > 0, "a surface has at least one pixel")
@@ -37,6 +38,27 @@ public struct Surface: Sendable {
         self.height = height
         pixels = []
         records = true
+    }
+
+    /// Moves full-width rows of pixels (`PixelMove`); a recording surface takes the move down instead, and it must come before any operation.
+    mutating func apply(_ move: PixelMove) {
+        guard !records else {
+            precondition(recorded.isEmpty && recordedMove == nil, "a frame moves its pixels once, first")
+            recordedMove = move
+            return
+        }
+        precondition(
+            move.height >= 0 && min(move.sourceY, move.destinationY) >= 0
+                && max(move.sourceY, move.destinationY) + move.height <= height,
+            "a move stays inside the surface"
+        )
+        let width = width
+        pixels.withUnsafeMutableBufferPointer { buffer in
+            guard let base = buffer.baseAddress else { return }
+            // The two regions may overlap, which `update(from:count:)` allows.
+            unsafe (base + move.destinationY * width)
+                .update(from: base + move.sourceY * width, count: move.height * width)
+        }
     }
 
     @inline(__always) static func pack(_ color: RGB) -> UInt32 {

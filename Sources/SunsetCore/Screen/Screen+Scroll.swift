@@ -24,18 +24,20 @@ extension Screen {
         let n = min(count, last - first + 1)
         guard n > 0 else { return }
         if saveHistory, first == 0, !isAlternate { saveToScrollback(rows: n) }
-        rotateRows(first ... last, leftBy: n)
+        Self.rotate(&grid.rowMap, first ... last, leftBy: n)
+        markMoved(first ... last, leftBy: n)
         blankRows(last - n + 1 ... last)
-        markDirty(first ... last)
+        markDirty(last - n + 1 ... last)
     }
 
     /// The rows `first...last` move down by `count`; the rows that arrive at the top are blank.
     mutating func scrollDown(from first: Int, to last: Int, by count: Int) {
         let n = min(count, last - first + 1)
         guard n > 0 else { return }
-        rotateRows(first ... last, leftBy: last - first + 1 - n)
+        Self.rotate(&grid.rowMap, first ... last, leftBy: last - first + 1 - n)
+        markMoved(first ... last, leftBy: last - first + 1 - n)
         blankRows(first ... first + n - 1)
-        markDirty(first ... last)
+        markDirty(first ... first + n - 1)
     }
 
     /// Copies the top `count` screen rows into the history (the line feed that is about to push them off the screen).
@@ -46,11 +48,22 @@ extension Screen {
         }
     }
 
-    /// Rotates the row map of a range in place: one line (the common scroll) moves the rest down with a single copy; more take three reversals. Both work
-    /// on the buffer itself, so a scroll does not pay for a uniqueness check and a bounds check per row.
-    private mutating func rotateRows(_ range: ClosedRange<Int>, leftBy n: Int) {
+    /// The rows of `range` moved up by `n` (a rotation of their contents): they are dirty, and each keeps where its cells came from (`rowOrigins`) since
+    /// only the move changed it. The rows that come in blank are marked by the caller.
+    private mutating func markMoved(_ range: ClosedRange<Int>, leftBy n: Int) {
+        Self.rotate(&rowOrigins, range, leftBy: n)
+        dirtyRows.withUnsafeMutableBufferPointer { flags in
+            guard let base = flags.baseAddress else { return }
+            (base + range.lowerBound).update(repeating: true, count: range.count)
+        }
+        generation &+= 1
+    }
+
+    /// Rotates a range of a per-row array in place: one line (the common scroll) moves the rest down with a single copy; more take three reversals. Both
+    /// work on the buffer itself, so a scroll does not pay for a uniqueness check and a bounds check per row.
+    private static func rotate(_ rows: inout ContiguousArray<Int32>, _ range: ClosedRange<Int>, leftBy n: Int) {
         guard n > 0, n < range.count else { return }
-        grid.rowMap.withUnsafeMutableBufferPointer { map in
+        rows.withUnsafeMutableBufferPointer { map in
             guard let start = map.baseAddress.map({ $0 + range.lowerBound }) else { return }
             let count = range.count
             if n == 1 {

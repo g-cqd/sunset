@@ -19,6 +19,8 @@ import Testing
             let compositor = try #require(MetalCompositor())
             let size = metrics.surfaceSize(columns: columns, rows: rows)
             let target = try #require(compositor.makeTarget(width: size.width, height: size.height))
+            // As the app: the frame's changed rows go to a second texture (the shown surface), which the next frame's pixel move reads.
+            let shown = try #require(compositor.makeTarget(width: size.width, height: size.height))
             func text(_ i: Int) -> String {
                 "line \(i) flood \u{1B}[3\(i % 8)mcoloured\u{1B}[0m "
                     + String(repeating: "abcdefghij", count: columns / 10 - 3)
@@ -48,7 +50,13 @@ import Testing
                 }
                 cpu.render(t1.screen, into: &surface)
                 t1.clearDirty()
-                try await compositor.apply(rec.record(t2.screen, width: size.width, height: size.height), to: target)
+                let first = rec.record(t2.screen, width: size.width, height: size.height)
+                try await compositor.apply(
+                    first,
+                    to: target,
+                    copying: first.changedPixelRows.map { ($0, shown) },
+                    movingFrom: shown
+                )
                 t2.clearDirty()
                 let n = 200
                 var cpuT = 0.0
@@ -88,7 +96,12 @@ import Testing
                     rowsPx += f.changedPixelRows?.count ?? 0
                     c = ContinuousClock.now
                     let cpu0 = clock_gettime_nsec_np(CLOCK_PROCESS_CPUTIME_ID)
-                    try await compositor.apply(f, to: target)
+                    try await compositor.apply(
+                        f,
+                        to: target,
+                        copying: f.changedPixelRows.map { ($0, shown) },
+                        movingFrom: shown
+                    )
                     applyT += us(ContinuousClock.now - c)
                     applyCPU += Double(clock_gettime_nsec_np(CLOCK_PROCESS_CPUTIME_ID) - cpu0) / 1000
                     gpuT += compositor.lastGPUSeconds * 1e6
