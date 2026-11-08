@@ -1,4 +1,5 @@
 public import CoreGraphics
+public import Foundation
 
 /// Where a pane dropped on another goes: the four triangles cut by the diagonals of the target decide the edge nearest the pointer, and the preview is
 /// the half of the target that the dropped pane would take.
@@ -21,5 +22,30 @@ public enum DropZone {
             case .top: CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height / 2)
             case .bottom: CGRect(x: rect.minX, y: rect.midY, width: rect.width, height: rect.height / 2)
         }
+    }
+
+    /// Where a pane dropped at `point` would go: the pane under the pointer (the nearest one when the pointer is in a gap or outside), the edge of it that
+    /// the pointer is nearest to, and the half of the pane that this edge takes. nil when there are no panes.
+    public static func target(at point: CGPoint, among frames: [PaneID: CGRect]) -> Target? {
+        // Reading order breaks a tie, so that the answer does not depend on the dictionary's order.
+        let ordered = frames.sorted { ($0.value.minY, $0.value.minX) < ($1.value.minY, $1.value.minX) }
+        let best = ordered.min { distance(from: point, to: $0.value) < distance(from: point, to: $1.value) }
+        guard let (pane, frame) = best else { return nil }
+        let edge = edge(at: point, in: frame)
+        return Target(pane: pane, edge: edge, preview: preview(edge, in: frame))
+    }
+
+    /// A pane and the side of it a drop would go on.
+    public struct Target: Sendable, Equatable {
+        public let pane: PaneID
+        public let edge: PaneEdge
+        /// The half of the pane the dropped one would take.
+        public let preview: CGRect
+    }
+
+    private static func distance(from point: CGPoint, to rect: CGRect) -> Double {
+        let dx = max(rect.minX - point.x, 0, point.x - rect.maxX)
+        let dy = max(rect.minY - point.y, 0, point.y - rect.maxY)
+        return (dx * dx + dy * dy).squareRoot()
     }
 }

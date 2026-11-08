@@ -1,3 +1,4 @@
+import Foundation
 import Observation
 import SunsetPane
 
@@ -12,6 +13,9 @@ final class TabsModel {
     @ObservationIgnored var makeModel: () -> TerminalModel = { TerminalModel() }
     /// The last tab was closed: the window goes.
     @ObservationIgnored var onEmpty: () -> Void = {}
+
+    /// What a sidebar or bar drag in this window carries, from its start until it is dropped (set when the drag begins; see `beginDrag`).
+    @ObservationIgnored var dragged: PaneDragPayload?
 
     var selectedModel: TerminalModel? { workspace.selectedPane.flatMap { models[$0] } }
     var allModels: [TerminalModel] { workspace.allPanes.compactMap { models[$0] } }
@@ -91,6 +95,36 @@ final class TabsModel {
 
     private func finishClosing() {
         if workspace.isEmpty { onEmpty() } else { syncStates() }
+    }
+
+    // MARK: Dragging
+
+    /// What a drag of a tab or a pane carries (as text). Called when the drag starts, not when the row is drawn: it remembers what is being dragged, so that
+    /// the drop areas can tell at once what would happen.
+    func itemProvider(for payload: PaneDragPayload) -> NSItemProvider {
+        dragged = payload
+        return NSItemProvider(object: payload.text as NSString)
+    }
+
+    /// Whether what is dragged could be dropped on a pane: not a tab on itself, not a pane on itself.
+    func canDrop(onto pane: PaneID) -> Bool {
+        switch dragged {
+            case .item(let id): workspace.item(containing: pane)?.id != id
+            case .pane(let id): id != pane
+            case nil: false
+        }
+    }
+
+    /// Drops what is dragged on `edge` of a pane (the tab joins that pane's tab, or the pane moves beside it).
+    @discardableResult
+    func dropDragged(onto pane: PaneID, edge: PaneEdge) -> Bool {
+        guard canDrop(onto: pane), let drag = dragged else { return false }
+        dragged = nil
+        switch drag {
+            case .item(let id): drop(item: id, onto: pane, edge: edge)
+            case .pane(let id): movePane(id, beside: pane, edge: edge)
+        }
+        return true
     }
 
     // MARK: Selecting and arranging

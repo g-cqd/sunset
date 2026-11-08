@@ -1,6 +1,7 @@
 import SunsetConfig
 import SunsetPane
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The content of the selected tab: its panes where its split layout puts them, and the dividers between them. The panes are laid out flat (a `ForEach`
 /// over the panes, each placed by its frame) rather than as nested stacks, so that a terminal's AppKit view keeps its identity while the split changes
@@ -14,6 +15,8 @@ struct PaneArea: View {
     let layout: Configuration.Layout
 
     private static let space = "pane-area"
+    /// Where a dragged tab or pane would go while it is over the area.
+    @State private var dropTarget: DropZone.Target?
 
     var body: some View {
         GeometryReader { proxy in
@@ -40,10 +43,31 @@ struct PaneArea: View {
                         }
                     }
                 }
+                .overlay(alignment: .topLeading) { dropPreview }
                 .coordinateSpace(.named(Self.space))
+                .onDrop(
+                    of: [.plainText, .utf8PlainText],
+                    delegate: PaneDropDelegate(tabs: tabs, frames: frames, target: $dropTarget)
+                )
                 .onChange(of: frames, initial: true) { _, new in applyInsets(new, bounds: bounds) }
                 .onChange(of: topInset) { _, _ in applyInsets(frames, bounds: bounds) }
             }
+        }
+    }
+
+    /// The half of a pane that a dragged tab or pane would take.
+    @ViewBuilder private var dropPreview: some View {
+        if let preview = dropTarget?.preview {
+            RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
+                .fill(Color.accentColor.opacity(0.22))
+                .overlay {
+                    RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
+                        .strokeBorder(Color.accentColor.opacity(0.7), lineWidth: 1.5)
+                }
+                .frame(width: preview.width, height: preview.height)
+                .offset(x: preview.minX, y: preview.minY)
+                .allowsHitTesting(false)
+                .animation(layout.smooth, value: preview)
         }
     }
 

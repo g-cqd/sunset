@@ -59,9 +59,9 @@ struct BuiltInTabBar: View {
         .contentShape(.rect)
         .onTapGesture { tabs.select(item: item.id) }
         .onHover { inside in hovered = inside ? item.id : (hovered == item.id ? nil : hovered) }
-        .draggable(item.id.uuidString)
+        .onDrag { tabs.itemProvider(for: .item(item.id)) }
         .dropDestination(for: String.self) { items, _ in
-            guard let text = items.first, let id = UUID(uuidString: text),
+            guard let text = items.first, case .item(let id)? = PaneDragPayload(text: text),
                 let index = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
             else { return false }
             tabs.move(item: id, to: index)
