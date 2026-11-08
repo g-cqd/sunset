@@ -14,6 +14,12 @@ public struct Terminal: Sendable {
         screen.palette = palette
     }
 
+    /// Packs the old lines of the history (see `Screen.packHistory`).
+    @discardableResult
+    public mutating func packHistory(using codec: any HistoryCodec, keepingRecent: Int, limit: Int) -> Int {
+        screen.packHistory(using: codec, keepingRecent: keepingRecent, limit: limit)
+    }
+
     /// Marks every row clean: the renderer has taken what it needed (ADR-0024).
     public mutating func clearDirty() { screen.clearDirty() }
 

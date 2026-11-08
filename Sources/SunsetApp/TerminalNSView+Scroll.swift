@@ -1,4 +1,5 @@
 import AppKit
+import SunsetConfig
 import SunsetCore
 
 /// Scrolling with the wheel and the trackpad.
@@ -15,15 +16,15 @@ extension TerminalNSView {
                 delta: event.scrollingDeltaY,
                 precise: true,
                 cellHeight: model.cellHeightInPoints,
-                trackpad: model.scrollTrackpad,
-                wheel: model.scrollWheel
+                trackpad: model.scroll.trackpad,
+                wheel: model.scroll.wheel
             )
             emitWheel(lines, event)
             return
         }
         guard event.scrollingDeltaY.isFinite else { return }
-        momentum.timeConstant = model.scrollInertia
-        momentum.push(lines: event.scrollingDeltaY * model.scrollWheel)
+        momentum.timeConstant = model.scroll.inertia
+        momentum.push(lines: event.scrollingDeltaY * model.scroll.wheel)
         momentumEvent = event
         emitWheel(momentum.take(), event)
         if momentum.isMoving { startGliding() }

@@ -217,9 +217,7 @@ struct TerminalScene: View {
         model.defaultColors = colors
         model.paddingPoints = configuration.terminalPadding
         model.backgroundAlpha = configuration.backgroundAlpha
-        model.scrollTrackpad = configuration.scroll.trackpad
-        model.scrollWheel = configuration.scroll.wheel
-        model.scrollInertia = configuration.scroll.inertia
+        model.scroll = configuration.scroll
         model.applyLayout()
     }
 
