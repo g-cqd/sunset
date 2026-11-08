@@ -33,6 +33,9 @@ public final class MetalCompositor {
     private var atlas: GlyphAtlas
     private var instances: (any MTLBuffer)?
     private var last: (any MTLCommandBuffer)?
+    /// What the GPU took for the last frame (start to end of its execution) and how many instances it drew: for probes.
+    var lastGPUSeconds = 0.0
+    var lastInstanceCount = 0
 
     /// nil when there is no Metal device, or its shaders do not compile.
     public init?(device: (any MTLDevice)? = MTLCreateSystemDefaultDevice()) {
@@ -105,6 +108,8 @@ public final class MetalCompositor {
         commands.commit()
         commands.waitUntilCompleted()
         last = commands
+        lastGPUSeconds = commands.gpuEndTime - commands.gpuStartTime
+        lastInstanceCount = list.count
         guard commands.status == .completed else { throw Failure.commandFailed }
     }
 
