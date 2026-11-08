@@ -9,21 +9,21 @@ import Testing
 
     @Test func `the defaults are the values the sidebar had when they were fixed`() {
         let layout = Configuration().layout
-        #expect(layout.tabSpacing == 6 && layout.tabSideInset == 4)
+        #expect(layout.tabSpacing == 4 && layout.tabSideInset == 2)
         #expect(layout.tabPaddingLeading == 8 && layout.tabPaddingTrailing == 4 && layout.tabPaddingVertical == 3)
         #expect(layout.tabRadius == 6 && layout.closeButtonSize == 20 && layout.closeButtonRadius == 4)
-        #expect(layout.lightsInset == 6 && layout.lightsGap == 10 && layout.floatingLightsExtra == 2)
-        #expect(layout.pinButtonSize == 24 && layout.pinButtonRadius == 6)
+        #expect(layout.lightsInset == 8 && layout.lightsGap == 10 && layout.floatingLightsExtra == 0)
+        #expect(layout.pinButtonSize == 24 && layout.pinButtonRadius == 5)
         #expect(layout.hairlineWidth == 0.5 && layout.hairlineOpacity == 0.12)
         #expect(layout.revealStripWidth == 10 && layout.hideDelay == 0.35 && layout.animation == 0.15)
         #expect(layout.terminalRadius == nil && layout.panelRadius == nil, "nil: concentric with the window")
     }
 
-    @Test func `the floating panel has tab metrics of its own, starting equal to the docked ones, and a handle width`()
+    @Test func `the floating panel has tab metrics of its own (its spacing half the old one) and a handle width`()
         throws
     {
         let layout = Configuration().layout
-        #expect(layout.floatingTabSpacing == layout.tabSpacing && layout.floatingTabSideInset == layout.tabSideInset)
+        #expect(layout.floatingTabSpacing == 3 && layout.floatingTabSideInset == 4)
         #expect(layout.floatingTabPaddingLeading == layout.tabPaddingLeading)
         #expect(layout.floatingTabPaddingTrailing == layout.tabPaddingTrailing)
         #expect(layout.floatingTabPaddingVertical == layout.tabPaddingVertical)
@@ -37,7 +37,7 @@ import Testing
         #expect(set.issues.isEmpty)
         #expect(set.configuration.layout.floatingTabSpacing == 2 && set.configuration.layout.floatingTabRadius == 12)
         #expect(set.configuration.layout.resizeHandleWidth == 12)
-        #expect(set.configuration.layout.tabSpacing == 6, "the docked metric is untouched")
+        #expect(set.configuration.layout.tabSpacing == 4, "the docked metric is untouched")
     }
 
     @Test func `the tab metrics the floating panel draws with are its own`() {

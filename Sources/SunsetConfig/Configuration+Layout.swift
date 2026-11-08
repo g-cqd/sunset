@@ -13,16 +13,16 @@ extension Configuration {
             public let path: WritableKeyPath<Layout, Double>
         }
 
-        public var tabSpacing = 6.0
-        public var tabSideInset = 4.0
+        public var tabSpacing = 4.0
+        public var tabSideInset = 2.0
         public var tabPaddingLeading = 8.0
         public var tabPaddingTrailing = 4.0
         public var tabPaddingVertical = 3.0
         public var tabRadius = 6.0
         public var closeButtonSize = 20.0
         public var closeButtonRadius = 4.0
-        /// The tab metrics of the floating panel (it can look different from the docked sidebar); they start equal to the docked ones.
-        public var floatingTabSpacing = 6.0
+        /// The tab metrics of the floating panel (it can look different from the docked sidebar): spacing 3 (half of what it was), the rest as the docked ones were.
+        public var floatingTabSpacing = 3.0
         public var floatingTabSideInset = 4.0
         public var floatingTabPaddingLeading = 8.0
         public var floatingTabPaddingTrailing = 4.0
@@ -32,11 +32,11 @@ extension Configuration {
         public var floatingCloseButtonRadius = 4.0
         /// Width of the strip that resizes the sidebar by dragging.
         public var resizeHandleWidth = 8.0
-        public var lightsInset = 6.0
+        public var lightsInset = 8.0
         public var lightsGap = 10.0
-        public var floatingLightsExtra = 2.0
+        public var floatingLightsExtra = 0.0
         public var pinButtonSize = 24.0
-        public var pinButtonRadius = 6.0
+        public var pinButtonRadius = 5.0
         public var hairlineWidth = 0.5
         public var hairlineOpacity = 0.12
         public var revealStripWidth = 10.0

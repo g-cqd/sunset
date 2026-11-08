@@ -14,12 +14,12 @@ import Testing
     }
 
     @Test func `wheel inertia is a time in seconds, 0 turns it off, nonsense is an issue`() throws {
-        #expect(Configuration().scroll.inertia == 0.2)
+        #expect(Configuration().scroll.inertia == 0.3)
         #expect(try read(#"{ "scroll": { "inertia": 0.35 } }"#).configuration.scroll.inertia == 0.35)
         #expect(try read(#"{ "scroll": { "inertia": 0 } }"#).configuration.scroll.inertia == 0)
         let bad = try read(#"{ "scroll": { "inertia": -1 } }"#)
         #expect(bad.issues.map(\.path) == ["scroll.inertia"])
-        #expect(bad.configuration.scroll.inertia == 0.2)
+        #expect(bad.configuration.scroll.inertia == 0.3)
     }
 
     @Test func `comments and trailing commas are allowed, and every key is read`() throws {
@@ -56,7 +56,7 @@ import Testing
     @Test func `a value of the wrong type keeps the default and names the key`() throws {
         let result = try read(#"{ "font": { "size": "big" }, "scrollback": { "lines": true } }"#)
         #expect(result.configuration.font.size == 14)
-        #expect(result.configuration.scrollbackLines == 10_000)
+        #expect(result.configuration.scrollbackLines == 100_000)
         #expect(result.issues.map(\.path).sorted() == ["font.size", "scrollback.lines"])
         #expect(result.issues.allSatisfy { !$0.message.isEmpty })
     }
@@ -64,7 +64,7 @@ import Testing
     @Test func `a value out of range keeps the default and says what is allowed`() throws {
         let result = try read(#"{ "font": { "size": 3 }, "scrollback": { "lines": -5 } }"#)
         #expect(result.configuration.font.size == 14)
-        #expect(result.configuration.scrollbackLines == 10_000)
+        #expect(result.configuration.scrollbackLines == 100_000)
         #expect(
             result.issues.contains { $0.path == "font.size" && $0.message.contains("4") && $0.message.contains("200") }
         )
@@ -88,9 +88,9 @@ import Testing
         #expect(result.issues.first { $0.path == "renderer" }?.message.contains("auto") == true)
     }
 
-    @Test func `the colours default to the Kitty set: white on #171717 with the 16 ANSI colours`() throws {
+    @Test func `the colours default to the Kitty set: white on black with the 16 ANSI colours`() throws {
         let colors = try read("{}").configuration.colors
-        #expect(colors.foreground == [0xFF, 0xFF, 0xFF] && colors.background == [0x17, 0x17, 0x17])
+        #expect(colors.foreground == [0xFF, 0xFF, 0xFF] && colors.background == [0x00, 0x00, 0x00])
         #expect(colors.cursor == nil)
         #expect(colors.ansi.count == 16)
         #expect(colors.ansi[0] == [0x1D, 0x1F, 0x21] && colors.ansi[1] == [0xCC, 0x66, 0x66])
@@ -149,7 +149,7 @@ import Testing
     @Test func `the window defaults: no decorations, lights near the corner, a 16 pt strip`() throws {
         let window = try read("{}").configuration.window
         #expect(window.decorations == .none)
-        #expect(window.trafficLightsX == 12 && window.trafficLightsY == 1, "centred in the 16 pt strip")
+        #expect(window.trafficLightsX == 8 && window.trafficLightsY == 8)
         #expect(window.dragStrip == 16)
     }
 
@@ -167,9 +167,9 @@ import Testing
         #expect(result.configuration.window == Configuration.Window())
     }
 
-    @Test func `the scroll section: trackpad and wheel sensitivity, with defaults of 1 and 3`() throws {
+    @Test func `the scroll section: trackpad and wheel sensitivity, with defaults of 3 and 3`() throws {
         let defaults = try read("{}").configuration.scroll
-        #expect(defaults.trackpad == 1 && defaults.wheel == 3)
+        #expect(defaults.trackpad == 3 && defaults.wheel == 3)
         let set = try read(#"{ "scroll": { "trackpad": 0.6, "wheel": 5 } }"#)
         #expect(set.issues.isEmpty)
         #expect(set.configuration.scroll.trackpad == 0.6 && set.configuration.scroll.wheel == 5)

@@ -39,7 +39,7 @@ struct FloatingSidebar: View {
 
     private var panel: some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        return TabSidebar(tabs: tabs, settings: settings, floating: true)
+        return TabSidebar(tabs: tabs, settings: settings, floating: true, panelRadius: radius)
             // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves nothing.
             .frame(width: settings.sidebar.width - margin)
             .frame(maxHeight: .infinity)

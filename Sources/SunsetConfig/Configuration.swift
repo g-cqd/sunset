@@ -2,7 +2,7 @@
 public struct Configuration: Sendable, Equatable {
     public struct Font: Sendable, Equatable {
         /// nil: the app's default monospaced font.
-        public var family: String?
+        public var family: String? = "Maple Mono NF CN"
         public var size = 14.0
         public var ligatures = true
         /// OpenType features as `tag` or `tag=value`, separated by commas: `zero, ss01, cv02=3`.
@@ -11,9 +11,9 @@ public struct Configuration: Sendable, Equatable {
     }
 
     public struct Colors: Sendable, Equatable {
-        /// `#rrggbb` as red, green, blue. The defaults are the author's Kitty colours; nil (the cursor, or a colour set to null) keeps the terminal's own.
+        /// `#rrggbb` as red, green, blue. The defaults are the author's (white on black, Kitty's 16 ANSI colours); nil (the cursor, or a colour set to null) keeps the terminal's own.
         public var foreground: [UInt8]? = [0xFF, 0xFF, 0xFF]
-        public var background: [UInt8]? = [0x17, 0x17, 0x17]
+        public var background: [UInt8]? = [0x00, 0x00, 0x00]
         public var cursor: [UInt8]?
         /// The 16 ANSI colours, black to white then their bright variants (Kitty's `color0` to `color15`).
         public var ansi: [[UInt8]] = Colors.kittyAnsi
@@ -50,16 +50,16 @@ public struct Configuration: Sendable, Equatable {
             }
         }
         /// Where the traffic lights are, in points from the window top left corner to the top left of the close button (with no decorations); the default centres them in the 16 pt strip.
-        public var trafficLightsX = 12.0
+        public var trafficLightsX = 8.0
         /// The edge of the window the traffic lights are on: the sidebar's (with the sidebar shown), or one of the two. On the right they are mirrored: the close
         /// button is nearest the edge.
         public var lightsSide = LightsSide.sidebar
-        public var trafficLightsY = 1.0
+        public var trafficLightsY = 8.0
         /// The height in points of the strip at the top of the window that drags it (with no decorations); 0 for none.
         public var dragStrip = 16.0
         /// Space between the window's edge and the terminal, in points (0: the text reaches the edge).
-        public var padding = 0.0
-        public var material = Material.opaque
+        public var padding = 4.0
+        public var material = Material.material
         /// The radius of the blur behind a `transparent` window, in points (0 to 100).
         public var blur = 0.0
         public init() {}
@@ -83,15 +83,15 @@ public struct Configuration: Sendable, Equatable {
     }
 
     public struct Sidebar: Sendable, Equatable {
-        public var enabled = false
+        public var enabled = true
         /// Width in points.
-        public var width = 200.0
+        public var width = 207.0
         /// Space of the window's colour between the terminal and the window's edge and the sidebar while the sidebar is shown, in points. The terminal is
         /// a card then, its corners concentric with the window's (16 pt): with 6 its radius is 10.
-        public var padding = 6.0
+        public var padding = 4.0
         /// The sidebar is hidden, and floats over the terminal as a glass panel (holding the traffic lights) while the pointer is at the leading edge; false: it
         /// stays beside the terminal.
-        public var autoHide = true
+        public var autoHide = false
         /// The edge of the window the sidebar is on.
         public var side = Side.left
         public init() {}
@@ -112,7 +112,7 @@ public struct Configuration: Sendable, Equatable {
         public var glass = Glass.regular
         /// `#rrggbb`; nil for no tint. One tint for the window and the sidebar.
         public var tintColor: [UInt8]?
-        public var tintAlpha = 0.25
+        public var tintAlpha = 0.0
         public init() {}
     }
 
@@ -131,9 +131,9 @@ public struct Configuration: Sendable, Equatable {
                 case top, bottom
             }
 
-            public var position = Position.top
+            public var position = Position.bottom
             public var showTitle = true
-            public var showDirectory = false
+            public var showDirectory = true
             public var showProgress = true
             public init() {}
         }
@@ -145,11 +145,11 @@ public struct Configuration: Sendable, Equatable {
 
     public struct Scroll: Sendable, Equatable {
         /// Lines scrolled per cell height of finger travel on a trackpad (1: the text follows the finger).
-        public var trackpad = 1.0
+        public var trackpad = 3.0
         /// Lines scrolled per notch of a wheel (the system reports one line per notch, more when it accelerates).
         public var wheel = 3.0
         /// Seconds for a wheel's speed to fall to 1/e of itself (the text glides after a notch); 0: no inertia. A trackpad has the system's own.
-        public var inertia = 0.2
+        public var inertia = 0.3
         public init() {}
     }
 
@@ -157,7 +157,7 @@ public struct Configuration: Sendable, Equatable {
     public struct Terminal: Sendable, Equatable {
         /// How opaque the terminal's default background is when the window is not opaque: 1 shows only the terminal's colour, less lets the window's
         /// material show through.
-        public var opacity = 0.8
+        public var opacity = 0.0
         public init() {}
     }
 
@@ -184,7 +184,7 @@ public struct Configuration: Sendable, Equatable {
     /// The name of a theme file (`themes/<name>.json` beside the configuration file), or nil.
     public var theme: String?
     /// Lines of history kept per terminal.
-    public var scrollbackLines = 10_000
+    public var scrollbackLines = 100_000
     /// Seconds without input or output after which the cursor stops blinking; nil: it blinks for ever.
     public var cursorBlinkTimeout: Double? = 15
     public var renderer = Renderer.auto
