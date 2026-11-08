@@ -13,7 +13,7 @@ The owner's request of 2026-11-06 (kept close to their words), refined by their 
 1. **No window decorations.** No title bar. The traffic lights stay, as controls that can be **moved inside the window** (position in the configuration). With no title bar, a **16 pt strip at the top** of the window drags it.
 2. **A configuration file the terminal watches and applies live**: colour scheme, font, *all the parameters we rely on*, window decoration, the renderer (`auto | gpu | cpu`). **JSON**, read with **AemiJSON** (and AemiHMMML if another format is wanted later). A settings window edits the same settings.
 3. **Tabs: one model, three presentations.** The tabs are one list of sessions. They are shown (a) as **native macOS tabs**, (b) in an optional **vertical sidebar** that extends the window, or (c) in the terminal itself as **built-in tabs** (a tab bar drawn by the renderer, the way kitty does it; the name in settings is `internal`, never "kitty"). Native tabs and the sidebar are two views of the *same* tabs; when built-in tabs are on, native tabs and the sidebar are off. The sidebar shows **only the tabs** for now.
-4. **Sidebar layout.** The terminal lives inside the window; **2 to 4 pt of space all round the terminal while the sidebar is shown, none when it is not.**
+4. **Sidebar layout.** The terminal lives inside the window; **space all round the terminal while the sidebar is shown, none when it is not.**
 5. **Materials.** The sidebar and the window can each be **opaque, material, glass or fully transparent**, each with a **tint**. **Blur and a blur filter from the system's APIs**, private ones allowed (the app is self-signed and notarised for GitHub, not the App Store; names looked up at run time through InternedStrings), with the radius "to whatever extent we want". Settable in the file or the settings window.
 
 ## Owner's answers (2026-11-06)
@@ -33,7 +33,7 @@ The owner's request of 2026-11-06 (kept close to their words), refined by their 
 | S1 | **Configuration**: schema (Codable over AemiJSON), defaults, validation with messages that name the key, file locations (`~/.config/sunset/config.json`, then `$XDG_CONFIG_HOME`), a watcher without Dispatch (kqueue on the directory and the file, re-armed after an atomic save, 100 ms debounce), diff old to new, apply per key (font, colours, cursor blink timeout, scrollback limit, renderer), an invalid file keeps the previous configuration and says why | change the font in the file, the window follows |
 | S2 | **Chrome**: full-size content view, hidden title and bar, the real traffic-light buttons moved into our container at the configured position, the 16 pt drag strip | a window with no title bar that can be moved and closed |
 | S3 | **Tab model**: `TabStore` (sessions and models live in it, not in windows), selection, order, move, close; native presentation (one `NSWindow` per tab, `tabbingIdentifier`); switching presentation at run time moves the sessions, the programs keep running | `tabs.mode: native` |
-| S4 | **Sidebar and built-in tabs**: the sidebar view over the same store, the 2-4 pt padding rule; the built-in tab bar as cells drawn by the renderer | `tabs.mode: internal`, `sidebar.enabled` |
+| S4 | **Sidebar and built-in tabs**: the sidebar view over the same store, the 8 pt margin (a concentric rounded card) rule; the built-in tab bar as cells drawn by the renderer | `tabs.mode: internal`, `sidebar.enabled` |
 | S5 | **Materials and blur**: surface with alpha (premultiplied, an IOSurface format with alpha), window and sidebar modes (opaque, material, glass, transparent), tint, blur radius through the private window-server call, glass through the public glass view | `window.material`, `sidebar.material` |
 | S6 | **Settings window** bound to the same values; edits patch the file and keep the user's comments | one place to set everything |
 
@@ -52,7 +52,7 @@ The owner's request of 2026-11-06 (kept close to their words), refined by their 
 | S1 configuration, live reload, themes | done (35 keys, JSON5, patching keeps comments, theme files watched) |
 | S2 chrome | done: no title bar, traffic lights anywhere, drag strip; drag by real mouse not yet verified |
 | S3 tab model | done: `TabList` + `TabPresentation` (12 tests), `TabsModel`, `TabRegistry`; native tabs, sidebar, built-in bar, live switching with the programs kept running |
-| S4 sidebar, built-in bar | done: sidebar of the window's tabs, 2-4 pt padding, materials; built-in bar top or bottom, customizable content |
+| S4 sidebar, built-in bar | done: sidebar of the window's tabs, 8 pt margin (a concentric rounded card), materials; built-in bar top or bottom, customizable content |
 | S5 materials, blur | done: opaque, material, glass (regular, clear), transparent, one tint, window blur (private call) and sidebar blur (private backdrop layer) |
 | S6 settings window | done: sidebar of panes with search, every option |
 

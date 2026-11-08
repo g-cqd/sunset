@@ -1,69 +1,64 @@
-import AppKit
-import Foundation
 import SunsetConfig
 import SunsetHost
 import SwiftUI
 
-/// The sidebar: the tabs of the window, listed vertically (the same `TabList` the built-in bar shows). A click selects a tab, a button closes it, a drag
-/// reorders them.
+/// The sidebar: the tabs of the window, listed vertically (the same `TabList` the built-in bar shows), and nothing else. It has no background of its own
+/// (the window's colour or material shows; `sidebar.material` can add one) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
+/// content starts below the traffic lights and scrolls beneath them, fading out there. A click selects a tab, a drag reorders them.
 struct TabSidebar: View {
     let tabs: TabsModel
     let settings: Configuration
+    /// Where the first row starts, from the window's top: below the traffic lights.
+    let topInset: Double
+
+    private var margin: Double { settings.sidebar.padding }
 
     var body: some View {
-        VStack(spacing: 0) {
-            List {
-                ForEach(tabs.list.tabs) { tab in
-                    let selected = tab.id == tabs.list.selectedID
-                    HStack {
-                        TabLabel(
-                            model: tabs.models[tab.id],
-                            showTitle: settings.tabs.bar.showTitle,
-                            showDirectory: settings.tabs.bar.showDirectory,
-                            showProgress: settings.tabs.bar.showProgress
-                        )
-                        Spacer(minLength: 0)
-                        Button {
-                            tabs.close(tab.id)
-                        } label: {
-                            Image(systemName: "xmark").font(.caption2)
-                        }
-                        .buttonStyle(.borderless)
-                        .help("Close Tab")
-                    }
-                    .padding(.vertical, 2)
-                    .listRowBackground(selected ? Color.accentColor.opacity(0.25) : Color.clear)
-                    .contentShape(.rect)
-                    .onTapGesture { tabs.select(tab.id) }
-                    .draggable(tab.id.uuidString)
-                    .dropDestination(for: String.self) { items, _ in
-                        guard let text = items.first, let id = UUID(uuidString: text),
-                            let index = tabs.list.tabs.firstIndex(where: { $0.id == tab.id })
-                        else { return false }
-                        tabs.move(id, to: index)
-                        return true
-                    }
-                    .contextMenu {
-                        Button("Close Tab") { tabs.close(tab.id) }
-                        Button("Close Other Tabs") {
-                            for other in tabs.list.tabs where other.id != tab.id { tabs.close(other.id) }
-                        }
-                        .disabled(tabs.list.count < 2)
-                    }
-                }
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(tabs.list.tabs) { tab in row(tab) }
             }
-            .listStyle(.sidebar)
-            .scrollContentBackground(.hidden)
-            Divider().opacity(0.4)
-            Button {
-                tabs.newTab()
-            } label: {
-                Label("New Tab", systemImage: "plus")
-            }
-            .buttonStyle(.borderless)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
+            .padding(.horizontal, margin)
         }
-        .background { SidebarBackdrop(look: SidebarLook(settings)) }
+        .scrollIndicators(.never)
+        .contentMargins(.top, topInset, for: .scrollContent)
+        .contentMargins(.bottom, margin, for: .scrollContent)
+        .mask { fade }
+    }
+
+    /// Content that scrolls up past the traffic lights fades out over the height of the strip they sit in; rows at rest start below it, untouched.
+    private var fade: some View {
+        VStack(spacing: 0) {
+            LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
+                .frame(height: max(topInset - 4, 0))
+            Color.black
+        }
+    }
+
+    private func row(_ tab: TabList.Tab) -> some View {
+        SidebarRow(
+            model: tabs.models[tab.id],
+            selected: tab.id == tabs.list.selectedID,
+            showTitle: settings.tabs.bar.showTitle,
+            showDirectory: settings.tabs.bar.showDirectory,
+            showProgress: settings.tabs.bar.showProgress,
+            close: { tabs.close(tab.id) }
+        )
+        .onTapGesture { tabs.select(tab.id) }
+        .draggable(tab.id.uuidString)
+        .dropDestination(for: String.self) { items, _ in
+            guard let text = items.first, let id = UUID(uuidString: text),
+                let index = tabs.list.tabs.firstIndex(where: { $0.id == tab.id })
+            else { return false }
+            tabs.move(id, to: index)
+            return true
+        }
+        .contextMenu {
+            Button("Close Tab") { tabs.close(tab.id) }
+            Button("Close Other Tabs") {
+                for other in tabs.list.tabs where other.id != tab.id { tabs.close(other.id) }
+            }
+            .disabled(tabs.list.count < 2)
+        }
     }
 }

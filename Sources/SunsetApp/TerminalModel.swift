@@ -224,7 +224,8 @@ import SunsetRenderMac
                     scrolledBack: self?.viewport.scrolledBack ?? 0,
                     selection: self?.selection,
                     hoveredLink: self?.hoveredLink ?? 0,
-                    backgroundAlpha: alpha
+                    backgroundAlpha: alpha,
+                    extraPixels: self?.extraPixels(for: snapshot) ?? (0, 0)
                 ),
                 to: presenter
             )

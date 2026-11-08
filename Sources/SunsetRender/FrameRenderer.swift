@@ -46,8 +46,11 @@ public actor FrameRenderer {
     }
 
     private func draw(_ screen: Screen, cursorVisible: Bool, textBlinkVisible: Bool, view: FrameView) -> Surface {
-        let pixels = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
-        if surface == nil || size?.columns != screen.columns || size?.rows != screen.rows {
+        let grid = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
+        let pixels = (width: grid.width + view.extraWidth, height: grid.height + view.extraHeight)
+        if surface == nil || size?.columns != screen.columns || size?.rows != screen.rows
+            || surface?.width != pixels.width || surface?.height != pixels.height
+        {
             surface = Surface(width: pixels.width, height: pixels.height)
             size = (screen.columns, screen.rows)
             renderer.invalidate()

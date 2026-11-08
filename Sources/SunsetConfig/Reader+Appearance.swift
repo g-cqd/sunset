@@ -20,9 +20,7 @@ extension Reader {
                 case "width":
                     if let points = number(path, value, range: 120 ... 480) { configuration.sidebar.width = points }
                 case "padding":
-                    if let points = number(path, value, range: 2 ... 4) { configuration.sidebar.padding = points }
-                case "cornerRadius":
-                    if let points = number(path, value, range: 0 ... 24) { configuration.sidebar.cornerRadius = points }
+                    if let points = number(path, value, range: 0 ... 16) { configuration.sidebar.padding = points }
                 case "material":
                     if let choice = choice(path, value, as: Configuration.Material.self) {
                         configuration.sidebar.material = choice

@@ -14,9 +14,12 @@ import Testing
             configuration.window.padding == 0 && configuration.window.blur == 0 && configuration.window.opacity == 0.8
         )
         #expect(
-            !configuration.sidebar.enabled && configuration.sidebar.width == 200 && configuration.sidebar.padding == 3
+            !configuration.sidebar.enabled && configuration.sidebar.width == 200 && configuration.sidebar.padding == 8
         )
-        #expect(configuration.sidebar.material == .material && configuration.sidebar.blur == 0)
+        #expect(
+            configuration.sidebar.material == .transparent && configuration.sidebar.blur == 0,
+            "the sidebar has no background of its own"
+        )
         #expect(configuration.appearance.glass == .regular)
         #expect(configuration.appearance.tintColor == nil && configuration.appearance.tintAlpha == 0.25)
         #expect(configuration.tabs.mode == .native)
@@ -59,7 +62,7 @@ import Testing
         let result = try read(
             """
             { "window": { "material": "wood", "blur": 101, "opacity": 2, "padding": -1 },
-              "sidebar": { "width": 50, "padding": 9 }, "tabs": { "mode": "kitty" }, "appearance": { "glass": "frosted" } }
+              "sidebar": { "width": 50, "padding": 17 }, "tabs": { "mode": "kitty" }, "appearance": { "glass": "frosted" } }
             """
         )
         #expect(
@@ -70,15 +73,7 @@ import Testing
         )
         #expect(result.configuration.window == Configuration.Window())
         #expect(result.configuration.tabs.mode == .native)
-        #expect(result.issues.first { $0.path == "sidebar.padding" }?.message.contains("2") == true)
-    }
-
-    @Test func `with the sidebar the terminal is a rounded card: the radius is 0 to 24 points, 8 by default`() throws {
-        #expect(Configuration().sidebar.cornerRadius == 8)
-        #expect(try read(#"{ "sidebar": { "cornerRadius": 12 } }"#).configuration.sidebar.cornerRadius == 12)
-        let bad = try read(#"{ "sidebar": { "cornerRadius": 30 } }"#)
-        #expect(bad.issues.map(\.path) == ["sidebar.cornerRadius"])
-        #expect(bad.configuration.sidebar.cornerRadius == 8)
+        #expect(result.issues.first { $0.path == "sidebar.padding" }?.message.contains("16") == true)
     }
 
     @Test func `the sidebar and the window are separate: blur 0 to 100 each`() throws {
