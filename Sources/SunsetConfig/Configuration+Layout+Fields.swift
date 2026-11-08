@@ -183,6 +183,14 @@ extension Configuration.Layout {
             \.paneGap
         ),
         field(
+            "innerCornerRadius",
+            "Card corners next to the sidebar or another pane",
+            ["radius", "corner", "split", "round", "inner"],
+            0 ... 24,
+            1,
+            \.innerCornerRadius
+        ),
+        field(
             "hideDelay",
             "Floating sidebar: hide delay",
             ["leave", "floating", "hover"],

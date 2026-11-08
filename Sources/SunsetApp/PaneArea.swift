@@ -18,6 +18,8 @@ struct PaneArea: View {
     let docked: Bool
     let margin: Double
     let windowRadius: Double
+    /// The corners of the area that are corners of the window (the sidebar or a tab bar covers the others).
+    let windowCorners: CornerSet
 
     private static let space = "pane-area"
     /// Where a dragged tab or pane would go while it is over the area.
@@ -47,6 +49,8 @@ struct PaneArea: View {
                                 TerminalCard(
                                     isCard: card,
                                     cornerRadius: radius,
+                                    windowCorners: CornerSet.atCorners(of: frame, in: bounds)
+                                        .intersection(windowCorners),
                                     layout: layout,
                                     isFocused: item.isSplit && pane == item.focused
                                 )

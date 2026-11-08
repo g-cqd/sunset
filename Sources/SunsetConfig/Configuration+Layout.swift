@@ -43,6 +43,9 @@ extension Configuration {
         /// The space between the panes of a split (and between them and the window's edge) when the sidebar is not docked, in points; with it docked the space is the
         /// sidebar's `padding`, so that the cards are framed alike.
         public var paneGap = 2.0
+        /// The radius of a terminal card's corners that are next to the sidebar or to another pane (tighter than the ones at the window's corners, which follow
+        /// the window's radius).
+        public var innerCornerRadius = 6.0
         /// Seconds the floating sidebar stays after the pointer leaves it.
         public var hideDelay = 0.35
         /// Seconds of the one transition between states (hover, selection, pinning).
