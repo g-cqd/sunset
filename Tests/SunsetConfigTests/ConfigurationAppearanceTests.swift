@@ -122,4 +122,28 @@ import Testing
         theme.theme = "x"
         #expect(theme.changes(from: Configuration()) == [.theme])
     }
+
+    @Test func `the sidebar is on the left unless sidebar.side says right, and a wrong side is reported`() throws {
+        #expect(try read("{}").configuration.sidebar.side == .left)
+        let right = try read(#"{ "sidebar": { "side": "right" } }"#)
+        #expect(right.issues.isEmpty && right.configuration.sidebar.side == .right)
+        let wrong = try read(#"{ "sidebar": { "side": "top" } }"#)
+        #expect(wrong.issues.map(\.path) == ["sidebar.side"] && wrong.configuration.sidebar.side == .left)
+    }
+
+    @Test func `the traffic lights follow the sidebar unless window.trafficLights.side puts them on a side`() throws {
+        #expect(try read("{}").configuration.window.lightsSide == .sidebar)
+        let right = try read(#"{ "window": { "trafficLights": { "side": "right" } } }"#)
+        #expect(right.issues.isEmpty && right.configuration.window.lightsSide == .right)
+        #expect(
+            try read(#"{ "window": { "trafficLights": { "side": "left", "x": 9 } } }"#).configuration.window
+                .trafficLightsX == 9
+        )
+        let wrong = try read(#"{ "window": { "trafficLights": { "side": "middle" } } }"#)
+        #expect(wrong.issues.map(\.path) == ["window.trafficLights.side"])
+        #expect(Configuration.Window.LightsSide.sidebar.resolved(sidebar: .right) == .right)
+        #expect(Configuration.Window.LightsSide.sidebar.resolved(sidebar: .left) == .left)
+        #expect(Configuration.Window.LightsSide.left.resolved(sidebar: .right) == .left)
+        #expect(Configuration.Window.LightsSide.right.resolved(sidebar: .left) == .right)
+    }
 }

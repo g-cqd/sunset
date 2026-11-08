@@ -1,3 +1,4 @@
+import SunsetConfig
 import Testing
 
 @testable import SunsetHost
@@ -21,5 +22,16 @@ import Testing
         #expect(SidebarHandle.hitWidth(docked: false, wanted: 8, tabSideInset: 4) == 4)
         #expect(SidebarHandle.hitWidth(docked: false, wanted: 8, tabSideInset: 0) == 2, "at least 2 pt to grab")
         #expect(SidebarHandle.hitWidth(docked: true, wanted: -3, tabSideInset: 4) == 2)
+    }
+
+    @Test
+    func `dragging the handle widens the sidebar toward the terminal: right on the left side, left on the right side`()
+    {
+        #expect(SidebarHandle.width(start: 200, drag: 30, side: .left) == 230)
+        #expect(SidebarHandle.width(start: 200, drag: -30, side: .left) == 170)
+        #expect(SidebarHandle.width(start: 200, drag: -30, side: .right) == 230)
+        #expect(SidebarHandle.width(start: 200, drag: 30, side: .right) == 170)
+        #expect(SidebarHandle.width(start: 200, drag: 1000, side: .left) == 480, "at most 480")
+        #expect(SidebarHandle.width(start: 200, drag: -1000, side: .left) == 120, "at least 120")
     }
 }

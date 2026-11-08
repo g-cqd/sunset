@@ -119,11 +119,27 @@ final class ChromeView: NSView {
                 movedButtons = true
             }
             // From the window's top left corner; the frame view is not flipped, and the buttons stay at the top left when the window is resized.
-            button.autoresizingMask = [.maxXMargin, .minYMargin]
             let origin =
-                lights ?? LightsPlacement(x: settings.trafficLightsX, y: settings.trafficLightsY, visible: true)
+                lights
+                ?? LightsPlacement(
+                    x: settings.trafficLightsX,
+                    y: settings.trafficLightsY,
+                    visible: true,
+                    side: settings.lightsSide.resolved(sidebar: .left)
+                )
+            button.autoresizingMask = origin.side == .left ? [.maxXMargin, .minYMargin] : [.minXMargin, .minYMargin]
             // A hidden button is parked outside the window (nothing to click) once its fade is over.
-            let x = origin.visible ? origin.x + Double(index) * (spacing ?? 23) : -200
+            let x =
+                origin.visible
+                ? LightsLayout.x(
+                    index: index,
+                    side: origin.side,
+                    inset: origin.x,
+                    windowWidth: frame.bounds.width,
+                    spacing: spacing ?? 23,
+                    buttonWidth: button.frame.width
+                )
+                : -200
             let y = frame.bounds.height - origin.y - button.frame.height
             fade(button, visible: origin.visible, to: NSPoint(x: x, y: y))
         }

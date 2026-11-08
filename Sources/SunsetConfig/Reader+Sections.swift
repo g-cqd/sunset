@@ -95,6 +95,10 @@ extension Reader {
                     if let y = number("window.trafficLights.y", value, range: 0 ... 400) {
                         configuration.window.trafficLightsY = y
                     }
+                case "side":
+                    if let side = choice("window.trafficLights.side", value, as: Configuration.Window.LightsSide.self) {
+                        configuration.window.lightsSide = side
+                    }
                 default: unknown("window.trafficLights.\(key)")
             }
         }

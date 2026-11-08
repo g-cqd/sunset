@@ -28,7 +28,7 @@ struct TabSidebar: View {
         .contentMargins(.top, topInset, for: .scrollContent)
         .contentMargins(.bottom, margin, for: .scrollContent)
         .mask { fade }
-        .overlay(alignment: .topTrailing) { pinButton }
+        .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
     }
 
     /// Content that scrolls up past the traffic lights fades out over the height of the strip they sit in; rows at rest start below it, untouched.
@@ -75,7 +75,7 @@ struct TabSidebar: View {
         PinButton(pinned: !settings.sidebar.autoHide, layout: layout) {
             AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
         }
-        .padding(.trailing, margin)
+        .padding(settings.sidebar.side == .left ? .trailing : .leading, margin)
         .padding(.top, header.buttonTop)
     }
 }

@@ -47,6 +47,11 @@ extension SettingsView {
                     Text("The sidebar lists the tabs. It needs tabs set to Native (the built-in bar replaces it).")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+            case "sidebar.side":
+                Picker("Side", selection: config.binding(\.sidebar.side)) {
+                    Text("Left").tag(Configuration.Side.left)
+                    Text("Right").tag(Configuration.Side.right)
+                }
             case "sidebar.width": number("Width", \.sidebar.width, range: 120 ... 480, step: 5, unit: "pt")
             case "sidebar.padding":
                 number("Space around the terminal", \.sidebar.padding, range: 0 ... 16, step: 1, unit: "pt")

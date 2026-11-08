@@ -36,8 +36,24 @@ public struct Configuration: Sendable, Equatable {
         }
 
         public var decorations = Decorations.none
+
+        public enum LightsSide: String, Sendable, Equatable, CaseIterable {
+            case sidebar, left, right
+
+            /// The edge they are on, given the sidebar's.
+            public func resolved(sidebar: Side) -> Side {
+                switch self {
+                    case .sidebar: sidebar
+                    case .left: .left
+                    case .right: .right
+                }
+            }
+        }
         /// Where the traffic lights are, in points from the window top left corner to the top left of the close button (with no decorations); the default centres them in the 16 pt strip.
         public var trafficLightsX = 12.0
+        /// The edge of the window the traffic lights are on: the sidebar's (with the sidebar shown), or one of the two. On the right they are mirrored: the close
+        /// button is nearest the edge.
+        public var lightsSide = LightsSide.sidebar
         public var trafficLightsY = 1.0
         /// The height in points of the strip at the top of the window that drags it (with no decorations); 0 for none.
         public var dragStrip = 16.0
@@ -61,6 +77,11 @@ public struct Configuration: Sendable, Equatable {
         case transparent
     }
 
+    /// An edge of the window.
+    public enum Side: String, Sendable, Equatable, CaseIterable {
+        case left, right
+    }
+
     public struct Sidebar: Sendable, Equatable {
         public var enabled = false
         /// Width in points.
@@ -71,6 +92,8 @@ public struct Configuration: Sendable, Equatable {
         /// The sidebar is hidden, and floats over the terminal as a glass panel (holding the traffic lights) while the pointer is at the leading edge; false: it
         /// stays beside the terminal.
         public var autoHide = true
+        /// The edge of the window the sidebar is on.
+        public var side = Side.left
         public init() {}
     }
 

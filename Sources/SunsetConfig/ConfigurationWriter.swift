@@ -38,6 +38,8 @@ public enum ConfigurationWriter {
             "sidebar.width": number(configuration.sidebar.width),
             "sidebar.padding": number(configuration.sidebar.padding),
             "sidebar.autoHide": configuration.sidebar.autoHide ? "true" : "false",
+            "sidebar.side": string(configuration.sidebar.side.rawValue),
+            "window.trafficLights.side": string(window.lightsSide.rawValue),
             "appearance.glass": string(configuration.appearance.glass.rawValue),
             "appearance.scheme": string(configuration.appearance.scheme.rawValue),
             "appearance.tint.color": color(configuration.appearance.tintColor),
