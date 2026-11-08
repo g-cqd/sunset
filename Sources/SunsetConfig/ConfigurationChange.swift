@@ -1,7 +1,7 @@
 /// A part of the configuration that a new file changed: what the app has to apply to a running terminal.
 public enum ConfigurationChange: Sendable, Equatable {
     case font, colors, window, sidebar, appearance, tabs, layout, terminal, theme, scroll, keyboard, scrollback,
-        cursorBlink,
+        cursorBlink, cursorStyle,
         renderer
 }
 
@@ -15,6 +15,7 @@ extension Configuration {
             (.theme, theme != old.theme), (.scroll, scroll != old.scroll), (.keyboard, keyboard != old.keyboard),
             (.scrollback, scrollbackLines != old.scrollbackLines),
             (.cursorBlink, cursorBlinkTimeout != old.cursorBlinkTimeout),
+            (.cursorStyle, (cursorShape, cursorBlinks) != (old.cursorShape, old.cursorBlinks)),
             (.renderer, renderer != old.renderer)
         ]
         return differences.filter(\.1).map(\.0)

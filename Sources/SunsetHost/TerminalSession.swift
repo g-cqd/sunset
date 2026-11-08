@@ -152,6 +152,12 @@ public actor TerminalSession {
         continuation.yield(.changed)
     }
 
+    /// The cursor style the user wants (a program's own choice wins until it asks for the default); the screen is drawn again.
+    public func setDefaultCursor(shape: CursorShape, blinks: Bool) {
+        core.terminal.withLock { $0.setDefaultCursor(shape: shape, blinks: blinks) }
+        continuation.yield(.changed)
+    }
+
     /// The theme's 16 ANSI colours; the screen is drawn again.
     public func setAnsiColors(_ colors: [RGB]) {
         core.terminal.withLock { $0.setAnsiColors(colors) }

@@ -171,6 +171,10 @@ public struct Configuration: Sendable, Equatable {
         public init() {}
     }
 
+    public enum CursorShape: String, Sendable, Equatable, CaseIterable {
+        case block, underline, bar
+    }
+
     public enum Renderer: String, Sendable, Equatable, CaseIterable {
         case auto, gpu, cpu
     }
@@ -191,6 +195,9 @@ public struct Configuration: Sendable, Equatable {
     public var scrollbackLines = 100_000
     /// Seconds without input or output after which the cursor stops blinking; nil: it blinks for ever.
     public var cursorBlinkTimeout: Double? = 15
+    /// The shape of the cursor, and whether it blinks, until a program chooses its own (DECSCUSR) and again after it asks for the default.
+    public var cursorShape = CursorShape.block
+    public var cursorBlinks = true
     public var renderer = Renderer.auto
 
     public init() {}

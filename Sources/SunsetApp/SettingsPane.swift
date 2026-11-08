@@ -101,6 +101,8 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                         "Background opacity",
                         ["transparent", "alpha", "see through", "screen", "translucent"]
                     ),
+                    entry("cursor.shape", "Cursor shape", ["block", "underline", "bar", "caret", "beam"]),
+                    entry("cursor.blink", "Cursor blinks", ["blink", "steady", "caret"]),
                     entry("terminal.blinkForever", "Cursor blinks for ever", ["blink", "caret", "idle"]),
                     entry("terminal.blinkTimeout", "Stop blinking after", ["blink", "caret", "idle", "seconds"]),
                     entry("terminal.renderer", "Renderer", ["gpu", "cpu", "metal", "auto", "graphics"])

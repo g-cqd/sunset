@@ -142,7 +142,10 @@ public final class CPURenderer: CellRenderer {
             y: metrics.originY + place.row * metrics.cellHeight,
             width: place.span * metrics.cellWidth
         )
-        if background != frame.background || onCursor || selected {
+        // A bar or underline cursor does not cover the cell: its background is only drawn if it differs from the window's (an opaque fill of the default
+        // background would hide a translucent window behind the cell).
+        let coveredByCursor = onCursor && cursor?.shape == .block
+        if background != frame.background || coveredByCursor || selected {
             fill(
                 &surface,
                 x: box.x,

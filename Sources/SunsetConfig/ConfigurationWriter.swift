@@ -27,6 +27,8 @@ public enum ConfigurationWriter {
             "scroll.wheel": number(configuration.scroll.wheel),
             "scroll.inertia": number(configuration.scroll.inertia),
             "scrollback.lines": String(configuration.scrollbackLines),
+            "cursor.shape": string(configuration.cursorShape.rawValue),
+            "cursor.blink": String(configuration.cursorBlinks),
             "cursor.blinkTimeout": configuration.cursorBlinkTimeout.map(number) ?? "null",
             "renderer": string(configuration.renderer.rawValue),
             "keyboard.optionAsMeta": String(configuration.keyboard.optionAsMeta),
