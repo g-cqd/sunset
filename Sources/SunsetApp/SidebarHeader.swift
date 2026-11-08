@@ -25,6 +25,10 @@ struct SidebarHeader {
     /// the distance between the two, and square.
     var dockedButtonSize: Double { 2 * (layout.lightsInset + extra + Self.lightsSize / 2) - 2 * layout.hairlineWidth }
 
+    /// Its height: from the card's top to `tabSpacing` above the first tab, the space the tabs have between them. Not square: the width keeps the tabs' edge, the
+    /// height keeps the tabs' rhythm.
+    var dockedButtonHeight: Double { height - layout.tabSpacing - layout.hairlineWidth }
+
     /// A filled container flush with a hairline looks larger than the line: it is drawn one stroke width inside on every side (the hairline is drawn inside its
     /// shape, so its edge is the card's edge).
     var dockedButtonInset: Double { layout.hairlineWidth }

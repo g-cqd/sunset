@@ -85,7 +85,7 @@ struct TabSidebar: View {
             pinned: !settings.sidebar.autoHide,
             layout: layout,
             radius: pinRadius,
-            size: panelRadius == nil ? header.dockedButtonSize : nil
+            size: panelRadius == nil ? CGSize(width: header.dockedButtonSize, height: header.dockedButtonHeight) : nil
         ) {
             AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
         }
