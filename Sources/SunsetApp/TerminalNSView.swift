@@ -2,6 +2,7 @@ import AppKit
 import IOSurface
 import SunsetCore
 import SunsetRender
+import SunsetRenderMac
 
 /// The AppKit side of a terminal: a layer-backed view that shows the frames the model hands it, takes the keyboard, and tells the model its size in device
 /// pixels. SwiftUI hosts it (`TerminalRepresentable`); AppKit is used here because a terminal needs the raw key events, the text input system and a display
@@ -30,6 +31,9 @@ final class TerminalNSView: NSView {
         layer?.isOpaque = true
         model.presentFrame = { [weak self] surface in self?.show(surface) }
         model.setDisplayLinkPaused = { [weak self] paused in self?.displayLink?.isPaused = paused }
+        // A tab selected again gets a new view (SwiftUI makes one for the selected terminal): show the last frame at once instead of nothing until the
+        // program next changes the screen or the cursor blinks (measured: 565 ms of blank).
+        if let latest = model.presenter.latest { show(latest) }
     }
 
     required init?(coder: NSCoder) { nil }
