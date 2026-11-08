@@ -1,5 +1,6 @@
 import SunsetCore
 import SunsetRender
+import SunsetRenderMac
 
 /// Selecting text with the pointer, and what to do with it.
 extension TerminalModel {

@@ -1,6 +1,7 @@
 import SunsetCore
 import SunsetHost
 import SunsetRender
+import SunsetRenderMac
 
 extension TerminalModel {
     /// Keys, text and pastes go to the program one at a time, in the order they happened, encoded by the session for the modes it has *now*.

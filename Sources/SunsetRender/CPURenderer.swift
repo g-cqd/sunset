@@ -30,6 +30,8 @@ public final class CPURenderer: CellRenderer {
     var lastHoveredLink: UInt16 = 0
     var lastSelectionRows: ClosedRange<Int>?
     var lastSize: (columns: Int, rows: Int)?
+    /// While recording (`record`), the operations a frame performs, in place of the pixels it would write.
+    var recording: [DrawOp]?
 
     public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool = false) {
         self.metrics = metrics
@@ -116,6 +118,29 @@ public final class CPURenderer: CellRenderer {
             reverse: reverse,
             textBlinkVisible: textBlinkVisible,
             selectionRows: selectionRows
+        )
+    }
+
+    /// Works out what `render` would draw and returns it as a list of operations instead of drawing it: the surface (`width` x `height`) is not touched and
+    /// need not exist. The renderer remembers the frame as drawn, as `render` does, so the caller must apply the list (a backend keeps the surface).
+    public func record(
+        _ screen: Screen,
+        width: Int,
+        height: Int,
+        cursorVisible: Bool = true,
+        textBlinkVisible: Bool = true,
+        view: FrameView = FrameView()
+    ) -> DrawFrame {
+        var unbacked = Surface(unbackedWidth: width, height: height)
+        recording = []
+        render(screen, into: &unbacked, cursorVisible: cursorVisible, textBlinkVisible: textBlinkVisible, view: view)
+        defer { recording = nil }
+        return DrawFrame(
+            width: width,
+            height: height,
+            ops: recording ?? [],
+            translucent: translucent,
+            changedPixelRows: changedPixelRows
         )
     }
 

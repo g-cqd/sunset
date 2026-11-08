@@ -39,6 +39,8 @@ let package = Package(
         .library(name: "SunsetRender", targets: ["SunsetRender"]),
         // The macOS glyph source (CoreText), the platform seam of the renderer.
         .library(name: "SunsetRenderMac", targets: ["SunsetRenderMac"]),
+        // The Metal renderer: replays the CPU renderer's draw list on the GPU (ADR-0024, ADR-0021); the CPU renderer is its oracle.
+        .library(name: "SunsetRenderMetal", targets: ["SunsetRenderMetal"]),
         // Runs a program in a headless terminal and prints the screen.
         .executable(name: "sunset-run", targets: ["SunsetRun"]),
         // The first app shell: a window, one program, the CPU renderer.
@@ -90,6 +92,18 @@ let package = Package(
             path: "Sources/SunsetRenderMac",
             swiftSettings: workSettings
         ),
+        .target(
+            name: "SunsetRenderMetal",
+            dependencies: ["SunsetRender", "SunsetRenderMac"],
+            path: "Sources/SunsetRenderMetal",
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "SunsetRenderMetalTests",
+            dependencies: ["SunsetRenderMetal", "SunsetRenderMac", "SunsetRender", "SunsetCore"],
+            path: "Tests/SunsetRenderMetalTests",
+            swiftSettings: strictSettings
+        ),
         .testTarget(
             name: "SunsetRenderMacTests",
             dependencies: [
@@ -102,7 +116,7 @@ let package = Package(
             name: "SunsetApp",
             dependencies: [
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
-                "SunsetRenderMac"
+                "SunsetRenderMac", "SunsetRenderMetal"
             ],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings

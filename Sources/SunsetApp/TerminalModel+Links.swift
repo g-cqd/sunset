@@ -1,6 +1,7 @@
 import AppKit
 import SunsetCore
 import SunsetRender
+import SunsetRenderMac
 
 /// Opening hyperlinks (OSC 8, ADR-0010): only on the user's Command-click, only the addresses the policy allows.
 extension TerminalModel {

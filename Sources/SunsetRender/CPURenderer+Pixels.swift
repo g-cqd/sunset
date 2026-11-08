@@ -10,6 +10,10 @@ extension CPURenderer {
         let y0 = max(0, y)
         let y1 = min(surface.height, y + height)
         guard x0 < x1, y0 < y1 else { return }
+        if recording != nil {
+            recording?.append(.fill(x: x0, y: y0, width: x1 - x0, height: y1 - y0, color: color))
+            return
+        }
         let stride = surface.width
         // One access to the buffer for the whole rectangle, and one store loop a row: with the array's subscript every pixel paid for a uniqueness check and
         // a bounds check (measured: a blank retina frame was 58 M instructions, 19 a pixel).
@@ -37,6 +41,22 @@ extension CPURenderer {
         let rows = max(topEdge - (cellY + bitmap.top), 0) ..< min(bottomEdge - (cellY + bitmap.top), bitmap.height)
         guard !columns.isEmpty, !rows.isEmpty else { return }
         let solid = Surface.pack(color)
+        if recording != nil {
+            recording?
+                .append(
+                    .glyph(
+                        bitmap: bitmap,
+                        sourceX: columns.lowerBound,
+                        sourceY: rows.lowerBound,
+                        width: columns.count,
+                        height: rows.count,
+                        x: cellX + bitmap.left + columns.lowerBound,
+                        y: cellY + bitmap.top + rows.lowerBound,
+                        color: solid
+                    )
+                )
+            return
+        }
         let stride = surface.width
         bitmap.coverage.withUnsafeBufferPointer { coverage in
             surface.pixels.withUnsafeMutableBufferPointer { pixels in

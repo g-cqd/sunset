@@ -1,4 +1,5 @@
 import SunsetRender
+import SunsetRenderMac
 
 extension TerminalModel {
     func currentGrid() -> GridSize? {

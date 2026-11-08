@@ -33,7 +33,7 @@ final class TerminalNSView: NSView {
         model.setDisplayLinkPaused = { [weak self] paused in self?.displayLink?.isPaused = paused }
         // A tab selected again gets a new view (SwiftUI makes one for the selected terminal): show the last frame at once instead of nothing until the
         // program next changes the screen or the cursor blinks (measured: 565 ms of blank).
-        if let latest = model.presenter.latest { show(latest) }
+        if let latest = model.lastSurface { show(latest) }
     }
 
     required init?(coder: NSCoder) { nil }

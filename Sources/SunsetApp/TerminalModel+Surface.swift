@@ -1,5 +1,6 @@
 import SunsetCore
 import SunsetRender
+import SunsetRenderMac
 
 extension TerminalModel {
     /// The pixels the view has beyond the surface of `screen`'s grid (the part of a cell the window's size leaves over): the renderer paints them with the
