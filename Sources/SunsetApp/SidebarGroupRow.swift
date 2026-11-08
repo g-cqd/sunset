@@ -3,7 +3,7 @@ import SunsetPane
 import SwiftUI
 
 /// A tab whose panes are split, in the sidebar: one container the size of a single tab, with its panes side by side inside it as small tabs (title only,
-/// no close button on any). A click on one gives it the keyboard; the focused one of the selected tab is lit. A pane can be dragged out of it, onto the
+/// no close button on any). A click on one gives it the keyboard; the focused one of the selected tab is lit and has the hairline; each lights slightly under the pointer. A pane can be dragged out of it, onto the
 /// content of a tab, and closed or sent to a tab of its own from its menu; the container itself is the handle for dragging the whole tab.
 struct SidebarGroupRow: View {
     let item: Workspace.Item
@@ -33,22 +33,20 @@ struct SidebarGroupRow: View {
     private var inset: Double { layout.tabPaddingVertical }
 
     private func part(_ pane: PaneID) -> some View {
-        let lit = selected && pane == item.focused
-        let shape = RoundedRectangle(cornerRadius: max(layout.tabRadius - 2, 2), style: .continuous)
-        return TabLabel(model: tabs.models[pane], showTitle: true, showDirectory: false, showProgress: false)
-            .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
-            .padding(.horizontal, 4)
-            .background(shape.fill(lit ? Color.primary.opacity(activeState == .inactive ? 0.1 : 0.16) : .clear))
-            .contentShape(shape)
-            .onTapGesture {
+        SidebarGroupPart(
+            model: tabs.models[pane],
+            lit: selected && pane == item.focused,
+            layout: layout,
+            select: {
                 tabs.select(item: item.id)
                 tabs.focus(pane)
             }
-            .onDrag { tabs.itemProvider(for: .pane(pane)) }
-            .contextMenu {
-                Button("Move Pane to Its Own Tab") { tabs.detachIntoTab(pane) }
-                Button("Close Pane") { tabs.close(pane: pane) }
-            }
+        )
+        .onDrag { tabs.itemProvider(for: .pane(pane)) }
+        .contextMenu {
+            Button("Move Pane to Its Own Tab") { tabs.detachIntoTab(pane) }
+            Button("Close Pane") { tabs.close(pane: pane) }
+        }
     }
 
     private var containerHighlight: Color {
