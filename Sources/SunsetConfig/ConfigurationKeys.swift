@@ -16,7 +16,7 @@ public enum ConfigurationKeys {
         "layout.lightsInset", "layout.lightsGap", "layout.floatingLightsExtra", "layout.pinButtonSize",
         "layout.pinButtonRadius", "layout.hairlineWidth", "layout.hairlineOpacity", "layout.revealStripWidth",
         "layout.hideDelay", "layout.animation", "layout.terminalRadius", "layout.panelRadius",
-        "appearance.glass", "appearance.tint.color", "appearance.tint.alpha",
+        "appearance.scheme", "appearance.glass", "appearance.tint.color", "appearance.tint.alpha",
         "tabs.mode", "tabs.bar.position", "tabs.bar.title", "tabs.bar.directory", "tabs.bar.progress",
         "scroll.trackpad", "scroll.wheel", "scroll.inertia",
         "scrollback.lines", "cursor.blinkTimeout", "renderer",

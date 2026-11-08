@@ -71,6 +71,12 @@ public struct Configuration: Sendable, Equatable {
             case regular, clear
         }
 
+        /// The colour scheme of the terminal windows (the sidebar, the glass, the controls): locked to dark by default; `system` follows macOS.
+        public enum Scheme: String, Sendable, Equatable, CaseIterable {
+            case dark, light, system
+        }
+
+        public var scheme = Scheme.dark
         public var glass = Glass.regular
         /// `#rrggbb`; nil for no tint. One tint for the window and the sidebar.
         public var tintColor: [UInt8]?

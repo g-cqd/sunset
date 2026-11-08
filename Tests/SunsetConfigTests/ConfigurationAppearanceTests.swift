@@ -99,6 +99,15 @@ import Testing
         #expect(try read(#"{ "window": { "opacity": 5 } }"#).issues.map(\.path) == ["window.opacity"])
     }
 
+    @Test func `the terminal windows are locked to the dark scheme unless the file says otherwise`() throws {
+        #expect(Configuration().appearance.scheme == .dark)
+        #expect(try read(#"{ "appearance": { "scheme": "system" } }"#).configuration.appearance.scheme == .system)
+        #expect(try read(#"{ "appearance": { "scheme": "light" } }"#).configuration.appearance.scheme == .light)
+        let bad = try read(#"{ "appearance": { "scheme": "sepia" } }"#)
+        #expect(bad.issues.map(\.path) == ["appearance.scheme"])
+        #expect(bad.configuration.appearance.scheme == .dark)
+    }
+
     @Test func `groups: the window look, the sidebar, the tabs and the theme are separate changes`() {
         var new = Configuration()
         new.sidebar.enabled = true

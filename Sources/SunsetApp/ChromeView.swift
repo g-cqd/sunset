@@ -85,6 +85,9 @@ final class ChromeView: NSView {
         if window.titlebarAppearsTransparent != hidden { window.titlebarAppearsTransparent = hidden }
         let visibility: NSWindow.TitleVisibility = hidden ? .hidden : .visible
         if window.titleVisibility != visibility { window.titleVisibility = visibility }
+        // Locked scheme: the window (and with it the glass, the materials, the buttons) is dark whatever macOS is set to; nil follows the system.
+        let appearance = look.scheme.nsAppearance
+        if window.appearance?.name != appearance?.name { window.appearance = appearance }
         backdrop.apply(look, to: window)
         applyTabbing(to: window)
         placeButtons()

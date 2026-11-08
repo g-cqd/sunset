@@ -18,6 +18,16 @@ extension SettingsView {
                 }
             case "window.blur": number("Window blur", \.window.blur, range: 0 ... 100, step: 1, unit: "pt")
             case "window.padding": number("Padding", \.window.padding, range: 0 ... 32, step: 1, unit: "pt")
+            case "appearance.scheme":
+                VStack(alignment: .leading, spacing: 4) {
+                    Picker("Color scheme", selection: config.binding(\.appearance.scheme)) {
+                        Text("Dark (locked)").tag(Configuration.Appearance.Scheme.dark)
+                        Text("Light").tag(Configuration.Appearance.Scheme.light)
+                        Text("Follow the system").tag(Configuration.Appearance.Scheme.system)
+                    }
+                    Text("For the terminal windows: the sidebar, glass and controls. This window follows the system.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             case "appearance.glass":
                 Picker("Glass style", selection: config.binding(\.appearance.glass)) {
                     ForEach(Configuration.Appearance.Glass.allCases, id: \.self) { Text($0.rawValue.capitalized) }
