@@ -202,5 +202,22 @@ surface shown last (less the rows the frame's move writes), the move is copied f
   120×40 no difference beyond noise (p10 558-618 before, 565-630 after); 300×80 p10 lower in every round (1 811 / 1 825 / 1 895 / 2 084 before,
   1 534 / 1 538 / 1 544 / 1 819 after). Process CPU per frame unchanged (78-88 µs both), as expected: the CPU side did not change.
 
-Not done yet from item 5: taking a free surface with `IOSurfaceIsInUse` so that two usually suffice, and the CPU backend drawing into the IOSurface's memory
-instead of its own `Surface` (it keeps a frame-sized copy and copies the changed rows every frame).
+### Item 5, GPU part: two surfaces unless the window server still holds one (done)
+
+What `isInUse` says, tried first (a scratch program): a fresh surface, one with a Metal texture over it, and one a command buffer is drawing into are all
+*not* in use; `incrementUseCount` makes it so. So it reports the window server's hold, not ours. In the app (instrumented, one window, GPU renderer), at
+100 lines a second the surface shown before was still held in 179 of 227 frames (79 %); at a line every 0.3 s, never; the fixed ring of three never drew
+into a held surface (0 of 227). So two surfaces do not suffice while output scrolls, and do when it is slow or idle.
+
+`SurfaceRing`: two surfaces; a frame draws into a free one other than the shown (the one missing the fewest rows); when none is free a third is made; it is
+let go on the first frame after a second without frames, if free. Tests: a window that is not composited keeps two; with the test holding surfaces as the
+window server would, a held surface is never drawn into, a third appears and pixels agree with the CPU backend, and once quiet the ring is two again
+(watched red: 3 instead of 2; and with the in-use filter removed the test fails on drawing into a held surface). In the app (instrumented): 0 of 307
+frames drew into a held surface; three surfaces during the burst, two again in the slow phase.
+
+Memory, the app, GPU renderer, one default window, a 300-line burst then a line every 1.5 s, `footprint`, 2 rounds each, same before and after:
+IOSurface **14 MB → 9.7 MB**, total **46 → 41 MB**. With the canvas gone (above), a window that has scrolled and gone quiet holds two frame buffers
+instead of four.
+
+Not done yet from item 5: the CPU backend drawing into the IOSurface's memory instead of its own `Surface` (it keeps a frame-sized copy and copies the
+changed rows every frame); it is the fallback backend (`auto` picks the GPU when there is a device), and the prerequisite of item 6.
