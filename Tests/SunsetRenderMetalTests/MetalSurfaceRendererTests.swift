@@ -126,12 +126,46 @@ import Testing
         #expect(gpu.latest == nil)
     }
 
-    @Test func `a window holds only the surfaces it shows: no canvas besides them`() async throws {
+    @Test func `a window holds two surfaces while the window server lets go of the one shown before`() async throws {
         let (_, gpu, _) = try renderers()
         var terminal = Terminal(columns: 20, rows: 4)
-        terminal.feed("hello")
-        _ = await gpu.present(terminal.screen, cursorVisible: true, textBlinkVisible: true, view: FrameView())
+        for step in 0 ..< 4 {
+            terminal.feed("step \(step)\r\n")
+            _ = await gpu.present(terminal.screen, cursorVisible: true, textBlinkVisible: true, view: FrameView())
+            terminal.clearDirty()
+        }
+        #expect(await gpu.frameBufferCount == 2)
+    }
+
+    @Test func `a surface still in use is never drawn into: a third is made, and let go once the window is quiet`()
+        async throws
+    {
+        let (cpu, gpu, _) = try renderers()
+        var terminal = Terminal(columns: 20, rows: 4)
+        // The window server holds a surface while it shows it (`IOSurface.isInUse`); the test holds them in its place.
+        var held: [IOSurface] = []
+        func frame(_ text: String) async throws -> IOSurface {
+            terminal.feed(text)
+            _ = await cpu.present(terminal.screen, cursorVisible: true, textBlinkVisible: true, view: FrameView())
+            _ = await gpu.present(terminal.screen, cursorVisible: true, textBlinkVisible: true, view: FrameView())
+            terminal.clearDirty()
+            let surface = try #require(gpu.latest)
+            #expect(!held.contains { $0 === surface }, "a surface in use was drawn into")
+            #expect(try pixels(surface) == pixels(#require(cpu.latest)))
+            return surface
+        }
+        for text in ["one\r\n", "two\r\n"] {
+            let surface = try await frame(text)
+            surface.incrementUseCount()
+            held.append(surface)
+        }
+        _ = try await frame("three\r\n")
         #expect(await gpu.frameBufferCount == 3)
+        for surface in held { surface.decrementUseCount() }
+        held = []
+        await gpu.setQuietAfter(.zero)
+        _ = try await frame("four\r\n")
+        #expect(await gpu.frameBufferCount == 2)
     }
 
     @Test func `rows a move writes are not copied again, the rest are`() {
