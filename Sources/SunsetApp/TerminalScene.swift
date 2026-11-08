@@ -127,11 +127,27 @@ struct TerminalScene: View {
                 layout: configuration.layout,
                 docked: configuration.sidebarDocked,
                 margin: configuration.sidebar.padding,
-                windowRadius: windowRadius
+                windowRadius: windowRadius,
+                windowCorners: areaWindowCorners
             )
         } else {
             Color.clear
         }
+    }
+
+    /// The corners of the pane area that are corners of the window: a docked sidebar covers the corners on its side, the built-in bar those at its edge.
+    private var areaWindowCorners: CornerSet {
+        var corners = CornerSet.all
+        if configuration.sidebarDocked {
+            corners.subtract(sidebarSide == .left ? [.topLeading, .bottomLeading] : [.topTrailing, .bottomTrailing])
+        }
+        if presentation.showsBuiltInBar {
+            corners.subtract(
+                configuration.tabs.bar.position == .top
+                    ? [.topLeading, .topTrailing] : [.bottomLeading, .bottomTrailing]
+            )
+        }
+        return corners
     }
 
     private var tabBar: some View {

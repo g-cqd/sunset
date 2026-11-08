@@ -17,6 +17,7 @@ import Testing
         #expect(layout.hairlineWidth == 0.5 && layout.hairlineOpacity == 0.12)
         #expect(layout.revealStripWidth == 10 && layout.hideDelay == 0.35 && layout.animation == 0.15)
         #expect(layout.paneGap == 2, "the space between the panes of a split")
+        #expect(layout.innerCornerRadius == 6, "the corners that touch the sidebar or another pane")
         #expect(layout.terminalRadius == nil && layout.panelRadius == nil, "nil: concentric with the window")
     }
 
