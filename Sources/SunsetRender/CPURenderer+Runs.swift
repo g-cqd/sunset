@@ -21,7 +21,7 @@ extension CPURenderer {
 
     /// If a run of at least two shapeable cells with one style starts at `column`, draws it (cell backgrounds and decorations one by one, the glyphs
     /// shaped together) and returns its length; nil when there is no such run and the cell is drawn alone.
-    func drawRun(row: Int, column: Int, frame: Frame, surface: inout Surface) -> Int? {
+    func drawRun(row: Int, column: Int, frame: Frame, table: inout GlyphTable, surface: inout Surface) -> Int? {
         let screen = frame.screen
         let first = frame.cell(row: row, column: column)
         guard isRunnable(first, row: row, column: column, frame: frame) else { return nil }
@@ -36,24 +36,35 @@ extension CPURenderer {
         let style = screen.style(of: first)
         let bold = style.attributes.contains(.bold)
         let italic = style.attributes.contains(.italic)
-        let entry = shaped(row: row, column: column, length: length, bold: bold, italic: italic, frame: frame)
+        let entry = shaped(
+            row: row,
+            columns: column ..< column + length,
+            bold: bold,
+            italic: italic,
+            frame: frame,
+            table: &table
+        )
         for offset in 0 ..< length {
             let cell = frame.cell(row: row, column: column + offset)
             drawCell(
                 cell,
                 at: Placement(row: row, column: column + offset, span: 1, drawGlyph: false),
                 frame: frame,
+                table: &table,
                 surface: &surface
             )
         }
-        if let bitmap = entry.bitmap {
+        if entry.glyph != 0 {
             let colors = colors(of: style, frame: frame)
             blit(
-                bitmap,
+                table[entry.glyph],
+                number: entry.glyph,
                 into: &surface,
-                cellX: metrics.paddingX + column * metrics.cellWidth,
-                cellY: metrics.originY + row * metrics.cellHeight,
-                cellWidth: length * metrics.cellWidth,
+                cell: Box(
+                    x: metrics.paddingX + column * metrics.cellWidth,
+                    y: metrics.originY + row * metrics.cellHeight,
+                    width: length * metrics.cellWidth
+                ),
                 color: colors.foreground
             )
         }
@@ -62,7 +73,15 @@ extension CPURenderer {
 
     /// The shaped run for these cells, from the cache or made by the glyph source. The lookup compares the cells with the entry's scalars, so it neither
     /// allocates nor trusts the hash alone.
-    private func shaped(row: Int, column: Int, length: Int, bold: Bool, italic: Bool, frame: Frame) -> RunEntry {
+    private func shaped(
+        row: Int,
+        columns: Range<Int>,
+        bold: Bool,
+        italic: Bool,
+        frame: Frame,
+        table: inout GlyphTable
+    ) -> RunEntry {
+        let (column, length) = (columns.lowerBound, columns.count)
         var hash: UInt64 = 0xCBF2_9CE4_8422_2325 ^ (bold ? 1 : 0) ^ (italic ? 2 : 0)
         for offset in 0 ..< length {
             hash = (hash ^ UInt64(frame.cell(row: row, column: column + offset).scalar)) &* 0x0000_0100_0000_01B3
@@ -86,7 +105,7 @@ extension CPURenderer {
             text.append(Unicode.Scalar(value) ?? "\u{FFFD}")
         }
         let bitmap = glyphs.glyph(forRun: String(text), bold: bold, italic: italic, cells: length, metrics: metrics)
-        let entry = RunEntry(scalars: scalars, bold: bold, italic: italic, bitmap: bitmap)
+        let entry = RunEntry(scalars: scalars, bold: bold, italic: italic, glyph: table.number(bitmap))
         if runCacheCount >= Self.runCacheLimit {
             runCache.removeAll()
             runCacheCount = 0

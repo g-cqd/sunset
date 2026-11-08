@@ -62,7 +62,7 @@ import Testing
                 var glyphOps = 0
                 var rowsPx = 0
                 var unique = Set<ObjectIdentifier>().count
-                var seen = Set<ObjectIdentifier>()
+                var seen = Set<UInt32>()
                 for i in 0 ..< n {
                     var c = ContinuousClock.now
                     step(&t1, 1000 + i)
@@ -80,11 +80,9 @@ import Testing
                     let f = rec.record(t2.screen, width: size.width, height: size.height, cursorVisible: i % 2 == 0)
                     recT += us(ContinuousClock.now - c)
                     t2.clearDirty()
-                    for op in f.ops {
-                        if case .glyph(let b, _, _, _, _, _, _, _) = op {
-                            glyphOps += 1
-                            seen.insert(ObjectIdentifier(b))
-                        }
+                    for op in f.ops where op.glyph != 0 {
+                        glyphOps += 1
+                        seen.insert(op.glyph)
                     }
                     ops += f.ops.count
                     rowsPx += f.changedPixelRows?.count ?? 0

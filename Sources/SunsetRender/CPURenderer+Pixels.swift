@@ -10,8 +10,8 @@ extension CPURenderer {
         let y0 = max(0, y)
         let y1 = min(surface.height, y + height)
         guard x0 < x1, y0 < y1 else { return }
-        if recording != nil {
-            recording?.append(.fill(x: x0, y: y0, width: x1 - x0, height: y1 - y0, color: color))
+        if surface.records {
+            surface.recorded.append(.fill(x: x0, y: y0, width: x1 - x0, height: y1 - y0, color: color))
             return
         }
         let stride = surface.width
@@ -23,15 +23,15 @@ extension CPURenderer {
         }
     }
 
-    /// Blends the glyph's coverage over what is there, inside the cell(s) it belongs to.
+    /// Blends the glyph's coverage over what is there, inside the cell(s) it belongs to; `number` is its number in the glyph table, for a recorded frame.
     func blit(
         _ bitmap: GlyphBitmap,
+        number glyph: UInt32,
         into surface: inout Surface,
-        cellX: Int,
-        cellY: Int,
-        cellWidth: Int,
+        cell box: Box,
         color: RGB
     ) {
+        let (cellX, cellY, cellWidth) = (box.x, box.y, box.width)
         // The part of the bitmap that is inside the cell(s) and the surface, worked out once: rows `rows`, columns `columns` of the bitmap.
         let leftEdge = max(cellX, 0)
         let rightEdge = min(cellX + cellWidth, surface.width)
@@ -41,20 +41,19 @@ extension CPURenderer {
         let rows = max(topEdge - (cellY + bitmap.top), 0) ..< min(bottomEdge - (cellY + bitmap.top), bitmap.height)
         guard !columns.isEmpty, !rows.isEmpty else { return }
         let solid = Surface.pack(color)
-        if recording != nil {
-            recording?
-                .append(
-                    .glyph(
-                        bitmap: bitmap,
-                        sourceX: columns.lowerBound,
-                        sourceY: rows.lowerBound,
-                        width: columns.count,
-                        height: rows.count,
-                        x: cellX + bitmap.left + columns.lowerBound,
-                        y: cellY + bitmap.top + rows.lowerBound,
-                        color: solid
-                    )
+        if surface.records {
+            surface.recorded.append(
+                DrawOp(
+                    x: Int32(cellX + bitmap.left + columns.lowerBound),
+                    y: Int32(cellY + bitmap.top + rows.lowerBound),
+                    width: Int32(columns.count),
+                    height: Int32(rows.count),
+                    color: solid,
+                    glyph: glyph,
+                    sourceX: Int32(columns.lowerBound),
+                    sourceY: Int32(rows.lowerBound)
                 )
+            )
             return
         }
         let stride = surface.width

@@ -1,37 +1,61 @@
 internal import SunsetCore
 
 extension CPURenderer {
-    struct GlyphKey: Hashable {
-        var id: UInt32
-        var cluster: Bool
-        var bold: Bool
-        var italic: Bool
-        var wide: Bool
+    /// The glyph table, taken out of `self` for a frame (so that it is not shared, and copied on its first write); started again if it is full. The caller
+    /// puts it back.
+    func takeGlyphTable() -> GlyphTable {
+        var table = GlyphTable(generation: 0)
+        swap(&table, &glyphTable)
+        if table.bitmaps.count >= glyphTableLimit {
+            table.startAgain(generation: GlyphGenerations.next())
+            runCache.removeAll()
+            runCacheCount = 0
+        }
+        return table
     }
 
-    func bitmap(for cell: Cell, style: CellStyle, wide: Bool, screen: Screen) -> GlyphBitmap? {
-        let key = GlyphKey(
-            id: cell.scalar,
-            cluster: cell.isCluster,
-            bold: style.attributes.contains(.bold),
-            italic: style.attributes.contains(.italic),
-            wide: wide
-        )
-        if let cached = cache[key] { return cached }
-        // Lines, blocks and braille are drawn to the cell, not taken from the font.
-        if !cell.isCluster, let own = BuiltInGlyphs.bitmap(for: cell.scalar, metrics: metrics, columns: wide ? 2 : 1) {
-            cache[key] = .some(own)
-            return own
+    /// The cell's glyph number in `table`, 0 when it has none.
+    func glyph(for cell: Cell, style: CellStyle, wide: Bool, screen: Screen, table: inout GlyphTable) -> UInt32 {
+        let bold = style.attributes.contains(.bold)
+        let italic = style.attributes.contains(.italic)
+        guard !cell.isCluster, cell.scalar < GlyphTable.directLimit else {
+            return hashedGlyph(for: cell, bold: bold, italic: italic, wide: wide, screen: screen, table: &table)
         }
-        let made = glyphs.glyph(
-            for: screen.text(of: cell),
-            bold: key.bold,
-            italic: key.italic,
-            columns: wide ? 2 : 1,
-            metrics: metrics
-        )
-        cache[key] = .some(made)
+        let variant = GlyphTable.variant(bold: bold, italic: italic, wide: wide)
+        let known = table.direct(cell.scalar, variant: variant)
+        if known != GlyphTable.unknown { return known }
+        let made = hashedGlyph(for: cell, bold: bold, italic: italic, wide: wide, screen: screen, table: &table)
+        table.setDirect(cell.scalar, variant: variant, to: made)
         return made
+    }
+
+    private func hashedGlyph(
+        for cell: Cell,
+        bold: Bool,
+        italic: Bool,
+        wide: Bool,
+        screen: Screen,
+        table: inout GlyphTable
+    ) -> UInt32 {
+        let key = GlyphTable.Key(id: cell.scalar, cluster: cell.isCluster, bold: bold, italic: italic, wide: wide)
+        if let cached = table[key] { return cached }
+        // Lines, blocks and braille are drawn to the cell, not taken from the font.
+        let made =
+            !cell.isCluster
+            ? BuiltInGlyphs.bitmap(for: cell.scalar, metrics: metrics, columns: wide ? 2 : 1)
+            : nil
+        let glyph = table.number(
+            made
+                ?? glyphs.glyph(
+                    for: screen.text(of: cell),
+                    bold: bold,
+                    italic: italic,
+                    columns: wide ? 2 : 1,
+                    metrics: metrics
+                )
+        )
+        table[key] = glyph
+        return glyph
     }
 
     /// What this frame was drawn from, to tell what the next one has to draw again.

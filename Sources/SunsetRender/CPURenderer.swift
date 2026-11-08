@@ -11,7 +11,10 @@ public final class CPURenderer: CellRenderer {
     var runCache: [UInt64: [RunEntry]] = [:]
     var runCacheCount = 0
 
-    var cache: [GlyphKey: GlyphBitmap?] = [:]
+    /// Every glyph made so far, by number. Taken out for the length of a frame (`render`) and handed down its walk. It starts again, under a new generation,
+    /// at the first frame that finds it `glyphTableLimit` long.
+    var glyphTable = GlyphTable(generation: GlyphGenerations.next())
+    var glyphTableLimit = 16_384
     var lastCursor: CursorDrawn?
     var lastPalette: Palette?
     var lastBackgroundAlpha: UInt8 = 255
@@ -30,8 +33,7 @@ public final class CPURenderer: CellRenderer {
     var lastHoveredLink: UInt16 = 0
     var lastSelectionRows: ClosedRange<Int>?
     var lastSize: (columns: Int, rows: Int)?
-    /// While recording (`record`), the operations a frame performs, in place of the pixels it would write.
-    var recording: [DrawOp]?
+    var lastRecordedCount = 0
 
     public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool = false) {
         self.metrics = metrics
@@ -60,6 +62,8 @@ public final class CPURenderer: CellRenderer {
         textBlinkVisible: Bool = true,
         view: FrameView = FrameView()
     ) {
+        var table = takeGlyphTable()
+        defer { swap(&table, &glyphTable) }
         let size = metrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         precondition(
             surface.width >= size.width && surface.height >= size.height,
@@ -110,7 +114,7 @@ public final class CPURenderer: CellRenderer {
                 && ((selectionRows?.contains(row) ?? false) || (lastSelectionRows?.contains(row) ?? false))
             let blinks = blinkChanged && blinkRows[row]
             guard full || blinks || touchesCursor || touchesSelection || screen.isDirty(row: row) else { continue }
-            drawRow(row, frame: frame, surface: &surface)
+            drawRow(row, frame: frame, table: &table, surface: &surface)
         }
         remember(
             frame,
@@ -132,13 +136,16 @@ public final class CPURenderer: CellRenderer {
         view: FrameView = FrameView()
     ) -> DrawFrame {
         var unbacked = Surface(unbackedWidth: width, height: height)
-        recording = []
+        // Room for as many operations as the last frame had: a list grown from empty is copied a dozen times in a full frame.
+        unbacked.recorded.reserveCapacity(lastRecordedCount)
         render(screen, into: &unbacked, cursorVisible: cursorVisible, textBlinkVisible: textBlinkVisible, view: view)
-        defer { recording = nil }
+        lastRecordedCount = unbacked.recorded.count
         return DrawFrame(
             width: width,
             height: height,
-            ops: recording ?? [],
+            ops: unbacked.recorded,
+            glyphs: glyphTable.bitmaps,
+            glyphGeneration: glyphTable.generation,
             translucent: translucent,
             changedPixelRows: changedPixelRows
         )
@@ -146,7 +153,7 @@ public final class CPURenderer: CellRenderer {
 
     // MARK: Rows and cells
 
-    func drawCell(_ cell: Cell, at place: Placement, frame: Frame, surface: inout Surface) {
+    func drawCell(_ cell: Cell, at place: Placement, frame: Frame, table: inout GlyphTable, surface: inout Surface) {
         let screen = frame.screen
         let style = screen.style(of: cell)
         let palette = screen.palette
@@ -184,26 +191,24 @@ public final class CPURenderer: CellRenderer {
         if blinks { blinkRows[place.row] = true }
         let hidden = style.attributes.contains(.invisible) || (blinks && !frame.blinkVisible)
         if place.drawGlyph, cell.scalar != 0, !hidden,
-            let bitmap = bitmap(for: cell, style: style, wide: place.span == 2, screen: screen)
+            case let glyph = glyph(for: cell, style: style, wide: place.span == 2, screen: screen, table: &table),
+            glyph != 0
         {
-            blit(bitmap, into: &surface, cellX: box.x, cellY: box.y, cellWidth: box.width, color: foreground)
+            blit(table[glyph], number: glyph, into: &surface, cell: box, color: foreground)
         }
         let lineColor = palette.resolve(style.underlineColor) ?? foreground
         drawDecorations(style, box: box, surface: &surface, line: lineColor, strike: foreground)
         if onCursor, let shape = cursor?.shape, shape != .block {
-            let cursorColor = Surface.pack(palette.cursor)
-            if shape == .underline {
-                fill(
-                    &surface,
-                    x: box.x,
-                    y: box.y + metrics.cellHeight - 2,
-                    width: box.width,
-                    height: 2,
-                    color: cursorColor
-                )
-            } else {
-                fill(&surface, x: box.x, y: box.y, width: 2, height: metrics.cellHeight, color: cursorColor)
-            }
+            drawThinCursor(shape, box: box, color: Surface.pack(palette.cursor), surface: &surface)
+        }
+    }
+
+    /// A bar or underline cursor, over the cell already drawn.
+    private func drawThinCursor(_ shape: CursorShape, box: Box, color: UInt32, surface: inout Surface) {
+        if shape == .underline {
+            fill(&surface, x: box.x, y: box.y + metrics.cellHeight - 2, width: box.width, height: 2, color: color)
+        } else {
+            fill(&surface, x: box.x, y: box.y, width: 2, height: metrics.cellHeight, color: color)
         }
     }
 }

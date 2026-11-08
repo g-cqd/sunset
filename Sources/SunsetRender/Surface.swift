@@ -6,12 +6,17 @@ public struct Surface: Sendable {
     public let width: Int
     public let height: Int
     public internal(set) var pixels: ContiguousArray<UInt32>
+    /// The surface has no pixels and takes down what would be drawn instead (`CPURenderer.record`): held here, not in the renderer, so that appending is a
+    /// write to an `inout` value, without the dynamic exclusivity check a class's property costs.
+    let records: Bool
+    var recorded: ContiguousArray<DrawOp> = []
 
     public init(width: Int, height: Int) {
         precondition(width > 0 && height > 0, "a surface has at least one pixel")
         self.width = width
         self.height = height
         pixels = ContiguousArray(repeating: 0xFF00_0000, count: width * height)
+        records = false
     }
 
     /// A surface with these pixels (`width` x `height` of them, row by row): what a backend reads back from its own storage.
@@ -23,6 +28,7 @@ public struct Surface: Sendable {
         self.width = width
         self.height = height
         self.pixels = pixels
+        records = false
     }
 
     /// A surface that has a size and no pixels: for recording a frame (`CPURenderer.record`), where nothing is written.
@@ -30,6 +36,7 @@ public struct Surface: Sendable {
         self.width = width
         self.height = height
         pixels = []
+        records = true
     }
 
     @inline(__always) static func pack(_ color: RGB) -> UInt32 {
