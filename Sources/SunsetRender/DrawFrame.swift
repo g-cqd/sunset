@@ -4,6 +4,8 @@ public struct DrawFrame: Sendable {
     public let width: Int
     public let height: Int
     public let ops: ContiguousArray<DrawOp>
+    /// Rows of pixels to move before the operations (a scroll), or nil.
+    public let move: PixelMove?
     /// The renderer's glyph table: a glyph operation names its bitmap by its place here (`glyph(of:)`). A place keeps its bitmap from frame to frame while
     /// `glyphGeneration` stays the same, so a backend can remember what it uploaded by place; the table only grows within a generation.
     public let glyphs: ContiguousArray<GlyphBitmap>
@@ -20,6 +22,7 @@ public struct DrawFrame: Sendable {
         width: Int,
         height: Int,
         ops: ContiguousArray<DrawOp>,
+        move: PixelMove? = nil,
         glyphs: ContiguousArray<GlyphBitmap> = [],
         glyphGeneration: UInt32 = 0,
         translucent: Bool,
@@ -32,6 +35,7 @@ public struct DrawFrame: Sendable {
         self.width = width
         self.height = height
         self.ops = ops
+        self.move = move
         self.glyphs = glyphs
         self.glyphGeneration = glyphGeneration
         self.translucent = translucent
@@ -46,6 +50,7 @@ public struct DrawFrame: Sendable {
     /// Applies the operations to `surface` on the CPU with the renderer's own kernels: the reference a GPU backend is compared with, and a check that the list
     /// holds everything the CPU renderer writes.
     public func replay(onto surface: inout Surface) {
+        if let move { surface.apply(move) }
         for op in ops {
             let (x, y, width, height) = (Int(op.x), Int(op.y), Int(op.width), Int(op.height))
             guard let bitmap = glyph(of: op) else {

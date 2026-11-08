@@ -63,6 +63,7 @@ extension Screen {
             saved = state
         }
         dirtyRows = ContiguousArray(repeating: true, count: newRows)
+        rowOrigins = ContiguousArray(repeating: -1, count: newRows)
         generation &+= 1
     }
 }

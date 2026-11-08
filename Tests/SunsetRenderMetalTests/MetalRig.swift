@@ -15,7 +15,11 @@ struct MetalRig {
     let metal: MetalCompositor
     var cpuSurface: Surface
     let target: any MTLTexture
+    /// What `target` held after the frame before: where a scroll's pixels are moved from.
+    let previous: any MTLTexture
     var alpha: UInt8 = 255
+    /// The pixel move of the last frame, if it had one.
+    var lastMove: PixelMove?
 
     static var device: (any MTLDevice)? { MTLCreateSystemDefaultDevice() }
 
@@ -40,8 +44,11 @@ struct MetalRig {
         metal = compositor
         let size = metrics.surfaceSize(columns: columns, rows: rows)
         cpuSurface = Surface(width: size.width, height: size.height)
-        guard let texture = compositor.makeTarget(width: size.width, height: size.height) else { return nil }
+        guard let texture = compositor.makeTarget(width: size.width, height: size.height),
+            let shown = compositor.makeTarget(width: size.width, height: size.height)
+        else { return nil }
         target = texture
+        previous = shown
     }
 
     /// Draws a frame with both renderers.
@@ -57,7 +64,9 @@ struct MetalRig {
             cursorVisible: cursorVisible,
             view: view
         )
-        try await metal.apply(list, to: target)
+        lastMove = list.move
+        // As the app does: the frame's rows are copied to a second texture, which the next frame's pixel move reads.
+        try await metal.apply(list, to: target, copying: (0 ... target.height - 1, previous), movingFrom: previous)
         terminal.clearDirty()
     }
 

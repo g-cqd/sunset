@@ -80,4 +80,16 @@ import Testing
         try await rig.frame("\(esc)[3;1Hef", cursorVisible: false)
         #expect(rig.differences().count == 0)
     }
+
+    @Test func `scrolling moves the picture on the GPU, and it still agrees`() async throws {
+        var rig = try #require(MetalRig(), "a Metal device")
+        try await rig.frame((1 ... 6).map { "\(esc)[3\($0)mline \($0)" }.joined(separator: "\r\n"))
+        for line in 7 ... 12 {
+            try await rig.frame("\r\n\(esc)[4mline \(line)")
+            #expect(rig.lastMove != nil, "the frame moved pixels")
+            #expect(rig.differences().count == 0, "after line \(line)")
+        }
+        try await rig.frame("\(esc)[2;5r\(esc)[5;1H\n\n\(esc)[T")
+        #expect(rig.differences().count == 0, "in a scroll region, both ways")
+    }
 }

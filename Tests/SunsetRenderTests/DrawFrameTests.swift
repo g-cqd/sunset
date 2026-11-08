@@ -121,4 +121,19 @@ import Testing
         #expect(recorded(one).glyphGeneration != recorded(other).glyphGeneration)
         #expect(recorded(one).glyphGeneration != 0)
     }
+
+    @Test func `a line feed at the bottom moves the rows up and draws the new row and the cursor's only`() {
+        var live = rig()
+        live.terminal.feed((1 ... 6).map { "line \($0)" }.joined(separator: "\r\n"))
+        _ = recorded(live)
+        live.terminal.clearDirty()
+        let drawnBefore = live.renderer.rowsDrawn
+        live.terminal.feed("\r\nnext")
+        let frame = recorded(live)
+        let cell = live.renderer.metrics.cellHeight
+        let top = live.renderer.metrics.originY
+        #expect(frame.move == PixelMove(sourceY: top + cell, destinationY: top, height: 5 * cell))
+        // The new bottom row, and the row above it: the cursor was drawn on its source row.
+        #expect(live.renderer.rowsDrawn - drawnBefore == 2)
+    }
 }

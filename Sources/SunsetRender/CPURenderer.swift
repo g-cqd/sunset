@@ -107,13 +107,15 @@ public final class CPURenderer: CellRenderer {
         // The rows the selection covers now or covered in the last frame are drawn again when it changed.
         let selectionRows = selectionRows(of: selection, in: frame)
         let selectionChanged = selection != lastSelection
+        let placed = full ? nil : moveScrolledRows(screen, frame: frame, surface: &surface)
         for row in 0 ..< screen.rows {
             let touchesCursor = cursorMoved && (cursor?.row == row || lastCursor?.row == row)
             let touchesSelection =
                 selectionChanged
                 && ((selectionRows?.contains(row) ?? false) || (lastSelectionRows?.contains(row) ?? false))
             let blinks = blinkChanged && blinkRows[row]
-            guard full || blinks || touchesCursor || touchesSelection || screen.isDirty(row: row) else { continue }
+            let stale = screen.isDirty(row: row) && placed?[row] != true
+            guard full || blinks || touchesCursor || touchesSelection || stale else { continue }
             drawRow(row, frame: frame, walk: &walk, surface: &surface)
         }
         remember(
@@ -144,6 +146,7 @@ public final class CPURenderer: CellRenderer {
             width: width,
             height: height,
             ops: unbacked.recorded,
+            move: unbacked.recordedMove,
             glyphs: glyphTable.bitmaps,
             glyphGeneration: glyphTable.generation,
             translucent: translucent,

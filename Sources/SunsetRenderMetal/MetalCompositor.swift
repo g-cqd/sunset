@@ -11,6 +11,8 @@ public final class MetalCompositor {
         /// The frame's glyphs do not fit in the atlas even when it is empty.
         case atlasFull
         case commandFailed
+        /// The frame moves pixels and no texture was given to move them from.
+        case noMoveSource
     }
 
     /// One operation as the shader reads it: the op, with its source moved to where its glyph is in the atlas.
@@ -76,41 +78,35 @@ public final class MetalCompositor {
         return device.makeTexture(descriptor: descriptor)
     }
 
-    /// Draws the frame's operations into `target`; returns when the GPU has finished (suspended meanwhile: no thread waits).
+    /// Draws the frame's operations into `target`; returns when the GPU has finished (suspended meanwhile: no thread waits). A frame that moves pixels needs
+    /// the longer form, with a texture to move them from.
     public nonisolated(nonsending) func apply(_ frame: DrawFrame, to target: any MTLTexture) async throws {
-        try await apply(frame, to: target, copying: nil)
+        try await apply(frame, to: target, copying: nil, movingFrom: nil)
     }
 
     /// Draws the frame into `target` and, in the same command buffer, copies the pixel rows `copy.rows` of it into `copy.destination` (the surface a window
-    /// shows): the GPU moves the changed rows, nothing goes through the CPU.
+    /// shows): the GPU moves the changed rows, nothing goes through the CPU. The frame's pixel move (a scroll, `DrawFrame.move`) is copied from `previous`,
+    /// which must hold what `target` held after the frame before (the surface last shown): Metal leaves a copy between overlapping regions of one texture
+    /// undefined, so the rows cannot be moved within `target` itself.
     public nonisolated(nonsending) func apply(
         _ frame: DrawFrame,
         to target: any MTLTexture,
-        copying copy: (rows: ClosedRange<Int>, destination: any MTLTexture)?
+        copying copy: (rows: ClosedRange<Int>, destination: any MTLTexture)?,
+        movingFrom previous: (any MTLTexture)? = nil
     ) async throws {
-        guard !frame.ops.isEmpty || copy != nil else { return }
+        guard !frame.ops.isEmpty || copy != nil || frame.move != nil else { return }
         // The atlas and the instance buffer are written for this frame: the frame before must be finished, which a second caller would break.
         precondition(!drawing, "MetalCompositor.apply is one frame at a time")
         drawing = true
         defer { drawing = false }
         let count = try writeInstances(for: frame)
         guard let commands = queue.makeCommandBuffer() else { throw Failure.commandFailed }
-        if count > 0 { try encodeDraw(count, frame: frame, target: target, into: commands) }
-        if let copy, let blit = commands.makeBlitCommandEncoder() {
-            let rows = max(copy.rows.lowerBound, 0) ... min(copy.rows.upperBound, target.height - 1)
-            blit.copy(
-                from: target,
-                sourceSlice: 0,
-                sourceLevel: 0,
-                sourceOrigin: MTLOrigin(x: 0, y: rows.lowerBound, z: 0),
-                sourceSize: MTLSize(width: target.width, height: rows.count, depth: 1),
-                to: copy.destination,
-                destinationSlice: 0,
-                destinationLevel: 0,
-                destinationOrigin: MTLOrigin(x: 0, y: rows.lowerBound, z: 0)
-            )
-            blit.endEncoding()
+        if let move = frame.move {
+            guard let previous else { throw Failure.noMoveSource }
+            Self.encode(move, from: previous, to: target, into: commands)
         }
+        if count > 0 { try encodeDraw(count, frame: frame, target: target, into: commands) }
+        if let copy { Self.encodeCopy(rows: copy.rows, of: target, to: copy.destination, into: commands) }
         let finished = await Self.run(commands)
         lastGPUSeconds = commands.gpuEndTime - commands.gpuStartTime
         lastInstanceCount = count
