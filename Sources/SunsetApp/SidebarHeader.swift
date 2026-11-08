@@ -21,6 +21,10 @@ struct SidebarHeader {
     /// The slot at the top of the sidebar's content: the lights' inset, the lights, and the gap.
     var height: Double { layout.lightsInset + Self.lightsSize + layout.lightsGap + extra }
 
+    /// The docked pin button's container: its top is the terminal card's top (the sidebar's top margin) and its middle the lights', so it is as tall as twice
+    /// the distance between the two, and square.
+    var dockedButtonSize: Double { 2 * (layout.lightsInset + extra + Self.lightsSize / 2) }
+
     /// From the top of the slot to the top of the pin button's container, so that it is centred on the lights.
     var buttonTop: Double { layout.lightsInset + (Self.lightsSize - layout.pinButtonSize) / 2 + extra }
 }

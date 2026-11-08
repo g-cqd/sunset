@@ -64,7 +64,10 @@ struct PaneArea: View {
                         }
                     }
                 }
-                .overlay(alignment: .topLeading) { dropPreview }
+                .overlay(alignment: .topLeading) {
+                    dropPreview(item: item, bounds: bounds, space: space, radius: radius, card: card)
+                }
+                .overlay(alignment: tabs.choice?.edge.alignment ?? .center) { choiceAnchor.frame(width: 1, height: 1) }
                 .coordinateSpace(.named(Self.space))
                 .onDrop(
                     of: [.plainText, .utf8PlainText],
@@ -76,19 +79,41 @@ struct PaneArea: View {
         }
     }
 
-    /// The half of a pane that a dragged tab or pane would take.
-    @ViewBuilder private var dropPreview: some View {
-        if let preview = dropTarget?.preview {
-            RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-                .fill(Color.accentColor.opacity(0.22))
-                .overlay {
-                    RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-                        .strokeBorder(Color.accentColor.opacity(0.7), lineWidth: 1.5)
-                }
-                .frame(width: preview.width, height: preview.height)
-                .offset(x: preview.minX, y: preview.minY)
+    /// Where a dragged tab or pane would sit: the frame the layout would give a new pane on that edge (the gap included), with the corners rounded as the
+    /// cards are (wide at the window's corners, tight next to the sidebar or another card).
+    @ViewBuilder
+    private func dropPreview(item: Workspace.Item, bounds: CGRect, space: Double, radius: Double, card: Bool)
+        -> some View
+    {
+        if let target = dropTarget {
+            let probe = PaneID()
+            let frame =
+                item.layout
+                .inserting(.pane(probe), beside: target.pane, edge: target.edge)
+                .frames(in: bounds, gap: space)[probe] ?? target.preview
+            let radii = TerminalCard.radii(
+                isCard: true,
+                outer: radius,
+                windowCorners: CornerSet.atCorners(of: frame, in: bounds).intersection(windowCorners),
+                layout: layout
+            )
+            let shape = UnevenRoundedRectangle(cornerRadii: radii, style: .continuous)
+            shape.fill(Color.accentColor.opacity(0.22))
+                .overlay { shape.strokeBorder(Color.accentColor.opacity(0.7), lineWidth: 1.5) }
+                .frame(width: frame.width, height: frame.height)
+                .offset(x: frame.minX, y: frame.minY)
                 .allowsHitTesting(false)
-                .animation(layout.smooth, value: preview)
+                .animation(layout.smooth, value: frame)
+        }
+    }
+
+    /// The tabs to choose from when the selected tab was dropped on its own content: a popover at the edge it was dropped on.
+    private var choiceAnchor: some View {
+        Color.clear.popover(
+            isPresented: Binding(get: { tabs.choice != nil }, set: { if !$0 { tabs.choice = nil } }),
+            arrowEdge: tabs.choice?.edge.opposite.swiftUI ?? .trailing
+        ) {
+            if let choice = tabs.choice { SplitChoiceList(tabs: tabs, choice: choice) }
         }
     }
 

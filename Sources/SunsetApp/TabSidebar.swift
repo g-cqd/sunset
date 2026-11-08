@@ -81,15 +81,20 @@ struct TabSidebar: View {
     /// (pinned) and outlined while it only appears on hover. Its container is a rounded square the size of the hit box, highlighted under the pointer like a
     /// tab, with its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
     private var pinButton: some View {
-        PinButton(pinned: !settings.sidebar.autoHide, layout: layout, radius: pinRadius) {
+        PinButton(
+            pinned: !settings.sidebar.autoHide,
+            layout: layout,
+            radius: pinRadius,
+            size: panelRadius == nil ? header.dockedButtonSize : nil
+        ) {
             AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
         }
         .padding(settings.sidebar.side == .left ? .trailing : .leading, pinGap)
-        .padding(.top, header.buttonTop)
+        .padding(.top, panelRadius == nil ? 0 : header.buttonTop)
     }
 
-    /// The pin button's distance from the panel's top and from its edge: the same, so that their corners share a centre (docked: the margin).
-    private var pinGap: Double { panelRadius == nil ? margin : header.buttonTop }
+    /// The pin button's distance from the panel's top and from its edge: the same, so that their corners share a centre (docked: the container is flush with the terminal card's top and with the tabs' edge).
+    private var pinGap: Double { panelRadius == nil ? layout.tabSideInset : header.buttonTop }
     private var pinRadius: Double {
         guard let panelRadius else { return layout.pinButtonRadius }
         return ConcentricRadius.inner(outer: panelRadius, inset: pinGap)
