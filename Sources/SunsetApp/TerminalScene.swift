@@ -124,16 +124,10 @@ struct TerminalScene: View {
                 optionAsMeta: configuration.keyboard.optionAsMeta,
                 translucent: !look.isOpaque,
                 topInset: topInset,
-                layout: configuration.layout
-            )
-            .modifier(
-                TerminalCard(
-                    isCard: configuration.sidebarDocked,
-                    margin: configuration.sidebar.padding,
-                    cornerRadius: configuration.layout.terminalRadius
-                        ?? ConcentricRadius.inner(outer: windowRadius, inset: configuration.sidebar.padding),
-                    layout: configuration.layout
-                )
+                layout: configuration.layout,
+                docked: configuration.sidebarDocked,
+                margin: configuration.sidebar.padding,
+                windowRadius: windowRadius
             )
         } else {
             Color.clear

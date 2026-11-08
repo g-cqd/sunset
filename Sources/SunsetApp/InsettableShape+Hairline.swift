@@ -6,4 +6,10 @@ extension InsettableShape {
     func hairline(_ layout: Configuration.Layout) -> some View {
         strokeBorder(.primary.opacity(layout.hairlineOpacity), lineWidth: layout.hairlineWidth).allowsHitTesting(false)
     }
+
+    /// The same line in the accent colour, a little stronger: the focused terminal's card.
+    func focusHairline(_ layout: Configuration.Layout) -> some View {
+        strokeBorder(Color.accentColor.opacity(0.85), lineWidth: max(layout.hairlineWidth * 2, 1))
+            .allowsHitTesting(false)
+    }
 }

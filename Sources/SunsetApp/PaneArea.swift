@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetHost
 import SunsetPane
 import SwiftUI
 import UniformTypeIdentifiers
@@ -13,6 +14,10 @@ struct PaneArea: View {
     /// The strip at the top that drags a window with no title bar: the panes that touch the top of the area start their text below it.
     let topInset: Double
     let layout: Configuration.Layout
+    /// The sidebar is docked: the terminals are cards, `margin` from the window's edges.
+    let docked: Bool
+    let margin: Double
+    let windowRadius: Double
 
     private static let space = "pane-area"
     /// Where a dragged tab or pane would go while it is over the area.
@@ -20,9 +25,14 @@ struct PaneArea: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let bounds = CGRect(origin: .zero, size: proxy.size)
             if let item = tabs.workspace.selectedItem {
-                let frames = item.layout.frames(in: bounds, gap: layout.paneGap)
+                // Cards: with the sidebar docked, or when the tab is split. The space between two cards is the space between a card and the window's edge
+                // (the sidebar's margin; `layout.paneGap` for a split with no docked sidebar), so the window's colour frames every card the same.
+                let card = docked || item.isSplit
+                let space = card ? (docked ? margin : layout.paneGap) : 0
+                let bounds = CGRect(origin: .zero, size: proxy.size).insetBy(dx: space, dy: space)
+                let radius = layout.terminalRadius ?? ConcentricRadius.inner(outer: windowRadius, inset: space)
+                let frames = item.layout.frames(in: bounds, gap: space)
                 ZStack(alignment: .topLeading) {
                     ForEach(item.panes, id: \.self) { pane in
                         if let model = tabs.models[pane], let frame = frames[pane] {
@@ -33,12 +43,19 @@ struct PaneArea: View {
                                 focused: pane == item.focused
                             )
                             .frame(width: frame.width, height: frame.height)
-                            .overlay { if item.isSplit, pane == item.focused { focusRing } }
+                            .modifier(
+                                TerminalCard(
+                                    isCard: card,
+                                    cornerRadius: radius,
+                                    layout: layout,
+                                    isFocused: item.isSplit && pane == item.focused
+                                )
+                            )
                             .offset(x: frame.minX, y: frame.minY)
                         }
                     }
-                    ForEach(item.layout.dividers(in: bounds, gap: layout.paneGap), id: \.path) { divider in
-                        PaneDividerView(divider: divider, space: Self.space, layout: layout) { ratio in
+                    ForEach(item.layout.dividers(in: bounds, gap: space), id: \.path) { divider in
+                        PaneDividerView(divider: divider, space: Self.space) { ratio in
                             tabs.setRatio(ratio, at: divider.path, in: item.id)
                         }
                     }
@@ -69,13 +86,6 @@ struct PaneArea: View {
                 .allowsHitTesting(false)
                 .animation(layout.smooth, value: preview)
         }
-    }
-
-    /// A thin line inside the focused pane of a split, so that one can tell which has the keyboard.
-    private var focusRing: some View {
-        Rectangle()
-            .strokeBorder(Color.accentColor.opacity(0.5), lineWidth: 1)
-            .allowsHitTesting(false)
     }
 
     /// Only the panes that touch the top of the area have the strip above them.
