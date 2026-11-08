@@ -12,6 +12,8 @@ struct TerminalScene: View {
     @State private var window: NSWindow?
     /// How much of the window's top the title bar and the system tab bar cover.
     @State private var obscured = 0.0
+    /// Whether the floating sidebar (and with it the traffic lights) is out.
+    @State private var floatingShown = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openWindow) private var openWindow
     private let config = AppConfiguration.shared
@@ -34,7 +36,7 @@ struct TerminalScene: View {
 
     /// The strip at the top that drags a window with no title bar, in points: the terminal starts below it (the built-in bar at the top is the strip then).
     private var topInset: Double {
-        guard noDecorations, !barAtTop, !presentation.showsSidebar else { return 0 }
+        guard noDecorations, !barAtTop, !configuration.sidebarDocked else { return 0 }
         // With no title bar the content goes under it; the system's tab bar (when there are tabs) is below the strip and covers more.
         return max(configuration.window.dragStrip, presentation.showsNativeTabBar ? obscured : 0)
     }
@@ -42,7 +44,7 @@ struct TerminalScene: View {
     /// sidebar is shown; otherwise the terminal covers it edge to edge.
     private var rootColor: Color {
         guard look.isOpaque else { return .clear }
-        return presentation.showsSidebar ? Color(nsColor: .windowBackgroundColor) : .black
+        return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
     /// Where the sidebar's first row starts: under the traffic lights (their top plus their height, 14 pt, and a gap) when there is no title bar, else
     /// after the margin.
@@ -53,6 +55,20 @@ struct TerminalScene: View {
     /// The window's corner radius, from AppKit (16 pt on macOS 27.0.1).
     private var windowRadius: Double {
         window.flatMap { WindowCornerRadius.of($0) } ?? ConcentricRadius.standardWindow
+    }
+    private var floatsSidebar: Bool { presentation.showsSidebar && configuration.sidebar.autoHide }
+
+    /// While the sidebar floats the traffic lights are part of its panel: at its top left when it shows, hidden when it does not.
+    private var lights: LightsPlacement? {
+        guard floatsSidebar else { return nil }
+        let inset = configuration.sidebar.padding + FloatingSidebar.lightsInset
+        return LightsPlacement(x: inset, y: inset, visible: floatingShown)
+    }
+
+    @ViewBuilder private var floatingSidebar: some View {
+        if floatsSidebar {
+            FloatingSidebar(tabs: tabs, settings: configuration, windowRadius: windowRadius, shown: $floatingShown)
+        }
     }
     private var look: WindowLook { WindowLook(configuration) }
     private var colors: DefaultColors { DefaultColors(configuration.colors) }
@@ -65,16 +81,23 @@ struct TerminalScene: View {
         VStack(spacing: 0) {
             if barAtTop { tabBar }
             HStack(spacing: 0) {
-                if presentation.showsSidebar {
-                    TabSidebar(tabs: tabs, settings: configuration, topInset: sidebarTop)
-                        .frame(width: configuration.sidebar.width)
-                        .frame(maxHeight: .infinity)
-                        .background { SidebarBackdrop(look: SidebarLook(configuration)) }
-                        .overlay(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
-                        .overlay(alignment: .trailing) { SidebarResizeHandle(width: configuration.sidebar.width) }
+                if configuration.sidebarDocked {
+                    TabSidebar(
+                        tabs: tabs,
+                        settings: configuration,
+                        topInset: sidebarTop,
+                        lightsMiddle: noDecorations ? configuration.window.trafficLightsY + 7 : sidebarTop / 2
+                    )
+                    .frame(width: configuration.sidebar.width)
+                    .frame(maxHeight: .infinity)
+                    .background { SidebarBackdrop(look: SidebarLook(configuration)) }
+                    .overlay(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
+                    .overlay(alignment: .trailing) { SidebarResizeHandle(width: configuration.sidebar.width) }
                 }
                 terminal
             }
+            .overlay(alignment: .leading) { floatingSidebar }
+            .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
         .background(rootColor)
@@ -84,6 +107,7 @@ struct TerminalScene: View {
                 settings: configuration.window,
                 look: look,
                 presentation: presentation,
+                lights: lights,
                 attached: { attach($0) },
                 obscuredTop: { obscured = $0 }
             )
@@ -116,7 +140,7 @@ struct TerminalScene: View {
             .id(tabs.list.selectedID)
             .modifier(
                 TerminalCard(
-                    isCard: presentation.showsSidebar,
+                    isCard: configuration.sidebarDocked,
                     margin: configuration.sidebar.padding,
                     cornerRadius: ConcentricRadius.inner(outer: windowRadius, inset: configuration.sidebar.padding)
                 )

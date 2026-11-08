@@ -59,8 +59,11 @@ public struct Configuration: Sendable, Equatable {
         /// Width in points.
         public var width = 200.0
         /// Space of the window's colour between the terminal and the window's edge and the sidebar while the sidebar is shown, in points. The terminal is
-        /// a card then, its corners concentric with the window's (16 pt): with 8 its radius is 8.
-        public var padding = 8.0
+        /// a card then, its corners concentric with the window's (16 pt): with 6 its radius is 10.
+        public var padding = 6.0
+        /// The sidebar is hidden, and floats over the terminal as a glass panel (holding the traffic lights) while the pointer is at the leading edge; false: it
+        /// stays beside the terminal.
+        public var autoHide = true
         /// What is behind the tab list: nothing by default (the window's own colour or material shows).
         public var material = Material.transparent
         public var blur = 0.0

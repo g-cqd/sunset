@@ -10,6 +10,7 @@ struct WindowChrome: NSViewRepresentable {
     var settings: Configuration.Window
     var look: WindowLook
     var presentation: TabPresentation
+    var lights: LightsPlacement?
     var attached: (NSWindow) -> Void
     var obscuredTop: (Double) -> Void
 
@@ -19,6 +20,7 @@ struct WindowChrome: NSViewRepresentable {
         view.settings = settings
         view.look = look
         view.presentation = presentation
+        view.lights = lights
         view.attached = attached
         view.obscuredTop = obscuredTop
     }

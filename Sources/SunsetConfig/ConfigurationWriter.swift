@@ -32,6 +32,7 @@ public enum ConfigurationWriter {
             "sidebar.enabled": String(configuration.sidebar.enabled),
             "sidebar.width": number(configuration.sidebar.width),
             "sidebar.padding": number(configuration.sidebar.padding),
+            "sidebar.autoHide": configuration.sidebar.autoHide ? "true" : "false",
             "sidebar.material": string(configuration.sidebar.material.rawValue),
             "sidebar.blur": number(configuration.sidebar.blur),
             "appearance.glass": string(configuration.appearance.glass.rawValue),

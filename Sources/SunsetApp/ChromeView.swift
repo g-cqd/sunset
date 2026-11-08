@@ -7,6 +7,8 @@ import SunsetHost
 final class ChromeView: NSView {
     var settings = Configuration.Window() { didSet { if settings != oldValue { apply() } } }
     var look = WindowLook() { didSet { if look != oldValue { apply() } } }
+    /// Where the traffic lights are, from the window's top left corner, and whether they show; nil: where `settings` says, shown.
+    var lights: LightsPlacement? { didSet { if lights != oldValue { placeButtons() } } }
     var presentation = TabPresentation.windows { didSet { if presentation != oldValue { apply() } } }
     /// Told the window as soon as the view has one (the scene needs it for the sidebar and the tab registry).
     var attached: (NSWindow) -> Void = { _ in }
@@ -115,9 +117,42 @@ final class ChromeView: NSView {
             }
             // From the window's top left corner; the frame view is not flipped, and the buttons stay at the top left when the window is resized.
             button.autoresizingMask = [.maxXMargin, .minYMargin]
-            let x = settings.trafficLightsX + Double(index) * (spacing ?? 23)
-            let y = frame.bounds.height - settings.trafficLightsY - button.frame.height
-            button.setFrameOrigin(NSPoint(x: x, y: y))
+            let origin =
+                lights ?? LightsPlacement(x: settings.trafficLightsX, y: settings.trafficLightsY, visible: true)
+            // A hidden button is parked outside the window (nothing to click) once its fade is over.
+            let x = origin.visible ? origin.x + Double(index) * (spacing ?? 23) : -200
+            let y = frame.bounds.height - origin.y - button.frame.height
+            fade(button, visible: origin.visible, to: NSPoint(x: x, y: y))
+        }
+    }
+
+    /// Moves a button to `origin` and fades its layer in or out. The layer's opacity is animated, not the view's `alphaValue` or `isHidden`: changing those made
+    /// AppKit lay the red and yellow buttons out again at its own spot (measured: they went back to (9, 9) within 600 ms). A button that fades out is moved
+    /// outside the window when the fade is over.
+    private func fade(_ button: NSButton, visible: Bool, to origin: NSPoint) {
+        guard let layer = button.layer else {
+            button.setFrameOrigin(origin)
+            return
+        }
+        let target: Float = visible ? 1 : 0
+        if visible {
+            button.setFrameOrigin(origin)
+        } else if layer.opacity == 0 {
+            button.setFrameOrigin(origin)
+            return
+        }
+        guard layer.opacity != target else { return }
+        let animation = CABasicAnimation(keyPath: "opacity")
+        animation.fromValue = layer.presentation()?.opacity ?? layer.opacity
+        animation.toValue = target
+        animation.duration = 0.18
+        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        layer.add(animation, forKey: "fade")
+        layer.opacity = target
+        guard !visible else { return }
+        Task { @MainActor [weak button] in
+            try? await Task.sleep(for: .milliseconds(200))
+            if let button, button.layer?.opacity == 0 { button.setFrameOrigin(origin) }
         }
     }
 }

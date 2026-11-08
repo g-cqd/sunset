@@ -14,11 +14,15 @@ import Testing
             configuration.window.padding == 0 && configuration.window.blur == 0 && configuration.window.opacity == 0.8
         )
         #expect(
-            !configuration.sidebar.enabled && configuration.sidebar.width == 200 && configuration.sidebar.padding == 8
+            !configuration.sidebar.enabled && configuration.sidebar.width == 200 && configuration.sidebar.padding == 6
         )
         #expect(
             configuration.sidebar.material == .transparent && configuration.sidebar.blur == 0,
             "the sidebar has no background of its own"
+        )
+        #expect(
+            configuration.sidebar.autoHide,
+            "hidden until the pointer is at the leading edge, then a floating glass panel"
         )
         #expect(configuration.appearance.glass == .regular)
         #expect(configuration.appearance.tintColor == nil && configuration.appearance.tintAlpha == 0.25)
@@ -74,6 +78,12 @@ import Testing
         #expect(result.configuration.window == Configuration.Window())
         #expect(result.configuration.tabs.mode == .native)
         #expect(result.issues.first { $0.path == "sidebar.padding" }?.message.contains("16") == true)
+    }
+
+    @Test func `the sidebar can stay: autoHide is a flag`() throws {
+        let kept = try read(#"{ "sidebar": { "autoHide": false } }"#)
+        #expect(kept.issues.isEmpty && !kept.configuration.sidebar.autoHide)
+        #expect(try read(#"{ "sidebar": { "autoHide": "yes" } }"#).issues.map(\.path) == ["sidebar.autoHide"])
     }
 
     @Test func `the sidebar and the window are separate: blur 0 to 100 each`() throws {
