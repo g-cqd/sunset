@@ -13,9 +13,9 @@ extension Configuration {
     /// `padding` is outside the terminal, in the window's colour: `TerminalCard`). In the card at least 6 pt, so that text is not cut by its rounded corners.
     var terminalPadding: Double { sidebarDocked ? max(window.padding, 6) : window.padding }
 
-    /// How opaque the terminal's default background is: fully, with an opaque window, else as `window.opacity` says.
+    /// How opaque the terminal's default background is: fully, with an opaque window, else as `terminal.opacity` says.
     var backgroundAlpha: UInt8 {
-        window.material == .opaque ? 255 : UInt8((window.opacity * 255).rounded())
+        window.material == .opaque ? 255 : UInt8((terminal.opacity * 255).rounded())
     }
 
     /// How the tabs are shown.

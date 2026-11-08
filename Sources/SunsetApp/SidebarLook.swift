@@ -1,6 +1,6 @@
 import SunsetConfig
 
-/// What is behind the sidebar, from the configuration.
+/// What is behind the floating sidebar panel: the window's own settings (blur, glass style, tint); the sidebar has none of its own.
 struct SidebarLook: Equatable {
     var material: Configuration.Material
     var glass: Configuration.Appearance.Glass
@@ -9,10 +9,10 @@ struct SidebarLook: Equatable {
     var blur: Double
 
     init(_ configuration: Configuration) {
-        material = configuration.sidebar.material
+        material = configuration.window.material
         glass = configuration.appearance.glass
         tint = configuration.appearance.tintColor
         tintAlpha = configuration.appearance.tintAlpha
-        blur = configuration.sidebar.blur
+        blur = configuration.window.blur
     }
 }

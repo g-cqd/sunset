@@ -6,7 +6,7 @@ import Testing
     private let nord = """
         { "font": { "family": "Iosevka", "size": 15 },
           "colors": { "background": "#2e3440", "foreground": "#d8dee9" },
-          "window": { "material": "transparent", "blur": 30, "opacity": 0.8 },
+          "window": { "material": "transparent", "blur": 30 }, "terminal": { "opacity": 0.8 },
           "appearance": { "tint": { "color": "#88c0d0", "alpha": 0.2 } } }
         """
 
@@ -31,7 +31,7 @@ import Testing
         #expect(configuration.font.family == "Iosevka", "from the theme")
         #expect(configuration.font.size == 12, "the file beats the theme")
         #expect(configuration.colors.background == [0x2E, 0x34, 0x40])
-        #expect(configuration.window.material == .transparent && configuration.window.opacity == 0.8)
+        #expect(configuration.window.material == .transparent && configuration.terminal.opacity == 0.8)
         #expect(configuration.window.blur == 5, "the file beats the theme")
         #expect(configuration.appearance.tintColor == [0x88, 0xC0, 0xD0])
         #expect(configuration.theme == "nord")

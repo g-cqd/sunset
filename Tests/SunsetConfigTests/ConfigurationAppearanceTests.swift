@@ -11,14 +11,10 @@ import Testing
         let configuration = try read("{}").configuration
         #expect(configuration.window.material == .opaque)
         #expect(
-            configuration.window.padding == 0 && configuration.window.blur == 0 && configuration.window.opacity == 0.8
+            configuration.window.padding == 0 && configuration.window.blur == 0 && configuration.terminal.opacity == 0.8
         )
         #expect(
             !configuration.sidebar.enabled && configuration.sidebar.width == 200 && configuration.sidebar.padding == 6
-        )
-        #expect(
-            configuration.sidebar.material == .transparent && configuration.sidebar.blur == 0,
-            "the sidebar has no background of its own"
         )
         #expect(
             configuration.sidebar.autoHide,
@@ -35,8 +31,9 @@ import Testing
         let result = try read(
             """
             {
-              "window": { "material": "transparent", "opacity": 0.6, "blur": 40, "padding": 6 },
-              "sidebar": { "enabled": true, "width": 240, "padding": 4, "material": "glass", "blur": 12 },
+              "window": { "material": "transparent", "blur": 40, "padding": 6 },
+              "terminal": { "opacity": 0.6 },
+              "sidebar": { "enabled": true, "width": 240, "padding": 4 },
               "appearance": { "glass": "clear", "tint": { "color": "#336699", "alpha": 0.4 } },
               "tabs": { "mode": "internal", "bar": { "position": "bottom", "title": false, "directory": true, "progress": false } },
               "theme": "nord"
@@ -45,12 +42,11 @@ import Testing
         )
         #expect(result.issues.isEmpty)
         let configuration = result.configuration
-        #expect(configuration.window.material == .transparent && configuration.window.opacity == 0.6)
+        #expect(configuration.window.material == .transparent && configuration.terminal.opacity == 0.6)
         #expect(configuration.window.blur == 40 && configuration.window.padding == 6)
         #expect(
             configuration.sidebar.enabled && configuration.sidebar.width == 240 && configuration.sidebar.padding == 4
         )
-        #expect(configuration.sidebar.material == .glass && configuration.sidebar.blur == 12)
         #expect(configuration.appearance.glass == .clear)
         #expect(configuration.appearance.tintColor == [0x33, 0x66, 0x99] && configuration.appearance.tintAlpha == 0.4)
         #expect(configuration.tabs.mode == .internal)
@@ -65,14 +61,14 @@ import Testing
     @Test func `values out of range or unknown names are reported and keep the default`() throws {
         let result = try read(
             """
-            { "window": { "material": "wood", "blur": 101, "opacity": 2, "padding": -1 },
+            { "window": { "material": "wood", "blur": 101, "padding": -1 }, "terminal": { "opacity": 2 },
               "sidebar": { "width": 50, "padding": 17 }, "tabs": { "mode": "kitty" }, "appearance": { "glass": "frosted" } }
             """
         )
         #expect(
             result.issues.map(\.path).sorted() == [
-                "appearance.glass", "sidebar.padding", "sidebar.width", "tabs.mode", "window.blur", "window.material",
-                "window.opacity", "window.padding"
+                "appearance.glass", "sidebar.padding", "sidebar.width", "tabs.mode", "terminal.opacity", "window.blur",
+                "window.material", "window.padding"
             ]
         )
         #expect(result.configuration.window == Configuration.Window())
@@ -86,10 +82,21 @@ import Testing
         #expect(try read(#"{ "sidebar": { "autoHide": "yes" } }"#).issues.map(\.path) == ["sidebar.autoHide"])
     }
 
-    @Test func `the sidebar and the window are separate: blur 0 to 100 each`() throws {
-        let result = try read(#"{ "window": { "blur": 100 }, "sidebar": { "blur": 100 } }"#)
-        #expect(result.issues.isEmpty)
-        #expect(result.configuration.window.blur == 100 && result.configuration.sidebar.blur == 100)
+    @Test
+    func
+        `the sidebar has no background settings of its own: the old keys are accepted and ignored, window.opacity moved to the terminal`()
+        throws
+    {
+        let old = try read(
+            #"{ "window": { "blur": 100, "opacity": 0.5 }, "sidebar": { "blur": 10, "material": "glass", "width": 220 } }"#
+        )
+        #expect(old.issues.isEmpty, "a file written before the change still loads without warnings")
+        #expect(old.configuration.window.blur == 100 && old.configuration.sidebar.width == 220)
+        #expect(old.configuration.terminal.opacity == 0.5, "the old window.opacity is the terminal's now")
+        let both = try read(#"{ "window": { "opacity": 0.5 }, "terminal": { "opacity": 0.7 } }"#)
+        #expect(both.configuration.terminal.opacity == 0.7, "the new key wins whatever the order")
+        #expect(try read(#"{ "terminal": { "opacity": 0.5 } }"#).configuration.terminal.opacity == 0.5)
+        #expect(try read(#"{ "window": { "opacity": 5 } }"#).issues.map(\.path) == ["window.opacity"])
     }
 
     @Test func `groups: the window look, the sidebar, the tabs and the theme are separate changes`() {

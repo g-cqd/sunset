@@ -3,7 +3,7 @@ import SunsetHost
 import SwiftUI
 
 /// The sidebar: the tabs of the window, listed vertically (the same `TabList` the built-in bar shows), and nothing else. It has no background of its own
-/// (the window's colour or material shows; `sidebar.material` can add one) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
+/// (the window's own colour or material shows through, with the window's settings) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
 /// content starts below the traffic lights and scrolls beneath them, fading out there. A click selects a tab, a drag reorders them.
 struct TabSidebar: View {
     let tabs: TabsModel
