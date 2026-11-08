@@ -16,6 +16,8 @@ final class TabsModel {
 
     /// What a sidebar or bar drag in this window carries, from its start until it is dropped (set when the drag begins; see `beginDrag`).
     @ObservationIgnored var dragged: PaneDragPayload?
+    /// Set when the selected tab is dropped on its own content: the content asks which other tab to split with.
+    var choice: SplitChoice?
 
     var selectedModel: TerminalModel? { workspace.selectedPane.flatMap { models[$0] } }
     var allModels: [TerminalModel] { workspace.allPanes.compactMap { models[$0] } }
@@ -106,10 +108,11 @@ final class TabsModel {
         return NSItemProvider(object: payload.text as NSString)
     }
 
-    /// Whether what is dragged could be dropped on a pane: not a tab on itself, not a pane on itself.
+    /// Whether what is dragged could be dropped on a pane: a pane not on itself; a tab on another tab's pane, or on its own when there is another tab to ask for
+    /// (`choice`).
     func canDrop(onto pane: PaneID) -> Bool {
         switch dragged {
-            case .item(let id): workspace.item(containing: pane)?.id != id
+            case .item(let id): workspace.item(containing: pane)?.id != id || workspace.count > 1
             case .pane(let id): id != pane
             case nil: false
         }
@@ -121,10 +124,27 @@ final class TabsModel {
         guard canDrop(onto: pane), let drag = dragged else { return false }
         dragged = nil
         switch drag {
+            case .item(let id) where workspace.item(containing: pane)?.id == id:
+                choice = SplitChoice(pane: pane, edge: edge)
             case .item(let id): drop(item: id, onto: pane, edge: edge)
             case .pane(let id): movePane(id, beside: pane, edge: edge)
         }
         return true
+    }
+
+    /// The tabs that can be put on the other side of a dropped tab: all but the one that was dropped.
+    func candidates(for choice: SplitChoice) -> [Workspace.Item] {
+        let own = workspace.item(containing: choice.pane)?.id
+        return workspace.items.filter { $0.id != own }
+    }
+
+    /// The tab `other` goes on the side of the dropped tab that is opposite the edge it was dropped on; the dropped tab keeps its side and the keyboard.
+    func complete(_ choice: SplitChoice, with other: Workspace.ItemID) {
+        self.choice = nil
+        change {
+            $0.drop(item: other, onto: choice.pane, edge: choice.edge.opposite)
+            $0.focus(pane: choice.pane)
+        }
     }
 
     // MARK: Selecting and arranging
