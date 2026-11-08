@@ -14,6 +14,24 @@ public struct Surface: Sendable {
         pixels = ContiguousArray(repeating: 0xFF00_0000, count: width * height)
     }
 
+    /// A surface with these pixels (`width` x `height` of them, row by row): what a backend reads back from its own storage.
+    public init(width: Int, height: Int, pixels: ContiguousArray<UInt32>) {
+        precondition(
+            width > 0 && height > 0 && pixels.count == width * height,
+            "one pixel for each place of the surface"
+        )
+        self.width = width
+        self.height = height
+        self.pixels = pixels
+    }
+
+    /// A surface that has a size and no pixels: for recording a frame (`CPURenderer.record`), where nothing is written.
+    init(unbackedWidth width: Int, height: Int) {
+        self.width = width
+        self.height = height
+        pixels = []
+    }
+
     @inline(__always) static func pack(_ color: RGB) -> UInt32 {
         UInt32(color.red) | UInt32(color.green) << 8 | UInt32(color.blue) << 16 | 0xFF00_0000
     }

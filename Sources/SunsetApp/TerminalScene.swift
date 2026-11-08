@@ -98,6 +98,7 @@ struct TerminalScene: View {
         }
         .onChange(of: font) { _, newFont in forEachModel { $0.apply(font: newFont) } }
         .onChange(of: configuration.scroll) { _, _ in forEachModel(configure) }
+        .onChange(of: configuration.renderer) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.terminalPadding) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.backgroundAlpha) { _, _ in forEachModel(configure) }
         .onChange(of: colors) { _, _ in forEachModel(configure) }
@@ -222,6 +223,7 @@ struct TerminalScene: View {
         model.paddingPoints = configuration.terminalPadding
         model.backgroundAlpha = configuration.backgroundAlpha
         model.scroll = configuration.scroll
+        model.rendererChoice = configuration.renderer
         model.applyLayout()
     }
 

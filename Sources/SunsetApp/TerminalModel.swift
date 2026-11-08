@@ -21,14 +21,16 @@ import SunsetRenderMac
     /// Whether text is selected (observed, so that the Copy menu item follows it).
     var hasSelection = false
     @ObservationIgnored var presentFrame: (IOSurface) -> Void = { _ in }
-    /// Keeps the frames in `IOSurface`s the window's layer shows (no image is made and converted on the CPU for each frame).
-    @ObservationIgnored let presenter = IOSurfacePresenter()
+    /// The last frame shown (kept across renderers, so that a new view or a new renderer starts from it).
+    @ObservationIgnored var lastSurface: IOSurface?
+    /// Which renderer the user asked for (`renderer` in the configuration).
+    @ObservationIgnored var rendererChoice = Configuration.Renderer.auto
     @ObservationIgnored var setDisplayLinkPaused: (Bool) -> Void = { _ in }
     @ObservationIgnored var onExit: () -> Void = {}
     /// The directory the program starts in (a restored tab); nil: the user's home.
     @ObservationIgnored var startDirectory: String?
     @ObservationIgnored var session: TerminalSession?
-    @ObservationIgnored var renderer: FrameRenderer?
+    @ObservationIgnored var renderer: (any IOSurfaceRenderer)?
     @ObservationIgnored var scale = 2.0
     @ObservationIgnored var font = FontSettings()
     @ObservationIgnored private var frameWanted = false
@@ -163,15 +165,6 @@ import SunsetRenderMac
         requestFrame()
     }
 
-    func makeRenderer() {
-        let glyphs = CoreTextGlyphSource(fontName: font.name, size: font.size * scale, features: font.features)
-        var metrics = glyphs.metrics
-        metrics.paddingX = paddingPixels
-        metrics.paddingY = paddingPixels
-        metrics.topInset = Int((topInsetPoints * scale).rounded())
-        renderer = FrameRenderer(metrics: metrics, glyphs: glyphs, ligatures: font.ligatures)
-    }
-
     // MARK: Frames
 
     private func watch(_ session: TerminalSession) async {
@@ -207,7 +200,6 @@ import SunsetRenderMac
         renderInFlight = true
         let phase = cursorPhase
         let alpha = backgroundAlpha
-        let presenter = presenter
         Task { [weak self] in
             let snapshot = await session.takeSnapshot()
             self?.viewport.follow(historyCount: snapshot.scrollbackCount)
@@ -222,8 +214,7 @@ import SunsetRenderMac
                     hoveredLink: self?.hoveredLink ?? 0,
                     backgroundAlpha: alpha,
                     extraPixels: self?.extraPixels(for: snapshot) ?? (0, 0)
-                ),
-                to: presenter
+                )
             )
             self?.presented(changed: changed, snapshot: snapshot)
         }
@@ -238,8 +229,12 @@ import SunsetRenderMac
         if path != directory { directory = path }
         let fraction = Self.fraction(of: snapshot.progress)
         if fraction != progress { progress = fraction }
-        if changed, let latest = presenter.latest { presentFrame(latest) }
+        if changed, let latest = renderer?.latest {
+            lastSurface = latest
+            presentFrame(latest)
+        }
         checkForeground()
+        if renderer?.hasFailed == true { fallBackToCPU() }
         // Something may have changed while this frame was being drawn.
         if frameWanted { setDisplayLinkPaused(false) }
     }

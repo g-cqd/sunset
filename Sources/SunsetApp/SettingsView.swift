@@ -136,8 +136,11 @@ struct SettingsView: View {
             Picker("Renderer", selection: config.binding(\.renderer)) {
                 ForEach(Configuration.Renderer.allCases, id: \.self) { Text($0.rawValue) }
             }
-            Text("Only the CPU renderer exists yet; the choice is saved for when the GPU one does.").font(.caption)
-                .foregroundStyle(.secondary)
+            Text(
+                "GPU draws with Metal, CPU on the processor; auto picks the GPU when the machine has one. Both draw the same pixels."
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
     }
 
