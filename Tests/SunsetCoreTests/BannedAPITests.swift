@@ -8,7 +8,7 @@ import Testing
         #expect(BannedAPIs.problems(in: [("B.swift", "let c = NewThing()\n")], rules: [rule]).isEmpty)
     }
 
-    @Test func `no Swift file in Sources, Tests or Benchmarks uses Grand Central Dispatch`() {
+    @Test func `no Swift file in Sources, Tests or Benchmarks uses a banned API`() {
         let files = RepositoryFiles.swiftFiles(in: ["Sources", "Tests", "Benchmarks/Benchmarks"])
             .filter { $0.name != "BannedAPIs.swift" && $0.name != "BannedAPITests.swift" }
         #expect(files.count > 50, "the scan must see the repository: \(files.count) files")

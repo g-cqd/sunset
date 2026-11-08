@@ -16,6 +16,12 @@ enum BannedAPIs {
             ],
             reason:
                 "owner note n7: Swift concurrency and executors only (blocking work runs on `DedicatedThread`, a task executor)"
+        ),
+        Rule(
+            name: "Blocking GPU waits",
+            needles: ["waitUntilCompleted", "waitUntilScheduled"],
+            reason:
+                "they block a thread of the cooperative pool for the GPU's whole frame: await the command buffer's completed handler instead (renderer plan item 1)"
         )
     ]
 

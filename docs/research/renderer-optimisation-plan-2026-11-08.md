@@ -53,3 +53,33 @@ Also: parsing a frame's bytes is 3-112 µs, and **holding a snapshot while parsi
 **Order of work**: 1 (correctness of concurrency, cheap), 3 (both backends, cheap), 2 (largest win for the most common scroll), 5 (memory, n11), 4 (needs evidence first), 6, 7. Gates for every step: the 12 + 4 differential/replay tests at 0 differing pixels, the probe re-run and its table appended here, the full suite and lint.
 
 **What I do not claim**: any energy figure; that items 2-6 reach their estimates (they are reasoned from the probe's per-op costs, not measured); that the GPU path is "better" for small windows (CPU time equal, wall worse until item 1/6).
+
+## 5. Results
+
+### Item 1: no thread waits for the GPU (done)
+
+`MetalCompositor.apply` is `async`: it commits and suspends on the command buffer's `addCompletedHandler` (no `waitUntilCompleted`; a source rule in
+`BannedAPIs` now rejects `waitUntilCompleted`/`waitUntilScheduled`, and failed on the two old calls before the change). Since the actor is free while the
+GPU draws, a second `present` can enter: `MetalSurfaceRenderer` hands out turns in arrival order, and `apply` asserts one frame at a time. A test presents 16
+frames at once; without the turns it stops on that assertion (watched), with them the surfaces match the CPU renderer's (25 of 25 runs).
+
+Measured (probe, A/B interleaved with the blocking build, 6 rounds each, load 4-14: minimum / median per frame, µs):
+
+| | blocking: wall | async: wall | blocking: process CPU in apply | async: process CPU in apply |
+|---|---:|---:|---:|---:|
+| 120×40 scroll | 1 912 / 2 543 | 1 173 / 2 199 | 180 / 235 | 169 / 193 |
+| 120×40 type 1 char | 286 / 500 | 297 / 361 | 47 / 59 | 49 / 51 |
+| 120×40 blink | 274 / 329 | 269 / 329 | 46 / 51 | 48 / 49 |
+| 300×80 scroll | 4 929 / 7 775 | 5 247 / 7 535 | 673 / 720 | 640 / 741 |
+
+**No difference in time or CPU beyond the noise**, as it should be: the gain is that no pool thread sleeps for the GPU, not speed. Latency per frame is the
+same (the surface must be finished before the layer may show it).
+
+**Correction** to section 2 item 1: the earlier "apply thread CPU" counted only the calling thread. Counted for the whole process (Metal's own threads
+included), `apply` costs about **48 µs even for a one-op frame** and ~170-190 µs for a full 120×40 frame. So the GPU path's CPU per full frame is
+~373 + 170 ≈ 540 µs against 1 811 (**3.3×**, not 3.6×), and for **small frames the GPU path costs more CPU than the CPU renderer** (blink 4 + 48 against 8;
+one character 10 + 49 against 37). That strengthens item 6 (small frames on the CPU).
+
+**Pipelining (several frames in flight): not done, on purpose.** The app keeps one frame in flight per window (`renderInFlight`), and a frame must be
+finished before it is shown, so overlapping would only help when record + GPU exceeds the display interval: at 300×80 that is ~2 + 4 ms against 8.3 ms at
+120 Hz. Revisit only for very large windows, with a measurement showing dropped frames.

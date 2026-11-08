@@ -45,7 +45,7 @@ struct MetalRig {
     }
 
     /// Draws a frame with both renderers.
-    mutating func frame(_ text: String = "", cursorVisible: Bool = true, view: FrameView = FrameView()) throws {
+    mutating func frame(_ text: String = "", cursorVisible: Bool = true, view: FrameView = FrameView()) async throws {
         terminal.feed(text)
         var view = view
         view.backgroundAlpha = alpha
@@ -57,7 +57,7 @@ struct MetalRig {
             cursorVisible: cursorVisible,
             view: view
         )
-        try metal.apply(list, to: target)
+        try await metal.apply(list, to: target)
         terminal.clearDirty()
     }
 

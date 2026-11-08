@@ -76,6 +76,35 @@ import Testing
         #expect(a.width == b.width && a.height == b.height && pixels(a) == pixels(b))
     }
 
+    @Test func `presents that arrive while a frame is drawn wait their turn`() async throws {
+        let (cpu, gpu, _) = try renderers()
+        var terminal = Terminal(columns: 30, rows: 16)
+        func row(_ row: Int) -> String { "\(esc)[\(row + 1);1Hrow \(row) \(esc)[3\(row % 7 + 1)mcolour\(esc)[0m ┌─┐" }
+        for index in 0 ..< 16 { terminal.feed(row(index)) }
+        _ = await cpu.present(terminal.screen, cursorVisible: false, textBlinkVisible: true, view: FrameView())
+        _ = await gpu.present(terminal.screen, cursorVisible: false, textBlinkVisible: true, view: FrameView())
+        terminal.clearDirty()
+        // Each snapshot rewrites one row with what it held: the same picture, a different changed row. The tasks reach the actor in any order (a stale
+        // snapshot would redraw rows wrongly in any renderer, so the order is the caller's: the app has one frame in flight); what is tested is that a
+        // present arriving while another awaits the GPU neither breaks the compositor (it asserts one frame at a time) nor the surfaces' missed rows.
+        var snapshots: [Screen] = []
+        for index in 0 ..< 16 {
+            terminal.feed(row(index))
+            snapshots.append(terminal.screen)
+            terminal.clearDirty()
+        }
+        await withTaskGroup { group in
+            for snapshot in snapshots {
+                group.addTask {
+                    _ = await gpu.present(snapshot, cursorVisible: false, textBlinkVisible: true, view: FrameView())
+                }
+            }
+        }
+        let a = try #require(cpu.latest)
+        let b = try #require(gpu.latest)
+        #expect(pixels(a) == pixels(b))
+    }
+
     @Test func `the first surface exists only after a frame`() async throws {
         let (_, gpu, _) = try renderers()
         #expect(gpu.latest == nil)
