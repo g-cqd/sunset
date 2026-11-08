@@ -7,6 +7,7 @@ public enum ConfigurationWriter {
         let colors = configuration.colors
         let window = configuration.window
         var layout: [String: String] = [:]
+        layout["colors.ansi"] = "[" + colors.ansi.map { color($0) }.joined(separator: ", ") + "]"
         for field in Configuration.Layout.fields {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }

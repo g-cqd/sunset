@@ -129,6 +129,12 @@ public actor TerminalSession {
         continuation.yield(.changed)
     }
 
+    /// The theme's 16 ANSI colours; the screen is drawn again.
+    public func setAnsiColors(_ colors: [RGB]) {
+        core.terminal.withLock { $0.setAnsiColors(colors) }
+        continuation.yield(.changed)
+    }
+
     public func resize(columns: Int, rows: Int) {
         core.terminal.withLock { $0.resize(columns: columns, rows: rows) }
         process.resize(columns: columns, rows: rows)

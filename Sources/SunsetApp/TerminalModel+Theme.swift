@@ -7,11 +7,7 @@ extension TerminalModel {
         defaultColors = colors
         guard let session else { return }
         Task {
-            await session.setDefaultColors(
-                foreground: colors.foreground,
-                background: colors.background,
-                cursor: colors.cursor
-            )
+            await colors.apply(to: session)
         }
     }
 
@@ -44,11 +40,7 @@ extension TerminalModel {
         if let session {
             let colors = defaultColors
             Task {
-                await session.setDefaultColors(
-                    foreground: colors.foreground,
-                    background: colors.background,
-                    cursor: colors.cursor
-                )
+                await colors.apply(to: session)
             }
         }
         requestFrame()

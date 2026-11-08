@@ -84,6 +84,7 @@ struct SettingsView: View {
             case "colors.foreground": colorRow("Foreground", \.colors.foreground, fallback: [229, 229, 229])
             case "colors.background": colorRow("Background", \.colors.background, fallback: [0, 0, 0])
             case "colors.cursor": colorRow("Cursor", \.colors.cursor, fallback: [229, 229, 229])
+            case "colors.ansi": AnsiPaletteRow(config: config)
             case "window.titlebar":
                 Picker("Title bar", selection: config.binding(\.window.decorations)) {
                     Text("None (content under the title bar)").tag(Configuration.Window.Decorations.none)

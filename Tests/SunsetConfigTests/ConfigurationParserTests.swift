@@ -81,9 +81,34 @@ import Testing
     @Test func `a renderer or a colour that is not one of the allowed forms is reported`() throws {
         let result = try read(##"{ "renderer": "metal", "colors": { "foreground": "red", "cursor": "#12345" } }"##)
         #expect(result.configuration.renderer == .auto)
-        #expect(result.configuration.colors.foreground == nil && result.configuration.colors.cursor == nil)
+        #expect(
+            result.configuration.colors.foreground == [0xFF, 0xFF, 0xFF] && result.configuration.colors.cursor == nil
+        )
         #expect(result.issues.map(\.path).sorted() == ["colors.cursor", "colors.foreground", "renderer"])
         #expect(result.issues.first { $0.path == "renderer" }?.message.contains("auto") == true)
+    }
+
+    @Test func `the colours default to the Kitty set: white on #171717 with the 16 ANSI colours`() throws {
+        let colors = try read("{}").configuration.colors
+        #expect(colors.foreground == [0xFF, 0xFF, 0xFF] && colors.background == [0x17, 0x17, 0x17])
+        #expect(colors.cursor == nil)
+        #expect(colors.ansi.count == 16)
+        #expect(colors.ansi[0] == [0x1D, 0x1F, 0x21] && colors.ansi[1] == [0xCC, 0x66, 0x66])
+        #expect(colors.ansi[8] == [0x66, 0x66, 0x66] && colors.ansi[15] == [0xEA, 0xEA, 0xEA])
+    }
+
+    @Test func `colors.ansi sets some or all of the 16, and a wrong entry is reported and leaves its colour`() throws {
+        let some = try read(##"{ "colors": { "ansi": ["#000000", "#111111"] } }"##)
+        #expect(some.issues.isEmpty)
+        #expect(some.configuration.colors.ansi.count == 16 && some.configuration.colors.ansi[1] == [0x11, 0x11, 0x11])
+        #expect(some.configuration.colors.ansi[2] == Configuration.Colors().ansi[2], "the rest keep their defaults")
+        let bad = try read(##"{ "colors": { "ansi": ["#000000", "red", "#222222"] } }"##)
+        #expect(bad.issues.map(\.path) == ["colors.ansi[1]"])
+        #expect(bad.configuration.colors.ansi[2] == [0x22, 0x22, 0x22])
+        #expect(try read(##"{ "colors": { "ansi": "#000000" } }"##).issues.map(\.path) == ["colors.ansi"])
+        let entries = [String](repeating: "\"#000000\"", count: 17).joined(separator: ", ")
+        let long = try read("{ \"colors\": { \"ansi\": [\(entries)] } }")
+        #expect(long.issues.map(\.path) == ["colors.ansi"], "more than 16")
     }
 
     @Test func `text that is not JSON is an error and says where`() {

@@ -36,4 +36,33 @@ import Testing
         terminal.setDefaultColors(foreground: nil, background: RGB(7, 7, 7), cursor: nil)
         #expect(terminal.screen.hasDirtyRows)
     }
+
+    @Test func `the host sets the 16 ANSI colours, and a program's reset returns to them`() {
+        var terminal = Terminal(columns: 10, rows: 3)
+        let theme: [RGB] = (0 ..< 16)
+            .map { (index: Int) -> RGB in
+                RGB(UInt8(index * 10), UInt8(index * 5), UInt8(200 - index))
+            }
+        terminal.setAnsiColors(theme)
+        #expect(Array(terminal.screen.palette.colors[0 ..< 16]) == theme)
+        #expect(terminal.screen.palette.colors[16] == Palette().colors[16], "the cube and the greys are not touched")
+        terminal.feed("\(esc)]4;3;#010203\(bel)")
+        #expect(terminal.screen.palette.colors[3] == RGB(1, 2, 3))
+        terminal.feed("\(esc)]104\(bel)")
+        #expect(
+            Array(terminal.screen.palette.colors[0 ..< 16]) == theme,
+            "reset goes to the host's colours, not xterm's"
+        )
+    }
+
+    @Test func `fewer than 16 colours set the first ones, more are ignored, and the screen is drawn again`() {
+        var terminal = Terminal(columns: 10, rows: 3)
+        terminal.clearDirty()
+        terminal.setAnsiColors([RGB(9, 9, 9), RGB(8, 8, 8)])
+        #expect(terminal.screen.palette.colors[0] == RGB(9, 9, 9) && terminal.screen.palette.colors[1] == RGB(8, 8, 8))
+        #expect(terminal.screen.palette.colors[2] == Palette().colors[2])
+        #expect(terminal.screen.hasDirtyRows)
+        terminal.setAnsiColors((0 ..< 40).map { _ in RGB(1, 1, 1) })
+        #expect(terminal.screen.palette.colors[16] == Palette().colors[16])
+    }
 }
