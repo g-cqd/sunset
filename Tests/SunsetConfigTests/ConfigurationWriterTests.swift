@@ -30,6 +30,7 @@ import Testing
         configuration.sidebar.width = 240
         configuration.sidebar.padding = 4
         configuration.appearance.glass = .clear
+        configuration.appearance.scheme = .light
         configuration.appearance.tintColor = [0x33, 0x66, 0x99]
         configuration.appearance.tintAlpha = 0.4
         configuration.tabs.mode = .internal
@@ -65,7 +66,7 @@ import Testing
     @Test func `every key the reader knows is in the file, so the file shows what can be set`() throws {
         let text = ConfigurationWriter.text(for: Configuration())
         #expect(
-            ConfigurationKeys.all.count == 64,
+            ConfigurationKeys.all.count == 65,
             "a key was added or removed: the list, the reader and the writer move together"
         )
         for key in ConfigurationKeys.all {

@@ -32,6 +32,10 @@ extension Reader {
     mutating func readAppearance(_ object: Object) {
         for (key, value) in object {
             switch key {
+                case "scheme":
+                    if let choice = choice("appearance.scheme", value, as: Configuration.Appearance.Scheme.self) {
+                        configuration.appearance.scheme = choice
+                    }
                 case "glass":
                     if let choice = choice("appearance.glass", value, as: Configuration.Appearance.Glass.self) {
                         configuration.appearance.glass = choice

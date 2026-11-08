@@ -8,6 +8,7 @@ struct WindowLook: Equatable {
     var tint: [UInt8]?
     var tintAlpha = 0.25
     var blur = 0.0
+    var scheme = Configuration.Appearance.Scheme.dark
 
     init() {}
 
@@ -17,6 +18,7 @@ struct WindowLook: Equatable {
         tint = configuration.appearance.tintColor
         tintAlpha = configuration.appearance.tintAlpha
         blur = configuration.window.blur
+        scheme = configuration.appearance.scheme
     }
 
     /// The tint as a colour (sRGB, with its alpha), or nil for none.

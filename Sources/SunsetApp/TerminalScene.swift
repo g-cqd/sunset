@@ -87,6 +87,7 @@ struct TerminalScene: View {
                 obscuredTop: { obscured = $0 }
             )
         )
+        .preferredColorScheme(configuration.appearance.scheme.colorScheme)
         .navigationTitle(tabs.selectedModel?.title ?? "Sunset")
         .focusedSceneValue(\.terminalModel, tabs.selectedModel)
         .task { start() }
