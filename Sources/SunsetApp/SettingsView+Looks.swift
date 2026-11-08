@@ -55,6 +55,8 @@ extension SettingsView {
             case "sidebar.width": number("Width", \.sidebar.width, range: 120 ... 480, step: 5, unit: "pt")
             case "sidebar.padding":
                 number("Space around the terminal", \.sidebar.padding, range: 0 ... 16, step: 1, unit: "pt")
+            case "tabs.icon":
+                Toggle("Show the folder or command icon", isOn: config.binding(\.tabs.bar.showIcon))
             case "tabs.restore":
                 VStack(alignment: .leading, spacing: 4) {
                     Toggle("Restore tabs at launch", isOn: config.binding(\.tabs.restore))

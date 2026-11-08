@@ -35,6 +35,7 @@ struct BuiltInTabBar: View {
         return HStack(spacing: 6) {
             TabLabel(
                 model: tabs.models[item.focused],
+                showIcon: settings.showIcon,
                 showTitle: settings.showTitle,
                 showDirectory: settings.showDirectory,
                 showProgress: settings.showProgress

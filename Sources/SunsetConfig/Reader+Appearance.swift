@@ -88,6 +88,7 @@ extension Reader {
                     if let choice = choice(path, value, as: Configuration.Tabs.Bar.Position.self) {
                         configuration.tabs.bar.position = choice
                     }
+                case "icon": if let flag = bool(path, value) { configuration.tabs.bar.showIcon = flag }
                 case "title": if let flag = bool(path, value) { configuration.tabs.bar.showTitle = flag }
                 case "directory": if let flag = bool(path, value) { configuration.tabs.bar.showDirectory = flag }
                 case "progress": if let flag = bool(path, value) { configuration.tabs.bar.showProgress = flag }
