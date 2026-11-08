@@ -87,6 +87,26 @@ public actor TerminalSession {
     /// The program in front on the terminal (not the shell itself): see `PTYProcess.foregroundCommandName()`.
     public nonisolated func foregroundCommand() -> String? { process.foregroundCommandName() }
 
+    /// Packs the old lines of the history, at most `limit` chunks of 128 lines (the terminal is locked for that long only: pack in small steps, never while
+    /// output is arriving). Returns how many were packed; 0 when there is nothing more. Lines read back as they were.
+    @discardableResult
+    public nonisolated func packHistory(keepingRecent: Int, limit: Int) -> Int {
+        core.terminal.withLock {
+            $0.packHistory(using: LZFSEHistoryCodec(), keepingRecent: keepingRecent, limit: limit)
+        }
+    }
+
+    /// A copy of the screen as it is, without the dirty marks being cleared (`takeSnapshot` clears them for the renderer): for a copy that is kept to read (the
+    /// window's selection) to take the history that was packed in the meantime (`Screen.adoptHistory`).
+    public nonisolated func screenCopy() -> Screen { core.terminal.withLock { $0.screen } }
+
+    /// Frees the cells that reading packed lines decoded (they are decoded again when read).
+    public nonisolated func releaseDecodedHistory() { core.terminal.withLock { $0.screen.releaseDecodedHistory() } }
+
+    public nonisolated func historyFootprint() -> HistoryFootprint {
+        core.terminal.withLock { $0.screen.historyFootprint }
+    }
+
     /// Sends bytes to the program, in order with everything else sent.
     public func send(_ bytes: [UInt8]) { process.send(bytes) }
 

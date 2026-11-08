@@ -9,16 +9,20 @@ struct Scrollback: Sendable {
 
     /// A line is kept without its trailing blank cells (see `push`): `ends[i]` is where line `i` ends in `cells` (it starts where line `i - 1` ended), and
     /// the top bit says that the line continues on the next (it wrapped): one array to append to per line instead of two.
-    private struct Chunk: Sendable {
+    struct Chunk: Sendable {
         var cells = ContiguousArray<Cell>()
         var ends = ContiguousArray<UInt32>()
+        /// The cells in packed form (`cells` is then empty): see `Scrollback+Packing`.
+        var packed: PackedCells?
+
+        func cell(at index: Int) -> Cell { packed?.cell(at: index) ?? cells[index] }
     }
 
-    private static let wrappedBit: UInt32 = 1 << 31
+    static let wrappedBit: UInt32 = 1 << 31
 
     let columns: Int
     let limit: Int
-    private var chunks: [Chunk] = []
+    var chunks: [Chunk] = []
     /// The chunk released last, emptied and kept for the next one: a history that is full and rolling allocates nothing.
     private var spare: Chunk?
     /// Lines of the first chunk that are gone already.
@@ -43,7 +47,7 @@ struct Scrollback: Sendable {
         let (chunk, index) = locate(line)
         let start = index == 0 ? 0 : Int(chunks[chunk].ends[index - 1] & ~Self.wrappedBit)
         let end = Int(chunks[chunk].ends[index] & ~Self.wrappedBit)
-        return column < end - start ? chunks[chunk].cells[start + column] : .empty
+        return column < end - start ? chunks[chunk].cell(at: start + column) : .empty
     }
 
     func isWrapped(_ line: Int) -> Bool {
@@ -51,7 +55,7 @@ struct Scrollback: Sendable {
         return chunks[chunk].ends[index] & Self.wrappedBit != 0
     }
 
-    private func locate(_ line: Int) -> (chunk: Int, index: Int) {
+    func locate(_ line: Int) -> (chunk: Int, index: Int) {
         let absolute = head + line
         return (absolute / Self.chunkLines, absolute % Self.chunkLines)
     }
@@ -96,6 +100,10 @@ struct Scrollback: Sendable {
         evicted += 1
         if head == Self.chunkLines {
             var released = chunks.removeFirst()
+            if released.packed != nil {
+                released.packed = nil
+                released.cells = ContiguousArray()
+            }
             released.cells.removeAll(keepingCapacity: true)
             released.ends.removeAll(keepingCapacity: true)
             spare = released
@@ -116,6 +124,7 @@ struct Scrollback: Sendable {
     mutating func mapStyles(_ map: (UInt16) -> UInt16) {
         var chunk = chunks.count - 1
         while chunk >= 0 {
+            unpack(chunk)
             var index = chunks[chunk].cells.count - 1
             while index >= 0 {
                 let cell = chunks[chunk].cells[index]

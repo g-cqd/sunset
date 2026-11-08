@@ -5,6 +5,7 @@ extension TerminalModel {
     /// Something happened (a key, output): the cursor blinks again for a while, and the blink task is woken if it was waiting without a timer.
     func noteActivity() {
         lastActivity = .now
+        packer?.noteActivity()
         blinkWake.continuation.yield()
     }
 

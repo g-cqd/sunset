@@ -11,6 +11,13 @@ extension TerminalModel {
         }
     }
 
+    func apply(font newFont: FontSettings) {
+        guard newFont != font else { return }
+        font = newFont
+        makeRenderer()
+        viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
+    }
+
     func apply(topInset points: Double) {
         guard points != topInsetPoints else { return }
         topInsetPoints = points

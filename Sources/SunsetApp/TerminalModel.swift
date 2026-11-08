@@ -1,5 +1,6 @@
 import IOSurface
 import Observation
+import SunsetConfig
 import SunsetCore
 import SunsetHost
 import SunsetRender
@@ -29,7 +30,7 @@ import SunsetRenderMac
     @ObservationIgnored var session: TerminalSession?
     @ObservationIgnored var renderer: FrameRenderer?
     @ObservationIgnored var scale = 2.0
-    @ObservationIgnored private var font = FontSettings()
+    @ObservationIgnored var font = FontSettings()
     @ObservationIgnored private var frameWanted = false
     @ObservationIgnored private var renderInFlight = false
     @ObservationIgnored var cursorPhase = true
@@ -46,9 +47,8 @@ import SunsetRenderMac
     @ObservationIgnored var defaultColors = DefaultColors()
     /// Space above the grid in points (the strip that drags a window with no title bar).
     @ObservationIgnored var topInsetPoints = 0.0
-    @ObservationIgnored var scrollTrackpad = 1.0
-    @ObservationIgnored var scrollWheel = 3.0
-    @ObservationIgnored var scrollInertia = 0.2
+    /// Trackpad and wheel sensitivity and the wheel's inertia (the configuration's `scroll` section).
+    @ObservationIgnored var scroll = Configuration.Scroll()
     @ObservationIgnored var holdsResize = false
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
     @ObservationIgnored var lastActivity = ContinuousClock.now
@@ -72,6 +72,8 @@ import SunsetRenderMac
         bufferingPolicy: .bufferingNewest(1)
     )
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
+    /// Packs the old history while the terminal is quiet (`HistoryPacker`).
+    @ObservationIgnored var packer: HistoryPacker?
     @ObservationIgnored private var pending: (command: [String], environment: [String: String])?
 
     /// Space around the grid in points (the window's padding, or the sidebar's while the sidebar is shown).
@@ -108,6 +110,7 @@ import SunsetRenderMac
                 scrollbackLimit: scrollbackLimit
             )
             self.session = session
+            packer = HistoryPacker(session) { [weak self] screen in self?.lastScreen?.adoptHistory(from: screen) }
             tasks = [
                 Task { [colors = defaultColors] in
                     await colors.apply(to: session)
@@ -129,12 +132,12 @@ import SunsetRenderMac
         }
     }
 
-    /// The grid that fits the view now, or nil before the view has a size.
     /// The height of a cell in points (a trackpad scrolls in points).
     var cellHeightInPoints: Double { Double(renderer?.cellMetrics.cellHeight ?? 16) / scale }
 
     func stop() {
         for task in tasks { task.cancel() }
+        packer?.stop()
         tasks = []
         input.continuation.finish()
         sizes.continuation.finish()
@@ -158,13 +161,6 @@ import SunsetRenderMac
             sizes.continuation.yield(size)
         }
         requestFrame()
-    }
-
-    func apply(font newFont: FontSettings) {
-        guard newFont != font else { return }
-        font = newFont
-        makeRenderer()
-        viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
     }
 
     func makeRenderer() {
