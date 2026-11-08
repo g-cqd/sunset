@@ -45,6 +45,14 @@ import Testing
         #expect(h.screen.generation != before)
     }
 
+    @Test func `a wide character that does not fit dirties the row it leaves blank at the end, and the next`() {
+        var h = Harness()
+        h.feed("\u{1B}[2;10H")
+        h.terminal.clearDirty()
+        h.feed("日")
+        #expect((0 ..< 4).map { h.screen.isDirty(row: $0) } == [false, true, true, false])
+    }
+
     @Test func `scrolling dirties the rows of the region`() {
         var h = make("\u{1B}[2;3r")
         h.terminal.clearDirty()

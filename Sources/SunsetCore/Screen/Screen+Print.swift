@@ -70,6 +70,7 @@ extension Screen {
             guard modes.autoWrap else { return }
             // No room for both halves: leave the last cell blank and continue on the next line.
             grid[row, column] = Cell(scalar: 0, width: .spacerHead, style: currentEraseID())
+            markDirty(row)
             wrap()
         }
         if modes.insert { insertCells(width) }
