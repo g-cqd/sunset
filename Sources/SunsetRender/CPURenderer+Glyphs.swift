@@ -1,30 +1,37 @@
 internal import SunsetCore
 
 extension CPURenderer {
-    /// The glyph table, taken out of `self` for a frame (so that it is not shared, and copied on its first write); started again if it is full. The caller
-    /// puts it back.
-    func takeGlyphTable() -> GlyphTable {
-        var table = GlyphTable(generation: 0)
-        swap(&table, &glyphTable)
-        if table.bitmaps.count >= glyphTableLimit {
-            table.startAgain(generation: GlyphGenerations.next())
+    /// The glyph table and the resolved styles, taken out of `self` for a frame (so that they are not shared, and copied on their first write); the table is
+    /// started again if it is full. The caller puts them back (`putBack`).
+    func takeWalk() -> Walk {
+        var walk = Walk(glyphs: GlyphTable(generation: 0), styles: ResolvedStyles())
+        swap(&walk.glyphs, &glyphTable)
+        swap(&walk.styles, &resolvedStyles)
+        if walk.glyphs.bitmaps.count >= glyphTableLimit {
+            walk.glyphs.startAgain(generation: GlyphGenerations.next())
             runCache.removeAll()
             runCacheCount = 0
         }
-        return table
+        walk.styles.startFrame()
+        return walk
+    }
+
+    /// Puts what `takeWalk` took back into the renderer.
+    func putBack(_ walk: inout Walk) {
+        swap(&walk.glyphs, &glyphTable)
+        swap(&walk.styles, &resolvedStyles)
     }
 
     /// The cell's glyph number in `table`, 0 when it has none.
-    func glyph(for cell: Cell, style: CellStyle, wide: Bool, screen: Screen, table: inout GlyphTable) -> UInt32 {
-        let bold = style.attributes.contains(.bold)
-        let italic = style.attributes.contains(.italic)
+    func glyph(for cell: Cell, style: ResolvedStyle, wide: Bool, frame: Frame, table: inout GlyphTable) -> UInt32 {
+        let (bold, italic) = (style.bold, style.italic)
         guard !cell.isCluster, cell.scalar < GlyphTable.directLimit else {
-            return hashedGlyph(for: cell, bold: bold, italic: italic, wide: wide, screen: screen, table: &table)
+            return hashedGlyph(for: cell, bold: bold, italic: italic, wide: wide, frame: frame, table: &table)
         }
         let variant = GlyphTable.variant(bold: bold, italic: italic, wide: wide)
         let known = table.direct(cell.scalar, variant: variant)
         if known != GlyphTable.unknown { return known }
-        let made = hashedGlyph(for: cell, bold: bold, italic: italic, wide: wide, screen: screen, table: &table)
+        let made = hashedGlyph(for: cell, bold: bold, italic: italic, wide: wide, frame: frame, table: &table)
         table.setDirect(cell.scalar, variant: variant, to: made)
         return made
     }
@@ -34,7 +41,7 @@ extension CPURenderer {
         bold: Bool,
         italic: Bool,
         wide: Bool,
-        screen: Screen,
+        frame: Frame,
         table: inout GlyphTable
     ) -> UInt32 {
         let key = GlyphTable.Key(id: cell.scalar, cluster: cell.isCluster, bold: bold, italic: italic, wide: wide)
@@ -47,7 +54,7 @@ extension CPURenderer {
         let glyph = table.number(
             made
                 ?? glyphs.glyph(
-                    for: screen.text(of: cell),
+                    for: frame.screen.text(of: cell),
                     bold: bold,
                     italic: italic,
                     columns: wide ? 2 : 1,
@@ -67,7 +74,7 @@ extension CPURenderer {
         selectionRows: ClosedRange<Int>?
     ) {
         lastCursor = cursor
-        lastPalette = frame.screen.palette
+        lastPalette = frame.palette
         lastReverse = reverse
         lastBlink = textBlinkVisible
         lastScrolledBack = frame.scrolledBack
@@ -75,7 +82,7 @@ extension CPURenderer {
         lastHoveredLink = frame.hoveredLink
         lastBackgroundAlpha = frame.backgroundAlpha
         lastSelectionRows = selectionRows
-        lastSize = (frame.screen.columns, frame.screen.rows)
+        lastSize = (frame.columns, frame.screen.rows)
     }
 
     /// Whether this frame has to draw everything again: the size, the palette, reverse video, the hovered link, the scroll position or the background alpha

@@ -127,6 +127,8 @@ public struct Screen: Sendable {
 
     public func cell(row: Int, column: Int) -> Cell { grid[row, column] }
     public func style(of cell: Cell) -> CellStyle { styles[cell.styleID] }
+    /// Every style, by id (`Cell.styleID`): for a renderer that reads many cells, so that it does not go through the screen for each (shared, not copied).
+    public var cellStyles: ContiguousArray<CellStyle> { styles.styles }
     public func style(row: Int, column: Int) -> CellStyle { styles[grid[row, column].styleID] }
     /// Whether the line at `row` continues on the next one (it wrapped).
     public func isWrapped(row: Int) -> Bool { grid.wrapped[Int(grid.rowMap[row])] }

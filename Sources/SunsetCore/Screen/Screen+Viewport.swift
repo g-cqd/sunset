@@ -23,6 +23,19 @@ extension Screen {
         return absoluteCell(line: line(row: row, scrolledBack: scrolledBack), column: column)
     }
 
+    /// The cells of a row of the window, at once: what `viewportCell` gives for its columns, except that the row may stop early, the rest being empty cells
+    /// (history lines are kept without their trailing blanks). It shares the screen's storage; outside the window it is empty.
+    public func viewportRow(_ row: Int, scrolledBack: Int) -> ArraySlice<Cell> {
+        guard row >= 0, row < rows else { return [] }
+        let line = line(row: row, scrolledBack: scrolledBack)
+        guard line < scrollback.count else {
+            let start = grid.base(line - scrollback.count)
+            return grid.cells[start ..< start + columns]
+        }
+        let cells = scrollback.cells(line: line)
+        return cells.prefix(columns)
+    }
+
     public func viewportText(row: Int, scrolledBack: Int) -> String {
         var scalars = String.UnicodeScalarView()
         for column in 0 ..< columns {

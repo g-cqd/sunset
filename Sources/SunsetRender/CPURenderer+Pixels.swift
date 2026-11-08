@@ -23,29 +23,25 @@ extension CPURenderer {
         }
     }
 
-    /// Blends the glyph's coverage over what is there, inside the cell(s) it belongs to; `number` is its number in the glyph table, for a recorded frame.
-    func blit(
-        _ bitmap: GlyphBitmap,
-        number glyph: UInt32,
-        into surface: inout Surface,
-        cell box: Box,
-        color: RGB
-    ) {
+    /// Blends the coverage of glyph number `glyph` of `table` over what is there, inside the cell(s) it belongs to.
+    func blit(_ glyph: UInt32, of table: GlyphTable, into surface: inout Surface, cell box: Box, color: RGB) {
         let (cellX, cellY, cellWidth) = (box.x, box.y, box.width)
+        let place = table.placements[Int(glyph) - 1]
+        let (left, top, width, height) = (Int(place.left), Int(place.top), Int(place.width), Int(place.height))
         // The part of the bitmap that is inside the cell(s) and the surface, worked out once: rows `rows`, columns `columns` of the bitmap.
         let leftEdge = max(cellX, 0)
         let rightEdge = min(cellX + cellWidth, surface.width)
         let topEdge = max(cellY, 0)
         let bottomEdge = min(cellY + metrics.cellHeight, surface.height)
-        let columns = max(leftEdge - (cellX + bitmap.left), 0) ..< min(rightEdge - (cellX + bitmap.left), bitmap.width)
-        let rows = max(topEdge - (cellY + bitmap.top), 0) ..< min(bottomEdge - (cellY + bitmap.top), bitmap.height)
+        let columns = max(leftEdge - (cellX + left), 0) ..< min(rightEdge - (cellX + left), width)
+        let rows = max(topEdge - (cellY + top), 0) ..< min(bottomEdge - (cellY + top), height)
         guard !columns.isEmpty, !rows.isEmpty else { return }
         let solid = Surface.pack(color)
         if surface.records {
             surface.recorded.append(
                 DrawOp(
-                    x: Int32(cellX + bitmap.left + columns.lowerBound),
-                    y: Int32(cellY + bitmap.top + rows.lowerBound),
+                    x: Int32(cellX + left + columns.lowerBound),
+                    y: Int32(cellY + top + rows.lowerBound),
                     width: Int32(columns.count),
                     height: Int32(rows.count),
                     color: solid,
@@ -56,6 +52,7 @@ extension CPURenderer {
             )
             return
         }
+        let bitmap = table[glyph]
         let stride = surface.width
         bitmap.coverage.withUnsafeBufferPointer { coverage in
             surface.pixels.withUnsafeMutableBufferPointer { pixels in
@@ -89,16 +86,15 @@ extension CPURenderer {
     }
 
     /// The colours a style is drawn in, after inverse and faint.
-    func colors(of style: CellStyle, frame: Frame) -> (foreground: RGB, background: RGB) {
-        let palette = frame.screen.palette
-        var foreground = palette.resolve(style.foreground) ?? frame.foreground
-        var background = palette.resolve(style.background) ?? frame.background
+    static func colors(of style: CellStyle, frame: Frame) -> (foreground: RGB, background: RGB) {
+        var foreground = frame.palette.resolve(style.foreground) ?? frame.foreground
+        var background = frame.palette.resolve(style.background) ?? frame.background
         if style.attributes.contains(.inverse) { swap(&foreground, &background) }
         if style.attributes.contains(.faint) { foreground = mix(foreground, background) }
         return (foreground, background)
     }
 
-    func mix(_ first: RGB, _ second: RGB) -> RGB {
+    static func mix(_ first: RGB, _ second: RGB) -> RGB {
         RGB(
             UInt8((Int(first.red) + Int(second.red)) / 2),
             UInt8((Int(first.green) + Int(second.green)) / 2),

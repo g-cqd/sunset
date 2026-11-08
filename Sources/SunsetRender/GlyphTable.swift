@@ -19,7 +19,17 @@ struct GlyphTable {
     /// `direct` before a scalar was looked up.
     static let unknown = UInt32.max
 
-    private(set) var bitmaps: [GlyphBitmap] = []
+    /// Where each glyph's bitmap sits in its cell and how large it is, by number - 1: plain values, so that placing a glyph (what a recorded frame does) does
+    /// not touch the bitmap object, its reference count included.
+    struct Placement {
+        var left: Int32
+        var top: Int32
+        var width: Int32
+        var height: Int32
+    }
+
+    private(set) var bitmaps: ContiguousArray<GlyphBitmap> = []
+    private(set) var placements: ContiguousArray<Placement> = []
     private(set) var generation: UInt32
     /// The numbers of single scalars under `directLimit`, by variant (`variant(bold:italic:wide:)`) then scalar: an array read in place of a hashed lookup on
     /// every cell (it was a quarter of a frame's walk). A variant's array is made on its first use (12 288 entries of 4 bytes).
@@ -57,12 +67,21 @@ struct GlyphTable {
     mutating func number(_ bitmap: GlyphBitmap?) -> UInt32 {
         guard let bitmap else { return 0 }
         bitmaps.append(bitmap)
+        placements.append(
+            Placement(
+                left: Int32(bitmap.left),
+                top: Int32(bitmap.top),
+                width: Int32(bitmap.width),
+                height: Int32(bitmap.height)
+            )
+        )
         return UInt32(bitmaps.count)
     }
 
     /// Forgets every glyph and starts a new generation of numbers.
     mutating func startAgain(generation: UInt32) {
         bitmaps.removeAll(keepingCapacity: true)
+        placements.removeAll(keepingCapacity: true)
         hashed.removeAll(keepingCapacity: true)
         direct = []
         self.generation = generation

@@ -36,4 +36,36 @@ import Testing
         let t = terminal("abcdefghij1234\r\nx\r\ny\r\nz")
         #expect(t.screen.isViewportWrapped(row: 0, scrolledBack: t.screen.scrollbackCount))
     }
+
+    /// Every row of the window, every amount of scrolling: the row's cells, padded with empty cells, are the window's cells one by one.
+    private func expectRowsMatchCells(_ screen: Screen) {
+        for back in 0 ... screen.scrollbackCount {
+            for row in 0 ..< screen.rows {
+                let cells = screen.viewportRow(row, scrolledBack: back)
+                #expect(cells.count <= screen.columns)
+                for column in 0 ..< screen.columns {
+                    let expected = screen.viewportCell(row: row, column: column, scrolledBack: back)
+                    let read = column < cells.count ? cells[cells.startIndex + column] : Cell.empty
+                    #expect(read == expected, "row \(row) column \(column) back \(back)")
+                }
+            }
+        }
+    }
+
+    @Test func `a window row read at once is its cells read one by one, in the history and on the screen`() {
+        let t = terminal("\(esc)[31mred\(esc)[0m\r\nlonger line\r\n\r\n3\r\nabcdefghijklm\r\n5\r\n6")
+        expectRowsMatchCells(t.screen)
+    }
+
+    @Test func `a window row of packed history is its cells read one by one`() {
+        var t = Terminal(columns: 16, rows: 3, scrollbackLimit: 10_000)
+        for line in 0 ..< 1000 {
+            t.feed(
+                String(repeating: String(UnicodeScalar(UInt8(97 + line % 26))), count: line % 3 == 0 ? 16 : 5) + "\r\n"
+            )
+        }
+        t.packHistory(using: WordRunCodec(), keepingRecent: 1, limit: .max)
+        #expect(t.screen.historyFootprint.packedChunks > 0)
+        expectRowsMatchCells(t.screen)
+    }
 }

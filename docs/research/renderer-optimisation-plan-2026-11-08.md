@@ -117,6 +117,37 @@ Reading:
 - Not measured: the effect on the app's frame time or energy; the compositor's own CPU (`apply`) after the change (the instance writing is simpler, but
   `apply` is dominated by Metal's encode and commit, item 1).
 
-**Next (item 3, second step)**: the walk. Resolve each style once a frame (colours, glyph variant, hidden, decorations) instead of per cell; read a row's
-cells through one buffer instead of `viewportCell` per cell; no `Screen`/`Palette` copies; `isSelected` without a closure. Each measured with RecordProbe.
-The probe of ADR-0021 rebuilt a full 120×40 instance list in 15-17 µs; we are at ~280 µs, so the walk can still shrink a lot.
+### Item 3, second step: the walk (done)
+
+Same tool and workload (3 000 frames, instructions retired, record / render), each step on top of the one before:
+
+| step | record | render |
+|---|---:|---:|
+| after the first step | 15.34 G | 88.41 G |
+| `drawCell` reads through `frame` instead of copying `screen`/`palette` into locals | 15.32 G | 88.28 G |
+| (tried, kept only as a base for the next) `Frame` a class: the `Screen` was then copied out of it on every call into it, 3 × 720 bytes | 16.40 G | 89.35 G |
+| the walk reads no `Screen` per cell: a row's cells at once (`Screen.viewportRow`, shared storage), the style list and palette taken once | 9.47 G | 82.49 G |
+| styles resolved once a frame each (`ResolvedStyle`: colours, flags), decorations only for decorated cells | 7.46 G | 80.42 G |
+| the glyph table a `ContiguousArray` (an `Array` of objects checks for a bridged `NSArray` on every read) | 7.35 G | 80.45 G |
+| the style cache: one array, the hit inlined | 6.66 G | 80.20 G |
+| no selection test when there is no selection | 6.40 G | 79.92 G |
+| `Cell`'s accessors `@inlinable` (they were calls across the module boundary) | 6.11 G | 79.65 G |
+| glyph placements kept as plain values: recording a glyph does not touch the bitmap (no retain/release) | **5.46 G** | **79.45 G** |
+
+**Recording a frame is 4.0× cheaper than before item 3** (21.92 → 5.46 G, 7.31 → 1.82 M instructions a frame, ~380 a cell with the probe's 4 800 cells).
+The CPU backend gains 15 % (93.78 → 79.45 G): its cost is blending pixels, which this does not touch.
+
+How the culprits were found: `sample` for where, then the disassembly of `drawCell` for why. A 720-byte `memcpy` at its entry (the `Frame` struct,
+holding the `Screen`, copied per call), calls to `_ArrayBuffer._getElementSlowPath`, `swift_retain`/`release` around the bitmap's fields, cross-module
+getters. Lessons: a large struct (`Screen`) must not be on the per-cell path at all, neither by value nor behind a class (both copy it); and a
+reference-type array element is best not read per cell.
+
+Correctness: the CPU and Metal suites unchanged and green (Metal at 0 differing pixels); new tests: a window row read at once equals its cells read one by
+one (screen, history and packed history, every scroll position); a selected underline keeps its own colour (even one equal to the foreground) and
+otherwise takes the swapped foreground (watched failing with a wrong rule I first wrote).
+
+Not measured: app frame time or energy; frames with many styles (a true-colour image: one resolution per style per frame, and the cache's memory, at
+most 65 536 entries of 20 bytes); ligature runs and scrolled-back frames in the probe (both covered by tests, not timed).
+
+**Next**: the remaining record cost is mostly `drawCell` itself (appending operations, the per-cell box and cursor arithmetic); item 2 (scroll by moving
+pixels) now matters more than shaving it further: a scrolling frame redraws every row.
