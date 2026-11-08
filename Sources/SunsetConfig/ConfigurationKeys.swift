@@ -7,10 +7,11 @@ public enum ConfigurationKeys {
         "colors.foreground", "colors.background", "colors.cursor",
         "window.decorations", "window.trafficLights.x", "window.trafficLights.y", "window.dragStrip", "window.padding",
         "window.material", "window.opacity", "window.blur",
-        "sidebar.enabled", "sidebar.width", "sidebar.padding", "sidebar.material", "sidebar.blur",
+        "sidebar.enabled", "sidebar.width", "sidebar.padding", "sidebar.cornerRadius", "sidebar.material",
+        "sidebar.blur",
         "appearance.glass", "appearance.tint.color", "appearance.tint.alpha",
         "tabs.mode", "tabs.bar.position", "tabs.bar.title", "tabs.bar.directory", "tabs.bar.progress",
-        "scroll.trackpad", "scroll.wheel",
+        "scroll.trackpad", "scroll.wheel", "scroll.inertia",
         "scrollback.lines", "cursor.blinkTimeout", "renderer",
         "keyboard.optionAsMeta"
     ]

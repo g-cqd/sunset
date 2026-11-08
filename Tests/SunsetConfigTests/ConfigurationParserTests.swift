@@ -13,6 +13,15 @@ import Testing
         #expect(result.issues.isEmpty)
     }
 
+    @Test func `wheel inertia is a time in seconds, 0 turns it off, nonsense is an issue`() throws {
+        #expect(Configuration().scroll.inertia == 0.2)
+        #expect(try read(#"{ "scroll": { "inertia": 0.35 } }"#).configuration.scroll.inertia == 0.35)
+        #expect(try read(#"{ "scroll": { "inertia": 0 } }"#).configuration.scroll.inertia == 0)
+        let bad = try read(#"{ "scroll": { "inertia": -1 } }"#)
+        #expect(bad.issues.map(\.path) == ["scroll.inertia"])
+        #expect(bad.configuration.scroll.inertia == 0.2)
+    }
+
     @Test func `comments and trailing commas are allowed, and every key is read`() throws {
         let result = try read(
             """

@@ -78,6 +78,11 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                 return [
                     entry("scroll.trackpad", "Trackpad", ["sensitivity", "speed", "touch", "finger", "scroll"]),
                     entry("scroll.wheel", "Wheel", ["sensitivity", "speed", "mouse", "notch", "scroll"]),
+                    entry(
+                        "scroll.inertia",
+                        "Wheel inertia",
+                        ["glide", "momentum", "smooth", "mouse", "deceleration", "scroll"]
+                    ),
                     entry("scroll.history", "History", ["scrollback", "lines", "buffer", "memory"])
                 ]
             case .terminal:
@@ -127,6 +132,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         [
             entry(pane, "sidebar.enabled", "Show the sidebar", ["tabs", "vertical", "list"]),
             entry(pane, "sidebar.width", "Width", ["size", "wide"]),
+            entry(pane, "sidebar.cornerRadius", "Terminal corner radius", ["rounding", "round", "card", "corners"]),
             entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"]),
             entry(pane, "sidebar.material", "Sidebar background", ["material", "glass", "transparent", "opaque"]),
             entry(pane, "sidebar.blur", "Sidebar blur", ["radius", "frosted"])

@@ -13,6 +13,9 @@ final class TerminalNSView: NSView {
     var markedText = NSAttributedString()
     var trackingArea: NSTrackingArea?
     var scroll = ScrollAccumulator()
+    var momentum = ScrollMomentum(timeConstant: 0)
+    var momentumLink: CADisplayLink?
+    var momentumEvent: NSEvent?
     private var windowObservers: [any NSObjectProtocol] = []
 
     init(model: TerminalModel) {
@@ -38,6 +41,7 @@ final class TerminalNSView: NSView {
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
+        stopGliding()
         displayLink?.invalidate()
         windowObservers.forEach { NotificationCenter.default.removeObserver($0) }
         windowObservers = []

@@ -3,6 +3,7 @@ import SunsetCore
 
 extension TerminalNSView {
     override func keyDown(with event: NSEvent) {
+        stopGliding()
         if let press = KeyboardMapping.press(for: event, optionAsMeta: optionAsMeta) {
             if scrollsHistory(press) { return }
             model.send(.key(press))

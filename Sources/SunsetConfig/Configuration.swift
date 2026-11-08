@@ -58,8 +58,10 @@ public struct Configuration: Sendable, Equatable {
         public var enabled = false
         /// Width in points.
         public var width = 200.0
-        /// Space between the terminal and the window's edge and the sidebar while the sidebar is shown, in points (2 to 4).
+        /// Space of the window's colour between the terminal and the window's edge and the sidebar while the sidebar is shown, in points (2 to 4).
         public var padding = 3.0
+        /// Corner radius of the terminal while the sidebar is shown: it is a card on the window's colour then, in points.
+        public var cornerRadius = 8.0
         public var material = Material.material
         public var blur = 0.0
         public init() {}
@@ -110,6 +112,8 @@ public struct Configuration: Sendable, Equatable {
         public var trackpad = 1.0
         /// Lines scrolled per notch of a wheel (the system reports one line per notch, more when it accelerates).
         public var wheel = 3.0
+        /// Seconds for a wheel's speed to fall to 1/e of itself (the text glides after a notch); 0: no inertia. A trackpad has the system's own.
+        public var inertia = 0.2
         public init() {}
     }
 
