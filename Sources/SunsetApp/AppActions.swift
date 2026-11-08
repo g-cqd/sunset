@@ -55,6 +55,9 @@ final class AppActions {
 
     func closeWindow() { NSApp.keyWindow?.performClose(nil) }
 
+    /// ⌘L: the command bar of the key window (searching its tabs).
+    func toggleCommandBar() { keyTabs?.toggleBar() }
+
     // MARK: Splits (the panes of the key window's selected tab)
 
     /// A new terminal beside the focused one, on `edge`.

@@ -16,6 +16,9 @@ struct TerminalCommands: Commands {
             Button("Close Window") { AppActions.shared.closeWindow() }
                 .keyboardShortcut("w", modifiers: [.command, .shift])
         }
+        CommandGroup(after: .textEditing) {
+            Button("Command Bar") { AppActions.shared.toggleCommandBar() }.keyboardShortcut("l")
+        }
         CommandMenu("Panes") {
             Button("Split Right") { AppActions.shared.split(.right) }.keyboardShortcut("d")
             Button("Split Down") { AppActions.shared.split(.bottom) }

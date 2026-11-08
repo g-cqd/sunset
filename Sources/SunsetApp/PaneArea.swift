@@ -70,7 +70,6 @@ struct PaneArea: View {
                 .overlay(alignment: .topLeading) {
                     dropPreview(item: item, bounds: bounds, space: space, radius: radius, card: card)
                 }
-                .overlay(alignment: tabs.choice?.edge.alignment ?? .center) { choiceAnchor.frame(width: 1, height: 1) }
                 .coordinateSpace(.named(Self.space))
                 .onDrop(
                     of: [.plainText, .utf8PlainText],
@@ -107,16 +106,6 @@ struct PaneArea: View {
                 .offset(x: frame.minX, y: frame.minY)
                 .allowsHitTesting(false)
                 .animation(layout.smooth, value: frame)
-        }
-    }
-
-    /// The tabs to choose from when the selected tab was dropped on its own content: a popover at the edge it was dropped on.
-    private var choiceAnchor: some View {
-        Color.clear.popover(
-            isPresented: Binding(get: { tabs.choice != nil }, set: { if !$0 { tabs.choice = nil } }),
-            arrowEdge: tabs.choice?.edge.opposite.swiftUI ?? .trailing
-        ) {
-            if let choice = tabs.choice { SplitChoiceList(tabs: tabs, choice: choice) }
         }
     }
 
