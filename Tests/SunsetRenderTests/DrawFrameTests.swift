@@ -74,4 +74,51 @@ import Testing
         live.frame()
         #expect(replayed.pixels == live.surface.pixels)
     }
+
+    @Test func `glyphs are named by their place in the frame's glyph table, the same place in every frame`() throws {
+        var live = rig()
+        live.terminal.feed("aba")
+        let first = recorded(live, cursorVisible: false)
+        live.terminal.clearDirty()
+        live.terminal.feed("\u{1B}[2;1Hba")
+        let second = recorded(live, cursorVisible: false)
+        let glyphs = first.ops.filter { $0.glyph != 0 }
+        #expect(glyphs.count == 3)
+        // The two a's are one glyph, the b another.
+        #expect(glyphs[0].glyph == glyphs[2].glyph && glyphs[0].glyph != glyphs[1].glyph)
+        for op in first.ops where op.glyph != 0 { #expect(Int(op.glyph) <= first.glyphs.count) }
+        let again = second.ops.filter { $0.glyph != 0 }
+        #expect(again.map(\.glyph) == [glyphs[1].glyph, glyphs[0].glyph])
+        let a = try #require(first.glyph(of: glyphs[0]))
+        let sameA = try #require(second.glyph(of: again[1]))
+        #expect(a === sameA)
+        #expect(first.glyphGeneration == second.glyphGeneration)
+    }
+
+    @Test func `a full glyph table starts again between frames, under a new generation`() {
+        var live = rig()
+        live.renderer.glyphTableLimit = 2
+        live.terminal.feed("abc")
+        let first = recorded(live, cursorVisible: false)
+        live.terminal.clearDirty()
+        live.terminal.feed("\u{1B}[2;1Hd")
+        let second = recorded(live, cursorVisible: false)
+        #expect(second.glyphGeneration != first.glyphGeneration)
+        #expect(second.glyphs.count < first.glyphs.count)
+        for op in second.ops where op.glyph != 0 { #expect(Int(op.glyph) <= second.glyphs.count) }
+        var replayed = Surface(width: live.surface.width, height: live.surface.height)
+        first.replay(onto: &replayed)
+        second.replay(onto: &replayed)
+        var drawn = rig()
+        drawn.frame("abc", cursorVisible: false)
+        drawn.frame("\u{1B}[2;1Hd", cursorVisible: false)
+        #expect(replayed.pixels == drawn.surface.pixels)
+    }
+
+    @Test func `two renderers never share a glyph generation`() {
+        let one = rig()
+        let other = rig()
+        #expect(recorded(one).glyphGeneration != recorded(other).glyphGeneration)
+        #expect(recorded(one).glyphGeneration != 0)
+    }
 }

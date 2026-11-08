@@ -1,7 +1,7 @@
 internal import SunsetCore
 
 extension CPURenderer {
-    func drawRow(_ row: Int, frame: Frame, surface: inout Surface) {
+    func drawRow(_ row: Int, frame: Frame, table: inout GlyphTable, surface: inout Surface) {
         rowsDrawn += 1
         noteChanged(
             pixelRows: metrics.originY + row * metrics.cellHeight ... metrics.originY + (row + 1) * metrics.cellHeight
@@ -25,7 +25,8 @@ extension CPURenderer {
                 column += 1
                 continue
             }
-            if ligatures, let length = drawRun(row: row, column: column, frame: frame, surface: &surface) {
+            if ligatures, let length = drawRun(row: row, column: column, frame: frame, table: &table, surface: &surface)
+            {
                 column += length
                 continue
             }
@@ -35,7 +36,13 @@ extension CPURenderer {
                 continue
             }
             let span = cell.width == .wide && column + 1 < frame.screen.columns ? 2 : 1
-            drawCell(cell, at: Placement(row: row, column: column, span: span), frame: frame, surface: &surface)
+            drawCell(
+                cell,
+                at: Placement(row: row, column: column, span: span),
+                frame: frame,
+                table: &table,
+                surface: &surface
+            )
             column += span
         }
         if frame.hoveredLink != 0 { underlineHoveredLink(row: row, frame: frame, surface: &surface) }

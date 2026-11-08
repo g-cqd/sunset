@@ -13,11 +13,11 @@ public final class MetalCompositor {
         case commandFailed
     }
 
-    /// One operation as the shader reads it.
+    /// One operation as the shader reads it: the op, with its source moved to where its glyph is in the atlas.
     private struct Instance {
         var x: Int32, y: Int32, width: Int32, height: Int32
         var color: UInt32
-        var kind: UInt32
+        var glyph: UInt32
         var sourceX: Int32, sourceY: Int32
     }
 
@@ -33,6 +33,9 @@ public final class MetalCompositor {
     private let pipeline: any MTLRenderPipelineState
     private var atlas: GlyphAtlas
     private var instances: (any MTLBuffer)?
+    /// Where each of the renderer's glyphs is in the atlas, by glyph number - 1 (x -1: not uploaded), for the glyph generation `slotsGeneration`.
+    private var slots: ContiguousArray<SIMD2<Int32>> = []
+    private var slotsGeneration: UInt32?
     private var drawing = false
     /// What the GPU took for the last frame (start to end of its execution) and how many instances it drew: for probes.
     var lastGPUSeconds = 0.0
@@ -90,9 +93,9 @@ public final class MetalCompositor {
         precondition(!drawing, "MetalCompositor.apply is one frame at a time")
         drawing = true
         defer { drawing = false }
-        let list = try instanceList(for: frame)
+        let count = try writeInstances(for: frame)
         guard let commands = queue.makeCommandBuffer() else { throw Failure.commandFailed }
-        if !list.isEmpty { try encodeDraw(list, frame: frame, target: target, into: commands) }
+        if count > 0 { try encodeDraw(count, frame: frame, target: target, into: commands) }
         if let copy, let blit = commands.makeBlitCommandEncoder() {
             let rows = max(copy.rows.lowerBound, 0) ... min(copy.rows.upperBound, target.height - 1)
             blit.copy(
@@ -110,7 +113,7 @@ public final class MetalCompositor {
         }
         let finished = await Self.run(commands)
         lastGPUSeconds = commands.gpuEndTime - commands.gpuStartTime
-        lastInstanceCount = list.count
+        lastInstanceCount = count
         guard finished else { throw Failure.commandFailed }
     }
 
@@ -123,16 +126,14 @@ public final class MetalCompositor {
         }
     }
 
+    /// Draws the first `count` instances of the instance buffer.
     private func encodeDraw(
-        _ list: [Instance],
+        _ count: Int,
         frame: DrawFrame,
         target: any MTLTexture,
         into commands: any MTLCommandBuffer
     ) throws {
-        guard let buffer = buffer(forInstances: list.count) else { throw Failure.commandFailed }
-        list.withUnsafeBytes { bytes in
-            if let base = bytes.baseAddress { unsafe buffer.contents().copyMemory(from: base, byteCount: bytes.count) }
-        }
+        guard let buffer = instances else { throw Failure.commandFailed }
         let pass = MTLRenderPassDescriptor()
         pass.colorAttachments[0].texture = target
         pass.colorAttachments[0].loadAction = .load
@@ -149,7 +150,7 @@ public final class MetalCompositor {
         unsafe encoder.setVertexBytes(&uniforms, length: MemoryLayout<Uniforms>.size, index: 1)
         unsafe encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.size, index: 1)
         encoder.setFragmentTexture(atlas.texture, index: 0)
-        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: list.count)
+        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: count)
         encoder.endEncoding()
     }
 
@@ -172,52 +173,65 @@ public final class MetalCompositor {
     /// Glyphs the atlas holds (for tests and probes).
     var atlasGlyphs: Int { atlas.count }
 
+    /// Where glyph number `glyph` of the frame is in the atlas, uploading it the first time; nil when the atlas is full.
+    private func slot(of glyph: UInt32, in frame: DrawFrame) -> SIMD2<Int32>? {
+        let index = Int(glyph) - 1
+        if slots.count < frame.glyphs.count {
+            slots.append(contentsOf: repeatElement(SIMD2(-1, -1), count: frame.glyphs.count - slots.count))
+        }
+        if slots[index].x >= 0 { return slots[index] }
+        guard let place = atlas.place(frame.glyphs[index]) else { return nil }
+        slots[index] = SIMD2(place.x, place.y)
+        return slots[index]
+    }
+
+    /// Forgets every upload: the atlas and the slots start again.
+    private func clearAtlas() {
+        atlas.clear()
+        slots.removeAll(keepingCapacity: true)
+    }
+
     // MARK: Instances
 
-    private func instanceList(for frame: DrawFrame) throws -> [Instance] {
+    /// Writes the frame's instances into the instance buffer; how many. A frame whose glyphs do not fit in what is left of the atlas is written again after
+    /// clearing it.
+    private func writeInstances(for frame: DrawFrame) throws -> Int {
+        guard !frame.ops.isEmpty else { return 0 }
+        if slotsGeneration != frame.glyphGeneration {
+            clearAtlas()
+            slotsGeneration = frame.glyphGeneration
+        }
+        guard let buffer = buffer(forInstances: frame.ops.count) else { throw Failure.commandFailed }
+        let base = unsafe buffer.contents().bindMemory(to: Instance.self, capacity: frame.ops.count)
         for attempt in 0 ..< 2 {
-            if let list = makeInstances(frame) { return list }
+            if unsafe write(frame, into: base) { return frame.ops.count }
             guard attempt == 0 else { break }
-            atlas.clear()
+            clearAtlas()
         }
         throw Failure.atlasFull
     }
 
-    private func makeInstances(_ frame: DrawFrame) -> [Instance]? {
-        var list: [Instance] = []
-        list.reserveCapacity(frame.ops.count)
-        for op in frame.ops {
-            switch op {
-                case .fill(let x, let y, let width, let height, let color):
-                    list.append(
-                        Instance(
-                            x: Int32(x),
-                            y: Int32(y),
-                            width: Int32(width),
-                            height: Int32(height),
-                            color: color,
-                            kind: 0,
-                            sourceX: 0,
-                            sourceY: 0
-                        )
-                    )
-                case .glyph(let bitmap, let sourceX, let sourceY, let width, let height, let x, let y, let color):
-                    guard let slot = atlas.slot(for: bitmap) else { return nil }
-                    list.append(
-                        Instance(
-                            x: Int32(x),
-                            y: Int32(y),
-                            width: Int32(width),
-                            height: Int32(height),
-                            color: color,
-                            kind: 1,
-                            sourceX: Int32(slot.x + sourceX),
-                            sourceY: Int32(slot.y + sourceY)
-                        )
-                    )
+    /// Whether every glyph of the frame found a place in the atlas.
+    private func write(_ frame: DrawFrame, into base: UnsafeMutablePointer<Instance>) -> Bool {
+        for (index, op) in frame.ops.enumerated() {
+            var instance = Instance(
+                x: op.x,
+                y: op.y,
+                width: op.width,
+                height: op.height,
+                color: op.color,
+                glyph: op.glyph,
+                sourceX: op.sourceX,
+                sourceY: op.sourceY
+            )
+            if op.glyph != 0 {
+                guard let slot = slot(of: op.glyph, in: frame) else { return false }
+                instance.sourceX &+= slot.x
+                instance.sourceY &+= slot.y
             }
+            unsafe (base + index).initialize(to: instance)
         }
-        return list
+        return true
     }
 
     private func buffer(forInstances count: Int) -> (any MTLBuffer)? {

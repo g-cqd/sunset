@@ -1,7 +1,7 @@
 import SunsetCore
-import SunsetRender
 import Testing
 
+@testable import SunsetRender
 @testable import SunsetRenderMetal
 
 /// The Metal renderer replays the CPU renderer's draw list; the CPU renderer is the oracle (ADR-0024), so the two must agree pixel for pixel.
@@ -69,5 +69,15 @@ import Testing
         try await rig.frame("\(esc)]11;#204060\u{7}text \(esc)[41mred\(esc)[0m ┌─┐\r\n\(esc)[4munder\(esc)[0m")
         let difference = rig.differences()
         #expect(difference.count == 0, "\(difference.count) pixels differ, by up to \(difference.largest)")
+    }
+
+    @Test func `glyph numbers of a new generation are uploaded again, not taken for the old glyphs`() async throws {
+        var rig = try #require(MetalRig(), "a Metal device")
+        // A table of two glyphs starts again at the third frame: glyph 1 is then "c", which the atlas held as "a".
+        rig.gpuSide.glyphTableLimit = 2
+        try await rig.frame("ab", cursorVisible: false)
+        try await rig.frame("\(esc)[2;1Hcd", cursorVisible: false)
+        try await rig.frame("\(esc)[3;1Hef", cursorVisible: false)
+        #expect(rig.differences().count == 0)
     }
 }

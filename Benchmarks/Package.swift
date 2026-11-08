@@ -70,6 +70,16 @@ let package = Package(
         // Not a benchmark: who holds the screen when a renderer wants a frame (sunset roadmap 0002 probe T0.3, ADR-0014).
         // Not a benchmark: GPU reads the screen's cells vs CPU-rebuilt instances (sunset roadmap 0002 probe T0.5, ADR-0015).
         .executableTarget(name: "MetalProbe", path: "Probes/MetalProbe", swiftSettings: probeSettings),
+        // Not a benchmark: loops CPURenderer.record so `sample` can attribute the frame walk (renderer plan 2026-11-08).
+        .executableTarget(
+            name: "RecordProbe",
+            dependencies: [
+                .product(name: "SunsetCore", package: "Sunset"), .product(name: "SunsetRender", package: "Sunset"),
+                .product(name: "SunsetRenderMac", package: "Sunset")
+            ],
+            path: "Probes/RecordProbe",
+            swiftSettings: strictSettings
+        ),
         // Not a benchmark: bytes per cell of cold history, structural encoding vs the platform's compressors, on real text (sunset roadmap 0002 probes T0.2).
         .executableTarget(
             name: "ColdHistoryProbe",

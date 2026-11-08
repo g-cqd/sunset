@@ -83,3 +83,40 @@ one character 10 + 49 against 37). That strengthens item 6 (small frames on the 
 **Pipelining (several frames in flight): not done, on purpose.** The app keeps one frame in flight per window (`renderInFlight`), and a frame must be
 finished before it is shown, so overlapping would only help when record + GPU exceeds the display interval: at 300×80 that is ~2 + 4 ms against 8.3 ms at
 120 Hz. Revisit only for very large windows, with a measurement showing dropped frames.
+
+### Item 3, first step: plain operations, a numbered glyph table, no per-cell hashing (done)
+
+Tool: `Benchmarks/Probes/RecordProbe` (`RecordProbe [frames] record|render|feed`), a 120×40 screen scrolling one coloured line per frame (~4 300 operations
+a frame), counted with `/usr/bin/time -l` ("instructions retired"; repeat runs agree to 0.1 %; wall times on this machine swung 4× with load and are not
+used). `feed` alone (the terminal, no renderer) is 0.13 G and is left in the figures. 3 000 frames:
+
+| step | record (GPU path's CPU side) | render (CPU backend) |
+|---|---:|---:|
+| before | 21.92 G (7.31 M a frame) | 93.78 G |
+| single scalars' glyphs from an array, not a `Dictionary` (`GlyphTable.direct`) | 18.45 G | 90.34 G |
+| `DrawOp` a 32-byte value naming its glyph by number; the list appended to the `inout` surface | 16.96 G | 91.23 G |
+| the list reserved at the last frame's length | 16.81 G | – |
+| the glyph table a value handed down the walk `inout`, not class properties | **15.34 G (5.11 M a frame, −30 %)** | **88.41 G (−5.7 %)** |
+
+Reading:
+
+- **The cost was the walk, not "two passes"** (the plan's premise for item 3 was wrong). With operations not emitted at all (an experiment, reverted)
+  record was 14.67 G: emitting cost 1.26 M instructions a frame (~290 an operation: a 65-byte enum copied by `memmove`, a retain of the bitmap, a dynamic
+  exclusivity check on the renderer's `recording` property). Now it is ~0.2 M (15.34 − 14.67 G over 3 000 frames, ~50 an operation). What is left,
+  ~1 100 instructions a cell, is the walk itself: `drawRow`/`drawCell`, `viewportCell`/`absoluteCell` per cell, `Palette.resolve` and `colors(of:)` per
+  cell, `isSelected` per cell, `Attributes` statics read through cross-module addressors, and copies of `Screen`/`Palette` into locals (`sample`).
+- **Dynamic exclusivity checks** on the renderer's stored properties (`swift_beginAccess`) were ~10 % of a recorded frame. `@exclusivity(unchecked)` on
+  two properties gave 15.19 G, but it turns a check off and Apple documents it nowhere (the compiler's diagnostics page for dynamic exclusivity is a stub
+  marked experimental), so it is not used: the table moved into a value (`GlyphTable`) the walk takes `inout` (statically checked), 15.34 G.
+- **Glyph numbers**: a recorded frame carries the renderer's glyph table (`DrawFrame.glyphs`, shared, not copied, as long as the caller drops the frame
+  before the next is recorded, which `MetalSurfaceRenderer` does) and its generation, unique in the process. `MetalCompositor` keeps an atlas place per
+  number (an array, no dictionary or bitmap identity) and writes instances straight into the mapped buffer. The table starts again at 16 384 glyphs, between
+  frames, under a new generation, and the compositor then clears its atlas. Tests: numbers are stable across frames; a full table starts again and replays
+  exactly; two renderers never share a generation; on Metal, glyphs of a new generation are uploaded again (watched failing with the generation check off:
+  wrong pixels).
+- Not measured: the effect on the app's frame time or energy; the compositor's own CPU (`apply`) after the change (the instance writing is simpler, but
+  `apply` is dominated by Metal's encode and commit, item 1).
+
+**Next (item 3, second step)**: the walk. Resolve each style once a frame (colours, glyph variant, hidden, decorations) instead of per cell; read a row's
+cells through one buffer instead of `viewportCell` per cell; no `Screen`/`Palette` copies; `isSelected` without a closure. Each measured with RecordProbe.
+The probe of ADR-0021 rebuilt a full 120×40 instance list in 15-17 µs; we are at ~280 µs, so the walk can still shrink a lot.

@@ -10,7 +10,7 @@ enum MetalShaders {
         struct Instance {
             int x, y, w, h;
             uint color;
-            uint kind;     // 0 fill, 1 glyph
+            uint glyph;    // 0 fill, else a glyph (its number in the frame; the shader only tells the two apart)
             int sx, sy;    // where the glyph's coverage starts in the atlas
         };
 
@@ -40,7 +40,7 @@ enum MetalShaders {
                                       texture2d<float, access::read> atlas [[texture(0)]]) {
             Instance item = instances[in.instance];
             uint4 c = uint4(item.color & 255u, (item.color >> 8) & 255u, (item.color >> 16) & 255u, item.color >> 24);
-            if (item.kind == 0u) {
+            if (item.glyph == 0u) {
                 return float4(c) / 255.0;
             }
             int2 pixel = int2(in.position.xy);
