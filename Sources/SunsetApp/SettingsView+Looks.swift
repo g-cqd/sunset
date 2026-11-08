@@ -55,6 +55,14 @@ extension SettingsView {
             case "sidebar.width": number("Width", \.sidebar.width, range: 120 ... 480, step: 5, unit: "pt")
             case "sidebar.padding":
                 number("Space around the terminal", \.sidebar.padding, range: 0 ... 16, step: 1, unit: "pt")
+            case "tabs.restore":
+                VStack(alignment: .leading, spacing: 4) {
+                    Toggle("Restore tabs at launch", isOn: config.binding(\.tabs.restore))
+                    Text(
+                        "The windows, tabs and splits come back, each pane as a new shell in the directory it was in. Programs that were running are not restarted."
+                    )
+                    .font(.caption).foregroundStyle(.secondary)
+                }
             case "tabs.mode":
                 Picker("Tabs", selection: config.binding(\.tabs.mode)) {
                     Text("None (one terminal per window)").tag(Configuration.Tabs.Mode.none)

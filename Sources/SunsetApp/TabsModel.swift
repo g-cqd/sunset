@@ -13,6 +13,10 @@ final class TabsModel {
     @ObservationIgnored var makeModel: () -> TerminalModel = { TerminalModel() }
     /// The last tab was closed: the window goes.
     @ObservationIgnored var onEmpty: () -> Void = {}
+    /// The tabs changed (added, closed, moved, split, selected): the session is to be saved.
+    @ObservationIgnored var onChange: () -> Void = {}
+    /// The directories a restored window had, for panes that have not started yet (a tab starts when it is first shown) and so cannot report their own.
+    @ObservationIgnored private var savedDirectories: [PaneID: String] = [:]
 
     /// What a sidebar or bar drag in this window carries, from its start until it is dropped (set when the drag begins; see `beginDrag`).
     @ObservationIgnored var dragged: PaneDragPayload?
@@ -45,8 +49,35 @@ final class TabsModel {
     /// Takes a terminal that already runs (moved from another window when the presentation changed): a tab like any other, selected.
     func adopt(_ model: TerminalModel) { register(model, as: workspace.add().pane) }
 
+    // MARK: Session
+
+    /// The window as it is, for the session file: the tabs and the directory of each pane (its own report, else the one it was restored with).
+    func savedWindow() -> SavedWindow {
+        var directories: [PaneID: String] = [:]
+        for pane in workspace.allPanes {
+            if let directory = models[pane]?.directory ?? savedDirectories[pane] { directories[pane] = directory }
+        }
+        return SavedWindow(workspace: workspace, directories: directories)
+    }
+
+    /// Fills an empty window with a saved one: the same tabs and splits, a new terminal in each pane, started in its directory when that still exists. The
+    /// terminals of tabs that are not shown start when their tab is first shown.
+    func restore(_ saved: SavedWindow, directoryExists: (String) -> Bool) {
+        guard workspace.isEmpty, !saved.workspace.isEmpty else { return }
+        workspace = saved.workspace
+        for pane in workspace.allPanes {
+            let model = makeModel()
+            if let directory = saved.directories[pane], directoryExists(directory) {
+                model.startDirectory = directory
+                savedDirectories[pane] = directory
+            }
+            register(model, as: pane)
+        }
+    }
+
     private func register(_ model: TerminalModel, as pane: PaneID) {
         models[pane] = model
+        onChange()
         model.onExit = { [weak self] in self?.close(pane: pane) }
         model.onFocusRequest = { [weak self] in self?.focus(pane) }
         syncStates()
@@ -60,6 +91,7 @@ final class TabsModel {
         workspace.close(pane: pane)
         models[pane] = nil
         syncStates()
+        onChange()
         return model
     }
 
@@ -80,6 +112,7 @@ final class TabsModel {
     func closeOthers(than item: Workspace.ItemID) {
         stop(workspace.closeOthers(than: item))
         syncStates()
+        onChange()
     }
 
     /// Closes the focused pane (the tab with its last pane).
@@ -96,6 +129,7 @@ final class TabsModel {
     }
 
     private func finishClosing() {
+        onChange()
         if workspace.isEmpty { onEmpty() } else { syncStates() }
     }
 
@@ -171,7 +205,10 @@ final class TabsModel {
     private func change(_ edit: (inout Workspace) -> Void) {
         let before = workspace
         edit(&workspace)
-        if workspace != before { syncStates() }
+        if workspace != before {
+            syncStates()
+            onChange()
+        }
     }
 
     /// Tells every terminal whether it is shown (its tab is the selected one) and whether it has the keyboard (it is that tab's focused pane).

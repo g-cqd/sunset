@@ -10,5 +10,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate()
     }
 
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        SessionStore.shared.finish()
+        return .terminateNow
+    }
+
+    func applicationDidResignActive(_ notification: Notification) { SessionStore.shared.saveNow() }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }

@@ -16,13 +16,13 @@ import SunsetRenderMac
     private(set) var isRunning = true
     /// Whether text is selected (observed, so that the Copy menu item follows it).
     var hasSelection = false
-
     @ObservationIgnored var presentFrame: (IOSurface) -> Void = { _ in }
     /// Keeps the frames in `IOSurface`s the window's layer shows (no image is made and converted on the CPU for each frame).
     @ObservationIgnored let presenter = IOSurfacePresenter()
     @ObservationIgnored var setDisplayLinkPaused: (Bool) -> Void = { _ in }
     @ObservationIgnored var onExit: () -> Void = {}
-
+    /// The directory the program starts in (a restored tab); nil: the user's home.
+    @ObservationIgnored var startDirectory: String?
     @ObservationIgnored var session: TerminalSession?
     @ObservationIgnored var renderer: FrameRenderer?
     @ObservationIgnored var scale = 2.0
@@ -90,14 +90,18 @@ import SunsetRenderMac
     }
 
     private func startIfReady() {
-        guard session == nil, let (command, environment) = pending, let size = currentGrid() else { return }
+        guard session == nil, let (command, inherited) = pending, let size = currentGrid() else { return }
         pending = nil
+        var environment = inherited
+        // A shell trusts `$PWD` when it names its working directory: the inherited one would take it back to where the app was started.
+        if let startDirectory { environment["PWD"] = startDirectory }
         do {
             let session = try TerminalSession(
                 command,
                 columns: size.columns,
                 rows: size.rows,
                 environment: environment,
+                directory: startDirectory,
                 scrollbackLimit: scrollbackLimit
             )
             self.session = session
@@ -123,14 +127,6 @@ import SunsetRenderMac
     }
 
     /// The grid that fits the view now, or nil before the view has a size.
-    func currentGrid() -> GridSize? {
-        guard viewPixels.width > 0, viewPixels.height > 0, let metrics = renderer?.cellMetrics else { return nil }
-        return GridSize(
-            columns: max(2, (viewPixels.width - 2 * paddingPixels) / metrics.cellWidth),
-            rows: max(1, (viewPixels.height - 2 * paddingPixels - metrics.topInset) / metrics.cellHeight)
-        )
-    }
-
     /// The height of a cell in points (a trackpad scrolls in points).
     var cellHeightInPoints: Double { Double(renderer?.cellMetrics.cellHeight ?? 16) / scale }
 

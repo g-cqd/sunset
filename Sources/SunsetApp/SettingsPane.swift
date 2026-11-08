@@ -180,6 +180,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
     private static func tabEntries(_ pane: String) -> [SettingsEntry] {
         [
             entry(pane, "tabs.mode", "Tabs", ["native", "internal", "built-in", "none", "windows"]),
+            entry(pane, "tabs.restore", "Restore tabs at launch", ["session", "reopen", "quit", "windows"]),
             entry(pane, "tabs.position", "Built-in bar position", ["top", "bottom", "internal"]),
             entry(pane, "tabs.title", "Show the title", ["tab", "name"]),
             entry(pane, "tabs.directory", "Show the working directory", ["tab", "folder", "path", "osc 7"]),
