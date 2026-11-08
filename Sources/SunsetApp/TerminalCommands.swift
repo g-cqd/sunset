@@ -19,6 +19,11 @@ struct TerminalCommands: Commands {
         CommandGroup(after: .textEditing) {
             Button("Command Bar") { AppActions.shared.toggleCommandBar() }.keyboardShortcut("l")
         }
+        CommandGroup(after: .toolbar) {
+            Button("Bigger") { AppActions.shared.zoomFont(by: 1) }.keyboardShortcut("+")
+            Button("Smaller") { AppActions.shared.zoomFont(by: -1) }.keyboardShortcut("-")
+            Button("Actual Size") { AppActions.shared.resetFontZoom() }.keyboardShortcut("0")
+        }
         CommandMenu("Panes") {
             Button("Split Right") { AppActions.shared.split(.right) }.keyboardShortcut("d")
             Button("Split Down") { AppActions.shared.split(.bottom) }
