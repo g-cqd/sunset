@@ -23,7 +23,11 @@ struct SidebarHeader {
 
     /// The docked pin button's container: its top is the terminal card's top (the sidebar's top margin) and its middle the lights', so it is as tall as twice
     /// the distance between the two, and square.
-    var dockedButtonSize: Double { 2 * (layout.lightsInset + extra + Self.lightsSize / 2) }
+    var dockedButtonSize: Double { 2 * (layout.lightsInset + extra + Self.lightsSize / 2) - 2 * layout.hairlineWidth }
+
+    /// A filled container flush with a hairline looks larger than the line: it is drawn one stroke width inside on every side (the hairline is drawn inside its
+    /// shape, so its edge is the card's edge).
+    var dockedButtonInset: Double { layout.hairlineWidth }
 
     /// From the top of the slot to the top of the pin button's container, so that it is centred on the lights.
     var buttonTop: Double { layout.lightsInset + (Self.lightsSize - layout.pinButtonSize) / 2 + extra }
