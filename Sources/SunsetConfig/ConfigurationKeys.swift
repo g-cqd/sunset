@@ -17,6 +17,7 @@ public enum ConfigurationKeys {
         "layout.floatingCloseButtonSize", "layout.floatingCloseButtonRadius", "layout.resizeHandleWidth",
         "layout.lightsInset", "layout.lightsGap", "layout.floatingLightsExtra", "layout.pinButtonSize",
         "layout.pinButtonRadius", "layout.hairlineWidth", "layout.hairlineOpacity", "layout.revealStripWidth",
+        "layout.paneGap",
         "layout.hideDelay", "layout.animation", "layout.terminalRadius", "layout.panelRadius",
         "appearance.scheme", "appearance.glass", "appearance.tint.color", "appearance.tint.alpha",
         "tabs.mode", "tabs.bar.position", "tabs.bar.title", "tabs.bar.directory", "tabs.bar.progress",

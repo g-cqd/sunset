@@ -1,8 +1,9 @@
 import SunsetConfig
 import SunsetHost
+import SunsetPane
 import SwiftUI
 
-/// The sidebar: the tabs of the window, listed vertically (the same `TabList` the built-in bar shows), and nothing else. It has no background of its own
+/// The sidebar: the tabs of the window, listed vertically (the same `Workspace` the built-in bar shows), and nothing else. It has no background of its own
 /// (the window's own colour or material shows through, with the window's settings) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
 /// content starts below the traffic lights and scrolls beneath them, fading out there. A click selects a tab, a drag reorders them.
 struct TabSidebar: View {
@@ -22,7 +23,7 @@ struct TabSidebar: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: layout.tabSpacing) {
-                ForEach(tabs.list.tabs) { tab in row(tab) }
+                ForEach(tabs.workspace.items) { item in row(item) }
             }
             .padding(.horizontal, layout.tabSideInset)
         }
@@ -42,31 +43,29 @@ struct TabSidebar: View {
         }
     }
 
-    private func row(_ tab: TabList.Tab) -> some View {
+    private func row(_ item: Workspace.Item) -> some View {
         SidebarRow(
-            model: tabs.models[tab.id],
-            selected: tab.id == tabs.list.selectedID,
+            model: tabs.models[item.focused],
+            selected: item.id == tabs.workspace.selectedID,
             showTitle: settings.tabs.bar.showTitle,
             showDirectory: settings.tabs.bar.showDirectory,
             showProgress: settings.tabs.bar.showProgress,
             layout: layout,
-            close: { tabs.close(tab.id) }
+            close: { tabs.close(item: item.id) }
         )
-        .onTapGesture { tabs.select(tab.id) }
-        .draggable(tab.id.uuidString)
+        .onTapGesture { tabs.select(item: item.id) }
+        .draggable(item.id.uuidString)
         .dropDestination(for: String.self) { items, _ in
             guard let text = items.first, let id = UUID(uuidString: text),
-                let index = tabs.list.tabs.firstIndex(where: { $0.id == tab.id })
+                let index = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
             else { return false }
-            tabs.move(id, to: index)
+            tabs.move(item: id, to: index)
             return true
         }
         .contextMenu {
-            Button("Close Tab") { tabs.close(tab.id) }
-            Button("Close Other Tabs") {
-                for other in tabs.list.tabs where other.id != tab.id { tabs.close(other.id) }
-            }
-            .disabled(tabs.list.count < 2)
+            Button("Close Tab") { tabs.close(item: item.id) }
+            Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
+                .disabled(tabs.workspace.count < 2)
         }
     }
 

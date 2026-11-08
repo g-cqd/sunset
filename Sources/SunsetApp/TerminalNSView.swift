@@ -39,6 +39,12 @@ final class TerminalNSView: NSView {
     required init?(coder: NSCoder) { nil }
 
     override var acceptsFirstResponder: Bool { true }
+
+    /// A click (or the window) gave this terminal the keyboard: the tabs make it the focused pane of its split.
+    override func becomeFirstResponder() -> Bool {
+        model.onFocusRequest()
+        return super.becomeFirstResponder()
+    }
     override var isFlipped: Bool { true }
 
     // MARK: Display
@@ -50,7 +56,7 @@ final class TerminalNSView: NSView {
         windowObservers.forEach { NotificationCenter.default.removeObserver($0) }
         windowObservers = []
         guard let window else { return }
-        window.makeFirstResponder(self)
+        if model.gates.paneFocused { window.makeFirstResponder(self) }
         let names: [Notification.Name] = [
             NSWindow.didBecomeKeyNotification, NSWindow.didResignKeyNotification,
             NSWindow.didChangeOcclusionStateNotification,

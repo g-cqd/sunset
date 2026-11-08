@@ -52,6 +52,10 @@ import SunsetRenderMac
     /// The window is the key window (so the cursor blinks) and is on screen (so frames are drawn). Set by the view from the window's notifications.
     @ObservationIgnored var hasFocus = true
     @ObservationIgnored var isVisible = true
+    /// What the window and the tabs say about this terminal; `hasFocus` and `isVisible` need both.
+    @ObservationIgnored var gates = TerminalGates()
+    /// The view took the keyboard (a click): the tabs focus this pane.
+    @ObservationIgnored var onFocusRequest: () -> Void = {}
     /// Wakes the blink task when it has no timer to wait on (the cursor is solid): activity or the focus coming back.
     @ObservationIgnored let blinkWake = AsyncStream<Void>
         .makeStream(of: Void.self, bufferingPolicy: .bufferingNewest(1))

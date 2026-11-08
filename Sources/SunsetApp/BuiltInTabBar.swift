@@ -1,5 +1,5 @@
 import SunsetConfig
-import SunsetHost
+import SunsetPane
 import SwiftUI
 
 /// The tab bar of our own, for `tabs.mode: internal`: one window, many terminals. Position and what a tab shows come from the configuration. Tabs are
@@ -7,13 +7,13 @@ import SwiftUI
 struct BuiltInTabBar: View {
     let tabs: TabsModel
     let settings: Configuration.Tabs.Bar
-    @State private var hovered: TabList.ID?
+    @State private var hovered: Workspace.ItemID?
 
     var body: some View {
         HStack(spacing: 2) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 2) {
-                    ForEach(tabs.list.tabs) { tab in row(tab) }
+                    ForEach(tabs.workspace.items) { item in row(item) }
                 }
                 .padding(.horizontal, 4)
             }
@@ -30,19 +30,19 @@ struct BuiltInTabBar: View {
         .background(.bar)
     }
 
-    private func row(_ tab: TabList.Tab) -> some View {
-        let selected = tab.id == tabs.list.selectedID
+    private func row(_ item: Workspace.Item) -> some View {
+        let selected = item.id == tabs.workspace.selectedID
         return HStack(spacing: 6) {
             TabLabel(
-                model: tabs.models[tab.id],
+                model: tabs.models[item.focused],
                 showTitle: settings.showTitle,
                 showDirectory: settings.showDirectory,
                 showProgress: settings.showProgress
             )
             .frame(maxWidth: 180, alignment: .leading)
-            if hovered == tab.id || selected {
+            if hovered == item.id || selected {
                 Button {
-                    tabs.close(tab.id)
+                    tabs.close(item: item.id)
                 } label: {
                     Image(systemName: "xmark").font(.caption2)
                 }
@@ -57,22 +57,20 @@ struct BuiltInTabBar: View {
             in: .rect(cornerRadius: 6)
         )
         .contentShape(.rect)
-        .onTapGesture { tabs.select(tab.id) }
-        .onHover { inside in hovered = inside ? tab.id : (hovered == tab.id ? nil : hovered) }
-        .draggable(tab.id.uuidString)
+        .onTapGesture { tabs.select(item: item.id) }
+        .onHover { inside in hovered = inside ? item.id : (hovered == item.id ? nil : hovered) }
+        .draggable(item.id.uuidString)
         .dropDestination(for: String.self) { items, _ in
             guard let text = items.first, let id = UUID(uuidString: text),
-                let index = tabs.list.tabs.firstIndex(where: { $0.id == tab.id })
+                let index = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
             else { return false }
-            tabs.move(id, to: index)
+            tabs.move(item: id, to: index)
             return true
         }
         .contextMenu {
-            Button("Close Tab") { tabs.close(tab.id) }
-            Button("Close Other Tabs") {
-                for other in tabs.list.tabs where other.id != tab.id { tabs.close(other.id) }
-            }
-            .disabled(tabs.list.count < 2)
+            Button("Close Tab") { tabs.close(item: item.id) }
+            Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
+                .disabled(tabs.workspace.count < 2)
         }
     }
 }
