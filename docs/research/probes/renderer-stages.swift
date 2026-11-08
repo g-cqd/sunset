@@ -10,7 +10,7 @@ import Testing
 @Suite("probe (temporary)", .serialized) struct ZZStudyProbe {
     func us(_ d: Duration) -> Double { (Double(d.components.attoseconds) / 1e18 + Double(d.components.seconds)) * 1e6 }
 
-    @Test func `study`() throws {
+    @Test func `study`() async throws {
         let source = CoreTextGlyphSource(fontName: "Menlo", size: 28, features: [])
         for (columns, rows) in [(120, 40), (300, 80)] {
             var metrics = source.metrics
@@ -48,7 +48,7 @@ import Testing
                 }
                 cpu.render(t1.screen, into: &surface)
                 t1.clearDirty()
-                try compositor.apply(rec.record(t2.screen, width: size.width, height: size.height), to: target)
+                try await compositor.apply(rec.record(t2.screen, width: size.width, height: size.height), to: target)
                 t2.clearDirty()
                 let n = 200
                 var cpuT = 0.0
@@ -89,16 +89,16 @@ import Testing
                     ops += f.ops.count
                     rowsPx += f.changedPixelRows?.count ?? 0
                     c = ContinuousClock.now
-                    let cpu0 = clock_gettime_nsec_np(CLOCK_THREAD_CPUTIME_ID)
-                    try compositor.apply(f, to: target)
+                    let cpu0 = clock_gettime_nsec_np(CLOCK_PROCESS_CPUTIME_ID)
+                    try await compositor.apply(f, to: target)
                     applyT += us(ContinuousClock.now - c)
-                    applyCPU += Double(clock_gettime_nsec_np(CLOCK_THREAD_CPUTIME_ID) - cpu0) / 1000
+                    applyCPU += Double(clock_gettime_nsec_np(CLOCK_PROCESS_CPUTIME_ID) - cpu0) / 1000
                     gpuT += compositor.lastGPUSeconds * 1e6
                 }
                 unique = seen.count
                 func f(_ x: Double) -> String { String(Int(x / Double(n))) }
                 print(
-                    "PROBE \(columns)x\(rows) \(name): ops \(ops / n) (glyph \(glyphOps / n), distinct bitmaps in run \(unique)), px rows \(rowsPx / n)/\(size.height) | feed \(f(feedT)) us, with snapshot held \(f(feedHeldT)) | CPU render \(f(cpuT)) | record \(f(recT)) + apply \(f(applyT)) (gpu exec \(f(gpuT)), thread CPU in apply \(f(applyCPU)))"
+                    "PROBE \(columns)x\(rows) \(name): ops \(ops / n) (glyph \(glyphOps / n), distinct bitmaps in run \(unique)), px rows \(rowsPx / n)/\(size.height) | feed \(f(feedT)) us, with snapshot held \(f(feedHeldT)) | CPU render \(f(cpuT)) | record \(f(recT)) + apply \(f(applyT)) (gpu exec \(f(gpuT)), process CPU in apply \(f(applyCPU)))"
                 )
             }
         }

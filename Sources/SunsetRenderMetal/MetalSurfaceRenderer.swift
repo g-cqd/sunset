@@ -29,6 +29,10 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
     private var ring = Ring()
     private nonisolated let shown = Mutex<IOSurface?>(nil)
     private nonisolated let failed = Mutex(false)
+    /// Whether a frame is being drawn, and the presents waiting for it to end, in order: the actor is free while the GPU draws (`present` suspends), so a
+    /// second call may come in, and it must not touch the ring or the compositor before the first is done.
+    private var drawing = false
+    private var waiting: [CheckedContinuation<Void, Never>] = []
 
     /// nil when there is no Metal device.
     public init?(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool) {
@@ -43,6 +47,29 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
     public nonisolated var hasFailed: Bool { failed.withLock { $0 } }
 
     public func present(_ screen: Screen, cursorVisible: Bool, textBlinkVisible: Bool, view: FrameView) async -> Bool {
+        await takeTurn()
+        defer { endTurn() }
+        return await draw(screen, cursorVisible: cursorVisible, textBlinkVisible: textBlinkVisible, view: view)
+    }
+
+    private func takeTurn() async {
+        guard drawing else {
+            drawing = true
+            return
+        }
+        // The turn is handed over by `endTurn`, so `drawing` stays true and no newcomer slips in between.
+        await withCheckedContinuation { waiting.append($0) }
+    }
+
+    private func endTurn() {
+        if waiting.isEmpty {
+            drawing = false
+        } else {
+            waiting.removeFirst().resume()
+        }
+    }
+
+    private func draw(_ screen: Screen, cursorVisible: Bool, textBlinkVisible: Bool, view: FrameView) async -> Bool {
         let grid = cellMetrics.surfaceSize(columns: screen.columns, rows: screen.rows)
         let size = (width: grid.width + view.extraWidth, height: grid.height + view.extraHeight)
         if ring.size != size || ring.surfaces.isEmpty {
@@ -64,7 +91,7 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
         let target = ((ring.shown ?? Self.bufferCount - 1) + 1) % Self.bufferCount
         let rows = merge(ring.missing[target], changed)
         do {
-            try compositor.apply(frame, to: canvas, copying: (rows, ring.textures[target]))
+            try await compositor.apply(frame, to: canvas, copying: (rows, ring.textures[target]))
         } catch {
             // The frame was not drawn and the GPU may be gone: the window is told to use the CPU renderer.
             recorder.invalidate()

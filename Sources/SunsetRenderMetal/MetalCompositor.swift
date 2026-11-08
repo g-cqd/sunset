@@ -4,7 +4,8 @@ public import SunsetRender
 /// Applies a frame's draw list to a texture on the GPU (ADR-0021: the CPU walks the dirty rows and writes the operations, the GPU draws them in one
 /// instanced draw): the replay of what the CPU renderer would have drawn. The target keeps the picture between frames; a frame only brings what changed.
 ///
-/// It is meant to be owned by one actor or thread: it is not safe to call from several at once.
+/// It is meant to be owned by one actor, whose isolation its async methods run in: one frame at a time (the owner awaits `apply` before the next), so nothing
+/// the GPU still reads (the atlas, the instance buffer) is written.
 public final class MetalCompositor {
     public enum Failure: Error {
         /// The frame's glyphs do not fit in the atlas even when it is empty.
@@ -32,7 +33,7 @@ public final class MetalCompositor {
     private let pipeline: any MTLRenderPipelineState
     private var atlas: GlyphAtlas
     private var instances: (any MTLBuffer)?
-    private var last: (any MTLCommandBuffer)?
+    private var drawing = false
     /// What the GPU took for the last frame (start to end of its execution) and how many instances it drew: for probes.
     var lastGPUSeconds = 0.0
     var lastInstanceCount = 0
@@ -72,21 +73,23 @@ public final class MetalCompositor {
         return device.makeTexture(descriptor: descriptor)
     }
 
-    /// Draws the frame's operations into `target` and waits for the GPU to finish.
-    public func apply(_ frame: DrawFrame, to target: any MTLTexture) throws {
-        try apply(frame, to: target, copying: nil)
+    /// Draws the frame's operations into `target`; returns when the GPU has finished (suspended meanwhile: no thread waits).
+    public nonisolated(nonsending) func apply(_ frame: DrawFrame, to target: any MTLTexture) async throws {
+        try await apply(frame, to: target, copying: nil)
     }
 
     /// Draws the frame into `target` and, in the same command buffer, copies the pixel rows `copy.rows` of it into `copy.destination` (the surface a window
     /// shows): the GPU moves the changed rows, nothing goes through the CPU.
-    public func apply(
+    public nonisolated(nonsending) func apply(
         _ frame: DrawFrame,
         to target: any MTLTexture,
         copying copy: (rows: ClosedRange<Int>, destination: any MTLTexture)?
-    ) throws {
+    ) async throws {
         guard !frame.ops.isEmpty || copy != nil else { return }
-        // Nothing may be written to what the GPU still reads: the last frame is finished before the atlas or the instance buffer is touched.
-        last?.waitUntilCompleted()
+        // The atlas and the instance buffer are written for this frame: the frame before must be finished, which a second caller would break.
+        precondition(!drawing, "MetalCompositor.apply is one frame at a time")
+        drawing = true
+        defer { drawing = false }
         let list = try instanceList(for: frame)
         guard let commands = queue.makeCommandBuffer() else { throw Failure.commandFailed }
         if !list.isEmpty { try encodeDraw(list, frame: frame, target: target, into: commands) }
@@ -105,12 +108,19 @@ public final class MetalCompositor {
             )
             blit.endEncoding()
         }
-        commands.commit()
-        commands.waitUntilCompleted()
-        last = commands
+        let finished = await Self.run(commands)
         lastGPUSeconds = commands.gpuEndTime - commands.gpuStartTime
         lastInstanceCount = list.count
-        guard commands.status == .completed else { throw Failure.commandFailed }
+        guard finished else { throw Failure.commandFailed }
+    }
+
+    /// Commits `commands` and suspends until the GPU has run them; whether they completed without error.
+    private nonisolated(nonsending) static func run(_ commands: any MTLCommandBuffer) async -> Bool {
+        await withCheckedContinuation { (done: CheckedContinuation<Bool, Never>) in
+            // Registered before `commit`, as Metal requires; called by Metal's own thread once the GPU is done.
+            commands.addCompletedHandler { buffer in done.resume(returning: buffer.status == .completed) }
+            commands.commit()
+        }
     }
 
     private func encodeDraw(
