@@ -58,11 +58,11 @@ public struct Configuration: Sendable, Equatable {
         public var enabled = false
         /// Width in points.
         public var width = 200.0
-        /// Space of the window's colour between the terminal and the window's edge and the sidebar while the sidebar is shown, in points (2 to 4).
-        public var padding = 3.0
-        /// Corner radius of the terminal while the sidebar is shown: it is a card on the window's colour then, in points.
-        public var cornerRadius = 8.0
-        public var material = Material.material
+        /// Space of the window's colour between the terminal and the window's edge and the sidebar while the sidebar is shown, in points. The terminal is
+        /// a card then, its corners concentric with the window's (16 pt): with 8 its radius is 8.
+        public var padding = 8.0
+        /// What is behind the tab list: nothing by default (the window's own colour or material shows).
+        public var material = Material.transparent
         public var blur = 0.0
         public init() {}
     }

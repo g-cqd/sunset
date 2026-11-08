@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetHost
+import SunsetPrivate
 import SunsetRender
 import SwiftUI
 
@@ -33,7 +34,7 @@ struct TerminalScene: View {
 
     /// The strip at the top that drags a window with no title bar, in points: the terminal starts below it (the built-in bar at the top is the strip then).
     private var topInset: Double {
-        guard noDecorations, !barAtTop else { return 0 }
+        guard noDecorations, !barAtTop, !presentation.showsSidebar else { return 0 }
         // With no title bar the content goes under it; the system's tab bar (when there are tabs) is below the strip and covers more.
         return max(configuration.window.dragStrip, presentation.showsNativeTabBar ? obscured : 0)
     }
@@ -42,6 +43,16 @@ struct TerminalScene: View {
     private var rootColor: Color {
         guard look.isOpaque else { return .clear }
         return presentation.showsSidebar ? Color(nsColor: .windowBackgroundColor) : .black
+    }
+    /// Where the sidebar's first row starts: under the traffic lights (their top plus their height, 14 pt, and a gap) when there is no title bar, else
+    /// after the margin.
+    private var sidebarTop: Double {
+        let margin = configuration.sidebar.padding
+        return noDecorations ? max(configuration.window.trafficLightsY + 14 + margin, margin) : margin
+    }
+    /// The window's corner radius, from AppKit (16 pt on macOS 27.0.1).
+    private var windowRadius: Double {
+        window.flatMap { WindowCornerRadius.of($0) } ?? ConcentricRadius.standardWindow
     }
     private var look: WindowLook { WindowLook(configuration) }
     private var colors: DefaultColors { DefaultColors(configuration.colors) }
@@ -55,11 +66,12 @@ struct TerminalScene: View {
             if barAtTop { tabBar }
             HStack(spacing: 0) {
                 if presentation.showsSidebar {
-                    TabSidebar(tabs: tabs, settings: configuration)
+                    TabSidebar(tabs: tabs, settings: configuration, topInset: sidebarTop)
                         .frame(width: configuration.sidebar.width)
                         .frame(maxHeight: .infinity)
-                        .padding(.top, noDecorations ? max(configuration.window.dragStrip, 36) : 0)
-                        .background(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
+                        .background { SidebarBackdrop(look: SidebarLook(configuration)) }
+                        .overlay(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
+                        .overlay(alignment: .trailing) { SidebarResizeHandle(width: configuration.sidebar.width) }
                 }
                 terminal
             }
@@ -106,7 +118,7 @@ struct TerminalScene: View {
                 TerminalCard(
                     isCard: presentation.showsSidebar,
                     margin: configuration.sidebar.padding,
-                    cornerRadius: configuration.sidebar.cornerRadius
+                    cornerRadius: ConcentricRadius.inner(outer: windowRadius, inset: configuration.sidebar.padding)
                 )
             )
         } else {

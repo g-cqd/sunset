@@ -7,8 +7,8 @@ extension Configuration {
     var sidebarShown: Bool { presentation.showsSidebar }
 
     /// Space between the grid and the terminal's own edge in points: the terminal's background fills it, with or without the sidebar (the sidebar's
-    /// `padding` is outside the terminal, in the window's colour: `TerminalCard`).
-    var terminalPadding: Double { window.padding }
+    /// `padding` is outside the terminal, in the window's colour: `TerminalCard`). In the card at least 6 pt, so that text is not cut by its rounded corners.
+    var terminalPadding: Double { sidebarShown ? max(window.padding, 6) : window.padding }
 
     /// How opaque the terminal's default background is: fully, with an opaque window, else as `window.opacity` says.
     var backgroundAlpha: UInt8 {

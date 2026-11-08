@@ -30,10 +30,8 @@ extension SettingsView {
                         .font(.caption).foregroundStyle(.secondary)
                 }
             case "sidebar.width": number("Width", \.sidebar.width, range: 120 ... 480, step: 5, unit: "pt")
-            case "sidebar.cornerRadius":
-                number("Terminal corner radius", \.sidebar.cornerRadius, range: 0 ... 24, step: 1, unit: "pt")
             case "sidebar.padding":
-                number("Space around the terminal", \.sidebar.padding, range: 2 ... 4, step: 0.5, unit: "pt")
+                number("Space around the terminal", \.sidebar.padding, range: 0 ... 16, step: 1, unit: "pt")
             case "sidebar.material": materialPicker("Sidebar background", config.binding(\.sidebar.material))
             case "sidebar.blur": number("Sidebar blur", \.sidebar.blur, range: 0 ... 100, step: 1, unit: "pt")
             case "tabs.mode":
