@@ -56,7 +56,12 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                 return [
                     entry("colors.foreground", "Foreground", ["text", "color", "colour", "theme"]),
                     entry("colors.background", "Background", ["color", "colour", "theme"]),
-                    entry("colors.cursor", "Cursor", ["caret", "color", "colour"])
+                    entry("colors.cursor", "Cursor", ["caret", "color", "colour"]),
+                    entry(
+                        "colors.ansi",
+                        "ANSI colors",
+                        ["palette", "16", "red", "green", "blue", "terminal colors", "kitty"]
+                    )
                 ]
             case .appearance: return Self.appearanceEntries(rawValue)
             case .sidebar: return Self.sidebarEntries(rawValue)

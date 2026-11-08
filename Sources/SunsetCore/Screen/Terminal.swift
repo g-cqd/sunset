@@ -37,6 +37,12 @@ public struct Terminal: Sendable {
 }
 
 extension Terminal {
+    /// Sets the 16 ANSI colours from the host's theme (see `Palette.setAnsi`); the rest of the palette is not touched. The whole screen is drawn again.
+    public mutating func setAnsiColors(_ colors: [RGB]) {
+        screen.palette.setAnsi(colors)
+        screen.markDirty(0 ... screen.rows - 1)
+    }
+
     /// Sets the default foreground, background and cursor colours from the host's theme (nil leaves one as it is). A program's reset of them (OSC 110-112)
     /// goes back to these. The palette's 256 entries are not touched. The whole screen is drawn again.
     public mutating func setDefaultColors(foreground: RGB?, background: RGB?, cursor: RGB?) {

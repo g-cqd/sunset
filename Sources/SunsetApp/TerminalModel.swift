@@ -99,11 +99,7 @@ import SunsetRenderMac
             self.session = session
             tasks = [
                 Task { [colors = defaultColors] in
-                    await session.setDefaultColors(
-                        foreground: colors.foreground,
-                        background: colors.background,
-                        cursor: colors.cursor
-                    )
+                    await colors.apply(to: session)
                     await session.start()
                 },
                 Task { [weak self] in await self?.watch(session) },

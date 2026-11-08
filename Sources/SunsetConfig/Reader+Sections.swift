@@ -103,6 +103,10 @@ extension Reader {
     mutating func readColors(_ object: Object) {
         for (key, value) in object {
             let path = "colors.\(key)"
+            if key == "ansi" {
+                readAnsi(value)
+                continue
+            }
             guard ["foreground", "background", "cursor"].contains(key) else {
                 unknown(path)
                 continue

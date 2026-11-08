@@ -5,7 +5,7 @@ public struct Palette: Sendable, Equatable {
     public internal(set) var foreground: RGB
     public internal(set) var background: RGB
     public internal(set) var cursor: RGB
-    private let seed: ContiguousArray<RGB>
+    private var seed: ContiguousArray<RGB>
     private var seedForeground: RGB
     private var seedBackground: RGB
     private var seedCursor: RGB
@@ -70,6 +70,15 @@ public struct Palette: Sendable, Equatable {
         if let newCursor {
             cursor = newCursor
             seedCursor = newCursor
+        }
+    }
+
+    /// The host's theme sets the first 16 colours (the ANSI colours): both those in force and the ones a program's reset returns to. Fewer than 16 set
+    /// the first ones; more are ignored.
+    mutating func setAnsi(_ theme: [RGB]) {
+        for (index, color) in theme.prefix(16).enumerated() {
+            colors[index] = color
+            seed[index] = color
         }
     }
 

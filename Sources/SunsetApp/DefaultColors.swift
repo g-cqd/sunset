@@ -1,11 +1,14 @@
 import SunsetConfig
 import SunsetCore
+import SunsetHost
 
 /// The default foreground, background and cursor colours of the theme; nil keeps the terminal's own.
 struct DefaultColors: Sendable, Equatable {
     var foreground: RGB?
     var background: RGB?
     var cursor: RGB?
+    /// The 16 ANSI colours; empty keeps the terminal's own.
+    var ansi: [RGB] = []
 
     init() {}
 
@@ -17,5 +20,14 @@ struct DefaultColors: Sendable, Equatable {
         foreground = rgb(colors.foreground)
         background = rgb(colors.background)
         cursor = rgb(colors.cursor)
+        ansi = colors.ansi.compactMap { rgb($0) }
+    }
+}
+
+extension DefaultColors {
+    /// Gives a session these colours: the defaults and the 16 ANSI colours.
+    func apply(to session: TerminalSession) async {
+        await session.setDefaultColors(foreground: foreground, background: background, cursor: cursor)
+        await session.setAnsiColors(ansi)
     }
 }
