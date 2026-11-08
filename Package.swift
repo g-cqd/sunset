@@ -29,6 +29,8 @@ let package = Package(
         .library(name: "SunsetCore", targets: ["SunsetCore"]),
         // The host: a program on a pseudo-terminal feeding the core, with no window (roadmap 0004). The only target that imports the platform.
         .library(name: "SunsetHost", targets: ["SunsetHost"]),
+        // What a window holds: panes arranged in splits, and the workspace of tabs made of them. Pure values, no UI (docs/research/arc-sidebar-spaces-2026-11-08.md).
+        .library(name: "SunsetPane", targets: ["SunsetPane"]),
         // The configuration file: schema, defaults, validation and the difference between two configurations (roadmap 0017). Platform-free.
         .library(name: "SunsetConfig", targets: ["SunsetConfig"]),
         // The private window-server calls the app uses (the blur radius behind a window), looked up by name at run time (roadmap 0017, ADR-0034).
@@ -99,7 +101,8 @@ let package = Package(
         .executableTarget(
             name: "SunsetApp",
             dependencies: [
-                "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPrivate", "SunsetRender", "SunsetRenderMac"
+                "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
+                "SunsetRenderMac"
             ],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings
@@ -133,6 +136,17 @@ let package = Package(
             name: "SunsetPrivateTests",
             dependencies: ["SunsetPrivate"],
             path: "Tests/SunsetPrivateTests",
+            swiftSettings: strictSettings
+        ),
+        .target(
+            name: "SunsetPane",
+            path: "Sources/SunsetPane",
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "SunsetPaneTests",
+            dependencies: ["SunsetPane"],
+            path: "Tests/SunsetPaneTests",
             swiftSettings: strictSettings
         ),
         .target(
