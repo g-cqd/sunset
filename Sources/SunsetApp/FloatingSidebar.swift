@@ -10,11 +10,8 @@ struct FloatingSidebar: View {
     let settings: Configuration
     let windowRadius: Double
     @Binding var shown: Bool
+    @Binding var opensAtOnce: Bool
     @State private var reveal = HoverReveal(hideDelay: .milliseconds(350))
-
-    /// Where the traffic lights are in the panel, from its top left corner, and the room they take: the list starts below them.
-    static let lightsInset = 8.0
-    static let lightsHeight = 14.0
 
     private var margin: Double { settings.sidebar.padding }
     private var radius: Double { ConcentricRadius.inner(outer: windowRadius, inset: margin) }
@@ -28,23 +25,28 @@ struct FloatingSidebar: View {
             if shown { panel.transition(.move(edge: .leading).combined(with: .opacity)) }
         }
         .frame(maxHeight: .infinity, alignment: .leading)
+        .onAppear {
+            guard opensAtOnce else { return }
+            opensAtOnce = false
+            // Out until the pointer is seen on the panel: it leaves after its delay when it is not.
+            reveal.pointer(inside: true, at: .now)
+            pointer(false)
+        }
     }
 
     private var panel: some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        return TabSidebar(
-            tabs: tabs,
-            settings: settings,
-            topInset: Self.lightsInset + Self.lightsHeight + Self.lightsInset,
-            lightsMiddle: Self.lightsInset + Self.lightsHeight / 2
-        )
-        .frame(width: settings.sidebar.width - 2 * margin)
-        .frame(maxHeight: .infinity)
-        .background { SidebarBackdrop(look: panelLook) }
-        .clipShape(shape)
-        .overlay { shape.hairline() }
-        .padding(margin)
-        .onHover { inside in pointer(inside) }
+        return TabSidebar(tabs: tabs, settings: settings, floating: true)
+            // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves nothing.
+            .frame(width: settings.sidebar.width - margin)
+            .frame(maxHeight: .infinity)
+            .background { SidebarBackdrop(look: panelLook) }
+            .clipShape(shape)
+            .overlay { shape.hairline() }
+            .overlay(alignment: .trailing) { SidebarResizeHandle(width: settings.sidebar.width) }
+            .padding(.leading, margin)
+            .padding(.vertical, margin)
+            .onHover { inside in pointer(inside) }
     }
 
     /// Glass, whatever `sidebar.material` says (the docked sidebar has none by default; a floating one needs something to be read over), with the shared tint.

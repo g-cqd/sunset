@@ -12,5 +12,7 @@ struct TerminalRepresentable: NSViewRepresentable {
     func updateNSView(_ view: TerminalNSView, context: Context) {
         view.optionAsMeta = optionAsMeta
         view.layer?.isOpaque = !translucent
+        // While the view is larger than the last frame (a layout that animates) the rest shows the terminal's own background, never black.
+        view.layer?.backgroundColor = model.layerBackground
     }
 }

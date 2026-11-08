@@ -43,10 +43,10 @@ import SunsetRenderMac
     @ObservationIgnored var defaultColors = DefaultColors()
     /// Space above the grid in points (the strip that drags a window with no title bar).
     @ObservationIgnored var topInsetPoints = 0.0
-    /// Lines per cell height of trackpad travel, and per wheel notch (the configuration's `scroll`).
     @ObservationIgnored var scrollTrackpad = 1.0
     @ObservationIgnored var scrollWheel = 3.0
     @ObservationIgnored var scrollInertia = 0.2
+    @ObservationIgnored var holdsResize = false
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
     @ObservationIgnored var lastActivity = ContinuousClock.now
     /// The window is the key window (so the cursor blinks) and is on screen (so frames are drawn). Set by the view from the window's notifications.
@@ -151,6 +151,7 @@ import SunsetRenderMac
             makeRenderer()
         }
         viewPixels = (pixelWidth, pixelHeight)
+        guard !holdsResize else { return }
         guard let size = currentGrid() else { return }
         if session == nil {
             startIfReady()

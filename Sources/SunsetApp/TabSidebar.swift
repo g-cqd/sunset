@@ -8,19 +8,18 @@ import SwiftUI
 struct TabSidebar: View {
     let tabs: TabsModel
     let settings: Configuration
-    /// Where the first row starts, from the window's top: below the traffic lights.
-    let topInset: Double
-    /// From the panel's top, the middle of the traffic lights' row: the pin button is centred on it.
-    let lightsMiddle: Double
+    /// The floating panel: its traffic lights are a little further from the corner.
+    var floating = false
 
     private var margin: Double { settings.sidebar.padding }
+    private var topInset: Double { SidebarHeader.height(margin: margin, floating: floating) }
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 0) {
+            LazyVStack(spacing: margin) {
                 ForEach(tabs.list.tabs) { tab in row(tab) }
             }
-            .padding(.horizontal, margin)
+            .padding(.horizontal, max(margin - 2, 0))
         }
         .scrollIndicators(.never)
         .contentMargins(.top, topInset, for: .scrollContent)
@@ -65,22 +64,14 @@ struct TabSidebar: View {
         }
     }
 
-    /// Keeps the sidebar beside the terminal (pinned) or lets it hide and float (`sidebar.autoHide`).
+    /// Pins the sidebar beside the terminal (`sidebar.autoHide` off) or lets it hide and float: the sidebar symbol, filled while the sidebar is open
+    /// (pinned) and outlined while it only appears on hover. Its container is a rounded square the size of the hit box, highlighted under the pointer like a
+    /// tab, with its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
     private var pinButton: some View {
-        let pinned = !settings.sidebar.autoHide
-        return Button {
+        PinButton(pinned: !settings.sidebar.autoHide) {
             AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
-        } label: {
-            Image(systemName: pinned ? "pin.fill" : "pin")
-                .font(.system(size: 10, weight: .medium))
-                .frame(width: 20, height: 20)
-                .contentShape(.rect)
         }
-        .buttonStyle(.plain)
-        .foregroundStyle(.secondary)
-        .help(pinned ? "Let the sidebar hide" : "Keep the sidebar visible")
         .padding(.trailing, margin)
-        .padding(.top, max(lightsMiddle - 10, 0))
-        .animation(SidebarRow.smooth, value: pinned)
+        .padding(.top, SidebarHeader.buttonTop(margin: margin, floating: floating))
     }
 }
