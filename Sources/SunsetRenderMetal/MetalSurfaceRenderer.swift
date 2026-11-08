@@ -96,8 +96,8 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
             try await compositor.apply(
                 frame,
                 to: ring.slots[target].texture,
-                restoring: previous.map { (missing, $0) },
-                movingFrom: previous
+                previous: previous,
+                restoring: previous == nil ? [] : missing
             )
         } catch {
             // The frame was not drawn and the GPU may be gone: the window is told to use the CPU renderer.

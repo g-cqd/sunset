@@ -230,6 +230,18 @@ power 0.11 / 0.22, CPU 0.10 / 0.12 %; 0.015-0.040 M instructions a second either
 second would cost the GPU path ~0.6 ms of CPU a second. Neither is worth a second drawing path now; revisit with an owner-run `powermetrics` comparison
 if energy while typing is a concern.
 
-Seen on the way (n11): the GPU build's **peak** footprint is 134.6 MB against 45 MB for the CPU one (steady 41.6 against 45.3 MB). Likely the shader
-compiled from source at start (`makeLibrary(source:)`, ADR-0006); not verified. To look at: when the peak happens, and whether a library compiled once
-and cached (or built into the app) removes it.
+Seen on the way (n11): the GPU build's **peak** footprint is 134.6 MB against 45 MB for the CPU one (steady 41.6 against 45.3 MB).
+
+### The GPU path's memory while active: the driver's pools (investigated; blits removed)
+
+- Not the shader: device, compiling the library from source and the pipeline take 4 MB together (scratch program).
+- Traced in the app (footprint printed at each step): 24 MB up to the first `apply`; +62 MB while the GPU runs the first command buffer (29 fills, no glyph).
+- Scratch program, step by step: the first **blit** on a queue +50 MB, the first **render pass** +53 MB, the same for a 64×64 target as for 1210×1024, not
+  more for a second queue; released after 1-2 s without GPU work, and taken again by the next pass (20 → 68 MB after 2, 4 or 8 s idle). So while a window
+  draws, the process carries ~50 MB per kind of encoder it uses, whatever the window; when it is quiet, it does not.
+- The one we control: the ring's restore and the scroll move were blits. They are now quads in the render pass that read the surface shown last (a
+  different texture, so no hazard), bit-exact (an 8-bit texel read as n / 255 and written back rounds to n; the scroll and ring tests stay at 0 differing
+  pixels; reading one row off fails 29 of their checks). The app no longer opens a blit encoder.
+- Measured, the app, GPU renderer, one window scrolling 600 lines, `rusage` over 3 s mid-scroll, 2 rounds each: **138.0 / 137.9 MB → 98.0 / 98.0 MB**.
+  What is left above the CPU renderer (~34 MB) while drawing is the render-pass pool, which only not using the GPU avoids (item 6's question again, now
+  with a memory argument: a window that only blinks or types could stay on the CPU and never wake that pool; not measured).

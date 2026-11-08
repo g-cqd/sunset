@@ -10,7 +10,7 @@ enum MetalShaders {
         struct Instance {
             int x, y, w, h;
             uint color;
-            uint glyph;    // 0 fill, else a glyph (its number in the frame; the shader only tells the two apart)
+            uint glyph;    // 0 fill, 0xFFFFFFFF a copy from the picture before, else a glyph (its number in the frame; the shader only tells them apart)
             int sx, sy;    // where the glyph's coverage starts in the atlas
         };
 
@@ -37,13 +37,18 @@ enum MetalShaders {
 
         fragment float4 cell_fragment(Varying in [[stage_in]], float4 below [[color(0)]],
                                       const device Instance *instances [[buffer(0)]], constant Uniforms &uniforms [[buffer(1)]],
-                                      texture2d<float, access::read> atlas [[texture(0)]]) {
+                                      texture2d<float, access::read> atlas [[texture(0)]],
+                                      texture2d<float, access::read> previous [[texture(1)]]) {
             Instance item = instances[in.instance];
             uint4 c = uint4(item.color & 255u, (item.color >> 8) & 255u, (item.color >> 16) & 255u, item.color >> 24);
             if (item.glyph == 0u) {
                 return float4(c) / 255.0;
             }
             int2 pixel = int2(in.position.xy);
+            if (item.glyph == 0xFFFFFFFFu) {
+                // A pixel of the picture before, unchanged: 8-bit values read as n / 255 and written back round to n.
+                return previous.read(uint2(item.sx + (pixel.x - item.x), item.sy + (pixel.y - item.y)));
+            }
             uint a = uint(round(atlas.read(uint2(item.sx + (pixel.x - item.x), item.sy + (pixel.y - item.y))).r * 255.0));
             if (a == 0u) {
                 return below;
