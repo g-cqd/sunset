@@ -27,3 +27,17 @@ on 4d24b1b (moved-rows map, +15-22 %); fixed in fd8157d, now faster than before 
 
 Caveats: one run of vtebench per terminal (Sunset's own A/B runs repeat within 1 ms); wall times move with load; vtebench and the flood measure
 consuming output, not frame rate or input latency, which are not measured here; no energy figure.
+
+Consuming output faster (same day, after the comparison), each step A/B against the one before, interleaved, 3 rounds, vtebench median ms:
+- fd8157d dirty marks by physical row: scrolling 38 -> 30, regions 28 -> 20, fullscreen 56 -> 42 (also undoes this morning's regression).
+- 39389c5 rows know their used length (blanking and saving a line cost what it holds) and the full history drops chunks 64 at a time: scrolling
+  30 -> 25, fullscreen 42 -> 33; unicode 7 -> 8 (the bookkeeping on every cell write: 15 % more core instructions on that test; keeping the hot row's
+  bound out of the array cut it to 5 % in instructions but was slower in vtebench, so not kept).
+- 15cfa06 control sequences whole in the input parsed in one pass: dense cells 7-8 -> 5, medium 8 -> 5-6, sync medium 8 -> 5 (Ghostty 5, Alacritty
+  6-10); scrolling 25 -> 26, fullscreen 33 -> 34-35.
+- Kernels weighed, not kept: NEON kernels for the end of a printable run (16 bytes a test) and for bytes to cells (16 cells a step), each equal to its
+  scalar reference at every length and alignment. On a 68 MB text flood: -4 to -5.5 % instructions, but cycles -1 to -2 % and CPU time unchanged
+  (1.05-1.06 s): the core thread is busy 18 % of a text flood (it waits on the pseudo-terminal the rest), and vtebench has no long text runs (one
+  character a line, one a sequence), where calling them cost 1-2 ms until limited to runs of 16 bytes or more. No user-visible gain for the code.
+Now: dense 5 / medium 5-6 / sync 5 / unicode 8 / scrolling 26 / regions 20 / fullscreen 34-35 ms (Ghostty 5 / 5 / 5 / 2 / 17 / 15 / 22; Alacritty
+6 / 6 / 10 / 5 / 23 / 9-26 / 26).
