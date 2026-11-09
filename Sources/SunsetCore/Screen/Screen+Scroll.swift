@@ -25,7 +25,6 @@ extension Screen {
         guard n > 0 else { return }
         if saveHistory, first == 0, !isAlternate { saveToScrollback(rows: n) }
         Self.rotate(&grid.rowMap, first ... last, leftBy: n)
-        markMoved(first ... last, leftBy: n)
         blankRows(last - n + 1 ... last)
         markDirty(last - n + 1 ... last)
     }
@@ -35,7 +34,6 @@ extension Screen {
         let n = min(count, last - first + 1)
         guard n > 0 else { return }
         Self.rotate(&grid.rowMap, first ... last, leftBy: last - first + 1 - n)
-        markMoved(first ... last, leftBy: last - first + 1 - n)
         blankRows(first ... first + n - 1)
         markDirty(first ... first + n - 1)
     }
@@ -46,17 +44,6 @@ extension Screen {
             let start = grid.base(target)
             scrollback.push(grid.cells[start ..< start + columns], wrapped: grid.wrapped[Int(grid.rowMap[target])])
         }
-    }
-
-    /// The rows of `range` moved up by `n` (a rotation of their contents): they are dirty, and each keeps where its cells came from (`rowOrigins`) since
-    /// only the move changed it. The rows that come in blank are marked by the caller.
-    private mutating func markMoved(_ range: ClosedRange<Int>, leftBy n: Int) {
-        Self.rotate(&rowOrigins, range, leftBy: n)
-        dirtyRows.withUnsafeMutableBufferPointer { flags in
-            guard let base = flags.baseAddress else { return }
-            (base + range.lowerBound).update(repeating: true, count: range.count)
-        }
-        generation &+= 1
     }
 
     /// Rotates a range of a per-row array in place: one line (the common scroll) moves the rest down with a single copy; more take three reversals. Both

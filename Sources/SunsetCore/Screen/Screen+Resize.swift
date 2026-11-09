@@ -62,8 +62,8 @@ extension Screen {
             state.column = min(state.column, newColumns - 1)
             saved = state
         }
-        dirtyRows = ContiguousArray(repeating: true, count: newRows)
-        rowOrigins = ContiguousArray(repeating: -1, count: newRows)
+        writtenRows = ContiguousArray(repeating: true, count: newRows)
+        rowOrigins = ContiguousArray(0 ..< Int32(newRows))
         generation &+= 1
     }
 }
