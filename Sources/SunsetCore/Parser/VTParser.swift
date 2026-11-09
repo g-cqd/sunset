@@ -48,6 +48,8 @@ public struct VTParser: Sendable {
     var heldC2 = false
     // UTF-8 decoder
     var pendingContinuations: UInt8 = 0
+    /// Whole control sequences are parsed in one pass (`wholeCSI`); off only to compare with the state machine in tests.
+    var csiFastPath = true
     var scalar: UInt32 = 0
     var lowest: UInt8 = 0x80
     var highest: UInt8 = 0xBF
@@ -74,6 +76,11 @@ public struct VTParser: Sendable {
             {
                 // A whole, valid sequence of two to four bytes is in the input: no state machine step per byte.
                 sink.print(scalar)
+                index += length
+            } else if byte == 0x1B, state == .ground, pendingContinuations == 0, csiFastPath, index + 1 < count,
+                input[index + 1] == 0x5B,
+                let length = wholeCSI(in: input, at: index, into: &sink)
+            {
                 index += length
             } else if state == .string, !heldC2, isStringData(byte) {
                 var end = index + 1
