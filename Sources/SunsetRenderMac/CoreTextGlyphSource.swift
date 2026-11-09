@@ -71,19 +71,25 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
     public func glyph(for text: String, bold isBold: Bool, italic isItalic: Bool, columns: Int, metrics: RenderMetrics)
         -> GlyphBitmap?
     {
-        rasterise(text, bold: isBold, italic: isItalic, cells: columns, metrics: metrics)
+        rasterise(text, bold: isBold, italic: isItalic, cells: columns, metrics: metrics, run: false)
     }
 
     public func glyph(forRun text: String, bold isBold: Bool, italic isItalic: Bool, cells: Int, metrics: RenderMetrics)
         -> GlyphBitmap?
     {
-        rasterise(text, bold: isBold, italic: isItalic, cells: cells, metrics: metrics)
+        rasterise(text, bold: isBold, italic: isItalic, cells: cells, metrics: metrics, run: true)
     }
 
-    /// Shapes `text` as one line (so ligatures and contextual alternates apply) and draws it into a bitmap `cells` cells wide.
-    private func rasterise(_ text: String, bold isBold: Bool, italic isItalic: Bool, cells: Int, metrics: RenderMetrics)
-        -> GlyphBitmap?
-    {
+    /// Shapes `text` as one line (so ligatures and contextual alternates apply) and draws it into a bitmap `cells` cells wide. In a `run` of characters
+    /// a glyph of a fallback font is kept to its own cell; alone, to the whole bitmap.
+    private func rasterise(
+        _ text: String,
+        bold isBold: Bool,
+        italic isItalic: Bool,
+        cells: Int,
+        metrics: RenderMetrics,
+        run: Bool
+    ) -> GlyphBitmap? {
         guard let first = text.unicodeScalars.first, first.value > 0x20 else { return nil }
         let font = isBold ? (isItalic ? boldItalic : bold) : (isItalic ? italic : regular)
         let width = metrics.cellWidth * cells
@@ -120,7 +126,7 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
                 kCFBooleanTrue
             )
             let line = CTLineCreateWithAttributedString(attributed)
-            drawGlyphs(of: line, text: text, into: context, cellWidth: metrics.cellWidth)
+            drawGlyphs(of: line, text: text, into: context, cellWidth: metrics.cellWidth, font: font, perCell: run)
             return true
         }
         guard drawn, coverage.contains(where: { $0 != 0 }) else { return nil }
@@ -130,7 +136,14 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
     /// Draws the shaped glyphs of `line` on the cell grid: a glyph goes at the left of the cell its first character is in, whatever the font's own advance
     /// (which is rarely a whole number of pixels), and a ligature, being one glyph for several characters, spans their cells. Fallback fonts keep their
     /// own run fonts.
-    private func drawGlyphs(of line: CTLine, text: String, into context: CGContext, cellWidth: Int) {
+    private func drawGlyphs(
+        of line: CTLine,
+        text: String,
+        into context: CGContext,
+        cellWidth: Int,
+        font asked: CTFont,
+        perCell: Bool
+    ) {
         // The cell of each UTF-16 unit of the text (a character outside the BMP is two units in one cell).
         var cellOfUnit: [Int] = []
         for (cell, scalar) in text.unicodeScalars.enumerated() {
@@ -156,11 +169,45 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
                 continue
             }
             let font = unsafe Unmanaged<CTFont>.fromOpaque(raw).takeUnretainedValue()
+            let fallback = !CFEqual(font, asked)
             for index in 0 ..< count {
                 let unit = min(max(0, indices[index]), cellOfUnit.count - 1)
                 var position = CGPoint(x: CGFloat(cellOfUnit[unit] * cellWidth), y: CGFloat(baseline))
+                let bounds =
+                    perCell
+                    ? CGRect(x: position.x, y: 0, width: CGFloat(cellWidth), height: CGFloat(context.height))
+                    : CGRect(x: 0, y: 0, width: context.width, height: context.height)
+                if fallback, drawConstrained(glyphs[index], of: font, at: position, within: bounds, into: context) {
+                    continue
+                }
                 unsafe CTFontDrawGlyphs(font, &glyphs[index], &position, 1, context)
             }
         }
+    }
+
+    /// A glyph of a fallback font whose ink would leave the bitmap (a symbol drawn wider than a cell, as SF Symbols are) is scaled down to fit, centred,
+    /// with room to spare on each side, instead of being cut at the edge. True when it was drawn so; false when it fits as it is.
+    private func drawConstrained(
+        _ glyph: CGGlyph,
+        of font: CTFont,
+        at position: CGPoint,
+        within bounds: CGRect,
+        into context: CGContext
+    ) -> Bool {
+        var glyph = glyph
+        // The outline's own bounds: the font's bounding rect for some symbols is tighter than what is drawn.
+        guard let outline = CTFontCreatePathForGlyph(font, glyph, nil) else { return false }
+        let ink = outline.boundingBoxOfPath
+        // Two pixels to spare on each side: antialiasing reaches a pixel past an edge that falls on a pixel boundary.
+        let box = bounds.insetBy(dx: 2, dy: 2)
+        guard !ink.isEmpty, !box.contains(ink.offsetBy(dx: position.x, dy: position.y)) else { return false }
+        let scale = min(box.width / ink.width, box.height / ink.height, 1)
+        context.saveGState()
+        context.translateBy(x: box.midX - scale * ink.midX, y: box.midY - scale * ink.midY)
+        context.scaleBy(x: scale, y: scale)
+        var origin = CGPoint.zero
+        unsafe CTFontDrawGlyphs(font, &glyph, &origin, 1, context)
+        context.restoreGState()
+        return true
     }
 }

@@ -2,7 +2,8 @@
 /// erasing, cursor shapes, reverse video, palette changes, the alternate screen.
 enum DifferentialPieces {
     static let all: [String] = [
-        "hello", " ", "x", "日本", "e\u{301}", "👍🏽", "\r\n", "\r\n", "\n", "\r", "\u{08}", "\t",
+        "hello", " ", "x", "\u{101C5B}", "\u{E0B0}", "  ", "日本", "e\u{301}", "👍🏽", "\r\n", "\r\n", "\n", "\r", "\u{08}",
+        "\t",
         "\(esc)[5m", "\(esc)[1m", "\(esc)[3m", "\(esc)[4m", "\(esc)[4:3m", "\(esc)[7m", "\(esc)[2m", "\(esc)[9m",
         "\(esc)[53m",
         "\(esc)[0m",

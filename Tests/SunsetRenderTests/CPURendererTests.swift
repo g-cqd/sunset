@@ -144,4 +144,14 @@ import Testing
         #expect(rig.surface[3, 5] == RGB(0, 0, 238))
         #expect(rig.surface[2, 5] == black)
     }
+
+    @Test func `a private-use symbol followed by a blank takes two cells to be drawn in, not otherwise`() {
+        let recorder = RecordingGlyphSource()
+        var rig = CPURendererRig(glyphs: recorder)
+        // Followed by spaces: drawn over two cells. Followed by a bracket: in its own cell.
+        rig.frame("\u{101C5B}  passed\r\n[\u{1008A4}]", cursorVisible: false)
+        #expect(recorder.requests.contains("\u{101C5B}||2"))
+        #expect(recorder.requests.contains("\u{1008A4}||1"))
+        #expect(!recorder.requests.contains("\u{101C5B}||1"))
+    }
 }
