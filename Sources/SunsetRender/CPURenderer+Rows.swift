@@ -44,7 +44,9 @@ extension CPURenderer {
                 column += 1
                 continue
             }
-            let span = cell.width == .wide && column + 1 < frame.columns ? 2 : 1
+            let span =
+                cell.width == .wide && column + 1 < frame.columns
+                    || spills(cell, at: column, row: row, cells: cells, frame: frame) ? 2 : 1
             drawCell(
                 cell,
                 at: Placement(row: row, column: column, span: span),
@@ -63,5 +65,27 @@ extension CPURenderer {
         } else {
             changedPixelRows = rows
         }
+    }
+
+    /// Whether a symbol of the private use areas (icons: SF Symbols, Nerd Fonts) is drawn over its cell and the next, as large as the font draws it: when
+    /// the next cell is blank, in the same style, and the cursor is on neither. Otherwise it is kept to its cell (the glyph source scales it down to fit).
+    /// Other terminals do the same (Ghostty draws such a symbol over two cells when a space follows it).
+    func spills(_ cell: Cell, at column: Int, row: Int, cells: RowCells, frame: Frame) -> Bool {
+        guard cell.width == .narrow, !cell.isCluster, Self.isPrivateUse(cell.scalar), column + 1 < frame.columns else {
+            return false
+        }
+        let next = cells[column + 1]
+        guard next.width == .narrow, next.scalar == 0 || next.scalar == 0x20, next.styleID == cell.styleID else {
+            return false
+        }
+        if let cursor = frame.cursor, cursor.row == row, cursor.column == column || cursor.column == column + 1 {
+            return false
+        }
+        return true
+    }
+
+    /// The private use areas: the BMP's, and planes 15 and 16.
+    static func isPrivateUse(_ scalar: UInt32) -> Bool {
+        (0xE000 ... 0xF8FF).contains(scalar) || (0xF_0000 ... 0x10_FFFD).contains(scalar)
     }
 }

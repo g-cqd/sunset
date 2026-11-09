@@ -8,7 +8,10 @@ extension CPURenderer {
 
     /// Whether the cell can take part in a shaped run: one narrow, plain character that is neither blank, hidden nor drawn by the renderer itself.
     private func isRunnable(_ cell: Cell, row: Int, column: Int, frame: Frame) -> Bool {
-        guard cell.width == .narrow, !cell.isCluster, cell.scalar > 0x20 else { return false }
+        // A symbol of the private use areas is drawn alone (it may spill over the next cell: `spills`), never shaped with its neighbours.
+        guard cell.width == .narrow, !cell.isCluster, cell.scalar > 0x20, !Self.isPrivateUse(cell.scalar) else {
+            return false
+        }
         switch cell.scalar {
             case 0x2500 ... 0x259F, 0x2800 ... 0x28FF: return false
             default: break
