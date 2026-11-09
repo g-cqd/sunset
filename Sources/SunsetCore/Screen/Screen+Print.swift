@@ -28,6 +28,7 @@ extension Screen {
                     cells[start + offset] = Cell(scalar: UInt32(run[first + offset]), width: .narrow, style: id)
                 }
             }
+            grid.noteWritten(row: row, through: column + take - 1)
             lastPrinted = UInt32(run[index + take - 1])
             lastHead = (row, column + take - 1)
             joinable = true

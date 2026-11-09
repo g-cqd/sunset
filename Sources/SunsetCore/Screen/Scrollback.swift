@@ -16,6 +16,17 @@ struct Scrollback: Sendable {
         var packed: PackedCells?
 
         func cell(at index: Int) -> Cell { packed?.cell(at: index) ?? cells[index] }
+
+        /// Adds a line: its cells (without the trailing blanks) and where it ends. One access to the chunk for both; a short line is appended cell by cell
+        /// (the bulk append's set-up, a `memmove` call included, cost more than the copy for a line of a few cells).
+        mutating func append(_ line: UnsafeBufferPointer<Cell>, wrapped: Bool) {
+            if line.count <= 8 {
+                for cell in line { cells.append(cell) }
+            } else {
+                cells.append(contentsOf: line)
+            }
+            ends.append(UInt32(cells.count) | (wrapped ? Scrollback.wrappedBit : 0))
+        }
     }
 
     static let wrappedBit: UInt32 = 1 << 31
@@ -25,8 +36,10 @@ struct Scrollback: Sendable {
     var chunks: [Chunk] = []
     /// The chunk released last, emptied and kept for the next one: a history that is full and rolling allocates nothing.
     private var spare: Chunk?
-    /// Lines of the first chunk that are gone already.
+    /// Lines gone from the front of `chunks`: the chunks wholly gone stay in place, emptied, until `deadChunksLimit` of them are removed at once (removing
+    /// the first element shifts the whole array: once every 128 lines it was 4 % of a scrolling flood with a full history).
     private var head = 0
+    private static let deadChunksLimit = 64
     private(set) var count = 0
     /// How many lines have left the history so far (dropped when it was full, or cleared): with a line's index it makes a number that does not change while
     /// the history rolls (`PromptMark`).
@@ -75,13 +88,13 @@ struct Scrollback: Sendable {
         return other.chunks.contains { $0.ends.withUnsafeBufferPointer { $0.baseAddress } == address }
     }
 
-    /// Adds a line at the newest end, dropping the oldest when full.
+    /// Adds a line at the newest end, dropping the oldest when full. `line` may stop short of `columns`: the cells after it are empty.
     mutating func push(_ line: ArraySlice<Cell>, wrapped isWrapped: Bool) {
         guard limit > 0 else {
             evicted += 1
             return
         }
-        precondition(line.count == columns, "a scrollback line is as wide as the screen was")
+        precondition(line.count <= columns, "a scrollback line is no wider than the screen was")
         if count == limit { dropOldest() }
         var newest = chunks.count - 1
         if newest < 0 || chunks[newest].ends.count == Self.chunkLines {
@@ -94,10 +107,7 @@ struct Scrollback: Sendable {
         // Only the cells up to the last one that is not blank: a line of text is mostly a few cells and then blanks, and the blanks are implied.
         line.withUnsafeBufferPointer { cells in
             let used = CellKernels.usedLength(cells)
-            if used > 0, let base = cells.baseAddress {
-                chunks[newest].cells.append(contentsOf: UnsafeBufferPointer(start: base, count: used))
-            }
-            chunks[newest].ends.append(UInt32(chunks[newest].cells.count) | (isWrapped ? Self.wrappedBit : 0))
+            chunks[newest].append(UnsafeBufferPointer(rebasing: cells[0 ..< used]), wrapped: isWrapped)
         }
         count += 1
     }
@@ -106,16 +116,21 @@ struct Scrollback: Sendable {
         head += 1
         count -= 1
         evicted += 1
-        if head == Self.chunkLines {
-            var released = chunks.removeFirst()
-            if released.packed != nil {
-                released.packed = nil
-                released.cells = ContiguousArray()
-            }
-            released.cells.removeAll(keepingCapacity: true)
-            released.ends.removeAll(keepingCapacity: true)
-            spare = released
-            head = 0
+        guard head % Self.chunkLines == 0 else { return }
+        // The chunk that just emptied is kept as the spare (its storage is used again) and an empty one takes its place.
+        let dead = head / Self.chunkLines - 1
+        var released = Chunk()
+        swap(&released, &chunks[dead])
+        if released.packed != nil {
+            released.packed = nil
+            released.cells = ContiguousArray()
+        }
+        released.cells.removeAll(keepingCapacity: true)
+        released.ends.removeAll(keepingCapacity: true)
+        spare = released
+        if dead + 1 >= Self.deadChunksLimit {
+            chunks.removeFirst(dead + 1)
+            head -= (dead + 1) * Self.chunkLines
         }
     }
 

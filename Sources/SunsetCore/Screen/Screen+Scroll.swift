@@ -41,8 +41,12 @@ extension Screen {
     /// Copies the top `count` screen rows into the history (the line feed that is about to push them off the screen).
     private mutating func saveToScrollback(rows count: Int) {
         for target in 0 ..< count {
+            // Only the cells that can be other than empty (`Grid.used`): the history trims the blanks anyway.
             let start = grid.base(target)
-            scrollback.push(grid.cells[start ..< start + columns], wrapped: grid.wrapped[Int(grid.rowMap[target])])
+            scrollback.push(
+                grid.cells[start ..< start + grid.usedCount(row: target)],
+                wrapped: grid.wrapped[Int(grid.rowMap[target])]
+            )
         }
     }
 
@@ -77,13 +81,8 @@ extension Screen {
 
     private mutating func blankRows(_ rows: ClosedRange<Int>) {
         let blank = Cell(scalar: 0, width: .narrow, style: currentEraseID())
-        let width = columns
         for row in rows {
-            let start = grid.base(row)
-            grid.cells.withUnsafeMutableBufferPointer { cells in
-                guard let base = cells.baseAddress else { return }
-                (base + start).update(repeating: blank, count: width)
-            }
+            grid.fill(row: row, from: 0, to: columns - 1, with: blank)
             grid.wrapped[Int(grid.rowMap[row])] = false
         }
     }
