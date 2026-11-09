@@ -1,0 +1,29 @@
+Comparison with other terminals, 2026-11-09, Apple M3, macOS 26, load 1.7-3.2 (quiet compared with earlier runs), windows visible, 120x40, JetBrains Mono 14,
+each terminal's default config (Sunset: empty config = `auto` renderer = GPU), scrollback 100 000 lines (Ghostty: 100 MB).
+Sunset = commit fd8157d (dirty marks by physical row). kitty 0.49.2, Ghostty 1.4.0, WezTerm 20240203, Alacritty 0.18.0-dev (built from source).
+
+1. vtebench (time to consume >= 1 MiB of each kind of output; median ms of 10 samples, one run each; lower is better): see vtebench-summary.txt.
+   Sunset is behind Ghostty and Alacritty on every test, ahead of WezTerm on every test and of kitty on the scrolling ones.
+   Scrolling: Ghostty 17, Alacritty 23, Sunset 30, kitty 69, WezTerm 72. Regions: Alacritty 9, Ghostty 15, Sunset 20. Cells: Ghostty 5, Alacritty 6, Sunset 8.
+
+2. Flood (bench/flood-cost.sh, `yes <70-char line> | head -n 1000000` = 68 MB; the producer alone takes 0.04 s), 2 rounds each:
+   terminal   flood_wall  G instructions  G cycles  CPU s   peak footprint
+   sunset     1.05-1.07   11.1-11.5       3.8       1.06-1.08   172 MB
+   kitty      1.10-1.12   12.8-13.0       4.6-4.7   1.29-1.33   534-546 MB
+   ghostty    1.16-1.17   35.8-35.9       8.8       2.50        225 MB
+   alacritty  1.18        17.1-17.3       5.3-5.4   1.63-1.65   508-510 MB
+   wezterm    1.70        51.1-51.2       9.0       2.51        133-134 MB
+   Sunset uses the least CPU and instructions of the five for this flood. Its peak (172 MB) is higher than on 2026-11-06 (117 MB, CPU renderer then the
+   default): the GPU path carries the Metal driver's ~50 MB render-pass pool while drawing (renderer plan, item 5).
+
+3. Idle (bench/idle.sh, one sample each, footprint and wakeups of the terminal process):
+   - nothing printed, 8 s after launch: Sunset 42 MB, WezTerm 62, Alacritty 80, kitty 102, Ghostty 129.
+   - after 1 000 000 lines: Sunset 121 MB, WezTerm 135, Ghostty 143, Alacritty 410, kitty 473.
+   - settled (40 s): Sunset 0.4 wakeups/s and ~0 CPU (as kitty 0.5, Alacritty 0.3); Ghostty 15.7 wakeups/s and 5 M instructions/s at rest.
+     For 20-40 s after launch or after output Sunset is still working (17.8 wakeups/s and 150 M instructions/s 8 s after the flood: history packing).
+
+How the scrolling regression was found: comparing these numbers with 2026-11-06 showed Sunset's scrolling slower than before; an interleaved bisect put it
+on 4d24b1b (moved-rows map, +15-22 %); fixed in fd8157d, now faster than before it (30 / 20 / 42 ms against 33-34 / 23-24 / 48).
+
+Caveats: one run of vtebench per terminal (Sunset's own A/B runs repeat within 1 ms); wall times move with load; vtebench and the flood measure
+consuming output, not frame rate or input latency, which are not measured here; no energy figure.
