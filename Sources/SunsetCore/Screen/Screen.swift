@@ -59,9 +59,11 @@ public struct Screen: Sendable {
     /// A program set the style itself (DECSCUSR 1 to 6), so a later change of the default does not undo it.
     var cursorChosen = false
 
-    var dirtyRows: ContiguousArray<Bool>
-    /// For each row, the row its cells were in at the last `clearDirty`, when only scrolling moved them since; -1 when the row was written or is new
-    /// (`movedFrom(row:)`).
+    /// What changed since the last `clearDirty`, kept by physical row of the grid (`Grid.rowMap`), so that a scroll, which rotates the row map, carries it for
+    /// nothing: whether the row was written (or blanked), and the screen row it was at. A screen row is dirty when its physical row was written or now sits
+    /// elsewhere (`isDirty(row:)`, `movedFrom(row:)`). (With a second array kept by screen row and rotated with the row map, vtebench's scrolling of
+    /// one-character lines was 15-22 % slower.)
+    var writtenRows: ContiguousArray<Bool>
     var rowOrigins: ContiguousArray<Int32>
     public internal(set) var generation: UInt64 = 0
     public internal(set) var bellCount = 0
@@ -86,8 +88,8 @@ public struct Screen: Sendable {
         other = Grid(columns: columns, rows: rows)
         bottom = rows - 1
         tabStops = Screen.defaultTabStops(columns)
-        dirtyRows = ContiguousArray(repeating: true, count: rows)
-        rowOrigins = ContiguousArray(repeating: -1, count: rows)
+        writtenRows = ContiguousArray(repeating: true, count: rows)
+        rowOrigins = ContiguousArray(0 ..< Int32(rows))
         replies.reserveCapacity(256)
     }
 
@@ -167,31 +169,31 @@ public struct Screen: Sendable {
 
     // MARK: Dirty rows (what a renderer must redraw, ADR-0024)
 
-    public func isDirty(row: Int) -> Bool { dirtyRows[row] }
-    public var hasDirtyRows: Bool { dirtyRows.contains(true) }
+    public func isDirty(row: Int) -> Bool {
+        let physical = Int(grid.rowMap[row])
+        return writtenRows[physical] || rowOrigins[physical] != Int32(row)
+    }
+
+    public var hasDirtyRows: Bool { (0 ..< rows).contains { isDirty(row: $0) } }
 
     /// Marks every row clean: the renderer has taken what it needed.
     public mutating func clearDirty() {
-        for index in dirtyRows.indices {
-            dirtyRows[index] = false
-            rowOrigins[index] = Int32(index)
+        for row in 0 ..< rows {
+            let physical = Int(grid.rowMap[row])
+            writtenRows[physical] = false
+            rowOrigins[physical] = Int32(row)
         }
     }
 
     mutating func markDirty(_ row: Int) {
-        dirtyRows[row] = true
-        rowOrigins[row] = -1
+        writtenRows[Int(grid.rowMap[row])] = true
         generation &+= 1
     }
 
     mutating func markDirty(_ range: ClosedRange<Int>) {
-        dirtyRows.withUnsafeMutableBufferPointer { flags in
-            guard let base = flags.baseAddress else { return }
-            (base + range.lowerBound).update(repeating: true, count: range.count)
-        }
-        rowOrigins.withUnsafeMutableBufferPointer { origins in
-            guard let base = origins.baseAddress else { return }
-            (base + range.lowerBound).update(repeating: -1, count: range.count)
+        let map = grid.rowMap
+        writtenRows.withUnsafeMutableBufferPointer { written in
+            for row in range { written[Int(map[row])] = true }
         }
         generation &+= 1
     }
