@@ -163,6 +163,7 @@ struct Reflow {
             for column in 0 ..< newColumns { newGrid.cells[base + column] = rows[source + column] }
             newGrid.wrapped[Int(newGrid.rowMap[row])] = wrapped[top + row]
         }
+        newGrid.recountUsed()
         var history = Scrollback(columns: newColumns, limit: limit)
         for row in max(0, top - limit) ..< top {
             history.push(rows[row * newColumns ..< (row + 1) * newColumns], wrapped: wrapped[row])
