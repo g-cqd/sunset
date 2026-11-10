@@ -32,7 +32,6 @@ struct TabSidebar: View {
             }
             .padding(.horizontal, layout.tabSideInset)
             .frame(maxWidth: .infinity)
-            .background { Color.clear.contentShape(.rect).gesture(WindowDragGesture()) }
         }
         .gesture(WindowDragGesture())
         .scrollIndicators(.never)
