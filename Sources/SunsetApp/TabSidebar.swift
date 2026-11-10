@@ -16,6 +16,8 @@ struct TabSidebar: View {
     var panelRadius: Double?
     @State private var rowDrop: (item: Workspace.ItemID, action: TabDropAction)?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
+    /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
+    @State private var closingSlot: Int?
 
     private var margin: Double { settings.sidebar.padding }
     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
@@ -36,6 +38,7 @@ struct TabSidebar: View {
         .scrollIndicators(.never)
         .contentMargins(.top, topInset, for: .scrollContent)
         .contentMargins(.bottom, margin, for: .scrollContent)
+        .onHover { inside in if !inside { closingSlot = nil } }
         .mask { fade }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
     }
@@ -60,16 +63,25 @@ struct TabSidebar: View {
                 layout: layout
             )
         } else {
+            let slot = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
             SidebarRow(
                 model: tabs.models[item.focused],
                 selected: item.id == tabs.workspace.selectedID,
                 armed: armed,
+                keepCloseVisible: slot != nil && slot == closingSlot,
                 showIcon: settings.tabs.bar.showIcon,
                 showTitle: settings.tabs.bar.showTitle,
                 showDirectory: settings.tabs.bar.showDirectory,
                 showProgress: settings.tabs.bar.showProgress,
                 layout: layout,
-                close: { tabs.close(item: item.id) }
+                close: {
+                    closingSlot = slot
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+                    withTransaction(transaction) {
+                        tabs.close(item: item.id)
+                    }
+                }
             )
         }
     }
@@ -84,6 +96,9 @@ struct TabSidebar: View {
             }
             .onHover { inside in
                 if inside {
+                    if let slot = tabs.workspace.items.firstIndex(where: { $0.id == item.id }), closingSlot != slot {
+                        closingSlot = nil
+                    }
                     tabs.hoveredItem = item.id
                 } else if tabs.hoveredItem == item.id {
                     tabs.hoveredItem = nil

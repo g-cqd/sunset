@@ -8,6 +8,9 @@ struct SidebarRow: View {
     let model: TerminalModel?
     let selected: Bool
     var armed = false
+    /// Kept true when the row just slid into the slot of a tab whose close button was clicked, so rapid clicks on the same spot close tabs without needing
+    /// pointer movement (`n27`).
+    var keepCloseVisible = false
     let showIcon: Bool
     let showTitle: Bool
     let showDirectory: Bool
@@ -46,8 +49,8 @@ struct SidebarRow: View {
                     .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .opacity(hovering || armed ? 1 : 0)
-            .allowsHitTesting(hovering || armed)
+            .opacity(hovering || armed || keepCloseVisible ? 1 : 0)
+            .allowsHitTesting(hovering || armed || keepCloseVisible)
             .onHover { overClose = $0 }
             .help(armed ? "Click again to close running command" : "Close Tab")
         }
@@ -73,8 +76,8 @@ struct SidebarRow: View {
 
     /// Hover and selection variants of the highlight.
     private var highlight: Color {
-        if armed { return .red.opacity(hovering ? 0.28 : 0.2) }
-        return switch (selected, hovering) {
+        if armed { return .red.opacity(hovering || keepCloseVisible ? 0.28 : 0.2) }
+        return switch (selected, hovering || keepCloseVisible) {
             case (true, true): .primary.opacity(activeState == .inactive ? 0.12 : 0.2)
             case (true, false): .primary.opacity(activeState == .inactive ? 0.08 : 0.14)
             case (false, true): .primary.opacity(0.07)
