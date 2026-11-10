@@ -145,46 +145,6 @@ final class TabsModel {
         if workspace.isEmpty { onEmpty() } else { syncStates() }
     }
 
-    // MARK: Dragging
-
-    /// What a drag of a tab or a pane carries (as text). Called when the drag starts, not when the row is drawn: it remembers what is being dragged, so that
-    /// the drop areas can tell at once what would happen.
-    func itemProvider(for payload: PaneDragPayload) -> NSItemProvider {
-        dragged = payload
-        return NSItemProvider(object: payload.text as NSString)
-    }
-
-    /// Whether what is dragged could be dropped on a pane: a pane not on itself; a tab on another tab's pane, or on its own when there is another tab to ask for
-    /// (`choice`).
-    func canDrop(onto pane: PaneID) -> Bool {
-        switch dragged {
-            case .item(let id): workspace.item(containing: pane)?.id != id || workspace.count > 1
-            case .pane(let id): id != pane
-            case nil: false
-        }
-    }
-
-    /// Drops what is dragged on `edge` of a pane (the tab joins that pane's tab, or the pane moves beside it).
-    @discardableResult
-    func dropDragged(onto pane: PaneID, edge: PaneEdge) -> Bool {
-        guard canDrop(onto: pane), let drag = dragged else { return false }
-        dragged = nil
-        switch drag {
-            case .item(let id) where workspace.item(containing: pane)?.id == id:
-                bar = CommandBar(purpose: .splitWith(SplitChoice(pane: pane, edge: edge)))
-            case .item(let id): drop(item: id, onto: pane, edge: edge)
-            case .pane(let id): movePane(id, beside: pane, edge: edge)
-        }
-        return true
-    }
-
-    func complete(_ choice: SplitChoice, with other: Workspace.ItemID) {
-        change {
-            $0.drop(item: other, onto: choice.pane, edge: choice.edge.opposite)
-            $0.focus(pane: choice.pane)
-        }
-    }
-
     // MARK: Selecting and arranging
 
     func select(item: Workspace.ItemID) { change { $0.select(item: item) } }
@@ -206,7 +166,7 @@ final class TabsModel {
         change { $0.setRatio(ratio, at: path, in: item) }
     }
 
-    private func change(_ edit: (inout Workspace) -> Void) {
+    func change(_ edit: (inout Workspace) -> Void) {
         let before = workspace
         edit(&workspace)
         if workspace != before {
