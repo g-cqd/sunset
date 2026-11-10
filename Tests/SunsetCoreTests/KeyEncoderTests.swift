@@ -85,6 +85,7 @@ func key(_ character: Unicode.Scalar, _ modifiers: InputModifiers = [], text: St
         #expect(encode(KeyPress(.escape), flags: 1) == bytes("\u{1B}[27u"))
         #expect(encode(key("i", [.control]), flags: 1) == bytes("\u{1B}[105;5u"))
         #expect(encode(key("a", [.option], text: "å"), flags: 1) == bytes("\u{1B}[97;3u"))
+        #expect(encode(KeyPress(.enter, modifiers: [.shift]), flags: 1) == bytes("\u{1B}[13;2u"))
         #expect(encode(KeyPress(.enter, modifiers: [.control]), flags: 1) == bytes("\u{1B}[13;5u"))
         #expect(encode(KeyPress(.tab, modifiers: [.control]), flags: 1) == bytes("\u{1B}[9;5u"))
         // Plain text, plain Enter and the cursor keys are unchanged.
