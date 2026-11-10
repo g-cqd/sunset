@@ -39,10 +39,13 @@ import Testing
     }
 
     @Test
-    func `dropping a pane from a split onto another tab row moves it into that tab or detaches it before or after`() {
+    func `dropping a pane from a split onto another tab row moves it into that tab or detaches it before or after`()
+        throws
+    {
         var workspace = Workspace()
         let first = workspace.add()
-        let extra = try #require(workspace.addPane(beside: first.pane, edge: .right))
+        let added = workspace.addPane(beside: first.pane, edge: .right)
+        let extra = try #require(added)
         let second = workspace.add()
 
         // Split: move `extra` from `first` onto the left of `second`.

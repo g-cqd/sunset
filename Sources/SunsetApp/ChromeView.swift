@@ -83,7 +83,6 @@ final class ChromeView: NSView {
             window.styleMask.remove(.fullSizeContentView)
         }
         if window.titlebarAppearsTransparent != hidden { window.titlebarAppearsTransparent = hidden }
-        if !window.isMovableByWindowBackground { window.isMovableByWindowBackground = true }
         let visibility: NSWindow.TitleVisibility = hidden ? .hidden : .visible
         if window.titleVisibility != visibility { window.titleVisibility = visibility }
         // Locked scheme: the window (and with it the glass, the materials, the buttons) is dark whatever macOS is set to; nil follows the system.
