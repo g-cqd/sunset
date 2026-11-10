@@ -43,7 +43,11 @@ struct FloatingSidebar: View {
             // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves nothing.
             .frame(width: settings.sidebar.width - margin)
             .frame(maxHeight: .infinity)
-            .background { SidebarBackdrop(look: panelLook) }
+            .background {
+                SidebarBackdrop(look: panelLook)
+                    .contentShape(.rect)
+                    .gesture(WindowDragGesture())
+            }
             .clipShape(shape)
             .overlay { shape.hairline(settings.layout) }
             .overlay(alignment: side == .left ? .trailing : .leading) {
