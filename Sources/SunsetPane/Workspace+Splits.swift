@@ -93,4 +93,35 @@ extension Workspace {
         items[index].layout = rest
         if item.focused == pane { items[index].focused = rest.panes[min(position, rest.panes.count - 1)] }
     }
+
+    /// Applies a sidebar tab-row drop (`TabDropAction`): reorders a tab (or detaches a pane into its own tab) before or after `target`, or splits `target`'s
+    /// focused pane on `edge` with the dragged tab or pane.
+    public mutating func applyTabDrop(_ payload: PaneDragPayload, onto target: ItemID, action: TabDropAction) {
+        switch (payload, action) {
+            case (.item(let id), .moveBefore), (.item(let id), .moveAfter):
+                guard id != target, let from = items.firstIndex(where: { $0.id == id }),
+                    let into = items.firstIndex(where: { $0.id == target })
+                else { return }
+                let desired = action == .moveBefore ? into : into + 1
+                let destination = from < desired ? desired - 1 : desired
+                move(item: id, to: destination)
+            case (.item(let id), .split(let edge)):
+                guard id != target, let targetItem = items.first(where: { $0.id == target }) else { return }
+                drop(item: id, onto: targetItem.focused, edge: edge)
+            case (.pane(let pane), .split(let edge)):
+                guard let targetItem = items.first(where: { $0.id == target }) else { return }
+                movePane(pane, beside: targetItem.focused, edge: edge)
+            case (.pane(let pane), .moveBefore), (.pane(let pane), .moveAfter):
+                guard let source = item(containing: pane) else { return }
+                let id: ItemID
+                if source.isSplit {
+                    detach(pane: pane)
+                    guard let detached = item(containing: pane)?.id else { return }
+                    id = detached
+                } else {
+                    id = source.id
+                }
+                applyTabDrop(.item(id), onto: target, action: action)
+        }
+    }
 }

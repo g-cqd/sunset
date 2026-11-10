@@ -2,6 +2,7 @@ import SunsetConfig
 import SunsetHost
 import SunsetPane
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The sidebar: the tabs of the window, listed vertically (the same `Workspace` the built-in bar shows), and nothing else. It has no background of its own
 /// (the window's own colour or material shows through, with the window's settings) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
@@ -13,6 +14,8 @@ struct TabSidebar: View {
     var floating = false
     /// The floating panel's corner radius: the pin button's corner towards the panel's is concentric with it (same gap to both edges).
     var panelRadius: Double?
+    @State private var rowDrop: (item: Workspace.ItemID, action: TabDropAction)?
+    @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
 
     private var margin: Double { settings.sidebar.padding }
     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
@@ -65,15 +68,23 @@ struct TabSidebar: View {
 
     private func row(_ item: Workspace.Item) -> some View {
         rowContent(item)
+            .onGeometryChange(for: CGSize.self, of: \.size) { rowSizes[item.id] = $0 }
+            .overlay {
+                if rowDrop?.item == item.id, let action = rowDrop?.action {
+                    rowDropOverlay(action)
+                }
+            }
             .onTapGesture { tabs.select(item: item.id) }
             .onDrag { tabs.itemProvider(for: .item(item.id)) }
-            .dropDestination(for: String.self) { items, _ in
-                guard let text = items.first, case .item(let id)? = PaneDragPayload(text: text),
-                    let index = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
-                else { return false }
-                tabs.move(item: id, to: index)
-                return true
-            }
+            .onDrop(
+                of: [.plainText, .utf8PlainText],
+                delegate: TabRowDropDelegate(
+                    tabs: tabs,
+                    item: item.id,
+                    size: rowSizes[item.id] ?? CGSize(width: 180, height: 32),
+                    active: $rowDrop
+                )
+            )
             .contextMenu {
                 Button("Close Tab") { tabs.close(item: item.id) }
                 Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
@@ -105,5 +116,34 @@ struct TabSidebar: View {
     private var pinRadius: Double {
         guard let panelRadius else { return layout.pinButtonRadius }
         return ConcentricRadius.inner(outer: panelRadius, inset: pinGap)
+    }
+
+    /// Shows what dropping on this row will do: an insertion line at the top or bottom edge for reordering, or a left/right half highlight for splitting.
+    @ViewBuilder private func rowDropOverlay(_ action: TabDropAction) -> some View {
+        let accent = Color(nsColor: .controlAccentColor)
+        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
+        switch action {
+            case .moveBefore:
+                VStack {
+                    Capsule().fill(accent).frame(height: 2)
+                    Spacer(minLength: 0)
+                }
+                .allowsHitTesting(false)
+            case .moveAfter:
+                VStack {
+                    Spacer(minLength: 0)
+                    Capsule().fill(accent).frame(height: 2)
+                }
+                .allowsHitTesting(false)
+            case .split(let edge):
+                GeometryReader { proxy in
+                    let half = proxy.size.width / 2
+                    shape.fill(accent.opacity(0.22))
+                        .overlay { shape.strokeBorder(accent.opacity(0.75), lineWidth: 1.5) }
+                        .frame(width: half, height: proxy.size.height)
+                        .offset(x: edge == .right ? half : 0)
+                }
+                .allowsHitTesting(false)
+        }
     }
 }
