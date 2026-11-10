@@ -37,6 +37,13 @@ struct SidebarGroupRow: View {
             model: tabs.models[pane],
             lit: selected && pane == item.focused,
             layout: layout,
+            onHoverChange: { inside in
+                if inside {
+                    tabs.hoveredPane = pane
+                } else if tabs.hoveredPane == pane {
+                    tabs.hoveredPane = nil
+                }
+            },
             select: {
                 tabs.select(item: item.id)
                 tabs.focus(pane)

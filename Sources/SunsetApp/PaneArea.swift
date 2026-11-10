@@ -52,9 +52,17 @@ struct PaneArea: View {
                                     windowCorners: CornerSet.atCorners(of: frame, in: bounds)
                                         .intersection(windowCorners),
                                     layout: layout,
-                                    isFocused: item.isSplit && pane == item.focused
+                                    stroke: PaneStrokeStyle.of(
+                                        pane: pane,
+                                        isCard: card,
+                                        isSplit: item.isSplit,
+                                        focused: item.focused,
+                                        hovered: tabs.hoveredPane
+                                    )
                                 )
                             )
+                            .animation(layout.smooth, value: tabs.hoveredPane)
+                            .animation(layout.smooth, value: item.focused)
                             .offset(x: frame.minX, y: frame.minY)
                         }
                     }
@@ -100,8 +108,8 @@ struct PaneArea: View {
                 layout: layout
             )
             let shape = UnevenRoundedRectangle(cornerRadii: radii, style: .continuous)
-            shape.fill(Color.accentColor.opacity(0.22))
-                .overlay { shape.strokeBorder(Color.accentColor.opacity(0.7), lineWidth: 1.5) }
+            shape.fill(Color(nsColor: .controlAccentColor).opacity(0.22))
+                .overlay { shape.strokeBorder(Color(nsColor: .controlAccentColor).opacity(0.7), lineWidth: 1.5) }
                 .frame(width: frame.width, height: frame.height)
                 .offset(x: frame.minX, y: frame.minY)
                 .allowsHitTesting(false)

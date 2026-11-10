@@ -15,16 +15,16 @@ struct TerminalCard: ViewModifier {
     /// Which corners are the window's; the others are next to the sidebar or another card and use `layout.innerCornerRadius`.
     var windowCorners = CornerSet.all
     var layout: Configuration.Layout
-    /// This card has the keyboard and shares the window with others: its stroke is the accent colour.
-    var isFocused = false
+    var stroke = PaneStrokeStyle.hairline
 
     func body(content: Content) -> some View {
         let shape = UnevenRoundedRectangle(cornerRadii: radii, style: .continuous)
         return
             content
             .clipShape(shape)
-            .overlay { shape.hairline(layout).opacity(isCard && !isFocused ? 1 : 0) }
-            .overlay { shape.focusHairline(layout).opacity(isCard && isFocused ? 1 : 0) }
+            .overlay { shape.hairline(layout).opacity(stroke == .hairline ? 1 : 0) }
+            .overlay { shape.hoverHairline(layout).opacity(stroke == .hovered ? 1 : 0) }
+            .overlay { shape.focusHairline(layout).opacity(stroke == .focused ? 1 : 0) }
     }
 
     private var radii: RectangleCornerRadii {
