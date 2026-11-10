@@ -7,6 +7,7 @@ struct SidebarGroupPart: View {
     let model: TerminalModel?
     let lit: Bool
     let layout: Configuration.Layout
+    var onHoverChange: (Bool) -> Void = { _ in }
     let select: () -> Void
     @State private var hovering = false
     @Environment(\.controlActiveState) private var activeState
@@ -19,7 +20,10 @@ struct SidebarGroupPart: View {
             .background(shape.fill(highlight))
             .overlay { shape.hairline(layout).opacity(lit ? 1 : 0) }
             .contentShape(shape)
-            .onHover { hovering = $0 }
+            .onHover { inside in
+                hovering = inside
+                onHoverChange(inside)
+            }
             .animation(layout.smooth, value: hovering)
             .animation(layout.smooth, value: lit)
             .animation(layout.smooth, value: activeState)

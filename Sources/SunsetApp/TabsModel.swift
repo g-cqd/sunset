@@ -25,6 +25,8 @@ final class TabsModel {
     var bar: CommandBar?
     /// This window's temporary font size change (⌘+, ⌘−, ⌘0).
     var fontZoom = FontZoom()
+    /// The pane whose sub-tab is currently under the pointer in a split container (`SidebarGroupRow`), so its terminal card can highlight its stroke.
+    var hoveredPane: PaneID?
 
     var selectedModel: TerminalModel? { workspace.selectedPane.flatMap { models[$0] } }
     var allModels: [TerminalModel] { workspace.allPanes.compactMap { models[$0] } }
@@ -105,6 +107,7 @@ final class TabsModel {
 
     func close(pane: PaneID) {
         guard let model = models[pane] else { return }
+        if hoveredPane == pane { hoveredPane = nil }
         workspace.close(pane: pane)
         models[pane] = nil
         model.stop()
@@ -131,6 +134,7 @@ final class TabsModel {
 
     private func stop(_ panes: [PaneID]) {
         for pane in panes {
+            if hoveredPane == pane { hoveredPane = nil }
             models[pane]?.stop()
             models[pane] = nil
         }
