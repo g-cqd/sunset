@@ -27,6 +27,8 @@ final class TabsModel {
     var fontZoom = FontZoom()
     /// The pane whose sub-tab is currently under the pointer in a split container (`SidebarGroupRow`), so its terminal card can highlight its stroke.
     var hoveredPane: PaneID?
+    /// The tab row currently under the pointer in the sidebar or tab bar, so an unselected tab can show a screen preview (`n36`).
+    var hoveredItem: Workspace.ItemID?
     /// Two-step confirmation before closing a tab that has a command running (`n28`).
     var closeConfirmation = CloseConfirmation()
     /// Whether closing a busy tab requires a second click or ⌘W (`tabs.confirmClose`).
@@ -131,6 +133,7 @@ final class TabsModel {
 
     /// Closes a tab with all its panes (asking for confirmation first when any of its panes has a command running).
     func close(item: Workspace.ItemID) {
+        if hoveredItem == item { hoveredItem = nil }
         guard let target = workspace.items.first(where: { $0.id == item }) else { return }
         let busy = target.panes.contains { pane in
             guard let model = models[pane] else { return false }
@@ -192,7 +195,10 @@ final class TabsModel {
 
     // MARK: Selecting and arranging
 
-    func select(item: Workspace.ItemID) { change { $0.select(item: item) } }
+    func select(item: Workspace.ItemID) {
+        if hoveredItem == item { hoveredItem = nil }
+        change { $0.select(item: item) }
+    }
     func selectNext() { change { $0.selectNext() } }
     func selectPrevious() { change { $0.selectPrevious() } }
     func select(index: Int) { change { $0.select(index: index) } }

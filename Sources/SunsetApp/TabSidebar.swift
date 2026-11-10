@@ -82,6 +82,13 @@ struct TabSidebar: View {
                     rowDropOverlay(action)
                 }
             }
+            .onHover { inside in
+                if inside {
+                    tabs.hoveredItem = item.id
+                } else if tabs.hoveredItem == item.id {
+                    tabs.hoveredItem = nil
+                }
+            }
             .onTapGesture { tabs.select(item: item.id) }
             .onDrag { tabs.itemProvider(for: .item(item.id)) }
             .onDrop(
