@@ -27,6 +27,11 @@ final class TabsModel {
     var fontZoom = FontZoom()
     /// The pane whose sub-tab is currently under the pointer in a split container (`SidebarGroupRow`), so its terminal card can highlight its stroke.
     var hoveredPane: PaneID?
+    /// Two-step confirmation before closing a tab that has a command running (`n28`).
+    var closeConfirmation = CloseConfirmation()
+    /// Whether closing a busy tab requires a second click or ⌘W (`tabs.confirmClose`).
+    var confirmClose = true
+    @ObservationIgnored private var expiryTask: Task<Void, Never>?
 
     var selectedModel: TerminalModel? { workspace.selectedPane.flatMap { models[$0] } }
     var allModels: [TerminalModel] { workspace.allPanes.compactMap { models[$0] } }
@@ -105,8 +110,10 @@ final class TabsModel {
         return model
     }
 
+    /// Closes a pane immediately (used when its program exits on its own).
     func close(pane: PaneID) {
         guard let model = models[pane] else { return }
+        if let item = workspace.item(containing: pane)?.id { closeConfirmation.disarm(item: item) }
         if hoveredPane == pane { hoveredPane = nil }
         workspace.close(pane: pane)
         models[pane] = nil
@@ -114,10 +121,48 @@ final class TabsModel {
         finishClosing()
     }
 
-    /// Closes a tab with all its panes.
+    /// User-initiated request to close a pane: when a command is running in it, arms its tab for confirmation first (`n28`).
+    func requestClose(pane: PaneID) {
+        guard let item = workspace.item(containing: pane)?.id, let model = models[pane] else { return }
+        let busy = model.isRunning && model.refreshForegroundNow() != nil
+        guard shouldProceedWithClose(item: item, isBusy: busy) else { return }
+        close(pane: pane)
+    }
+
+    /// Closes a tab with all its panes (asking for confirmation first when any of its panes has a command running).
     func close(item: Workspace.ItemID) {
+        guard let target = workspace.items.first(where: { $0.id == item }) else { return }
+        let busy = target.panes.contains { pane in
+            guard let model = models[pane] else { return false }
+            return model.isRunning && model.refreshForegroundNow() != nil
+        }
+        guard shouldProceedWithClose(item: item, isBusy: busy) else { return }
         stop(workspace.close(item: item))
         finishClosing()
+    }
+
+    /// Whether `item` is currently armed for close confirmation (tinted red).
+    func isCloseArmed(_ item: Workspace.ItemID) -> Bool {
+        closeConfirmation.isArmed(item: item, now: .now)
+    }
+
+    private func shouldProceedWithClose(item: Workspace.ItemID, isBusy: Bool) -> Bool {
+        let now = ContinuousClock.now
+        let allowed = closeConfirmation.shouldClose(
+            item: item,
+            isBusy: isBusy,
+            enabled: confirmClose,
+            now: now
+        )
+        if !allowed, let deadline = closeConfirmation.expiration {
+            expiryTask?.cancel()
+            expiryTask = Task { [weak self] in
+                try? await Task.sleep(until: deadline, clock: .continuous)
+                guard !Task.isCancelled else { return }
+                self?.closeConfirmation.expire(at: .now)
+            }
+        }
+        return allowed
     }
 
     func closeOthers(than item: Workspace.ItemID) {
@@ -127,7 +172,7 @@ final class TabsModel {
     }
 
     /// Closes the focused pane (the tab with its last pane).
-    func closeSelected() { if let pane = workspace.selectedPane { close(pane: pane) } }
+    func closeSelected() { if let pane = workspace.selectedPane { requestClose(pane: pane) } }
 
     /// Stops every program (the window is going).
     func stopAll() { for model in allModels { model.stop() } }

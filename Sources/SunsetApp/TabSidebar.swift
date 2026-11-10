@@ -50,12 +50,20 @@ struct TabSidebar: View {
     }
 
     @ViewBuilder private func rowContent(_ item: Workspace.Item) -> some View {
+        let armed = tabs.isCloseArmed(item.id)
         if item.isSplit {
-            SidebarGroupRow(item: item, tabs: tabs, selected: item.id == tabs.workspace.selectedID, layout: layout)
+            SidebarGroupRow(
+                item: item,
+                tabs: tabs,
+                selected: item.id == tabs.workspace.selectedID,
+                armed: armed,
+                layout: layout
+            )
         } else {
             SidebarRow(
                 model: tabs.models[item.focused],
                 selected: item.id == tabs.workspace.selectedID,
+                armed: armed,
                 showIcon: settings.tabs.bar.showIcon,
                 showTitle: settings.tabs.bar.showTitle,
                 showDirectory: settings.tabs.bar.showDirectory,

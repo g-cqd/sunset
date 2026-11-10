@@ -47,7 +47,7 @@ final class AppActions {
 
     /// Closes the current tab: the tab of the built-in bar, or the window (which is the tab) with system tabs.
     func closeTab() {
-        if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs = keyTabs {
+        if let tabs = keyTabs {
             tabs.closeSelected()
         } else {
             NSApp.keyWindow?.performClose(nil)

@@ -9,6 +9,7 @@ struct SidebarGroupRow: View {
     let item: Workspace.Item
     let tabs: TabsModel
     let selected: Bool
+    var armed = false
     let layout: Configuration.Layout
     @State private var hovering = false
     @Environment(\.controlActiveState) private var activeState
@@ -20,11 +21,18 @@ struct SidebarGroupRow: View {
         }
         .padding(inset)
         .background(shape.fill(containerHighlight))
-        .overlay { shape.hairline(layout).opacity(selected ? 1 : 0) }
+        .overlay {
+            if armed {
+                shape.strokeBorder(Color.red.opacity(0.65), lineWidth: 1).allowsHitTesting(false)
+            } else {
+                shape.hairline(layout).opacity(selected ? 1 : 0)
+            }
+        }
         .contentShape(shape)
         .onHover { hovering = $0 }
         .animation(layout.smooth, value: hovering)
         .animation(layout.smooth, value: selected)
+        .animation(layout.smooth, value: armed)
         .animation(layout.smooth, value: item.focused)
         .animation(layout.smooth, value: activeState)
     }
@@ -52,12 +60,13 @@ struct SidebarGroupRow: View {
         .onDrag { tabs.itemProvider(for: .pane(pane)) }
         .contextMenu {
             Button("Move Pane to Its Own Tab") { tabs.detachIntoTab(pane) }
-            Button("Close Pane") { tabs.close(pane: pane) }
+            Button("Close Pane") { tabs.requestClose(pane: pane) }
         }
     }
 
     private var containerHighlight: Color {
-        switch (selected, hovering) {
+        if armed { return .red.opacity(hovering ? 0.28 : 0.2) }
+        return switch (selected, hovering) {
             case (true, _): .primary.opacity(activeState == .inactive ? 0.06 : 0.1)
             case (false, true): .primary.opacity(0.07)
             case (false, false): .clear

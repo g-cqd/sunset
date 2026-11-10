@@ -33,6 +33,7 @@ struct BuiltInTabBar: View {
 
     private func row(_ item: Workspace.Item) -> some View {
         let selected = item.id == tabs.workspace.selectedID
+        let armed = tabs.isCloseArmed(item.id)
         return HStack(spacing: 6) {
             TabLabel(
                 model: tabs.models[item.focused],
@@ -42,20 +43,24 @@ struct BuiltInTabBar: View {
                 showProgress: settings.showProgress
             )
             .frame(maxWidth: 180, alignment: .leading)
-            if hovered == item.id || selected {
+            if hovered == item.id || selected || armed {
                 Button {
                     tabs.close(item: item.id)
                 } label: {
-                    Image(systemName: "xmark").font(.caption2)
+                    Image(systemName: "xmark")
+                        .font(.caption2)
+                        .foregroundStyle(armed ? Color.red : Color.primary)
                 }
                 .buttonStyle(.borderless)
-                .help("Close Tab")
+                .help(armed ? "Click again to close running command" : "Close Tab")
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
         .background(
-            selected ? AnyShapeStyle(.selection.opacity(0.35)) : AnyShapeStyle(.clear),
+            armed
+                ? AnyShapeStyle(Color.red.opacity(0.24))
+                : (selected ? AnyShapeStyle(.selection.opacity(0.35)) : AnyShapeStyle(Color.clear)),
             in: .rect(cornerRadius: 6)
         )
         .contentShape(.rect)

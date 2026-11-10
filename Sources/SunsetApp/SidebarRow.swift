@@ -7,6 +7,7 @@ import SwiftUI
 struct SidebarRow: View {
     let model: TerminalModel?
     let selected: Bool
+    var armed = false
     let showIcon: Bool
     let showTitle: Bool
     let showDirectory: Bool
@@ -32,35 +33,48 @@ struct SidebarRow: View {
             Button(action: close) {
                 Image(systemName: "xmark")
                     .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(armed ? Color.white : Color.primary)
                     .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
                     .background(
                         RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
-                            .fill(.primary.opacity(overClose ? 0.14 : 0))
+                            .fill(
+                                armed
+                                    ? Color.red.opacity(overClose ? 0.85 : 0.7)
+                                    : Color.primary.opacity(overClose ? 0.14 : 0)
+                            )
                     )
                     .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .opacity(hovering ? 1 : 0)
-            .allowsHitTesting(hovering)
+            .opacity(hovering || armed ? 1 : 0)
+            .allowsHitTesting(hovering || armed)
             .onHover { overClose = $0 }
-            .help("Close Tab")
+            .help(armed ? "Click again to close running command" : "Close Tab")
         }
         .padding(.leading, layout.tabPaddingLeading)
         .padding(.vertical, layout.tabPaddingVertical)
         .padding(.trailing, layout.tabPaddingTrailing)
         .background(shape.fill(highlight))
-        .overlay { shape.hairline(layout).opacity(selected ? 1 : 0) }
+        .overlay {
+            if armed {
+                shape.strokeBorder(Color.red.opacity(0.65), lineWidth: 1).allowsHitTesting(false)
+            } else {
+                shape.hairline(layout).opacity(selected ? 1 : 0)
+            }
+        }
         .contentShape(shape)
         .onHover { hovering = $0 }
         .animation(layout.smooth, value: hovering)
         .animation(layout.smooth, value: overClose)
         .animation(layout.smooth, value: selected)
+        .animation(layout.smooth, value: armed)
         .animation(layout.smooth, value: activeState)
     }
 
     /// Hover and selection variants of the highlight.
     private var highlight: Color {
-        switch (selected, hovering) {
+        if armed { return .red.opacity(hovering ? 0.28 : 0.2) }
+        return switch (selected, hovering) {
             case (true, true): .primary.opacity(activeState == .inactive ? 0.12 : 0.2)
             case (true, false): .primary.opacity(activeState == .inactive ? 0.08 : 0.14)
             case (false, true): .primary.opacity(0.07)
