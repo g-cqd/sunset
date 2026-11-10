@@ -53,4 +53,23 @@ import Testing
         #expect(selection?.shape == .block)
         #expect(selection.map { t.screen.text(of: $0) } == "bcd\nhij")
     }
+
+    @Test func `selecting from empty space snaps to the nearest real text`() {
+        let t = terminal("alpha beta\r\n\r\n   gamma delta", 20, 6)
+        // Double-click in trailing empty space on row 0 selects the last word ("beta").
+        let trailingWord = gesture(.words, at: point(0, 16), t)
+        #expect(trailingWord.selection.map { t.screen.text(of: $0) } == "beta")
+        // Double-click in leading spaces on row 2 selects the first word ("gamma").
+        let leadingWord = gesture(.words, at: point(2, 0), t)
+        #expect(leadingWord.selection.map { t.screen.text(of: $0) } == "gamma")
+        // Dragging by cells from the empty bottom of the screen up to row 2 selects from the last text cell back.
+        let bottomDrag = gesture(.cells, at: point(5, 10), t)
+        let backward = bottomDrag.dragged(to: point(2, 9), screen: t.screen)
+        #expect(backward.map { t.screen.text(of: $0) } == "delta")
+        // Dragging by cells from trailing empty space on row 0 down to row 2 starts after row 0's text, not highlighting row 0's trailing blanks.
+        let forwardDrag = gesture(.cells, at: point(0, 18), t)
+        let forward = forwardDrag.dragged(to: point(2, 7), screen: t.screen)
+        #expect(forward?.start == point(1, 0))
+        #expect(forward.map { t.screen.text(of: $0) } == "\n   gamma")
+    }
 }

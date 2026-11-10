@@ -95,4 +95,68 @@ extension Screen {
         while last + 1 < absoluteLineCount, isAbsoluteWrapped(line: last) { last += 1 }
         return (SelectionPoint(line: first, column: 0), SelectionPoint(line: last, column: columns - 1))
     }
+
+    /// Whether `cell` carries real text (not empty or an ASCII space).
+    private func isNonBlank(_ cell: Cell) -> Bool {
+        cell.scalar != 0 && cell.scalar != 0x20
+    }
+
+    /// The first and last columns of `line` that contain non-blank text; nil when the line is wholly blank.
+    func textColumns(on line: Int) -> (first: Int, last: Int)? {
+        guard line >= 0, line < absoluteLineCount else { return nil }
+        var first: Int?
+        var last = 0
+        for column in 0 ..< columns where isNonBlank(absoluteCell(line: line, column: column)) {
+            if first == nil { first = column }
+            last = wideEnd(line, column)
+        }
+        return first.map { ($0, last) }
+    }
+
+    /// Snaps `point` to the nearest real text for a double- or triple-click: trailing blanks snap to the end of the line's text, leading blanks to its start,
+    /// and a wholly blank line to the nearest line with text.
+    func nearestTextPoint(to point: SelectionPoint) -> SelectionPoint {
+        let clampedLine = min(max(point.line, 0), absoluteLineCount - 1)
+        let clampedColumn = min(max(point.column, 0), columns - 1)
+        if let span = textColumns(on: clampedLine) {
+            if clampedColumn > span.last { return SelectionPoint(line: clampedLine, column: span.last) }
+            if clampedColumn < span.first { return SelectionPoint(line: clampedLine, column: span.first) }
+            return SelectionPoint(line: clampedLine, column: clampedColumn)
+        }
+        for distance in 1 ..< absoluteLineCount {
+            if clampedLine - distance >= 0, let span = textColumns(on: clampedLine - distance) {
+                return SelectionPoint(line: clampedLine - distance, column: span.last)
+            }
+            if clampedLine + distance < absoluteLineCount, let span = textColumns(on: clampedLine + distance) {
+                return SelectionPoint(line: clampedLine + distance, column: span.first)
+            }
+        }
+        return SelectionPoint(line: clampedLine, column: clampedColumn)
+    }
+
+    /// Adjusts the starting anchor of a linear cell-by-cell drag when it started in trailing empty space past the end of a line's text (or on a blank line):
+    /// dragging backwards snaps to the last real character before the anchor; dragging forwards across lines starts at the beginning of the next line.
+    func snappedCellAnchor(_ anchor: SelectionPoint, toward head: SelectionPoint) -> SelectionPoint {
+        let line = min(max(anchor.line, 0), absoluteLineCount - 1)
+        let column = min(max(anchor.column, 0), columns - 1)
+        let pastEnd: Bool
+        if let span = textColumns(on: line) {
+            pastEnd = column > span.last
+        } else {
+            pastEnd = true
+        }
+        guard pastEnd else { return anchor }
+        if head < anchor {
+            for search in stride(from: line, through: 0, by: -1) {
+                if let span = textColumns(on: search) {
+                    return SelectionPoint(line: search, column: span.last)
+                }
+            }
+            return anchor
+        }
+        if head.line > line, line + 1 < absoluteLineCount {
+            return SelectionPoint(line: line + 1, column: 0)
+        }
+        return anchor
+    }
 }

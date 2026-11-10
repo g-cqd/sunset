@@ -27,10 +27,14 @@ public struct SelectionGesture: Sendable, Equatable {
 
     /// The pointer moved to `point`: the selection from where it went down to there, widened to whole words or lines.
     public func dragged(to point: SelectionPoint, screen: Screen) -> Selection? {
+        if granularity == .cells {
+            guard point != base.start else { return nil }
+            let anchor = shape == .linear ? screen.snappedCellAnchor(base.start, toward: point) : base.start
+            return Selection(anchor: anchor, head: point, shape: shape)
+        }
         let there = Self.range(at: point, granularity: granularity, screen: screen)
-        if granularity == .cells, point == base.start { return nil }
         if there.start < base.start {
-            return Selection(anchor: granularity == .cells ? base.start : base.end, head: there.start, shape: shape)
+            return Selection(anchor: base.end, head: there.start, shape: shape)
         }
         return Selection(anchor: base.start, head: there.end, shape: shape)
     }
@@ -40,8 +44,8 @@ public struct SelectionGesture: Sendable, Equatable {
     ) {
         switch granularity {
             case .cells: (point, point)
-            case .words: screen.wordRange(at: point)
-            case .lines: screen.lineRange(at: point.line)
+            case .words: screen.wordRange(at: screen.nearestTextPoint(to: point))
+            case .lines: screen.lineRange(at: screen.nearestTextPoint(to: point).line)
         }
     }
 }
