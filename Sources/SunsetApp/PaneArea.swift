@@ -79,6 +79,9 @@ struct PaneArea: View {
                 .overlay(alignment: .topLeading) {
                     dropPreview(item: item, bounds: bounds, space: space, radius: radius, card: card)
                 }
+                .overlay(alignment: .topLeading) {
+                    hoveredTabPreview
+                }
                 .coordinateSpace(.named(Self.space))
                 .onDrop(
                     of: [.plainText, .utf8PlainText],
@@ -122,6 +125,21 @@ struct PaneArea: View {
     private func applyInsets(_ frames: [PaneID: CGRect], bounds: CGRect) {
         for (pane, frame) in frames {
             tabs.models[pane]?.apply(topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0)
+        }
+    }
+
+    /// Shows a floating thumbnail of an unselected tab's terminal screen while the pointer hovers over its tab row (`n36`).
+    @ViewBuilder private var hoveredTabPreview: some View {
+        if tabs.dragged == nil,
+            let hoveredID = tabs.hoveredItem,
+            hoveredID != tabs.workspace.selectedID,
+            let item = tabs.workspace.items.first(where: { $0.id == hoveredID }),
+            let model = tabs.models[item.focused],
+            let surface = model.lastSurface
+        {
+            TabPreviewCard(model: model, surface: surface, layout: layout)
+                .padding(12)
+                .transition(.opacity)
         }
     }
 }

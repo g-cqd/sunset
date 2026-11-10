@@ -65,7 +65,14 @@ struct BuiltInTabBar: View {
         )
         .contentShape(.rect)
         .onTapGesture { tabs.select(item: item.id) }
-        .onHover { inside in hovered = inside ? item.id : (hovered == item.id ? nil : hovered) }
+        .onHover { inside in
+            hovered = inside ? item.id : (hovered == item.id ? nil : hovered)
+            if inside {
+                tabs.hoveredItem = item.id
+            } else if tabs.hoveredItem == item.id {
+                tabs.hoveredItem = nil
+            }
+        }
         .onDrag { tabs.itemProvider(for: .item(item.id)) }
         .dropDestination(for: String.self) { items, _ in
             guard let text = items.first, case .item(let id)? = PaneDragPayload(text: text),
