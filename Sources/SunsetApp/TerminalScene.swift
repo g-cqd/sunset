@@ -111,14 +111,14 @@ struct TerminalScene: View {
 
     // MARK: Parts
 
-    /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge.
+    /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge. Any empty area in it drags the window.
     private var dockedSidebar: some View {
         TabSidebar(tabs: tabs, settings: configuration)
             .padding(.top, configuration.sidebar.padding)
             .padding(sidebarSide.edge, configuration.sidebar.padding)
             .frame(width: configuration.sidebar.width, alignment: sidebarSide.alignment)
             .frame(maxHeight: .infinity)
-            .background(alignment: .top) { dragHandle(height: configuration.window.dragStrip) }
+            .background { windowDragSurface }
             .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
     }
 
@@ -158,14 +158,19 @@ struct TerminalScene: View {
     private var tabBar: some View {
         BuiltInTabBar(tabs: tabs, settings: configuration.tabs.bar)
             .padding(.leading, noDecorations && barAtTop ? 72 : 0)
-            .background(alignment: .top) { dragHandle(height: 40) }
+            .background { windowDragSurface }
     }
 
-    /// A transparent area that drags the window (SwiftUI's `WindowDragGesture`): the title bar's job when there is none.
+    /// A transparent strip of a fixed height that drags the window (`WindowDragGesture`).
     @ViewBuilder private func dragHandle(height: Double) -> some View {
         if noDecorations, height > 0 {
-            Color.clear.frame(height: height).contentShape(.rect).gesture(WindowDragGesture())
+            windowDragSurface.frame(height: height)
         }
+    }
+
+    /// A transparent surface that drags the window from any non-interactive area above it.
+    private var windowDragSurface: some View {
+        Color.clear.contentShape(.rect).gesture(WindowDragGesture())
     }
 
     // MARK: Models

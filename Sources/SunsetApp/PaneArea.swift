@@ -75,6 +75,7 @@ struct PaneArea: View {
                 // The panes are placed by offsets, which do not count in layout: without this the stack is as large as one pane, and so was what accepts drops
                 // (a drop on any pane but the first did nothing).
                 .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
+                .background { Color.clear.contentShape(.rect).gesture(WindowDragGesture()) }
                 .overlay(alignment: .topLeading) {
                     dropPreview(item: item, bounds: bounds, space: space, radius: radius, card: card)
                 }

@@ -17,6 +17,7 @@ struct BuiltInTabBar: View {
                 }
                 .padding(.horizontal, 4)
             }
+            .gesture(WindowDragGesture())
             Button {
                 tabs.newTab()
             } label: {

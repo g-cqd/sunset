@@ -26,7 +26,10 @@ struct TabSidebar: View {
                 ForEach(tabs.workspace.items) { item in row(item) }
             }
             .padding(.horizontal, layout.tabSideInset)
+            .frame(maxWidth: .infinity)
+            .background { Color.clear.contentShape(.rect).gesture(WindowDragGesture()) }
         }
+        .gesture(WindowDragGesture())
         .scrollIndicators(.never)
         .contentMargins(.top, topInset, for: .scrollContent)
         .contentMargins(.bottom, margin, for: .scrollContent)

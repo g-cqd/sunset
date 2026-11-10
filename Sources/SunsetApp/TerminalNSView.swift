@@ -39,6 +39,8 @@ final class TerminalNSView: NSView {
     required init?(coder: NSCoder) { nil }
 
     override var acceptsFirstResponder: Bool { true }
+    /// The terminal handles pointer presses itself (selection, mouse reporting), except in the top drag strip (`TerminalNSView+Mouse`).
+    override var mouseDownCanMoveWindow: Bool { false }
 
     /// A click (or the window) gave this terminal the keyboard: the tabs make it the focused pane of its split.
     override func becomeFirstResponder() -> Bool {
