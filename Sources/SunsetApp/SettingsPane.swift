@@ -183,6 +183,12 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         [
             entry(pane, "tabs.mode", "Tabs", ["native", "internal", "built-in", "none", "windows"]),
             entry(pane, "tabs.restore", "Restore tabs at launch", ["session", "reopen", "quit", "windows"]),
+            entry(
+                pane,
+                "tabs.confirmClose",
+                "Confirm closing a tab with a running command",
+                ["close", "warn", "running", "red"]
+            ),
             entry(pane, "tabs.position", "Built-in bar position", ["top", "bottom", "internal"]),
             entry(pane, "tabs.icon", "Show the folder or command icon", ["tab", "glyph", "letter", "picture"]),
             entry(pane, "tabs.title", "Show the title", ["tab", "name"]),

@@ -144,6 +144,8 @@ public struct Configuration: Sendable, Equatable {
         public var bar = Bar()
         /// The tabs of each window (their splits and the directory of each) come back at the next launch, as new shells there (programs cannot be saved).
         public var restore = true
+        /// Closing a tab with a running command tints it red on the first click or ⌘W and requires a second one to confirm (`n28`).
+        public var confirmClose = true
         public init() {}
     }
 

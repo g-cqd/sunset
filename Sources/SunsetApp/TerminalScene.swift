@@ -103,6 +103,7 @@ struct TerminalScene: View {
         .onChange(of: configuration.backgroundAlpha) { _, _ in forEachModel(configure) }
         .onChange(of: colors) { _, _ in forEachModel(configure) }
         .onChange(of: blinkSchedule) { _, _ in forEachModel(configure) }
+        .onChange(of: configuration.tabs.confirmClose, initial: true) { _, confirm in tabs.confirmClose = confirm }
         .onDisappear {
             if let window { TabRegistry.shared.unregister(window) }
             tabs.stopAll()

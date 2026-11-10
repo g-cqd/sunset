@@ -17,4 +17,12 @@ import Testing
         let bad = try ConfigurationParser.parse(#"{ "tabs": { "bar": { "icon": 1 } } }"#)
         #expect(bad.configuration.tabs.bar.showIcon && bad.issues.map(\.path) == ["tabs.bar.icon"])
     }
+
+    @Test func `tabs.confirmClose defaults to true and parses booleans`() throws {
+        #expect(Configuration().tabs.confirmClose)
+        let off = try ConfigurationParser.parse(#"{ "tabs": { "confirmClose": false } }"#)
+        #expect(!off.configuration.tabs.confirmClose && off.issues.isEmpty)
+        let bad = try ConfigurationParser.parse(#"{ "tabs": { "confirmClose": "no" } }"#)
+        #expect(bad.configuration.tabs.confirmClose && bad.issues.map(\.path) == ["tabs.confirmClose"])
+    }
 }

@@ -48,6 +48,7 @@ public enum ConfigurationWriter {
             "appearance.tint.alpha": number(configuration.appearance.tintAlpha),
             "tabs.mode": string(configuration.tabs.mode.rawValue),
             "tabs.restore": String(configuration.tabs.restore),
+            "tabs.confirmClose": String(configuration.tabs.confirmClose),
             "tabs.bar.position": string(configuration.tabs.bar.position.rawValue),
             "tabs.bar.icon": String(configuration.tabs.bar.showIcon),
             "tabs.bar.title": String(configuration.tabs.bar.showTitle),

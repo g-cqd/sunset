@@ -65,6 +65,14 @@ extension SettingsView {
                     )
                     .font(.caption).foregroundStyle(.secondary)
                 }
+            case "tabs.confirmClose":
+                VStack(alignment: .leading, spacing: 4) {
+                    Toggle("Confirm closing a busy tab", isOn: config.binding(\.tabs.confirmClose))
+                    Text(
+                        "When a foreground command is running, the first click on the close button or ⌘W tints the tab red; a second one closes it."
+                    )
+                    .font(.caption).foregroundStyle(.secondary)
+                }
             case "tabs.mode":
                 Picker("Tabs", selection: config.binding(\.tabs.mode)) {
                     Text("None (one terminal per window)").tag(Configuration.Tabs.Mode.none)
