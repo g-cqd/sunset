@@ -52,9 +52,7 @@ public enum KeyEncoder {
         -> [UInt8]
     {
         // With the keyboard protocol on, a modified Enter, Tab or Backspace is a CSI u (the legacy bytes cannot say which modifier it was).
-        if disambiguate,
-            !press.modifiers.subtracting(.shift).isEmpty || (press.modifiers.contains(.shift) && code != 13)
-        {
+        if disambiguate, !press.modifiers.isEmpty {
             return csi(String(code), press.modifiers, final: "u")
         }
         return prefixed(legacy, press)
