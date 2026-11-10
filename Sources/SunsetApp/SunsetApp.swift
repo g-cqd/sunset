@@ -1,3 +1,4 @@
+import Foundation
 import SunsetConfig
 import SwiftUI
 
@@ -8,6 +9,9 @@ import SwiftUI
     private let launch = LaunchOptions.parse(CommandLine.arguments, environment: ProcessInfo.processInfo.environment)
 
     init() {
+        // Positional command-line arguments are the command to run in the terminal, not document files for AppKit to open (without this, AppKit suppresses
+        // the initial WindowGroup window whenever an argument matches an existing file path).
+        UserDefaults.standard.register(defaults: ["NSTreatUnknownArgumentsAsOpen": false])
         // The saved tabs of the last run are read once, before the first window asks for them.
         SessionStore.shared.load(
             enabled: AppConfiguration.shared.configuration.tabs.restore,
