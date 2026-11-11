@@ -12,6 +12,10 @@ func stream(_ name: String) -> [UInt8]? {
         case "cr": unit = [0x0D]
         case "bell": unit = [0x07]
         case "pairs": unit = [0x79, 0x79, 0x0D]
+        case "accents": unit = Array("é".utf8)
+        case "cjk": unit = Array("日".utf8)
+        case "emoji": unit = Array("😀".utf8)
+        case "mixed": unit = Array("日本語のテキストéàüñ€—…😀🎉 abc".utf8)
         case "lines": unit = Array(repeating: UInt8(0x61), count: 120) + [0x0D, 0x0A]
         case "staircase": unit = [0x79, 0x0A]
         default: return nil
@@ -24,7 +28,7 @@ func stream(_ name: String) -> [UInt8]? {
 
 let arguments = CommandLine.arguments.dropFirst()
 guard let name = arguments.first, let bytes = stream(name) else {
-    print("usage: instructions scroll|newlines|returns|letters|cr|bell|pairs|lines|staircase [rounds]")
+    print("usage: instructions <stream> [rounds]; streams: see `stream` in main.swift")
     exit(2)
 }
 let rounds = arguments.dropFirst().first.flatMap { Int($0) } ?? 100
