@@ -145,6 +145,8 @@ extension Screen {
 
     /// If a range of cells cuts a double-width character at either edge, blanks the half that would be left alone.
     mutating func clearWideEdges(row: Int, from: Int, to: Int) {
+        // Past what the row holds every cell is the empty one: there is no wide character to cut (a line written on a fresh row, as when scrolling).
+        guard from < grid.usedCount(row: row) else { return }
         if from > 0, grid[row, from].width == .spacerTail {
             grid[row, from - 1] = Cell(scalar: 0, width: .narrow, style: grid[row, from - 1].styleID)
         }
