@@ -37,10 +37,12 @@ mutable.
 
 ## The content kinds asked for
 
-- **Web (n42, t114).** System WebKit only: `WKWebView` (or `WebPage` on macOS 26), one `WKWebsiteDataStore(forIdentifier:)` per Space. An app cannot link
-  another WebKit build; "remote/latest engine" can only mean a browser elsewhere driven over a protocol and shown as frames, which is a different product
-  with its own latency and input problems. Recorded as an investigation, not promised. `theofficecommun/search` was not found on the Personal volume, so
-  its refinements and extension model are **not read yet**: the path or URL is needed.
+- **Web (n42, t114).** First on the system's WebKit: `WKWebView` (or `WebPage` on macOS 26), one `WKWebsiteDataStore(forIdentifier:)` per Space. Using
+  the **latest WebKit** is a goal of the owner's (2026-11-11), so the pane must not assume the system's: keep everything WebKit-specific behind the
+  adapter. An earlier version of this note said an app cannot use another WebKit build; that was too strong and unverified. WebKit is open source and
+  its own tools run an app against a built `WebKit.framework`; whether a build can be shipped inside a signed, hardened app (its XPC services, size,
+  updates, private entitlements) is the investigation, t119. Search (see `search-browser-review-2026-11-11.md`) uses the system engine only. Content
+  blocking and Chrome extensions are later steps.
 - **Markdown (n43, t115).** `AemiMarkdown/Apps/MarkdownLook` has a library, `MarkdownLookKit` (macOS 26): HTML renderer, a native view held to the page
   (its ADR 0005), source highlighting, `LabSession`. The editor itself (`SourceEditor`, an `NSTextView`), saving (`AtomicFile`) and commands are in the
   app target `App/`, not the kit: they would have to move into the kit before Sunset can use them. Its dependencies (aemi, AemiTextUI, AemiMermaid,
@@ -50,5 +52,6 @@ mutable.
 
 ## Order
 
-t113 UI (small, user-visible) -> content descriptor + protocol + terminal adapter + note kind (t109) -> folders (t112) -> Spaces (t110) -> Web (t114) ->
-Markdown (t115) -> extraction (t111). n44 (t116) is independent and small.
+Set by the owner on 2026-11-11: OSC (t58, t108) and performance (t100, then t52/t61/t62/t64) come first. After them: t113 UI and t116 (small) ->
+content descriptor + protocol + terminal adapter + note kind (t109) -> Web pane on system WebKit (t114) with t119 alongside -> folders (t112) ->
+Spaces (t110) -> Markdown (t115) -> content blocking, then extensions -> extraction (t111).
