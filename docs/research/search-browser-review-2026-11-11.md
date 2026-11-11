@@ -31,8 +31,9 @@ helper for its AI add-on. So it is evidence for "system WebKit is enough", and o
 ## Not to take
 
 - **The code itself.** One 8,500-line `Browser.swift`, Swift 5 mode, main-thread everything: against every structure rule here. Ideas carry; files do not.
-- **Private API.** About 80 uses of `NSSelectorFromString`/`responds(to:)` (developer extras, feature flags, frame rate, notifications, GPC). Each is a
-  decision for us, not a default; none is needed for a first web pane.
+- ~~Private API as something to avoid.~~ Corrected by the owner on 2026-11-11: Sunset is not meant for the App Store, so private API is allowed. Search
+  reaches about 80 private selectors (developer extras, feature flags, frame rate, notifications, GPC), each behind `responds(to:)`. Ours go through
+  `SunsetPrivate`, each one checked the same way and named in one place, since a system update can remove any of them without notice.
 - **Chrome extension shims** as an early goal: it is the largest single part of that browser and a standing source of its bug reports.
 - Passwords, passkeys, importers, translation, AI, updater: a browser's business, not a terminal's pane.
 
