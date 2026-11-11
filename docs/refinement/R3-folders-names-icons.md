@@ -62,3 +62,21 @@ person in the dialog, never taken from a program's output or a page, and the dia
 | d | Selecting several tabs: group, close, drag together, pin and unpin | Cmd-click and Shift-click rules; what Return or a plain click does to a selection |
 | e | Pinning: the section, saved entries, closing versus deleting, the terminal's command and its dialog | How something is pinned (menu, drag into the section); the divider; whether a pinned page that has moved shows that it is away from home |
 | f | Groups in the built-in tab bar | How a group looks collapsed; nested folders in a row (only the top level, or flattened inside the group) |
+
+## Step a, its questions answered (2026-11-11)
+
+| Question | Answer | His note |
+| --- | --- | --- |
+| How much goes into the model now | All of it: the two sections, folders, kept entries | |
+| A folder's collapsed state | Saved with the session | |
+| A drop that would nest deeper than four levels | Flattened to fit: the folders that would exceed the limit are dissolved, their entries placed in the deepest allowed folder | |
+| Whose are the Favorites, before Spaces | One set for the app, shown in every window | "Any window is within the same big space and same big profile" |
+| And the Tabs | They stay each window's | |
+| A kept entry shown in two windows | As R4's S-d, now: the window in use takes control and rendering, the other shows the last picture | |
+| Reopen Closed Window | Yes, as a later step of its own | |
+| The last window closed, then a new one | It shows the Favorites and reopens the tabs of the window just closed | |
+| The session file | Same name, no backup | No backward compatibility while the app is being built |
+| How it is cut and shown | a1: the model and the session file, shown by tests. a2: the app moved onto it with no visible change. Then the sidebar steps | |
+
+Said plainly: "flattened to fit" loses structure the person made, silently; and two ownership rules now live side by side (Favorites the
+app's, Tabs each window's) until Spaces rework the Tabs.
