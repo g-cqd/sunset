@@ -16,6 +16,12 @@ extension SettingsView {
                     )
                     .font(.caption).foregroundStyle(.secondary)
                 }
+            case "terminal.clipboardWrite":
+                VStack(alignment: .leading, spacing: 4) {
+                    Toggle("Programs may copy to the clipboard", isOn: config.binding(\.terminal.clipboardWrite))
+                    Text("What a program asks to copy (OSC 52), over ssh too. No program can read the clipboard.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             case "window.blur": number("Window blur", \.window.blur, range: 0 ... 100, step: 1, unit: "pt")
             case "window.padding": number("Padding", \.window.padding, range: 0 ... 32, step: 1, unit: "pt")
             case "appearance.scheme":

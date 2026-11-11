@@ -164,6 +164,8 @@ public struct Configuration: Sendable, Equatable {
         /// How opaque the terminal's default background is when the window is not opaque: 1 shows only the terminal's colour, less lets the window's
         /// material show through.
         public var opacity = 0.0
+        /// A program may put text on the clipboard (OSC 52); it can never read it (ADR-0010).
+        public var clipboardWrite = true
         public init() {}
     }
 

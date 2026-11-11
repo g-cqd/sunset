@@ -105,7 +105,8 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                     entry("cursor.blink", "Cursor blinks", ["blink", "steady", "caret"]),
                     entry("terminal.blinkForever", "Cursor blinks for ever", ["blink", "caret", "idle"]),
                     entry("terminal.blinkTimeout", "Stop blinking after", ["blink", "caret", "idle", "seconds"]),
-                    entry("terminal.renderer", "Renderer", ["gpu", "cpu", "metal", "auto", "graphics"])
+                    entry("terminal.renderer", "Renderer", ["gpu", "cpu", "metal", "auto", "graphics"]),
+                    entry("terminal.clipboardWrite", "Programs may copy", ["clipboard", "osc 52", "pasteboard", "ssh"])
                 ]
             case .keyboard:
                 return [entry("keyboard.meta", "Option sends Escape", ["meta", "alt", "option", "emacs"])]
