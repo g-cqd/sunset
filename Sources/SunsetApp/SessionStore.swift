@@ -32,7 +32,7 @@ final class SessionStore {
         guard !namedCommand, let data = FileManager.default.contents(atPath: path),
             let session = SavedSession(data: data)
         else { return }
-        FavoritesStore.shared.restore(session.favorites, reopening: enabled)
+        AppFavorites.shared.restore(session.favorites, reopening: enabled)
         if enabled { pending = session.windows }
     }
 
@@ -56,7 +56,7 @@ final class SessionStore {
     func saveNow() {
         guard writes else { return }
         let open = restoresWindows ? TabRegistry.shared.allWindows().map { $0.tabs.savedWindow() } + pending : []
-        let session = SavedSession(windows: open, favorites: FavoritesStore.shared.saved())
+        let session = SavedSession(windows: open, favorites: AppFavorites.shared.saved())
         guard let data = try? session.encoded() else { return }
         let directory = (path as NSString).deletingLastPathComponent
         try? FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
@@ -68,7 +68,7 @@ final class SessionStore {
 
     /// There is something to write: the windows when restoring is on, and the Favorites whenever there are any.
     private var writes: Bool {
-        active && !frozen && (restoresWindows || !FavoritesStore.shared.favorites.isEmpty)
+        active && !frozen && (restoresWindows || !AppFavorites.shared.favorites.isEmpty)
     }
 
     /// The app is quitting: the last write, then no more (see `frozen`).

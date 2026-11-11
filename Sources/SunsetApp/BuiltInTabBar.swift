@@ -33,7 +33,7 @@ struct BuiltInTabBar: View {
     }
 
     private func row(_ item: Workspace.Item) -> some View {
-        let selected = item.id == tabs.workspace.selectedID
+        let selected = tabs.isSelected(item.id)
         let armed = tabs.isCloseArmed(item.id)
         return HStack(spacing: 6) {
             TabLabel(

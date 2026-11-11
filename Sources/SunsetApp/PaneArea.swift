@@ -29,7 +29,7 @@ struct PaneArea: View {
 
     var body: some View {
         GeometryReader { proxy in
-            if let item = tabs.workspace.selectedItem {
+            if let item = tabs.shownItem {
                 // Cards: with the sidebar docked, or when the tab is split. The space between two cards is the space between a card and the window's edge
                 // (the sidebar's margin; `layout.paneGap` for a split with no docked sidebar), so the window's colour frames every card the same.
                 let card = docked || item.isSplit
@@ -39,7 +39,7 @@ struct PaneArea: View {
                 let frames = item.layout.frames(in: bounds, gap: space)
                 ZStack(alignment: .topLeading) {
                     ForEach(item.panes, id: \.self) { pane in
-                        if let content = tabs.contents[pane], let frame = frames[pane] {
+                        if let content = tabs.content(pane), let frame = frames[pane] {
                             content.makeView(
                                 PaneViewContext(
                                     focused: pane == item.focused,
@@ -93,6 +93,13 @@ struct PaneArea: View {
                 )
                 .onChange(of: frames, initial: true) { _, new in applyInsets(new, bounds: bounds) }
                 .onChange(of: topInset) { _, _ in applyInsets(frames, bounds: bounds) }
+            } else {
+                // No tab left, and no kept entry shown: the window stays while there are Favorites (R3).
+                Text("No tab. \u{2318}T for a terminal")
+                    .font(.callout)
+                    .foregroundStyle(.tertiary)
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .background { Color.clear.contentShape(.rect).gesture(WindowDragGesture()) }
             }
         }
     }
@@ -136,7 +143,7 @@ struct PaneArea: View {
     @ViewBuilder private var hoveredTabPreview: some View {
         if tabs.dragged == nil,
             let hoveredID = tabs.hoveredItem,
-            hoveredID != tabs.workspace.selectedID,
+            !tabs.isSelected(hoveredID),
             let item = tabs.workspace.items.first(where: { $0.id == hoveredID }),
             let model = tabs.terminal(item.focused),
             let surface = model.lastSurface

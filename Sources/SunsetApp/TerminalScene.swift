@@ -12,7 +12,7 @@ import SwiftUI
 /// them, and the settings that reach every terminal.
 struct TerminalScene: View {
     let launch: LaunchOptions
-    @State var tabs = TabsModel()
+    @State var tabs = TabsModel(favorites: AppFavorites.shared)
     @State var window: NSWindow?
     /// How much of the window's top the title bar and the system tab bar cover.
     @State private var obscured = 0.0
@@ -126,8 +126,9 @@ struct TerminalScene: View {
             .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
     }
 
+    /// The panes of what is shown; with nothing shown, the pane area's hint while the window stays for its Favorites, and nothing while it goes.
     @ViewBuilder private var terminal: some View {
-        if tabs.selectedContent != nil {
+        if tabs.selectedContent != nil || !tabs.favorites.isEmpty {
             PaneArea(
                 tabs: tabs,
                 optionAsMeta: configuration.keyboard.optionAsMeta,

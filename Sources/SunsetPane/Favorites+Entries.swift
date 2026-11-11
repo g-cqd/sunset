@@ -97,3 +97,11 @@ extension Favorites {
         }
     }
 }
+
+extension Favorites {
+    /// What an entry starts from from now on (`Set Home to Current`). A home that does not hold together changes nothing.
+    public mutating func setHome(_ home: Home, for id: NodeID) {
+        guard home.holdsTogether else { return }
+        updateEntry(id) { $0.home = home }
+    }
+}
