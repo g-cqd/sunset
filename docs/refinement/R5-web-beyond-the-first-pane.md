@@ -1,6 +1,6 @@
 # R5 — Web, beyond the first pane (roadmap 0018)
 
-Status: **two rounds answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0022, tasks t121, t154-t163, t119). Nothing here is built.
 Input: notes n42, n45; `docs/research/search-browser-review-2026-11-11.md`; R1 and R4.
 
 ## The owner's answers
@@ -74,7 +74,7 @@ Costs, as the owner asked to see them.
 - Not in this session: the extension decision itself (after its study), "offer a disguise when a site complains" (later study), switching engines
   without two builds (later study), distribution and updating of the app (not handled yet, by the owner's word).
 
-## Steps proposed (each begins with its own questions)
+## Steps (each begins with its own questions)
 
 | Step | What | Questions still to ask |
 | --- | --- | --- |
