@@ -1,6 +1,6 @@
 # R1 — The web pane (roadmap 0018)
 
-Status: **three rounds answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built, and no task exists for it yet. The first web pane (e5bd1e9, aa1c900) was removed on the owner's
+Status: **accepted by the owner on 2026-11-11.** Nothing here is built. The steps are roadmap 0019 and tasks t125-t136. The first web pane (e5bd1e9, aa1c900) was removed on the owner's
 answer "revert, rebuild"; a saved session that has a `web` pane shows it as a placeholder and keeps it.
 
 ## Round 1: the owner's answers

@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress
 blocked-by: nothing (the owner's time)
 date: 2026-11-11
 ---
@@ -23,7 +23,7 @@ A session does not start the next one. Nothing is built during the phase except 
 
 | # | Topic | What is to be decided | Bears on |
 | --- | --- | --- | --- |
-| R1 | Web pane as built | Keep, change or revert it; the eleven decisions taken without the owner (engine per pane, the address row, what typing means and the search engine, the agent string, the data store, new-window links, what is saved, the shortcut, the tab's look, closing, inspection) | t114, n42 |
+| R1 (done 2026-11-11: `docs/refinement/R1-web-pane.md`, roadmap 0019) | Web pane as built | Keep, change or revert it; the eleven decisions taken without the owner (engine per pane, the address row, what typing means and the search engine, the agent string, the data store, new-window links, what is saved, the shortcut, the tab's look, closing, inspection) | t114, n42 |
 | R2 | Panes that are not terminals, as built | The protocol's shape, the note pane (keep as a feature, keep hidden as a test kind, remove), the placeholder for unknown kinds, how a new pane of a kind is asked for (menus, command bar) | t109 done, t111 |
 | R3 | Sidebar folders, names and icons | The tree (depth, what a folder holds, splits inside folders), colours, how a folder is made and filled, drag rules, what a collapsed folder shows; what is left of renaming (inline editing, a symbol picker) | t112, t113, n40, n41 |
 | R4 | Spaces and profiles | What a Space owns (tabs, folders, tint, icon, directory, web data), what a profile is above it (n45 names profiles > spaces > website), switching, where it shows, what is shared, persistence and migration | t110, n45 |

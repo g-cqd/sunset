@@ -1,5 +1,10 @@
 # Sunset — state of the implementation (handoff)
 
+> **2026-11-11.** What follows this box was last brought up to date on 2026-11-05 and no longer describes the app (tabs, splits, sidebar, sessions,
+> GPU renderer, panes that are not terminals all exist since). Until refinement session R10 rewrites it, the current state is: the white paper (§10:
+> nothing is built that was not asked; ideas go through the owner), `docs/roadmap/0018-refinement-phase.md` (the phase in progress; R1 done),
+> `docs/roadmap/0019-web-pane.md`, `docs/refinement/`, the open tasks, and `git log`.
+
 Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the open tasks and notes, and carries on. The ADRs say why; the diary is the log.
 
 ## What exists
