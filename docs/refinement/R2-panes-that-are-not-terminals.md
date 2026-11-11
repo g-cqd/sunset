@@ -1,6 +1,6 @@
 # R2 — Panes that are not terminals, as built (roadmap 0018)
 
-Status: **answered except one point (where the + button is), 2026-11-11.** To be read back and accepted.
+Status: **accepted by the owner on 2026-11-11.** Tasks t137-t139; the rest is carried by web steps a and d (t125, t128) and by R6.
 
 ## The owner's answers
 
@@ -20,11 +20,13 @@ Status: **answered except one point (where the + button is), 2026-11-11.** To be
 | The terminal performance work | Stays deferred | |
 | The costs not spelled out in R1 (no sleep, suggestions sent to Google, inspector on, http for local names, a plain store, history on disk, a picture per tab) | Not answered: they stand as accepted unless the owner says otherwise | |
 
-## Open
+## Where the + button is
 
-- Where the + button is: sketches A to D in `sketches/R2-plus-button.svg` (`.png` beside it).
+The owner's own placement (sketch `sketches/R2-plus-button-E.png`): at the very bottom of the sidebar, against the window's bottom, on the edge of
+the tab rows that is nearest the panes; the counterpart, at the bottom, of the pin button at the top. With no sidebar: the + at the end of the
+built-in tab bar (sketch D in `sketches/R2-plus-button.png`). Sketches A, B and C were not taken.
 
-## What follows from it (no task until accepted)
+## What follows from it
 
 1. The + button and its menu of kinds (terminal now; page with web step a), where the owner places it.
 2. Split of the same kind, with its setting (same kind / terminal), and for a page the setting of what it shows; comes with web step a.
