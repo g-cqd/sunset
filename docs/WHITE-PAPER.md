@@ -205,3 +205,16 @@ dependency is an architectural decision**.
 - **A slow renderer never blocks the PTY reader**, and a lost GPU device is recovered or falls back to the CPU renderer; neither crashes the session.
 - **Sessions replay**: a byte stream recorded from a session reproduces the screen deterministically.
 - **Color is a pipeline with a tested conversion at every step**, never a hex string passed around.
+
+## 10. Scope: the owner decides what is built
+
+- **Nothing is built that was not asked for.** A request is done as it was made: no extra feature beside it, no setting, menu item, shortcut or
+  second variant "while at it". When a request cannot be done without something that was not asked (a format change, a new type others will lean
+  on), that something is said before it is built, not found afterwards in the diff.
+- **An idea is a proposition, and a proposition goes through the owner.** Whatever the agent would like to add, change or investigate is put to the
+  owner in words: what it is, why, what it costs. It is refined with him. Only what he accepts, in the form he accepts it, becomes a task and is
+  scheduled on the roadmap. The agent does not create tasks from its own ideas, and does not reorder the roadmap.
+- **A defect in what was just built is not a proposition**: it is reported and fixed. A defect found elsewhere is reported, and waits for the
+  owner's word like any other proposition unless it is losing data or a security hole.
+- **What was left out is listed.** A report says what was asked, what was done, and what the agent thought of and did not do, so that the owner
+  can pick it up or drop it.
