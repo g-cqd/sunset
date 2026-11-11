@@ -1,6 +1,6 @@
 # R11 — Commands, keys, the command bar, App Intents and remote control (roadmap 0018)
 
-Status: **two rounds answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0027, tasks t186-t194). Nothing here is built.
 Input: the owner's notes in R6, note n1, `docs/research/remote-control.md` (ADR-0022 proposed), R1 and R4 (configurable keys).
 As built today: about 25 actions written by hand in menus with fixed keys; a command bar (Cmd-L) that searches tabs.
 
@@ -75,7 +75,7 @@ Costs, as the owner asked to see them.
 - The in-band channel (escape sequences from inside a terminal) was not chosen: nothing a terminal prints can drive Sunset.
 - Not asked, left for the steps: default keys, the exact list of commands, bounds on reads, the events' list, the tool's syntax.
 
-## Steps proposed (each begins with its own questions)
+## Steps (each begins with its own questions)
 
 | Step | What | Questions still to ask |
 | --- | --- | --- |
