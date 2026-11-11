@@ -42,6 +42,7 @@ package struct TabSidebar: View {
     package var body: some View {
         ScrollView {
             LazyVStack(spacing: layout.tabSpacing) {
+                FavoritesSection(tabs: tabs, settings: settings, layout: layout)
                 ForEach(tabs.workspace.items) { item in row(item) }
             }
             .padding(.horizontal, layout.tabSideInset)
@@ -71,7 +72,7 @@ package struct TabSidebar: View {
             SidebarGroupRow(
                 item: item,
                 tabs: tabs,
-                selected: item.id == tabs.workspace.selectedID,
+                selected: tabs.isSelected(item.id),
                 armed: armed,
                 layout: layout
             )
@@ -80,7 +81,7 @@ package struct TabSidebar: View {
             let custom = tabs.custom(for: item)
             SidebarRow(
                 model: tabs.contents[item.focused],
-                selected: item.id == tabs.workspace.selectedID,
+                selected: tabs.isSelected(item.id),
                 armed: armed,
                 keepCloseVisible: slot != nil && slot == closingSlot,
                 name: custom.name,
@@ -133,6 +134,7 @@ package struct TabSidebar: View {
             )
             .contextMenu {
                 Button("Rename Tab…") { tabs.beginRename(item: item.id) }
+                Button("Add to Favorites") { tabs.keep(item: item.id) }
                 Button("Close Tab") { tabs.close(item: item.id) }
                 Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
                     .disabled(tabs.workspace.count < 2)

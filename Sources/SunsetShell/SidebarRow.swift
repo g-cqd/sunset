@@ -13,12 +13,31 @@ struct SidebarRow: View {
     var keepCloseVisible = false
     var name: String?
     var icon: PaneIcon?
+    /// What the row's pane would start from, when it is not running (a kept entry that is not open).
+    var saved: PaneDescriptor?
     let showIcon: Bool
     let showTitle: Bool
     let showDirectory: Bool
     let showProgress: Bool
     let layout: ShellSettings.Layout
+    /// What the button at the row's end does: close a tab, unload a kept entry, delete one that is not open.
+    var button = Button.close
+    /// Drawn fainter: a kept entry that is not open (R4: the same for every kind).
+    var dimmed = false
     let close: () -> Void
+
+    enum Button {
+        case close, unload, delete
+
+        var symbol: String { self == .unload ? "minus" : "xmark" }
+        var help: String {
+            switch self {
+                case .close: "Close Tab"
+                case .unload: "Unload (it stays in Favorites)"
+                case .delete: "Remove from Favorites"
+            }
+        }
+    }
     @State private var hovering = false
     @State private var overClose = false
     @Environment(\.controlActiveState) private var activeState
@@ -33,12 +52,14 @@ struct SidebarRow: View {
                 showDirectory: showDirectory,
                 showProgress: showProgress,
                 name: name,
-                icon: icon
+                icon: icon,
+                saved: saved
             )
             .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
+            .opacity(dimmed ? 0.45 : 1)
             // Always laid out and only faded, so that the row never changes size and the label does not jump.
-            Button(action: close) {
-                Image(systemName: "xmark")
+            SwiftUI.Button(action: close) {
+                Image(systemName: button.symbol)
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(armed ? Color.white : Color.primary)
                     .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
@@ -56,7 +77,7 @@ struct SidebarRow: View {
             .opacity(hovering || armed || keepCloseVisible ? 1 : 0)
             .allowsHitTesting(hovering || armed || keepCloseVisible)
             .onHover { overClose = $0 }
-            .help(armed ? "Click again to close running command" : "Close Tab")
+            .help(armed ? "Click again to close running command" : button.help)
         }
         .padding(.leading, layout.tabPaddingLeading)
         .padding(.vertical, layout.tabPaddingVertical)
