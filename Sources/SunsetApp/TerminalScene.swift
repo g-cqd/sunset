@@ -210,13 +210,10 @@ struct TerminalScene: View {
         let model = TerminalModel()
         model.topInsetPoints = topInset
         configure(model)
-        var environment = ProcessInfo.processInfo.environment
-        environment["TERM_PROGRAM"] = "sunset"
-        environment["COLORTERM"] = "truecolor"
-        environment["TERM"] = "xterm-256color"
+        let integrated = configuration.terminal.shellIntegration
         model.start(
             command: launch.command,
-            environment: environment,
+            environment: Self.shellEnvironment(for: launch.command, integrated: integrated),
             font: font,
             scrollback: launch.scrollback ?? configuration.scrollbackLines
         )

@@ -19,6 +19,9 @@ extension Reader {
                 case "clipboardWrite":
                     guard let flag = bool("terminal.clipboardWrite", value) else { continue }
                     configuration.terminal.clipboardWrite = flag
+                case "shellIntegration":
+                    guard let flag = bool("terminal.shellIntegration", value) else { continue }
+                    configuration.terminal.shellIntegration = flag
                 default: unknown("terminal.\(key)")
             }
         }

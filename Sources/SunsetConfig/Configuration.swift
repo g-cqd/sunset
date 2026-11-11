@@ -166,6 +166,8 @@ public struct Configuration: Sendable, Equatable {
         public var opacity = 0.0
         /// A program may put text on the clipboard (OSC 52); it can never read it (ADR-0010).
         public var clipboardWrite = true
+        /// The shell is taught to mark its prompts (OSC 133), which Previous Prompt and Next Prompt go by. zsh only; the user's files are not changed.
+        public var shellIntegration = true
         public init() {}
     }
 
