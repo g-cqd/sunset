@@ -36,7 +36,7 @@ struct BuiltInTabBar: View {
         let armed = tabs.isCloseArmed(item.id)
         return HStack(spacing: 6) {
             TabLabel(
-                model: tabs.models[item.focused],
+                model: tabs.contents[item.focused],
                 showIcon: settings.showIcon,
                 showTitle: settings.showTitle,
                 showDirectory: settings.showDirectory,

@@ -85,12 +85,12 @@ struct CommandBarView: View {
     }
 
     private func row(_ item: Workspace.Item, selected: Bool, action: @escaping () -> Void) -> some View {
-        let model = tabs.models[item.focused]
+        let model = tabs.contents[item.focused]
         return Button(action: action) {
             HStack(spacing: 8) {
-                if let model { TabGlyphView(glyph: TabLabel.glyph(of: model)) }
+                if let model { PaneGlyphView(glyph: model.glyph) }
                 Text(model?.title ?? "Sunset").lineLimit(1)
-                if let directory = model?.directory {
+                if let directory = model?.detail {
                     Text(TabLabel.shortened(directory)).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 }
                 Spacer(minLength: 0)

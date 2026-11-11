@@ -44,6 +44,7 @@ struct TerminalCommands: Commands {
             Divider()
             Button("Move Pane to Its Own Tab") { AppActions.shared.moveFocusedPaneToTab() }
             Divider()
+            Button("New Note") { AppActions.shared.newNote() }
             Button("Rename Tab…") { AppActions.shared.renameTab() }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
         }

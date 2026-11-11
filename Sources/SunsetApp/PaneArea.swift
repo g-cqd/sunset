@@ -37,12 +37,13 @@ struct PaneArea: View {
                 let frames = item.layout.frames(in: bounds, gap: space)
                 ZStack(alignment: .topLeading) {
                     ForEach(item.panes, id: \.self) { pane in
-                        if let model = tabs.models[pane], let frame = frames[pane] {
-                            TerminalRepresentable(
-                                model: model,
-                                optionAsMeta: optionAsMeta,
-                                translucent: translucent,
-                                focused: pane == item.focused
+                        if let content = tabs.contents[pane], let frame = frames[pane] {
+                            content.makeView(
+                                PaneViewContext(
+                                    focused: pane == item.focused,
+                                    translucent: translucent,
+                                    optionAsMeta: optionAsMeta
+                                )
                             )
                             .frame(width: frame.width, height: frame.height)
                             .modifier(
@@ -124,7 +125,7 @@ struct PaneArea: View {
     /// Only the panes that touch the top of the area have the strip above them.
     private func applyInsets(_ frames: [PaneID: CGRect], bounds: CGRect) {
         for (pane, frame) in frames {
-            tabs.models[pane]?.apply(topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0)
+            tabs.terminal(pane)?.apply(topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0)
         }
     }
 
@@ -134,7 +135,7 @@ struct PaneArea: View {
             let hoveredID = tabs.hoveredItem,
             hoveredID != tabs.workspace.selectedID,
             let item = tabs.workspace.items.first(where: { $0.id == hoveredID }),
-            let model = tabs.models[item.focused],
+            let model = tabs.terminal(item.focused),
             let surface = model.lastSurface
         {
             TabPreviewCard(model: model, surface: surface, layout: layout)
