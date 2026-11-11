@@ -16,6 +16,9 @@ extension Reader {
                         configuration.terminal.opacity = factor
                         terminalOpacitySet = true
                     }
+                case "clipboardWrite":
+                    guard let flag = bool("terminal.clipboardWrite", value) else { continue }
+                    configuration.terminal.clipboardWrite = flag
                 default: unknown("terminal.\(key)")
             }
         }

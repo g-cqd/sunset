@@ -1,4 +1,5 @@
 import AppKit
+import SunsetConfig
 import SunsetCore
 import SunsetHost
 import UserNotifications
@@ -8,7 +9,7 @@ import UserNotifications
 extension TerminalModel {
     func watchHostEvents(_ session: TerminalSession) async {
         var gate = NotificationGate()
-        for await event in session.hostEvents {
+        for await event in session.hostEvents where policy.admits(event) {
             switch event {
                 case .clipboardWrite(let text):
                     NSPasteboard.general.clearContents()
@@ -19,6 +20,11 @@ extension TerminalModel {
                     await show(title: title, body: body)
             }
         }
+    }
+
+    /// Read for each event: a setting changed while the shell runs applies to what it asks next.
+    private var policy: HostPolicy {
+        HostPolicy(clipboardWrite: AppConfiguration.shared.configuration.terminal.clipboardWrite)
     }
 
     private func show(title: String, body: String) async {
