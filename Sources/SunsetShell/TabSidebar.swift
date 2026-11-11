@@ -50,6 +50,11 @@ package struct TabSidebar: View {
             .frame(maxWidth: .infinity)
         }
         .gesture(WindowDragGesture())
+        // On the sidebar's empty area (a row's own menu wins over it).
+        .contextMenu {
+            Button("New Folder") { tabs.newFolder() }
+            Button("New Tab") { tabs.newTab() }
+        }
         .scrollIndicators(.never)
         .contentMargins(.top, topInset, for: .scrollContent)
         .contentMargins(.bottom, margin, for: .scrollContent)
@@ -138,6 +143,7 @@ package struct TabSidebar: View {
             .contextMenu {
                 Button("Rename Tab…") { tabs.beginRename(item: item.id) }
                 Button("Add to Favorites") { tabs.keep(item: item.id) }
+                Button("New Folder with This Tab") { tabs.newFolder(with: item.id) }
                 Button("Close Tab") { tabs.close(item: item.id) }
                 Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
                     .disabled(tabs.workspace.count < 2)

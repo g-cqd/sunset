@@ -18,7 +18,7 @@ struct FavoritesSection: View {
                 Group {
                     switch favorites.node(row.id) {
                         case .entry(let entry): entryRow(entry)
-                        case .folder(let folder): folderRow(folder)
+                        case .folder(let folder): FolderRow(tabs: tabs, folder: folder, layout: layout)
                         case nil: EmptyView()
                     }
                 }
@@ -88,16 +88,5 @@ struct FavoritesSection: View {
             }
             Button("Delete") { tabs.delete(entry: entry.id) }
         }
-    }
-
-    private func folderRow(_ folder: Favorites.Folder) -> some View {
-        Label(folder.name, systemImage: folder.isCollapsed ? "folder" : "folder.fill")
-            .font(.system(size: 12))
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, layout.tabPaddingLeading)
-            .padding(.vertical, layout.tabPaddingVertical + 2)
-            .contentShape(.rect)
-            .onTapGesture { tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) } }
     }
 }

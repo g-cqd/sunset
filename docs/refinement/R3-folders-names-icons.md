@@ -110,3 +110,17 @@ app quits with its last window); the owner's answer above replaces it.
 | Tampering | Stored with a check only Sunset can make (a signature keyed by a secret in the Keychain); a command whose check fails is shown, never run, until confirmed in the dialog | |
 | The dialog | "Edit Command…" in the entry's menu, a sheet showing it whole; "Run Command Now" for an open entry | "Both maybe": a wider Entry Settings sheet can come later, with the name and icon popover (step c) |
 | When the command ends | The shell stays | |
+
+## Folders in the sidebar (t142), its questions answered (2026-11-11)
+
+| Question | Answer | His note |
+| --- | --- | --- |
+| How nesting is drawn | An indent per level and a folder icon, filled when open | |
+| A new tab while an entry in a folder is shown | In Tabs, as now | |
+| New Folder | Makes "New Folder" and edits its name in place | |
+| New Folder with This Tab | The tab is kept in a new folder at the end of Favorites | |
+| Dropping on a folder's row | Anywhere on it: into it | |
+| Close Folder | **Removed.** A folder never opens or closes what it holds | "Folders can't open or close tabs, they're just synthetic organization made to tidy and sort tabs and bookmarks, a reflection of bookmarks worked through a different navigation paradigm" |
+| Deleting a folder that holds entries | Deletes the folder and its entries; open ones stop, with the confirmation when something runs | |
+
+This replaces R3's "Close Folder (closes what is inside)".

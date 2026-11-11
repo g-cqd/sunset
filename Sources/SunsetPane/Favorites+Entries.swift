@@ -49,15 +49,6 @@ extension Favorites {
         return panes
     }
 
-    /// Stops every entry a folder holds, at any depth, and keeps them all (Close Folder); returns the panes that went.
-    @discardableResult
-    public mutating func unload(in folder: NodeID) -> [PaneID] {
-        guard let folder = self.folder(folder) else { return [] }
-        var open: [NodeID] = []
-        Self.openEntries(in: folder.children, into: &open)
-        return open.flatMap { unload($0) }
-    }
-
     /// Stops every entry; returns the panes that went.
     @discardableResult
     public mutating func unloadAll() -> [PaneID] {
@@ -86,15 +77,6 @@ extension Favorites {
             customIcon: entry.icon
         )
         return (item, entry.home.contents)
-    }
-
-    private static func openEntries(in nodes: [Node], into result: inout [NodeID]) {
-        for node in nodes {
-            switch node {
-                case .entry(let entry): if entry.isOpen { result.append(entry.id) }
-                case .folder(let folder): openEntries(in: folder.children, into: &result)
-            }
-        }
     }
 }
 

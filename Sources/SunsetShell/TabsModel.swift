@@ -34,6 +34,8 @@ package final class TabsModel {
     package var renaming: Workspace.ItemID?
     /// The kept entry whose command is being edited, while its sheet is open (`CommandSheet`).
     package var editingCommand: Favorites.NodeID?
+    /// The folder whose name is being edited in place.
+    package var renamingNode: Favorites.NodeID?
     /// Two-step confirmation before closing a tab that has a command running (`n28`).
     package var closeConfirmation = CloseConfirmation()
     /// Whether closing a busy tab requires a second click or ⌘W (`tabs.confirmClose`).
