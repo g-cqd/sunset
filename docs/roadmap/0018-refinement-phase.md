@@ -1,5 +1,5 @@
 ---
-status: sessions R1 to R10 done and accepted 2026-11-11; R11 (t173) and the document store (t172) asked for since, to hold
+status: sessions R1 to R11 done and accepted 2026-11-11; one asked for since is still to hold: the document store (t172)
 blocked-by: nothing (the owner's time)
 date: 2026-11-11
 ---
@@ -35,7 +35,7 @@ A session does not start the next one. Nothing is built during the phase except 
 | R8 (done 2026-11-11: `docs/refinement/R8-the-window-shell-as-a-library.md`, roadmap 0025) | The window shell as a library | Whether and when; its boundary; its name and repository; what the app keeps | t111 |
 | R9 (done 2026-11-11: `docs/refinement/R9-terminal-open-ends-and-notes.md`, roadmap 0026) | The terminal's open ends | OSC 21 and 66, bash shell integration, the resize behaviour of n29, confirming a window's close (the agent's proposition), font settings (n2), the feature survey (n18), remote control (n1), and when performance work resumes | t58, t108, t94, t118, t55, t77, t40, t100 |
 | R10 (done 2026-11-11: the list is cut from 64 open tasks to those that stand; `docs/STATE.md` rewritten; eight leftovers kept as candidates for R9, task t141) | The task list and the roadmap files | Which old tasks are closed, merged or kept (the list has tasks from before the app existed); bringing `docs/STATE.md` and the roadmap files up to what exists | all |
-| R11 (added by the owner in R6) | Commands, App Intents and the command bar | Every action declared once and run by menus, keys, the command bar, App Intents, later remote control; what the system may run without asking; the command bar running actions with no prefix, by word matches, ranked, tolerant of errors | t173 |
+| R11 (added by the owner in R6; done 2026-11-11: `docs/refinement/R11-commands-intents-and-remote-control.md`, roadmap 0027) | Commands, App Intents and the command bar | Every action declared once and run by menus, keys, the command bar, App Intents, later remote control; what the system may run without asking; the command bar running actions with no prefix, by word matches, ranked, tolerant of errors | t186-t194 |
 
 ## Done when
 

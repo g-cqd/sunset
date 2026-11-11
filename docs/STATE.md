@@ -7,11 +7,11 @@ A new session reads this, the white paper, `AGENTS.md`, `docs/roadmap/0018-refin
 
 White paper §10: nothing is built that was not asked for; an idea is a proposition that goes through the owner. The refinement phase (roadmap 0018)
 is in progress: each topic is decided with the owner, alternatives and their costs (speed, memory, safety, security) stated, before any of it is
-built. All ten sessions were held and accepted on 2026-11-11; each has a file in `docs/refinement/` and a roadmap: the web pane (0019), folders
+built. The ten sessions were held and accepted on 2026-11-11; each has a file in `docs/refinement/` and a roadmap: the web pane (0019), folders
 and Favorites (0020), Spaces and profiles (0021), web beyond the first pane (0022), Markdown and the document behind a pane (0023), restoring the
 running state (0024), the window shell as a library (0025), the terminal's open ends (0026). The owner's order of building: folders, the web
-milestone, Markdown, Spaces, profiles, web beyond, restoring, then the terminal items and performance. Two sessions asked for since are still to
-hold: R11 (commands, App Intents, the command bar, remote control; task t173) and Sunset's own document store (t172). Nothing of all this is built.
+milestone, Markdown, Spaces, profiles, web beyond, restoring, then the terminal items and performance. R11, asked for during R6 (commands, keys, the command bar, App
+Intents, remote control), was held too: roadmap 0027, built after the pane work. One session is still to hold: Sunset's own document store (t172). Nothing of all this is built.
 
 ## What exists (macOS 26, Swift 6, 172 commits, nothing pushed: there is no remote)
 
