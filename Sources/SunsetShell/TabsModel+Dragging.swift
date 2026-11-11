@@ -63,6 +63,9 @@ extension TabsModel {
     /// Drops what is dragged onto the tab row `item` with `action`.
     @discardableResult
     package func dropDragged(onto item: Workspace.ItemID, action: TabDropAction) -> Bool {
+        if draggedSelection != nil, action != .split(.left), action != .split(.right) {
+            return dropSelection(onTab: item, after: action == .moveAfter)
+        }
         guard canDrop(onto: item, action: action), let drag = dragged else { return false }
         dragged = nil
         if case .entry(let entry) = drag {

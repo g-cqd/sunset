@@ -37,6 +37,9 @@ package final class TabsModel {
     /// The row whose name is being edited in place, and the row whose icon popover is open.
     package var renamingRow: RowTarget?
     package var iconRow: RowTarget?
+    /// The rows selected together (Cmd-click, Shift-click), in the sidebar's order, and the row a Shift-click counts from (R3 step d).
+    package var marked: [RowTarget] = []
+    package var markAnchor: RowTarget?
     /// Two-step confirmation before closing a tab that has a command running (`n28`).
     package var closeConfirmation = CloseConfirmation()
     /// Whether closing a busy tab requires a second click or ⌘W (`tabs.confirmClose`).

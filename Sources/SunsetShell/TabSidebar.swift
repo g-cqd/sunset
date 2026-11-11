@@ -56,6 +56,7 @@ package struct TabSidebar: View {
             Button("New Tab") { tabs.newTab() }
         }
         .scrollIndicators(.never)
+        .modifier(EscapeClearsMarks(tabs: tabs))
         .contentMargins(.top, topInset, for: .scrollContent)
         .contentMargins(.bottom, margin, for: .scrollContent)
         .onHover { inside in if !inside { closingSlot = nil } }
@@ -97,6 +98,7 @@ package struct TabSidebar: View {
                 showDirectory: settings.tabs.bar.showDirectory,
                 showProgress: settings.tabs.bar.showProgress,
                 layout: layout,
+                marked: tabs.isMarked(.tab(item.id)),
                 renaming: renaming(.tab(item.id)),
                 close: {
                     closingSlot = slot
@@ -131,7 +133,7 @@ package struct TabSidebar: View {
                 }
             }
             .onTapGesture(count: 2) { tabs.renamingRow = .tab(item.id) }
-            .onTapGesture { tabs.select(item: item.id) }
+            .selectionTaps(tabs, row: .tab(item.id)) { tabs.select(item: item.id) }
             .iconPopover(tabs: tabs, row: .tab(item.id))
             .onDrag { tabs.itemProvider(for: .item(item.id)) }
             .onDrop(
@@ -144,6 +146,7 @@ package struct TabSidebar: View {
                 )
             )
             .contextMenu {
+                SelectionMenu(tabs: tabs, row: .tab(item.id))
                 Button("Rename") { tabs.renamingRow = .tab(item.id) }
                 Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item.id) }
                 Button("Add to Favorites") { tabs.keep(item: item.id) }

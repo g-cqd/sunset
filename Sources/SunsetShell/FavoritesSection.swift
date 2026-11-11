@@ -55,6 +55,7 @@ struct FavoritesSection: View {
             layout: layout,
             button: entry.isOpen ? .unload : .delete,
             dimmed: !entry.isOpen,
+            marked: tabs.isMarked(.node(entry.id)),
             renaming: tabs.renamingRow == .node(entry.id)
                 ? (
                     tabs.name(of: .node(entry.id)),
@@ -77,27 +78,30 @@ struct FavoritesSection: View {
         .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
         .overlay { dropMark(entry.id) }
         .onTapGesture(count: 2) { tabs.renamingRow = .node(entry.id) }
-        .onTapGesture { tabs.select(entry: entry.id) }
+        .selectionTaps(tabs, row: .node(entry.id)) { tabs.select(entry: entry.id) }
         .iconPopover(tabs: tabs, row: .node(entry.id))
         .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
         .onDrop(
             of: [.plainText, .utf8PlainText],
             delegate: EntryRowDropDelegate(tabs: tabs, entry: entry.id, height: heights[entry.id] ?? 32, active: $drop)
         )
-        .contextMenu {
-            Button("Remove from Favorites") { tabs.release(entry: entry.id) }
-            Button("Rename") { tabs.renamingRow = .node(entry.id) }
-            Button("Change Icon…") { tabs.iconRow = .node(entry.id) }
-            Button("Edit Command…") { tabs.editingCommand = entry.id }
-            if entry.isOpen {
-                if entry.command != nil {
-                    Button("Run Command Now") { tabs.favorites.runCommandNow(entry.id) }
-                        .disabled(!tabs.favorites.isTrusted(entry.id))
-                }
-                Button("Set Home to Current") { tabs.favorites.setHomeToCurrent(entry.id) }
-                Button("Unload") { tabs.unload(entry: entry.id) }
+        .contextMenu { entryMenu(entry) }
+    }
+
+    @ViewBuilder private func entryMenu(_ entry: Favorites.Entry) -> some View {
+        SelectionMenu(tabs: tabs, row: .node(entry.id))
+        Button("Remove from Favorites") { tabs.release(entry: entry.id) }
+        Button("Rename") { tabs.renamingRow = .node(entry.id) }
+        Button("Change Icon…") { tabs.iconRow = .node(entry.id) }
+        Button("Edit Command…") { tabs.editingCommand = entry.id }
+        if entry.isOpen {
+            if entry.command != nil {
+                Button("Run Command Now") { tabs.favorites.runCommandNow(entry.id) }
+                    .disabled(!tabs.favorites.isTrusted(entry.id))
             }
-            Button("Delete") { tabs.delete(entry: entry.id) }
+            Button("Set Home to Current") { tabs.favorites.setHomeToCurrent(entry.id) }
+            Button("Unload") { tabs.unload(entry: entry.id) }
         }
+        Button("Delete") { tabs.delete(entry: entry.id) }
     }
 }

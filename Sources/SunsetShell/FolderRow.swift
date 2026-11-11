@@ -38,15 +38,21 @@ struct FolderRow: View {
         .padding(.vertical, layout.tabPaddingVertical + 2)
         .background(
             RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-                .fill(Color(nsColor: .controlAccentColor).opacity(targeted ? 0.22 : 0))
+                .fill(
+                    Color(nsColor: .controlAccentColor)
+                        .opacity(targeted ? 0.22 : (tabs.isMarked(.node(folder.id)) ? 0.18 : 0))
+                )
         )
         .contentShape(.rect)
         .onTapGesture(count: 2) { tabs.renamingRow = .node(folder.id) }
-        .onTapGesture { tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) } }
+        .selectionTaps(tabs, row: .node(folder.id)) {
+            tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) }
+        }
         .onDrag { tabs.itemProvider(for: .entry(folder.id)) }
         .iconPopover(tabs: tabs, row: .node(folder.id))
         .onDrop(of: [.plainText, .utf8PlainText], delegate: Drop(tabs: tabs, folder: folder.id, targeted: $targeted))
         .contextMenu {
+            SelectionMenu(tabs: tabs, row: .node(folder.id))
             Button("Rename") { tabs.renamingRow = .node(folder.id) }
             Button("Change Icon…") { tabs.iconRow = .node(folder.id) }
             Button("New Folder Inside") { tabs.newFolder(in: folder.id) }
