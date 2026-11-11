@@ -25,7 +25,7 @@ extension SettingsView {
             case "terminal.shellIntegration":
                 VStack(alignment: .leading, spacing: 4) {
                     Toggle("Shell marks its prompts", isOn: config.binding(\.terminal.shellIntegration))
-                    Text("For Previous Prompt and Next Prompt. zsh only, in new tabs; your own files are not changed.")
+                    Text("For Previous Prompt and Next Prompt, in new zsh tabs. fish does it itself.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             case "window.blur": number("Window blur", \.window.blur, range: 0 ... 100, step: 1, unit: "pt")

@@ -56,4 +56,25 @@ import Testing
         try session.send("exit\n")
         #expect(session.waitForExit())
     }
+
+    private static let fish = ["/opt/homebrew/bin/fish", "/usr/local/bin/fish"]
+        .first {
+            FileManager.default.isExecutableFile(atPath: $0)
+        }
+
+    /// fish (4 and later) marks its prompts by itself, which is why it is not taught: this holds the reason true on a machine that has it.
+    @Test(.enabled(if: fish != nil)) func `fish marks its prompts with nothing added`() throws {
+        let home = try temporary("fish")
+        let environment = ["HOME": home, "XDG_CONFIG_HOME": home, "TERM": "xterm-256color"]
+        #expect(
+            try ShellIntegration.environment(for: [Self.fish ?? "fish"], inherited: environment, directory: home)
+                .isEmpty
+        )
+        let session = try HeadlessSession([Self.fish ?? "fish", "-i"], columns: 120, rows: 10, environment: environment)
+        #expect(session.wait { $0.screen.promptMarks.contains { $0.kind == .promptStart } })
+        try session.send("false\n")
+        #expect(session.wait { $0.screen.promptMarks.contains { $0.kind == .commandEnd && $0.exitStatus == 1 } })
+        try session.send("exit\n")
+        #expect(session.waitForExit())
+    }
 }
