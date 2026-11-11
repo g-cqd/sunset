@@ -59,7 +59,7 @@ public struct Screen: Sendable {
     /// A program set the style itself (DECSCUSR 1 to 6), so a later change of the default does not undo it.
     var cursorChosen = false
 
-    /// What changed since the last `clearDirty`, kept by physical row of the grid (`Grid.rowMap`), so that a scroll, which rotates the row map, carries it for
+    /// What changed since the last `clearDirty`, kept by physical row of the grid (`Grid.physical`), so that a scroll, which rotates the row map, carries it for
     /// nothing: whether the row was written (or blanked), and the screen row it was at. A screen row is dirty when its physical row was written or now sits
     /// elsewhere (`isDirty(row:)`, `movedFrom(row:)`). (With a second array kept by screen row and rotated with the row map, vtebench's scrolling of
     /// one-character lines was 15-22 % slower.)
@@ -139,7 +139,7 @@ public struct Screen: Sendable {
     public var cellStyles: ContiguousArray<CellStyle> { styles.styles }
     public func style(row: Int, column: Int) -> CellStyle { styles[grid[row, column].styleID] }
     /// Whether the line at `row` continues on the next one (it wrapped).
-    public func isWrapped(row: Int) -> Bool { grid.wrapped[Int(grid.rowMap[row])] }
+    public func isWrapped(row: Int) -> Bool { grid.isWrapped(row: row) }
 
     /// The row as text: empty cells are spaces, the second half of a wide character is skipped, trailing spaces are dropped.
     public func text(row: Int) -> String {
@@ -172,7 +172,7 @@ public struct Screen: Sendable {
     // MARK: Dirty rows (what a renderer must redraw, ADR-0024)
 
     public func isDirty(row: Int) -> Bool {
-        let physical = Int(grid.rowMap[row])
+        let physical = grid.physical(row)
         return writtenRows[physical] || rowOrigins[physical] != Int32(row)
     }
 
@@ -181,7 +181,7 @@ public struct Screen: Sendable {
     /// Marks every row clean: the renderer has taken what it needed.
     public mutating func clearDirty() {
         for row in 0 ..< rows {
-            let physical = Int(grid.rowMap[row])
+            let physical = grid.physical(row)
             writtenRows[physical] = false
             rowOrigins[physical] = Int32(row)
         }
@@ -189,16 +189,16 @@ public struct Screen: Sendable {
 
     mutating func markDirty(_ row: Int) {
         // Read before writing: a row already marked (the one a scroll just brought in, the one being typed on) costs no uniqueness check.
-        let physical = Int(grid.rowMap[row])
+        let physical = grid.physical(row)
         if !writtenRows[physical] { writtenRows[physical] = true }
         generation &+= 1
     }
 
     mutating func markDirty(_ range: ClosedRange<Int>) {
         guard range.count > 1 else { return markDirty(range.lowerBound) }
-        let map = grid.rowMap
-        writtenRows.withUnsafeMutableBufferPointer { written in
-            for row in range { written[Int(map[row])] = true }
+        for row in range {
+            let physical = grid.physical(row)
+            if !writtenRows[physical] { writtenRows[physical] = true }
         }
         generation &+= 1
     }

@@ -24,8 +24,7 @@ extension Screen {
         let n = min(count, last - first + 1)
         guard n > 0 else { return }
         if saveHistory, first == 0, !isAlternate { Self.save(rows: n, of: grid, into: &scrollback) }
-        Self.rotate(&grid.rowMap, first ... last, leftBy: n)
-        blankRows(last - n + 1 ... last)
+        grid.scrollUp(first ... last, by: n, blank: Cell(scalar: 0, width: .narrow, style: currentEraseID()))
         markDirty(last - n + 1 ... last)
     }
 
@@ -33,8 +32,7 @@ extension Screen {
     mutating func scrollDown(from first: Int, to last: Int, by count: Int) {
         let n = min(count, last - first + 1)
         guard n > 0 else { return }
-        Self.rotate(&grid.rowMap, first ... last, leftBy: last - first + 1 - n)
-        blankRows(first ... first + n - 1)
+        grid.scrollDown(first ... last, by: n, blank: Cell(scalar: 0, width: .narrow, style: currentEraseID()))
         markDirty(first ... first + n - 1)
     }
 
@@ -47,47 +45,9 @@ extension Screen {
                 let start = grid.base(target)
                 history.push(
                     cells: UnsafeBufferPointer(rebasing: cells[start ..< start + grid.usedCount(row: target)]),
-                    wrapped: grid.wrapped[Int(grid.rowMap[target])]
+                    wrapped: grid.isWrapped(row: target)
                 )
             }
-        }
-    }
-
-    /// Rotates a range of a per-row array in place: one line (the common scroll) moves the rest down with a single copy; more take three reversals. Both
-    /// work on the buffer itself, so a scroll does not pay for a uniqueness check and a bounds check per row.
-    private static func rotate(_ rows: inout ContiguousArray<Int32>, _ range: ClosedRange<Int>, leftBy n: Int) {
-        guard n > 0, n < range.count else { return }
-        rows.withUnsafeMutableBufferPointer { map in
-            guard let start = map.baseAddress.map({ $0 + range.lowerBound }) else { return }
-            let count = range.count
-            if n == 1 {
-                let first = start.pointee
-                start.update(from: start + 1, count: count - 1)
-                (start + count - 1).pointee = first
-                return
-            }
-            Self.reverse(start, 0, n - 1)
-            Self.reverse(start, n, count - 1)
-            Self.reverse(start, 0, count - 1)
-        }
-    }
-
-    private static func reverse(_ start: UnsafeMutablePointer<Int32>, _ first: Int, _ last: Int) {
-        var low = first
-        var high = last
-        while low < high {
-            swap(&start[low], &start[high])
-            low += 1
-            high -= 1
-        }
-    }
-
-    private mutating func blankRows(_ rows: ClosedRange<Int>) {
-        let blank = Cell(scalar: 0, width: .narrow, style: currentEraseID())
-        for row in rows {
-            grid.fill(row: row, from: 0, to: columns - 1, with: blank)
-            let physical = Int(grid.rowMap[row])
-            if grid.wrapped[physical] { grid.wrapped[physical] = false }
         }
     }
 }

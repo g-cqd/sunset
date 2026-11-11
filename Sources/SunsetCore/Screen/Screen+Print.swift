@@ -139,7 +139,7 @@ extension Screen {
 
     /// The line continues on the next row: mark it, return the carriage and move down (scrolling at the bottom of the region).
     mutating func wrap() {
-        grid.wrapped[Int(grid.rowMap[row])] = true
+        grid.setWrapped(row: row, true)
         column = 0
         lineFeed()
     }
