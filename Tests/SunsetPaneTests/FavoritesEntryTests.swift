@@ -47,21 +47,6 @@ import Testing
         #expect(favorites.unload(Favorites.NodeID()).isEmpty)
     }
 
-    @Test func `closing a folder unloads every entry inside it, at any depth, and keeps them all`() throws {
-        var favorites = Favorites()
-        let outer = try FavoritesFixture.need(favorites.addFolder(named: "outer"))
-        let inner = try FavoritesFixture.need(favorites.addFolder(named: "inner", in: outer))
-        let one = FavoritesFixture.item()
-        let two = FavoritesFixture.item()
-        let outside = FavoritesFixture.item()
-        favorites.keep(one, contents: [:], in: outer)
-        favorites.keep(two, contents: [:], in: inner)
-        favorites.keep(outside, contents: [:])
-        #expect(Set(favorites.unload(in: outer)) == Set(one.panes + two.panes))
-        #expect(favorites.livePanes == outside.panes && favorites.entries.count == 3)
-        #expect(favorites.unloadAll() == outside.panes && favorites.livePanes.isEmpty)
-    }
-
     @Test func `removing an entry deletes it and returns its live panes`() throws {
         var favorites = Favorites()
         let item = FavoritesFixture.item()

@@ -128,12 +128,14 @@ package final class FavoritesModel {
         released(id)
     }
 
-    /// Removes an entry for good.
+    /// Removes an entry, or a folder with everything in it, for good.
     package func delete(_ id: Favorites.NodeID) {
+        let before = Set(favorites.entries.map(\.id))
         var gone: [PaneID] = []
         edit { gone = $0.remove(id) }
         stop(gone)
-        released(id)
+        // The entry itself, or every entry the folder held.
+        for removed in before.subtracting(favorites.entries.map(\.id)).union([id]) { released(removed) }
     }
 
     /// Takes an entry out of the Favorites, as a tab with its content (open), or with what to make it from (not open).
