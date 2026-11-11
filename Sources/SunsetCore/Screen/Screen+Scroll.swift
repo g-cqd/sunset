@@ -86,7 +86,8 @@ extension Screen {
         let blank = Cell(scalar: 0, width: .narrow, style: currentEraseID())
         for row in rows {
             grid.fill(row: row, from: 0, to: columns - 1, with: blank)
-            grid.wrapped[Int(grid.rowMap[row])] = false
+            let physical = Int(grid.rowMap[row])
+            if grid.wrapped[physical] { grid.wrapped[physical] = false }
         }
     }
 }

@@ -188,7 +188,9 @@ public struct Screen: Sendable {
     }
 
     mutating func markDirty(_ row: Int) {
-        writtenRows[Int(grid.rowMap[row])] = true
+        // Read before writing: a row already marked (the one a scroll just brought in, the one being typed on) costs no uniqueness check.
+        let physical = Int(grid.rowMap[row])
+        if !writtenRows[physical] { writtenRows[physical] = true }
         generation &+= 1
     }
 
