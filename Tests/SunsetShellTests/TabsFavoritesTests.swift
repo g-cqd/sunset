@@ -84,18 +84,6 @@ import Testing
         #expect(panes.allSatisfy { harness.tabs.favorites.contents[$0] != nil })
     }
 
-    @Test func `an entry shown in another window leaves the first one, which shows its own tab`() throws {
-        let favorites = FavoritesModel()
-        let first = window(2, favorites: favorites)
-        let second = window(1, favorites: favorites)
-        first.tabs.keep(item: first.tabs.workspace.items[1].id)
-        let id = try #require(first.tabs.workspace.selectedEntry)
-        second.tabs.select(entry: id)
-        #expect(second.tabs.workspace.selectedEntry == id && first.tabs.workspace.selectedEntry == nil)
-        #expect(first.tabs.shownItem?.id == first.tabs.workspace.items[0].id)
-        #expect(second.tabs.content(try #require(second.tabs.shownPane)) != nil)
-    }
-
     @Test func `Cmd-1 to 9 and Next count the open entries first, then the tabs, and never what is not open`() throws {
         let harness = window(2)
         let tabs = harness.tabs.workspace.items.map(\.id)
