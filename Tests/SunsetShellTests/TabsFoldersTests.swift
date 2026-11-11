@@ -19,7 +19,7 @@ import Testing
         let harness = window(1)
         harness.tabs.newFolder()
         let made = try #require(folder(harness))
-        #expect(made.name == "New Folder" && made.children.isEmpty && harness.tabs.renamingNode == made.id)
+        #expect(made.name == "New Folder" && made.children.isEmpty && harness.tabs.renamingRow == .node(made.id))
         #expect(!harness.emptied && harness.tabs.workspace.count == 1)
     }
 

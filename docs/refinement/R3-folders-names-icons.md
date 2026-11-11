@@ -124,3 +124,14 @@ app quits with its last window); the owner's answer above replaces it.
 | Deleting a folder that holds entries | Deletes the folder and its entries; open ones stop, with the confirmation when something runs | |
 
 This replaces R3's "Close Folder (closes what is inside)".
+
+## Names and icons (step c, t143), its questions answered (2026-11-11)
+
+| Question | Answer | His note |
+| --- | --- | --- |
+| Where the symbols come from | Read from the system's SF Symbols data at run time (`CoreGlyphs.bundle`) | Look at local g-cqd projects, mbp23.local or apple-docs for what can be extracted (KittyCode's `SymbolMetadataLoader` reads the same files) |
+| Emojis | A button opening the system's Character Viewer | |
+| A symbol's colour | Preset colours and a colour well | |
+| How the popover opens | From the menu only: Change Icon… | |
+| Renaming in place | Double-click, the menu, and Return on a selected row | |
+| The Rename Tab dialog | Kept for the built-in tab bar | |

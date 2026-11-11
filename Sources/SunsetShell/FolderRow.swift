@@ -20,11 +20,15 @@ struct FolderRow: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: folder.isCollapsed ? "folder" : "folder.fill")
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
-            if tabs.renamingNode == folder.id {
-                InPlaceNameField(text: $name, commit: commit) { tabs.renamingNode = nil }
+            if let icon = folder.icon, PaneIconView.canShow(icon) {
+                PaneIconView(icon: icon).opacity(folder.isCollapsed ? 0.7 : 1)
+            } else {
+                Image(systemName: folder.isCollapsed ? "folder" : "folder.fill")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+            }
+            if tabs.renamingRow == .node(folder.id) {
+                InPlaceNameField(text: $name, commit: commit) { tabs.renamingRow = nil }
             } else {
                 Text(folder.name).font(.system(size: 12)).lineLimit(1)
             }
@@ -37,12 +41,14 @@ struct FolderRow: View {
                 .fill(Color(nsColor: .controlAccentColor).opacity(targeted ? 0.22 : 0))
         )
         .contentShape(.rect)
+        .onTapGesture(count: 2) { tabs.renamingRow = .node(folder.id) }
         .onTapGesture { tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) } }
-        .onTapGesture(count: 2) { tabs.renamingNode = folder.id }
         .onDrag { tabs.itemProvider(for: .entry(folder.id)) }
+        .iconPopover(tabs: tabs, row: .node(folder.id))
         .onDrop(of: [.plainText, .utf8PlainText], delegate: Drop(tabs: tabs, folder: folder.id, targeted: $targeted))
         .contextMenu {
-            Button("Rename") { tabs.renamingNode = folder.id }
+            Button("Rename") { tabs.renamingRow = .node(folder.id) }
+            Button("Change Icon…") { tabs.iconRow = .node(folder.id) }
             Button("New Folder Inside") { tabs.newFolder(in: folder.id) }
             Button("Ungroup") { tabs.favorites.edit { $0.ungroup(folder.id) } }
             Divider()
@@ -52,7 +58,7 @@ struct FolderRow: View {
 
     private func commit() {
         tabs.favorites.edit { $0.rename(folder.id, to: name) }
-        if tabs.renamingNode == folder.id { tabs.renamingNode = nil }
+        if tabs.renamingRow == .node(folder.id) { tabs.renamingRow = nil }
     }
 
     private struct Drop: DropDelegate {

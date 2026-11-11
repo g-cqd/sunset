@@ -187,7 +187,7 @@ extension TabsModel {
     package func newFolder(in parent: Favorites.NodeID? = nil) {
         var made: Favorites.NodeID?
         favorites.edit { made = $0.addFolder(named: "New Folder", in: parent) }
-        renamingNode = made
+        renamingRow = made.map(RowTarget.node)
     }
 
     /// Keeps the tab `item` in a new folder at the end of the Favorites; the folder's name is edited at once.
@@ -196,7 +196,7 @@ extension TabsModel {
         favorites.edit { made = $0.addFolder(named: "New Folder") }
         guard let made else { return }
         keep(item: item, in: made)
-        renamingNode = made
+        renamingRow = .node(made)
     }
 
     /// Deletes a folder and every entry in it; open ones stop, asking first when something runs in one of them.

@@ -97,6 +97,7 @@ package struct TabSidebar: View {
                 showDirectory: settings.tabs.bar.showDirectory,
                 showProgress: settings.tabs.bar.showProgress,
                 layout: layout,
+                renaming: renaming(.tab(item.id)),
                 close: {
                     closingSlot = slot
                     var transaction = Transaction()
@@ -129,7 +130,9 @@ package struct TabSidebar: View {
                     tabs.hoveredItem = nil
                 }
             }
+            .onTapGesture(count: 2) { tabs.renamingRow = .tab(item.id) }
             .onTapGesture { tabs.select(item: item.id) }
+            .iconPopover(tabs: tabs, row: .tab(item.id))
             .onDrag { tabs.itemProvider(for: .item(item.id)) }
             .onDrop(
                 of: [.plainText, .utf8PlainText],
@@ -141,13 +144,22 @@ package struct TabSidebar: View {
                 )
             )
             .contextMenu {
-                Button("Rename Tab…") { tabs.beginRename(item: item.id) }
+                Button("Rename") { tabs.renamingRow = .tab(item.id) }
+                Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item.id) }
                 Button("Add to Favorites") { tabs.keep(item: item.id) }
                 Button("New Folder with This Tab") { tabs.newFolder(with: item.id) }
                 Button("Close Tab") { tabs.close(item: item.id) }
                 Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
                     .disabled(tabs.workspace.count < 2)
             }
+    }
+
+    /// The in-place name of a row while it is being renamed.
+    private func renaming(_ row: RowTarget) -> (start: String, done: (String?) -> Void)? {
+        guard tabs.renamingRow == row else { return nil }
+        return (
+            tabs.name(of: row), { name in if let name { tabs.rename(row, to: name) } else { tabs.renamingRow = nil } }
+        )
     }
 
     /// Pins the sidebar beside the terminal (`sidebar.autoHide` off) or lets it hide and float: the sidebar symbol, filled while the sidebar is open

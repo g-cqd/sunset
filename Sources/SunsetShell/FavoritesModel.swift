@@ -17,8 +17,20 @@ package final class FavoritesModel {
     private var live: [Favorites.NodeID: Weak] = [:]
     /// Something changed that the session file holds.
     @ObservationIgnored package var onChange: () -> Void = {}
-    /// Seals and checks a kept terminal's command (t145); with none, no command is ever run.
-    @ObservationIgnored package var sealer: (any CommandSealing)?
+    /// Makes the sealer of kept terminals' commands, the first time a command is checked or saved: the app's reads a key from the Keychain, which can
+    /// ask the person, so it is never done at launch for nothing (t145).
+    @ObservationIgnored package var makeSealer: () -> (any CommandSealing)? = { nil }
+    @ObservationIgnored private var loadedSealer: (any CommandSealing)??
+    /// Seals and checks a kept terminal's command; with none, no command is ever run.
+    package var sealer: (any CommandSealing)? {
+        get {
+            if let loadedSealer { return loadedSealer }
+            let made = makeSealer()
+            loadedSealer = .some(made)
+            return made
+        }
+        set { loadedSealer = .some(newValue) }
+    }
     /// Entries whose command failed its check (something other than Sunset wrote it): shown, never run, until confirmed in the dialog.
     package internal(set) var unconfirmed: Set<Favorites.NodeID> = []
 

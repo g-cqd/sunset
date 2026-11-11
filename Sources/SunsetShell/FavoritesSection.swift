@@ -55,6 +55,13 @@ struct FavoritesSection: View {
             layout: layout,
             button: entry.isOpen ? .unload : .delete,
             dimmed: !entry.isOpen,
+            renaming: tabs.renamingRow == .node(entry.id)
+                ? (
+                    tabs.name(of: .node(entry.id)),
+                    { name in
+                        if let name { tabs.rename(.node(entry.id), to: name) } else { tabs.renamingRow = nil }
+                    }
+                ) : nil,
             close: { entry.isOpen ? tabs.unload(entry: entry.id) : tabs.delete(entry: entry.id) }
         )
         .overlay(alignment: .topLeading) {
@@ -69,7 +76,9 @@ struct FavoritesSection: View {
         }
         .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
         .overlay { dropMark(entry.id) }
+        .onTapGesture(count: 2) { tabs.renamingRow = .node(entry.id) }
         .onTapGesture { tabs.select(entry: entry.id) }
+        .iconPopover(tabs: tabs, row: .node(entry.id))
         .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
         .onDrop(
             of: [.plainText, .utf8PlainText],
@@ -77,6 +86,8 @@ struct FavoritesSection: View {
         )
         .contextMenu {
             Button("Remove from Favorites") { tabs.release(entry: entry.id) }
+            Button("Rename") { tabs.renamingRow = .node(entry.id) }
+            Button("Change Icon…") { tabs.iconRow = .node(entry.id) }
             Button("Edit Command…") { tabs.editingCommand = entry.id }
             if entry.isOpen {
                 if entry.command != nil {
