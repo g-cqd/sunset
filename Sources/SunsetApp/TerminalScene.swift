@@ -161,7 +161,7 @@ struct TerminalScene: View {
     }
 
     private var tabBar: some View {
-        BuiltInTabBar(tabs: tabs, settings: configuration.tabs.bar)
+        BuiltInTabBar(tabs: tabs, settings: ShellSettings(configuration).tabs.bar)
             .padding(.leading, noDecorations && barAtTop ? 72 : 0)
             .background { windowDragSurface }
     }

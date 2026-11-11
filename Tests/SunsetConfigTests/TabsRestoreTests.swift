@@ -18,6 +18,16 @@ import Testing
         #expect(bad.configuration.tabs.bar.showIcon && bad.issues.map(\.path) == ["tabs.bar.icon"])
     }
 
+    @Test func `tabs.keepRunningForFavorites defaults to true, parses booleans, and is written back`() throws {
+        #expect(Configuration().tabs.keepRunningForFavorites)
+        let off = try ConfigurationParser.parse(#"{ "tabs": { "keepRunningForFavorites": false } }"#)
+        #expect(!off.configuration.tabs.keepRunningForFavorites && off.issues.isEmpty)
+        let bad = try ConfigurationParser.parse(#"{ "tabs": { "keepRunningForFavorites": 3 } }"#)
+        #expect(
+            bad.configuration.tabs.keepRunningForFavorites && bad.issues.map(\.path) == ["tabs.keepRunningForFavorites"]
+        )
+    }
+
     @Test func `tabs.confirmClose defaults to true and parses booleans`() throws {
         #expect(Configuration().tabs.confirmClose)
         let off = try ConfigurationParser.parse(#"{ "tabs": { "confirmClose": false } }"#)

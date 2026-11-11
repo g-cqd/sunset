@@ -146,6 +146,9 @@ public struct Configuration: Sendable, Equatable {
         public var restore = true
         /// Closing a tab with a running command tints it red on the first click or ⌘W and requires a second one to confirm (`n28`).
         public var confirmClose = true
+        /// Closing the last window does not quit the app while a kept entry of the Favorites is open: what runs in it goes on, and a new window shows it
+        /// again. Off: the app quits with its last window, as before (R3).
+        public var keepRunningForFavorites = true
         public init() {}
     }
 
