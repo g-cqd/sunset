@@ -70,9 +70,11 @@ import Testing
     @Test func `a session reads back with each window's pane directories`() throws {
         let workspace = sample()
         let pane = workspace.allPanes[0]
-        let session = SavedSession(windows: [SavedWindow(workspace: workspace, directories: [pane: "/tmp/x"])])
+        let session = SavedSession(windows: [
+            SavedWindow(workspace: workspace, contents: [pane: .terminal(directory: "/tmp/x")])
+        ])
         let back = try #require(SavedSession(data: try session.encoded()))
-        #expect(back == session && back.windows[0].directories[pane] == "/tmp/x")
+        #expect(back == session && back.windows[0].contents[pane]?.directory == "/tmp/x")
     }
 
     @Test func `nonsense, an empty file and another version read as no session`() {
