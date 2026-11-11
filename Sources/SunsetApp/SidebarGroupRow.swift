@@ -53,7 +53,7 @@ struct SidebarGroupRow: View {
 
     private func part(_ pane: PaneID) -> some View {
         SidebarGroupPart(
-            model: tabs.models[pane],
+            model: tabs.contents[pane],
             lit: selected && pane == item.focused,
             layout: layout,
             onHoverChange: { inside in

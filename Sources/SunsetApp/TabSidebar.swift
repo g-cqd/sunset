@@ -65,7 +65,7 @@ struct TabSidebar: View {
             let slot = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
             let custom = tabs.custom(for: item)
             SidebarRow(
-                model: tabs.models[item.focused],
+                model: tabs.contents[item.focused],
                 selected: item.id == tabs.workspace.selectedID,
                 armed: armed,
                 keepCloseVisible: slot != nil && slot == closingSlot,

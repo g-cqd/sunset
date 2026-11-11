@@ -11,7 +11,7 @@ final class TabRegistry {
     struct Row: Identifiable {
         let id: ObjectIdentifier
         let window: NSWindow
-        let model: TerminalModel?
+        let model: (any PaneContent)?
         let isSelected: Bool
     }
 
@@ -56,7 +56,7 @@ final class TabRegistry {
             Row(
                 id: ObjectIdentifier(member),
                 window: member,
-                model: entries[ObjectIdentifier(member)]?.tabs?.selectedModel,
+                model: entries[ObjectIdentifier(member)]?.tabs?.selectedContent,
                 isSelected: member === selected
             )
         }

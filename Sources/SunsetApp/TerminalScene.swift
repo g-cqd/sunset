@@ -86,8 +86,8 @@ struct TerminalScene: View {
             )
         )
         .preferredColorScheme(configuration.appearance.scheme.colorScheme)
-        .navigationTitle(tabs.selectedModel?.title ?? "Sunset")
-        .focusedSceneValue(\.terminalModel, tabs.selectedModel)
+        .navigationTitle(tabs.selectedContent?.title ?? "Sunset")
+        .focusedSceneValue(\.terminalModel, tabs.selectedTerminal)
         .task { start() }
         .animation(configuration.layout.smooth, value: configuration.sidebar.autoHide)
         .animation(configuration.layout.smooth, value: configuration.sidebar.padding)
@@ -124,7 +124,7 @@ struct TerminalScene: View {
     }
 
     @ViewBuilder private var terminal: some View {
-        if tabs.selectedModel != nil {
+        if tabs.selectedContent != nil {
             PaneArea(
                 tabs: tabs,
                 optionAsMeta: configuration.keyboard.optionAsMeta,
@@ -179,18 +179,14 @@ struct TerminalScene: View {
     private func start() {
         AppActions.shared.openTerminalWindow = { openWindow(id: "terminal") }
         tabs.onEmpty = { dismiss() }
-        tabs.makeModel = { makeModel() }
+        tabs.makeContent = { makeContent($0) }
         tabs.onChange = { SessionStore.shared.scheduleSave() }
         if tabs.workspace.isEmpty {
             // A terminal that was running in another window is waiting for this one, else the saved tabs of an earlier run, else a new one starts.
             if !AppActions.shared.handoff.isEmpty {
                 tabs.adopt(AppActions.shared.handoff.removeFirst())
             } else if let saved = SessionStore.shared.take() {
-                tabs.restore(saved) {
-                    var isDirectory: ObjCBool = false
-                    return FileManager.default.fileExists(atPath: $0, isDirectory: &isDirectory)
-                        && isDirectory.boolValue
-                }
+                tabs.restore(saved)
                 // The other windows of the session open one after the other, each taking the next saved window.
                 if SessionStore.shared.hasPending { AppActions.shared.openTerminalWindow() }
             } else {
@@ -206,8 +202,13 @@ struct TerminalScene: View {
         AppActions.shared.joinPendingTab(window)
     }
 
-    private func makeModel() -> TerminalModel {
+    /// A terminal for nil or a terminal's descriptor (in its directory, when that is still there); else what `PaneContentKinds` makes of it.
+    private func makeContent(_ descriptor: PaneDescriptor?) -> any PaneContent {
+        if let descriptor, descriptor.kind != PaneDescriptor.terminalKind {
+            return PaneContentKinds.make(descriptor) { SessionStore.shared.scheduleSave() }
+        }
         let model = TerminalModel()
+        model.startDirectory = descriptor?.directory.flatMap { PaneContentKinds.isDirectory($0) ? $0 : nil }
         model.topInsetPoints = topInset
         configure(model)
         let integrated = configuration.terminal.shellIntegration
@@ -231,6 +232,6 @@ struct TerminalScene: View {
     }
 
     private func forEachModel(_ body: (TerminalModel) -> Void) {
-        for model in tabs.allModels { body(model) }
+        for model in tabs.allTerminals { body(model) }
     }
 }

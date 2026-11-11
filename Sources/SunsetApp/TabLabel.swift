@@ -3,7 +3,7 @@ import SwiftUI
 
 /// What one tab shows: its title, and, as the configuration says, the working directory and the progress the program reported.
 struct TabLabel: View {
-    let model: TerminalModel?
+    let model: (any PaneContent)?
     var showIcon = false
     var showTitle = true
     var showDirectory = false
@@ -18,22 +18,17 @@ struct TabLabel: View {
                 if let icon {
                     PaneIconView(icon: icon)
                 } else if let model {
-                    TabGlyphView(glyph: Self.glyph(of: model))
+                    PaneGlyphView(glyph: model.glyph)
                 }
             }
             lines
         }
     }
 
-    /// What the tab is about: the folder the program is in (with its first letter), or the command in front.
-    static func glyph(of model: TerminalModel) -> TabGlyph {
-        TabGlyph.make(directory: model.directory, command: model.foregroundCommand, home: NSHomeDirectory())
-    }
-
     private var lines: some View {
         VStack(alignment: .leading, spacing: 1) {
             if showTitle { Text(name ?? model?.title ?? "Sunset").lineLimit(1) }
-            if showDirectory, let directory = model?.directory {
+            if showDirectory, let directory = model?.detail {
                 Text(Self.shortened(directory)).font(.caption).foregroundStyle(.secondary).lineLimit(1)
             }
             if showProgress, let progress = model?.progress {

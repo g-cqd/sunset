@@ -4,7 +4,7 @@ import SwiftUI
 /// One small tab inside a split tab's container: its title, a slight highlight under the pointer, and, when it is the focused pane of the selected tab, a
 /// stronger one with the same hairline the selected tab row has.
 struct SidebarGroupPart: View {
-    let model: TerminalModel?
+    let model: (any PaneContent)?
     let lit: Bool
     let layout: Configuration.Layout
     var onHoverChange: (Bool) -> Void = { _ in }

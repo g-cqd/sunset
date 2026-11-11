@@ -4,12 +4,15 @@ extension TabsModel {
     /// Opens the bar for searching the tabs, or closes it when it is open.
     func toggleBar() { bar = bar == nil ? CommandBar(purpose: .search) : nil }
 
-    /// What a candidate of the bar is searched by: the title, the directory and the program in front of each of its panes.
+    /// What a candidate of the bar is searched by: the name the tab was given, and the title, the second line (a directory) and, for a terminal, the
+    /// program in front of each of its panes.
     func fields(of item: Workspace.Item) -> [String] {
-        item.panes.flatMap { pane -> [String] in
-            guard let model = models[pane] else { return [] }
-            return [model.title, model.directory ?? "", model.foregroundCommand ?? ""].filter { !$0.isEmpty }
+        let own = [item.customTitle ?? ""]
+        let parts = item.panes.flatMap { pane -> [String] in
+            guard let content = contents[pane] else { return [] }
+            return [content.title, content.detail ?? "", terminal(pane)?.foregroundCommand ?? ""]
         }
+        return (own + parts).filter { !$0.isEmpty }
     }
 
     /// The tabs the bar lists for its query, best first (for splitting: all but the dropped tab).

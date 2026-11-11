@@ -3,22 +3,20 @@ import Observation
 import SunsetHost
 import SunsetPane
 
-/// The tabs of one window: their order, the selection and the split of each (`Workspace`), and the terminal of each pane. The programs belong to this store,
-/// not to a view, so the presentation (built-in bar, or one tab per window with the sidebar listing them) can change while they run. A pane that is not
-/// shown is told it has no focus and is not visible, so that it neither blinks nor draws; of the shown panes only the focused one blinks.
+/// The tabs of one window: their order, the selection and the split of each (`Workspace`), and the content of each pane (`PaneContent`: a terminal, a
+/// note). The contents belong to this store, not to a view, so the presentation (built-in bar, or one tab per window with the sidebar listing them) can
+/// change while they run. A pane that is not shown is told it has no focus and is not visible, so that it neither blinks nor draws; of the shown panes
+/// only the focused one blinks.
 @MainActor @Observable
 final class TabsModel {
     private(set) var workspace = Workspace()
-    private(set) var models: [PaneID: TerminalModel] = [:]
-    /// Makes and configures a terminal for a new pane (the scene knows the launch options and the configuration).
-    @ObservationIgnored var makeModel: () -> TerminalModel = { TerminalModel() }
+    private(set) var contents: [PaneID: any PaneContent] = [:]
+    /// Makes the content of a pane: a new terminal for nil, else what the descriptor says (the scene knows the launch options and the configuration).
+    @ObservationIgnored var makeContent: (PaneDescriptor?) -> any PaneContent = { _ in TerminalModel() }
     /// The last tab was closed: the window goes.
     @ObservationIgnored var onEmpty: () -> Void = {}
     /// The tabs changed (added, closed, moved, split, selected): the session is to be saved.
     @ObservationIgnored var onChange: () -> Void = {}
-    /// The directories a restored window had, for panes that have not started yet (a tab starts when it is first shown) and so cannot report their own.
-    @ObservationIgnored private var savedDirectories: [PaneID: String] = [:]
-
     /// What a sidebar or bar drag in this window carries, from its start until it is dropped (set when the drag begins; see `beginDrag`).
     @ObservationIgnored var dragged: PaneDragPayload?
     /// The command bar, when it is open: searching the tabs, or (after the selected tab was dropped on its own content) choosing the tab to split with.
@@ -37,60 +35,49 @@ final class TabsModel {
     var confirmClose = true
     @ObservationIgnored private var expiryTask: Task<Void, Never>?
 
-    var selectedModel: TerminalModel? { workspace.selectedPane.flatMap { models[$0] } }
-    var allModels: [TerminalModel] { workspace.allPanes.compactMap { models[$0] } }
+    /// The terminal in `pane`, when that is what it holds: for what only a terminal has (its font, its screen, copy and paste).
+    func terminal(_ pane: PaneID) -> TerminalModel? { contents[pane] as? TerminalModel }
+    var selectedContent: (any PaneContent)? { workspace.selectedPane.flatMap { contents[$0] } }
+    var selectedTerminal: TerminalModel? { workspace.selectedPane.flatMap(terminal) }
+    var allTerminals: [TerminalModel] { workspace.allPanes.compactMap(terminal) }
 
     // MARK: Adding
 
-    /// A new tab, selected, after the current one.
-    @discardableResult
-    func newTab() -> TerminalModel {
-        let model = makeModel()
-        register(model, as: workspace.add().pane)
-        return model
+    /// A new tab, selected, after the current one: a terminal, or what `descriptor` says.
+    func newTab(_ descriptor: PaneDescriptor? = nil) {
+        register(makeContent(descriptor), as: workspace.add().pane)
     }
 
-    /// A new terminal beside the focused one, in the same tab, with the keyboard; nil when there is no focused pane.
-    @discardableResult
-    func newSplit(_ edge: PaneEdge) -> TerminalModel? {
-        guard let target = workspace.selectedPane else { return nil }
-        let model = makeModel()
-        guard let pane = workspace.addPane(beside: target, edge: edge) else { return nil }
-        register(model, as: pane)
-        return model
+    /// A new terminal beside the focused pane, in the same tab, with the keyboard; nothing when there is no focused pane.
+    func newSplit(_ edge: PaneEdge) {
+        guard let target = workspace.selectedPane, let pane = workspace.addPane(beside: target, edge: edge) else {
+            return
+        }
+        register(makeContent(nil), as: pane)
     }
 
-    /// Takes a terminal that already runs (moved from another window when the presentation changed): a tab like any other, selected.
-    func adopt(_ model: TerminalModel) { register(model, as: workspace.add().pane) }
+    /// Takes content that already runs (moved from another window when the presentation changed): a tab like any other, selected.
+    func adopt(_ content: any PaneContent) { register(content, as: workspace.add().pane) }
 
     // MARK: Session
 
-    /// The window as it is, for the session file: the tabs and the directory of each pane (its own report, else the one it was restored with).
+    /// The window as it is, for the session file: the tabs and what brings the content of each pane back.
     func savedWindow() -> SavedWindow {
-        var contents: [PaneID: PaneDescriptor] = [:]
-        for pane in workspace.allPanes {
-            contents[pane] = .terminal(directory: models[pane]?.directory ?? savedDirectories[pane])
-        }
-        return SavedWindow(workspace: workspace, contents: contents)
+        SavedWindow(workspace: workspace, contents: contents.mapValues(\.descriptor))
     }
 
-    /// Fills an empty window with a saved one: the same tabs and splits, a new terminal in each pane, started in its directory when that still exists. The
-    /// terminals of tabs that are not shown start when their tab is first shown.
-    func restore(_ saved: SavedWindow, directoryExists: (String) -> Bool) {
+    /// Fills an empty window with a saved one: the same tabs and splits, and in each pane the content its descriptor says (a new terminal in its
+    /// directory, a note with its text). The terminals of tabs that are not shown start when their tab is first shown.
+    func restore(_ saved: SavedWindow) {
         guard workspace.isEmpty, !saved.workspace.isEmpty else { return }
         workspace = saved.workspace
         for pane in workspace.allPanes {
-            let model = makeModel()
-            if let directory = saved.contents[pane]?.directory, directoryExists(directory) {
-                model.startDirectory = directory
-                savedDirectories[pane] = directory
-            }
-            register(model, as: pane)
+            register(makeContent(saved.contents[pane] ?? .terminal(directory: nil)), as: pane)
         }
     }
 
-    private func register(_ model: TerminalModel, as pane: PaneID) {
-        models[pane] = model
+    private func register(_ model: any PaneContent, as pane: PaneID) {
+        contents[pane] = model
         onChange()
         model.onExit = { [weak self] in self?.close(pane: pane) }
         // A terminal that is not shown cannot be clicked: a request from one is the window handing the keyboard back to a view that is going away (when the
@@ -105,10 +92,10 @@ final class TabsModel {
     // MARK: Removing
 
     /// Takes a pane out without stopping its program: the terminal goes to another window. The window is not told it is empty (the caller decides).
-    func detach(pane: PaneID) -> TerminalModel? {
-        guard let model = models[pane] else { return nil }
+    func detach(pane: PaneID) -> (any PaneContent)? {
+        guard let model = contents[pane] else { return nil }
         workspace.close(pane: pane)
-        models[pane] = nil
+        contents[pane] = nil
         syncStates()
         onChange()
         return model
@@ -116,19 +103,19 @@ final class TabsModel {
 
     /// Closes a pane immediately (used when its program exits on its own).
     func close(pane: PaneID) {
-        guard let model = models[pane] else { return }
+        guard let model = contents[pane] else { return }
         if let item = workspace.item(containing: pane)?.id, isCloseArmed(item) { closeConfirmation.disarm() }
         if hoveredPane == pane { hoveredPane = nil }
         workspace.close(pane: pane)
-        models[pane] = nil
+        contents[pane] = nil
         model.stop()
         finishClosing()
     }
 
     /// User-initiated request to close a pane: when a command is running in it, arms its tab for confirmation first (`n28`).
     func requestClose(pane: PaneID) {
-        guard let item = workspace.item(containing: pane)?.id, let model = models[pane] else { return }
-        guard confirmed(.pane(pane, in: item), isBusy: isBusy(model)) else { return }
+        guard let item = workspace.item(containing: pane)?.id, let model = contents[pane] else { return }
+        guard confirmed(.pane(pane, in: item), isBusy: model.closeWarning != nil) else { return }
         close(pane: pane)
     }
 
@@ -136,7 +123,9 @@ final class TabsModel {
     func close(item: Workspace.ItemID) {
         if hoveredItem == item { hoveredItem = nil }
         guard let target = workspace.items.first(where: { $0.id == item }) else { return }
-        guard confirmed(.item(item), isBusy: target.panes.contains { models[$0].map(isBusy) ?? false }) else { return }
+        guard confirmed(.item(item), isBusy: target.panes.contains { contents[$0]?.closeWarning != nil }) else {
+            return
+        }
         stop(workspace.close(item: item))
         finishClosing()
     }
@@ -145,9 +134,6 @@ final class TabsModel {
     func isCloseArmed(_ item: Workspace.ItemID) -> Bool {
         closeConfirmation.isArmed(item: item, now: .now)
     }
-
-    /// A command is running in the terminal, asked now (the debounced look would be late).
-    private func isBusy(_ model: TerminalModel) -> Bool { model.isRunning && model.refreshForegroundNow() != nil }
 
     private func confirmed(_ target: CloseConfirmation.Target, isBusy: Bool) -> Bool {
         let allowed = closeConfirmation.shouldClose(target, isBusy: isBusy, enabled: confirmClose, now: .now)
@@ -165,7 +151,7 @@ final class TabsModel {
     /// Closes every tab but `item`, asking first when a command is running in one of them (they go red).
     func closeOthers(than item: Workspace.ItemID) {
         let others = workspace.items.filter { $0.id != item }.flatMap(\.panes)
-        guard confirmed(.others(item), isBusy: others.contains { models[$0].map(isBusy) ?? false }) else { return }
+        guard confirmed(.others(item), isBusy: others.contains { contents[$0]?.closeWarning != nil }) else { return }
         stop(workspace.closeOthers(than: item))
         syncStates()
         onChange()
@@ -175,13 +161,13 @@ final class TabsModel {
     func closeSelected() { if let pane = workspace.selectedPane { requestClose(pane: pane) } }
 
     /// Stops every program (the window is going).
-    func stopAll() { for model in allModels { model.stop() } }
+    func stopAll() { for content in contents.values { content.stop() } }
 
     private func stop(_ panes: [PaneID]) {
         for pane in panes {
             if hoveredPane == pane { hoveredPane = nil }
-            models[pane]?.stop()
-            models[pane] = nil
+            contents[pane]?.stop()
+            contents[pane] = nil
         }
     }
 
@@ -227,8 +213,8 @@ final class TabsModel {
     private func syncStates() {
         let shown = Set(workspace.selectedItem?.panes ?? [])
         let focused = workspace.selectedPane
-        for (pane, model) in models {
-            model.paneStateChanged(focused: pane == focused, visible: shown.contains(pane))
+        for (pane, content) in contents {
+            content.setState(focused: pane == focused, visible: shown.contains(pane))
         }
     }
 }

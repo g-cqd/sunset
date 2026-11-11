@@ -6,7 +6,7 @@ import SwiftUI
 /// appears and the row is highlighted; the selected tab has a stronger highlight, dimmer when the window is not the active one, and the hairline stroke
 /// that the terminal card has (only the selected tab has it).
 struct SidebarRow: View {
-    let model: TerminalModel?
+    let model: (any PaneContent)?
     let selected: Bool
     var armed = false
     /// Kept true when the row just slid into the slot of a tab whose close button was clicked, so rapid clicks on the same spot close tabs without needing

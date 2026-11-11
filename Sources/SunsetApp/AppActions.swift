@@ -16,8 +16,8 @@ final class AppActions {
     var tabParent: NSWindow?
     /// How many windows that are about to appear are to join `tabParent` (one for a new tab; several when tabs are spread into windows).
     var joinsRemaining = 0
-    /// Terminals that run already and are waiting for a window to show them (the presentation changed from one window of tabs to a window each).
-    var handoff: [TerminalModel] = []
+    /// Contents that run already and are waiting for a window to show them (the presentation changed from one window of tabs to a window each).
+    var handoff: [any PaneContent] = []
 
     /// A new tab in the way the configuration shows tabs: a tab of the window with the built-in bar, a new window that joins the group with system tabs,
     /// a plain window with none.
@@ -55,6 +55,9 @@ final class AppActions {
     }
 
     func closeWindow() { NSApp.keyWindow?.performClose(nil) }
+
+    /// A new tab with an empty note in it, in the key window.
+    func newNote() { keyTabs?.newTab(PaneDescriptor(kind: NoteContent.kind)) }
 
     /// Asks for a name and an icon for the selected tab of the key window.
     func renameTab() {
