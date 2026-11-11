@@ -80,3 +80,23 @@ person in the dialog, never taken from a program's output or a page, and the dia
 
 Said plainly: "flattened to fit" loses structure the person made, silently; and two ownership rules now live side by side (Favorites the
 app's, Tabs each window's) until Spaces rework the Tabs.
+
+## The Favorites section, its questions answered (2026-11-11, after step a2)
+
+| Question | Answer | His note |
+| --- | --- | --- |
+| The app and its last window | It quits with its last window, unless a kept entry is still open | A configurable setting |
+| Order | The Favorites section first, then folders in it, then names and icons, selection, the tab bar | |
+| The library (R8) | First, as its own step with no visible change: `SunsetShell` is created, the tab model, the content protocol and the sidebar move into it behind its own settings type, with unit tests; the Favorites section is then written inside it | |
+| Adding to Favorites | Context menu "Add to Favorites"; dragging the tab above the divider (and an entry below it to take it out) | |
+| The section's mark | A thin line between Favorites and Tabs, shown when there are favourites or while a tab is dragged | |
+| Cmd-1 to 9, Next and Previous | Only what is open is counted: open entries in the order of Favorites, then the Tabs | |
+| A new tab while a kept entry is selected | After the tab that was selected before the entry | |
+| No tab left, no entry selected | A quiet hint in the pane area | |
+| An entry shown in another window | Its last picture, dimmed, with a small label; a click brings it here | |
+| With the tab bar or system tabs | Open kept entries show as tabs at the start of the bar, with a small mark | |
+| A kept terminal's command and its dialog | A sub-step right after the section | |
+| "Set Home to Current" (the assistant's proposition) | Yes | |
+
+Corrected on the way: the question in step a about "a new window after the last one is closed while the app runs" rested on a wrong premise (the
+app quits with its last window); the owner's answer above replaces it.
