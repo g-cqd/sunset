@@ -100,6 +100,9 @@ public actor TerminalSession {
     /// window's selection) to take the history that was packed in the meantime (`Screen.adoptHistory`).
     public nonisolated func screenCopy() -> Screen { core.terminal.withLock { $0.screen } }
 
+    /// The title, directory and progress, read under the lock without copying the screen (`TerminalStatus`).
+    public nonisolated func status() -> TerminalStatus { core.terminal.withLock { TerminalStatus($0.screen) } }
+
     /// Frees the cells that reading packed lines decoded (they are decoded again when read).
     public nonisolated func releaseDecodedHistory() { core.terminal.withLock { $0.screen.releaseDecodedHistory() } }
 
