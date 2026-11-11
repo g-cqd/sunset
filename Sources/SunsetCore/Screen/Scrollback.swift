@@ -94,7 +94,7 @@ struct Scrollback: Sendable {
     }
 
     /// The same from the cells where they are (a scroll saves a row of the screen without making a slice of it).
-    mutating func push(cells line: UnsafeBufferPointer<Cell>, wrapped isWrapped: Bool) {
+    @inline(__always) mutating func push(cells line: UnsafeBufferPointer<Cell>, wrapped isWrapped: Bool) {
         guard limit > 0 else {
             evicted += 1
             return

@@ -3,7 +3,7 @@ extension Screen {
     /// inserted or deleted lines): a renderer can move that row's pixels instead of drawing it. nil when the row was written since or came in blank. A row
     /// that is not dirty is where it was.
     public func movedFrom(row: Int) -> Int? {
-        let physical = Int(grid.rowMap[row])
+        let physical = grid.physical(row)
         return writtenRows[physical] ? nil : Int(rowOrigins[physical])
     }
 }

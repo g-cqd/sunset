@@ -111,7 +111,7 @@ extension Screen {
         let blank = Cell(scalar: 0, width: .narrow, style: 0)
         for target in 0 ..< rows {
             grid.fill(row: target, from: 0, to: columns - 1, with: blank)
-            grid.wrapped[Int(grid.rowMap[target])] = false
+            grid.setWrapped(row: target, false)
         }
     }
 

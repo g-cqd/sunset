@@ -17,7 +17,7 @@ extension Screen {
             case 2: eraseCells(row: row, from: 0, to: columns - 1)
             default: return
         }
-        if mode != 1 { grid.wrapped[Int(grid.rowMap[row])] = false }
+        if mode != 1 { grid.setWrapped(row: row, false) }
     }
 
     /// ED: 0 from the cursor to the end of the screen, 1 from the start to the cursor, 2 everything. (3, the scrollback, is not kept yet.)
@@ -43,7 +43,7 @@ extension Screen {
         let blank = blankCell()
         for target in range {
             grid.fill(row: target, from: 0, to: columns - 1, with: blank)
-            grid.wrapped[Int(grid.rowMap[target])] = false
+            grid.setWrapped(row: target, false)
         }
         markDirty(range)
     }
@@ -110,7 +110,7 @@ extension Screen {
         let cell = Cell(scalar: 0x45, width: .narrow, style: id)
         for target in 0 ..< rows {
             grid.fill(row: target, from: 0, to: columns - 1, with: cell)
-            grid.wrapped[Int(grid.rowMap[target])] = false
+            grid.setWrapped(row: target, false)
         }
         markDirty(0 ... rows - 1)
         moveTo(row: 1, column: 1)

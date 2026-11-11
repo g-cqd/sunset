@@ -77,7 +77,7 @@ struct Reflow {
                 if cell.width == .spacerHead { continue }
                 cells.append(cell)
             }
-            let continues = onScreen ? grid.wrapped[Int(grid.rowMap[screenRow])] : scrollback.isWrapped(index)
+            let continues = onScreen ? grid.isWrapped(row: screenRow) : scrollback.isWrapped(index)
             lineOpen = continues && index + 1 < total
         }
     }
@@ -161,7 +161,7 @@ struct Reflow {
             let source = (top + row) * newColumns
             let base = newGrid.base(row)
             for column in 0 ..< newColumns { newGrid.cells[base + column] = rows[source + column] }
-            newGrid.wrapped[Int(newGrid.rowMap[row])] = wrapped[top + row]
+            newGrid.setWrapped(row: row, wrapped[top + row])
         }
         newGrid.recountUsed()
         var history = Scrollback(columns: newColumns, limit: limit)

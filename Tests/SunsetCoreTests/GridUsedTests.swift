@@ -19,9 +19,9 @@ import Testing
     private func check(_ grid: Grid, _ context: @autoclosure () -> String) -> Bool {
         for physical in 0 ..< grid.rows {
             let start = physical * grid.columns
-            for column in Int(grid.used[physical]) ..< grid.columns where grid.cells[start + column].raw != 0 {
+            for column in grid.used(physical: physical) ..< grid.columns where grid.cells[start + column].raw != 0 {
                 Issue.record(
-                    "physical row \(physical) column \(column) is not empty past used \(grid.used[physical]): \(context())"
+                    "physical row \(physical) column \(column) is not empty past used \(grid.used(physical: physical)): \(context())"
                 )
                 return false
             }
