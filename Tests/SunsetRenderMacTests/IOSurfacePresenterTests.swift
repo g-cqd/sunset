@@ -1,3 +1,4 @@
+import CoreGraphics
 import IOSurface
 import Testing
 
@@ -35,6 +36,15 @@ import Testing
         let shown = try #require(presenter.latest)
         #expect(shown.width == 13 && shown.height == 9)
         #expect(pixels(shown) == Array(surface.pixels), "an odd width: rows are padded in memory, not in the frame")
+    }
+
+    @Test func `the surfaces are tagged sRGB, so the compositor does not reinterpret their colours`() throws {
+        let presenter = IOSurfacePresenter()
+        presenter.present(frame(width: 4, height: 2, version: 1), changedRows: 0 ... 1)
+        let shown = try #require(presenter.latest)
+        let tag = IOSurfaceCopyValue(shown, kIOSurfaceColorSpace)
+        let space = tag.flatMap { CGColorSpace(propertyListPlist: $0) }
+        #expect(space?.name == CGColorSpace.sRGB)
     }
 
     @Test func `a frame with a few changed rows shows the whole frame, through every buffer in turn`() throws {

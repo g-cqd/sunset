@@ -87,7 +87,7 @@ struct SurfaceRing {
             ]), let texture = device.makeTexture(descriptor: descriptor, iosurface: surface, plane: 0)
         else { return nil }
         if let colorSpace = CGColorSpace(name: CGColorSpace.sRGB), let list = colorSpace.copyPropertyList() {
-            surface.setAttachment(list, forKey: kIOSurfaceColorSpace as String)
+            IOSurfaceSetValue(surface, kIOSurfaceColorSpace, list)
         }
         return Slot(surface: surface, texture: texture, missing: 0 ... height - 1)
     }
