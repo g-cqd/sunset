@@ -115,7 +115,7 @@ final class TabsModel {
     /// Closes a pane immediately (used when its program exits on its own).
     func close(pane: PaneID) {
         guard let model = models[pane] else { return }
-        if let item = workspace.item(containing: pane)?.id { closeConfirmation.disarm(item: item) }
+        if let item = workspace.item(containing: pane)?.id, isCloseArmed(item) { closeConfirmation.disarm() }
         if hoveredPane == pane { hoveredPane = nil }
         workspace.close(pane: pane)
         models[pane] = nil
@@ -126,8 +126,7 @@ final class TabsModel {
     /// User-initiated request to close a pane: when a command is running in it, arms its tab for confirmation first (`n28`).
     func requestClose(pane: PaneID) {
         guard let item = workspace.item(containing: pane)?.id, let model = models[pane] else { return }
-        let busy = model.isRunning && model.refreshForegroundNow() != nil
-        guard shouldProceedWithClose(item: item, isBusy: busy) else { return }
+        guard confirmed(.pane(pane, in: item), isBusy: isBusy(model)) else { return }
         close(pane: pane)
     }
 
@@ -135,11 +134,7 @@ final class TabsModel {
     func close(item: Workspace.ItemID) {
         if hoveredItem == item { hoveredItem = nil }
         guard let target = workspace.items.first(where: { $0.id == item }) else { return }
-        let busy = target.panes.contains { pane in
-            guard let model = models[pane] else { return false }
-            return model.isRunning && model.refreshForegroundNow() != nil
-        }
-        guard shouldProceedWithClose(item: item, isBusy: busy) else { return }
+        guard confirmed(.item(item), isBusy: target.panes.contains { models[$0].map(isBusy) ?? false }) else { return }
         stop(workspace.close(item: item))
         finishClosing()
     }
@@ -149,14 +144,11 @@ final class TabsModel {
         closeConfirmation.isArmed(item: item, now: .now)
     }
 
-    private func shouldProceedWithClose(item: Workspace.ItemID, isBusy: Bool) -> Bool {
-        let now = ContinuousClock.now
-        let allowed = closeConfirmation.shouldClose(
-            item: item,
-            isBusy: isBusy,
-            enabled: confirmClose,
-            now: now
-        )
+    /// A command is running in the terminal, asked now (the debounced look would be late).
+    private func isBusy(_ model: TerminalModel) -> Bool { model.isRunning && model.refreshForegroundNow() != nil }
+
+    private func confirmed(_ target: CloseConfirmation.Target, isBusy: Bool) -> Bool {
+        let allowed = closeConfirmation.shouldClose(target, isBusy: isBusy, enabled: confirmClose, now: .now)
         if !allowed, let deadline = closeConfirmation.expiration {
             expiryTask?.cancel()
             expiryTask = Task { [weak self] in
@@ -168,7 +160,10 @@ final class TabsModel {
         return allowed
     }
 
+    /// Closes every tab but `item`, asking first when a command is running in one of them (they go red).
     func closeOthers(than item: Workspace.ItemID) {
+        let others = workspace.items.filter { $0.id != item }.flatMap(\.panes)
+        guard confirmed(.others(item), isBusy: others.contains { models[$0].map(isBusy) ?? false }) else { return }
         stop(workspace.closeOthers(than: item))
         syncStates()
         onChange()

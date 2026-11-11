@@ -72,4 +72,19 @@ import Testing
         #expect(forward?.start == point(1, 0))
         #expect(forward.map { t.screen.text(of: $0) } == "\n   gamma")
     }
+
+    @Test func `a drag that stays in the empty space selects no character the pointer did not pass`() {
+        let t = terminal("alpha beta\r\n\r\n   gamma delta", 20, 6)
+        let sameLine = gesture(.cells, at: point(0, 18), t).dragged(to: point(0, 14), screen: t.screen)
+        #expect(sameLine.map { t.screen.text(of: $0) } == "")
+        let below = gesture(.cells, at: point(5, 10), t).dragged(to: point(4, 3), screen: t.screen)
+        #expect(below.map { t.screen.text(of: $0) } == "\n")
+    }
+
+    @Test func `a double click on a blank line far from any text selects nothing far away`() {
+        let t = terminal("alpha" + String(repeating: "\r\n", count: 40), 20, 4)
+        let last = t.screen.absoluteLineCount - 1
+        let far = gesture(.words, at: SelectionPoint(line: last, column: 3), t)
+        #expect(far.selection.map { $0.start.line } == last)
+    }
 }
