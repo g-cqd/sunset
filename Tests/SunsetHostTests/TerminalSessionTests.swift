@@ -40,6 +40,16 @@ private func started(_ script: String, columns: Int = 80, rows: Int = 24) async 
         #expect(await session.takeSnapshot().text(row: 0) == "hello")
     }
 
+    @Test func `the status gives the title, directory and progress without a snapshot`() async throws {
+        let session = try await started(
+            "printf '\\033]2;build\\007\\033]7;file:///tmp\\007\\033]9;4;1;40\\007'; sleep 2"
+        )
+        #expect(await waitFor(session) { $0.title == "build" && $0.progress != .hidden })
+        let status = session.status()
+        #expect(status.title == "build" && status.workingDirectory?.path == "/tmp")
+        #expect(status.progress == .normal(percent: 40))
+    }
+
     @Test func `the terminal's replies and keys reach the program, in order`() async throws {
         let session = try await started(
             "stty raw -echo; printf '\\033[5n'; dd bs=1 count=4 2>/dev/null | od -An -tx1; read line; echo got:$line"

@@ -10,10 +10,10 @@ package import SunsetRenderMac
 /// the main actor; the reading, parsing and drawing happen on the two actors, and only values cross: snapshots of the screen one way, finished frames
 /// the other. Frames are pulled at the display's pace (the display link asks, `tick()` answers) and only while something changed.
 @MainActor @Observable package final class TerminalModel {
-    package private(set) var title = "Sunset"
+    package internal(set) var title = "Sunset"
     /// The working directory the program reported (OSC 7) and its progress (OSC 9;4), 0 to 1: what a tab can show next to its title.
-    package private(set) var directory: String?
-    package private(set) var progress: Double?
+    package internal(set) var directory: String?
+    package internal(set) var progress: Double?
     /// The program in front on the terminal when it is not the shell (`TabGlyph` turns it into the command mark).
     package var foregroundCommand: String?
     @ObservationIgnored package var foregroundCheck: Task<Void, Never>?
@@ -179,6 +179,8 @@ package import SunsetRenderMac
             switch update {
                 case .changed:
                     noteActivity()
+                    // A terminal that is not shown draws nothing, so its tab's label is read from the session here (n48).
+                    if !isVisible { apply(session.status()) }
                     requestFrame()
                 case .closed:
                     isRunning = false
@@ -230,12 +232,7 @@ package import SunsetRenderMac
     private func presented(changed: Bool, snapshot: Screen) {
         renderInFlight = false
         cursorBlinks = snapshot.cursorBlinks
-        let shown = snapshot.title.isEmpty ? "Sunset" : snapshot.title
-        if shown != title { title = shown }
-        let path = snapshot.workingDirectory?.path
-        if path != directory { directory = path }
-        let fraction = Self.fraction(of: snapshot.progress)
-        if fraction != progress { progress = fraction }
+        apply(TerminalStatus(snapshot))
         if changed, let latest = renderer?.latest {
             lastSurface = latest
             presentFrame(latest)
