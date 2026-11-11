@@ -5,7 +5,7 @@ extension Workspace {
     public mutating func focus(pane: PaneID) {
         guard let index = items.firstIndex(where: { $0.layout.contains(pane) }) else { return }
         items[index].focused = pane
-        selectedID = items[index].id
+        show(items[index].id)
     }
 
     /// The next pane of the selected tab, the first after the last.
@@ -73,7 +73,7 @@ extension Workspace {
         leave(pane, from: index)
         let tab = Item(layout: .pane(pane), focused: pane)
         items.insert(tab, at: index + 1)
-        selectedID = tab.id
+        show(tab.id)
     }
 
     /// Sets how the split at `path` divides its space, in the tab `id`.
@@ -97,14 +97,7 @@ extension Workspace {
 
     /// Removes `pane` from the tab at `index`; the tab itself goes when it was the only pane.
     private mutating func leave(_ pane: PaneID, from index: Int) {
-        let item = items[index]
-        guard let rest = item.layout.removing(pane) else {
-            close(item: item.id)
-            return
-        }
-        let position = item.panes.firstIndex(of: pane) ?? 0
-        items[index].layout = rest
-        if item.focused == pane { items[index].focused = rest.panes[min(position, rest.panes.count - 1)] }
+        if !items[index].remove(pane) { close(item: items[index].id) }
     }
 
     /// Applies a sidebar tab-row drop (`TabDropAction`): reorders a tab (or detaches a pane into its own tab) before or after `target`, or splits `target`'s

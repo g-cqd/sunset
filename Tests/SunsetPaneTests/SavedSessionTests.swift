@@ -40,7 +40,7 @@ import Testing
             decoding: try SavedSession(windows: [SavedWindow(workspace: sample())]).encoded(),
             as: UTF8.self
         )
-        #expect(text.contains("\"version\":1") || text.contains("\"version\" : 1"))
+        #expect(text.contains("\"version\":2") || text.contains("\"version\" : 2"))
         #expect(text.contains("\"horizontal\""))
     }
 
