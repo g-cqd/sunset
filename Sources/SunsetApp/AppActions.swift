@@ -56,6 +56,11 @@ final class AppActions {
 
     func closeWindow() { NSApp.keyWindow?.performClose(nil) }
 
+    /// Asks for a name and an icon for the selected tab of the key window.
+    func renameTab() {
+        if let tabs = keyTabs, let item = tabs.workspace.selectedID { tabs.beginRename(item: item) }
+    }
+
     /// ⌘L: the command bar of the key window (searching its tabs).
     func toggleCommandBar() { keyTabs?.toggleBar() }
 

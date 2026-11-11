@@ -29,6 +29,8 @@ final class TabsModel {
     var hoveredPane: PaneID?
     /// The tab row currently under the pointer in the sidebar or tab bar, so an unselected tab can show a screen preview (`n36`).
     var hoveredItem: Workspace.ItemID?
+    /// The tab being renamed, while its dialog is open (`RenameTabAlert`).
+    var renaming: Workspace.ItemID?
     /// Two-step confirmation before closing a tab that has a command running (`n28`).
     var closeConfirmation = CloseConfirmation()
     /// Whether closing a busy tab requires a second click or ⌘W (`tabs.confirmClose`).

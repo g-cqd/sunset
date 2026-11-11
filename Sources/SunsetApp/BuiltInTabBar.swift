@@ -40,7 +40,9 @@ struct BuiltInTabBar: View {
                 showIcon: settings.showIcon,
                 showTitle: settings.showTitle,
                 showDirectory: settings.showDirectory,
-                showProgress: settings.showProgress
+                showProgress: settings.showProgress,
+                name: tabs.custom(for: item).name,
+                icon: tabs.custom(for: item).icon
             )
             .frame(maxWidth: 180, alignment: .leading)
             if hovered == item.id || selected || armed {
@@ -82,6 +84,7 @@ struct BuiltInTabBar: View {
             return true
         }
         .contextMenu {
+            Button("Rename Tab…") { tabs.beginRename(item: item.id) }
             Button("Close Tab") { tabs.close(item: item.id) }
             Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
                 .disabled(tabs.workspace.count < 2)

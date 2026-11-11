@@ -43,4 +43,13 @@ import Testing
         #expect(String(decoding: old, as: UTF8.self).contains("customTitle") == false)
         #expect(SavedSession(data: old)?.windows.first?.workspace == plain)
     }
+
+    @Test func `what is typed for an icon is a symbol's name or an emoji, and reads back as it was typed`() {
+        #expect(PaneIcon(text: "  server.rack ") == .symbol("server.rack"))
+        #expect(PaneIcon(text: "📁") == .emoji("📁"))
+        #expect(PaneIcon(text: "👩🏽‍💻 work") == .emoji("👩🏽‍💻"), "the first character, whole, when it is not a name")
+        #expect(PaneIcon(text: "é") == .emoji("é"), "any character that no symbol's name has is shown as it is")
+        #expect(PaneIcon(text: "   ") == nil && PaneIcon(text: "") == nil)
+        #expect(PaneIcon.symbol("bolt.fill").text == "bolt.fill" && PaneIcon.emoji("🚀").text == "🚀")
+    }
 }
