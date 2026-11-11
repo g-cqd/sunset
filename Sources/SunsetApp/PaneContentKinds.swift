@@ -11,10 +11,6 @@ import SunsetPane
                 let note = NoteContent(text: descriptor.state["text"] ?? "")
                 note.onEdit = changed
                 return note
-            case WebContent.kind:
-                let page = WebContent(address: descriptor.state["url"].flatMap { URL(string: $0) })
-                page.onNavigate = changed
-                return page
             default:
                 return UnknownContent(descriptor)
         }
