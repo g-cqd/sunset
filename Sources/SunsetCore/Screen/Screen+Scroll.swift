@@ -40,13 +40,16 @@ extension Screen {
 
     /// Copies the top `count` screen rows into the history (the line feed that is about to push them off the screen).
     private mutating func saveToScrollback(rows count: Int) {
-        for target in 0 ..< count {
-            // Only the cells that can be other than empty (`Grid.used`): the history trims the blanks anyway.
-            let start = grid.base(target)
-            scrollback.push(
-                grid.cells[start ..< start + grid.usedCount(row: target)],
-                wrapped: grid.wrapped[Int(grid.rowMap[target])]
-            )
+        let cells = grid.cells
+        cells.withUnsafeBufferPointer { cells in
+            for target in 0 ..< count {
+                // Only the cells that can be other than empty (`Grid.used`): the history trims the blanks anyway.
+                let start = grid.base(target)
+                scrollback.push(
+                    cells: UnsafeBufferPointer(rebasing: cells[start ..< start + grid.usedCount(row: target)]),
+                    wrapped: grid.wrapped[Int(grid.rowMap[target])]
+                )
+            }
         }
     }
 

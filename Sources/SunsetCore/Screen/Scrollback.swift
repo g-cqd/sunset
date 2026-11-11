@@ -90,6 +90,11 @@ struct Scrollback: Sendable {
 
     /// Adds a line at the newest end, dropping the oldest when full. `line` may stop short of `columns`: the cells after it are empty.
     mutating func push(_ line: ArraySlice<Cell>, wrapped isWrapped: Bool) {
+        line.withUnsafeBufferPointer { push(cells: $0, wrapped: isWrapped) }
+    }
+
+    /// The same from the cells where they are (a scroll saves a row of the screen without making a slice of it).
+    mutating func push(cells line: UnsafeBufferPointer<Cell>, wrapped isWrapped: Bool) {
         guard limit > 0 else {
             evicted += 1
             return
@@ -105,10 +110,14 @@ struct Scrollback: Sendable {
             newest = chunks.count - 1
         }
         // Only the cells up to the last one that is not blank: a line of text is mostly a few cells and then blanks, and the blanks are implied.
-        line.withUnsafeBufferPointer { cells in
-            let used = CellKernels.usedLength(cells)
-            chunks[newest].append(UnsafeBufferPointer(rebasing: cells[0 ..< used]), wrapped: isWrapped)
+        // A short line is looked at here: calling the kernel costs more than the few cells it would scan.
+        var used = line.count
+        if used > 16 {
+            used = CellKernels.usedLength(line)
+        } else {
+            while used > 0, line[used - 1].raw == 0 { used -= 1 }
         }
+        chunks[newest].append(UnsafeBufferPointer(rebasing: line[0 ..< used]), wrapped: isWrapped)
         count += 1
     }
 
