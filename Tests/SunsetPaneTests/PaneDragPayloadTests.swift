@@ -10,6 +10,8 @@ import Testing
         #expect(PaneDragPayload(text: PaneDragPayload.item(item).text) == .item(item))
         #expect(PaneDragPayload(text: PaneDragPayload.pane(pane).text) == .pane(pane))
         #expect(PaneDragPayload.item(item).text != PaneDragPayload.pane(item).text, "the same id is not the same thing")
+        #expect(PaneDragPayload(text: PaneDragPayload.entry(item).text) == .entry(item))
+        #expect(PaneDragPayload.entry(item).text != PaneDragPayload.item(item).text)
     }
 
     @Test func `text that is not a payload reads as nothing`() {

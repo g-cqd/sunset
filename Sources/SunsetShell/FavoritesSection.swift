@@ -1,5 +1,6 @@
 import SunsetPane
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The Favorites at the top of the sidebar (R3, R4): kept entries and folders, then a thin line above the window's own tabs. A click opens an entry and
 /// shows it; while it is open its row has a minus that unloads it; one that is not open is drawn fainter and has an x that removes it.
@@ -7,6 +8,8 @@ struct FavoritesSection: View {
     let tabs: TabsModel
     let settings: ShellSettings
     let layout: ShellSettings.Layout
+    @State private var drop: (entry: Favorites.NodeID, after: Bool)?
+    @State private var heights: [Favorites.NodeID: Double] = [:]
 
     var body: some View {
         let favorites = tabs.favorites.favorites
@@ -21,11 +24,19 @@ struct FavoritesSection: View {
                 }
                 .padding(.leading, Double(row.level) * 12)
             }
-            Rectangle()
-                .fill(.primary.opacity(layout.hairlineOpacity * 1.5))
-                .frame(height: max(layout.hairlineWidth, 0.5))
-                .padding(.horizontal, layout.tabPaddingLeading)
-                .padding(.vertical, 2)
+        }
+        FavoritesLine(tabs: tabs, layout: layout, visible: !favorites.isEmpty)
+    }
+
+    /// An insertion line at the top or the bottom of the row a drag is over.
+    @ViewBuilder private func dropMark(_ id: Favorites.NodeID) -> some View {
+        if let drop, drop.entry == id {
+            VStack {
+                if drop.after { Spacer(minLength: 0) }
+                Capsule().fill(Color(nsColor: .controlAccentColor)).frame(height: 2)
+                if !drop.after { Spacer(minLength: 0) }
+            }
+            .allowsHitTesting(false)
         }
     }
 
@@ -46,7 +57,14 @@ struct FavoritesSection: View {
             dimmed: !entry.isOpen,
             close: { entry.isOpen ? tabs.unload(entry: entry.id) : tabs.delete(entry: entry.id) }
         )
+        .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
+        .overlay { dropMark(entry.id) }
         .onTapGesture { tabs.select(entry: entry.id) }
+        .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
+        .onDrop(
+            of: [.plainText, .utf8PlainText],
+            delegate: EntryRowDropDelegate(tabs: tabs, entry: entry.id, height: heights[entry.id] ?? 32, active: $drop)
+        )
         .contextMenu {
             Button("Remove from Favorites") { tabs.release(entry: entry.id) }
             if entry.isOpen {
