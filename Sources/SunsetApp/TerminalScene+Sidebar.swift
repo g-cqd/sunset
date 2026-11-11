@@ -1,6 +1,8 @@
 import SunsetConfig
 import SunsetHost
 import SunsetPrivate
+import SunsetShell
+import SunsetShellBridge
 import SwiftUI
 
 /// The parts of the terminal window that belong to the sidebar: the window's corner radius, the traffic lights' place, the resize strip, the floating panel.
@@ -17,8 +19,12 @@ extension TerminalScene {
     var lights: LightsPlacement? {
         guard presentation.showsSidebar else { return nil }
         let margin = configuration.sidebar.padding
-        let origin = SidebarHeader(layout: configuration.layout, margin: margin, floating: !configuration.sidebarDocked)
-            .lightsOrigin
+        let origin = SidebarHeader(
+            layout: ShellSettings.Layout(configuration.layout),
+            margin: margin,
+            floating: !configuration.sidebarDocked
+        )
+        .lightsOrigin
         return LightsPlacement(
             x: origin,
             y: origin,

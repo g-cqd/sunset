@@ -1,5 +1,7 @@
 import SunsetConfig
 import SunsetPane
+import SunsetShell
+import SunsetShellBridge
 import SwiftUI
 
 /// The command bar: a field and a list of the open tabs under it, over the window's content (⌘L from anywhere in the app). Typing filters the tabs
@@ -60,7 +62,7 @@ struct CommandBarView: View {
         }
         .frame(width: 520)
         .glassEffect(.regular, in: shape)
-        .overlay { shape.hairline(layout) }
+        .overlay { shape.hairline(ShellSettings.Layout(layout)) }
         .shadow(color: .black.opacity(0.3), radius: 24, y: 8)
     }
 

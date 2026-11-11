@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetPane
+import SunsetShell
 import SwiftUI
 
 /// The tab bar of our own, for `tabs.mode: internal`: one window, many terminals. Position and what a tab shows come from the configuration. Tabs are

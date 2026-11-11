@@ -2,6 +2,7 @@ import AppKit
 import SunsetConfig
 import SunsetHost
 import SunsetPane
+import SunsetShell
 
 /// What the menu and the sidebar do that needs the SwiftUI environment (opening a window): the scene hands them over once it has them.
 @MainActor

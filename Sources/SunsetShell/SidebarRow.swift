@@ -1,4 +1,3 @@
-import SunsetConfig
 import SunsetPane
 import SwiftUI
 
@@ -18,7 +17,7 @@ struct SidebarRow: View {
     let showTitle: Bool
     let showDirectory: Bool
     let showProgress: Bool
-    let layout: Configuration.Layout
+    let layout: ShellSettings.Layout
     let close: () -> Void
     @State private var hovering = false
     @State private var overClose = false

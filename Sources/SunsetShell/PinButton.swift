@@ -1,11 +1,10 @@
-import SunsetConfig
 import SwiftUI
 
 /// The button that pins the sidebar. One rounded square is both what is drawn and what takes the click (`contentShape`), so the hit box is exactly the
 /// container, with no dead edge around the symbol.
 struct PinButton: View {
     let pinned: Bool
-    let layout: Configuration.Layout
+    let layout: ShellSettings.Layout
     let radius: Double
     /// Width and height of the container when it is not `layout.pinButtonSize` square.
     var size: CGSize?

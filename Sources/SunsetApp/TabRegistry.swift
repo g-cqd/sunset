@@ -1,5 +1,6 @@
 import AppKit
 import Observation
+import SunsetShell
 
 /// The windows of the app and their tabs, for the sidebar: with system tabs every tab is a window (`NSWindow.tabGroup` groups them), so the sidebar of any
 /// window lists the windows of its group and selects one by making it the group's `selectedWindow`. The registry is told when windows come and go and when

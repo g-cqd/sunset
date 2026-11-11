@@ -1,4 +1,5 @@
 import SunsetPane
+import SunsetShell
 import SwiftUI
 
 /// Receives a tab or a pane dragged over the content of a tab: while it moves, the pane under it and the edge nearest it are worked out (`DropZone`) and

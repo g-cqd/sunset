@@ -1,4 +1,5 @@
 import SunsetPane
+import SunsetShell
 import SwiftUI
 
 /// Asks for the name and the icon of the tab `tabs.renaming` names: one place for every "Rename Tab…" (the sidebar, the tab bar, the menu). An empty

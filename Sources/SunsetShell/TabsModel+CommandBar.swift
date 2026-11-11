@@ -1,22 +1,22 @@
-import SunsetPane
+package import SunsetPane
 
 extension TabsModel {
     /// Opens the bar for searching the tabs, or closes it when it is open.
-    func toggleBar() { bar = bar == nil ? CommandBar(purpose: .search) : nil }
+    package func toggleBar() { bar = bar == nil ? CommandBar(purpose: .search) : nil }
 
-    /// What a candidate of the bar is searched by: the name the tab was given, and the title, the second line (a directory) and, for a terminal, the
-    /// program in front of each of its panes.
-    func fields(of item: Workspace.Item) -> [String] {
+    /// What a candidate of the bar is searched by: the name the tab was given, and for each of its panes the title, the second line (a directory) and
+    /// what else its content says it is found by (`PaneContent.searchTerms`).
+    package func fields(of item: Workspace.Item) -> [String] {
         let own = [item.customTitle ?? ""]
         let parts = item.panes.flatMap { pane -> [String] in
             guard let content = contents[pane] else { return [] }
-            return [content.title, content.detail ?? "", terminal(pane)?.foregroundCommand ?? ""]
+            return [content.title, content.detail ?? ""] + content.searchTerms
         }
         return (own + parts).filter { !$0.isEmpty }
     }
 
     /// The tabs the bar lists for its query, best first (for splitting: all but the dropped tab).
-    func barResults(_ bar: CommandBar) -> [Workspace.Item] {
+    package func barResults(_ bar: CommandBar) -> [Workspace.Item] {
         var own: Workspace.ItemID?
         if case .splitWith(let choice) = bar.purpose { own = workspace.item(containing: choice.pane)?.id }
         let items = workspace.items.filter { $0.id != own }
@@ -26,7 +26,7 @@ extension TabsModel {
 
     /// Does what the bar was opened for with the tab `item`: selects it, or puts it on the side of the dropped tab that is opposite the edge it was dropped on
     /// (the dropped tab keeps its side and the keyboard). Closes the bar.
-    func accept(_ item: Workspace.ItemID, in bar: CommandBar) {
+    package func accept(_ item: Workspace.ItemID, in bar: CommandBar) {
         self.bar = nil
         switch bar.purpose {
             case .search: select(item: item)

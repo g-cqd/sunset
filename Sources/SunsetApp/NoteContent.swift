@@ -1,5 +1,6 @@
 import Observation
 import SunsetPane
+import SunsetShell
 import SwiftUI
 
 /// A plain text note in a pane: the second kind of content, with nothing of a terminal in it, kept so that the protocol is held to more than one

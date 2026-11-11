@@ -1,10 +1,12 @@
 import SunsetPane
-import SwiftUI
+package import SwiftUI
 
-struct PaneGlyphView: View {
+package struct PaneGlyphView: View {
     let glyph: PaneGlyph
 
-    var body: some View {
+    package init(glyph: PaneGlyph) { self.glyph = glyph }
+
+    package var body: some View {
         switch glyph {
             case .tab(let glyph): TabGlyphView(glyph: glyph)
             case .symbol(let name): PaneIconView(icon: .symbol(name))

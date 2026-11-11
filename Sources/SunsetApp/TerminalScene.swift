@@ -3,6 +3,8 @@ import SunsetHost
 import SunsetPane
 import SunsetPrivate
 import SunsetRender
+import SunsetShell
+import SunsetShellBridge
 import SwiftUI
 
 /// The content of a terminal window: the tabs of the window (one, unless the built-in bar is on), the sidebar and the tab bar when the configuration shows
@@ -114,7 +116,7 @@ struct TerminalScene: View {
 
     /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge. Any empty area in it drags the window.
     private var dockedSidebar: some View {
-        TabSidebar(tabs: tabs, settings: configuration)
+        TabSidebar(tabs: tabs, settings: ShellSettings(configuration), togglePin: AppConfiguration.togglePin)
             .padding(.top, configuration.sidebar.padding)
             .padding(sidebarSide.edge, configuration.sidebar.padding)
             .frame(width: configuration.sidebar.width, alignment: sidebarSide.alignment)
