@@ -2,10 +2,25 @@ import AppKit
 import SunsetCore
 
 extension TerminalNSView {
-    /// A click in the strip drags the window even when the window is not the active one, as a title bar does; elsewhere the first click only activates.
+    /// A click in the strip drags the window even when the window is not the active one, as a title bar does. Elsewhere the click that activates the
+    /// window is taken too, but only to give this pane the keyboard (`n44`: in a split, the pane clicked is the one typed in next); it is remembered
+    /// here, by its number, so that `mouseDown` does not also hand it to the program or start a selection with it.
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         guard let event else { return false }
-        return isInDragStrip(event)
+        if !isInDragStrip(event) { activatingClick = event.eventNumber }
+        return true
+    }
+
+    /// Whether `event` is the press that activated the window: this pane takes the keyboard, and the press, its drag and its release go no further.
+    private func takesFocusOnly(_ event: NSEvent) -> Bool {
+        guard activatingClick == event.eventNumber else {
+            activatingClick = nil
+            return false
+        }
+        activatingClick = nil
+        ignoringActivatingClick = true
+        window?.makeFirstResponder(self)
+        return true
     }
 
     private func isInDragStrip(_ event: NSEvent) -> Bool {
@@ -27,6 +42,8 @@ extension TerminalNSView {
     }
 
     override func mouseDown(with event: NSEvent) {
+        if takesFocusOnly(event) { return }
+        ignoringActivatingClick = false
         if dragsWindow(event) { return }
         if event.modifierFlags.contains(.command) {
             let point = convert(event.locationInWindow, from: nil)
@@ -40,8 +57,14 @@ extension TerminalNSView {
         }
         report(.press, .left, event)
     }
-    override func mouseUp(with event: NSEvent) { report(.release, .left, event) }
-    override func mouseDragged(with event: NSEvent) { report(.motion, .left, event) }
+    override func mouseUp(with event: NSEvent) {
+        if ignoringActivatingClick {
+            ignoringActivatingClick = false
+        } else {
+            report(.release, .left, event)
+        }
+    }
+    override func mouseDragged(with event: NSEvent) { if !ignoringActivatingClick { report(.motion, .left, event) } }
     override func rightMouseDown(with event: NSEvent) { report(.press, .right, event) }
     override func rightMouseUp(with event: NSEvent) { report(.release, .right, event) }
     override func rightMouseDragged(with event: NSEvent) { report(.motion, .right, event) }

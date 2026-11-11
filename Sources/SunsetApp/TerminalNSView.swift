@@ -13,6 +13,9 @@ final class TerminalNSView: NSView {
     private var displayLink: CADisplayLink?
     var markedText = NSAttributedString()
     var trackingArea: NSTrackingArea?
+    /// The click that is activating the window (its event number, from `acceptsFirstMouse`), and whether its drag and release are being let go by.
+    var activatingClick: Int?
+    var ignoringActivatingClick = false
     /// The pointer shape last applied (`refreshPointer`).
     var shownPointer: PointerShape?
     var scroll = ScrollAccumulator()
