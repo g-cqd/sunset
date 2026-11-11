@@ -1,5 +1,6 @@
 import Foundation
 import SunsetPane
+import SunsetShell
 
 /// The kinds of content besides the terminal (which the scene makes, with its configuration): what a saved descriptor becomes.
 @MainActor enum PaneContentKinds {

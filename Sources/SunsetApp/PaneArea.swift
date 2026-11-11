@@ -1,6 +1,7 @@
 import SunsetConfig
 import SunsetHost
 import SunsetPane
+import SunsetShell
 import SwiftUI
 import UniformTypeIdentifiers
 

@@ -1,5 +1,7 @@
 import SunsetConfig
 import SunsetPane
+import SunsetShell
+import SunsetShellBridge
 import SwiftUI
 
 /// What the sidebar (or a split) does to a terminal: it becomes a card (rounded corners, a hairline stroke; the window's colour around it is the space the
@@ -22,9 +24,9 @@ struct TerminalCard: ViewModifier {
         return
             content
             .clipShape(shape)
-            .overlay { shape.hairline(layout).opacity(stroke == .hairline ? 1 : 0) }
-            .overlay { shape.hoverHairline(layout).opacity(stroke == .hovered ? 1 : 0) }
-            .overlay { shape.focusHairline(layout).opacity(stroke == .focused ? 1 : 0) }
+            .overlay { shape.hairline(ShellSettings.Layout(layout)).opacity(stroke == .hairline ? 1 : 0) }
+            .overlay { shape.hoverHairline(ShellSettings.Layout(layout)).opacity(stroke == .hovered ? 1 : 0) }
+            .overlay { shape.focusHairline(ShellSettings.Layout(layout)).opacity(stroke == .focused ? 1 : 0) }
     }
 
     private var radii: RectangleCornerRadii {

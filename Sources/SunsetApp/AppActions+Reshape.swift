@@ -1,6 +1,7 @@
 import AppKit
 import SunsetHost
 import SunsetPane
+import SunsetShell
 
 extension AppActions {
     /// The presentation changed: the terminals move to where the new one keeps them. From one window of tabs (sidebar, built-in bar) to a window each (system

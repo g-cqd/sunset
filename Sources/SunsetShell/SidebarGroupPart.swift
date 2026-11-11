@@ -1,4 +1,3 @@
-import SunsetConfig
 import SwiftUI
 
 /// One small tab inside a split tab's container: its title, a slight highlight under the pointer, and, when it is the focused pane of the selected tab, a
@@ -6,7 +5,7 @@ import SwiftUI
 struct SidebarGroupPart: View {
     let model: (any PaneContent)?
     let lit: Bool
-    let layout: Configuration.Layout
+    let layout: ShellSettings.Layout
     var onHoverChange: (Bool) -> Void = { _ in }
     let select: () -> Void
     @State private var hovering = false

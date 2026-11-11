@@ -1,5 +1,7 @@
 import IOSurface
 import SunsetConfig
+import SunsetShell
+import SunsetShellBridge
 import SwiftUI
 
 /// A floating card next to the sidebar that previews an unselected tab's current terminal screen when the pointer hovers over its row (`n36`).
@@ -36,7 +38,7 @@ struct TabPreviewCard: View {
         }
         .frame(width: Self.width + 12)
         .background(.ultraThinMaterial, in: shape)
-        .overlay { shape.hairline(layout) }
+        .overlay { shape.hairline(ShellSettings.Layout(layout)) }
         .shadow(color: .black.opacity(0.28), radius: 12, y: 4)
         .allowsHitTesting(false)
     }

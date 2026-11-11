@@ -1,4 +1,3 @@
-import SunsetConfig
 import SunsetPane
 import SwiftUI
 
@@ -10,7 +9,7 @@ struct SidebarGroupRow: View {
     let tabs: TabsModel
     let selected: Bool
     var armed = false
-    let layout: Configuration.Layout
+    let layout: ShellSettings.Layout
     @State private var hovering = false
     @Environment(\.controlActiveState) private var activeState
 

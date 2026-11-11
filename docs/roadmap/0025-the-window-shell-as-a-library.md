@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress (H-1 started 2026-11-11: SunsetShell exists; the tab model and the sidebar moved, behind ShellSettings; the terminal target next)
 blocked-by: 0020 step b (it starts with the folders sidebar step)
 date: 2026-11-11
 ---

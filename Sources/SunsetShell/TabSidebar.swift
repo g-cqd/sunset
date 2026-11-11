@@ -1,15 +1,15 @@
-import SunsetConfig
-import SunsetHost
 import SunsetPane
-import SwiftUI
+package import SwiftUI
 import UniformTypeIdentifiers
 
 /// The sidebar: the tabs of the window, listed vertically (the same `Workspace` the built-in bar shows), and nothing else. It has no background of its own
 /// (the window's own colour or material shows through, with the window's settings) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
 /// content starts below the traffic lights and scrolls beneath them, fading out there. A click selects a tab, a drag reorders them.
-struct TabSidebar: View {
+package struct TabSidebar: View {
     let tabs: TabsModel
-    let settings: Configuration
+    let settings: ShellSettings
+    /// The pin button was pressed: the sidebar is to stay beside the content, or to hide and float (`sidebar.autoHide`, which the app owns).
+    let togglePin: () -> Void
     /// The floating panel: its traffic lights are a little further from the corner.
     var floating = false
     /// The floating panel's corner radius: the pin button's corner towards the panel's is concentric with it (same gap to both edges).
@@ -21,11 +21,25 @@ struct TabSidebar: View {
 
     private var margin: Double { settings.sidebar.padding }
     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
-    private var layout: Configuration.Layout { floating ? settings.layout.floatingTabs : settings.layout }
+    private var layout: ShellSettings.Layout { floating ? settings.layout.floatingTabs : settings.layout }
     private var header: SidebarHeader { SidebarHeader(layout: layout, margin: margin, floating: floating) }
     private var topInset: Double { header.height }
 
-    var body: some View {
+    package init(
+        tabs: TabsModel,
+        settings: ShellSettings,
+        floating: Bool = false,
+        panelRadius: Double? = nil,
+        togglePin: @escaping () -> Void
+    ) {
+        self.tabs = tabs
+        self.settings = settings
+        self.floating = floating
+        self.panelRadius = panelRadius
+        self.togglePin = togglePin
+    }
+
+    package var body: some View {
         ScrollView {
             LazyVStack(spacing: layout.tabSpacing) {
                 ForEach(tabs.workspace.items) { item in row(item) }
@@ -135,7 +149,7 @@ struct TabSidebar: View {
             radius: pinRadius,
             size: panelRadius == nil ? CGSize(width: header.dockedButtonSize, height: header.dockedButtonHeight) : nil
         ) {
-            AppConfiguration.shared.update { $0.sidebar.autoHide.toggle() }
+            togglePin()
         }
         .padding(
             settings.sidebar.side == .left ? .trailing : .leading,

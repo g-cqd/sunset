@@ -7,6 +7,9 @@ import SunsetHost
 /// themselves; a file that cannot be read leaves the last good configuration in force and says why.
 @MainActor @Observable
 final class AppConfiguration {
+    /// The sidebar's pin button: it stays beside the content, or hides and floats (`sidebar.autoHide`).
+    static func togglePin() { shared.update { $0.sidebar.autoHide.toggle() } }
+
     static let shared = AppConfiguration()
 
     private(set) var configuration = Configuration()

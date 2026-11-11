@@ -1,6 +1,7 @@
 import AppKit
 import SunsetConfig
 import SunsetPane
+import SunsetShell
 
 /// The tabs that come back: the windows are written to the session file a moment after anything changes (and when the app is put away or quits) and read at
 /// the next launch, where each window takes one saved window in turn. Programs cannot be saved, so a restored pane is a new shell in the directory the old one was in.

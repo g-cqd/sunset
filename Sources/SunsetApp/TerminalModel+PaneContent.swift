@@ -1,10 +1,14 @@
 import Foundation
 import SunsetPane
+import SunsetShell
 import SwiftUI
 
 /// The terminal as the content of a pane.
 extension TerminalModel: PaneContent {
     var detail: String? { directory }
+
+    /// The program in front of the shell, so that a tab is found by what runs in it.
+    var searchTerms: [String] { foregroundCommand.map { [$0] } ?? [] }
 
     /// The folder the program is in (with its first letter), or the command in front.
     var glyph: PaneGlyph {

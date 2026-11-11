@@ -1,15 +1,17 @@
-import SunsetPane
-import SwiftUI
+package import SunsetPane
+package import SwiftUI
 
 /// What is in a pane, as the tabs, the sidebar and the pane area see it: a terminal, a note, later a page or a document. The shell knows nothing else
 /// of it (docs/research/pane-content-2026-11-11.md).
-@MainActor protocol PaneContent: AnyObject {
+@MainActor package protocol PaneContent: AnyObject {
     /// What the program or the document calls itself.
     var title: String { get }
     /// A second line under the title: a directory, an address.
     var detail: String? { get }
     /// The tab's own picture, when the person gave it none.
     var glyph: PaneGlyph { get }
+    /// More words it is found by when tabs are searched, beside its title and detail (a terminal: the program in front).
+    var searchTerms: [String] { get }
     /// Activity to show under the title, 0 to 1; nil when there is none.
     var progress: Double? { get }
     /// Why closing it now would lose something (a command is running), asked at the moment of closing; nil when it can go at once. Not the same thing
@@ -26,4 +28,8 @@ import SwiftUI
     /// The pane is closing: whatever runs for it ends.
     func stop()
     func makeView(_ context: PaneViewContext) -> AnyView
+}
+
+extension PaneContent {
+    package var searchTerms: [String] { [] }
 }

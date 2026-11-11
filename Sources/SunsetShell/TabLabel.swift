@@ -1,8 +1,8 @@
-import SunsetPane
-import SwiftUI
+package import SunsetPane
+package import SwiftUI
 
 /// What one tab shows: its title, and, as the configuration says, the working directory and the progress the program reported.
-struct TabLabel: View {
+package struct TabLabel: View {
     let model: (any PaneContent)?
     var showIcon = false
     var showTitle = true
@@ -12,7 +12,25 @@ struct TabLabel: View {
     var name: String?
     var icon: PaneIcon?
 
-    var body: some View {
+    package init(
+        model: (any PaneContent)?,
+        showIcon: Bool = false,
+        showTitle: Bool = true,
+        showDirectory: Bool = false,
+        showProgress: Bool = true,
+        name: String? = nil,
+        icon: PaneIcon? = nil
+    ) {
+        self.model = model
+        self.showIcon = showIcon
+        self.showTitle = showTitle
+        self.showDirectory = showDirectory
+        self.showProgress = showProgress
+        self.name = name
+        self.icon = icon
+    }
+
+    package var body: some View {
         HStack(spacing: 6) {
             if showIcon {
                 if let icon {
@@ -38,7 +56,7 @@ struct TabLabel: View {
     }
 
     /// The last two components of a path, with `~` for the home directory.
-    static func shortened(_ path: String) -> String {
+    package static func shortened(_ path: String) -> String {
         let home = NSHomeDirectory()
         var text = path
         if text == home { return "~" }

@@ -21,12 +21,13 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetHost` | 24 files | The PTY seam: spawn, the output pump on its own thread, `TerminalSession`, `HeadlessSession`, foreground command, shell integration for zsh, history packing, notification gate, host policy |
 | `SunsetRender`, `SunsetRenderMac`, `SunsetRenderMetal` | 50 files | The CPU renderer (dirty rows, box drawing, ligatures and OpenType features by run shaping), CoreText glyphs, the Metal renderer; chosen at run time (`renderer`: auto, gpu, cpu), falling back to the CPU one when the GPU one fails |
 | `SunsetPane` | 41 files | No dependency: `Workspace` (a window's tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon; `Favorites` (folders step a1, 2026-11-11: the app-wide tree of folders and kept entries, in the model and the session file; step a2: the app reads it at launch and writes it back, whatever the restoring setting says, and **nothing in a window shows or edits it yet**) |
+| `SunsetShell`, `SunsetShellBridge` | 26 + 2 files | The window shell (R8, step H-1, 2026-11-11): the tab model of a window (`TabsModel`), the pane content protocol, the sidebar and its rows, tab labels and glyphs, the command bar's state, its own plain settings (`ShellSettings`, the configuration's names); the bridge fills them from the configuration. Package access. The terminal is still in the app (its own target is the next step) |
 | `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 77 keys |
 | `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
-| `SunsetApp` | 100 files, 5,600 lines | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
+| `SunsetApp` | 79 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 789 in 134 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 803 in 136 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 

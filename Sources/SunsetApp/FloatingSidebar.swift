@@ -1,5 +1,7 @@
 import SunsetConfig
 import SunsetHost
+import SunsetShell
+import SunsetShellBridge
 import SwiftUI
 
 /// The sidebar when it hides (`sidebar.autoHide`): a thin strip along the window's leading edge, and, while the pointer is on it or on what it revealed, a
@@ -39,32 +41,38 @@ struct FloatingSidebar: View {
 
     private var panel: some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        return TabSidebar(tabs: tabs, settings: settings, floating: true, panelRadius: radius)
-            // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves nothing.
-            .frame(width: settings.sidebar.width - margin)
-            .frame(maxHeight: .infinity)
-            .background {
-                SidebarBackdrop(look: panelLook)
-                    .contentShape(.rect)
-                    .gesture(WindowDragGesture())
-            }
-            .clipShape(shape)
-            .overlay { shape.hairline(settings.layout) }
-            .overlay(alignment: side == .left ? .trailing : .leading) {
-                // Centred between the end of the tabs and the panel's edge, so it ends at the edge.
-                SidebarResizeHandle(
-                    width: settings.sidebar.width,
-                    hitWidth: SidebarHandle.hitWidth(
-                        docked: false,
-                        wanted: settings.layout.resizeHandleWidth,
-                        tabSideInset: settings.layout.floatingTabSideInset
-                    ),
-                    side: side
-                )
-            }
-            .padding(side.edge, margin)
-            .padding(.vertical, margin)
-            .onHover { inside in pointer(inside) }
+        return TabSidebar(
+            tabs: tabs,
+            settings: ShellSettings(settings),
+            floating: true,
+            panelRadius: radius,
+            togglePin: AppConfiguration.togglePin
+        )
+        // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves nothing.
+        .frame(width: settings.sidebar.width - margin)
+        .frame(maxHeight: .infinity)
+        .background {
+            SidebarBackdrop(look: panelLook)
+                .contentShape(.rect)
+                .gesture(WindowDragGesture())
+        }
+        .clipShape(shape)
+        .overlay { shape.hairline(ShellSettings.Layout(settings.layout)) }
+        .overlay(alignment: side == .left ? .trailing : .leading) {
+            // Centred between the end of the tabs and the panel's edge, so it ends at the edge.
+            SidebarResizeHandle(
+                width: settings.sidebar.width,
+                hitWidth: SidebarHandle.hitWidth(
+                    docked: false,
+                    wanted: settings.layout.resizeHandleWidth,
+                    tabSideInset: settings.layout.floatingTabSideInset
+                ),
+                side: side
+            )
+        }
+        .padding(side.edge, margin)
+        .padding(.vertical, margin)
+        .onHover { inside in pointer(inside) }
     }
 
     /// The panel is always glass (it floats over the terminal and has to be readable there), with the window's blur, glass style and tint.
