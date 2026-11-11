@@ -61,7 +61,7 @@ public final class IOSurfacePresenter: FramePresenter, Sendable {
                 ])
             else { return false }
             if let colorSpace, let list = colorSpace.copyPropertyList() {
-                buffer.setAttachment(list, forKey: kIOSurfaceColorSpace as String)
+                IOSurfaceSetValue(buffer, kIOSurfaceColorSpace, list)
             }
             buffers.append(buffer)
         }
