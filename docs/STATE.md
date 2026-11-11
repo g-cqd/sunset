@@ -23,12 +23,12 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetPane` | 41 files | No dependency: `Workspace` (a window's tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon; `Favorites` (folders step a1, 2026-11-11: the app-wide tree of folders and kept entries, in the model and the session file; step a2: the app reads it at launch and writes it back, whatever the restoring setting says, and **nothing in a window shows or edits it yet**) |
 | `SunsetShell`, `SunsetShellBridge` | 26 + 2 files | The window shell (R8, step H-1, 2026-11-11): the tab model of a window (`TabsModel`), the pane content protocol, the sidebar and its rows, tab labels and glyphs, the command bar's state, its own plain settings (`ShellSettings`, the configuration's names); the bridge fills them from the configuration. Package access |
 | `SunsetTerminal` | 30 files | The terminal as a kind of pane content (R8): its model, its AppKit view, input, selection, the renderer's wiring; what it needs from the app (the clipboard policy, the font zoom) comes in as callbacks |
-| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 77 keys |
+| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 78 keys |
 | `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 826 in 139 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 830 in 139 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -43,7 +43,8 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   deletes it; Remove from Favorites, Set Home to Current; Cmd-1..9 and Next/Previous count open entries, then tabs; an entry shown in a second
   window is live there and the first shows its last picture, dimmed, with a label (a click brings it back); the window stays, with a hint, when
   its last tab closes while there are Favorites; a tab dragged onto the line or onto an entry is kept there, an entry dragged among the tabs
-  leaves the Favorites, entries reorder by drag. Not yet: entries in the tab bar, the quit setting, folders made from the UI.
+  leaves the Favorites, entries reorder by drag; open entries lead the built-in tab bar, each with a star; the app keeps running when its last
+  window closes while an entry is open (`tabs.keepRunningForFavorites`, on by default). Not yet: entries under system tabs, folders made from the UI.
 - A tab can be renamed and given an emoji or an SF Symbol (Rename Tab…).
 - Selection by cells, words and lines, block selection, copy and paste; links (OSC 8) opened on Cmd-click under a policy; the input method; kitty
   keyboard; mouse reporting; scrollback with trackpad and wheel inertia; Previous and Next Prompt.

@@ -77,6 +77,17 @@ extension SettingsView {
                     )
                     .font(.caption).foregroundStyle(.secondary)
                 }
+            case "tabs.keepRunningForFavorites":
+                VStack(alignment: .leading, spacing: 4) {
+                    Toggle(
+                        "Keep running while a favourite is open",
+                        isOn: config.binding(\.tabs.keepRunningForFavorites)
+                    )
+                    Text(
+                        "Closing the last window does not quit Sunset while something in Favorites is open; it goes on running, and a new window shows it again."
+                    )
+                    .font(.caption).foregroundStyle(.secondary)
+                }
             case "tabs.confirmClose":
                 VStack(alignment: .leading, spacing: 4) {
                     Toggle("Confirm closing a busy tab", isOn: config.binding(\.tabs.confirmClose))

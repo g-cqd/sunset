@@ -76,6 +76,10 @@ extension Reader {
                 case "restore": if let flag = bool("tabs.restore", value) { configuration.tabs.restore = flag }
                 case "confirmClose":
                     if let flag = bool("tabs.confirmClose", value) { configuration.tabs.confirmClose = flag }
+                case "keepRunningForFavorites":
+                    if let flag = bool("tabs.keepRunningForFavorites", value) {
+                        configuration.tabs.keepRunningForFavorites = flag
+                    }
                 case "bar": section("tabs.bar", value) { reader, bar in reader.readTabBar(bar) }
                 default: unknown("tabs.\(key)")
             }
