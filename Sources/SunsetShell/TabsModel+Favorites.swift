@@ -4,6 +4,12 @@ package import SunsetPane
 extension TabsModel {
     /// The kept entry this window shows, when it shows one.
     package var shownEntry: Favorites.Entry? { workspace.selectedEntry.flatMap { favorites.favorites.entry($0) } }
+    /// Whether this window draws what it shows; false while the kept entry it shows is live in another window (it shows the last picture then).
+    package var showsLive: Bool { workspace.selectedEntry.map { favorites.isLive($0, in: self) } ?? true }
+
+    /// Brings the entry this window shows here from the window it was live in (a click on its picture).
+    package func takeShownEntry() { if let id = workspace.selectedEntry { select(entry: id) } }
+
     /// What the pane area shows: the kept entry's live tab, or the window's selected tab.
     package var shownItem: Workspace.Item? {
         workspace.selectedEntry == nil ? workspace.selectedItem : shownEntry?.open
@@ -69,15 +75,24 @@ extension TabsModel {
     /// This window shows its own selected tab again (the entry it showed stopped, went, or is shown in another window now).
     func leaveEntry() {
         guard let entry = workspace.selectedEntry else { return }
-        for pane in favorites.favorites.entry(entry)?.open?.panes ?? [] {
-            favorites.contents[pane]?.setState(focused: false, visible: false)
-        }
         workspace.select(entry: nil)
+        left(entry)
         syncStates()
         if workspace.isEmpty, favorites.isEmpty { onEmpty() }
     }
 
+    /// This window stopped showing `id` (another tab or entry is shown): when it was live here, its panes are told they are hidden, and it goes live in
+    /// another window that shows it.
+    func left(_ id: Favorites.NodeID) {
+        guard favorites.isLive(id, in: self) else { return }
+        for pane in favorites.favorites.entry(id)?.open?.panes ?? [] {
+            favorites.contents[pane]?.setState(focused: false, visible: false)
+        }
+        favorites.unclaim(id, by: self)
+    }
+
     func showEntry(_ id: Favorites.NodeID) {
+        let previous = workspace.selectedEntry
         favorites.claim(id, by: self)
         for pane in favorites.favorites.entry(id)?.open?.panes ?? [] {
             favorites.contents[pane]?.onFocusRequest = { [weak self] in
@@ -86,6 +101,7 @@ extension TabsModel {
             }
         }
         workspace.select(entry: id)
+        if let previous, previous != id { left(previous) }
         syncStates()
         onChange()
     }

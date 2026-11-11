@@ -40,34 +40,27 @@ struct PaneArea: View {
                 ZStack(alignment: .topLeading) {
                     ForEach(item.panes, id: \.self) { pane in
                         if let content = tabs.content(pane), let frame = frames[pane] {
-                            content.makeView(
-                                PaneViewContext(
-                                    focused: pane == item.focused,
-                                    translucent: translucent,
-                                    optionAsMeta: optionAsMeta,
-                                    topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0
-                                )
-                            )
-                            .frame(width: frame.width, height: frame.height)
-                            .modifier(
-                                TerminalCard(
-                                    isCard: card,
-                                    cornerRadius: radius,
-                                    windowCorners: CornerSet.atCorners(of: frame, in: bounds)
-                                        .intersection(windowCorners),
-                                    layout: layout,
-                                    stroke: PaneStrokeStyle.of(
-                                        pane: pane,
+                            paneView(content, pane: pane, item: item, frame: frame, bounds: bounds)
+                                .frame(width: frame.width, height: frame.height)
+                                .modifier(
+                                    TerminalCard(
                                         isCard: card,
-                                        isSplit: item.isSplit,
-                                        focused: item.focused,
-                                        hovered: tabs.hoveredPane
+                                        cornerRadius: radius,
+                                        windowCorners: CornerSet.atCorners(of: frame, in: bounds)
+                                            .intersection(windowCorners),
+                                        layout: layout,
+                                        stroke: PaneStrokeStyle.of(
+                                            pane: pane,
+                                            isCard: card,
+                                            isSplit: item.isSplit,
+                                            focused: item.focused,
+                                            hovered: tabs.hoveredPane
+                                        )
                                     )
                                 )
-                            )
-                            .animation(layout.smooth, value: tabs.hoveredPane)
-                            .animation(layout.smooth, value: item.focused)
-                            .offset(x: frame.minX, y: frame.minY)
+                                .animation(layout.smooth, value: tabs.hoveredPane)
+                                .animation(layout.smooth, value: item.focused)
+                                .offset(x: frame.minX, y: frame.minY)
                         }
                     }
                     ForEach(item.layout.dividers(in: bounds, gap: space), id: \.path) { divider in
@@ -86,6 +79,7 @@ struct PaneArea: View {
                 .overlay(alignment: .topLeading) {
                     hoveredTabPreview
                 }
+                .overlay { if !tabs.showsLive { elsewhere } }
                 .coordinateSpace(.named(Self.space))
                 .onDrop(
                     of: [.plainText, .utf8PlainText],
@@ -130,6 +124,42 @@ struct PaneArea: View {
                 .allowsHitTesting(false)
                 .animation(layout.smooth, value: frame)
         }
+    }
+
+    /// The view of a pane's content; while the kept entry it belongs to is live in another window, its last picture instead (one view per content).
+    @ViewBuilder
+    private func paneView(_ content: any PaneContent, pane: PaneID, item: Workspace.Item, frame: CGRect, bounds: CGRect)
+        -> some View
+    {
+        if tabs.showsLive {
+            content.makeView(
+                PaneViewContext(
+                    focused: pane == item.focused,
+                    translucent: translucent,
+                    optionAsMeta: optionAsMeta,
+                    topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0
+                )
+            )
+        } else if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
+            SurfacePreviewView(surface: surface, background: terminal.layerBackground)
+        } else {
+            Color.primary.opacity(0.04)
+        }
+    }
+
+    /// Over the last picture of an entry live in another window: dimmed, a small label, and a click brings it here (R3, R4).
+    private var elsewhere: some View {
+        ZStack {
+            Color.black.opacity(0.35)
+            Text("Shown in another window. Click to bring it here.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(.regularMaterial, in: Capsule())
+        }
+        .contentShape(.rect)
+        .onTapGesture { tabs.takeShownEntry() }
     }
 
     /// Only the panes that touch the top of the area have the strip above them.

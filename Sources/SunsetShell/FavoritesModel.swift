@@ -1,8 +1,9 @@
 package import Observation
 package import SunsetPane
 
-/// The Favorites of the app (`Favorites`) and the content of the panes of its open entries: one for every window (R3, R4). An open entry is shown in
-/// one window at a time (`claim`); its content is made the first time it is shown, by the window that shows it.
+/// The Favorites of the app (`Favorites`) and the content of the panes of its open entries: one for every window (R3, R4). An open entry can be selected
+/// in several windows, and is live (drawn, typed into) in one of them: the last that claimed it; the others show its last picture (R4, S-d). Its
+/// content is made the first time it is shown, by the window that shows it.
 @MainActor @Observable
 package final class FavoritesModel {
     package private(set) var favorites = Favorites()
@@ -12,6 +13,8 @@ package final class FavoritesModel {
     @ObservationIgnored private var pending: [PaneID: PaneDescriptor] = [:]
     /// The windows that can show entries, to tell the others when one takes an entry or when an entry goes.
     @ObservationIgnored private var viewers: [Weak] = []
+    /// The window each open entry is live in.
+    private var live: [Favorites.NodeID: Weak] = [:]
     /// Something changed that the session file holds.
     @ObservationIgnored package var onChange: () -> Void = {}
 
@@ -50,15 +53,28 @@ package final class FavoritesModel {
         viewers.append(Weak(tabs: tabs))
     }
 
-    /// `tabs` shows the entry now: no other window does (the content is one live view).
+    /// The entry is live in `tabs` now (the content is one view): the window that had it shows its last picture.
     func claim(_ id: Favorites.NodeID, by tabs: TabsModel) {
-        for viewer in viewers where viewer.tabs !== tabs && viewer.tabs?.workspace.selectedEntry == id {
-            viewer.tabs?.leaveEntry()
-        }
+        let previous = live[id]?.tabs
+        live[id] = Weak(tabs: tabs)
+        if let previous, previous !== tabs { previous.syncStates() }
+    }
+
+    /// Whether the entry is live in `tabs`. An entry live nowhere (its window went) is live in no window until one takes it: two windows never
+    /// draw the same content.
+    func isLive(_ id: Favorites.NodeID, in tabs: TabsModel) -> Bool { live[id]?.tabs === tabs }
+
+    /// `tabs` no longer shows the entry: when it was live there, it goes live in another window that shows it, if there is one.
+    func unclaim(_ id: Favorites.NodeID, by tabs: TabsModel) {
+        guard live[id]?.tabs === tabs else { return }
+        live[id] = nil
+        let next = viewers.lazy.compactMap(\.tabs).first { $0 !== tabs && $0.workspace.selectedEntry == id }
+        next?.showEntry(id)
     }
 
     /// The entry stopped or went: every window that showed it shows its own tab again.
     private func released(_ id: Favorites.NodeID) {
+        live[id] = nil
         for viewer in viewers where viewer.tabs?.workspace.selectedEntry == id { viewer.tabs?.leaveEntry() }
     }
 

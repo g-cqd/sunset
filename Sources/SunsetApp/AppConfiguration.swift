@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import Observation
 import SunsetConfig
@@ -98,7 +99,8 @@ final class AppConfiguration {
         let before = configuration.presentation
         configuration = new
         let after = new.presentation
-        if before != after { AppActions.shared.reshape(from: before, to: after) }
+        // At launch the file is read before the application exists (`NSApp` is nil then, and there is no window to move): nothing to reshape.
+        if before != after, (NSApp as NSApplication?) != nil { AppActions.shared.reshape(from: before, to: after) }
     }
 
     func reload() {

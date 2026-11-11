@@ -43,6 +43,8 @@ extension TabsModel {
         let before = workspace
         edit(&workspace)
         if workspace != before {
+            // Selecting a tab leaves the kept entry that was shown (`Workspace.show`): its panes are told so.
+            if let entry = before.selectedEntry, workspace.selectedEntry != entry { left(entry) }
             syncStates()
             onChange()
         }

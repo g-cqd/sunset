@@ -50,7 +50,9 @@ package final class TabsModel {
 
     /// A new tab, selected, after the current one: a terminal, or what `descriptor` says.
     package func newTab(_ descriptor: PaneDescriptor? = nil) {
+        let entry = workspace.selectedEntry
         register(makeContent(descriptor), as: workspace.add().pane)
+        if let entry { left(entry) }
     }
 
     /// A new terminal beside the focused pane, in the same tab, with the keyboard; nothing when there is no focused pane.
@@ -66,7 +68,11 @@ package final class TabsModel {
     }
 
     /// Takes content that already runs (moved from another window when the presentation changed): a tab like any other, selected.
-    package func adopt(_ content: any PaneContent) { register(content, as: workspace.add().pane) }
+    package func adopt(_ content: any PaneContent) {
+        let entry = workspace.selectedEntry
+        register(content, as: workspace.add().pane)
+        if let entry { left(entry) }
+    }
 
     // MARK: Session
 
@@ -207,6 +213,7 @@ package final class TabsModel {
         for (pane, content) in contents {
             content.setState(focused: pane == focused, visible: shown.contains(pane))
         }
+        guard showsLive else { return }
         for pane in shownEntry?.open?.panes ?? [] {
             favorites.contents[pane]?.setState(focused: pane == focused, visible: true)
         }
