@@ -1,6 +1,6 @@
 # R8 — The window shell as a library (roadmap 0018)
 
-Status: **one round answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0025, task t111). Nothing here is built.
 "Shell" here is the app's window shell (sidebar, tab bar, splits, command bar), not a command shell. Input: task t111,
 `docs/research/shell-extraction-2026-11-11.md`.
 
@@ -39,7 +39,7 @@ the private-API calls with it, so `SunsetShell` depends on `SunsetPrivate` (and 
 - "A target per kind": the terminal's adapter is in the app today; when it moves is asked at the first step.
 - The earlier investigation proposed that the library depend on `SunsetConfig`; the owner's answer replaces that.
 
-## Steps proposed
+## Steps
 
 | Step | What | Questions still to ask |
 | --- | --- | --- |
