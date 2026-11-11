@@ -24,6 +24,8 @@ struct SidebarRow: View {
     var button = Button.close
     /// Drawn fainter: a kept entry that is not open (R4: the same for every kind).
     var dimmed = false
+    /// While its name is edited in place: the field's first text, and what to do with the result (nil: Escape, nothing changes).
+    var renaming: (start: String, done: (String?) -> Void)?
     let close: () -> Void
 
     enum Button {
@@ -45,18 +47,23 @@ struct SidebarRow: View {
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         return HStack(spacing: 4) {
-            TabLabel(
-                model: model,
-                showIcon: showIcon,
-                showTitle: showTitle,
-                showDirectory: showDirectory,
-                showProgress: showProgress,
-                name: name,
-                icon: icon,
-                saved: saved
-            )
-            .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
-            .opacity(dimmed ? 0.45 : 1)
+            if let renaming {
+                RenameField(start: renaming.start, done: renaming.done)
+                    .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
+            } else {
+                TabLabel(
+                    model: model,
+                    showIcon: showIcon,
+                    showTitle: showTitle,
+                    showDirectory: showDirectory,
+                    showProgress: showProgress,
+                    name: name,
+                    icon: icon,
+                    saved: saved
+                )
+                .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
+                .opacity(dimmed ? 0.45 : 1)
+            }
             // Always laid out and only faded, so that the row never changes size and the label does not jump.
             SwiftUI.Button(action: close) {
                 Image(systemName: button.symbol)

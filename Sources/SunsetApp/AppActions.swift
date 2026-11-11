@@ -57,9 +57,18 @@ final class AppActions {
 
     func closeWindow() { NSApp.keyWindow?.performClose(nil) }
 
-    /// Asks for a name and an icon for the selected tab of the key window.
+    /// Renames what the key window shows: in place when the sidebar is docked (R3 step c), with the dialog otherwise (the built-in bar's rows are small).
     func renameTab() {
-        if let tabs = keyTabs, let item = tabs.workspace.selectedID { tabs.beginRename(item: item) }
+        guard let tabs = keyTabs else { return }
+        if AppConfiguration.shared.configuration.sidebarDocked {
+            if let entry = tabs.workspace.selectedEntry {
+                tabs.renamingRow = .node(entry)
+            } else if let item = tabs.workspace.selectedID {
+                tabs.renamingRow = .tab(item)
+            }
+        } else if let item = tabs.workspace.selectedID {
+            tabs.beginRename(item: item)
+        }
     }
 
     /// ⌘L: the command bar of the key window (searching its tabs).

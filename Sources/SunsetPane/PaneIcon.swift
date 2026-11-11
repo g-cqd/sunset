@@ -2,7 +2,8 @@ import Foundation
 
 /// The icon a user gives a tab or a folder of the sidebar, over the one its content has (`n40`, `n41`): an SF Symbol by name, or an emoji.
 public enum PaneIcon: Sendable, Equatable {
-    case symbol(String)
+    /// A symbol, drawn in its colour when it has one (in the secondary colour otherwise).
+    case symbol(String, color: IconColor? = nil)
     case emoji(String)
 
     /// What a person typed for an icon: a symbol's name when it is made of what those names are made of (ASCII letters, digits and dots), otherwise its
@@ -19,8 +20,20 @@ public enum PaneIcon: Sendable, Equatable {
     /// The icon as it is typed.
     public var text: String {
         switch self {
-            case .symbol(let name): name
+            case .symbol(let name, _): name
             case .emoji(let emoji): emoji
         }
+    }
+}
+
+extension PaneIcon {
+    /// The same icon in another colour; an emoji has none and is unchanged.
+    public func colored(_ color: IconColor?) -> PaneIcon {
+        guard case .symbol(let name, _) = self else { return self }
+        return .symbol(name, color: color)
+    }
+
+    public var color: IconColor? {
+        if case .symbol(_, let color) = self { color } else { nil }
     }
 }

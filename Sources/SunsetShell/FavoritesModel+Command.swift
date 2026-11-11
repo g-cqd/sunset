@@ -12,7 +12,8 @@ extension FavoritesModel {
 
     /// Saves what the person wrote in the dialog, sealed (a blank command removes it). Saving confirms a command that was not trusted.
     package func setCommand(_ command: String, for id: Favorites.NodeID) {
-        let seal = sealer?.seal(command.trimmingCharacters(in: .whitespacesAndNewlines))
+        let text = command.trimmingCharacters(in: .whitespacesAndNewlines)
+        let seal = text.isEmpty ? nil : sealer?.seal(text)
         edit { $0.setCommand(command, seal: seal, for: id) }
         unconfirmed.remove(id)
     }
