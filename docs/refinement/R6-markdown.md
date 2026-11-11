@@ -1,6 +1,6 @@
 # R6 — Markdown, and the document behind a pane (roadmap 0018)
 
-Status: **two rounds answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0023, tasks t115, t164-t174). Nothing here is built.
 Input: note n43, task t115, R2 (the hidden note pane; one document in two panes), `AemiMarkdown/Apps/MarkdownLook` (its README read today).
 
 ## The owner's answers
@@ -69,7 +69,7 @@ in a terminal that ability, to be bounded at that step; an App Intent can be run
 - "Any text file as source" makes Sunset a text editor in a small way. No colouring per language is promised.
 - `MarkdownLook`'s README says its macOS 26 runtime was not tried; the kit's native view on macOS 26 is unverified.
 
-## Steps proposed (each begins with its own questions)
+## Steps (each begins with its own questions)
 
 | Step | What | Questions still to ask |
 | --- | --- | --- |
