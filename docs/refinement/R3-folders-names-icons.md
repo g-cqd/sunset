@@ -1,6 +1,6 @@
 # R3 — Sidebar folders, pinning, names and icons (roadmap 0018)
 
-Status: **two rounds answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0020, tasks t112, t142-t146). Nothing here is built.
 
 ## The owner's answers
 
@@ -48,7 +48,7 @@ session file gains a tree and saved entries, read with the same checks as today 
 before them reads as a flat list. **Security**: a command in a pinned terminal is text that will run on a click: it is only ever written by the
 person in the dialog, never taken from a program's output or a page, and the dialog shows it whole before saving.
 
-## Steps proposed (each begins with its own questions)
+## Steps (each begins with its own questions)
 
 | Step | What | Questions still to ask |
 | --- | --- | --- |
