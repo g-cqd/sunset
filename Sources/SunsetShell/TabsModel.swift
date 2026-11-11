@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import Observation
 package import SunsetPane
 
@@ -28,6 +28,8 @@ package final class TabsModel {
     package var hoveredPane: PaneID?
     /// The tab row currently under the pointer in the sidebar or tab bar, so an unselected tab can show a screen preview (`n36`).
     package var hoveredItem: Workspace.ItemID?
+    /// Where that row is, in the window (global coordinates): the preview is placed beside it (n47).
+    package var hoveredRowFrame: CGRect?
     /// The tab being renamed, while its dialog is open (`RenameTabAlert`).
     package var renaming: Workspace.ItemID?
     /// Two-step confirmation before closing a tab that has a command running (`n28`).

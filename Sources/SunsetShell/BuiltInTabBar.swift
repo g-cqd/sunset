@@ -8,6 +8,7 @@ package struct BuiltInTabBar: View {
     let tabs: TabsModel
     let settings: ShellSettings.Bar
     @State private var hovered: UUID?
+    @State private var frames: [UUID: CGRect] = [:]
 
     package init(tabs: TabsModel, settings: ShellSettings.Bar) {
         self.tabs = tabs
@@ -141,10 +142,12 @@ package struct BuiltInTabBar: View {
             in: .rect(cornerRadius: 6)
         )
         .contentShape(.rect)
+        .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frames[id] = $0 }
         .onHover { inside in
             hovered = inside ? id : (hovered == id ? nil : hovered)
             if inside {
                 tabs.hoveredItem = id
+                tabs.hoveredRowFrame = frames[id]
             } else if tabs.hoveredItem == id {
                 tabs.hoveredItem = nil
             }
