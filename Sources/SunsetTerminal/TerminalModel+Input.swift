@@ -1,11 +1,11 @@
-import SunsetCore
-import SunsetHost
+package import SunsetCore
+package import SunsetHost
 import SunsetRender
 import SunsetRenderMac
 
 extension TerminalModel {
     /// Keys, text and pastes go to the program one at a time, in the order they happened, encoded by the session for the modes it has *now*.
-    func send(_ event: InputEvent) {
+    package func send(_ event: InputEvent) {
         cursorPhase = true
         noteActivity()
         if case .mouse = event {} else { clearSelection() }
@@ -17,7 +17,7 @@ extension TerminalModel {
     }
 
     /// The pointer did something at a point of the surface (device pixels, from the top left). Motion within one cell is not repeated, as terminals do not.
-    func sendMouse(
+    package func sendMouse(
         _ action: MouseEvent.Action,
         _ button: MouseEvent.Button,
         pixelX: Int,
@@ -48,7 +48,7 @@ extension TerminalModel {
         )
     }
 
-    static func forward(
+    package static func forward(
         _ events: AsyncStream<InputEvent>,
         to session: TerminalSession,
         unclaimed: @MainActor (MouseEvent) -> Void
@@ -64,7 +64,7 @@ extension TerminalModel {
     }
 
     /// A mouse event the program did not ask for: the wheel scrolls the history.
-    func unclaimed(_ event: MouseEvent) {
+    package func unclaimed(_ event: MouseEvent) {
         guard event.action == .press else { return }
         switch event.button {
             case .wheelUp: scroll(byLines: 1)
@@ -74,16 +74,16 @@ extension TerminalModel {
     }
 
     /// Scrolls the window into the history (positive) or back toward the live screen.
-    func scroll(byLines lines: Int) {
+    package func scroll(byLines lines: Int) {
         let before = viewport.scrolledBack
         viewport.scroll(by: lines)
         if viewport.scrolledBack != before { requestFrame() }
     }
 
-    func scroll(byPages pages: Int) { scroll(byLines: pages * max(1, (currentGrid()?.rows ?? 24) - 1)) }
+    package func scroll(byPages pages: Int) { scroll(byLines: pages * max(1, (currentGrid()?.rows ?? 24) - 1)) }
 
     /// Puts the previous or the next shell prompt (OSC 133) at the top of the window; past the last one is the live screen.
-    func jumpToPrompt(_ direction: PromptMark.Direction) {
+    package func jumpToPrompt(_ direction: PromptMark.Direction) {
         guard let screen = lastScreen else { return }
         let before = viewport.scrolledBack
         if let line = screen.promptLine(direction, from: viewport.firstLine) {
@@ -94,7 +94,7 @@ extension TerminalModel {
         if viewport.scrolledBack != before { requestFrame() }
     }
 
-    func scrollToLive() {
+    package func scrollToLive() {
         guard !viewport.isLive else { return }
         viewport.toLive()
         requestFrame()

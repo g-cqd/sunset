@@ -1,9 +1,9 @@
-import AppKit
-import SunsetCore
+package import AppKit
+package import SunsetCore
 
 extension PointerShape {
     /// The system's pointer nearest to the shape (AppKit has fewer than CSS names: the diagonal resizes and the scroll-all become the nearest it has).
-    var cursor: NSCursor {
+    package var cursor: NSCursor {
         switch self {
             case .arrow, .cell, .allScroll, .progress, .wait, .help: .arrow
             case .text: .iBeam

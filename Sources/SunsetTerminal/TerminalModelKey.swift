@@ -1,12 +1,12 @@
 import SwiftUI
 
 /// How the focused window's model reaches the menu commands.
-struct TerminalModelKey: FocusedValueKey {
-    typealias Value = TerminalModel
+package struct TerminalModelKey: FocusedValueKey {
+    package typealias Value = TerminalModel
 }
 
 extension FocusedValues {
-    var terminalModel: TerminalModel? {
+    package var terminalModel: TerminalModel? {
         get { self[TerminalModelKey.self] }
         set { self[TerminalModelKey.self] = newValue }
     }

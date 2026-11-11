@@ -1,4 +1,4 @@
-import SunsetCore
+package import SunsetCore
 import SunsetRender
 import SunsetRenderMac
 
@@ -6,7 +6,7 @@ import SunsetRenderMac
 extension TerminalModel {
     /// The pointer did something at a point of the surface. The program gets it when it asked for the mouse (holding Shift takes it back, as in other
     /// terminals); the wheel always goes to `sendMouse`, which decides between the program and the history; otherwise the left button selects text.
-    func pointer(
+    package func pointer(
         _ action: MouseEvent.Action,
         _ button: MouseEvent.Button,
         pixelX: Int,
@@ -56,12 +56,12 @@ extension TerminalModel {
         requestFrame()
     }
 
-    func clearSelection() {
+    package func clearSelection() {
         gesture = nil
         setSelection(nil)
     }
 
-    func selectAll() {
+    package func selectAll() {
         guard let screen = lastScreen else { return }
         setSelection(
             Selection(
@@ -72,7 +72,7 @@ extension TerminalModel {
     }
 
     /// The selected text, or nil when nothing is selected.
-    var selectedText: String? {
+    package var selectedText: String? {
         guard let selection, let screen = lastScreen else { return nil }
         let text = screen.text(of: selection)
         return text.isEmpty ? nil : text

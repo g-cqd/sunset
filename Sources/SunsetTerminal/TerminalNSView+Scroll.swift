@@ -1,4 +1,4 @@
-import AppKit
+package import AppKit
 import SunsetConfig
 import SunsetCore
 
@@ -9,7 +9,7 @@ import SunsetCore
 /// and no momentum, so the inertia is ours: `ScrollMomentum` turns a notch into a decaying speed, stepped once per frame by a display link that runs only
 /// while the text glides.
 extension TerminalNSView {
-    override func scrollWheel(with event: NSEvent) {
+    package override func scrollWheel(with event: NSEvent) {
         if event.hasPreciseScrollingDeltas {
             stopGliding()
             let lines = scroll.lines(
@@ -31,7 +31,7 @@ extension TerminalNSView {
     }
 
     /// Whatever glides stops: a key was pressed, or a finger is on the trackpad.
-    func stopGliding() {
+    package func stopGliding() {
         momentum.stop()
         momentumLink?.invalidate()
         momentumLink = nil

@@ -1,11 +1,11 @@
-import AppKit
-import SunsetCore
+package import AppKit
+package import SunsetCore
 
 extension TerminalNSView {
     /// A click in the strip drags the window even when the window is not the active one, as a title bar does. Elsewhere the click that activates the
     /// window is taken too, but only to give this pane the keyboard (`n44`: in a split, the pane clicked is the one typed in next); it is remembered
     /// here, by its number, so that `mouseDown` does not also hand it to the program or start a selection with it.
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+    package override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         guard let event else { return false }
         if !isInDragStrip(event) { activatingClick = event.eventNumber }
         return true
@@ -41,7 +41,7 @@ extension TerminalNSView {
         return true
     }
 
-    override func mouseDown(with event: NSEvent) {
+    package override func mouseDown(with event: NSEvent) {
         if takesFocusOnly(event) { return }
         ignoringActivatingClick = false
         if dragsWindow(event) { return }
@@ -57,43 +57,45 @@ extension TerminalNSView {
         }
         report(.press, .left, event)
     }
-    override func mouseUp(with event: NSEvent) {
+    package override func mouseUp(with event: NSEvent) {
         if ignoringActivatingClick {
             ignoringActivatingClick = false
         } else {
             report(.release, .left, event)
         }
     }
-    override func mouseDragged(with event: NSEvent) { if !ignoringActivatingClick { report(.motion, .left, event) } }
-    override func rightMouseDown(with event: NSEvent) { report(.press, .right, event) }
-    override func rightMouseUp(with event: NSEvent) { report(.release, .right, event) }
-    override func rightMouseDragged(with event: NSEvent) { report(.motion, .right, event) }
+    package override func mouseDragged(with event: NSEvent) {
+        if !ignoringActivatingClick { report(.motion, .left, event) }
+    }
+    package override func rightMouseDown(with event: NSEvent) { report(.press, .right, event) }
+    package override func rightMouseUp(with event: NSEvent) { report(.release, .right, event) }
+    package override func rightMouseDragged(with event: NSEvent) { report(.motion, .right, event) }
 
-    override func otherMouseDown(with event: NSEvent) { report(.press, .middle, event) }
-    override func otherMouseUp(with event: NSEvent) { report(.release, .middle, event) }
-    override func otherMouseDragged(with event: NSEvent) { report(.motion, .middle, event) }
+    package override func otherMouseDown(with event: NSEvent) { report(.press, .middle, event) }
+    package override func otherMouseUp(with event: NSEvent) { report(.release, .middle, event) }
+    package override func otherMouseDragged(with event: NSEvent) { report(.motion, .middle, event) }
 
-    override func mouseMoved(with event: NSEvent) {
+    package override func mouseMoved(with event: NSEvent) {
         refreshPointer()
         report(.motion, .none, event)
     }
 
     /// The pointer the program asked for over its screen (OSC 22); none, and the system's arrow stays.
-    override func resetCursorRects() {
+    package override func resetCursorRects() {
         if let shape = model.lastScreen?.pointerShape { addCursorRect(bounds, cursor: shape.cursor) }
     }
 
     /// Looks whether the program changed the pointer since it was last applied: with each frame, and when the mouse moves (a change of the pointer alone
     /// draws no frame).
-    func refreshPointer() {
+    package func refreshPointer() {
         let shape = model.lastScreen?.pointerShape
         guard shape != shownPointer else { return }
         shownPointer = shape
         window?.invalidateCursorRects(for: self)
     }
-    override func mouseExited(with event: NSEvent) { model.hover(pixelX: nil, pixelY: nil) }
+    package override func mouseExited(with event: NSEvent) { model.hover(pixelX: nil, pixelY: nil) }
 
-    override func updateTrackingAreas() {
+    package override func updateTrackingAreas() {
         super.updateTrackingAreas()
         if let trackingArea { removeTrackingArea(trackingArea) }
         let area = NSTrackingArea(
@@ -106,7 +108,7 @@ extension TerminalNSView {
         trackingArea = area
     }
 
-    func report(_ action: MouseEvent.Action, _ button: MouseEvent.Button, _ event: NSEvent) {
+    package func report(_ action: MouseEvent.Action, _ button: MouseEvent.Button, _ event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
         let scale = window?.backingScaleFactor ?? 2
         model.pointer(

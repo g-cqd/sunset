@@ -1,11 +1,11 @@
-import AppKit
-import SunsetCore
+package import AppKit
+package import SunsetCore
 
 /// Turns AppKit key events into the terminal's own key model (`KeyPress`), for the keys that are not plain text; plain text goes through the text input
 /// system, which composes dead keys and input methods.
-enum KeyboardMapping {
+package enum KeyboardMapping {
     /// The key for a hardware key code that has a name, or nil for the keys that produce text.
-    static func namedKey(_ keyCode: UInt16) -> KeyCode? {
+    package static func namedKey(_ keyCode: UInt16) -> KeyCode? {
         switch keyCode {
             case 36, 76: .enter
             case 48: .tab
@@ -37,7 +37,7 @@ enum KeyboardMapping {
         }
     }
 
-    static func modifiers(_ flags: NSEvent.ModifierFlags) -> InputModifiers {
+    package static func modifiers(_ flags: NSEvent.ModifierFlags) -> InputModifiers {
         var result: InputModifiers = []
         if flags.contains(.shift) { result.insert(.shift) }
         if flags.contains(.option) { result.insert(.option) }
@@ -47,7 +47,7 @@ enum KeyboardMapping {
 
     /// The press for `event` when it must go to the program as a key and not as text: a named key, a Control combination, or Option used as Meta. Nil when
     /// the text input system should handle it (and for Command combinations, which belong to the app's menus).
-    static func press(for event: NSEvent, optionAsMeta: Bool) -> KeyPress? {
+    package static func press(for event: NSEvent, optionAsMeta: Bool) -> KeyPress? {
         let held = event.modifierFlags
         if held.contains(.command) { return nil }
         let mapped = modifiers(held)

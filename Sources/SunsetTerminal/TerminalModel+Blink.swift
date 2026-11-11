@@ -3,21 +3,21 @@ import SunsetRender
 /// The cursor's blink and what stops it.
 extension TerminalModel {
     /// Something happened (a key, output): the cursor blinks again for a while, and the blink task is woken if it was waiting without a timer.
-    func noteActivity() {
+    package func noteActivity() {
         lastActivity = .now
         packer?.noteActivity()
         blinkWake.continuation.yield()
     }
 
     /// The window gained or lost the key state, or was covered or uncovered.
-    func windowStateChanged(focused: Bool, visible: Bool) {
+    package func windowStateChanged(focused: Bool, visible: Bool) {
         gates.windowFocused = focused
         gates.windowVisible = visible
         applyState()
     }
 
     /// The tabs changed which pane has the keyboard and which tab is shown.
-    func paneStateChanged(focused: Bool, visible: Bool) {
+    package func paneStateChanged(focused: Bool, visible: Bool) {
         guard focused != gates.paneFocused || visible != gates.paneVisible else { return }
         gates.paneFocused = focused
         gates.paneVisible = visible
@@ -34,7 +34,7 @@ extension TerminalModel {
         if !visible { setDisplayLinkPaused(true) }
     }
 
-    func blink() async {
+    package func blink() async {
         var wakes = blinkWake.stream.makeAsyncIterator()
         while !Task.isCancelled {
             let idle = ContinuousClock.now - lastActivity

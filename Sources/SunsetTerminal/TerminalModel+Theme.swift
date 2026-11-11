@@ -2,7 +2,7 @@ import SunsetCore
 import SunsetHost
 
 extension TerminalModel {
-    func apply(colors: DefaultColors) {
+    package func apply(colors: DefaultColors) {
         guard colors != defaultColors else { return }
         defaultColors = colors
         guard let session else { return }
@@ -11,35 +11,35 @@ extension TerminalModel {
         }
     }
 
-    func apply(font newFont: FontSettings) {
+    package func apply(font newFont: FontSettings) {
         guard newFont != font else { return }
         font = newFont
         makeRenderer()
         viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
     }
 
-    func apply(topInset points: Double) {
+    package func apply(topInset points: Double) {
         guard points != topInsetPoints else { return }
         topInsetPoints = points
         makeRenderer()
         viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
     }
 
-    func apply(padding points: Double) {
+    package func apply(padding points: Double) {
         guard points != paddingPoints else { return }
         paddingPoints = points
         makeRenderer()
         viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
     }
 
-    func apply(backgroundAlpha alpha: UInt8) {
+    package func apply(backgroundAlpha alpha: UInt8) {
         guard alpha != backgroundAlpha else { return }
         backgroundAlpha = alpha
         requestFrame()
     }
 
     /// The model's settings (colours, padding, alpha, inset) were set directly: bring the renderer, the grid and the colours in line with them.
-    func applyLayout() {
+    package func applyLayout() {
         if renderer != nil {
             makeRenderer()
             viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)
