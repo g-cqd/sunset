@@ -8,10 +8,19 @@ struct TabLabel: View {
     var showTitle = true
     var showDirectory = false
     var showProgress = true
+    /// The name and the icon a person gave the tab: shown instead of the program's title and of the tab's own picture.
+    var name: String?
+    var icon: PaneIcon?
 
     var body: some View {
         HStack(spacing: 6) {
-            if showIcon, let model { TabGlyphView(glyph: Self.glyph(of: model)) }
+            if showIcon {
+                if let icon {
+                    PaneIconView(icon: icon)
+                } else if let model {
+                    TabGlyphView(glyph: Self.glyph(of: model))
+                }
+            }
             lines
         }
     }
@@ -23,7 +32,7 @@ struct TabLabel: View {
 
     private var lines: some View {
         VStack(alignment: .leading, spacing: 1) {
-            if showTitle { Text(model?.title ?? "Sunset").lineLimit(1) }
+            if showTitle { Text(name ?? model?.title ?? "Sunset").lineLimit(1) }
             if showDirectory, let directory = model?.directory {
                 Text(Self.shortened(directory)).font(.caption).foregroundStyle(.secondary).lineLimit(1)
             }

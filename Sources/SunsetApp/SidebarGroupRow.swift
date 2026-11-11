@@ -16,8 +16,19 @@ struct SidebarGroupRow: View {
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-        return HStack(spacing: inset) {
-            ForEach(item.panes, id: \.self) { pane in part(pane) }
+        let custom = tabs.custom(for: item)
+        return VStack(alignment: .leading, spacing: inset) {
+            // The tab's own name and icon, when it was given any: above its panes, which keep their programs' titles.
+            if custom.name != nil || custom.icon != nil {
+                HStack(spacing: 4) {
+                    if let icon = custom.icon { PaneIconView(icon: icon) }
+                    if let name = custom.name { Text(name).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
+                }
+                .padding(.horizontal, 6)
+            }
+            HStack(spacing: inset) {
+                ForEach(item.panes, id: \.self) { pane in part(pane) }
+            }
         }
         .padding(inset)
         .background(shape.fill(containerHighlight))
@@ -59,6 +70,7 @@ struct SidebarGroupRow: View {
         )
         .onDrag { tabs.itemProvider(for: .pane(pane)) }
         .contextMenu {
+            Button("Rename Tab…") { tabs.beginRename(item: item.id) }
             Button("Move Pane to Its Own Tab") { tabs.detachIntoTab(pane) }
             Button("Close Pane") { tabs.requestClose(pane: pane) }
         }

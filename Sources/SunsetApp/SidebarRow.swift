@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetPane
 import SwiftUI
 
 /// One tab in the sidebar (its padding, radius and close button from `layout.*`), the title cut with "…" when it does not fit. While the pointer is over it a close button
@@ -11,6 +12,8 @@ struct SidebarRow: View {
     /// Kept true when the row just slid into the slot of a tab whose close button was clicked, so rapid clicks on the same spot close tabs without needing
     /// pointer movement (`n27`).
     var keepCloseVisible = false
+    var name: String?
+    var icon: PaneIcon?
     let showIcon: Bool
     let showTitle: Bool
     let showDirectory: Bool
@@ -29,7 +32,9 @@ struct SidebarRow: View {
                 showIcon: showIcon,
                 showTitle: showTitle,
                 showDirectory: showDirectory,
-                showProgress: showProgress
+                showProgress: showProgress,
+                name: name,
+                icon: icon
             )
             .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
             // Always laid out and only faded, so that the row never changes size and the label does not jump.

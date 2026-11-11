@@ -63,11 +63,14 @@ struct TabSidebar: View {
             )
         } else {
             let slot = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
+            let custom = tabs.custom(for: item)
             SidebarRow(
                 model: tabs.models[item.focused],
                 selected: item.id == tabs.workspace.selectedID,
                 armed: armed,
                 keepCloseVisible: slot != nil && slot == closingSlot,
+                name: custom.name,
+                icon: custom.icon,
                 showIcon: settings.tabs.bar.showIcon,
                 showTitle: settings.tabs.bar.showTitle,
                 showDirectory: settings.tabs.bar.showDirectory,
@@ -115,6 +118,7 @@ struct TabSidebar: View {
                 )
             )
             .contextMenu {
+                Button("Rename Tab…") { tabs.beginRename(item: item.id) }
                 Button("Close Tab") { tabs.close(item: item.id) }
                 Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
                     .disabled(tabs.workspace.count < 2)

@@ -43,6 +43,9 @@ struct TerminalCommands: Commands {
                 .keyboardShortcut("[", modifiers: [.command, .option])
             Divider()
             Button("Move Pane to Its Own Tab") { AppActions.shared.moveFocusedPaneToTab() }
+            Divider()
+            Button("Rename Tab…") { AppActions.shared.renameTab() }
+                .keyboardShortcut("r", modifiers: [.command, .shift])
         }
         CommandGroup(after: .windowArrangement) {
             Button("Show Next Tab") { AppActions.shared.selectNextTab() }

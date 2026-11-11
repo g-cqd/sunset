@@ -72,7 +72,7 @@ struct TerminalScene: View {
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
         .background(rootColor)
-        .overlay { CommandBarView(tabs: tabs, layout: configuration.layout) }
+        .overlay { CommandBarView(tabs: tabs, layout: configuration.layout).modifier(RenameTabAlert(tabs: tabs)) }
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .ignoresSafeArea(edges: noDecorations ? .top : [])
         .background(
