@@ -2,8 +2,8 @@ import AppKit
 import IOSurface
 import SwiftUI
 
-/// Displays a live thumbnail of an `IOSurface` (a terminal's last rendered frame) in a layer-backed `NSView` with `.resizeAspect` gravity, without copying
-/// pixels through the CPU (`n36`).
+/// Shows an `IOSurface` small, in a layer-backed `NSView` with `.resizeAspect` gravity, without copying pixels through the CPU (`n36`). The surface is the
+/// last frame a terminal drew: a hidden tab draws nothing, so what it printed since is not in it.
 struct SurfacePreviewView: NSViewRepresentable {
     let surface: IOSurface
     let background: CGColor
