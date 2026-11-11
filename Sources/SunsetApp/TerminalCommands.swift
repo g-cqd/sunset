@@ -3,7 +3,7 @@ import SunsetCore
 import SunsetPane
 import SwiftUI
 
-/// The menu: copy the selection, paste, select all.
+/// The menus. Copy, Paste and Select All are the system's own items: the view that has the keyboard answers them (`TerminalNSView+Pasteboard`).
 struct TerminalCommands: Commands {
     @FocusedValue(\.terminalModel) private var model
 
@@ -57,23 +57,6 @@ struct TerminalCommands: Commands {
                 Button("Tab \(number)") { AppActions.shared.selectTab(number: number) }
                     .keyboardShortcut(KeyEquivalent(Character("\(number)")), modifiers: .command)
             }
-        }
-        CommandGroup(replacing: .pasteboard) {
-            Button("Copy") {
-                guard let text = model?.selectedText else { return }
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(text, forType: .string)
-            }
-            .keyboardShortcut("c")
-            .disabled(model?.hasSelection != true)
-            Button("Paste") {
-                if let text = NSPasteboard.general.string(forType: .string) { model?.send(.paste(text)) }
-            }
-            .keyboardShortcut("v")
-            .disabled(model == nil)
-            Button("Select All") { model?.selectAll() }
-                .keyboardShortcut("a")
-                .disabled(model == nil)
         }
     }
 }
