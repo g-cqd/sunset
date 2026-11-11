@@ -59,6 +59,9 @@ final class AppActions {
     /// A new tab with an empty note in it, in the key window.
     func newNote() { keyTabs?.newTab(PaneDescriptor(kind: NoteContent.kind)) }
 
+    /// A new tab with an empty page in it, its address field ready, in the key window.
+    func newPage() { keyTabs?.newTab(PaneDescriptor(kind: WebContent.kind)) }
+
     /// Asks for a name and an icon for the selected tab of the key window.
     func renameTab() {
         if let tabs = keyTabs, let item = tabs.workspace.selectedID { tabs.beginRename(item: item) }
