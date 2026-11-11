@@ -17,6 +17,7 @@ import SwiftUI
     private(set) var focused = false
     private(set) var visible = false
     private(set) var stopped = false
+    private(set) var typed: [String] = []
 
     init(_ descriptor: PaneDescriptor? = nil) { self.descriptor = descriptor ?? PaneDescriptor(kind: "fake") }
 
@@ -26,5 +27,6 @@ import SwiftUI
     }
 
     func stop() { stopped = true }
+    func type(command: String) { typed.append(command) }
     func makeView(_ context: PaneViewContext) -> AnyView { AnyView(EmptyView()) }
 }

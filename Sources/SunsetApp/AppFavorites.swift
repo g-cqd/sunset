@@ -5,6 +5,7 @@ import SunsetShell
     static let shared: FavoritesModel = {
         let model = FavoritesModel()
         model.onChange = { SessionStore.shared.scheduleSave() }
+        model.sealer = CommandSealKey.load().map(AppCommandSeal.init)
         return model
     }()
 }

@@ -57,6 +57,16 @@ struct FavoritesSection: View {
             dimmed: !entry.isOpen,
             close: { entry.isOpen ? tabs.unload(entry: entry.id) : tabs.delete(entry: entry.id) }
         )
+        .overlay(alignment: .topLeading) {
+            // Its command was not run: something other than Sunset wrote it (t145).
+            if tabs.favorites.unconfirmed.contains(entry.id) {
+                Image(systemName: "exclamationmark.shield.fill")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.orange)
+                    .help("Its command was not written by Sunset and was not run. Edit Command\u{2026} to see it.")
+                    .offset(x: 2, y: 1)
+            }
+        }
         .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
         .overlay { dropMark(entry.id) }
         .onTapGesture { tabs.select(entry: entry.id) }
@@ -67,7 +77,12 @@ struct FavoritesSection: View {
         )
         .contextMenu {
             Button("Remove from Favorites") { tabs.release(entry: entry.id) }
+            Button("Edit Command…") { tabs.editingCommand = entry.id }
             if entry.isOpen {
+                if entry.command != nil {
+                    Button("Run Command Now") { tabs.favorites.runCommandNow(entry.id) }
+                        .disabled(!tabs.favorites.isTrusted(entry.id))
+                }
                 Button("Set Home to Current") { tabs.favorites.setHomeToCurrent(entry.id) }
                 Button("Unload") { tabs.unload(entry: entry.id) }
             }

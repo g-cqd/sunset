@@ -6,10 +6,17 @@ public struct TerminalStatus: Sendable, Equatable {
     public let title: String
     public let workingDirectory: WorkingDirectory?
     public let progress: ProgressState
+    /// The shell has drawn its prompt and waits for a command (its last mark, with shell integration, is a prompt or the start of what is typed).
+    public let atPrompt: Bool
+    /// The shell marks its prompts at all (shell integration is on).
+    public let marksPrompts: Bool
 
     public init(_ screen: Screen) {
         title = screen.title
         workingDirectory = screen.workingDirectory
         progress = screen.progress
+        let last = screen.promptMarks.last?.kind
+        atPrompt = last == .promptStart || last == .commandStart
+        marksPrompts = !screen.promptMarks.isEmpty
     }
 }
