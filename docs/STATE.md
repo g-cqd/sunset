@@ -7,10 +7,11 @@ A new session reads this, the white paper, `AGENTS.md`, `docs/roadmap/0018-refin
 
 White paper §10: nothing is built that was not asked for; an idea is a proposition that goes through the owner. The refinement phase (roadmap 0018)
 is in progress: each topic is decided with the owner, alternatives and their costs (speed, memory, safety, security) stated, before any of it is
-built. Done: R1 (the web pane, `docs/refinement/R1-web-pane.md`, roadmap 0019), R2 (panes that are not terminals), R3 (folders, pinning, names and icons, roadmap 0020),
-R4 (Spaces and profiles, roadmap 0021), R10 (the task list). R5 (web beyond the first pane, roadmap 0022). R6 (Markdown and the document behind a pane, roadmap 0023). The owner's order of building: folders, the web milestone,
-Markdown, Spaces, profiles, web beyond. R7 (restoring the running state, roadmap 0024, built after all the above). R8 (the window shell as a library, `SunsetShell`, roadmap 0025). To do: R9 the terminal's open ends and the
-owner's notes, R11 commands, App Intents and the command bar, and the refinement of Sunset's own document store.
+built. All ten sessions were held and accepted on 2026-11-11; each has a file in `docs/refinement/` and a roadmap: the web pane (0019), folders
+and Favorites (0020), Spaces and profiles (0021), web beyond the first pane (0022), Markdown and the document behind a pane (0023), restoring the
+running state (0024), the window shell as a library (0025), the terminal's open ends (0026). The owner's order of building: folders, the web
+milestone, Markdown, Spaces, profiles, web beyond, restoring, then the terminal items and performance. Two sessions asked for since are still to
+hold: R11 (commands, App Intents, the command bar, remote control; task t173) and Sunset's own document store (t172). Nothing of all this is built.
 
 ## What exists (macOS 26, Swift 6, 172 commits, nothing pushed: there is no remote)
 

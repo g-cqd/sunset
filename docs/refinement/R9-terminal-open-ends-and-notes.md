@@ -1,6 +1,6 @@
 # R9 — The terminal's open ends, old decisions and the owner's notes (roadmap 0018)
 
-Status: **two rounds answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0026). Nothing here is built.
 Input: tasks t58, t108, t94, t55, t77, t40, t54, t17, t19, t100, t141; the acknowledged notes.
 
 ## The owner's answers
@@ -67,7 +67,7 @@ Costs, as the owner asked to see them, where an answer carries one.
 | n18 survey | acknowledged | The survey above |
 | n40 to n46 | acknowledged | Each is a roadmap now (0019 to 0024); fulfilled when built |
 
-## Steps proposed (each begins with its own questions)
+## Steps (each begins with its own questions)
 
 | Step | What |
 | --- | --- |
