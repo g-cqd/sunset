@@ -45,6 +45,10 @@ extension Favorites {
         public internal(set) var icon: PaneIcon?
         public internal(set) var home: Home
         public internal(set) var open: Workspace.Item?
+        /// What is typed into a kept terminal's shell when it opens (R3), and the check that says Sunset wrote it (t145). The model only keeps them:
+        /// checking and running are the app's.
+        public internal(set) var command: String?
+        public internal(set) var commandSeal: String?
 
         public var isOpen: Bool { open != nil }
 

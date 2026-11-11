@@ -28,7 +28,7 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 834 in 140 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 843 in 142 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -44,7 +44,9 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   window is live there and the first shows its last picture, dimmed, with a label (a click brings it back); the window stays, with a hint, when
   its last tab closes while there are Favorites; a tab dragged onto the line or onto an entry is kept there, an entry dragged among the tabs
   leaves the Favorites, entries reorder by drag; open entries lead the built-in tab bar, each with a star; the app keeps running when its last
-  window closes while an entry is open (`tabs.keepRunningForFavorites`, on by default). Not yet: entries under system tabs, folders made from the UI.
+  window closes while an entry is open (`tabs.keepRunningForFavorites`, on by default). A kept terminal can hold a command (Edit Command…), typed into its new shell
+  when it opens and at relaunch; it is sealed with a key in the Keychain, and a command something else wrote into the session file is shown,
+  never run, until saved in the dialog. Not yet: entries under system tabs, folders made from the UI.
 - A tab can be renamed and given an emoji or an SF Symbol (Rename Tab…).
 - Selection by cells, words and lines, block selection, copy and paste; links (OSC 8) opened on Cmd-click under a policy; the input method; kitty
   keyboard; mouse reporting; scrollback with trackpad and wheel inertia; Previous and Next Prompt.

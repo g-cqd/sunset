@@ -12,6 +12,9 @@ package import SwiftUI
     var glyph: PaneGlyph { get }
     /// More words it is found by when tabs are searched, beside its title and detail (a terminal: the program in front).
     var searchTerms: [String] { get }
+    /// Types a command into it as if typed, then Return, as soon as it can take one (a terminal: once its shell has drawn its prompt). Kinds that run
+    /// nothing ignore it.
+    func type(command: String)
     /// Activity to show under the title, 0 to 1; nil when there is none.
     var progress: Double? { get }
     /// Why closing it now would lose something (a command is running), asked at the moment of closing; nil when it can go at once. Not the same thing
@@ -32,4 +35,5 @@ package import SwiftUI
 
 extension PaneContent {
     package var searchTerms: [String] { [] }
+    package func type(command: String) {}
 }

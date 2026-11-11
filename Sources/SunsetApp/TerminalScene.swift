@@ -76,6 +76,10 @@ struct TerminalScene: View {
         }
         .background(rootColor)
         .overlay { CommandBarView(tabs: tabs, layout: configuration.layout).modifier(RenameTabAlert(tabs: tabs)) }
+        .sheet(isPresented: Binding(get: { tabs.editingCommand != nil }, set: { if !$0 { tabs.editingCommand = nil } }))
+        {
+            if let entry = tabs.editingCommand { CommandSheet(tabs: tabs, entry: entry) }
+        }
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .ignoresSafeArea(edges: noDecorations ? .top : [])
         .background(

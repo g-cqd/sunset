@@ -1,7 +1,7 @@
 import Foundation
 
 extension Favorites.Entry: Codable {
-    private enum Key: String, CodingKey { case id, title, icon, home, open }
+    private enum Key: String, CodingKey { case id, title, icon, home, open, command, commandSeal }
 
     /// The live tab of an open entry.
     private struct Live: Codable {
@@ -27,6 +27,8 @@ extension Favorites.Entry: Codable {
             home: try container.decode(Favorites.Home.self, forKey: .home),
             open: (try? container.decodeIfPresent(Live.self, forKey: .open))?.item
         )
+        command = try container.decodeIfPresent(String.self, forKey: .command)
+        commandSeal = try container.decodeIfPresent(String.self, forKey: .commandSeal)
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -39,5 +41,7 @@ extension Favorites.Entry: Codable {
             open.map { Live(id: $0.id, layout: $0.layout, focused: $0.focused) },
             forKey: .open
         )
+        try container.encodeIfPresent(command, forKey: .command)
+        try container.encodeIfPresent(commandSeal, forKey: .commandSeal)
     }
 }

@@ -17,6 +17,10 @@ package final class FavoritesModel {
     private var live: [Favorites.NodeID: Weak] = [:]
     /// Something changed that the session file holds.
     @ObservationIgnored package var onChange: () -> Void = {}
+    /// Seals and checks a kept terminal's command (t145); with none, no command is ever run.
+    @ObservationIgnored package var sealer: (any CommandSealing)?
+    /// Entries whose command failed its check (something other than Sunset wrote it): shown, never run, until confirmed in the dialog.
+    package internal(set) var unconfirmed: Set<Favorites.NodeID> = []
 
     package init() {}
 
@@ -105,11 +109,14 @@ package final class FavoritesModel {
         let home = favorites.entry(id)?.home
         edit { item = $0.open(id) }
         guard let item else { return nil }
-        for pane in item.panes where contents[pane] == nil {
+        let starting = item.panes.filter { contents[$0] == nil }
+        for pane in starting {
             let content = make(pending.removeValue(forKey: pane) ?? home?.contents[pane])
             content.onExit = { [weak self] in self?.paneEnded(pane) }
             contents[pane] = content
         }
+        // The entry starts (opened from its home, or brought back at launch): its focused pane's new shell types the entry's command.
+        if !starting.isEmpty { runCommand(of: id) }
         return item
     }
 

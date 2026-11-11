@@ -100,3 +100,13 @@ app's, Tabs each window's) until Spaces rework the Tabs.
 
 Corrected on the way: the question in step a about "a new window after the last one is closed while the app runs" rested on a wrong premise (the
 app quits with its last window); the owner's answer above replaces it.
+
+## A kept terminal's command (t145), its questions answered (2026-11-11)
+
+| Question | Answer | His note |
+| --- | --- | --- |
+| When it is typed | Each time the entry opens from its home, and also at relaunch when the entry was open | |
+| How | As if typed, then Return, once the shell has drawn its prompt | |
+| Tampering | Stored with a check only Sunset can make (a signature keyed by a secret in the Keychain); a command whose check fails is shown, never run, until confirmed in the dialog | |
+| The dialog | "Edit Command…" in the entry's menu, a sheet showing it whole; "Run Command Now" for an open entry | "Both maybe": a wider Entry Settings sheet can come later, with the name and icon popover (step c) |
+| When the command ends | The shell stays | |

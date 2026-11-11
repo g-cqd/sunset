@@ -59,6 +59,9 @@ package import SunsetRenderMac
     @ObservationIgnored package var holdsResize = false
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
     @ObservationIgnored package var lastActivity = ContinuousClock.now
+    /// A kept entry's command, typed at the prompt (`TerminalModel+Command`).
+    @ObservationIgnored var pendingCommand: String?
+    @ObservationIgnored var commandDelivery: Task<Void, Never>?
     /// The window is the key window (so the cursor blinks) and is on screen (so frames are drawn). Set by the view from the window's notifications.
     @ObservationIgnored package var hasFocus = true
     @ObservationIgnored package var isVisible = true
@@ -119,6 +122,7 @@ package import SunsetRenderMac
                 scrollbackLimit: scrollbackLimit
             )
             self.session = session
+            deliverPendingCommand()
             packer = HistoryPacker(session) { [weak self] screen in self?.lastScreen?.adoptHistory(from: screen) }
             tasks = [
                 Task { [colors = defaultColors] in
@@ -145,7 +149,7 @@ package import SunsetRenderMac
     package var cellHeightInPoints: Double { Double(renderer?.cellMetrics.cellHeight ?? 16) / scale }
 
     package func stop() {
-        for task in tasks { task.cancel() }
+        for task in tasks + [commandDelivery].compactMap(\.self) { task.cancel() }
         packer?.stop()
         tasks = []
         input.continuation.finish()

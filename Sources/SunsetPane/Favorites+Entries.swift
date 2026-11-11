@@ -105,3 +105,15 @@ extension Favorites {
         updateEntry(id) { $0.home = home }
     }
 }
+
+extension Favorites {
+    /// Gives a kept entry the command typed into its shell when it opens, with the check that says who wrote it; a blank command removes both.
+    public mutating func setCommand(_ command: String?, seal: String?, for id: NodeID) {
+        let text = command?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let given = text?.isEmpty == false ? text : nil
+        updateEntry(id) { entry in
+            entry.command = given
+            entry.commandSeal = given == nil ? nil : seal
+        }
+    }
+}

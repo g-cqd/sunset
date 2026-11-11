@@ -63,6 +63,7 @@ package struct BuiltInTabBar: View {
         .onTapGesture { tabs.select(entry: entry.id) }
         .contextMenu {
             SwiftUI.Button("Remove from Favorites") { tabs.release(entry: entry.id) }
+            SwiftUI.Button("Edit Command…") { tabs.editingCommand = entry.id }
             SwiftUI.Button("Set Home to Current") { tabs.favorites.setHomeToCurrent(entry.id) }
             SwiftUI.Button("Unload") { tabs.unload(entry: entry.id) }
             SwiftUI.Button("Delete") { tabs.delete(entry: entry.id) }
