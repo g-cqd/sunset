@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: not-started (as of 2026-11-11: Study done; nothing changed in Aemi (task t140).)
 blocked-by: 0002 (parser and cell-write probes decide which kernels matter)
 date: 2026-11-05
 ---

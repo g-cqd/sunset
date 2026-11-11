@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: mostly-done (as of 2026-11-11: Parser, screen, scrollback, reflow, replies, clusters, OSC built and tested (SunsetCore). Not built: left/right margins, esctest/vttest fixtures, a crash fuzzer.)
 blocked-by:
 date: 2026-11-05
 ---

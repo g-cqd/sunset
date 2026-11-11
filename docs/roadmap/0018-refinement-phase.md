@@ -34,7 +34,7 @@ A session does not start the next one. Nothing is built during the phase except 
 | R7 | Restoring the running state | What "exact state" covers; a session daemon that keeps programs alive, or screens restored over new shells; what is asked at launch and what is a setting | t122, n46 |
 | R8 | The shell as a package | Whether and when; its boundary; its name and repository; what the app keeps | t111 |
 | R9 | The terminal's open ends | OSC 21 and 66, bash shell integration, the resize behaviour of n29, confirming a window's close (the agent's proposition), font settings (n2), the feature survey (n18), remote control (n1), and when performance work resumes | t58, t108, t94, t118, t55, t77, t40, t100 |
-| R10 | The task list and the roadmap files | Which old tasks are closed, merged or kept (the list has tasks from before the app existed); bringing `docs/STATE.md` and the roadmap files up to what exists | all |
+| R10 (done 2026-11-11 except the inventory of what the old umbrella tasks still hold, which waits on the owner) | The task list and the roadmap files | Which old tasks are closed, merged or kept (the list has tasks from before the app existed); bringing `docs/STATE.md` and the roadmap files up to what exists | all |
 
 ## Done when
 

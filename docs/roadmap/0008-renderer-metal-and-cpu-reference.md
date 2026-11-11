@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: mostly-done (as of 2026-11-11: CPU renderer and Metal renderer built, chosen at run time, with fallback. Left: see task t100 (deferred).)
 blocked-by: 0006, 0007
 date: 2026-11-05
 ---

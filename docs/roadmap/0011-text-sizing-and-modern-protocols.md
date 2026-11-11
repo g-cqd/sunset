@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: partly-done (as of 2026-11-11: Built: kitty keyboard flags, OSC 8, OSC 52 write with policy, OSC 133, notifications, pointer shapes (OSC 22). Not built: OSC 66, unscroll, remote control.)
 blocked-by: 0003, 0007
 date: 2026-11-05
 ---

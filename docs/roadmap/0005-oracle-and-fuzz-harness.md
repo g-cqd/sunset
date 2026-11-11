@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: partly-done (as of 2026-11-11: kitty, ghostty, alacritty compared by script on 18 streams and a reply stream. Not built: wezterm, esctest/vttest, cursor and resize comparison, fuzzing.)
 blocked-by: 0003
 date: 2026-11-05
 ---

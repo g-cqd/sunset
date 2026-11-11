@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: not-started (as of 2026-11-11: Nothing promoted. Aemi kernels and AemiJSON are used as dependencies.)
 blocked-by:
 date: 2026-11-05
 ---

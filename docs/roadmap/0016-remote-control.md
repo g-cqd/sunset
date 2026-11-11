@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: not-started (as of 2026-11-11: ADR-0022 proposed; nothing built. After the web milestone for pages (task t136).)
 blocked-by: 0004
 date: 2026-11-05
 ---

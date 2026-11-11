@@ -1,53 +1,66 @@
 # Sunset — state of the implementation (handoff)
 
-> **2026-11-11.** What follows this box was last brought up to date on 2026-11-05 and no longer describes the app (tabs, splits, sidebar, sessions,
-> GPU renderer, panes that are not terminals all exist since). Until refinement session R10 rewrites it, the current state is: the white paper (§10:
-> nothing is built that was not asked; ideas go through the owner), `docs/roadmap/0018-refinement-phase.md` (the phase in progress; R1 done),
-> `docs/roadmap/0019-web-pane.md`, `docs/refinement/`, the open tasks, and `git log`.
+Rewritten 2026-11-11 from the code, the tests and the log, in refinement session R10. Facts only; decisions are in the ADRs and in `docs/refinement/`.
+A new session reads this, the white paper, `AGENTS.md`, `docs/roadmap/0018-refinement-phase.md`, the open tasks and the notes.
 
-Last updated 2026-11-05 (screen v1). A new session reads this, `AGENTS.md`, the open tasks and notes, and carries on. The ADRs say why; the diary is the log.
+## How work is decided
 
-## What exists
+White paper §10: nothing is built that was not asked for; an idea is a proposition that goes through the owner. The refinement phase (roadmap 0018)
+is in progress: each topic is decided with the owner, alternatives and their costs (speed, memory, safety, security) stated, before any of it is
+built. Done: R1 (the web pane, `docs/refinement/R1-web-pane.md`, roadmap 0019), R2 (panes that are not terminals), R10 (the task list; one part
+waits on the owner). To do: R3 folders, R4 Spaces and profiles, R5 web beyond the first pane, R6 Markdown, R7 restoring the running state, R8 the
+shell as a package, R9 the terminal's open ends and the owner's notes.
 
-- **Docs/research/probes**: ADRs 0001–0023, roadmap 0001–0016, competitor baseline (`bench/`), probes in `Benchmarks/` (VT cell-format model, cold history, handoff, Metal read).
-- **Code (new)**: `Package.swift` with `SunsetCore` (platform-free, strict settings, no dependencies) and `SunsetCoreTests`.
-  - `Sources/SunsetCore/Parser`: `VTParser` (byte state machine, ADR-0023), `VTSink`, `Parameters`, `Intermediates`, `ParseCounter` (concrete front for other modules).
-  - `Sources/SunsetCore/Screen`: `Terminal` (parser + screen, `feed`), `Screen` (the sink: grid, cursor, modes, regions, SGR, alternate screen, dirty rows), `Cell` (8 bytes), `CellStyle`, `StyleTable`, `Grid` (ADR-0025).
-  - Dependency: `TerminalKitText` (display widths) from g-cqd/TerminalKit by revision `5966813`; ADR-0002 accepted: g-cqd and Aemi-Studio packages freely, Apple/swiftlang on approval.
-  - Tests: `swift test -c release --enable-testable-imports` → 231 pass (171 core + 19 host + 36 render + 5 CoreText) (parser, properties, screen, differential against a naive model, replies and modes).
-  - Replies: `Terminal.takeReplies()` (bounded queue, ADR-0026); `Screen.modes` (what the host needs), `keyboardFlags`, `cursorShape`.
-  - Benchmarks: `Benchmarks/Benchmarks/ParserBenchmarks` (`cd Benchmarks && swift package benchmark --no-progress --target ParserBenchmarks`); baseline in `bench/results/2026-11-05/parser-baseline.txt`.
+## What exists (macOS 26, Swift 6, 172 commits, nothing pushed: there is no remote)
 
-  - `Sources/SunsetHost` (the platform seam): `PTYProcess`, `HeadlessSession`; `Sources/SunsetRun` (`sunset-run`, prints a program's screen); `Scripts/oracle-compare.sh` + `Scripts/oracle-streams/*.sh` (18 streams: text and styles against kitty, text against ghostty via `Scripts/oracle-ghostty.sh`, replies against kitty, ghostty and alacritty (built with cargo); understood differences in `Scripts/oracle-accepted.txt`; ADR-0030). Needs a GUI session, local only.
+| Target | Size | What it is |
+| --- | --- | --- |
+| `SunsetCore` | 85 files, 4,750 lines | Platform-free: the parser (byte state machine, UTF-8, whole-CSI and control fast paths), the screen (8-byte cells, row map, styles, modes, regions, alternate screen, grapheme clusters, charsets), scrollback in chunks with packing, reflow on resize, replies, selection, key and mouse encoding (legacy and kitty keyboard flags), OSC (see below) |
+| `SunsetHost` | 24 files | The PTY seam: spawn, the output pump on its own thread, `TerminalSession`, `HeadlessSession`, foreground command, shell integration for zsh, history packing, notification gate, host policy |
+| `SunsetRender`, `SunsetRenderMac`, `SunsetRenderMetal` | 50 files | The CPU renderer (dirty rows, box drawing, ligatures and OpenType features by run shaping), CoreText glyphs, the Metal renderer; chosen at run time (`renderer`: auto, gpu, cpu), falling back to the CPU one when the GPU one fails |
+| `SunsetPane` | 25 files | No dependency: `Workspace` (tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon |
+| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 77 keys |
+| `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
+| `SunsetApp` | 100 files, 5,600 lines | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
+| `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-  - `Sources/SunsetRender` (CPU renderer, ADR-0031; platform-free), `SunsetRenderMac` (CoreText glyphs), `sunset-render` (PNG of a program's screen, headless: no window). The renderer benchmark: `swift package benchmark --target RendererBenchmarks` (28 M instructions a full 120x40 frame, 0 mallocs).
+Tests: 741 in 127 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
+(instructions per MiB by stream, independent of the machine's load).
 
-  - Renderer additions: box drawing, blocks and braille drawn to the cell (ADR-0031 addendum); ligatures and OpenType features via run shaping (ADR-0032; `sunset-render --ligatures --feature zero`).
+### The app, as built
 
-  - **App**: `Sources/SunsetApp` (`swift run sunset-app -- /opt/homebrew/bin/fish`): SwiftUI `App`/Settings/Commands + an AppKit terminal view, a `TerminalSession` actor and a `FrameRenderer` actor, no Dispatch (ADR-0033). Quality rules: `docs/quality.md` (strict safety, one type per file, 250 lines, no GCD, Swift 6.4.2).
+- Windows with no title bar, movable window buttons, a drag strip; materials, blur, tint, colour scheme; themes.
+- Tabs in three presentations (system tabs, a sidebar, a built-in bar), changed live; splits by menu, drag and drop; a command bar (Cmd-L) searching
+  tabs; hover previews of a tab's last frame; a two-step confirmation before closing a pane, a tab or the other tabs while a command runs.
+- Sessions: tabs, splits, each pane's directory, a tab's name and icon come back at launch.
+- A tab can be renamed and given an emoji or an SF Symbol (Rename Tab…).
+- Selection by cells, words and lines, block selection, copy and paste; links (OSC 8) opened on Cmd-click under a policy; the input method; kitty
+  keyboard; mouse reporting; scrollback with trackpad and wheel inertia; Previous and Next Prompt.
+- The click that activates the window gives the pane under it the keyboard.
+- Panes hold `PaneContent`, of which the terminal is the only kind the app makes. A note kind exists and is hidden (R2: until Markdown replaces it);
+  a kind a build cannot make is shown as a placeholder and kept. **There is no web pane**: the one built on 2026-11-11 was removed (R1).
 
-  - App input done: keys, text (input method), paste, mouse reporting (all xterm modes and formats). Not done: selection/copy, scrollback viewport (the renderer draws the active screen only: it needs a viewport offset over scrollback + screen), find, tabs/splits.
+### OSC handled by the core (ADR-0010 policy)
 
-## Measured (instructions per 1 MiB, p50, release; 0 mallocs on all)
+0, 1, 2 (titles); 4, 104, 10, 11, 12, 110-112 (colours, set, queried, reset); 7 (directory); 8 (links); 9 and 9;4 (notification, progress); 22
+(pointer shape); 52 (clipboard write only, behind `terminal.clipboardWrite`; read is denied); 99, 777 (notifications); 133 (prompt marks); 1337
+(SetMark, CurrentDir). Not handled: 21, 66.
 
-Parser alone: ASCII 11 M · UTF-8 44 M · OSC 21 M · cursor moves 81 M · SGR 87 M.
-Terminal (parser + screen, 120x40): ASCII 50 M · cursor moves 142 M · OSC 102 M · SGR 153 M · UTF-8 268 M. Results in `bench/results/2026-11-05/`.
+## Not built (found by searching the sources on 2026-11-11)
 
-## Next
+Left and right margins (DECLRMM); kitty graphics, Sixel, inline images; search in the scrollback; text sizing (OSC 66); unscroll; an own font
+stack (CoreText is used); per-style fonts, fallback order and variable-font settings; Linux (no Linux code path in the sources); remote control;
+session recording and replay as a feature; `esctest` / `vttest` fixtures; a crash fuzzer beyond the seeded random and differential tests; wezterm
+as an oracle; bash shell integration; quitting or closing a window is not confirmed.
 
-1. Replies and modes (DA1/DA2, DSR/CPR, DECRQM, XTVERSION, OSC 4/10/11/12 queries), OSC titles/hyperlinks, DECSCUSR, soft reset, kitty keyboard flags, mouse modes, synchronized output.
-2. Cold compressed history (ADR-0013), left/right margins. Done since: grapheme clusters (ADR-0029), charsets, scrollback ring, resize with reflow (ADR-0028).
-3. Widen the oracle comparison: styles and cursor, replies, resize, ghostty and wezterm; `esctest`/`vttest` fixtures with a published gap list; fuzzing; profile the CSI path.
-4. Renderer: CPU renderer v1 is done (ADR-0031); next procedural box drawing, colour emoji, selection overlay, then Metal behind `CellRenderer` with the run-time toggle `auto|gpu|cpu` and the pixel differential as the first gate (ADR-0024). Probes 6 and 7 of roadmap 0002; PTY host.
+## Measured (2026-11-11, headless, release, instructions per MiB)
 
-## CI (not yet run on GitHub)
+Plain ASCII 33 M · dense colour 76 M · cursor moves 78 M · full lines 30 M · titles 116 M · short lines (real scrolling) 257 M · unicode 166 M.
+The app against Ghostty on vtebench was last measured before 2026-11-11 (dense equal; scrolling 26 vs 17 ms, regions 20 vs 15, fullscreen 34 vs
+22, unicode 8 vs 2) and **not** since the scrolling work of that day. Performance work is deferred by the owner (task t100).
 
-`.github/workflows/ci.yml` (swift-ci) and `mutation.yml` (daily, CI only; script `Scripts/mutate-changed.sh`), `.ci/action.json`. Mutation testing is not run locally (white paper §1); nothing is pushed, so none of it has run.
+## Not verified, said plainly
 
-## Not established
-
-C1/limit policies and the screen's behaviour are unchecked against oracles; no speed comparison with other terminals; ADR-0012 (cell) and ADR-0005 (colour) still proposed; ADR-0024 proposed, no renderer yet.
-
-## Window, configuration, tabs (roadmap 0017, ADR-0034)
-
-Done and committed locally: a JSON5 configuration file (35 keys, `~/.config/sunset/config.json` or `$SUNSET_CONFIG`) watched without Dispatch and applied live; themes as `themes/<name>.json`; a Settings window (sidebar of panes with search) that edits the file in place and keeps its comments; no title bar with traffic lights anywhere in the window and a drag strip; opaque, material, glass, transparent windows and sidebar, one tint, window and sidebar blur (private calls by name through InternedStrings); tabs as system tabs, in a sidebar, or in a built-in bar, switching live without stopping the programs. Not done: compressing idle screens (task t73, owner note n14), mouse-interaction checks of the tab UI, the GPU renderer (t53).
+Much of the app's UI was built without being exercised by hand: the hover preview, sidebar drag and drop, rapid close, the rename dialog, the
+pointer shapes, Previous and Next Prompt in the running app. The CI workflows were written and never run. Each task says what was and was not tried.
