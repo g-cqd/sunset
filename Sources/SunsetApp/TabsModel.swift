@@ -67,11 +67,11 @@ final class TabsModel {
 
     /// The window as it is, for the session file: the tabs and the directory of each pane (its own report, else the one it was restored with).
     func savedWindow() -> SavedWindow {
-        var directories: [PaneID: String] = [:]
+        var contents: [PaneID: PaneDescriptor] = [:]
         for pane in workspace.allPanes {
-            if let directory = models[pane]?.directory ?? savedDirectories[pane] { directories[pane] = directory }
+            contents[pane] = .terminal(directory: models[pane]?.directory ?? savedDirectories[pane])
         }
-        return SavedWindow(workspace: workspace, directories: directories)
+        return SavedWindow(workspace: workspace, contents: contents)
     }
 
     /// Fills an empty window with a saved one: the same tabs and splits, a new terminal in each pane, started in its directory when that still exists. The
@@ -81,7 +81,7 @@ final class TabsModel {
         workspace = saved.workspace
         for pane in workspace.allPanes {
             let model = makeModel()
-            if let directory = saved.directories[pane], directoryExists(directory) {
+            if let directory = saved.contents[pane]?.directory, directoryExists(directory) {
                 model.startDirectory = directory
                 savedDirectories[pane] = directory
             }
