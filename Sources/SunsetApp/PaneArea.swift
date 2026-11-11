@@ -22,6 +22,8 @@ struct PaneArea: View {
     let windowRadius: Double
     /// The corners of the area that are corners of the window (the sidebar or a tab bar covers the others).
     let windowCorners: CornerSet
+    /// The sidebar is on the window's right: previews of its rows open on that side.
+    var sidebarOnRight = false
 
     private static let space = "pane-area"
     /// Where a dragged tab or pane would go while it is over the area.
@@ -77,7 +79,7 @@ struct PaneArea: View {
                     dropPreview(item: item, bounds: bounds, space: space, radius: radius, card: card)
                 }
                 .overlay(alignment: .topLeading) {
-                    hoveredTabPreview
+                    hoveredTabPreview(area: proxy.frame(in: .global))
                 }
                 .overlay { if !tabs.showsLive { elsewhere } }
                 .coordinateSpace(.named(Self.space))
@@ -169,18 +171,24 @@ struct PaneArea: View {
         }
     }
 
-    /// Shows a floating thumbnail of an unselected tab's terminal screen while the pointer hovers over its tab row (`n36`).
-    @ViewBuilder private var hoveredTabPreview: some View {
+    /// The preview of a tab that is not selected while the pointer is over its row (`n36`, n47): beside that row, on the side of the sidebar, its middle
+    /// level with the row's; for a row of the built-in bar, above or below it, at its place along the bar. Kept inside the area.
+    @ViewBuilder private func hoveredTabPreview(area: CGRect) -> some View {
         if tabs.dragged == nil,
             let hoveredID = tabs.hoveredItem,
             !tabs.isSelected(hoveredID),
             let item = tabs.workspace.items.first(where: { $0.id == hoveredID }),
-            let model = tabs.terminal(item.focused),
-            let surface = model.lastSurface
+            item.panes.contains(where: { tabs.terminal($0)?.lastSurface != nil })
         {
-            TabPreviewCard(model: model, surface: surface, layout: layout)
-                .padding(12)
-                .transition(.opacity)
+            let card = TabPreviewCard(item: item, tabs: tabs, layout: layout)
+            let size = CGSize(width: TabPreviewCard.width + 12, height: card.height + 44)
+            let origin = PreviewPlacement.origin(
+                size: size,
+                row: tabs.hoveredRowFrame,
+                area: area,
+                sidebarOnRight: sidebarOnRight
+            )
+            card.offset(x: origin.x, y: origin.y).transition(.opacity)
         }
     }
 }

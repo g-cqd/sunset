@@ -1,39 +1,47 @@
 import IOSurface
 import SunsetConfig
+import SunsetPane
 import SunsetShell
 import SunsetShellBridge
 import SunsetTerminal
 import SwiftUI
 
-/// A floating card next to the sidebar that previews an unselected tab's current terminal screen when the pointer hovers over its row (`n36`).
+/// A floating card beside the row of a tab that is not selected, while the pointer is over it (`n36`, R2): the tab's layout in miniature, each pane with
+/// the last frame it drew (a pane that has not drawn yet is a blank card). Drawn when asked; nothing is kept (R2).
 struct TabPreviewCard: View {
-    let model: TerminalModel
-    let surface: IOSurface
+    let item: Workspace.Item
+    let tabs: TabsModel
     let layout: Configuration.Layout
 
-    private static let width = 280.0
+    static let width = 280.0
+    private static let gap = 3.0
 
-    private var height: Double {
-        guard surface.width > 0, surface.height > 0 else { return 175 }
-        let ratio = Double(surface.height) / Double(surface.width)
-        return min(max(Self.width * ratio, 110), 220)
+    /// The proportions of the window the tab is shown in: the first pane's frame says what the whole is, in its own aspect.
+    var height: Double {
+        let surfaces = item.panes.compactMap { tabs.terminal($0)?.lastSurface }
+        guard item.panes.count == 1, let surface = surfaces.first, surface.width > 0, surface.height > 0 else {
+            return 175
+        }
+        return min(max(Self.width * Double(surface.height) / Double(surface.width), 110), 220)
     }
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: 10, style: .continuous)
+        let custom = tabs.custom(for: item)
         VStack(alignment: .leading, spacing: 6) {
             TabLabel(
-                model: model,
+                model: tabs.content(item.focused),
                 showIcon: true,
                 showTitle: true,
                 showDirectory: true,
-                showProgress: false
+                showProgress: false,
+                name: custom.name,
+                icon: custom.icon
             )
             .padding(.horizontal, 10)
             .padding(.top, 8)
-            SurfacePreviewView(surface: surface, background: model.layerBackground)
+            miniature
                 .frame(width: Self.width, height: height)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 .padding(.horizontal, 6)
                 .padding(.bottom, 6)
         }
@@ -42,5 +50,36 @@ struct TabPreviewCard: View {
         .overlay { shape.hairline(ShellSettings.Layout(layout)) }
         .shadow(color: .black.opacity(0.28), radius: 12, y: 4)
         .allowsHitTesting(false)
+    }
+
+    /// Every pane where the layout puts it, small.
+    private var miniature: some View {
+        let frames = item.layout.frames(in: CGRect(x: 0, y: 0, width: Self.width, height: height), gap: Self.gap)
+        return ZStack(alignment: .topLeading) {
+            ForEach(item.panes, id: \.self) { pane in
+                if let frame = frames[pane] {
+                    picture(of: pane)
+                        .frame(width: frame.width, height: frame.height)
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .strokeBorder(
+                                    Color.accentColor.opacity(pane == item.focused && item.isSplit ? 0.8 : 0),
+                                    lineWidth: 1
+                                )
+                        }
+                        .offset(x: frame.minX, y: frame.minY)
+                }
+            }
+        }
+        .frame(width: Self.width, height: height, alignment: .topLeading)
+    }
+
+    @ViewBuilder private func picture(of pane: PaneID) -> some View {
+        if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
+            SurfacePreviewView(surface: surface, background: terminal.layerBackground)
+        } else {
+            Color.primary.opacity(0.06)
+        }
     }
 }

@@ -138,7 +138,8 @@ struct TerminalScene: View {
                 docked: configuration.sidebarDocked,
                 margin: configuration.sidebar.padding,
                 windowRadius: windowRadius,
-                windowCorners: areaWindowCorners
+                windowCorners: areaWindowCorners,
+                sidebarOnRight: configuration.sidebar.side == .right
             )
         } else {
             Color.clear

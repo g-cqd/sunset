@@ -16,6 +16,7 @@ package struct TabSidebar: View {
     var panelRadius: Double?
     @State private var rowDrop: (item: Workspace.ItemID, action: TabDropAction)?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
+    @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
     /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
     @State private var closingSlot: Int?
 
@@ -106,6 +107,7 @@ package struct TabSidebar: View {
     private func row(_ item: Workspace.Item) -> some View {
         rowContent(item)
             .onGeometryChange(for: CGSize.self, of: \.size) { rowSizes[item.id] = $0 }
+            .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { rowFrames[item.id] = $0 }
             .overlay {
                 if rowDrop?.item == item.id, let action = rowDrop?.action {
                     rowDropOverlay(action)
@@ -117,6 +119,7 @@ package struct TabSidebar: View {
                         closingSlot = nil
                     }
                     tabs.hoveredItem = item.id
+                    tabs.hoveredRowFrame = rowFrames[item.id]
                 } else if tabs.hoveredItem == item.id {
                     tabs.hoveredItem = nil
                 }
