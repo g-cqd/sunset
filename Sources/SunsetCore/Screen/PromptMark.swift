@@ -6,6 +6,11 @@ public struct PromptMark: Sendable, Equatable {
         case promptStart, commandStart, outputStart, commandEnd
     }
 
+    /// Which way to look for a prompt from where the window is.
+    public enum Direction: Sendable, Equatable {
+        case previous, next
+    }
+
     public var kind: Kind
     public var stableLine: Int
     /// For `commandEnd`: the exit status (0-255), when the shell sent one.
