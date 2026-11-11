@@ -13,15 +13,27 @@ public struct Workspace: Sendable, Equatable {
         public let id: ItemID
         public internal(set) var layout: SplitLayout
         public internal(set) var focused: PaneID
+        /// A custom user-specified title overriding the content's title (`n41`).
+        public internal(set) var customTitle: String?
+        /// A custom icon (SF Symbol or emoji) overriding the content's default glyph (`n41`).
+        public internal(set) var customIcon: PaneIcon?
 
         public var panes: [PaneID] { layout.panes }
         /// More than one pane.
         public var isSplit: Bool { panes.count > 1 }
 
-        init(id: ItemID = ItemID(), layout: SplitLayout, focused: PaneID) {
+        init(
+            id: ItemID = ItemID(),
+            layout: SplitLayout,
+            focused: PaneID,
+            customTitle: String? = nil,
+            customIcon: PaneIcon? = nil
+        ) {
             self.id = id
             self.layout = layout
             self.focused = focused
+            self.customTitle = customTitle
+            self.customIcon = customIcon
         }
     }
 
