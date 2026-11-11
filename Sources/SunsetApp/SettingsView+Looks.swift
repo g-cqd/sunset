@@ -22,6 +22,12 @@ extension SettingsView {
                     Text("What a program asks to copy (OSC 52), over ssh too. No program can read the clipboard.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+            case "terminal.shellIntegration":
+                VStack(alignment: .leading, spacing: 4) {
+                    Toggle("Shell marks its prompts", isOn: config.binding(\.terminal.shellIntegration))
+                    Text("For Previous Prompt and Next Prompt. zsh only, in new tabs; your own files are not changed.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             case "window.blur": number("Window blur", \.window.blur, range: 0 ... 100, step: 1, unit: "pt")
             case "window.padding": number("Padding", \.window.padding, range: 0 ... 32, step: 1, unit: "pt")
             case "appearance.scheme":

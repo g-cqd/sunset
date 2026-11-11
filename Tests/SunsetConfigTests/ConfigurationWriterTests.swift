@@ -25,6 +25,7 @@ import Testing
         configuration.window.material = .transparent
         configuration.terminal.opacity = 0.6
         configuration.terminal.clipboardWrite = false
+        configuration.terminal.shellIntegration = false
         configuration.window.blur = 40
         configuration.window.padding = 6
         configuration.sidebar.enabled = true
@@ -67,7 +68,7 @@ import Testing
     @Test func `every key the reader knows is in the file, so the file shows what can be set`() throws {
         let text = ConfigurationWriter.text(for: Configuration())
         #expect(
-            ConfigurationKeys.all.count == 76,
+            ConfigurationKeys.all.count == 77,
             "a key was added or removed: the list, the reader and the writer move together"
         )
         for key in ConfigurationKeys.all {

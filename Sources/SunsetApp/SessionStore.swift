@@ -8,6 +8,12 @@ import SunsetPane
 final class SessionStore {
     static let shared = SessionStore()
 
+    /// Where the app keeps its own files (the saved session, the shell's start files).
+    static var directory: String {
+        let path = SessionLocation.path(environment: ProcessInfo.processInfo.environment, home: NSHomeDirectory())
+        return path.lastIndex(of: "/").map { String(path[..<$0]) } ?? "."
+    }
+
     private let path = SessionLocation.path(environment: ProcessInfo.processInfo.environment, home: NSHomeDirectory())
     /// Saved windows no window has taken yet.
     private var pending: [SavedWindow] = []
