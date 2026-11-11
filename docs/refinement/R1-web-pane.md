@@ -1,6 +1,6 @@
 # R1 — The web pane (roadmap 0018)
 
-Status: **round 1 answered (2026-11-11); round 2 open.** Nothing here is built. The first web pane (e5bd1e9, aa1c900) was removed on the owner's
+Status: **three rounds answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built, and no task exists for it yet. The first web pane (e5bd1e9, aa1c900) was removed on the owner's
 answer "revert, rebuild"; a saved session that has a `web` pane shows it as a placeholder and keeps it.
 
 ## Round 1: the owner's answers
@@ -21,3 +21,69 @@ answer "revert, rebuild"; a saved session that has a `web` pane shows it as a pl
 | What a tab shows | As built (globe, title, host, progress), as a setting | Favicons as a choice; his preference: a square with the initial of the site's title or host |
 | Closing | The page may object | Quitting Sunset is held back by an active terminal process or a page that objects; and a setting to be asked before quitting whatever the state, with a way to remember or turn off |
 | Inspector | Own menu item too | A developer setting turns inspector access on or off |
+
+## Rounds 2 and 3: the owner's answers
+
+| Question | Answer |
+| --- | --- |
+| In the first web milestone | Find in page, zoom, downloads, history, permissions, private pages. Not passwords or passkeys |
+| Pages driven by agents | After the first milestone, with remote control, in its own session |
+| Default place of the address | The compact field in the sidebar |
+| Placements built in the first milestone | All three (window bar top/bottom that collapses, a row per pane, the sidebar field) |
+| With a terminal focused | The address bar hides |
+| With the sidebar off or hidden | The window bar takes over |
+| Engine suggestions | On by default |
+| Default search engine | Google |
+| Straight to http, never tried over https | localhost and loopback, `.local` names, private ranges, single-label names |
+| One word typed alone | Searched, unless marked as a host by a port or a slash (`nas:8080`, `nas/`) |
+| A window a page asks for | Only after a click; one that has a size is a small window of that size, with no sidebar or tab bar, closed when the page closes it |
+| The link menu | Open in Split Right, Open in Split Down, Open in New Tab, Open in New Window, Copy Link |
+| Cmd-click on a link in a terminal | Opens in a split beside the terminal; a setting keeps the default browser |
+| The tab's picture | A setting (globe, favicon, initial in a square); default: the initial of the page's title |
+| Quitting | One setting, three levels: never ask / ask when something would be lost (default) / always ask; the dialog's "do not ask again" sets it to never |
+| Closing a window | Not covered: quitting only |
+| The two studies (sleeping, encrypting the store) | Both after the first milestone: it has no sleep and a plain store |
+| Inspector access (developer setting) | On by default |
+| The shortcut for a new page | Configurable |
+| How it is cut | In steps, each with its own questions before it is built, each seen working before the next |
+
+## The outcome, as one description
+
+A web pane is a kind of pane content on the system's WebKit, naming itself as the installed Safari does. A page is made when its tab is first shown
+and, in this milestone, lives until the tab closes. All pages share one persistent store. A page's address, back and forward history and scroll
+position are saved with the session.
+
+The address is typed in one of three places, by a setting: a compact field in the sidebar (the default), a bar for the window at its top or bottom
+that collapses and comes back when the pointer reaches it, or a row in each pane. The bar hides while a terminal has the keyboard, and the window bar
+stands in for the sidebar field while the sidebar is not shown. What is typed is an address (https first; http at once for this machine and the
+local network; a setting allows falling back to http elsewhere), or words to search with the engine chosen in the settings (Google at first), where
+engines can be added with their search and suggestion addresses, and suggestions are on.
+
+A page is opened from the Panes menu, by a shortcut the user can set, from the command bar, and by Cmd-click on a link in a terminal (in a split
+beside it). A link's menu offers the two splits, a new tab, a new window and copying it. A page gets a new window only after a click.
+
+A tab shows the title, the host and the loading progress, with the title's initial in a square as its picture unless the setting says globe or
+favicon. Closing a page shows the page's own objection when it has one. Quitting asks when a terminal command runs or a page objects, by the
+three-level setting. The Web Inspector has its own menu item, behind a developer setting that is on.
+
+## Steps (each begins with its own questions)
+
+| Step | What | Questions still to ask |
+| --- | --- | --- |
+| a | The pane: engine, restore with history and scroll, the new-window rules, the link menu, the inspector, the tab's look, the page's objection on close | The default shortcut and what "configurable" covers (Sunset has no shortcut settings today: only this one, or all menu shortcuts); where a new tab from a link goes; the wording of the placeholder for a page that fails to load |
+| b | The three address placements and their setting | The window bar's content and height, how it collapses, what the sidebar field looks like when collapsed, back/forward/reload in each placement |
+| c | Search engines and suggestions | The settings' shape, the engines that come built in, how suggestions are shown and mixed with history |
+| d | Find in page, zoom | Where the find field is; zoom per page or per site, remembered or not |
+| e | History | What is kept and for how long, where, how it is cleared, how it is searched |
+| f | Downloads | Where files go, what shows progress, what is asked before saving |
+| g | Permissions | Camera, microphone, location, notifications: asked how, remembered where, reviewed where |
+| h | Private pages | What marks one, its store, what is never saved |
+| q | The quit confirmation | The dialog's wording, what counts as "would be lost" for each kind of pane; it touches terminals, so it is its own step |
+
+## After the milestone, each with its own session
+
+- Sleeping pages: study the official and upstream WebKit controls first (owner's note).
+- Encrypting the store, as a feature the user turns on: study first (Aemi's Argon work or other encryption; what WebKit lets an app do with its
+  store at all).
+- Pages driven by agents (with remote control).
+- R5: the latest WebKit, agent presets and passing for another browser, content blocking, extensions. Passwords and passkeys are in no milestone yet.
