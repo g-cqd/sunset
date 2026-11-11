@@ -50,7 +50,24 @@ extension TerminalNSView {
     override func otherMouseUp(with event: NSEvent) { report(.release, .middle, event) }
     override func otherMouseDragged(with event: NSEvent) { report(.motion, .middle, event) }
 
-    override func mouseMoved(with event: NSEvent) { report(.motion, .none, event) }
+    override func mouseMoved(with event: NSEvent) {
+        refreshPointer()
+        report(.motion, .none, event)
+    }
+
+    /// The pointer the program asked for over its screen (OSC 22); none, and the system's arrow stays.
+    override func resetCursorRects() {
+        if let shape = model.lastScreen?.pointerShape { addCursorRect(bounds, cursor: shape.cursor) }
+    }
+
+    /// Looks whether the program changed the pointer since it was last applied: with each frame, and when the mouse moves (a change of the pointer alone
+    /// draws no frame).
+    func refreshPointer() {
+        let shape = model.lastScreen?.pointerShape
+        guard shape != shownPointer else { return }
+        shownPointer = shape
+        window?.invalidateCursorRects(for: self)
+    }
     override func mouseExited(with event: NSEvent) { model.hover(pixelX: nil, pixelY: nil) }
 
     override func updateTrackingAreas() {

@@ -69,6 +69,7 @@ extension Screen {
         if save { savedBeforeAlternate = currentCursor() }
         swap(&grid, &other)
         swap(&keyboard, &otherKeyboard)
+        swap(&pointer, &otherPointer)
         isAlternate = true
         if clear { clearGrid() }
         markDirty(0 ... rows - 1)
@@ -79,6 +80,7 @@ extension Screen {
         if clear { clearGrid() }
         swap(&grid, &other)
         swap(&keyboard, &otherKeyboard)
+        swap(&pointer, &otherPointer)
         isAlternate = false
         if restore, let state = savedBeforeAlternate {
             column = min(state.column, columns - 1)

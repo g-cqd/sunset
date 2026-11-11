@@ -106,6 +106,8 @@ public struct Screen: Sendable {
     var replies = ContiguousArray<UInt8>()
     var keyboard = KeyboardState()
     var otherKeyboard = KeyboardState()
+    var pointer = PointerState()
+    var otherPointer = PointerState()
 
     public var title: String { String(decoding: titleBytes, as: UTF8.self) }
     public var iconName: String { String(decoding: iconBytes, as: UTF8.self) }
