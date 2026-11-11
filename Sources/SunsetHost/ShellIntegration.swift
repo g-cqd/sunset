@@ -1,7 +1,7 @@
 import Foundation
 
 /// Teaches the shell to mark its prompts (OSC 133: where a prompt starts, where a command's output starts, how it ended), so that the window can go from
-/// one prompt to the next, without the user's files being touched. Only zsh for now. zsh reads its start files from `$ZDOTDIR`: it is pointed at a
+/// one prompt to the next, without the user's files being touched. Only zsh is taught: fish (from 4) does it by itself, bash is not done yet. zsh reads its start files from `$ZDOTDIR`: it is pointed at a
 /// directory of ours whose `.zshenv` gives `ZDOTDIR` back as it was, reads the user's own `.zshenv`, and adds two hooks; every later file (`.zprofile`,
 /// `.zshrc`) is then read from the user's directory as always.
 public enum ShellIntegration {
