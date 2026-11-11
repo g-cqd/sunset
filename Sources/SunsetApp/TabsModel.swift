@@ -69,7 +69,9 @@ final class TabsModel {
     /// Fills an empty window with a saved one: the same tabs and splits, and in each pane the content its descriptor says (a new terminal in its
     /// directory, a note with its text). The terminals of tabs that are not shown start when their tab is first shown.
     func restore(_ saved: SavedWindow) {
-        guard workspace.isEmpty, !saved.workspace.isEmpty else { return }
+        guard workspace.isEmpty else { return }
+        // A saved window may have no tab of its own (it showed a kept entry, which no window shows yet): it starts with a new tab.
+        guard !saved.workspace.isEmpty else { return newTab() }
         workspace = saved.workspace
         for pane in workspace.allPanes {
             register(makeContent(saved.contents[pane] ?? .terminal(directory: nil)), as: pane)
