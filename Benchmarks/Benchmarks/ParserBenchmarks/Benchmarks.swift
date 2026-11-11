@@ -45,6 +45,15 @@ private func lineFeeds(_ size: Int) -> [UInt8] {
     return bytes
 }
 
+/// What vtebench's `scrolling` writes once the pseudo-terminal has made each LF a CR LF: a letter, a return, a line feed. (`lineFeeds` has no return:
+/// the letter moves one column right each line, so rows fill up and it costs twice as much; it is kept as it is for its baselines.)
+private func shortLines(_ size: Int) -> [UInt8] {
+    var bytes: [UInt8] = []
+    bytes.reserveCapacity(size + 3)
+    while bytes.count < size { bytes += [0x79, 0x0D, 0x0A] }
+    return bytes
+}
+
 /// What vtebench's `scrolling_fullscreen` writes: lines of 120 letters, each ended by the pseudo-terminal's CR LF.
 private func fullLines(_ size: Int) -> [UInt8] {
     var bytes: [UInt8] = []
@@ -98,8 +107,8 @@ let benchmarks: @Sendable () -> Void = {
     let size = 1 << 20
     let streams: [(String, [UInt8])] = [
         ("ascii", ascii(size)), ("sgr_truecolor", sgrDense(size)), ("cursor_moves", cursorMoves(size)),
-        ("unicode", unicode(size)), ("line_feeds", lineFeeds(size)), ("full_lines", fullLines(size)),
-        ("osc_titles", titles(size))
+        ("unicode", unicode(size)), ("line_feeds", lineFeeds(size)), ("short_lines", shortLines(size)),
+        ("full_lines", fullLines(size)), ("osc_titles", titles(size))
     ]
     for (name, data) in streams {
         Benchmark("parser/\(name) (1 MiB)") { benchmark in

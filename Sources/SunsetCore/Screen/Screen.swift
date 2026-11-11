@@ -195,6 +195,7 @@ public struct Screen: Sendable {
     }
 
     mutating func markDirty(_ range: ClosedRange<Int>) {
+        guard range.count > 1 else { return markDirty(range.lowerBound) }
         let map = grid.rowMap
         writtenRows.withUnsafeMutableBufferPointer { written in
             for row in range { written[Int(map[row])] = true }

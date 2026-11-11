@@ -19,7 +19,7 @@ struct Scrollback: Sendable {
 
         /// Adds a line: its cells (without the trailing blanks) and where it ends. One access to the chunk for both; a short line is appended cell by cell
         /// (the bulk append's set-up, a `memmove` call included, cost more than the copy for a line of a few cells).
-        mutating func append(_ line: UnsafeBufferPointer<Cell>, wrapped: Bool) {
+        @inline(__always) mutating func append(_ line: UnsafeBufferPointer<Cell>, wrapped: Bool) {
             if line.count <= 8 {
                 for cell in line { cells.append(cell) }
             } else {
@@ -100,7 +100,13 @@ struct Scrollback: Sendable {
             return
         }
         precondition(line.count <= columns, "a scrollback line is no wider than the screen was")
-        if count == limit { dropOldest() }
+        if count == limit {
+            // The line that goes; the chunk it leaves empty, once in `chunkLines`, is released out of line.
+            head += 1
+            count -= 1
+            evicted += 1
+            if head % Self.chunkLines == 0 { releaseOldestChunk() }
+        }
         var newest = chunks.count - 1
         if newest < 0 || chunks[newest].ends.count == Self.chunkLines {
             var fresh = spare ?? Chunk()
@@ -121,11 +127,7 @@ struct Scrollback: Sendable {
         count += 1
     }
 
-    private mutating func dropOldest() {
-        head += 1
-        count -= 1
-        evicted += 1
-        guard head % Self.chunkLines == 0 else { return }
+    @inline(never) private mutating func releaseOldestChunk() {
         // The chunk that just emptied is kept as the spare (its storage is used again) and an empty one takes its place.
         let dead = head / Self.chunkLines - 1
         var released = Chunk()

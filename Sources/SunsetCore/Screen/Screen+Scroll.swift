@@ -23,7 +23,7 @@ extension Screen {
     mutating func scrollUp(from first: Int, to last: Int, by count: Int, saveHistory: Bool = false) {
         let n = min(count, last - first + 1)
         guard n > 0 else { return }
-        if saveHistory, first == 0, !isAlternate { saveToScrollback(rows: n) }
+        if saveHistory, first == 0, !isAlternate { Self.save(rows: n, of: grid, into: &scrollback) }
         Self.rotate(&grid.rowMap, first ... last, leftBy: n)
         blankRows(last - n + 1 ... last)
         markDirty(last - n + 1 ... last)
@@ -38,14 +38,14 @@ extension Screen {
         markDirty(first ... first + n - 1)
     }
 
-    /// Copies the top `count` screen rows into the history (the line feed that is about to push them off the screen).
-    private mutating func saveToScrollback(rows count: Int) {
-        let cells = grid.cells
-        cells.withUnsafeBufferPointer { cells in
+    /// Copies the top `count` screen rows into the history (the line feed that is about to push them off the screen). The grid is read and the history
+    /// written as two things, not through `self`: the cells are reached where they are, with no copy of the array's reference.
+    private static func save(rows count: Int, of grid: borrowing Grid, into history: inout Scrollback) {
+        grid.cells.withUnsafeBufferPointer { cells in
             for target in 0 ..< count {
                 // Only the cells that can be other than empty (`Grid.used`): the history trims the blanks anyway.
                 let start = grid.base(target)
-                scrollback.push(
+                history.push(
                     cells: UnsafeBufferPointer(rebasing: cells[start ..< start + grid.usedCount(row: target)]),
                     wrapped: grid.wrapped[Int(grid.rowMap[target])]
                 )
