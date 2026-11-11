@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: done 2026-11-11 (steps a to f; see docs/STATE.md for what is left)
 blocked-by: 0018 (each step's own questions)
 date: 2026-11-11
 ---

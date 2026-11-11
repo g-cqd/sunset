@@ -19,9 +19,9 @@ package struct BuiltInTabBar: View {
         HStack(spacing: 2) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 2) {
-                    let open = tabs.favorites.favorites.entries.filter(\.isOpen)
-                    ForEach(open) { entry in entryRow(entry) }
-                    if !open.isEmpty {
+                    let items = tabs.favorites.favorites.barItems(selected: tabs.workspace.selectedEntry)
+                    ForEach(items, id: \.self) { item in barItem(item) }
+                    if !items.isEmpty {
                         Rectangle().fill(.primary.opacity(0.18)).frame(width: 1, height: 16).padding(.horizontal, 3)
                     }
                     ForEach(tabs.workspace.items) { item in row(item) }
@@ -40,6 +40,41 @@ package struct BuiltInTabBar: View {
         }
         .frame(height: settings.showDirectory || settings.showProgress ? 40 : 30)
         .background(.bar)
+    }
+
+    @ViewBuilder private func barItem(_ item: Favorites.BarItem) -> some View {
+        switch item {
+            case .entry(let id):
+                if let entry = tabs.favorites.favorites.entry(id) { entryRow(entry) }
+            case .folder(let id, let count):
+                if case .folder(let folder)? = tabs.favorites.favorites.node(id) { folderChip(folder, count: count) }
+        }
+    }
+
+    /// A folder of the Favorites (R3 step f): its icon and name, its count of open entries while collapsed; a click opens or closes it, as in the sidebar.
+    private func folderChip(_ folder: Favorites.Folder, count: Int) -> some View {
+        HStack(spacing: 4) {
+            if let icon = folder.icon, PaneIconView.canShow(icon) {
+                PaneIconView(icon: icon)
+            } else {
+                Image(systemName: folder.isCollapsed ? "folder" : "folder.fill").foregroundStyle(.secondary)
+            }
+            Text(folder.name).lineLimit(1)
+            if folder.isCollapsed {
+                Text("\(count)").font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+                    .background(.primary.opacity(0.1), in: Capsule())
+            }
+        }
+        .font(.system(size: 12))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .contentShape(.rect)
+        .onTapGesture { tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) } }
+        .help(
+            folder.isCollapsed
+                ? "Show what \u{201C}\(folder.name)\u{201D} holds" : "Hide what \u{201C}\(folder.name)\u{201D} holds"
+        )
     }
 
     private func entryRow(_ entry: Favorites.Entry) -> some View {
