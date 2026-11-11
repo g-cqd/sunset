@@ -114,7 +114,8 @@ extension Screen {
     }
 
     /// Snaps `point` to the nearest real text for a double- or triple-click: trailing blanks snap to the end of the line's text, leading blanks to its start,
-    /// and a wholly blank line to the nearest line with text.
+    /// and a wholly blank line to the nearest line with text no further than a screen away (further, the point stays: a click does not select what may be
+    /// out of sight, nor read the whole history).
     func nearestTextPoint(to point: SelectionPoint) -> SelectionPoint {
         let clampedLine = min(max(point.line, 0), absoluteLineCount - 1)
         let clampedColumn = min(max(point.column, 0), columns - 1)
@@ -123,7 +124,7 @@ extension Screen {
             if clampedColumn < span.first { return SelectionPoint(line: clampedLine, column: span.first) }
             return SelectionPoint(line: clampedLine, column: clampedColumn)
         }
-        for distance in 1 ..< absoluteLineCount {
+        for distance in 1 ..< max(rows, 2) {
             if clampedLine - distance >= 0, let span = textColumns(on: clampedLine - distance) {
                 return SelectionPoint(line: clampedLine - distance, column: span.last)
             }
@@ -135,7 +136,8 @@ extension Screen {
     }
 
     /// Adjusts the starting anchor of a linear cell-by-cell drag when it started in trailing empty space past the end of a line's text (or on a blank line):
-    /// dragging backwards snaps to the last real character before the anchor; dragging forwards across lines starts at the beginning of the next line.
+    /// dragging backwards past text snaps to the last real character before the anchor (found within a screen); dragging forwards across lines starts at the
+    /// beginning of the next line. A drag that has not reached that character yet keeps its anchor, so that nothing is selected that the pointer did not pass.
     func snappedCellAnchor(_ anchor: SelectionPoint, toward head: SelectionPoint) -> SelectionPoint {
         let line = min(max(anchor.line, 0), absoluteLineCount - 1)
         let column = min(max(anchor.column, 0), columns - 1)
@@ -147,10 +149,10 @@ extension Screen {
         }
         guard pastEnd else { return anchor }
         if head < anchor {
-            for search in stride(from: line, through: 0, by: -1) {
-                if let span = textColumns(on: search) {
-                    return SelectionPoint(line: search, column: span.last)
-                }
+            for search in stride(from: line, through: max(line - rows, head.line, 0), by: -1) {
+                guard let span = textColumns(on: search) else { continue }
+                let snapped = SelectionPoint(line: search, column: span.last)
+                return snapped >= head ? snapped : anchor
             }
             return anchor
         }
