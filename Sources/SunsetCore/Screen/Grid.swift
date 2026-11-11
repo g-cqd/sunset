@@ -47,8 +47,10 @@ struct Grid: Sendable {
         let physical = Int(rowMap[row])
         var last = to
         if cell.raw == 0 {
-            last = min(to, Int(used[physical]) - 1)
-            if to + 1 >= used[physical] { used[physical] = min(used[physical], Int32(from)) }
+            let count = used[physical]
+            last = min(to, Int(count) - 1)
+            // Written only when it moves: a row that holds nothing is blanked without touching anything.
+            if to + 1 >= count, count > from { used[physical] = Int32(from) }
         } else if used[physical] <= to {
             used[physical] = Int32(to + 1)
         }

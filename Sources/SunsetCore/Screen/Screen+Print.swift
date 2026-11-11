@@ -6,7 +6,7 @@ extension Screen {
     mutating func putASCII(_ byte: UInt8) { put(activeCharset.translate(byte), width: 1) }
 
     /// A run of printable ASCII written a row at a time: one dirty mark, one pass over the cells, the wide-character edges checked at the two ends only.
-    mutating func putASCIIRun(_ run: Span<UInt8>) {
+    @inline(__always) mutating func putASCIIRun(_ run: Span<UInt8>) {
         guard activeCharset == .ascii else {
             for index in run.indices { putASCII(run[index]) }
             return
