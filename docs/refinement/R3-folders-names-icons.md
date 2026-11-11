@@ -2,6 +2,10 @@
 
 Status: **accepted by the owner 2026-11-11** (roadmap 0020, tasks t112, t142-t146). Nothing here is built.
 
+**Amended by R4 the same day** (`R4-spaces-and-profiles.md`, "What this changes in R3"): the section called *pinned* below is **Favorites** (per
+Space); **Pinned** is the profile's grid at the top; folders live only in Favorites, so grouping tabs moves them there; "Unpin" is moving an entry
+out of Favorites; Cmd-W or a minus unloads a kept entry, and an x on an unloaded one deletes it.
+
 ## The owner's answers
 
 | Question | Answer | His note |
