@@ -13,6 +13,8 @@ final class TerminalNSView: NSView {
     private var displayLink: CADisplayLink?
     var markedText = NSAttributedString()
     var trackingArea: NSTrackingArea?
+    /// The pointer shape last applied (`refreshPointer`).
+    var shownPointer: PointerShape?
     var scroll = ScrollAccumulator()
     var momentum = ScrollMomentum(timeConstant: 0)
     var momentumLink: CADisplayLink?
@@ -109,6 +111,7 @@ final class TerminalNSView: NSView {
 
     private func show(_ surface: IOSurface) {
         layer?.contents = surface
+        refreshPointer()
     }
 
     isolated deinit {

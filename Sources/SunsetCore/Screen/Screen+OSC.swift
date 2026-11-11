@@ -67,6 +67,7 @@ extension Screen {
             case 10, 11, 12:
                 dynamicColors(code, from: payload, terminator)
             case 8: hyperlink(from: payload)
+            case 22: pointerShape(from: payload, terminator)
             case 110: palette.resetForeground()
             case 111: palette.resetBackground()
             case 112: palette.resetCursor()
