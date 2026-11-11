@@ -7,7 +7,7 @@ import SunsetRenderMac
 extension TerminalModel {
     /// Opens the link under a point of the surface, if there is one and it may be opened. Returns whether there was a link there (the click is then used up).
     @discardableResult
-    func openLink(pixelX: Int, pixelY: Int) -> Bool {
+    package func openLink(pixelX: Int, pixelY: Int) -> Bool {
         guard let screen = lastScreen, let metrics = renderer?.cellMetrics else {
             return false
         }
@@ -21,7 +21,7 @@ extension TerminalModel {
     }
 
     /// The pointer is at a point of the surface (or left it: nil): the link there, if any, is the hovered one.
-    func hover(pixelX: Int?, pixelY: Int?) {
+    package func hover(pixelX: Int?, pixelY: Int?) {
         var id: UInt16 = 0
         if let pixelX, let pixelY, let screen = lastScreen, let metrics = renderer?.cellMetrics {
             let cell = metrics.cell(atPixelX: pixelX, pixelY: pixelY, columns: screen.columns, rows: screen.rows)

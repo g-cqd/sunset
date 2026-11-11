@@ -2,6 +2,7 @@ import IOSurface
 import SunsetConfig
 import SunsetShell
 import SunsetShellBridge
+import SunsetTerminal
 import SwiftUI
 
 /// A floating card next to the sidebar that previews an unselected tab's current terminal screen when the pointer hovers over its row (`n36`).

@@ -1,20 +1,24 @@
-import SunsetConfig
-import SunsetCore
-import SunsetHost
+package import SunsetConfig
+package import SunsetCore
+package import SunsetHost
 
 /// The theme's defaults: the foreground, background and cursor colours (nil keeps the terminal's own), the 16 ANSI colours and the cursor's style.
-struct DefaultColors: Sendable, Equatable {
-    var foreground: RGB?
-    var background: RGB?
-    var cursor: RGB?
+package struct DefaultColors: Sendable, Equatable {
+    package var foreground: RGB?
+    package var background: RGB?
+    package var cursor: RGB?
     /// The 16 ANSI colours; empty keeps the terminal's own.
-    var ansi: [RGB] = []
-    var cursorShape = CursorShape.block
-    var cursorBlinks = true
+    package var ansi: [RGB] = []
+    package var cursorShape = CursorShape.block
+    package var cursorBlinks = true
 
-    init() {}
+    package init() {}
 
-    init(_ colors: Configuration.Colors, cursorShape shape: Configuration.CursorShape = .block, blinks: Bool = true) {
+    package init(
+        _ colors: Configuration.Colors,
+        cursorShape shape: Configuration.CursorShape = .block,
+        blinks: Bool = true
+    ) {
         cursorShape = CursorShape(shape)
         cursorBlinks = blinks
         func rgb(_ bytes: [UInt8]?) -> RGB? {
@@ -30,7 +34,7 @@ struct DefaultColors: Sendable, Equatable {
 
 extension DefaultColors {
     /// Gives a session these colours: the defaults and the 16 ANSI colours.
-    func apply(to session: TerminalSession) async {
+    package func apply(to session: TerminalSession) async {
         await session.setDefaultColors(foreground: foreground, background: background, cursor: cursor)
         await session.setAnsiColors(ansi)
         await session.setDefaultCursor(shape: cursorShape, blinks: cursorBlinks)
@@ -38,7 +42,7 @@ extension DefaultColors {
 }
 
 extension CursorShape {
-    init(_ shape: Configuration.CursorShape) {
+    package init(_ shape: Configuration.CursorShape) {
         switch shape {
             case .block: self = .block
             case .underline: self = .underline

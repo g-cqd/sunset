@@ -1,8 +1,8 @@
-import AppKit
+package import AppKit
 import SunsetCore
 
 extension TerminalNSView {
-    override func keyDown(with event: NSEvent) {
+    package override func keyDown(with event: NSEvent) {
         stopGliding()
         if let press = KeyboardMapping.press(for: event, optionAsMeta: optionAsMeta) {
             if scrollsHistory(press) { return }
@@ -15,17 +15,17 @@ extension TerminalNSView {
 
     /// ⌘= and ⌘⇧= (the two ways of typing ⌘+ on most keyboards) make the font bigger. The menu item is ⌘+, which AppKit does not always match against
     /// ⌘=, so the view takes the chord first.
-    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+    package override func performKeyEquivalent(with event: NSEvent) -> Bool {
         let flags = event.modifierFlags.intersection([.command, .option, .control])
         guard flags == .command, event.charactersIgnoringModifiers == "=" || event.charactersIgnoringModifiers == "+"
         else {
             return super.performKeyEquivalent(with: event)
         }
-        AppActions.shared.zoomFont(by: 1)
+        model.onZoomRequest(1)
         return true
     }
 
-    @objc func paste(_ sender: Any?) {
+    @objc package func paste(_ sender: Any?) {
         guard let text = NSPasteboard.general.string(forType: .string) else { return }
         model.send(.paste(text))
     }

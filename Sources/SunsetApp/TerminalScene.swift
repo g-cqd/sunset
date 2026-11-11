@@ -5,6 +5,7 @@ import SunsetPrivate
 import SunsetRender
 import SunsetShell
 import SunsetShellBridge
+import SunsetTerminal
 import SwiftUI
 
 /// The content of a terminal window: the tabs of the window (one, unless the built-in bar is on), the sidebar and the tab bar when the configuration shows
@@ -224,6 +225,8 @@ struct TerminalScene: View {
     }
 
     private func configure(_ model: TerminalModel) {
+        model.hostPolicy = { HostPolicy(clipboardWrite: AppConfiguration.shared.configuration.terminal.clipboardWrite) }
+        model.onZoomRequest = { AppActions.shared.zoomFont(by: $0) }
         model.blinkSchedule = blinkSchedule
         model.defaultColors = colors
         model.paddingPoints = configuration.terminalPadding

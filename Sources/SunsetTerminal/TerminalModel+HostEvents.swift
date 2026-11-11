@@ -1,13 +1,13 @@
 import AppKit
 import SunsetConfig
 import SunsetCore
-import SunsetHost
+package import SunsetHost
 import UserNotifications
 
 /// What the program asked of the host (ADR-0010), applied under the policy: a clipboard write goes to the pasteboard; a notification is shown only while the
 /// app is not frontmost, at most one a second, and only when the process is a bundled app (the notification centre refuses a bare executable).
 extension TerminalModel {
-    func watchHostEvents(_ session: TerminalSession) async {
+    package func watchHostEvents(_ session: TerminalSession) async {
         var gate = NotificationGate()
         for await event in session.hostEvents where policy.admits(event) {
             switch event {
@@ -23,9 +23,7 @@ extension TerminalModel {
     }
 
     /// Read for each event: a setting changed while the shell runs applies to what it asks next.
-    private var policy: HostPolicy {
-        HostPolicy(clipboardWrite: AppConfiguration.shared.configuration.terminal.clipboardWrite)
-    }
+    private var policy: HostPolicy { hostPolicy() }
 
     private func show(title: String, body: String) async {
         guard Bundle.main.bundleIdentifier != nil else { return }

@@ -1,30 +1,30 @@
-import AppKit
+package import AppKit
 import IOSurface
-import SunsetCore
+package import SunsetCore
 import SunsetRender
 import SunsetRenderMac
 
 /// The AppKit side of a terminal: a layer-backed view that shows the frames the model hands it, takes the keyboard, and tells the model its size in device
 /// pixels. SwiftUI hosts it (`TerminalRepresentable`); AppKit is used here because a terminal needs the raw key events, the text input system and a display
 /// link, none of which SwiftUI offers.
-final class TerminalNSView: NSView {
-    let model: TerminalModel
-    var optionAsMeta = false
+package final class TerminalNSView: NSView {
+    package let model: TerminalModel
+    package var optionAsMeta = false
     private var displayLink: CADisplayLink?
-    var markedText = NSAttributedString()
-    var trackingArea: NSTrackingArea?
+    package var markedText = NSAttributedString()
+    package var trackingArea: NSTrackingArea?
     /// The click that is activating the window (its event number, from `acceptsFirstMouse`), and whether its drag and release are being let go by.
-    var activatingClick: Int?
-    var ignoringActivatingClick = false
+    package var activatingClick: Int?
+    package var ignoringActivatingClick = false
     /// The pointer shape last applied (`refreshPointer`).
-    var shownPointer: PointerShape?
-    var scroll = ScrollAccumulator()
-    var momentum = ScrollMomentum(timeConstant: 0)
-    var momentumLink: CADisplayLink?
-    var momentumEvent: NSEvent?
+    package var shownPointer: PointerShape?
+    package var scroll = ScrollAccumulator()
+    package var momentum = ScrollMomentum(timeConstant: 0)
+    package var momentumLink: CADisplayLink?
+    package var momentumEvent: NSEvent?
     private var windowObservers: [any NSObjectProtocol] = []
 
-    init(model: TerminalModel) {
+    package init(model: TerminalModel) {
         self.model = model
         super.init(frame: .zero)
         wantsLayer = true
@@ -41,22 +41,22 @@ final class TerminalNSView: NSView {
         if let latest = model.lastSurface { show(latest) }
     }
 
-    required init?(coder: NSCoder) { nil }
+    package required init?(coder: NSCoder) { nil }
 
-    override var acceptsFirstResponder: Bool { true }
+    package override var acceptsFirstResponder: Bool { true }
     /// The terminal handles pointer presses itself (selection, mouse reporting), except in the top drag strip (`TerminalNSView+Mouse`).
-    override var mouseDownCanMoveWindow: Bool { false }
+    package override var mouseDownCanMoveWindow: Bool { false }
 
     /// A click (or the window) gave this terminal the keyboard: the tabs make it the focused pane of its split.
-    override func becomeFirstResponder() -> Bool {
+    package override func becomeFirstResponder() -> Bool {
         model.onFocusRequest()
         return super.becomeFirstResponder()
     }
-    override var isFlipped: Bool { true }
+    package override var isFlipped: Bool { true }
 
     // MARK: Display
 
-    override func viewDidMoveToWindow() {
+    package override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         stopGliding()
         displayLink?.invalidate()
@@ -84,13 +84,13 @@ final class TerminalNSView: NSView {
         reportSize()
     }
 
-    override func viewDidChangeBackingProperties() {
+    package override func viewDidChangeBackingProperties() {
         super.viewDidChangeBackingProperties()
         layer?.contentsScale = window?.backingScaleFactor ?? 2
         reportSize()
     }
 
-    override func layout() {
+    package override func layout() {
         super.layout()
         reportSize()
     }

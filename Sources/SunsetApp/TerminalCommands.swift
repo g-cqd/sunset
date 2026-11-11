@@ -1,6 +1,7 @@
 import AppKit
 import SunsetCore
 import SunsetPane
+import SunsetTerminal
 import SwiftUI
 
 /// The menus. Copy, Paste and Select All are the system's own items: the view that has the keyboard answers them (`TerminalNSView+Pasteboard`).

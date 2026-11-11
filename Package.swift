@@ -34,6 +34,8 @@ let package = Package(
         // The window's shell (R8): the tabs of a window and what shows them, knowing no kind of content. It does not read the configuration file: it
         // has plain settings of its own (`ShellSettings`). Package access for now: nothing is promised outside this repository.
         .library(name: "SunsetShell", targets: ["SunsetShell"]),
+        // The terminal as a kind of pane content: model, view, input (R8). Package access.
+        .library(name: "SunsetTerminal", targets: ["SunsetTerminal"]),
         // The configuration file: schema, defaults, validation and the difference between two configurations (roadmap 0017). Platform-free.
         .library(name: "SunsetConfig", targets: ["SunsetConfig"]),
         // The private window-server calls the app uses (the blur radius behind a window), looked up by name at run time (roadmap 0017, ADR-0034).
@@ -119,7 +121,7 @@ let package = Package(
             name: "SunsetApp",
             dependencies: [
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
-                "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge"
+                "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal"
             ],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings
@@ -176,6 +178,16 @@ let package = Package(
             name: "SunsetShellTests",
             dependencies: ["SunsetShell", "SunsetPane"],
             path: "Tests/SunsetShellTests",
+            swiftSettings: strictSettings
+        ),
+        // The terminal as a kind of pane content (R8: a target per kind): its model, its AppKit view, input, selection, the renderer's wiring.
+        .target(
+            name: "SunsetTerminal",
+            dependencies: [
+                "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetRender", "SunsetRenderMac",
+                "SunsetRenderMetal", "SunsetShell"
+            ],
+            path: "Sources/SunsetTerminal",
             swiftSettings: strictSettings
         ),
         // What joins the configuration file to the shell's settings: a library so that the mapping is tested (the app target cannot be).
