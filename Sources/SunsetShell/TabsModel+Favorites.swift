@@ -25,12 +25,13 @@ extension TabsModel {
         workspace.selectedEntry == nil && workspace.selectedID == item
     }
 
-    /// Keeps the tab `item` in the Favorites: its content keeps running there, and this window shows it as a kept entry.
-    package func keep(item: Workspace.ItemID) {
+    /// Keeps the tab `item` in the Favorites (in `parent`, the top for nil, at `index`, or at the end): its content keeps running there, and this window
+    /// shows it as a kept entry.
+    package func keep(item: Workspace.ItemID, in parent: Favorites.NodeID? = nil, at index: Int? = nil) {
         guard let taken = workspace.take(item: item) else { return }
         var moved: [PaneID: any PaneContent] = [:]
         for pane in taken.panes { moved[pane] = contents.removeValue(forKey: pane) }
-        guard let id = favorites.keep(taken, contents: moved) else { return }
+        guard let id = favorites.keep(taken, contents: moved, in: parent, at: index) else { return }
         for (pane, content) in moved { content.onExit = { [weak self] in self?.favorites.close(pane: pane) } }
         showEntry(id)
     }
@@ -41,10 +42,10 @@ extension TabsModel {
         showEntry(id)
     }
 
-    /// Takes a kept entry out of the Favorites as a tab of this window, after its selected tab, selected.
-    package func release(entry id: Favorites.NodeID) {
+    /// Takes a kept entry out of the Favorites as a tab of this window, at `index` (after its selected tab when nil), selected.
+    package func release(entry id: Favorites.NodeID, at index: Int? = nil) {
         guard let released = favorites.release(id) else { return }
-        let index = workspace.selectedIndex.map { $0 + 1 } ?? workspace.count
+        let index = index ?? workspace.selectedIndex.map { $0 + 1 } ?? workspace.count
         workspace.insert(released.item, at: index)
         for pane in released.item.panes {
             let content = released.live[pane] ?? makeContent(released.home[pane] ?? .terminal(directory: nil))
@@ -129,5 +130,53 @@ extension TabsModel {
             case .entry(let id): select(entry: id)
             case .tab(let id): select(item: id)
         }
+    }
+}
+
+/// Dragging across the line between the Favorites and the tabs (R3): a tab dropped above it is kept, an entry dropped below it leaves the Favorites.
+extension TabsModel {
+    /// Whether what is dragged can be dropped on the row of the kept entry `target` (a tab is kept beside it, an entry moves beside it).
+    package func canDrop(onEntry target: Favorites.NodeID) -> Bool {
+        switch dragged {
+            case .item: true
+            case .entry(let id): id != target
+            case .pane, nil: false
+        }
+    }
+
+    /// Drops what is dragged before or after the row of the kept entry `target`, in the folder that holds it.
+    @discardableResult
+    package func dropDragged(onEntry target: Favorites.NodeID, after: Bool) -> Bool {
+        guard canDrop(onEntry: target), let drag = dragged, let place = favorites.favorites.location(of: target) else {
+            return false
+        }
+        dragged = nil
+        switch drag {
+            case .item(let item):
+                keep(item: item, in: place.parent, at: place.index + (after ? 1 : 0))
+            case .entry(let id):
+                // The place counts among what is left once the moved entry is out: one less when it came from before the target.
+                let before =
+                    favorites.favorites.location(of: id).map { $0.parent == place.parent && $0.index < place.index }
+                    ?? false
+                favorites.edit {
+                    $0.move([id], into: place.parent, at: place.index + (after ? 1 : 0) - (before ? 1 : 0))
+                }
+            case .pane:
+                return false
+        }
+        return true
+    }
+
+    /// Whether what is dragged can be dropped on the line under the Favorites: a tab, kept at their end.
+    package var canDropOnFavoritesLine: Bool { if case .item = dragged { true } else { false } }
+
+    /// Drops a dragged tab on the line under the Favorites: it is kept at their end.
+    @discardableResult
+    package func dropDraggedOnFavoritesLine() -> Bool {
+        guard case .item(let item) = dragged else { return false }
+        dragged = nil
+        keep(item: item)
+        return true
     }
 }

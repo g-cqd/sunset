@@ -23,13 +23,19 @@ struct TabRowDropDelegate: DropDelegate {
     }
 
     func performDrop(info: DropInfo) -> Bool {
-        let resolved = TabDropAction.resolve(at: info.location, in: size)
+        let resolved = action(at: info.location)
         defer { if active?.item == item { active = nil } }
         return tabs.dropDragged(onto: item, action: resolved)
     }
 
+    /// A kept entry cannot be split with a tab: over a tab's row it goes before or after it, by halves.
+    private func action(at location: CGPoint) -> TabDropAction {
+        guard case .entry = tabs.dragged else { return TabDropAction.resolve(at: location, in: size) }
+        return location.y > size.height / 2 ? .moveAfter : .moveBefore
+    }
+
     private func update(_ info: DropInfo) {
-        let action = TabDropAction.resolve(at: info.location, in: size)
+        let action = action(at: info.location)
         if tabs.canDrop(onto: item, action: action) {
             active = (item, action)
         } else if active?.item == item {

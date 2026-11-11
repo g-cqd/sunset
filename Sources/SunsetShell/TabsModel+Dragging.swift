@@ -17,7 +17,7 @@ extension TabsModel {
         switch dragged {
             case .item(let id): workspace.item(containing: pane)?.id != id || workspace.count > 1
             case .pane(let id): id != pane
-            case nil: false
+            case .entry, nil: false
         }
     }
 
@@ -31,6 +31,7 @@ extension TabsModel {
                 bar = CommandBar(purpose: .splitWith(SplitChoice(pane: pane, edge: edge)))
             case .item(let id): drop(item: id, onto: pane, edge: edge)
             case .pane(let id): movePane(id, beside: pane, edge: edge)
+            case .entry: return false
         }
         return true
     }
@@ -52,7 +53,9 @@ extension TabsModel {
             case (.pane(let pane), .moveBefore), (.pane(let pane), .moveAfter):
                 guard let source = workspace.item(containing: pane) else { return false }
                 return source.isSplit || source.id != item
-            case (nil, _):
+            case (.entry, .moveBefore), (.entry, .moveAfter):
+                return true
+            case (.entry, .split), (nil, _):
                 return false
         }
     }
@@ -62,6 +65,12 @@ extension TabsModel {
     package func dropDragged(onto item: Workspace.ItemID, action: TabDropAction) -> Bool {
         guard canDrop(onto: item, action: action), let drag = dragged else { return false }
         dragged = nil
+        if case .entry(let entry) = drag {
+            // A kept entry dropped among the tabs leaves the Favorites, as a tab at that place.
+            guard let index = workspace.items.firstIndex(where: { $0.id == item }) else { return false }
+            release(entry: entry, at: action == .moveBefore ? index : index + 1)
+            return true
+        }
         change { $0.applyTabDrop(drag, onto: item, action: action) }
         return true
     }

@@ -128,6 +128,9 @@ extension Workspace {
                     id = source.id
                 }
                 applyTabDrop(.item(id), onto: target, action: action)
+            case (.entry, _):
+                // A kept entry is not a tab of the window: its owner releases it from the Favorites first (`TabsModel.release`).
+                return
         }
     }
 }

@@ -28,7 +28,7 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 816 in 137 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 826 in 139 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -38,11 +38,12 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
 - Tabs in three presentations (system tabs, a sidebar, a built-in bar), changed live; splits by menu, drag and drop; a command bar (Cmd-L) searching
   tabs; hover previews of a tab's last frame; a two-step confirmation before closing a pane, a tab or the other tabs while a command runs.
 - Sessions: tabs, splits, each pane's directory, a tab's name and icon come back at launch.
-- Favorites, first slice (2026-11-11): one set for the app at the top of the sidebar, above a thin line. Add to Favorites (a tab's menu); a click
+- Favorites (2026-11-11): one set for the app at the top of the sidebar, above a thin line. Add to Favorites (a tab's menu); a click
   opens and shows an entry; a minus unloads it, Cmd-W unloads it with its last pane; an entry that is not open is drawn fainter with an x that
   deletes it; Remove from Favorites, Set Home to Current; Cmd-1..9 and Next/Previous count open entries, then tabs; an entry shown in a second
-  window leaves the first; the window stays, with a hint, when its last tab closes while there are Favorites. Not yet: dragging above or below
-  the line, the dimmed last picture in a second window, entries in the tab bar, the quit setting, folders made from the UI.
+  window is live there and the first shows its last picture, dimmed, with a label (a click brings it back); the window stays, with a hint, when
+  its last tab closes while there are Favorites; a tab dragged onto the line or onto an entry is kept there, an entry dragged among the tabs
+  leaves the Favorites, entries reorder by drag. Not yet: entries in the tab bar, the quit setting, folders made from the UI.
 - A tab can be renamed and given an emoji or an SF Symbol (Rename Tab…).
 - Selection by cells, words and lines, block selection, copy and paste; links (OSC 8) opened on Cmd-click under a policy; the input method; kitty
   keyboard; mouse reporting; scrollback with trackpad and wheel inertia; Previous and Next Prompt.

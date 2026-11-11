@@ -87,9 +87,14 @@ package final class FavoritesModel {
     }
 
     /// Keeps a tab of a window, with its content, as an entry that is open.
-    func keep(_ item: Workspace.Item, contents moved: [PaneID: any PaneContent]) -> Favorites.NodeID? {
+    func keep(
+        _ item: Workspace.Item,
+        contents moved: [PaneID: any PaneContent],
+        in parent: Favorites.NodeID? = nil,
+        at index: Int? = nil
+    ) -> Favorites.NodeID? {
         var id: Favorites.NodeID?
-        edit { id = $0.keep(item, contents: moved.mapValues(\.descriptor)) }
+        edit { id = $0.keep(item, contents: moved.mapValues(\.descriptor), in: parent, at: index) }
         for (pane, content) in moved { contents[pane] = content }
         return id
     }
