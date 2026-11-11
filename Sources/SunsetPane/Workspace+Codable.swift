@@ -1,6 +1,7 @@
 import Foundation
 
-/// `{"items": [{"id", "layout", "focused"}], "selected": "<id>"}`. Reading checks what the rest of the code relies on: a pane is in one tab only, a tab's
+/// `{"items": [{"id", "layout", "focused", "customTitle"?, "customIcon"?}], "selected": "<id>"}`. Reading checks what the rest of the code relies on: a pane is
+/// in one tab only, a tab's
 /// focused pane is one of its panes, and the selected tab exists (and is the first one when none is named).
 extension Workspace: Codable {
     private enum Key: String, CodingKey { case items, selected }
@@ -8,6 +9,8 @@ extension Workspace: Codable {
         let id: ItemID
         let layout: SplitLayout
         let focused: PaneID
+        var customTitle: String?
+        var customIcon: PaneIcon?
     }
 
     public init(from decoder: any Decoder) throws {
@@ -37,13 +40,32 @@ extension Workspace: Codable {
             )
         }
         self.init()
-        items = stored.map { Item(id: $0.id, layout: $0.layout, focused: $0.focused) }
+        items = stored.map {
+            Item(
+                id: $0.id,
+                layout: $0.layout,
+                focused: $0.focused,
+                customTitle: $0.customTitle,
+                customIcon: $0.customIcon
+            )
+        }
         selectedID = selected ?? items.first?.id
     }
 
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: Key.self)
-        try container.encode(items.map { Stored(id: $0.id, layout: $0.layout, focused: $0.focused) }, forKey: .items)
+        try container.encode(
+            items.map {
+                Stored(
+                    id: $0.id,
+                    layout: $0.layout,
+                    focused: $0.focused,
+                    customTitle: $0.customTitle,
+                    customIcon: $0.customIcon
+                )
+            },
+            forKey: .items
+        )
         try container.encodeIfPresent(selectedID, forKey: .selected)
     }
 }

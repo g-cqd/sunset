@@ -82,6 +82,19 @@ extension Workspace {
         items[index].layout = items[index].layout.settingRatio(ratio, at: path)
     }
 
+    /// Names the tab `item` instead of what its content says; `nil`, or a name with nothing but spaces, gives the content's title back (`n41`).
+    public mutating func setTitle(_ title: String?, for item: ItemID) {
+        guard let index = items.firstIndex(where: { $0.id == item }) else { return }
+        let name = title?.trimmingCharacters(in: .whitespacesAndNewlines)
+        items[index].customTitle = name?.isEmpty == false ? name : nil
+    }
+
+    /// Gives the tab `item` an icon of the user's instead of its content's; `nil` gives the content's back (`n41`).
+    public mutating func setIcon(_ icon: PaneIcon?, for item: ItemID) {
+        guard let index = items.firstIndex(where: { $0.id == item }) else { return }
+        items[index].customIcon = icon
+    }
+
     /// Removes `pane` from the tab at `index`; the tab itself goes when it was the only pane.
     private mutating func leave(_ pane: PaneID, from index: Int) {
         let item = items[index]
