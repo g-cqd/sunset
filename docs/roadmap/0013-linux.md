@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: not-started (as of 2026-11-11: No Linux code path in the sources.)
 blocked-by: 0004, 0007, 0008
 date: 2026-11-05
 ---

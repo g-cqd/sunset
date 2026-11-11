@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: mostly-done (as of 2026-11-11: Built: no title bar, the live configuration file, three tab presentations, the sidebar, materials and blur. See docs/STATE.md.)
 blocked-by: 0009 (the app shell exists), AemiJSON (read, see below)
 date: 2026-11-07
 ---

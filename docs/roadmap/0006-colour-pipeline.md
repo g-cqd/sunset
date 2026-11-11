@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: not-started (as of 2026-11-11: Colours are converted in the renderers; the pipeline of ADR-0009 with reference-value tests is not built.)
 blocked-by: 0001
 date: 2026-11-05
 ---

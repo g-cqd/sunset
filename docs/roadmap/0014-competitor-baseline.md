@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: partly-done (as of 2026-11-11: vtebench comparisons run several times; idle and footprint once; startup and latency not (task t140).)
 blocked-by:
 date: 2026-11-05
 ---

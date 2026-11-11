@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: partly-done (as of 2026-11-11: ADR-0010 written with its policy table; each sequence that acts has tests. No threat list document, no control socket.)
 blocked-by:
 date: 2026-11-05
 ---

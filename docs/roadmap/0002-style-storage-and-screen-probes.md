@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: partly-done (as of 2026-11-11: Probes 1, 2, 4 (partial), 5 run; 3 partial; 6 and 7 not run. The design went ahead on the accepted ADRs (task t140).)
 blocked-by:
 date: 2026-11-05
 ---

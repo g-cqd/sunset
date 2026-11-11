@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: partly-done (as of 2026-11-11: Ligatures and OpenType features through CoreText (ADR-0032); font family, size, ligatures and features are settings. The own font stack is not built.)
 blocked-by: 0001
 date: 2026-11-05
 ---

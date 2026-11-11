@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: mostly-done (as of 2026-11-11: PTYProcess, the output pump, TerminalSession, HeadlessSession, sunset-run built. Not built: recording and replay, the API for other processes, Linux.)
 blocked-by:
 date: 2026-11-05
 ---

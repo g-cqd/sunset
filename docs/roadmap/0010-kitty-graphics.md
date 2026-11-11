@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: not-started (as of 2026-11-11: Nothing built.)
 blocked-by: 0003, 0001
 date: 2026-11-05
 ---

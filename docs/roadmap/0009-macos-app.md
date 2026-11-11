@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: mostly-done (as of 2026-11-11: The app exists: windows, tabs, splits, selection, scrollback, input method, key encoding, links, themes. Not built: search.)
 blocked-by: 0004, 0008
 date: 2026-11-05
 ---
