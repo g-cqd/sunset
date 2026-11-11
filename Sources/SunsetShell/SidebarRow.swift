@@ -24,6 +24,8 @@ struct SidebarRow: View {
     var button = Button.close
     /// Drawn fainter: a kept entry that is not open (R4: the same for every kind).
     var dimmed = false
+    /// One of several rows selected together (R3 step d): drawn lighter than the shown row.
+    var marked = false
     /// While its name is edited in place: the field's first text, and what to do with the result (nil: Escape, nothing changes).
     var renaming: (start: String, done: (String?) -> Void)?
     let close: () -> Void
@@ -109,6 +111,7 @@ struct SidebarRow: View {
     /// Hover and selection variants of the highlight.
     private var highlight: Color {
         if armed { return .red.opacity(hovering || keepCloseVisible ? 0.28 : 0.2) }
+        if marked, !selected { return Color(nsColor: .controlAccentColor).opacity(hovering ? 0.26 : 0.18) }
         return switch (selected, hovering || keepCloseVisible) {
             case (true, true): .primary.opacity(activeState == .inactive ? 0.12 : 0.2)
             case (true, false): .primary.opacity(activeState == .inactive ? 0.08 : 0.14)

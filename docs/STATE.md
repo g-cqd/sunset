@@ -28,7 +28,7 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 856 in 147 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 866 in 148 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -50,7 +50,8 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   or an entry dropped on a folder goes in, Ungroup, Delete Folder and Its Contents (asks first when something runs); a folder never opens or
   closes what it holds (owner). Names are edited in place (Rename in a row's menu, a double-click, Shift-Cmd-R with the sidebar
   docked); Change Icon… opens a popover: the system's SF Symbols (read from CoreGlyphs, searchable, by category), the Character Viewer for an
-  emoji, preset colours and a colour well for a symbol. Not yet: entries under system tabs, folders made from the UI.
+  emoji, preset colours and a colour well for a symbol. Several rows are selected together (Cmd-click, Shift-click, across Favorites and Tabs; Escape or a plain
+  click clears): New Folder with the selection, Add to / Remove from Favorites, Delete, and a drag carries the selection. Not yet: entries under system tabs, folders made from the UI.
 - A tab can be renamed and given an emoji or an SF Symbol (Rename Tab…).
 - Selection by cells, words and lines, block selection, copy and paste; links (OSC 8) opened on Cmd-click under a policy; the input method; kitty
   keyboard; mouse reporting; scrollback with trackpad and wheel inertia; Previous and Next Prompt.

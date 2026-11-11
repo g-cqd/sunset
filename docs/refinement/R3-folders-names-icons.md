@@ -135,3 +135,12 @@ This replaces R3's "Close Folder (closes what is inside)".
 | How the popover opens | From the menu only: Change Icon… | |
 | Renaming in place | Double-click, the menu, and Return on a selected row | |
 | The Rename Tab dialog | Kept for the built-in tab bar | |
+
+## Selecting several rows (step d, t144), its questions answered (2026-11-11)
+
+| Question | Answer |
+| --- | --- |
+| Clicks | As Finder: Cmd-click adds or removes one, Shift-click takes the range, a plain click selects one and shows it; the selection is drawn lighter than the shown row |
+| Across sections | Yes: a selection can hold entries, folders and tabs |
+| Actions | New Folder with Selection; Add to Favorites / Remove from Favorites; Delete (entries, folders); dragging a selected row carries the whole selection. Close / Unload of a selection was not chosen |
+| Cleared | By a plain click, Escape, or after an action |
