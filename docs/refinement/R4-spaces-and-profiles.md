@@ -1,6 +1,6 @@
 # R4 — Spaces and profiles (roadmap 0018)
 
-Status: **three rounds answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0021, tasks t110, t147-t153). Nothing here is built.
 Research asked for during the session: `docs/research/tab-sleeping-in-browsers-2026-11-11.md`.
 
 ## The owner's answers
@@ -86,7 +86,7 @@ profiles; a link opens in the Space shown, so a work link clicked in a personal 
 - Rules sending a site to a Space, and per-site settings: R5.
 - Whether "pinned entries that are open are never unloaded" now means Pinned only or Favorites too: asked at the sleeping step.
 
-## Steps proposed (each begins with its own questions)
+## Steps (each begins with its own questions)
 
 | Step | What | Questions still to ask |
 | --- | --- | --- |

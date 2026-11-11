@@ -8,7 +8,7 @@ A new session reads this, the white paper, `AGENTS.md`, `docs/roadmap/0018-refin
 White paper §10: nothing is built that was not asked for; an idea is a proposition that goes through the owner. The refinement phase (roadmap 0018)
 is in progress: each topic is decided with the owner, alternatives and their costs (speed, memory, safety, security) stated, before any of it is
 built. Done: R1 (the web pane, `docs/refinement/R1-web-pane.md`, roadmap 0019), R2 (panes that are not terminals), R3 (folders, pinning, names and icons, roadmap 0020),
-R10 (the task list). To do: R4 Spaces and profiles, R5 web beyond the first pane, R6 Markdown, R7 restoring the running state, R8 the
+R4 (Spaces and profiles, roadmap 0021), R10 (the task list). The owner's order of building: folders, web, Spaces, profiles. To do: R5 web beyond the first pane, R6 Markdown, R7 restoring the running state, R8 the
 shell as a package, R9 the terminal's open ends and the owner's notes.
 
 ## What exists (macOS 26, Swift 6, 172 commits, nothing pushed: there is no remote)
