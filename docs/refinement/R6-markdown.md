@@ -1,6 +1,6 @@
 # R6 — Markdown, and the document behind a pane (roadmap 0018)
 
-Status: **accepted by the owner 2026-11-11** (roadmap 0023, tasks t115, t164-t174). Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0023, tasks t115, t164-t171; the store t172; session R11 t173). Nothing here is built.
 Input: note n43, task t115, R2 (the hidden note pane; one document in two panes), `AemiMarkdown/Apps/MarkdownLook` (its README read today).
 
 ## The owner's answers
