@@ -1,10 +1,10 @@
 import Foundation
 
-/// `{"items": [{"id", "layout", "focused", "customTitle"?, "customIcon"?}], "selected": "<id>"}`. Reading checks what the rest of the code relies on: a pane is
+/// `{"items": [{"id", "layout", "focused", "customTitle"?, "customIcon"?}], "selected": "<id>", "selectedEntry"?: "<id>"}`. Reading checks what the rest of the code relies on: a pane is
 /// in one tab only, a tab's
 /// focused pane is one of its panes, and the selected tab exists (and is the first one when none is named).
 extension Workspace: Codable {
-    private enum Key: String, CodingKey { case items, selected }
+    private enum Key: String, CodingKey { case items, selected, selectedEntry }
     private struct Stored: Codable {
         let id: ItemID
         let layout: SplitLayout
@@ -50,6 +50,7 @@ extension Workspace: Codable {
             )
         }
         selectedID = selected ?? items.first?.id
+        selectedEntry = try container.decodeIfPresent(Favorites.NodeID.self, forKey: .selectedEntry)
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -67,5 +68,6 @@ extension Workspace: Codable {
             forKey: .items
         )
         try container.encodeIfPresent(selectedID, forKey: .selected)
+        try container.encodeIfPresent(selectedEntry, forKey: .selectedEntry)
     }
 }

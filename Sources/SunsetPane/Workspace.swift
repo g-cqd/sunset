@@ -41,6 +41,9 @@ public struct Workspace: Sendable, Equatable {
 
     public internal(set) var items: [Item] = []
     public internal(set) var selectedID: ItemID?
+    /// The kept entry this window shows instead of one of its own tabs (`Favorites`). The window's selected tab stays behind it: it is what shows again
+    /// when the entry is unloaded. Selecting a tab leaves the entry.
+    public internal(set) var selectedEntry: Favorites.NodeID?
 
     public init() {}
 
@@ -66,42 +69,62 @@ public struct Workspace: Sendable, Equatable {
             case .end: index = items.count
         }
         items.insert(item, at: index)
-        selectedID = item.id
+        show(item.id)
         return (item.id, pane)
     }
 
     public mutating func select(item id: ItemID) {
-        if items.contains(where: { $0.id == id }) { selectedID = id }
+        if items.contains(where: { $0.id == id }) { show(id) }
     }
 
     public mutating func select(index: Int) {
-        if items.indices.contains(index) { selectedID = items[index].id }
+        if items.indices.contains(index) { show(items[index].id) }
+    }
+
+    /// Shows a kept entry in this window, or (nil) the window's own selected tab again.
+    public mutating func select(entry id: Favorites.NodeID?) { selectedEntry = id }
+
+    /// Selects one of the window's own tabs, which leaves a kept entry.
+    mutating func show(_ id: ItemID) {
+        selectedID = id
+        selectedEntry = nil
     }
 
     /// The next tab, the first after the last.
     public mutating func selectNext() {
         guard let index = selectedIndex else { return }
-        selectedID = items[(index + 1) % items.count].id
+        show(items[(index + 1) % items.count].id)
     }
 
     /// The previous tab, the last before the first.
     public mutating func selectPrevious() {
         guard let index = selectedIndex else { return }
-        selectedID = items[(index + items.count - 1) % items.count].id
+        show(items[(index + items.count - 1) % items.count].id)
     }
 
     /// Closes a tab with all its panes and returns them. When it was the selected one, its right neighbour is selected, or the left one when it was the last.
     @discardableResult
-    public mutating func close(item id: ItemID) -> [PaneID] {
-        guard let index = items.firstIndex(where: { $0.id == id }) else { return [] }
+    public mutating func close(item id: ItemID) -> [PaneID] { take(item: id)?.panes ?? [] }
+
+    /// Takes a tab out whole, its panes still running (to be kept in the Favorites, or put in another window). The selection moves as when it is closed.
+    public mutating func take(item id: ItemID) -> Item? {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return nil }
         let wasSelected = selectedID == id
-        let gone = items.remove(at: index).panes
+        let item = items.remove(at: index)
         if items.isEmpty {
             selectedID = nil
         } else if wasSelected {
             selectedID = items[min(index, items.count - 1)].id
         }
-        return gone
+        return item
+    }
+
+    /// Puts a tab that exists (released from the Favorites, or taken from another window) at `index`, brought inside, and selects it. A tab that is
+    /// already here is not put twice.
+    public mutating func insert(_ item: Item, at index: Int) {
+        guard !items.contains(where: { $0.id == item.id }) else { return }
+        items.insert(item, at: min(max(index, 0), items.count))
+        show(item.id)
     }
 
     /// Closes every tab but one, which is selected; returns the panes that went.
