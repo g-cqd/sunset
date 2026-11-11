@@ -25,5 +25,10 @@ public struct Viewport: Sendable, Equatable {
         scrolledBack = min(scrolledBack, count)
     }
 
+    /// Puts `line` (counted from the oldest of the history) at the top of the window, as far as the history goes; a line of the live screen shows that.
+    public mutating func show(line: Int) {
+        scrolledBack = min(max(historyCount - line, 0), historyCount)
+    }
+
     public mutating func toLive() { scrolledBack = 0 }
 }

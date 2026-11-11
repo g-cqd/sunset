@@ -1,4 +1,5 @@
 import AppKit
+import SunsetCore
 import SunsetPane
 import SwiftUI
 
@@ -23,6 +24,13 @@ struct TerminalCommands: Commands {
             Button("Bigger") { AppActions.shared.zoomFont(by: 1) }.keyboardShortcut("+")
             Button("Smaller") { AppActions.shared.zoomFont(by: -1) }.keyboardShortcut("-")
             Button("Actual Size") { AppActions.shared.resetFontZoom() }.keyboardShortcut("0")
+            Divider()
+            Button("Previous Prompt") { model?.jumpToPrompt(.previous) }
+                .keyboardShortcut(.upArrow)
+                .disabled(model == nil)
+            Button("Next Prompt") { model?.jumpToPrompt(.next) }
+                .keyboardShortcut(.downArrow)
+                .disabled(model == nil)
         }
         CommandMenu("Panes") {
             Button("Split Right") { AppActions.shared.split(.right) }.keyboardShortcut("d")

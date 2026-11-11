@@ -82,6 +82,18 @@ extension TerminalModel {
 
     func scroll(byPages pages: Int) { scroll(byLines: pages * max(1, (currentGrid()?.rows ?? 24) - 1)) }
 
+    /// Puts the previous or the next shell prompt (OSC 133) at the top of the window; past the last one is the live screen.
+    func jumpToPrompt(_ direction: PromptMark.Direction) {
+        guard let screen = lastScreen else { return }
+        let before = viewport.scrolledBack
+        if let line = screen.promptLine(direction, from: viewport.firstLine) {
+            viewport.show(line: line)
+        } else if direction == .next {
+            viewport.toLive()
+        }
+        if viewport.scrolledBack != before { requestFrame() }
+    }
+
     func scrollToLive() {
         guard !viewport.isLive else { return }
         viewport.toLive()
