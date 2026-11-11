@@ -13,6 +13,8 @@ through its session here, no code is written for it.
 
 1. The agent sends the topic's questions, all of them, each with its alternatives, what each costs and excludes, and what is already in the tree
    that bears on it. A recommendation, when there is one, is marked as the agent's and comes after the alternatives, not instead of them.
+   Every alternative says what it costs in **speed, efficiency, memory, safety and security**: the owner holds these as important as the feature
+   itself (2026-11-11), so an alternative without those costs stated is not ready to be chosen from.
 2. The owner answers, changes the questions, adds his own. More rounds as needed.
 3. The outcome is written down (an ADR for a decision, a design note for a shape) and read back to the owner.
 4. Only then are tasks made from it, in the order the owner gives, and the roadmap file of the topic is written or corrected.

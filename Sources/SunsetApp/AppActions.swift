@@ -56,9 +56,6 @@ final class AppActions {
 
     func closeWindow() { NSApp.keyWindow?.performClose(nil) }
 
-    /// A new tab with an empty note in it, in the key window.
-    func newNote() { keyTabs?.newTab(PaneDescriptor(kind: NoteContent.kind)) }
-
     /// Asks for a name and an icon for the selected tab of the key window.
     func renameTab() {
         if let tabs = keyTabs, let item = tabs.workspace.selectedID { tabs.beginRename(item: item) }

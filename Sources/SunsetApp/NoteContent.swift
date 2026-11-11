@@ -2,7 +2,8 @@ import Observation
 import SunsetPane
 import SwiftUI
 
-/// A plain text note in a pane: the second kind of content, with nothing of a terminal in it. Its text is saved with the session.
+/// A plain text note in a pane: the second kind of content, with nothing of a terminal in it, kept so that the protocol is held to more than one
+/// kind. Nothing in the app makes one (the owner, R2: hidden until the Markdown pane replaces it); a saved session that has one shows it.
 @MainActor @Observable
 final class NoteContent: PaneContent {
     static let kind = "note"
