@@ -35,5 +35,7 @@ final class NoteContent: PaneContent {
 
     func setState(focused: Bool, visible: Bool) { isFocused = focused && visible }
     func stop() {}
-    func makeView(_ context: PaneViewContext) -> AnyView { AnyView(NoteView(note: self, focused: context.focused)) }
+    func makeView(_ context: PaneViewContext) -> AnyView {
+        AnyView(NoteView(note: self, focused: context.focused).padding(.top, context.topInset))
+    }
 }

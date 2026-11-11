@@ -50,7 +50,7 @@ final class WebContent: NSObject, PaneContent {
     }
 
     func makeView(_ context: PaneViewContext) -> AnyView {
-        AnyView(WebPaneView(content: self, focused: context.focused))
+        AnyView(WebPaneView(content: self, focused: context.focused).padding(.top, context.topInset))
     }
 
     /// The page's view, made at the first call and loading the saved address.

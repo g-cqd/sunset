@@ -42,7 +42,8 @@ struct PaneArea: View {
                                 PaneViewContext(
                                     focused: pane == item.focused,
                                     translucent: translucent,
-                                    optionAsMeta: optionAsMeta
+                                    optionAsMeta: optionAsMeta,
+                                    topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0
                                 )
                             )
                             .frame(width: frame.width, height: frame.height)

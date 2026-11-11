@@ -27,6 +27,7 @@ import SwiftUI
                 systemImage: "questionmark.square.dashed",
                 description: Text("This version of Sunset cannot show it. It is kept as it was.")
             )
+            .padding(.top, context.topInset)
         )
     }
 }
