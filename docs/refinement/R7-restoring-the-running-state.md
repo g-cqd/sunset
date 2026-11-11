@@ -1,6 +1,6 @@
 # R7 — Restoring the running state (roadmap 0018)
 
-Status: **one round answered (2026-11-11); the outcome below is to be read and accepted by the owner.** Nothing here is built.
+Status: **accepted by the owner 2026-11-11** (roadmap 0024, tasks t122, t174-t178). Nothing here is built.
 Input: note n46, task t122. As built today: tabs, splits, each pane's directory, names and icons come back over new shells (`tabs.restore`).
 
 ## The owner's answers
@@ -49,7 +49,7 @@ is shown. **Safety**: written atomically; a file that fails to read or decrypt g
 - The alternate screen (a full-screen program at quit) was not excluded: what is saved for it is asked at the step.
 - A keeper holding the whole terminal makes every frame cross between two processes; unmeasured, and the study's first question.
 
-## Steps proposed (each begins with its own questions)
+## Steps (each begins with its own questions)
 
 | Step | What | Questions still to ask |
 | --- | --- | --- |

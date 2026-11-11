@@ -22,5 +22,5 @@ beyond (0022). Each step starts with its own questions.
 | M-h | Paths in terminal output and Cmd-click on them | t170 |
 | M-i | The command from the shell | t171 |
 
-Apart, each its own refinement: Sunset's own document store and its library, with the widened encryption study (t173, t135); session R11,
-commands, App Intents and the command bar (t174).
+Apart, each its own refinement: Sunset's own document store and its library, with the widened encryption study (t172, t135); session R11,
+commands, App Intents and the command bar (t173).
