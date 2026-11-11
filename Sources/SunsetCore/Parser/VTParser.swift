@@ -71,6 +71,11 @@ public struct VTParser: Sendable {
                 while end < count, input[end] >= 0x20, input[end] < 0x7F { end += 1 }
                 sink.printASCII(input.extracting(index ..< end))
                 index = end
+            } else if byte < 0x20, byte != 0x1B, state == .ground, pendingContinuations == 0 {
+                // A control in the ground state is executed here (CAN and SUB do nothing there): a line of text ends with two of them, and the
+                // state machine's step cost twelve times what a carriage return does (measured: 83 instructions against 7).
+                if byte != 0x18, byte != 0x1A { sink.execute(byte) }
+                index += 1
             } else if state == .ground, pendingContinuations == 0, byte >= 0xC2,
                 let (scalar, length) = wholeScalar(in: input, at: index)
             {

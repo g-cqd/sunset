@@ -9,8 +9,18 @@ extension Screen: VTSink {
 
     public mutating func print(_ scalar: Unicode.Scalar) { putScalar(scalar) }
 
-    public mutating func execute(_ control: UInt8) {
+    /// A carriage return, the control every line has, is done where it is met; the others go through `executeOther` (a call that saves a dozen
+    /// registers cost five times what the return itself does).
+    @inline(__always) public mutating func execute(_ control: UInt8) {
         joinable = false
+        if control == 0x0D {
+            carriageReturn()
+        } else {
+            executeOther(control)
+        }
+    }
+
+    @inline(never) mutating func executeOther(_ control: UInt8) {
         switch control {
             case 0x07: bellCount &+= 1
             case 0x08: backspace()

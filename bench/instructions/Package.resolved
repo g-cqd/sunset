@@ -1,0 +1,91 @@
+{
+  "originHash" : "39b2ed27a3728bd6f48a65d6755c9d51cffd8233cefed14279a0da38ff5ba586",
+  "pins" : [
+    {
+      "identity" : "aemi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Aemi-Studio/aemi.git",
+      "state" : {
+        "revision" : "e30aad82377cbea62171cc722a88041e97021db2"
+      }
+    },
+    {
+      "identity" : "aemijson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiJSON.git",
+      "state" : {
+        "revision" : "aec8895f1bc9bdaf2104b0d0ebe91e4a93b3c374"
+      }
+    },
+    {
+      "identity" : "aemimarkdown",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiMarkdown.git",
+      "state" : {
+        "revision" : "72f1fbaef04979a5a518be3d20ddd2efb7af1ce4"
+      }
+    },
+    {
+      "identity" : "aemiregex",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiRegex.git",
+      "state" : {
+        "revision" : "e07516ddd7ea3bcedd055dfe66f67ffb06fb5a82"
+      }
+    },
+    {
+      "identity" : "swift-asn1",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-asn1.git",
+      "state" : {
+        "revision" : "917b472dbe53ba699cbb0495f9a95a084bc6364d",
+        "version" : "1.7.4"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "88754449ab766a739610b660e117762115fabc9c",
+        "version" : "1.7.6"
+      }
+    },
+    {
+      "identity" : "swift-crypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-crypto.git",
+      "state" : {
+        "revision" : "f8fad2f95ad67b45f6340c0960e2396094d67e07",
+        "version" : "5.1.1"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "050f1a346fbbac0ca2cfb15a95274f7bd1cf0ccf",
+        "version" : "604.0.0"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system.git",
+      "state" : {
+        "revision" : "869129b7bf4ecc57b97d0193ad29690ca2134750",
+        "version" : "1.8.1"
+      }
+    },
+    {
+      "identity" : "terminalkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/TerminalKit.git",
+      "state" : {
+        "revision" : "59668133b73f3d8ab77a347e03bbc778d929a2e6"
+      }
+    }
+  ],
+  "version" : 3
+}
