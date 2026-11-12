@@ -15,7 +15,7 @@ extension TerminalModel {
         guard let address = screen.viewportLink(row: cell.row, column: cell.column, scrolledBack: viewport.scrolledBack)
         else { return false }
         if HyperlinkPolicy.opens(address, localHost: ProcessInfo.processInfo.hostName), let url = URL(string: address) {
-            NSWorkspace.shared.open(url)
+            openURL(url)
         }
         return true
     }

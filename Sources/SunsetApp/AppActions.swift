@@ -3,6 +3,7 @@ import SunsetConfig
 import SunsetHost
 import SunsetPane
 import SunsetShell
+import SunsetWeb
 
 /// What the menu and the sidebar do that needs the SwiftUI environment (opening a window): the scene hands them over once it has them.
 @MainActor
@@ -21,12 +22,24 @@ final class AppActions {
     var handoff: [any PaneContent] = []
 
     /// A new tab in the way the configuration shows tabs: a tab of the window with the built-in bar, a new window that joins the group with system tabs,
-    /// a plain window with none.
-    func newTab() {
-        if AppConfiguration.shared.presentation.hostsTabsInWindow,
-            let tabs = TabRegistry.shared.tabs(for: NSApp.keyWindow)
-        {
-            tabs.newTab()
+    /// a plain window with none. Of the kind the focused pane is (the owner's answer in web step a): a page makes a new empty page, a terminal a terminal;
+    /// `kind` asks for one.
+    /// Asks which kind of tab to make (Shift-Cmd-T).
+    func chooseKind() { TabRegistry.shared.tabs(for: NSApp.keyWindow)?.choosingKind = true }
+
+    func newTab(kind: PaneDescriptor? = nil) {
+        let tabs = TabRegistry.shared.tabs(for: NSApp.keyWindow)
+        let wanted =
+            kind ?? ((tabs?.selectedContent?.descriptor.kind == WebContent.kind) ? PaneContentKinds.newPage : nil)
+        if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs {
+            tabs.newTab(wanted)
+        } else if let wanted, wanted.kind != PaneDescriptor.terminalKind {
+            // A window of its own: a page waits for it as content handed over.
+            let page = PaneContentKinds.make(wanted) { SessionStore.shared.scheduleSave() }
+            handoff.append(page)
+            tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? NSApp.keyWindow : nil
+            joinsRemaining = tabParent == nil ? 0 : 1
+            openTerminalWindow()
         } else {
             tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? NSApp.keyWindow : nil
             joinsRemaining = tabParent == nil ? 0 : 1

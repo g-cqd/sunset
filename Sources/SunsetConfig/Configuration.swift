@@ -174,6 +174,21 @@ public struct Configuration: Sendable, Equatable {
         public init() {}
     }
 
+    /// The web pane (R1).
+    public struct Web: Sendable, Equatable {
+        /// What a page's tab shows when it has no icon of its own: the first letter of its title in a square, or a globe.
+        public enum TabIcon: String, Sendable, Equatable, CaseIterable {
+            case initial, globe
+        }
+
+        /// Cmd-click on a link in a terminal opens it in a page beside the terminal; off: in the default browser.
+        public var openLinksInSunset = true
+        /// The page's inspector (Inspect Element, and Safari's Develop menu) can be opened.
+        public var developer = true
+        public var tabIcon = TabIcon.initial
+        public init() {}
+    }
+
     public struct Keyboard: Sendable, Equatable {
         /// Option sends Escape before the key (Meta) instead of composing a character.
         public var optionAsMeta = false
@@ -193,6 +208,7 @@ public struct Configuration: Sendable, Equatable {
     public var window = Window()
     public var scroll = Scroll()
     public var keyboard = Keyboard()
+    public var web = Web()
     public var sidebar = Sidebar()
     public var appearance = Appearance()
     public var layout = Layout()

@@ -119,6 +119,16 @@ public struct Workspace: Sendable, Equatable {
         return item
     }
 
+    /// A new tab of one new pane at `index` (brought inside), shown or not; its pane.
+    @discardableResult
+    public mutating func addTab(at index: Int, show: Bool) -> PaneID {
+        let pane = PaneID()
+        let item = Item(layout: .pane(pane), focused: pane)
+        items.insert(item, at: min(max(index, 0), items.count))
+        if show || selectedID == nil { self.show(item.id) }
+        return pane
+    }
+
     /// Puts a tab that exists (released from the Favorites, or taken from another window) at `index`, brought inside, and selects it. A tab that is
     /// already here is not put twice.
     public mutating func insert(_ item: Item, at index: Int) {

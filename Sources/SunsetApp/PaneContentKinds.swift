@@ -1,6 +1,8 @@
 import Foundation
+import SunsetConfig
 import SunsetPane
 import SunsetShell
+import SunsetWeb
 
 /// The kinds of content besides the terminal (which the scene makes, with its configuration): what a saved descriptor becomes.
 @MainActor enum PaneContentKinds {
@@ -8,6 +10,10 @@ import SunsetShell
     /// new to save.
     static func make(_ descriptor: PaneDescriptor, changed: @escaping () -> Void) -> any PaneContent {
         switch descriptor.kind {
+            case WebContent.kind:
+                let page = WebContent(descriptor: descriptor, settings: webSettings)
+                page.onChange = changed
+                return page
             case NoteContent.kind:
                 let note = NoteContent(text: descriptor.state["text"] ?? "")
                 note.onEdit = changed
@@ -16,6 +22,18 @@ import SunsetShell
                 return UnknownContent(descriptor)
         }
     }
+
+    /// What pages are made with, from `web.*`.
+    static var webSettings: WebSettings {
+        let web = AppConfiguration.shared.configuration.web
+        return WebSettings(applicationName: safariName, developer: web.developer, initialIcon: web.tabIcon == .initial)
+    }
+
+    /// Read once: the installed Safari's version does not change while the app runs (or if it does, the next launch reads it).
+    private static let safariName = SafariName.applicationName()
+
+    /// A new empty page, asking for an address.
+    static let newPage = PaneDescriptor(kind: WebContent.kind)
 
     static func isDirectory(_ path: String) -> Bool {
         var isDirectory: ObjCBool = false

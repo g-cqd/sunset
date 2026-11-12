@@ -1,3 +1,4 @@
+import AppKit
 import SunsetConfig
 import SunsetHost
 import SunsetPane
@@ -6,6 +7,7 @@ import SunsetRender
 import SunsetShell
 import SunsetShellBridge
 import SunsetTerminal
+import SunsetWeb
 import SwiftUI
 
 /// The content of a terminal window: the tabs of the window (one, unless the built-in bar is on), the sidebar and the tab bar when the configuration shows
@@ -75,11 +77,7 @@ struct TerminalScene: View {
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
         .background(rootColor)
-        .overlay { CommandBarView(tabs: tabs, layout: configuration.layout).modifier(RenameTabAlert(tabs: tabs)) }
-        .sheet(isPresented: Binding(get: { tabs.editingCommand != nil }, set: { if !$0 { tabs.editingCommand = nil } }))
-        {
-            if let entry = tabs.editingCommand { CommandSheet(tabs: tabs, entry: entry) }
-        }
+        .modifier(WindowDialogs(tabs: tabs, layout: configuration.layout))
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .ignoresSafeArea(edges: noDecorations ? .top : [])
         .background(
@@ -193,7 +191,9 @@ struct TerminalScene: View {
         if tabs.workspace.isEmpty {
             // A terminal that was running in another window is waiting for this one, else the saved tabs of an earlier run, else a new one starts.
             if !AppActions.shared.handoff.isEmpty {
-                tabs.adopt(AppActions.shared.handoff.removeFirst())
+                let content = AppActions.shared.handoff.removeFirst()
+                if let page = content as? WebContent { WebOpening.wire(page, in: tabs) }
+                tabs.adopt(content)
             } else if let saved = SessionStore.shared.take() {
                 tabs.restore(saved)
                 // The other windows of the session open one after the other, each taking the next saved window.
@@ -214,7 +214,9 @@ struct TerminalScene: View {
     /// A terminal for nil or a terminal's descriptor (in its directory, when that is still there); else what `PaneContentKinds` makes of it.
     private func makeContent(_ descriptor: PaneDescriptor?) -> any PaneContent {
         if let descriptor, descriptor.kind != PaneDescriptor.terminalKind {
-            return PaneContentKinds.make(descriptor) { SessionStore.shared.scheduleSave() }
+            let content = PaneContentKinds.make(descriptor) { SessionStore.shared.scheduleSave() }
+            if let page = content as? WebContent { WebOpening.wire(page, in: tabs) }
+            return content
         }
         let model = TerminalModel()
         model.startDirectory = descriptor?.directory.flatMap { PaneContentKinds.isDirectory($0) ? $0 : nil }
@@ -231,8 +233,7 @@ struct TerminalScene: View {
     }
 
     private func configure(_ model: TerminalModel) {
-        model.hostPolicy = { HostPolicy(clipboardWrite: AppConfiguration.shared.configuration.terminal.clipboardWrite) }
-        model.onZoomRequest = { AppActions.shared.zoomFont(by: $0) }
+        model.wire(to: tabs)
         model.blinkSchedule = blinkSchedule
         model.defaultColors = colors
         model.paddingPoints = configuration.terminalPadding

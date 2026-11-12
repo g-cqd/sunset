@@ -87,3 +87,12 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
   store at all).
 - Pages driven by agents (with remote control).
 - R5: the latest WebKit, agent presets and passing for another browser, content blocking, extensions. Passwords and passkeys are in no milestone yet.
+
+## Step a, its questions answered (2026-11-11)
+
+| Question | Answer | His note |
+| --- | --- | --- |
+| The shortcut | Cmd-T makes a tab of the same kind as the focused one; Shift-Cmd-T opens a choice of kinds; Cmd-L is for the address | "Usual command T to create a tab of the same kind as the one focused right now, with maybe command shift T to open a dialog for selection" |
+| A link's new tab | Right after the page's tab, not shown | |
+| A failed load | A plain page of ours (what failed, the system's reason, the address, Try Again); certificate errors offer Visit Anyway after a warning | |
+| Named as Safari | Decided at the step | "Make it appear as Safari by default" |

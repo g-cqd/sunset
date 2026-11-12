@@ -27,11 +27,11 @@ package import SunsetRenderMac
     @ObservationIgnored package var rendererChoice = Configuration.Renderer.auto
     @ObservationIgnored package var setDisplayLinkPaused: (Bool) -> Void = { _ in }
     @ObservationIgnored package var onExit: () -> Void = {}
-    /// What a program in this terminal may do (the clipboard), read for each request: the app's settings, which can change while the shell runs. Until the
-    /// app says, nothing is allowed.
+    /// What its programs may do (the clipboard), read at each request; until the app says, nothing. A link Cmd-clicked goes to `openURL` (the app's).
     @ObservationIgnored package var hostPolicy: () -> HostPolicy = { HostPolicy(clipboardWrite: false) }
     /// The view asked for a bigger font (⌘= or ⌘⇧=, which the menu's ⌘+ does not always catch): the window's zoom, which the app owns.
     @ObservationIgnored package var onZoomRequest: (Double) -> Void = { _ in }
+    @ObservationIgnored package var openURL: (URL) -> Void = { _ in }
     /// The directory the program starts in (a restored tab); nil: the user's home.
     @ObservationIgnored package var startDirectory: String?
     @ObservationIgnored package var session: TerminalSession?

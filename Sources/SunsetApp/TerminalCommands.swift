@@ -12,6 +12,8 @@ struct TerminalCommands: Commands {
         CommandGroup(replacing: .newItem) {
             Button("New Window") { AppActions.shared.openTerminalWindow() }.keyboardShortcut("n")
             Button("New Tab") { AppActions.shared.newTab() }.keyboardShortcut("t")
+            Button("New Tab of Kind\u{2026}") { AppActions.shared.chooseKind() }
+                .keyboardShortcut("t", modifiers: [.command, .shift])
         }
         CommandGroup(replacing: .saveItem) {
             Button("Close") { AppActions.shared.closeTab() }.keyboardShortcut("w")
@@ -34,6 +36,9 @@ struct TerminalCommands: Commands {
                 .disabled(model == nil)
         }
         CommandMenu("Panes") {
+            Button("New Terminal Tab") { AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil)) }
+            Button("New Web Page") { AppActions.shared.newTab(kind: PaneContentKinds.newPage) }
+            Divider()
             Button("Split Right") { AppActions.shared.split(.right) }.keyboardShortcut("d")
             Button("Split Down") { AppActions.shared.split(.bottom) }
                 .keyboardShortcut("d", modifiers: [.command, .shift])
