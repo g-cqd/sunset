@@ -1,3 +1,4 @@
+import AemiSDR
 import SunsetShell
 import SwiftUI
 
@@ -42,7 +43,16 @@ struct WebFindBar: View {
         .buttonStyle(.borderless)
         .padding(.horizontal, Design.Space.s)
         .frame(height: Design.Size.bar)
-        .blurSurface(surface.shape, shadow: .popover)
+        .blurSurface(
+            surface.shape,
+            shadow: .popover,
+            halo: BlurHalo(
+                corner: .topTrailing,
+                margin: Design.Space.l,
+                inset: Design.Blur.haloInset,
+                reach: Design.Blur.haloReach
+            )
+        )
         .padding(Design.Space.l)
         .onAppear { typing = true }
         .onChange(of: find.focusRequest) { _, _ in typing = true }

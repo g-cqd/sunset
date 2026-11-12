@@ -151,3 +151,13 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - A third less tall: 87 pt from the window's edge (`Design.Blur.barKeep` 0.67; `heights-2026-11-13.png` shows 130 / 98 / 87).
 - Cut to the focused pane's card (`PaneCardShape`, published by the pane area): in a split it does not reach the other pane, the gaps
   or the sidebar.
+
+### 7d. Owner, 2026-11-13: the command bar over the panes, the address bar above its backdrop, the find bar's blur
+
+- The command bar is centred over the pane area, not the window (`PaneCardShape.Area`, an anchor the pane area publishes); its
+  backdrop is drawn by `WindowDialogs` under the window's address bar, which stays sharp while the command bar is open
+  (`command-centred-2026-11-13.png`: one pane, then a split).
+- The find bar: a halo all around (AemiSDR `BlurMask.around`) was rejected; then two fall lengths (`halo-variants-2026-11-13.png`,
+  the owner chose A: from 12 pt inside the panel to 16 pt outside), and the blur reaching the pane's corner on the panel's two near
+  sides (AemiSDR `BlurMask.corner`, 88d2b80; `BlurHalo`; `find-corner-2026-11-13.png`). The panel has the address bar's dark shade.
+- Not seen: the find bar in a split's other pane, light appearance, scrolling.

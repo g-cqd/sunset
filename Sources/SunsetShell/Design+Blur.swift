@@ -35,6 +35,22 @@ extension Design {
             return recipe
         }
 
+        /// A panel's halo over a layer of `width` × `height` (`BlurHalo`).
+        package static func halo(_ halo: BlurHalo, width: Double, height: Double) -> BlurRecipe {
+            var recipe = BlurRecipe.variable(
+                radius: haloRadius,
+                mask: .corner(halo.corner, width: width, height: height, fade: halo.inset + halo.reach)
+            )
+            recipe.saturation = panelSaturation
+            return recipe
+        }
+
+        /// Around a floating panel (the find bar): a low radius, falling to none over a long fade (owner, 2026-11-13).
+        package static let haloRadius = barRadius
+        /// The fall starts `haloInset` inside the panel's edge (under its dark fill) and ends `haloReach` outside it (owner,
+        /// 2026-11-13: start earlier, end shorter; A of research/blur halo variants).
+        package static let haloInset = Space.l
+        package static let haloReach = Space.xl
         package static let panelRadius = 20.0
         package static let panelSaturation = 1.8
 

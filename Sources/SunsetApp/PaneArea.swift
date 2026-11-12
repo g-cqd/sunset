@@ -38,7 +38,8 @@ struct PaneArea: View {
                 // (the sidebar's margin; `layout.paneGap` for a split with no docked sidebar), so the window's colour frames every card the same.
                 let card = docked || item.isSplit
                 let space = card ? (docked ? margin : layout.paneGap) : 0
-                let bounds = CGRect(origin: .zero, size: proxy.size).insetBy(dx: space, dy: space)
+                let area = CGRect(origin: .zero, size: proxy.size).insetBy(dx: space, dy: space)
+                let bounds = area
                 let radius = layout.terminalRadius ?? ConcentricRadius.inner(outer: windowRadius, inset: space)
                 let frames = item.layout.frames(in: bounds, gap: space)
                 ZStack(alignment: .topLeading) {
@@ -89,22 +90,12 @@ struct PaneArea: View {
                     of: [.plainText, .utf8PlainText],
                     delegate: PaneDropDelegate(tabs: tabs, frames: frames, target: $dropTarget)
                 )
-                .preference(
-                    key: PaneCardShape.Key.self,
-                    value: frames[item.focused]
-                        .map { frame in
-                            PaneCardShape(
-                                frame: frame,
-                                radii: TerminalCard.radii(
-                                    isCard: card,
-                                    outer: radius,
-                                    windowCorners: CornerSet.atCorners(of: frame, in: bounds)
-                                        .intersection(windowCorners),
-                                    layout: layout
-                                )
-                            )
-                        }
-                )
+                .anchorPreference(key: PaneCardShape.Key.self, value: .bounds) { bounds in
+                    PaneCardShape.Area(
+                        bounds: bounds,
+                        card: focusedCard(item, frames, bounds: area, card: card, radius: radius)
+                    )
+                }
                 .onChange(of: frames, initial: true) { _, new in applyInsets(new, bounds: bounds) }
                 .onChange(of: topInset) { _, _ in applyInsets(frames, bounds: bounds) }
             } else {

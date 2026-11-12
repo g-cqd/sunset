@@ -15,10 +15,21 @@ package struct PaneCardShape: Shape, Equatable {
         UnevenRoundedRectangle(cornerRadii: radii, style: .continuous).path(in: frame)
     }
 
-    /// Published by the pane area for its focused pane.
+    /// Published by the pane area: where it is, and its focused pane's card (nil when nothing is shown). What the window lays over
+    /// the panes (the address bar, the command bar) is placed by it.
+    package struct Area {
+        package var bounds: Anchor<CGRect>
+        package var card: PaneCardShape?
+
+        package init(bounds: Anchor<CGRect>, card: PaneCardShape?) {
+            self.bounds = bounds
+            self.card = card
+        }
+    }
+
     package struct Key: PreferenceKey {
-        package static let defaultValue: PaneCardShape? = nil
-        package static func reduce(value: inout PaneCardShape?, nextValue: () -> PaneCardShape?) {
+        package static let defaultValue: Area? = nil
+        package static func reduce(value: inout Area?, nextValue: () -> Area?) {
             value = nextValue() ?? value
         }
     }

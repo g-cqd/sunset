@@ -23,20 +23,16 @@ struct CommandBarView: View {
             let settings = PaneContentKinds.webSettings(for: tabs)
             let shown = bar.purpose == .search ? suggestions.suggestions : []
             let rows = CommandBarRows.rows(bar, tabs: tabs, settings: settings, suggestions: shown)
-            ZStack(alignment: .top) {
-                CommandBarBackdrop()
-                    .contentShape(.rect)
-                    .onTapGesture { tabs.bar = nil }
-                panel(bar, rows, settings)
-                    .padding(.top, Design.System.commandBarTop)
-            }
-            .transition(.opacity)
-            .onAppear { typing = true }
-            .onChange(of: bar.query + "\u{0}" + (bar.engine ?? ""), initial: true) {
-                takeChip(settings)
-                if let now = tabs.bar { ask(now, settings) }
-            }
-            .onChange(of: bar.showsActions) { _, open in if !open { typing = true } }
+            // Its backdrop is the window's (`WindowDialogs`), under the address bar.
+            panel(bar, rows, settings)
+                .padding(.top, Design.System.commandBarTop)
+                .transition(.opacity)
+                .onAppear { typing = true }
+                .onChange(of: bar.query + "\u{0}" + (bar.engine ?? ""), initial: true) {
+                    takeChip(settings)
+                    if let now = tabs.bar { ask(now, settings) }
+                }
+                .onChange(of: bar.showsActions) { _, open in if !open { typing = true } }
         }
     }
 

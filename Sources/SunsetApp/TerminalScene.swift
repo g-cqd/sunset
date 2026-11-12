@@ -84,7 +84,9 @@ struct TerminalScene: View {
         .background(rootColor)
         .environment(\.webAddressRow, addressPlace == .pane)
         .environment(\.addressTyping, addressTyping)
-        .modifier(WindowDialogs(tabs: tabs, layout: configuration.layout))
+        .modifier(
+            WindowDialogs(tabs: tabs, layout: configuration.layout) { card in AnyView(windowAddressBar(card: card)) }
+        )
         // Outside the dialogs, so that the command bar and the sheets draw their surfaces the window's way too.
         .environment(\.surfaceStyle, SurfaceStyle(configuration))
         .environment(\.monospacedDetail, configuration.tabs.bar.monospacedDirectory)
@@ -164,7 +166,6 @@ struct TerminalScene: View {
                 windowCorners: areaWindowCorners,
                 sidebarOnRight: configuration.sidebar.side == .right
             )
-            .overlayPreferenceValue(PaneCardShape.Key.self) { card in windowAddressBar(card: card) }
         } else {
             Color.clear
         }
