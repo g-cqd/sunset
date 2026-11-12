@@ -264,3 +264,14 @@ Probe: `probes/system-controls.swift` (draws into 2x bitmaps; no window is creat
   only the titles came out, 6.5 to 13.5 pt tall. The rounded text field drew, but at 24 pt for every size, which is not believable, so its
   corners (2 to 6.5 pt) are not used either. Measuring them needs a window composited by the system, which this probe does not open. Nothing in
   the design depends on them: Sunset's leaf radius is its own (`layout.tabRadius`), and its fields and buttons are drawn by its components.
+
+## 11. Migration step 2: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| Default surface | Glass for everything. The owner's own settings become the defaults: `window.material` glass, tint #000000 at 0.5, terminal opacity 0.2, background #000000; decorations none, window padding 4; sidebar on the right, padding 4, kept visible, width 229; JetBrains Mono 12 (the system's monospaced when it is missing); bar cursor, blink stopping after 15 s. |
+| Transparent | No "transparent": a **colour fill** with alpha, the tint's colour and alpha, for the window and every surface; no other material under it. The old value `transparent` is read as `fill`. The desktop blur "never really worked": a fill has none. |
+| Opaque | Floating parts slightly lighter than the window (a raised surface), with the hairline and the shadow. |
+| Shadows | Ours on every kind of surface; the differences to be shown to the owner. |
+| Glass groups | Group only, no new animation. Growing out of the bar is not decided: shown first, maybe a setting. |
+| Panel padding | The space between a panel's edge and what it holds: 16 ("standard"), to be shown. |
