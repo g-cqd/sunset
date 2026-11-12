@@ -86,6 +86,7 @@ struct TerminalScene: View {
         .modifier(WindowDialogs(tabs: tabs, layout: configuration.layout))
         // Outside the dialogs, so that the command bar and the sheets draw their surfaces the window's way too.
         .environment(\.surfaceStyle, SurfaceStyle(configuration))
+        .environment(\.monospacedDetail, configuration.tabs.bar.monospacedDirectory)
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .animation(configuration.layout.smooth, value: tabs.showsHistory)
         .ignoresSafeArea(edges: noDecorations ? .top : [])

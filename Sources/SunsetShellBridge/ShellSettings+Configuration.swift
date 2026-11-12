@@ -14,6 +14,7 @@ extension ShellSettings {
         tabs.bar.showTitle = configuration.tabs.bar.showTitle
         tabs.bar.showIcon = configuration.tabs.bar.showIcon
         tabs.bar.showDirectory = configuration.tabs.bar.showDirectory
+        tabs.bar.monospacedDirectory = configuration.tabs.bar.monospacedDirectory
         tabs.bar.showProgress = configuration.tabs.bar.showProgress
         layout = Layout(configuration.layout)
     }

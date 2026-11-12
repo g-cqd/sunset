@@ -13,6 +13,9 @@ package struct TabLabel: View {
     var icon: PaneIcon?
     /// What a pane that is not running would start from (a kept entry that is not open): it gives the picture, the title and the second line.
     var saved: PaneDescriptor?
+    /// The command a kept terminal that is not open would run: its picture is a terminal and its title the command.
+    var savedCommand: String?
+    @Environment(\.monospacedDetail) private var monospacedDetail
 
     package init(
         model: (any PaneContent)?,
@@ -22,7 +25,8 @@ package struct TabLabel: View {
         showProgress: Bool = true,
         name: String? = nil,
         icon: PaneIcon? = nil,
-        saved: PaneDescriptor? = nil
+        saved: PaneDescriptor? = nil,
+        savedCommand: String? = nil
     ) {
         self.model = model
         self.showIcon = showIcon
@@ -32,7 +36,11 @@ package struct TabLabel: View {
         self.name = name
         self.icon = icon
         self.saved = saved
+        self.savedCommand = savedCommand
     }
+
+    /// What a pane that is not running would start from: a kept entry with nothing saved is a new terminal.
+    private var notRunning: PaneDescriptor { saved ?? PaneDescriptor(kind: PaneDescriptor.terminalKind) }
 
     package var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
@@ -41,8 +49,9 @@ package struct TabLabel: View {
                     PaneIconView(icon: icon)
                 } else if let model {
                     PaneGlyphView(glyph: model.glyph)
-                } else if let saved {
-                    PaneGlyphView(glyph: Self.glyph(of: saved))
+                } else {
+                    // Not running: drawn in outline, the running tab's picture is filled.
+                    PaneGlyphView(glyph: Self.glyph(of: notRunning, command: savedCommand), outlined: true)
                 }
             }
             lines
@@ -54,9 +63,14 @@ package struct TabLabel: View {
 
     private var lines: some View {
         VStack(alignment: .leading, spacing: 1) {
-            if showTitle { Text(name ?? model?.title ?? saved.map(Self.title) ?? "Sunset").lineLimit(1) }
+            if showTitle {
+                Text(name ?? model?.title ?? Self.title(of: notRunning, command: savedCommand)).lineLimit(1)
+            }
             if showDirectory, let directory = model?.detail ?? saved?.directory {
-                Text(Self.shortened(directory)).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                Text(Self.shortened(directory))
+                    .font(monospacedDetail ? Design.Text.detail.monospaced() : Design.Text.detail)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
             if showProgress, let progress = model?.progress {
                 ProgressView(value: progress).progressViewStyle(.linear).controlSize(.mini)
@@ -64,15 +78,18 @@ package struct TabLabel: View {
         }
     }
 
-    /// The picture of a pane that is not running: a terminal's folder with its letter, another kind's generic mark.
-    static func glyph(of saved: PaneDescriptor) -> PaneGlyph {
+    /// The picture of a pane that is not running: a terminal that runs a command its terminal mark, one in a folder the folder with its
+    /// letter, another kind its generic mark.
+    static func glyph(of saved: PaneDescriptor, command: String? = nil) -> PaneGlyph {
         if saved.state["url"] != nil { return .symbol("globe") }
         guard saved.kind == PaneDescriptor.terminalKind else { return .symbol("square.dashed") }
+        if let command, !command.isEmpty { return .tab(TabGlyph(kind: .command, letter: nil)) }
         return .tab(TabGlyph.make(directory: saved.directory, command: nil, home: NSHomeDirectory()))
     }
 
-    /// The title of a pane that is not running: a terminal's directory by its name, another kind by its kind.
-    static func title(of saved: PaneDescriptor) -> String {
+    /// The title of a pane that is not running: the command a terminal would run, else its directory by its name; another kind by its kind.
+    static func title(of saved: PaneDescriptor, command: String? = nil) -> String {
+        if saved.kind == PaneDescriptor.terminalKind, let command, !command.isEmpty { return command }
         if let title = saved.state["title"], !title.isEmpty { return title }
         if let host = saved.state["url"].flatMap(URL.init(string:))?.host() { return host }
         guard let directory = saved.directory else {

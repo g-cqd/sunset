@@ -48,8 +48,9 @@ struct SidebarGroupRow: View {
         .animation(layout.smooth, value: activeState)
     }
 
-    /// The same space between the container's edge and the small tabs on all four sides, and between the small tabs.
-    private var inset: Double { layout.tabPaddingVertical }
+    /// The same space between the container's edge and the small tabs on all four sides, and between the small tabs: small, so that the
+    /// small tabs have the room (owner, 2026-11-12); their corner nests in the row's at it.
+    private var inset: Double { Design.Space.hair }
 
     private func part(_ pane: PaneID) -> some View {
         SidebarGroupPart(
@@ -80,8 +81,8 @@ struct SidebarGroupRow: View {
         if armed { return .red.opacity(hovering ? 0.28 : 0.2) }
         return switch (selected, hovering) {
             case (true, _): .primary.opacity(activeState == .inactive ? 0.06 : 0.1)
-            case (false, true): .primary.opacity(0.07)
-            case (false, false): .clear
+            case (false, true): .primary.opacity(Design.Fill.openHover)
+            case (false, false): .primary.opacity(Design.Fill.open)
         }
     }
 }

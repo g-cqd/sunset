@@ -3,8 +3,9 @@ import SunsetPane
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// A folder of the Favorites (R3): an indent per level, a folder icon filled when open; a click opens or closes it; its name is edited in place; a tab or
-/// an entry dropped anywhere on it goes inside. It never opens or closes what it holds.
+/// A folder of the Favorites (R3): an indent per level, a folder icon filled when expanded; a click expands or collapses it, as does the chevron
+/// at its trailing edge (where a tab's close button is, shown under the pointer: owner, 2026-11-12); its name is edited in place; a tab or an
+/// entry dropped anywhere on it goes inside. It never opens or closes what it holds.
 struct FolderRow: View {
     let tabs: TabsModel
     let folder: Favorites.Folder
@@ -18,6 +19,7 @@ struct FolderRow: View {
         _name = State(initialValue: folder.name)
     }
     @State private var targeted = false
+    @State private var hovering = false
 
     var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
@@ -25,30 +27,32 @@ struct FolderRow: View {
                 PaneIconView(icon: icon).opacity(folder.isCollapsed ? 0.7 : 1)
             } else {
                 Image(systemName: folder.isCollapsed ? "folder" : "folder.fill")
-                    .font(.system(size: 12))
+                    .font(.system(size: Design.Symbol.row))
                     .foregroundStyle(.secondary)
+                    .frame(width: Design.Size.glyphFrame)
             }
             if tabs.renamingRow == .node(folder.id) {
-                InPlaceNameField(text: $name, commit: commit) { tabs.renamingRow = nil }
+                InPlaceNameField(text: $name, commit: commit) { tabs.renamingRow = nil }.inPlaceField()
             } else {
-                Text(folder.name).font(.system(size: 12)).lineLimit(1)
+                Text(folder.name).lineLimit(1)
             }
             Spacer(minLength: 0)
         }
+        .frame(minHeight: layout.closeButtonSize)
         .padding(.leading, layout.tabPaddingLeading)
-        .padding(.vertical, layout.tabPaddingVertical + 2)
-        .background(
-            RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-                .fill(
-                    Color(nsColor: .controlAccentColor)
-                        .opacity(targeted ? 0.22 : (tabs.isMarked(.node(folder.id)) ? 0.18 : 0))
-                )
-        )
-        .contentShape(.rect)
-        .onTapGesture(count: 2) { tabs.renamingRow = .node(folder.id) }
-        .selectionTaps(tabs, row: .node(folder.id)) {
-            tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) }
+        .padding(.vertical, Design.rowPadding(layout, lines: 1, height: Design.Size.favoriteRow))
+        .padding(.trailing, layout.tabPaddingTrailing)
+        .overlay {
+            GeometryReader { proxy in
+                disclosure.position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
+            }
         }
+        .background(RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous).fill(fill))
+        .contentShape(.rect)
+        .onHover { hovering = $0 }
+        .animation(layout.smooth, value: hovering)
+        .onTapGesture(count: 2) { tabs.renamingRow = .node(folder.id) }
+        .selectionTaps(tabs, row: .node(folder.id)) { toggle() }
         .onDrag { tabs.itemProvider(for: .entry(folder.id)) }
         .iconPopover(tabs: tabs, row: .node(folder.id))
         .onDrop(of: [.plainText, .utf8PlainText], delegate: Drop(tabs: tabs, folder: folder.id, targeted: $targeted))
@@ -62,6 +66,29 @@ struct FolderRow: View {
             Button("Delete Folder and Its Contents") { tabs.delete(folder: folder.id) }
         }
     }
+
+    /// Under the pointer: the folder's chevron, down to expand, up to collapse; a click on it does what a click on the row does.
+    private var disclosure: some View {
+        Button(action: toggle) {
+            Image(systemName: folder.isCollapsed ? "chevron.down" : "chevron.up")
+                .font(.system(size: Design.Symbol.badge, weight: .semibold))
+                .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .opacity(hovering ? 1 : 0)
+        .allowsHitTesting(hovering)
+        .help(folder.isCollapsed ? "Expand" : "Collapse")
+    }
+
+    private var fill: Color {
+        let accent = Color(nsColor: .controlAccentColor)
+        if targeted { return accent.opacity(0.22) }
+        if tabs.isMarked(.node(folder.id)) { return accent.opacity(0.18) }
+        return .primary.opacity(hovering ? Design.Fill.hover : 0)
+    }
+
+    private func toggle() { tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) } }
 
     private func commit() {
         tabs.favorites.edit { $0.rename(folder.id, to: name) }

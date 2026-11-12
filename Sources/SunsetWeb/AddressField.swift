@@ -22,8 +22,7 @@ package struct AddressField: View {
     }
 
     package var body: some View {
-        let shape = RoundedRectangle(cornerRadius: surface.leafRadius, style: .continuous)
-        HStack(spacing: Design.Space.xs) {
+        HStack(spacing: Design.Optical.fieldGlyphToText) {
             if content.isPrivate { PrivateMark() }
             if content.url != nil { SiteButton(content: content) }
             textField
@@ -36,13 +35,11 @@ package struct AddressField: View {
                     .help("Zoom: click for 100%")
             }
         }
-        .padding(.horizontal, Design.Space.m)
-        .frame(height: Design.Size.field)
         // A private page's field is dark, its text light (web step h).
-        .background(shape.fill(content.isPrivate ? Color.black.opacity(0.7) : Color.primary.opacity(0.08)))
-        .environment(\.colorScheme, content.isPrivate ? .dark : colorScheme)
+        .fieldSurface(dark: content.isPrivate)
         .overlay(alignment: .bottomLeading) { progressLine }
-        .clipShape(shape)
+        .clipShape(RoundedRectangle(cornerRadius: surface.leafRadius, style: .continuous))
+        .environment(\.colorScheme, content.isPrivate ? .dark : colorScheme)
         .onAppear { takeKeyboardIfAsked() }
         .onChange(of: content.wantsAddress) { _, _ in takeKeyboardIfAsked() }
     }

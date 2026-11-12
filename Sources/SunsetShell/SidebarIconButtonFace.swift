@@ -6,13 +6,22 @@ struct SidebarIconButtonFace<Label: View>: View {
     let pressed: Bool
     let metrics: SidebarButtonMetrics
     @State private var hovering = false
+    @Environment(\.isEnabled) private var enabled
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: metrics.radius, style: .continuous)
         label
-            .foregroundStyle(hovering || pressed ? .primary : .secondary)
+            .foregroundStyle(
+                !enabled ? AnyShapeStyle(.tertiary) : AnyShapeStyle(hovering || pressed ? .primary : .secondary)
+            )
             .frame(width: metrics.size.width, height: metrics.size.height)
-            .background(shape.fill(.primary.opacity(pressed ? 0.16 : (hovering ? 0.1 : 0))))
+            .background(
+                shape.fill(
+                    .primary.opacity(
+                        !enabled ? 0 : pressed ? Design.Fill.pressed : (hovering ? Design.Fill.openHover : 0)
+                    )
+                )
+            )
             .contentShape(shape)
             .onHover { hovering = $0 }
             .animation(metrics.smooth, value: hovering)

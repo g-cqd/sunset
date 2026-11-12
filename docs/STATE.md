@@ -23,12 +23,12 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetPane` | 41 files | No dependency: `Workspace` (a window's tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon; `Favorites` (folders step a1, 2026-11-11: the app-wide tree of folders and kept entries, in the model and the session file; step a2: the app reads it at launch and writes it back, whatever the restoring setting says, and **nothing in a window shows or edits it yet**) |
 | `SunsetShell`, `SunsetShellBridge` | 26 + 2 files | The window shell (R8, step H-1, 2026-11-11): the tab model of a window (`TabsModel`), the pane content protocol, the sidebar and its rows, tab labels and glyphs, the command bar's state, its own plain settings (`ShellSettings`, the configuration's names); the bridge fills them from the configuration. Package access |
 | `SunsetTerminal` | 30 files | The terminal as a kind of pane content (R8): its model, its AppKit view, input, selection, the renderer's wiring; what it needs from the app (the clipboard policy, the font zoom) comes in as callbacks |
-| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 109 keys |
+| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 110 keys |
 | `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 937 in 175 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 938 in 176 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -116,6 +116,10 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   (the tint's colour and alpha, no desktop blur; `transparent` still read).
 - Design step 2 (surfaces): every floating surface through `SurfaceStyle` / `.surface(_:shadow:)` by `window.material`; concentric radii (bars 12
   holding 6, the permission panel 22); bars 38; panels pad 16, sheets 24; shadows `popover` / `float`. See research/design-system §12.
+- Design step 3 (rows, fields, buttons): built from four review rounds (research/design-step3/README.md): 32 pt tab rows, a 28 pt Favorites
+  tree, open rows filled and none dimmed, the close button centred half a row from the edge, monospaced second line
+  (`tabs.bar.monospacedDirectory`), kept terminals drawn as themselves, folders with a trailing chevron, split sub-rows icon-only when narrow,
+  one field (`fieldSurface`), bar buttons as icon buttons, eye.slash for private, new pin and downloads symbols. `FontServer`: one font at a time.
 
 ### OSC handled by the core (ADR-0010 policy)
 

@@ -57,13 +57,12 @@ package struct WindowAddressBar: View {
         .surface(surface.shape)
     }
 
+    /// Back, forward, reload: the sidebar's icon button, as tall as the field beside them and with its corner, so that every part of the bar
+    /// is the same distance from the bar's edge (owner, 2026-11-12).
     private func button(_ symbol: String, _ help: String, enabled: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol).frame(width: Design.Size.control, height: Design.Size.control).contentShape(.rect)
-        }
-        .buttonStyle(.borderless)
-        .disabled(!enabled)
-        .help(help)
+        SidebarIconButton(symbol: symbol, help: help, action: action)
+            .environment(\.sidebarButtonMetrics, BarButton.metrics(surface))
+            .disabled(!enabled)
     }
 
     /// Goes a moment after the pointer left, if it has not come back and nothing is being typed.

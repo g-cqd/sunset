@@ -18,9 +18,10 @@ extension TabSidebar {
     var buttonGap: Double { pinGap + (panelRadius == nil ? header.dockedButtonInset : 0) }
 
     var pinButton: some View {
-        SidebarIconButton(
-            symbol: "sidebar.left",
-            filled: !settings.sidebar.autoHide,
+        // The sidebar half of a window: drawn alone when it comes and goes, inset in its frame when it stays (owner, 2026-11-12).
+        let half = settings.sidebar.side == .left ? "leadinghalf" : "trailinghalf"
+        return SidebarIconButton(
+            symbol: settings.sidebar.autoHide ? "rectangle.\(half).filled" : "inset.filled.\(half).rectangle",
             help: settings.sidebar.autoHide ? "Keep the sidebar visible" : "Let the sidebar hide",
             action: togglePin
         )

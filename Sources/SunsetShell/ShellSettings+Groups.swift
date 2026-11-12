@@ -36,6 +36,8 @@ extension ShellSettings {
         /// A small picture before the title.
         package var showIcon = true
         package var showDirectory = true
+        /// The second line in the monospaced face.
+        package var monospacedDirectory = true
         package var showProgress = true
 
         package init() {}

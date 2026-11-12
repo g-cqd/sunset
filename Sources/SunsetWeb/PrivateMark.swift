@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// "Private" at the start of a private page's address field (web step h); a click tells what is kept and, in a private window, offers its selector.
+/// An eye crossed out at the start of a private page's address field (web step h); a click tells what is kept and, in a private window, offers its selector.
 struct PrivateMark: View {
     @Environment(\.privateWindowSharing) private var sharing
     @State private var open = false
@@ -10,12 +10,10 @@ struct PrivateMark: View {
         Button {
             open.toggle()
         } label: {
-            Text("Private")
-                .font(.caption.weight(.semibold))
+            // A symbol, not the word (owner, 2026-11-12).
+            Image(systemName: "eye.slash")
+                .font(.system(size: Design.Symbol.row))
                 .foregroundStyle(.white)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Capsule().fill(Color.white.opacity(0.18)))
         }
         .buttonStyle(.plain)
         .help("A private page")

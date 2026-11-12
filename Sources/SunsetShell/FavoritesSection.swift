@@ -3,7 +3,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// The Favorites at the top of the sidebar (R3, R4): kept entries and folders, then a thin line above the window's own tabs. A click opens an entry and
-/// shows it; while it is open its row has a minus that unloads it; one that is not open is drawn fainter and has an x that removes it.
+/// shows it; while it is open its row has a faint fill and a minus that unloads it; one that is not open has no fill and an x that removes it.
 struct FavoritesSection: View {
     let tabs: TabsModel
     let settings: ShellSettings
@@ -14,15 +14,18 @@ struct FavoritesSection: View {
     var body: some View {
         let favorites = tabs.favorites.favorites
         if !favorites.isEmpty {
-            ForEach(favorites.rows(selected: tabs.workspace.selectedEntry)) { row in
-                Group {
-                    switch favorites.node(row.id) {
-                        case .entry(let entry): entryRow(entry)
-                        case .folder(let folder): FolderRow(tabs: tabs, folder: folder, layout: layout)
-                        case nil: EmptyView()
+            // The tree is more compact than the tabs below it: shorter rows, a hairline's gap (owner, 2026-11-12).
+            VStack(spacing: Design.Space.hair) {
+                ForEach(favorites.rows(selected: tabs.workspace.selectedEntry)) { row in
+                    Group {
+                        switch favorites.node(row.id) {
+                            case .entry(let entry): entryRow(entry)
+                            case .folder(let folder): FolderRow(tabs: tabs, folder: folder, layout: layout)
+                            case nil: EmptyView()
+                        }
                     }
+                    .padding(.leading, Double(row.level) * Design.Space.l)
                 }
-                .padding(.leading, Double(row.level) * 12)
             }
         }
         FavoritesLine(tabs: tabs, layout: layout, visible: !favorites.isEmpty)
@@ -93,13 +96,15 @@ struct FavoritesSection: View {
             name: entry.title,
             icon: entry.icon,
             saved: entry.home.contents[entry.home.focused],
+            savedCommand: entry.command,
             showIcon: settings.tabs.bar.showIcon,
             showTitle: settings.tabs.bar.showTitle,
             showDirectory: settings.tabs.bar.showDirectory,
             showProgress: settings.tabs.bar.showProgress,
             layout: layout,
             button: entry.isOpen ? .unload : .delete,
-            dimmed: !entry.isOpen,
+            open: entry.isOpen,
+            compact: true,
             marked: tabs.isMarked(.node(entry.id)),
             renaming: tabs.renamingRow == .node(entry.id)
                 ? (

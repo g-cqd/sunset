@@ -1,4 +1,5 @@
 package import CoreText
+internal import Foundation
 
 /// The font for a name, or Menlo (monospaced, always installed) when no installed font has that name: CoreText alone substitutes Helvetica,
 /// which is not monospaced (the default family, JetBrains Mono, is not installed everywhere: owner, 2026-11-12).
@@ -9,6 +10,8 @@ package enum FontFallback {
     package static let fallbackName = "Menlo"
 
     package static func font(named name: String, size: CGFloat) -> CTFont {
+        FontServer.lock.lock()
+        defer { FontServer.lock.unlock() }
         let made = CTFontCreateWithName(name as CFString, size, nil)
         let names = [CTFontCopyFamilyName(made), CTFontCopyFullName(made), CTFontCopyPostScriptName(made)]
             .map { $0 as String }

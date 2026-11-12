@@ -206,6 +206,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             entry(pane, "tabs.icon", "Show the folder or command icon", ["tab", "glyph", "letter", "picture"]),
             entry(pane, "tabs.title", "Show the title", ["tab", "name"]),
             entry(pane, "tabs.directory", "Show the working directory", ["tab", "folder", "path", "osc 7"]),
+            entry(pane, "tabs.monospacedDirectory", "Second line in monospace", ["tab", "directory", "font", "mono"]),
             entry(pane, "tabs.progress", "Show progress", ["tab", "bar", "osc 9", "download"])
         ]
     }
