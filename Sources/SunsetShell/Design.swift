@@ -71,6 +71,9 @@ package enum Design {
 
     /// The vertical padding of a sidebar row: a one-line row is `height` tall (the close button's square centred in it), a two-line row
     /// keeps the layout's padding.
+    /// How far a frame of `outer` overhangs a centred `inner` on each side.
+    package static func overhang(of outer: Double, over inner: Double) -> Double { (outer - inner) / 2 }
+
     package static func oneLinePadding(_ layout: LayoutMetrics, height: Double) -> Double {
         rowPadding(layout, lines: 1, height: height)
     }

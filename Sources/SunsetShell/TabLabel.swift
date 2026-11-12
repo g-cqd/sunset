@@ -44,16 +44,7 @@ package struct TabLabel: View {
 
     package var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
-            if showIcon {
-                if let icon {
-                    PaneIconView(icon: icon)
-                } else if let model {
-                    PaneGlyphView(glyph: model.glyph)
-                } else {
-                    // Not running: drawn in outline, the running tab's picture is filled.
-                    PaneGlyphView(glyph: Self.glyph(of: notRunning, command: savedCommand), outlined: true)
-                }
-            }
+            if showIcon { TabIcon(model: model, icon: icon, saved: saved, savedCommand: savedCommand) }
             lines
             if let dot = model?.captureDot {
                 Circle().fill(dot).frame(width: 7, height: 7).help("Using the camera, microphone or screen")

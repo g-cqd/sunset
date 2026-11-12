@@ -33,3 +33,19 @@ Every view file of SunsetShell, SunsetWeb and SunsetApp now names its paddings, 
 ## Not done yet in this step
 
 - Roadmap 0028 B (the history panel on the sidebar's parts), and frames in the enforcement test: after the owner's call on the values above.
+
+## The owner's answers (2026-11-12)
+
+- All the values moved up stay on the scale (no optical exceptions).
+- The built-in tab bar "does not look native nor close to the design language of the sidebar": to be redrawn with the sidebar's parts.
+- In the tab bar, the close button replaces the tab's icon under the pointer.
+
+## The built-in tab bar, redrawn (2026-11-12)
+
+`tab-bar.png`: before / after. Each tab is a sidebar row (`BarTab`): the open fill, the selected fill and hairline, the leaf corner, 32 pt;
+the tabs share the bar's width (120–240 pt each); the bar has no material of its own; the + is the bar's icon button. The close button
+takes the icon's place under the pointer (not shown: the driver does not move the pointer).
+
+Owner's further asks, same day (not built yet):
+- Variable blur under the tabs (n60, t208), at least as an option.
+- In tab-bar mode the address field is not a separate row: each tab is its own address slot (the selected tab is the field).
