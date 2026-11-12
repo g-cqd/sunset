@@ -2,42 +2,39 @@ import AppKit
 import SwiftUI
 import WebKit
 
-/// What a page's pane shows: the page; over it, for an empty page, a field for an address (until the address bar of web step b), and for a page that
-/// failed, what failed with Try Again (and Visit Anyway, after a warning, for a certificate).
+/// What a page's pane shows: the page, under its address row when the address is typed in each page (`webAddressRow`); over it, for an empty page,
+/// a globe, and for a page that failed, what failed with Try Again (and Visit Anyway, after a warning, for a certificate).
 struct WebPaneView: View {
     let content: WebContent
     let focused: Bool
     let topInset: Double
-    @State private var typed = ""
     @State private var warning = false
-    @FocusState private var fieldFocused: Bool
+    @Environment(\.webAddressRow) private var addressRow
 
     var body: some View {
-        ZStack {
-            if let webView = content.webView {
-                WebViewHost(webView: webView, focused: focused && content.url != nil && content.failure == nil)
+        VStack(spacing: 0) {
+            if addressRow {
+                AddressField(content: content).padding(.horizontal, 6).padding(.vertical, 4)
+                Divider()
             }
-            if content.url == nil, content.webView?.url == nil { empty }
-            if let failure = content.failure { failed(failure) }
+            ZStack {
+                if let webView = content.webView {
+                    WebViewHost(webView: webView, focused: focused && content.url != nil && content.failure == nil)
+                }
+                if content.url == nil, content.webView?.url == nil { empty }
+                if let failure = content.failure { failed(failure) }
+            }
         }
         .padding(.top, topInset)
         .background(Color(nsColor: .windowBackgroundColor))
     }
 
     private var empty: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "globe").font(.system(size: 28)).foregroundStyle(.tertiary)
-            TextField("Address", text: $typed)
-                .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: 420)
-                .focused($fieldFocused)
-                .onSubmit { content.open(typed: typed) }
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(nsColor: .windowBackgroundColor))
-        .onAppear { fieldFocused = focused }
-        .onChange(of: focused) { _, now in if now { fieldFocused = true } }
+        Image(systemName: "globe")
+            .font(.system(size: 28))
+            .foregroundStyle(.tertiary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(nsColor: .windowBackgroundColor))
     }
 
     private func failed(_ failure: WebFailure) -> some View {

@@ -102,7 +102,8 @@ public enum ConfigurationWriter {
     private static func web(_ web: Configuration.Web) -> [String: String] {
         [
             "web.openLinksInSunset": String(web.openLinksInSunset), "web.developer": String(web.developer),
-            "web.tabIcon": string(web.tabIcon.rawValue)
+            "web.tabIcon": string(web.tabIcon.rawValue), "web.address": string(web.address.rawValue),
+            "web.windowBar": string(web.windowBar.rawValue)
         ]
     }
 

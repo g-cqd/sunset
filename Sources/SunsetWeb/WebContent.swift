@@ -17,6 +17,11 @@ package final class WebContent: PaneContent {
     package private(set) var pageTitle = ""
     package private(set) var progress: Double?
     package var failure: WebFailure?
+    package private(set) var canGoBack = false
+    package private(set) var canGoForward = false
+    package private(set) var isLoading = false
+    /// The page asks for its address to be typed (a new empty page): the address field of the window takes the keyboard and clears this.
+    package var wantsAddress = false
     /// The page, once it has been shown.
     @ObservationIgnored package private(set) var webView: WKWebView?
 
@@ -114,9 +119,16 @@ package final class WebContent: PaneContent {
         onChange()
     }
 
-    package func reload() {
+    /// Loads the page again; `fromOrigin`: without what the cache holds (Shift-Cmd-R).
+    package func reload(fromOrigin: Bool = false) {
         failure = nil
-        if let url, webView?.url == nil { webView?.load(URLRequest(url: url)) } else { webView?.reload() }
+        if let url, webView?.url == nil {
+            webView?.load(URLRequest(url: url))
+        } else if fromOrigin {
+            webView?.reloadFromOrigin()
+        } else {
+            webView?.reload()
+        }
     }
 
     /// Visit Anyway: the certificate of this host is accepted for this page, and the page is loaded again.
@@ -149,6 +161,7 @@ package final class WebContent: PaneContent {
             savedHistory = nil
         }
         if view.url == nil, let url { view.load(URLRequest(url: url)) }
+        if url == nil, view.url == nil { wantsAddress = true }
     }
 
     private func observe(_ view: WKWebView) {
@@ -163,7 +176,16 @@ package final class WebContent: PaneContent {
                 MainActor.assumeIsolated { self?.progress = view.isLoading ? view.estimatedProgress : nil }
             },
             view.observe(\.isLoading, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated { if !view.isLoading { self?.progress = nil } }
+                MainActor.assumeIsolated {
+                    self?.isLoading = view.isLoading
+                    if !view.isLoading { self?.progress = nil }
+                }
+            },
+            view.observe(\.canGoBack, options: [.new]) { [weak self] view, _ in
+                MainActor.assumeIsolated { self?.canGoBack = view.canGoBack }
+            },
+            view.observe(\.canGoForward, options: [.new]) { [weak self] view, _ in
+                MainActor.assumeIsolated { self?.canGoForward = view.canGoForward }
             }
         ]
     }

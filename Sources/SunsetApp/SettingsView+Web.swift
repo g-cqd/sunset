@@ -12,6 +12,17 @@ extension SettingsView {
                 )
             case "web.developer":
                 Toggle("Pages can be inspected (Inspect Element)", isOn: config.binding(\.web.developer))
+            case "web.address":
+                Picker("The address is typed in", selection: config.binding(\.web.address)) {
+                    Text("A field at the top of the sidebar").tag(Configuration.Web.AddressPlace.sidebar)
+                    Text("A bar of the window, shown at its edge").tag(Configuration.Web.AddressPlace.window)
+                    Text("A row at the top of every page").tag(Configuration.Web.AddressPlace.pane)
+                }
+            case "web.windowBar":
+                Picker("The window bar is at the", selection: config.binding(\.web.windowBar)) {
+                    Text("Top").tag(Configuration.Web.BarEdge.top)
+                    Text("Bottom").tag(Configuration.Web.BarEdge.bottom)
+                }
             default:
                 Picker("A page's tab shows", selection: config.binding(\.web.tabIcon)) {
                     Text("The first letter of its title").tag(Configuration.Web.TabIcon.initial)

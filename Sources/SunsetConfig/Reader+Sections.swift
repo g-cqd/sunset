@@ -75,6 +75,14 @@ extension Reader {
                     if let icon = choice("web.tabIcon", value, as: Configuration.Web.TabIcon.self) {
                         configuration.web.tabIcon = icon
                     }
+                case "address":
+                    if let place = choice("web.address", value, as: Configuration.Web.AddressPlace.self) {
+                        configuration.web.address = place
+                    }
+                case "windowBar":
+                    if let edge = choice("web.windowBar", value, as: Configuration.Web.BarEdge.self) {
+                        configuration.web.windowBar = edge
+                    }
                 default: unknown("web.\(key)")
             }
         }

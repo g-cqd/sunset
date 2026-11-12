@@ -14,6 +14,8 @@ package struct TabSidebar: View {
     var floating = false
     /// The floating panel's corner radius: the pin button's corner towards the panel's is concentric with it (same gap to both edges).
     var panelRadius: Double?
+    /// What the app puts at the top, under the window's buttons (the address of the focused page, web step b).
+    var accessory: AnyView?
     @State private var rowDrop: (item: Workspace.ItemID, action: TabDropAction)?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
     @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
@@ -22,17 +24,20 @@ package struct TabSidebar: View {
 
     private var margin: Double { settings.sidebar.padding }
     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
-    private var layout: ShellSettings.Layout { floating ? settings.layout.floatingTabs : settings.layout }
+    var layout: ShellSettings.Layout { floating ? settings.layout.floatingTabs : settings.layout }
     private var header: SidebarHeader { SidebarHeader(layout: layout, margin: margin, floating: floating) }
-    private var topInset: Double { header.height }
+    /// Where the rows start: below the window's buttons, and the accessory with a gap.
+    private var topInset: Double { header.height + accessoryInset }
 
     package init(
         tabs: TabsModel,
         settings: ShellSettings,
         floating: Bool = false,
         panelRadius: Double? = nil,
+        accessory: AnyView? = nil,
         togglePin: @escaping () -> Void
     ) {
+        self.accessory = accessory
         self.tabs = tabs
         self.settings = settings
         self.floating = floating
@@ -62,6 +67,7 @@ package struct TabSidebar: View {
         .onHover { inside in if !inside { closingSlot = nil } }
         .mask { fade }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
+        .overlay(alignment: .top) { accessoryView }
     }
 
     /// Content that scrolls up past the traffic lights fades out over the height of the strip they sit in; rows at rest start below it, untouched.
