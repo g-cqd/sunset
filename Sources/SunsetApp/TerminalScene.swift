@@ -77,6 +77,7 @@ struct TerminalScene: View {
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
         .background(rootColor)
+        .environment(\.webAddressRow, addressPlace == .pane)
         .modifier(WindowDialogs(tabs: tabs, layout: configuration.layout))
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .ignoresSafeArea(edges: noDecorations ? .top : [])
@@ -93,6 +94,7 @@ struct TerminalScene: View {
         .preferredColorScheme(configuration.appearance.scheme.colorScheme)
         .navigationTitle(tabs.selectedContent?.title ?? "Sunset")
         .focusedSceneValue(\.terminalModel, tabs.selectedTerminal)
+        .focusedSceneValue(\.webPage, focusedPage)
         .task { start() }
         .animation(configuration.layout.smooth, value: configuration.sidebar.autoHide)
         .animation(configuration.layout.smooth, value: configuration.sidebar.padding)
@@ -119,13 +121,18 @@ struct TerminalScene: View {
 
     /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge. Any empty area in it drags the window.
     private var dockedSidebar: some View {
-        TabSidebar(tabs: tabs, settings: ShellSettings(configuration), togglePin: AppConfiguration.togglePin)
-            .padding(.top, configuration.sidebar.padding)
-            .padding(sidebarSide.edge, configuration.sidebar.padding)
-            .frame(width: configuration.sidebar.width, alignment: sidebarSide.alignment)
-            .frame(maxHeight: .infinity)
-            .background { windowDragSurface }
-            .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
+        TabSidebar(
+            tabs: tabs,
+            settings: ShellSettings(configuration),
+            accessory: sidebarAddress,
+            togglePin: AppConfiguration.togglePin
+        )
+        .padding(.top, configuration.sidebar.padding)
+        .padding(sidebarSide.edge, configuration.sidebar.padding)
+        .frame(width: configuration.sidebar.width, alignment: sidebarSide.alignment)
+        .frame(maxHeight: .infinity)
+        .background { windowDragSurface }
+        .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
     }
 
     /// The panes of what is shown; with nothing shown, the pane area's hint while the window stays for its Favorites, and nothing while it goes.
@@ -143,24 +150,10 @@ struct TerminalScene: View {
                 windowCorners: areaWindowCorners,
                 sidebarOnRight: configuration.sidebar.side == .right
             )
+            .overlay { windowAddressBar }
         } else {
             Color.clear
         }
-    }
-
-    /// The corners of the pane area that are corners of the window: a docked sidebar covers the corners on its side, the built-in bar those at its edge.
-    private var areaWindowCorners: CornerSet {
-        var corners = CornerSet.all
-        if configuration.sidebarDocked {
-            corners.subtract(sidebarSide == .left ? [.topLeading, .bottomLeading] : [.topTrailing, .bottomTrailing])
-        }
-        if presentation.showsBuiltInBar {
-            corners.subtract(
-                configuration.tabs.bar.position == .top
-                    ? [.topLeading, .topTrailing] : [.bottomLeading, .bottomTrailing]
-            )
-        }
-        return corners
     }
 
     private var tabBar: some View {

@@ -2,11 +2,13 @@ import AppKit
 import SunsetCore
 import SunsetPane
 import SunsetTerminal
+import SunsetWeb
 import SwiftUI
 
 /// The menus. Copy, Paste and Select All are the system's own items: the view that has the keyboard answers them (`TerminalNSView+Pasteboard`).
 struct TerminalCommands: Commands {
     @FocusedValue(\.terminalModel) private var model
+    @FocusedValue(\.webPage) private var page
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
@@ -51,7 +53,16 @@ struct TerminalCommands: Commands {
             Button("Move Pane to Its Own Tab") { AppActions.shared.moveFocusedPaneToTab() }
             Divider()
             Button("Rename Tab…") { AppActions.shared.renameTab() }
+        }
+        CommandMenu("History") {
+            Button("Back") { page?.goBack() }.keyboardShortcut("[").disabled(page?.canGoBack != true)
+            Button("Forward") { page?.goForward() }.keyboardShortcut("]").disabled(page?.canGoForward != true)
+            Divider()
+            Button("Reload Page") { page?.reload() }.keyboardShortcut("r").disabled(page?.url == nil)
+            Button("Reload Page Without Cache") { page?.reload(fromOrigin: true) }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
+                .disabled(page?.url == nil)
+            Button("Stop") { page?.stopLoading() }.keyboardShortcut(".").disabled(page?.isLoading != true)
         }
         CommandGroup(after: .windowArrangement) {
             Button("Show Next Tab") { AppActions.shared.selectNextTab() }

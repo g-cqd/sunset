@@ -96,3 +96,20 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | A link's new tab | Right after the page's tab, not shown | |
 | A failed load | A plain page of ours (what failed, the system's reason, the address, Try Again); certificate errors offer Visit Anyway after a warning | |
 | Named as Safari | Decided at the step | "Make it appear as Safari by default" |
+
+## Step b: the owner's answers (2026-11-11)
+
+| Question | Answer |
+| --- | --- |
+| The sidebar field's place | At the top, under the window buttons |
+| What a field shows when not typed in | The host; clicking shows the whole address selected |
+| Back, forward, reload buttons | In the window bar only (reload turning into Stop while loading); none in the sidebar field or the pane row |
+| Keys | Cmd-[ back, Cmd-] forward, Cmd-R reload, Shift-Cmd-R reload without the cache, in a History menu with Back, Forward, Reload, Stop |
+| The sidebar field while a terminal is focused | Hidden, the list closes up |
+| How the window bar collapses | Hidden; shown when the pointer reaches its edge or on Cmd-L; hidden again after the pointer leaves it |
+| The window bar's content | Back, forward, reload/stop, the address, a progress line |
+| The row per pane | Not the default; when chosen, on every web pane |
+| Loading shown | A thin line along the field's bottom edge, and reload turning into Stop |
+| Where the placement is chosen | Settings only |
+| Cmd-L | Stays the command bar, which takes addresses too: a "Go to <address>" row loads in the focused page, or in a new page tab when a terminal is focused. The window bar is then brought by the pointer only |
+| Rename Tab's Shift-Cmd-R | Removed (menu and double-click only); Shift-Cmd-R reloads without the cache |

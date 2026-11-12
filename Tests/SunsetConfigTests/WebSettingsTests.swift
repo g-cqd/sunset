@@ -8,6 +8,15 @@ import Testing
         #expect(web.openLinksInSunset && web.developer && web.tabIcon == .initial)
     }
 
+    @Test func `the address is in the sidebar by default, the window bar at the top; both are read`() throws {
+        let web = Configuration().web
+        #expect(web.address == .sidebar && web.windowBar == .top)
+        let read = try ConfigurationParser.parse(#"{ "web": { "address": "pane", "windowBar": "bottom" } }"#)
+        #expect(read.configuration.web.address == .pane && read.configuration.web.windowBar == .bottom)
+        let bad = try ConfigurationParser.parse(#"{ "web": { "address": "toolbar" } }"#)
+        #expect(bad.configuration.web.address == .sidebar && bad.issues.map(\.path) == ["web.address"])
+    }
+
     @Test func `each is read, and nonsense is an issue that keeps the default`() throws {
         let read = try ConfigurationParser.parse(
             #"{ "web": { "openLinksInSunset": false, "developer": false, "tabIcon": "globe" } }"#

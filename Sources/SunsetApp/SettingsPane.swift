@@ -230,6 +230,18 @@ extension SettingsPane {
             pane: "web",
             title: "A page's tab picture",
             keywords: ["icon", "globe", "letter", "favicon"]
+        ),
+        SettingsEntry(
+            id: "web.address",
+            pane: "web",
+            title: "Where the address is",
+            keywords: ["address", "url", "bar"]
+        ),
+        SettingsEntry(
+            id: "web.windowBar",
+            pane: "web",
+            title: "Window bar edge",
+            keywords: ["address", "top", "bottom"]
         )
     ]
 }
