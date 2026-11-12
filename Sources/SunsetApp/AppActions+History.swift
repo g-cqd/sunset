@@ -6,7 +6,7 @@ import SunsetWeb
 
 /// The History menu's and panel's actions (web step e).
 extension AppActions {
-    private var keyWindowTabs: TabsModel? { TabRegistry.shared.tabs(for: NSApp.keyWindow) }
+    private var keyWindowTabs: TabsModel? { TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) }
 
     /// Cmd-Y: the history panel on the side opposite the tabs, shown or hidden (`show`: shown).
     func toggleHistoryPanel(show: Bool? = nil) {

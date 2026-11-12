@@ -66,6 +66,14 @@ final class TabRegistry {
     /// The tabs of a window (nil for a window that is not a terminal's, such as Settings).
     func tabs(for window: NSWindow?) -> TabsModel? { window.flatMap { entries[ObjectIdentifier($0)]?.tabs } }
 
+    /// The window the menus act on: the key window; while Sunset is not active (driven through accessibility, or by a script), its main window,
+    /// else the frontmost of its windows.
+    var actingWindow: NSWindow? {
+        if let key = NSApp.keyWindow, entries[ObjectIdentifier(key)] != nil { return key }
+        if let main = NSApp.mainWindow, entries[ObjectIdentifier(main)] != nil { return main }
+        return NSApp.orderedWindows.first { entries[ObjectIdentifier($0)] != nil }
+    }
+
     /// Every terminal window, with its tabs, in the order of the key window's group first, then the others.
     func allWindows() -> [(window: NSWindow, tabs: TabsModel)] {
         var found: [(window: NSWindow, tabs: TabsModel)] = entries.values.compactMap { entry in

@@ -25,10 +25,10 @@ final class AppActions {
     /// a plain window with none. Of the kind the focused pane is (the owner's answer in web step a): a page makes a new empty page, a terminal a terminal;
     /// `kind` asks for one.
     /// Asks which kind of tab to make (Shift-Cmd-T).
-    func chooseKind() { TabRegistry.shared.tabs(for: NSApp.keyWindow)?.choosingKind = true }
+    func chooseKind() { TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.choosingKind = true }
 
     func newTab(kind: PaneDescriptor? = nil) {
-        let tabs = TabRegistry.shared.tabs(for: NSApp.keyWindow)
+        let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
         let wanted =
             kind ?? ((tabs?.selectedContent?.descriptor.kind == WebContent.kind) ? PaneContentKinds.newPage : nil)
         if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs {
@@ -37,11 +37,11 @@ final class AppActions {
             // A window of its own: a page waits for it as content handed over.
             let page = PaneContentKinds.make(wanted) { SessionStore.shared.scheduleSave() }
             handoff.append(page)
-            tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? NSApp.keyWindow : nil
+            tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? TabRegistry.shared.actingWindow : nil
             joinsRemaining = tabParent == nil ? 0 : 1
             openTerminalWindow()
         } else {
-            tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? NSApp.keyWindow : nil
+            tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? TabRegistry.shared.actingWindow : nil
             joinsRemaining = tabParent == nil ? 0 : 1
             openTerminalWindow()
         }
@@ -57,18 +57,18 @@ final class AppActions {
         ChromeView.syncTabBar(of: window, presentation: AppConfiguration.shared.presentation)
     }
 
-    private var keyTabs: TabsModel? { TabRegistry.shared.tabs(for: NSApp.keyWindow) }
+    private var keyTabs: TabsModel? { TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) }
 
     /// Closes the current tab: the tab of the built-in bar, or the window (which is the tab) with system tabs.
     func closeTab() {
         if let tabs = keyTabs {
             tabs.closeSelected()
         } else {
-            NSApp.keyWindow?.performClose(nil)
+            TabRegistry.shared.actingWindow?.performClose(nil)
         }
     }
 
-    func closeWindow() { NSApp.keyWindow?.performClose(nil) }
+    func closeWindow() { TabRegistry.shared.actingWindow?.performClose(nil) }
 
     /// Renames what the key window shows: in place when the sidebar is docked (R3 step c), with the dialog otherwise (the built-in bar's rows are small).
     func renameTab() {
@@ -133,7 +133,7 @@ final class AppActions {
     func selectTab(number: Int) {
         if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs = keyTabs {
             tabs.select(index: number == 9 ? tabs.workspace.count - 1 : number - 1)
-        } else if let group = NSApp.keyWindow?.tabGroup {
+        } else if let group = TabRegistry.shared.actingWindow?.tabGroup {
             let index = number == 9 ? group.windows.count - 1 : number - 1
             if group.windows.indices.contains(index) { TabRegistry.shared.select(group.windows[index]) }
         }
