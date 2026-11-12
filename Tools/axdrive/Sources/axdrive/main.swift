@@ -20,6 +20,10 @@ let usage = """
       axdrive menu PID "Menu>Item[>Sub]"               a menu bar item, pressed without opening the menu
       axdrive type PID TEXT                            characters to the process
       axdrive key PID CHORD                            "cmd+l", "return", "shift+cmd+t"
+      Actions take --expect TEXT or --expect-gone TEXT [--expect-role R] [--timeout S]: the change is waited for, the action redone once
+      when its target is still there; --within S waits for the target to appear and be enabled first (3 s).
+      axdrive value PID QUERY TEXT                     the element's value holds TEXT (waited for)
+      axdrive expect PID QUERY [--gone]                the same as wait
       axdrive wait PID QUERY [--timeout S] [--gone] [--role R] [--window W]
       axdrive shot PID FILE.png [--window W]           a picture of a window, behind others or not
 

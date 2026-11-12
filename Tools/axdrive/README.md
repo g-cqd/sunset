@@ -25,3 +25,11 @@ app with `SUNSET_BACKGROUND=1` and returns its pid once a window exists.
 - Keys go to the process (`CGEvent.postToPid`), into its key window; a picture of a window works behind others.
 - Menus are pressed without opening them. An item's enabled state is the one SwiftUI computed for the focused scene: with Sunset in the background
   some items (History > Reload Page) stay disabled; Sunset's menus fall back to the acting window (`TabRegistry.actingWindow`) where they can.
+
+**Certainty.** A step is proven, not assumed: `--expect TEXT` / `--expect-gone TEXT` wait for the change it should cause (80 ms polls), and an
+action whose target is still there after the timeout is done once more, never twice when it acted. A target is waited for until it exists and is
+enabled (`--within`, 3 s). A match on letters in order alone is never acted on. Text goes in by keys first (the field editor, so SwiftUI hears
+it), then by setting the value when the keys did not land. A failed step leaves `failed-step-N.png` and the tree beside the test's files.
+
+Measured 2026-11-12: an 8-step flow (permission panel, menu, command bar typing, a page load) in about 1.3 s once launched, a launch in about
+0.5-1 s; 40 of 40 runs passed after the last fix, with the owner's app in front throughout.
