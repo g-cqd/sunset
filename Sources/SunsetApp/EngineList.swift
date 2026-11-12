@@ -31,6 +31,8 @@ struct EngineList: View {
                 TextField("Suggestion address (optional)", text: suggest(index))
             }
             .textFieldStyle(.roundedBorder)
+            .labelsHidden()
+            .multilineTextAlignment(.leading)
             Button {
                 engines.remove(at: index)
             } label: {

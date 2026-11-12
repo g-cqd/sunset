@@ -118,14 +118,14 @@ struct CommandBarView: View {
         )
     }
 
-    /// An engine's keyword followed by a space becomes the chip (after the field has taken what was typed: changing it while it is set is not shown).
+    /// An engine's keyword followed by a space starts what is typed: it becomes the chip, the rest stays typed (typing fast may skip the moment
+    /// the text is just the keyword and the space).
     private func takeChip(_ settings: WebSettings) {
-        guard let bar = tabs.bar, bar.engine == nil, bar.purpose == .search, bar.query.hasSuffix(" "),
-            !bar.query.dropLast().contains(" "),
-            let engine = settings.engines.first(where: { $0.keyword.lowercased() == bar.query.dropLast().lowercased() })
+        guard let bar = tabs.bar, bar.engine == nil, bar.purpose == .search, let space = bar.query.firstIndex(of: " "),
+            let engine = settings.engines.first(where: { $0.keyword.lowercased() == bar.query[..<space].lowercased() })
         else { return }
         tabs.bar?.engine = engine.name
-        tabs.bar?.query = ""
+        tabs.bar?.query = String(bar.query[bar.query.index(after: space)...])
     }
 
     private func run(_ rows: [ChoiceRow], _ index: Int, action: Int) {

@@ -14,8 +14,10 @@ import SunsetWeb
         let typed = bar.query.trimmingCharacters(in: .whitespaces)
         let input: WebInput? =
             if let chip { typed.isEmpty ? nil : .search(chip, words: typed) } else { settings.input(typed) }
-        if let input { rows.append(web(input, id: "typed", tabs: tabs, recall: bar.query)) }
-        let engine = chip ?? settings.engine
+        // Recalled with the engine's keyword, so that the chip comes back with the words.
+        let recall = chip.map { $0.keyword + " " + bar.query } ?? bar.query
+        if let input { rows.append(web(input, id: "typed", tabs: tabs, recall: recall)) }
+        let engine: SearchEngine = if case .search(let chosen, _)? = input { chosen } else { chip ?? settings.engine }
         rows += suggestions.map {
             web(.search(engine, words: $0), id: "suggestion " + $0, tabs: tabs, recall: $0, suggested: true)
         }

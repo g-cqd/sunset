@@ -69,7 +69,7 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   leaves), or a row in every page. Hidden while a terminal has the keyboard. A field shows the host; a click selects the whole address; Return
   loads, Escape gives up; a thin line shows loading. History menu: Cmd-[ Cmd-] Cmd-R, Shift-Cmd-R without the cache, Cmd-. Stop. The command bar
   (Cmd-L) offers "Go to <address>" for what looks like one: the focused page, or a new page tab from a terminal. Rename Tab lost Shift-Cmd-R.
-- Search (web step c, in progress): what is typed is an address (a scheme kept; this machine and the local network over http at once; a dotted host
+- Search (web step c, 2026-11-12): what is typed is an address (a scheme kept; this machine and the local network over http at once; a dotted host
   over https, falling back to http by `web.httpFallback`, marked Not Secure) or words searched with `web.engine` (Google, DuckDuckGo, Bing, Ecosia,
   Kagi, and `web.engines` added in the file or Settings; a keyword and a space pick one). Suggestions in the OpenSearch format (`web.suggestions`,
   on; an ephemeral session; Bing has none) in a list under the address field as wide as the content. The command bar (Cmd-L) has row states, an
