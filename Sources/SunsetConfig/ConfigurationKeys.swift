@@ -23,7 +23,7 @@ public enum ConfigurationKeys {
         "tabs.mode", "tabs.restore", "tabs.confirmClose", "tabs.askBeforeQuit", "tabs.keepRunningForFavorites",
         "tabs.bar.position",
         "tabs.bar.icon", "tabs.bar.title",
-        "tabs.bar.directory",
+        "tabs.bar.directory", "tabs.bar.monospacedDirectory",
         "tabs.bar.progress",
         "scroll.trackpad", "scroll.wheel", "scroll.inertia",
         "scrollback.lines", "cursor.shape", "cursor.blink", "cursor.blinkTimeout", "renderer",

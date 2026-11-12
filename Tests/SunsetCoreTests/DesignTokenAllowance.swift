@@ -1,7 +1,6 @@
 /// The view files that still write measures as numbers (design 0003, migration steps 2 to 5). Remove a file when it is moved; never add one.
 enum DesignTokenAllowance {
     static let files: Set<String> = [
-        "AddressField.swift",
         "AnsiPaletteRow.swift",
         "BuiltInTabBar.swift",
         "ChoiceList.swift",
@@ -13,7 +12,6 @@ enum DesignTokenAllowance {
         "CommandBarView.swift",
         "CommandSheet.swift",
         "DownloadCard.swift",
-        "DownloadRing.swift",
         "DownloadRow.swift",
         "DownloadThumbnail.swift",
         "DownloadsList.swift",
@@ -41,12 +39,10 @@ enum DesignTokenAllowance {
         "SettingsView.swift",
         "SidebarGroupPart.swift",
         "SidebarGroupRow.swift",
-        "SidebarIconButtonFace.swift",
         "SidebarRow.swift",
         "SidebarSymbol.swift",
         "SiteButton.swift",
         "SiteSettingsPopover.swift",
-        "TabGlyphView.swift",
         "TabLabel.swift",
         "TabPreviewCard.swift",
         "TabSidebar.swift",

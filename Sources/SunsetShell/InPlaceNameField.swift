@@ -13,7 +13,7 @@ struct InPlaceNameField: NSViewRepresentable {
         field.isBordered = false
         field.drawsBackground = false
         field.focusRingType = .none
-        field.font = .systemFont(ofSize: 12)
+        field.font = .systemFont(ofSize: NSFont.systemFontSize)
         field.delegate = context.coordinator
         return field
     }

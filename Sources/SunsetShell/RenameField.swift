@@ -11,6 +11,6 @@ struct RenameField: View {
     }
 
     var body: some View {
-        InPlaceNameField(text: $text, commit: { done(text) }, cancel: { done(nil) })
+        InPlaceNameField(text: $text, commit: { done(text) }, cancel: { done(nil) }).inPlaceField()
     }
 }

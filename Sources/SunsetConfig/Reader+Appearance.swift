@@ -105,6 +105,8 @@ extension Reader {
                 case "icon": if let flag = bool(path, value) { configuration.tabs.bar.showIcon = flag }
                 case "title": if let flag = bool(path, value) { configuration.tabs.bar.showTitle = flag }
                 case "directory": if let flag = bool(path, value) { configuration.tabs.bar.showDirectory = flag }
+                case "monospacedDirectory":
+                    if let flag = bool(path, value) { configuration.tabs.bar.monospacedDirectory = flag }
                 case "progress": if let flag = bool(path, value) { configuration.tabs.bar.showProgress = flag }
                 default: unknown(path)
             }

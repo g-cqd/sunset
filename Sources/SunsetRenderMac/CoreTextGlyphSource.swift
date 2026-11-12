@@ -1,5 +1,6 @@
 internal import CoreGraphics
 internal import CoreText
+internal import Foundation
 public import SunsetRender
 
 /// Rasterises text with a macOS font (any installed monospaced font; CoreText substitutes fonts for what it lacks: CJK, emoji). `metrics` gives the cell
@@ -18,6 +19,8 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
     /// `features` are applied to every style of the font. Ligatures and contextual alternates (`liga`, `clig`, `calt`) are the font's default; pass
     /// `ligatures: false` (or `FontFeature("liga", 0)` and friends) to turn them off.
     public init(fontName: String = "Menlo", size: Double = 14, features: [FontFeature] = [], ligatures: Bool = true) {
+        FontServer.lock.lock()
+        defer { FontServer.lock.unlock() }
         var settings = features
         // Giving CoreText any feature list replaces the font's own defaults for those it names only, but to be explicit (and to be able to turn them
         // off) the ligature features are always stated.

@@ -14,8 +14,9 @@ struct SidebarRow: View {
     var keepCloseVisible = false
     var name: String?
     var icon: PaneIcon?
-    /// What the row's pane would start from, when it is not running (a kept entry that is not open).
+    /// What the row's pane would start from, when it is not running (a kept entry that is not open), and the command it would run.
     var saved: PaneDescriptor?
+    var savedCommand: String?
     let showIcon: Bool
     let showTitle: Bool
     let showDirectory: Bool
@@ -23,8 +24,11 @@ struct SidebarRow: View {
     let layout: ShellSettings.Layout
     /// What the button at the row's end does: close a tab, unload a kept entry, delete one that is not open.
     var button = Button.close
-    /// Drawn fainter: a kept entry that is not open (R4: the same for every kind).
-    var dimmed = false
+    /// Open (every tab, an open kept entry): a faint fill at rest. A kept entry that is not open has none, and is not dimmed (owner,
+    /// 2026-11-12: dimmed looked disabled).
+    var open = true
+    /// A row of the Favorites tree: one line is `Design.Size.favoriteRow` tall instead of `tabRow`.
+    var compact = false
     /// One of several rows selected together (R3 step d): drawn lighter than the shown row.
     var marked = false
     /// While its name is edited in place: the field's first text, and what to do with the result (nil: Escape, nothing changes).
@@ -62,17 +66,25 @@ struct SidebarRow: View {
                     showProgress: showProgress,
                     name: name,
                     icon: icon,
-                    saved: saved
+                    saved: saved,
+                    savedCommand: savedCommand
                 )
                 .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
-                .opacity(dimmed ? 0.45 : 1)
             }
         }
         .mask { titleMask }
-        .overlay(alignment: .trailing) { closeButton }
         .padding(.leading, layout.tabPaddingLeading)
-        .padding(.vertical, layout.tabPaddingVertical)
+        .padding(
+            .vertical,
+            Design.rowPadding(layout, lines: lines, height: compact ? Design.Size.favoriteRow : Design.Size.tabRow)
+        )
         .padding(.trailing, layout.tabPaddingTrailing)
+        // As far from the trailing edge as from the top and the bottom (owner, 2026-11-12): centred on a point half the row's height in.
+        .overlay {
+            GeometryReader { proxy in
+                closeButton.position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
+            }
+        }
         .background(shape.fill(highlight))
         .overlay {
             if armed {
@@ -97,10 +109,13 @@ struct SidebarRow: View {
         return switch (selected, hovering || keepCloseVisible) {
             case (true, true): .primary.opacity(activeState == .inactive ? 0.12 : 0.2)
             case (true, false): .primary.opacity(activeState == .inactive ? 0.08 : 0.14)
-            case (false, true): .primary.opacity(0.07)
-            case (false, false): .clear
+            case (false, true): .primary.opacity(open ? Design.Fill.openHover : Design.Fill.hover)
+            case (false, false): open ? .primary.opacity(Design.Fill.open) : .clear
         }
     }
+
+    /// Two lines when the directory (or a page's address) is shown and there is one.
+    private var lines: Int { showDirectory && (model?.detail ?? saved?.directory) != nil ? 2 : 1 }
 
     /// Over the row's end, so that the title has the whole width while it is hidden (owner note n65); shown, the title fades out under it.
     private var closeButton: some View {
@@ -134,7 +149,8 @@ struct SidebarRow: View {
             Color.black
             if showsClose && renaming == nil {
                 LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing).frame(width: 8)
-                Color.clear.frame(width: layout.closeButtonSize + 2)
+                // The close button sits half the row's height from its edge, a little further in on a taller row.
+                Color.clear.frame(width: layout.closeButtonSize + Design.Space.xs)
             }
         }
     }

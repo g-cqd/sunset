@@ -6,6 +6,13 @@ extension Design {
         package static let faint = 0.04
         package static let hover = 0.07
         package static let pressed = 0.16
+        /// A row that is open (every tab, an open kept entry), at rest and under the pointer; a kept entry that is not open has no fill and is
+        /// not dimmed (owner, 2026-11-12).
+        package static let open = 0.06
+        /// A field's fill (primary at this opacity), and a private page's dark one (black).
+        package static let field = 0.08
+        package static let darkField = 0.7
+        package static let openHover = 0.1
         /// A floating surface's colour fill is at least this opaque, so that its text reads over a page; the window keeps the tint's own alpha
         /// (owner, 2026-11-12).
         package static let floatingMinimum = 0.85
@@ -82,6 +89,13 @@ extension Design {
         package static let glyphToText = 7.0
         /// A filled container flush with a hairline looks larger than the line: it is drawn one stroke inside (`SidebarHeader`).
         package static func insideHairline(_ hairlineWidth: Double) -> Double { hairlineWidth }
+        /// The address field's leading mark (the lock, the private eye) to its text: the mark's ink as far from the text as from the field's
+        /// edge (10 pt, measured on the field; the row rule).
+        package static let fieldGlyphToText = 6.5
+        /// A folder's initial: its size and how far below the symbol's centre it sits, so that it is centred in the folder's body under its
+        /// tab (owner, 2026-11-12, from `r3-initials.png`).
+        package static let folderInitialSize = 6.5
+        package static let folderInitialDrop = 1.75
         /// The download card's illustration: a one-off size, not a symbol step.
         package static let downloadIllustration = 64.0
     }

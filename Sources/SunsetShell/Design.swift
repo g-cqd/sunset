@@ -60,6 +60,19 @@ package enum Design {
         package static let fieldLarge = 48.0
         /// A row in a list of choices.
         package static let row = 36.0
+        /// A one-line tab row: its glyph's ink as far from the top and the bottom as from the leading edge (n66, measured 9 pt). Two-line
+        /// rows keep `layout.tabPaddingVertical`.
+        package static let tabRow = 32.0
+        /// A one-line row of the Favorites tree, more compact (owner, 2026-11-12), the whole row still the hit area.
+        package static let favoriteRow = 28.0
+        /// A split tab's sub-row narrower than this shows its icon alone.
+        package static let iconOnlyBelow = 56.0
+    }
+
+    /// The vertical padding of a sidebar row: a one-line row is `height` tall (the close button's square centred in it), a two-line row
+    /// keeps the layout's padding.
+    package static func rowPadding(_ layout: LayoutMetrics, lines: Int, height: Double) -> Double {
+        lines > 1 ? layout.tabPaddingVertical : max(layout.tabPaddingVertical, (height - layout.closeButtonSize) / 2)
     }
 
     package enum Width {
@@ -67,5 +80,7 @@ package enum Design {
         package static let panel = 360.0
         package static let sheet = 420.0
         package static let commandBar = 520.0
+        /// The find bar's text field.
+        package static let findField = 170.0
     }
 }

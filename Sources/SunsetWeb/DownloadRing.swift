@@ -1,23 +1,18 @@
+import SunsetShell
 import SwiftUI
 
-/// A ring that fills as a download goes, with rounded ends (the owner's note n61 for loading), around an arrow.
+/// The downloads symbol: an arrow in a circle; while something downloads, the circle is drawn as far round as the downloads have gone, by the
+/// symbol itself (Variable Draw, macOS 26: owner, 2026-11-12), and the system animates it between values.
 struct DownloadRing: View {
     let fraction: Double?
     let running: Bool
 
     var body: some View {
-        ZStack {
-            if running {
-                Circle().stroke(Color.primary.opacity(0.15), lineWidth: 2)
-                Circle()
-                    .trim(from: 0, to: max(fraction ?? 0.08, 0.04))
-                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .animation(.easeOut(duration: 0.2), value: fraction)
-            }
-            Image(systemName: "arrow.down")
-                .font(.system(size: running ? 8 : 13, weight: running ? .semibold : .regular))
-        }
-        .frame(width: 16, height: 16)
+        Image(systemName: "arrow.down.circle", variableValue: running ? max(fraction ?? 0, Self.least) : nil)
+            .symbolVariableValueMode(.draw)
+            .font(.system(size: Design.Symbol.row))
     }
+
+    /// While running with no fraction known yet, a sliver shows that something is under way.
+    private static let least = 0.04
 }

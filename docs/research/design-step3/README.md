@@ -114,3 +114,27 @@ Seen in the shots:
 
 - Disclosure mark: **B, chevron down (collapsed) / up (expanded)**.
 - A kept terminal that runs a command: **`terminal`**, and **`terminal.fill`** while its tab is open.
+
+## Built (2026-11-12)
+
+`built-sidebar.png` (before / after, the docked sidebar with Favorites) and `built-fields.png` (the private field with the eye, the page's
+row, the find bar, the history search, the rename field), taken in the app through axdrive in the background.
+
+- Rows: one-line tabs 32 (`Design.Size.tabRow`), Favorites 28 with 2 pt gaps (`favoriteRow`); two-line rows keep `tabPaddingVertical`.
+  The close button is half the row's height from its trailing edge (as far as from the top and bottom). Every tab and every open entry
+  has a faint fill (`Design.Fill.open`); not-open entries are not dimmed.
+- Second line monospaced: `tabs.bar.monospacedDirectory` (default true; 110 keys).
+- Kept terminals not open: outlined picture (folder with its initial at 6.5 pt, +1.75; `terminal` for a command, `terminal.fill` once open),
+  the command or the folder's name as the title.
+- Folders: folder / folder.fill, the chevron (down / up) at the trailing edge on hover, which toggles as the row does.
+- Split tabs: inset 2; sub-rows leading with icon and title, icon-only and centred below 56 pt.
+- Field: `View.fieldSurface` (leaf corner, 26 tall, fill and hairline) for the address field, the find field, the history search, names
+  edited in place; the lock 6.5 from the text (`Design.Optical.fieldGlyphToText`). Private marker: `eye.slash`.
+- Bar buttons: `SidebarIconButton` at the field's size and corner (`BarButton.metrics`) in the address bar and the find bar.
+- Pin: `rectangle.leadinghalf.filled` (hides) / `inset.filled.leadinghalf.rectangle` (kept), trailing on the right. Downloads:
+  `arrow.down.circle` with Variable Draw.
+- Found while testing: fonts made from several threads at once hung on the font server; one font is now made at a time (`FontServer`).
+
+Not verified: the window's address bar with its new buttons (shown on hover only), the zoom label (the page did not zoom from the menu
+in the background), the downloads symbol while downloading, hover on rows and folders (the driver does not move the pointer), the floating
+sidebar.

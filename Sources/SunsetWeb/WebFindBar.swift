@@ -16,7 +16,8 @@ struct WebFindBar: View {
             options
             TextField("Find on Page", text: $find.text)
                 .textFieldStyle(.plain)
-                .frame(width: 170)
+                .frame(width: Design.Width.findField)
+                .fieldSurface()
                 .focused($typing)
                 .onChange(of: find.text) { _, _ in find.restart() }
                 .onKeyPress(.return, phases: .down) { press in
@@ -31,23 +32,15 @@ struct WebFindBar: View {
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(find.count == 0 ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
                 .fixedSize()
-            Button {
-                find.search(backwards: true)
-            } label: {
-                Image(systemName: "chevron.up")
+            Group {
+                SidebarIconButton(symbol: "chevron.up", help: "Previous (Shift-Cmd-G)") { find.search(backwards: true) }
+                SidebarIconButton(symbol: "chevron.down", help: "Next (Cmd-G)") { find.search() }
             }
-            .help("Previous (Shift-Cmd-G)")
-            Button {
-                find.search()
-            } label: {
-                Image(systemName: "chevron.down")
-            }
-            .help("Next (Cmd-G)")
-            Button("Done") { close() }
+            .environment(\.sidebarButtonMetrics, BarButton.metrics(surface))
+            Button("Done") { close() }.buttonStyle(.borderless)
         }
         .buttonStyle(.borderless)
-        .disabled(false)
-        .padding(.horizontal, Design.Space.l)
+        .padding(.horizontal, Design.Space.s)
         .frame(height: Design.Size.bar)
         .surface(surface.shape, shadow: .popover)
         .padding(Design.Space.l)

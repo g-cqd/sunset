@@ -32,7 +32,7 @@ struct HistoryPanel: View {
                 .buttonStyle(.borderless)
                 .help("Hide History (Cmd-Y)")
             }
-            TextField("Search History", text: $query).textFieldStyle(.roundedBorder)
+            TextField("Search History", text: $query).textFieldStyle(.plain).fieldSurface()
             if days.isEmpty {
                 Text(query.isEmpty ? "No pages visited yet" : "No page matches")
                     .foregroundStyle(.secondary)

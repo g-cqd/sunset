@@ -107,9 +107,7 @@ extension SettingsView {
                 Picker("Built-in bar position", selection: config.binding(\.tabs.bar.position)) {
                     ForEach(Configuration.Tabs.Bar.Position.allCases, id: \.self) { Text($0.rawValue.capitalized) }
                 }
-            case "tabs.title": Toggle("Show the title", isOn: config.binding(\.tabs.bar.showTitle))
-            case "tabs.directory": Toggle("Show the working directory", isOn: config.binding(\.tabs.bar.showDirectory))
-            case "tabs.progress": Toggle("Show progress", isOn: config.binding(\.tabs.bar.showProgress))
+            case "tabs.title", "tabs.directory", "tabs.monospacedDirectory", "tabs.progress": tabLineToggle(id)
             default: EmptyView()
         }
     }
@@ -138,6 +136,17 @@ extension SettingsView {
             Text("Never").tag(Configuration.Tabs.QuitAsk.never)
             Text("When something would be lost").tag(Configuration.Tabs.QuitAsk.whenLosing)
             Text("Always").tag(Configuration.Tabs.QuitAsk.always)
+        }
+    }
+
+    /// What a tab's row shows.
+    @ViewBuilder private func tabLineToggle(_ id: String) -> some View {
+        switch id {
+            case "tabs.title": Toggle("Show the title", isOn: config.binding(\.tabs.bar.showTitle))
+            case "tabs.directory": Toggle("Show the working directory", isOn: config.binding(\.tabs.bar.showDirectory))
+            case "tabs.monospacedDirectory":
+                Toggle("Second line in monospace", isOn: config.binding(\.tabs.bar.monospacedDirectory))
+            default: Toggle("Show progress", isOn: config.binding(\.tabs.bar.showProgress))
         }
     }
 }

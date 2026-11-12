@@ -49,7 +49,7 @@ import Testing
                         showProgress: true,
                         layout: layout,
                         button: button,
-                        dimmed: dimmed,
+                        open: !dimmed,
                         marked: marked
                     ) {}
                 )

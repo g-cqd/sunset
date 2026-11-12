@@ -125,6 +125,7 @@ public enum ConfigurationWriter {
         var extra = web(configuration.web).merging(permissions(configuration.web)) { $1 }
         extra["tabs.askBeforeQuit"] = string(configuration.tabs.askBeforeQuit.rawValue)
         extra["scroll.inertia"] = number(configuration.scroll.inertia)
+        extra["tabs.bar.monospacedDirectory"] = String(configuration.tabs.bar.monospacedDirectory)
         extra["appearance.accent"] = string(configuration.appearance.accent.rawValue)
         return extra
     }
