@@ -2,7 +2,12 @@ import ApplicationServices
 import Foundation
 
 let usage = """
-    axdrive: drive an app through accessibility, in the background (it is never brought to the front).
+    axdrive: drive a test Sunset through accessibility, in the background (it is never brought to the front). Only a copy axdrive launched
+    (AXDRIVE_TEST=1, configuration under /tmp/axdrive) is touched; any other process is refused (exit 4).
+
+      axdrive launch [--config JSON|FILE] [--session FILE] [--binary PATH]    prints "PID FOLDER" once a window exists
+      axdrive stop PID
+      axdrive run PID < steps                          one step per line ("press OK --role button"), in one process; stops at a failure
 
       axdrive windows PID                              the app's windows (id, title, frame)
       axdrive tree PID [--window W] [--depth N]        the elements, indented by depth
@@ -18,7 +23,7 @@ let usage = """
       axdrive wait PID QUERY [--timeout S] [--gone] [--role R] [--window W]
       axdrive shot PID FILE.png [--window W]           a picture of a window, behind others or not
 
-    Exit: 0 done, 1 not found, 2 ambiguous (the candidates are printed; --pick N or --ask GOAL decide), 3 failed.
+    Exit: 0 done, 1 not found, 2 ambiguous (the candidates are printed; --pick N or --ask GOAL decide), 3 failed, 4 refused.
     """
 
 let options = Options(CommandLine.arguments)
@@ -28,8 +33,14 @@ guard AXIsProcessTrusted() else {
     )
     exit(3)
 }
-guard options.pid > 0 || options.command.isEmpty == false && options.pid > 0 else {
+if options.command == "launch" {
+    exit(await Launcher.launch(Options(["", "launch", "0"] + CommandLine.arguments.dropFirst(2))))
+}
+guard options.pid > 0 else {
     print(usage)
     exit(options.command.isEmpty || options.command == "help" ? 0 : 3)
 }
+guard Guard.allows(options.pid) else { exit(Launcher.refused(options.pid)) }
+if options.command == "stop" { exit(Launcher.stop(options.pid)) }
+if options.command == "run" { exit(await Runner.run(pid: options.pid)) }
 exit(await Commands.run(options))

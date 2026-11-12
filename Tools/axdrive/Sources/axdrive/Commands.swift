@@ -134,9 +134,9 @@ enum Commands {
     static func wait(_ options: Options) async -> Int32 {
         let deadline = Date().addingTimeInterval(options.double("timeout", 10))
         while Date() < deadline {
-            let present = Ranking.clearWinner(ranked(options)) != nil || !ranked(options).isEmpty
+            let present = !ranked(options).isEmpty
             if present != options.flags.contains("gone") { return 0 }
-            try? await Task.sleep(for: .milliseconds(250))
+            try? await Task.sleep(for: .milliseconds(100))
         }
         return fail(
             "timed out waiting for \"\(options.words.first ?? "")\"\(options.flags.contains("gone") ? " to go" : "")"

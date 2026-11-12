@@ -1,7 +1,20 @@
 # axdrive
 
-Drives an app through the accessibility API without bringing it to the front (the owner, 2026-11-12: the screen is his). Sunset is started with
-`SUNSET_BACKGROUND=1` so it does not activate itself.
+Drives a test Sunset through the accessibility API without bringing it to the front (the owner, 2026-11-12: the screen is his, and nothing may
+ever touch data that is not a test's).
+
+**The guard.** Every command first reads the target's environment from the kernel (`KERN_PROCARGS2`) and goes on only for a process axdrive
+launched: `AXDRIVE_TEST=1` and `SUNSET_CONFIG` inside `/tmp/axdrive/`. The owner's Sunset, any other app, a process whose environment cannot be
+read: refused with exit 4, reading included. `launch` makes a fresh folder there (its own configuration, session, history, downloads), starts the
+app with `SUNSET_BACKGROUND=1` and returns its pid once a window exists.
+
+    read -r PID DIR < <(axdrive launch --session my-session.json --config '{"web":{}}')
+    axdrive run "$PID" <<'STEPS'
+    press Location --role button
+    wait "wants to know your location"
+    press OK --role button
+    STEPS
+    axdrive stop "$PID"
 
     swift build -c release --package-path Tools/axdrive
     Tools/axdrive/.build/release/axdrive help
