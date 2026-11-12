@@ -22,13 +22,13 @@ extension TerminalScene {
     }
 
     /// The window's address bar and its list, in one glass container (they render together; spacing 0: they do not blend at rest).
-    var windowAddressBar: some View {
+    func windowAddressBar(card: PaneCardShape?) -> some View {
         // The list of the sidebar's field or the window bar's, as wide as the content: under the field, or over the bar at the bottom.
         let atTop = addressPlace == .sidebar || configuration.web.windowBar == .top
         return GlassEffectContainer(spacing: 0) {
             ZStack(alignment: atTop ? .top : .bottom) {
                 if addressPlace == .window, let page = focusedPage {
-                    WindowAddressBar(content: page, atTop: configuration.web.windowBar == .top)
+                    WindowAddressBar(content: page, atTop: configuration.web.windowBar == .top, card: card)
                         .id(ObjectIdentifier(page))
                 }
                 AddressSuggestionList(typing: addressTyping, places: [.top, .bottom])

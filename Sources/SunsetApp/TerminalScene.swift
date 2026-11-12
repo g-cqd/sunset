@@ -164,7 +164,7 @@ struct TerminalScene: View {
                 windowCorners: areaWindowCorners,
                 sidebarOnRight: configuration.sidebar.side == .right
             )
-            .overlay { windowAddressBar }
+            .overlayPreferenceValue(PaneCardShape.Key.self) { card in windowAddressBar(card: card) }
         } else {
             Color.clear
         }
