@@ -7,7 +7,8 @@ import SwiftUI
 @MainActor final class FakeContent: PaneContent {
     var title = "fake"
     var detail: String?
-    var glyph: PaneGlyph { .symbol("square") }
+    var glyphValue = PaneGlyph.symbol("square")
+    var glyph: PaneGlyph { glyphValue }
     var progress: Double?
     var closeWarning: String?
     var searchTerms: [String] = []
