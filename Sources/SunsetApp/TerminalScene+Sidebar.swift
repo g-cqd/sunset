@@ -48,8 +48,9 @@ extension TerminalScene {
                 margin: configuration.sidebar.padding,
                 tabSideInset: configuration.layout.tabSideInset
             )
+            let start = max(centre - hit / 2, 0)
             SidebarResizeHandle(width: configuration.sidebar.width, hitWidth: hit, side: sidebarSide)
-                .padding(sidebarSide.edge, max(centre - hit / 2, 0))
+                .padding(sidebarSide.edge, start)
         }
     }
 

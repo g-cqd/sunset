@@ -6,9 +6,9 @@ struct DownloadCard: View {
     let item: DownloadItem
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Design.Space.l) {
             DownloadThumbnail(item: item, size: 64)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Design.Space.xs) {
                 Text(item.name).font(Design.Text.title).lineLimit(2).truncationMode(.middle)
                 if item.state == .running { ProgressView(value: item.fraction ?? 0).progressViewStyle(.linear) }
                 Text(detail).font(Design.Text.detail).foregroundStyle(.secondary)

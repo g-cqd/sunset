@@ -8,9 +8,9 @@ struct DownloadRow: View {
     let center: DownloadCenter
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Design.Space.m) {
             DownloadThumbnail(item: item, size: 28)
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Design.Space.hair) {
                 Text(item.name).lineLimit(1).truncationMode(.middle)
                 if item.state == .running {
                     ProgressView(value: item.fraction ?? 0).progressViewStyle(.linear).controlSize(.mini)
@@ -20,7 +20,7 @@ struct DownloadRow: View {
             Spacer(minLength: 4)
             actions
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, Design.Space.xs)
         .contextMenu {
             if item.state == .finished, let file = item.destination {
                 Button("Open") { NSWorkspace.shared.open(file) }

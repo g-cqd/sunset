@@ -21,7 +21,7 @@ struct PrivateMark: View {
     }
 
     private var details: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Design.Space.m) {
             Text("Private Page").font(Design.Text.title)
             Text(
                 "Its cookies and storage stay in memory and go when it closes. No history, no zoom, no site answers and no download entry are kept; it is not restored after Sunset quits."

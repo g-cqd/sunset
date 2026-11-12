@@ -9,6 +9,7 @@ package struct IconPopover: View {
     let row: RowTarget
     @State private var catalog: SymbolCatalog?
     @Environment(\.accent) private var accent
+    @Environment(\.surfaceStyle) private var surface
     @State private var query = ""
     @State private var category = "all"
     @State private var emoji = ""
@@ -32,7 +33,7 @@ package struct IconPopover: View {
     private var icon: PaneIcon? { tabs.icon(of: row) }
 
     package var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Design.Space.m) {
             TextField("Search symbols", text: $query).textFieldStyle(.roundedBorder)
             if let catalog {
                 categories(catalog)
@@ -54,7 +55,7 @@ package struct IconPopover: View {
 
     private func categories(_ catalog: SymbolCatalog) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 2) {
+            HStack(spacing: Design.Space.hair) {
                 ForEach(catalog.categories, id: \.key) { entry in
                     SwiftUI.Button {
                         category = entry.key
@@ -65,18 +66,21 @@ package struct IconPopover: View {
                     .background(
                         category == entry.key
                             ? AnyShapeStyle(accent.color.opacity(Design.Fill.target)) : AnyShapeStyle(Color.clear),
-                        in: .rect(cornerRadius: 4)
+                        in: .rect(cornerRadius: Design.Radius.small(surface.layout))
                     )
                     .help(entry.key)
                 }
             }
         }
-        .opacity(query.isEmpty ? 1 : 0.4)
+        .opacity(query.isEmpty ? 1 : Design.Fill.notApplicable)
     }
 
     private func grid(_ symbols: [SymbolCatalog.Symbol]) -> some View {
         ScrollView {
-            LazyVGrid(columns: Array(repeating: GridItem(.fixed(30), spacing: 4), count: 9), spacing: 4) {
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.fixed(30), spacing: Design.Space.xs), count: 9),
+                spacing: Design.Space.xs
+            ) {
                 ForEach(symbols) { symbol in
                     SwiftUI.Button {
                         tabs.setIcon(.symbol(symbol.name, color: icon?.color), for: row)
@@ -88,7 +92,7 @@ package struct IconPopover: View {
                                 chosen(symbol.name)
                                     ? AnyShapeStyle(accent.color.opacity(Design.Fill.markedHover))
                                     : AnyShapeStyle(Color.clear),
-                                in: .rect(cornerRadius: 5)
+                                in: .rect(cornerRadius: surface.leafRadius)
                             )
                     }
                     .buttonStyle(.plain)
@@ -105,7 +109,7 @@ package struct IconPopover: View {
     /// A colour is for a symbol only (R3): with an emoji or no icon, the row is dimmed.
     private var colours: some View {
         let isSymbol = if case .symbol? = icon { true } else { false }
-        return HStack(spacing: 6) {
+        return HStack(spacing: Design.Space.s) {
             ForEach(Self.presets, id: \.self) { color in
                 Circle()
                     .fill(Color(color))
@@ -132,12 +136,12 @@ package struct IconPopover: View {
                 .font(Design.Text.detail)
         }
         .disabled(!isSymbol)
-        .opacity(isSymbol ? 1 : 0.4)
+        .opacity(isSymbol ? 1 : Design.Fill.notApplicable)
     }
 
     /// The system's Character Viewer types its emoji into this field, which becomes the icon.
     private var emojiButton: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Design.Space.xs) {
             TextField("", text: $emoji)
                 .frame(width: 34)
                 .focused($emojiFocused)

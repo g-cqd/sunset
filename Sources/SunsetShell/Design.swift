@@ -71,6 +71,10 @@ package enum Design {
 
     /// The vertical padding of a sidebar row: a one-line row is `height` tall (the close button's square centred in it), a two-line row
     /// keeps the layout's padding.
+    package static func oneLinePadding(_ layout: LayoutMetrics, height: Double) -> Double {
+        rowPadding(layout, lines: 1, height: height)
+    }
+
     package static func rowPadding(_ layout: LayoutMetrics, lines: Int, height: Double) -> Double {
         lines > 1 ? layout.tabPaddingVertical : max(layout.tabPaddingVertical, (height - layout.closeButtonSize) / 2)
     }

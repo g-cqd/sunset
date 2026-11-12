@@ -28,7 +28,7 @@ struct CommandBarView: View {
                     .contentShape(.rect)
                     .onTapGesture { tabs.bar = nil }
                 panel(bar, rows, settings)
-                    .padding(.top, 56)
+                    .padding(.top, Design.System.commandBarTop)
             }
             .transition(.opacity)
             .onAppear { typing = true }

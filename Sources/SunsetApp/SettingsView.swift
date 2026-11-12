@@ -97,7 +97,7 @@ struct SettingsView: View {
             case "scroll.wheel":
                 number("Wheel (lines per notch)", \.scroll.wheel, range: 0.05 ... 50, step: 0.05, unit: "×")
             case "scroll.inertia":
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Design.Space.xs) {
                     number("Wheel inertia", \.scroll.inertia, range: 0 ... 2, step: 0.05, unit: "s")
                     Text("How long a wheel notch glides (0: none). A trackpad uses the system's own momentum.")
                         .font(Design.Text.detail).foregroundStyle(.secondary)
@@ -116,7 +116,7 @@ struct SettingsView: View {
     }
 
     private var history: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Design.Space.xs) {
             NumberRow(
                 name: "History",
                 value: Binding(
@@ -134,7 +134,7 @@ struct SettingsView: View {
     }
 
     private var renderer: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Design.Space.xs) {
             Picker("Renderer", selection: config.binding(\.renderer)) {
                 ForEach(Configuration.Renderer.allCases, id: \.self) { Text($0.rawValue) }
             }
@@ -147,7 +147,7 @@ struct SettingsView: View {
     }
 
     private var fileInfo: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Design.Space.m) {
             Text(config.path).font(Design.Text.secondary).textSelection(.enabled)
             HStack {
                 Button("Reveal in Finder") {

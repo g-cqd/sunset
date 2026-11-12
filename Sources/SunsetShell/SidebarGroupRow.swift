@@ -20,13 +20,13 @@ struct SidebarGroupRow: View {
         return VStack(alignment: .leading, spacing: inset) {
             // The tab's own name and icon, when it was given any: above its panes, which keep their programs' titles.
             if custom.name != nil || custom.icon != nil {
-                HStack(spacing: 4) {
+                HStack(spacing: Design.Space.xs) {
                     if let icon = custom.icon { PaneIconView(icon: icon) }
                     if let name = custom.name {
                         Text(name).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
                     }
                 }
-                .padding(.horizontal, 6)
+                .padding(.horizontal, Design.Space.s)
             }
             HStack(spacing: inset) {
                 ForEach(item.panes, id: \.self) { pane in part(pane) }

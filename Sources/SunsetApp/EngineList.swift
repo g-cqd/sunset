@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetMetrics
 import SunsetShell
 import SwiftUI
 
@@ -7,7 +8,7 @@ struct EngineList: View {
     @Binding var engines: [Configuration.Web.Engine]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Design.Space.m) {
             Text("Added search engines").font(Design.Text.title)
             Text("%s stands for the words. The suggestion address must answer in the OpenSearch JSON format.")
                 .font(Design.Text.detail)
@@ -23,7 +24,7 @@ struct EngineList: View {
 
     private func row(_ index: Int) -> some View {
         HStack(alignment: .top) {
-            VStack(spacing: 4) {
+            VStack(spacing: Design.Space.xs) {
                 HStack {
                     TextField("Name", text: $engines[index].name)
                     TextField("Keyword", text: $engines[index].keyword).frame(width: 80)
@@ -42,8 +43,16 @@ struct EngineList: View {
             .buttonStyle(.borderless)
             .help("Remove")
         }
-        .padding(8)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(Design.Fill.faint)))
+        .padding(Design.Space.m)
+        .background(
+            RoundedRectangle(
+                cornerRadius: Design.Radius.container(
+                    holding: Design.Radius.leaf(LayoutMetrics()),
+                    inset: Design.Space.hair
+                )
+            )
+            .fill(Color.primary.opacity(Design.Fill.faint))
+        )
     }
 
     private func suggest(_ index: Int) -> Binding<String> {

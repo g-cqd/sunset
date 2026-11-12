@@ -9,6 +9,7 @@ package struct BuiltInTabBar: View {
     let settings: ShellSettings.Bar
     @State private var hovered: UUID?
     @Environment(\.accent) private var accent
+    @Environment(\.surfaceStyle) private var surface
     @State private var frames: [UUID: CGRect] = [:]
 
     package init(tabs: TabsModel, settings: ShellSettings.Bar) {
@@ -17,18 +18,18 @@ package struct BuiltInTabBar: View {
     }
 
     package var body: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: Design.Space.hair) {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 2) {
+                HStack(spacing: Design.Space.hair) {
                     let items = tabs.favorites.favorites.barItems(selected: tabs.workspace.selectedEntry)
                     ForEach(items, id: \.self) { item in barItem(item) }
                     if !items.isEmpty {
                         Rectangle().fill(.primary.opacity(Design.Fill.separator)).frame(width: 1, height: 16)
-                            .padding(.horizontal, 3)
+                            .padding(.horizontal, Design.Space.xs)
                     }
                     ForEach(tabs.workspace.items) { item in row(item) }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, Design.Space.xs)
             }
             .gesture(WindowDragGesture())
             SwiftUI.Button {
@@ -38,7 +39,7 @@ package struct BuiltInTabBar: View {
             }
             .buttonStyle(.borderless)
             .help("New Tab")
-            .padding(.trailing, 6)
+            .padding(.trailing, Design.Space.s)
         }
         .frame(height: settings.showDirectory || settings.showProgress ? 40 : 30)
         .background(.bar)
@@ -55,7 +56,7 @@ package struct BuiltInTabBar: View {
 
     /// A folder of the Favorites (R3 step f): its icon and name, its count of open entries while collapsed; a click opens or closes it, as in the sidebar.
     private func folderChip(_ folder: Favorites.Folder, count: Int) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Design.Space.xs) {
             if let icon = folder.icon, PaneIconView.canShow(icon) {
                 PaneIconView(icon: icon)
             } else {
@@ -64,13 +65,13 @@ package struct BuiltInTabBar: View {
             Text(folder.name).lineLimit(1)
             if folder.isCollapsed {
                 Text("\(count)").font(Design.Text.tiny.monospacedDigit()).foregroundStyle(.secondary)
-                    .padding(.horizontal, 4)
+                    .padding(.horizontal, Design.Space.xs)
                     .background(.primary.opacity(Design.Fill.openHover), in: Capsule())
             }
         }
         .font(Design.Text.secondary)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, Design.Space.m)
+        .padding(.vertical, Design.Space.xs)
         .contentShape(.rect)
         .onTapGesture { tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) } }
         .help(
@@ -88,7 +89,7 @@ package struct BuiltInTabBar: View {
             armed: armed,
             button: (symbol: "minus", help: "Unload (it stays in Favorites)", action: { tabs.unload(entry: entry.id) })
         ) {
-            HStack(spacing: 4) {
+            HStack(spacing: Design.Space.xs) {
                 Image(systemName: "star.fill").font(.system(size: Design.Symbol.mark)).foregroundStyle(.secondary)
                 label(
                     model: entry.open.flatMap { tabs.favorites.contents[$0.focused] },
@@ -159,7 +160,7 @@ package struct BuiltInTabBar: View {
         button: (symbol: String, help: String, action: () -> Void),
         @ViewBuilder content: () -> some View
     ) -> some View {
-        HStack(spacing: 6) {
+        HStack(spacing: Design.Space.s) {
             content()
             if hovered == id || selected || armed {
                 SwiftUI.Button(action: button.action) {
@@ -171,14 +172,14 @@ package struct BuiltInTabBar: View {
                 .help(armed ? "Click again to close running command" : button.help)
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 4)
+        .padding(.horizontal, Design.Space.l)
+        .padding(.vertical, Design.Space.xs)
         .background(
             armed
                 ? AnyShapeStyle(Color.red.opacity(Design.Fill.armed))
                 : (selected
                     ? AnyShapeStyle(accent.color.opacity(Design.Fill.markedHover)) : AnyShapeStyle(Color.clear)),
-            in: .rect(cornerRadius: 6)
+            in: .rect(cornerRadius: surface.leafRadius)
         )
         .contentShape(.rect)
         .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frames[id] = $0 }

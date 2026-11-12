@@ -19,7 +19,10 @@ struct SidebarGroupPart: View {
     @Environment(\.controlActiveState) private var activeState
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: max(layout.tabRadius - 2, 2), style: .continuous)
+        let shape = RoundedRectangle(
+            cornerRadius: ConcentricRadius.inner(outer: layout.tabRadius, inset: Design.Space.hair),
+            style: .continuous
+        )
         // Its picture and title from its leading edge; only the picture, centred, when there is no room for a title (owner, 2026-11-12).
         let iconOnly = width < Design.Size.iconOnlyBelow
         TabLabel(

@@ -13,7 +13,7 @@ struct FavoritesLine: View {
 
     var body: some View {
         Rectangle()
-            .fill(targeted ? accent.color : .primary.opacity(layout.hairlineOpacity * 1.5))
+            .fill(targeted ? accent.color : .primary.opacity(layout.hairlineOpacity * Design.Line.stronger))
             .frame(height: targeted ? 2 : max(layout.hairlineWidth, 0.5))
             .padding(.horizontal, layout.tabPaddingLeading)
             .opacity(visible || targeted ? 1 : 0)

@@ -35,6 +35,8 @@ extension Design {
         package static let fainterDivider = 0.5
         /// A note's own background over the window.
         package static let noteBackground = 0.6
+        /// A choice that does not apply (the icon picker's colours with no symbol, its categories while searching).
+        package static let notApplicable = 0.4
         /// A folder's own icon while it is collapsed.
         package static let collapsedIcon = 0.7
         /// A field's fill (primary at this opacity), and a private page's dark one (black).
@@ -107,6 +109,24 @@ extension Design {
     }
 
     /// Where the accent comes from (`appearance.accent`).
+    /// Measures that come from the system's own parts, not the grid: each says where it comes from.
+    package enum System {
+        /// From one traffic light's left edge to the next's, as AppKit places the standard window buttons (23 pt, measured on macOS 26).
+        package static let lightsPitch = 23.0
+        /// The room the three traffic lights take at a window's leading edge with no title bar (their inset, three buttons and two gaps:
+        /// 8 + 14 + 9 + 14 + 9 + 14, rounded up), kept clear for the built-in tab bar at the top.
+        package static let lightsClearance = 72.0
+        /// From the window's top to the command bar: under the title bar's height (52) and a hairline's room, where Spotlight sits.
+        package static let commandBarTop = 56.0
+    }
+
+    /// Lines drawn from `layout.hairline*`: stronger for a drop line, the hover outline's factor and its cap.
+    package enum Line {
+        package static let stronger = 1.5
+        package static let hover = 2.5
+        package static let hoverCap = 0.45
+    }
+
     /// Measures the grid gets wrong to the eye, each named, with its reason and its measurement (design 0003 §4).
     package enum Optical {
         /// A row's glyph frame to its text: the glyph's ink as far from the text as from the row's edge (8.5 pt, measured on a selected
@@ -121,6 +141,10 @@ extension Design {
         /// tab (owner, 2026-11-12, from `r3-initials.png`).
         package static let folderInitialSize = 6.5
         package static let folderInitialDrop = 1.75
+        /// A file's symbol in a download's thumbnail: half the thumbnail.
+        package static let thumbnailSymbol = 0.5
+        /// The per-site rows in Settings > Websites start under the site's name (to confirm by the owner: not measured).
+        package static let siteRowsIndent = 26.0
         /// The download card's illustration: a one-off size, not a symbol step.
         package static let downloadIllustration = 64.0
     }

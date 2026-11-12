@@ -6,7 +6,7 @@ struct NotSecureMark: View {
     @State private var hovered = false
 
     var body: some View {
-        HStack(spacing: 3) {
+        HStack(spacing: Design.Space.xs) {
             Image(systemName: "lock.slash")
             if hovered { Text("Not Secure").transition(.opacity.combined(with: .move(edge: .leading))) }
         }

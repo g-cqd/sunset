@@ -6,7 +6,7 @@ struct DownloadsList: View {
     let center: DownloadCenter
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: Design.Space.s) {
             HStack {
                 Text("Downloads").font(Design.Text.title)
                 Spacer()
@@ -15,10 +15,10 @@ struct DownloadsList: View {
                     .disabled(center.items.allSatisfy { $0.state == .running })
             }
             if center.items.isEmpty {
-                Text("Nothing downloaded").foregroundStyle(.secondary).padding(.vertical, 8)
+                Text("Nothing downloaded").foregroundStyle(.secondary).padding(.vertical, Design.Space.m)
             } else {
                 ScrollView {
-                    VStack(spacing: 2) {
+                    VStack(spacing: Design.Space.hair) {
                         ForEach(center.items) { item in DownloadRow(item: item, center: center) }
                     }
                 }

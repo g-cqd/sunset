@@ -9,9 +9,9 @@ struct KindChooser: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Design.Space.l) {
             Text("New Tab").font(Design.Text.title)
-            HStack(spacing: 12) {
+            HStack(spacing: Design.Space.l) {
                 choice("Terminal", symbol: "terminal", key: "t", kind: PaneDescriptor.terminal(directory: nil))
                 choice("Web Page", symbol: "globe", key: "w", kind: PaneContentKinds.newPage)
             }
@@ -28,7 +28,7 @@ struct KindChooser: View {
             dismiss()
             AppActions.shared.newTab(kind: kind)
         } label: {
-            VStack(spacing: 6) {
+            VStack(spacing: Design.Space.s) {
                 Image(systemName: symbol).font(.system(size: Design.Symbol.large))
                 Text(title)
             }

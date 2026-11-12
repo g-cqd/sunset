@@ -1,3 +1,4 @@
+import SunsetMetrics
 import SunsetPane
 package import SwiftUI
 
@@ -21,7 +22,8 @@ package struct PaneGlyphView: View {
                     .foregroundStyle(.secondary)
                     .frame(width: 15, height: 15)
                     .background(
-                        RoundedRectangle(cornerRadius: 3.5, style: .continuous).strokeBorder(.secondary, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: Design.Radius.small(LayoutMetrics()), style: .continuous)
+                            .strokeBorder(.secondary, lineWidth: 1)
                     )
                     .frame(width: 18)
         }

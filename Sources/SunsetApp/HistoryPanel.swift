@@ -20,7 +20,7 @@ struct HistoryPanel: View {
     var body: some View {
         let _ = changes.generation
         let days = HistoryDays.group(AppHistory.shared?.entries(matching: query) ?? [])
-        VStack(spacing: 8) {
+        VStack(spacing: Design.Space.m) {
             HStack {
                 Text("History").font(Design.Text.title)
                 Spacer()
@@ -36,19 +36,19 @@ struct HistoryPanel: View {
             if days.isEmpty {
                 Text(query.isEmpty ? "No pages visited yet" : "No page matches")
                     .foregroundStyle(.secondary)
-                    .padding(.top, 12)
+                    .padding(.top, Design.Space.l)
                 Spacer()
             } else {
                 list(days)
             }
         }
-        .padding(.horizontal, layout.tabSideInset + 8)
-        .padding(.vertical, 10)
+        .padding(.horizontal, layout.tabSideInset + Design.Space.m)
+        .padding(.vertical, Design.Space.l)
     }
 
     private func list(_ days: [HistoryDays]) -> some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 2, pinnedViews: .sectionHeaders) {
+            LazyVStack(alignment: .leading, spacing: Design.Space.hair, pinnedViews: .sectionHeaders) {
                 ForEach(days, id: \.title) { day in
                     Section {
                         ForEach(day.entries) { entry in HistoryRow(entry: entry, radius: layout.tabRadius) }
@@ -56,7 +56,7 @@ struct HistoryPanel: View {
                         Text(day.title)
                             .font(Design.Text.detail.weight(.semibold))
                             .foregroundStyle(.secondary)
-                            .padding(.top, 8)
+                            .padding(.top, Design.Space.m)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }

@@ -7,6 +7,7 @@ package struct CommandSheet: View {
     let entry: Favorites.NodeID
     @State private var text = ""
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.surfaceStyle) private var surface
 
     package init(tabs: TabsModel, entry: Favorites.NodeID) {
         self.tabs = tabs
@@ -15,7 +16,7 @@ package struct CommandSheet: View {
 
     package var body: some View {
         let saved = tabs.favorites.favorites.entry(entry)
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Design.Space.l) {
             Text("Command for \u{201C}\(saved?.title ?? "this favourite")\u{201D}").font(Design.Text.title)
             Text(
                 "Typed into the shell, then Return, each time this favourite starts: when it is opened, and when Sunset comes back with it open."
@@ -38,7 +39,9 @@ package struct CommandSheet: View {
             TextEditor(text: $text)
                 .font(Design.Text.mono)
                 .frame(minHeight: 80)
-                .overlay { RoundedRectangle(cornerRadius: 4).strokeBorder(.separator) }
+                .overlay {
+                    RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout)).strokeBorder(.separator)
+                }
             HStack {
                 Spacer()
                 SwiftUI.Button("Cancel", role: .cancel) { dismiss() }.keyboardShortcut(.cancelAction)

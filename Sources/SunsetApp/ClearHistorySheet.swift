@@ -12,20 +12,20 @@ struct ClearHistorySheet: View {
     @State private var siteZoom = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: Design.Space.xl) {
             Text("Clear History").font(Design.Text.title)
             Picker("Clear", selection: $span) {
                 ForEach(ClearSpan.allCases, id: \.self) { Text($0.title).tag($0) }
             }
             .fixedSize()
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: Design.Space.s) {
                 Toggle("History of pages visited", isOn: $history)
                 Toggle("Website data: cookies, caches and what sites store", isOn: $websiteData)
                 if websiteData {
                     Text("You will be signed out of the sites visited in this span.")
                         .font(Design.Text.detail)
                         .foregroundStyle(.secondary)
-                        .padding(.leading, 20)
+                        .padding(.leading, Design.Space.xxl)
                 }
                 Toggle("Zoom levels of sites", isOn: $siteZoom)
             }
