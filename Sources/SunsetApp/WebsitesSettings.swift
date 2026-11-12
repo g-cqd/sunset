@@ -18,13 +18,15 @@ struct WebsitesSettings: View {
     private func section(_ permission: SitePermission) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Label(permission.title, systemImage: permission.symbol)
+                Label(permission.title, systemImage: permission.symbol).fixedSize()
                 Spacer()
+                Text("Other sites").foregroundStyle(.secondary).fixedSize()
                 Picker("Other sites", selection: defaultBinding(permission)) {
                     ForEach(Configuration.Web.PermissionDefault.allCases, id: \.self) {
                         Text($0.rawValue.capitalized).tag($0)
                     }
                 }
+                .labelsHidden()
                 .fixedSize()
             }
             ForEach(store.sites(for: permission), id: \.host) { site in
@@ -32,8 +34,7 @@ struct WebsitesSettings: View {
                     Text(site.host).foregroundStyle(.secondary)
                     Spacer()
                     Picker("", selection: siteBinding(permission, site.host)) {
-                        Text("Allow").tag(PermissionAnswer.allow)
-                        Text("Deny").tag(PermissionAnswer.deny)
+                        ForEach(PermissionAnswer.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
                     .labelsHidden()
                     .fixedSize()

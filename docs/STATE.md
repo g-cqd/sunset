@@ -90,7 +90,7 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   `downloads.json`); a Dock bounce, a notification (`web.notifyDownloads`, bundled app only), safe kinds opened (`web.openSafeDownloads`, off);
   the list kept by `web.keepDownloads`, cleared with history. The sidebar's bottom: the + (R2, t137; right-click for its kind) on the corner
   nearest the panes and downloads (a ring; the latest as a card on resting; the list on click) on the other, both `SidebarIconButton`s like the pin.
-- Permissions (web step g, 2026-11-12, in progress): camera and microphone, location (public WebKit questions), screen sharing and notifications
+- Permissions (web step g, 2026-11-12): camera and microphone, location (public WebKit questions), screen sharing and notifications
   (WebKit's private questions, `SunsetPrivate.WebPermissionHooks`), pop-ups without a click, autoplay with sound. Asked in a glass panel at the
   top of the page (Allow Once / Allow / Don't Allow); kept by site in `site-permissions.json`; defaults by `web.permissions.*` (ask; pop-ups and
   sound denied); Settings > Web > Websites; the site button in the address field (lock, capture dot, this site's answers); a capture dot on the
