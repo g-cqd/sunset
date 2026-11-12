@@ -1,3 +1,4 @@
+import SunsetMetrics
 import SwiftUI
 
 /// The app's accessory at the top of the sidebar, under the window's buttons (the address of the focused page, web step b).

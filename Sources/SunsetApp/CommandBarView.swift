@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetMetrics
 import SunsetPane
 import SunsetShell
 import SunsetShellBridge

@@ -43,6 +43,10 @@ extension Reader {
                         configuration.appearance.glass = choice
                     }
                 case "tint": section("appearance.tint", value) { reader, tint in reader.readTint(tint) }
+                case "accent":
+                    if let accent = choice("appearance.accent", value, as: Configuration.Appearance.Accent.self) {
+                        configuration.appearance.accent = accent
+                    }
                 default: unknown("appearance.\(key)")
             }
         }

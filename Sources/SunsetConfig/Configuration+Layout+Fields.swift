@@ -1,3 +1,5 @@
+public import SunsetMetrics
+
 extension Configuration.Layout {
     /// Every numeric metric, in the order of the file and of Settings.
     public static let fields: [Field] = [
@@ -134,20 +136,20 @@ extension Configuration.Layout {
             \.floatingLightsExtra
         ),
         field(
-            "pinButtonSize",
-            "Pin button size",
-            ["container", "hit box", "sidebar button"],
+            "sidebarButtonSize",
+            "Sidebar buttons: size when floating",
+            ["pin", "plus", "container", "hit box", "sidebar button"],
             12 ... 40,
             1,
-            \.pinButtonSize
+            \.sidebarButtonSize
         ),
         field(
-            "pinButtonRadius",
-            "Pin button corner radius",
-            ["rounding", "container"],
+            "sidebarButtonRadius",
+            "Sidebar buttons: corner radius when docked",
+            ["pin", "plus", "rounding", "container"],
             0 ... 20,
             1,
-            \.pinButtonRadius
+            \.sidebarButtonRadius
         ),
         field(
             "hairlineWidth",

@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetHost
+import SunsetMetrics
 import SunsetShell
 import SunsetShellBridge
 import SwiftUI

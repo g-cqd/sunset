@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetMetrics
 import SwiftUI
 
 extension Configuration.Layout {

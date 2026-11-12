@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetHost
+import SunsetMetrics
 import SunsetPane
 import SunsetShell
 import SunsetTerminal

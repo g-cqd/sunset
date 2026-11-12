@@ -1,3 +1,5 @@
+import SunsetMetrics
+
 /// Writes a configuration as the text of a file: every key, so that the file shows what can be set. Colours not set are written as null, a font with no family
 /// as an empty string, a cursor that blinks for ever as null.
 public enum ConfigurationWriter {
@@ -123,6 +125,7 @@ public enum ConfigurationWriter {
         var extra = web(configuration.web).merging(permissions(configuration.web)) { $1 }
         extra["tabs.askBeforeQuit"] = string(configuration.tabs.askBeforeQuit.rawValue)
         extra["scroll.inertia"] = number(configuration.scroll.inertia)
+        extra["appearance.accent"] = string(configuration.appearance.accent.rawValue)
         return extra
     }
 

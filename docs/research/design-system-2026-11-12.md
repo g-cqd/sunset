@@ -240,3 +240,27 @@ Consequences for the plan:
   (`Design.optical(…)` with a reason, allowed by the enforcement test).
 - Step 1 gains: `appearance.accent` (system / sunset / neutral) and a surface setting (glass / material / opaque / transparent) read by every
   surface token. Both are new configuration keys (the key count rises from 108).
+
+## 9. Migration step 1: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| Surfaces | `window.material` itself governs every surface (one key). Later: a tint chosen for surfaces specifically, and spaces each customisable. |
+| Accent | `sunset` is the existing `appearance.tint.color`; the system's accent when it is unset. |
+| Pin keys | Something more generic: other sidebar buttons (the + at the bottom) should share the keys. Done as `layout.sidebarButtonSize` (floating size; docked derived from the lights' row) and `layout.sidebarButtonRadius` (docked corner; floating concentric with the panel); the old `pinButton*` names are still read. |
+| Scope | Tokens, the test with every current file allowed, one Layout list, the new keys, and the system controls measured off-screen; nothing visible changes. |
+
+## 10. The system's controls, measured off-screen (2026-11-12, macOS 27.0.1)
+
+Probe: `probes/system-controls.swift` (draws into 2x bitmaps; no window is created or shown).
+
+| `ControlSize` | mini | small | regular | large | extraLarge |
+| --- | --- | --- | --- | --- | --- |
+| Push button and pop-up, AppKit's fitting height | 16 | 20 | 24 | 28 | 36 |
+
+- These heights are AppKit's own numbers and agree with design 0003: `Size.controlSmall` 20 is the system's small, `Size.control` 24 its
+  regular, `Size.sidebarButton` 28 its large, `Size.bar` 36 its extra large.
+- **Corners: not measured.** `cacheDisplay` does not draw the bezels of macOS 27's buttons and pop-ups (they are drawn by layers outside it):
+  only the titles came out, 6.5 to 13.5 pt tall. The rounded text field drew, but at 24 pt for every size, which is not believable, so its
+  corners (2 to 6.5 pt) are not used either. Measuring them needs a window composited by the system, which this probe does not open. Nothing in
+  the design depends on them: Sunset's leaf radius is its own (`layout.tabRadius`), and its fields and buttons are drawn by its components.
