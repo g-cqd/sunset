@@ -23,12 +23,12 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetPane` | 41 files | No dependency: `Workspace` (a window's tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon; `Favorites` (folders step a1, 2026-11-11: the app-wide tree of folders and kept entries, in the model and the session file; step a2: the app reads it at launch and writes it back, whatever the restoring setting says, and **nothing in a window shows or edits it yet**) |
 | `SunsetShell`, `SunsetShellBridge` | 26 + 2 files | The window shell (R8, step H-1, 2026-11-11): the tab model of a window (`TabsModel`), the pane content protocol, the sidebar and its rows, tab labels and glyphs, the command bar's state, its own plain settings (`ShellSettings`, the configuration's names); the bridge fills them from the configuration. Package access |
 | `SunsetTerminal` | 30 files | The terminal as a kind of pane content (R8): its model, its AppKit view, input, selection, the renderer's wiring; what it needs from the app (the clipboard policy, the font zoom) comes in as callbacks |
-| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 92 keys |
+| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 98 keys |
 | `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 907 in 161 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 916 in 164 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -84,7 +84,13 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   `web.clearWebsiteDataOnQuit`). Matches by frecency (prefix first, up to 4) in the address field's list and the command bar. History menu: the
   last 10, Show All History (Cmd-Y: a panel on the side opposite the tabs, by day, searchable, menu per entry), Clear History… (span; history,
   website data, site zoom). Web tabs have one line (n62); Not Secure is a symbol with its text on hover (n64); glyph to text 7 pt (n63, `docs/design/0002-spacing.md`).
-  No downloads, permissions or private pages: web steps f to h.
+- Downloads (web step f, 2026-11-12): attachments, what WebKit cannot show, links with download and Option-click download; to ~/Downloads or
+  `web.downloadFolder` (or asked, `web.askWhereToSave`); written as .download then renamed to a free name ("-2"), marked with quarantine;
+  apps, installers and scripts (not .dmg) after an approval (`web.approveRiskyDownloads`); Stop and Resume, also across a quit (resume data in
+  `downloads.json`); a Dock bounce, a notification (`web.notifyDownloads`, bundled app only), safe kinds opened (`web.openSafeDownloads`, off);
+  the list kept by `web.keepDownloads`, cleared with history. The sidebar's bottom: the + (R2, t137; right-click for its kind) on the corner
+  nearest the panes and downloads (a ring; the latest as a card on resting; the list on click) on the other, both `SidebarIconButton`s like the pin.
+  No permissions or private pages: web steps g and h.
 
 ### OSC handled by the core (ADR-0010 policy)
 

@@ -1,6 +1,7 @@
 import AppKit
 import SunsetConfig
 import SunsetShell
+import SunsetWeb
 
 /// The few things SwiftUI's `App` does not say: this process is a regular app even when started as a bare executable, and it ends with its last window.
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -10,11 +11,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.activate()
+        MainActor.assumeIsolated { AppDownloads.start() }
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         SessionStore.shared.finish()
-        MainActor.assumeIsolated { WebClearing.clearAtQuit() }
+        MainActor.assumeIsolated {
+            DownloadCenter.shared.finish()
+            WebClearing.clearAtQuit()
+        }
         return .terminateNow
     }
 

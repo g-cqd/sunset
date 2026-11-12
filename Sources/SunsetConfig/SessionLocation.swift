@@ -26,4 +26,11 @@ public enum SessionLocation {
         let directory = session.lastIndex(of: "/").map { String(session[..<$0]) } ?? "."
         return directory + "/history.sqlite"
     }
+
+    /// The list of downloads and what resumes them (web step f), beside the session's file.
+    public static func downloadsPath(environment: [String: String], home: String) -> String {
+        let session = path(environment: environment, home: home)
+        let directory = session.lastIndex(of: "/").map { String(session[..<$0]) } ?? "."
+        return directory + "/downloads.json"
+    }
 }

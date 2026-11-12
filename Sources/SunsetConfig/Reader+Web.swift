@@ -6,7 +6,10 @@ extension Reader {
     private nonisolated(unsafe) static let webFlags: [String: WritableKeyPath<Configuration.Web, Bool>] = [
         "openLinksInSunset": \.openLinksInSunset, "developer": \.developer, "suggestions": \.suggestions,
         "httpFallback": \.httpFallback, "textOnlyZoom": \.textOnlyZoom,
-        "clearHistoryOnQuit": \.clearHistoryOnQuit, "clearWebsiteDataOnQuit": \.clearWebsiteDataOnQuit
+        "clearHistoryOnQuit": \.clearHistoryOnQuit, "clearWebsiteDataOnQuit": \.clearWebsiteDataOnQuit,
+        "askWhereToSave": \.askWhereToSave, "openSafeDownloads": \.openSafeDownloads,
+        "notifyDownloads": \.notifyDownloads,
+        "approveRiskyDownloads": \.approveRiskyDownloads
     ]
 
     mutating func readWeb(_ object: Object) {
@@ -18,6 +21,8 @@ extension Reader {
             switch key {
                 case "engine": if let name = string("web.engine", value) { configuration.web.engine = name }
                 case "engines": readEngines(value)
+                case "downloadFolder":
+                    if let path = string("web.downloadFolder", value) { configuration.web.downloadFolder = path }
                 default: readWebChoice(key, value)
             }
         }
@@ -41,6 +46,10 @@ extension Reader {
             case "historyKeep":
                 if let keep = choice(path, value, as: Configuration.Web.HistoryKeep.self) {
                     configuration.web.historyKeep = keep
+                }
+            case "keepDownloads":
+                if let keep = choice(path, value, as: Configuration.Web.DownloadsKeep.self) {
+                    configuration.web.keepDownloads = keep
                 }
             case "windowBar":
                 if let edge = choice(path, value, as: Configuration.Web.BarEdge.self) {

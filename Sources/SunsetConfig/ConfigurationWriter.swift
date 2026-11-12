@@ -109,7 +109,11 @@ public enum ConfigurationWriter {
             "web.zoomScope": string(web.zoomScope.rawValue), "web.textOnlyZoom": String(web.textOnlyZoom),
             "web.historyKeep": string(web.historyKeep.rawValue),
             "web.clearHistoryOnQuit": String(web.clearHistoryOnQuit),
-            "web.clearWebsiteDataOnQuit": String(web.clearWebsiteDataOnQuit)
+            "web.clearWebsiteDataOnQuit": String(web.clearWebsiteDataOnQuit),
+            "web.downloadFolder": string(web.downloadFolder), "web.askWhereToSave": String(web.askWhereToSave),
+            "web.openSafeDownloads": String(web.openSafeDownloads), "web.notifyDownloads": String(web.notifyDownloads),
+            "web.approveRiskyDownloads": String(web.approveRiskyDownloads),
+            "web.keepDownloads": string(web.keepDownloads.rawValue)
         ]
     }
 
