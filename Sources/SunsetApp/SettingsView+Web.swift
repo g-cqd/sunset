@@ -32,6 +32,16 @@ extension SettingsView {
                     "Try http when https fails for a host typed without a scheme",
                     isOn: config.binding(\.web.httpFallback)
                 )
+            case "web.zoomScope":
+                Picker("A page's zoom applies to", selection: config.binding(\.web.zoomScope)) {
+                    Text("Its site, remembered").tag(Configuration.Web.ZoomScope.site)
+                    Text("Its site, until Sunset quits").tag(Configuration.Web.ZoomScope.session)
+                    Text("The page alone, saved with it").tag(Configuration.Web.ZoomScope.page)
+                }
+            case "web.textOnlyZoom":
+                if WebTextZoomProbe.isAvailable {
+                    Toggle("Zoom makes only the text bigger", isOn: config.binding(\.web.textOnlyZoom))
+                }
             case "web.engines":
                 EngineList(engines: config.binding(\.web.engines))
             case "web.windowBar":

@@ -12,4 +12,11 @@ public enum SessionLocation {
         while base.count > 1, base.hasSuffix("/") { base.removeLast() }
         return base + "/Library/Application Support/Sunset/session.json"
     }
+
+    /// The file of the zoom each site was given (web step d), beside the session's.
+    public static func zoomPath(environment: [String: String], home: String) -> String {
+        let session = path(environment: environment, home: home)
+        let directory = session.lastIndex(of: "/").map { String(session[..<$0]) } ?? "."
+        return directory + "/site-zoom.json"
+    }
 }

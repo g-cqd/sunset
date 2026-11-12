@@ -24,6 +24,7 @@ struct WebPaneView: View {
                 }
                 if content.url == nil, content.webView?.url == nil { empty }
                 if let failure = content.failure { failed(failure) }
+                if content.find.isOpen { WebFindBar(content: content).frame(maxWidth: .infinity, alignment: .trailing) }
                 if addressRow, let typing { AddressSuggestionList(typing: typing, places: [.pane], page: content) }
             }
         }

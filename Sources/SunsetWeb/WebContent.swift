@@ -22,6 +22,10 @@ package final class WebContent: PaneContent {
     package private(set) var isLoading = false
     /// The page asks for its address to be typed (a new empty page): the address field of the window takes the keyboard and clears this.
     package var wantsAddress = false
+    /// Find in the page (Cmd-F).
+    package let find = PageFind()
+    /// The page's zoom, 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
+    package internal(set) var zoom = 1.0
     /// The page, once it has been shown.
     @ObservationIgnored package private(set) var webView: WKWebView?
 
@@ -65,6 +69,7 @@ package final class WebContent: PaneContent {
             history: history,
             settings: settings
         )
+        zoom = descriptor.state["zoom"].flatMap(Double.init) ?? 1
     }
 
     // MARK: PaneContent
@@ -83,6 +88,7 @@ package final class WebContent: PaneContent {
         var state: [String: String] = [:]
         if let url { state["url"] = url.absoluteString }
         if !pageTitle.isEmpty { state["title"] = pageTitle }
+        if settings.zoomScope == .page, abs(zoom - 1) > 0.001 { state["zoom"] = String(zoom) }
         if let history = (webView?.interactionState as? Data) ?? savedHistory {
             state["history"] = history.base64EncodedString()
         }
@@ -163,6 +169,8 @@ package final class WebContent: PaneContent {
         view.uiDelegate = coordinator
         self.coordinator = coordinator
         webView = view
+        find.attach(view)
+        applyZoom()
         observe(view)
         guard given == nil else { return }
         if let history = savedHistory {
@@ -207,7 +215,9 @@ package final class WebContent: PaneContent {
 
     private func changed(url new: URL?) {
         guard let new, new != url else { return }
+        let otherSite = new.host() != url?.host()
         url = new
+        if otherSite { siteChanged() }
         onChange()
     }
 }

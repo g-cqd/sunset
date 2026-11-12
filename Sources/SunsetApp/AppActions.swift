@@ -88,12 +88,17 @@ final class AppActions {
     func toggleCommandBar() { keyTabs?.toggleBar() }
 
     /// ⌘+ and ⌘−: the font of the key window one point bigger or smaller, ⌘0 back to the configured size. Not written to the file.
+    /// Cmd-+ and Cmd--: the focused page's zoom, else the terminal's font.
     func zoomFont(by points: Double) {
         guard let tabs = keyTabs else { return }
+        if let page = tabs.selectedContent as? WebContent { return page.zoom(by: points > 0 ? 1 : -1) }
         tabs.fontZoom.step(by: points, base: AppConfiguration.shared.configuration.font.size)
     }
 
-    func resetFontZoom() { keyTabs?.fontZoom.reset() }
+    func resetFontZoom() {
+        if let page = keyTabs?.selectedContent as? WebContent { return page.resetZoom() }
+        keyTabs?.fontZoom.reset()
+    }
 
     // MARK: Splits (the panes of the key window's selected tab)
 

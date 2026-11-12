@@ -52,6 +52,13 @@ extension SettingsPane {
             keywords: ["http", "https", "insecure"]
         ),
         SettingsEntry(
+            id: "web.zoomScope",
+            pane: "web",
+            title: "Page zoom applies to",
+            keywords: ["zoom", "site", "scale"]
+        ),
+        SettingsEntry(id: "web.textOnlyZoom", pane: "web", title: "Zoom text only", keywords: ["zoom", "text", "font"]),
+        SettingsEntry(
             id: "web.engines",
             pane: "web",
             title: "Added search engines",
