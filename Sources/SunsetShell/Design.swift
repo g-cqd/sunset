@@ -52,8 +52,10 @@ package enum Design {
         package static let control = 24.0
         /// A button of the docked sidebar.
         package static let sidebarButton = 28.0
-        /// A bar: a control and the container inset above and below it.
-        package static let bar = control + 2 * Space.s
+        /// A field in a bar (the address field): a control and a point above and below for its text.
+        package static let field = control + 2
+        /// A bar: a field and the container inset around it, so that the field's corners nest in the bar's.
+        package static let bar = field + 2 * Space.s
         /// The command bar's input.
         package static let fieldLarge = 48.0
         /// A row in a list of choices.

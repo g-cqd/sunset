@@ -159,7 +159,7 @@ struct PaneArea: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(.regularMaterial, in: Capsule())
+                .surface(Capsule())
         }
         .contentShape(.rect)
         .onTapGesture { tabs.takeShownEntry() }

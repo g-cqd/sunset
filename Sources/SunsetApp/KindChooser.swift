@@ -20,7 +20,7 @@ struct KindChooser: View {
                 Button("Cancel", role: .cancel) { dismiss() }.keyboardShortcut(.cancelAction)
             }
         }
-        .padding(16)
+        .padding(Design.Space.xxl)
     }
 
     private func choice(_ title: String, symbol: String, key: KeyEquivalent, kind: PaneDescriptor) -> some View {

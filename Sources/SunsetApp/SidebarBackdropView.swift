@@ -1,6 +1,7 @@
 import AppKit
 import SunsetConfig
 import SunsetPrivate
+import SunsetShell
 
 /// The AppKit view of `SidebarBackdrop`.
 final class SidebarBackdropView: NSView {
@@ -19,9 +20,17 @@ final class SidebarBackdropView: NSView {
         let view: NSView
         switch look.material {
             case .opaque:
+                // Raised: the window's colour, a little lighter (`Design.Raised`), resolved for this view's appearance.
                 view = NSView()
                 view.wantsLayer = true
-                view.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+                var raised = NSColor.windowBackgroundColor.cgColor
+                effectiveAppearance.performAsCurrentDrawingAppearance {
+                    raised =
+                        (NSColor.windowBackgroundColor.blended(withFraction: Design.Raised.lighten, of: .white)
+                        ?? .windowBackgroundColor)
+                        .cgColor
+                }
+                view.layer?.backgroundColor = raised
             case .material:
                 view = Self.effect(.sidebar)
             case .glass:
@@ -35,7 +44,7 @@ final class SidebarBackdropView: NSView {
         view.frame = bounds
         view.autoresizingMask = [.width, .height]
         addSubview(view)
-        if look.material != .opaque, look.blur > 0, let layer = Self.blurLayer(look.blur) {
+        if look.material == .material || look.material == .glass, look.blur > 0, let layer = Self.blurLayer(look.blur) {
             // Its own blur radius: a backdrop layer over the material.
             let blur = NSView(frame: bounds)
             blur.autoresizingMask = [.width, .height]

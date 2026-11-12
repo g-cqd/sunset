@@ -6,10 +6,18 @@ extension Design {
         package static let faint = 0.04
         package static let hover = 0.07
         package static let pressed = 0.16
+        /// A colour fill when no tint is set: black at this opacity (the default tint's).
+        package static let untinted = 0.5
         /// A dimming layer (Apple's figure for one under clear glass).
         package static let scrim = 0.35
         /// The accent line of the focused card.
         package static let focusLine = 0.85
+    }
+
+    /// An opaque surface over the window: the window's colour, a little lighter, so that it reads as raised.
+    package enum Raised {
+        package static let lighten = 0.06
+        package static var color: Color { Color(nsColor: .windowBackgroundColor).mix(with: .white, by: lighten) }
     }
 
     /// A shadow: black at an opacity, a blur radius, a drop.

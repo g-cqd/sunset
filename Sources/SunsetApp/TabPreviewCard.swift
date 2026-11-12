@@ -30,9 +30,13 @@ struct TabPreviewCard: View {
     }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 10, style: .continuous)
+        // The miniature's corners (small) nest in the card's, `Design.Space.s` inside.
+        let shape = RoundedRectangle(
+            cornerRadius: Design.Radius.container(holding: Design.Radius.small(layout), inset: Design.Space.s),
+            style: .continuous
+        )
         let custom = tabs.custom(for: item)
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: Design.Space.s) {
             TabLabel(
                 model: tabs.content(item.focused),
                 showIcon: true,
@@ -42,17 +46,15 @@ struct TabPreviewCard: View {
                 name: custom.name,
                 icon: custom.icon
             )
-            .padding(.horizontal, 10)
-            .padding(.top, 8)
+            .padding(.horizontal, Design.Space.l)
+            .padding(.top, Design.Space.m)
             miniature
                 .frame(width: Self.width, height: height)
-                .padding(.horizontal, 6)
-                .padding(.bottom, 6)
+                .padding(.horizontal, Design.Space.s)
+                .padding(.bottom, Design.Space.s)
         }
-        .frame(width: Self.width + 12)
-        .background(.ultraThinMaterial, in: shape)
-        .overlay { shape.hairline(ShellSettings.Layout(layout)) }
-        .shadow(color: .black.opacity(0.28), radius: 12, y: 4)
+        .frame(width: Self.width + 2 * Design.Space.s)
+        .surface(shape, shadow: .popover)
         .allowsHitTesting(false)
     }
 
@@ -64,9 +66,9 @@ struct TabPreviewCard: View {
                 if let frame = frames[pane] {
                     picture(of: pane)
                         .frame(width: frame.width, height: frame.height)
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: Design.Radius.small(layout), style: .continuous))
                         .overlay {
-                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            RoundedRectangle(cornerRadius: Design.Radius.small(layout), style: .continuous)
                                 .strokeBorder(
                                     Color.accentColor.opacity(pane == item.focused && item.isSplit ? 0.8 : 0),
                                     lineWidth: 1

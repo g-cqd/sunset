@@ -69,6 +69,8 @@ final class TabRegistry {
     /// The window the menus act on: the key window; while Sunset is not active (driven through accessibility, or by a script), its main window,
     /// else the frontmost of its windows.
     var actingWindow: NSWindow? {
+        // Read so that what depends on it (the menus' enabled state) is evaluated again when a window comes or becomes key.
+        _ = revision
         if let key = NSApp.keyWindow, entries[ObjectIdentifier(key)] != nil { return key }
         if let main = NSApp.mainWindow, entries[ObjectIdentifier(main)] != nil { return main }
         return NSApp.orderedWindows.first { entries[ObjectIdentifier($0)] != nil }

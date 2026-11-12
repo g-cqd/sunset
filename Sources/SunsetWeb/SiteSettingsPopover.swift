@@ -1,3 +1,4 @@
+import SunsetShell
 import SwiftUI
 
 /// What one site was allowed (web step g), changed in place; and Stop while the page captures.
@@ -28,7 +29,7 @@ struct SiteSettingsPopover: View {
             Text("Some apply when the page is opened again (sound, pop-ups).").font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .padding(14)
+        .padding(Design.Space.xl)
     }
 
     private func binding(_ permission: SitePermission, _ host: String) -> Binding<PermissionAnswer> {

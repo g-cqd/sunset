@@ -1,3 +1,4 @@
+import SunsetShell
 import SwiftUI
 
 /// The list of downloads, latest first, with Clear (web step f).
@@ -24,7 +25,7 @@ struct DownloadsList: View {
                 .frame(maxHeight: 320)
             }
         }
-        .padding(12)
+        .padding(Design.Space.xl)
         .frame(width: 320)
     }
 }

@@ -46,7 +46,7 @@ package struct IconPopover: View {
                 SwiftUI.Button("No Icon") { tabs.setIcon(nil, for: row) }.disabled(icon == nil)
             }
         }
-        .padding(12)
+        .padding(Design.Space.xl)
         .frame(width: 340)
         .task { catalog = await Task.detached(priority: .userInitiated) { SymbolCatalog.load() }.value }
     }

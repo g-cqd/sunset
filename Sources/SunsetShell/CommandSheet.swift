@@ -49,7 +49,7 @@ package struct CommandSheet: View {
                 .keyboardShortcut(.defaultAction)
             }
         }
-        .padding(16)
+        .padding(Design.Space.xxl)
         .frame(width: 460)
         .onAppear { text = saved?.command ?? "" }
     }

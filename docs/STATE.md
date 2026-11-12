@@ -28,7 +28,7 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 933 in 174 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 936 in 175 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -114,6 +114,8 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   no decorations, window and sidebar padding 4, sidebar on the right, 229 wide, kept visible, JetBrains Mono 12 (Menlo when it is not
   installed: `FontFallback`, CoreText would give Helvetica), bar cursor, blink stops after 15 s. `window.material: transparent` is now `fill`
   (the tint's colour and alpha, no desktop blur; `transparent` still read).
+- Design step 2 (surfaces): every floating surface through `SurfaceStyle` / `.surface(_:shadow:)` by `window.material`; concentric radii (bars 12
+  holding 6, the permission panel 22); bars 38; panels pad 16, sheets 24; shadows `popover` / `float`. See research/design-system §12.
 
 ### OSC handled by the core (ADR-0010 policy)
 

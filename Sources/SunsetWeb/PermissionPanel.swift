@@ -1,3 +1,4 @@
+import SunsetShell
 import SwiftUI
 
 /// The question of a page (web step g): a small glass panel at the top of its pane, under its address: the site and what it wants, Allow Once,
@@ -6,10 +7,11 @@ struct PermissionPanel: View {
     let request: PermissionRequest
     /// Where Allow and Don't Allow are kept (a private page's own answers).
     let store: SitePermissions
+    @Environment(\.surfaceStyle) private var surface
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: Design.Space.l) {
+            HStack(spacing: Design.Space.m) {
                 ForEach(request.permissions, id: \.self) { permission in
                     Image(systemName: permission.symbol).foregroundStyle(.secondary)
                 }
@@ -19,7 +21,7 @@ struct PermissionPanel: View {
                 Text(
                     "Sunset can pass this on only when it runs as Sunset.app (Scripts/make-app.sh), which macOS asks in turn."
                 )
-                .font(.caption)
+                .font(Design.Text.detail)
                 .foregroundStyle(.secondary)
                 HStack {
                     Spacer()
@@ -34,10 +36,9 @@ struct PermissionPanel: View {
                 }
             }
         }
-        .padding(14)
-        .frame(width: 360, alignment: .leading)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .shadow(color: .black.opacity(0.25), radius: 14, y: 6)
-        .padding(10)
+        .padding(Design.Space.xl)
+        .frame(width: Design.Width.panel, alignment: .leading)
+        .surface(surface.panelShape, shadow: .popover)
+        .padding(Design.Space.l)
     }
 }

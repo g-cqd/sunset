@@ -275,3 +275,22 @@ Probe: `probes/system-controls.swift` (draws into 2x bitmaps; no window is creat
 | Shadows | Ours on every kind of surface; the differences to be shown to the owner. |
 | Glass groups | Group only, no new animation. Growing out of the bar is not decided: shown first, maybe a setting. |
 | Panel padding | The space between a panel's edge and what it holds: 16 ("standard"), to be shown. |
+
+## 12. Migration step 2: what was built, and the shots (2026-11-12)
+
+- `SurfaceStyle` (SunsetShell; built from the configuration in SunsetShellBridge) and `View.surface(_:shadow:)`: every floating surface drawn
+  by `window.material`: glass (regular or clear), material (drawn behind as a shape: `.background(_:in:)` made the text vibrant and nearly
+  invisible over a light page), opaque (raised: the window's colour 6 % lighter), fill (the tint's colour and alpha). With the hairline; the
+  shadows `popover` and `float`.
+- Moved onto it: the address bar and field, the suggestion list, the find bar (a rounded bar now), the permission panel, the command bar
+  (radius 12, its rows' 6 nested at 6), the actions panel, the tab preview, the pane-area label, and the floating sidebar (no longer always
+  glass). The address bar and its list share a `GlassEffectContainer` (spacing 0); the command bar and its actions panel do not (the panel
+  overlaps the bar, and a container would merge them).
+- Measures: the address bar is 38 (from 36: field 26 + 6 + 6, so the field's corner nests); the find bar 38 (from 34); the permission panel
+  pads 16 (from 14) with a radius of 22 (6 + 16: its buttons in the corner nest); popovers pad 16; sheets 24.
+- Found and fixed: the menus' enabled state did not follow `TabRegistry.actingWindow` (it did not read `revision`), so Find… was disabled
+  while Sunset was in the background.
+- Shots: `design-step2/surfaces-2026-11-12.png` (the permission panel, the find bar, the command bar; before with glass, after with each kind).
+  The "before" row has no find bar (that build had the menu bug). **Not shown:** the window's address bar (it comes out on hover, and the
+  driver does not move the pointer), the suggestion list (a value set from outside does not start typing), the floating sidebar.
+- Seen in the shots: with `fill` (black at 0.5, the default tint) the page shows through the panel's text and is hard to read.

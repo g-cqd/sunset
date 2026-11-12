@@ -21,15 +21,21 @@ extension TerminalScene {
         return AnyView(AddressField(content: page).id(ObjectIdentifier(page)))
     }
 
-    @ViewBuilder var windowAddressBar: some View {
-        if addressPlace == .window, let page = focusedPage {
-            WindowAddressBar(content: page, atTop: configuration.web.windowBar == .top).id(ObjectIdentifier(page))
-        }
+    /// The window's address bar and its list, in one glass container (they render together; spacing 0: they do not blend at rest).
+    var windowAddressBar: some View {
         // The list of the sidebar's field or the window bar's, as wide as the content: under the field, or over the bar at the bottom.
         let atTop = addressPlace == .sidebar || configuration.web.windowBar == .top
-        AddressSuggestionList(typing: addressTyping, places: [.top, .bottom])
-            .padding(atTop ? .top : .bottom, addressPlace == .window ? 44 : 0)
-            .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
+        return GlassEffectContainer(spacing: 0) {
+            ZStack(alignment: atTop ? .top : .bottom) {
+                if addressPlace == .window, let page = focusedPage {
+                    WindowAddressBar(content: page, atTop: configuration.web.windowBar == .top)
+                        .id(ObjectIdentifier(page))
+                }
+                AddressSuggestionList(typing: addressTyping, places: [.top, .bottom])
+                    .padding(atTop ? .top : .bottom, addressPlace == .window ? Design.Space.m + Design.Size.bar : 0)
+                    .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
+            }
+        }
     }
 
     /// The corners of the pane area that are corners of the window: a docked sidebar covers the corners on its side, the built-in bar those at its edge.

@@ -2,7 +2,6 @@
 enum DesignTokenAllowance {
     static let files: Set<String> = [
         "AddressField.swift",
-        "AddressSuggestionList.swift",
         "AnsiPaletteRow.swift",
         "BuiltInTabBar.swift",
         "ChoiceList.swift",
@@ -34,7 +33,6 @@ enum DesignTokenAllowance {
         "PaneArea.swift",
         "PaneGlyphView.swift",
         "PaneIconView.swift",
-        "PermissionPanel.swift",
         "PrivateMark.swift",
         "QuitSheet.swift",
         "SettingsView+Layout.swift",
@@ -53,11 +51,8 @@ enum DesignTokenAllowance {
         "TabPreviewCard.swift",
         "TabSidebar.swift",
         "TerminalScene+Sidebar.swift",
-        "TerminalScene+Web.swift",
         "TerminalScene.swift",
-        "WebFindBar.swift",
         "WebPaneView.swift",
-        "WebsitesSettings.swift",
-        "WindowAddressBar.swift"
+        "WebsitesSettings.swift"
     ]
 }
