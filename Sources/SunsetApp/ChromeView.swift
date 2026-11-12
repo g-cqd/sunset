@@ -2,6 +2,7 @@ import AppKit
 import Foundation
 import SunsetConfig
 import SunsetHost
+import SunsetShell
 
 /// The view behind the terminal that acts on its window (see `WindowChrome`).
 final class ChromeView: NSView {
@@ -136,7 +137,7 @@ final class ChromeView: NSView {
                     side: origin.side,
                     inset: origin.x,
                     windowWidth: frame.bounds.width,
-                    spacing: spacing ?? 23,
+                    spacing: spacing ?? Design.System.lightsPitch,
                     buttonWidth: button.frame.width
                 )
                 : -200

@@ -331,3 +331,13 @@ the system's accent; red stays red for destructive states; text by Apple's HIG; 
 
 Not verified: the system controls' tint in Settings (Settings was not opened), the accent in a light scheme, the drop and marked fills
 (they need a drag and several selected rows, which the driver does not do).
+
+## 15. Migration step 5: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| Off-scale values | Move up to the scale; an optical token only with a measured reason. Many were probably chosen by eye: each is shown, today and moved up, for the owner to say which are optical. |
+| Settings window | Migrated onto the same tokens. |
+| History panel | Roadmap 0028 B done in this step: rebuilt on the sidebar's parts. |
+| Built-in tab bar | Migrated and shown. |
+| Frames | Added to the enforcement test; content sizes become named tokens. |

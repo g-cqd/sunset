@@ -62,7 +62,7 @@ package struct TabLabel: View {
     }
 
     private var lines: some View {
-        VStack(alignment: .leading, spacing: 1) {
+        VStack(alignment: .leading, spacing: Design.Space.hair) {
             if showTitle {
                 Text(name ?? model?.title ?? Self.title(of: notRunning, command: savedCommand)).lineLimit(1)
             }

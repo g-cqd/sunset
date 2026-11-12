@@ -121,7 +121,8 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   (`tabs.bar.monospacedDirectory`), kept terminals drawn as themselves, folders with a trailing chevron, split sub-rows icon-only when narrow,
   one field (`fieldSurface`), bar buttons as icon buttons, eye.slash for private, new pin and downloads symbols. `FontServer`: one font at a time.
 - Design step 4 (text, fills, accent): `appearance.accent` drawn (system / sunset with a contrast fallback / neutral) through `AccentStyle`
-  and `tint`; text by macOS's built-in styles (`Design.Text`); named fills. 41 view files still allowed literal measures.
+  and `tint`; text by macOS's built-in styles (`Design.Text`); named fills.
+- Design step 5: every view names its measures (`DesignTokenAllowance` empty); off-scale values moved up, shown in research/design-step5.
 
 ### OSC handled by the core (ADR-0010 policy)
 

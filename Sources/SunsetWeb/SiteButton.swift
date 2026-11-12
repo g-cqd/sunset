@@ -11,7 +11,7 @@ struct SiteButton: View {
         Button {
             open.toggle()
         } label: {
-            HStack(spacing: 3) {
+            HStack(spacing: Design.Space.xs) {
                 if content.isNotSecure {
                     NotSecureMark()
                 } else {

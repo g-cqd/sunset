@@ -1,5 +1,6 @@
 import AppKit
 import SunsetConfig
+import SunsetShell
 import SwiftUI
 
 /// The 16 ANSI colours as two rows of colour wells: the normal colours above, their bright variants below.
@@ -9,10 +10,10 @@ struct AnsiPaletteRow: View {
     private static let names = ["Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White"]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: Design.Space.s) {
             Text("ANSI colors")
             ForEach(0 ..< 2, id: \.self) { row in
-                HStack(spacing: 8) {
+                HStack(spacing: Design.Space.m) {
                     ForEach(0 ..< 8, id: \.self) { column in
                         let index = row * 8 + column
                         ColorPicker(

@@ -47,7 +47,7 @@ struct WebPaneView: View {
     }
 
     private func failed(_ failure: WebFailure) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Design.Space.l) {
             Image(systemName: failure.isCertificate ? "lock.trianglebadge.exclamationmark" : "exclamationmark.triangle")
                 .font(.system(size: Design.Symbol.hero))
                 .foregroundStyle(.secondary)
@@ -62,7 +62,7 @@ struct WebPaneView: View {
                 if failure.isCertificate { Button("Visit Anyway\u{2026}") { warning = true } }
             }
         }
-        .padding(24)
+        .padding(Design.Space.xxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(nsColor: .windowBackgroundColor))
         .alert("Visit this page anyway?", isPresented: $warning) {

@@ -8,7 +8,7 @@ struct SiteSettingsPopover: View {
 
     var body: some View {
         let host = content.siteHost ?? ""
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Design.Space.m) {
             Text(host.isEmpty ? "This page" : host).font(Design.Text.title)
             if content.capture != nil {
                 Button("Stop Camera, Microphone and Screen") { content.stopCapture() }

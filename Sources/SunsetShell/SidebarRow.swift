@@ -54,7 +54,7 @@ struct SidebarRow: View {
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-        return HStack(spacing: 4) {
+        return HStack(spacing: Design.Space.xs) {
             if let renaming {
                 RenameField(start: renaming.start, done: renaming.done)
                     .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)

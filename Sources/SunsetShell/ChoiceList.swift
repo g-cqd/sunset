@@ -19,7 +19,7 @@ package struct ChoiceList: View {
     package var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(spacing: 2) {
+                VStack(spacing: Design.Space.hair) {
                     ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                         Button {
                             activate(index)
@@ -30,7 +30,7 @@ package struct ChoiceList: View {
                         .id(row.id)
                     }
                 }
-                .padding(6)
+                .padding(Design.Space.s)
             }
             .scrollIndicators(.never)
             .onChange(of: selection) { _, now in

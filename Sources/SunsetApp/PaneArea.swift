@@ -158,8 +158,8 @@ struct PaneArea: View {
             Text("Shown in another window. Click to bring it here.")
                 .font(Design.Text.secondary)
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
+                .padding(.horizontal, Design.Space.l)
+                .padding(.vertical, Design.Space.s)
                 .surface(Capsule())
         }
         .contentShape(.rect)

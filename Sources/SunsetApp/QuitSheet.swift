@@ -8,13 +8,13 @@ struct QuitSheet: View {
     @State private var dontAsk = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Design.Space.l) {
             Text("Quit Sunset?").font(Design.Text.title)
             if gate.losses.isEmpty {
                 Text("Nothing would be lost.").foregroundStyle(.secondary)
             } else {
                 Text("Quitting now would lose:").foregroundStyle(.secondary)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Design.Space.xs) {
                     ForEach(gate.losses) { loss in
                         Button {
                             gate.show(loss)

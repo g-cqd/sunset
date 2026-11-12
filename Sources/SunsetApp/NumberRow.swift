@@ -1,3 +1,4 @@
+import SunsetShell
 import SwiftUI
 
 /// A numeric setting: a field to type any value in, and a stepper to nudge it by `step`. A value outside `range` is brought inside it when it is committed; text
@@ -13,7 +14,7 @@ struct NumberRow: View {
 
     var body: some View {
         LabeledContent(name) {
-            HStack(spacing: 6) {
+            HStack(spacing: Design.Space.s) {
                 TextField(name, value: clamped, format: .number.precision(.fractionLength(0 ... fractionDigits)))
                     .labelsHidden()
                     .multilineTextAlignment(.trailing)

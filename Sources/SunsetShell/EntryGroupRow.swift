@@ -22,13 +22,13 @@ struct EntryGroupRow: View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         VStack(alignment: .leading, spacing: inset) {
             if entry.title != nil || entry.icon != nil {
-                HStack(spacing: 4) {
+                HStack(spacing: Design.Space.xs) {
                     if let icon = entry.icon { PaneIconView(icon: icon) }
                     if let name = entry.title {
                         Text(name).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
                     }
                 }
-                .padding(.horizontal, 6)
+                .padding(.horizontal, Design.Space.s)
             }
             HStack(spacing: inset) {
                 ForEach(panes, id: \.self) { pane in

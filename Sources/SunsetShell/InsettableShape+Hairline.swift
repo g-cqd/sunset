@@ -10,7 +10,7 @@ extension InsettableShape {
     /// A slightly stronger hairline when the pointer is over this pane's sub-tab in the split container, showing which pane a click would focus.
     package func hoverHairline(_ layout: ShellSettings.Layout) -> some View {
         strokeBorder(
-            .primary.opacity(min(layout.hairlineOpacity * 2.5, 0.45)),
+            .primary.opacity(min(layout.hairlineOpacity * Design.Line.hover, Design.Line.hoverCap)),
             lineWidth: max(layout.hairlineWidth * 1.5, 1)
         )
         .allowsHitTesting(false)

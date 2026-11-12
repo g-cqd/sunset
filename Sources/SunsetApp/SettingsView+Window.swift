@@ -29,7 +29,7 @@ extension SettingsView {
             case "window.lightsY":
                 number("Traffic lights, from the top", \.window.trafficLightsY, range: 0 ... 400, step: 1, unit: "pt")
             case "cursor.shape":
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Design.Space.xs) {
                     Picker("Cursor shape", selection: config.binding(\.cursorShape)) {
                         Text("Block").tag(Configuration.CursorShape.block)
                         Text("Underline").tag(Configuration.CursorShape.underline)

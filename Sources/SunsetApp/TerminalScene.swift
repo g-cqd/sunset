@@ -170,7 +170,7 @@ struct TerminalScene: View {
 
     private var tabBar: some View {
         BuiltInTabBar(tabs: tabs, settings: ShellSettings(configuration).tabs.bar)
-            .padding(.leading, noDecorations && barAtTop ? 72 : 0)
+            .padding(.leading, noDecorations && barAtTop ? Design.System.lightsClearance : 0)
             .background { windowDragSurface }
     }
 

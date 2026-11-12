@@ -10,7 +10,7 @@ struct HistoryRow: View {
     @State private var hovered = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 1) {
+        VStack(alignment: .leading, spacing: Design.Space.hair) {
             Text(entry.title.isEmpty ? AddressChoice.shortAddress(entry.url) : entry.title).lineLimit(1)
             Text(AddressChoice.shortAddress(entry.url))
                 .font(Design.Text.detail)
@@ -18,8 +18,8 @@ struct HistoryRow: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, Design.Space.m)
+        .padding(.vertical, Design.Space.xs)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: radius, style: .continuous)

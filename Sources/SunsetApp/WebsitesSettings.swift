@@ -10,14 +10,14 @@ struct WebsitesSettings: View {
     private let store = SitePermissions.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Design.Space.l) {
             Text("Websites").font(Design.Text.title)
             ForEach(SitePermission.allCases, id: \.self) { permission in section(permission) }
         }
     }
 
     private func section(_ permission: SitePermission) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Design.Space.xs) {
             HStack {
                 Label(permission.title, systemImage: permission.symbol).fixedSize()
                 Spacer()
@@ -47,7 +47,7 @@ struct WebsitesSettings: View {
                     .buttonStyle(.borderless)
                     .help("Remove: the default applies again")
                 }
-                .padding(.leading, 26)
+                .padding(.leading, Design.Optical.siteRowsIndent)
             }
         }
     }

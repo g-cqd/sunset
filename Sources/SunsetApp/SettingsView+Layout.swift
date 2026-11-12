@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetMetrics
+import SunsetShell
 import SwiftUI
 
 /// The controls of the Layout pane: one number row per metric of `Configuration.Layout.fields`, and the two radii that can follow the window's corners.
@@ -34,7 +35,7 @@ extension SettingsView {
             get: { config.configuration[keyPath: keyPath] ?? 10 },
             set: { new in config.update { $0[keyPath: keyPath] = new } }
         )
-        return VStack(alignment: .leading, spacing: 4) {
+        return VStack(alignment: .leading, spacing: Design.Space.xs) {
             Toggle("\(name): match the window", isOn: follows)
             NumberRow(name: name, value: points, range: 0 ... 40, step: 1, unit: "pt")
                 .disabled(follows.wrappedValue)
