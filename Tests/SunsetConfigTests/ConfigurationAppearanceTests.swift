@@ -7,21 +7,25 @@ import Testing
         try ConfigurationParser.parse(text)
     }
 
-    @Test func `the defaults: regular material, 4 pt padding, a docked sidebar, native tabs, regular glass`() throws {
+    @Test
+    func
+        `the defaults (the owners settings of 2026-11-12): glass, a black tint at half, 4 pt padding, a docked sidebar on the right, native tabs`()
+        throws
+    {
         let configuration = try read("{}").configuration
-        #expect(configuration.window.material == .material)
+        #expect(configuration.window.material == .glass)
         #expect(
-            configuration.window.padding == 4 && configuration.window.blur == 0 && configuration.terminal.opacity == 0
+            configuration.window.padding == 4 && configuration.window.blur == 0 && configuration.terminal.opacity == 0.2
         )
         #expect(
-            configuration.sidebar.enabled && configuration.sidebar.width == 207 && configuration.sidebar.padding == 4
+            configuration.sidebar.enabled && configuration.sidebar.width == 229 && configuration.sidebar.padding == 4
         )
         #expect(
             !configuration.sidebar.autoHide,
             "docked beside the terminal"
         )
         #expect(configuration.appearance.glass == .regular)
-        #expect(configuration.appearance.tintColor == nil && configuration.appearance.tintAlpha == 0)
+        #expect(configuration.appearance.tintColor == [0, 0, 0] && configuration.appearance.tintAlpha == 0.5)
         #expect(configuration.tabs.mode == .native)
         #expect(configuration.tabs.restore, "tabs come back at launch")
         #expect(configuration.tabs.bar == Configuration.Tabs.Bar())
@@ -43,7 +47,7 @@ import Testing
         )
         #expect(result.issues.isEmpty)
         let configuration = result.configuration
-        #expect(configuration.window.material == .transparent && configuration.terminal.opacity == 0.6)
+        #expect(configuration.window.material == .fill && configuration.terminal.opacity == 0.6)
         #expect(configuration.window.blur == 40 && configuration.window.padding == 6)
         #expect(
             configuration.sidebar.enabled && configuration.sidebar.width == 240 && configuration.sidebar.padding == 4
@@ -124,12 +128,12 @@ import Testing
         #expect(theme.changes(from: Configuration()) == [.theme])
     }
 
-    @Test func `the sidebar is on the left unless sidebar.side says right, and a wrong side is reported`() throws {
-        #expect(try read("{}").configuration.sidebar.side == .left)
-        let right = try read(#"{ "sidebar": { "side": "right" } }"#)
-        #expect(right.issues.isEmpty && right.configuration.sidebar.side == .right)
+    @Test func `the sidebar is on the right unless sidebar.side says left, and a wrong side is reported`() throws {
+        #expect(try read("{}").configuration.sidebar.side == .right)
+        let left = try read(#"{ "sidebar": { "side": "left" } }"#)
+        #expect(left.issues.isEmpty && left.configuration.sidebar.side == .left)
         let wrong = try read(#"{ "sidebar": { "side": "top" } }"#)
-        #expect(wrong.issues.map(\.path) == ["sidebar.side"] && wrong.configuration.sidebar.side == .left)
+        #expect(wrong.issues.map(\.path) == ["sidebar.side"] && wrong.configuration.sidebar.side == .right)
     }
 
     @Test func `the traffic lights follow the sidebar unless window.trafficLights.side puts them on a side`() throws {

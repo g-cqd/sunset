@@ -22,7 +22,7 @@ import Testing
         configuration.cursorBlinkTimeout = 30
         configuration.renderer = .cpu
         configuration.keyboard.optionAsMeta = true
-        configuration.window.material = .transparent
+        configuration.window.material = .fill
         configuration.terminal.opacity = 0.6
         configuration.terminal.clipboardWrite = false
         configuration.terminal.shellIntegration = false

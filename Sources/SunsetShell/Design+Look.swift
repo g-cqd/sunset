@@ -42,7 +42,7 @@ extension Design {
 
     /// How a surface is drawn (`window.material` governs every surface: design 0003 §6).
     package enum Surface: String, Sendable, Equatable, CaseIterable {
-        case glass, material, opaque, transparent
+        case glass, material, opaque, fill
     }
 
     /// Where the accent comes from (`appearance.accent`).

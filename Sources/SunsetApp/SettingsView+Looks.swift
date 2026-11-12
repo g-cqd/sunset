@@ -119,7 +119,7 @@ extension SettingsView {
             Text("Opaque").tag(Configuration.Material.opaque)
             Text("Material").tag(Configuration.Material.material)
             Text("Glass").tag(Configuration.Material.glass)
-            Text("Transparent").tag(Configuration.Material.transparent)
+            Text("Colour fill").tag(Configuration.Material.fill)
         }
     }
 

@@ -37,7 +37,7 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
             )
             return CTFontCreateWithFontDescriptor(descriptor, CTFontGetSize(font), nil)
         }
-        let plain = CTFontCreateWithName(fontName as CFString, size, nil)
+        let plain = FontFallback.font(named: fontName, size: size)
         let base = featured(plain)
         fullName = CTFontCopyFullName(base) as String
         regular = base
