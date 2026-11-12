@@ -32,28 +32,35 @@ struct HistoryPanel: View {
                 .help("Hide History (Cmd-Y)")
             }
             TextField("Search History", text: $query).textFieldStyle(.roundedBorder)
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 2, pinnedViews: .sectionHeaders) {
-                    ForEach(days, id: \.title) { day in
-                        Section {
-                            ForEach(day.entries) { entry in HistoryRow(entry: entry, radius: layout.tabRadius) }
-                        } header: {
-                            Text(day.title)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .padding(.top, 8)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                }
-            }
-            .scrollIndicators(.never)
             if days.isEmpty {
-                Text(query.isEmpty ? "No pages visited yet" : "No page matches").foregroundStyle(.secondary)
+                Text(query.isEmpty ? "No pages visited yet" : "No page matches")
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 12)
                 Spacer()
+            } else {
+                list(days)
             }
         }
         .padding(.horizontal, layout.tabSideInset + 8)
         .padding(.vertical, 10)
+    }
+
+    private func list(_ days: [HistoryDays]) -> some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 2, pinnedViews: .sectionHeaders) {
+                ForEach(days, id: \.title) { day in
+                    Section {
+                        ForEach(day.entries) { entry in HistoryRow(entry: entry, radius: layout.tabRadius) }
+                    } header: {
+                        Text(day.title)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+        }
+        .scrollIndicators(.never)
     }
 }

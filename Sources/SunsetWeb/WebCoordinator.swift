@@ -35,7 +35,9 @@ import WebKit
         content?.failure = nil
         content?.fallbackHost = nil
         if let url = webView.url, ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
-            content?.history?.visit(url.absoluteString, title: webView.title ?? "")
+            // A restored page has its title before WebKit gives it again: that one is kept with the visit.
+            let title = (webView.title ?? "").isEmpty ? (content?.pageTitle ?? "") : (webView.title ?? "")
+            content?.history?.visit(url.absoluteString, title: title)
         }
     }
 
