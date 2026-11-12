@@ -79,7 +79,7 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   "3 of 12", Match Case and Starts With; the public find without a count where it is missing). Cmd-+ Cmd-- Cmd-0 zoom the focused page (Zoom In /
   Zoom Out), else size the terminal's font; `web.zoomScope` site (remembered in `site-zoom.json` beside the session) / session / page;
   `web.textOnlyZoom` through WebKit's private text zoom; "125%" in the address field resets on a click.
-- History (web step e, in progress, 2026-11-12): visits kept in `history.sqlite` beside the session (system SQLite; one row per address: title,
+- History (web step e, 2026-11-12): visits kept in `history.sqlite` beside the session (system SQLite; one row per address: title,
   visits, last visit), expired at launch by `web.historyKeep` (a year), optionally cleared at quit (`web.clearHistoryOnQuit`,
   `web.clearWebsiteDataOnQuit`). Matches by frecency (prefix first, up to 4) in the address field's list and the command bar. History menu: the
   last 10, Show All History (Cmd-Y: a panel on the side opposite the tabs, by day, searchable, menu per entry), Clear History… (span; history,

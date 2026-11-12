@@ -63,13 +63,18 @@ package struct TabLabel: View {
 
     /// The picture of a pane that is not running: a terminal's folder with its letter, another kind's generic mark.
     static func glyph(of saved: PaneDescriptor) -> PaneGlyph {
+        if saved.state["url"] != nil { return .symbol("globe") }
         guard saved.kind == PaneDescriptor.terminalKind else { return .symbol("square.dashed") }
         return .tab(TabGlyph.make(directory: saved.directory, command: nil, home: NSHomeDirectory()))
     }
 
     /// The title of a pane that is not running: a terminal's directory by its name, another kind by its kind.
     static func title(of saved: PaneDescriptor) -> String {
-        guard let directory = saved.directory else { return saved.kind }
+        if let title = saved.state["title"], !title.isEmpty { return title }
+        if let host = saved.state["url"].flatMap(URL.init(string:))?.host() { return host }
+        guard let directory = saved.directory else {
+            return saved.kind == PaneDescriptor.terminalKind ? "Terminal" : saved.kind
+        }
         return (directory as NSString).lastPathComponent
     }
 

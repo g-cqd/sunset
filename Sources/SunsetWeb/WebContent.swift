@@ -211,9 +211,10 @@ package final class WebContent: PaneContent {
     }
 
     private func changed(title: String?) {
-        guard let title, title != pageTitle else { return }
-        pageTitle = title
+        guard let title else { return }
         if let address = webView?.url?.absoluteString { history?.retitle(address, title: title) }
+        guard title != pageTitle else { return }
+        pageTitle = title
         onChange()
     }
 
