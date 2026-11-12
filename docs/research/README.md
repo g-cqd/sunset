@@ -9,3 +9,4 @@ Reading behind the design. Vendor numbers are the vendor's. A note is a set of c
 - Reverse engineering of system frameworks for typography, colour and compositing (CoreText, CoreGraphics, QuartzCore) is shared with [TerminalUI's research](https://github.com/g-cqd/TerminalUI/tree/main/docs/research) (R9, R10).
 
 - `competitors-architecture-and-neon.md` (2026-11-06): how Alacritty and Ghostty move bytes to pixels (read from source), what differs in Sunset, today's fill/blend probes (`probes/fill-blend.c`), and a ranked list of changes and kernels.
+- `design-system-2026-11-12.md`: the inventory of the interface's measures (literals in 56 of 212 view files), what does not nest or match, Apple's tools (ConcentricRectangle, GlassEffectContainer, ControlSize), the proposed tokens and components, the mapping of `layout.*`, an enforcement test and the migration steps. For the owner's reading; nothing built.
