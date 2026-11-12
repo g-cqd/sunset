@@ -32,6 +32,14 @@ package struct AddressField: View {
                     )
             }
             textField
+            if abs(content.zoom - 1) > 0.001 {
+                Button(ZoomLevels.label(content.zoom)) { content.resetZoom() }
+                    .buttonStyle(.borderless)
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .fixedSize()
+                    .help("Zoom: click for 100%")
+            }
         }
         .padding(.horizontal, 8)
         .frame(height: 26)

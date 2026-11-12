@@ -36,7 +36,9 @@ import SunsetWeb
             engines: WebSettings.engines(adding: added),
             engine: web.engine,
             suggestions: web.suggestions,
-            httpFallback: web.httpFallback
+            httpFallback: web.httpFallback,
+            zoomScope: web.zoomScope == .site ? .site : (web.zoomScope == .session ? .session : .page),
+            textOnlyZoom: web.textOnlyZoom
         )
     }
 

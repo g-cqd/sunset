@@ -32,6 +32,12 @@ extension Configuration {
             }
         }
 
+        /// What a page's zoom applies to (web step d): every page of its site, remembered across launches; the site until the app quits; the page
+        /// alone, saved with it.
+        public enum ZoomScope: String, Sendable, Equatable, CaseIterable {
+            case site, session, page
+        }
+
         /// Cmd-click on a link in a terminal opens it in a page beside the terminal; off: in the default browser.
         public var openLinksInSunset = true
         /// The page's inspector (Inspect Element, and Safari's Develop menu) can be opened.
@@ -47,6 +53,9 @@ extension Configuration {
         public var suggestions = true
         /// A host typed without a scheme that fails over https is tried over http (marked Not Secure).
         public var httpFallback = false
+        public var zoomScope = ZoomScope.site
+        /// Zoom makes only the text bigger, not the images (WebKit's private text zoom; nothing where it is missing).
+        public var textOnlyZoom = false
         public init() {}
     }
 }

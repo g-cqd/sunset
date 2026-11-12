@@ -1,3 +1,4 @@
+import Foundation
 import SunsetConfig
 import SunsetShell
 import SunsetWeb
@@ -9,9 +10,22 @@ struct PagesFollowSettings: ViewModifier {
     let web: Configuration.Web
 
     func body(content: Content) -> some View {
-        content.onChange(of: web) { _, _ in
+        content.onChange(of: web.zoomScope, initial: true) { _, scope in
+            let path = SessionLocation.zoomPath(
+                environment: ProcessInfo.processInfo.environment,
+                home: NSHomeDirectory()
+            )
+            let wanted = scope == .site ? path : nil
+            if SiteZoom.shared.path != wanted || scope == .site && SiteZoom.shared.path == nil {
+                SiteZoom.shared.path = wanted
+            }
+        }
+        .onChange(of: web) { _, _ in
             let settings = PaneContentKinds.webSettings
-            for page in tabs.allPages { page.settings = settings }
+            for page in tabs.allPages {
+                page.settings = settings
+                page.applyZoom()
+            }
         }
     }
 }

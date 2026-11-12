@@ -12,6 +12,11 @@ package struct WebSettings: Sendable, Equatable {
     package var engine: SearchEngine
     package var suggestions: Bool
     package var httpFallback: Bool
+    package var zoomScope: ZoomScope
+    package var textOnlyZoom: Bool
+
+    /// What a page's zoom applies to (`web.zoomScope`).
+    package enum ZoomScope: Sendable, Equatable { case site, session, page }
 
     package init(
         applicationName: String = SafariName.applicationName(),
@@ -20,8 +25,12 @@ package struct WebSettings: Sendable, Equatable {
         engines: [SearchEngine] = SearchEngine.builtIn,
         engine: String = "Google",
         suggestions: Bool = true,
-        httpFallback: Bool = false
+        httpFallback: Bool = false,
+        zoomScope: ZoomScope = .site,
+        textOnlyZoom: Bool = false
     ) {
+        self.zoomScope = zoomScope
+        self.textOnlyZoom = textOnlyZoom
         self.applicationName = applicationName
         self.developer = developer
         self.initialIcon = initialIcon

@@ -128,3 +128,16 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | The http setting on | A host typed without a scheme that fails over https is tried over http at once, marked Not Secure in the field |
 | The command bar's redesign (study `docs/research/command-bar-design-2026-11-12.md`) | Taken: states on every row (hover, pressed, selected), each row's actions on Cmd-K with Cmd-Return and Option-Return for the second and third, the engine as a chip in the field after its keyword and a space, an accessory on the right of a row, Up in an empty field recalling earlier entries (this session). Not taken: sections with headers, a footer, a wider panel |
 | The address field's list | The same rows and states as the command bar, one shared view |
+
+## Step d: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| The find field | A small glass bar at the top right of the page's pane (each split page its own): field, "3 of 12", previous, next, Done |
+| Find's options | Case-insensitive by default; a menu with Match Case and Starts With (WebKit has word starts, not whole words); wraps around |
+| How find is done | WebKit's private find (count, index, all matches highlighted) through `SunsetPrivate`, falling back to the public find without a count |
+| Find's keys | Cmd-F opens or focuses, Return or Cmd-G next, Shift-Return or Shift-Cmd-G previous, Escape closes, Cmd-E uses the selection |
+| Zoom's keys | Cmd-+ Cmd-- Cmd-0 zoom the focused page; with a terminal focused they size the font as before |
+| What zoom applies to | `web.zoomScope`: the site, remembered across launches (default); the site until quit; the page, saved with it |
+| Text only | Everything by default; `web.textOnlyZoom` through WebKit's private text zoom, hidden when it is missing |
+| The level shown | "125%" in the address field when not 100%; a click resets it |

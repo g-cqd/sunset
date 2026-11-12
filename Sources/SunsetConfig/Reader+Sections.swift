@@ -64,36 +64,6 @@ extension Reader {
         }
     }
 
-    mutating func readWeb(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "openLinksInSunset":
-                    if let flag = bool("web.openLinksInSunset", value) { configuration.web.openLinksInSunset = flag }
-                case "developer":
-                    if let flag = bool("web.developer", value) { configuration.web.developer = flag }
-                case "tabIcon":
-                    if let icon = choice("web.tabIcon", value, as: Configuration.Web.TabIcon.self) {
-                        configuration.web.tabIcon = icon
-                    }
-                case "address":
-                    if let place = choice("web.address", value, as: Configuration.Web.AddressPlace.self) {
-                        configuration.web.address = place
-                    }
-                case "engine": if let name = string("web.engine", value) { configuration.web.engine = name }
-                case "engines": readEngines(value)
-                case "suggestions":
-                    if let flag = bool("web.suggestions", value) { configuration.web.suggestions = flag }
-                case "httpFallback":
-                    if let flag = bool("web.httpFallback", value) { configuration.web.httpFallback = flag }
-                case "windowBar":
-                    if let edge = choice("web.windowBar", value, as: Configuration.Web.BarEdge.self) {
-                        configuration.web.windowBar = edge
-                    }
-                default: unknown("web.\(key)")
-            }
-        }
-    }
-
     mutating func readScroll(_ object: Object) {
         for (key, value) in object {
             switch key {

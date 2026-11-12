@@ -27,6 +27,7 @@ public enum ConfigurationKeys {
         "scroll.trackpad", "scroll.wheel", "scroll.inertia",
         "scrollback.lines", "cursor.shape", "cursor.blink", "cursor.blinkTimeout", "renderer",
         "keyboard.optionAsMeta", "web.openLinksInSunset", "web.developer", "web.tabIcon",
-        "web.address", "web.windowBar", "web.engine", "web.engines", "web.suggestions", "web.httpFallback"
+        "web.address", "web.windowBar", "web.engine", "web.engines", "web.suggestions", "web.httpFallback",
+        "web.zoomScope", "web.textOnlyZoom"
     ]
 }

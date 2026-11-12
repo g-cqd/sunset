@@ -24,10 +24,11 @@ struct TerminalCommands: Commands {
         }
         CommandGroup(after: .textEditing) {
             Button("Command Bar") { AppActions.shared.toggleCommandBar() }.keyboardShortcut("l")
+            PageFindCommands(page: page)
         }
         CommandGroup(after: .toolbar) {
-            Button("Bigger") { AppActions.shared.zoomFont(by: 1) }.keyboardShortcut("+")
-            Button("Smaller") { AppActions.shared.zoomFont(by: -1) }.keyboardShortcut("-")
+            Button(page == nil ? "Bigger" : "Zoom In") { AppActions.shared.zoomFont(by: 1) }.keyboardShortcut("+")
+            Button(page == nil ? "Smaller" : "Zoom Out") { AppActions.shared.zoomFont(by: -1) }.keyboardShortcut("-")
             Button("Actual Size") { AppActions.shared.resetFontZoom() }.keyboardShortcut("0")
             Divider()
             Button("Previous Prompt") { model?.jumpToPrompt(.previous) }
