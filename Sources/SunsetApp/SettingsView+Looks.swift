@@ -45,6 +45,12 @@ extension SettingsView {
                 Picker("Glass style", selection: config.binding(\.appearance.glass)) {
                     ForEach(Configuration.Appearance.Glass.allCases, id: \.self) { Text($0.rawValue.capitalized) }
                 }
+            case "appearance.barBlur":
+                Picker("Under the bars", selection: config.binding(\.appearance.barBlur)) {
+                    Text("Fading blur").tag(Configuration.Appearance.BarBlur.variable)
+                    Text("The bar's surface").tag(Configuration.Appearance.BarBlur.surface)
+                    Text("Nothing").tag(Configuration.Appearance.BarBlur.none)
+                }
             case "appearance.tint": colorRow("Tint", \.appearance.tintColor, fallback: [48, 96, 255])
             case "appearance.tintAlpha":
                 number("Tint strength", \.appearance.tintAlpha, range: 0 ... 1, step: 0.05, unit: "")

@@ -19,4 +19,12 @@ import Testing
         let new = try ConfigurationParser.parse(#"{ "layout": { "sidebarButtonSize": 26 } }"#)
         #expect(new.configuration.layout.sidebarButtonSize == 26 && new.issues.isEmpty)
     }
+
+    @Test func `under the bars: a fading blur by default; each choice read`() throws {
+        #expect(Configuration().appearance.barBlur == .variable)
+        for blur in Configuration.Appearance.BarBlur.allCases {
+            let read = try ConfigurationParser.parse(#"{ "appearance": { "barBlur": ""# + blur.rawValue + #"" } }"#)
+            #expect(read.configuration.appearance.barBlur == blur && read.issues.isEmpty)
+        }
+    }
 }

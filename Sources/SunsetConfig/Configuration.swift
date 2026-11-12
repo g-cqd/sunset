@@ -119,7 +119,14 @@ public struct Configuration: Sendable, Equatable {
         /// The colour that marks a selection, a focus, a filled control (design 0003 §3.5): the system's accent, Sunset's (`tint.color`, the
         /// system's when unset), or neutral shades of the scheme.
         public var accent = Accent.system
+        /// What is under the bars (the address bar, the find bar, the ends of the sidebar's list) and behind the command bar: a
+        /// blur that fades out (AemiSDR's variable blur), the surface the bar draws itself, or nothing (Sunset research/blur).
+        public var barBlur = BarBlur.variable
         public init() {}
+
+        public enum BarBlur: String, Sendable, Equatable, CaseIterable {
+            case variable, surface, none
+        }
 
         public enum Accent: String, Sendable, Equatable, CaseIterable {
             case system, sunset, neutral

@@ -1,3 +1,4 @@
+import AemiSDR
 import SunsetMetrics
 import SunsetPane
 package import SwiftUI
@@ -72,6 +73,16 @@ package struct TabSidebar: View {
         .contentMargins(.bottom, margin + bottomInset, for: .scrollContent)
         .onHover { inside in if !inside { closingSlot = nil } }
         .mask { fade }
+        // Under the pin and the + bar, the rows that scroll there blur out as they fade (Sunset research/blur).
+        .overlay(alignment: .top) {
+            Color.clear.frame(height: topInset)
+                .blurUnder(.top, solid: topInset / 2, fade: topInset / 2, radius: Design.Blur.listRadius)
+        }
+        .overlay(alignment: .bottom) {
+            let end = bottomInset + margin
+            Color.clear.frame(height: end)
+                .blurUnder(.bottom, solid: end / 2, fade: end / 2, radius: Design.Blur.listRadius)
+        }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
         .overlay(alignment: .top) { accessoryView }
         .overlay(alignment: .bottom) { bottomBarView }

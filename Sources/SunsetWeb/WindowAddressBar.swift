@@ -1,3 +1,4 @@
+import AemiSDR
 import SunsetShell
 package import SwiftUI
 
@@ -28,6 +29,11 @@ package struct WindowAddressBar: View {
             if out {
                 bar
                     .padding(Design.Space.m)
+                    .blurUnder(
+                        atTop ? .top : .bottom,
+                        solid: Design.Size.bar + 2 * Design.Space.m,
+                        fade: Design.Size.bar
+                    )
                     .onHover { inside in
                         hovering = inside
                         if !inside { hideSoon() }
