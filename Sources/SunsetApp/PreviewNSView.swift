@@ -7,7 +7,9 @@ final class PreviewNSView: NSView {
         super.init(frame: frame)
         wantsLayer = true
         layerContentsRedrawPolicy = .never
-        layer?.contentsGravity = .resizeAspect
+        // Each pane's spot has (nearly) the shape it drew in: it fills it, a gap's worth cut at the edges rather than bars beside it (n58).
+        layer?.contentsGravity = .resizeAspectFill
+        layer?.masksToBounds = true
         layer?.magnificationFilter = .trilinear
         layer?.minificationFilter = .trilinear
     }

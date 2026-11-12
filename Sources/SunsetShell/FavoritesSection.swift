@@ -41,6 +41,51 @@ struct FavoritesSection: View {
     }
 
     private func entryRow(_ entry: Favorites.Entry) -> some View {
+        entryLook(entry)
+            .overlay(alignment: .topLeading) {
+                // Its command was not run: something other than Sunset wrote it (t145).
+                if tabs.favorites.unconfirmed.contains(entry.id) {
+                    Image(systemName: "exclamationmark.shield.fill")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.orange)
+                        .help("Its command was not written by Sunset and was not run. Edit Command\u{2026} to see it.")
+                        .offset(x: 2, y: 1)
+                }
+            }
+            .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
+            .overlay { dropMark(entry.id) }
+            .onTapGesture(count: 2) { tabs.renamingRow = .node(entry.id) }
+            .selectionTaps(tabs, row: .node(entry.id)) { tabs.select(entry: entry.id) }
+            .iconPopover(tabs: tabs, row: .node(entry.id))
+            .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
+            .onDrop(
+                of: [.plainText, .utf8PlainText],
+                delegate: EntryRowDropDelegate(
+                    tabs: tabs,
+                    entry: entry.id,
+                    height: heights[entry.id] ?? 32,
+                    active: $drop
+                )
+            )
+            .contextMenu { entryMenu(entry) }
+    }
+
+    /// A split entry as a split tab is drawn (n55); else one row.
+    @ViewBuilder private func entryLook(_ entry: Favorites.Entry) -> some View {
+        if (entry.open?.panes.count ?? entry.home.layout.panes.count) > 1 {
+            EntryGroupRow(
+                entry: entry,
+                tabs: tabs,
+                selected: tabs.workspace.selectedEntry == entry.id,
+                layout: layout,
+                marked: tabs.isMarked(.node(entry.id))
+            )
+        } else {
+            singleRow(entry)
+        }
+    }
+
+    private func singleRow(_ entry: Favorites.Entry) -> some View {
         SidebarRow(
             model: entry.open.flatMap { tabs.favorites.contents[$0.focused] },
             selected: tabs.workspace.selectedEntry == entry.id,
@@ -65,27 +110,6 @@ struct FavoritesSection: View {
                 ) : nil,
             close: { entry.isOpen ? tabs.unload(entry: entry.id) : tabs.delete(entry: entry.id) }
         )
-        .overlay(alignment: .topLeading) {
-            // Its command was not run: something other than Sunset wrote it (t145).
-            if tabs.favorites.unconfirmed.contains(entry.id) {
-                Image(systemName: "exclamationmark.shield.fill")
-                    .font(.system(size: 9))
-                    .foregroundStyle(.orange)
-                    .help("Its command was not written by Sunset and was not run. Edit Command\u{2026} to see it.")
-                    .offset(x: 2, y: 1)
-            }
-        }
-        .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
-        .overlay { dropMark(entry.id) }
-        .onTapGesture(count: 2) { tabs.renamingRow = .node(entry.id) }
-        .selectionTaps(tabs, row: .node(entry.id)) { tabs.select(entry: entry.id) }
-        .iconPopover(tabs: tabs, row: .node(entry.id))
-        .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
-        .onDrop(
-            of: [.plainText, .utf8PlainText],
-            delegate: EntryRowDropDelegate(tabs: tabs, entry: entry.id, height: heights[entry.id] ?? 32, active: $drop)
-        )
-        .contextMenu { entryMenu(entry) }
     }
 
     @ViewBuilder private func entryMenu(_ entry: Favorites.Entry) -> some View {
