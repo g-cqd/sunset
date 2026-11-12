@@ -131,7 +131,7 @@ shows over a pattern. `edges-2026-11-13.png`:
 - Still clipped to their shapes, on purpose: the find bar's blur (a panel's surface) and the cards' content.
 
 `command-variants-2026-11-13.png`: the command bar's backdrop, (1) the dark veil without blur, (2) the built one (blur 8, darker),
-(3) soft focus (blur 3), (4) frosted (blur 18, livelier colour). For the owner to choose.
+(3) soft focus (blur 3), (4) frosted (blur 18, livelier colour). The owner chose (3).
 
 axdrive learned `scroll PID X Y DY` and `hover PID X Y` (events posted to the process, nothing brought to the front); History has
 Open Address (the window's bar comes out for it), which the scene uses.
