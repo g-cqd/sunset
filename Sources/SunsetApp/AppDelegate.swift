@@ -16,12 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        SessionStore.shared.finish()
-        MainActor.assumeIsolated {
-            DownloadCenter.shared.finish()
-            WebClearing.clearAtQuit()
-        }
-        return .terminateNow
+        MainActor.assumeIsolated { QuitGate.shared.shouldTerminate() }
     }
 
     func applicationDidResignActive(_ notification: Notification) { SessionStore.shared.saveNow() }

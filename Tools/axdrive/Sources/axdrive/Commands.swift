@@ -21,13 +21,8 @@ enum Commands {
                 return perform(node, action)
             case "set":
                 guard options.words.count >= 2, let node = await chosen(options) else { return lastFailure }
-                let status = AXUIElementSetAttributeValue(
-                    node.element,
-                    kAXValueAttribute as CFString,
-                    options.words[1] as CFString
-                )
-                guard status == .success else {
-                    return fail("could not set the value (\(status.rawValue)) of \(node.summary)")
+                guard await Typing.set(node, to: options.words[1], pid: pid) else {
+                    return fail("the value of \(node.summary) did not become \"\(options.words[1])\"")
                 }
                 return options.flags.contains("confirm") ? perform(node, kAXConfirmAction) : 0
             case "focus":
@@ -94,8 +89,22 @@ enum Commands {
         )
     }
 
+    /// The elements that take a value, for `set` (a label of the same name is never what is meant).
+    static let valueRoles: Set<String> = [
+        "AXTextField", "AXTextArea", "AXSearchField", "AXComboBox", "AXSlider", "AXCheckBox"
+    ]
+
     static func ranked(_ options: Options) -> [Match] {
-        Ranking.rank(nodes(options), query: options.words.first ?? "", role: options.values["role"])
+        var found = nodes(options)
+        if options.command == "set", options.values["role"] == nil {
+            found = found.filter { valueRoles.contains($0.role) }
+        }
+        // Pressing: something that can be pressed wins over static text of the same name.
+        if options.command == "press", options.values["role"] == nil {
+            let pressable = found.filter { !$0.actions.isEmpty && $0.role != "AXStaticText" }
+            if !Ranking.rank(pressable, query: options.words.first ?? "", role: nil).isEmpty { found = pressable }
+        }
+        return Ranking.rank(found, query: options.words.first ?? "", role: options.values["role"])
     }
 
     /// The element the query means: the clear winner, the one picked (`--pick`), or the one the on-device model picks for `--ask`.

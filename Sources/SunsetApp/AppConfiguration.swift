@@ -57,6 +57,14 @@ final class AppConfiguration {
         scheduleSave()
     }
 
+    /// Writes a change still waiting (the app is quitting: "Don't ask again" must not be lost).
+    func saveNow() {
+        guard saving != nil else { return }
+        saving?.cancel()
+        saving = nil
+        save()
+    }
+
     private func scheduleSave() {
         saving?.cancel()
         saving = Task { [weak self] in

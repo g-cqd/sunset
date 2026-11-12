@@ -88,6 +88,7 @@ extension SettingsView {
                     )
                     .font(.caption).foregroundStyle(.secondary)
                 }
+            case "tabs.askBeforeQuit": quitPicker
             case "tabs.confirmClose":
                 VStack(alignment: .leading, spacing: 4) {
                     Toggle("Confirm closing a busy tab", isOn: config.binding(\.tabs.confirmClose))
@@ -129,6 +130,14 @@ extension SettingsView {
                 "A file themes/<name>.json beside the configuration file; it can set the font, colours, window, sidebar and appearance. Your own keys win."
             )
             .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    private var quitPicker: some View {
+        Picker("Ask before quitting", selection: config.binding(\.tabs.askBeforeQuit)) {
+            Text("Never").tag(Configuration.Tabs.QuitAsk.never)
+            Text("When something would be lost").tag(Configuration.Tabs.QuitAsk.whenLosing)
+            Text("Always").tag(Configuration.Tabs.QuitAsk.always)
         }
     }
 }

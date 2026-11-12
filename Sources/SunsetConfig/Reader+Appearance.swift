@@ -80,6 +80,10 @@ extension Reader {
                     if let flag = bool("tabs.keepRunningForFavorites", value) {
                         configuration.tabs.keepRunningForFavorites = flag
                     }
+                case "askBeforeQuit":
+                    if let ask = choice("tabs.askBeforeQuit", value, as: Configuration.Tabs.QuitAsk.self) {
+                        configuration.tabs.askBeforeQuit = ask
+                    }
                 case "bar": section("tabs.bar", value) { reader, bar in reader.readTabBar(bar) }
                 default: unknown("tabs.\(key)")
             }

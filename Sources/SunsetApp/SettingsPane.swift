@@ -195,6 +195,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                 "Confirm closing a tab with a running command",
                 ["close", "warn", "running", "red"]
             ),
+            entry(pane, "tabs.askBeforeQuit", "Ask before quitting", ["quit", "confirm", "running", "lost", "form"]),
             entry(
                 pane,
                 "tabs.keepRunningForFavorites",
