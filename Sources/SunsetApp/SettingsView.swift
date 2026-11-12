@@ -107,8 +107,7 @@ struct SettingsView: View {
                 number("Stop blinking after", \.cursorBlinkTimeoutSeconds, range: 1 ... 3600, step: 1, unit: "s")
                     .disabled(config.configuration.cursorBlinkTimeout == nil)
             case "terminal.renderer": renderer
-            case "web.openLinksInSunset", "web.developer", "web.tabIcon", "web.address", "web.windowBar":
-                webControl(for: id)
+            case let web where web.hasPrefix("web."): webControl(for: id)
             case "keyboard.meta": Toggle("Option sends Escape (Meta)", isOn: config.binding(\.keyboard.optionAsMeta))
             case "file.location": fileInfo
             default: windowControls(for: id)

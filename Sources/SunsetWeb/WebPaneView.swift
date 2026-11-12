@@ -10,19 +10,21 @@ struct WebPaneView: View {
     let topInset: Double
     @State private var warning = false
     @Environment(\.webAddressRow) private var addressRow
+    @Environment(\.addressTyping) private var typing
 
     var body: some View {
         VStack(spacing: 0) {
             if addressRow {
-                AddressField(content: content).padding(.horizontal, 6).padding(.vertical, 4)
+                AddressField(content: content, place: .pane).padding(.horizontal, 6).padding(.vertical, 4)
                 Divider()
             }
-            ZStack {
+            ZStack(alignment: .top) {
                 if let webView = content.webView {
                     WebViewHost(webView: webView, focused: focused && content.url != nil && content.failure == nil)
                 }
                 if content.url == nil, content.webView?.url == nil { empty }
                 if let failure = content.failure { failed(failure) }
+                if addressRow, let typing { AddressSuggestionList(typing: typing, places: [.pane], page: content) }
             }
         }
         .padding(.top, topInset)

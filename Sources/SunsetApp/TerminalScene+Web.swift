@@ -25,6 +25,11 @@ extension TerminalScene {
         if addressPlace == .window, let page = focusedPage {
             WindowAddressBar(content: page, atTop: configuration.web.windowBar == .top).id(ObjectIdentifier(page))
         }
+        // The list of the sidebar's field or the window bar's, as wide as the content: under the field, or over the bar at the bottom.
+        let atTop = addressPlace == .sidebar || configuration.web.windowBar == .top
+        AddressSuggestionList(typing: addressTyping, places: [.top, .bottom])
+            .padding(atTop ? .top : .bottom, addressPlace == .window ? 44 : 0)
+            .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
     }
 
     /// The corners of the pane area that are corners of the window: a docked sidebar covers the corners on its side, the built-in bar those at its edge.

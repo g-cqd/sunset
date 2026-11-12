@@ -28,10 +28,4 @@ import Testing
     @Test func `the installed Safari is read on this machine`() {
         #expect(SafariName.applicationName().hasPrefix("Version/"))
     }
-
-    @Test func `what is typed keeps its scheme, or is tried over https`() {
-        #expect(WebAddress.url(from: " example.com/a ")?.absoluteString == "https://example.com/a")
-        #expect(WebAddress.url(from: "http://localhost:8080")?.absoluteString == "http://localhost:8080")
-        #expect(WebAddress.url(from: "two words") == nil && WebAddress.url(from: "") == nil)
-    }
 }

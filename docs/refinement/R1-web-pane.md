@@ -113,3 +113,18 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Where the placement is chosen | Settings only |
 | Cmd-L | Stays the command bar, which takes addresses too: a "Go to <address>" row loads in the focused page, or in a new page tab when a terminal is focused. The window bar is then brought by the pointer only |
 | Rename Tab's Shift-Cmd-R | Removed (menu and double-click only); Shift-Cmd-R reloads without the cache |
+
+## Step c: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| Built-in engines | Google (default), DuckDuckGo, Bing, Ecosia, Kagi |
+| An added engine in the file | `web.engines`: name, search address and suggestion address with `%s` for the words, and a keyword (`ddg words` searches DuckDuckGo); `web.engine` names the one used |
+| Suggestion format | The OpenSearch JSON format only (`[query, [suggestions]]`) |
+| When suggestions are sent | Always while typing, on by default; a setting turns them off; for private pages a setting of their own (step h, off by default) |
+| Where they are shown | A list under the field (above it for a bottom bar), as wide as the content area; and in the command bar |
+| The field's list | The typed row (Go to / Search), then suggestions; open tabs only in the command bar |
+| The command bar | A "Search <engine> for <words>" row after the tab matches, and suggestions; and its redesign (hover, pressed and focused states, richer controls) now, after a study of Spotlight, Raycast and Sol shown first |
+| The http setting on | A host typed without a scheme that fails over https is tried over http at once, marked Not Secure in the field |
+| The command bar's redesign (study `docs/research/command-bar-design-2026-11-12.md`) | Taken: states on every row (hover, pressed, selected), each row's actions on Cmd-K with Cmd-Return and Option-Return for the second and third, the engine as a chip in the field after its keyword and a space, an accessory on the right of a row, Up in an empty field recalling earlier entries (this session). Not taken: sections with headers, a footer, a wider panel |
+| The address field's list | The same rows and states as the command bar, one shared view |

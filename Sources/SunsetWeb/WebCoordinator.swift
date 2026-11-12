@@ -23,14 +23,18 @@ import WebKit
         didFailProvisionalNavigation navigation: WKNavigation?,
         withError error: any Error
     ) {
-        content?.failure = WebFailure(error, url: content?.url)
+        guard let failure = WebFailure(error, url: content?.url) else { return }
+        if content?.fallBackToHTTP(after: failure) != true { content?.failure = failure }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation?, withError error: any Error) {
         content?.failure = WebFailure(error, url: webView.url)
     }
 
-    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation?) { content?.failure = nil }
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation?) {
+        content?.failure = nil
+        content?.fallbackHost = nil
+    }
 
     func webView(_ webView: WKWebView, respondTo challenge: URLAuthenticationChallenge) async
         -> (URLSession.AuthChallengeDisposition, URLCredential?)

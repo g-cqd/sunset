@@ -103,8 +103,19 @@ public enum ConfigurationWriter {
         [
             "web.openLinksInSunset": String(web.openLinksInSunset), "web.developer": String(web.developer),
             "web.tabIcon": string(web.tabIcon.rawValue), "web.address": string(web.address.rawValue),
-            "web.windowBar": string(web.windowBar.rawValue)
+            "web.windowBar": string(web.windowBar.rawValue), "web.engine": string(web.engine),
+            "web.engines": "[" + web.engines.map(engine).joined(separator: ", ") + "]",
+            "web.suggestions": String(web.suggestions), "web.httpFallback": String(web.httpFallback)
         ]
+    }
+
+    private static func engine(_ engine: Configuration.Web.Engine) -> String {
+        var fields = [
+            "\"name\": " + string(engine.name), "\"keyword\": " + string(engine.keyword),
+            "\"search\": " + string(engine.search)
+        ]
+        if let suggest = engine.suggest { fields.append("\"suggest\": " + string(suggest)) }
+        return "{ " + fields.joined(separator: ", ") + " }"
     }
 
     private static func number(_ value: Double) -> String {

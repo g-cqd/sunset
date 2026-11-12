@@ -26,7 +26,18 @@ import SunsetWeb
     /// What pages are made with, from `web.*`.
     static var webSettings: WebSettings {
         let web = AppConfiguration.shared.configuration.web
-        return WebSettings(applicationName: safariName, developer: web.developer, initialIcon: web.tabIcon == .initial)
+        let added = web.engines.map {
+            SearchEngine(name: $0.name, keyword: $0.keyword, search: $0.search, suggest: $0.suggest)
+        }
+        return WebSettings(
+            applicationName: safariName,
+            developer: web.developer,
+            initialIcon: web.tabIcon == .initial,
+            engines: WebSettings.engines(adding: added),
+            engine: web.engine,
+            suggestions: web.suggestions,
+            httpFallback: web.httpFallback
+        )
     }
 
     /// Read once: the installed Safari's version does not change while the app runs (or if it does, the next launch reads it).
