@@ -49,3 +49,17 @@ takes the icon's place under the pointer (not shown: the driver does not move th
 Owner's further asks, same day (not built yet):
 - Variable blur under the tabs (n60, t208), at least as an option.
 - In tab-bar mode the address field is not a separate row: each tab is its own address slot (the selected tab is the field).
+
+### Answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| Variable blur under | The built-in tab bar, the window's address bar, the find bar and the command bar's backdrop, the top and bottom of the sidebar's list. |
+| Setting | Its own: `appearance.barBlur` (variable / surface); the window keeps its material. |
+| Shape | Full blur over the bar, fading out over about a bar's height beyond it. |
+| Address in the tabs | The selected tab shows the page's address (host idle, full address when clicked) and is the field; other tabs show titles. |
+| Back, forward, reload | At the bar's leading edge, after the traffic lights. |
+| Terminal tabs | Title and directory as now. |
+
+Probe (`/tmp`, macOS 27.0.1, no window): `CAFilter.filterTypes` has `variableBlur`, inputs `inputMaskImage`, `inputRadius`,
+`inputNormalizeEdges`, `inputFade`, `inputDither`…; `CABackdropLayer` exists. The same private route as `BackdropBlur`.

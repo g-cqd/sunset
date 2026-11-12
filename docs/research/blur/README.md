@@ -1,0 +1,99 @@
+---
+status: for the owner's reading
+date: 2026-11-12
+asked-in: design step 5, the owner's notes on variable blur (n60, t208) and AemiSDR
+---
+
+# Blur for the bars: variable blur and tuned backdrop blur, in AemiSDR first
+
+Nothing is built. The probe below ran in a throw-away copy of Sunset (`/tmp`, never committed), driven in the background.
+
+## 1. What was measured
+
+`probe-2026-11-12.png`: a test page (colour bands, sharp text, swatches) under a 76 pt strip at the top of the pane area, macOS 27.0.1.
+
+| Variant | How | Seen |
+| --- | --- | --- |
+| none | nothing | the page as it is |
+| gaussian | `CABackdropLayer` + `gaussianBlur` 24 | an even blur ending in a hard line |
+| gaussian-tuned | + `colorSaturate` 1.8, `colorBrightness` -0.08 | the same, livelier colour (what AemiSDR's Backdrop Blur tunes) |
+| faded | gaussian, the layer's opacity masked by a gradient | the blur fades, but sharp page shows through it at half: a double image |
+| faded-tuned | faded + the tuning | the same, with livelier colour |
+| variable | `variableBlur` 24, a mask image: full over the top half, falling to 0 over the bottom half | the blur radius itself falls to nothing: no line, no double image |
+| variable-tuned | variable + the tuning | the same, livelier |
+
+Findings:
+- `CAFilter.filterTypes` lists `variableBlur` on macOS 27 (inputs: `inputMaskImage`, `inputRadius`, `inputNormalizeEdges`, `inputFade`,
+  `inputDither`, …); `CABackdropLayer` exists. AemiSDR's variable blur is iOS-only today only because it hangs the filter on a
+  `UIVisualEffectView`; the filter itself is there on macOS.
+- **Variable is the only clean fade.** Masking the opacity of a uniform blur (faded) is cheaper but shows the sharp page through.
+- A light halo at the very bottom of the variable strip comes from `inputNormalizeEdges` meeting a white page; to tune (`inputFade`,
+  normalize off) in the real build.
+- Not measured: cost (frame time while scrolling a page under it), behaviour across Spaces and full screen, iOS.
+
+## 2. Two blurs, what each is for
+
+| | Backdrop blur (tuned) | Variable blur |
+| --- | --- | --- |
+| What | one radius, plus saturation, brightness, tint, darkening, zoom (AemiSDR's `BackdropBlurConfiguration`) | a radius that changes across the area, from a mask |
+| Where it fits | a surface with an edge: a panel, a popover, the floating sidebar, the command bar's backdrop | an edge with no surface: under a bar, at the ends of a scrolling list |
+| Reads | what is under it in the window (`CABackdropLayer`), or behind the window (`NSVisualEffectView`) | what is under it in the window |
+| Cost | one blur pass | one blur pass with a per-pixel radius; the mask is made once per size |
+
+They combine: the tuning filters (saturate, brightness) run after either blur, in the same filter list.
+
+## 3. The plan in AemiSDR (iOS and macOS)
+
+One core both platforms share, and thin views on each:
+
+```
+AemiSDR
+  Effects/Blur/
+    BlurRecipe.swift            value: kind (.uniform(radius) | .variable(radius, mask)), tuning (saturation, brightness,
+                                tint, darkening), captureScale. Sendable, Equatable.
+    BlurMask.swift              value: the shapes MaskType has today (linear edges, rounded rect, superellipse) + .edge(Edge,
+                                solid: Double, fade: Double) for "full over the bar, fading over a bar's height"; cached CGImage
+                                by (mask, pixel size, inverted).
+    BackdropFilterStack.swift   builds the CAFilter list for a recipe through Abysm (typed): RuntimeClass("CAFilter"),
+                                method "filterWithType:" as (String) -> NSObject?, properties set with RuntimeObject.write
+                                (throws, never crashes on a missing key). Names in _InternedKeys (#Interned).
+    BlurLayer.swift             a CABackdropLayer (or nil) with the stack installed; `apply(_ recipe:)` diffs and only touches
+                                what changed; groupName, windowServerAware, scale. Main actor.
+  Platform/
+    BlurNSView.swift   (macOS)  NSView hosting BlurLayer; layout updates the mask size off the main thread, applied on main.
+    BlurUIView.swift   (iOS)    the same on UIView (today's VariableBlurUIView keeps its API and moves onto the core).
+  SwiftUI/
+    View+Blur.swift             .backdropBlur(_ recipe:, in shape:) and .variableBlur(edge:, solid:, fade:, radius:) on both.
+```
+
+Safety and performance, both platforms:
+- **Every private name** is an `#Interned` key and every call goes through Abysm (`RuntimeClass`, typed `method(…, as:)`,
+  `RuntimeObject.write`), so a signature or key that changes between OS releases throws and is logged once, never crashes.
+- **Fallback chain**, decided once per process: variable → uniform backdrop blur → the system material (`NSVisualEffectView` /
+  `UIVisualEffectView`) → nothing. `RuntimeAccess.isEnabled = false` (a kill switch) goes straight to the material.
+- **No filter work during SwiftUI layout** (AemiSDR found the crash on macOS 26: modifying the layer tree inside `updateNSView`):
+  changes are applied on the next main-actor turn (`Task { @MainActor }`, not `DispatchQueue`), coalesced.
+- **Masks** made off the main thread, cached by size; the filter keeps its previous mask until the new one is ready (no black frame).
+- **Reduce Transparency** (accessibility) turns every blur into the opaque raised colour.
+- Tests: recipe → filter-list unit tests (no window); a snapshot test per platform behind an environment flag; an Abysm resolution
+  test that fails when a private name stops resolving on a new OS.
+- Sunset then depends on AemiSDR (pinned revision); its own `SunsetPrivate/BackdropBlur` is replaced.
+
+## 4. Where Sunset would use them (variants)
+
+Setting: `appearance.barBlur`: `variable` (default) / `surface` (the bars draw as today's surface kind) / `none`.
+
+| Place | Variant A (proposed) | Variant B | Variant C |
+| --- | --- | --- | --- |
+| Built-in tab bar | variable: full under the bar, fading over 38 pt below it; no fill | variable + tuning (saturate 1.8) | today's surface (glass etc.) |
+| Window address bar (when out) | variable under it, the bar's own surface kept (glass on blur) | variable only, the bar drawn as icons and a field on the blur | surface only |
+| Find bar | uniform tuned backdrop blur in its rounded shape (it is a panel) | variable band across the pane's top | surface only |
+| Command bar backdrop | uniform blur of the whole window behind it (radius 8, darkened 0.18) instead of today's black at 0.18 | darkening only (today) | |
+| Sidebar list ends | variable at the top (under the pin) and bottom (under the + bar), 24 pt each, as the list scrolls under them | an alpha fade of the rows instead of blur (AemiSDR's Alpha Mask) | nothing (today) |
+| Floating sidebar, panels, popovers | tuned backdrop blur as a fifth surface kind (`window.material: blur`) | | |
+
+## 5. Questions before building
+
+1. The plan in §3 (the shared core, Abysm, the fallback chain) — or changes.
+2. For each place in §4: A, B or C.
+3. Whether the old AemiSDR iOS API (`VariableBlurView`, `BackdropBlurView`) may change (a major version), or must stay source-compatible.
