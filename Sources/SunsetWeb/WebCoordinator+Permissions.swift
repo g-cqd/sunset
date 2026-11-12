@@ -62,7 +62,7 @@ extension WebCoordinator {
     func popupAllowed(_ action: WKNavigationAction, from webView: WKWebView) -> Bool {
         if WebPermissionHooks.isUserInitiated(action) ?? true { return true }
         guard let content, let host = webView.url?.host() else { return false }
-        switch SitePermissions.shared.answer(.popups, for: host) {
+        switch content.permissions.answer(.popups, for: host) {
             case .allow: return true
             case .deny: return false
             case .ask:

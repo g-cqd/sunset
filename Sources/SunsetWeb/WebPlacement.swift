@@ -6,4 +6,6 @@ package enum WebPlacement: Sendable, Equatable {
     case splitDown
     /// A window of its own (R1: only on a click; a page asking for a sized window gets one too).
     case window
+    /// A private tab right after, with a store of its own (web step h).
+    case privateTab
 }

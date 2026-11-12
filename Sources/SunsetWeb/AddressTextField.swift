@@ -22,6 +22,7 @@ struct AddressTextField: NSViewRepresentable {
         field.drawsBackground = false
         field.focusRingType = .none
         field.font = .systemFont(ofSize: NSFont.systemFontSize)
+        field.textColor = .labelColor
         field.lineBreakMode = .byTruncatingMiddle
         field.cell?.usesSingleLineMode = true
         field.placeholderString = "Address"
@@ -30,6 +31,8 @@ struct AddressTextField: NSViewRepresentable {
     }
 
     func updateNSView(_ field: AddressNSField, context: Context) {
+        // The colour scheme SwiftUI gives it (dark for a private page) becomes the field's own appearance.
+        field.appearance = NSAppearance(named: context.environment.colorScheme == .dark ? .darkAqua : .aqua)
         field.address = address
         field.host = host
         field.onSubmit = onSubmit

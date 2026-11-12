@@ -114,7 +114,9 @@ public enum ConfigurationWriter {
             "web.downloadFolder": string(web.downloadFolder), "web.askWhereToSave": String(web.askWhereToSave),
             "web.openSafeDownloads": String(web.openSafeDownloads), "web.notifyDownloads": String(web.notifyDownloads),
             "web.approveRiskyDownloads": String(web.approveRiskyDownloads),
-            "web.keepDownloads": string(web.keepDownloads.rawValue)
+            "web.keepDownloads": string(web.keepDownloads.rawValue),
+            "web.privateSuggestions": String(web.privateSuggestions),
+            "web.privateWindowShares": String(web.privateWindowShares)
         ]
     }
 

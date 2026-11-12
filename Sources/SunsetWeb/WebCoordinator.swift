@@ -73,6 +73,13 @@ import WebKit
         let placement =
             (webView as? SunsetWebView)?.pendingPlacement ?? (windowFeatures.width != nil ? .window : .tabAfter)
         (webView as? SunsetWebView)?.pendingPlacement = nil
+        if placement == .privateTab {
+            // Not WebKit's page: its configuration would tie it to this page's store.
+            var settings = content.settings
+            settings.privacy = PagePrivacy()
+            if let url = action.request.url { content.onOpen(WebContent(url: url, settings: settings), .tabAfter) }
+            return nil
+        }
         let opened = WebContent(configuration: configuration, settings: content.settings)
         content.onOpen(opened, placement)
         return opened.webView

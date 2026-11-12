@@ -21,6 +21,11 @@ struct TerminalCommands: Commands {
             Button("New Tab") { AppActions.shared.newTab() }.keyboardShortcut("t")
             Button("New Tab of Kind\u{2026}") { AppActions.shared.chooseKind() }
                 .keyboardShortcut("t", modifiers: [.command, .shift])
+            Divider()
+            Button("New Private Window") { AppActions.shared.newPrivateWindow() }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+            Button("New Private Tab") { AppActions.shared.newTab(kind: PaneContentKinds.newPrivatePage) }
+                .keyboardShortcut("n", modifiers: [.command, .shift, .option])
         }
         CommandGroup(replacing: .saveItem) {
             Button("Close") { AppActions.shared.closeTab() }.keyboardShortcut("w")

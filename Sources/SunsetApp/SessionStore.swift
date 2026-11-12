@@ -55,7 +55,10 @@ final class SessionStore {
     /// Writes the session now, from the windows that are open (and the saved ones not yet taken, so that a quit during launch loses nothing).
     func saveNow() {
         guard writes else { return }
-        let open = restoresWindows ? TabRegistry.shared.allWindows().map { $0.tabs.savedWindow() } + pending : []
+        let open =
+            restoresWindows
+            ? TabRegistry.shared.allWindows().filter { !$0.tabs.isPrivateWindow }.map { $0.tabs.savedWindow() }
+                + pending : []
         let session = SavedSession(windows: open, favorites: AppFavorites.shared.saved())
         guard let data = try? session.encoded() else { return }
         let directory = (path as NSString).deletingLastPathComponent

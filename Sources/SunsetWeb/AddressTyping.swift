@@ -31,7 +31,7 @@ package final class AddressTyping {
         selection = 0
         guard let settings = page?.settings else { return }
         let question = SuggestionSource.question(text, settings: settings)
-        suggestions.update(text, engine: question?.0, words: question?.1 ?? "", enabled: settings.suggestions)
+        suggestions.update(text, engine: question?.0, words: question?.1 ?? "", enabled: settings.suggestsWhileTyping)
     }
 
     func end() {

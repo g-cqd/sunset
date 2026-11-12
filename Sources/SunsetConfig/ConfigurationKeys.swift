@@ -33,6 +33,7 @@ public enum ConfigurationKeys {
         "web.downloadFolder", "web.askWhereToSave", "web.openSafeDownloads", "web.notifyDownloads",
         "web.approveRiskyDownloads", "web.keepDownloads",
         "web.permissions.camera", "web.permissions.microphone", "web.permissions.screen", "web.permissions.location",
-        "web.permissions.notifications", "web.permissions.popups", "web.permissions.autoplay"
+        "web.permissions.notifications", "web.permissions.popups", "web.permissions.autoplay",
+        "web.privateSuggestions", "web.privateWindowShares"
     ]
 }

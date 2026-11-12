@@ -35,6 +35,14 @@ final class AddressNSField: NSTextField {
         onEditing(true)
     }
 
+    /// Confirm through accessibility (VoiceOver, or a test driving Sunset in the background): what the field holds is opened, as Return does.
+    override func accessibilityPerformConfirm() -> Bool {
+        let typed = stringValue
+        endTyping()
+        onSubmit(typed)
+        return true
+    }
+
     func endTyping() {
         typing = false
         stringValue = host

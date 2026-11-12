@@ -60,4 +60,12 @@ extension TerminalScene {
             .frame(maxHeight: .infinity)
             .transition(.move(edge: side.moveEdge).combined(with: .opacity))
     }
+
+    /// A private window's first page (web step h): its pages share one store unless `web.privateWindowShares` says not.
+    func startPrivate() {
+        AppActions.shared.pendingPrivateWindow = false
+        tabs.privateGroup = UUID()
+        tabs.privateShares = configuration.web.privateWindowShares
+        tabs.newTab(PaneContentKinds.newPage)
+    }
 }

@@ -77,6 +77,18 @@ extension SettingsPane {
             keywords: ["cookies", "cache", "quit", "privacy"]
         ),
         SettingsEntry(
+            id: "web.privateSuggestions",
+            pane: "web",
+            title: "Suggestions in private pages",
+            keywords: ["private", "incognito", "suggest"]
+        ),
+        SettingsEntry(
+            id: "web.privateWindowShares",
+            pane: "web",
+            title: "Private windows share their data",
+            keywords: ["private", "incognito", "store", "cookies"]
+        ),
+        SettingsEntry(
             id: "web.permissions",
             pane: "web",
             title: "Websites",

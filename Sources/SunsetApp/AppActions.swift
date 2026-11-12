@@ -20,6 +20,8 @@ final class AppActions {
     var joinsRemaining = 0
     /// Contents that run already and are waiting for a window to show them (the presentation changed from one window of tabs to a window each).
     var handoff: [any PaneContent] = []
+    /// The next window to appear is a private one (File > New Private Window, web step h).
+    var pendingPrivateWindow = false
 
     /// A new tab in the way the configuration shows tabs: a tab of the window with the built-in bar, a new window that joins the group with system tabs,
     /// a plain window with none. Of the kind the focused pane is (the owner's answer in web step a): a page makes a new empty page, a terminal a terminal;
@@ -29,8 +31,10 @@ final class AppActions {
 
     func newTab(kind: PaneDescriptor? = nil) {
         let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
-        let wanted =
-            kind ?? ((tabs?.selectedContent?.descriptor.kind == WebContent.kind) ? PaneContentKinds.newPage : nil)
+        // A private page's new tab is private too.
+        let focusedPage = tabs?.selectedContent as? WebContent
+        let samePage = focusedPage.map { $0.isPrivate ? PaneContentKinds.newPrivatePage : PaneContentKinds.newPage }
+        let wanted = kind ?? samePage
         if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs {
             tabs.newTab(wanted)
         } else if let wanted, wanted.kind != PaneDescriptor.terminalKind {

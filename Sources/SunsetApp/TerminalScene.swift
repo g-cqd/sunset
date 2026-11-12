@@ -34,7 +34,7 @@ struct TerminalScene: View {
     private var barAtTop: Bool { presentation.showsBuiltInBar && configuration.tabs.bar.position == .top }
 
     /// The launch options win, then the configuration (the file, or the defaults).
-    private var font: FontSettings {
+    var font: FontSettings {
         let file = configuration.font
         return FontSettings(
             name: launch.fontName ?? file.family ?? "Menlo",
@@ -45,7 +45,7 @@ struct TerminalScene: View {
     }
 
     /// The strip at the top that drags a window with no title bar, in points: the terminal starts below it (the built-in bar at the top is the strip then).
-    private var topInset: Double {
+    var topInset: Double {
         guard noDecorations, !barAtTop, !configuration.sidebarDocked else { return 0 }
         // With no title bar the content goes under it; the system's tab bar (when there are tabs) is below the strip and covers more.
         return max(configuration.window.dragStrip, presentation.showsNativeTabBar ? obscured : 0)
@@ -57,11 +57,11 @@ struct TerminalScene: View {
         return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
     private var look: WindowLook { WindowLook(configuration) }
-    private var colors: DefaultColors {
+    var colors: DefaultColors {
         DefaultColors(configuration.colors, cursorShape: configuration.cursorShape, blinks: configuration.cursorBlinks)
     }
 
-    private var blinkSchedule: BlinkSchedule {
+    var blinkSchedule: BlinkSchedule {
         BlinkSchedule(stopAfter: configuration.cursorBlinkTimeout.map { Duration.seconds($0) })
     }
 
@@ -189,7 +189,9 @@ struct TerminalScene: View {
         tabs.onEmpty = { dismiss() }
         tabs.makeContent = { makeContent($0) }
         tabs.onChange = { SessionStore.shared.scheduleSave() }
-        if tabs.workspace.isEmpty {
+        if tabs.workspace.isEmpty, AppActions.shared.pendingPrivateWindow {
+            startPrivate()
+        } else if tabs.workspace.isEmpty {
             // A terminal that was running in another window is waiting for this one, else the saved tabs of an earlier run, else a new one starts.
             if !AppActions.shared.handoff.isEmpty {
                 let content = AppActions.shared.handoff.removeFirst()
@@ -212,28 +214,7 @@ struct TerminalScene: View {
         AppActions.shared.joinPendingTab(window)
     }
 
-    /// A terminal for nil or a terminal's descriptor (in its directory, when that is still there); else what `PaneContentKinds` makes of it.
-    private func makeContent(_ descriptor: PaneDescriptor?) -> any PaneContent {
-        if let descriptor, descriptor.kind != PaneDescriptor.terminalKind {
-            let content = PaneContentKinds.make(descriptor) { SessionStore.shared.scheduleSave() }
-            if let page = content as? WebContent { WebOpening.wire(page, in: tabs) }
-            return content
-        }
-        let model = TerminalModel()
-        model.startDirectory = descriptor?.directory.flatMap { PaneContentKinds.isDirectory($0) ? $0 : nil }
-        model.topInsetPoints = topInset
-        configure(model)
-        let integrated = configuration.terminal.shellIntegration
-        model.start(
-            command: launch.command,
-            environment: Self.shellEnvironment(for: launch.command, integrated: integrated),
-            font: font,
-            scrollback: launch.scrollback ?? configuration.scrollbackLines
-        )
-        return model
-    }
-
-    private func configure(_ model: TerminalModel) {
+    func configure(_ model: TerminalModel) {
         model.wire(to: tabs)
         model.blinkSchedule = blinkSchedule
         model.defaultColors = colors

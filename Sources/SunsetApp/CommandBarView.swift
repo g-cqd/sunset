@@ -17,7 +17,7 @@ struct CommandBarView: View {
 
     var body: some View {
         if let bar = tabs.bar {
-            let settings = PaneContentKinds.webSettings
+            let settings = PaneContentKinds.webSettings(for: tabs)
             let shown = bar.purpose == .search ? suggestions.suggestions : []
             let rows = CommandBarRows.rows(bar, tabs: tabs, settings: settings, suggestions: shown)
             ZStack(alignment: .top) {
@@ -154,6 +154,11 @@ struct CommandBarView: View {
         let chip = bar.engine.flatMap { name in settings.engines.first { $0.name == name } }
         let question =
             bar.purpose == .search ? SuggestionSource.question(bar.query, settings: settings, chip: chip) : nil
-        suggestions.update(bar.query, engine: question?.0, words: question?.1 ?? "", enabled: settings.suggestions)
+        suggestions.update(
+            bar.query,
+            engine: question?.0,
+            words: question?.1 ?? "",
+            enabled: settings.suggestsWhileTyping
+        )
     }
 }
