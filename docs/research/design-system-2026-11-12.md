@@ -294,3 +294,6 @@ Probe: `probes/system-controls.swift` (draws into 2x bitmaps; no window is creat
   The "before" row has no find bar (that build had the menu bug). **Not shown:** the window's address bar (it comes out on hover, and the
   driver does not move the pointer), the suggestion list (a value set from outside does not start typing), the floating sidebar.
 - Seen in the shots: with `fill` (black at 0.5, the default tint) the page shows through the panel's text and is hard to read.
+
+Owner, after the shots: the permission panel's 16 and 22 kept; shadows fine; the find bar as a rounded bar fine; with `fill`, floating parts
+use the tint's colour at least 0.85 opaque (`Design.Fill.floatingMinimum`), the window keeps the tint's alpha.
