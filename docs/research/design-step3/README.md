@@ -38,3 +38,32 @@ For the owner's review before anything is built. How they were made:
 - The floating sidebar in the app: it only opens on hover, and the driver does not move the pointer. Its rows are in `rows-sidebar.png`.
 - Real hover (only its stand-in), the pressed state of rows, the window's address bar (also hover-only), the suggestion list, download rows.
 - Glass in the mock-ups (drawn grey).
+
+## The owner's guidance (2026-11-12)
+
+1. **Private marker**: a symbol instead of the word "Private".
+2. **Spacing**: the more spaced variants are preferred. The Favorites tree may need to be more compact, without losing the larger hit
+   areas of the new rows.
+3. **Kept entries not open must not be dimmed** (they look disabled). Instead, an entry that is open gets a clearly more prominent look,
+   and the regular tabs match that look; the not-open ones are drawn plainly.
+4. **The trailing button** (close / unload) is as far from the row's trailing edge as from its top and bottom: not yet so in the proposals.
+5. **The second line is monospaced** by default (a setting).
+6. **A kept terminal that is not open** shows its own picture and name, not a folder and "Sunset": a terminal symbol with an initial when it
+   runs a command, a folder symbol with an initial when it is a shell in a folder; its name is the command, or the folder's last component.
+7. **Split tabs**: less inner padding so the sub-rows get more room; when narrow, a sub-row shows only its icon (or initial).
+8. **Icons to research**: open and closed folders, the sidebar shown / hidden (the pin), downloads.
+9. **The shared field and the icon buttons (B)**: good.
+10. **Back, forward, reload**: their hit and hover area as tall as the address field beside them; the gaps to the bar's edge the same for
+    every part of the bar.
+
+## Second round, after the guidance (mock-ups, off-screen)
+
+| File | What |
+| --- | --- |
+| `icons.png` | Symbol candidates. Folder closed → open: today folder / folder.fill; A folder / folder.badge.minus; B chevron.right / chevron.down (the disclosure convention of Finder and Xcode); C rectangle.stack / .fill; D square.stack / list.bullet.indent. Sidebar hides → kept: today sidebar.left both ways (filled when kept); A rectangle.leadinghalf.inset.filled / sidebar.leading; B pin / pin.fill; C sidebar.squares.leading / sidebar.leading. Downloads: today arrow.down.circle; A tray.and.arrow.down; B arrow.down.to.line; C square.and.arrow.down; D tray.full. Private: A theatermasks.fill, B eyeglasses, C sunglasses.fill, D eye.slash, E hand.raised.fill, F lock.shield.fill, G moon.fill. |
+| `tree.png` | Nothing dimmed; an open entry (and every tab) marked: A an accent dot on the glyph, B an accent bar and a semibold title, C a faint fill. Each also compact: Favorites rows 28 with a 2 pt gap (tabs stay 32). The close buttons are drawn on every row to show their place; a real row shows one on hover only. |
+| `row-details.png` | The close button 6 from every edge (from 4 trailing); the second line monospaced; a kept terminal not open with its own picture (folder + initial, terminal + initial) and its folder name or command. |
+| `splits.png` | Split tabs with an inner padding of 2 (from 6), and icon-only sub-rows when narrow. |
+
+Not mocked: the bar's buttons as tall as the field with equal gaps (the field is 26 and its gap to the bar's edge 6, so the buttons
+become 26 × 26 hit areas at the same 6). It follows from guidance 10 directly; it will be shown in the app once built.
