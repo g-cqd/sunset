@@ -109,3 +109,8 @@ Seen in the shots:
 | --- | --- |
 | `r4-disclosure.png`, `r4-disclosure-more.png` | Folder rows (F: the folder fills when expanded) with the mark in the close button's place, on hover only: A one chevron turning a quarter (right → down), B chevron down / up, C compact chevron, D plus / minus, E arrows apart / together, F diagonal expand / collapse, G triangles, H rectangles expand / compress. |
 | `r4-command-symbols.png` | A kept terminal running a command, no initial: apple.terminal (.fill), terminal.fill, play.rectangle, play.square, bolt, bolt.horizontal, hammer, gearshape.2, curlybraces.square, greaterthan.square, chevron.forward.2, command.square, arrow.triangle.2.circlepath. And the folder's initial as chosen (6.5 pt, +1.75). |
+
+## The owner's choices, round 4 (2026-11-12)
+
+- Disclosure mark: **B, chevron down (collapsed) / up (expanded)**.
+- A kept terminal that runs a command: **`terminal`**, and **`terminal.fill`** while its tab is open.
