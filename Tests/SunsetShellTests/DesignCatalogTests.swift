@@ -135,6 +135,9 @@ import Testing
         #expect(downloads.write(to: folder.appending(path: "r3-downloads.png")))
         #expect(initials.write(to: folder.appending(path: "r3-initials.png")))
         #expect(splitAlignment.write(to: folder.appending(path: "r3-splits.png")))
+        #expect(disclosure.write(to: folder.appending(path: "r4-disclosure.png")))
+        #expect(disclosureMore.write(to: folder.appending(path: "r4-disclosure-more.png")))
+        #expect(commandSymbols.write(to: folder.appending(path: "r4-command-symbols.png")))
         let favorites = try JSONEncoder().encode(Self.catalogFavorites())
         try favorites.write(to: FileManager.default.temporaryDirectory.appending(path: "catalog-favorites.json"))
     }
