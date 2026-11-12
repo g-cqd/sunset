@@ -1,3 +1,5 @@
+public import SunsetMetrics
+
 /// Everything the configuration file sets, with the defaults used for any key it does not mention.
 public struct Configuration: Sendable, Equatable {
     public struct Font: Sendable, Equatable {
@@ -113,7 +115,14 @@ public struct Configuration: Sendable, Equatable {
         /// `#rrggbb`; nil for no tint. One tint for the window and the sidebar.
         public var tintColor: [UInt8]?
         public var tintAlpha = 0.0
+        /// The colour that marks a selection, a focus, a filled control (design 0003 §3.5): the system's accent, Sunset's (`tint.color`, the
+        /// system's when unset), or neutral shades of the scheme.
+        public var accent = Accent.system
         public init() {}
+
+        public enum Accent: String, Sendable, Equatable, CaseIterable {
+            case system, sunset, neutral
+        }
     }
 
     public struct Tabs: Sendable, Equatable {

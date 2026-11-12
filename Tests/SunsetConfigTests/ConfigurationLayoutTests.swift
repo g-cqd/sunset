@@ -1,3 +1,4 @@
+import SunsetMetrics
 import Testing
 
 @testable import SunsetConfig
@@ -13,7 +14,7 @@ import Testing
         #expect(layout.tabPaddingLeading == 8 && layout.tabPaddingTrailing == 4 && layout.tabPaddingVertical == 3)
         #expect(layout.tabRadius == 6 && layout.closeButtonSize == 20 && layout.closeButtonRadius == 4)
         #expect(layout.lightsInset == 8 && layout.lightsGap == 10 && layout.floatingLightsExtra == 0)
-        #expect(layout.pinButtonSize == 24 && layout.pinButtonRadius == 5)
+        #expect(layout.sidebarButtonSize == 24 && layout.sidebarButtonRadius == 5)
         #expect(layout.hairlineWidth == 0.5 && layout.hairlineOpacity == 0.12)
         #expect(layout.revealStripWidth == 10 && layout.hideDelay == 0.35 && layout.animation == 0.15)
         #expect(layout.paneGap == 2, "the space between the panes of a split")
@@ -68,8 +69,8 @@ import Testing
         #expect(layout.tabSpacing == 2 && layout.tabSideInset == 0 && layout.tabPaddingLeading == 10)
         #expect(layout.tabPaddingTrailing == 6 && layout.tabPaddingVertical == 5 && layout.tabRadius == 9)
         #expect(layout.closeButtonSize == 16 && layout.closeButtonRadius == 3 && layout.lightsInset == 8)
-        #expect(layout.lightsGap == 12 && layout.floatingLightsExtra == 4 && layout.pinButtonSize == 28)
-        #expect(layout.pinButtonRadius == 8 && layout.hairlineWidth == 1 && layout.hairlineOpacity == 0.3)
+        #expect(layout.lightsGap == 12 && layout.floatingLightsExtra == 4 && layout.sidebarButtonSize == 28)
+        #expect(layout.sidebarButtonRadius == 8 && layout.hairlineWidth == 1 && layout.hairlineOpacity == 0.3)
         #expect(layout.revealStripWidth == 14 && layout.hideDelay == 0.5 && layout.animation == 0.25)
         #expect(layout.terminalRadius == 12 && layout.panelRadius == 14)
     }

@@ -1,3 +1,4 @@
+import SunsetMetrics
 import SwiftUI
 
 /// The sidebar's buttons: the pin at the top, and the app's bar at the bottom mirroring it (same container, same gaps to the corner, concentric).
@@ -7,7 +8,7 @@ extension TabSidebar {
         SidebarButtonMetrics(
             size: panelRadius == nil
                 ? CGSize(width: header.dockedButtonSize, height: header.dockedButtonHeight)
-                : CGSize(width: layout.pinButtonSize, height: layout.pinButtonSize),
+                : CGSize(width: layout.sidebarButtonSize, height: layout.sidebarButtonSize),
             radius: pinRadius,
             smooth: layout.smooth
         )
@@ -31,7 +32,7 @@ extension TabSidebar {
     /// The pin button's distance from the panel's top and from its edge: the same, so that their corners share a centre (docked: the container is flush with the terminal card's top and with the tabs' edge).
     var pinGap: Double { panelRadius == nil ? layout.tabSideInset : header.buttonTop }
     var pinRadius: Double {
-        guard let panelRadius else { return layout.pinButtonRadius }
+        guard let panelRadius else { return layout.sidebarButtonRadius }
         return ConcentricRadius.inner(outer: panelRadius, inset: pinGap)
     }
 

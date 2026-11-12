@@ -124,7 +124,7 @@ let package = Package(
             dependencies: [
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
                 "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal",
-                "SunsetWeb"
+                "SunsetWeb", "SunsetMetrics"
             ],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings
@@ -135,15 +135,21 @@ let package = Package(
             path: "Sources/SunsetRenderTool",
             swiftSettings: strictSettings
         ),
+        // The interface's measures (`layout.*`): one list, read by the configuration and drawn by the shell (design 0003).
+        .target(
+            name: "SunsetMetrics",
+            path: "Sources/SunsetMetrics",
+            swiftSettings: strictSettings
+        ),
         .target(
             name: "SunsetConfig",
-            dependencies: [.product(name: "AemiJSONCore", package: "AemiJSON")],
+            dependencies: [.product(name: "AemiJSONCore", package: "AemiJSON"), "SunsetMetrics"],
             path: "Sources/SunsetConfig",
             swiftSettings: strictSettings
         ),
         .testTarget(
             name: "SunsetConfigTests",
-            dependencies: ["SunsetConfig"],
+            dependencies: ["SunsetConfig", "SunsetMetrics"],
             path: "Tests/SunsetConfigTests",
             swiftSettings: strictSettings
         ),
@@ -173,13 +179,13 @@ let package = Package(
         ),
         .target(
             name: "SunsetShell",
-            dependencies: ["SunsetPane"],
+            dependencies: ["SunsetPane", "SunsetMetrics"],
             path: "Sources/SunsetShell",
             swiftSettings: strictSettings
         ),
         .testTarget(
             name: "SunsetShellTests",
-            dependencies: ["SunsetShell", "SunsetPane"],
+            dependencies: ["SunsetShell", "SunsetPane", "SunsetMetrics"],
             path: "Tests/SunsetShellTests",
             swiftSettings: strictSettings
         ),
@@ -188,7 +194,7 @@ let package = Package(
             name: "SunsetTerminal",
             dependencies: [
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetRender", "SunsetRenderMac",
-                "SunsetRenderMetal", "SunsetShell"
+                "SunsetRenderMetal", "SunsetShell", "SunsetMetrics"
             ],
             path: "Sources/SunsetTerminal",
             swiftSettings: strictSettings
@@ -196,32 +202,32 @@ let package = Package(
         // A web page as a kind of pane content (R1, roadmap 0019), on the system's WebKit.
         .target(
             name: "SunsetWeb",
-            dependencies: ["SunsetPane", "SunsetShell", "SunsetPrivate"],
+            dependencies: ["SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics"],
             path: "Sources/SunsetWeb",
             swiftSettings: strictSettings
         ),
         .testTarget(
             name: "SunsetWebTests",
-            dependencies: ["SunsetWeb", "SunsetPane", "SunsetShell"],
+            dependencies: ["SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics"],
             path: "Tests/SunsetWebTests",
             swiftSettings: strictSettings
         ),
         // What joins the configuration file to the shell's settings: a library so that the mapping is tested (the app target cannot be).
         .target(
             name: "SunsetShellBridge",
-            dependencies: ["SunsetShell", "SunsetConfig"],
+            dependencies: ["SunsetShell", "SunsetConfig", "SunsetMetrics"],
             path: "Sources/SunsetShellBridge",
             swiftSettings: strictSettings
         ),
         .testTarget(
             name: "SunsetShellBridgeTests",
-            dependencies: ["SunsetShellBridge", "SunsetShell", "SunsetConfig"],
+            dependencies: ["SunsetShellBridge", "SunsetShell", "SunsetConfig", "SunsetMetrics"],
             path: "Tests/SunsetShellBridgeTests",
             swiftSettings: strictSettings
         ),
         .target(
             name: "SunsetHost",
-            dependencies: ["SunsetCore", "SunsetConfig"],
+            dependencies: ["SunsetCore", "SunsetConfig", "SunsetMetrics"],
             path: "Sources/SunsetHost",
             swiftSettings: strictSettings
         ),
@@ -233,7 +239,9 @@ let package = Package(
         ),
         .testTarget(
             name: "SunsetHostTests",
-            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetHost", "SunsetConfig"],
+            dependencies: [
+                .product(name: "AemiTestKit", package: "aemi"), "SunsetHost", "SunsetConfig", "SunsetMetrics"
+            ],
             path: "Tests/SunsetHostTests",
             swiftSettings: strictSettings
         ),

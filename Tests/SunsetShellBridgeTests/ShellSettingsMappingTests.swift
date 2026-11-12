@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetMetrics
 import SunsetShell
 import SunsetShellBridge
 import Testing
@@ -31,6 +32,12 @@ import Testing
         #expect(from.count > 25, "the reflection must see the layout: \(from.count) values")
         #expect(Set(from.keys) == Set(into.keys))
         for (name, value) in from { #expect(into[name] == value, "layout.\(name)") }
+    }
+
+    @Test func `every surface the configuration can name is a surface the design draws`() {
+        #expect(
+            Configuration.Material.allCases.map(\.rawValue).sorted() == Design.Surface.allCases.map(\.rawValue).sorted()
+        )
     }
 
     @Test func `the layout's defaults are the configuration's`() {

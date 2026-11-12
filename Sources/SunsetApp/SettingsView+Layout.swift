@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetMetrics
 import SwiftUI
 
 /// The controls of the Layout pane: one number row per metric of `Configuration.Layout.fields`, and the two radii that can follow the window's corners.

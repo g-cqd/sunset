@@ -1,3 +1,5 @@
+import SunsetMetrics
+
 /// The measures of the sidebar's top, from `layout.*` and the margin `m` (`sidebar.padding`).
 ///
 /// - The traffic lights' top left corner is the same distance from the window's top and from its leading edge: `m + lightsInset` (plus `floatingLightsExtra`
@@ -37,8 +39,8 @@ package struct SidebarHeader {
 
     /// A filled container flush with a hairline looks larger than the line: it is drawn one stroke width inside on every side (the hairline is drawn inside its
     /// shape, so its edge is the card's edge).
-    package var dockedButtonInset: Double { layout.hairlineWidth }
+    package var dockedButtonInset: Double { Design.Optical.insideHairline(layout.hairlineWidth) }
 
     /// From the top of the slot to the top of the pin button's container, so that it is centred on the lights.
-    package var buttonTop: Double { layout.lightsInset + (Self.lightsSize - layout.pinButtonSize) / 2 + extra }
+    package var buttonTop: Double { layout.lightsInset + (Self.lightsSize - layout.sidebarButtonSize) / 2 + extra }
 }

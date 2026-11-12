@@ -1,3 +1,4 @@
+import SunsetMetrics
 package import SwiftUI
 
 extension InsettableShape {
