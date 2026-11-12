@@ -32,7 +32,8 @@ package final class WebContent: PaneContent {
     /// Something the session file holds changed (the address, the title).
     @ObservationIgnored package var onChange: () -> Void = {}
 
-    @ObservationIgnored let settings: WebSettings
+    /// Followed when the configuration changes (`TerminalScene`); the engine, suggestions and http fallback apply at once.
+    @ObservationIgnored package var settings: WebSettings
     @ObservationIgnored private var savedHistory: Data?
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
     @ObservationIgnored private var coordinator: WebCoordinator?

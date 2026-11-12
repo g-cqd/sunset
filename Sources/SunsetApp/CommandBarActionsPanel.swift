@@ -58,8 +58,10 @@ struct CommandBarActionsPanel: View {
 
     private func move(_ steps: Int, _ count: Int) -> KeyPress.Result {
         guard count > 0 else { return .handled }
+        // Read before writing: `tabs.bar?.x = f(tabs.bar)` reads the property while it is being changed (a crash, seen on 2026-11-12).
+        let current = tabs.bar?.actionsSelection ?? 0
         tabs.bar?.actionsSelection = TabSearch.moved(
-            min(tabs.bar?.actionsSelection ?? 0, count - 1),
+            min(current, count - 1),
             by: steps,
             count: count
         )

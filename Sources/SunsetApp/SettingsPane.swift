@@ -209,39 +209,3 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         ]
     }
 }
-
-extension SettingsPane {
-    /// The web pane's options (R1).
-    static let webEntries: [SettingsEntry] = [
-        SettingsEntry(
-            id: "web.openLinksInSunset",
-            pane: "web",
-            title: "Open terminal links in Sunset",
-            keywords: ["link", "browser", "cmd-click"]
-        ),
-        SettingsEntry(
-            id: "web.developer",
-            pane: "web",
-            title: "Page inspector",
-            keywords: ["inspect", "developer", "devtools"]
-        ),
-        SettingsEntry(
-            id: "web.tabIcon",
-            pane: "web",
-            title: "A page's tab picture",
-            keywords: ["icon", "globe", "letter", "favicon"]
-        ),
-        SettingsEntry(
-            id: "web.address",
-            pane: "web",
-            title: "Where the address is",
-            keywords: ["address", "url", "bar"]
-        ),
-        SettingsEntry(
-            id: "web.windowBar",
-            pane: "web",
-            title: "Window bar edge",
-            keywords: ["address", "top", "bottom"]
-        )
-    ]
-}
