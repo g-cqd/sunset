@@ -34,10 +34,16 @@ package struct SurfaceStyle: Sendable, Equatable {
     /// The surface's shape.
     package var shape: RoundedRectangle { RoundedRectangle(cornerRadius: radius, style: .continuous) }
 
-    /// The colour of a fill: the tint, or half-black without one.
+    /// The colour of a floating surface's fill: the tint's (black without one), at least `Design.Fill.floatingMinimum` opaque.
     package var fillColor: Color {
-        guard let tint, tint.count == 4 else { return .black.opacity(Design.Fill.untinted) }
-        return Color(.sRGB, red: tint[0], green: tint[1], blue: tint[2], opacity: tint[3])
+        let rgba = fillComponents
+        return Color(.sRGB, red: rgba[0], green: rgba[1], blue: rgba[2], opacity: rgba[3])
+    }
+
+    /// The fill as sRGB components and alpha.
+    package var fillComponents: [Double] {
+        guard let tint, tint.count == 4 else { return [0, 0, 0, Design.Fill.floatingMinimum] }
+        return Array(tint.prefix(3)) + [max(tint[3], Design.Fill.floatingMinimum)]
     }
 }
 

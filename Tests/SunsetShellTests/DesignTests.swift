@@ -27,4 +27,10 @@ import Testing
         #expect(Design.Accent.resolve("sunset", tint: [255, 128, 0]) == .color(red: 255, green: 128, blue: 0))
         #expect(Design.Accent.resolve("neutral", tint: nil) == .neutral)
     }
+
+    @Test func `a floating fill is the tint's colour, at least 0.85 opaque`() {
+        #expect(SurfaceStyle(kind: .fill, tint: [0, 0, 0, 0.5]).fillComponents == [0, 0, 0, 0.85])
+        #expect(SurfaceStyle(kind: .fill, tint: [1, 0.5, 0, 0.95]).fillComponents == [1, 0.5, 0, 0.95])
+        #expect(SurfaceStyle(kind: .fill).fillComponents == [0, 0, 0, 0.85])
+    }
 }

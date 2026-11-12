@@ -6,8 +6,9 @@ extension Design {
         package static let faint = 0.04
         package static let hover = 0.07
         package static let pressed = 0.16
-        /// A colour fill when no tint is set: black at this opacity (the default tint's).
-        package static let untinted = 0.5
+        /// A floating surface's colour fill is at least this opaque, so that its text reads over a page; the window keeps the tint's own alpha
+        /// (owner, 2026-11-12).
+        package static let floatingMinimum = 0.85
         /// A dimming layer (Apple's figure for one under clear glass).
         package static let scrim = 0.35
         /// The accent line of the focused card.
