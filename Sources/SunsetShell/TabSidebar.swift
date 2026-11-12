@@ -16,16 +16,18 @@ package struct TabSidebar: View {
     var panelRadius: Double?
     /// What the app puts at the top, under the window's buttons (the address of the focused page, web step b).
     var accessory: AnyView?
+    /// What the app puts at the bottom, against the window's edge (the + button and downloads, R2 and web step f).
+    var bottomBar: AnyView?
     @State private var rowDrop: (item: Workspace.ItemID, action: TabDropAction)?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
     @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
     /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
     @State private var closingSlot: Int?
 
-    private var margin: Double { settings.sidebar.padding }
+    var margin: Double { settings.sidebar.padding }
     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
     var layout: ShellSettings.Layout { floating ? settings.layout.floatingTabs : settings.layout }
-    private var header: SidebarHeader { SidebarHeader(layout: layout, margin: margin, floating: floating) }
+    var header: SidebarHeader { SidebarHeader(layout: layout, margin: margin, floating: floating) }
     /// Where the rows start: below the window's buttons, and the accessory with a gap.
     private var topInset: Double { header.height + accessoryInset }
 
@@ -35,9 +37,11 @@ package struct TabSidebar: View {
         floating: Bool = false,
         panelRadius: Double? = nil,
         accessory: AnyView? = nil,
+        bottomBar: AnyView? = nil,
         togglePin: @escaping () -> Void
     ) {
         self.accessory = accessory
+        self.bottomBar = bottomBar
         self.tabs = tabs
         self.settings = settings
         self.floating = floating
@@ -63,11 +67,12 @@ package struct TabSidebar: View {
         .scrollIndicators(.never)
         .modifier(EscapeClearsMarks(tabs: tabs))
         .contentMargins(.top, topInset, for: .scrollContent)
-        .contentMargins(.bottom, margin, for: .scrollContent)
+        .contentMargins(.bottom, margin + bottomInset, for: .scrollContent)
         .onHover { inside in if !inside { closingSlot = nil } }
         .mask { fade }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
         .overlay(alignment: .top) { accessoryView }
+        .overlay(alignment: .bottom) { bottomBarView }
     }
 
     /// Content that scrolls up past the traffic lights fades out over the height of the strip they sit in; rows at rest start below it, untouched.
@@ -76,6 +81,11 @@ package struct TabSidebar: View {
             LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
                 .frame(height: max(topInset - 4, 0))
             Color.black
+            // And under the bottom bar.
+            if bottomBar != nil {
+                LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                    .frame(height: bottomInset + margin)
+            }
         }
     }
 
@@ -174,29 +184,6 @@ package struct TabSidebar: View {
     /// Pins the sidebar beside the terminal (`sidebar.autoHide` off) or lets it hide and float: the sidebar symbol, filled while the sidebar is open
     /// (pinned) and outlined while it only appears on hover. Its container is a rounded square the size of the hit box, highlighted under the pointer like a
     /// tab, with its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
-    private var pinButton: some View {
-        PinButton(
-            pinned: !settings.sidebar.autoHide,
-            layout: layout,
-            radius: pinRadius,
-            size: panelRadius == nil ? CGSize(width: header.dockedButtonSize, height: header.dockedButtonHeight) : nil
-        ) {
-            togglePin()
-        }
-        .padding(
-            settings.sidebar.side == .left ? .trailing : .leading,
-            pinGap + (panelRadius == nil ? header.dockedButtonInset : 0)
-        )
-        .padding(.top, panelRadius == nil ? header.dockedButtonInset : header.buttonTop)
-    }
-
-    /// The pin button's distance from the panel's top and from its edge: the same, so that their corners share a centre (docked: the container is flush with the terminal card's top and with the tabs' edge).
-    private var pinGap: Double { panelRadius == nil ? layout.tabSideInset : header.buttonTop }
-    private var pinRadius: Double {
-        guard let panelRadius else { return layout.pinButtonRadius }
-        return ConcentricRadius.inner(outer: panelRadius, inset: pinGap)
-    }
-
     /// Shows what dropping on this row will do: an insertion line at the top or bottom edge for reordering, or a left/right half highlight for splitting.
     @ViewBuilder private func rowDropOverlay(_ action: TabDropAction) -> some View {
         let accent = Color(nsColor: .controlAccentColor)

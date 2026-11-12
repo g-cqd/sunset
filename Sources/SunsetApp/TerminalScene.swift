@@ -132,6 +132,7 @@ struct TerminalScene: View {
             tabs: tabs,
             settings: ShellSettings(configuration),
             accessory: sidebarAddress,
+            bottomBar: AnyView(SidebarBottomBar(side: sidebarSide)),
             togglePin: AppConfiguration.togglePin
         )
         .padding(.top, configuration.sidebar.padding)

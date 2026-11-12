@@ -29,6 +29,8 @@ public enum ConfigurationKeys {
         "keyboard.optionAsMeta", "web.openLinksInSunset", "web.developer", "web.tabIcon",
         "web.address", "web.windowBar", "web.engine", "web.engines", "web.suggestions", "web.httpFallback",
         "web.zoomScope", "web.textOnlyZoom",
-        "web.historyKeep", "web.clearHistoryOnQuit", "web.clearWebsiteDataOnQuit"
+        "web.historyKeep", "web.clearHistoryOnQuit", "web.clearWebsiteDataOnQuit",
+        "web.downloadFolder", "web.askWhereToSave", "web.openSafeDownloads", "web.notifyDownloads",
+        "web.approveRiskyDownloads", "web.keepDownloads"
     ]
 }

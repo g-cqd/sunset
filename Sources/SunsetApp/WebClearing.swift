@@ -6,7 +6,10 @@ import WebKit
 /// What clearing removes (web step e): the history's pages, WebKit's website data and the site zoom levels, from `date` on.
 @MainActor enum WebClearing {
     static func clear(since date: Date, history: Bool, websiteData: Bool, siteZoom: Bool) {
-        if history { AppHistory.shared?.clear(since: date) }
+        if history {
+            AppHistory.shared?.clear(since: date)
+            DownloadCenter.shared.clear()
+        }
         if siteZoom { SiteZoom.shared.clearAll() }
         if websiteData {
             WKWebsiteDataStore.default()

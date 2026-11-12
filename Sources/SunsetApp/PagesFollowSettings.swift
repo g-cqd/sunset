@@ -20,7 +20,8 @@ struct PagesFollowSettings: ViewModifier {
                 SiteZoom.shared.path = wanted
             }
         }
-        .onChange(of: web) { _, _ in
+        .onChange(of: web) { _, now in
+            AppDownloads.apply(now)
             let settings = PaneContentKinds.webSettings
             for page in tabs.allPages {
                 page.settings = settings

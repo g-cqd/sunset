@@ -55,6 +55,11 @@ extension Configuration {
             }
         }
 
+        /// How long the list of downloads keeps a finished one (web step f).
+        public enum DownloadsKeep: String, Sendable, Equatable, CaseIterable {
+            case byHand, day, week, month, untilQuit, whenFinished
+        }
+
         /// Cmd-click on a link in a terminal opens it in a page beside the terminal; off: in the default browser.
         public var openLinksInSunset = true
         /// The page's inspector (Inspect Element, and Safari's Develop menu) can be opened.
@@ -77,6 +82,15 @@ extension Configuration {
         /// What goes when Sunset quits: the history, the website data (cookies, caches, storage).
         public var clearHistoryOnQuit = false
         public var clearWebsiteDataOnQuit = false
+        /// Where files are downloaded; empty: ~/Downloads.
+        public var downloadFolder = ""
+        public var askWhereToSave = false
+        /// Pictures, PDF, text, sound and film open once downloaded.
+        public var openSafeDownloads = false
+        public var notifyDownloads = true
+        /// Apps, installers and scripts are downloaded only after an approval.
+        public var approveRiskyDownloads = true
+        public var keepDownloads = DownloadsKeep.byHand
         public init() {}
     }
 }

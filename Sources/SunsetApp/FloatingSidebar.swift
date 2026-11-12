@@ -46,6 +46,7 @@ struct FloatingSidebar: View {
             settings: ShellSettings(settings),
             floating: true,
             panelRadius: radius,
+            bottomBar: AnyView(SidebarBottomBar(side: settings.sidebar.side)),
             togglePin: AppConfiguration.togglePin
         )
         // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves nothing.

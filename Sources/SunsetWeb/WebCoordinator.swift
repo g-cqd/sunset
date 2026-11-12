@@ -10,6 +10,12 @@ import WebKit
 
     /// Cmd-click on a link opens it in a tab right after, not shown (as a link asking for a new tab does).
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction) async -> WKNavigationActionPolicy {
+        // A link that says download, or an Option-click (web step f).
+        if action.shouldPerformDownload
+            || (action.navigationType == .linkActivated && action.modifierFlags.contains(.option))
+        {
+            return .download
+        }
         guard action.navigationType == .linkActivated, action.modifierFlags.contains(.command),
             let url = action.request.url,
             let content
