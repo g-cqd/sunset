@@ -16,13 +16,17 @@ struct TabPreviewCard: View {
     static let width = 280.0
     private static let gap = 3.0
 
-    /// The proportions of the window the tab is shown in: the first pane's frame says what the whole is, in its own aspect.
+    /// The proportions of the area the tab is shown in, from what its panes drew (`SplitLayout.aspect(drawn:)`, owner note n58), kept between
+    /// 110 and 220 pt; 175 when nothing has drawn yet.
     var height: Double {
-        let surfaces = item.panes.compactMap { tabs.terminal($0)?.lastSurface }
-        guard item.panes.count == 1, let surface = surfaces.first, surface.width > 0, surface.height > 0 else {
-            return 175
+        var sizes: [PaneID: CGSize] = [:]
+        for pane in item.panes {
+            if let surface = tabs.terminal(pane)?.lastSurface {
+                sizes[pane] = CGSize(width: surface.width, height: surface.height)
+            }
         }
-        return min(max(Self.width * Double(surface.height) / Double(surface.width), 110), 220)
+        guard let aspect = item.layout.aspect(drawn: sizes) else { return 175 }
+        return min(max(Self.width * aspect, 110), 220)
     }
 
     var body: some View {

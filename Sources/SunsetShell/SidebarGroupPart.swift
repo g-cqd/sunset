@@ -1,9 +1,12 @@
+import SunsetPane
 import SwiftUI
 
 /// One small tab inside a split tab's container: its title, a slight highlight under the pointer, and, when it is the focused pane of the selected tab, a
 /// stronger one with the same hairline the selected tab row has.
 struct SidebarGroupPart: View {
     let model: (any PaneContent)?
+    /// What a pane of a kept entry that is not open would start from (its title and picture).
+    var saved: PaneDescriptor?
     let lit: Bool
     let layout: ShellSettings.Layout
     var onHoverChange: (Bool) -> Void = { _ in }
@@ -13,7 +16,7 @@ struct SidebarGroupPart: View {
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: max(layout.tabRadius - 2, 2), style: .continuous)
-        TabLabel(model: model, showTitle: true, showDirectory: false, showProgress: false)
+        TabLabel(model: model, showTitle: true, showDirectory: false, showProgress: false, saved: saved)
             .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
             .padding(.horizontal, 4)
             .background(shape.fill(highlight))
