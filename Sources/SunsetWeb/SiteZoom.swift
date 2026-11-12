@@ -31,6 +31,12 @@ package final class SiteZoom {
         if remember { save() }
     }
 
+    /// Forgets every site's level (Clear History).
+    package func clearAll() {
+        levels = [:]
+        save()
+    }
+
     /// One entry for a site with or without "www.".
     static func key(_ host: String) -> String {
         let lower = host.lowercased()

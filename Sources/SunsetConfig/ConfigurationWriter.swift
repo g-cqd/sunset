@@ -106,7 +106,10 @@ public enum ConfigurationWriter {
             "web.windowBar": string(web.windowBar.rawValue), "web.engine": string(web.engine),
             "web.engines": "[" + web.engines.map(engine).joined(separator: ", ") + "]",
             "web.suggestions": String(web.suggestions), "web.httpFallback": String(web.httpFallback),
-            "web.zoomScope": string(web.zoomScope.rawValue), "web.textOnlyZoom": String(web.textOnlyZoom)
+            "web.zoomScope": string(web.zoomScope.rawValue), "web.textOnlyZoom": String(web.textOnlyZoom),
+            "web.historyKeep": string(web.historyKeep.rawValue),
+            "web.clearHistoryOnQuit": String(web.clearHistoryOnQuit),
+            "web.clearWebsiteDataOnQuit": String(web.clearWebsiteDataOnQuit)
         ]
     }
 

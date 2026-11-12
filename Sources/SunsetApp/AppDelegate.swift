@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         SessionStore.shared.finish()
+        MainActor.assumeIsolated { WebClearing.clearAtQuit() }
         return .terminateNow
     }
 

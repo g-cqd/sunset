@@ -5,7 +5,8 @@ extension Reader {
     /// The switches of `web`, by key. Never changed after it is made (key paths are not marked Sendable).
     private nonisolated(unsafe) static let webFlags: [String: WritableKeyPath<Configuration.Web, Bool>] = [
         "openLinksInSunset": \.openLinksInSunset, "developer": \.developer, "suggestions": \.suggestions,
-        "httpFallback": \.httpFallback, "textOnlyZoom": \.textOnlyZoom
+        "httpFallback": \.httpFallback, "textOnlyZoom": \.textOnlyZoom,
+        "clearHistoryOnQuit": \.clearHistoryOnQuit, "clearWebsiteDataOnQuit": \.clearWebsiteDataOnQuit
     ]
 
     mutating func readWeb(_ object: Object) {
@@ -36,6 +37,10 @@ extension Reader {
             case "zoomScope":
                 if let scope = choice(path, value, as: Configuration.Web.ZoomScope.self) {
                     configuration.web.zoomScope = scope
+                }
+            case "historyKeep":
+                if let keep = choice(path, value, as: Configuration.Web.HistoryKeep.self) {
+                    configuration.web.historyKeep = keep
                 }
             case "windowBar":
                 if let edge = choice(path, value, as: Configuration.Web.BarEdge.self) {

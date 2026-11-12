@@ -38,6 +38,9 @@ package final class TabsModel {
     package var editingCommand: Favorites.NodeID?
     /// The choice of kind for a new tab is open (Shift-Cmd-T).
     package var choosingKind = false
+    /// The history panel is shown on the side opposite the tabs (Cmd-Y, web step e); Clear History's sheet is open.
+    package var showsHistory = false
+    package var clearingHistory = false
     /// The row whose name is being edited in place, and the row whose icon popover is open.
     package var renamingRow: RowTarget?
     package var iconRow: RowTarget?

@@ -1,12 +1,19 @@
 import AppKit
+import Foundation
 import SunsetPane
 import SunsetShell
 import SunsetWeb
 
 /// The rows of the command bar (the command bar study, web step c): the tabs that match, then what was typed as an address to go to or words to
-/// search, then the engine's suggestions. Each with its actions: the first is Return's, the second Cmd-Return's, the third Option-Return's.
+/// search, then pages of the history that match (web step e), then the engine's suggestions. Each with its actions: the first is Return's, the second Cmd-Return's, the third Option-Return's.
 @MainActor enum CommandBarRows {
-    static func rows(_ bar: CommandBar, tabs: TabsModel, settings: WebSettings, suggestions: [String]) -> [ChoiceRow] {
+    static func rows(
+        _ bar: CommandBar,
+        tabs: TabsModel,
+        settings: WebSettings,
+        suggestions: [String],
+        history: HistoryStore? = AppHistory.shared
+    ) -> [ChoiceRow] {
         let tabRows = tabs.barResults(bar).map { tab($0, bar: bar, tabs: tabs) }
         guard bar.purpose == .search else { return tabRows }
         var rows = tabRows
@@ -17,6 +24,18 @@ import SunsetWeb
         // Recalled with the engine's keyword, so that the chip comes back with the words.
         let recall = chip.map { $0.keyword + " " + bar.query } ?? bar.query
         if let input { rows.append(web(input, id: "typed", tabs: tabs, recall: recall)) }
+        if chip == nil {
+            let visited = (history?.suggestions(for: typed) ?? []).filter { $0.url != input?.url?.absoluteString }
+            rows += visited.compactMap { entry in
+                guard let url = URL(string: entry.url) else { return nil }
+                var row = web(.address(url, guessed: false), id: "visited " + entry.url, tabs: tabs, recall: entry.url)
+                row.glyph = .symbol("clock")
+                row.title = entry.title.isEmpty ? entry.url : entry.title
+                row.subtitle = AddressChoice.shortAddress(entry.url)
+                row.accessory = "History"
+                return row
+            }
+        }
         let engine: SearchEngine = if case .search(let chosen, _)? = input { chosen } else { chip ?? settings.engine }
         rows += suggestions.map {
             web(.search(engine, words: $0), id: "suggestion " + $0, tabs: tabs, recall: $0, suggested: true)

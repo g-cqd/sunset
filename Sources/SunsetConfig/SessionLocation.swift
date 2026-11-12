@@ -19,4 +19,11 @@ public enum SessionLocation {
         let directory = session.lastIndex(of: "/").map { String(session[..<$0]) } ?? "."
         return directory + "/site-zoom.json"
     }
+
+    /// The history of pages (web step e), beside the session's file.
+    public static func historyPath(environment: [String: String], home: String) -> String {
+        let session = path(environment: environment, home: home)
+        let directory = session.lastIndex(of: "/").map { String(session[..<$0]) } ?? "."
+        return directory + "/history.sqlite"
+    }
 }

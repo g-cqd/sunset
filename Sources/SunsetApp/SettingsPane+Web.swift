@@ -59,6 +59,24 @@ extension SettingsPane {
         ),
         SettingsEntry(id: "web.textOnlyZoom", pane: "web", title: "Zoom text only", keywords: ["zoom", "text", "font"]),
         SettingsEntry(
+            id: "web.historyKeep",
+            pane: "web",
+            title: "Keep history for",
+            keywords: ["history", "remove", "days"]
+        ),
+        SettingsEntry(
+            id: "web.clearHistoryOnQuit",
+            pane: "web",
+            title: "Clear history when Sunset quits",
+            keywords: ["history", "quit", "privacy"]
+        ),
+        SettingsEntry(
+            id: "web.clearWebsiteDataOnQuit",
+            pane: "web",
+            title: "Clear website data when Sunset quits",
+            keywords: ["cookies", "cache", "quit", "privacy"]
+        ),
+        SettingsEntry(
             id: "web.engines",
             pane: "web",
             title: "Added search engines",

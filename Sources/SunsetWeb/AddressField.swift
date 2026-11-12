@@ -21,16 +21,7 @@ package struct AddressField: View {
     package var body: some View {
         let shape = RoundedRectangle(cornerRadius: 7, style: .continuous)
         HStack(spacing: 4) {
-            if content.isNotSecure {
-                Label("Not Secure", systemImage: "lock.slash")
-                    .labelStyle(.titleAndIcon)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize()
-                    .help(
-                        "This page is over plain http: what it sends and receives can be read and changed on the way."
-                    )
-            }
+            if content.isNotSecure { NotSecureMark() }
             textField
             if abs(content.zoom - 1) > 0.001 {
                 Button(ZoomLevels.label(content.zoom)) { content.resetZoom() }

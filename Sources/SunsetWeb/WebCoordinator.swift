@@ -34,6 +34,9 @@ import WebKit
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation?) {
         content?.failure = nil
         content?.fallbackHost = nil
+        if let url = webView.url, ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
+            content?.history?.visit(url.absoluteString, title: webView.title ?? "")
+        }
     }
 
     func webView(_ webView: WKWebView, respondTo challenge: URLAuthenticationChallenge) async

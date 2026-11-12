@@ -7,6 +7,7 @@ import SunsetWeb
     /// Gives `page` its way of placing what it opens, in the window `tabs`, and of saving what changes.
     static func wire(_ page: WebContent, in tabs: TabsModel) {
         page.onChange = { SessionStore.shared.scheduleSave() }
+        page.history = AppHistory.shared
         page.onOpen = { [weak tabs, weak page] opened, placement in
             guard let tabs, let page else { return }
             wire(opened, in: tabs)

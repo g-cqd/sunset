@@ -38,6 +38,9 @@ extension TerminalScene {
         if configuration.sidebarDocked {
             corners.subtract(sidebarSide == .left ? [.topLeading, .bottomLeading] : [.topTrailing, .bottomTrailing])
         }
+        if tabs.showsHistory {
+            corners.subtract(sidebarSide == .left ? [.topTrailing, .bottomTrailing] : [.topLeading, .bottomLeading])
+        }
         if presentation.showsBuiltInBar {
             corners.subtract(
                 configuration.tabs.bar.position == .top
@@ -45,5 +48,16 @@ extension TerminalScene {
             )
         }
         return corners
+    }
+
+    /// The history panel on the side opposite the tabs (web step e), placed as the docked sidebar is: its margin on the window's edge and top.
+    var historyPanel: some View {
+        let side: Configuration.Side = sidebarSide == .left ? .right : .left
+        return HistoryPanel(tabs: tabs, layout: configuration.layout)
+            .padding(.top, configuration.sidebar.padding)
+            .padding(side.edge, configuration.sidebar.padding)
+            .frame(width: configuration.sidebar.width)
+            .frame(maxHeight: .infinity)
+            .transition(.move(edge: side.moveEdge).combined(with: .opacity))
     }
 }

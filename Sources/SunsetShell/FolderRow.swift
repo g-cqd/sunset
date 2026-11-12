@@ -19,7 +19,7 @@ struct FolderRow: View {
     @State private var targeted = false
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: GlyphSpacing.toText) {
             if let icon = folder.icon, PaneIconView.canShow(icon) {
                 PaneIconView(icon: icon).opacity(folder.isCollapsed ? 0.7 : 1)
             } else {
