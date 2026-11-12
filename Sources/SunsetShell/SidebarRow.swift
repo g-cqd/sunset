@@ -66,28 +66,9 @@ struct SidebarRow: View {
                 .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
                 .opacity(dimmed ? 0.45 : 1)
             }
-            // Always laid out and only faded, so that the row never changes size and the label does not jump.
-            SwiftUI.Button(action: close) {
-                Image(systemName: button.symbol)
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(armed ? Color.white : Color.primary)
-                    .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-                    .background(
-                        RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
-                            .fill(
-                                armed
-                                    ? Color.red.opacity(overClose ? 0.85 : 0.7)
-                                    : Color.primary.opacity(overClose ? 0.14 : 0)
-                            )
-                    )
-                    .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
-            .opacity(hovering || armed || keepCloseVisible ? 1 : 0)
-            .allowsHitTesting(hovering || armed || keepCloseVisible)
-            .onHover { overClose = $0 }
-            .help(armed ? "Click again to close running command" : button.help)
         }
+        .mask { titleMask }
+        .overlay(alignment: .trailing) { closeButton }
         .padding(.leading, layout.tabPaddingLeading)
         .padding(.vertical, layout.tabPaddingVertical)
         .padding(.trailing, layout.tabPaddingTrailing)
@@ -117,6 +98,43 @@ struct SidebarRow: View {
             case (true, false): .primary.opacity(activeState == .inactive ? 0.08 : 0.14)
             case (false, true): .primary.opacity(0.07)
             case (false, false): .clear
+        }
+    }
+
+    /// Over the row's end, so that the title has the whole width while it is hidden (owner note n65); shown, the title fades out under it.
+    private var closeButton: some View {
+        SwiftUI.Button(action: close) {
+            Image(systemName: button.symbol)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(armed ? Color.white : Color.primary)
+                .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
+                .background(
+                    RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
+                        .fill(
+                            armed
+                                ? Color.red.opacity(overClose ? 0.85 : 0.7)
+                                : Color.primary.opacity(overClose ? 0.14 : 0)
+                        )
+                )
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .opacity(hovering || armed || keepCloseVisible ? 1 : 0)
+        .allowsHitTesting(hovering || armed || keepCloseVisible)
+        .onHover { overClose = $0 }
+        .help(armed ? "Click again to close running command" : button.help)
+    }
+
+    private var showsClose: Bool { hovering || armed || keepCloseVisible }
+
+    /// The title runs to the row's end; under a shown close button it fades out over a few points.
+    private var titleMask: some View {
+        HStack(spacing: 0) {
+            Color.black
+            if showsClose && renaming == nil {
+                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing).frame(width: 8)
+                Color.clear.frame(width: layout.closeButtonSize + 2)
+            }
         }
     }
 }
