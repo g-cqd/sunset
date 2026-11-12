@@ -25,25 +25,15 @@ final class WindowBackdrop {
         appliedWindowNumber = window.windowNumber
         window.isOpaque = look.isOpaque
         window.backgroundColor = look.isOpaque ? .windowBackgroundColor : .clear
-        // A blur radius needs the private call; without it a transparent window with a blur falls back to a material.
-        let blurred = look.material == .transparent && look.blur > 0
-        let fallsBack = blurred && !WindowBlur.isAvailable
         remove()
         switch look.material {
             case .opaque: break
             case .material: install(material(), in: window, tint: look.tintColor)
             case .glass: install(glass(look), in: window, tint: nil)
-            case .transparent:
-                if fallsBack {
-                    install(material(), in: window, tint: look.tintColor)
-                } else if let color = look.tintColor {
-                    install(nil, in: window, tint: color)
-                }
+            // The tint's colour and alpha, nothing under it; the desktop is not blurred (that "never really worked": owner, 2026-11-12).
+            case .fill: install(nil, in: window, tint: look.tintColor)
         }
-        WindowBlur.setRadius(
-            look.material == .transparent && !fallsBack ? look.blur : 0,
-            forWindowNumber: window.windowNumber
-        )
+        WindowBlur.setRadius(0, forWindowNumber: window.windowNumber)
         window.invalidateShadow()
     }
 

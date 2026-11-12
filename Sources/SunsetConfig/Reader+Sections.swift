@@ -37,7 +37,8 @@ extension Reader {
                         configuration.window.padding = points
                     }
                 case "material":
-                    if let choice = choice("window.material", value, as: Configuration.Material.self) {
+                    let renamed: JSONValue = value == .string("transparent") ? .string("fill") : value
+                    if let choice = choice("window.material", renamed, as: Configuration.Material.self) {
                         configuration.window.material = choice
                     }
                 case "opacity": readLegacyWindowOpacity(value)

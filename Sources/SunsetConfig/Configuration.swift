@@ -4,8 +4,8 @@ public import SunsetMetrics
 public struct Configuration: Sendable, Equatable {
     public struct Font: Sendable, Equatable {
         /// nil: the app's default monospaced font.
-        public var family: String? = "Maple Mono NF CN"
-        public var size = 14.0
+        public var family: String? = "JetBrains Mono"
+        public var size = 12.0
         public var ligatures = true
         /// OpenType features as `tag` or `tag=value`, separated by commas: `zero, ss01, cv02=3`.
         public var features = ""
@@ -61,7 +61,7 @@ public struct Configuration: Sendable, Equatable {
         public var dragStrip = 16.0
         /// Space between the window's edge and the terminal, in points (0: the text reaches the edge).
         public var padding = 4.0
-        public var material = Material.material
+        public var material = Material.glass
         /// The radius of the blur behind a `transparent` window, in points (0 to 100).
         public var blur = 0.0
         public init() {}
@@ -75,8 +75,9 @@ public struct Configuration: Sendable, Equatable {
         case material
         /// Liquid Glass (`NSGlassEffectView`, macOS 26).
         case glass
-        /// Nothing: the desktop shows through the default background, blurred by `blur`.
-        case transparent
+        /// A colour with alpha: the tint (`appearance.tint`), the desktop showing through it, nothing blurred (owner, 2026-11-12). Read also as
+        /// `transparent`, its name before.
+        case fill
     }
 
     /// An edge of the window.
@@ -87,7 +88,7 @@ public struct Configuration: Sendable, Equatable {
     public struct Sidebar: Sendable, Equatable {
         public var enabled = true
         /// Width in points.
-        public var width = 207.0
+        public var width = 229.0
         /// Space of the window's colour between the terminal and the window's edge and the sidebar while the sidebar is shown, in points. The terminal is
         /// a card then, its corners concentric with the window's (16 pt): with 6 its radius is 10.
         public var padding = 4.0
@@ -95,7 +96,7 @@ public struct Configuration: Sendable, Equatable {
         /// stays beside the terminal.
         public var autoHide = false
         /// The edge of the window the sidebar is on.
-        public var side = Side.left
+        public var side = Side.right
         public init() {}
     }
 
@@ -113,8 +114,8 @@ public struct Configuration: Sendable, Equatable {
         public var scheme = Scheme.dark
         public var glass = Glass.regular
         /// `#rrggbb`; nil for no tint. One tint for the window and the sidebar.
-        public var tintColor: [UInt8]?
-        public var tintAlpha = 0.0
+        public var tintColor: [UInt8]? = [0x00, 0x00, 0x00]
+        public var tintAlpha = 0.5
         /// The colour that marks a selection, a focus, a filled control (design 0003 §3.5): the system's accent, Sunset's (`tint.color`, the
         /// system's when unset), or neutral shades of the scheme.
         public var accent = Accent.system
@@ -182,7 +183,7 @@ public struct Configuration: Sendable, Equatable {
     public struct Terminal: Sendable, Equatable {
         /// How opaque the terminal's default background is when the window is not opaque: 1 shows only the terminal's colour, less lets the window's
         /// material show through.
-        public var opacity = 0.0
+        public var opacity = 0.2
         /// A program may put text on the clipboard (OSC 52); it can never read it (ADR-0010).
         public var clipboardWrite = true
         /// The shell is taught to mark its prompts (OSC 133), which Previous Prompt and Next Prompt go by. zsh is taught (fish does it itself); the user's files are not changed.
@@ -222,7 +223,7 @@ public struct Configuration: Sendable, Equatable {
     /// Seconds without input or output after which the cursor stops blinking; nil: it blinks for ever.
     public var cursorBlinkTimeout: Double? = 15
     /// The shape of the cursor, and whether it blinks, until a program chooses its own (DECSCUSR) and again after it asks for the default.
-    public var cursorShape = CursorShape.block
+    public var cursorShape = CursorShape.bar
     public var cursorBlinks = true
     public var renderer = Renderer.auto
 

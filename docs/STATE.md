@@ -110,6 +110,10 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   shadow, symbol, text, surface, accent, optical). `layout.sidebarButtonSize/Radius` (old `pinButton*` names still read), `appearance.accent`
   (system / sunset / neutral; not drawn yet). `DesignTokenTests` rejects literal measures in views; 58 files allowed, the list only shrinks.
   Before/after window shots from both builds: 0 pixels differ.
+- Defaults (2026-11-12, owner): the owner's settings: `window.material` glass, tint #000000 at 0.5, `terminal.opacity` 0.2, background #000000,
+  no decorations, window and sidebar padding 4, sidebar on the right, 229 wide, kept visible, JetBrains Mono 12 (Menlo when it is not
+  installed: `FontFallback`, CoreText would give Helvetica), bar cursor, blink stops after 15 s. `window.material: transparent` is now `fill`
+  (the tint's colour and alpha, no desktop blur; `transparent` still read).
 
 ### OSC handled by the core (ADR-0010 policy)
 

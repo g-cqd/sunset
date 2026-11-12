@@ -29,7 +29,7 @@ final class SidebarBackdropView: NSView {
                 glass.style = look.glass == .clear ? .clear : .regular
                 glass.cornerRadius = 0
                 view = glass
-            case .transparent:
+            case .fill:
                 view = NSView()
         }
         view.frame = bounds

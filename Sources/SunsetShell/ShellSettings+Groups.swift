@@ -8,12 +8,12 @@ extension ShellSettings {
     package struct Sidebar: Sendable, Equatable {
         package var enabled = true
         /// Width in points.
-        package var width = 207.0
+        package var width = 229.0
         /// Space of the window's colour between the content and the window's edge and the sidebar while the sidebar is shown, in points.
         package var padding = 4.0
         /// The sidebar is hidden and floats over the content while the pointer is at its edge; false: it stays beside the content.
         package var autoHide = false
-        package var side = Side.left
+        package var side = Side.right
 
         package init() {}
     }

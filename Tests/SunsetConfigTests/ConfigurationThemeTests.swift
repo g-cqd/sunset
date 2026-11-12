@@ -31,7 +31,7 @@ import Testing
         #expect(configuration.font.family == "Iosevka", "from the theme")
         #expect(configuration.font.size == 12, "the file beats the theme")
         #expect(configuration.colors.background == [0x2E, 0x34, 0x40])
-        #expect(configuration.window.material == .transparent && configuration.terminal.opacity == 0.8)
+        #expect(configuration.window.material == .fill && configuration.terminal.opacity == 0.8)
         #expect(configuration.window.blur == 5, "the file beats the theme")
         #expect(configuration.appearance.tintColor == [0x88, 0xC0, 0xD0])
         #expect(configuration.theme == "nord")

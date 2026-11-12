@@ -55,7 +55,7 @@ import Testing
 
     @Test func `a value of the wrong type keeps the default and names the key`() throws {
         let result = try read(#"{ "font": { "size": "big" }, "scrollback": { "lines": true } }"#)
-        #expect(result.configuration.font.size == 14)
+        #expect(result.configuration.font.size == 12)
         #expect(result.configuration.scrollbackLines == 100_000)
         #expect(result.issues.map(\.path).sorted() == ["font.size", "scrollback.lines"])
         #expect(result.issues.allSatisfy { !$0.message.isEmpty })
@@ -63,7 +63,7 @@ import Testing
 
     @Test func `a value out of range keeps the default and says what is allowed`() throws {
         let result = try read(#"{ "font": { "size": 3 }, "scrollback": { "lines": -5 } }"#)
-        #expect(result.configuration.font.size == 14)
+        #expect(result.configuration.font.size == 12)
         #expect(result.configuration.scrollbackLines == 100_000)
         #expect(
             result.issues.contains { $0.path == "font.size" && $0.message.contains("4") && $0.message.contains("200") }
