@@ -4,8 +4,15 @@ import Foundation
 enum Commands {
     static func run(_ options: Options) async -> Int32 {
         let pid = options.pid
+        if Steps.acting.contains(options.command),
+            options.values["expect"] != nil || options.values["expect-gone"] != nil
+        {
+            return await Steps.checked(options)
+        }
         switch options.command {
             case "windows", "tree", "find": return list(options)
+            case "expect": return await wait(options)
+            case "value": return await Steps.value(options)
             case "press":
                 guard let node = await chosen(options) else { return lastFailure }
                 let action =
@@ -30,8 +37,7 @@ enum Commands {
             case "menu": return Menus.press(pid: pid, path: options.words.first ?? "")
             case "main": return Windows.makeMain(pid: pid, title: options.words.first)
             case "type":
-                Keys.type(options.words.joined(separator: " "), pid: pid)
-                return 0
+                return await Typing.type(options.words.joined(separator: " "), pid: pid, into: options.values["into"])
             case "key":
                 return Keys.chord(options.words.first ?? "", pid: pid)
                     ? 0 : fail("unknown key \(options.words.first ?? "")")
@@ -94,7 +100,13 @@ enum Commands {
 
     /// The element the query means: the clear winner, the one picked (`--pick`), or the one the on-device model picks for `--ask`.
     static func chosen(_ options: Options) async -> Node? {
-        let matches = ranked(options)
+        // The target may still be appearing (a panel, a page loading): looked for again until it is there and enabled.
+        let deadline = Date().addingTimeInterval(options.double("within", 3))
+        var matches = ranked(options)
+        while Date() < deadline, matches.first.map({ !$0.node.enabled }) ?? true {
+            try? await Task.sleep(for: .milliseconds(80))
+            matches = ranked(options)
+        }
         guard !matches.isEmpty else {
             lastFailure = fail("nothing matches \"\(options.words.first ?? "")\"")
             return nil

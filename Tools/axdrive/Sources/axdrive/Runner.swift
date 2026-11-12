@@ -19,6 +19,7 @@ enum Runner {
             let status = await Commands.run(options)
             if status != 0 {
                 FileHandle.standardError.write(Data("axdrive: step \(number) failed: \(text)\n".utf8))
+                evidence(pid: pid, step: number)
                 return status
             }
         }
@@ -42,5 +43,20 @@ enum Runner {
         }
         if !current.isEmpty { words.append(current) }
         return words
+    }
+
+    /// What the app showed when a step failed: a picture and the tree, in the test's own folder.
+    static func evidence(pid: pid_t, step: Int) {
+        guard let config = Guard.environment(of: pid)?["SUNSET_CONFIG"] else { return }
+        let folder = (config as NSString).deletingLastPathComponent
+        let picture = folder + "/failed-step-\(step).png"
+        _ = Capture.shot(pid: pid, to: picture, window: nil)
+        let tree = Tree.nodes(pid: pid, windowFilter: nil, includeMenus: false)
+            .map {
+                String(repeating: "  ", count: max($0.path.split(separator: "/").count - 1, 0)) + $0.summary
+            }
+        try? tree.joined(separator: "\n")
+            .write(toFile: folder + "/failed-step-\(step).txt", atomically: true, encoding: .utf8)
+        FileHandle.standardError.write(Data("axdrive: evidence in \(picture) and failed-step-\(step).txt\n".utf8))
     }
 }

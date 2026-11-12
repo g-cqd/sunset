@@ -64,7 +64,8 @@ enum Ranking {
 
     /// The best match, when it stands out: alone in the best tier, or ahead of the next by a clear score.
     static func clearWinner(_ matches: [Match]) -> Match? {
-        guard let first = matches.first else { return nil }
+        // Letters in order alone is never certain enough to act on.
+        guard let first = matches.first, first.tier <= 4 else { return nil }
         guard matches.count > 1 else { return first }
         let second = matches[1]
         return second.tier > first.tier || first.score - second.score >= 10 ? first : nil
