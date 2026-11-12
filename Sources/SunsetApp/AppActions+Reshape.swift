@@ -13,7 +13,7 @@ extension AppActions {
         } else if !old.hostsTabsInWindow, new.hostsTabsInWindow {
             gatherWindowsIntoTabs()
         }
-        if new.usesSystemTabbing, !old.usesSystemTabbing { NSApp.keyWindow?.mergeAllWindows(nil) }
+        if new.usesSystemTabbing, !old.usesSystemTabbing { TabRegistry.shared.actingWindow?.mergeAllWindows(nil) }
     }
 
     private func spreadTabsIntoWindows(joining group: Bool) {

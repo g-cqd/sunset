@@ -1,6 +1,7 @@
 import AppKit
 import SunsetCore
 import SunsetPane
+import SunsetShell
 import SunsetTerminal
 import SunsetWeb
 import SwiftUI
@@ -8,7 +9,11 @@ import SwiftUI
 /// The menus. Copy, Paste and Select All are the system's own items: the view that has the keyboard answers them (`TerminalNSView+Pasteboard`).
 struct TerminalCommands: Commands {
     @FocusedValue(\.terminalModel) private var model
-    @FocusedValue(\.webPage) private var page
+    @FocusedValue(\.webPage) private var focusedPage
+    /// The page the History and Find items act on: the focused one, else (Sunset not active) the acting window's.
+    private var page: WebContent? {
+        focusedPage ?? (TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.selectedContent as? WebContent)
+    }
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
