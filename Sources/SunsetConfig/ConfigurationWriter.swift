@@ -126,6 +126,7 @@ public enum ConfigurationWriter {
         extra["tabs.askBeforeQuit"] = string(configuration.tabs.askBeforeQuit.rawValue)
         extra["scroll.inertia"] = number(configuration.scroll.inertia)
         extra["tabs.bar.monospacedDirectory"] = String(configuration.tabs.bar.monospacedDirectory)
+        extra["appearance.barBlur"] = string(configuration.appearance.barBlur.rawValue)
         extra["appearance.accent"] = string(configuration.appearance.accent.rawValue)
         return extra
     }

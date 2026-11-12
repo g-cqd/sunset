@@ -97,3 +97,22 @@ Setting: `appearance.barBlur`: `variable` (default) / `surface` (the bars draw a
 1. The plan in §3 (the shared core, Abysm, the fallback chain) — or changes.
 2. For each place in §4: A, B or C.
 3. Whether the old AemiSDR iOS API (`VariableBlurView`, `BackdropBlurView`) may change (a major version), or must stay source-compatible.
+
+## 6. Built (2026-11-12): the owner's "go" read as the plan in §3, variant A everywhere, AemiSDR's iOS API kept
+
+AemiSDR (pushed, e1c50bd): roadmap 0020 slices 1–3, ADR-0009, diary 2026-11-12-01. 18 new tests; an iOS simulator build succeeds.
+Found by its tests: `+[CAFilter filterWithType:]` returns an object for a made-up type, so types are checked against `+filterTypes`.
+
+Sunset: the family's repin (aemi 0bae2ed, TerminalKit 7913fe6, AemiJSON 806b481) and AemiSDR e1c50bd; `appearance.barBlur`
+(variable / surface / none, 111 keys); `Design.Blur`; `.blurUnder(_:solid:fade:)` under the window's address bar and at both ends of
+the sidebar's list; `.blurSurface` for the find bar; `CommandBarBackdrop` behind the command bar.
+
+`built-2026-11-12.png`, in the app (background): the find bar (surface / tuned blur), the command bar's backdrop (dark veil / soft
+dark blur), the sidebar's ends (fade only / fade and blur).
+
+Not done or not seen:
+- The built-in tab bar's blur and the address in its tabs: next (they change the bar together).
+- The window's address bar with its blur (it comes out on hover only).
+- The top of the sidebar list blurring (needs the list scrolled under the pin; the driver does not scroll).
+- iOS: AemiSDR's `VariableBlurUIView` is not on the new core yet (its slice 4); the canary has not run on an iOS simulator.
+- No cost measured (AemiSDR slice 5).

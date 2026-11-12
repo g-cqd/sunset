@@ -1,0 +1,38 @@
+package import AemiSDR
+
+extension Design {
+    /// The blurs under the bars and behind the command bar (Sunset research/blur, variant A; AemiSDR roadmap 0020).
+    package enum Blur {
+        /// Under a bar: full over the bar, falling to none over a bar's height beyond it.
+        package static let barRadius = 24.0
+        /// At the ends of the sidebar's list, under the pin and the + bar.
+        package static let listRadius = 12.0
+        /// Behind the command bar: the whole window, softly, a little darker.
+        package static let backdropRadius = 8.0
+        package static let backdropDarkening = -0.15
+        /// Backdrops that sit over the same content share one capture.
+        package static let group = "SunsetBars"
+
+        /// A small floating panel (the find bar): an even blur, livelier colour.
+        package static var panel: BlurRecipe {
+            var recipe = BlurRecipe.uniform(radius: panelRadius)
+            recipe.saturation = panelSaturation
+            return recipe
+        }
+
+        package static let panelRadius = 20.0
+        package static let panelSaturation = 1.8
+
+        package static func under(_ edge: BlurMask.Edge, solid: Double, fade: Double, radius: Double = barRadius)
+            -> BlurRecipe
+        {
+            .variable(radius: radius, mask: .edge(edge, solid: solid, fade: fade))
+        }
+
+        package static var commandBackdrop: BlurRecipe {
+            var recipe = BlurRecipe.uniform(radius: backdropRadius)
+            recipe.brightness = backdropDarkening
+            return recipe
+        }
+    }
+}

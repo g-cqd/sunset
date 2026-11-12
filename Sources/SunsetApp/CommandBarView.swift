@@ -24,7 +24,7 @@ struct CommandBarView: View {
             let shown = bar.purpose == .search ? suggestions.suggestions : []
             let rows = CommandBarRows.rows(bar, tabs: tabs, settings: settings, suggestions: shown)
             ZStack(alignment: .top) {
-                Color.black.opacity(Design.Fill.backdrop)
+                CommandBarBackdrop()
                     .contentShape(.rect)
                     .onTapGesture { tabs.bar = nil }
                 panel(bar, rows, settings)

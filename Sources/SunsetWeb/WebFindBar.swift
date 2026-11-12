@@ -42,7 +42,7 @@ struct WebFindBar: View {
         .buttonStyle(.borderless)
         .padding(.horizontal, Design.Space.s)
         .frame(height: Design.Size.bar)
-        .surface(surface.shape, shadow: .popover)
+        .blurSurface(surface.shape, shadow: .popover)
         .padding(Design.Space.l)
         .onAppear { typing = true }
         .onChange(of: find.focusRequest) { _, _ in typing = true }

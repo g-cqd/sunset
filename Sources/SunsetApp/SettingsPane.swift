@@ -145,6 +145,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             entry(pane, "window.padding", "Padding", ["margin", "space", "edge", "border"]),
             entry(pane, "appearance.scheme", "Color scheme", ["dark", "light", "system", "appearance", "mode", "lock"]),
             entry(pane, "appearance.glass", "Glass style", ["liquid glass", "regular", "clear"]),
+            entry(pane, "appearance.barBlur", "Under the bars", ["blur", "variable", "fade", "bar", "sidebar"]),
             entry(pane, "appearance.tint", "Tint", ["colour", "color", "overlay", "glass"]),
             entry(pane, "appearance.tintAlpha", "Tint strength", ["alpha", "opacity", "overlay"])
         ]

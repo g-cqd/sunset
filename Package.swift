@@ -129,7 +129,7 @@ let package = Package(
             dependencies: [
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
                 "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal",
-                "SunsetWeb", "SunsetMetrics"
+                "SunsetWeb", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR")
             ],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings
@@ -184,7 +184,7 @@ let package = Package(
         ),
         .target(
             name: "SunsetShell",
-            dependencies: ["SunsetPane", "SunsetMetrics"],
+            dependencies: ["SunsetPane", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR")],
             path: "Sources/SunsetShell",
             swiftSettings: strictSettings
         ),
@@ -207,7 +207,10 @@ let package = Package(
         // A web page as a kind of pane content (R1, roadmap 0019), on the system's WebKit.
         .target(
             name: "SunsetWeb",
-            dependencies: ["SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics"],
+            dependencies: [
+                "SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics",
+                .product(name: "AemiSDR", package: "AemiSDR")
+            ],
             path: "Sources/SunsetWeb",
             swiftSettings: strictSettings
         ),
