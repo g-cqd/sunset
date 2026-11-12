@@ -38,6 +38,23 @@ extension Configuration {
             case site, session, page
         }
 
+        /// How long the history keeps a page (web step e).
+        public enum HistoryKeep: String, Sendable, Equatable, CaseIterable {
+            case day, week, twoWeeks, month, year, forever
+
+            /// In seconds; nil for ever.
+            public var seconds: Double? {
+                switch self {
+                    case .day: 86_400
+                    case .week: 7 * 86_400
+                    case .twoWeeks: 14 * 86_400
+                    case .month: 31 * 86_400
+                    case .year: 365 * 86_400
+                    case .forever: nil
+                }
+            }
+        }
+
         /// Cmd-click on a link in a terminal opens it in a page beside the terminal; off: in the default browser.
         public var openLinksInSunset = true
         /// The page's inspector (Inspect Element, and Safari's Develop menu) can be opened.
@@ -56,6 +73,10 @@ extension Configuration {
         public var zoomScope = ZoomScope.site
         /// Zoom makes only the text bigger, not the images (WebKit's private text zoom; nothing where it is missing).
         public var textOnlyZoom = false
+        public var historyKeep = HistoryKeep.year
+        /// What goes when Sunset quits: the history, the website data (cookies, caches, storage).
+        public var clearHistoryOnQuit = false
+        public var clearWebsiteDataOnQuit = false
         public init() {}
     }
 }

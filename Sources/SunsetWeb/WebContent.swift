@@ -33,6 +33,8 @@ package final class WebContent: PaneContent {
     package var onFocusRequest: () -> Void = {}
     /// A page this one opened, and where it goes.
     @ObservationIgnored package var onOpen: (WebContent, WebPlacement) -> Void = { _, _ in }
+    /// The history visits are written to (web step e); nil keeps none (tests, and private pages in step h).
+    @ObservationIgnored package var history: HistoryStore?
     /// Something the session file holds changed (the address, the title).
     @ObservationIgnored package var onChange: () -> Void = {}
 
@@ -75,7 +77,8 @@ package final class WebContent: PaneContent {
     // MARK: PaneContent
 
     package var title: String { pageTitle.isEmpty ? (url?.host() ?? "New Page") : pageTitle }
-    package var detail: String? { url?.host() ?? url?.absoluteString }
+    /// No second line in a tab: the address is in the address field (owner note n62); the address is still searched by (`searchTerms`).
+    package var detail: String? { nil }
     package var searchTerms: [String] { url.map { [$0.absoluteString] } ?? [] }
     package var closeWarning: String? { nil }
 
@@ -210,6 +213,7 @@ package final class WebContent: PaneContent {
     private func changed(title: String?) {
         guard let title, title != pageTitle else { return }
         pageTitle = title
+        if let address = webView?.url?.absoluteString { history?.retitle(address, title: title) }
         onChange()
     }
 

@@ -18,5 +18,8 @@ struct WindowDialogs: ViewModifier {
             ) {
                 if let entry = tabs.editingCommand { CommandSheet(tabs: tabs, entry: entry) }
             }
+            .sheet(isPresented: Binding(get: { tabs.clearingHistory }, set: { tabs.clearingHistory = $0 })) {
+                ClearHistorySheet()
+            }
     }
 }

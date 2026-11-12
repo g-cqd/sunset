@@ -35,7 +35,7 @@ package struct TabLabel: View {
     }
 
     package var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: GlyphSpacing.toText) {
             if showIcon {
                 if let icon {
                     PaneIconView(icon: icon)

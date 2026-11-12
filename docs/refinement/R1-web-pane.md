@@ -141,3 +141,18 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | What zoom applies to | `web.zoomScope`: the site, remembered across launches (default); the site until quit; the page, saved with it |
 | Text only | Everything by default; `web.textOnlyZoom` through WebKit's private text zoom, hidden when it is missing |
 | The level shown | "125%" in the address field when not 100%; a click resets it |
+
+## Step e: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| What is kept | One entry per address: title, visit count, last visit time. Private pages keep none |
+| For how long | `web.history.keep`: 1 day, 1 week, 2 weeks, 1 month, 1 year (default), forever; and an option to clear it when Sunset quits |
+| Where | A SQLite file beside the session (the system's library), not encrypted (the store study comes after the milestone) |
+| Where it is shown | Matches in the address field's list and the command bar (between the typed row and the suggestions, up to 4, by frecency, title or host prefix first); History > Show All History; and a history panel in a sidebar on the side opposite the tabs, toggled (the owner: a panel system, a bottom panel or half of the sidebar, needs a study of SunsetShell; the opposite sidebar only for now) |
+| Clearing | History > Clear History…: a span (the last hour, today, today and yesterday, all) and what goes with it, each its own choice: history, website data (cookies, caches, storage), site zoom levels |
+| The history panel | A docked column on the side opposite the tabs, with the tab sidebar's width rules and look; View > Show History (Cmd-Y); a search field, entries by day; a click opens in the focused page, Cmd-click in a new tab; a menu per entry (Open in New Tab, Copy Address, Delete) |
+| Show All History | Opens or focuses the panel; no pane kind of its own |
+| Clearing at quit | Two switches, both off: history, website data |
+| Clear History… | A sheet: the span, three checkboxes (History on; Website data; Site zoom), a note that website data logs you out of sites, Cancel and Clear |
+| The History menu | The last 10 pages below Back, Forward, Reload, then Show All History and Clear History… |

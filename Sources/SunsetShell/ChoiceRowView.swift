@@ -6,7 +6,7 @@ struct ChoiceRowView: View {
     let selected: Bool
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: GlyphSpacing.toText) {
             PaneGlyphView(glyph: row.glyph).frame(width: 18)
             Text(row.title).lineLimit(1).truncationMode(.middle)
             if let subtitle = row.subtitle {

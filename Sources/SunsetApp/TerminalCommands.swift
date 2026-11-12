@@ -64,6 +64,7 @@ struct TerminalCommands: Commands {
                 .keyboardShortcut("r", modifiers: [.command, .shift])
                 .disabled(page?.url == nil)
             Button("Stop") { page?.stopLoading() }.keyboardShortcut(".").disabled(page?.isLoading != true)
+            HistoryMenuItems(page: page)
         }
         CommandGroup(after: .windowArrangement) {
             Button("Show Next Tab") { AppActions.shared.selectNextTab() }

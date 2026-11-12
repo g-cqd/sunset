@@ -70,8 +70,10 @@ struct TerminalScene: View {
             if barAtTop { tabBar }
             HStack(spacing: 0) {
                 if configuration.sidebarDocked, sidebarSide == .left { dockedSidebar }
+                if tabs.showsHistory, sidebarSide == .right { historyPanel }
                 terminal
                 if configuration.sidebarDocked, sidebarSide == .right { dockedSidebar }
+                if tabs.showsHistory, sidebarSide == .left { historyPanel }
             }
             .overlay(alignment: sidebarSide.alignment) { resizeHandle }
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
@@ -83,6 +85,7 @@ struct TerminalScene: View {
         .environment(\.addressTyping, addressTyping)
         .modifier(WindowDialogs(tabs: tabs, layout: configuration.layout))
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
+        .animation(configuration.layout.smooth, value: tabs.showsHistory)
         .ignoresSafeArea(edges: noDecorations ? .top : [])
         .background(
             WindowChrome(

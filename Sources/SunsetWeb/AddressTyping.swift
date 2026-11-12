@@ -40,51 +40,30 @@ package final class AddressTyping {
         suggestions.clear()
     }
 
-    /// The inputs the rows stand for: what was typed, then each suggestion.
-    var inputs: [WebInput] {
+    /// What the rows stand for: what was typed, the history's best matches, then the engine's suggestions.
+    var choices: [AddressChoice] {
         guard let settings = page?.settings, let typed = settings.input(text) else { return [] }
         let engine: SearchEngine = if case .search(let chosen, _) = typed { chosen } else { settings.engine }
         let shown = suggestions.answering == text ? suggestions.suggestions : []
-        return [typed] + shown.map { .search(engine, words: $0) }
+        let visited = (page?.history?.suggestions(for: text) ?? []).filter { $0.url != typed.url?.absoluteString }
+        return [.typed(typed)] + visited.map { .visited($0) } + shown.map { .suggested(.search(engine, words: $0)) }
     }
 
-    package var rows: [ChoiceRow] {
-        inputs.enumerated()
-            .map { index, input in
-                switch input {
-                    case .address(let url, _):
-                        ChoiceRow(
-                            id: "typed",
-                            glyph: .symbol("globe"),
-                            title: "Go to \(url.absoluteString)",
-                            accessory: "Address",
-                            actions: []
-                        )
-                    case .search(let engine, let words):
-                        ChoiceRow(
-                            id: index == 0 ? "typed" : "suggestion " + words,
-                            glyph: .symbol("magnifyingglass"),
-                            title: index == 0 ? "Search \(engine.name) for \u{201C}\(words)\u{201D}" : words,
-                            accessory: engine.name,
-                            actions: []
-                        )
-                }
-            }
-    }
+    package var rows: [ChoiceRow] { choices.map(\.row) }
 
     func move(_ steps: Int) {
-        let count = inputs.count
+        let count = choices.count
         guard count > 0 else { return }
         selection = (selection + steps + count) % count
     }
 
     /// The row `index` (or the selected one) is taken: the page opens it and gets the keyboard.
     package func take(_ index: Int? = nil) {
-        let inputs = inputs
+        let choices = choices
         let chosen = index ?? selection
-        guard let page, inputs.indices.contains(chosen) else { return }
+        guard let page, choices.indices.contains(chosen), let input = choices[chosen].input else { return }
         end()
-        page.open(inputs[chosen])
+        page.open(input)
         page.focusPage()
     }
 }

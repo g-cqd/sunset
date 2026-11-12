@@ -23,12 +23,12 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetPane` | 41 files | No dependency: `Workspace` (a window's tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon; `Favorites` (folders step a1, 2026-11-11: the app-wide tree of folders and kept entries, in the model and the session file; step a2: the app reads it at launch and writes it back, whatever the restoring setting says, and **nothing in a window shows or edits it yet**) |
 | `SunsetShell`, `SunsetShellBridge` | 26 + 2 files | The window shell (R8, step H-1, 2026-11-11): the tab model of a window (`TabsModel`), the pane content protocol, the sidebar and its rows, tab labels and glyphs, the command bar's state, its own plain settings (`ShellSettings`, the configuration's names); the bridge fills them from the configuration. Package access |
 | `SunsetTerminal` | 30 files | The terminal as a kind of pane content (R8): its model, its AppKit view, input, selection, the renderer's wiring; what it needs from the app (the clipboard policy, the font zoom) comes in as callbacks |
-| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 89 keys |
+| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 92 keys |
 | `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 899 in 158 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 904 in 160 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -79,7 +79,12 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   "3 of 12", Match Case and Starts With; the public find without a count where it is missing). Cmd-+ Cmd-- Cmd-0 zoom the focused page (Zoom In /
   Zoom Out), else size the terminal's font; `web.zoomScope` site (remembered in `site-zoom.json` beside the session) / session / page;
   `web.textOnlyZoom` through WebKit's private text zoom; "125%" in the address field resets on a click.
-  No history list, downloads, permissions or private pages: web steps e to h.
+- History (web step e, in progress, 2026-11-12): visits kept in `history.sqlite` beside the session (system SQLite; one row per address: title,
+  visits, last visit), expired at launch by `web.historyKeep` (a year), optionally cleared at quit (`web.clearHistoryOnQuit`,
+  `web.clearWebsiteDataOnQuit`). Matches by frecency (prefix first, up to 4) in the address field's list and the command bar. History menu: the
+  last 10, Show All History (Cmd-Y: a panel on the side opposite the tabs, by day, searchable, menu per entry), Clear History… (span; history,
+  website data, site zoom). Web tabs have one line (n62); Not Secure is a symbol with its text on hover (n64); glyph to text 7 pt (n63, `docs/design/0002-spacing.md`).
+  No downloads, permissions or private pages: web steps f to h.
 
 ### OSC handled by the core (ADR-0010 policy)
 
