@@ -219,3 +219,24 @@ the owner.
 - **Q7** Which tokens are settings: only today's `layout.*` keys, or also the spacing scale and panel widths.
 - **Q8** Glass: the tab preview and the pane-area capsule move from materials to glass (functional layer), or stay.
 - **Q9** Order: the migration (steps 1–5) before 0028 A–D, or each 0028 step migrating the files it touches.
+
+## 8. The owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| Q1 Spacing | The scale 2, 4, 6, 8, 12, 16, 24, off-scale values moving up. **Optical adjustments must stay possible** (a named, documented nudge, not a stray literal). Add design research and proper documentation, such as grid systems (Josef Müller-Brockman). |
+| Q2 Command bar | Radius 12, inset 6, like the other glass surfaces. |
+| Q3 Find bar | A rounded bar (12) like the address bar. |
+| Q4 Control size | Two sizes: small 20 (close buttons), regular 24. |
+| Q5 Accent | Configurable, since more tinting and customisation will come: the system's accent, Sunset's own, and a neutral variant (black / grey / white shades); following the system stays possible. |
+| Q6 Pin button | Both sizes kept, as two named keys (docked / floating). |
+| Q7 Settings | Only today's `layout.*` keys; the rest fixed in code. |
+| Q8 Glass | The tab preview and the pane-area capsule move to glass. And: **glass, material, opaque or transparent becomes one general setting** across every place a surface is drawn. |
+| Q9 Order | Migration steps 1 to 5 first, then roadmap 0028 A to D on top. |
+
+Consequences for the plan:
+- Before step 1: a written design document (`docs/design/0003-design-system.md`) with the grid research (Müller-Brockman's grid systems, the
+  8 pt / 4 pt grids of current practice, Apple's layout guidance), the tokens, the components, and the rule for optical adjustments
+  (`Design.optical(…)` with a reason, allowed by the enforcement test).
+- Step 1 gains: `appearance.accent` (system / sunset / neutral) and a surface setting (glass / material / opaque / transparent) read by every
+  surface token. Both are new configuration keys (the key count rises from 108).
