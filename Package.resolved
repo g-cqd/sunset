@@ -1,12 +1,28 @@
 {
-  "originHash" : "011688690d38ff866c2ad72dc49f99e5fff1965fe5a80e08f74b602c67704feb",
+  "originHash" : "739eae7f927067d22bc3e3ad0e6302783bf3a1a36654913b706dcd27ff3fdbd6",
   "pins" : [
+    {
+      "identity" : "abysm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/Abysm.git",
+      "state" : {
+        "revision" : "164101778e5a662ce1cde7bf1e03c67a334316a8"
+      }
+    },
     {
       "identity" : "aemi",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Aemi-Studio/aemi.git",
       "state" : {
-        "revision" : "e30aad82377cbea62171cc722a88041e97021db2"
+        "revision" : "0bae2edb1a89bd3d931fb3122c2184cc5c368834"
+      }
+    },
+    {
+      "identity" : "aemihmmml",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiHMMML.git",
+      "state" : {
+        "revision" : "ed8469a6b6893265ad8ceede6f7fee00d3169e88"
       }
     },
     {
@@ -14,7 +30,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiJSON.git",
       "state" : {
-        "revision" : "aec8895f1bc9bdaf2104b0d0ebe91e4a93b3c374"
+        "revision" : "806b481d8cc7e21f07d45537b625c5ac9abfc87e"
       }
     },
     {
@@ -22,7 +38,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiMarkdown.git",
       "state" : {
-        "revision" : "72f1fbaef04979a5a518be3d20ddd2efb7af1ce4"
+        "revision" : "4d2fa30e5be7f109526880f767bb788ae5f5d75a"
       }
     },
     {
@@ -30,7 +46,15 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiRegex.git",
       "state" : {
-        "revision" : "e07516ddd7ea3bcedd055dfe66f67ffb06fb5a82"
+        "revision" : "3efa8699dbce4cafe5efc6dcf76223890cf06c1e"
+      }
+    },
+    {
+      "identity" : "aemisdr",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Aemi-Studio/AemiSDR.git",
+      "state" : {
+        "revision" : "e1c50bdbb6f93670acd3d8722b210e9a569d27f5"
       }
     },
     {
@@ -83,7 +107,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/TerminalKit.git",
       "state" : {
-        "revision" : "59668133b73f3d8ab77a347e03bbc778d929a2e6"
+        "revision" : "7913fe66c32d9d715de37f3051c5427ff92f6247"
       }
     }
   ],
