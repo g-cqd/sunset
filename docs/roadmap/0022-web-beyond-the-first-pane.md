@@ -23,3 +23,6 @@ description to build from. Nothing is built. Each step starts with its own quest
 | E | The own engine, last: the spike on a build from the tip of main, read back (DRM matters especially); then the second build of the app | t119 |
 
 W-e and W-f were placed after the site panel by the assistant; the owner can move them.
+
+Noted by the owner in web step f (2026-11-12), much later: an antivirus check of downloaded files (ClamAV); a study of segmented, more reliable
+downloading as aria2c does it.

@@ -156,3 +156,15 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Clearing at quit | Two switches, both off: history, website data |
 | Clear History… | A sheet: the span, three checkboxes (History on; Website data; Site zoom), a note that website data logs you out of sites, Cancel and Clear |
 | The History menu | The last 10 pages below Back, Forward, Reload, then Show All History and Clear History… |
+
+## Step f: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| Where files go | ~/Downloads; a setting for another folder; a setting to ask for each file |
+| When a download starts | At once for an attachment and for what WebKit cannot show; what it can show (PDF, image) opens in the page unless the link says download or it is Option-clicked |
+| What shows progress | A button at the bottom of the sidebar, at the end opposite the + button (the + of R2, t137, built with this step): a ring while running; the latest download as a card on hover (Quick Look thumbnail, name, size, progress); a click opens the list (name, size, progress, Stop, Resume, Show in Finder, Clear) |
+| When one finishes | In the list; the Dock icon bounces once when Sunset is in the background; a system notification (a setting, on); opening safe files (images, PDF) after download (a setting, off) |
+| Safety | The quarantine mark with the page as origin; a taken name gets "-2"; the partial file ends in .download and goes on cancel; apps, installers and scripts (not .dmg) need an approval, by a setting that can turn it off. Later, much later: an antivirus check (ClamAV) of downloaded files |
+| The list kept | `web.downloads.keep`: until removed by hand (default), a day, a week, a month, until Sunset quits, when it finishes; Clear History clears it too |
+| Interrupted | Resumed where possible, also across a quit (the resume data is saved). Later: a study of faster, more reliable downloading (segmented, as aria2c does) |
