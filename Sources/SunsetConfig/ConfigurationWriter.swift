@@ -11,8 +11,7 @@ public enum ConfigurationWriter {
         for field in Configuration.Layout.fields {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }
-        layout.merge(web(configuration.web)) { $1 }
-        layout.merge(permissions(configuration.web)) { $1 }
+        layout.merge(extras(configuration)) { $1 }
         return layout.merging([
             "font.family": string(font.family ?? ""),
             "font.size": number(font.size),
@@ -27,7 +26,6 @@ public enum ConfigurationWriter {
             "window.dragStrip": number(window.dragStrip),
             "scroll.trackpad": number(configuration.scroll.trackpad),
             "scroll.wheel": number(configuration.scroll.wheel),
-            "scroll.inertia": number(configuration.scroll.inertia),
             "scrollback.lines": String(configuration.scrollbackLines),
             "cursor.shape": string(configuration.cursorShape.rawValue),
             "cursor.blink": String(configuration.cursorBlinks),
@@ -118,6 +116,14 @@ public enum ConfigurationWriter {
             "web.privateSuggestions": String(web.privateSuggestions),
             "web.privateWindowShares": String(web.privateWindowShares)
         ]
+    }
+
+    /// The keys added since the table below was full: the web pane's and a few others.
+    private static func extras(_ configuration: Configuration) -> [String: String] {
+        var extra = web(configuration.web).merging(permissions(configuration.web)) { $1 }
+        extra["tabs.askBeforeQuit"] = string(configuration.tabs.askBeforeQuit.rawValue)
+        extra["scroll.inertia"] = number(configuration.scroll.inertia)
+        return extra
     }
 
     private static func permissions(_ web: Configuration.Web) -> [String: String] {

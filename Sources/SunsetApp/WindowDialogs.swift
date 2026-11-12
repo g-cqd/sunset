@@ -21,5 +21,13 @@ struct WindowDialogs: ViewModifier {
             .sheet(isPresented: Binding(get: { tabs.clearingHistory }, set: { tabs.clearingHistory = $0 })) {
                 ClearHistorySheet()
             }
+            .sheet(
+                isPresented: Binding(
+                    get: { QuitGate.shared.isAsking(tabs) },
+                    set: { if !$0, QuitGate.shared.isAsking(tabs) { QuitGate.shared.answer(quit: false) } }
+                )
+            ) {
+                QuitSheet(gate: .shared)
+            }
     }
 }

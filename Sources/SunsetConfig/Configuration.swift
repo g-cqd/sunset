@@ -149,7 +149,14 @@ public struct Configuration: Sendable, Equatable {
         /// Closing the last window does not quit the app while a kept entry of the Favorites is open: what runs in it goes on, and a new window shows it
         /// again. Off: the app quits with its last window, as before (R3).
         public var keepRunningForFavorites = true
+        /// Quitting asks first (web step q): never, when something would be lost (a running command, a form being filled, a download, tabs
+        /// that will not come back), or always.
+        public var askBeforeQuit = QuitAsk.whenLosing
         public init() {}
+
+        public enum QuitAsk: String, Sendable, Equatable, CaseIterable {
+            case never, whenLosing, always
+        }
     }
 
     public struct Scroll: Sendable, Equatable {

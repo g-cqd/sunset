@@ -191,3 +191,11 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Never saved | History, entries recalled in the command bar, site permissions (kept for the page's life), site zoom, the session (not restored after a quit), the downloads list entry (the file is saved) |
 | Suggestions | `web.privateSuggestions`, off |
 | Closing | Its data goes with it; nothing is asked |
+
+## Step q: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| What would be lost | A terminal running a command, a page with a form being filled, a download running, tabs that will not come back (`tabs.restore` off) |
+| The dialog | A sheet listing them (a click on one shows its tab and cancels), Cancel / Quit, "Don't ask again" (sets the setting to never); while it is open nothing quits Sunset (a logout or restart waits) unless it is force-quit |
+| Closing a window | Not covered: today's per-tab confirmation stays |
