@@ -4,6 +4,8 @@ import SwiftUI
 /// Allow, Don't Allow. The page keeps working meanwhile. Without Sunset.app's identity it says why it cannot allow, and only closes.
 struct PermissionPanel: View {
     let request: PermissionRequest
+    /// Where Allow and Don't Allow are kept (a private page's own answers).
+    let store: SitePermissions
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -21,14 +23,14 @@ struct PermissionPanel: View {
                 .foregroundStyle(.secondary)
                 HStack {
                     Spacer()
-                    Button("OK") { request.choose(.deny, keepIn: .shared) }.keyboardShortcut(.defaultAction)
+                    Button("OK") { request.choose(.deny, keepIn: store) }.keyboardShortcut(.defaultAction)
                 }
             } else {
                 HStack {
                     Spacer()
-                    Button("Don't Allow") { request.choose(.deny, keepIn: .shared) }
-                    Button("Allow Once") { request.choose(.allowOnce, keepIn: .shared) }
-                    Button("Allow") { request.choose(.allow, keepIn: .shared) }.keyboardShortcut(.defaultAction)
+                    Button("Don't Allow") { request.choose(.deny, keepIn: store) }
+                    Button("Allow Once") { request.choose(.allowOnce, keepIn: store) }
+                    Button("Allow") { request.choose(.allow, keepIn: store) }.keyboardShortcut(.defaultAction)
                 }
             }
         }

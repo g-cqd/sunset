@@ -16,6 +16,13 @@ package struct WebSettings: Sendable, Equatable {
     package var httpFallback: Bool
     package var zoomScope: ZoomScope
     package var textOnlyZoom: Bool
+    /// A private page's store (web step h); nil for a page of the persistent store. Pages it opens inherit it.
+    package var privacy: PagePrivacy?
+    /// Suggestions while typing in a private page (`web.privateSuggestions`).
+    package var privateSuggestions = false
+
+    /// Whether what is typed is sent for suggestions: `suggestions`, or for a private page `privateSuggestions`.
+    package var suggestsWhileTyping: Bool { privacy == nil ? suggestions : privateSuggestions }
     /// Sunset runs as Sunset.app, with the usage strings macOS needs before a page may use the camera, the microphone or location.
     package var hasAppIdentity = Bundle.main.object(forInfoDictionaryKey: "NSCameraUsageDescription") != nil
 
@@ -30,9 +37,11 @@ package struct WebSettings: Sendable, Equatable {
         engine: String = "Google",
         suggestions: Bool = true,
         httpFallback: Bool = false,
+        privateSuggestions: Bool = false,
         zoomScope: ZoomScope = .site,
         textOnlyZoom: Bool = false
     ) {
+        self.privateSuggestions = privateSuggestions
         self.zoomScope = zoomScope
         self.textOnlyZoom = textOnlyZoom
         self.applicationName = applicationName

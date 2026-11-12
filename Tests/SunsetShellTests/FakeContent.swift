@@ -11,6 +11,7 @@ import SwiftUI
     var progress: Double?
     var closeWarning: String?
     var searchTerms: [String] = []
+    var isPrivate = false
     var descriptor: PaneDescriptor
     var onExit: () -> Void = {}
     var onFocusRequest: () -> Void = {}

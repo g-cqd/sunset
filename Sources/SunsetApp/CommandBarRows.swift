@@ -127,6 +127,9 @@ import SunsetWeb
     private static func webActions(_ input: WebInput, tabs: TabsModel, recall: String) -> [ChoiceAction] {
         func done() {
             tabs.bar = nil
+            // Nothing typed in a private context is kept, not even for this session's recall (web step h).
+            let privateHere = tabs.isPrivateWindow || (tabs.selectedContent as? WebContent)?.isPrivate == true
+            guard !privateHere else { return }
             tabs.barRecall.removeAll { $0 == recall }
             tabs.barRecall.append(recall)
         }

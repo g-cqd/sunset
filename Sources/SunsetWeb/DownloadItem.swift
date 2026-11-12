@@ -22,6 +22,8 @@ package final class DownloadItem: Identifiable {
     package internal(set) var finished: Date?
     package internal(set) var failure: String?
     @ObservationIgnored var resumeData: Data?
+    /// From a private page (web step h): never written to the list's file.
+    @ObservationIgnored package internal(set) var isPrivate = false
     @ObservationIgnored weak var download: WKDownload?
     @ObservationIgnored var observation: NSKeyValueObservation?
 

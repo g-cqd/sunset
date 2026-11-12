@@ -40,6 +40,10 @@ package final class TabsModel {
     package var choosingKind = false
     /// The history panel is shown on the side opposite the tabs (Cmd-Y, web step e); Clear History's sheet is open.
     package var showsHistory = false
+    /// A private window (web step h): the group its pages share by default, and whether they do (the window's selector).
+    package var privateGroup: UUID?
+    package var privateShares = true
+    package var isPrivateWindow: Bool { privateGroup != nil }
     package var clearingHistory = false
     /// The row whose name is being edited in place, and the row whose icon popover is open.
     package var renamingRow: RowTarget?
@@ -94,8 +98,11 @@ package final class TabsModel {
     // MARK: Session
 
     /// The window as it is, for the session file: the tabs and what brings the content of each pane back.
+    /// The window as the session keeps it: without its private panes (a tab of only private panes goes).
     package func savedWindow() -> SavedWindow {
-        SavedWindow(workspace: workspace, contents: contents.mapValues(\.descriptor))
+        var kept = workspace
+        for (pane, content) in contents where content.isPrivate { kept.close(pane: pane) }
+        return SavedWindow(workspace: kept, contents: contents.filter { !$0.value.isPrivate }.mapValues(\.descriptor))
     }
 
     /// Fills an empty window with a saved one: the same tabs and splits, and in each pane the content its descriptor says (a new terminal in its

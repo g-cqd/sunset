@@ -6,6 +6,8 @@ import WebKit
 final class SunsetWebView: WKWebView {
     /// Where the next page this view's menu asks for goes; read and cleared when WebKit asks for it.
     var pendingPlacement: WebPlacement?
+    /// The link menu offers a private tab (not in a page that is private already).
+    var offersPrivateTab = true
     /// It took the keyboard (a click in the page): its pane is the focused one.
     var onFocus: () -> Void = {}
 
@@ -25,10 +27,11 @@ final class SunsetWebView: WKWebView {
         else { return }
         let original = menu.items[index]
         menu.removeItem(at: index)
-        let choices: [(String, WebPlacement)] = [
+        var choices: [(String, WebPlacement)] = [
             ("Open Link in Split Right", .splitRight), ("Open Link in Split Down", .splitDown),
             ("Open Link in New Tab", .tabAfter), ("Open Link in New Window", .window)
         ]
+        if offersPrivateTab { choices.append(("Open Link in Private Tab", .privateTab)) }
         // Each is WebKit's own item, retitled: WebKit opens the link as for its item, and asks for the new page, which goes where this one said.
         for (offset, choice) in choices.enumerated() {
             guard let item = original.copy() as? NSMenuItem else { continue }

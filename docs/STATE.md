@@ -23,12 +23,12 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetPane` | 41 files | No dependency: `Workspace` (a window's tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon; `Favorites` (folders step a1, 2026-11-11: the app-wide tree of folders and kept entries, in the model and the session file; step a2: the app reads it at launch and writes it back, whatever the restoring setting says, and **nothing in a window shows or edits it yet**) |
 | `SunsetShell`, `SunsetShellBridge` | 26 + 2 files | The window shell (R8, step H-1, 2026-11-11): the tab model of a window (`TabsModel`), the pane content protocol, the sidebar and its rows, tab labels and glyphs, the command bar's state, its own plain settings (`ShellSettings`, the configuration's names); the bridge fills them from the configuration. Package access |
 | `SunsetTerminal` | 30 files | The terminal as a kind of pane content (R8): its model, its AppKit view, input, selection, the renderer's wiring; what it needs from the app (the clipboard policy, the font zoom) comes in as callbacks |
-| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 105 keys |
+| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 107 keys |
 | `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 920 in 166 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 923 in 169 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -95,7 +95,12 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   top of the page (Allow Once / Allow / Don't Allow); kept by site in `site-permissions.json`; defaults by `web.permissions.*` (ask; pop-ups and
   sound denied); Settings > Web > Websites; the site button in the address field (lock, capture dot, this site's answers); a capture dot on the
   tab. Camera, microphone and location need Sunset.app (`Scripts/make-app.sh`: Info.plist with usage strings, icon, ad-hoc signature, bundle
-  id studio.aemi.sunset); the bare executable refuses them and says so. No private pages yet: web step h.
+  id studio.aemi.sunset); the bare executable refuses them and says so.
+- Private pages (web step h, 2026-11-12): a private tab anywhere (File > New Private Tab, Option-Shift-Cmd-N; the + menu; Open Link in Private
+  Tab) and a private window (Shift-Cmd-N). In-memory stores: a private tab of a normal window has its own; a private window's pages share one
+  (`web.privateWindowShares`, and a toggle in the "Private" mark's popover). Never kept: history, command bar recall, site answers (its own, in
+  memory), site zoom, the session, the download's list entry. `web.privateSuggestions` off. Marked by a dark address field with "Private" and
+  a mask on the tab. Tested in the background with axdrive (Tools/axdrive).
 
 ### OSC handled by the core (ADR-0010 policy)
 

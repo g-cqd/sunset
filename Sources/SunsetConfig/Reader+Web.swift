@@ -9,7 +9,8 @@ extension Reader {
         "clearHistoryOnQuit": \.clearHistoryOnQuit, "clearWebsiteDataOnQuit": \.clearWebsiteDataOnQuit,
         "askWhereToSave": \.askWhereToSave, "openSafeDownloads": \.openSafeDownloads,
         "notifyDownloads": \.notifyDownloads,
-        "approveRiskyDownloads": \.approveRiskyDownloads
+        "approveRiskyDownloads": \.approveRiskyDownloads, "privateSuggestions": \.privateSuggestions,
+        "privateWindowShares": \.privateWindowShares
     ]
 
     mutating func readWeb(_ object: Object) {

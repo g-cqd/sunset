@@ -37,5 +37,6 @@ struct SidebarBottomBar: View {
     @ViewBuilder private var kinds: some View {
         Button("New Terminal Tab") { AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil)) }
         Button("New Web Page") { AppActions.shared.newTab(kind: PaneContentKinds.newPage) }
+        Button("New Private Tab") { AppActions.shared.newTab(kind: PaneContentKinds.newPrivatePage) }
     }
 }

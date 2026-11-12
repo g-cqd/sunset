@@ -7,7 +7,7 @@ extension WebContent {
     /// Whether the page may have all of `permissions`: a kept Deny refuses at once, a kept Allow grants at once, else the panel asks. Without
     /// Sunset.app's identity, what macOS must also allow is refused, the panel saying why.
     func ask(_ permissions: [SitePermission], host: String) async -> Bool {
-        let store = SitePermissions.shared
+        let store = self.permissions
         let answers = permissions.map { store.answer($0, for: host) }
         if answers.contains(.deny) { return false }
         let unavailable = !settings.hasAppIdentity && permissions.contains(where: \.needsAppIdentity)

@@ -3,7 +3,7 @@ import SwiftUI
 /// What one site was allowed (web step g), changed in place; and Stop while the page captures.
 struct SiteSettingsPopover: View {
     let content: WebContent
-    private let store = SitePermissions.shared
+    private var store: SitePermissions { content.permissions }
 
     var body: some View {
         let host = content.siteHost ?? ""

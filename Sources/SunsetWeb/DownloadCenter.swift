@@ -37,8 +37,10 @@ package final class DownloadCenter: NSObject {
     // MARK: Starting
 
     /// A navigation became a download: it is followed from here.
-    package func adopt(_ download: WKDownload, origin: URL?) {
+    /// `isPrivate`: from a private page: listed until Sunset quits, never written to the list's file (the file itself is saved).
+    package func adopt(_ download: WKDownload, origin: URL?, isPrivate: Bool = false) {
         let item = DownloadItem(source: download.originalRequest?.url, origin: origin, name: "download")
+        item.isPrivate = isPrivate
         item.download = download
         items.insert(item, at: 0)
         download.delegate = self
@@ -131,7 +133,7 @@ package final class DownloadCenter: NSObject {
         guard let path else { return }
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .secondsSince1970
-        guard let data = try? encoder.encode(items.map(\.record)) else { return }
+        guard let data = try? encoder.encode(items.filter { !$0.isPrivate }.map(\.record)) else { return }
         try? FileManager.default.createDirectory(
             at: URL(fileURLWithPath: path).deletingLastPathComponent(),
             withIntermediateDirectories: true

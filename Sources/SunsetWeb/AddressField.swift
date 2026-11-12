@@ -10,6 +10,7 @@ package struct AddressField: View {
     var onEditing: (Bool) -> Void = { _ in }
     @State private var focusNow = false
     @Environment(\.addressTyping) private var typing
+    @Environment(\.colorScheme) private var colorScheme
 
     package init(content: WebContent, place: AddressTyping.Place = .top, onEditing: @escaping (Bool) -> Void = { _ in })
     {
@@ -21,6 +22,7 @@ package struct AddressField: View {
     package var body: some View {
         let shape = RoundedRectangle(cornerRadius: 7, style: .continuous)
         HStack(spacing: 4) {
+            if content.isPrivate { PrivateMark() }
             if content.url != nil { SiteButton(content: content) }
             textField
             if abs(content.zoom - 1) > 0.001 {
@@ -34,7 +36,9 @@ package struct AddressField: View {
         }
         .padding(.horizontal, 8)
         .frame(height: 26)
-        .background(shape.fill(Color.primary.opacity(0.08)))
+        // A private page's field is dark, its text light (web step h).
+        .background(shape.fill(content.isPrivate ? Color.black.opacity(0.7) : Color.primary.opacity(0.08)))
+        .environment(\.colorScheme, content.isPrivate ? .dark : colorScheme)
         .overlay(alignment: .bottomLeading) { progressLine }
         .clipShape(shape)
         .onAppear { takeKeyboardIfAsked() }

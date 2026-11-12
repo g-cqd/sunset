@@ -35,6 +35,16 @@ extension SettingsView {
             case "web.zoomScope", "web.textOnlyZoom", "web.historyKeep", "web.clearHistoryOnQuit",
                 "web.clearWebsiteDataOnQuit":
                 webPageControl(for: id)
+            case "web.privateSuggestions":
+                Toggle(
+                    "Ask the engine for suggestions in private pages",
+                    isOn: config.binding(\.web.privateSuggestions)
+                )
+            case "web.privateWindowShares":
+                Toggle(
+                    "The pages of a new private window share their data (a private tab of a normal window never does)",
+                    isOn: config.binding(\.web.privateWindowShares)
+                )
             case "web.permissions":
                 WebsitesSettings(defaults: config.binding(\.web.permissions))
             case "web.engines":

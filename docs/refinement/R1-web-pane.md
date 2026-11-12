@@ -180,3 +180,14 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Where they are reviewed | Settings > Web > Websites, a list per permission (site, answer, remove); and a per-page menu from a site button in the address field (following the tabs' spacing and the design system) |
 | While in use | A dot on the tab row and in the address field (camera/microphone red, screen orange) besides the system's own indicator; a click stops it |
 | Sunset's identity for macOS | A script builds Sunset.app (Info.plist with the usage strings, an icon placeholder, ad-hoc signed), run from there; without it (the bare executable) Sunset answers Don't Allow itself and the panel says it needs Sunset.app |
+
+## Step h: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| How one is opened | Both: a private tab anywhere (File > New Private Tab, the + menu, the link menu's Open Link in Private Tab) and a private window (File > New Private Window, Shift-Cmd-N), where every new page is private |
+| What marks it | A dark address field with a "Private" label, and a mask on its tab |
+| Its store | In memory. In a private window its pages share one store by default, with a selector in the window to give each its own (`web.privateWindowShares`); a private tab in a normal window shares with nothing |
+| Never saved | History, entries recalled in the command bar, site permissions (kept for the page's life), site zoom, the session (not restored after a quit), the downloads list entry (the file is saved) |
+| Suggestions | `web.privateSuggestions`, off |
+| Closing | Its data goes with it; nothing is asked |

@@ -49,6 +49,8 @@ package final class WebContent: PaneContent {
     @ObservationIgnored private var coordinator: WebCoordinator?
     /// Hosts whose untrusted certificate the person chose to accept, for this page (Visit Anyway).
     @ObservationIgnored var acceptedHosts: Set<String> = []
+    /// A private page's answers, in memory for its life (web step h).
+    @ObservationIgnored var ownPermissions: SitePermissions?
     /// The host last typed without a scheme while the http setting is on: if https fails for it, http is tried (`WebCoordinator`).
     @ObservationIgnored var fallbackHost: String?
 
@@ -80,22 +82,12 @@ package final class WebContent: PaneContent {
 
     // MARK: PaneContent
 
-    package var title: String { pageTitle.isEmpty ? (url?.host() ?? "New Page") : pageTitle }
-    /// No second line in a tab: the address is in the address field (owner note n62); the address is still searched by (`searchTerms`).
-    package var detail: String? { nil }
-    package var searchTerms: [String] { url.map { [$0.absoluteString] } ?? [] }
-    package var closeWarning: String? { nil }
-
-    package var glyph: PaneGlyph {
-        guard settings.initialIcon, let first = title.first(where: \.isLetter) else { return .symbol("globe") }
-        return .initial(String(first).uppercased())
-    }
-
     package var descriptor: PaneDescriptor {
         var state: [String: String] = [:]
         if let url { state["url"] = url.absoluteString }
         if !pageTitle.isEmpty { state["title"] = pageTitle }
         if settings.zoomScope == .page, abs(zoom - 1) > 0.001 { state["zoom"] = String(zoom) }
+        if isPrivate { state["private"] = "1" }
         if let history = (webView?.interactionState as? Data) ?? savedHistory {
             state["history"] = history.base64EncodedString()
         }
@@ -164,7 +156,9 @@ package final class WebContent: PaneContent {
 
     private func makeWebView(configuration given: WKWebViewConfiguration?) {
         let configuration = given ?? WKWebViewConfiguration()
-        if given == nil { configuration.websiteDataStore = .default() }
+        if given == nil {
+            configuration.websiteDataStore = settings.privacy.map(PrivateStores.store(for:)) ?? .default()
+        }
         configuration.applicationNameForUserAgent = settings.applicationName
         WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
         WebPermissionHooks.enable(on: configuration.preferences)
@@ -173,11 +167,12 @@ package final class WebContent: PaneContent {
         if given == nil {
             let host = url?.host()
             configuration.mediaTypesRequiringUserActionForPlayback =
-                SitePermissions.shared.answer(.autoplay, for: host) == .allow ? [] : .audio
+                permissions.answer(.autoplay, for: host) == .allow ? [] : .audio
         }
         let view = SunsetWebView(frame: .zero, configuration: configuration)
         view.isInspectable = settings.developer
         view.allowsBackForwardNavigationGestures = true
+        view.offersPrivateTab = !isPrivate
         view.onFocus = { [weak self] in self?.onFocusRequest() }
         let coordinator = WebCoordinator(content: self)
         view.navigationDelegate = coordinator

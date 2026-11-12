@@ -10,23 +10,33 @@ struct PagesFollowSettings: ViewModifier {
     let web: Configuration.Web
 
     func body(content: Content) -> some View {
-        content.onChange(of: web.zoomScope, initial: true) { _, scope in
-            let path = SessionLocation.zoomPath(
-                environment: ProcessInfo.processInfo.environment,
-                home: NSHomeDirectory()
-            )
-            let wanted = scope == .site ? path : nil
-            if SiteZoom.shared.path != wanted || scope == .site && SiteZoom.shared.path == nil {
-                SiteZoom.shared.path = wanted
+        content
+            .environment(\.privateWindowSharing, sharing)
+            .onChange(of: web.zoomScope, initial: true) { _, scope in
+                let path = SessionLocation.zoomPath(
+                    environment: ProcessInfo.processInfo.environment,
+                    home: NSHomeDirectory()
+                )
+                let wanted = scope == .site ? path : nil
+                if SiteZoom.shared.path != wanted || scope == .site && SiteZoom.shared.path == nil {
+                    SiteZoom.shared.path = wanted
+                }
             }
-        }
-        .onChange(of: web) { _, now in
-            AppDownloads.apply(now)
-            let settings = PaneContentKinds.webSettings
-            for page in tabs.allPages {
-                page.settings = settings
-                page.applyZoom()
+            .onChange(of: web) { _, now in
+                AppDownloads.apply(now)
+                let settings = PaneContentKinds.webSettings
+                for page in tabs.allPages {
+                    var own = settings
+                    own.privacy = page.settings.privacy
+                    page.settings = own
+                    page.applyZoom()
+                }
             }
-        }
+    }
+
+    /// The private window's selector: its pages share a store, or each has its own; it applies to the pages opened after.
+    private var sharing: Binding<Bool>? {
+        guard tabs.isPrivateWindow else { return nil }
+        return Binding(get: { tabs.privateShares }, set: { tabs.privateShares = $0 })
     }
 }

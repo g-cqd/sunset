@@ -96,6 +96,10 @@ extension Configuration {
         /// Apps, installers and scripts are downloaded only after an approval.
         public var approveRiskyDownloads = true
         public var keepDownloads = DownloadsKeep.byHand
+        /// Suggestions while typing in a private page (web step h).
+        public var privateSuggestions = false
+        /// The pages of a new private window share one store (its selector changes it for the window).
+        public var privateWindowShares = true
         /// By permission name (camera, microphone, screen, location, notifications, popups, autoplay): what a site not yet answered gets.
         public var permissions: [String: PermissionDefault] = Self.permissionDefaults
         public static let permissionNames = [

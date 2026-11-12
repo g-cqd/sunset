@@ -13,10 +13,10 @@ extension WebCoordinator {
     }
 
     func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
-        DownloadCenter.shared.adopt(download, origin: webView.url)
+        DownloadCenter.shared.adopt(download, origin: webView.url, isPrivate: content?.isPrivate ?? false)
     }
 
     func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
-        DownloadCenter.shared.adopt(download, origin: webView.url)
+        DownloadCenter.shared.adopt(download, origin: webView.url, isPrivate: content?.isPrivate ?? false)
     }
 }
