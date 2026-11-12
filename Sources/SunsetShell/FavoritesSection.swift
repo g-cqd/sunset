@@ -10,6 +10,7 @@ struct FavoritesSection: View {
     let layout: ShellSettings.Layout
     @State private var drop: (entry: Favorites.NodeID, after: Bool)?
     @State private var heights: [Favorites.NodeID: Double] = [:]
+    @Environment(\.accent) private var accent
 
     var body: some View {
         let favorites = tabs.favorites.favorites
@@ -36,7 +37,7 @@ struct FavoritesSection: View {
         if let drop, drop.entry == id {
             VStack {
                 if drop.after { Spacer(minLength: 0) }
-                Capsule().fill(Color(nsColor: .controlAccentColor)).frame(height: 2)
+                Capsule().fill(accent.color).frame(height: Design.Space.hair)
                 if !drop.after { Spacer(minLength: 0) }
             }
             .allowsHitTesting(false)
@@ -49,7 +50,7 @@ struct FavoritesSection: View {
                 // Its command was not run: something other than Sunset wrote it (t145).
                 if tabs.favorites.unconfirmed.contains(entry.id) {
                     Image(systemName: "exclamationmark.shield.fill")
-                        .font(.system(size: 9))
+                        .font(.system(size: Design.Symbol.badge))
                         .foregroundStyle(.orange)
                         .help("Its command was not written by Sunset and was not run. Edit Command\u{2026} to see it.")
                         .offset(x: 2, y: 1)

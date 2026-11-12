@@ -1,3 +1,4 @@
+import SunsetShell
 import SwiftUI
 
 /// The site's button at the start of the address field (web step g): the lock (or Not Secure), a dot while the page captures (a click stops it), and
@@ -14,7 +15,7 @@ struct SiteButton: View {
                 if content.isNotSecure {
                     NotSecureMark()
                 } else {
-                    Image(systemName: "lock").font(.caption).foregroundStyle(.secondary)
+                    Image(systemName: "lock").font(Design.Text.detail).foregroundStyle(.secondary)
                 }
                 if let dot = content.captureDot { Circle().fill(dot).frame(width: 6, height: 6) }
             }

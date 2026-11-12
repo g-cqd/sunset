@@ -24,6 +24,7 @@ package struct TabSidebar: View {
     @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
     /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
     @State private var closingSlot: Int?
+    @Environment(\.accent) private var accentStyle
 
     var margin: Double { settings.sidebar.padding }
     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
@@ -187,7 +188,7 @@ package struct TabSidebar: View {
     /// tab, with its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
     /// Shows what dropping on this row will do: an insertion line at the top or bottom edge for reordering, or a left/right half highlight for splitting.
     @ViewBuilder private func rowDropOverlay(_ action: TabDropAction) -> some View {
-        let accent = Color(nsColor: .controlAccentColor)
+        let accent = accentStyle.color
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         switch action {
             case .moveBefore:
@@ -205,8 +206,8 @@ package struct TabSidebar: View {
             case .split(let edge):
                 GeometryReader { proxy in
                     let half = proxy.size.width / 2
-                    shape.fill(accent.opacity(0.22))
-                        .overlay { shape.strokeBorder(accent.opacity(0.75), lineWidth: 1.5) }
+                    shape.fill(accent.opacity(Design.Fill.target))
+                        .overlay { shape.strokeBorder(accent.opacity(Design.Fill.armedButton), lineWidth: 1.5) }
                         .frame(width: half, height: proxy.size.height)
                         .offset(x: edge == .right ? half : 0)
                 }

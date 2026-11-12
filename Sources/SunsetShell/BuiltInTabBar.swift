@@ -8,6 +8,7 @@ package struct BuiltInTabBar: View {
     let tabs: TabsModel
     let settings: ShellSettings.Bar
     @State private var hovered: UUID?
+    @Environment(\.accent) private var accent
     @State private var frames: [UUID: CGRect] = [:]
 
     package init(tabs: TabsModel, settings: ShellSettings.Bar) {
@@ -22,7 +23,8 @@ package struct BuiltInTabBar: View {
                     let items = tabs.favorites.favorites.barItems(selected: tabs.workspace.selectedEntry)
                     ForEach(items, id: \.self) { item in barItem(item) }
                     if !items.isEmpty {
-                        Rectangle().fill(.primary.opacity(0.18)).frame(width: 1, height: 16).padding(.horizontal, 3)
+                        Rectangle().fill(.primary.opacity(Design.Fill.separator)).frame(width: 1, height: 16)
+                            .padding(.horizontal, 3)
                     }
                     ForEach(tabs.workspace.items) { item in row(item) }
                 }
@@ -61,12 +63,12 @@ package struct BuiltInTabBar: View {
             }
             Text(folder.name).lineLimit(1)
             if folder.isCollapsed {
-                Text("\(count)").font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
+                Text("\(count)").font(Design.Text.tiny.monospacedDigit()).foregroundStyle(.secondary)
                     .padding(.horizontal, 4)
-                    .background(.primary.opacity(0.1), in: Capsule())
+                    .background(.primary.opacity(Design.Fill.openHover), in: Capsule())
             }
         }
-        .font(.system(size: 12))
+        .font(Design.Text.secondary)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .contentShape(.rect)
@@ -87,7 +89,7 @@ package struct BuiltInTabBar: View {
             button: (symbol: "minus", help: "Unload (it stays in Favorites)", action: { tabs.unload(entry: entry.id) })
         ) {
             HStack(spacing: 4) {
-                Image(systemName: "star.fill").font(.system(size: 7)).foregroundStyle(.secondary)
+                Image(systemName: "star.fill").font(.system(size: Design.Symbol.mark)).foregroundStyle(.secondary)
                 label(
                     model: entry.open.flatMap { tabs.favorites.contents[$0.focused] },
                     name: entry.title,
@@ -162,7 +164,7 @@ package struct BuiltInTabBar: View {
             if hovered == id || selected || armed {
                 SwiftUI.Button(action: button.action) {
                     Image(systemName: button.symbol)
-                        .font(.caption2)
+                        .font(Design.Text.tiny)
                         .foregroundStyle(armed ? Color.red : Color.primary)
                 }
                 .buttonStyle(.borderless)
@@ -173,8 +175,9 @@ package struct BuiltInTabBar: View {
         .padding(.vertical, 4)
         .background(
             armed
-                ? AnyShapeStyle(Color.red.opacity(0.24))
-                : (selected ? AnyShapeStyle(.selection.opacity(0.35)) : AnyShapeStyle(Color.clear)),
+                ? AnyShapeStyle(Color.red.opacity(Design.Fill.armed))
+                : (selected
+                    ? AnyShapeStyle(accent.color.opacity(Design.Fill.markedHover)) : AnyShapeStyle(Color.clear)),
             in: .rect(cornerRadius: 6)
         )
         .contentShape(.rect)

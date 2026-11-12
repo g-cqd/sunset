@@ -22,16 +22,17 @@ struct PrivateMark: View {
 
     private var details: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Private Page").font(.headline)
+            Text("Private Page").font(Design.Text.title)
             Text(
                 "Its cookies and storage stay in memory and go when it closes. No history, no zoom, no site answers and no download entry are kept; it is not restored after Sunset quits."
             )
-            .font(.callout)
+            .font(Design.Text.secondary)
             .fixedSize(horizontal: false, vertical: true)
             if let sharing {
                 Divider()
                 Toggle("Private pages of this window share their data", isOn: sharing)
-                Text("Applies to the pages opened after the change.").font(.caption).foregroundStyle(.secondary)
+                Text("Applies to the pages opened after the change.").font(Design.Text.detail)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(Design.Space.xl)

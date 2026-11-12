@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetShell
 import SwiftUI
 
 /// The Settings window: a sidebar of panes with a search field, in the manner of System Settings. Every option of the configuration file has a control; the
@@ -99,7 +100,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     number("Wheel inertia", \.scroll.inertia, range: 0 ... 2, step: 0.05, unit: "s")
                     Text("How long a wheel notch glides (0: none). A trackpad uses the system's own momentum.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "scroll.history": history
             case "terminal.blinkForever": Toggle("Cursor blinks for ever", isOn: foreverBinding)
@@ -127,7 +128,7 @@ struct SettingsView: View {
                 unit: "lines",
                 fractionDigits: 0
             )
-            Text("The history length applies to windows opened after the change.").font(.caption)
+            Text("The history length applies to windows opened after the change.").font(Design.Text.detail)
                 .foregroundStyle(.secondary)
         }
     }
@@ -140,14 +141,14 @@ struct SettingsView: View {
             Text(
                 "GPU draws with Metal, CPU on the processor; auto picks the GPU when the machine has one. Both draw the same pixels."
             )
-            .font(.caption)
+            .font(Design.Text.detail)
             .foregroundStyle(.secondary)
         }
     }
 
     private var fileInfo: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(config.path).font(.callout).textSelection(.enabled)
+            Text(config.path).font(Design.Text.secondary).textSelection(.enabled)
             HStack {
                 Button("Reveal in Finder") {
                     NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: config.path)])
@@ -165,7 +166,7 @@ struct SettingsView: View {
             Text(
                 "Saving here rewrites the file with every option; comments in a hand-written file are not kept (the previous file is saved as config.json.bak)."
             )
-            .font(.caption).foregroundStyle(.secondary)
+            .font(Design.Text.detail).foregroundStyle(.secondary)
         }
     }
 

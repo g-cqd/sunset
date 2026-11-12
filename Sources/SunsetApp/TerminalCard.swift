@@ -19,6 +19,7 @@ struct TerminalCard: ViewModifier {
     var windowCorners = CornerSet.all
     var layout: Configuration.Layout
     var stroke = PaneStrokeStyle.hairline
+    @Environment(\.accent) private var accent
 
     func body(content: Content) -> some View {
         let shape = UnevenRoundedRectangle(cornerRadii: radii, style: .continuous)
@@ -27,7 +28,10 @@ struct TerminalCard: ViewModifier {
             .clipShape(shape)
             .overlay { shape.hairline(ShellSettings.Layout(layout)).opacity(stroke == .hairline ? 1 : 0) }
             .overlay { shape.hoverHairline(ShellSettings.Layout(layout)).opacity(stroke == .hovered ? 1 : 0) }
-            .overlay { shape.focusHairline(ShellSettings.Layout(layout)).opacity(stroke == .focused ? 1 : 0) }
+            .overlay {
+                shape.focusHairline(ShellSettings.Layout(layout), accent: accent.color)
+                    .opacity(stroke == .focused ? 1 : 0)
+            }
     }
 
     private var radii: RectangleCornerRadii {

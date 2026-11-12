@@ -4,31 +4,38 @@ import SwiftUI
 struct ChoiceRowView: View {
     let row: ChoiceRow
     let selected: Bool
+    @Environment(\.accent) private var accent
 
     var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
-            PaneGlyphView(glyph: row.glyph).frame(width: 18)
+            PaneGlyphView(glyph: row.glyph).frame(width: Design.Size.glyphFrame)
             Text(row.title).lineLimit(1).truncationMode(.middle)
             if let subtitle = row.subtitle {
                 Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(selected ? AnyShapeStyle(.white.opacity(0.75)) : AnyShapeStyle(.secondary))
+                    .font(Design.Text.detail)
+                    .foregroundStyle(
+                        selected
+                            ? AnyShapeStyle(accent.ink.opacity(Design.Fill.inkSecondary)) : AnyShapeStyle(.secondary)
+                    )
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
-            Spacer(minLength: 8)
+            Spacer(minLength: Design.Space.m)
             if let accessory = row.accessory {
                 Text(accessory)
-                    .font(.caption)
-                    .foregroundStyle(selected ? AnyShapeStyle(.white.opacity(0.8)) : AnyShapeStyle(.secondary))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.primary.opacity(selected ? 0 : 0.07)))
+                    .font(Design.Text.detail)
+                    .foregroundStyle(
+                        selected
+                            ? AnyShapeStyle(accent.ink.opacity(Design.Fill.accentPressed)) : AnyShapeStyle(.secondary)
+                    )
+                    .padding(.horizontal, Design.Space.s)
+                    .padding(.vertical, Design.Space.hair)
+                    .background(Capsule().fill(Color.primary.opacity(selected ? 0 : Design.Fill.hover)))
             }
         }
-        .foregroundStyle(selected ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
-        .padding(.horizontal, 10)
-        .frame(height: ChoiceList.rowHeight - 2)
+        .foregroundStyle(selected ? AnyShapeStyle(accent.ink) : AnyShapeStyle(.primary))
+        .padding(.horizontal, Design.Space.l)
+        .frame(height: ChoiceList.rowHeight - Design.Space.hair)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(.rect)
     }

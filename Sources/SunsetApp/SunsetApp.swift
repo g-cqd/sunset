@@ -1,5 +1,6 @@
 import Foundation
 import SunsetConfig
+import SunsetShell
 import SwiftUI
 
 /// Sunset, the app: one window per terminal, a Settings window, a Paste command. SwiftUI owns the scenes, the settings and the menus; the terminal view
@@ -28,6 +29,10 @@ import SwiftUI
 
         Settings {
             SettingsView()
+                .accent(
+                    AppConfiguration.shared.configuration.appearance.accent.rawValue,
+                    tint: AppConfiguration.shared.configuration.appearance.tintColor
+                )
         }
     }
 }

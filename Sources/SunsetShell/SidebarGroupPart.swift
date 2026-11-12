@@ -48,9 +48,13 @@ struct SidebarGroupPart: View {
 
     private var highlight: Color {
         switch (lit, hovering) {
-            case (true, true): .primary.opacity(activeState == .inactive ? 0.12 : 0.2)
-            case (true, false): .primary.opacity(activeState == .inactive ? 0.1 : 0.16)
-            case (false, true): .primary.opacity(0.08)
+            case (true, true):
+                .primary.opacity(
+                    activeState == .inactive ? Design.Fill.selectedInactiveHover : Design.Fill.selectedHover
+                )
+            case (true, false):
+                .primary.opacity(activeState == .inactive ? Design.Fill.selectedInactive : Design.Fill.selected)
+            case (false, true): .primary.opacity(Design.Fill.hover)
             case (false, false): .clear
         }
     }

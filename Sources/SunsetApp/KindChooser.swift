@@ -10,7 +10,7 @@ struct KindChooser: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("New Tab").font(.headline)
+            Text("New Tab").font(Design.Text.title)
             HStack(spacing: 12) {
                 choice("Terminal", symbol: "terminal", key: "t", kind: PaneDescriptor.terminal(directory: nil))
                 choice("Web Page", symbol: "globe", key: "w", kind: PaneContentKinds.newPage)
@@ -29,7 +29,7 @@ struct KindChooser: View {
             AppActions.shared.newTab(kind: kind)
         } label: {
             VStack(spacing: 6) {
-                Image(systemName: symbol).font(.system(size: 22))
+                Image(systemName: symbol).font(.system(size: Design.Symbol.large))
                 Text(title)
             }
             .frame(width: 110, height: 70)

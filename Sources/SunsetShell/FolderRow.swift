@@ -20,11 +20,12 @@ struct FolderRow: View {
     }
     @State private var targeted = false
     @State private var hovering = false
+    @Environment(\.accent) private var accent
 
     var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
             if let icon = folder.icon, PaneIconView.canShow(icon) {
-                PaneIconView(icon: icon).opacity(folder.isCollapsed ? 0.7 : 1)
+                PaneIconView(icon: icon).opacity(folder.isCollapsed ? Design.Fill.collapsedIcon : 1)
             } else {
                 Image(systemName: folder.isCollapsed ? "folder" : "folder.fill")
                     .font(.system(size: Design.Symbol.row))
@@ -82,9 +83,8 @@ struct FolderRow: View {
     }
 
     private var fill: Color {
-        let accent = Color(nsColor: .controlAccentColor)
-        if targeted { return accent.opacity(0.22) }
-        if tabs.isMarked(.node(folder.id)) { return accent.opacity(0.18) }
+        if targeted { return accent.color.opacity(Design.Fill.target) }
+        if tabs.isMarked(.node(folder.id)) { return accent.color.opacity(Design.Fill.marked) }
         return .primary.opacity(hovering ? Design.Fill.hover : 0)
     }
 

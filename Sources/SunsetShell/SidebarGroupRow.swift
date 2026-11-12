@@ -22,7 +22,9 @@ struct SidebarGroupRow: View {
             if custom.name != nil || custom.icon != nil {
                 HStack(spacing: 4) {
                     if let icon = custom.icon { PaneIconView(icon: icon) }
-                    if let name = custom.name { Text(name).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
+                    if let name = custom.name {
+                        Text(name).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
+                    }
                 }
                 .padding(.horizontal, 6)
             }
@@ -34,7 +36,7 @@ struct SidebarGroupRow: View {
         .background(shape.fill(containerHighlight))
         .overlay {
             if armed {
-                shape.strokeBorder(Color.red.opacity(0.65), lineWidth: 1).allowsHitTesting(false)
+                shape.strokeBorder(Color.red.opacity(Design.Fill.armedLine), lineWidth: 1).allowsHitTesting(false)
             } else {
                 shape.hairline(layout).opacity(selected ? 1 : 0)
             }
@@ -78,9 +80,9 @@ struct SidebarGroupRow: View {
     }
 
     private var containerHighlight: Color {
-        if armed { return .red.opacity(hovering ? 0.28 : 0.2) }
+        if armed { return .red.opacity(hovering ? Design.Fill.armedHover : Design.Fill.armed) }
         return switch (selected, hovering) {
-            case (true, _): .primary.opacity(activeState == .inactive ? 0.06 : 0.1)
+            case (true, _): .primary.opacity(activeState == .inactive ? Design.Fill.open : Design.Fill.openHover)
             case (false, true): .primary.opacity(Design.Fill.openHover)
             case (false, false): .primary.opacity(Design.Fill.open)
         }

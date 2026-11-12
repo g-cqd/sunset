@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetShell
 import SunsetWeb
 import SwiftUI
 
@@ -10,7 +11,7 @@ struct WebsitesSettings: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Websites").font(.headline)
+            Text("Websites").font(Design.Text.title)
             ForEach(SitePermission.allCases, id: \.self) { permission in section(permission) }
         }
     }

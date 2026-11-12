@@ -13,7 +13,7 @@ struct ClearHistorySheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Clear History").font(.headline)
+            Text("Clear History").font(Design.Text.title)
             Picker("Clear", selection: $span) {
                 ForEach(ClearSpan.allCases, id: \.self) { Text($0.title).tag($0) }
             }
@@ -23,7 +23,7 @@ struct ClearHistorySheet: View {
                 Toggle("Website data: cookies, caches and what sites store", isOn: $websiteData)
                 if websiteData {
                     Text("You will be signed out of the sites visited in this span.")
-                        .font(.caption)
+                        .font(Design.Text.detail)
                         .foregroundStyle(.secondary)
                         .padding(.leading, 20)
                 }

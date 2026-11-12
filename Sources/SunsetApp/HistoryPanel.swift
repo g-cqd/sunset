@@ -22,7 +22,7 @@ struct HistoryPanel: View {
         let days = HistoryDays.group(AppHistory.shared?.entries(matching: query) ?? [])
         VStack(spacing: 8) {
             HStack {
-                Text("History").font(.headline)
+                Text("History").font(Design.Text.title)
                 Spacer()
                 Button {
                     tabs.showsHistory = false
@@ -54,7 +54,7 @@ struct HistoryPanel: View {
                         ForEach(day.entries) { entry in HistoryRow(entry: entry, radius: layout.tabRadius) }
                     } header: {
                         Text(day.title)
-                            .font(.caption.weight(.semibold))
+                            .font(Design.Text.detail.weight(.semibold))
                             .foregroundStyle(.secondary)
                             .padding(.top, 8)
                             .frame(maxWidth: .infinity, alignment: .leading)

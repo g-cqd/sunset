@@ -1,4 +1,5 @@
 import AppKit
+import SunsetShell
 import SwiftUI
 
 /// A download in the list: its picture, name, size and progress, and what can be done with it (Stop, Resume, Show in Finder, Remove).
@@ -14,7 +15,7 @@ struct DownloadRow: View {
                 if item.state == .running {
                     ProgressView(value: item.fraction ?? 0).progressViewStyle(.linear).controlSize(.mini)
                 }
-                Text(status).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                Text(status).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
             }
             Spacer(minLength: 4)
             actions
@@ -52,7 +53,7 @@ struct DownloadRow: View {
     }
 
     private func button(_ symbol: String, _ help: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) { Image(systemName: symbol).font(.system(size: 15)) }
+        Button(action: action) { Image(systemName: symbol).font(.system(size: Design.Symbol.bar)) }
             .buttonStyle(.borderless)
             .help(help)
     }

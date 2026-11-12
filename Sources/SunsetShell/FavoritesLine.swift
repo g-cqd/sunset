@@ -9,10 +9,11 @@ struct FavoritesLine: View {
     let layout: ShellSettings.Layout
     let visible: Bool
     @State private var targeted = false
+    @Environment(\.accent) private var accent
 
     var body: some View {
         Rectangle()
-            .fill(targeted ? Color(nsColor: .controlAccentColor) : .primary.opacity(layout.hairlineOpacity * 1.5))
+            .fill(targeted ? accent.color : .primary.opacity(layout.hairlineOpacity * 1.5))
             .frame(height: targeted ? 2 : max(layout.hairlineWidth, 0.5))
             .padding(.horizontal, layout.tabPaddingLeading)
             .opacity(visible || targeted ? 1 : 0)

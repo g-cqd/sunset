@@ -8,7 +8,7 @@ struct DownloadsList: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Downloads").font(.headline)
+                Text("Downloads").font(Design.Text.title)
                 Spacer()
                 Button("Clear") { center.clear() }
                     .buttonStyle(.borderless)
