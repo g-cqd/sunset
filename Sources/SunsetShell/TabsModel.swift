@@ -22,6 +22,8 @@ package final class TabsModel {
     @ObservationIgnored package var dragged: PaneDragPayload?
     /// The command bar, when it is open: searching the tabs, or (after the selected tab was dropped on its own content) choosing the tab to split with.
     package var bar: CommandBar?
+    /// What was gone to or searched from the bar in this window, latest last; Up in its empty field brings them back (kept for the session).
+    package var barRecall: [String] = []
     /// This window's temporary font size change (⌘+, ⌘−, ⌘0).
     package var fontZoom = FontZoom()
     /// The pane whose sub-tab is currently under the pointer in a split container (`SidebarGroupRow`), so its terminal card can highlight its stroke.

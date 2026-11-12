@@ -9,6 +9,10 @@ struct AddressTextField: NSViewRepresentable {
     let onSubmit: (String) -> Void
     let onCancel: () -> Void
     let onEditing: (Bool) -> Void
+    /// What is typed changed.
+    var onText: (String) -> Void = { _ in }
+    /// Up (-1) or Down (1) while typing.
+    var onMove: (Int) -> Void = { _ in }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
 
@@ -32,6 +36,8 @@ struct AddressTextField: NSViewRepresentable {
         field.onCancel = onCancel
         field.onEditing = onEditing
         context.coordinator.field = field
+        context.coordinator.onText = onText
+        context.coordinator.onMove = onMove
         if focusNow {
             Task { @MainActor in
                 focusNow = false
@@ -42,6 +48,10 @@ struct AddressTextField: NSViewRepresentable {
 
     @MainActor final class Coordinator: NSObject, NSTextFieldDelegate {
         weak var field: AddressNSField?
+        var onText: (String) -> Void = { _ in }
+        var onMove: (Int) -> Void = { _ in }
+
+        func controlTextDidChange(_ notification: Notification) { onText(field?.stringValue ?? "") }
 
         func control(_ control: NSControl, textView: NSTextView, doCommandBy selector: Selector) -> Bool {
             guard let field else { return false }
@@ -50,6 +60,12 @@ struct AddressTextField: NSViewRepresentable {
                     let typed = field.stringValue
                     field.endTyping()
                     field.onSubmit(typed)
+                    return true
+                case #selector(NSResponder.moveUp(_:)):
+                    onMove(-1)
+                    return true
+                case #selector(NSResponder.moveDown(_:)):
+                    onMove(1)
                     return true
                 case #selector(NSResponder.cancelOperation(_:)):
                     field.endTyping()

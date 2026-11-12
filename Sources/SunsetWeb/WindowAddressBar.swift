@@ -45,7 +45,7 @@ package struct WindowAddressBar: View {
             } else {
                 button("arrow.clockwise", "Reload", enabled: content.url != nil) { content.reload() }
             }
-            AddressField(content: content) { typing in
+            AddressField(content: content, place: atTop ? .top : .bottom) { typing in
                 editing = typing
                 if !typing { hideSoon() }
             }

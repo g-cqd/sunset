@@ -79,6 +79,12 @@ extension Reader {
                     if let place = choice("web.address", value, as: Configuration.Web.AddressPlace.self) {
                         configuration.web.address = place
                     }
+                case "engine": if let name = string("web.engine", value) { configuration.web.engine = name }
+                case "engines": readEngines(value)
+                case "suggestions":
+                    if let flag = bool("web.suggestions", value) { configuration.web.suggestions = flag }
+                case "httpFallback":
+                    if let flag = bool("web.httpFallback", value) { configuration.web.httpFallback = flag }
                 case "windowBar":
                     if let edge = choice("web.windowBar", value, as: Configuration.Web.BarEdge.self) {
                         configuration.web.windowBar = edge

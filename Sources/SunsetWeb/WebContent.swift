@@ -38,6 +38,8 @@ package final class WebContent: PaneContent {
     @ObservationIgnored private var coordinator: WebCoordinator?
     /// Hosts whose untrusted certificate the person chose to accept, for this page (Visit Anyway).
     @ObservationIgnored var acceptedHosts: Set<String> = []
+    /// The host last typed without a scheme while the http setting is on: if https fails for it, http is tried (`WebCoordinator`).
+    @ObservationIgnored var fallbackHost: String?
 
     /// A page to open at `url` (nil: an empty page that asks for an address), with what brings its history back.
     package init(url: URL?, title: String = "", history: Data? = nil, settings: WebSettings) {
@@ -105,9 +107,15 @@ package final class WebContent: PaneContent {
 
     // MARK: Navigating
 
-    /// Opens what was typed into the empty page.
+    /// Opens what was typed: an address, or a search with the engine it names or the chosen one.
     package func open(typed: String) {
-        guard let address = WebAddress.url(from: typed) else { return }
+        guard let input = settings.input(typed) else { return }
+        open(input)
+    }
+
+    package func open(_ input: WebInput) {
+        guard let address = input.url else { return }
+        if case .address(_, let guessed) = input, guessed, settings.httpFallback { fallbackHost = address.host() }
         load(address)
     }
 

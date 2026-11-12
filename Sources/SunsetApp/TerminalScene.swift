@@ -22,6 +22,8 @@ struct TerminalScene: View {
     @State var floatingShown = false
     /// The sidebar was just unpinned: the panel starts out (the pointer is where the column was) and goes when the pointer is not on it.
     @State var opensAtOnce = false
+    /// What is typed in this window's address fields, for their list (web step c).
+    @State var addressTyping = AddressTyping()
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openWindow) private var openWindow
     let config = AppConfiguration.shared
@@ -78,6 +80,7 @@ struct TerminalScene: View {
         }
         .background(rootColor)
         .environment(\.webAddressRow, addressPlace == .pane)
+        .environment(\.addressTyping, addressTyping)
         .modifier(WindowDialogs(tabs: tabs, layout: configuration.layout))
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .ignoresSafeArea(edges: noDecorations ? .top : [])

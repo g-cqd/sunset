@@ -4,28 +4,35 @@ package import SwiftUI
 /// loads. Used by the sidebar, the window bar and the row of a page. Return opens what was typed and gives the page the keyboard; Escape gives it back.
 package struct AddressField: View {
     let content: WebContent
+    /// Where its list goes.
+    var place = AddressTyping.Place.top
     /// Tells whether the field is being typed in (the window bar stays out meanwhile).
     var onEditing: (Bool) -> Void = { _ in }
     @State private var focusNow = false
+    @Environment(\.addressTyping) private var typing
 
-    package init(content: WebContent, onEditing: @escaping (Bool) -> Void = { _ in }) {
+    package init(content: WebContent, place: AddressTyping.Place = .top, onEditing: @escaping (Bool) -> Void = { _ in })
+    {
         self.content = content
+        self.place = place
         self.onEditing = onEditing
     }
 
     package var body: some View {
         let shape = RoundedRectangle(cornerRadius: 7, style: .continuous)
-        AddressTextField(
-            host: content.shownHost,
-            address: content.url?.absoluteString ?? "",
-            focusNow: $focusNow,
-            onSubmit: { typed in
-                content.open(typed: typed)
-                content.focusPage()
-            },
-            onCancel: { content.focusPage() },
-            onEditing: onEditing
-        )
+        HStack(spacing: 4) {
+            if content.isNotSecure {
+                Label("Not Secure", systemImage: "lock.slash")
+                    .labelStyle(.titleAndIcon)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize()
+                    .help(
+                        "This page is over plain http: what it sends and receives can be read and changed on the way."
+                    )
+            }
+            textField
+        }
         .padding(.horizontal, 8)
         .frame(height: 26)
         .background(shape.fill(Color.primary.opacity(0.08)))
@@ -33,6 +40,33 @@ package struct AddressField: View {
         .clipShape(shape)
         .onAppear { takeKeyboardIfAsked() }
         .onChange(of: content.wantsAddress) { _, _ in takeKeyboardIfAsked() }
+    }
+
+    private var textField: some View {
+        AddressTextField(
+            host: content.shownHost,
+            address: content.url?.absoluteString ?? "",
+            focusNow: $focusNow,
+            onSubmit: { typed in
+                if let typing, typing.page === content, typing.isActive {
+                    typing.take()
+                } else {
+                    typing?.end()
+                    content.open(typed: typed)
+                    content.focusPage()
+                }
+            },
+            onCancel: {
+                typing?.end()
+                content.focusPage()
+            },
+            onEditing: { editing in
+                if editing { typing?.begin(content, place: place) } else if typing?.page === content { endSoon() }
+                onEditing(editing)
+            },
+            onText: { typing?.typed($0) },
+            onMove: { typing?.move($0) }
+        )
     }
 
     private var progressLine: some View {
@@ -44,6 +78,14 @@ package struct AddressField: View {
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .animation(.easeOut(duration: 0.2), value: progress)
             }
+        }
+    }
+
+    /// The field stopped being typed in (a click elsewhere): the list goes a moment later, so that a click on one of its rows is taken first.
+    private func endSoon() {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(250))
+            if typing?.page === content, !(content.webView?.window?.firstResponder is NSTextView) { typing?.end() }
         }
     }
 

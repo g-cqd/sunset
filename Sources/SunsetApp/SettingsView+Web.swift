@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetWeb
 import SwiftUI
 
 extension SettingsView {
@@ -18,6 +19,21 @@ extension SettingsView {
                     Text("A bar of the window, shown at its edge").tag(Configuration.Web.AddressPlace.window)
                     Text("A row at the top of every page").tag(Configuration.Web.AddressPlace.pane)
                 }
+            case "web.engine":
+                Picker("Words are searched with", selection: config.binding(\.web.engine)) {
+                    ForEach(PaneContentKinds.webSettings.engines, id: \.name) { engine in
+                        Text("\(engine.name)  (\(engine.keyword))").tag(engine.name)
+                    }
+                }
+            case "web.suggestions":
+                Toggle("Ask the engine for suggestions while typing", isOn: config.binding(\.web.suggestions))
+            case "web.httpFallback":
+                Toggle(
+                    "Try http when https fails for a host typed without a scheme",
+                    isOn: config.binding(\.web.httpFallback)
+                )
+            case "web.engines":
+                EngineList(engines: config.binding(\.web.engines))
             case "web.windowBar":
                 Picker("The window bar is at the", selection: config.binding(\.web.windowBar)) {
                     Text("Top").tag(Configuration.Web.BarEdge.top)

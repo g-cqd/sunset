@@ -23,12 +23,12 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetPane` | 41 files | No dependency: `Workspace` (a window's tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon; `Favorites` (folders step a1, 2026-11-11: the app-wide tree of folders and kept entries, in the model and the session file; step a2: the app reads it at launch and writes it back, whatever the restoring setting says, and **nothing in a window shows or edits it yet**) |
 | `SunsetShell`, `SunsetShellBridge` | 26 + 2 files | The window shell (R8, step H-1, 2026-11-11): the tab model of a window (`TabsModel`), the pane content protocol, the sidebar and its rows, tab labels and glyphs, the command bar's state, its own plain settings (`ShellSettings`, the configuration's names); the bridge fills them from the configuration. Package access |
 | `SunsetTerminal` | 30 files | The terminal as a kind of pane content (R8): its model, its AppKit view, input, selection, the renderer's wiring; what it needs from the app (the clipboard policy, the font zoom) comes in as callbacks |
-| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 83 keys |
+| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 87 keys |
 | `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 886 in 155 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 894 in 156 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -69,7 +69,12 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   leaves), or a row in every page. Hidden while a terminal has the keyboard. A field shows the host; a click selects the whole address; Return
   loads, Escape gives up; a thin line shows loading. History menu: Cmd-[ Cmd-] Cmd-R, Shift-Cmd-R without the cache, Cmd-. Stop. The command bar
   (Cmd-L) offers "Go to <address>" for what looks like one: the focused page, or a new page tab from a terminal. Rename Tab lost Shift-Cmd-R.
-  No search engines, find, zoom, history list, downloads, permissions or private pages: web steps c to h.
+- Search (web step c, in progress): what is typed is an address (a scheme kept; this machine and the local network over http at once; a dotted host
+  over https, falling back to http by `web.httpFallback`, marked Not Secure) or words searched with `web.engine` (Google, DuckDuckGo, Bing, Ecosia,
+  Kagi, and `web.engines` added in the file or Settings; a keyword and a space pick one). Suggestions in the OpenSearch format (`web.suggestions`,
+  on; an ephemeral session; Bing has none) in a list under the address field as wide as the content. The command bar (Cmd-L) has row states, an
+  accessory per row, each row's actions on Cmd-K (Cmd-Return, Option-Return), the engine as a chip, Up recalling this session's entries.
+  No find, zoom, history list, downloads, permissions or private pages: web steps d to h.
 
 ### OSC handled by the core (ADR-0010 policy)
 
