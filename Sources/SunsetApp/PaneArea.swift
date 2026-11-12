@@ -89,6 +89,22 @@ struct PaneArea: View {
                     of: [.plainText, .utf8PlainText],
                     delegate: PaneDropDelegate(tabs: tabs, frames: frames, target: $dropTarget)
                 )
+                .preference(
+                    key: PaneCardShape.Key.self,
+                    value: frames[item.focused]
+                        .map { frame in
+                            PaneCardShape(
+                                frame: frame,
+                                radii: TerminalCard.radii(
+                                    isCard: card,
+                                    outer: radius,
+                                    windowCorners: CornerSet.atCorners(of: frame, in: bounds)
+                                        .intersection(windowCorners),
+                                    layout: layout
+                                )
+                            )
+                        }
+                )
                 .onChange(of: frames, initial: true) { _, new in applyInsets(new, bounds: bounds) }
                 .onChange(of: topInset) { _, _ in applyInsets(frames, bounds: bounds) }
             } else {

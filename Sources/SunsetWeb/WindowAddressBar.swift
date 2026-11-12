@@ -1,5 +1,5 @@
 import AemiSDR
-import SunsetShell
+package import SunsetShell
 package import SwiftUI
 
 /// The address bar of a window (web step b): back, forward, reload (Stop while loading) and the address of the focused page. Hidden; it comes out
@@ -7,14 +7,17 @@ package import SwiftUI
 package struct WindowAddressBar: View {
     let content: WebContent
     let atTop: Bool
+    /// The focused pane's card: the blur under the bar is cut to it.
+    let card: PaneCardShape?
     @State private var shown = false
     @State private var hovering = false
     @State private var editing = false
     @Environment(\.surfaceStyle) private var surface
 
-    package init(content: WebContent, atTop: Bool) {
+    package init(content: WebContent, atTop: Bool, card: PaneCardShape? = nil) {
         self.content = content
         self.atTop = atTop
+        self.card = card
     }
 
     private var out: Bool { shown || editing || content.wantsAddress }
@@ -27,13 +30,16 @@ package struct WindowAddressBar: View {
                 .contentShape(.rect)
                 .onHover { inside in if inside { shown = true } }
             if out {
+                // Under the bar, the whole width of the pane it is on and no further.
+                Color.clear
+                    .frame(height: Design.Blur.barSolid + Design.Blur.barFade)
+                    .blurUnder(atTop ? .top : .bottom, solid: Design.Blur.barSolid, fade: Design.Blur.barFade)
+                    .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
+                    .clipShape(card ?? PaneCardShape(frame: .infinite, radii: RectangleCornerRadii()))
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
                 bar
                     .padding(Design.Space.m)
-                    .blurUnder(
-                        atTop ? .top : .bottom,
-                        solid: Design.Size.bar + 2 * Design.Space.m,
-                        fade: Design.Blur.barFall
-                    )
                     .onHover { inside in
                         hovering = inside
                         if !inside { hideSoon() }

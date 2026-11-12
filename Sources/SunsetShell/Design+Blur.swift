@@ -4,9 +4,15 @@ extension Design {
     /// The blurs under the bars and behind the command bar (Sunset research/blur, variant A; AemiSDR roadmap 0020).
     package enum Blur {
         /// Under a bar: full over the bar, falling to none over a bar's height beyond it.
-        package static let barRadius = 24.0
+        package static let barRadius = 8.0
         /// How far the blur under a bar falls below it: two bars' heights (owner, 2026-11-13).
         package static let barFall = 2 * Size.bar
+        /// The fall starts half way down the bar, not after it (owner, 2026-11-13): full blur from the window's edge to the bar's
+        /// middle, then falling through the bar's lower half and its margin to `barFall` below it.
+        package static let barSolid = Space.m + Size.bar / 2
+        package static let barFade = (barSolid + Size.bar / 2 + Space.m + barFall) * barKeep - barSolid
+        /// The share of the full height (to two bars below the bar) the blur keeps (owner, 2026-11-13: a third less of the 130 pt it had).
+        package static let barKeep = 0.67
         /// How far the sidebar's bands reach past its sides, so that no side of theirs shows: under the panes on one side (they draw
         /// above the sidebar), past the window's edge on the other (owner, 2026-11-13).
         package static let listBleed = Space.xxl

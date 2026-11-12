@@ -143,3 +143,11 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - The sidebar's bands reach `margin + Design.Blur.listBleed` past both sides; the panes draw above the sidebar (`zIndex(1)`), so
   the bleed shows only in the sidebar and the gap, and the window's edge ends it on the other side.
 - Not seen: the bar at the bottom edge, the floating sidebar (its panel still clips to its shape), light appearance.
+
+### 7c. Owner, 2026-11-13: the address bar's blur, smaller
+
+- The fall starts half way down the bar (`Design.Blur.barSolid`), not after it.
+- Radius 8 (was 24).
+- A third less tall: 87 pt from the window's edge (`Design.Blur.barKeep` 0.67; `heights-2026-11-13.png` shows 130 / 98 / 87).
+- Cut to the focused pane's card (`PaneCardShape`, published by the pane area): in a split it does not reach the other pane, the gaps
+  or the sidebar.
