@@ -130,6 +130,11 @@ import Testing
         #expect(tree.write(to: folder.appending(path: "tree.png")))
         #expect(rowDetails.write(to: folder.appending(path: "row-details.png")))
         #expect(splits.write(to: folder.appending(path: "splits.png")))
+        #expect(folders.write(to: folder.appending(path: "r3-folders.png")))
+        #expect(sidebars.write(to: folder.appending(path: "r3-sidebar-button.png")))
+        #expect(downloads.write(to: folder.appending(path: "r3-downloads.png")))
+        #expect(initials.write(to: folder.appending(path: "r3-initials.png")))
+        #expect(splitAlignment.write(to: folder.appending(path: "r3-splits.png")))
         let favorites = try JSONEncoder().encode(Self.catalogFavorites())
         try favorites.write(to: FileManager.default.temporaryDirectory.appending(path: "catalog-favorites.json"))
     }

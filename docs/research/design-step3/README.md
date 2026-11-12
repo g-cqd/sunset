@@ -67,3 +67,29 @@ For the owner's review before anything is built. How they were made:
 
 Not mocked: the bar's buttons as tall as the field with equal gaps (the field is 26 and its gap to the bar's edge 6, so the buttons
 become 26 × 26 hit areas at the same 6). It follows from guidance 10 directly; it will be shown in the app once built.
+
+## The owner's choices, round 2 (2026-11-12)
+
+- Private marker: **D, `eye.slash`**.
+- Open entries: **C, a faint fill**; the compact Favorites tree (28 pt rows, 2 pt gaps): **as drawn**.
+- Row details: as drawn, with the initial's place in the symbol refined.
+- Split tabs: as drawn; sub-rows with icon and text aligned to the leading edge, icon-only sub-rows centred.
+- Folders: more words than open/closed (expanded, collapsed, disclosure…), more variants.
+- Sidebar pin: more rectangles with insets.
+- Downloads: `arrow.down.circle` at rest; while downloading, the circle drawn as the progress, natively with the symbol if possible.
+
+## Third round (mock-ups, off-screen)
+
+| File | What |
+| --- | --- |
+| `r3-folders.png` | Collapsed → expanded. Picture changes: A folder / folder.fill, B folder.badge.plus / .minus, C folder.circle / .fill, D rectangle.compress / expand.vertical. A disclosure mark beside an unchanging folder, as Finder, Xcode and Mail do: E chevron.right / down, F the chevron and the folder filling, G triangles, H circled chevrons. |
+| `r3-sidebar-button.png` | Hides → kept: A sidebar.leading → inset.filled.leadingthird.rectangle; B the half with an arrow → the filled third; C a small triangle in the third → filled third; D sidebar.squares.leading → filled third; E leadinghalf.filled → inset.filled.leadinghalf; F an empty rectangle → the filled third. |
+| `r3-downloads.png` | At rest arrow.down.circle; downloading: A the symbol's own Variable Draw (`Image(systemName:variableValue:)` + `.symbolVariableValueMode(.draw)`, macOS 26), B today's drawn ring. |
+| `r3-initials.png` | The initial in a kept terminal's picture, 3×: in the folder at centre, +1, +1.5, +2 pt (7 and 8 pt type); in the terminal symbol (its prompt collides) and in a plain rounded rectangle instead. |
+| `r3-splits.png` | Sub-rows leading with icon and title, centred icon-only. |
+
+Seen in the shots:
+- **Variable Draw works on `arrow.down.circle`**: at 25 % the circle is drawn a quarter round, as the native symbol, with no drawn ring
+  needed. Off-screen it is a still; the system animates between values, which is not shown here (to check in the app).
+- **The initial**: in the folder it sits on the tab's line at centre; +1.5 at 8 pt reads centred in the body. In the terminal symbol it
+  collides with the prompt; the plain rectangle is clean.
