@@ -16,13 +16,15 @@ struct CommandBarView: View {
     @State private var suggestions = SuggestionSource()
     @FocusState private var typing: Bool
 
+    @Environment(\.accent) private var accent
+
     var body: some View {
         if let bar = tabs.bar {
             let settings = PaneContentKinds.webSettings(for: tabs)
             let shown = bar.purpose == .search ? suggestions.suggestions : []
             let rows = CommandBarRows.rows(bar, tabs: tabs, settings: settings, suggestions: shown)
             ZStack(alignment: .top) {
-                Color.black.opacity(0.18)
+                Color.black.opacity(Design.Fill.backdrop)
                     .contentShape(.rect)
                     .onTapGesture { tabs.bar = nil }
                 panel(bar, rows, settings)
@@ -49,7 +51,7 @@ struct CommandBarView: View {
             .padding(.horizontal, Design.Space.xl)
             .frame(height: Design.Size.fieldLarge)
             if !rows.isEmpty {
-                Divider().opacity(0.5)
+                Divider().opacity(Design.Fill.fainterDivider)
                 ChoiceList(rows: rows, selection: selection, radius: layout.tabRadius) { run(rows, $0, action: 0) }
             } else if !bar.query.isEmpty {
                 Text("Nothing matches").foregroundStyle(.secondary).padding(Design.Space.xl)
@@ -67,16 +69,16 @@ struct CommandBarView: View {
 
     private func chip(_ engine: String) -> some View {
         Text(engine)
-            .font(.system(size: 13, weight: .medium))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .background(Capsule().fill(Color.accentColor.opacity(0.25)))
+            .font(Design.Text.body.weight(.medium))
+            .padding(.horizontal, Design.Space.m)
+            .padding(.vertical, Design.Space.hair)
+            .background(Capsule().fill(accent.color.opacity(Design.Fill.target)))
     }
 
     private func field(_ bar: CommandBar, _ rows: [ChoiceRow], _ selection: Int, _ settings: WebSettings) -> some View {
         TextField(bar.engine.map { "Search \($0)\u{2026}" } ?? bar.prompt, text: query)
             .textFieldStyle(.plain)
-            .font(.system(size: 17))
+            .font(Design.Text.input)
             .focused($typing)
             .onKeyPress(.return, phases: .down) { press in
                 run(

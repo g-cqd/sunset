@@ -17,8 +17,8 @@ extension InsettableShape {
     }
 
     /// The same line in the system accent colour, a little stronger: the focused terminal's card in a split.
-    package func focusHairline(_ layout: ShellSettings.Layout) -> some View {
-        strokeBorder(Color(nsColor: .controlAccentColor).opacity(0.85), lineWidth: max(layout.hairlineWidth * 2, 1))
+    package func focusHairline(_ layout: ShellSettings.Layout, accent: Color) -> some View {
+        strokeBorder(accent.opacity(Design.Fill.focusLine), lineWidth: max(layout.hairlineWidth * 2, 1))
             .allowsHitTesting(false)
     }
 }

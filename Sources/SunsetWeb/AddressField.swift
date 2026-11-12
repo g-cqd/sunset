@@ -13,6 +13,7 @@ package struct AddressField: View {
     @Environment(\.addressTyping) private var typing
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.surfaceStyle) private var surface
+    @Environment(\.accent) private var accent
 
     package init(content: WebContent, place: AddressTyping.Place = .top, onEditing: @escaping (Bool) -> Void = { _ in })
     {
@@ -29,7 +30,7 @@ package struct AddressField: View {
             if abs(content.zoom - 1) > 0.001 {
                 Button(ZoomLevels.label(content.zoom)) { content.resetZoom() }
                     .buttonStyle(.borderless)
-                    .font(.caption.monospacedDigit())
+                    .font(Design.Text.detail.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .fixedSize()
                     .help("Zoom: click for 100%")
@@ -75,7 +76,7 @@ package struct AddressField: View {
         GeometryReader { proxy in
             if let progress = content.progress {
                 Rectangle()
-                    .fill(Color.accentColor)
+                    .fill(accent.color)
                     .frame(width: proxy.size.width * max(progress, 0.05), height: 2)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .animation(.easeOut(duration: 0.2), value: progress)

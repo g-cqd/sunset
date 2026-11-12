@@ -29,6 +29,8 @@ struct TabPreviewCard: View {
         return min(max(Self.width * aspect, 110), 220)
     }
 
+    @Environment(\.accent) private var accent
+
     var body: some View {
         // The miniature's corners (small) nest in the card's, `Design.Space.s` inside.
         let shape = RoundedRectangle(
@@ -70,7 +72,9 @@ struct TabPreviewCard: View {
                         .overlay {
                             RoundedRectangle(cornerRadius: Design.Radius.small(layout), style: .continuous)
                                 .strokeBorder(
-                                    Color.accentColor.opacity(pane == item.focused && item.isSplit ? 0.8 : 0),
+                                    accent.color.opacity(
+                                        pane == item.focused && item.isSplit ? Design.Fill.accentPressed : 0
+                                    ),
                                     lineWidth: 1
                                 )
                         }
@@ -85,7 +89,7 @@ struct TabPreviewCard: View {
         if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
             SurfacePreviewView(surface: surface, background: terminal.layerBackground)
         } else {
-            Color.primary.opacity(0.06)
+            Color.primary.opacity(Design.Fill.open)
         }
     }
 }

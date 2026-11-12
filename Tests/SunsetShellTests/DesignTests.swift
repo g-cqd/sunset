@@ -1,4 +1,5 @@
 import SunsetMetrics
+import SwiftUI
 import Testing
 
 @testable import SunsetShell
@@ -21,11 +22,23 @@ import Testing
         #expect(Design.Size.bar == 38 && Design.Size.bar - Design.Size.field == 2 * Design.Space.s)
     }
 
-    @Test func `the accent: sunset is the tint, the system's when there is none`() {
+    @Test func `the accent: sunset is the tint, the system's when there is none or it is too dark or too light`() {
         #expect(Design.Accent.resolve("system", tint: [1, 2, 3]) == .system)
         #expect(Design.Accent.resolve("sunset", tint: nil) == .system)
         #expect(Design.Accent.resolve("sunset", tint: [255, 128, 0]) == .color(red: 255, green: 128, blue: 0))
+        #expect(Design.Accent.resolve("sunset", tint: [0, 0, 0]) == .system, "the owner's black tint")
+        #expect(Design.Accent.resolve("sunset", tint: [250, 250, 250]) == .system)
         #expect(Design.Accent.resolve("neutral", tint: nil) == .neutral)
+    }
+
+    @Test func `ink on the accent: dark on a light accent, light on a dark one; neutral is light grey on dark`() {
+        #expect(Design.Accent.luminance([255, 255, 255]) > 0.99 && Design.Accent.luminance([0, 0, 0]) == 0)
+        #expect(
+            Design.Accent.neutral.style(dark: true).ink == .black
+                && Design.Accent.neutral.style(dark: false).ink == .white
+        )
+        #expect(Design.Accent.color(red: 255, green: 220, blue: 80).style(dark: true).ink == .black)
+        #expect(Design.Accent.color(red: 30, green: 60, blue: 200).style(dark: true).ink == .white)
     }
 
     @Test func `a floating fill is the tint's colour, at least 0.85 opaque`() {

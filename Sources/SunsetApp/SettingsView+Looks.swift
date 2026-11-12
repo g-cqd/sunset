@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetShell
 import SwiftUI
 
 /// The controls of the appearance, sidebar and tabs panes.
@@ -14,19 +15,19 @@ extension SettingsView {
                         "How opaque the terminal screen's own background is. It only shows when the window background is not Opaque (Window / Appearance); "
                             + "the sidebar follows the window's settings."
                     )
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "terminal.clipboardWrite":
                 VStack(alignment: .leading, spacing: 4) {
                     Toggle("Programs may copy to the clipboard", isOn: config.binding(\.terminal.clipboardWrite))
                     Text("What a program asks to copy (OSC 52), over ssh too. No program can read the clipboard.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "terminal.shellIntegration":
                 VStack(alignment: .leading, spacing: 4) {
                     Toggle("Shell marks its prompts", isOn: config.binding(\.terminal.shellIntegration))
                     Text("For Previous Prompt and Next Prompt, in new zsh tabs. fish does it itself.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "window.blur": number("Window blur", \.window.blur, range: 0 ... 100, step: 1, unit: "pt")
             case "window.padding": number("Padding", \.window.padding, range: 0 ... 32, step: 1, unit: "pt")
@@ -38,7 +39,7 @@ extension SettingsView {
                         Text("Follow the system").tag(Configuration.Appearance.Scheme.system)
                     }
                     Text("For the terminal windows: the sidebar, glass and controls. This window follows the system.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "appearance.glass":
                 Picker("Glass style", selection: config.binding(\.appearance.glass)) {
@@ -57,7 +58,7 @@ extension SettingsView {
                 VStack(alignment: .leading, spacing: 4) {
                     Toggle("Show the sidebar", isOn: config.binding(\.sidebar.enabled))
                     Text("The sidebar lists the tabs. It needs tabs set to Native (the built-in bar replaces it).")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "sidebar.side":
                 Picker("Side", selection: config.binding(\.sidebar.side)) {
@@ -75,7 +76,7 @@ extension SettingsView {
                     Text(
                         "The windows, tabs and splits come back, each pane as a new shell in the directory it was in. Programs that were running are not restarted."
                     )
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "tabs.keepRunningForFavorites":
                 VStack(alignment: .leading, spacing: 4) {
@@ -86,7 +87,7 @@ extension SettingsView {
                     Text(
                         "Closing the last window does not quit Sunset while something in Favorites is open; it goes on running, and a new window shows it again."
                     )
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "tabs.askBeforeQuit": quitPicker
             case "tabs.confirmClose":
@@ -95,7 +96,7 @@ extension SettingsView {
                     Text(
                         "When a foreground command is running, the first click on the close button or ⌘W tints the tab red; a second one closes it."
                     )
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "tabs.mode":
                 Picker("Tabs", selection: config.binding(\.tabs.mode)) {
@@ -127,7 +128,7 @@ extension SettingsView {
             Text(
                 "A file themes/<name>.json beside the configuration file; it can set the font, colours, window, sidebar and appearance. Your own keys win."
             )
-            .font(.caption).foregroundStyle(.secondary)
+            .font(Design.Text.detail).foregroundStyle(.secondary)
         }
     }
 

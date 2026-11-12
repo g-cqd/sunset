@@ -16,27 +16,27 @@ package struct CommandSheet: View {
     package var body: some View {
         let saved = tabs.favorites.favorites.entry(entry)
         VStack(alignment: .leading, spacing: 10) {
-            Text("Command for \u{201C}\(saved?.title ?? "this favourite")\u{201D}").font(.headline)
+            Text("Command for \u{201C}\(saved?.title ?? "this favourite")\u{201D}").font(Design.Text.title)
             Text(
                 "Typed into the shell, then Return, each time this favourite starts: when it is opened, and when Sunset comes back with it open."
             )
-            .font(.callout)
+            .font(Design.Text.secondary)
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
             if let directory = saved?.home.contents[saved?.home.focused ?? PaneID()]?.directory {
-                Text("In \(directory)").font(.callout.monospaced()).foregroundStyle(.secondary)
+                Text("In \(directory)").font(Design.Text.secondary.monospaced()).foregroundStyle(.secondary)
             }
             if tabs.favorites.unconfirmed.contains(entry) {
                 Label(
                     "This command was not written by Sunset (the session file was changed by something else). It was not run. Save it to trust it.",
                     systemImage: "exclamationmark.shield"
                 )
-                .font(.callout)
+                .font(Design.Text.secondary)
                 .foregroundStyle(.orange)
                 .fixedSize(horizontal: false, vertical: true)
             }
             TextEditor(text: $text)
-                .font(.body.monospaced())
+                .font(Design.Text.mono)
                 .frame(minHeight: 80)
                 .overlay { RoundedRectangle(cornerRadius: 4).strokeBorder(.separator) }
             HStack {

@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetShell
 import SwiftUI
 
 /// The controls of the window pane (title bar, drag strip, traffic lights); the rest falls through to `moreControls`.
@@ -37,7 +38,7 @@ extension SettingsView {
                     Text(
                         "What programs get unless they choose their own cursor (an editor often does); they get it back when they ask for the default."
                     )
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "cursor.blink": Toggle("Cursor blinks", isOn: config.binding(\.cursorBlinks))
             default: moreControls(for: id)

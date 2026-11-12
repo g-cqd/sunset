@@ -6,6 +6,7 @@ package struct SidebarSymbol: View {
     let filled: Bool
 
     package var body: some View {
-        Image(systemName: name).symbolVariant(filled ? .fill : .none).font(.system(size: 13, weight: .regular))
+        Image(systemName: name).symbolVariant(filled ? .fill : .none)
+            .font(.system(size: Design.Symbol.row, weight: .regular))
     }
 }

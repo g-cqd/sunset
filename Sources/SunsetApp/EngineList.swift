@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetShell
 import SwiftUI
 
 /// The search engines the person added (`web.engines`): name, keyword, search and suggestion addresses with `%s`; added and removed here.
@@ -7,9 +8,9 @@ struct EngineList: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Added search engines").font(.headline)
+            Text("Added search engines").font(Design.Text.title)
             Text("%s stands for the words. The suggestion address must answer in the OpenSearch JSON format.")
-                .font(.caption)
+                .font(Design.Text.detail)
                 .foregroundStyle(.secondary)
             ForEach(engines.indices, id: \.self) { index in row(index) }
             Button("Add Engine") {
@@ -42,7 +43,7 @@ struct EngineList: View {
             .help("Remove")
         }
         .padding(8)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.04)))
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(Design.Fill.faint)))
     }
 
     private func suggest(_ index: Int) -> Binding<String> {

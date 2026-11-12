@@ -29,7 +29,7 @@ struct WebFindBar: View {
                     return .handled
                 }
             Text(find.status)
-                .font(.caption.monospacedDigit())
+                .font(Design.Text.detail.monospacedDigit())
                 .foregroundStyle(find.count == 0 ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
                 .fixedSize()
             Group {

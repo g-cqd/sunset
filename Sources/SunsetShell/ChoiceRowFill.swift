@@ -7,6 +7,7 @@ struct ChoiceRowFill<Label: View>: View {
     let selected: Bool
     let radius: Double
     @State private var hovered = false
+    @Environment(\.accent) private var accent
 
     var body: some View {
         label
@@ -15,8 +16,8 @@ struct ChoiceRowFill<Label: View>: View {
     }
 
     private var fill: Color {
-        if selected { return Color.accentColor.opacity(pressed ? 0.8 : 1) }
-        if pressed { return Color.primary.opacity(0.16) }
-        return Color.primary.opacity(hovered ? 0.07 : 0)
+        if selected { return accent.color.opacity(pressed ? Design.Fill.accentPressed : 1) }
+        if pressed { return Color.primary.opacity(Design.Fill.pressed) }
+        return Color.primary.opacity(hovered ? Design.Fill.hover : 0)
     }
 }

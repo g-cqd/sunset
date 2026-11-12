@@ -35,7 +35,7 @@ struct CommandBarActionsPanel: View {
                 .onKeyPress(.upArrow) { move(-1, actions.count) }
                 .onKeyPress(.escape) { close() }
                 .onKeyPress(keys: ["k"]) { press in press.modifiers.contains(.command) ? close() : .ignored }
-            Divider().opacity(0.5)
+            Divider().opacity(Design.Fill.fainterDivider)
             ChoiceList(rows: rows, selection: selection, radius: radius) { index in actions[index].perform() }
         }
         .frame(width: Design.Width.popover)

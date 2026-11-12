@@ -311,3 +311,23 @@ the top, 6 from the bottom. Two-line row (36 pt): 11.5 and 11.
 | Shared Field | The address field, the sidebar field, the history search, the rename field; its edges must show in every place (checked). |
 | Field's leading parts | The lock and the zoom label follow the row rule. |
 | Icon buttons in bars | To be decided by what is most consistent there (investigated, shown). |
+
+## 14. Migration step 4: text, fills, accent (2026-11-12)
+
+Owner's answers: the accent applies everywhere, Sunset's parts and the system's controls inside it (`tint`); neutral is light grey with dark
+ink on a dark window (dark grey, light ink on light); "sunset" with a tint too dark or too light (relative luminance outside 0.08–0.85) is
+the system's accent; red stays red for destructive states; text by Apple's HIG; fills built, then shown.
+
+- HIG, Typography (read 2026-11-12): macOS has no Dynamic Type; use the built-in text styles so text matches the system's controls.
+  Measured on macOS 27.0.1: headline 13 semibold, body 13, callout 12, subheadline 11, footnote and caption 10, title3 15, title2 17.
+  `Design.Text`: title (headline), body, secondary (callout), small (subheadline), detail (caption), tiny (caption2), heading (title3),
+  input (title2), mono. Every `.font(.caption)` and the like in views now names one; fixed symbol sizes are `Design.Symbol` steps.
+- `Design.Accent.style(dark:)` → `AccentStyle` (colour and ink), set per window by `.accent(_:tint:)` (`\.accent` and `tint`), also on the
+  Settings window. Every accent use (14) reads it.
+- Fills: selected (and inactive), marked, target, armed (and its line and button), pressed accent, ink secondary, backdrop, separator,
+  fainter divider, note background, collapsed icon: every opacity literal in views is now a named fill.
+- Shots: `design-step2/accents-2026-11-12.png`, the command bar's selected row before, and with system, sunset (#E8743B), sunset with the
+  owner's black tint (falls back to the system's), neutral.
+
+Not verified: the system controls' tint in Settings (Settings was not opened), the accent in a light scheme, the drop and marked fills
+(they need a drag and several selected rows, which the driver does not do).

@@ -40,7 +40,7 @@ struct WebPaneView: View {
 
     private var empty: some View {
         Image(systemName: "globe")
-            .font(.system(size: 28))
+            .font(.system(size: Design.Symbol.hero))
             .foregroundStyle(.tertiary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(nsColor: .windowBackgroundColor))
@@ -49,12 +49,13 @@ struct WebPaneView: View {
     private func failed(_ failure: WebFailure) -> some View {
         VStack(spacing: 10) {
             Image(systemName: failure.isCertificate ? "lock.trianglebadge.exclamationmark" : "exclamationmark.triangle")
-                .font(.system(size: 28))
+                .font(.system(size: Design.Symbol.hero))
                 .foregroundStyle(.secondary)
-            Text("Sunset could not open this page").font(.title3)
+            Text("Sunset could not open this page").font(Design.Text.heading)
             Text(failure.reason).foregroundStyle(.secondary).multilineTextAlignment(.center)
             if let url = failure.url {
-                Text(url.absoluteString).font(.callout.monospaced()).foregroundStyle(.tertiary).textSelection(.enabled)
+                Text(url.absoluteString).font(Design.Text.secondary.monospaced()).foregroundStyle(.tertiary)
+                    .textSelection(.enabled)
             }
             HStack {
                 Button("Try Again") { content.reload() }.keyboardShortcut(.defaultAction)

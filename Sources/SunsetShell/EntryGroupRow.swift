@@ -13,6 +13,7 @@ struct EntryGroupRow: View {
     let layout: ShellSettings.Layout
     var marked = false
     @State private var hovering = false
+    @Environment(\.accent) private var accent
 
     private var inset: Double { Design.Space.hair }
     private var panes: [PaneID] { entry.open?.panes ?? entry.home.layout.panes }
@@ -23,7 +24,9 @@ struct EntryGroupRow: View {
             if entry.title != nil || entry.icon != nil {
                 HStack(spacing: 4) {
                     if let icon = entry.icon { PaneIconView(icon: icon) }
-                    if let name = entry.title { Text(name).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
+                    if let name = entry.title {
+                        Text(name).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
+                    }
                 }
                 .padding(.horizontal, 6)
             }
@@ -50,8 +53,8 @@ struct EntryGroupRow: View {
     }
 
     private var fill: Color {
-        if marked { return Color.accentColor.opacity(0.22) }
-        if selected { return .primary.opacity(0.1) }
+        if marked { return accent.color.opacity(Design.Fill.target) }
+        if selected { return .primary.opacity(Design.Fill.openHover) }
         if entry.isOpen { return .primary.opacity(hovering ? Design.Fill.openHover : Design.Fill.open) }
         return .primary.opacity(hovering ? Design.Fill.hover : 0)
     }

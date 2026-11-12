@@ -19,11 +19,11 @@ struct PaneIconView: View {
         switch icon {
             case .symbol(let name, let color):
                 Image(systemName: name)
-                    .font(.system(size: 13))
+                    .font(.system(size: Design.Symbol.row))
                     .foregroundStyle(color.map { AnyShapeStyle(Color($0)) } ?? AnyShapeStyle(.secondary))
-                    .frame(width: 18)
+                    .frame(width: Design.Size.glyphFrame)
             case .emoji(let emoji):
-                Text(emoji).font(.system(size: 13)).frame(width: 18)
+                Text(emoji).font(.system(size: Design.Symbol.row)).frame(width: Design.Size.glyphFrame)
         }
     }
 }

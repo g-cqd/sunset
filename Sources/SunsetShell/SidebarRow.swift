@@ -50,6 +50,7 @@ struct SidebarRow: View {
     @State private var hovering = false
     @State private var overClose = false
     @Environment(\.controlActiveState) private var activeState
+    @Environment(\.accent) private var accent
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
@@ -88,7 +89,7 @@ struct SidebarRow: View {
         .background(shape.fill(highlight))
         .overlay {
             if armed {
-                shape.strokeBorder(Color.red.opacity(0.65), lineWidth: 1).allowsHitTesting(false)
+                shape.strokeBorder(Color.red.opacity(Design.Fill.armedLine), lineWidth: 1).allowsHitTesting(false)
             } else {
                 shape.hairline(layout).opacity(selected ? 1 : 0)
             }
@@ -104,11 +105,13 @@ struct SidebarRow: View {
 
     /// Hover and selection variants of the highlight.
     private var highlight: Color {
-        if armed { return .red.opacity(hovering || keepCloseVisible ? 0.28 : 0.2) }
-        if marked, !selected { return Color(nsColor: .controlAccentColor).opacity(hovering ? 0.26 : 0.18) }
+        if armed { return .red.opacity(hovering || keepCloseVisible ? Design.Fill.armedHover : Design.Fill.armed) }
+        if marked, !selected { return accent.color.opacity(hovering ? Design.Fill.markedHover : Design.Fill.marked) }
+        let inactive = activeState == .inactive
         return switch (selected, hovering || keepCloseVisible) {
-            case (true, true): .primary.opacity(activeState == .inactive ? 0.12 : 0.2)
-            case (true, false): .primary.opacity(activeState == .inactive ? 0.08 : 0.14)
+            case (true, true):
+                .primary.opacity(inactive ? Design.Fill.selectedInactiveHover : Design.Fill.selectedHover)
+            case (true, false): .primary.opacity(inactive ? Design.Fill.selectedInactive : Design.Fill.selected)
             case (false, true): .primary.opacity(open ? Design.Fill.openHover : Design.Fill.hover)
             case (false, false): open ? .primary.opacity(Design.Fill.open) : .clear
         }
@@ -121,15 +124,15 @@ struct SidebarRow: View {
     private var closeButton: some View {
         SwiftUI.Button(action: close) {
             Image(systemName: button.symbol)
-                .font(.system(size: 9, weight: .semibold))
+                .font(.system(size: Design.Symbol.badge, weight: .semibold))
                 .foregroundStyle(armed ? Color.white : Color.primary)
                 .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
                 .background(
                     RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
                         .fill(
                             armed
-                                ? Color.red.opacity(overClose ? 0.85 : 0.7)
-                                : Color.primary.opacity(overClose ? 0.14 : 0)
+                                ? Color.red.opacity(overClose ? Design.Fill.armedButtonHover : Design.Fill.armedButton)
+                                : Color.primary.opacity(overClose ? Design.Fill.selected : 0)
                         )
                 )
                 .contentShape(.rect)
@@ -148,7 +151,8 @@ struct SidebarRow: View {
         HStack(spacing: 0) {
             Color.black
             if showsClose && renaming == nil {
-                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing).frame(width: 8)
+                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                    .frame(width: Design.Space.m)
                 // The close button sits half the row's height from its edge, a little further in on a taller row.
                 Color.clear.frame(width: layout.closeButtonSize + Design.Space.xs)
             }

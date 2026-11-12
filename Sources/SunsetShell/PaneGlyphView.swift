@@ -17,7 +17,7 @@ package struct PaneGlyphView: View {
             case .symbol(let name): PaneIconView(icon: .symbol(name))
             case .initial(let letter):
                 Text(letter)
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(Design.Text.small.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .frame(width: 15, height: 15)
                     .background(

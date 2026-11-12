@@ -8,6 +8,7 @@ package struct IconPopover: View {
     let tabs: TabsModel
     let row: RowTarget
     @State private var catalog: SymbolCatalog?
+    @Environment(\.accent) private var accent
     @State private var query = ""
     @State private var category = "all"
     @State private var emoji = ""
@@ -62,7 +63,8 @@ package struct IconPopover: View {
                     }
                     .buttonStyle(.borderless)
                     .background(
-                        category == entry.key ? AnyShapeStyle(.selection.opacity(0.4)) : AnyShapeStyle(Color.clear),
+                        category == entry.key
+                            ? AnyShapeStyle(accent.color.opacity(Design.Fill.target)) : AnyShapeStyle(Color.clear),
                         in: .rect(cornerRadius: 4)
                     )
                     .help(entry.key)
@@ -80,11 +82,12 @@ package struct IconPopover: View {
                         tabs.setIcon(.symbol(symbol.name, color: icon?.color), for: row)
                     } label: {
                         Image(systemName: symbol.name)
-                            .font(.system(size: 15))
+                            .font(.system(size: Design.Symbol.bar))
                             .frame(width: 30, height: 28)
                             .background(
                                 chosen(symbol.name)
-                                    ? AnyShapeStyle(.selection.opacity(0.5)) : AnyShapeStyle(Color.clear),
+                                    ? AnyShapeStyle(accent.color.opacity(Design.Fill.markedHover))
+                                    : AnyShapeStyle(Color.clear),
                                 in: .rect(cornerRadius: 5)
                             )
                     }
@@ -107,7 +110,13 @@ package struct IconPopover: View {
                 Circle()
                     .fill(Color(color))
                     .frame(width: 16, height: 16)
-                    .overlay { Circle().strokeBorder(.primary.opacity(icon?.color == color ? 0.8 : 0), lineWidth: 2) }
+                    .overlay {
+                        Circle()
+                            .strokeBorder(
+                                .primary.opacity(icon?.color == color ? Design.Fill.accentPressed : 0),
+                                lineWidth: 2
+                            )
+                    }
                     .onTapGesture { tabs.setIcon(icon?.colored(color), for: row) }
             }
             ColorPicker(
@@ -120,7 +129,7 @@ package struct IconPopover: View {
             )
             .labelsHidden()
             SwiftUI.Button("None") { tabs.setIcon(icon?.colored(nil), for: row) }.buttonStyle(.borderless)
-                .font(.caption)
+                .font(Design.Text.detail)
         }
         .disabled(!isSymbol)
         .opacity(isSymbol ? 1 : 0.4)

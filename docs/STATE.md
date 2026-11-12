@@ -28,7 +28,7 @@ Intents, remote control), was held too: roadmap 0027, built after the pane work.
 | `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
 | `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
 
-Tests: 938 in 176 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
+Tests: 939 in 176 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
 unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
 (instructions per MiB by stream, independent of the machine's load).
 
@@ -120,6 +120,8 @@ unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: 
   tree, open rows filled and none dimmed, the close button centred half a row from the edge, monospaced second line
   (`tabs.bar.monospacedDirectory`), kept terminals drawn as themselves, folders with a trailing chevron, split sub-rows icon-only when narrow,
   one field (`fieldSurface`), bar buttons as icon buttons, eye.slash for private, new pin and downloads symbols. `FontServer`: one font at a time.
+- Design step 4 (text, fills, accent): `appearance.accent` drawn (system / sunset with a contrast fallback / neutral) through `AccentStyle`
+  and `tint`; text by macOS's built-in styles (`Design.Text`); named fills. 41 view files still allowed literal measures.
 
 ### OSC handled by the core (ADR-0010 policy)
 

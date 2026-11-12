@@ -9,7 +9,7 @@ struct QuitSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Quit Sunset?").font(.headline)
+            Text("Quit Sunset?").font(Design.Text.title)
             if gate.losses.isEmpty {
                 Text("Nothing would be lost.").foregroundStyle(.secondary)
             } else {

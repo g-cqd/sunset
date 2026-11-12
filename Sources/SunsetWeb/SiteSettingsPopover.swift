@@ -9,7 +9,7 @@ struct SiteSettingsPopover: View {
     var body: some View {
         let host = content.siteHost ?? ""
         VStack(alignment: .leading, spacing: 8) {
-            Text(host.isEmpty ? "This page" : host).font(.headline)
+            Text(host.isEmpty ? "This page" : host).font(Design.Text.title)
             if content.capture != nil {
                 Button("Stop Camera, Microphone and Screen") { content.stopCapture() }
             }
@@ -26,7 +26,7 @@ struct SiteSettingsPopover: View {
                 }
             }
             .disabled(host.isEmpty)
-            Text("Some apply when the page is opened again (sound, pop-ups).").font(.caption)
+            Text("Some apply when the page is opened again (sound, pop-ups).").font(Design.Text.detail)
                 .foregroundStyle(.secondary)
         }
         .padding(Design.Space.xl)

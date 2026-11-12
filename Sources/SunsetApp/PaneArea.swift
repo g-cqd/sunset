@@ -29,6 +29,7 @@ struct PaneArea: View {
     private static let space = "pane-area"
     /// Where a dragged tab or pane would go while it is over the area.
     @State private var dropTarget: DropZone.Target?
+    @Environment(\.accent) private var accent
 
     var body: some View {
         GeometryReader { proxy in
@@ -93,7 +94,7 @@ struct PaneArea: View {
             } else {
                 // No tab left, and no kept entry shown: the window stays while there are Favorites (R3).
                 Text("No tab. \u{2318}T for a terminal")
-                    .font(.callout)
+                    .font(Design.Text.secondary)
                     .foregroundStyle(.tertiary)
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .background { Color.clear.contentShape(.rect).gesture(WindowDragGesture()) }
@@ -120,8 +121,8 @@ struct PaneArea: View {
                 layout: layout
             )
             let shape = UnevenRoundedRectangle(cornerRadii: radii, style: .continuous)
-            shape.fill(Color(nsColor: .controlAccentColor).opacity(0.22))
-                .overlay { shape.strokeBorder(Color(nsColor: .controlAccentColor).opacity(0.7), lineWidth: 1.5) }
+            shape.fill(accent.color.opacity(Design.Fill.target))
+                .overlay { shape.strokeBorder(accent.color.opacity(Design.Fill.armedButton), lineWidth: 1.5) }
                 .frame(width: frame.width, height: frame.height)
                 .offset(x: frame.minX, y: frame.minY)
                 .allowsHitTesting(false)
@@ -146,16 +147,16 @@ struct PaneArea: View {
         } else if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
             SurfacePreviewView(surface: surface, background: terminal.layerBackground)
         } else {
-            Color.primary.opacity(0.04)
+            Color.primary.opacity(Design.Fill.faint)
         }
     }
 
     /// Over the last picture of an entry live in another window: dimmed, a small label, and a click brings it here (R3, R4).
     private var elsewhere: some View {
         ZStack {
-            Color.black.opacity(0.35)
+            Color.black.opacity(Design.Fill.scrim)
             Text("Shown in another window. Click to bring it here.")
-                .font(.callout)
+                .font(Design.Text.secondary)
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)

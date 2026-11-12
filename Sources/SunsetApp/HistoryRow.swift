@@ -13,7 +13,7 @@ struct HistoryRow: View {
         VStack(alignment: .leading, spacing: 1) {
             Text(entry.title.isEmpty ? AddressChoice.shortAddress(entry.url) : entry.title).lineLimit(1)
             Text(AddressChoice.shortAddress(entry.url))
-                .font(.caption)
+                .font(Design.Text.detail)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .truncationMode(.middle)
@@ -22,7 +22,8 @@ struct HistoryRow: View {
         .padding(.vertical, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.primary.opacity(hovered ? 0.07 : 0))
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(Color.primary.opacity(hovered ? Design.Fill.hover : 0))
         )
         .contentShape(.rect)
         .onHover { hovered = $0 }
