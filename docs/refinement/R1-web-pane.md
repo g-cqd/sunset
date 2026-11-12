@@ -168,3 +168,15 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Safety | The quarantine mark with the page as origin; a taken name gets "-2"; the partial file ends in .download and goes on cancel; apps, installers and scripts (not .dmg) need an approval, by a setting that can turn it off. Later, much later: an antivirus check (ClamAV) of downloaded files |
 | The list kept | `web.keepDownloads`: until removed by hand (default), a day, a week, a month, until Sunset quits, when it finishes; Clear History clears it too |
 | Interrupted | Resumed where possible, also across a quit (the resume data is saved). Later: a study of faster, more reliable downloading (segmented, as aria2c does) |
+
+## Step g: the owner's answers (2026-11-12)
+
+| Question | Answer |
+| --- | --- |
+| What is covered | Camera and microphone, screen sharing, location, notifications, pop-ups and windows without a click, autoplay with sound |
+| How a page asks | A small glass panel under the page's address (wherever it is placed): the site, what it wants, Allow Once / Allow / Don't Allow; the page keeps working |
+| Where answers are kept | Per site, in a file beside the session; Allow and Don't Allow kept, Allow Once not. The owner: the storage of the whole app (session, history, zoom, downloads, permissions…) is to be consolidated |
+| Defaults | Ask for camera, microphone, screen, location, notifications; block pop-ups and autoplay with sound; each changeable in Settings (Ask / Allow / Deny) |
+| Where they are reviewed | Settings > Web > Websites, a list per permission (site, answer, remove); and a per-page menu from a site button in the address field (following the tabs' spacing and the design system) |
+| While in use | A dot on the tab row and in the address field (camera/microphone red, screen orange) besides the system's own indicator; a click stops it |
+| Sunset's identity for macOS | A script builds Sunset.app (Info.plist with the usage strings, an icon placeholder, ad-hoc signed), run from there; without it (the bare executable) Sunset answers Don't Allow itself and the panel says it needs Sunset.app |

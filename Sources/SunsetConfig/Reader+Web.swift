@@ -21,6 +21,8 @@ extension Reader {
             switch key {
                 case "engine": if let name = string("web.engine", value) { configuration.web.engine = name }
                 case "engines": readEngines(value)
+                case "permissions":
+                    section("web.permissions", value) { reader, object in reader.readPermissions(object) }
                 case "downloadFolder":
                     if let path = string("web.downloadFolder", value) { configuration.web.downloadFolder = path }
                 default: readWebChoice(key, value)
@@ -56,6 +58,19 @@ extension Reader {
                     configuration.web.windowBar = edge
                 }
             default: unknown(path)
+        }
+    }
+
+    private mutating func readPermissions(_ object: Object) {
+        for (key, value) in object {
+            let path = "web.permissions.\(key)"
+            guard Configuration.Web.permissionNames.contains(key) else {
+                unknown(path)
+                continue
+            }
+            if let answer = choice(path, value, as: Configuration.Web.PermissionDefault.self) {
+                configuration.web.permissions[key] = answer
+            }
         }
     }
 }

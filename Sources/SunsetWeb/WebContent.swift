@@ -22,6 +22,10 @@ package final class WebContent: PaneContent {
     package private(set) var isLoading = false
     /// The page asks for its address to be typed (a new empty page): the address field of the window takes the keyboard and clears this.
     package var wantsAddress = false
+    /// The question waiting for an answer in the panel under the address (web step g).
+    package internal(set) var permissionRequest: PermissionRequest?
+    /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).
+    package internal(set) var capture: PageCapture?
     /// Find in the page (Cmd-F).
     package let find = PageFind()
     /// The page's zoom, 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
@@ -163,6 +167,14 @@ package final class WebContent: PaneContent {
         if given == nil { configuration.websiteDataStore = .default() }
         configuration.applicationNameForUserAgent = settings.applicationName
         WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
+        WebPermissionHooks.enable(on: configuration.preferences)
+        // Pop-ups without a click reach Sunset, which decides by the site's answer; sound does not play on its own unless the site may.
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
+        if given == nil {
+            let host = url?.host()
+            configuration.mediaTypesRequiringUserActionForPlayback =
+                SitePermissions.shared.answer(.autoplay, for: host) == .allow ? [] : .audio
+        }
         let view = SunsetWebView(frame: .zero, configuration: configuration)
         view.isInspectable = settings.developer
         view.allowsBackForwardNavigationGestures = true
@@ -206,6 +218,12 @@ package final class WebContent: PaneContent {
             },
             view.observe(\.canGoForward, options: [.new]) { [weak self] view, _ in
                 MainActor.assumeIsolated { self?.canGoForward = view.canGoForward }
+            },
+            view.observe(\.cameraCaptureState, options: [.new]) { [weak self] view, _ in
+                MainActor.assumeIsolated { self?.captureChanged(view) }
+            },
+            view.observe(\.microphoneCaptureState, options: [.new]) { [weak self] view, _ in
+                MainActor.assumeIsolated { self?.captureChanged(view) }
             }
         ]
     }

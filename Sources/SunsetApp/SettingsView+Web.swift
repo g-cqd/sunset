@@ -35,6 +35,8 @@ extension SettingsView {
             case "web.zoomScope", "web.textOnlyZoom", "web.historyKeep", "web.clearHistoryOnQuit",
                 "web.clearWebsiteDataOnQuit":
                 webPageControl(for: id)
+            case "web.permissions":
+                WebsitesSettings(defaults: config.binding(\.web.permissions))
             case "web.engines":
                 EngineList(engines: config.binding(\.web.engines))
             case "web.windowBar":
