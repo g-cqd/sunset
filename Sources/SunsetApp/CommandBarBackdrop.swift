@@ -8,7 +8,7 @@ struct CommandBarBackdrop: View {
 
     var body: some View {
         if choice == .variable {
-            BlurBackdropView(Design.Blur.commandBackdrop, groupName: Design.Blur.group)
+            BlurBackdropView(Design.Blur.commandBackdrop)
         } else {
             Color.black.opacity(Design.Fill.backdrop)
         }
