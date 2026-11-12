@@ -33,7 +33,7 @@ struct QuitSheet: View {
                 Button("Quit") { gate.answer(quit: true, dontAskAgain: dontAsk) }.keyboardShortcut(.defaultAction)
             }
         }
-        .padding(20)
+        .padding(Design.Space.xxl)
         .frame(width: 420)
     }
 }

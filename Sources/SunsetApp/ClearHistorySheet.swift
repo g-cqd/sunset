@@ -1,3 +1,4 @@
+import SunsetShell
 import SunsetWeb
 import SwiftUI
 import WebKit
@@ -44,7 +45,7 @@ struct ClearHistorySheet: View {
                 .disabled(!history && !websiteData && !siteZoom)
             }
         }
-        .padding(20)
+        .padding(Design.Space.xxl)
         .frame(width: 400)
     }
 }

@@ -39,32 +39,30 @@ struct CommandBarView: View {
     }
 
     private func panel(_ bar: CommandBar, _ rows: [ChoiceRow], _ settings: WebSettings) -> some View {
-        let shape = RoundedRectangle(cornerRadius: layout.tabRadius + 8, style: .continuous)
+        let style = SurfaceStyle(layout: layout)
         let selection = rows.isEmpty ? -1 : min(bar.selection, rows.count - 1)
         return VStack(spacing: 0) {
-            HStack(spacing: 6) {
+            HStack(spacing: Design.Space.s) {
                 if let engine = bar.engine { chip(engine) }
                 field(bar, rows, selection, settings)
             }
-            .padding(.horizontal, 16)
-            .frame(height: 46)
+            .padding(.horizontal, Design.Space.xl)
+            .frame(height: Design.Size.fieldLarge)
             if !rows.isEmpty {
                 Divider().opacity(0.5)
                 ChoiceList(rows: rows, selection: selection, radius: layout.tabRadius) { run(rows, $0, action: 0) }
             } else if !bar.query.isEmpty {
-                Text("Nothing matches").foregroundStyle(.secondary).padding(14)
+                Text("Nothing matches").foregroundStyle(.secondary).padding(Design.Space.xl)
             }
         }
-        .frame(width: 520)
-        .glassEffect(.regular, in: shape)
-        .overlay { shape.hairline(ShellSettings.Layout(layout)) }
+        .frame(width: Design.Width.commandBar)
+        .surface(style.shape, shadow: .float)
         .overlay(alignment: .top) {
             if bar.showsActions, rows.indices.contains(selection) {
-                CommandBarActionsPanel(tabs: tabs, row: rows[selection], radius: layout.tabRadius)
-                    .padding(.top, 52)
+                CommandBarActionsPanel(tabs: tabs, row: rows[selection], radius: style.leafRadius)
+                    .padding(.top, Design.Size.fieldLarge + Design.Space.s)
             }
         }
-        .shadow(color: .black.opacity(0.3), radius: 24, y: 8)
     }
 
     private func chip(_ engine: String) -> some View {

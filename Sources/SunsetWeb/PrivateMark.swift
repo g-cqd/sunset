@@ -1,3 +1,4 @@
+import SunsetShell
 import SwiftUI
 
 /// "Private" at the start of a private page's address field (web step h); a click tells what is kept and, in a private window, offers its selector.
@@ -35,7 +36,7 @@ struct PrivateMark: View {
                 Text("Applies to the pages opened after the change.").font(.caption).foregroundStyle(.secondary)
             }
         }
-        .padding(14)
+        .padding(Design.Space.xl)
         .frame(width: 300, alignment: .leading)
     }
 }

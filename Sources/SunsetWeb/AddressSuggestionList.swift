@@ -6,6 +6,7 @@ package struct AddressSuggestionList: View {
     let typing: AddressTyping
     let places: Set<AddressTyping.Place>
     var page: WebContent?
+    @Environment(\.surfaceStyle) private var surface
 
     /// The list for a field typed in at one of `places`; for `.pane`, only the field of `page`.
     package init(typing: AddressTyping, places: Set<AddressTyping.Place>, page: WebContent? = nil) {
@@ -17,10 +18,11 @@ package struct AddressSuggestionList: View {
     package var body: some View {
         let rows = typing.rows
         if typing.isActive, places.contains(typing.place), page == nil || typing.page === page, !rows.isEmpty {
-            ChoiceList(rows: rows, selection: min(typing.selection, rows.count - 1), radius: 6) { typing.take($0) }
-                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .shadow(color: .black.opacity(0.25), radius: 14, y: 6)
-                .padding(8)
+            ChoiceList(rows: rows, selection: min(typing.selection, rows.count - 1), radius: surface.leafRadius) {
+                typing.take($0)
+            }
+            .surface(surface.shape, shadow: .popover)
+            .padding(Design.Space.m)
         }
     }
 }

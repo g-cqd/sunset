@@ -1,4 +1,5 @@
 import AppKit
+import SunsetShell
 import SwiftUI
 import WebKit
 
@@ -15,7 +16,8 @@ struct WebPaneView: View {
     var body: some View {
         VStack(spacing: 0) {
             if addressRow {
-                AddressField(content: content, place: .pane).padding(.horizontal, 6).padding(.vertical, 4)
+                AddressField(content: content, place: .pane).padding(.horizontal, Design.Space.s)
+                    .padding(.vertical, Design.Space.xs)
                 Divider()
             }
             ZStack(alignment: .top) {

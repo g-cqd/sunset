@@ -24,8 +24,8 @@ struct CommandBarActionsPanel: View {
         VStack(spacing: 0) {
             TextField("Search for actions\u{2026}", text: query)
                 .textFieldStyle(.plain)
-                .padding(.horizontal, 12)
-                .frame(height: 34)
+                .padding(.horizontal, Design.Space.l)
+                .frame(height: Design.Size.row)
                 .focused($typing)
                 .onKeyPress(.return) {
                     if actions.indices.contains(selection) { actions[selection].perform() }
@@ -38,11 +38,16 @@ struct CommandBarActionsPanel: View {
             Divider().opacity(0.5)
             ChoiceList(rows: rows, selection: selection, radius: radius) { index in actions[index].perform() }
         }
-        .frame(width: 300)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: radius + 6, style: .continuous))
-        .shadow(color: .black.opacity(0.3), radius: 16, y: 6)
+        .frame(width: Design.Width.popover)
+        .surface(
+            RoundedRectangle(
+                cornerRadius: Design.Radius.container(holding: radius, inset: Design.Space.s),
+                style: .continuous
+            ),
+            shadow: .popover
+        )
         .frame(maxWidth: .infinity, alignment: .trailing)
-        .padding(.trailing, 10)
+        .padding(.trailing, Design.Space.l)
         .onAppear { typing = true }
     }
 

@@ -1,3 +1,4 @@
+import SunsetShell
 package import SwiftUI
 
 /// The address bar of a window (web step b): back, forward, reload (Stop while loading) and the address of the focused page. Hidden; it comes out
@@ -8,6 +9,7 @@ package struct WindowAddressBar: View {
     @State private var shown = false
     @State private var hovering = false
     @State private var editing = false
+    @Environment(\.surfaceStyle) private var surface
 
     package init(content: WebContent, atTop: Bool) {
         self.content = content
@@ -25,7 +27,7 @@ package struct WindowAddressBar: View {
                 .onHover { inside in if inside { shown = true } }
             if out {
                 bar
-                    .padding(8)
+                    .padding(Design.Space.m)
                     .onHover { inside in
                         hovering = inside
                         if !inside { hideSoon() }
@@ -37,7 +39,7 @@ package struct WindowAddressBar: View {
     }
 
     private var bar: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Design.Space.xs) {
             button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
             button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
             if content.isLoading {
@@ -50,14 +52,14 @@ package struct WindowAddressBar: View {
                 if !typing { hideSoon() }
             }
         }
-        .padding(.horizontal, 6)
-        .frame(height: 36)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .padding(.horizontal, Design.Space.s)
+        .frame(height: Design.Size.bar)
+        .surface(surface.shape)
     }
 
     private func button(_ symbol: String, _ help: String, enabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: symbol).frame(width: 24, height: 24).contentShape(.rect)
+            Image(systemName: symbol).frame(width: Design.Size.control, height: Design.Size.control).contentShape(.rect)
         }
         .buttonStyle(.borderless)
         .disabled(!enabled)

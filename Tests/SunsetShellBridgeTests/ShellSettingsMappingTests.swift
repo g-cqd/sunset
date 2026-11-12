@@ -34,6 +34,18 @@ import Testing
         for (name, value) in from { #expect(into[name] == value, "layout.\(name)") }
     }
 
+    @Test func `the surfaces follow window.material, the glass variant and the tint`() {
+        var configuration = Configuration()
+        #expect(SurfaceStyle(configuration) == SurfaceStyle(kind: .glass, clearGlass: false, tint: [0, 0, 0, 0.5]))
+        configuration.window.material = .fill
+        configuration.appearance.glass = .clear
+        configuration.appearance.tintColor = [255, 0, 51]
+        configuration.appearance.tintAlpha = 0.25
+        #expect(SurfaceStyle(configuration) == SurfaceStyle(kind: .fill, clearGlass: true, tint: [1, 0, 0.2, 0.25]))
+        configuration.appearance.tintColor = nil
+        #expect(SurfaceStyle(configuration).tint == nil)
+    }
+
     @Test func `every surface the configuration can name is a surface the design draws`() {
         #expect(
             Configuration.Material.allCases.map(\.rawValue).sorted() == Design.Surface.allCases.map(\.rawValue).sorted()

@@ -1,3 +1,4 @@
+import SunsetShell
 import SwiftUI
 
 /// The find bar of a page (web step d): a small glass bar at the top right of its pane: the field with its options, "3 of 12", previous, next, Done.
@@ -5,12 +6,13 @@ import SwiftUI
 struct WebFindBar: View {
     let content: WebContent
     @FocusState private var typing: Bool
+    @Environment(\.surfaceStyle) private var surface
 
     private var find: PageFind { content.find }
 
     var body: some View {
         @Bindable var find = find
-        HStack(spacing: 6) {
+        HStack(spacing: Design.Space.s) {
             options
             TextField("Find on Page", text: $find.text)
                 .textFieldStyle(.plain)
@@ -45,11 +47,10 @@ struct WebFindBar: View {
         }
         .buttonStyle(.borderless)
         .disabled(false)
-        .padding(.horizontal, 10)
-        .frame(height: 34)
-        .glassEffect(.regular, in: Capsule())
-        .shadow(color: .black.opacity(0.2), radius: 10, y: 4)
-        .padding(10)
+        .padding(.horizontal, Design.Space.l)
+        .frame(height: Design.Size.bar)
+        .surface(surface.shape, shadow: .popover)
+        .padding(Design.Space.l)
         .onAppear { typing = true }
         .onChange(of: find.focusRequest) { _, _ in typing = true }
     }

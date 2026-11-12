@@ -18,7 +18,7 @@ import Testing
         let layout = LayoutMetrics()
         #expect(Design.Radius.leaf(layout) == layout.tabRadius && Design.Radius.surface(layout) == 12)
         #expect(Design.Radius.container(holding: 6, inset: 6) - 6 == ConcentricRadius.inner(outer: 12, inset: 6) - 0)
-        #expect(Design.Size.bar == 36)
+        #expect(Design.Size.bar == 38 && Design.Size.bar - Design.Size.field == 2 * Design.Space.s)
     }
 
     @Test func `the accent: sunset is the tint, the system's when there is none`() {

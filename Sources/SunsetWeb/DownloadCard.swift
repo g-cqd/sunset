@@ -1,3 +1,4 @@
+import SunsetShell
 import SwiftUI
 
 /// The latest download, shown while the pointer is on the downloads button: its Quick Look picture, name, size and progress.
@@ -13,7 +14,7 @@ struct DownloadCard: View {
                 Text(detail).font(.caption).foregroundStyle(.secondary)
             }
         }
-        .padding(12)
+        .padding(Design.Space.xl)
         .frame(width: 260, alignment: .leading)
     }
 

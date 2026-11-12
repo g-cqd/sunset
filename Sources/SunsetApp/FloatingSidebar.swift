@@ -77,12 +77,8 @@ struct FloatingSidebar: View {
         .onHover { inside in pointer(inside) }
     }
 
-    /// The panel is always glass (it floats over the terminal and has to be readable there), with the window's blur, glass style and tint.
-    private var panelLook: SidebarLook {
-        var look = SidebarLook(settings)
-        look.material = .glass
-        return look
-    }
+    /// The panel is drawn as every floating surface is (`window.material`, design 0003 §6), with the window's blur, glass style and tint.
+    private var panelLook: SidebarLook { SidebarLook(settings) }
 
     private func pointer(_ inside: Bool) {
         let now = ContinuousClock.now

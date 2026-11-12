@@ -84,6 +84,8 @@ struct TerminalScene: View {
         .environment(\.webAddressRow, addressPlace == .pane)
         .environment(\.addressTyping, addressTyping)
         .modifier(WindowDialogs(tabs: tabs, layout: configuration.layout))
+        // Outside the dialogs, so that the command bar and the sheets draw their surfaces the window's way too.
+        .environment(\.surfaceStyle, SurfaceStyle(configuration))
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .animation(configuration.layout.smooth, value: tabs.showsHistory)
         .ignoresSafeArea(edges: noDecorations ? .top : [])
