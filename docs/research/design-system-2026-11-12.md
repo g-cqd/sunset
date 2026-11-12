@@ -297,3 +297,17 @@ Probe: `probes/system-controls.swift` (draws into 2x bitmaps; no window is creat
 
 Owner, after the shots: the permission panel's 16 and 22 kept; shadows fine; the find bar as a rounded bar fine; with `fill`, floating parts
 use the tint's colour at least 0.85 opaque (`Design.Fill.floatingMinimum`), the window keeps the tint's alpha.
+
+## 13. Migration step 3: measured, and the owner's answers (2026-11-12)
+
+Measured on a selected docked row (2x shot, background): edge to the glyph's ink 9 pt leading. One-line row (26 pt): glyph ink 6.5 pt from
+the top, 6 from the bottom. Two-line row (36 pt): 11.5 and 11.
+
+| Question | Answer |
+| --- | --- |
+| What is 9 above and below | The glyph's ink: one-line rows grow 26 → 32; two-line rows unchanged. |
+| Floating panel | Its keys stay; it should look as padded to its edges and content as the docked sidebar does: checked by shots. |
+| Shared Row | Sidebar tabs, folders, groups, history rows. The command bar's rows are a different component and may differ. |
+| Shared Field | The address field, the sidebar field, the history search, the rename field; its edges must show in every place (checked). |
+| Field's leading parts | The lock and the zoom label follow the row rule. |
+| Icon buttons in bars | To be decided by what is most consistent there (investigated, shown). |
