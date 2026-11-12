@@ -11,7 +11,7 @@ built. The ten sessions were held and accepted on 2026-11-11; each has a file in
 and Favorites (0020), Spaces and profiles (0021), web beyond the first pane (0022), Markdown and the document behind a pane (0023), restoring the
 running state (0024), the window shell as a library (0025), the terminal's open ends (0026). The owner's order of building: folders, the web
 milestone, Markdown, Spaces, profiles, web beyond, restoring, then the terminal items and performance. R11, asked for during R6 (commands, keys, the command bar, App
-Intents, remote control), was held too: roadmap 0027, built after the pane work. One session is still to hold: Sunset's own document store (t172). Nothing of all this is built.
+Intents, remote control), was held too: roadmap 0027, built after the pane work. One session is still to hold: Sunset's own document store (t172). The owner's notes n49 to n67 not yet in a step are gathered in roadmap 0028 (the shell's polish). Nothing of all this is built.
 
 ## What exists (macOS 26, Swift 6, 172 commits, nothing pushed: there is no remote)
 
