@@ -93,3 +93,19 @@ Seen in the shots:
   needed. Off-screen it is a still; the system animates between values, which is not shown here (to check in the app).
 - **The initial**: in the folder it sits on the tab's line at centre; +1.5 at 8 pt reads centred in the body. In the terminal symbol it
   collides with the prompt; the plain rectangle is clean.
+
+## The owner's choices, round 3 (2026-11-12)
+
+- Split alignment: as drawn (`r3-splits.png`).
+- Folder initial: 6.5 pt type, +1.75 pt down. Commands: another symbol, with no initial.
+- Downloads: the native Variable Draw.
+- Sidebar button: E (`rectangle.leadinghalf.filled` → `inset.filled.leadinghalf.rectangle`).
+- Folders: F (the folder filling when expanded), with the disclosure mark at the row's trailing edge, where a tab's close button is,
+  shown on hover; clicking it does what clicking the row does. Variants of the mark to be proposed.
+
+## Fourth round (mock-ups, off-screen)
+
+| File | What |
+| --- | --- |
+| `r4-disclosure.png`, `r4-disclosure-more.png` | Folder rows (F: the folder fills when expanded) with the mark in the close button's place, on hover only: A one chevron turning a quarter (right → down), B chevron down / up, C compact chevron, D plus / minus, E arrows apart / together, F diagonal expand / collapse, G triangles, H rectangles expand / compress. |
+| `r4-command-symbols.png` | A kept terminal running a command, no initial: apple.terminal (.fill), terminal.fill, play.rectangle, play.square, bolt, bolt.horizontal, hammer, gearshape.2, curlybraces.square, greaterthan.square, chevron.forward.2, command.square, arrow.triangle.2.circlepath. And the folder's initial as chosen (6.5 pt, +1.75). |
