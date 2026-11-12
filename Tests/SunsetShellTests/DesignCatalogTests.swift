@@ -126,6 +126,10 @@ import Testing
         #expect(groups(docked, dockedProposed).write(to: folder.appending(path: "rows-groups.png")))
         #expect(fields.write(to: folder.appending(path: "fields.png")))
         #expect(barButtons.write(to: folder.appending(path: "bar-buttons.png")))
+        #expect(icons.write(to: folder.appending(path: "icons.png")))
+        #expect(tree.write(to: folder.appending(path: "tree.png")))
+        #expect(rowDetails.write(to: folder.appending(path: "row-details.png")))
+        #expect(splits.write(to: folder.appending(path: "splits.png")))
         let favorites = try JSONEncoder().encode(Self.catalogFavorites())
         try favorites.write(to: FileManager.default.temporaryDirectory.appending(path: "catalog-favorites.json"))
     }
