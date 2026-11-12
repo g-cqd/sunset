@@ -5,6 +5,11 @@ extension Design {
     package enum Blur {
         /// Under a bar: full over the bar, falling to none over a bar's height beyond it.
         package static let barRadius = 24.0
+        /// How far the blur under a bar falls below it: two bars' heights (owner, 2026-11-13).
+        package static let barFall = 2 * Size.bar
+        /// How far the sidebar's bands reach past its sides, so that no side of theirs shows: under the panes on one side (they draw
+        /// above the sidebar), past the window's edge on the other (owner, 2026-11-13).
+        package static let listBleed = Space.xxl
         /// At the ends of the sidebar's list, under the pin and the + bar.
         package static let listRadius = 12.0
         /// The part of a list end that is fully blurred (the rest falls to none)...

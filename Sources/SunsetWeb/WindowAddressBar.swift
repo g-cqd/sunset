@@ -32,7 +32,7 @@ package struct WindowAddressBar: View {
                     .blurUnder(
                         atTop ? .top : .bottom,
                         solid: Design.Size.bar + 2 * Design.Space.m,
-                        fade: Design.Size.bar
+                        fade: Design.Blur.barFall
                     )
                     .onHover { inside in
                         hovering = inside
@@ -62,6 +62,8 @@ package struct WindowAddressBar: View {
         }
         .padding(.horizontal, Design.Space.s)
         .frame(height: Design.Size.bar)
+        // Darker than the surface alone, so that its text reads over a light page and the blur (owner, 2026-11-13).
+        .background { surface.shape.fill(Color.black.opacity(Design.Fill.barShade)) }
         .surface(surface.shape)
     }
 

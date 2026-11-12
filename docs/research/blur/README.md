@@ -135,3 +135,11 @@ shows over a pattern. `edges-2026-11-13.png`:
 
 axdrive learned `scroll PID X Y DY` and `hover PID X Y` (events posted to the process, nothing brought to the front); History has
 Open Address (the window's bar comes out for it), which the scene uses.
+
+### 7b. Owner, 2026-11-13: a longer fall, a darker bar, no sides in the sidebar, panes above (`edges2-2026-11-13.png`)
+
+- The blur under the window's address bar falls over two bars' heights below it (`Design.Blur.barFall`).
+- The bar itself has a black shade under its surface (`Design.Fill.barShade` 0.3), for its text over a light page.
+- The sidebar's bands reach `margin + Design.Blur.listBleed` past both sides; the panes draw above the sidebar (`zIndex(1)`), so
+  the bleed shows only in the sidebar and the gap, and the window's edge ends it on the other side.
+- Not seen: the bar at the bottom edge, the floating sidebar (its panel still clips to its shape), light appearance.

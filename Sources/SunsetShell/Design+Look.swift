@@ -46,6 +46,8 @@ extension Design {
         /// A floating surface's colour fill is at least this opaque, so that its text reads over a page; the window keeps the tint's own alpha
         /// (owner, 2026-11-12).
         package static let floatingMinimum = 0.85
+        /// Under the window's address bar's surface (black), for its text over a light page (owner, 2026-11-13).
+        package static let barShade = 0.3
         /// A dimming layer (Apple's figure for one under clear glass).
         package static let scrim = 0.35
         /// The accent line of the focused card.
