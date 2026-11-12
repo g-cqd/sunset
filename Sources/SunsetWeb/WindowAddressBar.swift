@@ -42,6 +42,8 @@ package struct WindowAddressBar: View {
             }
         }
         .animation(.easeOut(duration: 0.18), value: out)
+        // Asked for (a new page, Open Address): out until the pointer leaves it or typing ends, not just while the field asks.
+        .onChange(of: content.wantsAddress, initial: true) { _, wanted in if wanted { shown = true } }
     }
 
     private var bar: some View {

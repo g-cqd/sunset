@@ -13,8 +13,7 @@ struct BlurUnder: ViewModifier {
         content.background(alignment: edge == .top ? .top : .bottom) {
             if choice == .variable {
                 BlurBackdropView(
-                    Design.Blur.under(edge, solid: solid, fade: fade, radius: radius),
-                    groupName: Design.Blur.group
+                    Design.Blur.under(edge, solid: solid, fade: fade, radius: radius)
                 )
                 .frame(height: solid + fade)
                 .allowsHitTesting(false)

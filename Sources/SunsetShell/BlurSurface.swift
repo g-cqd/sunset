@@ -11,7 +11,7 @@ struct BlurSurface: ViewModifier {
     func body(content: Content) -> some View {
         if choice == .variable {
             content
-                .background { BlurBackdropView(Design.Blur.panel, groupName: Design.Blur.group).clipShape(shape) }
+                .background { BlurBackdropView(Design.Blur.panel).clipShape(shape) }
                 .overlay { shape.hairline(surface.layout) }
                 .shadow(color: .black.opacity(shadow?.opacity ?? 0), radius: shadow?.radius ?? 0, y: shadow?.y ?? 0)
         } else {

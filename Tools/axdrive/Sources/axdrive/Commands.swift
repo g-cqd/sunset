@@ -36,6 +36,10 @@ enum Commands {
             case "key":
                 return Keys.chord(options.words.first ?? "", pid: pid)
                     ? 0 : fail("unknown key \(options.words.first ?? "")")
+            case "scroll":
+                return Scroll.wheel(options.words, pid: pid) ? 0 : fail("scroll needs X Y DY and a window")
+            case "hover":
+                return Scroll.hover(options.words, pid: pid) ? 0 : fail("hover needs X Y and a window")
             case "wait": return await wait(options)
             case "shot":
                 return Capture.shot(

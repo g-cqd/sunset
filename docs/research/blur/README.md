@@ -116,3 +116,22 @@ Not done or not seen:
 - The top of the sidebar list blurring (needs the list scrolled under the pin; the driver does not scroll).
 - iOS: AemiSDR's `VariableBlurUIView` is not on the new core yet (its slice 4); the canary has not run on an iOS simulator.
 - No cost measured (AemiSDR slice 5).
+
+## 7. Edges (2026-11-13): "when there is blur we should avoid clipping on sections"
+
+Tested over a page of stripes, text and tables (`/tmp/permsrv/article.html`), not plain colours or soft gradients: a blur only
+shows over a pattern. `edges-2026-11-13.png`:
+
+- Under the address bar the stripes stopped on a line. Two causes in AemiSDR (diary 2026-11-13-01, 71e629d): the mask was never
+  fitted (filters assigned while the SwiftUI layer was 0×0, so the band blurred at full strength to its edge), and a straight fall
+  hides content until its last points. Now the filters are assigned again on resize, and the fall is cubic.
+- At the ends of the sidebar's list the band ended where the pin's strip and the + bar end. It now reaches `Design.Blur.listOverhang`
+  past them, over the first row at rest, so nothing marks where it stops (`TabSidebar.listEndBlur`).
+- The bands no longer share a backdrop group: a shared capture showed one band's content in another.
+- Still clipped to their shapes, on purpose: the find bar's blur (a panel's surface) and the cards' content.
+
+`command-variants-2026-11-13.png`: the command bar's backdrop, (1) the dark veil without blur, (2) the built one (blur 8, darker),
+(3) soft focus (blur 3), (4) frosted (blur 18, livelier colour). For the owner to choose.
+
+axdrive learned `scroll PID X Y DY` and `hover PID X Y` (events posted to the process, nothing brought to the front); History has
+Open Address (the window's bar comes out for it), which the scene uses.

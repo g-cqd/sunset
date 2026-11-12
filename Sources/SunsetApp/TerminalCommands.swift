@@ -74,6 +74,8 @@ struct TerminalCommands: Commands {
                 .keyboardShortcut("r", modifiers: [.command, .shift])
                 .disabled(page?.url == nil)
             Button("Stop") { page?.stopLoading() }.keyboardShortcut(".").disabled(page?.isLoading != true)
+            // The page's address field, wherever `web.address` puts it (the window's bar comes out for it), ready to type in.
+            Button("Open Address") { page?.wantsAddress = true }.disabled(page == nil)
             HistoryMenuItems(page: page)
         }
         CommandGroup(after: .windowArrangement) {
