@@ -1,3 +1,5 @@
+import Foundation
+
 /// What a page is made with, from the app's configuration (`web.*`).
 package struct WebSettings: Sendable, Equatable {
     /// The end of the user agent (`SafariName`).
@@ -14,6 +16,8 @@ package struct WebSettings: Sendable, Equatable {
     package var httpFallback: Bool
     package var zoomScope: ZoomScope
     package var textOnlyZoom: Bool
+    /// Sunset runs as Sunset.app, with the usage strings macOS needs before a page may use the camera, the microphone or location.
+    package var hasAppIdentity = Bundle.main.object(forInfoDictionaryKey: "NSCameraUsageDescription") != nil
 
     /// What a page's zoom applies to (`web.zoomScope`).
     package enum ZoomScope: Sendable, Equatable { case site, session, page }

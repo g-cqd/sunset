@@ -60,6 +60,11 @@ extension Configuration {
             case byHand, day, week, month, untilQuit, whenFinished
         }
 
+        /// What a site gets before it was answered (web step g).
+        public enum PermissionDefault: String, Sendable, Equatable, CaseIterable {
+            case ask, allow, deny
+        }
+
         /// Cmd-click on a link in a terminal opens it in a page beside the terminal; off: in the default browser.
         public var openLinksInSunset = true
         /// The page's inspector (Inspect Element, and Safari's Develop menu) can be opened.
@@ -91,6 +96,16 @@ extension Configuration {
         /// Apps, installers and scripts are downloaded only after an approval.
         public var approveRiskyDownloads = true
         public var keepDownloads = DownloadsKeep.byHand
+        /// By permission name (camera, microphone, screen, location, notifications, popups, autoplay): what a site not yet answered gets.
+        public var permissions: [String: PermissionDefault] = Self.permissionDefaults
+        public static let permissionNames = [
+            "camera", "microphone", "screen", "location", "notifications", "popups", "autoplay"
+        ]
+        public static let permissionDefaults: [String: PermissionDefault] = [
+            "camera": .ask, "microphone": .ask, "screen": .ask, "location": .ask, "notifications": .ask,
+            "popups": .deny,
+            "autoplay": .deny
+        ]
         public init() {}
     }
 }

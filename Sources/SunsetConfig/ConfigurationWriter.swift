@@ -12,6 +12,7 @@ public enum ConfigurationWriter {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }
         layout.merge(web(configuration.web)) { $1 }
+        layout.merge(permissions(configuration.web)) { $1 }
         return layout.merging([
             "font.family": string(font.family ?? ""),
             "font.size": number(font.size),
@@ -115,6 +116,14 @@ public enum ConfigurationWriter {
             "web.approveRiskyDownloads": String(web.approveRiskyDownloads),
             "web.keepDownloads": string(web.keepDownloads.rawValue)
         ]
+    }
+
+    private static func permissions(_ web: Configuration.Web) -> [String: String] {
+        Dictionary(
+            uniqueKeysWithValues: Configuration.Web.permissionNames.map {
+                ("web.permissions.\($0)", string((web.permissions[$0] ?? .ask).rawValue))
+            }
+        )
     }
 
     private static func engine(_ engine: Configuration.Web.Engine) -> String {

@@ -20,6 +20,8 @@ package import SwiftUI
     /// Why closing it now would lose something (a command is running), asked at the moment of closing; nil when it can go at once. Not the same thing
     /// as `progress`: a page that loads can be closed, a command that prints nothing cannot.
     var closeWarning: String? { get }
+    /// It captures the camera, microphone or screen (a web page, step g): a dot on its tab, of this colour.
+    var captureDot: Color? { get }
     /// How to bring it back in another run.
     var descriptor: PaneDescriptor { get }
     /// It ended by itself (the shell exited): the pane closes.
@@ -36,4 +38,5 @@ package import SwiftUI
 extension PaneContent {
     package var searchTerms: [String] { [] }
     package func type(command: String) {}
+    package var captureDot: Color? { nil }
 }

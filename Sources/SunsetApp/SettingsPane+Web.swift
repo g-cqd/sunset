@@ -77,6 +77,12 @@ extension SettingsPane {
             keywords: ["cookies", "cache", "quit", "privacy"]
         ),
         SettingsEntry(
+            id: "web.permissions",
+            pane: "web",
+            title: "Websites",
+            keywords: ["camera", "microphone", "location", "notifications", "popup", "permission", "screen"]
+        ),
+        SettingsEntry(
             id: "web.engines",
             pane: "web",
             title: "Added search engines",

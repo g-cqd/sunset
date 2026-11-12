@@ -42,6 +42,13 @@ concentric radii, `SidebarLook`, `WindowLook`), what Apple's own system gives (S
 proposed, how the configuration's layout keys map onto them, and a check (a test like `SourceStructureTests`) that views use tokens only. Steps A
 to D are then built on it (task t216).
 
+## Storage (the owner, web step g, 2026-11-12)
+
+The app's persistence is to be consolidated: today the session (`session.json`), history (`history.sqlite`), site zoom (`site-zoom.json`),
+downloads (`downloads.json`), site permissions (`site-permissions.json`), the configuration and the Keychain key each have their own file and code.
+A study first, read back: one store (its format, its place, migrations, what private pages and profiles of 0021 need, encryption of t135), then
+the move (task t217).
+
 ## Studies, read back to the owner before anything is built
 
 | Study | Notes | Task |

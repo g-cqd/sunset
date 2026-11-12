@@ -3,12 +3,16 @@ import SunsetConfig
 import SunsetWeb
 import UserNotifications
 
-/// The app's side of downloads (web step f): the settings from `web.*`, the approval of risky kinds and the save panel, and what is done when one
+/// The app's side of downloads (web step f) and of site permissions (step g): the settings from `web.*`, the approval of risky kinds and the save panel, and what is done when one
 /// finishes: the Dock bounces while Sunset is in the background, a notification (`web.notifyDownloads`), safe kinds opened (`web.openSafeDownloads`).
 @MainActor enum AppDownloads {
     static func start() {
         let center = DownloadCenter.shared
         apply(AppConfiguration.shared.configuration.web)
+        SitePermissions.shared.path = SessionLocation.permissionsPath(
+            environment: ProcessInfo.processInfo.environment,
+            home: NSHomeDirectory()
+        )
         center.path = SessionLocation.downloadsPath(
             environment: ProcessInfo.processInfo.environment,
             home: NSHomeDirectory()
@@ -19,6 +23,7 @@ import UserNotifications
     }
 
     static func apply(_ web: Configuration.Web) {
+        applyPermissions(web)
         let folder =
             web.downloadFolder.isEmpty
             ? FileManager.default.homeDirectoryForCurrentUser.appending(path: "Downloads")
@@ -40,6 +45,18 @@ import UserNotifications
             approveRisky: web.approveRiskyDownloads,
             keep: keep
         )
+    }
+
+    /// The defaults of `web.permissions.*` (web step g).
+    static func applyPermissions(_ web: Configuration.Web) {
+        var defaults: [SitePermission: PermissionAnswer] = [:]
+        for (name, answer) in web.permissions {
+            if let permission = SitePermission(rawValue: name), let value = PermissionAnswer(rawValue: answer.rawValue)
+            {
+                defaults[permission] = value
+            }
+        }
+        SitePermissions.shared.defaults = defaults
     }
 
     private static func approve(_ name: String, origin: URL?) -> Bool {

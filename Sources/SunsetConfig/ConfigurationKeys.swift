@@ -31,6 +31,8 @@ public enum ConfigurationKeys {
         "web.zoomScope", "web.textOnlyZoom",
         "web.historyKeep", "web.clearHistoryOnQuit", "web.clearWebsiteDataOnQuit",
         "web.downloadFolder", "web.askWhereToSave", "web.openSafeDownloads", "web.notifyDownloads",
-        "web.approveRiskyDownloads", "web.keepDownloads"
+        "web.approveRiskyDownloads", "web.keepDownloads",
+        "web.permissions.camera", "web.permissions.microphone", "web.permissions.screen", "web.permissions.location",
+        "web.permissions.notifications", "web.permissions.popups", "web.permissions.autoplay"
     ]
 }

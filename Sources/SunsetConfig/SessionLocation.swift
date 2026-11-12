@@ -33,4 +33,11 @@ public enum SessionLocation {
         let directory = session.lastIndex(of: "/").map { String(session[..<$0]) } ?? "."
         return directory + "/downloads.json"
     }
+
+    /// What sites were allowed (web step g), beside the session's file.
+    public static func permissionsPath(environment: [String: String], home: String) -> String {
+        let session = path(environment: environment, home: home)
+        let directory = session.lastIndex(of: "/").map { String(session[..<$0]) } ?? "."
+        return directory + "/site-permissions.json"
+    }
 }

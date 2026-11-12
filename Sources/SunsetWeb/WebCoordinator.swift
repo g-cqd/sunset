@@ -6,7 +6,11 @@ import WebKit
 @MainActor final class WebCoordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
     weak var content: WebContent?
 
-    init(content: WebContent) { self.content = content }
+    init(content: WebContent) {
+        self.content = content
+        super.init()
+        Self.installPrivateQuestions()
+    }
 
     /// Cmd-click on a link opens it in a tab right after, not shown (as a link asking for a new tab does).
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction) async -> WKNavigationActionPolicy {
@@ -65,7 +69,7 @@ import WebKit
         for action: WKNavigationAction,
         windowFeatures: WKWindowFeatures
     ) -> WKWebView? {
-        guard let content else { return nil }
+        guard let content, popupAllowed(action, from: webView) else { return nil }
         let placement =
             (webView as? SunsetWebView)?.pendingPlacement ?? (windowFeatures.width != nil ? .window : .tabAfter)
         (webView as? SunsetWebView)?.pendingPlacement = nil

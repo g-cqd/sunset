@@ -46,6 +46,9 @@ package struct TabLabel: View {
                 }
             }
             lines
+            if let dot = model?.captureDot {
+                Circle().fill(dot).frame(width: 7, height: 7).help("Using the camera, microphone or screen")
+            }
         }
     }
 
