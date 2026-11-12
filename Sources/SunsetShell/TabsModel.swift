@@ -34,6 +34,8 @@ package final class TabsModel {
     package var renaming: Workspace.ItemID?
     /// The kept entry whose command is being edited, while its sheet is open (`CommandSheet`).
     package var editingCommand: Favorites.NodeID?
+    /// The choice of kind for a new tab is open (Shift-Cmd-T).
+    package var choosingKind = false
     /// The row whose name is being edited in place, and the row whose icon popover is open.
     package var renamingRow: RowTarget?
     package var iconRow: RowTarget?

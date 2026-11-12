@@ -2,7 +2,7 @@ import SunsetConfig
 
 /// The panes of the Settings window, in the order of its sidebar.
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case font, colors, appearance, window, sidebar, layout, tabs, scrolling, terminal, keyboard, file
+    case font, colors, appearance, window, sidebar, layout, tabs, scrolling, terminal, web, keyboard, file
 
     var id: String { rawValue }
 
@@ -17,6 +17,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             case .window: "Window"
             case .scrolling: "Scrolling"
             case .terminal: "Terminal"
+            case .web: "Web"
             case .keyboard: "Keyboard"
             case .file: "Configuration file"
         }
@@ -34,6 +35,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             case .window: "macwindow"
             case .scrolling: "arrow.up.and.down.text.horizontal"
             case .terminal: "terminal"
+            case .web: "globe"
             case .keyboard: "keyboard"
             case .file: "doc.text"
         }
@@ -109,6 +111,8 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                     entry("terminal.shellIntegration", "Shell marks its prompts", ["integration", "osc 133", "zsh"]),
                     entry("terminal.clipboardWrite", "Programs may copy", ["clipboard", "osc 52", "pasteboard", "ssh"])
                 ]
+            case .web:
+                return Self.webEntries
             case .keyboard:
                 return [entry("keyboard.meta", "Option sends Escape", ["meta", "alt", "option", "emacs"])]
             case .file:
@@ -204,4 +208,28 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             entry(pane, "tabs.progress", "Show progress", ["tab", "bar", "osc 9", "download"])
         ]
     }
+}
+
+extension SettingsPane {
+    /// The web pane's options (R1).
+    static let webEntries: [SettingsEntry] = [
+        SettingsEntry(
+            id: "web.openLinksInSunset",
+            pane: "web",
+            title: "Open terminal links in Sunset",
+            keywords: ["link", "browser", "cmd-click"]
+        ),
+        SettingsEntry(
+            id: "web.developer",
+            pane: "web",
+            title: "Page inspector",
+            keywords: ["inspect", "developer", "devtools"]
+        ),
+        SettingsEntry(
+            id: "web.tabIcon",
+            pane: "web",
+            title: "A page's tab picture",
+            keywords: ["icon", "globe", "letter", "favicon"]
+        )
+    ]
 }

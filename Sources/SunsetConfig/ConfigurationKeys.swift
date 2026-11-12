@@ -26,6 +26,6 @@ public enum ConfigurationKeys {
         "tabs.bar.progress",
         "scroll.trackpad", "scroll.wheel", "scroll.inertia",
         "scrollback.lines", "cursor.shape", "cursor.blink", "cursor.blinkTimeout", "renderer",
-        "keyboard.optionAsMeta"
+        "keyboard.optionAsMeta", "web.openLinksInSunset", "web.developer", "web.tabIcon"
     ]
 }

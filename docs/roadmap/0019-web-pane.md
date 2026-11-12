@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress (step a done 2026-11-11)
 blocked-by: 0018 (each step's own questions); the pane content protocol (done)
 date: 2026-11-11
 ---

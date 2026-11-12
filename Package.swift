@@ -36,6 +36,8 @@ let package = Package(
         .library(name: "SunsetShell", targets: ["SunsetShell"]),
         // The terminal as a kind of pane content: model, view, input (R8). Package access.
         .library(name: "SunsetTerminal", targets: ["SunsetTerminal"]),
+        // A web page as a kind of pane content (R1). Package access.
+        .library(name: "SunsetWeb", targets: ["SunsetWeb"]),
         // The configuration file: schema, defaults, validation and the difference between two configurations (roadmap 0017). Platform-free.
         .library(name: "SunsetConfig", targets: ["SunsetConfig"]),
         // The private window-server calls the app uses (the blur radius behind a window), looked up by name at run time (roadmap 0017, ADR-0034).
@@ -121,7 +123,8 @@ let package = Package(
             name: "SunsetApp",
             dependencies: [
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
-                "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal"
+                "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal",
+                "SunsetWeb"
             ],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings
@@ -188,6 +191,19 @@ let package = Package(
                 "SunsetRenderMetal", "SunsetShell"
             ],
             path: "Sources/SunsetTerminal",
+            swiftSettings: strictSettings
+        ),
+        // A web page as a kind of pane content (R1, roadmap 0019), on the system's WebKit.
+        .target(
+            name: "SunsetWeb",
+            dependencies: ["SunsetPane", "SunsetShell", "SunsetPrivate"],
+            path: "Sources/SunsetWeb",
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "SunsetWebTests",
+            dependencies: ["SunsetWeb", "SunsetPane", "SunsetShell"],
+            path: "Tests/SunsetWebTests",
             swiftSettings: strictSettings
         ),
         // What joins the configuration file to the shell's settings: a library so that the mapping is tested (the app target cannot be).

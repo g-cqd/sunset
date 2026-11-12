@@ -11,6 +11,7 @@ public enum ConfigurationWriter {
         for field in Configuration.Layout.fields {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }
+        layout.merge(web(configuration.web)) { $1 }
         return layout.merging([
             "font.family": string(font.family ?? ""),
             "font.size": number(font.size),
@@ -96,6 +97,13 @@ public enum ConfigurationWriter {
         }
         lines.append("}")
         return lines.joined(separator: "\n") + "\n"
+    }
+
+    private static func web(_ web: Configuration.Web) -> [String: String] {
+        [
+            "web.openLinksInSunset": String(web.openLinksInSunset), "web.developer": String(web.developer),
+            "web.tabIcon": string(web.tabIcon.rawValue)
+        ]
     }
 
     private static func number(_ value: Double) -> String {
