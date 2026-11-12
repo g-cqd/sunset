@@ -24,7 +24,7 @@ The owner's notes n49 to n67 that are not part of a roadmap step yet. Each step 
 
 | Step | What | Notes | Task |
 | --- | --- | --- | --- |
-| A | Spacing of a row: top and bottom padding visually equal to the leading padding before the glyph; the same measures in the sidebar, the tab bar, the command bar and the address list | n66 | t214 |
+| A | Spacing of a row: top and bottom padding visually equal to the leading padding before the glyph; the same measures in the sidebar, the tab bar, the command bar, the address list, and the address field itself (its Not Secure lock and zoom level placed as a tab's glyph is) | n66, owner 2026-11-12 | t214 |
 | B | The history panel rebuilt on the sidebar's own parts: the header's inset under the window buttons, the same side insets, rows, states, fade and look | n67 | t215 |
 | C | The bars (window address bar, command bar, address list, find bar): background through Aemi's variable blur; corners concentric, inner padding and spacing between items reviewed | n60 | t208 |
 | D | A page tab's loading as a ring that completes, with a rounded end; the favicon clipped inside it, then becoming the icon (initial in a square, favicons with slightly rounded corners, clipped). Brings the favicon setting of R1 | n61 | t209 |
@@ -32,6 +32,15 @@ The owner's notes n49 to n67 that are not part of a roadmap step yet. Each step 
 | F | A font of its own for tab labels (terminal tabs, maybe monospaced) | n53 | t202 |
 | G | Split presets for a tab (halves, thirds, grids) | n49 | t199 |
 | H | Reordering everything in the sidebar, dragging into folders, nested folders and Pinned (with 0020's and 0021's steps) | n51 | t201 |
+
+## The design system (the owner, 2026-11-12)
+
+A design system through Sunset and SunsetShell that guarantees one use of design tokens (spacing, radii, sizes, type), component styles, formatting,
+colours, tint, materials and the design language: every row, field, bar and panel built from it, nothing measured by hand in a view. To do first as
+a study read back to the owner: what exists today (`Configuration.Layout`, `ShellSettings.Layout`, `GlyphSpacing`, `ChoiceRow*`, the hairline,
+concentric radii, `SidebarLook`, `WindowLook`), what Apple's own system gives (SwiftUI styles, materials, Liquid Glass), the tokens and components
+proposed, how the configuration's layout keys map onto them, and a check (a test like `SourceStructureTests`) that views use tokens only. Steps A
+to D are then built on it (task t216).
 
 ## Studies, read back to the owner before anything is built
 
@@ -43,5 +52,5 @@ The owner's notes n49 to n67 that are not part of a roadmap step yet. Each step 
 
 ## Order proposed
 
-A and B first (small, and B depends on A's measures), between web steps f and g if the owner agrees; C and D together after the web milestone
+The design system's study first, then A and B on it (B depends on A's measures), between web steps f and g if the owner agrees; C and D together after the web milestone
 (both touch the bars and the tab's look); the measurement of t205 as soon as the screen is free; the rest by the owner's order.
