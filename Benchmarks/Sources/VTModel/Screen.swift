@@ -14,7 +14,10 @@ package class Screen {
     package func setEvictSink(_ f: @escaping (UnsafeRawBufferPointer) -> Void) { fatalError() }
 }
 @inline(__always) func snapshotWords(_ m: Model<C8>, into dst: UnsafeMutablePointer<UInt64>) {
-    for y in 0..<m.rows { (dst + y * m.cols).update(from: UnsafeRawPointer(m.rowPtr(y)).assumingMemoryBound(to: UInt64.self), count: m.cols) }
+    for y in 0 ..< m.rows {
+        (dst + y * m.cols)
+            .update(from: UnsafeRawPointer(m.rowPtr(y)).assumingMemoryBound(to: UInt64.self), count: m.cols)
+    }
 }
 final class Screen8: Screen {
     let m: Model<C8>
@@ -33,7 +36,7 @@ final class Screen16: Screen {
     init(sb: Int, cold: Bool) { m = Model<C16>(cols: 120, rows: 40, sbCap: sb, cold: cold) }
     override func feed(_ chunk: UnsafeBufferPointer<UInt8>) { m.feed(chunk) }
     override func run(_ data: [UInt8]) { runChunked(m, data) }
-    override func snapshot(into dst: UnsafeMutablePointer<UInt64>) {  }
+    override func snapshot(into dst: UnsafeMutablePointer<UInt64>) {}
     override var cursorRow: Int { m.cy }
     override var coldRows: Int { m.coldRows }
     override var coldBytes: Int { m.cold.count }
@@ -45,18 +48,22 @@ final class Screen32: Screen {
     init(sb: Int, cold: Bool) { m = Model<C32>(cols: 120, rows: 40, sbCap: sb, cold: cold) }
     override func feed(_ chunk: UnsafeBufferPointer<UInt8>) { m.feed(chunk) }
     override func run(_ data: [UInt8]) { runChunked(m, data) }
-    override func snapshot(into dst: UnsafeMutablePointer<UInt64>) {  }
+    override func snapshot(into dst: UnsafeMutablePointer<UInt64>) {}
     override var cursorRow: Int { m.cy }
     override var coldRows: Int { m.coldRows }
     override var coldBytes: Int { m.cold.count }
     override var coldData: [UInt8] { m.cold }
     override func setEvictSink(_ f: @escaping (UnsafeRawBufferPointer) -> Void) { m.evictHook = f }
 }
-package enum CellKind: String, CaseIterable { case c8 = "C8", c16 = "C16", c32 = "C32" }
+package enum CellKind: String, CaseIterable {
+    case c8 = "C8"
+    case c16 = "C16"
+    case c32 = "C32"
+}
 package func makeScreen(_ kind: CellKind, sb: Int = 0, cold: Bool = false) -> Screen {
     switch kind {
-    case .c8: return Screen8(sb: sb, cold: cold)
-    case .c16: return Screen16(sb: sb, cold: cold)
-    case .c32: return Screen32(sb: sb, cold: cold)
+        case .c8: return Screen8(sb: sb, cold: cold)
+        case .c16: return Screen16(sb: sb, cold: cold)
+        case .c32: return Screen32(sb: sb, cold: cold)
     }
 }
