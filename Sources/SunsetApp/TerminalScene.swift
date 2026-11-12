@@ -71,7 +71,8 @@ struct TerminalScene: View {
             HStack(spacing: 0) {
                 if configuration.sidebarDocked, sidebarSide == .left { dockedSidebar }
                 if tabs.showsHistory, sidebarSide == .right { historyPanel }
-                terminal
+                // Above the sidebar, whose blur bands reach under the panes so that they have no side (owner, 2026-11-13).
+                terminal.zIndex(1)
                 if configuration.sidebarDocked, sidebarSide == .right { dockedSidebar }
                 if tabs.showsHistory, sidebarSide == .left { historyPanel }
             }
