@@ -12,9 +12,10 @@ extension Design {
         /// ...and how far the fall reaches past it, over the rows at rest: a long fall leaves no line where a row comes back, and
         /// the cubic ramp's tail there is under half a point of radius.
         package static let listOverhang = Space.m
-        /// Behind the command bar: the whole window, softly, a little darker.
-        package static let backdropRadius = 8.0
-        package static let backdropDarkening = -0.15
+        /// Behind the command bar: the whole window out of focus, still readable as shapes, barely darker (owner, 2026-11-13:
+        /// "soft focus" of research/blur command-variants).
+        package static let backdropRadius = 3.0
+        package static let backdropDarkening = -0.05
 
         /// A small floating panel (the find bar): an even blur, livelier colour.
         package static var panel: BlurRecipe {
