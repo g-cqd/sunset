@@ -207,3 +207,10 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - Split margin: the bar was `Space.m` from the area's top while the panes were the split gap from it; it now uses the split gap all
   round, so it sits where the panes' tops were and the gap under it is the gap between panes.
 - Not seen: the bar at the bottom edge with find open (find stays in its pane there), light appearance, find with the sidebar address.
+
+### 7i. Owner, 2026-11-13: groups slide in from the edge
+
+- The address bar's groups and the find bar's slide in from beyond their edge (`BarGroupSlide`: an offset of the bar's height and its
+  inset), not faded. The window bar's row stays in place and only its groups come and go, so each one runs its own transition;
+  their blurs follow them (`slide-midway-…`, shot with the slide slowed to 3 s).
+- The find bar's "Not found" (red on the dark glass) reads well; left as is.

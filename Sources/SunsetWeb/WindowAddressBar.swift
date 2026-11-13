@@ -48,14 +48,14 @@ package struct WindowAddressBar: View {
                 .frame(height: 6)
                 .contentShape(.rect)
                 .onHover { inside in if inside { shown = true } }
-            if out || finding {
-                groups
-                    .padding(inset)
-                    .onHover { inside in
-                        hovering = inside
-                        if !inside { hideSoon() }
-                    }
-            }
+            // Always there, its groups coming and going: each slides in from the edge itself (a container inserted with them
+            // would fade in as a whole instead).
+            groups
+                .padding(inset)
+                .onHover { inside in
+                    hovering = inside
+                    if !inside { hideSoon() }
+                }
         }
         // Over the focused pane's card, its corners the groups' container; the blurs end at its edges.
         .frame(width: frame?.width, height: frame?.height)
@@ -63,8 +63,8 @@ package struct WindowAddressBar: View {
         .clipShape(cardShape)
         .offset(x: frame?.minX ?? 0, y: frame?.minY ?? 0)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .animation(.easeOut(duration: 0.18), value: out)
-        .animation(.easeOut(duration: 0.18), value: finding)
+        .animation(BarGroupSlide.animation, value: out)
+        .animation(BarGroupSlide.animation, value: finding)
         // Asked for (a new page, Open Address): out until the pointer leaves it or typing ends, not just while the field asks.
         .onChange(of: content.wantsAddress, initial: true) { _, wanted in if wanted { shown = true } }
         .onChange(of: out, initial: true) { _, now in onOut(now) }
@@ -80,7 +80,8 @@ package struct WindowAddressBar: View {
     /// blurs all beneath all of them.
     private var groups: some View {
         let edge: Bool = atTop
-        let slide = AnyTransition.move(edge: atTop ? .top : .bottom).combined(with: .opacity)
+        // From beyond the edge, not faded (owner, 2026-11-13).
+        let slide = BarGroupSlide.transition(atTop: atTop, inset: inset)
         return GlassEffectContainer(spacing: Design.Space.m) {
             HStack(spacing: Design.Space.m) {
                 if out { navigation(edge: edge).transition(slide) }
@@ -89,7 +90,7 @@ package struct WindowAddressBar: View {
                 } else {
                     Spacer(minLength: 0)
                 }
-                if finding { WebFindBar(content: content, atTop: edge).transition(.opacity) }
+                if finding { WebFindBar(content: content, atTop: edge).transition(slide) }
             }
         }
         .barGroupBlurs()
