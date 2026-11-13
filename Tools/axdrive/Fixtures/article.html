@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Tides of the North Sea</title>
+<style>
+body{margin:0;font:16px/1.5 -apple-system,sans-serif;color:#111;background:#fff}
+.stripes{height:90px;background:repeating-linear-gradient(90deg,#111 0 18px,#f4c430 18px 36px,#d33 36px 54px,#28a 54px 72px)}
+.checks{height:120px;background:conic-gradient(#000 25%,#fff 0 50%,#000 0 75%,#fff 0) 0 0/24px 24px}
+main{columns:3;column-gap:28px;padding:20px 28px}
+h1{column-span:all;margin:0 0 12px}
+table{border-collapse:collapse;margin:16px 28px}td,th{border:1px solid #888;padding:4px 10px}
+</style></head><body>
+<div class="stripes"></div><div class="checks"></div>
+<main><h1>Tides of the North Sea</h1>
+<script>
+const p="The quick brown fox jumps over the lazy dog while the tide turns twice a day along the low coast, and the lazy harbour waits. ";
+for(let i=1;i<=18;i++)document.write("<p>"+i+". Twice daily the water climbs the mudflats. "+p.repeat(3)+"</p>");
+</script></main>
+<table><tr><th>Port</th><th>High</th><th>Low</th></tr><tr><td>Cuxhaven</td><td>3.4 m</td><td>0.3 m</td></tr><tr><td>Esbjerg</td><td>1.8 m</td><td>0.2 m</td></tr><tr><td>Lowestoft</td><td>2.4 m</td><td>0.5 m</td></tr></table>
+<div class="stripes"></div>
+<script>addEventListener("resize",()=>{document.title="resized to "+innerHeight});addEventListener("load",()=>scrollTo(0,120))</script>
+</body></html>

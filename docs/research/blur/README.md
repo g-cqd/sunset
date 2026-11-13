@@ -314,3 +314,9 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - Every alpha fade (list ends, titles under a close button, the tab row's ends, the history panel) is eased (smoothstep,
   `Gradient.eased`), not linear. The blur masks themselves already fall along a cubic.
 - Not seen: the bottom band reaching under the panes, the floating sidebar's ends.
+
+### 7r. Owner, 2026-11-13 (t234): inside the capsules
+
+- `capsule-inside-…`: A glass + 0.5 fill (as it was), B glass + 0.75 fill, C our uniform blur 8 instead of glass + 0.5 fill, D blur 16 +
+  0.5, E blur 16 + 0.3. Over a checkerboard the page is unreadable inside all five; they differ in darkness and the glass's edge
+  highlight. Chosen A: nothing changes.
