@@ -33,6 +33,10 @@ package struct BuiltInTabBar: View {
         self.capsules = capsules
     }
 
+    private var pinnedItems: [Favorites.BarItem] {
+        tabs.favorites.favorites.pinnedItems(selected: tabs.workspace.selectedEntry)
+    }
+
     /// The narrowest and the widest a tab is: the tabs share the bar between these.
     static let tabWidths = 120.0 ... 240.0
 
@@ -41,16 +45,20 @@ package struct BuiltInTabBar: View {
         let count = items.count + tabs.workspace.items.count
         HStack(spacing: capsules ? Design.Space.m : Design.Space.xs) {
             if let navigation { navigation.transition(.opacity) }
+            // Pinned: the Favorites as circles before the tabs, outside their scroll (owner, 2026-11-13).
+            if capsules, !pinnedItems.isEmpty { pinned(pinnedItems) }
             GeometryReader { proxy in
                 let width = Self.width(
-                    for: count,
+                    for: capsules ? tabs.workspace.items.count : count,
                     in: proxy.size.width,
                     gap: capsules ? Design.Space.m : surface.layout.tabSpacing
                 )
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: capsules ? Design.Space.m : surface.layout.tabSpacing) {
-                        ForEach(items, id: \.self) { item in barItem(item).frame(width: width) }
-                        if !items.isEmpty { separator }
+                        if !capsules {
+                            ForEach(items, id: \.self) { item in barItem(item).frame(width: width) }
+                            if !items.isEmpty { separator }
+                        }
                         ForEach(tabs.workspace.items) { item in
                             if let address, tabs.isSelected(item.id) {
                                 address.frame(width: Self.fieldWidth(tab: width))
@@ -62,6 +70,9 @@ package struct BuiltInTabBar: View {
                     .frame(maxHeight: .infinity)
                 }
                 .gesture(WindowDragGesture())
+                // The tabs that scroll under the + blur out towards it (owner, 2026-11-13).
+                .overlay(alignment: .trailing) { if capsules { trailingBlur } }
+                .mask { if capsules { trailingFade } else { Color.black } }
             }
             if capsules {
                 SidebarIconButton(symbol: "plus", help: "New Tab") { tabs.newTab() }
@@ -94,7 +105,7 @@ package struct BuiltInTabBar: View {
         return min(max(share, tabWidths.lowerBound), tabWidths.upperBound)
     }
 
-    private var separator: some View {
+    var separator: some View {
         Rectangle()
             .fill(.primary.opacity(surface.layout.hairlineOpacity * Design.Line.stronger))
             .frame(width: max(surface.layout.hairlineWidth, 1), height: surface.layout.closeButtonSize)

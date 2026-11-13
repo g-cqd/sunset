@@ -20,4 +20,21 @@ import Testing
         #expect(favorites.barItems(selected: nil) == [.entry(loose), .folder(folder, openCount: 2)])
         #expect(favorites.barItems(selected: b) == [.entry(loose), .folder(folder, openCount: 2), .entry(b)])
     }
+
+    @Test func `pinned: every entry, open or not; a folder with all it holds; an empty folder left out`() throws {
+        var favorites = Favorites()
+        let open = try FavoritesFixture.need(favorites.keep(FavoritesFixture.item(), contents: [:]))
+        let closed = try FavoritesFixture.need(favorites.addEntry(home: FavoritesFixture.home(), title: "closed"))
+        let folder = try FavoritesFixture.need(favorites.addFolder(named: "F"))
+        let inside = try FavoritesFixture.need(
+            favorites.addEntry(home: FavoritesFixture.home(), title: "in", in: folder)
+        )
+        favorites.addFolder(named: "empty")
+        #expect(
+            favorites.pinnedItems(selected: nil)
+                == [.entry(open), .entry(closed), .folder(folder, openCount: 0), .entry(inside)]
+        )
+        favorites.setCollapsed(true, for: folder)
+        #expect(favorites.pinnedItems(selected: nil) == [.entry(open), .entry(closed), .folder(folder, openCount: 0)])
+    }
 }
