@@ -80,4 +80,26 @@ extension TerminalScene {
             .transition(.opacity)
         }
     }
+
+    /// The docked sidebar's place in the row: it is drawn under the row (`body`), this keeps its width.
+    var sidebarSlot: some View {
+        Color.clear.frame(width: configuration.sidebar.width).frame(maxHeight: .infinity)
+    }
+
+    /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge. Any empty area in it drags the window.
+    var dockedSidebar: some View {
+        TabSidebar(
+            tabs: tabs,
+            settings: ShellSettings(configuration),
+            accessory: sidebarAddress,
+            bottomBar: AnyView(SidebarBottomBar(side: sidebarSide)),
+            togglePin: AppConfiguration.togglePin
+        )
+        .padding(.top, configuration.sidebar.padding)
+        .padding(sidebarSide.edge, configuration.sidebar.padding)
+        .frame(width: configuration.sidebar.width, alignment: sidebarSide.alignment)
+        .frame(maxHeight: .infinity)
+        .background { windowDragSurface }
+        .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
+    }
 }

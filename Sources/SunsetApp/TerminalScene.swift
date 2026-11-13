@@ -70,12 +70,17 @@ struct TerminalScene: View {
         VStack(spacing: 0) {
             if barAtTop { tabBar }
             HStack(spacing: 0) {
-                if configuration.sidebarDocked, sidebarSide == .left { dockedSidebar }
+                if configuration.sidebarDocked, sidebarSide == .left { sidebarSlot }
                 if tabs.showsHistory, sidebarSide == .right { historyPanel }
                 // Above the sidebar, whose blur bands reach under the panes so that they have no side (owner, 2026-11-13).
                 terminal.zIndex(1)
-                if configuration.sidebarDocked, sidebarSide == .right { dockedSidebar }
+                if configuration.sidebarDocked, sidebarSide == .right { sidebarSlot }
                 if tabs.showsHistory, sidebarSide == .left { historyPanel }
+            }
+            // The docked sidebar is drawn under the row and the panes above it: its list ends' blur bands are not cut at its side,
+            // they go on under the panes (owner, 2026-11-13).
+            .background(alignment: sidebarSide.alignment) {
+                if configuration.sidebarDocked { dockedSidebar }
             }
             .overlay(alignment: sidebarSide.alignment) { resizeHandle }
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
@@ -133,23 +138,6 @@ struct TerminalScene: View {
 
     // MARK: Parts
 
-    /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge. Any empty area in it drags the window.
-    private var dockedSidebar: some View {
-        TabSidebar(
-            tabs: tabs,
-            settings: ShellSettings(configuration),
-            accessory: sidebarAddress,
-            bottomBar: AnyView(SidebarBottomBar(side: sidebarSide)),
-            togglePin: AppConfiguration.togglePin
-        )
-        .padding(.top, configuration.sidebar.padding)
-        .padding(sidebarSide.edge, configuration.sidebar.padding)
-        .frame(width: configuration.sidebar.width, alignment: sidebarSide.alignment)
-        .frame(maxHeight: .infinity)
-        .background { windowDragSurface }
-        .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
-    }
-
     /// The panes of what is shown; with nothing shown, the pane area's hint while the window stays for its Favorites, and nothing while it goes.
     @ViewBuilder private var terminal: some View {
         if tabs.selectedContent != nil || !tabs.favorites.isEmpty {
@@ -194,7 +182,7 @@ struct TerminalScene: View {
     }
 
     /// A transparent surface that drags the window from any non-interactive area above it.
-    private var windowDragSurface: some View {
+    var windowDragSurface: some View {
         Color.clear.contentShape(.rect).gesture(WindowDragGesture())
     }
 
