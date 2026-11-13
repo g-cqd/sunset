@@ -265,3 +265,17 @@ Open Address (the window's bar comes out for it), which the scene uses.
   it), and each folder with all it holds (`Favorites.pinnedItems`, a test); a collapsed folder hides them (`tab-pinned-end-…`, above:
   two folders, collapsed).
 - Not seen: an entry's circle (the session's Favorites were two folders), a pinned tab selected, unload on hover, the help text.
+
+### 7n. Owner, 2026-11-13: the tab row's buttons, its ends, blur scale
+
+- The row of capsules is 34 pt (26/30/34 tried). Its buttons (back, forward, +) are whole circles of that size (`TabCapsuleButton`:
+  the field's fill and hairline, lighter under the pointer), not the sidebar's rounded-square button. Tabs show one line and sit
+  7 pt apart (a point less than the row's other items).
+- The divider after the pinned tabs is gone: both ends of the tabs' scroll blur (`tabEndRadius` 4, softer) and fade, each only while
+  tabs lie beyond it (`onScrollGeometryChange`; `tab-ends-…`: at launch, then scrolled to the end).
+- The tabs are accessibility buttons now (pressing one selects it), and the row scrolls to the selected tab.
+- Capture scale for every blur (`Design.Blur.captureScale`): 1, 0.5 and 0.25 compared at full resolution
+  (`blur-scale-…`); 1 kept. CPU with the page jumping: app 11–14 %, WindowServer 43–53 %, no clear difference (GPU not measured).
+- "Is the blur active under the component?" (`blur-on-off-…`, `-diff`): with `barBlur` variable against none, the frames differ only
+  around the capsules (the halo, the fall below). Inside a capsule they are the same: Liquid Glass samples the window's content
+  itself, not our backdrop layer's result, so what shows through the glass is the glass's own look, darkened by the 0.5 fill.

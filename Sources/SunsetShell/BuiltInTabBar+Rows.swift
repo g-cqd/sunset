@@ -73,6 +73,10 @@ extension BuiltInTabBar {
         )
         .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frames[item.id] = $0 }
         .onTapGesture { tabs.select(item: item.id) }
+        // One button to accessibility, named by its title: a press selects it (and the row scrolls to it).
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(tabs.isSelected(item.id) ? [.isButton, .isSelected] : .isButton)
+        .accessibilityAction { tabs.select(item: item.id) }
         .onDrag { tabs.itemProvider(for: .item(item.id)) }
         .dropDestination(for: String.self) { items, _ in
             guard let text = items.first, case .item(let id)? = PaneDragPayload(text: text),
@@ -97,7 +101,8 @@ extension BuiltInTabBar {
             model: model,
             showIcon: false,
             showTitle: settings.showTitle,
-            showDirectory: settings.showDirectory,
+            // One line in the row of capsules.
+            showDirectory: settings.showDirectory && !capsules,
             showProgress: settings.showProgress,
             name: name
         )

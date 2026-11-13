@@ -22,14 +22,16 @@ extension Design {
 
         /// The recipe for a group's blur layer of `size` (its outsets included).
         package static func group(size: CGSize, margin: Double, top: Bool) -> BlurRecipe {
-            .variable(
-                radius: groupRadius,
-                mask: .under(
-                    top: top,
-                    width: size.width,
-                    height: size.height,
-                    solid: margin + Size.bar,
-                    endFade: groupReach + haloInset
+            scaled(
+                .variable(
+                    radius: groupRadius,
+                    mask: .under(
+                        top: top,
+                        width: size.width,
+                        height: size.height,
+                        solid: margin + Size.bar,
+                        endFade: groupReach + haloInset
+                    )
                 )
             )
         }
@@ -48,6 +50,8 @@ extension Design {
         /// end (owner, 2026-11-13).
         package static let tabEndSolid = Space.s
         package static let tabEndFade = Space.xxl + Space.l
+        /// Softer than the sidebar's ends (owner, 2026-11-13).
+        package static let tabEndRadius = 4.0
         /// Behind the command bar: the whole window out of focus, still readable as shapes, barely darker (owner, 2026-11-13:
         /// "soft focus" of research/blur command-variants).
         package static let backdropRadius = 3.0
@@ -59,12 +63,22 @@ extension Design {
         package static func under(_ edge: BlurMask.Edge, solid: Double, fade: Double, radius: Double = barRadius)
             -> BlurRecipe
         {
-            .variable(radius: radius, mask: .edge(edge, solid: solid, fade: fade))
+            scaled(.variable(radius: radius, mask: .edge(edge, solid: solid, fade: fade)))
         }
 
         package static var commandBackdrop: BlurRecipe {
-            var recipe = BlurRecipe.uniform(radius: backdropRadius)
+            var recipe = scaled(.uniform(radius: backdropRadius))
             recipe.brightness = backdropDarkening
+            return recipe
+        }
+
+        /// The resolution every blur captures what is under it at, relative to the screen's: lower is cheaper and softer
+        /// (owner, 2026-11-13: 1, 0.5 and 0.25 tried, 1 kept; research/blur §7n).
+        package static let captureScale = 1.0
+
+        private static func scaled(_ recipe: BlurRecipe) -> BlurRecipe {
+            var recipe = recipe
+            recipe.captureScale = captureScale
             return recipe
         }
     }

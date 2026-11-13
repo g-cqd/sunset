@@ -1,3 +1,4 @@
+import AemiSDR
 import SunsetMetrics
 import SunsetPane
 package import SwiftUI
@@ -18,6 +19,8 @@ package struct BuiltInTabBar: View {
     /// change shape from a page to a terminal.
     let capsules: Bool
     @State var frames: [UUID: CGRect] = [:]
+    /// Tabs lie beyond the row's leading (trailing) end: its blur shows there.
+    @State var beyond = (leading: false, trailing: false)
 
     package init(
         tabs: TabsModel,
@@ -51,33 +54,49 @@ package struct BuiltInTabBar: View {
                 let width = Self.width(
                     for: capsules ? tabs.workspace.items.count : count,
                     in: proxy.size.width,
-                    gap: capsules ? Design.Space.m : surface.layout.tabSpacing
+                    gap: capsules ? Design.TabCapsules.tabGap : surface.layout.tabSpacing
                 )
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: capsules ? Design.Space.m : surface.layout.tabSpacing) {
-                        if !capsules {
-                            ForEach(items, id: \.self) { item in barItem(item).frame(width: width) }
-                            if !items.isEmpty { separator }
-                        }
-                        ForEach(tabs.workspace.items) { item in
-                            if let address, tabs.isSelected(item.id) {
-                                address.frame(width: Self.fieldWidth(tab: width))
-                            } else {
-                                row(item).frame(width: width)
+                ScrollViewReader { reader in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: capsules ? Design.TabCapsules.tabGap : surface.layout.tabSpacing) {
+                            if !capsules {
+                                ForEach(items, id: \.self) { item in barItem(item).frame(width: width) }
+                                if !items.isEmpty { separator }
+                            }
+                            ForEach(tabs.workspace.items) { item in
+                                if let address, tabs.isSelected(item.id) {
+                                    address.frame(width: Self.fieldWidth(tab: width)).id(item.id)
+                                } else {
+                                    row(item).frame(width: width).id(item.id)
+                                }
                             }
                         }
+                        .frame(maxHeight: .infinity)
                     }
-                    .frame(maxHeight: .infinity)
+                    // The selected tab is scrolled into view (a click, Show Next Tab, an accessibility press).
+                    .onChange(of: tabs.workspace.selectedID, initial: true) { _, id in
+                        guard let id else { return }
+                        withAnimation(surface.layout.smooth) { reader.scrollTo(id) }
+                    }
                 }
                 .gesture(WindowDragGesture())
                 // The tabs that scroll under the + blur out towards it (owner, 2026-11-13).
-                .overlay(alignment: .trailing) { if capsules { trailingBlur } }
-                .mask { if capsules { trailingFade } else { Color.black } }
+                .onScrollGeometryChange(for: Bool.self, of: { $0.contentOffset.x > 0.5 }) { _, now in
+                    beyond.leading = now
+                }
+                .onScrollGeometryChange(
+                    for: Bool.self,
+                    of: { $0.contentOffset.x + $0.containerSize.width < $0.contentSize.width - 0.5 }
+                ) { _, now in beyond.trailing = now }
+                // The tabs that scroll past either end blur and fade out there (owner, 2026-11-13).
+                .overlay(alignment: .leading) { if capsules, beyond.leading { endBlur(.leading) } }
+                .overlay(alignment: .trailing) { if capsules, beyond.trailing { endBlur(.trailing) } }
+                .mask { if capsules { endFade } else { Color.black } }
+                .animation(surface.layout.smooth, value: beyond.leading)
+                .animation(surface.layout.smooth, value: beyond.trailing)
             }
             if capsules {
-                SidebarIconButton(symbol: "plus", help: "New Tab") { tabs.newTab() }
-                    .environment(\.sidebarButtonMetrics, BarButton.group(surface))
-                    .tabCapsule()
+                TabCapsuleButton(symbol: "plus", help: "New Tab") { tabs.newTab() }
             } else {
                 SidebarIconButton(symbol: "plus", help: "New Tab") { tabs.newTab() }
                     .environment(\.sidebarButtonMetrics, BarButton.metrics(surface))
