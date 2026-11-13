@@ -59,11 +59,15 @@ extension SettingsView {
                     Text("Above the panes").tag(Configuration.Web.SplitBar.margin)
                     Text("Over the focused pane").tag(Configuration.Web.SplitBar.pane)
                 }
-            default:
-                Picker("A page's tab shows", selection: config.binding(\.web.tabIcon)) {
-                    Text("The first letter of its title").tag(Configuration.Web.TabIcon.initial)
-                    Text("A globe").tag(Configuration.Web.TabIcon.globe)
-                }
+            default: tabIconPicker
+        }
+    }
+
+    private var tabIconPicker: some View {
+        Picker("A page's tab shows", selection: config.binding(\.web.tabIcon)) {
+            Text("The site's icon").tag(Configuration.Web.TabIcon.favicon)
+            Text("The first letter of its title").tag(Configuration.Web.TabIcon.initial)
+            Text("A globe").tag(Configuration.Web.TabIcon.globe)
         }
     }
 }

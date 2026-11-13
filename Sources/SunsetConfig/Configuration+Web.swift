@@ -3,7 +3,7 @@ extension Configuration {
     public struct Web: Sendable, Equatable {
         /// What a page's tab shows when it has no icon of its own: the first letter of its title in a square, or a globe.
         public enum TabIcon: String, Sendable, Equatable, CaseIterable {
-            case initial, globe
+            case favicon, initial, globe
         }
 
         /// Where the address of the focused page is typed (web step b): a compact field at the top of the sidebar, a bar of the window that shows
@@ -73,7 +73,8 @@ extension Configuration {
         public var openLinksInSunset = true
         /// The page's inspector (Inspect Element, and Safari's Develop menu) can be opened.
         public var developer = true
-        public var tabIcon = TabIcon.initial
+        /// The site's icon, its initial in a square while it has none (owner, 2026-11-13).
+        public var tabIcon = TabIcon.favicon
         public var address = AddressPlace.sidebar
         public var windowBar = BarEdge.top
         /// In a split, where the window bar goes while it is out: in a margin that opens above the panes (they keep their size,

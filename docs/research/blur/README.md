@@ -290,3 +290,17 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - `appearance.scheme` (dark / light / system) now sets the whole app's appearance (`NSApp.appearance`: Settings, panels), not
   only the terminal windows.
 - Not changed: the sidebar stays dark in the light scheme (its own material); not seen: the Settings window locked to a scheme.
+
+### 7p. t209 (n61): the loading ring and site icons
+
+- Owner's answers: favicons by default (`web.tabIcon` favicon / initial / globe), the initial in a filled rounded square, a ring
+  that fills with WebKit's real progress, the accent's colour, and the old progress lines (under a tab's title, along the address
+  field) removed.
+- `TabIcon`: while the content loads, the icon shrinks to 0.75 and is clipped to a circle inside a 2 pt ring with rounded ends
+  (`Design.Ring`); when it has loaded the ring fades and the icon grows back to its square (`loading-ring-…`: six frames 1.2 s apart
+  on a page whose images take 8 s, then loaded with its icon). Its `showsProgress` follows the tab settings' showProgress.
+- Site icons (`WebContent+Favicon`): after each load, the page's `<link rel=icon>` (or apple-touch-icon), else `/favicon.ico`,
+  fetched without cookies, kept per host for the app's life; clipped to the initial's rounded square (`favicon-rows-…`). Private
+  pages keep their mask and fetch nothing.
+- Not seen: a real site's icon (SVG icons may not decode in NSImage), unloaded tabs (they show a globe until loaded; icons are not
+  saved in the session), the ring's motion as a whole (frames only), the light scheme.

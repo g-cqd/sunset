@@ -16,7 +16,6 @@ package struct AddressField: View {
     @Environment(\.addressTyping) private var typing
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.surfaceStyle) private var surface
-    @Environment(\.accent) private var accent
     @Environment(\.controlRadius) private var controlRadius
 
     package init(
@@ -50,7 +49,6 @@ package struct AddressField: View {
         .animation(.easeOut(duration: 0.15), value: hovering)
         // A private page's field is dark, its text light (web step h).
         .fieldSurface(dark: content.isPrivate)
-        .overlay(alignment: .bottomLeading) { progressLine }
         .clipShape(RoundedRectangle(cornerRadius: controlRadius ?? surface.leafRadius, style: .continuous))
         .environment(\.colorScheme, content.isPrivate ? .dark : colorScheme)
         .onAppear { takeKeyboardIfAsked() }
@@ -96,18 +94,6 @@ package struct AddressField: View {
         .buttonStyle(.plain)
         .help(content.isLoading ? "Stop" : "Reload")
         .disabled(content.url == nil)
-    }
-
-    private var progressLine: some View {
-        GeometryReader { proxy in
-            if let progress = content.progress {
-                Rectangle()
-                    .fill(accent.color)
-                    .frame(width: proxy.size.width * max(progress, 0.05), height: 2)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-                    .animation(.easeOut(duration: 0.2), value: progress)
-            }
-        }
     }
 
     /// The field stopped being typed in (a click elsewhere): the list goes a moment later, so that a click on one of its rows is taken first.

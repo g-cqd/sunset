@@ -44,7 +44,14 @@ extension BuiltInTabBar {
             armed: entry.open.map { tabs.isCloseArmed($0.id) } ?? false,
             button: .unload,
             close: { tabs.unload(entry: entry.id) },
-            icon: { TabIcon(model: model, icon: entry.icon, saved: entry.home.contents[entry.home.focused]) },
+            icon: {
+                TabIcon(
+                    model: model,
+                    icon: entry.icon,
+                    saved: entry.home.contents[entry.home.focused],
+                    showsProgress: settings.showProgress
+                )
+            },
             label: { label(model: model, name: entry.title) },
             lines: lines
         )
@@ -66,7 +73,7 @@ extension BuiltInTabBar {
             selected: tabs.isSelected(item.id),
             armed: tabs.isCloseArmed(item.id),
             close: { tabs.close(item: item.id) },
-            icon: { TabIcon(model: model, icon: custom.icon) },
+            icon: { TabIcon(model: model, icon: custom.icon, showsProgress: settings.showProgress) },
             label: { label(model: model, name: custom.name) },
             lines: lines,
             onHover: { inside in hover(item.id, inside) }

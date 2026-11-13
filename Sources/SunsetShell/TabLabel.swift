@@ -44,7 +44,9 @@ package struct TabLabel: View {
 
     package var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
-            if showIcon { TabIcon(model: model, icon: icon, saved: saved, savedCommand: savedCommand) }
+            if showIcon {
+                TabIcon(model: model, icon: icon, saved: saved, savedCommand: savedCommand, showsProgress: showProgress)
+            }
             lines
             if let dot = model?.captureDot {
                 Circle().fill(dot).frame(width: 7, height: 7).help("Using the camera, microphone or screen")
@@ -62,9 +64,6 @@ package struct TabLabel: View {
                     .font(monospacedDetail ? Design.Text.detail.monospaced() : Design.Text.detail)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-            }
-            if showProgress, let progress = model?.progress {
-                ProgressView(value: progress).progressViewStyle(.linear).controlSize(.mini)
             }
         }
     }
