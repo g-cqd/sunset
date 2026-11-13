@@ -10,7 +10,7 @@ extension WebContent {
     package var closeWarning: String? { nil }
 
     package var glyph: PaneGlyph {
-        if isPrivate { return .symbol("theatermasks") }
+        if isPrivate { return .symbol("eye.slash") }
         if settings.favicons, let favicon { return .image(favicon) }
         guard settings.initialIcon, let first = title.first(where: \.isLetter) else { return .symbol("globe") }
         return .initial(String(first).uppercased())

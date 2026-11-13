@@ -75,10 +75,7 @@ struct SidebarRow: View {
         }
         .mask { titleMask }
         .padding(.leading, layout.tabPaddingLeading)
-        .padding(
-            .vertical,
-            Design.rowPadding(layout, lines: lines, height: compact ? Design.Size.favoriteRow : Design.Size.tabRow)
-        )
+        .rowHeight(layout, lines: lines, height: compact ? Design.Size.favoriteRow : Design.Size.tabRow)
         .padding(.trailing, layout.tabPaddingTrailing)
         // As far from the trailing edge as from the top and the bottom (owner, 2026-11-12): centred on a point half the row's height in.
         .overlay {

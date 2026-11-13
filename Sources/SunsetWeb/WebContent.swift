@@ -32,6 +32,7 @@ package final class WebContent: PaneContent {
     package internal(set) var zoom = 1.0
     /// The site's icon, once fetched (`WebContent+Favicon`).
     package internal(set) var favicon: NSImage?
+    package internal(set) var pageBackground: NSColor?
     /// The page, once it has been shown.
     @ObservationIgnored package private(set) var webView: WKWebView?
 
@@ -225,7 +226,7 @@ package final class WebContent: PaneContent {
             },
             view.observe(\.microphoneCaptureState, options: [.new]) { [weak self] view, _ in
                 MainActor.assumeIsolated { self?.captureChanged(view) }
-            }
+            }, observePageColor(view)
         ]
     }
 

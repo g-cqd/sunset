@@ -5,9 +5,10 @@ extension Design {
         package static let lineWidth = 2.0
         /// The icon while loading, against its size at rest.
         package static let iconScale = 0.75
-        /// The circle the icon is clipped to while loading, against the glyph's frame; at rest a circle this large clips nothing.
+        /// The circle the icon is clipped to while loading, against the glyph's frame; at rest a circle this large clips nothing, of a
+        /// wide, flat symbol either (owner note n70: at 1.5 the circle, as wide as the symbol is tall, cut its corners).
         package static let clipLoading = 0.62
-        package static let clipAtRest = 1.5
+        package static let clipAtRest = 4.0
         /// How long the ring takes to follow the progress, and the icon to grow back.
         package static let follow = 0.2
         package static let settle = 0.3

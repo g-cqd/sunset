@@ -78,6 +78,12 @@ package enum Design {
         rowPadding(layout, lines: 1, height: height)
     }
 
+    /// The height of every one-line row: `height`, or what its close button and padding need when that is more. Set as the row's
+    /// height (`View.rowHeight`), not left to its content: an emoji or a taller glyph made some rows taller (owner note n69).
+    package static func oneLineHeight(_ layout: LayoutMetrics, height: Double) -> Double {
+        max(height, layout.closeButtonSize + 2 * layout.tabPaddingVertical)
+    }
+
     package static func rowPadding(_ layout: LayoutMetrics, lines: Int, height: Double) -> Double {
         lines > 1 ? layout.tabPaddingVertical : max(layout.tabPaddingVertical, (height - layout.closeButtonSize) / 2)
     }

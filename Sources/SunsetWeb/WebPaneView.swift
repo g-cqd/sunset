@@ -42,7 +42,8 @@ struct WebPaneView: View {
             }
         }
         .padding(.top, topInset)
-        .background(Color(nsColor: .windowBackgroundColor))
+        // The page's own colour, above it too (the strip that drags the window; note n71).
+        .background(content.pageBackground.map { Color(nsColor: $0) } ?? Color(nsColor: .windowBackgroundColor))
         .animation(BarGroupSlide.animation, value: content.find.isOpen)
     }
 

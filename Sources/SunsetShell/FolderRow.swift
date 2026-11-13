@@ -41,7 +41,7 @@ struct FolderRow: View {
         }
         .frame(minHeight: layout.closeButtonSize)
         .padding(.leading, layout.tabPaddingLeading)
-        .padding(.vertical, Design.oneLinePadding(layout, height: Design.Size.favoriteRow))
+        .rowHeight(layout, lines: 1, height: Design.Size.favoriteRow)
         .padding(.trailing, layout.tabPaddingTrailing)
         .overlay {
             GeometryReader { proxy in
