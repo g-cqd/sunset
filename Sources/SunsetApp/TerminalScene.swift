@@ -194,6 +194,7 @@ struct TerminalScene: View {
         tabs.onEmpty = { dismiss() }
         tabs.makeContent = { makeContent($0) }
         tabs.onChange = { SessionStore.shared.scheduleSave() }
+        SwitchProbe.startIfAsked(tabs)
         if tabs.workspace.isEmpty, AppActions.shared.pendingPrivateWindow {
             startPrivate()
         } else if tabs.workspace.isEmpty {
