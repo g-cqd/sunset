@@ -17,7 +17,6 @@ extension Design {
         /// fall starts half way down the group and the ends' fall `haloInset` inside it (owner, 2026-11-13).
         package static let groupReach = Space.xl
         package static let groupFall = Size.bar
-        package static let groupMinimumRadius = Space.m
 
         /// The recipe for a group's blur layer of `size` (its outsets included).
         package static func group(size: CGSize, margin: Double, top: Bool) -> BlurRecipe {

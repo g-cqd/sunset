@@ -90,7 +90,7 @@ package struct WindowAddressBar: View {
     /// is the same distance from the bar's edge (owner, 2026-11-12).
     private func button(_ symbol: String, _ help: String, enabled: Bool, action: @escaping () -> Void) -> some View {
         SidebarIconButton(symbol: symbol, help: help, action: action)
-            .environment(\.sidebarButtonMetrics, BarButton.metrics(surface))
+            .environment(\.sidebarButtonMetrics, BarButton.metrics(surface, radius: Design.Size.field / 2))
             .disabled(!enabled)
     }
 

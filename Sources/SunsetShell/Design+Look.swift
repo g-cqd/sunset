@@ -47,7 +47,7 @@ extension Design {
         /// (owner, 2026-11-12).
         package static let floatingMinimum = 0.85
         /// Under the window's address bar's surface (black), for its text over a light page (owner, 2026-11-13).
-        package static let barShade = 0.3
+        package static let barShade = 0.5
         /// A dimming layer (Apple's figure for one under clear glass).
         package static let scrim = 0.35
         /// The accent line of the focused card.
