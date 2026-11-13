@@ -58,6 +58,8 @@ extension Reader {
                 if let edge = choice(path, value, as: Configuration.Web.BarEdge.self) {
                     configuration.web.windowBar = edge
                 }
+            case "fullFrameRate":
+                if let on = bool(path, value) { configuration.web.fullFrameRate = on }
             case "splitBar":
                 if let place = choice(path, value, as: Configuration.Web.SplitBar.self) {
                     configuration.web.splitBar = place

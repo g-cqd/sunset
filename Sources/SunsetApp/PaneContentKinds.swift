@@ -38,6 +38,7 @@ import SunsetWeb
             developer: web.developer,
             initialIcon: web.tabIcon != .globe,
             favicons: web.tabIcon == .favicon,
+            fullFrameRate: web.fullFrameRate,
             engines: WebSettings.engines(adding: added),
             engine: web.engine,
             suggestions: web.suggestions,

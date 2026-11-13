@@ -34,6 +34,12 @@ extension SettingsPane {
             keywords: ["address", "top", "bottom"]
         ),
         SettingsEntry(
+            id: "web.fullFrameRate",
+            pane: "web",
+            title: "Pages render at the screen's full rate",
+            keywords: ["120", "fps", "promotion", "frame", "animation", "smooth"]
+        ),
+        SettingsEntry(
             id: "web.splitBar",
             pane: "web",
             title: "Window bar in a split",

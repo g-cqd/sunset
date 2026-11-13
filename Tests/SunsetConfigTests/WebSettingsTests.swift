@@ -28,4 +28,10 @@ import Testing
             bad.configuration.web.tabIcon == .favicon && bad.issues.map(\.path).sorted() == ["web.nope", "web.tabIcon"]
         )
     }
+
+    @Test func `pages render at the screen's full rate by default; off is read`() throws {
+        #expect(Configuration().web.fullFrameRate)
+        let read = try ConfigurationParser.parse(#"{ "web": { "fullFrameRate": false } }"#)
+        #expect(!read.configuration.web.fullFrameRate && read.issues.isEmpty)
+    }
 }
