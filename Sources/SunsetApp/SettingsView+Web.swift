@@ -54,6 +54,7 @@ extension SettingsView {
                     Text("Top").tag(Configuration.Web.BarEdge.top)
                     Text("Bottom").tag(Configuration.Web.BarEdge.bottom)
                 }
+            case "web.fullFrameRate": fullFrameRateToggle
             case "web.splitBar":
                 Picker("In a split, the window bar goes", selection: config.binding(\.web.splitBar)) {
                     Text("Above the panes").tag(Configuration.Web.SplitBar.margin)
@@ -61,6 +62,13 @@ extension SettingsView {
                 }
             default: tabIconPicker
         }
+    }
+
+    private var fullFrameRateToggle: some View {
+        Toggle(
+            "Pages render at the screen's full rate (120 fps on ProMotion)",
+            isOn: config.binding(\.web.fullFrameRate)
+        )
     }
 
     private var tabIconPicker: some View {

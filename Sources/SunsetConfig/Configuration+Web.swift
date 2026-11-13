@@ -80,6 +80,8 @@ extension Configuration {
         /// In a split, where the window bar goes while it is out: in a margin that opens above the panes (they keep their size,
         /// only less of them shows), or over the focused pane (owner, 2026-11-13).
         public var splitBar = SplitBar.margin
+        /// Pages animate and redraw at the screen's rate (120 fps on a ProMotion screen), not near 60 (owner, 2026-11-13).
+        public var fullFrameRate = true
         /// The name of the engine words are searched with (a built-in one or one of `engines`).
         public var engine = "Google"
         /// Engines added to the built-in ones (Google, DuckDuckGo, Bing, Ecosia, Kagi); one with a built-in name replaces it.
