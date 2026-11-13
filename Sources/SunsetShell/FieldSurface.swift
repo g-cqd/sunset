@@ -6,12 +6,14 @@ struct FieldSurface: ViewModifier {
     let height: Double?
     @Environment(\.surfaceStyle) private var surface
     @Environment(\.controlRadius) private var controlRadius
+    @Environment(\.controlHeight) private var controlHeight
+    @Environment(\.controlPadding) private var controlPadding
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: controlRadius ?? surface.leafRadius, style: .continuous)
         content
-            .padding(.horizontal, Design.Space.m)
-            .frame(height: height.map { CGFloat($0) })
+            .padding(.horizontal, controlPadding ?? Design.Space.m)
+            .frame(height: height.map { CGFloat(controlHeight ?? $0) })
             .background(
                 shape.fill(dark ? Color.black.opacity(Design.Fill.darkField) : Color.primary.opacity(Design.Fill.field))
             )

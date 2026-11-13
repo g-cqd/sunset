@@ -9,6 +9,9 @@ package struct AddressField: View {
     var place = AddressTyping.Place.top
     /// Tells whether the field is being typed in (the window bar stays out meanwhile).
     var onEditing: (Bool) -> Void = { _ in }
+    /// Reload (Stop while loading) at its trailing end, while the pointer is over it or the page loads.
+    var reload = false
+    @State private var hovering = false
     @State private var focusNow = false
     @Environment(\.addressTyping) private var typing
     @Environment(\.colorScheme) private var colorScheme
@@ -16,10 +19,15 @@ package struct AddressField: View {
     @Environment(\.accent) private var accent
     @Environment(\.controlRadius) private var controlRadius
 
-    package init(content: WebContent, place: AddressTyping.Place = .top, onEditing: @escaping (Bool) -> Void = { _ in })
-    {
+    package init(
+        content: WebContent,
+        place: AddressTyping.Place = .top,
+        reload: Bool = false,
+        onEditing: @escaping (Bool) -> Void = { _ in }
+    ) {
         self.content = content
         self.place = place
+        self.reload = reload
         self.onEditing = onEditing
     }
 
@@ -36,7 +44,10 @@ package struct AddressField: View {
                     .fixedSize()
                     .help("Zoom: click for 100%")
             }
+            if reload, hovering || content.isLoading { reloadButton.transition(.opacity) }
         }
+        .onHover { inside in hovering = inside }
+        .animation(.easeOut(duration: 0.15), value: hovering)
         // A private page's field is dark, its text light (web step h).
         .fieldSurface(dark: content.isPrivate)
         .overlay(alignment: .bottomLeading) { progressLine }
@@ -71,6 +82,20 @@ package struct AddressField: View {
             onText: { typing?.typed($0) },
             onMove: { typing?.move($0) }
         )
+    }
+
+    private var reloadButton: some View {
+        Button {
+            if content.isLoading { content.stopLoading() } else { content.reload() }
+        } label: {
+            Image(systemName: content.isLoading ? "xmark" : "arrow.clockwise")
+                .font(Design.Text.detail.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .help(content.isLoading ? "Stop" : "Reload")
+        .disabled(content.url == nil)
     }
 
     private var progressLine: some View {

@@ -15,7 +15,9 @@ struct BarGroup: ViewModifier {
             .glassEffect(.regular, in: Self.shape)
             .environment(\.colorScheme, .dark)
             // Its controls are capsules too: half their height, concentric with the group at the container inset.
-            .environment(\.controlRadius, Design.Size.field / 2)
+            .environment(\.controlRadius, Design.BarGroup.control / 2)
+            .environment(\.controlHeight, Design.BarGroup.control)
+            .environment(\.controlPadding, Design.BarGroup.fieldPadding)
             .background {
                 if choice == .variable, !blursBelow {
                     GeometryReader { proxy in
