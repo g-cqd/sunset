@@ -17,9 +17,9 @@ struct WindowDialogs: ViewModifier {
                     let panes = area.map { proxy[$0.bounds] } ?? CGRect(origin: .zero, size: proxy.size)
                     ZStack(alignment: .topLeading) {
                         if tabs.bar != nil {
+                            // Nothing beneath takes the pointer: no click, scroll or hover (t232); a click closes the bar.
                             CommandBarBackdrop()
-                                .contentShape(.rect)
-                                .onTapGesture { tabs.bar = nil }
+                                .overlay { PointerShieldView { tabs.bar = nil } }
                                 .transition(.opacity)
                         }
                         addressBar(area?.card)

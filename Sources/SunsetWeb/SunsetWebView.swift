@@ -1,4 +1,5 @@
 import AppKit
+import SunsetShell
 import WebKit
 
 /// The page's view: WebKit's, with the link menu R1 decided (Split Right, Split Down, New Tab, New Window, Copy Link) in place of WebKit's "Open Link in New
@@ -10,6 +11,19 @@ final class SunsetWebView: WKWebView {
     var offersPrivateTab = true
     /// It took the keyboard (a click in the page): its pane is the focused one.
     var onFocus: () -> Void = {}
+
+    // Covered by the command bar's backdrop: no hover, no pointer shape (t232).
+    override func mouseMoved(with event: NSEvent) {
+        if !PointerShield.isShielded(window) { super.mouseMoved(with: event) }
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        if !PointerShield.isShielded(window) { super.mouseEntered(with: event) }
+    }
+
+    override func cursorUpdate(with event: NSEvent) {
+        if !PointerShield.isShielded(window) { super.cursorUpdate(with: event) }
+    }
 
     override func becomeFirstResponder() -> Bool {
         let took = super.becomeFirstResponder()
