@@ -42,10 +42,10 @@ extension Design {
         /// At the ends of the sidebar's list, under the pin and the + bar.
         package static let listRadius = 12.0
         /// The part of a list end that is fully blurred (the rest falls to none)...
-        package static let listSolidShare = 0.25
-        /// ...and how far the fall reaches past it, over the rows at rest: a long fall leaves no line where a row comes back, and
-        /// the cubic ramp's tail there is under half a point of radius.
-        package static let listOverhang = Space.xxl
+        package static let listSolidShare = 0.15
+        /// ...and how far the fall reaches past it, over the rows at rest: none (owner, 2026-11-13: the first rows looked blurred at
+        /// launch). The fall is longer instead: it takes the whole end's height after its solid part.
+        package static let listOverhang = 0.0
         /// The tab bar's row of capsules, at the tabs' trailing end before +: a little fully blurred, then a fall over a tab's
         /// end (owner, 2026-11-13).
         package static let tabEndSolid = Space.s
