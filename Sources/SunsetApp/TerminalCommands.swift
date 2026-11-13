@@ -32,6 +32,9 @@ struct TerminalCommands: Commands {
             Button("Close Window") { AppActions.shared.closeWindow() }
                 .keyboardShortcut("w", modifiers: [.command, .shift])
         }
+        CommandGroup(replacing: .printItem) {
+            Button("Print\u{2026}") { page?.printPage() }.keyboardShortcut("p").disabled(page?.url == nil)
+        }
         CommandGroup(after: .textEditing) {
             Button("Command Bar") { AppActions.shared.toggleCommandBar() }.keyboardShortcut("l")
             PageFindCommands(page: page)

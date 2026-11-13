@@ -66,7 +66,7 @@ struct WebPaneView: View {
             Image(systemName: failure.isCertificate ? "lock.trianglebadge.exclamationmark" : "exclamationmark.triangle")
                 .font(.system(size: Design.Symbol.hero))
                 .foregroundStyle(.secondary)
-            Text("Sunset could not open this page").font(Design.Text.heading)
+            Text(failure.heading).font(Design.Text.heading)
             Text(failure.reason).foregroundStyle(.secondary).multilineTextAlignment(.center)
             if let url = failure.url {
                 Text(url.absoluteString).font(Design.Text.secondary.monospaced()).foregroundStyle(.tertiary)

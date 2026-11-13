@@ -14,11 +14,11 @@ day found basics missing that pages rely on. The owner's order: this batch, then
 
 | Step | What | State |
 | --- | --- | --- |
-| 1 | JavaScript dialogs: `alert`, `confirm`, `prompt` as a panel on the page; a page that keeps asking can be silenced | |
-| 2 | File upload: `<input type=file>` opens the system's panel (one or several files, folders when the page asks) | |
-| 3 | Video and element fullscreen; pinch to zoom | |
-| 4 | Print (File > Print, Cmd-P) | |
-| 5 | A page's process that ends: our failure page with Reload | |
+| 1 | JavaScript dialogs: `alert`, `confirm`, `prompt` as a panel on the page; a page that keeps asking can be silenced | done 65c00c7; seen: confirm, prompt (typed and cancelled), three alerts silenced at the second |
+| 2 | File upload: `<input type=file>` opens the system's panel (one or several files, folders when the page asks) | done; seen: the sheet opens and cancels; a file actually chosen not seen |
+| 3 | Video and element fullscreen; pinch to zoom | done (a test reads both); not seen on screen (fullscreen takes the screen; a pinch cannot be posted) |
+| 4 | Print (File > Print, Cmd-P) | done; seen: the system's sheet with the page's preview |
+| 5 | A page's process that ends: our failure page with Reload | done; seen: the process killed, "This page stopped", Try Again loads it |
 | 6 | The address of the link under the pointer, at the bottom of the page | |
 | 7 | Sound: a mark on the tab of a page that plays, and Mute | |
 | 8 | A password asked by a server (HTTP Basic and Digest): a panel on the page | |

@@ -16,6 +16,8 @@ extension WebContent {
         WebFrameRate.set(fullRate: settings.fullFrameRate, on: configuration.preferences)
         // Pop-ups without a click reach Sunset, which decides by the site's answer; sound does not play on its own unless the site may.
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
+        // A video, or an element the page asks to, can fill the screen (roadmap 0029 step 3).
+        configuration.preferences.isElementFullscreenEnabled = true
         if given == nil {
             let host = url?.host()
             configuration.mediaTypesRequiringUserActionForPlayback =
@@ -24,6 +26,7 @@ extension WebContent {
         let view = SunsetWebView(frame: .zero, configuration: configuration)
         view.isInspectable = settings.developer
         view.allowsBackForwardNavigationGestures = true
+        view.allowsMagnification = true
         view.offersPrivateTab = !isPrivate
         view.onFocus = { [weak self] in self?.onFocusRequest() }
         let coordinator = WebCoordinator(content: self)
