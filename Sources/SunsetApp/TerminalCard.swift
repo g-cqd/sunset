@@ -26,6 +26,8 @@ struct TerminalCard: ViewModifier {
         return
             content
             .clipShape(shape)
+            // What sits in the card (the find bar) has corners concentric with it.
+            .containerShape(shape)
             .overlay { shape.hairline(ShellSettings.Layout(layout)).opacity(stroke == .hairline ? 1 : 0) }
             .overlay { shape.hoverHairline(ShellSettings.Layout(layout)).opacity(stroke == .hovered ? 1 : 0) }
             .overlay {

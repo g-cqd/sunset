@@ -43,16 +43,8 @@ struct WebFindBar: View {
         .buttonStyle(.borderless)
         .padding(.horizontal, Design.Space.s)
         .frame(height: Design.Size.bar)
-        .blurSurface(
-            surface.shape,
-            shadow: .popover,
-            halo: BlurHalo(
-                corner: .topTrailing,
-                margin: Design.Space.l,
-                inset: Design.Blur.haloInset,
-                reach: Design.Blur.haloReach
-            )
-        )
+        // A glass group of the pane's toolbar: concentric with the card's corner, its blur reaching it.
+        .barGroup(margin: Design.Space.l)
         .padding(Design.Space.l)
         .onAppear { typing = true }
         .onChange(of: find.focusRequest) { _, _ in typing = true }

@@ -13,6 +13,26 @@ extension Design {
         package static let barFade = (barSolid + Size.bar / 2 + Space.m + barFall) * barKeep - barSolid
         /// The share of the full height (to two bars below the bar) the blur keeps (owner, 2026-11-13: a third less of the 130 pt it had).
         package static let barKeep = 0.67
+        /// Under one group of a bar's controls (`View.barGroup`): reaching `groupReach` past its ends and `groupFall` below it; the
+        /// fall starts half way down the group and the ends' fall `haloInset` inside it (owner, 2026-11-13).
+        package static let groupReach = Space.xl
+        package static let groupFall = Size.bar
+        package static let groupMinimumRadius = Space.m
+
+        /// The recipe for a group's blur layer of `size` (its outsets included).
+        package static func group(size: CGSize, margin: Double, top: Bool) -> BlurRecipe {
+            .variable(
+                radius: barRadius,
+                mask: .under(
+                    top: top,
+                    width: size.width,
+                    height: size.height,
+                    solid: margin + Size.bar / 2,
+                    endFade: groupReach + haloInset
+                )
+            )
+        }
+
         /// How far the sidebar's bands reach past its sides, so that no side of theirs shows: under the panes on one side (they draw
         /// above the sidebar), past the window's edge on the other (owner, 2026-11-13).
         package static let listBleed = Space.xxl
@@ -28,31 +48,8 @@ extension Design {
         package static let backdropRadius = 3.0
         package static let backdropDarkening = -0.05
 
-        /// A small floating panel (the find bar): an even blur, livelier colour.
-        package static var panel: BlurRecipe {
-            var recipe = BlurRecipe.uniform(radius: panelRadius)
-            recipe.saturation = panelSaturation
-            return recipe
-        }
-
-        /// A panel's halo over a layer of `width` × `height` (`BlurHalo`).
-        package static func halo(_ halo: BlurHalo, width: Double, height: Double) -> BlurRecipe {
-            var recipe = BlurRecipe.variable(
-                radius: haloRadius,
-                mask: .corner(halo.corner, width: width, height: height, fade: halo.inset + halo.reach)
-            )
-            recipe.saturation = panelSaturation
-            return recipe
-        }
-
-        /// Around a floating panel (the find bar): a low radius, falling to none over a long fade (owner, 2026-11-13).
-        package static let haloRadius = barRadius
-        /// The fall starts `haloInset` inside the panel's edge (under its dark fill) and ends `haloReach` outside it (owner,
-        /// 2026-11-13: start earlier, end shorter; A of research/blur halo variants).
+        /// A group's blur starts falling `haloInset` inside its ends (owner, 2026-11-13: start earlier, end shorter).
         package static let haloInset = Space.l
-        package static let haloReach = Space.xl
-        package static let panelRadius = 20.0
-        package static let panelSaturation = 1.8
 
         package static func under(_ edge: BlurMask.Edge, solid: Double, fade: Double, radius: Double = barRadius)
             -> BlurRecipe

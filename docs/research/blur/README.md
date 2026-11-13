@@ -161,3 +161,16 @@ Open Address (the window's bar comes out for it), which the scene uses.
   the owner chose A: from 12 pt inside the panel to 16 pt outside), and the blur reaching the pane's corner on the panel's two near
   sides (AemiSDR `BlurMask.corner`, 88d2b80; `BlurHalo`; `find-corner-2026-11-13.png`). The panel has the address bar's dark shade.
 - Not seen: the find bar in a split's other pane, light appearance, scrolling.
+
+### 7e. Owner, 2026-11-13: the system toolbar's way (`groups-2026-11-13.png`)
+
+"Radii not concentric to the panes' corners", "the address bar so wide compared to the command bar": replaced by glass groups.
+- `View.barGroup(margin:top:)`: regular glass in a `ConcentricRectangle` (the card declares `containerShape`), and under it its own
+  variable blur (AemiSDR `BlurMask.under`, 220ec84): full from the card's edge to half way down the group, falling below it and at
+  both ends, 16 pt past them.
+- The window's address bar: back/forward/reload in one group at the leading edge, the address in another, as wide as the command bar
+  at most, centred in the rest; laid over the focused pane's card and cut to it.
+- The find bar: one group, in the card's top-trailing corner. The command bar: regular glass.
+- Removed: the halo (`BlurHalo`, `blurSurface`) and the bar's dark shade (the glass carries the contrast now).
+- Chosen without the owner (no answer): two groups (nav, address), one blur per group with sharp gaps between them.
+- Not seen: light appearance, the bar at the bottom, scrolling, cost.

@@ -54,7 +54,8 @@ struct CommandBarView: View {
             }
         }
         .frame(width: Design.Width.commandBar)
-        .surface(style.shape, shadow: .float)
+        // Regular glass, as the address bar's groups (owner, 2026-11-13); the backdrop under it blurs the rest.
+        .glassEffect(.regular, in: style.shape)
         .overlay(alignment: .top) {
             if bar.showsActions, rows.indices.contains(selection) {
                 CommandBarActionsPanel(tabs: tabs, row: rows[selection], radius: style.leafRadius)
