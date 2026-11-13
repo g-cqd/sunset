@@ -43,7 +43,7 @@ the web store's.
 | Opened by other tools | yes (unless encrypted) | no | no |
 | Moved to a file | a copy | an export | an export |
 | Encrypted | each file sealed on its own; names and the index too | the whole file needs SQLCipher (not the system's SQLite), or each row sealed (then no search inside) | designed in |
-| Code to write and prove | little: `AtomicFile` exists (AemiMarkdown ADR 0008) | moderate; SQLite is already linked for history | much, and the risk is ours |
+| Code to write and prove | little: Aemi has the safe write (`AemiIO.AtomicFile`) and file watching | moderate; SQLite is already linked for history | much, and the risk is ours |
 
 A keeps the property R6 asked for by construction. B gives search and one transaction across documents, at the price of one file
 that holds everything. C is B's risk without SQLite's maturity.
@@ -75,14 +75,14 @@ the whole WebKit folder on an encrypted disk image.
 
 ## 5. A proposal to discuss in the refinement
 
-1. **Documents: form A.** `…/Sunset/Documents/<id>.md` (or `.mmd`, `.txt`), each written by `AtomicFile`, and `library.sqlite`
+1. **Documents: form A.** `…/Sunset/Documents/<id>.md` (or `.mmd`, `.txt`), each written by Aemi's `AtomicFile`, and `library.sqlite`
    beside them (id, title, kind, dates, a checksum), rebuilt from the files when it is missing or disagrees. Deleting moves a
    document to `Trash/` inside the store for a time. Time Machine is the backup; "Export All" writes a folder.
 2. **Encryption of documents: optional, off by default**, by the first kind of key; a passphrase as a later choice. Sealed files
    are `<id>.sealed`; the index holds no text of the documents, and its titles are sealed too.
 3. **The small records (history, zoom, permissions, downloads): one `state.sqlite`** with a schema version and migrations, since
    they are records that are queried and history is already SQLite. The session stays a JSON file (one snapshot, read whole, useful
-   to read by eye), written by `AtomicFile`. The configuration stays the person's file.
+   to read by eye), written by Aemi's `AtomicFile`. The configuration stays the person's file.
 4. **One place and one piece of code** for where each thing is (`StorageLocation`), how it is written, its version, and what is
    done with a file that does not read: it is moved aside (`name.damaged-date`) and said, never silently dropped.
 5. **Profiles (roadmap 0021)** get a folder each (`Profiles/<id>/` with its own `state.sqlite` and a WebKit store by identifier);
@@ -97,8 +97,14 @@ the whole WebKit folder on an encrypted disk image.
 | An app can save a website store itself with `fetchData` | a tool: every type of `allWebsiteDataTypes()` asked one by one, on a store in memory and on one by identifier | Only `LocalStorage` is accepted; `Cookies`, `IndexedDBDatabases` and the others: "This API does not support fetching" |
 | `restoreData` brings back what `fetchData` gave | the same tool, into a second store | No error; cookies are not part of it |
 | A file-protection class can be set on this Mac | `FileManager.setAttributes([.protectionKey: .complete])`, read back | Set and read back as `NSFileProtectionComplete`; what it enforces not probed |
-| `AtomicFile` forces the data to the disk and keeps the old file on failure | AemiMarkdown `AtomicFileTests` (4) | Pass |
+| A safe write keeps the old file on failure | AemiMarkdown `DocumentFileTests` (4), over Aemi's `AtomicFile` | Pass |
+| The family has nothing for sealed storage | `grep`: `ask` keeps encrypted sessions (its ADR-0138: a keyring, a password through `AemiArgon2`, a recovery code) | It has: ask's design is the model for the recovery code; its code is ask's own |
 
 Not probed: SQLite's behaviour on a damaged page (`PRAGMA integrity_check`, recovery); Time Machine's handling of a folder of small
 files against one database; the Keychain prompt another program sees; the Secure Enclave key; the cost of sealing a large document
 at each save; SQLCipher.
+
+## 7. Outcome
+
+Read back to the owner and decided the same day: `docs/refinement/R12-storage-and-the-document-store.md` (form A with a database
+index; documents, the session and the database's addresses and titles sealed silently; the web store left to FileVault).
