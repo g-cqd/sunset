@@ -23,6 +23,7 @@ package struct WindowAddressBar: View {
     private var out: Bool { shown || editing || content.wantsAddress }
 
     package var body: some View {
+        let frame = card?.frame
         ZStack(alignment: atTop ? .top : .bottom) {
             Color.clear
             Color.clear
@@ -30,15 +31,7 @@ package struct WindowAddressBar: View {
                 .contentShape(.rect)
                 .onHover { inside in if inside { shown = true } }
             if out {
-                // Under the bar, the whole width of the pane it is on and no further.
-                Color.clear
-                    .frame(height: Design.Blur.barSolid + Design.Blur.barFade)
-                    .blurUnder(atTop ? .top : .bottom, solid: Design.Blur.barSolid, fade: Design.Blur.barFade)
-                    .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
-                    .clipShape(card ?? PaneCardShape(frame: .infinite, radii: RectangleCornerRadii()))
-                    .allowsHitTesting(false)
-                    .transition(.opacity)
-                bar
+                groups
                     .padding(Design.Space.m)
                     .onHover { inside in
                         hovering = inside
@@ -47,30 +40,50 @@ package struct WindowAddressBar: View {
                     .transition(.move(edge: atTop ? .top : .bottom).combined(with: .opacity))
             }
         }
+        // Over the focused pane's card, its corners the groups' container; the blurs end at its edges.
+        .frame(width: frame?.width, height: frame?.height)
+        .containerShape(cardShape)
+        .clipShape(cardShape)
+        .offset(x: frame?.minX ?? 0, y: frame?.minY ?? 0)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .animation(.easeOut(duration: 0.18), value: out)
         // Asked for (a new page, Open Address): out until the pointer leaves it or typing ends, not just while the field asks.
         .onChange(of: content.wantsAddress, initial: true) { _, wanted in if wanted { shown = true } }
     }
 
-    private var bar: some View {
-        HStack(spacing: Design.Space.xs) {
-            button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
-            button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
-            if content.isLoading {
-                button("xmark", "Stop", enabled: true) { content.stopLoading() }
-            } else {
-                button("arrow.clockwise", "Reload", enabled: content.url != nil) { content.reload() }
-            }
-            AddressField(content: content, place: atTop ? .top : .bottom) { typing in
-                editing = typing
-                if !typing { hideSoon() }
+    private var cardShape: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(cornerRadii: card?.radii ?? RectangleCornerRadii(), style: .continuous)
+    }
+
+    /// Back, forward and reload in one glass group at the leading edge; the address in another, as wide as the command bar at
+    /// most, centred in the rest (owner, 2026-11-13: the system toolbar's way).
+    private var groups: some View {
+        let edge: Bool = atTop
+        return GlassEffectContainer(spacing: Design.Space.m) {
+            HStack(spacing: Design.Space.m) {
+                HStack(spacing: Design.Space.xs) {
+                    button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
+                    button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
+                    if content.isLoading {
+                        button("xmark", "Stop", enabled: true) { content.stopLoading() }
+                    } else {
+                        button("arrow.clockwise", "Reload", enabled: content.url != nil) { content.reload() }
+                    }
+                }
+                .padding(.horizontal, Design.Space.s)
+                .frame(height: Design.Size.bar)
+                .barGroup(margin: Design.Space.m, top: edge)
+                AddressField(content: content, place: edge ? .top : .bottom) { typing in
+                    editing = typing
+                    if !typing { hideSoon() }
+                }
+                .padding(.horizontal, Design.Space.s)
+                .frame(height: Design.Size.bar)
+                .barGroup(margin: Design.Space.m, top: edge)
+                .frame(maxWidth: Design.Width.commandBar)
+                .frame(maxWidth: .infinity)
             }
         }
-        .padding(.horizontal, Design.Space.s)
-        .frame(height: Design.Size.bar)
-        // Darker than the surface alone, so that its text reads over a light page and the blur (owner, 2026-11-13).
-        .background { surface.shape.fill(Color.black.opacity(Design.Fill.barShade)) }
-        .surface(surface.shape)
     }
 
     /// Back, forward, reload: the sidebar's icon button, as tall as the field beside them and with its corner, so that every part of the bar
