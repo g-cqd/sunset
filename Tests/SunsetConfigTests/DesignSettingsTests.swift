@@ -35,4 +35,12 @@ import Testing
             #expect(read.configuration.web.splitBar == place && read.issues.isEmpty)
         }
     }
+
+    @Test func `the bars' tint follows the scheme by default; each tint read`() throws {
+        #expect(Configuration().appearance.barTint == .scheme)
+        for tint in Configuration.Appearance.BarTint.allCases {
+            let read = try ConfigurationParser.parse(#"{ "appearance": { "barTint": ""# + tint.rawValue + #"" } }"#)
+            #expect(read.configuration.appearance.barTint == tint && read.issues.isEmpty)
+        }
+    }
 }

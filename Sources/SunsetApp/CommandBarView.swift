@@ -17,6 +17,8 @@ struct CommandBarView: View {
     @FocusState private var typing: Bool
 
     @Environment(\.accent) private var accent
+    @Environment(\.barTint) private var tint
+    @Environment(\.colorScheme) private var outer
 
     var body: some View {
         if let bar = tabs.bar {
@@ -39,6 +41,7 @@ struct CommandBarView: View {
     private func panel(_ bar: CommandBar, _ rows: [ChoiceRow], _ settings: WebSettings) -> some View {
         let style = SurfaceStyle(layout: layout)
         let selection = rows.isEmpty ? -1 : min(bar.selection, rows.count - 1)
+        let scheme = tint.resolved(in: outer)
         return VStack(spacing: 0) {
             HStack(spacing: Design.Space.s) {
                 if let engine = bar.engine { chip(engine) }
@@ -54,10 +57,11 @@ struct CommandBarView: View {
             }
         }
         .frame(width: Design.Width.commandBar)
-        // Regular glass, as the address bar's groups (owner, 2026-11-13); the backdrop under it blurs the rest.
-        .background { style.shape.fill(.black.opacity(Design.Fill.barShade)) }
+        // The bars' tint (`appearance.barTint`), its scheme set inside the glass, as the address bar's groups (owner,
+        // 2026-11-13); the backdrop under it blurs the rest.
+        .environment(\.colorScheme, scheme)
+        .background { style.shape.fill(BarTint.fill(for: scheme).opacity(Design.Fill.barShade)) }
         .glassEffect(.regular, in: style.shape)
-        .environment(\.colorScheme, .dark)
         .overlay(alignment: .top) {
             if bar.showsActions, rows.indices.contains(selection) {
                 CommandBarActionsPanel(tabs: tabs, row: rows[selection], radius: style.leafRadius)

@@ -13,7 +13,17 @@ final class AppConfiguration {
 
     static let shared = AppConfiguration()
 
-    private(set) var configuration = Configuration()
+    private(set) var configuration = Configuration() {
+        didSet {
+            if configuration.appearance.scheme != oldValue.appearance.scheme { applyScheme() }
+        }
+    }
+
+    /// `appearance.scheme` for the whole app (Settings, panels, menus), not only the terminal windows: dark or light locks it,
+    /// system follows the Mac (owner, 2026-11-13).
+    func applyScheme() {
+        NSApp?.appearance = configuration.appearance.scheme.nsAppearance
+    }
     /// How the tabs are shown now.
     var presentation: TabPresentation { configuration.presentation }
     /// Whether a file was found (the settings of the app's own Settings window apply when there is none).

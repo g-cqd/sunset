@@ -43,6 +43,10 @@ extension Reader {
                         configuration.appearance.glass = choice
                     }
                 case "tint": section("appearance.tint", value) { reader, tint in reader.readTint(tint) }
+                case "barTint":
+                    if let tint = choice("appearance.barTint", value, as: Configuration.Appearance.BarTint.self) {
+                        configuration.appearance.barTint = tint
+                    }
                 case "barBlur":
                     if let blur = choice("appearance.barBlur", value, as: Configuration.Appearance.BarBlur.self) {
                         configuration.appearance.barBlur = blur

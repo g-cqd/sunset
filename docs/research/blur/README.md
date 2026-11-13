@@ -279,3 +279,14 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - "Is the blur active under the component?" (`blur-on-off-…`, `-diff`): with `barBlur` variable against none, the frames differ only
   around the capsules (the halo, the fall below). Inside a capsule they are the same: Liquid Glass samples the window's content
   itself, not our backdrop layer's result, so what shows through the glass is the glass's own look, darkened by the 0.5 fill.
+
+### 7o. Owner, 2026-11-13: the light scheme
+
+- The bars were dark with black text in the light scheme: their scheme was set outside the glass, which gave its content the
+  window's. `appearance.barTint` (scheme, the default / dark / light; 113 keys) picks the fill inside the glass (black or white at
+  0.5) and the controls' scheme, set inside the glass (`BarTint`). Applies to the address and find groups, the tab row and the command
+  bar (`light-tint-…`, `light-tint-dark-…`, `light-command-…`).
+- The tab row of capsules sits on the window's colour, not the terminal's black, so it follows the scheme.
+- `appearance.scheme` (dark / light / system) now sets the whole app's appearance (`NSApp.appearance`: Settings, panels), not
+  only the terminal windows.
+- Not changed: the sidebar stays dark in the light scheme (its own material); not seen: the Settings window locked to a scheme.
