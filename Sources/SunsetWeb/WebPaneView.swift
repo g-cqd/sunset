@@ -31,6 +31,11 @@ struct WebPaneView: View {
                     PermissionPanel(request: request, store: content.permissions)
                         .frame(maxWidth: .infinity, alignment: .leading).id(request.id)
                 }
+                if let link = content.hoveredLink {
+                    LinkStatusLabel(text: link)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                        .transition(.opacity)
+                }
                 if let dialog = content.dialog {
                     PageDialogPanel(dialog: dialog) { content.silenceDialogs() }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

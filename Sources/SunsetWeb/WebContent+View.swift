@@ -11,6 +11,7 @@ extension WebContent {
             configuration.websiteDataStore = settings.privacy.map(PrivateStores.store(for:)) ?? .default()
         }
         configuration.applicationNameForUserAgent = settings.applicationName
+        LinkHover.install(on: configuration, for: self)
         WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
         WebPermissionHooks.enable(on: configuration.preferences)
         WebFrameRate.set(fullRate: settings.fullFrameRate, on: configuration.preferences)

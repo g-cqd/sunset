@@ -36,6 +36,8 @@ package final class WebContent: PaneContent {
     /// The dialog the page asked for, waiting for its answer (`WebContent+Dialogs`).
     package internal(set) var dialog: PageDialog?
     @ObservationIgnored var dialogPolicy = PageDialogPolicy()
+    /// The address of the link under the pointer (`LinkStatus`).
+    package internal(set) var hoveredLink: String?
     /// The page, once it has been shown.
     @ObservationIgnored package internal(set) var webView: WKWebView?
 

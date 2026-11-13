@@ -6,4 +6,8 @@
 <a id="far" href="http://127.0.0.1:8766/article.html?a-very-long-address-under-the-pointer">A link to the tide article</a>
 <button id="fs" onclick="document.documentElement.requestFullscreen().then(()=>document.title='fullscreen',e=>document.title='refused '+e.name)">Go fullscreen</button>
 <button id="beep" onclick="const c=new AudioContext(),o=c.createOscillator(),g=c.createGain();g.gain.value=0.001;o.connect(g).connect(c.destination);o.start();document.title='playing'">Play a tone</button>
+<script>
+// ?hover: the pointer over the link, as a real one would report (the test driver cannot move the pointer over a background window).
+if (location.search === "?hover") setTimeout(() => document.getElementById("far").dispatchEvent(new MouseEvent("mouseover", {bubbles: true})), 800);
+</script>
 </body></html>

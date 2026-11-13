@@ -15,6 +15,12 @@ extension WebContent {
         }
     }
 
+    /// What the page's script says is under the pointer (`LinkHover`).
+    func linkHovered(_ raw: Any?) {
+        let next = LinkStatus.text(raw)
+        if next != hoveredLink { hoveredLink = next }
+    }
+
     /// Stops the page's dialogs until it is left, and answers the one waiting as cancelled.
     package func silenceDialogs() {
         dialogPolicy.silence()
