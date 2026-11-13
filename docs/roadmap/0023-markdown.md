@@ -24,3 +24,15 @@ beyond (0022). Each step starts with its own questions.
 
 Apart, each its own refinement: Sunset's own document store and its library, with the widened encryption study (t172, t135); session R11,
 commands, App Intents and the command bar (t173).
+
+## The owner's answers at M-b and M-c (2026-11-13)
+
+| Question | Answer |
+| --- | --- |
+| Does Markdown wait for Sunset's own store | **Yes**: the store's refinement (t172, with the studies t135 and t217) is held first, then M-b |
+| A size limit for a text file as source | None |
+| Where documents live in the code | Two targets: `SunsetDocuments` (one document per file for the whole app: its text, saving, watching the file) and `SunsetMarkdown` (the pane and its views) |
+| What the tab shows | The file's name, a dot when it has unsaved edits, a document icon |
+| Keys | Cmd-Shift-E toggles source and rendered; Cmd-Option-E is Show Beside; Cmd-S saves |
+
+Not done: M-b to M-i, the store. Sunset does not depend on `MarkdownLookKit` yet (it will pin AemiMarkdown 26128d4 or later at M-b).
