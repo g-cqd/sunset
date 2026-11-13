@@ -34,6 +34,12 @@ extension SettingsPane {
             keywords: ["address", "top", "bottom"]
         ),
         SettingsEntry(
+            id: "web.splitBar",
+            pane: "web",
+            title: "Window bar in a split",
+            keywords: ["address", "split", "margin", "pane"]
+        ),
+        SettingsEntry(
             id: "web.engine",
             pane: "web",
             title: "Search engine",

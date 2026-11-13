@@ -12,6 +12,10 @@ extension Configuration {
             case sidebar, window, pane
         }
 
+        public enum SplitBar: String, Sendable, Equatable, CaseIterable {
+            case margin, pane
+        }
+
         /// The edge of the window bar (also used for the sidebar's field while the sidebar is not shown).
         public enum BarEdge: String, Sendable, Equatable, CaseIterable {
             case top, bottom
@@ -72,6 +76,9 @@ extension Configuration {
         public var tabIcon = TabIcon.initial
         public var address = AddressPlace.sidebar
         public var windowBar = BarEdge.top
+        /// In a split, where the window bar goes while it is out: in a margin that opens above the panes (they keep their size,
+        /// only less of them shows), or over the focused pane (owner, 2026-11-13).
+        public var splitBar = SplitBar.margin
         /// The name of the engine words are searched with (a built-in one or one of `engines`).
         public var engine = "Google"
         /// Engines added to the built-in ones (Google, DuckDuckGo, Bing, Ecosia, Kagi); one with a built-in name replaces it.

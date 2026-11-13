@@ -28,14 +28,33 @@ extension TerminalScene {
         return GlassEffectContainer(spacing: 0) {
             ZStack(alignment: atTop ? .top : .bottom) {
                 if addressPlace == .window, let page = focusedPage {
-                    WindowAddressBar(content: page, atTop: configuration.web.windowBar == .top, card: card)
-                        .id(ObjectIdentifier(page))
+                    // In a split with `web.splitBar` margin, across the panes in the margin it opens, over no page: no blur.
+                    WindowAddressBar(
+                        content: page,
+                        atTop: configuration.web.windowBar == .top,
+                        card: barInMargin ? nil : card
+                    ) { out in barOut = out }
+                    .id(ObjectIdentifier(page))
+                    .environment(\.barBlur, barInMargin ? .none : configuredBarBlur)
                 }
                 AddressSuggestionList(typing: addressTyping, places: [.top, .bottom])
                     .padding(atTop ? .top : .bottom, addressPlace == .window ? Design.Space.m + Design.Size.bar : 0)
                     .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
             }
         }
+    }
+
+    /// The split's window bar goes in a margin above the panes (`web.splitBar`; at the top edge only).
+    var barInMargin: Bool {
+        addressPlace == .window && configuration.web.splitBar == .margin && configuration.web.windowBar == .top
+            && tabs.shownItem?.isSplit == true
+    }
+
+    /// The margin it opens while it is out: the bar and the space under it.
+    var splitBarInset: Double { barInMargin && barOut ? Design.Space.m + Design.Size.bar : 0 }
+
+    var configuredBarBlur: BarBlurChoice {
+        BarBlurChoice(rawValue: configuration.appearance.barBlur.rawValue) ?? .variable
     }
 
     /// The corners of the pane area that are corners of the window: a docked sidebar covers the corners on its side, the built-in bar those at its edge.

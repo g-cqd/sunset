@@ -27,4 +27,12 @@ import Testing
             #expect(read.configuration.appearance.barBlur == blur && read.issues.isEmpty)
         }
     }
+
+    @Test func `in a split the window bar opens a margin above the panes by default; each place read`() throws {
+        #expect(Configuration().web.splitBar == .margin)
+        for place in Configuration.Web.SplitBar.allCases {
+            let read = try ConfigurationParser.parse(#"{ "web": { "splitBar": ""# + place.rawValue + #"" } }"#)
+            #expect(read.configuration.web.splitBar == place && read.issues.isEmpty)
+        }
+    }
 }

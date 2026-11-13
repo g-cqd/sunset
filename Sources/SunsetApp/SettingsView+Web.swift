@@ -54,6 +54,11 @@ extension SettingsView {
                     Text("Top").tag(Configuration.Web.BarEdge.top)
                     Text("Bottom").tag(Configuration.Web.BarEdge.bottom)
                 }
+            case "web.splitBar":
+                Picker("In a split, the window bar goes", selection: config.binding(\.web.splitBar)) {
+                    Text("Above the panes").tag(Configuration.Web.SplitBar.margin)
+                    Text("Over the focused pane").tag(Configuration.Web.SplitBar.pane)
+                }
             default:
                 Picker("A page's tab shows", selection: config.binding(\.web.tabIcon)) {
                     Text("The first letter of its title").tag(Configuration.Web.TabIcon.initial)
