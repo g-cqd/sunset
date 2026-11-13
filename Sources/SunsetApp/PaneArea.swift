@@ -88,7 +88,12 @@ struct PaneArea: View {
                     dropPreview(item: item, bounds: bounds, space: space, radius: radius, card: card)
                 }
                 .overlay(alignment: .topLeading) {
-                    hoveredTabPreview(area: proxy.frame(in: .global))
+                    TabPreviewHost(
+                        tabs: tabs,
+                        layout: layout,
+                        area: proxy.frame(in: .global),
+                        sidebarOnRight: sidebarOnRight
+                    )
                 }
                 .overlay { if !tabs.showsLive { elsewhere } }
                 .coordinateSpace(.named(Self.space))
@@ -183,27 +188,6 @@ struct PaneArea: View {
     private func applyInsets(_ frames: [PaneID: CGRect], bounds: CGRect) {
         for (pane, frame) in frames {
             tabs.terminal(pane)?.apply(topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0)
-        }
-    }
-
-    /// The preview of a tab that is not selected while the pointer is over its row (`n36`, n47): beside that row, on the side of the sidebar, its middle
-    /// level with the row's; for a row of the built-in bar, above or below it, at its place along the bar. Kept inside the area.
-    @ViewBuilder private func hoveredTabPreview(area: CGRect) -> some View {
-        if tabs.dragged == nil,
-            let hoveredID = tabs.hoveredItem,
-            !tabs.isSelected(hoveredID),
-            let item = tabs.workspace.items.first(where: { $0.id == hoveredID }),
-            item.panes.contains(where: { tabs.terminal($0)?.lastSurface != nil })
-        {
-            let card = TabPreviewCard(item: item, tabs: tabs, layout: layout)
-            let size = CGSize(width: TabPreviewCard.width + 12, height: card.height + 44)
-            let origin = PreviewPlacement.origin(
-                size: size,
-                row: tabs.hoveredRowFrame,
-                area: area,
-                sidebarOnRight: sidebarOnRight
-            )
-            card.offset(x: origin.x, y: origin.y).transition(.opacity)
         }
     }
 }

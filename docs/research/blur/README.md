@@ -331,3 +331,14 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - A dark terminal theme is opaque in the light scheme: translucent (`terminal.opacity` 0.2) it washed out to grey under light text.
 - `light-scheme-…`: a terminal window and a page window in the light scheme. Settings and the history panel are light too.
 - Not seen: following the system when it changes while Sunset runs; a light terminal theme.
+
+### 7t. Owner, 2026-11-13 (t229): one preview card
+
+- `TabPreviewHost`: one card per window. It grows out of the row under the pointer (scale 0.5 with opacity, anchored at the point of
+  the pane area nearest that row; owner: from its tab, not the window's middle), glides to the next row the pointer goes to (a
+  spring, 0.3 s) while the next tab's content fades over the last one's, stays 140 ms after the pointer left a row (long enough to
+  reach the next), and shrinks back into the row it leaves. For the selected tab too.
+- `preview-glide-…`: frames with the animation slowed to 3 s and the hover driven by a test hook (removed): growing from the first
+  row, mid-glide to the third, shrinking into it.
+- Not seen: at its real speed, with the real pointer; the built-in tab bar's rows; the floating sidebar. Still only for tabs
+  with a terminal that has drawn: pages have no preview yet (t139).

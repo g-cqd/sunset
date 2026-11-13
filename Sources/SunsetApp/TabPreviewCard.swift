@@ -6,7 +6,7 @@ import SunsetShellBridge
 import SunsetTerminal
 import SwiftUI
 
-/// A floating card beside the row of a tab that is not selected, while the pointer is over it (`n36`, R2): the tab's layout in miniature, each pane with
+/// A floating card beside the row of a tab while the pointer is over it (`n36`, R2; `TabPreviewHost` places it): the tab's layout in miniature, each pane with
 /// the last frame it drew (a pane that has not drawn yet is a blank card). Drawn when asked; nothing is kept (R2).
 struct TabPreviewCard: View {
     let item: Workspace.Item
@@ -38,6 +38,15 @@ struct TabPreviewCard: View {
             style: .continuous
         )
         let custom = tabs.custom(for: item)
+        // One card for every tab: this tab's content fades over the last one's while the card moves and takes its height.
+        return ZStack(alignment: .topLeading) { content(custom).id(item.id).transition(.opacity) }
+            .frame(width: Self.width + 2 * Design.Space.s)
+            .surface(shape, shadow: .popover)
+            .animation(Design.Preview.swap, value: item.id)
+            .allowsHitTesting(false)
+    }
+
+    private func content(_ custom: (name: String?, icon: PaneIcon?)) -> some View {
         VStack(alignment: .leading, spacing: Design.Space.s) {
             TabLabel(
                 model: tabs.content(item.focused),
@@ -55,9 +64,6 @@ struct TabPreviewCard: View {
                 .padding(.horizontal, Design.Space.s)
                 .padding(.bottom, Design.Space.s)
         }
-        .frame(width: Self.width + 2 * Design.Space.s)
-        .surface(shape, shadow: .popover)
-        .allowsHitTesting(false)
     }
 
     /// Every pane where the layout puts it, small.
