@@ -214,3 +214,19 @@ Open Address (the window's bar comes out for it), which the scene uses.
   inset), not faded. The window bar's row stays in place and only its groups come and go, so each one runs its own transition;
   their blurs follow them (`slide-midway-…`, shot with the slide slowed to 3 s).
 - The find bar's "Not found" (red on the dark glass) reads well; left as is.
+
+### 7j. Light appearance, the bottom edge, cost while scrolling
+
+- `edges-light-bottom-…`: light appearance at the top (address and find in one row), and the bar at the bottom edge in dark and light
+  appearance. The groups are dark glass in all three (they set the dark scheme), and their blur falls up from the bottom edge.
+- Cost: the article page jumped top to bottom about 8 times a second (`AXScrollToVisible` on its paragraphs: wheel events posted to a
+  background app do not reach WebKit), sampled over 8 s, CPU on an M-series Mac:
+
+  | Bars | App | WindowServer |
+  | --- | --- | --- |
+  | Out, variable blur (radius 1, 88 pt reach) | 16 % | 27 % |
+  | Out, no blur (`appearance.barBlur` none) | 14 % | 23 % |
+  | In | 13 % | 16 % |
+
+  The blur costs about 4 points in the WindowServer and 2 in the app; the glass groups themselves cost about 7 more. Not measured:
+  smooth trackpad scrolling, frame drops, GPU time, battery.
