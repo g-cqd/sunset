@@ -15,6 +15,18 @@ extension WebContent {
         }
     }
 
+    /// Asks for the name and password a server wants, one question at a time; nil when cancelled.
+    func askCredential(host: String, realm: String, failed: Bool, secure: Bool) async -> CredentialRequest.Answer? {
+        guard credentialRequest == nil else { return nil }
+        return await withCheckedContinuation { continuation in
+            credentialRequest = CredentialRequest(host: host, realm: realm, failed: failed, secure: secure) {
+                [weak self] answer in
+                self?.credentialRequest = nil
+                continuation.resume(returning: answer)
+            }
+        }
+    }
+
     /// What the page's script says is under the pointer (`LinkHover`).
     func linkHovered(_ raw: Any?) {
         let next = LinkStatus.text(raw)

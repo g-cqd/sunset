@@ -36,6 +36,12 @@ struct WebPaneView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                         .transition(.opacity)
                 }
+                if let request = content.credentialRequest {
+                    CredentialPanel(request: request)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .id(request.id)
+                        .transition(.opacity)
+                }
                 if let dialog = content.dialog {
                     PageDialogPanel(dialog: dialog) { content.silenceDialogs() }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

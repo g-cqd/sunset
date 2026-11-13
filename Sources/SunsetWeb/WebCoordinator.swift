@@ -57,6 +57,22 @@ import WebKit
         -> (URLSession.AuthChallengeDisposition, URLCredential?)
     {
         let space = challenge.protectionSpace
+        // A server's own question (roadmap 0029 step 8): asked in the page; kept for this run of Sunset only.
+        if [NSURLAuthenticationMethodHTTPBasic, NSURLAuthenticationMethodHTTPDigest]
+            .contains(space.authenticationMethod)
+        {
+            let answer = await content?
+                .askCredential(
+                    host: space.host,
+                    realm: space.realm ?? "",
+                    failed: challenge.previousFailureCount > 0,
+                    secure: space.receivesCredentialSecurely
+                )
+            guard let answer else { return (.cancelAuthenticationChallenge, nil) }
+            return (
+                .useCredential, URLCredential(user: answer.user, password: answer.password, persistence: .forSession)
+            )
+        }
         guard space.authenticationMethod == NSURLAuthenticationMethodServerTrust, let trust = space.serverTrust,
             content?.acceptedHosts.contains(space.host) == true
         else { return (.performDefaultHandling, nil) }

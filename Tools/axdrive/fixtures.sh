@@ -7,6 +7,7 @@ here="$(cd "$(dirname "$0")" && pwd)"
 dir="${1:-/tmp/sunset-fixtures}"
 mkdir -p "$dir/site"
 cp "$here"/Fixtures/*.html "$dir/site/"
+cp "$here/Fixtures/auth_server.py" "$dir/auth_server.py"
 python3 - "$dir" <<'PY'
 import json, sys, uuid
 out = sys.argv[1]

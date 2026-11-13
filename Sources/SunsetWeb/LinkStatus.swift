@@ -7,21 +7,11 @@ enum LinkStatus {
 
     static func text(_ raw: Any?) -> String? {
         guard let raw = raw as? String else { return nil }
-        var scalars = String.UnicodeScalarView()
-        scalars.append(contentsOf: raw.unicodeScalars.filter(shows))
-        let clean = String(scalars)
+        let clean = UntrustedText.oneLine(raw)
         guard !clean.isEmpty else { return nil }
         guard clean.count > limit else { return clean }
         // More of the start (the site) than of the end.
         let head = (limit - 1) * 2 / 3
         return clean.prefix(head) + "\u{2026}" + clean.suffix(limit - 1 - head)
-    }
-
-    /// Not a control character, a format character (bidirectional overrides, zero-width joiners) or a line separator.
-    private static func shows(_ scalar: Unicode.Scalar) -> Bool {
-        switch scalar.properties.generalCategory {
-            case .control, .format, .lineSeparator, .paragraphSeparator, .surrogate, .privateUse, .unassigned: false
-            default: true
-        }
     }
 }

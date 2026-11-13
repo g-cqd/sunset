@@ -36,6 +36,8 @@ package final class WebContent: PaneContent {
     /// The dialog the page asked for, waiting for its answer (`WebContent+Dialogs`).
     package internal(set) var dialog: PageDialog?
     @ObservationIgnored var dialogPolicy = PageDialogPolicy()
+    /// A server's question for a name and a password, waiting (`CredentialRequest`).
+    package internal(set) var credentialRequest: CredentialRequest?
     /// The page plays sound; it is muted (roadmap 0029 step 7).
     package internal(set) var playsSound = false
     package internal(set) var isMuted = false
@@ -112,6 +114,7 @@ package final class WebContent: PaneContent {
 
     package func stop() {
         dialog?.answer(.cancel)
+        credentialRequest?.answer(nil)
         soundWatch = nil
         observations = []
         webView?.stopLoading()
