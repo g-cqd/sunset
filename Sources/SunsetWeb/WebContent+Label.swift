@@ -11,6 +11,7 @@ extension WebContent {
 
     package var glyph: PaneGlyph {
         if isPrivate { return .symbol("theatermasks") }
+        if settings.favicons, let favicon { return .image(favicon) }
         guard settings.initialIcon, let first = title.first(where: \.isLetter) else { return .symbol("globe") }
         return .initial(String(first).uppercased())
     }

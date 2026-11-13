@@ -8,6 +8,8 @@ package struct WebSettings: Sendable, Equatable {
     package var developer: Bool
     /// The tab shows the first letter of the title (true) or a globe.
     package var initialIcon: Bool
+    /// The tab shows the site's icon once it is known (the initial until then).
+    package var favicons = true
     /// The engines that can be picked by keyword, built-in and added (web step c).
     package var engines: [SearchEngine]
     /// The one words are searched with.
@@ -33,6 +35,7 @@ package struct WebSettings: Sendable, Equatable {
         applicationName: String = SafariName.applicationName(),
         developer: Bool = true,
         initialIcon: Bool = true,
+        favicons: Bool = true,
         engines: [SearchEngine] = SearchEngine.builtIn,
         engine: String = "Google",
         suggestions: Bool = true,
@@ -47,6 +50,7 @@ package struct WebSettings: Sendable, Equatable {
         self.applicationName = applicationName
         self.developer = developer
         self.initialIcon = initialIcon
+        self.favicons = favicons
         self.engines = engines
         self.engine =
             engines.first { $0.name.lowercased() == engine.lowercased() } ?? engines.first ?? SearchEngine.builtIn[0]

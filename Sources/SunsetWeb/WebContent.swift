@@ -30,6 +30,8 @@ package final class WebContent: PaneContent {
     package let find = PageFind()
     /// The page's zoom, 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
     package internal(set) var zoom = 1.0
+    /// The site's icon, once fetched (`WebContent+Favicon`).
+    package internal(set) var favicon: NSImage?
     /// The page, once it has been shown.
     @ObservationIgnored package private(set) var webView: WKWebView?
 
@@ -205,7 +207,10 @@ package final class WebContent: PaneContent {
             view.observe(\.isLoading, options: [.new]) { [weak self] view, _ in
                 MainActor.assumeIsolated {
                     self?.isLoading = view.isLoading
-                    if !view.isLoading { self?.progress = nil }
+                    if !view.isLoading {
+                        self?.progress = nil
+                        self?.refreshFavicon()
+                    }
                 }
             },
             view.observe(\.canGoBack, options: [.new]) { [weak self] view, _ in

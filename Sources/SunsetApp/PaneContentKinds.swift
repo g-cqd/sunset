@@ -36,7 +36,8 @@ import SunsetWeb
         return WebSettings(
             applicationName: safariName,
             developer: web.developer,
-            initialIcon: web.tabIcon == .initial,
+            initialIcon: web.tabIcon != .globe,
+            favicons: web.tabIcon == .favicon,
             engines: WebSettings.engines(adding: added),
             engine: web.engine,
             suggestions: web.suggestions,
