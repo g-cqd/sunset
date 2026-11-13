@@ -23,6 +23,8 @@ extension SettingsView {
                     Text("What a program asks to copy (OSC 52), over ssh too. No program can read the clipboard.")
                         .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
+            case "terminal.directory":
+                TextField("New terminals start in", text: config.binding(\.terminal.directory), prompt: Text("~"))
             case "terminal.shellIntegration":
                 VStack(alignment: .leading, spacing: Design.Space.xs) {
                     Toggle("Shell marks its prompts", isOn: config.binding(\.terminal.shellIntegration))

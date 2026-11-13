@@ -43,4 +43,10 @@ import Testing
             #expect(read.configuration.appearance.barTint == tint && read.issues.isEmpty)
         }
     }
+
+    @Test func `a new terminal starts in the home folder by default; a path is read`() throws {
+        #expect(Configuration().terminal.directory == "~")
+        let read = try ConfigurationParser.parse(#"{ "terminal": { "directory": "~/Code" } }"#)
+        #expect(read.configuration.terminal.directory == "~/Code" && read.issues.isEmpty)
+    }
 }

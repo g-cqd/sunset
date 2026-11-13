@@ -39,6 +39,7 @@ public enum ConfigurationWriter {
             "terminal.opacity": number(configuration.terminal.opacity),
             "terminal.clipboardWrite": String(configuration.terminal.clipboardWrite),
             "terminal.shellIntegration": String(configuration.terminal.shellIntegration),
+            "terminal.directory": string(configuration.terminal.directory),
             "window.blur": number(window.blur),
             "sidebar.enabled": String(configuration.sidebar.enabled),
             "sidebar.width": number(configuration.sidebar.width),

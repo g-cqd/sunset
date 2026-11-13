@@ -83,7 +83,10 @@ final class ChromeView: NSView {
         } else {
             window.styleMask.remove(.fullSizeContentView)
         }
-        if window.titlebarAppearsTransparent != hidden { window.titlebarAppearsTransparent = hidden }
+        // Not with system tabs: SwiftUI asserts (BarAppearanceBridge.updatePlatformBar) when a window with a transparent title bar
+        // closes in a tab group (crash reports 2026-11-13, t242/t243; its own close handler runs before any of ours).
+        let transparent = hidden && !presentation.usesSystemTabbing
+        if window.titlebarAppearsTransparent != transparent { window.titlebarAppearsTransparent = transparent }
         let visibility: NSWindow.TitleVisibility = hidden ? .hidden : .visible
         if window.titleVisibility != visibility { window.titleVisibility = visibility }
         // Locked scheme: the window (and with it the glass, the materials, the buttons) is dark whatever macOS is set to; nil follows the system.
