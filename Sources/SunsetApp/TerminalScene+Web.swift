@@ -17,6 +17,28 @@ extension TerminalScene {
         return wanted == .sidebar && !configuration.sidebarDocked ? .window : wanted
     }
 
+    /// The built-in tab bar holds the address (t223): the selected tab is the field, back and forward after the window's buttons;
+    /// the window bar does not come out.
+    var addressInTabBar: Bool { presentation.showsBuiltInBar && addressPlace == .window }
+
+    private var tabBarAtTop: Bool { configuration.tabs.bar.position == .top }
+
+    var tabBarNavigation: AnyView? {
+        guard addressInTabBar, let page = focusedPage else { return nil }
+        return AnyView(PageNavigation(content: page, atTop: tabBarAtTop).environment(\.barBlur, .none))
+    }
+
+    var tabBarAddress: AnyView? {
+        guard addressInTabBar, let page = focusedPage else { return nil }
+        return AnyView(
+            AddressField(content: page, place: tabBarAtTop ? .top : .bottom, reload: true)
+                .frame(height: Design.Size.bar)
+                .barGroup(margin: Design.Space.xs, top: tabBarAtTop)
+                .environment(\.barBlur, .none)
+                .id(ObjectIdentifier(page))
+        )
+    }
+
     var sidebarAddress: AnyView? {
         guard addressPlace == .sidebar, let page = focusedPage else { return nil }
         return AnyView(AddressField(content: page).id(ObjectIdentifier(page)))
@@ -25,10 +47,11 @@ extension TerminalScene {
     /// The window's address bar and its list, in one glass container (they render together; spacing 0: they do not blend at rest).
     func windowAddressBar(card: PaneCardShape?) -> some View {
         // The list of the sidebar's field or the window bar's, as wide as the content: under the field, or over the bar at the bottom.
-        let atTop = addressPlace == .sidebar || configuration.web.windowBar == .top
+        let atTop =
+            addressInTabBar ? tabBarAtTop : addressPlace == .sidebar || configuration.web.windowBar == .top
         return GlassEffectContainer(spacing: 0) {
             ZStack(alignment: atTop ? .top : .bottom) {
-                if addressPlace == .window, let page = focusedPage {
+                if addressPlace == .window, !addressInTabBar, let page = focusedPage {
                     // In a split with `web.splitBar` margin, across the panes in the margin it opens, over no page: no blur.
                     WindowAddressBar(
                         content: page,
@@ -41,7 +64,10 @@ extension TerminalScene {
                     .environment(\.barBlur, barInMargin ? .none : configuredBarBlur)
                 }
                 AddressSuggestionList(typing: addressTyping, places: [.top, .bottom])
-                    .padding(atTop ? .top : .bottom, addressPlace == .window ? Design.Space.m + Design.Size.bar : 0)
+                    .padding(
+                        atTop ? .top : .bottom,
+                        addressPlace == .window && !addressInTabBar ? Design.Space.m + Design.Size.bar : 0
+                    )
                     .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
             }
         }
@@ -62,7 +88,7 @@ extension TerminalScene {
     /// The window bar shows the focused page's find bar in its row: at the top, over the focused pane (in the split's margin the
     /// panes have moved down and the find bar stays in its own).
     var hostsFind: Bool {
-        addressPlace == .window && configuration.web.windowBar == .top && !barInMargin
+        addressPlace == .window && configuration.web.windowBar == .top && !barInMargin && !addressInTabBar
     }
 
     var configuredBarBlur: BarBlurChoice {

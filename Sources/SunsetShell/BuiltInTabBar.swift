@@ -10,11 +10,17 @@ package struct BuiltInTabBar: View {
     let tabs: TabsModel
     let settings: ShellSettings.Bar
     @Environment(\.surfaceStyle) var surface
+    /// Back and forward of the selected page, after the window's buttons (t223); nil while a terminal is selected.
+    let navigation: AnyView?
+    /// The selected page's address field, in its tab's place (t223): the selected tab is the field.
+    let address: AnyView?
     @State var frames: [UUID: CGRect] = [:]
 
-    package init(tabs: TabsModel, settings: ShellSettings.Bar) {
+    package init(tabs: TabsModel, settings: ShellSettings.Bar, navigation: AnyView? = nil, address: AnyView? = nil) {
         self.tabs = tabs
         self.settings = settings
+        self.navigation = navigation
+        self.address = address
     }
 
     /// The narrowest and the widest a tab is: the tabs share the bar between these.
@@ -23,14 +29,21 @@ package struct BuiltInTabBar: View {
     package var body: some View {
         let items = tabs.favorites.favorites.barItems(selected: tabs.workspace.selectedEntry)
         let count = items.count + tabs.workspace.items.count
-        HStack(spacing: Design.Space.xs) {
+        HStack(spacing: Design.Space.s) {
+            if let navigation { navigation.transition(.opacity) }
             GeometryReader { proxy in
                 let width = Self.width(for: count, in: proxy.size.width, gap: surface.layout.tabSpacing)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: surface.layout.tabSpacing) {
                         ForEach(items, id: \.self) { item in barItem(item).frame(width: width) }
                         if !items.isEmpty { separator }
-                        ForEach(tabs.workspace.items) { item in row(item).frame(width: width) }
+                        ForEach(tabs.workspace.items) { item in
+                            if let address, tabs.isSelected(item.id) {
+                                address.frame(width: Self.fieldWidth(tab: width))
+                            } else {
+                                row(item).frame(width: width)
+                            }
+                        }
                     }
                     .frame(maxHeight: .infinity)
                 }
@@ -41,13 +54,17 @@ package struct BuiltInTabBar: View {
         }
         .padding(.horizontal, surface.layout.tabSideInset + Design.Space.xs)
         .padding(.vertical, Design.Space.xs)
-        .frame(height: rowHeight + 2 * Design.Space.xs)
+        .frame(height: max(rowHeight, address == nil ? 0 : Design.Size.bar) + 2 * Design.Space.xs)
+        .animation(.easeOut(duration: 0.18), value: navigation == nil)
     }
 
     /// As tall as a sidebar row with the lines the bar shows.
     private var rowHeight: Double {
         settings.showDirectory ? Design.Size.tabRow + Design.Space.xs : Design.Size.tabRow
     }
+
+    /// The selected page's field: twice a tab, as wide as the command bar at most.
+    static func fieldWidth(tab: Double) -> Double { min(2 * tab, Design.Width.commandBar) }
 
     /// Each tab's width: the bar shared equally, between `tabWidths`.
     static func width(for count: Int, in available: Double, gap: Double) -> Double {

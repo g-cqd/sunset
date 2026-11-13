@@ -175,9 +175,14 @@ struct TerminalScene: View {
     }
 
     private var tabBar: some View {
-        BuiltInTabBar(tabs: tabs, settings: ShellSettings(configuration).tabs.bar)
-            .padding(.leading, noDecorations && barAtTop ? Design.System.lightsClearance : 0)
-            .background { windowDragSurface }
+        BuiltInTabBar(
+            tabs: tabs,
+            settings: ShellSettings(configuration).tabs.bar,
+            navigation: tabBarNavigation,
+            address: tabBarAddress
+        )
+        .padding(.leading, noDecorations && barAtTop ? Design.System.lightsClearance : 0)
+        .background { windowDragSurface }
     }
 
     /// A transparent strip of a fixed height that drags the window (`WindowDragGesture`).
