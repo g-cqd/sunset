@@ -77,6 +77,9 @@ struct WebFindBar: View {
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.visible)
+        // Not the accent: blue on the dark glass read badly (owner, 2026-11-13); the address field's lock is secondary too.
+        .tint(.secondary)
+        .foregroundStyle(.secondary)
         .fixedSize()
         .onChange(of: find.matchCase) { _, _ in find.search() }
         .onChange(of: find.startsWith) { _, _ in find.search() }
