@@ -1,3 +1,4 @@
+import SunsetMetrics
 import SunsetPane
 import SwiftUI
 import UniformTypeIdentifiers
@@ -15,8 +16,8 @@ struct FavoritesSection: View {
     var body: some View {
         let favorites = tabs.favorites.favorites
         if !favorites.isEmpty {
-            // The tree is more compact than the tabs below it: shorter rows, a hairline's gap (owner, 2026-11-12).
-            VStack(spacing: Design.Space.hair) {
+            // The tree's rows are the tabs' rows: their height and their spacing (owner, 2026-11-13, t227).
+            VStack(spacing: layout.tabSpacing) {
                 ForEach(favorites.rows(selected: tabs.workspace.selectedEntry)) { row in
                     Group {
                         switch favorites.node(row.id) {
