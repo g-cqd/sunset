@@ -9,9 +9,4 @@ import Testing
         let read = try ConfigurationParser.parse(#"{ "web": { "zoomScope": "page", "textOnlyZoom": true } }"#)
         #expect(read.configuration.web.zoomScope == .page && read.configuration.web.textOnlyZoom && read.issues.isEmpty)
     }
-
-    @Test func `the zoom file is beside the session`() {
-        let path = SessionLocation.zoomPath(environment: ["SUNSET_CONFIG": "/tmp/x/config.json"], home: "/Users/a")
-        #expect(path == "/tmp/x/site-zoom.json")
-    }
 }

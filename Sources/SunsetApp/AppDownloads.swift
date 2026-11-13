@@ -1,5 +1,6 @@
 import AppKit
 import SunsetConfig
+import SunsetStorage
 import SunsetWeb
 import UserNotifications
 
@@ -9,14 +10,8 @@ import UserNotifications
     static func start() {
         let center = DownloadCenter.shared
         apply(AppConfiguration.shared.configuration.web)
-        SitePermissions.shared.path = SessionLocation.permissionsPath(
-            environment: ProcessInfo.processInfo.environment,
-            home: NSHomeDirectory()
-        )
-        center.path = SessionLocation.downloadsPath(
-            environment: ProcessInfo.processInfo.environment,
-            home: NSHomeDirectory()
-        )
+        SitePermissions.shared.path = StoragePlaces.current.legacyPermissions
+        center.path = StoragePlaces.current.legacyDownloads
         center.approve = { name, origin in approve(name, origin: origin) }
         center.choose = { name in choose(name) }
         center.onFinished = { finished($0) }

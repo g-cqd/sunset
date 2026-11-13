@@ -1,6 +1,7 @@
 import Foundation
 import SunsetConfig
 import SunsetShell
+import SunsetStorage
 import SunsetWeb
 import SwiftUI
 
@@ -13,10 +14,7 @@ struct PagesFollowSettings: ViewModifier {
         content
             .environment(\.privateWindowSharing, sharing)
             .onChange(of: web.zoomScope, initial: true) { _, scope in
-                let path = SessionLocation.zoomPath(
-                    environment: ProcessInfo.processInfo.environment,
-                    home: NSHomeDirectory()
-                )
+                let path = StoragePlaces.current.legacyZoom
                 let wanted = scope == .site ? path : nil
                 if SiteZoom.shared.path != wanted || scope == .site && SiteZoom.shared.path == nil {
                     SiteZoom.shared.path = wanted

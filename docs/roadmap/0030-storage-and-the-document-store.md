@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress (ST-1 without its "said" part, 2026-11-13)
 blocked-by: nothing; roadmap 0023 (Markdown) from M-b waits for ST-4
 date: 2026-11-13
 ---
@@ -18,7 +18,15 @@ which is the description to build from; the study behind it is `docs/research/st
 | ST-5 | The Documents section of the sidebar, under Favorites | t256 |
 | ST-6 | Settings, Storage: places, the web store's sentence and FileVault's state, the recovery code, Export All | t257 |
 
+## State
+
+ST-1, 2026-11-13: `SunsetStorage` (`StoragePlaces`, `StoredFile.write` over Aemi's `AtomicFile`, `StoredFile.read` that moves a file
+that does not read aside under a dated name, `StorageProblems`); the session is read and written through it (files are now
+private to the person, mode 600); `SessionLocation` is gone. Probed: a session that is not JSON was moved aside as
+`session.json.damaged-<date>` and the app started with a new one. Not done in ST-1: showing `StorageProblems` to the person (its
+look is asked first); the other four files still write themselves (they move into the database in ST-3).
+
 ## Not done
 
-Everything. Not in this entry: search inside documents; a key per profile (asked in roadmap 0021); sealing the web store (not
+ST-2 to ST-6, and the "said" part of ST-1. Not in this entry: search inside documents; a key per profile (asked in roadmap 0021); sealing the web store (not
 possible with public API, probed 2026-11-13).

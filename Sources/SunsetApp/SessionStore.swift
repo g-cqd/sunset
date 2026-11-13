@@ -2,6 +2,7 @@ import AppKit
 import SunsetConfig
 import SunsetPane
 import SunsetShell
+import SunsetStorage
 
 /// The tabs that come back: the windows are written to the session file a moment after anything changes (and when the app is put away or quits) and read at
 /// the next launch, where each window takes one saved window in turn. Programs cannot be saved, so a restored pane is a new shell in the directory the old one was in.
@@ -12,12 +13,9 @@ final class SessionStore {
     static let shared = SessionStore()
 
     /// Where the app keeps its own files (the saved session, the shell's start files).
-    static var directory: String {
-        let path = SessionLocation.path(environment: ProcessInfo.processInfo.environment, home: NSHomeDirectory())
-        return path.lastIndex(of: "/").map { String(path[..<$0]) } ?? "."
-    }
+    static var directory: String { StoragePlaces.current.directory }
 
-    private let path = SessionLocation.path(environment: ProcessInfo.processInfo.environment, home: NSHomeDirectory())
+    private let path = StoragePlaces.current.session
     /// Saved windows no window has taken yet.
     private var pending: [SavedWindow] = []
     private var writer: Task<Void, Never>?
@@ -29,9 +27,12 @@ final class SessionStore {
     /// Reads the file, once, at launch: the Favorites, and the windows when restoring is on. Does nothing when the command line named a program to run.
     func load(enabled: Bool, namedCommand: Bool) {
         active = !namedCommand
-        guard !namedCommand, let data = FileManager.default.contents(atPath: path),
-            let session = SavedSession(data: data)
-        else { return }
+        guard !namedCommand else { return }
+        // A session that does not read (damaged, or written by a later Sunset) is moved aside and said, not dropped (R12): the
+        // next save would otherwise write over it.
+        let read = StoredFile.read(path, as: "The saved session") { SavedSession(data: $0) }
+        if case .damaged(let problem) = read { StorageProblems.shared.report(problem) }
+        guard let session = read.value else { return }
         AppFavorites.shared.restore(session.favorites, reopening: enabled)
         if enabled { pending = session.windows }
     }
@@ -61,10 +62,8 @@ final class SessionStore {
                 + pending : []
         let session = SavedSession(windows: open, favorites: AppFavorites.shared.saved())
         guard let data = try? session.encoded() else { return }
-        let directory = (path as NSString).deletingLastPathComponent
-        try? FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
-        // Written whole beside the file and moved over it, so that a crash mid-write leaves the old session, not half of a new one.
-        try? data.write(to: URL(fileURLWithPath: path), options: .atomic)
+        // Written whole beside the file, synced and moved over it: a crash mid-write leaves the old session, not half of a new one.
+        try? StoredFile.write(data, to: path)
     }
 
     private var restoresWindows: Bool { AppConfiguration.shared.configuration.tabs.restore }
