@@ -1,5 +1,6 @@
 package import AppKit
 package import SunsetCore
+import SunsetShell
 
 extension TerminalNSView {
     /// A click in the strip drags the window even when the window is not the active one, as a title bar does. Elsewhere the click that activates the
@@ -76,12 +77,15 @@ extension TerminalNSView {
     package override func otherMouseDragged(with event: NSEvent) { report(.motion, .middle, event) }
 
     package override func mouseMoved(with event: NSEvent) {
+        // Covered by the command bar's backdrop (t232).
+        guard !PointerShield.isShielded(window) else { return }
         refreshPointer()
         report(.motion, .none, event)
     }
 
     /// The pointer the program asked for over its screen (OSC 22); none, and the system's arrow stays.
     package override func resetCursorRects() {
+        guard !PointerShield.isShielded(window) else { return }
         if let shape = model.lastScreen?.pointerShape { addCursorRect(bounds, cursor: shape.cursor) }
     }
 
