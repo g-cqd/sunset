@@ -168,6 +168,7 @@ struct TerminalScene: View {
                 sidebarOnRight: configuration.sidebar.side == .right,
                 barInset: splitBarInset
             )
+            .environment(\.windowBarHostsFind, hostsFind)
         } else {
             Color.clear
         }

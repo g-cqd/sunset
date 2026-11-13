@@ -191,3 +191,19 @@ Open Address (the window's bar comes out for it), which the scene uses.
   the focused pane, as before.
 - Only with the bar at the top edge; at the bottom it stays over the pane.
 - Not seen: terminals in the split (their view is cut the same way, not re-laid out), the animation as the margin opens.
+
+### 7h. Owner, 2026-11-13: lighter group blur, one row with find, the split margin's gap
+
+- The group blur was too strong. Radius 8 → 4/3/2 (`group-radius-…`), then 2 with the area grown (`group-area-…`, chosen E: full to
+  the group's bottom edge, fall and reach +24), then radius 1 with more reach (`group-reach-…`, chosen R48). Now
+  `Design.Blur.groupRadius` 1, solid `margin + Size.bar`, `groupFall` `Size.bar + Space.xxl`, `groupReach` `Space.xl + 3·Space.xxl`
+  (88 pt). The whole-bar blur (`barRadius` 8) is unchanged.
+- Groups in one row draw their blurs beneath all of them (`View.barGroupBlurs()`; each group publishes an anchor): no group's blur falls
+  over another's glass, which the 88 pt reach would otherwise do.
+- The find bar has the window bar's look: a field group (options, text, count, in a capsule field) and a buttons group (up, down, ×).
+  At the top, over the focused pane, the window bar's row hosts it at its trailing end: alone while the address bar is in, the
+  address shifting beside it when it comes out (opening find does not bring the address bar). In the split margin the find bar stays in
+  its pane (`find-row-…`).
+- Split margin: the bar was `Space.m` from the area's top while the panes were the split gap from it; it now uses the split gap all
+  round, so it sits where the panes' tops were and the gap under it is the gap between panes.
+- Not seen: the bar at the bottom edge with find open (find stays in its pane there), light appearance, find with the sidebar address.
