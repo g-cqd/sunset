@@ -39,6 +39,12 @@ cat >"$app/Contents/Info.plist" <<PLIST
     <key>NSMicrophoneUsageDescription</key><string>A web page you allow can use the microphone.</string>
     <key>NSLocationUsageDescription</key><string>A web page you allow can know where you are.</string>
     <key>NSLocationWhenInUseUsageDescription</key><string>A web page you allow can know where you are.</string>
+    <key>NSDownloadsFolderUsageDescription</key><string>Programs you run in Sunset's terminals, and the pages you download, use your Downloads folder.</string>
+    <key>NSDocumentsFolderUsageDescription</key><string>Programs you run in Sunset's terminals use your Documents folder.</string>
+    <key>NSDesktopFolderUsageDescription</key><string>Programs you run in Sunset's terminals use your Desktop folder.</string>
+    <key>NSRemovableVolumesUsageDescription</key><string>Programs you run in Sunset's terminals use removable volumes.</string>
+    <key>NSNetworkVolumesUsageDescription</key><string>Programs you run in Sunset's terminals use network volumes.</string>
+    <key>NSAppleEventsUsageDescription</key><string>Programs you run in Sunset's terminals can script other apps.</string>
 </dict>
 </plist>
 PLIST
