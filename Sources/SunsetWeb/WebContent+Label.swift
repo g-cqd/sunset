@@ -1,4 +1,5 @@
 import Foundation
+import SunsetPrivate
 package import SunsetShell
 
 /// What a page's tab shows (its title, its picture) and what finds it.
@@ -14,5 +15,14 @@ extension WebContent {
         if settings.favicons, let favicon { return .image(favicon) }
         guard settings.initialIcon, let first = title.first(where: \.isLetter) else { return .symbol("globe") }
         return .initial(String(first).uppercased())
+    }
+
+    /// Muted for as long as the person leaves it so, playing or not: the speaker stays to unmute it.
+    package var sound: PaneSound? { isMuted ? .muted : playsSound ? .playing : nil }
+
+    package func toggleMuted() {
+        guard let webView else { return }
+        isMuted.toggle()
+        WebAudio.setMuted(isMuted, on: webView)
     }
 }

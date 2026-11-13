@@ -22,6 +22,10 @@ package import SwiftUI
     var closeWarning: String? { get }
     /// It captures the camera, microphone or screen (a web page, step g): a dot on its tab, of this colour.
     var captureDot: Color? { get }
+    /// It plays sound, or is muted (a web page): a speaker on its tab; nil for silence.
+    var sound: PaneSound? { get }
+    /// Mutes it, or lets it be heard again.
+    func toggleMuted()
     /// Nothing of it is kept: not in the session, not restored (a private page, web step h).
     var isPrivate: Bool { get }
     /// How to bring it back in another run.
@@ -41,5 +45,7 @@ extension PaneContent {
     package var searchTerms: [String] { [] }
     package func type(command: String) {}
     package var captureDot: Color? { nil }
+    package var sound: PaneSound? { nil }
+    package func toggleMuted() {}
     package var isPrivate: Bool { false }
 }

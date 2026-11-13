@@ -36,6 +36,10 @@ package final class WebContent: PaneContent {
     /// The dialog the page asked for, waiting for its answer (`WebContent+Dialogs`).
     package internal(set) var dialog: PageDialog?
     @ObservationIgnored var dialogPolicy = PageDialogPolicy()
+    /// The page plays sound; it is muted (roadmap 0029 step 7).
+    package internal(set) var playsSound = false
+    package internal(set) var isMuted = false
+    @ObservationIgnored var soundWatch: NSObject?
     /// The address of the link under the pointer (`LinkStatus`).
     package internal(set) var hoveredLink: String?
     /// The page, once it has been shown.
@@ -108,6 +112,7 @@ package final class WebContent: PaneContent {
 
     package func stop() {
         dialog?.answer(.cancel)
+        soundWatch = nil
         observations = []
         webView?.stopLoading()
         webView?.navigationDelegate = nil

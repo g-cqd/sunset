@@ -1,0 +1,66 @@
+public import Foundation
+internal import InternedStrings
+
+/// Whether a page plays sound, and muting it (roadmap 0029 step 7). Not public API: `WKWebView` says it plays sound by a
+/// key-value observable property, and takes a muted state; both are looked up by name, and where WebKit no longer has them a
+/// page is never shown as playing and Mute does nothing.
+@MainActor
+public enum WebAudio {
+    /// Tells `changed` each time the page starts or stops playing sound, for as long as the returned object is kept.
+    public static func watchPlaying(_ view: NSObject, _ changed: @escaping @MainActor (Bool) -> Void) -> NSObject? {
+        guard view.responds(to: NSSelectorFromString(playingKey)) else { return nil }
+        return KeyWatch(view, key: playingKey) { changed(isPlaying(view)) }
+    }
+
+    public static func isPlaying(_ view: NSObject) -> Bool {
+        guard view.responds(to: NSSelectorFromString(playingKey)) else { return false }
+        return (view.value(forKey: playingKey) as? Bool) ?? false
+    }
+
+    public static func isMuted(_ view: NSObject) -> Bool {
+        let key = #Interned("_mediaMutedState")
+        guard view.responds(to: NSSelectorFromString(key)) else { return false }
+        return ((view.value(forKey: key) as? UInt) ?? 0) & audio != 0
+    }
+
+    /// Mutes the page's sound (not its camera or microphone).
+    public static func setMuted(_ muted: Bool, on view: NSObject) {
+        let setter = NSSelectorFromString(#Interned("_setPageMuted:"))
+        guard view.responds(to: setter) else { return }
+        typealias Setter = @convention(c) (NSObject, Selector, UInt) -> Void
+        unsafeBitCast(view.method(for: setter), to: Setter.self)(view, setter, muted ? audio : 0)
+    }
+
+    private static var playingKey: String { #Interned("_isPlayingAudio") }
+    /// WebKit's muted state for sound (its other bits are the capture devices).
+    private static let audio: UInt = 1
+}
+
+/// Watches one key of an object and runs a closure on the main actor when it changes; stops when released.
+private final class KeyWatch: NSObject {
+    private weak var object: NSObject?
+    private let key: String
+    private let changed: @MainActor () -> Void
+
+    @MainActor
+    init(_ object: NSObject, key: String, changed: @escaping @MainActor () -> Void) {
+        self.object = object
+        self.key = key
+        self.changed = changed
+        super.init()
+        object.addObserver(self, forKeyPath: key, options: [.new], context: nil)
+    }
+
+    deinit { object?.removeObserver(self, forKeyPath: key) }
+
+    // swiftlint:disable:next block_based_kvo
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
+        let changed = changed
+        Task { @MainActor in changed() }
+    }
+}

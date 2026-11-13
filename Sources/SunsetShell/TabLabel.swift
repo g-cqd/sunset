@@ -48,6 +48,15 @@ package struct TabLabel: View {
                 TabIcon(model: model, icon: icon, saved: saved, savedCommand: savedCommand, showsProgress: showProgress)
             }
             lines
+            if let sound = model?.sound {
+                Button {
+                    model?.toggleMuted()
+                } label: {
+                    Image(systemName: sound.symbol).font(Design.Text.detail).foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(sound.help)
+            }
             if let dot = model?.captureDot {
                 Circle().fill(dot).frame(width: 7, height: 7).help("Using the camera, microphone or screen")
             }

@@ -76,6 +76,8 @@ struct TerminalCommands: Commands {
             Button("Reload Page Without Cache") { page?.reload(fromOrigin: true) }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
                 .disabled(page?.url == nil)
+            Button(page?.sound == .muted ? "Unmute Page" : "Mute Page") { page?.toggleMuted() }
+                .disabled(page?.sound == nil)
             Button("Stop") { page?.stopLoading() }.keyboardShortcut(".").disabled(page?.isLoading != true)
             // The page's address field, wherever `web.address` puts it (the window's bar comes out for it), ready to type in.
             Button("Open Address") { page?.wantsAddress = true }.disabled(page == nil)

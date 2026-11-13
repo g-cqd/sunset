@@ -38,6 +38,7 @@ extension WebContent {
         find.attach(view)
         applyZoom()
         observe(view)
+        soundWatch = WebAudio.watchPlaying(view) { [weak self] playing in self?.playsSound = playing }
         guard given == nil else { return }
         if let history = savedHistory {
             view.interactionState = history as NSData
