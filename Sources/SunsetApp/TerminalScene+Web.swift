@@ -25,16 +25,16 @@ extension TerminalScene {
 
     var tabBarNavigation: AnyView? {
         guard addressInTabBar, let page = focusedPage else { return nil }
-        return AnyView(PageNavigation(content: page, atTop: tabBarAtTop).environment(\.barBlur, .none))
+        return AnyView(PageNavigation(content: page, atTop: tabBarAtTop, flat: true))
     }
 
     var tabBarAddress: AnyView? {
         guard addressInTabBar, let page = focusedPage else { return nil }
         return AnyView(
             AddressField(content: page, place: tabBarAtTop ? .top : .bottom, reload: true)
-                .frame(height: Design.Size.bar)
-                .barGroup(margin: Design.Space.xs, top: tabBarAtTop)
-                .environment(\.barBlur, .none)
+                .environment(\.controlRadius, Design.TabCapsules.radius)
+                .environment(\.controlHeight, Design.TabCapsules.height)
+                .environment(\.controlPadding, Design.BarGroup.fieldPadding)
                 .id(ObjectIdentifier(page))
         )
     }

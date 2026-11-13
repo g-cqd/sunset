@@ -18,6 +18,15 @@ extension TerminalScene {
     /// With the sidebar the traffic lights are part of it, in the slot at its top (`SidebarHeader`), away from the window's edge: docked they are always
     /// there; floating they come and go with the panel, which is inset by the margin.
     var lights: LightsPlacement? {
+        if addressInTabBar, configuration.tabs.bar.position == .top {
+            // Centred on the tab bar's row of capsules (owner, 2026-11-13).
+            return LightsPlacement(
+                x: Design.TabCapsules.lightsX,
+                y: Design.TabCapsules.lightsCenter,
+                visible: true,
+                centred: true
+            )
+        }
         guard presentation.showsSidebar else { return nil }
         let margin = configuration.sidebar.padding
         let origin = SidebarHeader(
@@ -32,6 +41,11 @@ extension TerminalScene {
             visible: configuration.sidebarDocked || floatingShown,
             side: configuration.window.lightsSide.resolved(sidebar: sidebarSide)
         )
+    }
+
+    /// From the window's leading edge to the tab bar's first item, past the window's buttons.
+    var tabBarLightsClearance: Double {
+        addressInTabBar ? Design.TabCapsules.lightsClearance - Design.TabCapsules.inset : Design.System.lightsClearance
     }
 
     /// The docked sidebar's resize strip, over the terminal's card too, centred in the gap between the tabs and the card (`SidebarHandle`).

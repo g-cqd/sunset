@@ -141,7 +141,8 @@ final class ChromeView: NSView {
                     buttonWidth: button.frame.width
                 )
                 : -200
-            let y = frame.bounds.height - origin.y - button.frame.height
+            let top = origin.centred ? origin.y - button.frame.height / 2 : origin.y
+            let y = frame.bounds.height - top - button.frame.height
             fade(button, visible: origin.visible, to: NSPoint(x: x, y: y))
         }
     }

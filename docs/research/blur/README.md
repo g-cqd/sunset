@@ -242,3 +242,15 @@ Open Address (the window's bar comes out for it), which the scene uses.
   page loads, hover or not (owner). The nav group is back and forward only. Grey, not the accent.
 - Not seen: the reload button appearing on a real hover (mouse moves posted to a background app do not reach SwiftUI's hover; the
   shots forced it on), a click on it, the field's typing state at the new height.
+
+### 7l. t223: the tab bar holds the address; one row of capsules
+
+- With `tabs.mode` internal and `web.address` window, the built-in tab bar holds the address: the selected page's tab is its address
+  field (twice a tab's width, the command bar's at most), back and forward follow the window's buttons, and the window bar does not
+  come out. Reload is in the field, as in the window bar.
+- Owner, 2026-11-13 ("items should all look alike"): every item of that bar is a capsule of one height (`Design.TabCapsules`, 38 pt,
+  the bar group's): the tabs (`BarTab` with `\.tabCapsules`), the field, back/forward and + (`View.tabCapsule()`: the field's fill
+  and hairline). The row is 50 pt (6 pt above and below). The window's buttons are centred on it (`LightsPlacement.centred`), the
+  first as far from the window's edge as the row's middle is from its top (`tab-capsules-…`; top and bottom bar).
+- Not seen: a terminal selected (the row keeps its shape, no back/forward), dragging tabs, folders and Favorites chips in capsule
+  form, hover and close states on a capsule tab, light appearance.

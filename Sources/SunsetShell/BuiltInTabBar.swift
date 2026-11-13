@@ -14,13 +14,23 @@ package struct BuiltInTabBar: View {
     let navigation: AnyView?
     /// The selected page's address field, in its tab's place (t223): the selected tab is the field.
     let address: AnyView?
+    /// The row of capsules (`Design.TabCapsules`): set while the bar holds the address, whatever is selected, so that the bar does not
+    /// change shape from a page to a terminal.
+    let capsules: Bool
     @State var frames: [UUID: CGRect] = [:]
 
-    package init(tabs: TabsModel, settings: ShellSettings.Bar, navigation: AnyView? = nil, address: AnyView? = nil) {
+    package init(
+        tabs: TabsModel,
+        settings: ShellSettings.Bar,
+        navigation: AnyView? = nil,
+        address: AnyView? = nil,
+        capsules: Bool = false
+    ) {
         self.tabs = tabs
         self.settings = settings
         self.navigation = navigation
         self.address = address
+        self.capsules = capsules
     }
 
     /// The narrowest and the widest a tab is: the tabs share the bar between these.
@@ -29,12 +39,16 @@ package struct BuiltInTabBar: View {
     package var body: some View {
         let items = tabs.favorites.favorites.barItems(selected: tabs.workspace.selectedEntry)
         let count = items.count + tabs.workspace.items.count
-        HStack(spacing: Design.Space.s) {
+        HStack(spacing: capsules ? Design.Space.m : Design.Space.xs) {
             if let navigation { navigation.transition(.opacity) }
             GeometryReader { proxy in
-                let width = Self.width(for: count, in: proxy.size.width, gap: surface.layout.tabSpacing)
+                let width = Self.width(
+                    for: count,
+                    in: proxy.size.width,
+                    gap: capsules ? Design.Space.m : surface.layout.tabSpacing
+                )
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: surface.layout.tabSpacing) {
+                    HStack(spacing: capsules ? Design.Space.m : surface.layout.tabSpacing) {
                         ForEach(items, id: \.self) { item in barItem(item).frame(width: width) }
                         if !items.isEmpty { separator }
                         ForEach(tabs.workspace.items) { item in
@@ -49,12 +63,19 @@ package struct BuiltInTabBar: View {
                 }
                 .gesture(WindowDragGesture())
             }
-            SidebarIconButton(symbol: "plus", help: "New Tab") { tabs.newTab() }
-                .environment(\.sidebarButtonMetrics, BarButton.metrics(surface))
+            if capsules {
+                SidebarIconButton(symbol: "plus", help: "New Tab") { tabs.newTab() }
+                    .environment(\.sidebarButtonMetrics, BarButton.group(surface))
+                    .tabCapsule()
+            } else {
+                SidebarIconButton(symbol: "plus", help: "New Tab") { tabs.newTab() }
+                    .environment(\.sidebarButtonMetrics, BarButton.metrics(surface))
+            }
         }
-        .padding(.horizontal, surface.layout.tabSideInset + Design.Space.xs)
-        .padding(.vertical, Design.Space.xs)
-        .frame(height: max(rowHeight, address == nil ? 0 : Design.Size.bar) + 2 * Design.Space.xs)
+        .padding(.horizontal, capsules ? Design.TabCapsules.inset : surface.layout.tabSideInset + Design.Space.xs)
+        .padding(.vertical, capsules ? Design.TabCapsules.inset : Design.Space.xs)
+        .frame(height: capsules ? Design.TabCapsules.bar : rowHeight + 2 * Design.Space.xs)
+        .environment(\.tabCapsules, capsules)
         .animation(.easeOut(duration: 0.18), value: navigation == nil)
     }
 

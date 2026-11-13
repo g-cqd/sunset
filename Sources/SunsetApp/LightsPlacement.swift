@@ -6,4 +6,6 @@ struct LightsPlacement: Equatable {
     var y: Double
     var visible: Bool
     var side = Configuration.Side.left
+    /// `y` is where the buttons' middle goes, not their top.
+    var centred = false
 }
