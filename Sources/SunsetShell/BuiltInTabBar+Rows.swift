@@ -48,6 +48,7 @@ extension BuiltInTabBar {
             label: { label(model: model, name: entry.title) },
             lines: lines
         )
+        .help(capsules ? entry.title ?? "" : "")
         .onTapGesture { tabs.select(entry: entry.id) }
         .contextMenu {
             Button("Remove from Favorites") { tabs.release(entry: entry.id) }

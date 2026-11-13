@@ -254,3 +254,14 @@ Open Address (the window's bar comes out for it), which the scene uses.
   first as far from the window's edge as the row's middle is from its top (`tab-capsules-…`; top and bottom bar).
 - Not seen: a terminal selected (the row keeps its shape, no back/forward), dragging tabs, folders and Favorites chips in capsule
   form, hover and close states on a capsule tab, light appearance.
+
+### 7m. Owner, 2026-11-13: the tabs' trailing end blurs; pinned tabs in the row
+
+- The tabs that scroll under the + blur out towards it: AemiSDR's `BlurMask` has `leading` and `trailing` edges now (11c1786, a test),
+  and the row's end has a 6 pt solid, 36 pt fall at `listRadius` 12; the tabs also fade out over the last 18 pt, else the blur
+  stopped along the scroll area's edge (`tab-pinned-end-…`, below; checked with the fall widened to 200 pt).
+- With the tab bar holding the address (so no sidebar), the Favorites are pinned tabs: circles of the row's height with the icon
+  only (their name is their help), before the tabs, outside their scroll, then a line. Every entry shows, open or not (a click opens
+  it), and each folder with all it holds (`Favorites.pinnedItems`, a test); a collapsed folder hides them (`tab-pinned-end-…`, above:
+  two folders, collapsed).
+- Not seen: an entry's circle (the session's Favorites were two folders), a pinned tab selected, unload on hover, the help text.

@@ -65,7 +65,7 @@ let package = Package(
         // Blur under the bars and panels (Sunset research/blur, AemiSDR roadmap 0020). Pinned by revision, as the family does.
         .package(
             url: "https://github.com/Aemi-Studio/AemiSDR.git",
-            revision: "220ec847b36c6bb5dcd1f3b291c1edb1826ddc5f"
+            revision: "11c178682cf535850c5e9e272572ffd9b10dcaec"
         )
     ],
     targets: [

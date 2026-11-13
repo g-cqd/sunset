@@ -13,6 +13,8 @@ struct BarTab<Icon: View, Label: View>: View {
     @ViewBuilder let icon: Icon
     @ViewBuilder let label: Label
     var lines = 1
+    /// A pinned tab of the row of capsules: its icon only, in a circle (its name is its help).
+    @Environment(\.tabIconOnly) private var iconOnly
     var onHover: (Bool) -> Void = { _ in }
     @State private var hovering = false
     @State private var overClose = false
@@ -36,10 +38,10 @@ struct BarTab<Icon: View, Label: View>: View {
                 closeButton.opacity(showsClose ? 1 : 0).allowsHitTesting(showsClose)
             }
             .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-            label.frame(maxWidth: .infinity, alignment: .leading)
+            if !iconOnly { label.frame(maxWidth: .infinity, alignment: .leading) }
         }
         .padding(.leading, lead)
-        .padding(.trailing, capsules ? Design.BarGroup.fieldPadding : layout.tabPaddingLeading)
+        .padding(.trailing, iconOnly ? lead : capsules ? Design.BarGroup.fieldPadding : layout.tabPaddingLeading)
         .padding(.vertical, capsules ? 0 : Design.rowPadding(layout, lines: lines, height: Design.Size.tabRow))
         .frame(height: capsules ? Design.TabCapsules.height : nil)
         .background(shape.fill(fill))

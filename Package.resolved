@@ -1,5 +1,5 @@
 {
-  "originHash" : "7f8280eb499f52b594185467c54ae165080543d0b43b22951e7c9b60754da88a",
+  "originHash" : "8055f4ee862d2ec95876c4c83b1e97285b019f503d3d7592b4c065a54467fc3c",
   "pins" : [
     {
       "identity" : "abysm",
@@ -54,7 +54,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Aemi-Studio/AemiSDR.git",
       "state" : {
-        "revision" : "220ec847b36c6bb5dcd1f3b291c1edb1826ddc5f"
+        "revision" : "11c178682cf535850c5e9e272572ffd9b10dcaec"
       }
     },
     {
