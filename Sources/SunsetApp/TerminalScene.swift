@@ -18,6 +18,7 @@ struct TerminalScene: View {
     @State var window: NSWindow?
     /// How much of the window's top the title bar and the system tab bar cover.
     @State private var obscured = 0.0
+    @State var barOut = false
     /// Whether the floating sidebar (and with it the traffic lights) is out.
     @State var floatingShown = false
     /// The sidebar was just unpinned: the panel starts out (the pointer is where the column was) and goes when the pointer is not on it.
@@ -90,7 +91,7 @@ struct TerminalScene: View {
         // Outside the dialogs, so that the command bar and the sheets draw their surfaces the window's way too.
         .environment(\.surfaceStyle, SurfaceStyle(configuration))
         .environment(\.monospacedDetail, configuration.tabs.bar.monospacedDirectory)
-        .environment(\.barBlur, BarBlurChoice(rawValue: configuration.appearance.barBlur.rawValue) ?? .variable)
+        .environment(\.barBlur, configuredBarBlur)
         .accent(configuration.appearance.accent.rawValue, tint: configuration.appearance.tintColor)
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .animation(configuration.layout.smooth, value: tabs.showsHistory)
@@ -164,7 +165,8 @@ struct TerminalScene: View {
                 margin: configuration.sidebar.padding,
                 windowRadius: windowRadius,
                 windowCorners: areaWindowCorners,
-                sidebarOnRight: configuration.sidebar.side == .right
+                sidebarOnRight: configuration.sidebar.side == .right,
+                barInset: splitBarInset
             )
         } else {
             Color.clear

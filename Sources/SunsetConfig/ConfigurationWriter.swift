@@ -104,7 +104,8 @@ public enum ConfigurationWriter {
         [
             "web.openLinksInSunset": String(web.openLinksInSunset), "web.developer": String(web.developer),
             "web.tabIcon": string(web.tabIcon.rawValue), "web.address": string(web.address.rawValue),
-            "web.windowBar": string(web.windowBar.rawValue), "web.engine": string(web.engine),
+            "web.windowBar": string(web.windowBar.rawValue), "web.splitBar": string(web.splitBar.rawValue),
+            "web.engine": string(web.engine),
             "web.engines": "[" + web.engines.map(engine).joined(separator: ", ") + "]",
             "web.suggestions": String(web.suggestions), "web.httpFallback": String(web.httpFallback),
             "web.zoomScope": string(web.zoomScope.rawValue), "web.textOnlyZoom": String(web.textOnlyZoom),

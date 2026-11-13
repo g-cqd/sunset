@@ -25,6 +25,9 @@ struct PaneArea: View {
     let windowCorners: CornerSet
     /// The sidebar is on the window's right: previews of its rows open on that side.
     var sidebarOnRight = false
+    /// In a split, the margin the window bar opens above the panes while it is out: the top panes' cards start this much lower and
+    /// show that much less of their content, which keeps its size (no page or terminal is laid out again for it).
+    var barInset = 0.0
 
     private static let space = "pane-area"
     /// Where a dragged tab or pane would go while it is over the area.
@@ -45,8 +48,10 @@ struct PaneArea: View {
                 ZStack(alignment: .topLeading) {
                     ForEach(item.panes, id: \.self) { pane in
                         if let content = tabs.content(pane), let frame = frames[pane] {
+                            let drop = item.isSplit && frame.minY <= bounds.minY + 0.5 ? barInset : 0
                             paneView(content, pane: pane, item: item, frame: frame, bounds: bounds)
                                 .frame(width: frame.width, height: frame.height)
+                                .frame(width: frame.width, height: max(frame.height - drop, 0), alignment: .top)
                                 .modifier(
                                     TerminalCard(
                                         isCard: card,
@@ -65,7 +70,8 @@ struct PaneArea: View {
                                 )
                                 .animation(layout.smooth, value: tabs.hoveredPane)
                                 .animation(layout.smooth, value: item.focused)
-                                .offset(x: frame.minX, y: frame.minY)
+                                .offset(x: frame.minX, y: frame.minY + drop)
+                                .animation(layout.smooth, value: drop)
                         }
                     }
                     ForEach(item.layout.dividers(in: bounds, gap: space), id: \.path) { divider in

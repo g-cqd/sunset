@@ -9,15 +9,23 @@ package struct WindowAddressBar: View {
     let atTop: Bool
     /// The focused pane's card: the blur under the bar is cut to it.
     let card: PaneCardShape?
+    /// Told when the bar comes out and goes (the split's margin follows it).
+    var onOut: (Bool) -> Void = { _ in }
     @State private var shown = false
     @State private var hovering = false
     @State private var editing = false
     @Environment(\.surfaceStyle) private var surface
 
-    package init(content: WebContent, atTop: Bool, card: PaneCardShape? = nil) {
+    package init(
+        content: WebContent,
+        atTop: Bool,
+        card: PaneCardShape? = nil,
+        onOut: @escaping (Bool) -> Void = { _ in }
+    ) {
         self.content = content
         self.atTop = atTop
         self.card = card
+        self.onOut = onOut
     }
 
     private var out: Bool { shown || editing || content.wantsAddress }
@@ -49,6 +57,8 @@ package struct WindowAddressBar: View {
         .animation(.easeOut(duration: 0.18), value: out)
         // Asked for (a new page, Open Address): out until the pointer leaves it or typing ends, not just while the field asks.
         .onChange(of: content.wantsAddress, initial: true) { _, wanted in if wanted { shown = true } }
+        .onChange(of: out, initial: true) { _, now in onOut(now) }
+        .onDisappear { onOut(false) }
     }
 
     private var cardShape: UnevenRoundedRectangle {

@@ -182,3 +182,12 @@ Open Address (the window's bar comes out for it), which the scene uses.
   controls dark-scheme.
 - The groups are capsules, as the system's toolbar groups; their fields and buttons too (`\.controlRadius`, half the field's height),
   concentric with the group at the container inset (`capsules-2026-11-13.png`).
+
+### 7g. Split mode (t225; `split-margin-2026-11-13.png`)
+
+- `web.splitBar` (margin / pane, 112 keys). Margin (default): while the window bar is out in a split, a margin of `Space.m + Size.bar`
+  opens above the panes and the bar sits in it, across the pane area, with no blur (it is over no page). The top cards start lower
+  and are cut shorter; their content keeps its size and place (the test page did not get a resize event). Pane: the bar floats over
+  the focused pane, as before.
+- Only with the bar at the top edge; at the bottom it stays over the pane.
+- Not seen: terminals in the split (their view is cut the same way, not re-laid out), the animation as the margin opens.

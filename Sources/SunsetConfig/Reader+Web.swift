@@ -58,6 +58,10 @@ extension Reader {
                 if let edge = choice(path, value, as: Configuration.Web.BarEdge.self) {
                     configuration.web.windowBar = edge
                 }
+            case "splitBar":
+                if let place = choice(path, value, as: Configuration.Web.SplitBar.self) {
+                    configuration.web.splitBar = place
+                }
             default: unknown(path)
         }
     }
