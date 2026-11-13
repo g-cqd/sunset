@@ -45,7 +45,7 @@ extension Design {
         package static let listSolidShare = 0.25
         /// ...and how far the fall reaches past it, over the rows at rest: a long fall leaves no line where a row comes back, and
         /// the cubic ramp's tail there is under half a point of radius.
-        package static let listOverhang = Space.m
+        package static let listOverhang = Space.xxl
         /// The tab bar's row of capsules, at the tabs' trailing end before +: a little fully blurred, then a fall over a tab's
         /// end (owner, 2026-11-13).
         package static let tabEndSolid = Space.s

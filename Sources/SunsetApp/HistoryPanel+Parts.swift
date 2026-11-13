@@ -45,7 +45,7 @@ extension HistoryPanel {
     /// Rows that scroll up under the top fade out over it.
     var fade: some View {
         VStack(spacing: 0) {
-            LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: .eased(from: .clear, to: .black), startPoint: .top, endPoint: .bottom)
                 .frame(height: max(listTop - Design.Space.xs, 0))
             Color.black
         }

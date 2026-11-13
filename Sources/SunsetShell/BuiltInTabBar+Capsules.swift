@@ -25,7 +25,7 @@ extension BuiltInTabBar {
 
     private func ramp(shown: Bool, towards edge: HorizontalEdge) -> some View {
         LinearGradient(
-            colors: shown ? [.black, .clear] : [.black, .black],
+            gradient: .eased(from: .black, to: shown ? .clear : .black),
             startPoint: edge == .trailing ? .leading : .trailing,
             endPoint: edge == .trailing ? .trailing : .leading
         )

@@ -304,3 +304,13 @@ Open Address (the window's bar comes out for it), which the scene uses.
   pages keep their mask and fetch nothing.
 - Not seen: a real site's icon (SVG icons may not decode in NSImage), unloaded tabs (they show a globe until loaded; icons are not
   saved in the session), the ring's motion as a whole (frames only), the light scheme.
+
+### 7q. Owner, 2026-11-13 (t231): sidebar ends, eased fades
+
+- The docked sidebar's top band reaches up through its margin to the window's top edge (it started a margin below it).
+- The list ends' blur falls 24 pt past the end (was 8).
+- Under the sidebar's address field the rows are hidden behind the field and fade in, eased, below it (`sidebar-field-fade-…`):
+  before, a row scrolled up showed blurred through the field.
+- Every alpha fade (list ends, titles under a close button, the tab row's ends, the history panel) is eased (smoothstep,
+  `Gradient.eased`), not linear. The blur masks themselves already fall along a cubic.
+- Not seen: the bottom band reaching under the panes, the floating sidebar's ends.
