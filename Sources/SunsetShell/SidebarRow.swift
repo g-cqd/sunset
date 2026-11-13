@@ -151,7 +151,7 @@ struct SidebarRow: View {
         HStack(spacing: 0) {
             Color.black
             if showsClose && renaming == nil {
-                LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing)
+                LinearGradient(gradient: .eased(from: .black, to: .clear), startPoint: .leading, endPoint: .trailing)
                     .frame(width: Design.Space.m)
                 // The close button sits half the row's height from its edge, a little further in on a taller row.
                 Color.clear.frame(width: layout.closeButtonSize + Design.Space.xs)
