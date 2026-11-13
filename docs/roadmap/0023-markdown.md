@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress (M-a done 2026-11-13)
 blocked-by: 0018 (each step's own questions); 0019 (it comes after the web milestone, by the owner's order)
 date: 2026-11-11
 ---
@@ -12,7 +12,7 @@ beyond (0022). Each step starts with its own questions.
 
 | Step | What | Task |
 | --- | --- | --- |
-| M-a | In AemiMarkdown: the editor, atomic saving and commands into `MarkdownLookKit` (proposed there) | t115 |
+| M-a | In AemiMarkdown: the editor, atomic saving and commands into `MarkdownLookKit` (proposed there). **Done 2026-11-13**, AemiMarkdown 26128d4 (its ADR 0008): the kit is a product of its root package; `MarkdownSource` (one text, one undo history), `MarkdownSourceEditor`, `AtomicFile`, `MarkdownCommand`; 123 kit tests. Not seen: the editor on screen | t115 |
 | M-b | The document behind a pane, app-wide by file; the note kind removed | t164 |
 | M-c | The pane: rendered natively, source, the toggle, Show Beside, Mermaid, text files, local images, links in a split | t165 |
 | M-d | Saving: Cmd-S, the two settings, the sheet on closing, quitting | t166 |
