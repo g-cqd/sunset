@@ -20,6 +20,23 @@ import Testing
         #expect(origin.x == 800 - 292 - 12 && origin.y == 15)
     }
 
+    @Test func `beside a floating sidebar's row over the area, not under the panel`() {
+        let left = PreviewPlacement.origin(
+            size: size,
+            row: CGRect(x: 210, y: 300, width: 180, height: 30),
+            area: area,
+            sidebarOnRight: false
+        )
+        #expect(left.x == 390 - 200 + 12 && left.y == 315 - 100)
+        let right = PreviewPlacement.origin(
+            size: size,
+            row: CGRect(x: 800, y: 300, width: 180, height: 30),
+            area: area,
+            sidebarOnRight: true
+        )
+        #expect(abs(right.x - 296) < 0.001, "\(right.x)")
+    }
+
     @Test func `kept inside the area at its top and bottom`() {
         let high = PreviewPlacement.origin(
             size: size,
