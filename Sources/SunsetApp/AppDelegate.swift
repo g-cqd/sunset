@@ -12,7 +12,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Started for a test driven through accessibility (`Tools/axdrive`): it stays behind what the person is doing.
         if ProcessInfo.processInfo.environment["SUNSET_BACKGROUND"] != "1" { NSApp.activate() }
-        MainActor.assumeIsolated { AppDownloads.start() }
+        MainActor.assumeIsolated {
+            AppDownloads.start()
+            AppConfiguration.shared.applyScheme()
+        }
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {

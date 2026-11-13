@@ -107,6 +107,7 @@ struct TerminalScene: View {
             )
         )
         .preferredColorScheme(configuration.appearance.scheme.colorScheme)
+        .environment(\.barTint, BarTint(rawValue: configuration.appearance.barTint.rawValue) ?? .scheme)
         .navigationTitle(tabs.selectedContent?.title ?? "Sunset")
         .focusedSceneValue(\.terminalModel, tabs.selectedTerminal)
         .focusedSceneValue(\.webPage, focusedPage)
@@ -184,6 +185,8 @@ struct TerminalScene: View {
         )
         .padding(.leading, noDecorations && barAtTop ? tabBarLightsClearance : 0)
         .background { windowDragSurface }
+        // The row of capsules on the window's colour (not the terminal's black): it follows the scheme.
+        .background { if addressInTabBar { Color(nsColor: .windowBackgroundColor) } }
     }
 
     /// A transparent strip of a fixed height that drags the window (`WindowDragGesture`).
