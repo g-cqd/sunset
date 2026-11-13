@@ -11,6 +11,11 @@ package struct WindowAddressBar: View {
     let card: PaneCardShape?
     /// Told when the bar comes out and goes (the split's margin follows it).
     var onOut: (Bool) -> Void = { _ in }
+    /// From the bar's container to its groups: `Space.m` over a pane; the split's gap in its margin, so the bar lines up with the
+    /// panes' edges and sits where their tops were (owner, 2026-11-13).
+    var inset = Design.Space.m
+    /// The focused page's find bar goes in this row, at its trailing end, while it is open (owner, 2026-11-13: one row, one layer).
+    var hostsFind = false
     @State private var shown = false
     @State private var hovering = false
     @State private var editing = false
@@ -20,15 +25,20 @@ package struct WindowAddressBar: View {
         content: WebContent,
         atTop: Bool,
         card: PaneCardShape? = nil,
+        inset: Double = Design.Space.m,
+        hostsFind: Bool = false,
         onOut: @escaping (Bool) -> Void = { _ in }
     ) {
         self.content = content
         self.atTop = atTop
         self.card = card
         self.onOut = onOut
+        self.inset = inset
+        self.hostsFind = hostsFind
     }
 
     private var out: Bool { shown || editing || content.wantsAddress }
+    private var finding: Bool { hostsFind && content.find.isOpen }
 
     package var body: some View {
         let frame = card?.frame
@@ -38,14 +48,13 @@ package struct WindowAddressBar: View {
                 .frame(height: 6)
                 .contentShape(.rect)
                 .onHover { inside in if inside { shown = true } }
-            if out {
+            if out || finding {
                 groups
-                    .padding(Design.Space.m)
+                    .padding(inset)
                     .onHover { inside in
                         hovering = inside
                         if !inside { hideSoon() }
                     }
-                    .transition(.move(edge: atTop ? .top : .bottom).combined(with: .opacity))
             }
         }
         // Over the focused pane's card, its corners the groups' container; the blurs end at its edges.
@@ -55,6 +64,7 @@ package struct WindowAddressBar: View {
         .offset(x: frame?.minX ?? 0, y: frame?.minY ?? 0)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .animation(.easeOut(duration: 0.18), value: out)
+        .animation(.easeOut(duration: 0.18), value: finding)
         // Asked for (a new page, Open Address): out until the pointer leaves it or typing ends, not just while the field asks.
         .onChange(of: content.wantsAddress, initial: true) { _, wanted in if wanted { shown = true } }
         .onChange(of: out, initial: true) { _, now in onOut(now) }
@@ -66,34 +76,50 @@ package struct WindowAddressBar: View {
     }
 
     /// Back, forward and reload in one glass group at the leading edge; the address in another, as wide as the command bar at
-    /// most, centred in the rest (owner, 2026-11-13: the system toolbar's way).
+    /// most, centred in the rest (owner, 2026-11-13: the system toolbar's way); the find bar's groups at the trailing edge. Their
+    /// blurs all beneath all of them.
     private var groups: some View {
         let edge: Bool = atTop
+        let slide = AnyTransition.move(edge: atTop ? .top : .bottom).combined(with: .opacity)
         return GlassEffectContainer(spacing: Design.Space.m) {
             HStack(spacing: Design.Space.m) {
-                HStack(spacing: Design.Space.xs) {
-                    button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
-                    button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
-                    if content.isLoading {
-                        button("xmark", "Stop", enabled: true) { content.stopLoading() }
-                    } else {
-                        button("arrow.clockwise", "Reload", enabled: content.url != nil) { content.reload() }
-                    }
+                if out { navigation(edge: edge).transition(slide) }
+                if out {
+                    address(edge: edge).transition(slide)
+                } else {
+                    Spacer(minLength: 0)
                 }
-                .padding(.horizontal, Design.Space.s)
-                .frame(height: Design.Size.bar)
-                .barGroup(margin: Design.Space.m, top: edge)
-                AddressField(content: content, place: edge ? .top : .bottom) { typing in
-                    editing = typing
-                    if !typing { hideSoon() }
-                }
-                .padding(.horizontal, Design.Space.s)
-                .frame(height: Design.Size.bar)
-                .barGroup(margin: Design.Space.m, top: edge)
-                .frame(maxWidth: Design.Width.commandBar)
-                .frame(maxWidth: .infinity)
+                if finding { WebFindBar(content: content, atTop: edge).transition(.opacity) }
             }
         }
+        .barGroupBlurs()
+    }
+
+    private func navigation(edge: Bool) -> some View {
+        HStack(spacing: Design.Space.xs) {
+            button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
+            button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
+            if content.isLoading {
+                button("xmark", "Stop", enabled: true) { content.stopLoading() }
+            } else {
+                button("arrow.clockwise", "Reload", enabled: content.url != nil) { content.reload() }
+            }
+        }
+        .padding(.horizontal, Design.Space.s)
+        .frame(height: Design.Size.bar)
+        .barGroup(margin: Design.Space.m, top: edge)
+    }
+
+    private func address(edge: Bool) -> some View {
+        AddressField(content: content, place: edge ? .top : .bottom) { typing in
+            editing = typing
+            if !typing { hideSoon() }
+        }
+        .padding(.horizontal, Design.Space.s)
+        .frame(height: Design.Size.bar)
+        .barGroup(margin: Design.Space.m, top: edge)
+        .frame(maxWidth: Design.Width.commandBar)
+        .frame(maxWidth: .infinity)
     }
 
     /// Back, forward, reload: the sidebar's icon button, as tall as the field beside them and with its corner, so that every part of the bar

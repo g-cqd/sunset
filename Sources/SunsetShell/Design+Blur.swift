@@ -13,20 +13,22 @@ extension Design {
         package static let barFade = (barSolid + Size.bar / 2 + Space.m + barFall) * barKeep - barSolid
         /// The share of the full height (to two bars below the bar) the blur keeps (owner, 2026-11-13: a third less of the 130 pt it had).
         package static let barKeep = 0.67
-        /// Under one group of a bar's controls (`View.barGroup`): reaching `groupReach` past its ends and `groupFall` below it; the
-        /// fall starts half way down the group and the ends' fall `haloInset` inside it (owner, 2026-11-13).
-        package static let groupReach = Space.xl
-        package static let groupFall = Size.bar
+        /// Under one group of a bar's controls (`View.barGroup`): full to its bottom edge, then falling `groupFall` below it and
+        /// `groupReach` past its ends, from `haloInset` inside them (owner, 2026-11-13: R48 of research/blur §7h).
+        package static let groupReach = Space.xl + 3 * Space.xxl
+        package static let groupFall = Size.bar + Space.xxl
+        /// Under a group, far less than under a whole bar: the page reads through it (owner, 2026-11-13: 8 was too blurry).
+        package static let groupRadius = 1.0
 
         /// The recipe for a group's blur layer of `size` (its outsets included).
         package static func group(size: CGSize, margin: Double, top: Bool) -> BlurRecipe {
             .variable(
-                radius: barRadius,
+                radius: groupRadius,
                 mask: .under(
                     top: top,
                     width: size.width,
                     height: size.height,
-                    solid: margin + Size.bar / 2,
+                    solid: margin + Size.bar,
                     endFade: groupReach + haloInset
                 )
             )

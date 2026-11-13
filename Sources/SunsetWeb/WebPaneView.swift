@@ -8,6 +8,7 @@ import WebKit
 struct WebPaneView: View {
     let content: WebContent
     let focused: Bool
+    @Environment(\.windowBarHostsFind) private var findInWindowBar
     let topInset: Double
     @State private var warning = false
     @Environment(\.webAddressRow) private var addressRow
@@ -30,7 +31,12 @@ struct WebPaneView: View {
                     PermissionPanel(request: request, store: content.permissions)
                         .frame(maxWidth: .infinity, alignment: .leading).id(request.id)
                 }
-                if content.find.isOpen { WebFindBar(content: content).frame(maxWidth: .infinity, alignment: .trailing) }
+                if content.find.isOpen, !(focused && findInWindowBar) {
+                    GlassEffectContainer(spacing: Design.Space.m) { WebFindBar(content: content) }
+                        .barGroupBlurs()
+                        .padding(Design.Space.m)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
                 if addressRow, let typing { AddressSuggestionList(typing: typing, places: [.pane], page: content) }
             }
         }

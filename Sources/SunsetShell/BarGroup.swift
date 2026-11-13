@@ -6,6 +6,7 @@ struct BarGroup: ViewModifier {
     let margin: Double
     let top: Bool
     @Environment(\.barBlur) private var choice
+    @Environment(\.barGroupBlursBelow) private var blursBelow
 
     func body(content: Content) -> some View {
         content
@@ -16,27 +17,33 @@ struct BarGroup: ViewModifier {
             // Its controls are capsules too: half their height, concentric with the group at the container inset.
             .environment(\.controlRadius, Design.Size.field / 2)
             .background {
-                if choice == .variable {
+                if choice == .variable, !blursBelow {
                     GeometryReader { proxy in
                         BlurBackdropView(Design.Blur.group(size: proxy.size, margin: margin, top: top))
                     }
-                    .padding(outsets)
+                    .padding(Self.outsets(margin: margin, top: top).negated)
                     .allowsHitTesting(false)
                 }
+            }
+            .anchorPreference(key: BarGroupBlurs.Key.self, value: .bounds) { bounds in
+                blursBelow ? [BarGroupBlurs.Entry(bounds: bounds, margin: margin, top: top)] : []
             }
     }
 
     /// A capsule, as the system's toolbar groups (owner, 2026-11-13).
     static var shape: Capsule { Capsule() }
 
-    private var outsets: EdgeInsets {
+    /// How far a group's blur reaches past it on each side: `margin` to the container's edge, its fall away from it, its reach at
+    /// both ends.
+    static func outsets(margin: Double, top: Bool) -> EdgeInsets {
         let reach = Design.Blur.groupReach
         let fall = Design.Blur.groupFall
-        return EdgeInsets(
-            top: -(top ? margin : fall),
-            leading: -reach,
-            bottom: -(top ? fall : margin),
-            trailing: -reach
-        )
+        return EdgeInsets(top: top ? margin : fall, leading: reach, bottom: top ? fall : margin, trailing: reach)
+    }
+}
+
+extension EdgeInsets {
+    fileprivate var negated: EdgeInsets {
+        EdgeInsets(top: -top, leading: -leading, bottom: -bottom, trailing: -trailing)
     }
 }

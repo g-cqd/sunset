@@ -7,4 +7,9 @@ extension View {
     package func barGroup(margin: Double, top: Bool = true) -> some View {
         modifier(BarGroup(margin: margin, top: top))
     }
+
+    /// Draws the blurs of the bar groups inside beneath all of them (one row of several groups: none blurs another's glass).
+    package func barGroupBlurs() -> some View {
+        modifier(BarGroupBlurs())
+    }
 }

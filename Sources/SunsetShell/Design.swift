@@ -88,6 +88,6 @@ package enum Design {
         package static let sheet = 420.0
         package static let commandBar = 520.0
         /// The find bar's text field.
-        package static let findField = 170.0
+        package static let findField = 240.0
     }
 }

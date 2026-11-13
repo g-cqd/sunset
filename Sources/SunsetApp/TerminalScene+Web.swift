@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetHost
+import SunsetMetrics
 import SunsetPane
 import SunsetShell
 import SunsetWeb
@@ -32,7 +33,9 @@ extension TerminalScene {
                     WindowAddressBar(
                         content: page,
                         atTop: configuration.web.windowBar == .top,
-                        card: barInMargin ? nil : card
+                        card: barInMargin ? nil : card,
+                        inset: barInMargin ? splitGap : Design.Space.m,
+                        hostsFind: hostsFind
                     ) { out in barOut = out }
                     .id(ObjectIdentifier(page))
                     .environment(\.barBlur, barInMargin ? .none : configuredBarBlur)
@@ -50,8 +53,17 @@ extension TerminalScene {
             && tabs.shownItem?.isSplit == true
     }
 
-    /// The margin it opens while it is out: the bar and the space under it.
-    var splitBarInset: Double { barInMargin && barOut ? Design.Space.m + Design.Size.bar : 0 }
+    /// The margin it opens while it is out: the bar and the split's gap under it (the same gap is above it, where the panes' tops were).
+    var splitBarInset: Double { barInMargin && barOut ? Design.Size.bar + splitGap : 0 }
+
+    /// The space between a split's cards, and between them and the window's edge (as `PaneArea` lays them out).
+    var splitGap: Double { configuration.sidebarDocked ? configuration.sidebar.padding : configuration.layout.paneGap }
+
+    /// The window bar shows the focused page's find bar in its row: at the top, over the focused pane (in the split's margin the
+    /// panes have moved down and the find bar stays in its own).
+    var hostsFind: Bool {
+        addressPlace == .window && configuration.web.windowBar == .top && !barInMargin
+    }
 
     var configuredBarBlur: BarBlurChoice {
         BarBlurChoice(rawValue: configuration.appearance.barBlur.rawValue) ?? .variable
