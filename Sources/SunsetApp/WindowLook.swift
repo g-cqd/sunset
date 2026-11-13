@@ -9,10 +9,14 @@ struct WindowLook: Equatable {
     var tintAlpha = 0.25
     var blur = 0.0
     var scheme = Configuration.Appearance.Scheme.dark
+    /// The app is drawn light now: the tint is laid over regular glass as a view (measured 2026-11-13: regular glass ignores its
+    /// `tintColor`, and turns dark over a dark desktop whatever the window's appearance, under the scheme's black text).
+    var light = false
 
     init() {}
 
-    init(_ configuration: Configuration) {
+    init(_ configuration: Configuration, light: Bool = false) {
+        self.light = light
         material = configuration.window.material
         glass = configuration.appearance.glass
         tint = configuration.appearance.tintColor

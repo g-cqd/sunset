@@ -22,6 +22,8 @@ public enum ConfigurationKeys {
         "layout.hideDelay", "layout.animation", "layout.terminalRadius", "layout.panelRadius",
         "appearance.scheme", "appearance.glass", "appearance.accent", "appearance.barBlur", "appearance.barTint",
         "appearance.tint.color",
+        "appearance.tint.light",
+        "appearance.tint.lightAlpha",
         "appearance.tint.alpha",
         "tabs.mode", "tabs.restore", "tabs.confirmClose", "tabs.askBeforeQuit", "tabs.keepRunningForFavorites",
         "tabs.bar.position",

@@ -131,6 +131,8 @@ public enum ConfigurationWriter {
         extra["tabs.bar.monospacedDirectory"] = String(configuration.tabs.bar.monospacedDirectory)
         extra["appearance.barBlur"] = string(configuration.appearance.barBlur.rawValue)
         extra["appearance.barTint"] = string(configuration.appearance.barTint.rawValue)
+        extra["appearance.tint.light"] = color(configuration.appearance.lightTintColor)
+        extra["appearance.tint.lightAlpha"] = number(configuration.appearance.lightTintAlpha)
         extra["appearance.accent"] = string(configuration.appearance.accent.rawValue)
         return extra
     }

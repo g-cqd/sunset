@@ -69,6 +69,16 @@ extension Reader {
                     } else if let bytes = color("appearance.tint.color", value) {
                         configuration.appearance.tintColor = bytes
                     }
+                case "light":
+                    if case .null = value {
+                        configuration.appearance.lightTintColor = nil
+                    } else if let bytes = color("appearance.tint.light", value) {
+                        configuration.appearance.lightTintColor = bytes
+                    }
+                case "lightAlpha":
+                    if let alpha = number("appearance.tint.lightAlpha", value, range: 0 ... 1) {
+                        configuration.appearance.lightTintAlpha = alpha
+                    }
                 case "alpha":
                     if let alpha = number("appearance.tint.alpha", value, range: 0 ... 1) {
                         configuration.appearance.tintAlpha = alpha

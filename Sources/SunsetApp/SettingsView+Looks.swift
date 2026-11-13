@@ -40,8 +40,10 @@ extension SettingsView {
                         Text("Light").tag(Configuration.Appearance.Scheme.light)
                         Text("Follow the system").tag(Configuration.Appearance.Scheme.system)
                     }
-                    Text("For the terminal windows: the sidebar, glass and controls. This window follows the system.")
-                        .font(Design.Text.detail).foregroundStyle(.secondary)
+                    Text(
+                        "For the whole app. Light has its own tint; a dark terminal theme stays dark and opaque in it."
+                    )
+                    .font(Design.Text.detail).foregroundStyle(.secondary)
                 }
             case "appearance.glass":
                 Picker("Glass style", selection: config.binding(\.appearance.glass)) {
@@ -59,9 +61,8 @@ extension SettingsView {
                     Text("The bar's surface").tag(Configuration.Appearance.BarBlur.surface)
                     Text("Nothing").tag(Configuration.Appearance.BarBlur.none)
                 }
-            case "appearance.tint": colorRow("Tint", \.appearance.tintColor, fallback: [48, 96, 255])
-            case "appearance.tintAlpha":
-                number("Tint strength", \.appearance.tintAlpha, range: 0 ... 1, step: 0.05, unit: "")
+            case "appearance.tint", "appearance.tintLight", "appearance.tintLightAlpha", "appearance.tintAlpha":
+                tintControls(for: id)
             default: layoutControls(for: id)
         }
     }

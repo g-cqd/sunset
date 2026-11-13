@@ -115,6 +115,9 @@ public struct Configuration: Sendable, Equatable {
         public var glass = Glass.regular
         /// `#rrggbb`; nil for no tint. One tint for the window and the sidebar.
         public var tintColor: [UInt8]? = [0x00, 0x00, 0x00]
+        /// The tint while the scheme is light, and its strength (owner, 2026-11-13: black text on the dark tint did not read).
+        public var lightTintColor: [UInt8]? = [0xFF, 0xFF, 0xFF]
+        public var lightTintAlpha = 0.8
         public var tintAlpha = 0.5
         /// The colour that marks a selection, a focus, a filled control (design 0003 §3.5): the system's accent, Sunset's (`tint.color`, the
         /// system's when unset), or neutral shades of the scheme.

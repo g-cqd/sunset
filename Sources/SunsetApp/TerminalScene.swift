@@ -29,7 +29,8 @@ struct TerminalScene: View {
     @Environment(\.openWindow) private var openWindow
     let config = AppConfiguration.shared
 
-    var configuration: Configuration { config.configuration }
+    /// As shown: its tint is the light scheme's while the app is light.
+    var configuration: Configuration { config.shown }
     var presentation: TabPresentation { configuration.presentation }
     private var noDecorations: Bool { configuration.window.decorations == .none }
     private var barAtTop: Bool { presentation.showsBuiltInBar && configuration.tabs.bar.position == .top }
@@ -57,7 +58,7 @@ struct TerminalScene: View {
         guard look.isOpaque else { return .clear }
         return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
-    private var look: WindowLook { WindowLook(configuration) }
+    private var look: WindowLook { WindowLook(configuration, light: config.isLight) }
     var colors: DefaultColors {
         DefaultColors(configuration.colors, cursorShape: configuration.cursorShape, blinks: configuration.cursorBlinks)
     }

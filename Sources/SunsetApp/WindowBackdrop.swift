@@ -29,7 +29,7 @@ final class WindowBackdrop {
         switch look.material {
             case .opaque: break
             case .material: install(material(), in: window, tint: look.tintColor)
-            case .glass: install(glass(look), in: window, tint: nil)
+            case .glass: install(glass(look), in: window, tint: look.light ? look.tintColor : nil)
             // The tint's colour and alpha, nothing under it; the desktop is not blurred (that "never really worked": owner, 2026-11-12).
             case .fill: install(nil, in: window, tint: look.tintColor)
         }

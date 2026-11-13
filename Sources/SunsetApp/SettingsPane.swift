@@ -153,6 +153,18 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             entry(pane, "appearance.barTint", "Bars", ["tint", "dark", "light", "bar", "address", "find"]),
             entry(pane, "appearance.barBlur", "Under the bars", ["blur", "variable", "fade", "bar", "sidebar"]),
             entry(pane, "appearance.tint", "Tint", ["colour", "color", "overlay", "glass"]),
+            entry(
+                pane,
+                "appearance.tintLight",
+                "Tint in the light scheme",
+                ["colour", "color", "overlay", "glass", "light"]
+            ),
+            entry(
+                pane,
+                "appearance.tintLightAlpha",
+                "Tint strength in the light scheme",
+                ["alpha", "opacity", "light"]
+            ),
             entry(pane, "appearance.tintAlpha", "Tint strength", ["alpha", "opacity", "overlay"])
         ]
     }

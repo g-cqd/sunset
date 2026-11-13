@@ -49,4 +49,15 @@ import Testing
         let read = try ConfigurationParser.parse(#"{ "terminal": { "directory": "~/Code" } }"#)
         #expect(read.configuration.terminal.directory == "~/Code" && read.issues.isEmpty)
     }
+
+    @Test func `the light scheme has its own tint, white by default; a colour and none are read`() throws {
+        #expect(Configuration().appearance.lightTintColor == [255, 255, 255])
+        #expect(Configuration().appearance.lightTintAlpha == 0.8)
+        let strength = try ConfigurationParser.parse(#"{ "appearance": { "tint": { "lightAlpha": 0.6 } } }"#)
+        #expect(strength.configuration.appearance.lightTintAlpha == 0.6 && strength.issues.isEmpty)
+        let read = try ConfigurationParser.parse(##"{ "appearance": { "tint": { "light": "#ffeedd" } } }"##)
+        #expect(read.configuration.appearance.lightTintColor == [0xFF, 0xEE, 0xDD] && read.issues.isEmpty)
+        let none = try ConfigurationParser.parse(#"{ "appearance": { "tint": { "light": null } } }"#)
+        #expect(none.configuration.appearance.lightTintColor == nil && none.issues.isEmpty)
+    }
 }

@@ -16,13 +16,52 @@ final class AppConfiguration {
     private(set) var configuration = Configuration() {
         didSet {
             if configuration.appearance.scheme != oldValue.appearance.scheme { applyScheme() }
+            refreshShown()
         }
     }
+
+    /// What the windows draw from: the configuration, its tint the light scheme's while the app is light (`appearance.tint.light`,
+    /// `lightAlpha`), a dark terminal theme opaque then.
+    /// Settings edits `configuration`; a window never writes this back.
+    private(set) var shown = Configuration()
+    /// The app is drawn light now: the scheme locked to light, or the system's while it follows it.
+    private(set) var isLight = false
+    @ObservationIgnored private var appearanceWatch: NSKeyValueObservation?
 
     /// `appearance.scheme` for the whole app (Settings, panels, menus), not only the terminal windows: dark or light locks it,
     /// system follows the Mac (owner, 2026-11-13).
     func applyScheme() {
         NSApp?.appearance = configuration.appearance.scheme.nsAppearance
+        if appearanceWatch == nil, let app = NSApp {
+            appearanceWatch = app.observe(\.effectiveAppearance) { _, _ in
+                Task { @MainActor in AppConfiguration.shared.refreshShown() }
+            }
+        }
+        refreshShown()
+    }
+
+    /// A colour is dark (by its luma); none counts as dark (the terminal's default is black).
+    private static func isDark(_ colour: [UInt8]?) -> Bool {
+        guard let colour, colour.count == 3 else { return true }
+        return 0.2126 * Double(colour[0]) + 0.7152 * Double(colour[1]) + 0.0722 * Double(colour[2]) < 128
+    }
+
+    private func refreshShown() {
+        let light: Bool =
+            switch configuration.appearance.scheme {
+                case .light: true
+                case .dark: false
+                case .system: NSApp?.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .aqua
+            }
+        var next = configuration
+        if light {
+            next.appearance.tintColor = configuration.appearance.lightTintColor
+            next.appearance.tintAlpha = configuration.appearance.lightTintAlpha
+            // A dark terminal theme keeps its own background over the light tint: translucent, it washed out to grey under light text.
+            if Self.isDark(configuration.colors.background) { next.terminal.opacity = 1 }
+        }
+        if light != isLight { isLight = light }
+        if next != shown { shown = next }
     }
     /// How the tabs are shown now.
     var presentation: TabPresentation { configuration.presentation }

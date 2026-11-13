@@ -320,3 +320,14 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - `capsule-inside-…`: A glass + 0.5 fill (as it was), B glass + 0.75 fill, C our uniform blur 8 instead of glass + 0.5 fill, D blur 16 +
   0.5, E blur 16 + 0.3. Over a checkerboard the page is unreadable inside all five; they differ in darkness and the glass's edge
   highlight. Chosen A: nothing changes.
+
+### 7s. Owner, 2026-11-13 (t233): the light scheme, the window and the sidebar
+
+- Measured: regular Liquid Glass ignores its `tintColor` (a red tint at 0.8 left the sidebar at 81,81,81; clear glass and the system
+  material took it), and over a dark desktop it is dark whatever the window's appearance. So in the light scheme the sidebar was
+  dark glass under the scheme's black text.
+- `appearance.tint.light` (white) and `appearance.tint.lightAlpha` (0.8) are the tint while the app is light (the scheme locked to
+  light, or the system's while it follows it; `AppConfiguration.shown`, 117 keys). Over regular glass it is laid as a view.
+- A dark terminal theme is opaque in the light scheme: translucent (`terminal.opacity` 0.2) it washed out to grey under light text.
+- `light-scheme-…`: a terminal window and a page window in the light scheme. Settings and the history panel are light too.
+- Not seen: following the system when it changes while Sunset runs; a light terminal theme.

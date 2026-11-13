@@ -31,7 +31,7 @@ import SwiftUI
             SettingsView()
                 .accent(
                     AppConfiguration.shared.configuration.appearance.accent.rawValue,
-                    tint: AppConfiguration.shared.configuration.appearance.tintColor
+                    tint: AppConfiguration.shared.shown.appearance.tintColor
                 )
         }
     }
