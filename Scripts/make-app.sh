@@ -58,5 +58,13 @@ for size in 16 32 128 256 512; do
 done
 iconutil -c icns "$iconset" -o "$app/Contents/Resources/Sunset.icns"
 
-codesign --force --sign - --timestamp=none --identifier studio.aemi.sunset "$app" >/dev/null 2>&1
+# Signed with a stable identity when there is one, so that macOS keeps the permissions given to Sunset (Accessibility, Screen
+# Recording) across rebuilds: an ad hoc signature is a new identity each time. SUNSET_SIGN_IDENTITY names one; else the first
+# "Apple Development" certificate in the keychain (the owner's oculavis one first, for now); else ad hoc.
+# Fingerprints, not names: two certificates can share a name, which codesign refuses as ambiguous.
+identities="$(security find-identity -v -p codesigning 2>/dev/null | grep 'Apple Development' || true)"
+preferred="$(printf '%s\n' "$identities" | grep -m1 'oculavis' | awk '{print $2}' || true)"
+identity="${SUNSET_SIGN_IDENTITY:-${preferred:-$(printf '%s\n' "$identities" | head -1 | awk '{print $2}')}}"
+codesign --force --sign "${identity:--}" --timestamp=none --identifier studio.aemi.sunset "$app" >/dev/null 2>&1
+echo "signed: ${identity:-ad hoc}" >&2
 echo "$app"
