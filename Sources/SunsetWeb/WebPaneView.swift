@@ -36,12 +36,14 @@ struct WebPaneView: View {
                         .barGroupBlurs()
                         .padding(Design.Space.m)
                         .frame(maxWidth: .infinity, alignment: .trailing)
+                        .transition(BarGroupSlide.transition(atTop: true, inset: Design.Space.m))
                 }
                 if addressRow, let typing { AddressSuggestionList(typing: typing, places: [.pane], page: content) }
             }
         }
         .padding(.top, topInset)
         .background(Color(nsColor: .windowBackgroundColor))
+        .animation(BarGroupSlide.animation, value: content.find.isOpen)
     }
 
     private var empty: some View {
