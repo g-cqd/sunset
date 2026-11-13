@@ -73,7 +73,8 @@ package struct TabSidebar: View {
         .contentMargins(.bottom, margin + bottomInset, for: .scrollContent)
         .onHover { inside in if !inside { closingSlot = nil } }
         .mask { fade }
-        // Under the pin and the + bar, the rows that scroll there blur out as they fade (Sunset research/blur).
+        // Under the pin and the + bar, the rows that scroll there blur out as they fade (Sunset research/blur). Docked, the window
+        // draws the sidebar under the panes, so the bands go on under them with no side (owner, 2026-11-13).
         .overlay(alignment: .top) { listEndBlur(.top, over: topInset, reach: floating ? 0 : margin) }
         .overlay(alignment: .bottom) { listEndBlur(.bottom, over: bottomInset + margin) }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
@@ -82,14 +83,15 @@ package struct TabSidebar: View {
     }
 
     /// Content that scrolls up past the traffic lights fades out over the height of the strip they sit in; rows at rest start below it, untouched.
-    /// With an accessory (the address field), nothing shows behind it: the rows fade in, eased, below it
+    /// With an accessory (the address field), nothing shows behind its upper half: the rows fade in, eased, from there to below it
     /// (owner, 2026-11-13, t231).
     private var fade: some View {
-        let hidden = accessory == nil ? 0 : header.height + Self.accessoryHeight
+        // Hidden to the field's middle, then an eased fade over its lower half and the gap below it.
+        let hidden = accessory == nil ? 0 : header.height + Self.accessoryHeight / 2
         return VStack(spacing: 0) {
             Color.clear.frame(height: hidden)
             LinearGradient(gradient: .eased(from: .clear, to: .black), startPoint: .top, endPoint: .bottom)
-                .frame(height: max(topInset - 4 - hidden, 0))
+                .frame(height: max(topInset - hidden, 0))
             Color.black
             // And under the bottom bar.
             if bottomBar != nil {
