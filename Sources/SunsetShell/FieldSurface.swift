@@ -5,9 +5,10 @@ struct FieldSurface: ViewModifier {
     let dark: Bool
     let height: Double?
     @Environment(\.surfaceStyle) private var surface
+    @Environment(\.controlRadius) private var controlRadius
 
     func body(content: Content) -> some View {
-        let shape = RoundedRectangle(cornerRadius: surface.leafRadius, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: controlRadius ?? surface.leafRadius, style: .continuous)
         content
             .padding(.horizontal, Design.Space.m)
             .frame(height: height.map { CGFloat($0) })

@@ -9,7 +9,12 @@ struct BarGroup: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            // Tinted dark, so that its text and icons read over a light page (owner, 2026-11-13: contrast).
+            .background { Self.shape.fill(.black.opacity(Design.Fill.barShade)) }
             .glassEffect(.regular, in: Self.shape)
+            .environment(\.colorScheme, .dark)
+            // Its controls are capsules too: half their height, concentric with the group at the container inset.
+            .environment(\.controlRadius, Design.Size.field / 2)
             .background {
                 if choice == .variable {
                     GeometryReader { proxy in
@@ -21,10 +26,8 @@ struct BarGroup: ViewModifier {
             }
     }
 
-    /// Concentric with the container's corners, never tighter than a leaf's.
-    static var shape: ConcentricRectangle {
-        ConcentricRectangle(corners: .concentric(minimum: .fixed(Design.Blur.groupMinimumRadius)), isUniform: true)
-    }
+    /// A capsule, as the system's toolbar groups (owner, 2026-11-13).
+    static var shape: Capsule { Capsule() }
 
     private var outsets: EdgeInsets {
         let reach = Design.Blur.groupReach

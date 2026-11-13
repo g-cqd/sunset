@@ -37,7 +37,7 @@ struct WebFindBar: View {
                 SidebarIconButton(symbol: "chevron.up", help: "Previous (Shift-Cmd-G)") { find.search(backwards: true) }
                 SidebarIconButton(symbol: "chevron.down", help: "Next (Cmd-G)") { find.search() }
             }
-            .environment(\.sidebarButtonMetrics, BarButton.metrics(surface))
+            .environment(\.sidebarButtonMetrics, BarButton.metrics(surface, radius: Design.Size.field / 2))
             Button("Done") { close() }.buttonStyle(.borderless)
         }
         .buttonStyle(.borderless)

@@ -14,6 +14,7 @@ package struct AddressField: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.surfaceStyle) private var surface
     @Environment(\.accent) private var accent
+    @Environment(\.controlRadius) private var controlRadius
 
     package init(content: WebContent, place: AddressTyping.Place = .top, onEditing: @escaping (Bool) -> Void = { _ in })
     {
@@ -39,7 +40,7 @@ package struct AddressField: View {
         // A private page's field is dark, its text light (web step h).
         .fieldSurface(dark: content.isPrivate)
         .overlay(alignment: .bottomLeading) { progressLine }
-        .clipShape(RoundedRectangle(cornerRadius: surface.leafRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: controlRadius ?? surface.leafRadius, style: .continuous))
         .environment(\.colorScheme, content.isPrivate ? .dark : colorScheme)
         .onAppear { takeKeyboardIfAsked() }
         .onChange(of: content.wantsAddress) { _, _ in takeKeyboardIfAsked() }

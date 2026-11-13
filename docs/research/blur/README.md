@@ -174,3 +174,11 @@ Open Address (the window's bar comes out for it), which the scene uses.
 - Removed: the halo (`BlurHalo`, `blurSurface`) and the bar's dark shade (the glass carries the contrast now).
 - Chosen without the owner (no answer): two groups (nav, address), one blur per group with sharp gaps between them.
 - Not seen: light appearance, the bar at the bottom, scrolling, cost.
+
+### 7f. Owner, 2026-11-13: contrast and capsules
+
+- A tint on the glass (`.regular.tint`) changed nothing visible; a black fill inside the glass shape does
+  (`contrast-2026-11-13.png`, 0.3 / 0.5): the owner chose 0.5 (`Design.Fill.barShade`). Groups and the command bar draw their
+  controls dark-scheme.
+- The groups are capsules, as the system's toolbar groups; their fields and buttons too (`\.controlRadius`, half the field's height),
+  concentric with the group at the container inset (`capsules-2026-11-13.png`).
