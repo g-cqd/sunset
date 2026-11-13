@@ -9,10 +9,12 @@ package enum PreviewPlacement {
         let maxX = max(area.width - size.width - margin, margin)
         let maxY = max(area.height - size.height - margin, margin)
         guard let row else { return CGPoint(x: sidebarOnRight ? maxX : margin, y: margin) }
-        if row.midY >= area.minY, row.midY <= area.maxY, row.maxX <= area.minX + 1 || row.minX >= area.maxX - 1 {
-            // A row of the sidebar, beside the area: next to it, level with it.
+        if row.midY >= area.minY, row.midY <= area.maxY {
+            // A row of the sidebar, docked beside the area or floating over it: next to the row's outer edge, level with it, so
+            // never under a floating panel (owner, 2026-11-13, t228).
             let y = min(max(row.midY - area.minY - size.height / 2, margin), maxY)
-            return CGPoint(x: sidebarOnRight ? maxX : margin, y: y)
+            let beside = sidebarOnRight ? row.minX - area.minX - size.width - margin : row.maxX - area.minX + margin
+            return CGPoint(x: min(max(beside, margin), maxX), y: y)
         }
         // A row of the built-in bar, above or below the area: at its place along the bar, on the bar's side.
         let x = min(max(row.midX - area.minX - size.width / 2, margin), maxX)
