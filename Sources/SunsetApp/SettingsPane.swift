@@ -108,6 +108,11 @@ enum SettingsPane: String, CaseIterable, Identifiable {
                     entry("terminal.blinkForever", "Cursor blinks for ever", ["blink", "caret", "idle"]),
                     entry("terminal.blinkTimeout", "Stop blinking after", ["blink", "caret", "idle", "seconds"]),
                     entry("terminal.renderer", "Renderer", ["gpu", "cpu", "metal", "auto", "graphics"]),
+                    entry(
+                        "terminal.directory",
+                        "New terminals start in",
+                        ["directory", "folder", "home", "cd", "path"]
+                    ),
                     entry("terminal.shellIntegration", "Shell marks its prompts", ["integration", "osc 133", "zsh"]),
                     entry("terminal.clipboardWrite", "Programs may copy", ["clipboard", "osc 52", "pasteboard", "ssh"])
                 ]
@@ -128,7 +133,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
 
     static var allEntries: [SettingsEntry] { allCases.flatMap(\.entries) }
 
-    private static func entry(_ pane: String, _ id: String, _ title: String, _ keywords: [String]) -> SettingsEntry {
+    static func entry(_ pane: String, _ id: String, _ title: String, _ keywords: [String]) -> SettingsEntry {
         SettingsEntry(id: id, pane: pane, title: title, keywords: keywords)
     }
 
@@ -158,58 +163,6 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             entry(pane, "sidebar.side", "Side", ["left", "right", "edge", "mirror"]),
             entry(pane, "sidebar.width", "Width", ["size", "wide"]),
             entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"])
-        ]
-    }
-
-    /// Every metric of `layout.*`: the numbers come from `Configuration.Layout.fields`, so a new one shows up here without a line of its own.
-    private static func layoutEntries(_ pane: String) -> [SettingsEntry] {
-        let numbers = Configuration.Layout.fields.map {
-            entry(
-                pane,
-                "layout.\($0.key)",
-                $0.title,
-                $0.keywords + ["layout", "spacing", "padding", "margin", "radius"]
-            )
-        }
-        return numbers + [
-            entry(
-                pane,
-                "layout.terminalRadius",
-                "Terminal card corner radius",
-                ["rounding", "card", "layout", "window"]
-            ),
-            entry(
-                pane,
-                "layout.panelRadius",
-                "Floating sidebar corner radius",
-                ["rounding", "panel", "layout", "window"]
-            )
-        ]
-    }
-
-    private static func tabEntries(_ pane: String) -> [SettingsEntry] {
-        [
-            entry(pane, "tabs.mode", "Tabs", ["native", "internal", "built-in", "none", "windows"]),
-            entry(pane, "tabs.restore", "Restore tabs at launch", ["session", "reopen", "quit", "windows"]),
-            entry(
-                pane,
-                "tabs.confirmClose",
-                "Confirm closing a tab with a running command",
-                ["close", "warn", "running", "red"]
-            ),
-            entry(pane, "tabs.askBeforeQuit", "Ask before quitting", ["quit", "confirm", "running", "lost", "form"]),
-            entry(
-                pane,
-                "tabs.keepRunningForFavorites",
-                "Keep running while a favourite is open",
-                ["quit", "last window", "favorites", "background", "dock"]
-            ),
-            entry(pane, "tabs.position", "Built-in bar position", ["top", "bottom", "internal"]),
-            entry(pane, "tabs.icon", "Show the folder or command icon", ["tab", "glyph", "letter", "picture"]),
-            entry(pane, "tabs.title", "Show the title", ["tab", "name"]),
-            entry(pane, "tabs.directory", "Show the working directory", ["tab", "folder", "path", "osc 7"]),
-            entry(pane, "tabs.monospacedDirectory", "Second line in monospace", ["tab", "directory", "font", "mono"]),
-            entry(pane, "tabs.progress", "Show progress", ["tab", "bar", "osc 9", "download"])
         ]
     }
 }

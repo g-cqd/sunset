@@ -22,6 +22,9 @@ extension Reader {
                 case "shellIntegration":
                     guard let flag = bool("terminal.shellIntegration", value) else { continue }
                     configuration.terminal.shellIntegration = flag
+                case "directory":
+                    guard let path = string("terminal.directory", value) else { continue }
+                    configuration.terminal.directory = path
                 default: unknown("terminal.\(key)")
             }
         }

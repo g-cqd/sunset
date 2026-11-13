@@ -17,7 +17,8 @@ extension TerminalScene {
             return content
         }
         let model = TerminalModel()
-        model.startDirectory = descriptor?.directory.flatMap { PaneContentKinds.isDirectory($0) ? $0 : nil }
+        model.startDirectory =
+            descriptor?.directory.flatMap { PaneContentKinds.isDirectory($0) ? $0 : nil } ?? configuredStartDirectory
         model.topInsetPoints = topInset
         configure(model)
         let integrated = configuration.terminal.shellIntegration
@@ -28,5 +29,11 @@ extension TerminalScene {
             scrollback: launch.scrollback ?? configuration.scrollbackLines
         )
         return model
+    }
+
+    /// `terminal.directory` with `~` expanded, when it is a folder; else the home folder (never the app's own directory).
+    var configuredStartDirectory: String {
+        let path = (configuration.terminal.directory as NSString).expandingTildeInPath
+        return PaneContentKinds.isDirectory(path) ? path : NSHomeDirectory()
     }
 }

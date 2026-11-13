@@ -190,18 +190,6 @@ public struct Configuration: Sendable, Equatable {
         public init() {}
     }
 
-    /// What only the terminal screen has of its own (the window's settings, material and blur, also give the sidebar its look).
-    public struct Terminal: Sendable, Equatable {
-        /// How opaque the terminal's default background is when the window is not opaque: 1 shows only the terminal's colour, less lets the window's
-        /// material show through.
-        public var opacity = 0.2
-        /// A program may put text on the clipboard (OSC 52); it can never read it (ADR-0010).
-        public var clipboardWrite = true
-        /// The shell is taught to mark its prompts (OSC 133), which Previous Prompt and Next Prompt go by. zsh is taught (fish does it itself); the user's files are not changed.
-        public var shellIntegration = true
-        public init() {}
-    }
-
     public struct Keyboard: Sendable, Equatable {
         /// Option sends Escape before the key (Meta) instead of composing a character.
         public var optionAsMeta = false

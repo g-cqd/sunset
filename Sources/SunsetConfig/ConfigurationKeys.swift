@@ -8,6 +8,7 @@ public enum ConfigurationKeys {
         "window.decorations", "window.trafficLights.x", "window.trafficLights.y", "window.trafficLights.side",
         "window.dragStrip", "window.padding",
         "window.material", "window.blur", "terminal.opacity", "terminal.clipboardWrite", "terminal.shellIntegration",
+        "terminal.directory",
         "sidebar.enabled", "sidebar.width", "sidebar.padding", "sidebar.autoHide", "sidebar.side",
 
         "layout.tabSpacing", "layout.tabSideInset", "layout.tabPaddingLeading", "layout.tabPaddingTrailing",

@@ -118,7 +118,11 @@ final class AppConfiguration {
         configuration = new
         let after = new.presentation
         // At launch the file is read before the application exists (`NSApp` is nil then, and there is no window to move): nothing to reshape.
-        if before != after, (NSApp as NSApplication?) != nil { AppActions.shared.reshape(from: before, to: after) }
+        // After SwiftUI has applied the change that set it (a Settings toggle): closing windows inside that update trips SwiftUI's
+        // bar appearance bridge (crash report 2026-11-13, t242).
+        if before != after, (NSApp as NSApplication?) != nil {
+            Task { @MainActor in AppActions.shared.reshape(from: before, to: after) }
+        }
     }
 
     func reload() {
