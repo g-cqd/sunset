@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Dialogs</title>
+<style>body{font:16px -apple-system,sans-serif;margin:40px;background:#fdf6e3}</style></head><body>
+<h1>Dialogs</h1><p id="out">waiting</p>
+<p>The quick brown fox jumps over the lazy dog while the tide turns twice a day along the low coast.</p>
+<script>
+// ?alert, ?confirm, ?prompt, ?many (three alerts in a row), ?long. The title says what came back.
+const kind = location.search.slice(1) || "alert";
+setTimeout(() => {
+  let got;
+  if (kind === "confirm") got = confirm("Leave the harbour at low tide?");
+  else if (kind === "prompt") got = prompt("Name of the port?", "Cuxhaven");
+  else if (kind === "many") { got = []; for (let i = 1; i <= 3; i++) { alert("Alert number " + i); got.push(i); } got = got.join(","); }
+  else if (kind === "long") got = alert("x".repeat(6000));
+  else got = alert("The tide table was updated.");
+  document.title = kind + " -> " + JSON.stringify(got);
+  document.getElementById("out").textContent = document.title;
+}, 800);
+</script></body></html>

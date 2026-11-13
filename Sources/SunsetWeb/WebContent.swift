@@ -13,13 +13,13 @@ package import WebKit
 package final class WebContent: PaneContent {
     package static let kind = "web"
 
-    package private(set) var url: URL?
-    package private(set) var pageTitle = ""
-    package private(set) var progress: Double?
+    package internal(set) var url: URL?
+    package internal(set) var pageTitle = ""
+    package internal(set) var progress: Double?
     package var failure: WebFailure?
-    package private(set) var canGoBack = false
-    package private(set) var canGoForward = false
-    package private(set) var isLoading = false
+    package internal(set) var canGoBack = false
+    package internal(set) var canGoForward = false
+    package internal(set) var isLoading = false
     /// The page asks for its address to be typed (a new empty page): the address field of the window takes the keyboard and clears this.
     package var wantsAddress = false
     /// The question waiting for an answer in the panel under the address (web step g).
@@ -33,8 +33,11 @@ package final class WebContent: PaneContent {
     /// The site's icon, once fetched (`WebContent+Favicon`).
     package internal(set) var favicon: NSImage?
     package internal(set) var pageBackground: NSColor?
+    /// The dialog the page asked for, waiting for its answer (`WebContent+Dialogs`).
+    package internal(set) var dialog: PageDialog?
+    @ObservationIgnored var dialogPolicy = PageDialogPolicy()
     /// The page, once it has been shown.
-    @ObservationIgnored package private(set) var webView: WKWebView?
+    @ObservationIgnored package internal(set) var webView: WKWebView?
 
     package var onExit: () -> Void = {}
     package var onFocusRequest: () -> Void = {}
@@ -47,9 +50,9 @@ package final class WebContent: PaneContent {
 
     /// Followed when the configuration changes (`TerminalScene`); the engine, suggestions and http fallback apply at once.
     @ObservationIgnored package var settings: WebSettings
-    @ObservationIgnored private var savedHistory: Data?
-    @ObservationIgnored private var observations: [NSKeyValueObservation] = []
-    @ObservationIgnored private var coordinator: WebCoordinator?
+    @ObservationIgnored var savedHistory: Data?
+    @ObservationIgnored var observations: [NSKeyValueObservation] = []
+    @ObservationIgnored var coordinator: WebCoordinator?
     /// Hosts whose untrusted certificate the person chose to accept, for this page (Visit Anyway).
     @ObservationIgnored var acceptedHosts: Set<String> = []
     /// A private page's answers, in memory for its life (web step h).
@@ -102,6 +105,7 @@ package final class WebContent: PaneContent {
     }
 
     package func stop() {
+        dialog?.answer(.cancel)
         observations = []
         webView?.stopLoading()
         webView?.navigationDelegate = nil
@@ -153,96 +157,5 @@ package final class WebContent: PaneContent {
         guard let host = failure?.url?.host() else { return }
         acceptedHosts.insert(host)
         if let address = failure?.url { load(address) }
-    }
-
-    // MARK: The view
-
-    private func makeWebView(configuration given: WKWebViewConfiguration?) {
-        let configuration = given ?? WKWebViewConfiguration()
-        if given == nil {
-            configuration.websiteDataStore = settings.privacy.map(PrivateStores.store(for:)) ?? .default()
-        }
-        configuration.applicationNameForUserAgent = settings.applicationName
-        WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
-        WebPermissionHooks.enable(on: configuration.preferences)
-        WebFrameRate.set(fullRate: settings.fullFrameRate, on: configuration.preferences)
-        // Pop-ups without a click reach Sunset, which decides by the site's answer; sound does not play on its own unless the site may.
-        configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
-        if given == nil {
-            let host = url?.host()
-            configuration.mediaTypesRequiringUserActionForPlayback =
-                permissions.answer(.autoplay, for: host) == .allow ? [] : .audio
-        }
-        let view = SunsetWebView(frame: .zero, configuration: configuration)
-        view.isInspectable = settings.developer
-        view.allowsBackForwardNavigationGestures = true
-        view.offersPrivateTab = !isPrivate
-        view.onFocus = { [weak self] in self?.onFocusRequest() }
-        let coordinator = WebCoordinator(content: self)
-        view.navigationDelegate = coordinator
-        view.uiDelegate = coordinator
-        self.coordinator = coordinator
-        webView = view
-        find.attach(view)
-        applyZoom()
-        observe(view)
-        guard given == nil else { return }
-        if let history = savedHistory {
-            view.interactionState = history as NSData
-            savedHistory = nil
-        }
-        if view.url == nil, let url { view.load(URLRequest(url: url)) }
-        if url == nil, view.url == nil { wantsAddress = true }
-    }
-
-    private func observe(_ view: WKWebView) {
-        observations = [
-            view.observe(\.title, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated { self?.changed(title: view.title) }
-            },
-            view.observe(\.url, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated { self?.changed(url: view.url) }
-            },
-            view.observe(\.estimatedProgress, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated { self?.progress = view.isLoading ? view.estimatedProgress : nil }
-            },
-            view.observe(\.isLoading, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated {
-                    self?.isLoading = view.isLoading
-                    if !view.isLoading {
-                        self?.progress = nil
-                        self?.refreshFavicon()
-                    }
-                }
-            },
-            view.observe(\.canGoBack, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated { self?.canGoBack = view.canGoBack }
-            },
-            view.observe(\.canGoForward, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated { self?.canGoForward = view.canGoForward }
-            },
-            view.observe(\.cameraCaptureState, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated { self?.captureChanged(view) }
-            },
-            view.observe(\.microphoneCaptureState, options: [.new]) { [weak self] view, _ in
-                MainActor.assumeIsolated { self?.captureChanged(view) }
-            }, observePageColor(view)
-        ]
-    }
-
-    private func changed(title: String?) {
-        guard let title else { return }
-        if let address = webView?.url?.absoluteString { history?.retitle(address, title: title) }
-        guard title != pageTitle else { return }
-        pageTitle = title
-        onChange()
-    }
-
-    private func changed(url new: URL?) {
-        guard let new, new != url else { return }
-        let otherSite = new.host() != url?.host()
-        url = new
-        if otherSite { siteChanged() }
-        onChange()
     }
 }

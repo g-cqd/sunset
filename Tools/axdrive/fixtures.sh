@@ -6,7 +6,7 @@ set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 dir="${1:-/tmp/sunset-fixtures}"
 mkdir -p "$dir/site"
-cp "$here/Fixtures/article.html" "$dir/site/article.html"
+cp "$here"/Fixtures/*.html "$dir/site/"
 python3 - "$dir" <<'PY'
 import json, sys, uuid
 out = sys.argv[1]

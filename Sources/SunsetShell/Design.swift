@@ -62,6 +62,8 @@ package enum Design {
         package static let row = 36.0
         /// A one-line tab row: its glyph's ink as far from the top and the bottom as from the leading edge (n66, measured 9 pt). Two-line
         /// rows keep `layout.tabPaddingVertical`.
+        /// The most of a page's dialog message that shows before it scrolls.
+        package static let dialogMessage = 220.0
         package static let tabRow = 32.0
         /// A one-line row of the Favorites tree: as tall as a tab (owner, 2026-11-13, t227; it was 28, more compact, on 11-12).
         package static let favoriteRow = tabRow

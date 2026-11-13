@@ -31,6 +31,12 @@ struct WebPaneView: View {
                     PermissionPanel(request: request, store: content.permissions)
                         .frame(maxWidth: .infinity, alignment: .leading).id(request.id)
                 }
+                if let dialog = content.dialog {
+                    PageDialogPanel(dialog: dialog) { content.silenceDialogs() }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .id(dialog.id)
+                        .transition(.opacity)
+                }
                 if content.find.isOpen, !(focused && findInWindowBar) {
                     GlassEffectContainer(spacing: Design.Space.m) { WebFindBar(content: content) }
                         .barGroupBlurs()

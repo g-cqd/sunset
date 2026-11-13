@@ -4,6 +4,8 @@ extension Design {
     /// Fills and lines, as opacities of the primary colour unless said otherwise.
     package enum Fill {
         package static let faint = 0.04
+        /// Over a page while its dialog waits: the page is seen, not used.
+        package static let veil = 0.3
         package static let hover = 0.07
         package static let pressed = 0.16
         /// A row that is open (every tab, an open kept entry), at rest and under the pointer; a kept entry that is not open has no fill and is
