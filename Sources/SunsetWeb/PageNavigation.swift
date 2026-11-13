@@ -18,12 +18,26 @@ package struct PageNavigation: View {
     }
 
     package var body: some View {
+        if flat {
+            // The tab bar's row: each button its own circle.
+            HStack(spacing: Design.Space.s) {
+                TabCapsuleButton(symbol: "chevron.left", help: "Back") { content.goBack() }
+                    .disabled(!content.canGoBack)
+                TabCapsuleButton(symbol: "chevron.right", help: "Forward") { content.goForward() }
+                    .disabled(!content.canGoForward)
+            }
+        } else {
+            glass
+        }
+    }
+
+    private var glass: some View {
         HStack(spacing: Design.Space.xs) {
             button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
             button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
         }
         .frame(height: Design.Size.bar)
-        .modifier(NavigationLook(flat: flat, atTop: atTop))
+        .barGroup(margin: Design.Space.m, top: atTop)
     }
 
     /// The sidebar's icon button, as tall as the group: a capsule of the same shape.
