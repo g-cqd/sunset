@@ -51,7 +51,9 @@ let package = Package(
         // Runs a program in a headless terminal and prints the screen.
         .executable(name: "sunset-run", targets: ["SunsetRun"]),
         // The first app shell: a window, one program, the CPU renderer.
-        .executable(name: "sunset-app", targets: ["SunsetApp"]),
+        .executable(name: "sunset-app", targets: ["SunsetAppMain"]),
+        // What Sunset.app links (project.yml, built by XcodeGen and xcodebuild).
+        .library(name: "SunsetAppLibrary", targets: ["SunsetApp"]),
         // Runs a program in a headless terminal and writes what the CPU renderer draws of its screen as a PNG.
         .executable(name: "sunset-render", targets: ["SunsetRenderTool"])
     ],
@@ -125,6 +127,12 @@ let package = Package(
             swiftSettings: strictSettings
         ),
         .executableTarget(
+            name: "SunsetAppMain",
+            dependencies: ["SunsetApp"],
+            path: "Sources/SunsetAppMain",
+            swiftSettings: strictSettings
+        ),
+        .target(
             name: "SunsetApp",
             dependencies: [
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",

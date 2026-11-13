@@ -1,0 +1,8 @@
+// Ad hoc by default: anyone can build. An ad hoc signature is a new identity at each build, so macOS asks again for Sunset's
+// permissions (Accessibility, Screen Recording, folders). To keep them, name a stable identity in Signing.local.xcconfig (not
+// committed), for example:
+//   CODE_SIGN_IDENTITY = Developer ID Application
+//   DEVELOPMENT_TEAM = <your team id>
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = -
+#include? "Signing.local.xcconfig"

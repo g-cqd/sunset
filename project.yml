@@ -1,0 +1,66 @@
+# Sunset.app (the owner, 2026-11-13: apps are built with XcodeGen, not by a script that assembles a bundle).
+#   xcodegen generate                     makes Sunset.xcodeproj (not committed)
+#   Scripts/make-app.sh [debug|release]   generates, builds with xcodebuild, and prints where the app is
+# The app target compiles one file, Sources/SunsetAppMain/main.swift, and links the package's SunsetAppLibrary: everything else is
+# the package. Signing is ad hoc unless Signing.local.xcconfig (not committed) names an identity; a stable one keeps the
+# permissions macOS gave Sunset (Accessibility, Screen Recording, folders) across rebuilds.
+name: Sunset
+options:
+  bundleIdPrefix: studio.aemi
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+configFiles:
+  Debug: Signing.xcconfig
+  Release: Signing.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: 6.0
+    MARKETING_VERSION: "0.1"
+    # The commit, given by Scripts/make-app.sh.
+    CURRENT_PROJECT_VERSION: 0
+    GENERATE_INFOPLIST_FILE: YES
+    # Not hardened: a terminal runs what the person runs, and a page's camera and microphone need no entitlement this way.
+    ENABLE_HARDENED_RUNTIME: NO
+  configs:
+    Release:
+      # No debugger's entitlement (get-task-allow) in the build that is installed.
+      CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+packages:
+  Sunset:
+    path: .
+targets:
+  Sunset:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/SunsetAppMain
+      - path: App
+        excludes: [Info.plist]
+    dependencies:
+      - package: Sunset
+        product: SunsetAppLibrary
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Sunset
+        CFBundleIconFile: Sunset
+        LSApplicationCategoryType: public.app-category.developer-tools
+        NSHighResolutionCapable: true
+        NSPrincipalClass: NSApplication
+        # What a page the person allows can ask for (web step g).
+        NSCameraUsageDescription: A web page you allow can use the camera.
+        NSMicrophoneUsageDescription: A web page you allow can use the microphone.
+        NSLocationUsageDescription: A web page you allow can know where you are.
+        NSLocationWhenInUseUsageDescription: A web page you allow can know where you are.
+        # What the programs run in its terminals use: without these macOS refuses them without asking.
+        NSDownloadsFolderUsageDescription: Programs you run in Sunset's terminals, and the pages you download, use your Downloads folder.
+        NSDocumentsFolderUsageDescription: Programs you run in Sunset's terminals use your Documents folder.
+        NSDesktopFolderUsageDescription: Programs you run in Sunset's terminals use your Desktop folder.
+        NSRemovableVolumesUsageDescription: Programs you run in Sunset's terminals use removable volumes.
+        NSNetworkVolumesUsageDescription: Programs you run in Sunset's terminals use network volumes.
+        NSAppleEventsUsageDescription: Programs you run in Sunset's terminals can script other apps.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset
+        PRODUCT_NAME: Sunset

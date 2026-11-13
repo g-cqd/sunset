@@ -1,90 +1,36 @@
 #!/usr/bin/env bash
-# Builds Sunset.app from the package (web step g): the executable in a bundle with an Info.plist that gives macOS Sunset's identity (bundle id,
-# the usage strings for the camera, the microphone and location, which a page can ask for), a placeholder icon, signed ad hoc.
+# Builds Sunset.app with XcodeGen and xcodebuild from project.yml (the owner, 2026-11-13: no bundle assembled by hand).
 #
 #   Scripts/make-app.sh [debug|release] [output folder]     (default: debug, .build/app)
+#
+# Prints where the app is. Signing: Signing.xcconfig (ad hoc), overridden by Signing.local.xcconfig (see there).
 set -euo pipefail
 
 configuration="${1:-debug}"
 output="${2:-.build/app}"
-root="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$root"
+cd "$(dirname "$0")/.."
 
-swift build --product sunset-app --configuration "$configuration" >/dev/null
-binary="$(swift build --product sunset-app --configuration "$configuration" --show-bin-path)/sunset-app"
-
-app="$output/Sunset.app"
-rm -rf "$app"
-mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
-cp "$binary" "$app/Contents/MacOS/Sunset"
-
+case "$configuration" in
+    release) scheme_configuration=Release ;;
+    *) scheme_configuration=Debug ;;
+esac
 version="$(git describe --tags --always 2>/dev/null || echo 0)"
-cat >"$app/Contents/Info.plist" <<PLIST
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleIdentifier</key><string>studio.aemi.sunset</string>
-    <key>CFBundleName</key><string>Sunset</string>
-    <key>CFBundleDisplayName</key><string>Sunset</string>
-    <key>CFBundleExecutable</key><string>Sunset</string>
-    <key>CFBundleIconFile</key><string>Sunset</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.1</string>
-    <key>CFBundleVersion</key><string>${version}</string>
-    <key>LSMinimumSystemVersion</key><string>26.0</string>
-    <key>NSHighResolutionCapable</key><true/>
-    <key>NSPrincipalClass</key><string>NSApplication</string>
-    <key>NSCameraUsageDescription</key><string>A web page you allow can use the camera.</string>
-    <key>NSMicrophoneUsageDescription</key><string>A web page you allow can use the microphone.</string>
-    <key>NSLocationUsageDescription</key><string>A web page you allow can know where you are.</string>
-    <key>NSLocationWhenInUseUsageDescription</key><string>A web page you allow can know where you are.</string>
-    <key>NSDownloadsFolderUsageDescription</key><string>Programs you run in Sunset's terminals, and the pages you download, use your Downloads folder.</string>
-    <key>NSDocumentsFolderUsageDescription</key><string>Programs you run in Sunset's terminals use your Documents folder.</string>
-    <key>NSDesktopFolderUsageDescription</key><string>Programs you run in Sunset's terminals use your Desktop folder.</string>
-    <key>NSRemovableVolumesUsageDescription</key><string>Programs you run in Sunset's terminals use removable volumes.</string>
-    <key>NSNetworkVolumesUsageDescription</key><string>Programs you run in Sunset's terminals use network volumes.</string>
-    <key>NSAppleEventsUsageDescription</key><string>Programs you run in Sunset's terminals can script other apps.</string>
-</dict>
-</plist>
-PLIST
 
-# A placeholder icon: an orange square with rounded corners, until Sunset has its own.
-iconset="$(mktemp -d)/Sunset.iconset"
-mkdir -p "$iconset"
-for size in 16 32 128 256 512; do
-    for scale in 1 2; do
-        pixels=$((size * scale))
-        suffix=""
-        if [ "$scale" = 2 ]; then suffix="@2x"; fi
-        name="icon_${size}x${size}${suffix}.png"
-        magick -size "${pixels}x${pixels}" xc:none -fill '#F28C28' \
-            -draw "roundrectangle 0,0 $((pixels - 1)),$((pixels - 1)) $((pixels / 5)),$((pixels / 5))" "$iconset/$name"
-    done
-done
-iconutil -c icns "$iconset" -o "$app/Contents/Resources/Sunset.icns"
-
-# Signed with a stable identity when there is one, so that macOS keeps the permissions given to Sunset (Accessibility, Screen
-# Recording, folders) across rebuilds: an ad hoc signature is a new identity each time. SUNSET_SIGN_IDENTITY names one (a name or
-# a fingerprint); else the first identity in the keychain that can sign, Developer ID first. Each is tried and the result checked:
-# an expired certificate is listed as valid by find-identity yet refused by codesign (2026-11-13).
-signed=""
-candidates="${SUNSET_SIGN_IDENTITY:-}
-$(security find-identity -v -p codesigning 2>/dev/null | grep 'Developer ID Application' | awk '{print $2}')
-$(security find-identity -v -p codesigning 2>/dev/null | grep 'Apple Development' | awk '{print $2}')"
-while IFS= read -r candidate; do
-    [ -n "$candidate" ] || continue
-    # Read whole, not piped into grep -q: with pipefail, grep's early exit fails the pipe.
-    if codesign --force --sign "$candidate" --timestamp=none --identifier studio.aemi.sunset "$app" >/dev/null 2>&1; then
-        details="$(codesign -dvv "$app" 2>&1 || true)"
-        signed="$(printf '%s\n' "$details" | sed -n 's/^Authority=//p' | sed -n 1p)"
-        [ -n "$signed" ] && break
-    fi
-done <<< "$candidates"
-if [ -z "$signed" ]; then
-    codesign --force --sign - --timestamp=none --identifier studio.aemi.sunset "$app" >/dev/null 2>&1
-    echo "signed: ad hoc (no identity could sign: macOS will ask for its permissions again)" >&2
-else
-    echo "signed: $signed" >&2
+xcodegen generate --quiet
+# The packages' build plug-in (AemiSDR's Metal shaders) and macros (InternedStrings) are ours: Xcode would ask to trust them in
+# its window, which a command line build cannot answer.
+log="$(mktemp)"
+if ! xcodebuild -project Sunset.xcodeproj -scheme Sunset -configuration "$scheme_configuration" \
+    -derivedDataPath .build/xcode -skipPackagePluginValidation -skipMacroValidation \
+    CURRENT_PROJECT_VERSION="$version" build >"$log" 2>&1; then
+    grep -E "error:|BUILD FAILED" "$log" >&2 || tail -20 "$log" >&2
+    exit 1
 fi
-echo "$app"
+built=".build/xcode/Build/Products/$scheme_configuration/Sunset.app"
+mkdir -p "$output"
+rm -rf "$output/Sunset.app"
+ditto "$built" "$output/Sunset.app"
+details="$(codesign -dvv "$output/Sunset.app" 2>&1 || true)"
+signed="$(printf '%s\n' "$details" | sed -n 's/^Authority=//p' | sed -n 1p)"
+echo "signed: ${signed:-ad hoc (macOS will ask for its permissions again)}" >&2
+echo "$output/Sunset.app"
