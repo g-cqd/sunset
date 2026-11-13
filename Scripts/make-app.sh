@@ -65,12 +65,26 @@ done
 iconutil -c icns "$iconset" -o "$app/Contents/Resources/Sunset.icns"
 
 # Signed with a stable identity when there is one, so that macOS keeps the permissions given to Sunset (Accessibility, Screen
-# Recording) across rebuilds: an ad hoc signature is a new identity each time. SUNSET_SIGN_IDENTITY names one; else the first
-# "Apple Development" certificate in the keychain (the owner's oculavis one first, for now); else ad hoc.
-# Fingerprints, not names: two certificates can share a name, which codesign refuses as ambiguous.
-identities="$(security find-identity -v -p codesigning 2>/dev/null | grep 'Apple Development' || true)"
-preferred="$(printf '%s\n' "$identities" | grep -m1 'oculavis' | awk '{print $2}' || true)"
-identity="${SUNSET_SIGN_IDENTITY:-${preferred:-$(printf '%s\n' "$identities" | head -1 | awk '{print $2}')}}"
-codesign --force --sign "${identity:--}" --timestamp=none --identifier studio.aemi.sunset "$app" >/dev/null 2>&1
-echo "signed: ${identity:-ad hoc}" >&2
+# Recording, folders) across rebuilds: an ad hoc signature is a new identity each time. SUNSET_SIGN_IDENTITY names one (a name or
+# a fingerprint); else the first identity in the keychain that can sign, Developer ID first. Each is tried and the result checked:
+# an expired certificate is listed as valid by find-identity yet refused by codesign (2026-11-13).
+signed=""
+candidates="${SUNSET_SIGN_IDENTITY:-}
+$(security find-identity -v -p codesigning 2>/dev/null | grep 'Developer ID Application' | awk '{print $2}')
+$(security find-identity -v -p codesigning 2>/dev/null | grep 'Apple Development' | awk '{print $2}')"
+while IFS= read -r candidate; do
+    [ -n "$candidate" ] || continue
+    # Read whole, not piped into grep -q: with pipefail, grep's early exit fails the pipe.
+    if codesign --force --sign "$candidate" --timestamp=none --identifier studio.aemi.sunset "$app" >/dev/null 2>&1; then
+        details="$(codesign -dvv "$app" 2>&1 || true)"
+        signed="$(printf '%s\n' "$details" | sed -n 's/^Authority=//p' | sed -n 1p)"
+        [ -n "$signed" ] && break
+    fi
+done <<< "$candidates"
+if [ -z "$signed" ]; then
+    codesign --force --sign - --timestamp=none --identifier studio.aemi.sunset "$app" >/dev/null 2>&1
+    echo "signed: ad hoc (no identity could sign: macOS will ask for its permissions again)" >&2
+else
+    echo "signed: $signed" >&2
+fi
 echo "$app"
