@@ -135,6 +135,7 @@ struct TerminalScene: View {
         .onChange(of: configuration.tabs.confirmClose, initial: true) { _, confirm in tabs.confirmClose = confirm }
         .modifier(PagesFollowSettings(tabs: tabs, web: configuration.web))
         .modifier(StopsWithWindow(window: window, tabs: tabs))
+        .modifier(StorageProblemsBanner())
     }
 
     // MARK: Parts

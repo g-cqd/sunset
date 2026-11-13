@@ -79,3 +79,14 @@ web store is WebKit's and is not sealed: FileVault is its only protection, and S
 | ST-5 | The Documents section of the sidebar | Its look and order (sketches) |
 | ST-6 | Settings, Storage: where things are, the web store's sentence, FileVault's state, the recovery code, Export All | |
 | then | Markdown M-b onward (roadmap 0023), on this store | |
+
+## Answers at the steps (2026-11-14)
+
+| Step | Question | Answer |
+| --- | --- | --- |
+| ST-1 | How a file that did not read is said | Both: a banner at the top of the window, once, and the list stays in Settings (ST-6: the files set aside are listed from the folder) |
+| ST-2 | iCloud Keychain needs an entitlement Sunset does not have (probed: a synced item is refused, -34018, for an ad hoc and for an unentitled build) | The key with its recovery code now, in the login Keychain of this Mac. The owner: "icloud sync should come for the whole software if we decide to connect to it": a later decision for the whole app, not for the key alone |
+
+What iCloud Keychain would need, when it is decided: an App ID `studio.aemi.sunset` in the developer account with the Keychain Sharing
+capability, a Developer ID provisioning profile for it embedded in the app, the `keychain-access-groups` entitlement in `project.yml`,
+and the key moved to the data protection keychain as a synchronizable item.

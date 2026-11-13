@@ -1,5 +1,5 @@
 ---
-status: in-progress (ST-1 without its "said" part, 2026-11-13)
+status: in-progress (ST-1 and ST-2 done, 2026-11-14)
 blocked-by: nothing; roadmap 0023 (Markdown) from M-b waits for ST-4
 date: 2026-11-13
 ---
@@ -26,7 +26,17 @@ private to the person, mode 600); `SessionLocation` is gone. Probed: a session t
 `session.json.damaged-<date>` and the app started with a new one. Not done in ST-1: showing `StorageProblems` to the person (its
 look is asked first); the other four files still write themselves (they move into the database in ST-3).
 
+The "said" part of ST-1, 2026-11-14: `StorageProblemsBanner`, at the top of every window: the sentence, Show in Finder, a button
+that puts it away. Seen with a session that is not JSON (`docs/research/storage/damaged-banner-2026-11-14.png`).
+
+ST-2, 2026-11-14: `StorageKey` (32 random bytes; a key per purpose derived by HKDF-SHA256), `StorageKeyring` over a `KeyVault`
+(`KeychainKeyVault`: a generic password of the login Keychain, this Mac only; `MemoryKeyVault` for tests), the recovery code (the
+key and two check bytes in Crockford's base 32, eleven groups of five, read back in any case with O, I, L forgiven), `Seal`
+(ChaCha20-Poly1305, a nonce each time, the purpose and the thing's identity bound in; its header names the key, so "sealed with
+another key" is told apart from "damaged"). 19 tests; the Keychain vault probed once on the real Keychain under a name of its own
+(`SUNSET_KEYCHAIN_TEST=1`), which it removed. Nothing is sealed yet, and no key exists in the Keychain until ST-3 uses one.
+
 ## Not done
 
-ST-2 to ST-6, and the "said" part of ST-1. Not in this entry: search inside documents; a key per profile (asked in roadmap 0021); sealing the web store (not
-possible with public API, probed 2026-11-13).
+ST-3 to ST-6. In ST-2: nothing shows the recovery code or takes one (ST-6); iCloud Keychain (a later decision for the whole app,
+see R12).
