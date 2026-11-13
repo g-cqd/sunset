@@ -19,7 +19,6 @@ package struct WindowAddressBar: View {
     @State private var shown = false
     @State private var hovering = false
     @State private var editing = false
-    @Environment(\.surfaceStyle) private var surface
 
     package init(
         content: WebContent,
@@ -84,7 +83,7 @@ package struct WindowAddressBar: View {
         let slide = BarGroupSlide.transition(atTop: atTop, inset: inset)
         return GlassEffectContainer(spacing: Design.Space.m) {
             HStack(spacing: Design.Space.m) {
-                if out { navigation(edge: edge).transition(slide) }
+                if out { PageNavigation(content: content, atTop: edge).transition(slide) }
                 if out {
                     address(edge: edge).transition(slide)
                 } else {
@@ -96,15 +95,6 @@ package struct WindowAddressBar: View {
         .barGroupBlurs()
     }
 
-    private func navigation(edge: Bool) -> some View {
-        HStack(spacing: Design.Space.xs) {
-            button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
-            button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
-        }
-        .frame(height: Design.Size.bar)
-        .barGroup(margin: Design.Space.m, top: edge)
-    }
-
     private func address(edge: Bool) -> some View {
         AddressField(content: content, place: edge ? .top : .bottom, reload: true) { typing in
             editing = typing
@@ -114,14 +104,6 @@ package struct WindowAddressBar: View {
         .barGroup(margin: Design.Space.m, top: edge)
         .frame(maxWidth: Design.Width.commandBar)
         .frame(maxWidth: .infinity)
-    }
-
-    /// Back, forward, reload: the sidebar's icon button, as tall as the field beside them and with its corner, so that every part of the bar
-    /// is the same distance from the bar's edge (owner, 2026-11-12).
-    private func button(_ symbol: String, _ help: String, enabled: Bool, action: @escaping () -> Void) -> some View {
-        SidebarIconButton(symbol: symbol, help: help, action: action)
-            .environment(\.sidebarButtonMetrics, BarButton.group(surface))
-            .disabled(!enabled)
     }
 
     /// Goes a moment after the pointer left, if it has not come back and nothing is being typed.
