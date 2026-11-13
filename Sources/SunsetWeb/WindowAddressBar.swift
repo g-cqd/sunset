@@ -100,23 +100,16 @@ package struct WindowAddressBar: View {
         HStack(spacing: Design.Space.xs) {
             button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
             button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
-            if content.isLoading {
-                button("xmark", "Stop", enabled: true) { content.stopLoading() }
-            } else {
-                button("arrow.clockwise", "Reload", enabled: content.url != nil) { content.reload() }
-            }
         }
-        .padding(.horizontal, Design.Space.s)
         .frame(height: Design.Size.bar)
         .barGroup(margin: Design.Space.m, top: edge)
     }
 
     private func address(edge: Bool) -> some View {
-        AddressField(content: content, place: edge ? .top : .bottom) { typing in
+        AddressField(content: content, place: edge ? .top : .bottom, reload: true) { typing in
             editing = typing
             if !typing { hideSoon() }
         }
-        .padding(.horizontal, Design.Space.s)
         .frame(height: Design.Size.bar)
         .barGroup(margin: Design.Space.m, top: edge)
         .frame(maxWidth: Design.Width.commandBar)
@@ -127,7 +120,7 @@ package struct WindowAddressBar: View {
     /// is the same distance from the bar's edge (owner, 2026-11-12).
     private func button(_ symbol: String, _ help: String, enabled: Bool, action: @escaping () -> Void) -> some View {
         SidebarIconButton(symbol: symbol, help: help, action: action)
-            .environment(\.sidebarButtonMetrics, BarButton.metrics(surface, radius: Design.Size.field / 2))
+            .environment(\.sidebarButtonMetrics, BarButton.group(surface))
             .disabled(!enabled)
     }
 

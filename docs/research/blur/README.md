@@ -230,3 +230,15 @@ Open Address (the window's bar comes out for it), which the scene uses.
 
   The blur costs about 4 points in the WindowServer and 2 in the app; the glass groups themselves cost about 7 more. Not measured:
   smooth trackpad scrolling, frame drops, GPU time, battery.
+
+### 7k. Owner, 2026-11-13: fields fill their groups; reload in the address field
+
+- Variants (`field-fill-…`, `-zoom`): A a 6 pt glass rim around the fields and buttons (as it was), B 3 pt, C 2 pt with reload in the
+  field, D no rim with reload in the field. Chosen D (`field-fill-chosen-…`): a group's controls are as tall as the group
+  (`Design.BarGroup.control` = `Size.bar`, 38 pt) and capsules of the same shape, so the field is the group's glass. The spacing went
+  inside the field (`fieldPadding`, its text 14 pt from its rounded end). Fields and buttons read it from the environment
+  (`controlHeight`, `controlPadding`, `controlRadius`) that `barGroup` sets; outside a group they keep their own size.
+- Reload is at the address field's trailing end, shown while the pointer is over the field; Stop (×) stays there for as long as the
+  page loads, hover or not (owner). The nav group is back and forward only. Grey, not the accent.
+- Not seen: the reload button appearing on a real hover (mouse moves posted to a background app do not reach SwiftUI's hover; the
+  shots forced it on), a click on it, the field's typing state at the new height.

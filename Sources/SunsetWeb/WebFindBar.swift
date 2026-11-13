@@ -18,11 +18,9 @@ struct WebFindBar: View {
     var body: some View {
         HStack(spacing: Design.Space.m) {
             field
-                .padding(.horizontal, Design.Space.s)
                 .frame(height: Design.Size.bar)
                 .barGroup(margin: Design.Space.m, top: atTop)
             buttons
-                .padding(.horizontal, Design.Space.s)
                 .frame(height: Design.Size.bar)
                 .barGroup(margin: Design.Space.m, top: atTop)
         }
@@ -64,7 +62,7 @@ struct WebFindBar: View {
             SidebarIconButton(symbol: "chevron.down", help: "Next (Cmd-G)") { find.search() }
             SidebarIconButton(symbol: "xmark", help: "Done (Escape)") { close() }
         }
-        .environment(\.sidebarButtonMetrics, BarButton.metrics(surface, radius: Design.Size.field / 2))
+        .environment(\.sidebarButtonMetrics, BarButton.group(surface))
     }
 
     private var options: some View {
