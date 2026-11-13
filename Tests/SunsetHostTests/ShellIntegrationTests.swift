@@ -71,10 +71,19 @@ import Testing
                 .isEmpty
         )
         let session = try HeadlessSession([Self.fish ?? "fish", "-i"], columns: 120, rows: 10, environment: environment)
-        #expect(session.wait { $0.screen.promptMarks.contains { $0.kind == .promptStart } })
+        // fish starts slowly while the whole suite runs beside it (t219: its first prompt took over 5 s once in three runs); a wait
+        // ends as soon as its condition holds, so a long limit costs nothing when fish is quick.
+        let patient = 30000
+        #expect(
+            session.wait(timeoutMilliseconds: patient) { $0.screen.promptMarks.contains { $0.kind == .promptStart } }
+        )
         try session.send("false\n")
-        #expect(session.wait { $0.screen.promptMarks.contains { $0.kind == .commandEnd && $0.exitStatus == 1 } })
+        #expect(
+            session.wait(timeoutMilliseconds: patient) {
+                $0.screen.promptMarks.contains { $0.kind == .commandEnd && $0.exitStatus == 1 }
+            }
+        )
         try session.send("exit\n")
-        #expect(session.waitForExit())
+        #expect(session.waitForExit(timeoutMilliseconds: patient))
     }
 }
