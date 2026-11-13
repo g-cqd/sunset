@@ -20,7 +20,8 @@ let usage = """
       axdrive menu PID "Menu>Item[>Sub]"               a menu bar item, pressed without opening the menu
       axdrive type PID TEXT                            characters to the process
       axdrive key PID CHORD                            "cmd+l", "return", "shift+cmd+t"
-      axdrive scroll PID X Y DY                         turn the wheel over a window point; DY > 0 shows later content
+      axdrive scroll PID X Y DY                         turn the wheel over a window point (not seen by a WebKit page in the
+                                                    background: use press … --action AXScrollToVisible there)
       Actions take --expect TEXT or --expect-gone TEXT [--expect-role R] [--timeout S]: the change is waited for, the action redone once
       when its target is still there; --within S waits for the target to appear and be enabled first (3 s).
       axdrive value PID QUERY TEXT                     the element's value holds TEXT (waited for)
