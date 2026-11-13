@@ -179,9 +179,10 @@ struct TerminalScene: View {
             tabs: tabs,
             settings: ShellSettings(configuration).tabs.bar,
             navigation: tabBarNavigation,
-            address: tabBarAddress
+            address: tabBarAddress,
+            capsules: addressInTabBar
         )
-        .padding(.leading, noDecorations && barAtTop ? Design.System.lightsClearance : 0)
+        .padding(.leading, noDecorations && barAtTop ? tabBarLightsClearance : 0)
         .background { windowDragSurface }
     }
 

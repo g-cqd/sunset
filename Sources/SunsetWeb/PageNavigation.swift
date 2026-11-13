@@ -7,11 +7,14 @@ package struct PageNavigation: View {
     let content: WebContent
     /// Its blur falls from the top edge (at the bottom: up).
     var atTop = true
+    /// In the tab bar's row of capsules: the field's flat look, not glass (it floats over nothing).
+    var flat = false
     @Environment(\.surfaceStyle) private var surface
 
-    package init(content: WebContent, atTop: Bool = true) {
+    package init(content: WebContent, atTop: Bool = true, flat: Bool = false) {
         self.content = content
         self.atTop = atTop
+        self.flat = flat
     }
 
     package var body: some View {
@@ -20,7 +23,7 @@ package struct PageNavigation: View {
             button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
         }
         .frame(height: Design.Size.bar)
-        .barGroup(margin: Design.Space.m, top: atTop)
+        .modifier(NavigationLook(flat: flat, atTop: atTop))
     }
 
     /// The sidebar's icon button, as tall as the group: a capsule of the same shape.
