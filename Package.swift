@@ -42,6 +42,7 @@ let package = Package(
         .library(name: "SunsetConfig", targets: ["SunsetConfig"]),
         // Where everything Sunset keeps is, written whole or not at all, and what is done with a file that does not read (R12, roadmap 0030).
         .library(name: "SunsetStorage", targets: ["SunsetStorage"]),
+        .library(name: "SunsetDocuments", targets: ["SunsetDocuments"]),
         // The private window-server calls the app uses (the blur radius behind a window), looked up by name at run time (roadmap 0017, ADR-0034).
         .library(name: "SunsetPrivate", targets: ["SunsetPrivate"]),
         // The CPU renderer: cells to pixels, the reference the GPU renderer is held to (ADR-0024). Platform-free; glyphs come from a `GlyphSource`.
@@ -138,7 +139,7 @@ let package = Package(
             name: "SunsetApp",
             dependencies: [
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
-                "SunsetStorage",
+                "SunsetStorage", "SunsetDocuments",
                 "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal",
                 "SunsetWeb", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR")
             ],
@@ -155,6 +156,19 @@ let package = Package(
         .target(
             name: "SunsetMetrics",
             path: "Sources/SunsetMetrics",
+            swiftSettings: strictSettings
+        ),
+        // The documents that live in Sunset (R12 step ST-4): one sealed file each and an index rebuilt from them.
+        .target(
+            name: "SunsetDocuments",
+            dependencies: ["SunsetStorage"],
+            path: "Sources/SunsetDocuments",
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "SunsetDocumentsTests",
+            dependencies: ["SunsetDocuments", "SunsetStorage"],
+            path: "Tests/SunsetDocumentsTests",
             swiftSettings: strictSettings
         ),
         .target(

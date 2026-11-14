@@ -13,8 +13,14 @@ public enum StoredFile {
     }
 
     /// Writes `data` at `path`, making its folder: a temporary file beside it, synced, renamed over it, the folder synced
-    /// (Aemi's `AtomicFile`). A crash leaves the old file or the new one, never a mix or an empty file.
-    public static func write(_ data: Data, to path: String, durability: Durability = .ordered) throws(StorageFailure) {
+    /// (Aemi's `AtomicFile`). A crash leaves the old file or the new one, never a mix or an empty file. Readable by its owner
+    /// only, unless `permissions` says otherwise (a file that leaves Sunset's folder for the person's).
+    public static func write(
+        _ data: Data,
+        to path: String,
+        durability: Durability = .ordered,
+        permissions: UInt16 = 0o600
+    ) throws(StorageFailure) {
         let folder = (path as NSString).deletingLastPathComponent
         do {
             try FileManager.default.createDirectory(atPath: folder, withIntermediateDirectories: true)
@@ -26,7 +32,7 @@ public enum StoredFile {
                 at: path,
                 with: Array(data),
                 durability: durability == .forced ? .full : .barrier,
-                permissions: 0o600
+                permissions: permissions
             )
         } catch {
             throw StorageFailure(step: error.op, code: error.errno)

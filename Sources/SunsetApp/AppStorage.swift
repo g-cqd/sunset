@@ -1,4 +1,5 @@
 import Foundation
+import SunsetDocuments
 import SunsetStorage
 
 /// Everything Sunset keeps, opened once (R12, roadmap 0030): the places, the key that seals, and the database of small records.
@@ -43,6 +44,22 @@ final class AppStorage {
         database = opened.database
         if let problem = opened.problem { problems.report(problem) }
     }
+
+    /// The documents that live in Sunset (R12 step ST-4), opened at first use; nil when there is no key in this run. Their index
+    /// is a database of its own (`library.sqlite`): it holds nothing the documents' files do not, and is rebuilt from them, so
+    /// one that did not read is not said.
+    private(set) lazy var documents: DocumentStore? = {
+        guard let key else { return nil }
+        let library = StateDatabase.open(at: places.library, key: key).database
+        let ours = places.isDefault
+        return DocumentStore(folder: places.documents, library: library, key: key) { url in
+            if ours {
+                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+            } else {
+                try FileManager.default.removeItem(at: url)
+            }
+        }
+    }()
 
     /// The records of one kind; nil when nothing can be kept in this run (they are then in memory only).
     func table(_ kind: String) -> SealedTable? { database?.table(kind) }

@@ -1,5 +1,5 @@
 ---
-status: in-progress (ST-1 to ST-3 done, 2026-11-14)
+status: in-progress (ST-1 to ST-4 done, 2026-11-14)
 blocked-by: nothing; roadmap 0023 (Markdown) from M-b waits for ST-4
 date: 2026-11-13
 ---
@@ -46,9 +46,18 @@ given a new one. The five plain files of before are taken in once, checked, and 
 Seen on a folder of old files: they went, nothing of them is in the new files in the clear, the History menu lists the imported
 pages after a relaunch; with a wrong key both are said locked and the session file is byte for byte the same. 997 tests.
 
+ST-4, 2026-11-14: the target `SunsetDocuments`. `DocumentStore`: one sealed file per document in `Documents/` (a line that
+says its kind and when it was made, then its text; sealed under its identifier), written whole and forced to the disk; the
+index is a table of `library.sqlite`, rebuilt from the files when it is lost and following them when it disagrees (by each
+file's size and time, not a checksum: a checksum would open every file at each launch). A document is named by its content
+(`DocumentTitle`: the owner, "from content"), and a new one is Markdown. Deleting puts its plain text in the Mac's Trash under
+its name; moving writes it to a file of the person's; both take it out of the store. A file that does not open is set aside and
+said by its last known title. `AppStorage.documents` opens the store at first use. 7 tests; 1,004 in all. Nothing shows it yet.
+
 ## Not done
 
-ST-4 to ST-6. In ST-3: the History menu and panel are empty for the moment a long history takes to be read (they fill when it
-arrives); a database written by an earlier version has no migration yet (there is only version 1); whether the old files are
-trashed or deleted is to be reassessed with the owner (t258); the person's own setup has not been run on it (the installed app
-is still the build of before: installing it imports and seals the owner's own files).
+ST-5 and ST-6, then Markdown M-b onward (the document behind a pane uses this store). In ST-4: nothing in the app makes,
+lists or opens a document yet; a document whose file's size and time are unchanged but whose bytes are damaged is listed until
+it is opened; the store has not been run in the installed app (it is made at first use, which nothing triggers yet).
+In ST-3: the History menu and panel are empty for the moment a long history takes to be read; no migration exists yet (there
+is only version 1); whether the old plain files are trashed or deleted is to be reassessed with the owner (t258).
