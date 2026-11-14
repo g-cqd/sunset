@@ -7,7 +7,7 @@ date: 2026-11-14
 # 0031 — Sections in the sidebars: tabs, documents, history
 
 Asked by the owner while answering ST-5 (roadmap 0030; his words are in `docs/refinement/R12-storage-and-the-document-store.md`).
-Nothing is built and nothing is decided beyond his words. Task t259.
+Nothing is built and nothing is decided beyond his words. Task t259 (see the task list for its number).
 
 ## What he asked
 
