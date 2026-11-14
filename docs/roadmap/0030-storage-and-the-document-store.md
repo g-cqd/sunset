@@ -1,5 +1,5 @@
 ---
-status: in-progress (ST-1 and ST-2 done, 2026-11-14)
+status: in-progress (ST-1 to ST-3 done, 2026-11-14)
 blocked-by: nothing; roadmap 0023 (Markdown) from M-b waits for ST-4
 date: 2026-11-13
 ---
@@ -36,7 +36,19 @@ key and two check bytes in Crockford's base 32, eleven groups of five, read back
 another key" is told apart from "damaged"). 19 tests; the Keychain vault probed once on the real Keychain under a name of its own
 (`SUNSET_KEYCHAIN_TEST=1`), which it removed. Nothing is sealed yet, and no key exists in the Keychain until ST-3 uses one.
 
+ST-3, 2026-11-14: `StateDatabase` (`state.sqlite`: a version, a check at each open, set aside when it does not read, left
+alone when sealed with another key) and `SealedTable` (each record sealed on its own under a keyed hash of its name, two plain
+numbers beside it; `SealedRows` opens them at once or on every core off the main actor). Page history, site zoom, site
+permissions and downloads are records of it; the history is held and searched in memory (`HistoryStore`, measured in R12). The
+session is `session.sealed` (`SealedFile`). `AppStorage` opens it all once: the key from the Keychain for the person's setup, from
+a file beside a named setup's files (`FileKeyVault`: tests never touch the Keychain); sealed things without their key are not
+given a new one. The five plain files of before are taken in once, checked, and put away (the Trash; removed for a named setup).
+Seen on a folder of old files: they went, nothing of them is in the new files in the clear, the History menu lists the imported
+pages after a relaunch; with a wrong key both are said locked and the session file is byte for byte the same. 997 tests.
+
 ## Not done
 
-ST-3 to ST-6. In ST-2: nothing shows the recovery code or takes one (ST-6); iCloud Keychain (a later decision for the whole app,
-see R12).
+ST-4 to ST-6. In ST-3: the History menu and panel are empty for the moment a long history takes to be read (they fill when it
+arrives); a database written by an earlier version has no migration yet (there is only version 1); whether the old files are
+trashed or deleted is to be reassessed with the owner (t258); the person's own setup has not been run on it (the installed app
+is still the build of before: installing it imports and seals the owner's own files).

@@ -1,0 +1,134 @@
+import CryptoKit
+public import Foundation
+import SQLite3
+
+/// The database of Sunset's small records (R12, roadmap 0030 step ST-3): page history, site zoom, site permissions and
+/// downloads, in one SQLite file with a version. Every record is sealed (`SealedTable`); the file holds no address or title in
+/// the clear, not even in what names a record. A file that does not read is set aside and said, and a new one is made; one
+/// sealed with another key is left as it is.
+@MainActor
+public final class StateDatabase {
+    public static let currentVersion = 1
+    static let what = "Sunset's database of history and site settings"
+
+    public struct Opened {
+        /// Nil when there is none to use: locked, or it could not be made.
+        public let database: StateDatabase?
+        public let problem: StorageProblem?
+    }
+
+    private enum Attempt {
+        case opened(StateDatabase)
+        case locked, unreadable
+    }
+
+    var handle: OpaquePointer?
+    let seal: Seal
+    let indexKey: SymmetricKey
+    public private(set) var version = 0
+
+    private init(handle: OpaquePointer?, key: StorageKey) {
+        self.handle = handle
+        seal = Seal(key: key, purpose: .state)
+        indexKey = key.derived("state-index")
+    }
+
+    isolated deinit { unsafe sqlite3_close(handle) }
+
+    /// Opens the database at `path`, making it when there is none (":memory:" for one that is never written).
+    public static func open(at path: String, key: StorageKey, now: Date = Date()) -> Opened {
+        switch attempt(path, key) {
+            case .opened(let database): return Opened(database: database, problem: nil)
+            case .locked:
+                return Opened(
+                    database: nil,
+                    problem: StorageProblem(what: what, path: path, movedTo: nil, kind: .locked)
+                )
+            case .unreadable:
+                let aside = path == ":memory:" ? nil : StoredFile.moveAside(path, now: now)
+                if let aside {
+                    // Its write-ahead log and index go with it: they belong to that file.
+                    for suffix in ["-wal", "-shm"] {
+                        try? FileManager.default.moveItem(atPath: path + suffix, toPath: aside + suffix)
+                    }
+                }
+                let problem = StorageProblem(what: what, path: path, movedTo: aside)
+                guard aside != nil, case .opened(let database) = attempt(path, key) else {
+                    return Opened(database: nil, problem: problem)
+                }
+                return Opened(database: database, problem: problem)
+        }
+    }
+
+    private static func attempt(_ path: String, _ key: StorageKey) -> Attempt {
+        if path != ":memory:" {
+            try? FileManager.default.createDirectory(
+                atPath: (path as NSString).deletingLastPathComponent,
+                withIntermediateDirectories: true
+            )
+        }
+        var handle: OpaquePointer?
+        guard unsafe sqlite3_open_v2(path, &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) == SQLITE_OK else {
+            unsafe sqlite3_close(handle)
+            return .unreadable
+        }
+        let database = unsafe StateDatabase(handle: handle, key: key)
+        // Ordered writes without a wait for the disk at each record: a crash keeps the database whole; the last records
+        // before a power loss may be gone, which history can bear.
+        guard database.run("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;"),
+            let found = database.number("PRAGMA user_version"), database.text("PRAGMA quick_check") == "ok"
+        else { return .unreadable }
+        if found == 0 {
+            guard database.create(keyIdentifier: key.identifier) else { return .unreadable }
+        } else if found != currentVersion {
+            // A later Sunset's: not read as this version's. (Earlier versions are migrated here when there are any.)
+            return .unreadable
+        } else if let kept = database.blob("SELECT value FROM meta WHERE name = 'key'"), kept != key.identifier {
+            return .locked
+        }
+        database.version = currentVersion
+        return .opened(database)
+    }
+
+    private func create(keyIdentifier: Data) -> Bool {
+        run(
+            """
+            BEGIN;
+            CREATE TABLE records (kind TEXT NOT NULL, key BLOB NOT NULL, sealed BLOB NOT NULL, sort REAL NOT NULL DEFAULT 0,
+                count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (kind, key)) WITHOUT ROWID;
+            CREATE INDEX records_sort ON records (kind, sort);
+            CREATE TABLE meta (name TEXT PRIMARY KEY, value BLOB NOT NULL) WITHOUT ROWID;
+            PRAGMA user_version = \(Self.currentVersion);
+            COMMIT;
+            """
+        ) && execute("INSERT INTO meta (name, value) VALUES ('key', ?1)", [.blob(keyIdentifier)])
+    }
+
+    /// The records of one kind ("history", "zoom").
+    public func table(_ kind: String) -> SealedTable { SealedTable(database: self, kind: kind) }
+
+    /// Runs `body` as one transaction: many records written at the cost of one.
+    public func transaction(_ body: () -> Void) {
+        guard run("BEGIN") else { return body() }
+        body()
+        run("COMMIT")
+    }
+
+    /// A note of the database's own (which files were imported), not sealed: never anything of the person's.
+    public func note(_ name: String) -> Data? {
+        blob("SELECT value FROM meta WHERE name = ?1", [.text("note." + name)])
+    }
+
+    public func setNote(_ name: String, _ value: Data) {
+        execute(
+            "INSERT INTO meta (name, value) VALUES (?1, ?2) ON CONFLICT(name) DO UPDATE SET value = ?2",
+            [.text("note." + name), .blob(value)]
+        )
+    }
+
+    func setVersionForTesting(_ version: Int) { run("PRAGMA user_version = \(version)") }
+
+    func corruptForTesting(kind: String) {
+        execute("UPDATE records SET sealed = zeroblob(40) WHERE kind = ?1", [.text(kind)])
+    }
+}

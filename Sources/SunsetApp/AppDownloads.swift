@@ -10,8 +10,23 @@ import UserNotifications
     static func start() {
         let center = DownloadCenter.shared
         apply(AppConfiguration.shared.configuration.web)
-        SitePermissions.shared.path = StoragePlaces.current.legacyPermissions
-        center.path = StoragePlaces.current.legacyDownloads
+        let storage = AppStorage.shared
+        let permissions = storage.table("permissions")
+        SitePermissions.shared.table = permissions
+        if let permissions, SitePermissions.shared.importLegacy(at: storage.places.legacyPermissions) != nil {
+            storage.retire(
+                storage.places.legacyPermissions,
+                when: permissions.count() == SitePermissions.shared.answers.count
+            )
+        }
+        let downloads = storage.table("downloads")
+        center.table = downloads
+        if let downloads, center.importLegacy(at: storage.places.legacyDownloads) != nil {
+            storage.retire(
+                storage.places.legacyDownloads,
+                when: downloads.count() == center.items.filter { !$0.isPrivate }.count
+            )
+        }
         center.approve = { name, origin in approve(name, origin: origin) }
         center.choose = { name in choose(name) }
         center.onFinished = { finished($0) }

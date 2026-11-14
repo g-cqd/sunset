@@ -87,6 +87,23 @@ web store is WebKit's and is not sealed: FileVault is its only protection, and S
 | ST-1 | How a file that did not read is said | Both: a banner at the top of the window, once, and the list stays in Settings (ST-6: the files set aside are listed from the folder) |
 | ST-2 | iCloud Keychain needs an entitlement Sunset does not have (probed: a synced item is refused, -34018, for an ad hoc and for an unentitled build) | The key with its recovery code now, in the login Keychain of this Mac. The owner: "icloud sync should come for the whole software if we decide to connect to it": a later decision for the whole app, not for the key alone |
 
+| ST-3 | What becomes of the plain files once they are imported (a plain copy left in the folder would defeat the sealing) | First "Delete"; then: "maybe the import should put things in the trash as you proposed initially, i let you reassess the topic later". Built as the choice that destroys nothing: the person's own files go to the Mac's Trash; a named setup's (a test's) are removed. To be reassessed (task t258) |
+
 What iCloud Keychain would need, when it is decided: an App ID `studio.aemi.sunset` in the developer account with the Keychain Sharing
 capability, a Developer ID provisioning profile for it embedded in the app, the `keychain-access-groups` entitlement in `project.yml`,
 and the key moved to the data protection keychain as a synchronizable item.
+
+## Costs measured at ST-3 (release build, a history of 50,000 pages, 2026-11-14; another build was using the machine)
+
+| | Before: SQLite in the clear, searched by SQL | After: sealed records, held and searched in memory |
+| --- | --- | --- |
+| Opening | 0.12 ms (nothing read) | The main actor is held about 12 ms (the sealed bytes are read); all of it is in memory after about 98 ms, opened off the main actor on every core. A history under 2,048 pages is opened at once, about 2 µs a page |
+| Memory | SQLite's own cache (not measured) | 24 MB (about 490 bytes a page) |
+| A search | 1.5 ms median, 17 ms p90, 19 ms p99 | 0.65 ms median, 6.5 ms p90, 8.6 ms p99 |
+| The latest 500 | 0.21 ms | 0.02 ms |
+| A visit | 0.40 ms (a wait for the disk each time) | 0.03 ms (the database orders its writes and does not wait at each: a power loss can lose the last visits) |
+| Filling 50,000 | 20.6 s | 3.2 s |
+| On disk | 11.1 MB | 16.8 MB (each record carries 37 bytes of seal and 16 of its name's hash) |
+
+The owner's own history today is 30 pages. What the memory buys: nothing of the history is in the file in the clear, not even
+what names a record.

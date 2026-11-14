@@ -15,7 +15,14 @@ final class SessionStore {
     /// Where the app keeps its own files (the saved session, the shell's start files).
     static var directory: String { StoragePlaces.current.directory }
 
-    private let path = StoragePlaces.current.session
+    private let storage = AppStorage.shared
+    private var path: String { storage.places.session }
+    /// What seals the session; nil when there is no key in this run (nothing is then written).
+    private lazy var seal = storage.seal(.session)
+    /// The file is sealed with a key this Mac does not have: it is never written over.
+    private var locked = false
+    /// The plain file of before sealing, read in this run: put away once the sealed one is written and reads back.
+    private var legacy: String?
     /// Saved windows no window has taken yet.
     private var pending: [SavedWindow] = []
     private var writer: Task<Void, Never>?
@@ -27,14 +34,40 @@ final class SessionStore {
     /// Reads the file, once, at launch: the Favorites, and the windows when restoring is on. Does nothing when the command line named a program to run.
     func load(enabled: Bool, namedCommand: Bool) {
         active = !namedCommand
-        guard !namedCommand else { return }
-        // A session that does not read (damaged, or written by a later Sunset) is moved aside and said, not dropped (R12): the
-        // next save would otherwise write over it.
-        let read = StoredFile.read(path, as: "The saved session") { SavedSession(data: $0) }
-        if case .damaged(let problem) = read { StorageProblems.shared.report(problem) }
-        guard let session = read.value else { return }
+        guard !namedCommand, let session = read() else { return }
         AppFavorites.shared.restore(session.favorites, reopening: enabled)
         if enabled { pending = session.windows }
+    }
+
+    private static let what = "The saved session"
+    private static let identity = "session"
+
+    /// The saved session: the sealed file, or the plain one of before sealing when there is no sealed one. A file that does
+    /// not read (damaged, or a later Sunset's) is moved aside and said, not dropped: the next save would write over it (R12).
+    /// One sealed with another key is left as it is, and nothing is saved in this run.
+    private func read() -> SavedSession? {
+        if let seal {
+            let read = SealedFile.read(path, as: Self.what, seal: seal, identity: Self.identity) {
+                SavedSession(data: $0)
+            }
+            if let problem = read.problem { StorageProblems.shared.report(problem) }
+            switch read {
+                case .value(let session): return session
+                case .locked:
+                    locked = true
+                    return nil
+                case .damaged: return nil
+                case .absent: break
+            }
+        } else if FileManager.default.fileExists(atPath: path) {
+            // Sealed, and no key in this run: said by `AppStorage`.
+            return nil
+        }
+        guard let old = storage.places.legacySession else { return nil }
+        let read = StoredFile.read(old, as: Self.what) { SavedSession(data: $0) }
+        if let problem = read.problem { StorageProblems.shared.report(problem) }
+        if read.value != nil { legacy = old }
+        return read.value
     }
 
     var hasPending: Bool { !pending.isEmpty }
@@ -62,15 +95,26 @@ final class SessionStore {
                 + pending : []
         let session = SavedSession(windows: open, favorites: AppFavorites.shared.saved())
         guard let data = try? session.encoded() else { return }
-        // Written whole beside the file, synced and moved over it: a crash mid-write leaves the old session, not half of a new one.
-        try? StoredFile.write(data, to: path)
+        // Sealed, written whole beside the file, synced and moved over it: a crash mid-write leaves the old session, not half
+        // of a new one.
+        guard let seal, (try? SealedFile.write(data, to: path, seal: seal, identity: Self.identity)) != nil else {
+            return
+        }
+        if let old = legacy {
+            // The plain file goes once the sealed one reads back.
+            let kept = SealedFile.read(path, as: Self.what, seal: seal, identity: Self.identity) {
+                SavedSession(data: $0)
+            }
+            storage.retire(old, when: kept.value != nil)
+            legacy = nil
+        }
     }
 
     private var restoresWindows: Bool { AppConfiguration.shared.configuration.tabs.restore }
 
     /// There is something to write: the windows when restoring is on, and the Favorites whenever there are any.
     private var writes: Bool {
-        active && !frozen && (restoresWindows || !AppFavorites.shared.favorites.isEmpty)
+        active && !frozen && !locked && seal != nil && (restoresWindows || !AppFavorites.shared.favorites.isEmpty)
     }
 
     /// The app is quitting: the last write, then no more (see `frozen`).

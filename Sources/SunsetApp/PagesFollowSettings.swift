@@ -14,10 +14,13 @@ struct PagesFollowSettings: ViewModifier {
         content
             .environment(\.privateWindowSharing, sharing)
             .onChange(of: web.zoomScope, initial: true) { _, scope in
-                let path = StoragePlaces.current.legacyZoom
-                let wanted = scope == .site ? path : nil
-                if SiteZoom.shared.path != wanted || scope == .site && SiteZoom.shared.path == nil {
-                    SiteZoom.shared.path = wanted
+                // Kept from one run to the next for the "site" scope only; else in memory until the app quits.
+                let storage = AppStorage.shared
+                let table = scope == .site ? storage.table("zoom") : nil
+                guard SiteZoom.shared.remembers != (table != nil) else { return }
+                SiteZoom.shared.table = table
+                if let table, SiteZoom.shared.importLegacy(at: storage.places.legacyZoom) != nil {
+                    storage.retire(storage.places.legacyZoom, when: table.count() == SiteZoom.shared.count)
                 }
             }
             .onChange(of: web) { _, now in

@@ -29,13 +29,19 @@ public struct Seal: Sendable {
     /// The bytes start as a seal does.
     public static func isSealed(_ data: Data) -> Bool { data.prefix(magic.count) == magic }
 
-    private func bound(_ identity: String) -> Data { Data("\(purpose.rawValue)\u{0}\(identity)".utf8) }
+    /// What is bound into a seal for a thing of this identity: the purpose and the identity. Made once by whoever seals many
+    /// things (`SealedTable`), and extended with what tells them apart.
+    public func binding(_ identity: String) -> Data { Data("\(purpose.rawValue)\u{0}\(identity)".utf8) }
 
     /// - Complexity: O(the bytes).
     public func seal(_ plain: Data, identity: String) throws(SealFailure) -> Data {
+        try seal(plain, binding: binding(identity))
+    }
+
+    public func seal(_ plain: Data, binding: Data) throws(SealFailure) -> Data {
         do {
-            let box = try ChaChaPoly.seal(plain, using: key, authenticating: bound(identity))
-            return Self.magic + [Self.version] + identifier + Data(box.nonce) + box.ciphertext + box.tag
+            let box = try ChaChaPoly.seal(plain, using: key, authenticating: binding)
+            return Self.magic + [Self.version] + identifier + box.combined
         } catch {
             throw .damaged
         }
@@ -43,18 +49,22 @@ public struct Seal: Sendable {
 
     /// - Complexity: O(the bytes).
     public func open(_ sealed: Data, identity: String) throws(SealFailure) -> Data {
-        let data = Data(sealed)
-        guard Self.isSealed(data) else { throw .notSealed }
-        guard data.count >= Self.overhead else { throw .damaged }
-        guard data[4] == Self.version else { throw .unknownVersion }
-        guard data[5 ..< 9] == identifier else { throw .otherKey }
+        try open(sealed, binding: binding(identity))
+    }
+
+    /// Opens without copying `sealed`: read in place, whatever part of a larger buffer it is.
+    public func open(_ sealed: Data, binding: Data) throws(SealFailure) -> Data {
+        guard Self.isSealed(sealed) else { throw .notSealed }
+        guard sealed.count >= Self.overhead else { throw .damaged }
+        guard sealed[sealed.startIndex + 4] == Self.version else { throw .unknownVersion }
+        guard sealed.dropFirst(5).prefix(4) == identifier else { throw .otherKey }
         do {
-            let box = try ChaChaPoly.SealedBox(
-                nonce: ChaChaPoly.Nonce(data: data[9 ..< 21]),
-                ciphertext: data[21 ..< (data.count - 16)],
-                tag: data.suffix(16)
+            // After the header the bytes are the nonce, the sealed bytes and the tag, as CryptoKit combines them.
+            return try ChaChaPoly.open(
+                ChaChaPoly.SealedBox(combined: sealed.dropFirst(9)),
+                using: key,
+                authenticating: binding
             )
-            return try ChaChaPoly.open(box, using: key, authenticating: bound(identity))
         } catch {
             throw .damaged
         }

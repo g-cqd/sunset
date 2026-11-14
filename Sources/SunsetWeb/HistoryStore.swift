@@ -1,145 +1,185 @@
 package import Foundation
-import SQLite3
+package import SunsetStorage
 
-/// The history of pages visited (web step e), in a SQLite file beside the session (the system's library; not encrypted, R1's store study comes
-/// later). One table: an address, its title, its visit count and its last visit. Read and written on the main actor: each call is one small
-/// statement.
+/// The history of pages visited (web step e): an address, its title, its visit count and its last visit. Kept as sealed
+/// records of the state database (R12, roadmap 0030 step ST-3): nothing of it is in the file in the clear, so it is held whole
+/// in memory, latest first, and searched there. Without a table it is in memory only (a private window, tests).
 @MainActor
 package final class HistoryStore {
-    private var database: OpaquePointer?
+    var byAddress: [String: Page] = [:]
+    /// By last visit, the oldest first: a visit now is added at the end, and the lists read from the end. A page visited again
+    /// leaves its old place marked `gone` (finding it would mean walking the list); the marks are swept when there are many.
+    var ordered: [Page] = []
+    var goneCount = 0
+    let table: SealedTable?
+    /// The kept history is all in memory. False for a moment after a large history is opened: its records are opened off the
+    /// main actor, and what is visited or removed meanwhile is joined to them when they arrive.
+    package private(set) var isLoaded = true
+    private var loading: Task<Void, Never>?
+    var removed = Removed()
+    /// Records that did not open when the history was read (altered or damaged): they are not shown.
+    package private(set) var unreadable = 0
     /// Something was written (a visit, a title, a deletion): lists that show the history read it again.
     package var onChange: () -> Void = {}
 
-    /// Opens (or makes) the file at `path`; ":memory:" for one that is never written.
-    package init?(path: String) {
-        if path != ":memory:" {
-            try? FileManager.default.createDirectory(
-                at: URL(fileURLWithPath: path).deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
+    /// Opens the history kept in `table`. Fewer records than `atOnceBelow` are opened here and now; more are opened off the
+    /// main actor (`ready()` waits for them), so that a long history does not hold up the launch.
+    /// - Complexity: O(the history's bytes): every record is opened once.
+    package init(table: SealedTable? = nil, atOnceBelow: Int = 2048) {
+        self.table = table
+        guard let table else { return }
+        let sealed = table.sealed()
+        if sealed.count < atOnceBelow {
+            install(sealed.open { Kept($0) })
+        } else {
+            isLoaded = false
+            loading = Task { [weak self] in
+                let read = await sealed.openConcurrently { Kept($0) }
+                self?.install(read)
+            }
         }
-        guard unsafe sqlite3_open(path, &database) == SQLITE_OK else { return nil }
-        let made = run(
-            "CREATE TABLE IF NOT EXISTS pages (url TEXT PRIMARY KEY, title TEXT NOT NULL, visits INTEGER NOT NULL, last REAL NOT NULL);"
-                + "CREATE INDEX IF NOT EXISTS pages_last ON pages(last);"
-        )
-        guard made else { return nil }
     }
 
-    isolated deinit { unsafe sqlite3_close(database) }
+    /// Returns once the kept history is all in memory.
+    package func ready() async { await loading?.value }
+
+    /// Takes in the kept pages (the latest first), joined to what happened since the reading began.
+    private func install(_ read: (values: [Kept], unreadable: Int)) {
+        unreadable = read.unreadable
+        let untouched = ordered.isEmpty
+        ordered.reserveCapacity(ordered.count + read.values.count)
+        byAddress.reserveCapacity(read.values.count)
+        for kept in read.values.reversed() where !removed.covers(kept.entry) {
+            if let page = byAddress[kept.entry.url] {
+                // Visited while the history was being read: that visit is added to the kept ones.
+                page.entry.visits += kept.entry.visits
+                if page.entry.title.isEmpty {
+                    page.entry.title = kept.entry.title
+                    page.hay = kept.hay
+                }
+                keep(page)
+            } else {
+                let page = Page(kept)
+                byAddress[kept.entry.url] = page
+                ordered.append(page)
+            }
+        }
+        if !untouched { ordered.sort { $0.entry.lastVisit < $1.entry.lastVisit } }
+        removed = Removed()
+        loading = nil
+        if !isLoaded {
+            isLoaded = true
+            onChange()
+        }
+    }
+
+    package var count: Int { byAddress.count }
 
     /// A visit to `url` at `time`: counted, its title kept when it has one.
     package func visit(_ url: String, title: String, at time: Date = Date()) {
-        statement(
-            "INSERT INTO pages (url, title, visits, last) VALUES (?1, ?2, 1, ?3) ON CONFLICT(url) DO UPDATE SET visits = visits + 1, "
-                + "last = ?3, title = CASE WHEN ?2 = '' THEN title ELSE ?2 END",
-            [.text(url), .text(title), .real(time.timeIntervalSince1970)]
-        )
+        var entry = HistoryEntry(url: url, title: title, visits: 1, lastVisit: time)
+        if let page = byAddress[url] {
+            entry.visits = page.entry.visits + 1
+            if title.isEmpty { entry.title = page.entry.title }
+            drop(page)
+        }
+        place(Page(entry))
         onChange()
     }
 
     /// The page's title arrived after its visit was counted.
     package func retitle(_ url: String, title: String) {
-        guard !title.isEmpty else { return }
-        statement("UPDATE pages SET title = ?2 WHERE url = ?1", [.text(url), .text(title)])
+        guard !title.isEmpty, let page = byAddress[url] else { return }
+        page.entry.title = title
+        page.hay = Self.folded(Array((url + "\n" + title).utf8))
+        keep(page)
         onChange()
     }
 
-    /// The pages whose address or title holds `text` (all when empty), latest first, at most `limit`.
-    package func entries(matching text: String = "", limit: Int = 500) -> [HistoryEntry] {
-        let pattern = "%" + text.replacingOccurrences(of: "%", with: "") + "%"
-        return query(
-            "SELECT url, title, visits, last FROM pages WHERE url LIKE ?1 OR title LIKE ?1 ORDER BY last DESC LIMIT ?2",
-            [.text(pattern), .integer(limit)]
-        )
-    }
-
-    /// The best matches for what is typed in an address field: by frecency, those whose host or title starts with it first.
-    package func suggestions(for text: String, limit: Int = 4, now: Date = Date()) -> [HistoryEntry] {
-        let typed = text.trimmingCharacters(in: .whitespaces).lowercased()
-        guard !typed.isEmpty else { return [] }
-        let found = entries(matching: typed, limit: 200)
-        func prefix(_ entry: HistoryEntry) -> Bool {
-            let host = URL(string: entry.url)?.host()?.lowercased() ?? ""
-            let bare = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
-            return bare.hasPrefix(typed) || host.hasPrefix(typed) || entry.title.lowercased().hasPrefix(typed)
-        }
-        return Array(
-            found.sorted { left, right in
-                let (l, r) = (prefix(left), prefix(right))
-                return l != r ? l : left.score(now: now) > right.score(now: now)
-            }
-            .prefix(limit)
-        )
-    }
-
-    /// The last `limit` pages visited.
-    package func recent(limit: Int = 10) -> [HistoryEntry] { entries(limit: limit) }
-
     package func delete(_ url: String) {
-        statement("DELETE FROM pages WHERE url = ?1", [.text(url)])
+        if !isLoaded { removed.addresses.insert(url) }
+        if let page = byAddress.removeValue(forKey: url) { drop(page) }
+        table?.remove(url)
         onChange()
     }
 
     /// Forgets the pages last visited since `date` (all for `.distantPast`).
     package func clear(since date: Date) {
-        statement("DELETE FROM pages WHERE last >= ?1", [.real(date.timeIntervalSince1970)])
+        if !isLoaded { removed.since = min(removed.since ?? date, date) }
+        forget { $0.entry.lastVisit >= date }
+        table?.remove(sortAtLeast: date.timeIntervalSince1970)
         onChange()
     }
 
     /// Forgets the pages last visited before `date` (what `web.history.keep` no longer keeps).
     package func expire(before date: Date) {
-        statement("DELETE FROM pages WHERE last < ?1", [.real(date.timeIntervalSince1970)])
+        if !isLoaded { removed.before = max(removed.before ?? date, date) }
+        forget { $0.entry.lastVisit < date }
+        table?.remove(sortBelow: date.timeIntervalSince1970)
     }
 
-    // MARK: SQLite
+    // MARK: In memory
 
-    enum Value {
-        case text(String)
-        case real(Double)
-        case integer(Int)
-    }
-
-    @discardableResult
-    private func run(_ sql: String) -> Bool { unsafe sqlite3_exec(database, sql, nil, nil, nil) == SQLITE_OK }
-
-    @discardableResult
-    private func statement(_ sql: String, _ values: [Value]) -> Bool {
-        guard let prepared = prepare(sql, values) else { return false }
-        defer { unsafe sqlite3_finalize(prepared) }
-        return unsafe sqlite3_step(prepared) == SQLITE_DONE
-    }
-
-    private func query(_ sql: String, _ values: [Value]) -> [HistoryEntry] {
-        guard let prepared = prepare(sql, values) else { return [] }
-        defer { unsafe sqlite3_finalize(prepared) }
-        var rows: [HistoryEntry] = []
-        while unsafe sqlite3_step(prepared) == SQLITE_ROW {
-            rows.append(
-                HistoryEntry(
-                    url: unsafe String(cString: sqlite3_column_text(prepared, 0)),
-                    title: unsafe String(cString: sqlite3_column_text(prepared, 1)),
-                    visits: Int(unsafe sqlite3_column_int64(prepared, 2)),
-                    lastVisit: Date(timeIntervalSince1970: unsafe sqlite3_column_double(prepared, 3))
-                )
-            )
+    private func forget(_ forgotten: (Page) -> Bool) {
+        ordered.removeAll { page in
+            if page.gone { return true }
+            guard forgotten(page) else { return false }
+            byAddress[page.entry.url] = nil
+            return true
         }
-        return rows
+        goneCount = 0
     }
 
-    private func prepare(_ sql: String, _ values: [Value]) -> OpaquePointer? {
-        var prepared: OpaquePointer?
-        guard unsafe sqlite3_prepare_v2(database, sql, -1, &prepared, nil) == SQLITE_OK else { return nil }
-        // SQLite copies the text at once (SQLITE_TRANSIENT).
-        let transient = unsafe unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-        for (index, value) in values.enumerated() {
-            let position = Int32(index + 1)
-            switch value {
-                case .text(let text): unsafe sqlite3_bind_text(prepared, position, text, -1, transient)
-                case .real(let number): unsafe sqlite3_bind_double(prepared, position, number)
-                case .integer(let number): unsafe sqlite3_bind_int64(prepared, position, Int64(number))
+    /// Marks a page's place in the list as empty; sweeps the marks when a quarter of the list is marked.
+    private func drop(_ page: Page) {
+        page.gone = true
+        goneCount += 1
+        if goneCount > 1024, goneCount > ordered.count / 4 {
+            ordered.removeAll(where: \.gone)
+            goneCount = 0
+        }
+    }
+
+    /// Puts a page where its last visit belongs (the end, for a visit now), and keeps it.
+    private func place(_ page: Page) {
+        byAddress[page.entry.url] = page
+        if let last = ordered.last, last.entry.lastVisit > page.entry.lastVisit {
+            // An earlier time than the latest (a visit given its time): before the first page visited later.
+            var low = 0
+            var high = ordered.count
+            while low < high {
+                let middle = (low + high) / 2
+                if ordered[middle].entry.lastVisit <= page.entry.lastVisit { low = middle + 1 } else { high = middle }
+            }
+            ordered.insert(page, at: low)
+        } else {
+            ordered.append(page)
+        }
+        keep(page)
+    }
+
+    private func keep(_ page: Page) {
+        table?
+            .put(
+                page.entry.url,
+                payload: Data((page.entry.url + "\n" + page.entry.title).utf8),
+                sort: page.entry.lastVisit.timeIntervalSince1970,
+                count: page.entry.visits
+            )
+    }
+
+    /// Adds pages read from elsewhere (the history of before the database), as one transaction; a page already known is left.
+    func adopt(_ entries: [HistoryEntry]) {
+        let add = {
+            for entry in entries where self.byAddress[entry.url] == nil {
+                let page = Page(entry)
+                self.byAddress[entry.url] = page
+                self.ordered.append(page)
+                self.keep(page)
             }
         }
-        return unsafe prepared
+        if let table { table.transaction(add) } else { add() }
+        ordered.sort { $0.entry.lastVisit < $1.entry.lastVisit }
+        onChange()
     }
 }

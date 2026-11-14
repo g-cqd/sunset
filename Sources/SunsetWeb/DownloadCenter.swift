@@ -1,8 +1,9 @@
 package import Foundation
 package import Observation
+package import SunsetStorage
 package import WebKit
 
-/// The app's downloads (web step f): the list, kept in a file beside the session; each download's name and place decided (approval for risky kinds,
+/// The app's downloads (web step f): the list, kept as sealed records of the state database (R12 step ST-3); each download's name and place decided (approval for risky kinds,
 /// a free name, the partial file), its progress followed, the file renamed, marked as downloaded (quarantine) and announced when it finishes.
 @MainActor @Observable
 package final class DownloadCenter: NSObject {
@@ -12,7 +13,7 @@ package final class DownloadCenter: NSObject {
     package internal(set) var items: [DownloadItem] = []
     @ObservationIgnored package var settings = DownloadSettings()
     /// Where the list is kept; nil: not kept (tests).
-    @ObservationIgnored package var path: String? {
+    @ObservationIgnored package var table: SealedTable? {
         didSet { load() }
     }
     /// Asked before a risky kind is saved: its name and the page it comes from.
@@ -129,30 +130,51 @@ package final class DownloadCenter: NSObject {
 
     // MARK: Keeping
 
+    /// Keeps the list as it is now: one record per download, in the list's order. A private page's are never kept.
     func save() {
-        guard let path else { return }
+        guard let table else { return }
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .secondsSince1970
-        guard let data = try? encoder.encode(items.filter { !$0.isPrivate }.map(\.record)) else { return }
-        try? FileManager.default.createDirectory(
-            at: URL(fileURLWithPath: path).deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
-        try? data.write(to: URL(fileURLWithPath: path), options: .atomic)
+        let records = items.filter { !$0.isPrivate }.map(\.record)
+        table.transaction {
+            table.removeAll()
+            for (index, record) in records.enumerated() {
+                guard let data = try? encoder.encode(record) else { continue }
+                table.put(record.id.uuidString, payload: data, sort: Double(records.count - index))
+            }
+        }
     }
 
     private func load() {
         items = []
-        guard let path, let data = FileManager.default.contents(atPath: path) else { return }
+        guard let table else { return }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .secondsSince1970
-        let records = (try? decoder.decode([DownloadItem.Record].self, from: data)) ?? []
+        adopt(table.all().rows.compactMap { try? decoder.decode(DownloadItem.Record.self, from: $0.payload) })
+    }
+
+    /// Lists what was kept, without the finished downloads the setting no longer keeps.
+    private func adopt(_ records: [DownloadItem.Record]) {
         let now = Date()
         items = records.map(DownloadItem.init)
             .filter { item in
                 guard item.state == .finished, let finished = item.finished else { return true }
                 return settings.keeps(finishedAt: finished, now: now)
             }
+    }
+
+    /// Takes in the list of the file of before the database (`downloads.json`) when nothing is listed yet; says how many it
+    /// held, or nil when there is none.
+    package func importLegacy(at path: String) -> Int? {
+        guard let data = FileManager.default.contents(atPath: path) else { return nil }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        guard let records = try? decoder.decode([DownloadItem.Record].self, from: data) else { return nil }
+        if items.isEmpty {
+            adopt(records)
+            save()
+        }
+        return records.count
     }
 
     /// Lists a download as given (tests, and what is read back).

@@ -231,7 +231,7 @@ let package = Package(
         .target(
             name: "SunsetWeb",
             dependencies: [
-                "SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics",
+                "SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics", "SunsetStorage",
                 .product(name: "AemiSDR", package: "AemiSDR")
             ],
             path: "Sources/SunsetWeb",
@@ -239,7 +239,7 @@ let package = Package(
         ),
         .testTarget(
             name: "SunsetWebTests",
-            dependencies: ["SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics"],
+            dependencies: ["SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics", "SunsetStorage"],
             path: "Tests/SunsetWebTests",
             swiftSettings: strictSettings
         ),

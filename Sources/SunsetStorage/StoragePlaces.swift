@@ -7,23 +7,33 @@ import Foundation
 /// `~/Library/Application Support/Sunset`. Empty variables count as unset.
 public struct StoragePlaces: Sendable, Equatable {
     public let directory: String
-    /// The open tabs, the folders and the Favorites: one file, read whole.
+    /// The open tabs, the folders and the Favorites: one file, sealed, read whole.
     public let session: String
+    /// The session's file of before sealing (`session.json`, plain), read once when there is no sealed one; nil for a setup
+    /// that names its session file, which is read whichever it is and written sealed.
+    public let legacySession: String?
+    /// The person's own setup, not one named by a variable (a test, a second setup).
+    public let isDefault: Bool
 
     public init(environment: [String: String], home: String) {
         if let file = environment["SUNSET_SESSION"], !file.isEmpty {
             session = file
+            legacySession = nil
             directory = Self.folder(of: file)
+            isDefault = false
             return
         }
         if let config = environment["SUNSET_CONFIG"], !config.isEmpty {
             directory = Self.folder(of: config)
+            isDefault = false
         } else {
             var base = home
             while base.count > 1, base.hasSuffix("/") { base.removeLast() }
             directory = base + "/Library/Application Support/Sunset"
+            isDefault = true
         }
-        session = directory + "/session.json"
+        session = directory + "/session.sealed"
+        legacySession = directory + "/session.json"
     }
 
     /// The places of this run.
@@ -35,6 +45,12 @@ public struct StoragePlaces: Sendable, Equatable {
     public var documents: String { directory + "/Documents" }
     /// What the library shows of the documents; rebuilt from them (ST-4).
     public var library: String { directory + "/library.sqlite" }
+
+    /// Where the key that seals all this is kept: the login Keychain for the person's own setup; a file beside the others for
+    /// a named one, which must not touch the Keychain.
+    public var keyVault: any KeyVault {
+        isDefault ? KeychainKeyVault() : FileKeyVault(path: directory + "/storage.key")
+    }
 
     // The files of before the database, imported once by ST-3.
     public var legacyZoom: String { directory + "/site-zoom.json" }

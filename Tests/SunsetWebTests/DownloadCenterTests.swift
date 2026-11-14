@@ -12,28 +12,28 @@ import Testing
     }
 
     @Test func `the list is kept in its file, latest first; a download cut by a quit comes back paused`() throws {
-        let path = NSTemporaryDirectory() + "downloads-\(UUID().uuidString).json"
+        let path = NSTemporaryDirectory() + "downloads-\(UUID().uuidString)/state.sqlite"
         let center = DownloadCenter()
-        center.path = path
+        center.table = try TestState.table("downloads", at: path)
         center.insert(finishedItem("old.zip", daysAgo: 2))
         let cut = DownloadItem(source: nil, origin: nil, name: "big.iso")
         cut.resumeData = Data([1, 2, 3])
         center.insert(cut)
         let read = DownloadCenter()
-        read.path = path
+        read.table = try TestState.table("downloads", at: path)
         #expect(read.items.map(\.name) == ["big.iso", "old.zip"])
         #expect(read.items[0].state == .paused && read.items[0].canResume)
     }
 
-    @Test func `finished downloads older than the setting keeps are not read back`() {
-        let path = NSTemporaryDirectory() + "downloads-\(UUID().uuidString).json"
+    @Test func `finished downloads older than the setting keeps are not read back`() throws {
+        let path = NSTemporaryDirectory() + "downloads-\(UUID().uuidString)/state.sqlite"
         let center = DownloadCenter()
-        center.path = path
+        center.table = try TestState.table("downloads", at: path)
         center.insert(finishedItem("week.zip", daysAgo: 3))
         center.insert(finishedItem("today.zip", daysAgo: 0.1))
         let read = DownloadCenter()
         read.settings.keep = .day
-        read.path = path
+        read.table = try TestState.table("downloads", at: path)
         #expect(read.items.map(\.name) == ["today.zip"])
     }
 
