@@ -1,8 +1,8 @@
 package import SunsetPane
 package import SwiftUI
 
-/// A pane whose kind this build cannot make (a session written by a newer one): it says so, and keeps what was saved so that it is written back as it
-/// was.
+/// A pane whose kind this build cannot make (a session written by a newer one, or a kind since removed, as the note was at roadmap 0023 M-b): it
+/// says so, and keeps what was saved so that it is written back as it was.
 @MainActor package final class UnknownContent: PaneContent {
     package let descriptor: PaneDescriptor
     package var onExit: () -> Void = {}

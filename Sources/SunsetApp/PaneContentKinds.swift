@@ -18,10 +18,6 @@ import SunsetWeb
                 let page = WebContent(descriptor: descriptor, settings: settings)
                 page.onChange = changed
                 return page
-            case NoteContent.kind:
-                let note = NoteContent(text: descriptor.state["text"] ?? "")
-                note.onEdit = changed
-                return note
             default:
                 return UnknownContent(descriptor)
         }

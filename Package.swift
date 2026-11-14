@@ -64,7 +64,12 @@ let package = Package(
         // Tests: the family's seeded generator, allocation counting and fuzz helpers (AemiTestKit). Pinned like TerminalKit's, which resolves the same revision.
         .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "0bae2edb1a89bd3d931fb3122c2184cc5c368834"),
         // Our own tooling (ADR-0002): terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
-        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "7913fe66c32d9d715de37f3051c5427ff92f6247"),
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "53e06bfe2814fdb2256baa31bb9b93525434d3e2"),
+        // Markdown, Mermaid and text documents (roadmap 0023): the native view, the source editor, the one text behind them.
+        .package(
+            url: "https://github.com/g-cqd/AemiMarkdown.git",
+            revision: "35b065d00413417a2e1274cb593f682032ae26ea"
+        ),
         // The configuration file (roadmap 0017): JSON read by AemiJSON's engine. Pinned by revision, as the family does.
         .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "806b481d8cc7e21f07d45537b625c5ac9abfc87e"),
         // Blur under the bars and panels (Sunset research/blur, AemiSDR roadmap 0020). Pinned by revision, as the family does.
@@ -158,16 +163,21 @@ let package = Package(
             path: "Sources/SunsetMetrics",
             swiftSettings: strictSettings
         ),
-        // The documents that live in Sunset (R12 step ST-4): one sealed file each and an index rebuilt from them.
+        // Documents (R6, R12): the store of those that live in Sunset (one sealed file each, an index rebuilt from them), and
+        // the one document behind every pane on a file or a stored document (its text, saving, watching the file).
         .target(
             name: "SunsetDocuments",
-            dependencies: ["SunsetStorage"],
+            dependencies: [
+                "SunsetStorage", "SunsetHost", .product(name: "MarkdownLookKit", package: "AemiMarkdown")
+            ],
             path: "Sources/SunsetDocuments",
             swiftSettings: strictSettings
         ),
         .testTarget(
             name: "SunsetDocumentsTests",
-            dependencies: ["SunsetDocuments", "SunsetStorage"],
+            dependencies: [
+                "SunsetDocuments", "SunsetStorage", .product(name: "MarkdownLookKit", package: "AemiMarkdown")
+            ],
             path: "Tests/SunsetDocumentsTests",
             swiftSettings: strictSettings
         ),

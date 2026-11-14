@@ -42,7 +42,7 @@ extension DocumentStore {
         guard let bytes = FileManager.default.contents(atPath: path(id)) else { return nil }
         let what = lastTitle.map { "The document \u{201C}\($0)\u{201D}" } ?? "A document"
         do {
-            return entry(for: try DocumentFile(bytes, seal: seal, id: id), id: id)
+            return entry(for: try SealedDocument(bytes, seal: seal, id: id), id: id)
         } catch .otherKey {
             problems.report(StorageProblem(what: what, path: path(id), movedTo: nil, kind: .locked))
         } catch {

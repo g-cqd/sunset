@@ -42,7 +42,7 @@ public final class DocumentStore {
     public func create(kind: DocumentKind = .markdown, text: String = "") throws(DocumentStoreFailure) -> StoredDocument
     {
         let id = UUID()
-        return try write(DocumentFile(kind: kind, created: Date(), text: text), id: id)
+        return try write(SealedDocument(kind: kind, created: Date(), text: text), id: id)
     }
 
     public func text(of id: UUID) throws(DocumentStoreFailure) -> String { try file(id).text }
@@ -89,17 +89,17 @@ public final class DocumentStore {
         documents.removeAll { $0.id == id }
     }
 
-    private func file(_ id: UUID) throws(DocumentStoreFailure) -> DocumentFile {
+    private func file(_ id: UUID) throws(DocumentStoreFailure) -> SealedDocument {
         guard let bytes = FileManager.default.contents(atPath: path(id)) else { throw .missing }
         do {
-            return try DocumentFile(bytes, seal: seal, id: id)
+            return try SealedDocument(bytes, seal: seal, id: id)
         } catch {
             throw .unreadable
         }
     }
 
     @discardableResult
-    private func write(_ file: DocumentFile, id: UUID) throws(DocumentStoreFailure) -> StoredDocument {
+    private func write(_ file: SealedDocument, id: UUID) throws(DocumentStoreFailure) -> StoredDocument {
         do {
             try StoredFile.write(try file.sealed(seal, id: id), to: path(id), durability: .forced)
         } catch {
@@ -111,7 +111,7 @@ public final class DocumentStore {
     }
 
     /// What the index holds of a document whose file was just written or read.
-    func entry(for file: DocumentFile, id: UUID) -> StoredDocument {
+    func entry(for file: SealedDocument, id: UUID) -> StoredDocument {
         let attributes = try? FileManager.default.attributesOfItem(atPath: path(id))
         let changed = (attributes?[.modificationDate] as? Date) ?? Date()
         return StoredDocument(
