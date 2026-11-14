@@ -1,5 +1,7 @@
 .DS_Store
 .build/
+# A build directory redirected by a link is not a directory: `.build/` alone lets the link be committed.
+.build
 .swiftpm/
 *.xcodeproj
 /DerivedData/
