@@ -89,6 +89,25 @@ web store is WebKit's and is not sealed: FileVault is its only protection, and S
 
 | ST-3 | What becomes of the plain files once they are imported (a plain copy left in the folder would defeat the sealing) | First "Delete"; then: "maybe the import should put things in the trash as you proposed initially, i let you reassess the topic later". Built as the choice that destroys nothing: the person's own files go to the Mac's Trash; a named setup's (a test's) are removed. To be reassessed (task t258) |
 
+| ST-4 | What a document is called; what a new one is | Named from its content; a new document is Markdown |
+| ST-5 | The layout (sketches `docs/research/storage/st5-documents-sketch.png`) | **A**: a small "Documents" heading with a + and a chevron that folds it, the documents under it. And more, in his words below |
+| ST-5 | An open document (sketches `st5-open-sketch.png`) | **2**: in place, as a Favorite: its row in Documents is the tab; a minus closes the pane, the document stays listed |
+| ST-5 | The order | The latest changed first; "propose sorting options" |
+| ST-5 | With no document yet | The heading is there, with its + |
+| ST-5 | Deleting from the row's menu | At once (the plain text is in the Mac's Trash) |
+| ST-5 | When, since nothing shows a document yet | After the pane: Markdown M-b and M-c first, then ST-5, then ST-6 |
+
+The owner at ST-5 (2026-11-14), beside choosing A: "i believe documents should be movable across tabs as standard tabs, and i'd say
+we should have a way to toggle having a specific section for documents, but i would imagine, we could have the documents in the
+opposite sidebar (the one with the history) and we could switch there between history or documents or other things, and we could
+have a setting that would allow having them in an extended original sidebar where it would show history, documents, tabs as
+sectionned tabs that would change the sidebar content either for the original one or the opposite one, check arc behaviour".
+
+Read as four things, to be shown as sketches before ST-5 is built (roadmap 0031, task t259): a document's row is dragged as a tab's
+is (into Favorites and their folders, among the tabs); a setting shows or hides the Documents section of the tab sidebar; the panel
+on the opposite side, which today is the history, becomes a place with sections (History, Documents, others) and a way to switch;
+and a setting puts that switch in the tab sidebar itself instead (Tabs, Documents, History), changing what the sidebar shows.
+
 What iCloud Keychain would need, when it is decided: an App ID `studio.aemi.sunset` in the developer account with the Keychain Sharing
 capability, a Developer ID provisioning profile for it embedded in the app, the `keychain-access-groups` entitlement in `project.yml`,
 and the key moved to the data protection keychain as a synchronizable item.

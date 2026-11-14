@@ -1,6 +1,6 @@
 ---
 status: in-progress (ST-1 to ST-4 done, 2026-11-14)
-blocked-by: nothing; roadmap 0023 (Markdown) from M-b waits for ST-4
+blocked-by: ST-5 waits for roadmap 0023 M-c (the owner, 2026-11-14) and the sketches of 0031
 date: 2026-11-13
 ---
 
@@ -54,9 +54,14 @@ file's size and time, not a checksum: a checksum would open every file at each l
 its name; moving writes it to a file of the person's; both take it out of the store. A file that does not open is set aside and
 said by its last known title. `AppStorage.documents` opens the store at first use. 7 tests; 1,004 in all. Nothing shows it yet.
 
+ST-5's questions, 2026-11-14: asked with sketches, answered (R12's table of answers): the heading layout, an open document in
+place as a Favorite, the latest first with sorting options to propose, the heading shown when empty, deleting at once. The owner
+put the pane first: **Markdown M-b and M-c (roadmap 0023) are built before ST-5**, then ST-6. He also asked for the documents to
+be reachable from a sectioned sidebar (roadmap 0031), which is sketched before ST-5 is built.
+
 ## Not done
 
-ST-5 and ST-6, then Markdown M-b onward (the document behind a pane uses this store). In ST-4: nothing in the app makes,
+ST-5 (after Markdown M-c and the sketches of 0031) and ST-6. In ST-4: nothing in the app makes,
 lists or opens a document yet; a document whose file's size and time are unchanged but whose bytes are damaged is listed until
 it is opened; the store has not been run in the installed app (it is made at first use, which nothing triggers yet).
 In ST-3: the History menu and panel are empty for the moment a long history takes to be read; no migration exists yet (there
