@@ -8,7 +8,7 @@ import Testing
 /// document looks like. Drawn with plain shapes for the owner to choose from; nothing here is the built section.
 extension DesignCatalogTests {
     enum DocumentTrail {
-        case none, close, unload, chevronDown, chevronUp, plus
+        case none, close, unload, chevronUp
         case count(Int)
     }
 
@@ -117,29 +117,6 @@ extension DesignCatalogTests {
 
     func documentSidebar(@ViewBuilder _ content: () -> some View) -> AnyView {
         AnyView(VStack(spacing: 4) { content() }.padding(4).background(Color(white: 0.09)))
-    }
-
-    /// The panel variant C opens: a field, then the documents with their dates.
-    var documentPanel: AnyView {
-        AnyView(
-            VStack(spacing: 4) {
-                HStack(spacing: 6) {
-                    Image(systemName: "magnifyingglass").font(.system(size: 11)).foregroundStyle(.secondary)
-                    Text("Search Documents").font(.system(size: 12)).foregroundStyle(.tertiary)
-                    Spacer(minLength: 0)
-                    Image(systemName: "plus").font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 8).frame(height: 26)
-                .background(Capsule().fill(.primary.opacity(0.08)))
-                documentList(dates: true)
-            }
-            .padding(6)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(white: 0.17)))
-            .overlay {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(.primary.opacity(0.12), lineWidth: 0.5)
-            }
-        )
     }
 
     var documentsSection: CatalogSheet {

@@ -4,6 +4,29 @@ import SwiftUI
 
 /// Mock-ups of an open document in the sidebar (roadmap 0030 step ST-5), for the owner to choose from.
 extension DesignCatalogTests {
+    /// The panel variant C opens: a field, then the documents with their dates.
+    var documentPanel: AnyView {
+        AnyView(
+            VStack(spacing: 4) {
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass").font(.system(size: 11)).foregroundStyle(.secondary)
+                    Text("Search Documents").font(.system(size: 12)).foregroundStyle(.tertiary)
+                    Spacer(minLength: 0)
+                    Image(systemName: "plus").font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 8).frame(height: 26)
+                .background(Capsule().fill(.primary.opacity(0.08)))
+                documentList(dates: true)
+            }
+            .padding(6)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(white: 0.17)))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(.primary.opacity(0.12), lineWidth: 0.5)
+            }
+        )
+    }
+
     var documentsOpen: CatalogSheet {
         CatalogSheet(
             title: "A document that is open (mock-up, ST-5)",
