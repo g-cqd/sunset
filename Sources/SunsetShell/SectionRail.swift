@@ -23,9 +23,14 @@ package struct SectionRail: View {
         self.choose = choose
     }
 
-    /// How much wider the sidebar is while the rail shows: a button and its gap to the sidebar's edge. The list keeps the
-    /// width the tabs have.
-    package static func width(_ buttons: SidebarButtons) -> Double { buttons.metrics.size.width + buttons.gap }
+    /// The space between the rail and the list beside it (the owner, 2026-11-15).
+    package static let gutter = Design.Space.m
+
+    /// How much wider the sidebar is while the rail shows: a button, its gap to the window's edge, and the gutter to the
+    /// list. The list keeps the width the tabs have.
+    package static func width(_ buttons: SidebarButtons) -> Double {
+        buttons.metrics.size.width + buttons.gap + gutter
+    }
 
     package var body: some View {
         VStack(spacing: buttons.layout.tabSpacing) {

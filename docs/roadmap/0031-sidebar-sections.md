@@ -139,6 +139,19 @@ Library by a toggle of its own) and keeps the one he gave first and repeated: a 
   it is dropped (before, the tab on its row moved). The rows of a list have no minus any more: a document's tab is closed
   as tabs are.
 
+## The Library widens the sidebar in place (2026-11-15, the owner with the build in hand)
+
+In his words: "you might want to add a little gutter of space between the sidebar of icons for the library sections and the
+tabs of the sidebar themselves, also i don't like that opening or closing the library closes or open the sidebar completelz,
+it's really the content and the sidebar themselves that should change and expand in place".
+
+- A gutter of 8 pt between the rail and the list (`SectionRail.gutter`); the sidebar is wider by it too.
+- The tab sidebar was replaced by another view when the Library opened, so the tabs slid one way and the section came in
+  from the other, as if one sidebar closed and another opened (`docs/research/sidebar/library-open-before.png`, the frames
+  of it). Now the sidebar is one frame (`SunsetShell/LibraryFrame.swift`): the list keeps its width and its place in it,
+  the rail fades in at the window's edge, and what the list shows fades from the tabs to the section where it is
+  (`library-open-after.png`). The tabs stay underneath, unseen and out of reach, so going back does not make them again.
+
 ## As built (2026-11-15)
 
 | Part | Where |
