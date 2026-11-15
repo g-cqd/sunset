@@ -23,7 +23,11 @@ import Testing
     @Test func `an option is named as the file names it`() {
         #expect(Set(options.map(\.id)).count == options.count, "an identifier is used twice")
         let others = options.filter { $0.keys != [$0.id] }.map(\.id).sorted()
-        #expect(others == ["file.location", "web.permissions"], "only these are not one key of the file: \(others)")
+        let pages = ["storage.enterCode", "storage.export", "storage.key", "storage.sealed", "storage.setAside"]
+        #expect(
+            others == ["file.location"] + pages + ["storage.websiteData", "web.permissions"],
+            "only these are not one key of the file: \(others)"
+        )
         #expect(options.allSatisfy { !$0.title.isEmpty && !$0.topic.isEmpty })
     }
 
@@ -51,7 +55,7 @@ import Testing
 
     @Test func `the sentences under the controls are kept when options move`() {
         let noted = options.filter { $0.note != nil }.map(\.id)
-        #expect(noted.count == 19, "a sentence was added or lost: \(noted)")
+        #expect(noted.count == 20, "a sentence was added or lost: \(noted)")
         #expect(SettingsOption.named("sidebar.enabled")?.note?.contains("lists the tabs") == true)
         #expect(SettingsOption.named("scrollback.lines")?.note?.contains("opened after the change") == true)
     }

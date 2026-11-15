@@ -197,6 +197,7 @@ public struct Configuration: Sendable, Equatable {
     public var window = Window()
     public var scroll = Scroll()
     public var keyboard = Keyboard()
+    public var storage = Storage()
     public var web = Web()
     public var sidebar = Sidebar()
     public var appearance = Appearance()

@@ -35,6 +35,8 @@ struct SettingsCustomRow: View {
             case .engines: EngineList(engines: config.binding(\.web.engines))
             case .websites: WebsitesSettings(defaults: config.binding(\.web.permissions))
             case .fileLocation: fileInfo
+            case .storageSealed, .storageWebsiteData, .storageSetAside, .storageKey, .storageEnterCode, .storageExport:
+                StorageRows(custom: custom)
             case .textOnlyZoom:
                 if WebTextZoomProbe.isAvailable {
                     Toggle("Zoom makes only the text bigger", isOn: config.binding(\.web.textOnlyZoom))

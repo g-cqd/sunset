@@ -65,6 +65,19 @@ extension Reader {
         }
     }
 
+    mutating func readStorage(_ object: Object) {
+        for (key, value) in object {
+            switch key {
+                case "importedFiles":
+                    if let choice = choice("storage.importedFiles", value, as: Configuration.Storage.ImportedFiles.self)
+                    {
+                        configuration.storage.importedFiles = choice
+                    }
+                default: unknown("storage.\(key)")
+            }
+        }
+    }
+
     mutating func readScroll(_ object: Object) {
         for (key, value) in object {
             switch key {

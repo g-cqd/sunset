@@ -112,6 +112,13 @@ What iCloud Keychain would need, when it is decided: an App ID `studio.aemi.suns
 capability, a Developer ID provisioning profile for it embedded in the app, the `keychain-access-groups` entitlement in `project.yml`,
 and the key moved to the data protection keychain as a synchronizable item.
 
+| ST-6 | Where Storage is in the settings | **Topics of Privacy and security** (What is kept; Key and recovery; Export), not a section of its own |
+| ST-6 | How the recovery code is shown | **On request, after Touch ID or the password**; hidden again when the page is left; it can be asked for again. With **Copy** (no Print) |
+| ST-6 | When a code can be entered | **Always**: an Enter button; a different key already kept is not replaced unless confirmed |
+| ST-6 | What Export All exports | **Every document as plain files, the history as CSV, the session as readable JSON** |
+| ST-3, again (t258) | The plain files of before, once imported | **A setting, the Trash by default** |
+| ST-6 | The website data's row | **Clear (all website data)**, and **Open FileVault's settings when it is off** |
+
 ### The sections of the sidebars (2026-11-15, roadmap 0031)
 
 Asked on two sketches (`docs/research/sidebar/sections-opposite.png`, `sections-sidebar.png`). The switch of the opposite

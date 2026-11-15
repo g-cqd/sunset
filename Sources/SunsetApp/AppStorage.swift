@@ -1,4 +1,5 @@
 import Foundation
+import SunsetConfig
 import SunsetDocuments
 import SunsetStorage
 
@@ -72,14 +73,17 @@ final class AppStorage {
 
     /// Puts away a file of before the database once what it held is kept (`kept`: the store took it in, and the table holds
     /// what the store holds). A plain copy left in the folder would defeat the sealing. The person's own files go to the Mac's
-    /// Trash, where nothing is destroyed (the owner, 2026-11-14; to be reassessed: Trash or deleted); a named setup's (a test's)
-    /// are removed, so that tests do not fill the Trash.
+    /// Trash, where nothing is destroyed, or are deleted, by `storage.importedFiles` (the owner, 2026-11-15: a setting, the
+    /// Trash by default); a named setup's (a test's) are removed, so that tests do not fill the Trash.
     func retire(_ legacy: String, when kept: Bool) {
         guard kept else { return }
+        let trash = places.trashesImported(
+            setting: AppConfiguration.shared.configuration.storage.importedFiles == .trash
+        )
         for suffix in ["", "-journal", "-wal", "-shm"] {
             let path = legacy + suffix
             guard FileManager.default.fileExists(atPath: path) else { continue }
-            if places.isDefault {
+            if trash {
                 try? FileManager.default.trashItem(at: URL(fileURLWithPath: path), resultingItemURL: nil)
             } else {
                 try? FileManager.default.removeItem(atPath: path)

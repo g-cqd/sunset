@@ -95,4 +95,68 @@ extension SettingsOption {
                     "The pages of a new private window share their data (a private tab of a normal window never does)"
             )
         ]
+
+    /// What is kept, and what protects it (R12 step ST-6).
+    static let kept: [Self] =
+        [
+            custom(
+                "storage.sealed",
+                "Sealed with your key",
+                "documents session history size sealed encrypted store",
+                .storageSealed
+            )
+            .setting([]),
+            custom(
+                "storage.websiteData",
+                "Website data",
+                "cookies filevault encrypted clear website data not sealed disk",
+                .storageWebsiteData
+            )
+            .setting([]),
+            custom(
+                "storage.setAside",
+                "Files set aside",
+                "damaged moved aside unreadable did not read",
+                .storageSetAside
+            )
+            .setting([])
+        ]
+
+    /// The key and its recovery code.
+    static let keyAndRecovery: [Self] =
+        [
+            custom("storage.key", "Recovery code", "key keychain recovery code backup show copy", .storageKey)
+                .setting([]),
+            custom(
+                "storage.enterCode",
+                "Enter a recovery code",
+                "key restore another mac lost keychain",
+                .storageEnterCode
+            )
+            .setting([])
+        ]
+
+    /// Out of the store.
+    static let export: [Self] =
+        [
+            custom(
+                "storage.export",
+                "Export all",
+                "export documents history csv session json backup plain files",
+                .storageExport
+            )
+            .setting([]),
+            choice(
+                "storage.importedFiles",
+                "Imported plain files go to",
+                "import old files trash delete plain legacy",
+                \.storage.importedFiles,
+                [(.trash, "The Trash"), (.delete, "Deleted at once")],
+                label: "Plain files Sunset has imported go to"
+            )
+            .noted(
+                "The files of before sealing (a session, a history) once what they held is in the sealed store. In the Trash "
+                    + "they are readable until it is emptied; deleted, no plain copy is left."
+            )
+        ]
 }

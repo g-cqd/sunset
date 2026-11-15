@@ -89,12 +89,7 @@ final class SessionStore {
     /// Writes the session now, from the windows that are open (and the saved ones not yet taken, so that a quit during launch loses nothing).
     func saveNow() {
         guard writes else { return }
-        let open =
-            restoresWindows
-            ? TabRegistry.shared.allWindows().filter { !$0.tabs.isPrivateWindow }.map { $0.tabs.savedWindow() }
-                + pending : []
-        let session = SavedSession(windows: open, favorites: AppFavorites.shared.saved())
-        guard let data = try? session.encoded() else { return }
+        guard let data = try? current(windows: restoresWindows).encoded() else { return }
         // Sealed, written whole beside the file, synced and moved over it: a crash mid-write leaves the old session, not half
         // of a new one.
         guard let seal, (try? SealedFile.write(data, to: path, seal: seal, identity: Self.identity)) != nil else {
@@ -109,6 +104,19 @@ final class SessionStore {
             legacy = nil
         }
     }
+
+    /// The session as it is now: the windows that are open (not the private ones, which keep nothing) and the saved ones not
+    /// yet taken, when `windows`; and the Favorites.
+    private func current(windows: Bool) -> SavedSession {
+        let open =
+            windows
+            ? TabRegistry.shared.allWindows().filter { !$0.tabs.isPrivateWindow }.map { $0.tabs.savedWindow() }
+                + pending : []
+        return SavedSession(windows: open, favorites: AppFavorites.shared.saved())
+    }
+
+    /// The session as JSON a person can read, for Export All (R12 step ST-6): the open windows whatever the restoring setting.
+    func readable() -> Data? { try? current(windows: true).encoded() }
 
     private var restoresWindows: Bool { AppConfiguration.shared.configuration.tabs.restore }
 

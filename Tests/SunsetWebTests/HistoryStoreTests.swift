@@ -121,3 +121,22 @@ import Testing
         #expect(read.entries().map(\.url) == store.entries().map(\.url) && read.entries().first?.visits == 2)
     }
 }
+
+/// The history as a file of the person's (R12 step ST-6).
+extension HistoryStoreTests {
+    @Test func `the history exports as CSV, the latest first, every page (not the 500 a list shows)`() throws {
+        let store = HistoryStore()
+        store.visit("https://a.com/?q=1,2", title: "A, \"quoted\"", at: day(2))
+        store.visit("https://b.com/", title: "=cmd()", at: day(1))
+        store.visit("https://b.com/", title: "=cmd()", at: day(1))
+        let lines = store.csv().components(separatedBy: "\r\n")
+        #expect(lines[0] == "address,title,last visit,visits")
+        #expect(lines[1] == "https://b.com/,'=cmd(),\(day(1).ISO8601Format()),2")
+        #expect(lines[2] == "\"https://a.com/?q=1,2\",\"A, \"\"quoted\"\"\",\(day(2).ISO8601Format()),1")
+        #expect(lines.count == 4 && lines[3].isEmpty)
+
+        let many = HistoryStore()
+        for index in 0 ..< 700 { many.visit("https://x.com/\(index)", title: "", at: day(Double(index))) }
+        #expect(many.csv().components(separatedBy: "\r\n").count == 702)
+    }
+}

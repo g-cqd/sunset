@@ -125,7 +125,10 @@ extension SettingsSection {
         symbol: "hand.raised",
         topics: [
             SettingsTopic("privacy.programs", "Programs in a terminal", SettingsOption.programs),
-            SettingsTopic("privacy.browsing", "Browsing", SettingsOption.browsing)
+            SettingsTopic("privacy.browsing", "Browsing", SettingsOption.browsing),
+            SettingsTopic("privacy.kept", "What is kept", SettingsOption.kept),
+            SettingsTopic("privacy.key", "Key and recovery", SettingsOption.keyAndRecovery),
+            SettingsTopic("privacy.export", "Export", SettingsOption.export)
         ]
     )
 }

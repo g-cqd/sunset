@@ -1,5 +1,5 @@
 ---
-status: in-progress (ST-1 to ST-4 done, 2026-11-14; ST-5 built 2026-11-15)
+status: done (ST-1 to ST-4 2026-11-14; ST-5 and ST-6 2026-11-15)
 blocked-by: nothing
 date: 2026-11-13
 ---
@@ -59,12 +59,29 @@ place as a Favorite, the latest first with sorting options to propose, the headi
 put the pane first: **Markdown M-b and M-c (roadmap 0023) are built before ST-5**, then ST-6. He also asked for the documents to
 be reachable from a sectioned sidebar (roadmap 0031), which is sketched before ST-5 is built.
 
+ST-6, 2026-11-15: three topics of Settings, Privacy and security (the owner's answers of that day, R12's table).
+**What is kept**: the documents, the session and the database with their sizes (`StorageInventory`, read from the folder off
+the main thread); the website data with its size and the sentence that Sunset does not seal it, with FileVault's state as
+the Mac says it (`FileVaultState`: `fdesetup isactive`, because the volume's "encrypted" flag is false on a Mac that
+FileVault protects), a Clear button, and a button to FileVault's settings when it is off; the files set aside, listed from
+the folder. **Key and recovery**: where the key is; the recovery code on request, after Touch ID or the password
+(`LAContext`), hidden when the page is left, with Copy (marked as a secret on the clipboard) and no Print; entering a code,
+which keeps the key it holds and replaces a different one only once confirmed (`RecoveryCodeSheet`). **Export**: Export
+All (`ExportAll`, `DocumentStore.exportAll`, `HistoryStore.csv`, the session's JSON) into a dated folder of the folder
+chosen; and `storage.importedFiles` (the Trash by default, or deleted), which closes t258.
+
 ## Not done
 
-ST-6. ST-5 was built on 2026-11-15 in one step with the sections of roadmap 0031, which says how and what was not seen (a
+In ST-6: **Export All was not pressed in the app** (its panel would have come up on the owner's screen): its parts and the
+whole are tested, the three lines that hand the app's documents, history and session to it are not. **Copy was not pressed**
+(it would have replaced the owner's clipboard). **The Mac's question (Touch ID) was not seen**: a test's setup keeps its key
+in a file and is not asked. The page with no key (what is kept sealed with another key) was not seen. The button to
+FileVault's settings was not seen (FileVault is on here), and its address is not verified. A key entered is used from the
+next start, not at once. iCloud Keychain is still not used (R12, ST-2).
+ST-5 was built on 2026-11-15 in one step with the sections of roadmap 0031, which says how and what was not seen (a
 drag, above all): the Documents heading among the tabs, a document's row as its tab while it is open, the + and File > New
 Document, deleting at once from the row's menu, the four orders. An empty document opens as source, ready to type.
 In ST-4: a document whose file's size and time are unchanged but whose bytes are damaged is listed until it is opened; the
 store has been run in a test copy of the app only (a folder of its own), not in the installed app.
 In ST-3: the History menu and panel are empty for the moment a long history takes to be read; no migration exists yet (there
-is only version 1); whether the old plain files are trashed or deleted is to be reassessed with the owner (t258).
+is only version 1).
