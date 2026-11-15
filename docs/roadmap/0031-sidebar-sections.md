@@ -1,6 +1,6 @@
 ---
 status: not-started
-blocked-by: the sketches of the bottom row (the owner decides among them)
+blocked-by: the look of the Library (the owner decides among L1, L2, L3)
 date: 2026-11-14
 ---
 
@@ -52,6 +52,25 @@ Drawn by `DesignCatalogTests+SectionSwitch.swift` (`--filter "the switch at a si
 - `docs/research/sidebar/sections-foot-sidebar.png`: the same at the foot of the tab sidebar, with the +. T1 the + first
   (where it is today), T2 the + at the end, T3 as B5, T4 as B3, T5 as B6.
 
+### Arc on screen (2026-11-15, once the owner had signed in; read through accessibility and one picture, in the background)
+
+| Seen | Measure |
+| --- | --- |
+| The sidebar's foot: a Library glyph at the leading end, the spaces in the middle (the one shown as its icon, the others as dots, in a strip that scrolls), the + at the trailing end | Sidebar 228 pt wide; Library 32 x 32 at 8 pt; the strip 144 pt; + 32 x 32 at 188 pt |
+| The Library glyph **widens the sidebar** and replaces its content | 228 pt to 417 pt |
+| Its sections are **tabs laid out vertically** at the leading side: a glyph over a name, the one shown filled | Six tiles of 97 x 80 pt (Media, Downloads, Easels, Spaces, Boosts, Archived Tabs), 100 pt apart |
+| The section's content is beside them, under a search field that spans the top; lists are headed by day ("Today", "Yesterday", "Earlier This Week") | Content 281 pt wide |
+| An arrow at the strip's foot goes back to the tabs | 32 x 32 at the leading end of the foot |
+
+The picture showed the whole window once, with the owner's own tabs and spaces in it, by a crop that failed; nothing of
+them is written here and the pictures were deleted. Arc was left running, back on its tabs.
+
+### The Library (2026-11-15, after the owner's note on the foot)
+
+Drawn by `DesignCatalogTests+Library.swift` (`--filter "the Library of the tab sidebar"`):
+`docs/research/sidebar/sections-library.png`. The tab sidebar's foot with the Library glyph, room for spaces and the +; then
+the extended sidebar three ways: L1 tiles with names as Arc, L2 a rail of glyphs, L3 a rail with the sidebar keeping its width.
+
 ## The owner's answers (2026-11-15, on the sketches)
 
 | Asked | Answer |
@@ -64,9 +83,20 @@ Drawn by `DesignCatalogTests+SectionSwitch.swift` (`--filter "the switch at a si
 | What dragging a document's row does | Onto the tab list: **opens it as a tab there** (the document stays in Documents). Onto a pane: **splits it**. Into Favorites: **keeps it there**. Not reordered within Documents (no manual order) |
 | Arc | **"Yes, open it"**: done, and it showed only its sign-in window (see the sketches) |
 
+### On the foot (2026-11-15)
+
+| Asked | Answer |
+| --- | --- |
+| The look of the foot | In his words: "the issue i see with this proposition is that we couldn't use the bottom section for future spaces, so i'd say we could have opposite to the + button, a library icon, that would extend the sidebar into a variant we can change its content of through tabs laid out vertically changing the content of the sidebar to each kind of section, only the opposite sidebar could use the bottom icons, where i would say the t5 b6 is more interesting" |
+| Read as | The tab sidebar's foot is kept for spaces, later: a Library glyph at one end, the + at the other. The Library extends the sidebar; its sections are vertical tabs. **Only the opposite panel has a switch at its foot, the segmented one (B6)** |
+| The title of a section | **Kept** |
+| The + of the tab sidebar | **At the end** |
+| What is built first | **Both in one step**: the Documents heading (ST-5) and the sections |
+
 ## Still to settle
 
-- The look of the bottom row (P3), from several sketches; whether the tab sidebar's switch is the same row.
+- The look of the Library (L1, L2, L3) and whether Tabs is one of its vertical tabs or the arrow goes back to them.
+
 - What a section's key is, and what the Downloads section is beside the downloads panel of today.
 
 ## Not done
