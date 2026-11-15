@@ -161,7 +161,6 @@ package struct TabSidebar: View {
                     tabs.hoveredItem = nil
                 }
             }
-            .onTapGesture(count: 2) { tabs.renamingRow = .tab(item.id) }
             .selectionTaps(tabs, row: .tab(item.id)) { tabs.select(item: item.id) }
             .iconPopover(tabs: tabs, row: .tab(item.id))
             .onDrag { tabs.itemProvider(for: .item(item.id)) }

@@ -59,7 +59,6 @@ struct FavoritesSection: View {
             }
             .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
             .overlay { dropMark(entry.id) }
-            .onTapGesture(count: 2) { tabs.renamingRow = .node(entry.id) }
             .selectionTaps(tabs, row: .node(entry.id)) { tabs.select(entry: entry.id) }
             .iconPopover(tabs: tabs, row: .node(entry.id))
             .onDrag { tabs.itemProvider(for: .entry(entry.id)) }

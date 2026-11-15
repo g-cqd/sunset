@@ -53,6 +53,16 @@ window, drawn"`), with plain shapes: `docs/research/settings/settings-in-window.
 5. The search: its results in the settings tab, under the names of their section and topic, as today.
 6. The system's Settings scene is removed once every option is reachable in the tab.
 
+## The topics proposed (the review of 2026-11-15)
+
+Step 3 asked for a list of topics. A review by another session made one, from an inventory of the 108 options and the 120
+keys: `docs/research/review-performance-memory-settings-2026-11-15.md`, section 5. It names sixteen confusions of today's
+panes (a theme and its colours in two panes, the window's look in three, Layout a flat list of 31 numbers, 8 keys with no
+control, 8 options named differently in the file and in Settings) and proposes six sections and 24 topics: General,
+Appearance, Window, Tabs and sidebar, Terminal, Web; Layout goes, its numbers to the thing they measure. It is a proposal
+until the owner approves it, with five things for him to decide (its 5.4). The code it asks for first, one declaration per
+option, is task t268.
+
 ## Still to settle
 
 - The topics of each section (a list to propose).
