@@ -71,6 +71,12 @@ Added from notes: n13 stop blinking when focus is lost (done, see diary), n14 co
 
 Answers of the same day to the three that were open: **glass** regular and clear, one tint shared by window and sidebar; **built-in tab bar** customizable (position, what a tab shows: title, working directory, progress), so those are settings, not fixed choices; **themes** may set everything visual (colours, material, tint, blur, font), and the config can still override any of it.
 
+## The traffic lights, again (2026-11-15)
+
+The design note above ("reparent them into a container we place") did not hold: AppKit took the buttons back into its title
+bar as the window showed, and they started at its place. They now stay in the title bar and are put back whenever they move
+(ADR-0036, `SunsetShell/WindowLights.swift`, `Scripts/lights-probe`).
+
 ## Still open
 
 1. Precedence between a theme and the config file's own keys (proposed: config file key beats theme, theme beats default).

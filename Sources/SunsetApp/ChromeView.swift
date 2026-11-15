@@ -16,33 +16,17 @@ final class ChromeView: NSView {
     /// Told how much of the window's top the title bar and the system tab bar cover (`contentLayoutRect`, KVO compliant), in points.
     var obscuredTop: (Double) -> Void = { _ in }
     private let backdrop = WindowBackdrop()
-    private var observers: [any NSObjectProtocol] = []
     /// SwiftUI sets the window's style again when the content around it changes; these notice and put ours back.
     private var styleObservations: [NSKeyValueObservation] = []
     private var applying = false
-    /// The buttons have been taken out of the title bar (and have to be given back by rebuilding it).
-    private var movedButtons = false
-    private var spacing: Double?
-    private static let buttons: [NSWindow.ButtonType] = [.closeButton, .miniaturizeButton, .zoomButton]
+    /// Keeps the window's buttons where they are put, whatever AppKit does to its title bar (`WindowLights`).
+    private var keeper: WindowLights?
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        observers.forEach { NotificationCenter.default.removeObserver($0) }
-        observers = []
+        keeper = nil
         guard let window else { return }
-        // The system lays the buttons out again on these: put ours back each time.
-        let names: [Notification.Name] = [
-            NSWindow.didResizeNotification, NSWindow.didEndLiveResizeNotification, NSWindow.didBecomeKeyNotification,
-            NSWindow.didResignKeyNotification, NSWindow.didExitFullScreenNotification,
-            NSWindow.didChangeScreenNotification
-        ]
-        for name in names {
-            observers.append(
-                NotificationCenter.default.addObserver(forName: name, object: window, queue: .main) { [weak self] _ in
-                    MainActor.assumeIsolated { self?.placeButtons() }
-                }
-            )
-        }
+        keeper = WindowLights(window: window)
         styleObservations = [
             window.observe(\.titleVisibility) { [weak self] _, _ in MainActor.assumeIsolated { self?.apply() } },
             window.observe(\.titlebarAppearsTransparent) { [weak self] _, _ in
@@ -71,8 +55,6 @@ final class ChromeView: NSView {
         obscuredTop(Double(covered))
     }
 
-    isolated deinit { observers.forEach { NotificationCenter.default.removeObserver($0) } }
-
     private func apply() {
         guard let window, !applying else { return }
         applying = true
@@ -97,15 +79,15 @@ final class ChromeView: NSView {
         placeButtons()
     }
 
-    /// With no decorations the three system buttons leave the title bar and live in the window's frame view, above the content, so that they can be put
-    /// anywhere in the window (inside the title bar they could only move within its strip). They keep their targets and actions, so close, minimise and zoom
-    /// still work. Back to `native`, the pieces AppKit built for the old title bar are not worth reassembling (it drops its container when the style changes):
-    /// the window's title bar is made again by switching the `titled` style off and on, which gives it new buttons in their place.
+    /// With no decorations the three system buttons are put where the sidebar or the tab bar wants them, and kept there
+    /// (`WindowLights`: they stay in AppKit's title bar and are put back each time it lays them out again). Back to `native`,
+    /// the title bar is made again by switching the `titled` style off and on, which gives the buttons their own places.
     private func placeButtons() {
-        guard let window, let frame = window.contentView?.superview else { return }
+        guard let window, let keeper else { return }
         if settings.decorations == .native {
-            if movedButtons {
-                movedButtons = false
+            keeper.placement = nil
+            if keeper.hasPlaced {
+                keeper.released()
                 window.styleMask.remove(.titled)
                 window.styleMask.insert(.titled)
                 if window.titlebarAppearsTransparent { window.titlebarAppearsTransparent = false }
@@ -113,70 +95,22 @@ final class ChromeView: NSView {
             }
             return
         }
-        let buttons = Self.buttons.compactMap { type in window.standardWindowButton(type) }
-        guard buttons.count == 3 else { return }
-        if spacing == nil { spacing = buttons[1].frame.origin.x - buttons[0].frame.origin.x }
-        for (index, button) in buttons.enumerated() {
-            if button.superview !== frame {
-                button.removeFromSuperview()
-                frame.addSubview(button, positioned: .above, relativeTo: nil)
-                movedButtons = true
-            }
-            // From the window's top left corner; the frame view is not flipped, and the buttons stay at the top left when the window is resized.
-            let origin =
-                lights
-                ?? LightsPlacement(
-                    x: settings.trafficLightsX,
-                    y: settings.trafficLightsY,
-                    visible: true,
-                    side: settings.lightsSide.resolved(sidebar: .left)
-                )
-            button.autoresizingMask = origin.side == .left ? [.maxXMargin, .minYMargin] : [.minXMargin, .minYMargin]
-            // A hidden button is parked outside the window (nothing to click) once its fade is over.
-            let x =
-                origin.visible
-                ? LightsLayout.x(
-                    index: index,
-                    side: origin.side,
-                    inset: origin.x,
-                    windowWidth: frame.bounds.width,
-                    spacing: spacing ?? Design.System.lightsPitch,
-                    buttonWidth: button.frame.width
-                )
-                : -200
-            let top = origin.centred ? origin.y - button.frame.height / 2 : origin.y
-            let y = frame.bounds.height - top - button.frame.height
-            fade(button, visible: origin.visible, to: NSPoint(x: x, y: y))
-        }
-    }
-
-    /// Moves a button to `origin` and fades its layer in or out. The layer's opacity is animated, not the view's `alphaValue` or `isHidden`: changing those made
-    /// AppKit lay the red and yellow buttons out again at its own spot (measured: they went back to (9, 9) within 600 ms). A button that fades out is moved
-    /// outside the window when the fade is over.
-    private func fade(_ button: NSButton, visible: Bool, to origin: NSPoint) {
-        guard let layer = button.layer else {
-            button.setFrameOrigin(origin)
-            return
-        }
-        let target: Float = visible ? 1 : 0
-        if visible {
-            button.setFrameOrigin(origin)
-        } else if layer.opacity == 0 {
-            button.setFrameOrigin(origin)
-            return
-        }
-        guard layer.opacity != target else { return }
-        let animation = CABasicAnimation(keyPath: "opacity")
-        animation.fromValue = layer.presentation()?.opacity ?? layer.opacity
-        animation.toValue = target
-        animation.duration = 0.18
-        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        layer.add(animation, forKey: "fade")
-        layer.opacity = target
-        guard !visible else { return }
-        Task { @MainActor [weak button] in
-            try? await Task.sleep(for: .milliseconds(200))
-            if let button, button.layer?.opacity == 0 { button.setFrameOrigin(origin) }
-        }
+        let wanted =
+            lights
+            ?? LightsPlacement(
+                x: settings.trafficLightsX,
+                y: settings.trafficLightsY,
+                visible: true,
+                side: settings.lightsSide.resolved(sidebar: .left)
+            )
+        keeper.placement = WindowLights.Placement(
+            inset: wanted.x,
+            top: wanted.y,
+            fromRight: wanted.side == .right,
+            centred: wanted.centred,
+            visible: wanted.visible
+        )
+        // Asked again at each pass of the window's style: cheap when nothing moved.
+        keeper.place()
     }
 }
