@@ -1,0 +1,67 @@
+import AppKit
+import SunsetMetrics
+import SunsetPane
+import SunsetShell
+import SwiftUI
+
+/// A document in a section of a sidebar: its title, and when it was last changed; a click shows it where it already is in
+/// the window, else opens it on its row; Cmd-click opens it in a new tab among the tabs; it is dragged as a tab is.
+struct DocumentSectionRow: View {
+    let tabs: TabsModel
+    let document: ShelfDocument
+    let layout: LayoutMetrics
+    /// Under a day's heading: the time is enough.
+    let byDay: Bool
+    /// Its title and its date.
+    private static let lines = 2
+    @State private var hovered = false
+
+    private var isOpen: Bool { tabs.workspace.allPanes.contains { tabs.document(in: $0) == document.id } }
+
+    private var changed: String {
+        byDay
+            ? document.modified.formatted(date: .omitted, time: .shortened)
+            : document.modified.formatted(date: .abbreviated, time: .shortened)
+    }
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
+        return HStack(spacing: GlyphSpacing.toText) {
+            PaneGlyphView(glyph: .symbol(document.kind.symbol))
+            VStack(alignment: .leading, spacing: Design.Space.hair) {
+                Text(document.title).lineLimit(1)
+                Text(changed).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
+            }
+        }
+        .padding(.leading, layout.tabPaddingLeading)
+        .padding(.trailing, layout.tabPaddingTrailing)
+        .padding(.vertical, Design.rowPadding(layout, lines: Self.lines, height: Design.Size.tabRow))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            shape.fill(Color.primary.opacity(hovered ? Design.Fill.openHover : (isOpen ? Design.Fill.open : 0)))
+        )
+        .contentShape(shape)
+        .animation(layout.smooth, value: hovered)
+        .onHover { hovered = $0 }
+        .onTapGesture {
+            if NSEvent.modifierFlags.contains(.command) { openInNewTab() } else { tabs.show(document: document.id) }
+        }
+        .onDrag { tabs.itemProvider(for: .document(document.id)) }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .contextMenu {
+            Button("Open") { tabs.show(document: document.id) }
+            Button("Open in New Tab") { openInNewTab() }
+            Divider()
+            Button("Delete", role: .destructive) { tabs.delete(document: document.id) }
+        }
+    }
+
+    private func openInNewTab() {
+        tabs.openTab(
+            document: document.id,
+            at: (tabs.workspace.selectedIndex ?? tabs.workspace.count - 1) + 1,
+            show: true
+        )
+    }
+}

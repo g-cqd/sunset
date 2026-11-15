@@ -1,13 +1,18 @@
 import AppKit
 import SunsetShell
-import SwiftUI
+package import SwiftUI
 
 /// A download in the list: its picture, name, size and progress, and what can be done with it (Stop, Resume, Show in Finder, Remove).
-struct DownloadRow: View {
+package struct DownloadRow: View {
     let item: DownloadItem
     let center: DownloadCenter
 
-    var body: some View {
+    package init(item: DownloadItem, center: DownloadCenter) {
+        self.item = item
+        self.center = center
+    }
+
+    package var body: some View {
         HStack(spacing: Design.Space.m) {
             DownloadThumbnail(item: item, size: 28)
             VStack(alignment: .leading, spacing: Design.Space.hair) {

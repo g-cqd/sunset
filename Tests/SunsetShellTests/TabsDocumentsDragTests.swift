@@ -59,3 +59,15 @@ import Testing
         #expect(!tabs.dropDragged(onto: tabs.workspace.items[0].id, action: .moveAfter) && tabs.workspace.count == 1)
     }
 }
+
+/// A document open in place, at the next start.
+extension TabsDocumentsDragTests {
+    @Test func `a document open in place comes back on its row with the window`() throws {
+        tabs.newTab()
+        tabs.open(document: notes)
+        let saved = tabs.savedWindow()
+        let again = TabsHarness()
+        again.tabs.restore(try JSONDecoder().decode(SavedWindow.self, from: try JSONEncoder().encode(saved)))
+        #expect(again.tabs.shelved(notes) != nil && again.tabs.listedItems(shelf: true).count == 1)
+    }
+}

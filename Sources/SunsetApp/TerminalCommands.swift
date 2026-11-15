@@ -31,6 +31,7 @@ struct TerminalCommands: Commands {
             Button("New Private Tab") { AppActions.shared.newTab(kind: PaneContentKinds.newPrivatePage) }
                 .keyboardShortcut("n", modifiers: [.command, .shift, .option])
             Divider()
+            Button("New Document") { AppActions.shared.newDocument() }
             Button("Open File\u{2026}") { AppActions.shared.openFile() }.keyboardShortcut("o")
         }
         CommandGroup(replacing: .saveItem) {
@@ -52,6 +53,8 @@ struct TerminalCommands: Commands {
             Button("Actual Size") { AppActions.shared.resetFontZoom() }.keyboardShortcut("0")
             Divider()
             DocumentCommands(document: document)
+            Divider()
+            SectionCommands()
             Divider()
             Button("Previous Prompt") { model?.jumpToPrompt(.previous) }
                 .keyboardShortcut(.upArrow)

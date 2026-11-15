@@ -68,7 +68,10 @@ import Testing
 
     @Test func `deleting a document closes its panes here, then the shelf deletes it`() throws {
         var deleted: [UUID] = []
-        tabs.shelf.delete = { deleted.append($0) }
+        tabs.shelf.delete = {
+            deleted.append($0)
+            return $0 != self.plan
+        }
         tabs.newTab()
         tabs.open(document: notes)
         tabs.openTab(document: notes, at: 0, show: false)
@@ -76,5 +79,42 @@ import Testing
         tabs.delete(document: notes)
         #expect(deleted == [notes] && tabs.workspace.count == 2 && tabs.shelved(plan) != nil)
         #expect(tabs.workspace.allPanes.allSatisfy { tabs.document(in: $0) != notes })
+        tabs.delete(document: plan)
+        #expect(tabs.shelved(plan) != nil, "one that could not be deleted keeps its pane")
+    }
+}
+
+/// What the Documents heading among the tabs lists.
+extension TabsDocumentsTests {
+    func shelved(_ title: String, _ id: UUID, changed day: Int) -> ShelfDocument {
+        let at = Date(timeIntervalSince1970: Double(day) * 86_400)
+        return ShelfDocument(id: id, title: title, kind: .markdown, created: at, modified: at)
+    }
+
+    @Test func `the heading lists the documents in the chosen order, each with its tab when it is open in place`()
+        throws
+    {
+        tabs.shelf.list = { [notes, plan] in
+            [self.shelved("Plan", plan, changed: 1), self.shelved("Notes", notes, changed: 2)]
+        }
+        #expect(tabs.shelfRows(sort: .changed).map(\.document.title) == ["Notes", "Plan"])
+        #expect(tabs.shelfRows(sort: .name).map(\.document.title) == ["Notes", "Plan"])
+        #expect(tabs.shelfRows(sort: .changed).allSatisfy { $0.item == nil })
+        tabs.open(document: plan)
+        let rows = tabs.shelfRows(sort: .changed)
+        #expect(rows[0].item == nil && rows[1].item?.id == tabs.shelved(plan)?.id)
+        tabs.sections.documentsFolded = true
+        #expect(tabs.shelfRows(sort: .changed).isEmpty, "folded, the heading alone is left")
+    }
+
+    @Test func `a document open in place and dragged leaves its row: it is the tab that moves`() throws {
+        tabs.newTab()
+        let first = tabs.workspace.items[0].id
+        tabs.open(document: notes)
+        let item = try #require(tabs.shelved(notes)?.id)
+        _ = tabs.itemProvider(for: .document(notes))
+        #expect(tabs.dropDragged(onto: first, action: .moveBefore))
+        #expect(tabs.workspace.count == 2 && tabs.workspace.items[0].id == item, "no second tab is opened")
+        #expect(tabs.shelved(notes) == nil && tabs.listedItems(shelf: true).count == 2)
     }
 }

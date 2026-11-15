@@ -114,13 +114,17 @@ extension TerminalScene {
         return corners
     }
 
-    /// The history panel on the side opposite the tabs (web step e), placed as the docked sidebar is: its margin on the window's edge and top.
+    /// The panel on the side opposite the tabs (web step e, roadmap 0031): History, Documents or Downloads, by the switch at its foot.
+    /// Placed as the docked sidebar is: its margin on the window's edge and top.
     var historyPanel: some View {
         let side: Configuration.Side = sidebarSide == .left ? .right : .left
-        return HistoryPanel(
+        let settings = ShellSettings(configuration)
+        return SectionPanel(
             tabs: tabs,
-            layout: ShellSettings(configuration).layout,
-            margin: configuration.sidebar.padding
+            section: tabs.sections.opposite,
+            buttons: SidebarButtons(layout: settings.layout, margin: configuration.sidebar.padding, panelRadius: nil),
+            sort: settings.sidebar.documentSort,
+            place: .opposite
         )
         .padding(.top, configuration.sidebar.padding)
         .padding(side.edge, configuration.sidebar.padding)

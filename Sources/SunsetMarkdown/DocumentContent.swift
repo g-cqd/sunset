@@ -41,7 +41,9 @@ package final class DocumentContent: PaneContent {
     init(document: OpenDocument, mode: DocumentMode?, documents: OpenDocuments) {
         self.document = document
         self.documents = documents
-        self.mode = document.kind == .text ? .source : (mode ?? .rendered)
+        // With no view asked for: an empty document has nothing to draw, it opens ready to type.
+        let unasked: DocumentMode = document.source.storage.length == 0 ? .source : .rendered
+        self.mode = document.kind == .text ? .source : (mode ?? unasked)
     }
 
     /// What brings a pane on the file at `path` back.

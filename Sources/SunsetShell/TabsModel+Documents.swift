@@ -58,15 +58,34 @@ extension TabsModel {
         if let made = shelf.create() { open(document: made) }
     }
 
-    /// Deletes `document` at once (the owner, ST-5): its panes in this window close without asking, then the shelf puts it away.
+    /// Deletes `document` at once (the owner, ST-5): the shelf puts it away (what was typed is saved into it first), then its
+    /// panes in this window close without asking.
     package func delete(document: UUID) {
-        for pane in workspace.allPanes where self.document(in: pane) == document { close(pane: pane) }
-        shelf.delete(document)
+        if shelf.delete(document) { closePanes(showing: document) }
     }
 
-    /// What is dragged, a document become a tab of this window (not shown, at the end) so that it is dropped as a tab is.
+    /// Closes every pane of this window that shows `document`, without asking: the document is gone.
+    package func closePanes(showing document: UUID) {
+        for pane in workspace.allPanes where self.document(in: pane) == document { close(pane: pane) }
+    }
+
+    /// What is dragged, a document become a tab of this window so that it is dropped as a tab is: the tab on its row when it is
+    /// open in place (it leaves the row), else a new one (not shown, at the end).
     func takeDocumentDrag() {
         guard case .document(let id) = dragged else { return }
-        dragged = .item(openTab(document: id, at: workspace.count, show: false))
+        if let item = shelved(id) {
+            change { $0.shelve(item: item.id, false) }
+            dragged = .item(item.id)
+        } else {
+            dragged = .item(openTab(document: id, at: workspace.count, show: false))
+        }
+    }
+
+    /// The rows under the Documents heading among the tabs, in the order `sort`: each document with its tab when it is open in
+    /// place. None while the heading is folded.
+    /// - Complexity: O(n log n) in the documents, O(n × tabs) to find the open ones.
+    package func shelfRows(sort: DocumentSort) -> [ShelfRow] {
+        guard !sections.documentsFolded else { return [] }
+        return sort.groups(shelf.list()).flatMap(\.elements).map { ShelfRow(document: $0, item: shelved($0.id)) }
     }
 }

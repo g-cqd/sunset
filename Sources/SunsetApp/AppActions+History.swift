@@ -11,7 +11,7 @@ extension AppActions {
     /// Cmd-Y: the history panel on the side opposite the tabs, shown or hidden (`show`: shown).
     func toggleHistoryPanel(show: Bool? = nil) {
         guard let tabs = keyWindowTabs else { return }
-        tabs.showsHistory = show ?? !tabs.showsHistory
+        tabs.toggleOpposite(.history, show: show)
     }
 
     func clearHistory() { keyWindowTabs?.clearingHistory = true }

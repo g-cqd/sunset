@@ -42,39 +42,34 @@ struct FloatingSidebar: View {
 
     private var panel: some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        return TabSidebar(
-            tabs: tabs,
-            settings: ShellSettings(settings),
-            floating: true,
-            panelRadius: radius,
-            bottomBar: AnyView(SidebarBottomBar(side: settings.sidebar.side)),
-            togglePin: AppConfiguration.togglePin
-        )
-        // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves nothing.
-        .frame(width: settings.sidebar.width - margin)
-        .frame(maxHeight: .infinity)
-        .background {
-            SidebarBackdrop(look: panelLook)
-                .contentShape(.rect)
-                .gesture(WindowDragGesture())
-        }
-        .clipShape(shape)
-        .overlay { shape.hairline(ShellSettings.Layout(settings.layout)) }
-        .overlay(alignment: side == .left ? .trailing : .leading) {
-            // Centred between the end of the tabs and the panel's edge, so it ends at the edge.
-            SidebarResizeHandle(
-                width: settings.sidebar.width,
-                hitWidth: SidebarHandle.hitWidth(
-                    docked: false,
-                    wanted: settings.layout.resizeHandleWidth,
-                    tabSideInset: settings.layout.floatingTabSideInset
-                ),
-                side: side
-            )
-        }
-        .padding(side.edge, margin)
-        .padding(.vertical, margin)
-        .onHover { inside in pointer(inside) }
+        let library = LibrarySidebar.extraWidth(tabs, ShellSettings(settings), floating: true)
+        return AppSidebar(tabs: tabs, configuration: settings, floating: true, panelRadius: radius)
+            // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves
+            // nothing. The Library's rail widens it.
+            .frame(width: settings.sidebar.width - margin + library)
+            .frame(maxHeight: .infinity)
+            .background {
+                SidebarBackdrop(look: panelLook)
+                    .contentShape(.rect)
+                    .gesture(WindowDragGesture())
+            }
+            .clipShape(shape)
+            .overlay { shape.hairline(ShellSettings.Layout(settings.layout)) }
+            .overlay(alignment: side == .left ? .trailing : .leading) {
+                // Centred between the end of the tabs and the panel's edge, so it ends at the edge.
+                SidebarResizeHandle(
+                    width: settings.sidebar.width,
+                    hitWidth: SidebarHandle.hitWidth(
+                        docked: false,
+                        wanted: settings.layout.resizeHandleWidth,
+                        tabSideInset: settings.layout.floatingTabSideInset
+                    ),
+                    side: side
+                )
+            }
+            .padding(side.edge, margin)
+            .padding(.vertical, margin)
+            .onHover { inside in pointer(inside) }
     }
 
     /// The panel is drawn as every floating surface is (`window.material`, design 0003 §6), with the window's blur, glass style and tint.

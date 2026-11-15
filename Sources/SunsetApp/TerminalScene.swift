@@ -102,6 +102,7 @@ struct TerminalScene: View {
         .accent(configuration.appearance.accent.rawValue, tint: configuration.appearance.tintColor)
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .animation(configuration.layout.smooth, value: tabs.showsHistory)
+        .animation(configuration.layout.smooth, value: tabs.sections)
         .ignoresSafeArea(edges: noDecorations ? .top : [])
         .background(
             WindowChrome(
@@ -194,6 +195,7 @@ struct TerminalScene: View {
         AppActions.shared.openTerminalWindow = { openWindow(id: "terminal") }
         tabs.onEmpty = { dismiss() }
         tabs.makeContent = { makeContent($0) }
+        AppDocuments.wire(tabs.shelf)
         tabs.onChange = { SessionStore.shared.scheduleSave() }
         SwitchProbe.startIfAsked(tabs)
         if tabs.workspace.isEmpty, AppActions.shared.pendingPrivateWindow {

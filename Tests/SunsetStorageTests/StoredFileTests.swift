@@ -82,4 +82,9 @@ struct StoredFileTests {
         problems.dismiss(problem)
         #expect(problems.items.isEmpty)
     }
+
+    @Test func `what could not be put away is said, and is kept`() {
+        let problem = StorageProblem(what: "The document Notes", path: "/x/Documents", movedTo: nil, kind: .notRemoved)
+        #expect(problem.sentence == "The document Notes could not be deleted. It is kept as it was.")
+    }
 }

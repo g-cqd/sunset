@@ -121,6 +121,12 @@ public struct Workspace: Sendable, Equatable {
         return item
     }
 
+    /// Puts the tab `id` on its document's row under the Documents heading, or back among the tabs.
+    public mutating func shelve(item id: ItemID, _ shelved: Bool) {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        items[index].shelved = shelved
+    }
+
     /// A new tab of one new pane at `index` (brought inside), shown or not; its pane.
     @discardableResult
     public mutating func addTab(at index: Int, show: Bool) -> PaneID {

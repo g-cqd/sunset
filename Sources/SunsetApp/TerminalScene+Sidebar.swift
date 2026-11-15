@@ -58,7 +58,7 @@ extension TerminalScene {
             )
             let centre = SidebarHandle.center(
                 docked: true,
-                width: configuration.sidebar.width,
+                width: configuration.sidebar.width + libraryWidth,
                 margin: configuration.sidebar.padding,
                 tabSideInset: configuration.layout.tabSideInset
             )
@@ -83,23 +83,20 @@ extension TerminalScene {
 
     /// The docked sidebar's place in the row: it is drawn under the row (`body`), this keeps its width.
     var sidebarSlot: some View {
-        Color.clear.frame(width: configuration.sidebar.width).frame(maxHeight: .infinity)
+        Color.clear.frame(width: configuration.sidebar.width + libraryWidth).frame(maxHeight: .infinity)
     }
+
+    /// How much wider the docked sidebar is while the Library is open: its rail (roadmap 0031).
+    var libraryWidth: Double { LibrarySidebar.extraWidth(tabs, ShellSettings(configuration), floating: false) }
 
     /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge. Any empty area in it drags the window.
     var dockedSidebar: some View {
-        TabSidebar(
-            tabs: tabs,
-            settings: ShellSettings(configuration),
-            accessory: sidebarAddress,
-            bottomBar: AnyView(SidebarBottomBar(side: sidebarSide)),
-            togglePin: AppConfiguration.togglePin
-        )
-        .padding(.top, configuration.sidebar.padding)
-        .padding(sidebarSide.edge, configuration.sidebar.padding)
-        .frame(width: configuration.sidebar.width, alignment: sidebarSide.alignment)
-        .frame(maxHeight: .infinity)
-        .background { windowDragSurface }
-        .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
+        AppSidebar(tabs: tabs, configuration: configuration, accessory: sidebarAddress)
+            .padding(.top, configuration.sidebar.padding)
+            .padding(sidebarSide.edge, configuration.sidebar.padding)
+            .frame(width: configuration.sidebar.width + libraryWidth, alignment: sidebarSide.alignment)
+            .frame(maxHeight: .infinity)
+            .background { windowDragSurface }
+            .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
     }
 }

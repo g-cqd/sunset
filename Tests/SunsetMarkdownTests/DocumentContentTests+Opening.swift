@@ -8,6 +8,12 @@ import Testing
 
 /// What a document pane opens, and what it asks of the page.
 extension DocumentContentTests {
+    @Test func `an empty document opens as source, ready to type; one with text opens rendered`() throws {
+        #expect(try content(try file("empty.md", "")).mode == .source)
+        #expect(try content(try file("full.md", "# Full\n")).mode == .rendered)
+        #expect(try content(try file("asked.md", ""), mode: "rendered").mode == .rendered, "what was saved is kept")
+    }
+
     @Test func `Show Beside opens the other view of the same document`() throws {
         let pane = try content(try file("b.md", "# B\n"))
         var opened: [DocumentOpening] = []

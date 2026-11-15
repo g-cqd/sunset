@@ -1,6 +1,6 @@
 ---
-status: in-progress (ST-1 to ST-4 done, 2026-11-14)
-blocked-by: ST-5 waits for roadmap 0023 M-c (the owner, 2026-11-14) and the sketches of 0031
+status: in-progress (ST-1 to ST-4 done, 2026-11-14; ST-5 built 2026-11-15)
+blocked-by: nothing
 date: 2026-11-13
 ---
 
@@ -61,8 +61,10 @@ be reachable from a sectioned sidebar (roadmap 0031), which is sketched before S
 
 ## Not done
 
-ST-5 (after Markdown M-c and the sketches of 0031) and ST-6. In ST-4: nothing in the app makes,
-lists or opens a document yet; a document whose file's size and time are unchanged but whose bytes are damaged is listed until
-it is opened; the store has not been run in the installed app (it is made at first use, which nothing triggers yet).
+ST-6. ST-5 was built on 2026-11-15 in one step with the sections of roadmap 0031, which says how and what was not seen (a
+drag, above all): the Documents heading among the tabs, a document's row as its tab while it is open, the + and File > New
+Document, deleting at once from the row's menu, the four orders. An empty document opens as source, ready to type.
+In ST-4: a document whose file's size and time are unchanged but whose bytes are damaged is listed until it is opened; the
+store has been run in a test copy of the app only (a folder of its own), not in the installed app.
 In ST-3: the History menu and panel are empty for the moment a long history takes to be read; no migration exists yet (there
 is only version 1); whether the old plain files are trashed or deleted is to be reassessed with the owner (t258).

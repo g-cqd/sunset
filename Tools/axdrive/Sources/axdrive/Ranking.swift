@@ -24,6 +24,11 @@ enum Ranking {
             {
                 continue
             }
+            // A role and no name ("focus PID "" --role AXTextArea"): every element of the role, an empty text area among them.
+            if wanted.isEmpty, role != nil {
+                matches.append(Match(node: node, tier: 1, score: node.enabled ? 50 : 25))
+                continue
+            }
             let found = node.names.enumerated()
                 .compactMap { field, name in
                     tier(normalized(name), wanted).map { (tier: $0, field: field) }

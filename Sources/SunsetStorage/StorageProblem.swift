@@ -9,6 +9,8 @@ public struct StorageProblem: Identifiable, Sendable, Equatable {
         case locked
         /// The key itself could not be had (the Keychain refused): nothing is saved in this run.
         case noKey
+        /// It was to be deleted and could not be: it is kept as it was.
+        case notRemoved
     }
 
     public var id: String { path + (movedTo ?? "") + "\(kind)" }
@@ -33,6 +35,8 @@ public struct StorageProblem: Identifiable, Sendable, Equatable {
                     "\(what) is sealed with a key this Mac does not have. It is left as it is, and nothing is saved over it."
             case .noKey:
                 return "The key that seals what Sunset keeps could not be read. \(what) is not saved in this run."
+            case .notRemoved:
+                return "\(what) could not be deleted. It is kept as it was."
             case .damaged:
                 guard let movedTo else { return "\(what) could not be read, and could not be moved aside." }
                 return "\(what) could not be read. It was moved aside as \((movedTo as NSString).lastPathComponent)."

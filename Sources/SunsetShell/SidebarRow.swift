@@ -22,8 +22,10 @@ struct SidebarRow: View {
     let showDirectory: Bool
     let showProgress: Bool
     let layout: ShellSettings.Layout
-    /// What the button at the row's end does: close a tab, unload a kept entry, delete one that is not open.
+    /// What the button at the row's end does: close a tab, unload a kept entry, delete one that is not open, close an open document.
     var button = Button.close
+    /// False for a row with nothing to close (a document that is not open): no button comes under the pointer.
+    var hasButton = true
     /// Open (every tab, an open kept entry): a faint fill at rest. A kept entry that is not open has none, and is not dimmed (owner,
     /// 2026-11-12: dimmed looked disabled).
     var open = true
@@ -36,14 +38,15 @@ struct SidebarRow: View {
     let close: () -> Void
 
     enum Button {
-        case close, unload, delete
+        case close, unload, delete, closeDocument
 
-        var symbol: String { self == .unload ? "minus" : "xmark" }
+        var symbol: String { self == .unload || self == .closeDocument ? "minus" : "xmark" }
         var help: String {
             switch self {
                 case .close: "Close Tab"
                 case .unload: "Unload (it stays in Favorites)"
                 case .delete: "Remove from Favorites"
+                case .closeDocument: "Close (it stays in Documents)"
             }
         }
     }
@@ -138,13 +141,13 @@ struct SidebarRow: View {
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .opacity(hovering || armed || keepCloseVisible ? 1 : 0)
-        .allowsHitTesting(hovering || armed || keepCloseVisible)
+        .opacity(showsClose ? 1 : 0)
+        .allowsHitTesting(showsClose)
         .onHover { overClose = $0 }
         .help(armed ? "Click again to close running command" : button.help)
     }
 
-    private var showsClose: Bool { hovering || armed || keepCloseVisible }
+    private var showsClose: Bool { hasButton && (hovering || armed || keepCloseVisible) }
 
     /// A document with edits that are not saved: the row says so at its end, and the title stops before it.
     private var edited: Bool { model?.isEdited == true && renaming == nil }

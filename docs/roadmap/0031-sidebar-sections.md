@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress
 blocked-by: nothing
 date: 2026-11-14
 ---
@@ -123,6 +123,40 @@ in one place (the rail's foot is where the glyph was), unless the owner wants tw
   owner's "one implementation").
 - Spaces: not asked, not designed; only their room at the foot is kept.
 
-## Not done
+## As built (2026-11-15)
 
-Everything.
+| Part | Where |
+| --- | --- |
+| A tab drawn on its document's row, kept with the window; a document dragged | `SunsetPane`: `Workspace.Item.shelved`, `PaneDragPayload.document`, `PaneDescriptor.document(stored:)` |
+| Which section each sidebar is on; the orders; the documents as the shell reaches them | `SunsetShell`: `SidebarSection(s)`, `DocumentSort`, `ListGroup`, `ShelfDocument`, `DocumentShelf`, `TabsModel+Documents`, `TabsModel+Sections` |
+| The Documents heading among the tabs | `SunsetShell/DocumentsHeading.swift`, in `TabSidebar` between the Favorites and the tabs |
+| The switch at the panel's foot, the Library's rail, the sidebar's buttons | `SunsetShell`: `SectionSwitch`, `SectionRail`, `SidebarButtons`, `SidebarPinButton` |
+| One section's list in both places | `SunsetApp`: `SectionPanel` (+Parts), `SectionList`, `DocumentSectionRow`; `HistoryPanel` is gone, `HistoryRow` and `DownloadRow` are its rows |
+| The Library in the tab sidebar; its glyph at the foot | `SunsetApp`: `LibrarySidebar`, `AppSidebar`, `SidebarBottomBar` |
+| The store behind it | `SunsetApp/AppDocuments.swift` (list, create, delete) |
+| Settings and menus | `sidebar.library`, `sidebar.documents`, `sidebar.documentSort` (120 keys); Settings > Sidebar; File > New Document; View > Library, Documents, Downloads |
+
+Seen in the running app, in the background (the diary has each): the heading with a new document as its own tab, the edited
+mark, the title following a save; the Library opened, each glyph of its rail, the arrow and Tabs going back, Escape from its
+search field; the opposite panel on Documents while the tab sidebar showed the tabs; a document deleted from a row's menu.
+Pictures: `docs/research/sidebar/sections-built.png` (the parts, off screen), `sections-screen.png` (the window).
+
+## Not done, or not seen
+
+- **A drag was not seen in the app** (none can be made in the background): the three drops are tested in the model only.
+- Not seen: the sidebar on the left (the rail is then on the left), the floating sidebar with the Library, the order menu
+  opened, a download or a visited page in a section (both lists were empty), the search field taking the keyboard when the
+  Library opens (the test window is never the key window).
+- The arrow at the rail's foot and "the Library glyph again" are one control: the arrow is where the glyph was. View >
+  Library closes it too.
+- Escape goes back to the tabs only while the keyboard is in the Library's search field.
+- The sections have no keys of their own (Cmd-Y is still the history's); what a section's key is was not decided.
+- While the Library is open the address field of the tab sidebar is not shown.
+- The downloads button of the sidebar's foot is still there beside the Library's glyph, with its popover: two ways to the
+  same list.
+- Only documents of the store are listed. A file opened with Open File is a tab, not a document of the list.
+- A private window lists the same documents; that was not asked.
+- A document's text is not searched (it is sealed and is not read to list it): the search is on titles.
+- Not measured: the heading sorts the store's documents each time the sidebar is drawn (O(n log n)); with thousands of
+  documents that is a cost on a path that is drawn often.
+- Spaces: only their room at the foot.
