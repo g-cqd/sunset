@@ -117,7 +117,12 @@ Seen in the app, in the background: every one of the 25 pages, by a picture of e
 read and chosen through accessibility; searches for "cursor" and "padding". **Not seen**: a control changed by hand; the
 window in the light scheme; the sidebar's rows clicked with a pointer.
 
-To confirm with the owner: that this is what his "Yes, with changes" meant.
+The owner on it (2026-11-15): **"Yes, keep it"**; the cursor has one colour, in Cursor; the websites' permissions stay
+under Web, with his note "maybe their own section" (not done: to be asked again when the settings are in the window). He
+also wrote "i didn't even see your improvements": the app he runs was the build of 2026-11-14 (23a4544); a release build
+of 2df751d was installed in `~/Applications` the same day, Sunset not running at the time.
+
+Next, by his choice: the settings in the window (the steps of "What is to be built" above).
 
 ## Still to settle
 
