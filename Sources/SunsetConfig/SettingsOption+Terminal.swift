@@ -1,7 +1,7 @@
-/// The options of the Font, Colors, Scrolling, Terminal, Keyboard and Configuration file panes.
+/// The options of Terminal.
 extension SettingsOption {
-    static let font = pane(
-        "font",
+    /// The font.
+    static let text: [Self] =
         [
             Self(
                 "font.family",
@@ -27,20 +27,28 @@ extension SettingsOption {
                 prompt: "zero, ss01, cv02=3"
             )
         ]
-    )
 
-    static let colors = pane(
-        "colors",
+    /// The cursor: its shape, its colour, its blinking.
+    static let cursor: [Self] =
         [
-            color("colors.foreground", "Foreground", "text color colour theme", \.colors.foreground, [229, 229, 229]),
-            color("colors.background", "Background", "color colour theme", \.colors.background, [0, 0, 0]),
-            color("colors.cursor", "Cursor", "caret color colour", \.colors.cursor, [229, 229, 229]),
-            custom("colors.ansi", "ANSI colors", "palette 16 red green blue terminal colors kitty", .ansiPalette)
+            choice(
+                "cursor.shape",
+                "Cursor shape",
+                "block underline bar caret beam",
+                \.cursorShape,
+                [(.block, "Block"), (.underline, "Underline"), (.bar, "Bar")]
+            )
+            .noted(
+                "What programs get unless they choose their own cursor (an editor often does); they get it back when they "
+                    + "ask for the default."
+            ),
+            color("colors.cursor", "Cursor colour", "caret color colour", \.colors.cursor, [229, 229, 229]),
+            toggle("cursor.blink", "Cursor blinks", "blink steady caret", \.cursorBlinks),
+            custom("cursor.blinkTimeout", "Stop blinking after", "blink caret idle seconds for ever", .blinkTimeout)
         ]
-    )
 
-    static let scrolling = pane(
-        "scrolling",
+    /// Scrolling and the history.
+    static let scrolling: [Self] =
         [
             number(
                 "scroll.trackpad",
@@ -73,48 +81,10 @@ extension SettingsOption {
             custom("scrollback.lines", "History", "scrollback lines buffer memory", .scrollback)
                 .noted("The history length applies to windows opened after the change.")
         ]
-    )
 
-    static let terminal = pane(
-        "terminal",
+    /// The shell and the programs.
+    static let shell: [Self] =
         [
-            number(
-                "terminal.opacity",
-                "Background opacity",
-                "transparent alpha see through screen translucent",
-                \.terminal.opacity,
-                0 ... 1,
-                step: 0.05,
-                unit: ""
-            )
-            .noted(
-                "How opaque the terminal screen's own background is. It only shows when the window background is not Opaque "
-                    + "(Window / Appearance); the sidebar follows the window's settings."
-            ),
-            choice(
-                "cursor.shape",
-                "Cursor shape",
-                "block underline bar caret beam",
-                \.cursorShape,
-                [(.block, "Block"), (.underline, "Underline"), (.bar, "Bar")]
-            )
-            .noted(
-                "What programs get unless they choose their own cursor (an editor often does); they get it back when they "
-                    + "ask for the default."
-            ),
-            toggle("cursor.blink", "Cursor blinks", "blink steady caret", \.cursorBlinks),
-            custom("cursor.blinkTimeout", "Stop blinking after", "blink caret idle seconds for ever", .blinkTimeout),
-            choice(
-                "renderer",
-                "Renderer",
-                "gpu cpu metal auto graphics",
-                \.renderer,
-                [(.auto, "auto"), (.gpu, "gpu"), (.cpu, "cpu")]
-            )
-            .noted(
-                "GPU draws with Metal, CPU on the processor; auto picks the GPU when the machine has one. Both draw the same "
-                    + "pixels."
-            ),
             text(
                 "terminal.directory",
                 "New terminals start in",
@@ -130,20 +100,6 @@ extension SettingsOption {
             )
             .noted("For Previous Prompt and Next Prompt, in new zsh tabs. fish does it itself."),
             toggle(
-                "terminal.clipboardWrite",
-                "Programs may copy",
-                "clipboard osc 52 pasteboard ssh",
-                \.terminal.clipboardWrite,
-                label: "Programs may copy to the clipboard"
-            )
-            .noted("What a program asks to copy (OSC 52), over ssh too. No program can read the clipboard.")
-        ]
-    )
-
-    static let keyboard = pane(
-        "keyboard",
-        [
-            toggle(
                 "keyboard.optionAsMeta",
                 "Option sends Escape",
                 "meta alt option emacs",
@@ -151,13 +107,20 @@ extension SettingsOption {
                 label: "Option sends Escape (Meta)"
             )
         ]
-    )
 
-    static let file = pane(
-        "file",
+    /// How the terminal is drawn.
+    static let rendering: [Self] =
         [
-            custom("file.location", "Location", "path json config reveal editor errors problems", .fileLocation)
-                .setting([])
+            choice(
+                "renderer",
+                "Renderer",
+                "gpu cpu metal auto graphics",
+                \.renderer,
+                [(.auto, "auto"), (.gpu, "gpu"), (.cpu, "cpu")]
+            )
+            .noted(
+                "GPU draws with Metal, CPU on the processor; auto picks the GPU when the machine has one. Both draw the same "
+                    + "pixels."
+            )
         ]
-    )
 }

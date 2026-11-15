@@ -24,7 +24,7 @@ import Testing
         #expect(Set(options.map(\.id)).count == options.count, "an identifier is used twice")
         let others = options.filter { $0.keys != [$0.id] }.map(\.id).sorted()
         #expect(others == ["file.location", "web.permissions"], "only these are not one key of the file: \(others)")
-        #expect(options.allSatisfy { !$0.title.isEmpty && !$0.pane.isEmpty })
+        #expect(options.allSatisfy { !$0.title.isEmpty && !$0.topic.isEmpty })
     }
 
     @Test func `a switch, a number and a choice each change the key they are declared for`() {
@@ -47,6 +47,13 @@ import Testing
             let moved = before.keys.filter { before[$0] != after[$0] }.sorted()
             #expect(moved == [option.id], "\(option.id) changed \(moved)")
         }
+    }
+
+    @Test func `the sentences under the controls are kept when options move`() {
+        let noted = options.filter { $0.note != nil }.map(\.id)
+        #expect(noted.count == 19, "a sentence was added or lost: \(noted)")
+        #expect(SettingsOption.named("sidebar.enabled")?.note?.contains("lists the tabs") == true)
+        #expect(SettingsOption.named("scrollback.lines")?.note?.contains("opened after the change") == true)
     }
 
     @Test func `the search entries are the options`() {

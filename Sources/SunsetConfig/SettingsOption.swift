@@ -1,11 +1,13 @@
 /// One option of Settings, declared once (the review of 2026-11-15; task t268): the file's key, what it is called, the words
-/// it is found by, where it is shown and its control. The search entries, the panes' lists and the controls all come from here.
+/// it is found by and its control, in the list of its topic (`SettingsOption+*.swift`, `SettingsSection+All.swift`). The search
+/// entries, the topics' pages and the controls all come from here.
 public struct SettingsOption: Sendable, Identifiable {
     /// The file's key ("font.size"), or a name of its own for what is not one key of the file.
     public let id: String
     /// The keys of the file it sets: its own, but for the few that set several or none.
     public var keys: [String]
-    public var pane = ""
+    /// The topic that shows it ("terminal.cursor"); set when its topic is made.
+    public internal(set) var topic = ""
     public let title: String
     /// Words it is found by, separated by spaces.
     public let words: String
@@ -23,7 +25,7 @@ public struct SettingsOption: Sendable, Identifiable {
 
     /// What the search looks through.
     public var entry: SettingsEntry {
-        SettingsEntry(id: id, pane: pane, title: title, keywords: words.split(separator: " ").map(String.init))
+        SettingsEntry(id: id, pane: topic, title: title, keywords: words.split(separator: " ").map(String.init))
     }
 
     /// The same with a sentence under its control.
@@ -40,18 +42,8 @@ public struct SettingsOption: Sendable, Identifiable {
         return copy
     }
 
-    /// `options`, each in `pane`.
-    static func pane(_ pane: String, _ options: [Self]) -> [Self] {
-        options.map { option in
-            var copy = option
-            copy.pane = pane
-            return copy
-        }
-    }
-
-    /// Every option, pane after pane, in the order each pane shows them.
-    public static let all: [Self] =
-        font + colors + appearance + window + sidebar + layout + tabs + scrolling + terminal + web + keyboard + file
+    /// Every option, section after section and topic after topic, in the order each page shows them.
+    public static let all: [Self] = SettingsSection.all.flatMap(\.topics).flatMap(\.options)
 
     /// The option named `id`.
     public static func named(_ id: String) -> Self? { all.first { $0.id == id } }
