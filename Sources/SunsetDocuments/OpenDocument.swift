@@ -1,3 +1,4 @@
+internal import AemiIO
 internal import Foundation
 public import MarkdownLookKit
 public import Observation
@@ -13,6 +14,8 @@ public final class OpenDocument {
     public let kind: DocumentKind
     /// The text, its undo history, and the page made from it.
     @ObservationIgnored public let source: MarkdownSource
+    /// The rendered page, for the panes that show it.
+    @ObservationIgnored public let page: DocumentPage
     public internal(set) var problem: OpenDocumentProblem?
     /// The file changed on disk while this text had edits: neither was touched. Saving writes this text over it.
     public internal(set) var changedOnDisk = false
@@ -20,7 +23,7 @@ public final class OpenDocument {
     @ObservationIgnored let store: DocumentStore?
     /// What the file held when it was last read or written here: a change on disk that says the same is not a change.
     @ObservationIgnored var known: FileContent.Mark?
-    @ObservationIgnored var watcher: FileWatcher?
+    @ObservationIgnored var watcher: SunsetHost.FileWatcher?
     @ObservationIgnored var watching: Task<Void, Never>?
     /// How many panes hold it.
     @ObservationIgnored var holders = 0
@@ -32,11 +35,14 @@ public final class OpenDocument {
         // A text file is shown as source only (R6): it is not read as Markdown.
         let content: MarkdownSource.Content = kind == .markdown ? .markdown : (kind == .mermaid ? .diagram : .plain)
         source = MarkdownSource(text: read.text, content: content)
+        page = DocumentPage(source: source)
         problem = read.problem
         known = read.mark
     }
 
     public var isEdited: Bool { source.isEdited }
+    /// How many panes hold it.
+    public var paneCount: Int { holders }
 
     /// A file's name; a stored document's first heading or line (it follows the text).
     public var title: String {
@@ -58,15 +64,16 @@ public final class OpenDocument {
                 do {
                     try MarkdownLookKit.DocumentFile.write(data, to: URL(fileURLWithPath: path))
                 } catch {
-                    throw .write("\(error)")
+                    // The system's own words for it ("Permission denied"), without the path of the temporary file.
+                    throw .write(unsafe String(cString: strerror(error.errno)))
                 }
                 known = FileContent.Mark(data)
             case .stored(let id):
-                guard let store else { throw .write("no store") }
+                guard let store else { throw .write("Sunset's own store is not open") }
                 do {
                     try store.save(text, to: id)
                 } catch {
-                    throw .write("\(error)")
+                    throw .write("Sunset's own store did not take it")
                 }
         }
         problem = nil

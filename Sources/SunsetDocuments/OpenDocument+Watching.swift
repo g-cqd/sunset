@@ -23,6 +23,25 @@ extension OpenDocument {
         (watcher, watching) = (nil, nil)
     }
 
+    /// Reads the file now and takes what it says as a change would be (the watcher does this by itself after each change).
+    public func checkFile() {
+        guard case .file(let path) = place else { return }
+        fileChanged(.read(path))
+    }
+
+    /// The person chose the file over the edits made here: the text is the file's, and the edits and their history are gone.
+    public func reloadFromDisk() {
+        guard case .file(let path) = place else { return }
+        let read = FileContent.read(path)
+        known = read.mark
+        problem = read.problem
+        changedOnDisk = false
+        if read.problem == nil { source.reload(text: read.text) }
+    }
+
+    /// The person chose the edits made here over the file: nothing is read, and saving writes this text over it.
+    public func keepEdits() { changedOnDisk = false }
+
     /// The file settled after a change, and was read again.
     func fileChanged(_ read: FileContent) {
         guard read.mark != known else { return }

@@ -2,6 +2,10 @@
 /// page its address). The model does not know the kinds: one that the running build cannot make is kept as it is and written back, not dropped.
 public struct PaneDescriptor: Sendable, Equatable, Codable {
     public static let terminalKind = "terminal"
+    /// A document: Markdown, a diagram or text (roadmap 0023). Its state names a file or a stored document.
+    public static let documentKind = "document"
+    /// The picture of a document's tab.
+    public static let documentSymbol = "doc.text"
 
     public var kind: String
     public var state: [String: String]

@@ -1,5 +1,6 @@
 import AppKit
 import SunsetCore
+import SunsetMarkdown
 import SunsetPane
 import SunsetShell
 import SunsetTerminal
@@ -10,6 +11,9 @@ import SwiftUI
 struct TerminalCommands: Commands {
     @FocusedValue(\.terminalModel) private var model
     @FocusedValue(\.webPage) private var focusedPage
+    @FocusedValue(\.documentPane) private var focusedDocument
+    /// The document Save and the view items act on: the focused one, else the acting window's.
+    private var document: DocumentContent? { focusedDocument ?? AppActions.shared.frontDocument }
     /// The page the History and Find items act on: the focused one, else (Sunset not active) the acting window's.
     private var page: WebContent? {
         focusedPage ?? (TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.selectedContent as? WebContent)
@@ -26,11 +30,14 @@ struct TerminalCommands: Commands {
                 .keyboardShortcut("n", modifiers: [.command, .shift])
             Button("New Private Tab") { AppActions.shared.newTab(kind: PaneContentKinds.newPrivatePage) }
                 .keyboardShortcut("n", modifiers: [.command, .shift, .option])
+            Divider()
+            Button("Open File\u{2026}") { AppActions.shared.openFile() }.keyboardShortcut("o")
         }
         CommandGroup(replacing: .saveItem) {
             Button("Close") { AppActions.shared.closeTab() }.keyboardShortcut("w")
             Button("Close Window") { AppActions.shared.closeWindow() }
                 .keyboardShortcut("w", modifiers: [.command, .shift])
+            Button("Save") { document?.save() }.keyboardShortcut("s").disabled(document == nil)
         }
         CommandGroup(replacing: .printItem) {
             Button("Print\u{2026}") { page?.printPage() }.keyboardShortcut("p").disabled(page?.url == nil)
@@ -43,6 +50,8 @@ struct TerminalCommands: Commands {
             Button(page == nil ? "Bigger" : "Zoom In") { AppActions.shared.zoomFont(by: 1) }.keyboardShortcut("+")
             Button(page == nil ? "Smaller" : "Zoom Out") { AppActions.shared.zoomFont(by: -1) }.keyboardShortcut("-")
             Button("Actual Size") { AppActions.shared.resetFontZoom() }.keyboardShortcut("0")
+            Divider()
+            DocumentCommands(document: document)
             Divider()
             Button("Previous Prompt") { model?.jumpToPrompt(.previous) }
                 .keyboardShortcut(.upArrow)

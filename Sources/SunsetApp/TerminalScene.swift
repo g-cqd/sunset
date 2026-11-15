@@ -1,6 +1,7 @@
 import AppKit
 import SunsetConfig
 import SunsetHost
+import SunsetMarkdown
 import SunsetPane
 import SunsetPrivate
 import SunsetRender
@@ -115,8 +116,7 @@ struct TerminalScene: View {
         .preferredColorScheme(configuration.appearance.scheme.colorScheme)
         .environment(\.barTint, BarTint(rawValue: configuration.appearance.barTint.rawValue) ?? .scheme)
         .navigationTitle(tabs.selectedContent?.title ?? "Sunset")
-        .focusedSceneValue(\.terminalModel, tabs.selectedTerminal)
-        .focusedSceneValue(\.webPage, focusedPage)
+        .modifier(FocusedPanes(tabs: tabs))
         .task { start() }
         .animation(configuration.layout.smooth, value: configuration.sidebar.autoHide)
         .animation(configuration.layout.smooth, value: configuration.sidebar.padding)
@@ -203,6 +203,7 @@ struct TerminalScene: View {
             if !AppActions.shared.handoff.isEmpty {
                 let content = AppActions.shared.handoff.removeFirst()
                 if let page = content as? WebContent { WebOpening.wire(page, in: tabs) }
+                if let document = content as? DocumentContent { DocumentWiring.wire(document, in: tabs) }
                 tabs.adopt(content)
             } else if let saved = SessionStore.shared.take() {
                 tabs.restore(saved)

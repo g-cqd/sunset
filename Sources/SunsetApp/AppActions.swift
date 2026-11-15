@@ -1,6 +1,7 @@
 import AppKit
 import SunsetConfig
 import SunsetHost
+import SunsetMarkdown
 import SunsetPane
 import SunsetShell
 import SunsetWeb
@@ -96,11 +97,13 @@ final class AppActions {
     func zoomFont(by points: Double) {
         guard let tabs = keyTabs else { return }
         if let page = tabs.selectedContent as? WebContent { return page.zoom(by: points > 0 ? 1 : -1) }
+        if let document = frontDocument { return document.zoom(by: points > 0 ? 1 : -1) }
         tabs.fontZoom.step(by: points, base: AppConfiguration.shared.configuration.font.size)
     }
 
     func resetFontZoom() {
         if let page = keyTabs?.selectedContent as? WebContent { return page.resetZoom() }
+        if let document = frontDocument { return document.resetZoom() }
         keyTabs?.fontZoom.reset()
     }
 

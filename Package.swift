@@ -64,11 +64,11 @@ let package = Package(
         // Tests: the family's seeded generator, allocation counting and fuzz helpers (AemiTestKit). Pinned like TerminalKit's, which resolves the same revision.
         .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "0bae2edb1a89bd3d931fb3122c2184cc5c368834"),
         // Our own tooling (ADR-0002): terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
-        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "53e06bfe2814fdb2256baa31bb9b93525434d3e2"),
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "30126fb90fed6def2d843fe2f5804d5a48ae7cd6"),
         // Markdown, Mermaid and text documents (roadmap 0023): the native view, the source editor, the one text behind them.
         .package(
             url: "https://github.com/g-cqd/AemiMarkdown.git",
-            revision: "35b065d00413417a2e1274cb593f682032ae26ea"
+            revision: "cc661c072c3e8cf66e6a3bbfd16f783f2d3bb058"
         ),
         // The configuration file (roadmap 0017): JSON read by AemiJSON's engine. Pinned by revision, as the family does.
         .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "806b481d8cc7e21f07d45537b625c5ac9abfc87e"),
@@ -146,7 +146,8 @@ let package = Package(
                 "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
                 "SunsetStorage", "SunsetDocuments",
                 "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal",
-                "SunsetWeb", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR")
+                "SunsetWeb", "SunsetMarkdown", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR"),
+                .product(name: "MarkdownLookKit", package: "AemiMarkdown")
             ],
             path: "Sources/SunsetApp",
             swiftSettings: strictSettings
@@ -168,7 +169,8 @@ let package = Package(
         .target(
             name: "SunsetDocuments",
             dependencies: [
-                "SunsetStorage", "SunsetHost", .product(name: "MarkdownLookKit", package: "AemiMarkdown")
+                "SunsetStorage", "SunsetHost", .product(name: "MarkdownLookKit", package: "AemiMarkdown"),
+                .product(name: "AemiIO", package: "aemi")
             ],
             path: "Sources/SunsetDocuments",
             swiftSettings: strictSettings
@@ -249,6 +251,26 @@ let package = Package(
                 "SunsetRenderMetal", "SunsetShell", "SunsetMetrics"
             ],
             path: "Sources/SunsetTerminal",
+            swiftSettings: strictSettings
+        ),
+        // A document as a kind of pane content (R6, roadmap 0023 step M-c): Markdown and Mermaid drawn natively or as source,
+        // any other text as source, on the one document `SunsetDocuments` holds for the app.
+        .target(
+            name: "SunsetMarkdown",
+            dependencies: [
+                "SunsetPane", "SunsetShell", "SunsetDocuments", "SunsetMetrics",
+                .product(name: "MarkdownLookKit", package: "AemiMarkdown")
+            ],
+            path: "Sources/SunsetMarkdown",
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "SunsetMarkdownTests",
+            dependencies: [
+                "SunsetMarkdown", "SunsetPane", "SunsetShell", "SunsetDocuments",
+                .product(name: "MarkdownLookKit", package: "AemiMarkdown")
+            ],
+            path: "Tests/SunsetMarkdownTests",
             swiftSettings: strictSettings
         ),
         // A web page as a kind of pane content (R1, roadmap 0019), on the system's WebKit.

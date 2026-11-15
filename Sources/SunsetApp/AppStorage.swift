@@ -48,6 +48,10 @@ final class AppStorage {
     /// The documents that live in Sunset (R12 step ST-4), opened at first use; nil when there is no key in this run. Their index
     /// is a database of its own (`library.sqlite`): it holds nothing the documents' files do not, and is rebuilt from them, so
     /// one that did not read is not said.
+    /// The documents that are open, one per file or stored document for the whole app (roadmap 0023): every pane on one shows
+    /// the same text.
+    private(set) lazy var openDocuments = OpenDocuments(store: documents)
+
     private(set) lazy var documents: DocumentStore? = {
         guard let key else { return nil }
         let library = StateDatabase.open(at: places.library, key: key).database

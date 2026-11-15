@@ -1,5 +1,5 @@
 ---
-status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14)
+status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c built 2026-11-15, not seen in the app)
 blocked-by: 0018 (each step's own questions); 0019 (it comes after the web milestone, by the owner's order)
 date: 2026-11-11
 ---
@@ -14,7 +14,7 @@ beyond (0022). Each step starts with its own questions.
 | --- | --- | --- |
 | M-a | In AemiMarkdown: the editor, atomic saving and commands into `MarkdownLookKit` (proposed there). **Done 2026-11-13**, AemiMarkdown 26128d4 (its ADR 0008): the kit is a product of its root package; `MarkdownSource` (one text, one undo history), `MarkdownSourceEditor`, `AtomicFile`, `MarkdownCommand`; 123 kit tests. Not seen: the editor on screen | t115 |
 | M-b | The document behind a pane, app-wide by file; the note kind removed. **Done 2026-11-14** (see below) | t164 |
-| M-c | The pane: rendered natively, source, the toggle, Show Beside, Mermaid, text files, local images, links in a split | t165 |
+| M-c | The pane: rendered natively, source, the toggle, Show Beside, Mermaid, text files, local images, links in a split. **Built 2026-11-15, not seen in the running app** (see below) | t165 |
 | M-d | Saving: Cmd-S, the two settings, the sheet on closing, quitting | t166 |
 | M-e | Changes on disk: reload, merge by nodes, conflicts asked | t167 |
 | M-f | Opening: Open File, the + menu, a drop, the command bar, the handler for .md | t168 |
@@ -59,4 +59,38 @@ made again whole at each key when it is shown, which misses frames from about 10
 is the kit's next step); opening reads and parses on the main actor (98 ms at 10 MB; only the read after a change on disk is off it); an edited document is not merged with a change on disk (M-e); closing an edited document asks nothing (M-d); a file that is
 not UTF-8 is `notText` and not shown.
 
-Not done: M-c to M-i.
+## M-c as built (2026-11-15)
+
+A new target, `SunsetMarkdown`: `DocumentContent` is the pane (kind `document`), a view of the app's one `OpenDocument` for
+its file. Markdown and Mermaid open drawn by the kit's native view and toggle to their source (Cmd-Shift-E); any other text
+is source only. Show Beside (Cmd-Option-E) opens the other view of the same document in a split: one text, so each follows
+the other. Cmd-S saves; a failure is said in the pane and the edits stay. The tab shows the file's name, a document icon,
+and a dot while there are edits (`PaneContent.isEdited`, new). Cmd-+ and Cmd-- size the text in both views.
+
+Brought forward from M-f, as the owner agreed: **File > Open File (Cmd-O)**, each file chosen in a tab of its own.
+
+- **Pictures** are read from local files only, relative to the document's folder (the kit, its ADR 0010): nothing is fetched.
+- **Links** open beside the pane and never in it: a web address as a page (private in a private window), a file as a
+  document, mail and folders by the system.
+- **The page** is `DocumentPage`, one per document for every pane that shows it: made only while a pane has it on screen,
+  at once for a text up to 32,768 UTF-16 units, off the main actor for a longer one. Typing in a long document no longer
+  waits for its page (M-b's open point); the page then follows a moment behind, one page at a time.
+- **A file that changed on disk under edits** is said in the pane with Reload from Disk and Keep Mine, until M-e merges.
+- **Closing the last pane on an edited document** is confirmed like a running command, until M-d's sheet.
+
+1,034 tests in 197 suites pass, on the pinned kit (AemiMarkdown cc661c0, TerminalKit 30126fb).
+
+Not done, and where it goes:
+
+- **Nothing was seen in the running app**: the menus, the keys, focus between panes, the Open panel, a split made by a link.
+  The pane's view was drawn off screen only (`docs/research/markdown/mc-rendered.png`, `mc-source.png`, `mc-notices.png`).
+- `PaneContentKinds.make` and the menus are in the app target, which has no tests.
+- The two views do not scroll together (M-g). A link to a place in the same page (`#part`) does nothing. SVG pictures and
+  pictures among words are not drawn. A link to a file that is not text opens a pane that says so.
+- No settings: the page uses the kit's defaults, and no `markdown.*` key exists.
+- New documents with no file, the + menu, a drop, the command bar and the handler for .md are M-f; documents in the sidebar
+  are 0030 ST-5.
+- The page of a long document is still made whole each time (330 ms at 2 MB, off the main actor): rows by block is the
+  kit's next step.
+
+Not done: M-d to M-i.

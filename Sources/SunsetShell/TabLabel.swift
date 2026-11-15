@@ -48,6 +48,10 @@ package struct TabLabel: View {
                 TabIcon(model: model, icon: icon, saved: saved, savedCommand: savedCommand, showsProgress: showProgress)
             }
             lines
+            if model?.isEdited == true {
+                Circle().fill(.secondary).frame(width: 6, height: 6)
+                    .help("Edited, not saved")
+            }
             if let sound = model?.sound {
                 Button {
                     model?.toggleMuted()
@@ -81,6 +85,7 @@ package struct TabLabel: View {
     /// letter, another kind its generic mark.
     static func glyph(of saved: PaneDescriptor, command: String? = nil) -> PaneGlyph {
         if saved.state["url"] != nil { return .symbol("globe") }
+        if saved.kind == PaneDescriptor.documentKind { return .symbol(PaneDescriptor.documentSymbol) }
         guard saved.kind == PaneDescriptor.terminalKind else { return .symbol("square.dashed") }
         if let command, !command.isEmpty { return .tab(TabGlyph(kind: .command, letter: nil)) }
         return .tab(TabGlyph.make(directory: saved.directory, command: nil, home: NSHomeDirectory()))

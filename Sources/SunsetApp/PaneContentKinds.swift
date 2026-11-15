@@ -1,5 +1,6 @@
 import Foundation
 import SunsetConfig
+import SunsetMarkdown
 import SunsetPane
 import SunsetShell
 import SunsetWeb
@@ -18,6 +19,13 @@ import SunsetWeb
                 let page = WebContent(descriptor: descriptor, settings: settings)
                 page.onChange = changed
                 return page
+            case DocumentContent.kind:
+                // One that names no document is kept as it was written.
+                guard let document = DocumentContent(descriptor, documents: AppStorage.shared.openDocuments) else {
+                    return UnknownContent(descriptor)
+                }
+                document.onChange = changed
+                return document
             default:
                 return UnknownContent(descriptor)
         }
