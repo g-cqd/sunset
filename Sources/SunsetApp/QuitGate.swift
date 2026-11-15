@@ -1,6 +1,7 @@
 import AppKit
 import Observation
 import SunsetConfig
+import SunsetMarkdown
 import SunsetPane
 import SunsetShell
 import SunsetTerminal
@@ -72,22 +73,26 @@ final class QuitGate {
         var found: [QuitLoss] = []
         tabsOfPane = [:]
         var pages: [(PaneID, WebContent)] = []
+        var panes: [(PaneID?, any PaneContent)] = []
         var tabCount = 0
         for (_, tabs) in TabRegistry.shared.allWindows() {
             tabCount += tabs.isPrivateWindow ? 0 : tabs.workspace.count
             for (pane, content) in tabs.contents {
                 tabsOfPane[pane] = tabs
-                if let warning = content.closeWarning {
+                panes.append((pane, content))
+                if !(content is DocumentContent), let warning = content.closeWarning {
                     found.append(QuitLoss(kind: .command, text: "\(content.title): \(warning)", pane: pane))
                 }
                 if let page = content as? WebContent { pages.append((pane, page)) }
             }
         }
         for (_, content) in AppFavorites.shared.contents {
-            if let warning = content.closeWarning {
+            panes.append((nil, content))
+            if !(content is DocumentContent), let warning = content.closeWarning {
                 found.append(QuitLoss(kind: .command, text: "\(content.title): \(warning)"))
             }
         }
+        found += DocumentContent.quitLosses(in: panes)
         for (pane, page) in pages where await page.hasUnsentForm() {
             found.append(QuitLoss(kind: .form, text: "Text typed and not sent on \(page.shownHost)", pane: pane))
         }

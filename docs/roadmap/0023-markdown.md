@@ -1,5 +1,5 @@
 ---
-status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c built 2026-11-15, not seen in the app)
+status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c done 2026-11-15)
 blocked-by: 0018 (each step's own questions); 0019 (it comes after the web milestone, by the owner's order)
 date: 2026-11-11
 ---
@@ -14,7 +14,7 @@ beyond (0022). Each step starts with its own questions.
 | --- | --- | --- |
 | M-a | In AemiMarkdown: the editor, atomic saving and commands into `MarkdownLookKit` (proposed there). **Done 2026-11-13**, AemiMarkdown 26128d4 (its ADR 0008): the kit is a product of its root package; `MarkdownSource` (one text, one undo history), `MarkdownSourceEditor`, `AtomicFile`, `MarkdownCommand`; 123 kit tests. Not seen: the editor on screen | t115 |
 | M-b | The document behind a pane, app-wide by file; the note kind removed. **Done 2026-11-14** (see below) | t164 |
-| M-c | The pane: rendered natively, source, the toggle, Show Beside, Mermaid, text files, local images, links in a split. **Built 2026-11-15, not seen in the running app** (see below) | t165 |
+| M-c | The pane: rendered natively, source, the toggle, Show Beside, Mermaid, text files, local images, links in a split. **Done 2026-11-15**, seen in the running app but for a click on a link (see below) | t165 |
 | M-d | Saving: Cmd-S, the two settings, the sheet on closing, quitting | t166 |
 | M-e | Changes on disk: reload, merge by nodes, conflicts asked | t167 |
 | M-f | Opening: Open File, the + menu, a drop, the command bar, the handler for .md | t168 |
@@ -78,12 +78,19 @@ Brought forward from M-f, as the owner agreed: **File > Open File (Cmd-O)**, eac
 - **A file that changed on disk under edits** is said in the pane with Reload from Disk and Keep Mine, until M-e merges.
 - **Closing the last pane on an edited document** is confirmed like a running command, until M-d's sheet.
 
-1,034 tests in 197 suites pass, on the pinned kit (AemiMarkdown cc661c0, TerminalKit 30126fb).
+1,036 tests in 197 suites pass, on the pinned kit (AemiMarkdown 563e645, TerminalKit 791a6ca).
+
+Seen in the running app the same day (the diary has each): the page, the toggle, typing and saving, the tab's dot, Show
+Beside with the page following the source, a file changed on disk with and without edits, the text sizes, closing, a plain
+text file. Two faults were found there and fixed: the app fell over when the page grew beside its source (the kit's
+selection, AemiMarkdown 563e645), and quitting with a document in two panes lost its edits without asking (the quit sheet
+now names each edited document once). Pictures: `docs/research/markdown/mc-screen-beside.png`, `mc-screen-notice.png`.
 
 Not done, and where it goes:
 
-- **Nothing was seen in the running app**: the menus, the keys, focus between panes, the Open panel, a split made by a link.
-  The pane's view was drawn off screen only (`docs/research/markdown/mc-rendered.png`, `mc-source.png`, `mc-notices.png`).
+- **A click on a link was not seen in the app** (accessibility cannot press a link among words, and a click sent to the
+  process alone did not reach it): the kit has a test that clicks one in a window, Sunset a test of what is done with it.
+  No file was opened through the Open panel either: it came up and was cancelled.
 - `PaneContentKinds.make` and the menus are in the app target, which has no tests.
 - The two views do not scroll together (M-g). A link to a place in the same page (`#part`) does nothing. SVG pictures and
   pictures among words are not drawn. A link to a file that is not text opens a pane that says so.

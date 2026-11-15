@@ -28,6 +28,19 @@ Nothing is built and nothing is decided beyond his words. Task t259 (see the tas
 | The Library holds kinds of things, each a section: media, downloads, Easels, Spaces, archived tabs, Boosts | Release notes 2022 to 2024; the export article ("Open your Library, then select Easels") |
 | Archived tabs were first reached by a clock icon at the bottom of the sidebar | Release notes 2021 |
 
+## Sketches (2026-11-15)
+
+Drawn by `DesignCatalogTests+Sections.swift` (`SUNSET_CATALOG=<folder> swift test --filter "the sections of the sidebars"`),
+with plain shapes: nothing is built.
+
+- `docs/research/sidebar/sections-opposite.png`: the panel opposite the tabs with History, Documents and Downloads. P1 the
+  title is a menu; P2 a segmented row of glyphs under the title; P3 the glyphs at the bottom.
+- `docs/research/sidebar/sections-sidebar.png`: the tab sidebar. S1 the Documents heading among the tabs (ST-5's choice);
+  S2 a switch at the top (Tabs, Documents, History), one section at a time; S3 the same at the bottom; and the sort menu.
+
+Arc was still not looked at on screen: it is installed on this Mac and was not running, and opening the owner's browser to
+look at it is his to allow.
+
 ## To ask, with sketches
 
 - Where the switch is (the top of the sidebar under the address field, its bottom as Arc's, the header row) and what it looks

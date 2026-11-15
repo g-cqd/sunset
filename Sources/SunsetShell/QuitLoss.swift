@@ -3,7 +3,7 @@ package import SunsetPane
 
 /// What quitting now would lose (web step q): shown in the sheet that asks, each with the tab it is in when it has one.
 package struct QuitLoss: Identifiable, Sendable, Equatable {
-    package enum Kind: Sendable, Equatable { case command, form, download, unrestored }
+    package enum Kind: Sendable, Equatable { case command, form, download, unrestored, document }
 
     package let id = UUID()
     package let kind: Kind
@@ -23,6 +23,7 @@ package struct QuitLoss: Identifiable, Sendable, Equatable {
             case .form: "character.cursor.ibeam"
             case .download: "arrow.down.circle"
             case .unrestored: "rectangle.stack.badge.minus"
+            case .document: PaneDescriptor.documentSymbol
         }
     }
 
