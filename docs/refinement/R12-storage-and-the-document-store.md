@@ -127,6 +127,10 @@ opposite panel has its switch at the foot, the segmented one. On three sketches 
 an arrow at its foot, the glyph again, a Tabs glyph and Escape; the glyph and the + follow the sidebar's side; a setting, on
 at first; the same sections in both sidebars. ST-5 and the sections are built in one step.
 
+Settings in the window (roadmap 0032), asked the same day: a gear on the Library's rail, the sidebar listing sections and
+topics, the settings a tab (one per window), a topic a page of its own; Cmd-, uses the window in front, else opens a
+standard one; the Settings window of today goes; built after the sections.
+
 ## Costs measured at ST-3 (release build, a history of 50,000 pages, 2026-11-14; another build was using the machine)
 
 | | Before: SQLite in the clear, searched by SQL | After: sealed records, held and searched in memory |
