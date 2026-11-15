@@ -56,8 +56,7 @@ package struct TabSidebar: View {
         ScrollView {
             LazyVStack(spacing: layout.tabSpacing) {
                 FavoritesSection(tabs: tabs, settings: settings, layout: layout)
-                if settings.sidebar.documents { DocumentsHeading(tabs: tabs, settings: settings, layout: layout) }
-                ForEach(tabs.listedItems(shelf: settings.sidebar.documents)) { item in row(item) }
+                ForEach(tabs.workspace.items) { item in row(item) }
             }
             .padding(.horizontal, layout.tabSideInset)
             .frame(maxWidth: .infinity)

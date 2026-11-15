@@ -14,6 +14,6 @@ extension AppActions {
     /// View > Documents, Downloads: the panel opposite the tabs on that section, or hidden when it was showing it.
     func toggleOpposite(_ section: SidebarSection) { actingTabs?.toggleOpposite(section) }
 
-    /// File > New Document: a document of the store, opened on its row. Nothing when none can be kept in this run.
+    /// File > New Document: a document of the store, opened as a tab. Nothing when none can be kept in this run.
     func newDocument() { actingTabs?.newDocument() }
 }

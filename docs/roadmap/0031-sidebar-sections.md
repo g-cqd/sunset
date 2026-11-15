@@ -123,21 +123,36 @@ in one place (the rail's foot is where the glyph was), unless the owner wants tw
   owner's "one implementation").
 - Spaces: not asked, not designed; only their room at the foot is kept.
 
+## The heading taken out (2026-11-15, the same day, once the owner had the build)
+
+In his words: "i don't think i like having the documents header in the tabs list, documents should be standard tabs across
+all tabs". It reverses two answers above (ST-5's layout A, a heading among the tabs; and the heading "coexisting" with the
+Library by a toggle of its own) and keeps the one he gave first and repeated: a document is a tab like any other.
+
+- The Documents heading is gone from the tab sidebar, with its setting (`sidebar.documents`: 120 keys again; a file that
+  still names the key reads without complaint) and with the mark that drew a tab on its document's row
+  (`Workspace.Item.shelved`; a window saved with it reads with the tab among the tabs).
+- A document is opened from a list (the Library's Documents, the panel opposite the tabs, File > New Document) and is then
+  a tab among the tabs, where a new tab goes: moved, split, kept in Favorites and closed as any tab. A click on a document
+  that is open shows the tab that has it.
+- Not asked, decided here and to be said: a document that is open and dragged from a list opens **another** tab on it where
+  it is dropped (before, the tab on its row moved). The rows of a list have no minus any more: a document's tab is closed
+  as tabs are.
+
 ## As built (2026-11-15)
 
 | Part | Where |
 | --- | --- |
-| A tab drawn on its document's row, kept with the window; a document dragged | `SunsetPane`: `Workspace.Item.shelved`, `PaneDragPayload.document`, `PaneDescriptor.document(stored:)` |
+| A document dragged; a stored document's descriptor | `SunsetPane`: `PaneDragPayload.document`, `PaneDescriptor.document(stored:)` |
 | Which section each sidebar is on; the orders; the documents as the shell reaches them | `SunsetShell`: `SidebarSection(s)`, `DocumentSort`, `ListGroup`, `ShelfDocument`, `DocumentShelf`, `TabsModel+Documents`, `TabsModel+Sections` |
-| The Documents heading among the tabs | `SunsetShell/DocumentsHeading.swift`, in `TabSidebar` between the Favorites and the tabs |
 | The switch at the panel's foot, the Library's rail, the sidebar's buttons | `SunsetShell`: `SectionSwitch`, `SectionRail`, `SidebarButtons`, `SidebarPinButton` |
 | One section's list in both places | `SunsetApp`: `SectionPanel` (+Parts), `SectionList`, `DocumentSectionRow`; `HistoryPanel` is gone, `HistoryRow` and `DownloadRow` are its rows |
 | The Library in the tab sidebar; its glyph at the foot | `SunsetApp`: `LibrarySidebar`, `AppSidebar`, `SidebarBottomBar` |
 | The store behind it | `SunsetApp/AppDocuments.swift` (list, create, delete) |
-| Settings and menus | `sidebar.library`, `sidebar.documents`, `sidebar.documentSort` (120 keys); Settings > Sidebar; File > New Document; View > Library, Documents, Downloads |
+| Settings and menus | `sidebar.library`, `sidebar.documentSort`; Settings > Sidebar; File > New Document; View > Library, Documents, Downloads |
 
-Seen in the running app, in the background (the diary has each): the heading with a new document as its own tab, the edited
-mark, the title following a save; the Library opened, each glyph of its rail, the arrow and Tabs going back, Escape from its
+Seen in the running app, in the background (the diary has each): a new document as a tab among the tabs, the edited mark,
+the title following a save; the Library opened, each glyph of its rail, the arrow and Tabs going back, Escape from its
 search field; the opposite panel on Documents while the tab sidebar showed the tabs; a document deleted from a row's menu.
 Pictures: `docs/research/sidebar/sections-built.png` (the parts, off screen), `sections-screen.png` (the window).
 
@@ -157,6 +172,4 @@ Pictures: `docs/research/sidebar/sections-built.png` (the parts, off screen), `s
 - Only documents of the store are listed. A file opened with Open File is a tab, not a document of the list.
 - A private window lists the same documents; that was not asked.
 - A document's text is not searched (it is sealed and is not read to list it): the search is on titles.
-- Not measured: the heading sorts the store's documents each time the sidebar is drawn (O(n log n)); with thousands of
-  documents that is a cost on a path that is drawn often.
 - Spaces: only their room at the foot.

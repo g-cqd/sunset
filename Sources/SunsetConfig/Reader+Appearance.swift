@@ -25,7 +25,9 @@ extension Reader {
                 case "side":
                     if let side = choice(path, value, as: Configuration.Side.self) { configuration.sidebar.side = side }
                 case "library": if let flag = bool(path, value) { configuration.sidebar.library = flag }
-                case "documents": if let flag = bool(path, value) { configuration.sidebar.documents = flag }
+                // A Documents heading among the tabs, for a day (2026-11-15): the key is read and does nothing, so that a file
+                // written that day does not complain.
+                case "documents": break
                 case "documentSort":
                     if let sort = choice(path, value, as: Configuration.Sidebar.DocumentSort.self) {
                         configuration.sidebar.documentSort = sort

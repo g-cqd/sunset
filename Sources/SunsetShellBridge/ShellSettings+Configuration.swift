@@ -11,7 +11,6 @@ extension ShellSettings {
         sidebar.autoHide = configuration.sidebar.autoHide
         sidebar.side = configuration.sidebar.side == .left ? .left : .right
         sidebar.library = configuration.sidebar.library
-        sidebar.documents = configuration.sidebar.documents
         sidebar.documentSort = DocumentSort(rawValue: configuration.sidebar.documentSort.rawValue) ?? .changed
         tabs.bar.position = configuration.tabs.bar.position == .top ? .top : .bottom
         tabs.bar.showTitle = configuration.tabs.bar.showTitle

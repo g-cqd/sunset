@@ -66,7 +66,6 @@ import Testing
         configuration.sidebar.autoHide = true
         configuration.sidebar.side = .right
         configuration.sidebar.library = false
-        configuration.sidebar.documents = false
         configuration.sidebar.documentSort = .kind
         let settings = ShellSettings(configuration)
         #expect(fields(settings.sidebar) == fields(configuration.sidebar))

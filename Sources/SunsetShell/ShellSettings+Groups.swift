@@ -16,8 +16,7 @@ extension ShellSettings {
         package var side = Side.right
         /// The Library's glyph is at the sidebar's foot (roadmap 0031).
         package var library = true
-        /// The Documents heading is among the tabs (roadmap 0030 step ST-5), and the order of the documents.
-        package var documents = true
+        /// The order of the documents in the sidebars' lists.
         package var documentSort = DocumentSort.changed
 
         package init() {}

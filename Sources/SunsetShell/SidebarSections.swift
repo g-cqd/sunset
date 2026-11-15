@@ -9,8 +9,6 @@ package struct SidebarSections: Sendable, Equatable {
     package private(set) var library = SidebarSection.tabs
     /// What the Library's glyph opens on: the list it last showed (the settings have their own way in, the gear).
     private var lastLibrary = SidebarSection.documents
-    /// The documents under the Documents heading among the tabs are folded away.
-    package var documentsFolded = false
 
     package init() {}
 

@@ -1,44 +1,23 @@
 package import Foundation
 package import SunsetPane
 
-/// The documents of the store as tabs of this window (roadmap 0030 step ST-5, 0031). A document opened from its row is a tab
-/// like any other that is drawn on that row, under the Documents heading, instead of among the tabs (`Workspace.Item.shelved`).
+/// The documents of the store as tabs of this window (roadmap 0030 step ST-5, 0031). A document is opened from a list of them
+/// (the Library, the panel opposite the tabs) and is then a tab like any other, among the tabs: it is moved, split, kept and
+/// closed as they are (the owner, 2026-11-15). The document stays in the store when its tab closes.
 extension TabsModel {
     /// The stored document the pane shows, when it shows one.
     package func document(in pane: PaneID) -> UUID? { content(pane)?.descriptor.storedDocument }
 
-    private func shows(_ item: Workspace.Item, _ document: UUID) -> Bool {
-        item.panes.contains { self.document(in: $0) == document }
-    }
-
-    /// The tab drawn on the row of `document` under the Documents heading: it is open in place.
-    package func shelved(_ document: UUID) -> Workspace.Item? {
-        workspace.items.first { $0.shelved && shows($0, document) }
-    }
-
-    /// The tabs listed among the tabs: all of them, but those drawn on their document's row while the heading shows
-    /// (`shelf`). A tab on a row that no longer shows a document is among the tabs again.
-    package func listedItems(shelf: Bool) -> [Workspace.Item] {
-        guard shelf else { return workspace.items }
-        return workspace.items.filter { item in !item.shelved || !item.panes.contains { document(in: $0) != nil } }
-    }
-
-    /// A click on the row of `document` under the heading: its tab is shown, opened on the row first when it is not open.
-    package func open(document: UUID) {
-        if let item = shelved(document) { return select(item: item.id) }
-        let item = openTab(document: document, at: workspace.count, show: true)
-        change { $0.shelve(item: item, true) }
-    }
-
-    /// A click on `document` in a section of the Library or of the opposite panel: shown where it already is in this window,
-    /// else opened on its row.
+    /// A click on `document` in a list: shown where it already is in this window's tabs, with the keyboard; else opened as a
+    /// new tab, where a new tab goes.
     package func show(document: UUID) {
-        guard let item = workspace.items.first(where: { shows($0, document) }) else { return open(document: document) }
+        let pane = workspace.allPanes.first { self.document(in: $0) == document }
+        guard let pane, let item = workspace.item(containing: pane) else { return newTab(.document(stored: document)) }
         select(item: item.id)
-        if let pane = item.panes.first(where: { self.document(in: $0) == document }) { focus(pane) }
+        focus(pane)
     }
 
-    /// A tab on `document` at `index` among the tabs, shown or not; its id.
+    /// A tab on `document` at `index` among the tabs, shown or not, whether or not another shows it; its id.
     @discardableResult
     package func openTab(document: UUID, at index: Int, show: Bool) -> Workspace.ItemID {
         let entry = workspace.selectedEntry
@@ -48,14 +27,9 @@ extension TabsModel {
         return workspace.item(containing: pane)?.id ?? Workspace.ItemID()
     }
 
-    /// The minus of an open document's row: its tab closes (asking first when something would be lost), the document stays.
-    package func unload(document: UUID) {
-        if let item = shelved(document) { close(item: item.id) }
-    }
-
-    /// The + of the Documents heading: a new document, opened in place. Nothing when none can be kept in this run.
+    /// A new document, opened as a tab. Nothing when none can be kept in this run.
     package func newDocument() {
-        if let made = shelf.create() { open(document: made) }
+        if let made = shelf.create() { show(document: made) }
     }
 
     /// Deletes `document` at once (the owner, ST-5): the shelf puts it away (what was typed is saved into it first), then its
@@ -69,23 +43,9 @@ extension TabsModel {
         for pane in workspace.allPanes where self.document(in: pane) == document { close(pane: pane) }
     }
 
-    /// What is dragged, a document become a tab of this window so that it is dropped as a tab is: the tab on its row when it is
-    /// open in place (it leaves the row), else a new one (not shown, at the end).
+    /// What is dragged, a document become a tab of this window (not shown, at the end) so that it is dropped as a tab is.
     func takeDocumentDrag() {
         guard case .document(let id) = dragged else { return }
-        if let item = shelved(id) {
-            change { $0.shelve(item: item.id, false) }
-            dragged = .item(item.id)
-        } else {
-            dragged = .item(openTab(document: id, at: workspace.count, show: false))
-        }
-    }
-
-    /// The rows under the Documents heading among the tabs, in the order `sort`: each document with its tab when it is open in
-    /// place. None while the heading is folded.
-    /// - Complexity: O(n log n) in the documents, O(n × tabs) to find the open ones.
-    package func shelfRows(sort: DocumentSort) -> [ShelfRow] {
-        guard !sections.documentsFolded else { return [] }
-        return sort.groups(shelf.list()).flatMap(\.elements).map { ShelfRow(document: $0, item: shelved($0.id)) }
+        dragged = .item(openTab(document: id, at: workspace.count, show: false))
     }
 }

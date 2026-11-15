@@ -95,15 +95,6 @@ extension SettingsOption {
                 "Its glyph widens the sidebar by a rail: Tabs, Documents, History, Downloads. The panel on the other side has "
                     + "the same lists (Cmd-Y)."
             ),
-            toggle(
-                "sidebar.documents",
-                "Documents among the tabs",
-                "heading section notes markdown",
-                \.sidebar.documents
-            )
-            .noted(
-                "A Documents heading between the Favorites and the tabs: a document's row is its tab while it is open."
-            ),
             choice(
                 "sidebar.documentSort",
                 "Order of documents",

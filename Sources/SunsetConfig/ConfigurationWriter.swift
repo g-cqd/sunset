@@ -136,7 +136,6 @@ public enum ConfigurationWriter {
         extra["appearance.accent"] = string(configuration.appearance.accent.rawValue)
         extra["storage.importedFiles"] = string(configuration.storage.importedFiles.rawValue)
         extra["sidebar.library"] = String(configuration.sidebar.library)
-        extra["sidebar.documents"] = String(configuration.sidebar.documents)
         extra["sidebar.documentSort"] = string(configuration.sidebar.documentSort.rawValue)
         return extra
     }

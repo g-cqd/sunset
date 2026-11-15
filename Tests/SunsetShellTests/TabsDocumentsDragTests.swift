@@ -19,8 +19,7 @@ import Testing
         #expect(tabs.canDrop(onto: second, action: .moveBefore))
         #expect(tabs.dropDragged(onto: second, action: .moveBefore))
         #expect(tabs.workspace.count == 3 && tabs.document(in: tabs.workspace.items[1].focused) == notes)
-        #expect(tabs.workspace.items[2].id == second && tabs.shelved(notes) == nil)
-        #expect(tabs.listedItems(shelf: true).count == 3 && tabs.dragged == nil)
+        #expect(tabs.workspace.items[2].id == second && tabs.dragged == nil)
     }
 
     @Test func `onto the middle of a tab's row, or onto a pane, it splits it`() throws {
@@ -60,14 +59,16 @@ import Testing
     }
 }
 
-/// A document open in place, at the next start.
+/// A document's tab, at the next start.
 extension TabsDocumentsDragTests {
-    @Test func `a document open in place comes back on its row with the window`() throws {
+    @Test func `a document's tab comes back with the window, where it was among the tabs`() throws {
         tabs.newTab()
-        tabs.open(document: notes)
+        tabs.show(document: notes)
+        tabs.newTab()
         let saved = tabs.savedWindow()
         let again = TabsHarness()
         again.tabs.restore(try JSONDecoder().decode(SavedWindow.self, from: try JSONEncoder().encode(saved)))
-        #expect(again.tabs.shelved(notes) != nil && again.tabs.listedItems(shelf: true).count == 1)
+        #expect(again.tabs.workspace.count == 3)
+        #expect(again.tabs.document(in: again.tabs.workspace.items[1].focused) == notes)
     }
 }

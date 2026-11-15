@@ -35,6 +35,10 @@ struct HistoryRow: View {
         .animation(layout.smooth, value: hovered)
         .onHover { hovered = $0 }
         .onTapGesture { AppActions.shared.openFromHistory(entry.url, newTab: NSEvent.modifierFlags.contains(.command)) }
+        // One element that can be pressed through accessibility: a tap gesture alone is not reached by VoiceOver's press.
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { AppActions.shared.openFromHistory(entry.url, newTab: false) }
         .help(entry.url)
         .contextMenu {
             Button("Open") { AppActions.shared.openFromHistory(entry.url, newTab: false) }

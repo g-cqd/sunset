@@ -119,6 +119,8 @@ and the key moved to the data protection keychain as a synchronizable item.
 | ST-3, again (t258) | The plain files of before, once imported | **A setting, the Trash by default** |
 | ST-6 | The website data's row | **Clear (all website data)**, and **Open FileVault's settings when it is off** |
 
+| ST-5, again (2026-11-15, with the build in hand) | The Documents heading among the tabs | **Taken out**: "i don't think i like having the documents header in the tabs list, documents should be standard tabs across all tabs". Rows A and 2 above no longer hold; the documents are listed in the Library and the opposite panel |
+
 ### The sections of the sidebars (2026-11-15, roadmap 0031)
 
 Asked on two sketches (`docs/research/sidebar/sections-opposite.png`, `sections-sidebar.png`). The switch of the opposite

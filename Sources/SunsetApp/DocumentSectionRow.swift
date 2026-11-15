@@ -5,7 +5,7 @@ import SunsetShell
 import SwiftUI
 
 /// A document in a section of a sidebar: its title, and when it was last changed; a click shows it where it already is in
-/// the window, else opens it on its row; Cmd-click opens it in a new tab among the tabs; it is dragged as a tab is.
+/// the window's tabs, else opens it as a new tab; Cmd-click opens another tab on it; it is dragged as a tab is.
 struct DocumentSectionRow: View {
     let tabs: TabsModel
     let document: ShelfDocument
@@ -49,6 +49,9 @@ struct DocumentSectionRow: View {
         .onDrag { tabs.itemProvider(for: .document(document.id)) }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+        // A press through accessibility (VoiceOver, Voice Control) does not reach a tap gesture on a combined element: seen in
+        // the app, where pressing the row did nothing (diary 2026-11-15).
+        .accessibilityAction { tabs.show(document: document.id) }
         .contextMenu {
             Button("Open") { tabs.show(document: document.id) }
             Button("Open in New Tab") { openInNewTab() }

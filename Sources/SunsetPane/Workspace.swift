@@ -17,8 +17,6 @@ public struct Workspace: Sendable, Equatable {
         public internal(set) var customTitle: String?
         /// A custom icon (SF Symbol or emoji) overriding the content's default glyph (`n41`).
         public internal(set) var customIcon: PaneIcon?
-        /// Drawn at its document's row under the Documents heading of the sidebar, not among the tabs (roadmap 0031).
-        public internal(set) var shelved = false
 
         public var panes: [PaneID] { layout.panes }
         /// More than one pane.
@@ -119,12 +117,6 @@ public struct Workspace: Sendable, Equatable {
             selectedID = items[min(index, items.count - 1)].id
         }
         return item
-    }
-
-    /// Puts the tab `id` on its document's row under the Documents heading, or back among the tabs.
-    public mutating func shelve(item id: ItemID, _ shelved: Bool) {
-        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
-        items[index].shelved = shelved
     }
 
     /// A new tab of one new pane at `index` (brought inside), shown or not; its pane.

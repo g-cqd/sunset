@@ -1,6 +1,6 @@
 import Foundation
 
-/// `{"items": [{"id", "layout", "focused", "customTitle"?, "customIcon"?, "shelved"?}], "selected": "<id>", "selectedEntry"?: "<id>"}`. Reading checks what the rest of the code relies on: a pane is
+/// `{"items": [{"id", "layout", "focused", "customTitle"?, "customIcon"?}], "selected": "<id>", "selectedEntry"?: "<id>"}`. Reading checks what the rest of the code relies on: a pane is
 /// in one tab only, a tab's
 /// focused pane is one of its panes, and the selected tab exists (and is the first one when none is named).
 extension Workspace: Codable {
@@ -11,7 +11,6 @@ extension Workspace: Codable {
         let focused: PaneID
         var customTitle: String?
         var customIcon: PaneIcon?
-        var shelved: Bool?
     }
 
     public init(from decoder: any Decoder) throws {
@@ -42,15 +41,13 @@ extension Workspace: Codable {
         }
         self.init()
         items = stored.map {
-            var item = Item(
+            Item(
                 id: $0.id,
                 layout: $0.layout,
                 focused: $0.focused,
                 customTitle: $0.customTitle,
                 customIcon: $0.customIcon
             )
-            item.shelved = $0.shelved ?? false
-            return item
         }
         selectedID = selected ?? items.first?.id
         selectedEntry = try container.decodeIfPresent(Favorites.NodeID.self, forKey: .selectedEntry)
@@ -65,8 +62,7 @@ extension Workspace: Codable {
                     layout: $0.layout,
                     focused: $0.focused,
                     customTitle: $0.customTitle,
-                    customIcon: $0.customIcon,
-                    shelved: $0.shelved ? true : nil
+                    customIcon: $0.customIcon
                 )
             },
             forKey: .items

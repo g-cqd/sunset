@@ -16,8 +16,7 @@ struct SidebarClickTests {
     /// The sidebar in a window behind the others, 229 pt wide: its rows start under the header.
     func hosted() async -> NSWindow {
         _ = NSApplication.shared
-        var settings = ShellSettings()
-        settings.sidebar.documents = false
+        let settings = ShellSettings()
         let window = NSWindow(
             contentRect: CGRect(x: 0, y: 0, width: 229, height: 400),
             styleMask: [.borderless],

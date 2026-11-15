@@ -79,8 +79,9 @@ in a file and is not asked. The page with no key (what is kept sealed with anoth
 FileVault's settings was not seen (FileVault is on here), and its address is not verified. A key entered is used from the
 next start, not at once. iCloud Keychain is still not used (R12, ST-2).
 ST-5 was built on 2026-11-15 in one step with the sections of roadmap 0031, which says how and what was not seen (a
-drag, above all): the Documents heading among the tabs, a document's row as its tab while it is open, the + and File > New
-Document, deleting at once from the row's menu, the four orders. An empty document opens as source, ready to type.
+drag, above all): File > New Document and the + of the Documents list, deleting at once from a row's menu, the four orders.
+The Documents heading among the tabs (ST-5's layout A) was built and taken out the same day at the owner's word: a document
+is a tab among the tabs, and the documents are listed in the Library and in the panel opposite the tabs (roadmap 0031). An empty document opens as source, ready to type.
 In ST-4: a document whose file's size and time are unchanged but whose bytes are damaged is listed until it is opened; the
 store has been run in a test copy of the app only (a folder of its own), not in the installed app.
 In ST-3: the History menu and panel are empty for the moment a long history takes to be read; no migration exists yet (there

@@ -19,8 +19,6 @@ extension Configuration {
         public var side = Side.right
         /// The Library (roadmap 0031): a glyph at the sidebar's foot that widens it by a rail of sections.
         public var library = true
-        /// The Documents heading among the tabs, between the Favorites and the tabs (roadmap 0030 step ST-5).
-        public var documents = true
         public var documentSort = DocumentSort.changed
 
         public init() {}
