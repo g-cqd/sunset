@@ -65,6 +65,7 @@ struct SidebarRow: View {
                     showTitle: showTitle,
                     showDirectory: showDirectory,
                     showProgress: showProgress,
+                    showEdited: false,
                     name: name,
                     icon: icon,
                     saved: saved,
@@ -80,7 +81,9 @@ struct SidebarRow: View {
         // As far from the trailing edge as from the top and the bottom (owner, 2026-11-12): centred on a point half the row's height in.
         .overlay {
             GeometryReader { proxy in
-                closeButton.position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
+                let middle = proxy.size.height / 2
+                closeButton.position(x: proxy.size.width - middle, y: middle)
+                if edited { EditedMark().position(x: proxy.size.width - markInset(middle: middle), y: middle) }
             }
         }
         .background(shape.fill(highlight))
@@ -143,15 +146,37 @@ struct SidebarRow: View {
 
     private var showsClose: Bool { hovering || armed || keepCloseVisible }
 
-    /// The title runs to the row's end; under a shown close button it fades out over a few points.
+    /// A document with edits that are not saved: the row says so at its end, and the title stops before it.
+    private var edited: Bool { model?.isEdited == true && renaming == nil }
+
+    /// The mark's width with the gap on each side of it.
+    private var markRoom: Double { Design.Size.editedMark + 2 * Design.Space.xs }
+
+    /// How far the mark's centre is from the row's end (owner note n76): just before the close button while it shows; else at the
+    /// end, as far from it as the icon is from the row's start, the button keeping no place.
+    private func markInset(middle: Double) -> Double {
+        showsClose
+            ? middle + layout.closeButtonSize / 2 + markRoom / 2
+            : layout.tabPaddingLeading + Design.Size.editedMark / 2
+    }
+
+    /// What the title leaves free at the row's end: the shown button's place, the mark's, both or nothing.
+    private var titleEnd: Double {
+        let shown = showsClose && renaming == nil
+        if shown { return layout.closeButtonSize + Design.Space.xs + (edited ? markRoom : 0) }
+        guard edited else { return 0 }
+        return max(0, layout.tabPaddingLeading - layout.tabPaddingTrailing) + Design.Size.editedMark + Design.Space.xs
+    }
+
+    /// The title runs to the row's end; before a shown close button and before the mark it fades out over a few points.
     private var titleMask: some View {
         HStack(spacing: 0) {
             Color.black
-            if showsClose && renaming == nil {
+            if titleEnd > 0 {
                 LinearGradient(gradient: .eased(from: .black, to: .clear), startPoint: .leading, endPoint: .trailing)
                     .frame(width: Design.Space.m)
                 // The close button sits half the row's height from its edge, a little further in on a taller row.
-                Color.clear.frame(width: layout.closeButtonSize + Design.Space.xs)
+                Color.clear.frame(width: titleEnd)
             }
         }
     }

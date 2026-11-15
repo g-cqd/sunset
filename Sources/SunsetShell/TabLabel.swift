@@ -8,6 +8,8 @@ package struct TabLabel: View {
     var showTitle = true
     var showDirectory = false
     var showProgress = true
+    /// Whether the label says its document has edits that are not saved; a sidebar row says it itself, at its end (owner note n76).
+    var showEdited = true
     /// The name and the icon a person gave the tab: shown instead of the program's title and of the tab's own picture.
     var name: String?
     var icon: PaneIcon?
@@ -23,6 +25,7 @@ package struct TabLabel: View {
         showTitle: Bool = true,
         showDirectory: Bool = false,
         showProgress: Bool = true,
+        showEdited: Bool = true,
         name: String? = nil,
         icon: PaneIcon? = nil,
         saved: PaneDescriptor? = nil,
@@ -33,6 +36,7 @@ package struct TabLabel: View {
         self.showTitle = showTitle
         self.showDirectory = showDirectory
         self.showProgress = showProgress
+        self.showEdited = showEdited
         self.name = name
         self.icon = icon
         self.saved = saved
@@ -48,10 +52,7 @@ package struct TabLabel: View {
                 TabIcon(model: model, icon: icon, saved: saved, savedCommand: savedCommand, showsProgress: showProgress)
             }
             lines
-            if model?.isEdited == true {
-                Circle().fill(.secondary).frame(width: 6, height: 6)
-                    .help("Edited, not saved")
-            }
+            if showEdited, model?.isEdited == true { EditedMark() }
             if let sound = model?.sound {
                 Button {
                     model?.toggleMuted()

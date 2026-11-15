@@ -67,6 +67,8 @@ package enum Design {
         package static let tabRow = 32.0
         /// A one-line row of the Favorites tree: as tall as a tab (owner, 2026-11-13, t227; it was 28, more compact, on 11-12).
         package static let favoriteRow = tabRow
+        /// The dot of a document with edits that are not saved.
+        package static let editedMark = 6.0
         /// A split tab's sub-row narrower than this shows its icon alone.
         package static let iconOnlyBelow = 56.0
     }

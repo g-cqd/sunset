@@ -11,6 +11,7 @@ import SwiftUI
     var glyph: PaneGlyph { glyphValue }
     var progress: Double?
     var closeWarning: String?
+    var isEdited = false
     var searchTerms: [String] = []
     var isPrivate = false
     var descriptor: PaneDescriptor

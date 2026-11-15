@@ -57,6 +57,8 @@ import Testing
         }
         let shell = content("zsh", detail: "~/Projects/sunset")
         let page = content("Example Domain", detail: "example.com", symbol: "globe")
+        let edited = content("Harbour notes with a long name.md", detail: "~/Documents", symbol: "doc.text")
+        edited.isEdited = true
         return [
             row("1 line", shell, layout: one),
             row("1 line selected", shell, layout: one, selected: true),
@@ -65,6 +67,8 @@ import Testing
             row("marked (multi)", shell, layout: one, marked: true),
             row("armed (busy close)", shell, layout: one, armed: true),
             row("kept, not open", page, layout: one, dimmed: true, button: .delete),
+            row("edited, not saved", edited, layout: one),
+            row("edited + hover", edited, layout: one, hover: true),
             row("2 lines", shell, layout: layout, directory: true),
             row("2 lines selected", shell, layout: layout, directory: true, selected: true),
             row("2 lines hover", page, layout: layout, directory: true, hover: true),
