@@ -116,7 +116,7 @@ struct TerminalScene: View {
         )
         .preferredColorScheme(configuration.appearance.scheme.colorScheme)
         .environment(\.barTint, BarTint(rawValue: configuration.appearance.barTint.rawValue) ?? .scheme)
-        .navigationTitle(tabs.selectedContent?.title ?? "Sunset")
+        .background(WindowTitle(tabs: tabs))
         .modifier(FocusedPanes(tabs: tabs))
         .task { start() }
         .animation(configuration.layout.smooth, value: configuration.sidebar.autoHide)
