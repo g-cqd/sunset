@@ -87,6 +87,17 @@ let package = Package(
             path: "Probes/ColdHistoryProbe",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
+        // Not a benchmark: the first frame after the Metal renderer has rested, against a frame in a run (review 2026-11-15, t267).
+        .executableTarget(
+            name: "RestProbe",
+            dependencies: [
+                .product(name: "SunsetCore", package: "Sunset"), .product(name: "SunsetRender", package: "Sunset"),
+                .product(name: "SunsetRenderMac", package: "Sunset"),
+                .product(name: "SunsetRenderMetal", package: "Sunset")
+            ],
+            path: "Probes/RestProbe",
+            swiftSettings: strictSettings
+        ),
         .executableTarget(
             name: "HandoffProbe",
             dependencies: ["VTModel"],

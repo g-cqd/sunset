@@ -4,7 +4,8 @@ internal import Metal
 
 /// The `IOSurface`s a window's layer shows, drawn into in turn: never the one shown last, nor one the window server still holds (`isInUse`), so that a frame
 /// is not written while it is on screen. Two are enough while the window server lets go of a surface before the next frame; when frames come faster (output
-/// scrolling), the one shown before is often still held, and a third is made. It is let go again on the first frame after the window was quiet for a while.
+/// scrolling), the one shown before is often still held, and a third is made. It is let go again on the first frame after the window was quiet for a while;
+/// and when no frame comes at all (`rest`), only the one shown is kept.
 /// (Measured in the app, 100 lines a second: the surface shown before was still held in 79 % of the frames; at a line every 0.3 s, never.)
 struct SurfaceRing {
     struct Slot {
@@ -63,6 +64,17 @@ struct SurfaceRing {
         slots[index].missing = nil
         shown = index
         lastFrame = now
+    }
+
+    /// No frame is coming for now: every surface that is neither shown nor still held is let go. A surface is the window's size
+    /// in pixels, four bytes each; the next frame makes one again (`next`).
+    /// - Returns: whether only the one shown is left; false when the window server still holds another.
+    mutating func rest() -> Bool {
+        guard let current = shown else { return true }
+        let kept = slots[current].surface
+        slots.removeAll { $0.surface !== kept && !$0.surface.isInUse }
+        shown = slots.firstIndex { $0.surface === kept }
+        return slots.count == 1
     }
 
     /// Drops a surface that is neither shown nor held.

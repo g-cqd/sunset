@@ -11,7 +11,7 @@ import Testing
 @Suite("Metal and CPU surface renderers", .serialized) struct MetalSurfaceRendererTests {
     private let esc = "\u{1B}"
 
-    private func pixels(_ surface: IOSurface) -> [UInt8] {
+    func pixels(_ surface: IOSurface) -> [UInt8] {
         surface.lock(options: .readOnly, seed: nil)
         defer { surface.unlock(options: .readOnly, seed: nil) }
         var bytes: [UInt8] = []
@@ -27,7 +27,7 @@ import Testing
         return bytes
     }
 
-    private func renderers() throws -> (cpu: CPUSurfaceRenderer, gpu: MetalSurfaceRenderer, metrics: RenderMetrics) {
+    func renderers() throws -> (cpu: CPUSurfaceRenderer, gpu: MetalSurfaceRenderer, metrics: RenderMetrics) {
         let source = CoreTextGlyphSource(fontName: "Menlo", size: 28, features: [])
         var metrics = source.metrics
         metrics.paddingX = 4

@@ -47,6 +47,15 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
         return await draw(screen, cursorVisible: cursorVisible, textBlinkVisible: textBlinkVisible, view: view)
     }
 
+    /// The terminal is quiet or not shown: only the surface on screen is kept (`SurfaceRing.rest`).
+    /// - Returns: false when the window server still held another surface.
+    @discardableResult
+    public func rest() async -> Bool {
+        await takeTurn()
+        defer { endTurn() }
+        return ring?.rest() ?? true
+    }
+
     private func takeTurn() async {
         guard drawing else {
             drawing = true

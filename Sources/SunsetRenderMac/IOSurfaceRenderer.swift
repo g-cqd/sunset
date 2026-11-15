@@ -20,4 +20,13 @@ public protocol IOSurfaceRenderer: AnyObject, Sendable {
     /// Draws `screen` (a snapshot: its dirty rows are what changed since the frame before). Returns whether anything changed (when nothing did, `latest` is the
     /// same surface as before).
     func present(_ screen: Screen, cursorVisible: Bool, textBlinkVisible: Bool, view: FrameView) async -> Bool
+
+    /// No frame is coming for now (the terminal is quiet, or not shown): lets go of what is only needed while frames come.
+    /// The frame on screen stays. The next `present` makes again what it needs.
+    /// - Returns: false when something could not be let go yet (the window server still held it): worth asking again.
+    @discardableResult func rest() async -> Bool
+}
+
+extension IOSurfaceRenderer {
+    @discardableResult public func rest() async -> Bool { true }
 }

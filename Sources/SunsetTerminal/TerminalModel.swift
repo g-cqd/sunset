@@ -38,8 +38,10 @@ package import SunsetRenderMac
     @ObservationIgnored package var renderer: (any IOSurfaceRenderer)?
     @ObservationIgnored package var scale = 2.0
     @ObservationIgnored package var font = FontSettings()
-    @ObservationIgnored private var frameWanted = false
-    @ObservationIgnored private var renderInFlight = false
+    @ObservationIgnored var frameWanted = false
+    @ObservationIgnored var renderInFlight = false
+    /// Lets the renderer go to rest a while after the last frame (`TerminalModel+Frames`).
+    @ObservationIgnored let frameRest = FrameRest()
     @ObservationIgnored package var cursorPhase = true
     @ObservationIgnored package var cursorBlinks = true
     @ObservationIgnored package var viewPixels = (width: 0, height: 0)
@@ -150,6 +152,7 @@ package import SunsetRenderMac
 
     package func stop() {
         for task in tasks + [commandDelivery].compactMap(\.self) { task.cancel() }
+        frameRest.cancel()
         packer?.stop()
         tasks = []
         input.continuation.finish()
@@ -231,19 +234,5 @@ package import SunsetRenderMac
             )
             self?.presented(changed: changed, snapshot: snapshot)
         }
-    }
-
-    private func presented(changed: Bool, snapshot: Screen) {
-        renderInFlight = false
-        cursorBlinks = snapshot.cursorBlinks
-        apply(TerminalStatus(snapshot))
-        if changed, let latest = renderer?.latest {
-            lastSurface = latest
-            presentFrame(latest)
-        }
-        checkForeground()
-        if renderer?.hasFailed == true { fallBackToCPU() }
-        // Something may have changed while this frame was being drawn.
-        if frameWanted { setDisplayLinkPaused(false) }
     }
 }
