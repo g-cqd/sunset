@@ -121,6 +121,12 @@ Downloads, Tabs. Orders: Latest Changed (default), Latest Made, Name, Kind. Both
 sections. A document's row dragged onto the tab list opens it as a tab, onto a pane splits it, into Favorites keeps it.
 Arc may be opened to look at it. The table is in roadmap 0031.
 
+Then, on six sketches of the foot: the tab sidebar's foot is kept for spaces, later, so it gets a Library glyph opposite the
++ that extends the sidebar, its sections chosen by tabs laid out vertically (Arc's Library, looked at on screen); only the
+opposite panel has its switch at the foot, the segmented one. On three sketches of the Library: a rail of glyphs; back by
+an arrow at its foot, the glyph again, a Tabs glyph and Escape; the glyph and the + follow the sidebar's side; a setting, on
+at first; the same sections in both sidebars. ST-5 and the sections are built in one step.
+
 ## Costs measured at ST-3 (release build, a history of 50,000 pages, 2026-11-14; another build was using the machine)
 
 | | Before: SQLite in the clear, searched by SQL | After: sealed records, held and searched in memory |

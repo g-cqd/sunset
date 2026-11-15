@@ -1,6 +1,6 @@
 ---
 status: not-started
-blocked-by: the look of the Library (the owner decides among L1, L2, L3)
+blocked-by: nothing
 date: 2026-11-14
 ---
 
@@ -93,11 +93,35 @@ the extended sidebar three ways: L1 tiles with names as Arc, L2 a rail of glyphs
 | The + of the tab sidebar | **At the end** |
 | What is built first | **Both in one step**: the Documents heading (ST-5) and the sections |
 
+### On the Library (2026-11-15)
+
+| Asked | Answer |
+| --- | --- |
+| Its look | **L2, a rail of glyphs**: names as tooltips, the sidebar grows by the rail only |
+| The way back to the tabs | All four: **an arrow at the rail's foot, the Library glyph again, Tabs as the first vertical tab, Escape** |
+| Which end the Library glyph and the + are at | **They follow the sidebar's side**: the Library on the window's edge side, the + on the content's side |
+| Always there, or a setting | **A setting, on at first** |
+| The opposite panel beside it | **The same sections in both** (one implementation, shown in two places) |
+
+## What is to be built (one step, with ST-5 of 0030)
+
+1. The sections as one thing shown in two places: History (as today), Documents (by day; sorted Latest Changed, Latest Made,
+   Name or Kind), Downloads. Each keeps its title and a search field.
+2. The opposite panel: a segmented switch at its foot (B6) between the three.
+3. The tab sidebar's foot: the Library glyph at the window's edge end, the + at the content's end, the middle left free for
+   spaces. The Library widens the sidebar by a rail of glyphs (Tabs, Documents, History, Downloads); the way back is the
+   rail's foot, the glyph again, the Tabs glyph and Escape. A setting, on at first.
+4. The Documents heading among the tabs (0030 ST-5, layout A), with its own toggle, independent of the Library.
+5. A document's row dragged onto the tab list opens it as a tab, onto a pane splits it, into Favorites keeps it.
+
+Read by the builder, to be said in the report: the arrow at the rail's foot and "the Library glyph again" are one control
+in one place (the rail's foot is where the glyph was), unless the owner wants two.
+
 ## Still to settle
 
-- The look of the Library (L1, L2, L3) and whether Tabs is one of its vertical tabs or the arrow goes back to them.
-
-- What a section's key is, and what the Downloads section is beside the downloads panel of today.
+- What a section's key is; what the Downloads section is beside the downloads panel of today (the same list, by the
+  owner's "one implementation").
+- Spaces: not asked, not designed; only their room at the foot is kept.
 
 ## Not done
 
