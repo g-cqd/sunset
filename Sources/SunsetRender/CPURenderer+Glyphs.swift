@@ -7,7 +7,7 @@ extension CPURenderer {
         var walk = Walk(glyphs: GlyphTable(generation: 0), styles: ResolvedStyles())
         swap(&walk.glyphs, &glyphTable)
         swap(&walk.styles, &resolvedStyles)
-        if walk.glyphs.bitmaps.count >= glyphTableLimit {
+        if walk.glyphs.bitmaps.count >= glyphTableLimit || walk.glyphs.bytes >= glyphTableByteLimit {
             walk.glyphs.startAgain(generation: GlyphGenerations.next())
             runCache.removeAll()
             runCacheCount = 0

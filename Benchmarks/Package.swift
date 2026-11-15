@@ -87,6 +87,16 @@ let package = Package(
             path: "Probes/ColdHistoryProbe",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
+        // Not a benchmark: what shaping runs costs in time and in glyph bitmaps on text whose words keep changing (review 2026-11-15, t266).
+        .executableTarget(
+            name: "GlyphProbe",
+            dependencies: [
+                .product(name: "SunsetCore", package: "Sunset"), .product(name: "SunsetRender", package: "Sunset"),
+                .product(name: "SunsetRenderMac", package: "Sunset")
+            ],
+            path: "Probes/GlyphProbe",
+            swiftSettings: strictSettings
+        ),
         // Not a benchmark: the first frame after the Metal renderer has rested, against a frame in a run (review 2026-11-15, t267).
         .executableTarget(
             name: "RestProbe",

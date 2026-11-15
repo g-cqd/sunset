@@ -12,9 +12,11 @@ public final class CPURenderer: CellRenderer {
     var runCacheCount = 0
 
     /// Every glyph made so far, by number. Taken out for the length of a frame (`render`) and handed down its walk. It starts again, under a new generation,
-    /// at the first frame that finds it `glyphTableLimit` long.
+    /// at the first frame that finds it `glyphTableLimit` long or holding `glyphTableByteLimit` bytes: a run with a ligature is a bitmap as wide as the
+    /// run, and text full of them would otherwise hold a hundred megabytes before the count was reached.
     var glyphTable = GlyphTable(generation: GlyphGenerations.next())
     var glyphTableLimit = 16_384
+    var glyphTableByteLimit = 16 << 20
     var resolvedStyles = ResolvedStyles()
     var lastCursor: CursorDrawn?
     var lastPalette: Palette?
@@ -40,6 +42,12 @@ public final class CPURenderer: CellRenderer {
         self.metrics = metrics
         self.glyphs = glyphs
         self.ligatures = ligatures && glyphs.shapesRuns
+    }
+
+    /// How many glyph bitmaps the renderer holds and the bytes of their coverage: single characters, and the runs kept as one
+    /// piece (for probes and tests: memory, the review of 2026-11-15).
+    public var glyphStatistics: (count: Int, bytes: Int) {
+        (glyphTable.bitmaps.count, glyphTable.bytes)
     }
 
     /// Forget what was drawn: the next frame draws everything (a new surface, a lost one).

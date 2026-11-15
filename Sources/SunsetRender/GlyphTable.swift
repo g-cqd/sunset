@@ -31,6 +31,8 @@ struct GlyphTable {
     private(set) var bitmaps: ContiguousArray<GlyphBitmap> = []
     private(set) var placements: ContiguousArray<Placement> = []
     private(set) var generation: UInt32
+    /// The bytes of coverage the bitmaps hold: what the table costs in memory, and what bounds it (`CPURenderer.glyphTableByteLimit`).
+    private(set) var bytes = 0
     /// The numbers of single scalars under `directLimit`, by variant (`variant(bold:italic:wide:)`) then scalar: an array read in place of a hashed lookup on
     /// every cell (it was a quarter of a frame's walk). A variant's array is made on its first use (12 288 entries of 4 bytes).
     private var direct: [ContiguousArray<UInt32>] = []
@@ -66,6 +68,7 @@ struct GlyphTable {
     /// Puts `bitmap` in the table; its number, 0 for none.
     mutating func number(_ bitmap: GlyphBitmap?) -> UInt32 {
         guard let bitmap else { return 0 }
+        bytes += bitmap.coverage.count
         bitmaps.append(bitmap)
         placements.append(
             Placement(
@@ -84,6 +87,7 @@ struct GlyphTable {
         placements.removeAll(keepingCapacity: true)
         hashed.removeAll(keepingCapacity: true)
         direct = []
+        bytes = 0
         self.generation = generation
     }
 }

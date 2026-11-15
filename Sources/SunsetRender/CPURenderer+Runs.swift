@@ -23,7 +23,8 @@ extension CPURenderer {
     }
 
     /// If a run of at least two shapeable cells with one style starts at `column`, draws it (cell backgrounds and decorations one by one, the glyphs
-    /// shaped together) and returns its length; nil when there is no such run and the cell is drawn alone.
+    /// shaped together, or each cell's own glyph when shaping changes nothing in the run) and returns its length; nil when there is no such run and the
+    /// cell is drawn alone.
     func drawRun(
         row: Int,
         column: Int,
@@ -57,7 +58,7 @@ extension CPURenderer {
             let cell = cells[column + offset]
             drawCell(
                 cell,
-                at: Placement(row: row, column: column + offset, span: 1, drawGlyph: false),
+                at: Placement(row: row, column: column + offset, span: 1, drawGlyph: entry.plain),
                 frame: frame,
                 walk: &walk,
                 surface: &surface
@@ -113,8 +114,12 @@ extension CPURenderer {
             scalars.append(value)
             text.append(Unicode.Scalar(value) ?? "\u{FFFD}")
         }
-        let bitmap = glyphs.glyph(forRun: String(text), bold: bold, italic: italic, cells: length, metrics: metrics)
-        let entry = RunEntry(scalars: scalars, bold: bold, italic: italic, glyph: table.number(bitmap))
+        // A run that shaping does not change has no bitmap of its own: its cells are drawn with their own glyphs, which every other run shares.
+        let plain = glyphs.runIsPlain(String(text), bold: bold, italic: italic, metrics: metrics)
+        let bitmap =
+            plain
+            ? nil : glyphs.glyph(forRun: String(text), bold: bold, italic: italic, cells: length, metrics: metrics)
+        let entry = RunEntry(scalars: scalars, bold: bold, italic: italic, glyph: table.number(bitmap), plain: plain)
         if runCacheCount >= Self.runCacheLimit {
             runCache.removeAll()
             runCacheCount = 0

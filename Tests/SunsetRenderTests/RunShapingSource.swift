@@ -8,6 +8,14 @@ final class RunShapingSource: GlyphSource, @unchecked Sendable {
     nonisolated(unsafe) var runs: [String] = []
     nonisolated(unsafe) var singles: [String] = []
     var shapesRuns: Bool { true }
+    /// Says of a run without "->" that shaping changes nothing in it; the runs it was asked about are in `asked`.
+    nonisolated(unsafe) var saysPlain = false
+    nonisolated(unsafe) var asked: [String] = []
+
+    func runIsPlain(_ text: String, bold: Bool, italic: Bool, metrics: RenderMetrics) -> Bool {
+        asked.append(text)
+        return saysPlain && !text.contains("->")
+    }
 
     func glyph(for text: String, bold: Bool, italic: Bool, columns: Int, metrics: RenderMetrics) -> GlyphBitmap? {
         singles.append(text)

@@ -7,11 +7,14 @@ final class RunEntry {
     let bold: Bool
     let italic: Bool
     let glyph: UInt32
+    /// Shaping changes nothing in it (`GlyphSource.runIsPlain`): it is drawn from its characters' glyphs, and has no glyph of its own.
+    let plain: Bool
 
-    init(scalars: [UInt32], bold: Bool, italic: Bool, glyph: UInt32) {
+    init(scalars: [UInt32], bold: Bool, italic: Bool, glyph: UInt32, plain: Bool = false) {
         self.scalars = scalars
         self.bold = bold
         self.italic = italic
         self.glyph = glyph
+        self.plain = plain
     }
 }

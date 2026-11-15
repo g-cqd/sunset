@@ -2,17 +2,21 @@ internal import CoreGraphics
 internal import CoreText
 internal import Foundation
 public import SunsetRender
+internal import Synchronization
 
 /// Rasterises text with a macOS font (any installed monospaced font; CoreText substitutes fonts for what it lacks: CJK, emoji). `metrics` gives the cell
 /// size that font implies.
-// SAFETY: every stored property is immutable after `init`, and CoreText fonts are safe to use from any thread (they are immutable by contract).
+// SAFETY: every stored property is immutable after `init` or behind a lock (`alone`), and CoreText fonts are safe to use from any thread (they are
+// immutable by contract).
 public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
     public let metrics: RenderMetrics
-    private let regular: CTFont
-    private let bold: CTFont
-    private let italic: CTFont
-    private let boldItalic: CTFont
+    let regular: CTFont
+    let bold: CTFont
+    let italic: CTFont
+    let boldItalic: CTFont
     private let baseline: Int
+    /// What each character is alone, by style and UTF-16 unit (`CoreTextGlyphSource+Plain`).
+    let alone = Mutex<[UInt32: AloneGlyph]>([:])
 
     public let fullName: String
 
@@ -113,27 +117,23 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
             context.setShouldAntialias(true)
             context.setShouldSmoothFonts(false)
             context.setFillColor(gray: 1, alpha: 1)
-            guard let attributed = CFAttributedStringCreateMutable(nil, 0) else { return false }
-            CFAttributedStringReplaceString(attributed, CFRange(location: 0, length: 0), text as CFString)
-            CFAttributedStringSetAttribute(
-                attributed,
-                CFRange(location: 0, length: CFAttributedStringGetLength(attributed)),
-                kCTFontAttributeName,
-                font
-            )
-            // Without this the text is black whatever the context's fill colour says.
-            CFAttributedStringSetAttribute(
-                attributed,
-                CFRange(location: 0, length: CFAttributedStringGetLength(attributed)),
-                kCTForegroundColorFromContextAttributeName,
-                kCFBooleanTrue
-            )
-            let line = CTLineCreateWithAttributedString(attributed)
+            guard let line = Self.line(text, font: font) else { return false }
             drawGlyphs(of: line, text: text, into: context, cellWidth: metrics.cellWidth, font: font, perCell: run)
             return true
         }
         guard drawn, coverage.contains(where: { $0 != 0 }) else { return nil }
         return GlyphBitmap(width: width, height: height, left: 0, top: 0, coverage: coverage)
+    }
+
+    /// `text` shaped as one line in `font`, drawn in the context's own colour.
+    static func line(_ text: String, font: CTFont) -> CTLine? {
+        guard let attributed = CFAttributedStringCreateMutable(nil, 0) else { return nil }
+        CFAttributedStringReplaceString(attributed, CFRange(location: 0, length: 0), text as CFString)
+        let whole = CFRange(location: 0, length: CFAttributedStringGetLength(attributed))
+        CFAttributedStringSetAttribute(attributed, whole, kCTFontAttributeName, font)
+        // Without this the text is black whatever the context's fill colour says.
+        CFAttributedStringSetAttribute(attributed, whole, kCTForegroundColorFromContextAttributeName, kCFBooleanTrue)
+        return CTLineCreateWithAttributedString(attributed)
     }
 
     /// Draws the shaped glyphs of `line` on the cell grid: a glyph goes at the left of the cell its first character is in, whatever the font's own advance
@@ -162,16 +162,7 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
             unsafe CTRunGetGlyphs(run, CFRange(location: 0, length: 0), &glyphs)
             unsafe CTRunGetStringIndices(run, CFRange(location: 0, length: 0), &indices)
             // The run's own font (a fallback font for a character the main one lacks), read from the run's attributes.
-            let attributes = CTRunGetAttributes(run)
-            guard
-                let raw = unsafe CFDictionaryGetValue(
-                    attributes,
-                    Unmanaged.passUnretained(kCTFontAttributeName).toOpaque()
-                )
-            else {
-                continue
-            }
-            let font = unsafe Unmanaged<CTFont>.fromOpaque(raw).takeUnretainedValue()
+            guard let font = Self.font(of: run) else { continue }
             let fallback = !CFEqual(font, asked)
             for index in 0 ..< count {
                 let unit = min(max(0, indices[index]), cellOfUnit.count - 1)
