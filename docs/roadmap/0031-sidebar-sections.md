@@ -38,8 +38,19 @@ with plain shapes: nothing is built.
 - `docs/research/sidebar/sections-sidebar.png`: the tab sidebar. S1 the Documents heading among the tabs (ST-5's choice);
   S2 a switch at the top (Tabs, Documents, History), one section at a time; S3 the same at the bottom; and the sort menu.
 
-Arc was still not looked at on screen: it is installed on this Mac and was not running, and opening the owner's browser to
-look at it is his to allow.
+Arc, opened in the background on 2026-11-15 with the owner's leave: **it shows a sign-in window and nothing else** (email,
+password, "Sign in", "Create an account"), so its sidebar and Library could not be looked at on this Mac. It was quit at
+once; nothing was typed. What is known of Arc stays what its help centre says, above.
+
+### The foot (2026-11-15, after the owner chose P3 and asked for several sketches)
+
+Drawn by `DesignCatalogTests+SectionSwitch.swift` (`--filter "the switch at a sidebar's foot"`).
+
+- `docs/research/sidebar/sections-foot.png`: the opposite panel's foot, six looks. B1 glyphs at the leading end; B2 across
+  the width; B3 a dot under the one shown, no fill; B4 glyphs with their names; B5 only the one shown says its name; B6 a
+  segmented control.
+- `docs/research/sidebar/sections-foot-sidebar.png`: the same at the foot of the tab sidebar, with the +. T1 the + first
+  (where it is today), T2 the + at the end, T3 as B5, T4 as B3, T5 as B6.
 
 ## The owner's answers (2026-11-15, on the sketches)
 
@@ -51,7 +62,7 @@ look at it is his to allow.
 | The orders of documents | **Latest Changed (the default), Latest Made, Name, Kind**. Not "Open First" |
 | Both sidebars open on different sections | **Yes, each on its own section** |
 | What dragging a document's row does | Onto the tab list: **opens it as a tab there** (the document stays in Documents). Onto a pane: **splits it**. Into Favorites: **keeps it there**. Not reordered within Documents (no manual order) |
-| Arc | **"Yes, open it"**: to be looked at on screen, its sidebar and Library only, and quit |
+| Arc | **"Yes, open it"**: done, and it showed only its sign-in window (see the sketches) |
 
 ## Still to settle
 
