@@ -10,32 +10,35 @@ extension AppConfiguration {
         )
     }
 
-    /// An optional setting as an "on" switch and a value: off is nil.
-    func switchBinding<Value: Sendable>(
-        _ keyPath: WritableKeyPath<Configuration, Value?>,
-        whenOn value: Value
-    ) -> Binding<Bool> {
+    /// An option of Settings: reading is the configuration, writing is `update`.
+    func binding<Value>(_ value: SettingsValue<Value>) -> Binding<Value> {
         Binding(
-            get: { self.configuration[keyPath: keyPath] != nil },
-            set: { on in
-                self.update { $0[keyPath: keyPath] = on ? (self.configuration[keyPath: keyPath] ?? value) : nil }
-            }
+            get: { value.get(self.configuration) },
+            set: { new in self.update { value.set(&$0, new) } }
+        )
+    }
+
+    /// An optional setting as an "on" switch and a value: off is nil.
+    func switchBinding<Value>(_ value: SettingsValue<Value?>, whenOn fallback: Value) -> Binding<Bool> {
+        Binding(
+            get: { value.get(self.configuration) != nil },
+            set: { on in self.update { value.set(&$0, on ? (value.get($0) ?? fallback) : nil) } }
         )
     }
 
     /// A text setting where the empty string is "not set".
-    func textBinding(_ keyPath: WritableKeyPath<Configuration, String?>) -> Binding<String> {
+    func textBinding(_ value: SettingsValue<String?>) -> Binding<String> {
         Binding(
-            get: { self.configuration[keyPath: keyPath] ?? "" },
-            set: { text in self.update { $0[keyPath: keyPath] = text.isEmpty ? nil : text } }
+            get: { value.get(self.configuration) ?? "" },
+            set: { text in self.update { value.set(&$0, text.isEmpty ? nil : text) } }
         )
     }
 
     /// A colour setting (`#rrggbb` in the file, sRGB): the picker's colour in, three bytes out.
-    func colorBinding(_ keyPath: WritableKeyPath<Configuration, [UInt8]?>, fallback: [UInt8]) -> Binding<Color> {
+    func colorBinding(_ value: SettingsValue<[UInt8]?>, fallback: [UInt8]) -> Binding<Color> {
         Binding(
             get: {
-                let bytes = self.configuration[keyPath: keyPath] ?? fallback
+                let bytes = value.get(self.configuration) ?? fallback
                 return Color(
                     .sRGB,
                     red: Double(bytes[0]) / 255,
@@ -50,7 +53,7 @@ extension AppConfiguration {
                     .map {
                         UInt8(max(0, min(255, ($0 * 255).rounded())))
                     }
-                self.update { $0[keyPath: keyPath] = bytes }
+                self.update { value.set(&$0, bytes) }
             }
         )
     }

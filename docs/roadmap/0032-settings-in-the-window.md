@@ -63,6 +63,30 @@ Appearance, Window, Tabs and sidebar, Terminal, Web; Layout goes, its numbers to
 until the owner approves it, with five things for him to decide (its 5.4). The code it asks for first, one declaration per
 option, is task t268.
 
+### The owner on the proposal (2026-11-15)
+
+| Asked | Answer |
+| --- | --- |
+| The six sections and 24 topics | **"Yes, with changes"**, with no note: read as the changes his other answers make (the two rows below). To be confirmed when the list is shown as built |
+| The cursor's colour: with the theme's colours or with the cursor | In his words: "we might want a color for the cursor as well". Read as: **the Cursor topic has its colour** beside its shape and blinking |
+| `terminal.clipboardWrite` | **A Privacy and security section**, shared with the web's privacy topic |
+| The 17 tab metrics | **Two topics, as proposed** |
+| Names | **Settings identifiers equal the file's keys.** The `tabs.bar.*` keys are not renamed |
+| What is built next | **The settings declaration** (t268): one declaration per option, then the 8 missing controls, then the regrouping |
+
+## Built ahead of the move (2026-11-15, t268)
+
+In the Settings window of today, so that the move into the main window has one list to draw from:
+
+- One declaration per option: `SunsetConfig/SettingsOption*.swift` (the file's key, title, words, pane, control, note). The
+  search entries, the panes' lists and the controls come from it; `SettingsRow` draws a control by its kind, and nothing is
+  looked up by name.
+- Controls for the 8 keys that had none.
+- Identifiers equal to the file's keys.
+
+Not done: the regrouping into the approved sections and topics (the options still carry today's twelve panes). Seen in
+the app by pictures only: the Font pane and four searches; no control was changed by hand.
+
 ## Still to settle
 
 - The topics of each section (a list to propose).
