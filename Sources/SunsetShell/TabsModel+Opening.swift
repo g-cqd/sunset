@@ -8,6 +8,26 @@ extension TabsModel {
         contents.first { $0.value === content }?.key ?? favorites.contents.first { $0.value === content }?.key
     }
 
+    /// The content of the kind `kind` in this window's tabs or in the kept entry it shows: for a kind there is one of in a window
+    /// (the settings).
+    package func single(kind: String) -> (any PaneContent)? {
+        let panes = workspace.allPanes + (shownEntry?.open?.panes ?? [])
+        return panes.lazy.compactMap { self.content($0) }.first { $0.descriptor.kind == kind }
+    }
+
+    /// Shows the one content of the descriptor's kind, with the keyboard: the one that is there, else a new tab of it.
+    /// - Returns: the content shown.
+    @discardableResult
+    package func showSingle(_ descriptor: PaneDescriptor) -> (any PaneContent)? {
+        guard let found = single(kind: descriptor.kind), let pane = pane(of: found) else {
+            newTab(descriptor)
+            return selectedContent
+        }
+        if let item = workspace.item(containing: pane) { select(item: item.id) }
+        focus(pane)
+        return found
+    }
+
     /// A tab holding `content`, right after the tab of `opener` (or after the selected tab when the opener is in no tab of this window), shown or not.
     package func insertTab(_ content: any PaneContent, after opener: any PaneContent, show: Bool) {
         let index =

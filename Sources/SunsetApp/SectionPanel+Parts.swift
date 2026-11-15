@@ -72,7 +72,7 @@ extension SectionPanel {
                     .buttonStyle(.borderless)
                     .font(Design.Text.detail)
                     .disabled(DownloadCenter.shared.items.allSatisfy { $0.state == .running })
-            case .history, .tabs:
+            case .history, .tabs, .settings:
                 EmptyView()
         }
     }

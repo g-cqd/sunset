@@ -50,7 +50,13 @@ struct LibrarySidebar: View {
     }
 
     private var rail: some View {
-        SectionRail(selection: section, buttons: buttons) { tabs.sections.show(library: $0) }
-            .padding(settings.sidebar.side == .left ? .leading : .trailing, buttons.gap)
+        SectionRail(
+            selection: section,
+            sections: settings.sidebar.library ? SidebarSection.rail : [],
+            buttons: buttons
+        ) { chosen in
+            if chosen == .settings { AppSettings.show(in: tabs) } else { tabs.sections.show(library: chosen) }
+        }
+        .padding(settings.sidebar.side == .left ? .leading : .trailing, buttons.gap)
     }
 }

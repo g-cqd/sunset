@@ -16,6 +16,7 @@ extension TerminalScene {
             let content = PaneContentKinds.make(descriptor, privacy: privacy) { SessionStore.shared.scheduleSave() }
             if let page = content as? WebContent { WebOpening.wire(page, in: tabs) }
             if let document = content as? DocumentContent { DocumentWiring.wire(document, in: tabs) }
+            if let settings = content as? SettingsContent { settings.tabs = tabs }
             return content
         }
         let model = TerminalModel()

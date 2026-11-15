@@ -49,6 +49,10 @@ struct SectionList: View {
                 {
                     DownloadRow(item: $0, center: center).padding(.horizontal, layout.tabPaddingLeading)
                 }
+            case .settings:
+                SettingsTopicList(content: AppSettings.content(in: tabs), layout: layout) {
+                    AppSettings.show($0, in: tabs)
+                }
             case .tabs:
                 EmptyView()
         }

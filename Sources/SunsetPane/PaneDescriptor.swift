@@ -9,6 +9,10 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     /// The picture of a document's tab.
     public static let documentSymbol = "doc.text"
 
+    /// The settings, as a tab (roadmap 0032). Its state names the topic shown.
+    public static let settingsKind = "settings"
+    public static let settingsSymbol = "gearshape"
+
     public var kind: String
     public var state: [String: String]
 
@@ -25,6 +29,11 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     /// A document that lives in Sunset's store, by its id.
     public static func document(stored id: UUID) -> PaneDescriptor {
         PaneDescriptor(kind: documentKind, state: ["document": id.uuidString])
+    }
+
+    /// The settings on the topic `topic` ("terminal.cursor").
+    public static func settings(topic: String) -> PaneDescriptor {
+        PaneDescriptor(kind: settingsKind, state: ["topic": topic, "title": "Settings"])
     }
 
     /// The stored document this brings back; nil for a file's document and for any other kind.

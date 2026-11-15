@@ -20,6 +20,10 @@ struct TerminalCommands: Commands {
     }
 
     var body: some Commands {
+        // The settings are a tab of the window (roadmap 0032): there is no Settings scene to give this item.
+        CommandGroup(replacing: .appSettings) {
+            Button("Settings\u{2026}") { AppActions.shared.showSettings() }.keyboardShortcut(",")
+        }
         CommandGroup(replacing: .newItem) {
             Button("New Window") { AppActions.shared.openTerminalWindow() }.keyboardShortcut("n")
             Button("New Tab") { AppActions.shared.newTab() }.keyboardShortcut("t")

@@ -23,6 +23,8 @@ final class AppActions {
     var handoff: [any PaneContent] = []
     /// The next window to appear is a private one (File > New Private Window, web step h).
     var pendingPrivateWindow = false
+    /// The next window opens showing the settings (Cmd-, with no window open).
+    var pendingSettings = false
 
     /// A new tab in the way the configuration shows tabs: a tab of the window with the built-in bar, a new window that joins the group with system tabs,
     /// a plain window with none. Of the kind the focused pane is (the owner's answer in web step a): a page makes a new empty page, a terminal a terminal;

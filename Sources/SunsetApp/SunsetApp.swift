@@ -27,13 +27,5 @@ public struct SunsetApp: App {
         }
         .defaultSize(width: 820, height: 520)
         .commands { TerminalCommands() }
-
-        Settings {
-            SettingsView()
-                .accent(
-                    AppConfiguration.shared.configuration.appearance.accent.rawValue,
-                    tint: AppConfiguration.shared.shown.appearance.tintColor
-                )
-        }
     }
 }

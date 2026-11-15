@@ -1,6 +1,7 @@
-/// What a sidebar shows (roadmap 0031): the tabs, or one of the lists of the Library and of the panel opposite the tabs.
+/// What a sidebar shows (roadmap 0031, 0032): the tabs, one of the lists of the Library and of the panel opposite the tabs, or
+/// the sections and topics of the settings (the gear at the foot of the Library's rail).
 package enum SidebarSection: String, Sendable, CaseIterable {
-    case tabs, documents, history, downloads
+    case tabs, documents, history, downloads, settings
 
     /// The sections of the panel opposite the tabs, in the order of its switch.
     package static let panel: [Self] = [.history, .documents, .downloads]
@@ -13,6 +14,7 @@ package enum SidebarSection: String, Sendable, CaseIterable {
             case .documents: "Documents"
             case .history: "History"
             case .downloads: "Downloads"
+            case .settings: "Settings"
         }
     }
 
@@ -23,6 +25,7 @@ package enum SidebarSection: String, Sendable, CaseIterable {
             case .documents: "doc.text"
             case .history: "clock"
             case .downloads: "arrow.down.circle"
+            case .settings: "gearshape"
         }
     }
 }

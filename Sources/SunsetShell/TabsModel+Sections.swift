@@ -8,8 +8,16 @@ extension TabsModel {
         if showsHistory { sections.opposite = section }
     }
 
-    /// The section the Library shows in the tab sidebar; nil while it is closed, or not offered (`sidebar.library`).
+    /// The section shown in the tab sidebar instead of the tabs; nil while it shows the tabs. The Library's lists are offered by
+    /// `sidebar.library`; the settings' list is not the Library's to hide.
     package func librarySection(_ settings: ShellSettings) -> SidebarSection? {
-        settings.sidebar.library && sections.isLibraryOpen ? sections.library : nil
+        guard sections.isLibraryOpen else { return nil }
+        return settings.sidebar.library || sections.library == .settings ? sections.library : nil
+    }
+
+    /// Whether the page of the settings carries its own list of sections and topics (roadmap 0032): always, but when the docked
+    /// sidebar shows that list. A sidebar that hides, or none, cannot be counted on to move between topics.
+    package func settingsListInPage(sidebarDocked: Bool) -> Bool {
+        !(sidebarDocked && sections.library == .settings)
     }
 }

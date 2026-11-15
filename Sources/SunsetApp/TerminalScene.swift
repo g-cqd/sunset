@@ -206,14 +206,20 @@ struct TerminalScene: View {
                 let content = AppActions.shared.handoff.removeFirst()
                 if let page = content as? WebContent { WebOpening.wire(page, in: tabs) }
                 if let document = content as? DocumentContent { DocumentWiring.wire(document, in: tabs) }
+                if let settings = content as? SettingsContent { settings.tabs = tabs }
                 tabs.adopt(content)
             } else if let saved = SessionStore.shared.take() {
                 tabs.restore(saved)
                 // The other windows of the session open one after the other, each taking the next saved window.
                 if SessionStore.shared.hasPending { AppActions.shared.openTerminalWindow() }
-            } else {
+            } else if !AppActions.shared.pendingSettings {
                 tabs.newTab()
             }
+        }
+        // Cmd-, with no window open: this one shows the settings (its only tab, when nothing else was waiting for it).
+        if AppActions.shared.pendingSettings {
+            AppActions.shared.pendingSettings = false
+            AppSettings.show(in: tabs)
         }
     }
 

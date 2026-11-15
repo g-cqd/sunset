@@ -1,6 +1,6 @@
 ---
-status: not-started
-blocked-by: 0031 (the Library's rail)
+status: in-progress
+blocked-by: nothing
 date: 2026-11-15
 ---
 
@@ -123,6 +123,39 @@ also wrote "i didn't even see your improvements": the app he runs was the build 
 of 2df751d was installed in `~/Applications` the same day, Sunset not running at the time.
 
 Next, by his choice: the settings in the window (the steps of "What is to be built" above).
+
+## The settings in the window, as built (2026-11-15)
+
+| Step | Built |
+| --- | --- |
+| 1. A settings pane content, one in a window | `SunsetApp/SettingsContent.swift` (kind `settings`, its state the topic shown), `SettingsPage` (the topic's options, or what a search finds under "Section › Topic"). `TabsModel.showSingle` shows the one that is there, else opens it |
+| 2. The gear at the foot of the Library's rail; the sidebar lists sections and topics | `SectionRail` (the gear above the way back), `SidebarSection.settings`, `SettingsTopicList` in `SectionPanel`, with the panel's search field as the settings' search |
+| 3. Topics | Done before: seven sections, 25 topics |
+| 4. Cmd-, and Sunset > Settings | `AppActions.showSettings`: the window in front shows the settings' tab and the list in its sidebar; with no window a standard one opens on them |
+| 5. The search | In the page, under each option's section and topic |
+| 6. The system's Settings scene | Removed, with `SettingsView` |
+
+Beyond what was asked, and why: **the page carries the list of sections and topics itself when the docked sidebar does not
+show it** (after "Back to the Tabs", with the sidebar hidden or floating, with the built-in tab bar). Without it, a window
+with no docked sidebar had no way from one topic to another. The gear is on the rail even when `sidebar.library` is off (the
+rail then has the gear and the way back only).
+
+Seen in the running app, in the background: Cmd-, opening the tab and the list (picture
+`docs/research/settings/settings-tab-sidebar.png`); a section, a topic, a search ("download") and a section ending the
+search, all from the sidebar; "Back to the Tabs", the page then with its own list; **a switch changed by hand and the file
+written** (`web.developer`); the settings beside a terminal (`settings-tab-split.png`); Cmd-, again showing the same tab;
+a window restored on the topic its session names.
+
+Not done, or not seen:
+
+- **Cmd-, with no window open was not seen** (the app quits with its last window unless a favourite is open); the code
+  path is the private window's.
+- A settings tab kept as a Favorite and not shown is not found by Cmd-,: a second one opens.
+- A private window has the same settings tab; nothing of it is private or needs to be.
+- The websites' permissions: "maybe their own section" (the owner), not asked again yet.
+- The settings in the light scheme, the sidebar on the left, the floating sidebar: not seen.
+- No test draws the page; `SettingsContent` is in the app target, which has no tests. The model's part is tested
+  (`SettingsTabTests`).
 
 ## Still to settle
 

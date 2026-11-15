@@ -26,6 +26,10 @@ import SunsetWeb
                 }
                 document.onChange = changed
                 return document
+            case SettingsContent.kind:
+                let settings = SettingsContent(descriptor)
+                settings.onChange = changed
+                return settings
             default:
                 return UnknownContent(descriptor)
         }

@@ -51,6 +51,11 @@ struct SectionPanel: View {
         .overlay(alignment: .top) { top }
         .overlay(alignment: .bottom) { foot }
         .onChange(of: section) { _, _ in query = "" }
+        // The settings' search is the page's: what is typed here goes there, and a row chosen there ends it here.
+        .onChange(of: query) { _, new in if section == .settings { AppSettings.search(new, in: tabs) } }
+        .onChange(of: AppSettings.content(in: tabs)?.query) { _, new in
+            if section == .settings, let new, new != query { query = new }
+        }
         .onAppear { if place == .library { searching = true } }
     }
 }
