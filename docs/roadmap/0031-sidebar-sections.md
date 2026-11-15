@@ -1,6 +1,6 @@
 ---
 status: not-started
-blocked-by: its own refinement (sketches and questions); 0023 M-c for the documents it lists
+blocked-by: the sketches of the bottom row (the owner decides among them)
 date: 2026-11-14
 ---
 
@@ -41,14 +41,22 @@ with plain shapes: nothing is built.
 Arc was still not looked at on screen: it is installed on this Mac and was not running, and opening the owner's browser to
 look at it is his to allow.
 
-## To ask, with sketches
+## The owner's answers (2026-11-15, on the sketches)
 
-- Where the switch is (the top of the sidebar under the address field, its bottom as Arc's, the header row) and what it looks
-  like (a segmented row of glyphs, a row of capsules as the tab bar).
-- Which sections exist at first (Tabs, Documents, History; Downloads has a panel of its own today).
-- Whether the opposite panel and the tab sidebar can both be open on different sections, and what a section's key is.
-- What the Documents section of 0030 ST-5 becomes when the documents have a section of their own: both, or one by the setting.
-- Sorting options for documents (the owner: "propose sorting options"): the latest changed, the latest made, by name, by kind.
+| Asked | Answer |
+| --- | --- |
+| Where the opposite panel's switch is | **P3, glyphs at the bottom**; "i'm interested in you proposing multiple sketches so we can decide": several drawings of the bottom row come before it is built |
+| The tab sidebar: the Documents heading and the switch | **They can coexist**: the heading has its own toggle and the switch its own setting, neither depending on the other |
+| Which sections exist at first | **History, Documents, Downloads, Tabs** (Tabs where the switch is in the tab sidebar) |
+| The orders of documents | **Latest Changed (the default), Latest Made, Name, Kind**. Not "Open First" |
+| Both sidebars open on different sections | **Yes, each on its own section** |
+| What dragging a document's row does | Onto the tab list: **opens it as a tab there** (the document stays in Documents). Onto a pane: **splits it**. Into Favorites: **keeps it there**. Not reordered within Documents (no manual order) |
+| Arc | **"Yes, open it"**: to be looked at on screen, its sidebar and Library only, and quit |
+
+## Still to settle
+
+- The look of the bottom row (P3), from several sketches; whether the tab sidebar's switch is the same row.
+- What a section's key is, and what the Downloads section is beside the downloads panel of today.
 
 ## Not done
 

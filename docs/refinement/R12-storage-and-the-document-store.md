@@ -112,6 +112,15 @@ What iCloud Keychain would need, when it is decided: an App ID `studio.aemi.suns
 capability, a Developer ID provisioning profile for it embedded in the app, the `keychain-access-groups` entitlement in `project.yml`,
 and the key moved to the data protection keychain as a synchronizable item.
 
+### The sections of the sidebars (2026-11-15, roadmap 0031)
+
+Asked on two sketches (`docs/research/sidebar/sections-opposite.png`, `sections-sidebar.png`). The switch of the opposite
+panel is a row of glyphs at its bottom, and he wants several sketches of it to decide among. The Documents heading among
+the tabs and the switch in the tab sidebar coexist, each with its own setting. Sections at first: History, Documents,
+Downloads, Tabs. Orders: Latest Changed (default), Latest Made, Name, Kind. Both sidebars can be open on different
+sections. A document's row dragged onto the tab list opens it as a tab, onto a pane splits it, into Favorites keeps it.
+Arc may be opened to look at it. The table is in roadmap 0031.
+
 ## Costs measured at ST-3 (release build, a history of 50,000 pages, 2026-11-14; another build was using the machine)
 
 | | Before: SQLite in the clear, searched by SQL | After: sealed records, held and searched in memory |
