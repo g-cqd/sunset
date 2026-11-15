@@ -1,4 +1,12 @@
-import Foundation
+public import Foundation
+
+extension Workspace {
+    /// Puts the tab `id` on its document's row under the Documents heading, or back among the tabs.
+    public mutating func shelve(item id: ItemID, _ shelved: Bool) {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        items[index].shelved = shelved
+    }
+}
 
 /// The edits of one tab's layout, shared by a window's tabs (`Workspace`) and the kept entries that are open (`Favorites`).
 extension Workspace.Item {

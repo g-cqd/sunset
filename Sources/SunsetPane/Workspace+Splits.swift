@@ -128,8 +128,9 @@ extension Workspace {
                     id = source.id
                 }
                 applyTabDrop(.item(id), onto: target, action: action)
-            case (.entry, _):
-                // A kept entry is not a tab of the window: its owner releases it from the Favorites first (`TabsModel.release`).
+            case (.entry, _), (.document, _):
+                // Neither is a tab of the window yet: its owner releases the entry from the Favorites (`TabsModel.release`), or opens
+                // the document as a tab (`TabsModel.takeDocumentDrag`), first.
                 return
         }
     }

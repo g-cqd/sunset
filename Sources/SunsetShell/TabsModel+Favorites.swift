@@ -152,7 +152,7 @@ extension TabsModel {
     /// Whether what is dragged can be dropped on the row of the kept entry `target` (a tab is kept beside it, an entry moves beside it).
     package func canDrop(onEntry target: Favorites.NodeID) -> Bool {
         switch dragged {
-            case .item: true
+            case .item, .document: true
             case .entry(let id): id != target
             case .pane, nil: false
         }
@@ -162,9 +162,9 @@ extension TabsModel {
     @discardableResult
     package func dropDragged(onEntry target: Favorites.NodeID, after: Bool) -> Bool {
         if draggedSelection != nil { return dropSelection(nextTo: target, after: after) }
-        guard canDrop(onEntry: target), let drag = dragged, let place = favorites.favorites.location(of: target) else {
-            return false
-        }
+        guard canDrop(onEntry: target), let place = favorites.favorites.location(of: target) else { return false }
+        takeDocumentDrag()
+        guard let drag = dragged else { return false }
         dragged = nil
         switch drag {
             case .item(let item):
@@ -177,23 +177,26 @@ extension TabsModel {
                 favorites.edit {
                     $0.move([id], into: place.parent, at: place.index + (after ? 1 : 0) - (before ? 1 : 0))
                 }
-            case .pane:
+            case .pane, .document:
                 return false
         }
         return true
     }
 
-    /// Whether what is dragged can be dropped on the line under the Favorites: a tab, kept at their end.
+    /// Whether what is dragged can be dropped on the line under the Favorites: a tab or a document, kept at their end.
     package var canDropOnFavoritesLine: Bool {
         if draggedSelection != nil { return true }
-        if case .item = dragged { return true }
-        return false
+        switch dragged {
+            case .item, .document: return true
+            case .pane, .entry, nil: return false
+        }
     }
 
     /// Drops a dragged tab on the line under the Favorites: it is kept at their end.
     @discardableResult
     package func dropDraggedOnFavoritesLine() -> Bool {
         if draggedSelection != nil { return dropSelection(into: nil) }
+        takeDocumentDrag()
         guard case .item(let item) = dragged else { return false }
         dragged = nil
         keep(item: item)

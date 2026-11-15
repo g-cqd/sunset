@@ -17,6 +17,7 @@ extension TabsModel {
         switch dragged {
             case .item(let id): workspace.item(containing: pane)?.id != id || workspace.count > 1
             case .pane(let id): id != pane
+            case .document: true
             case .entry, nil: false
         }
     }
@@ -24,14 +25,16 @@ extension TabsModel {
     /// Drops what is dragged on `edge` of a pane (the tab joins that pane's tab, or the pane moves beside it).
     @discardableResult
     package func dropDragged(onto pane: PaneID, edge: PaneEdge) -> Bool {
-        guard canDrop(onto: pane), let drag = dragged else { return false }
+        guard canDrop(onto: pane) else { return false }
+        takeDocumentDrag()
+        guard let drag = dragged else { return false }
         dragged = nil
         switch drag {
             case .item(let id) where workspace.item(containing: pane)?.id == id:
                 bar = CommandBar(purpose: .splitWith(SplitChoice(pane: pane, edge: edge)))
             case .item(let id): drop(item: id, onto: pane, edge: edge)
             case .pane(let id): movePane(id, beside: pane, edge: edge)
-            case .entry: return false
+            case .entry, .document: return false
         }
         return true
     }
@@ -53,7 +56,7 @@ extension TabsModel {
             case (.pane(let pane), .moveBefore), (.pane(let pane), .moveAfter):
                 guard let source = workspace.item(containing: pane) else { return false }
                 return source.isSplit || source.id != item
-            case (.entry, .moveBefore), (.entry, .moveAfter):
+            case (.entry, .moveBefore), (.entry, .moveAfter), (.document, _):
                 return true
             case (.entry, .split), (nil, _):
                 return false
@@ -66,7 +69,9 @@ extension TabsModel {
         if draggedSelection != nil, action != .split(.left), action != .split(.right) {
             return dropSelection(onTab: item, after: action == .moveAfter)
         }
-        guard canDrop(onto: item, action: action), let drag = dragged else { return false }
+        guard canDrop(onto: item, action: action) else { return false }
+        takeDocumentDrag()
+        guard let drag = dragged else { return false }
         dragged = nil
         if case .entry(let entry) = drag {
             // A kept entry dropped among the tabs leaves the Favorites, as a tab at that place.

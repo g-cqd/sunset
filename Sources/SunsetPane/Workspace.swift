@@ -17,6 +17,8 @@ public struct Workspace: Sendable, Equatable {
         public internal(set) var customTitle: String?
         /// A custom icon (SF Symbol or emoji) overriding the content's default glyph (`n41`).
         public internal(set) var customIcon: PaneIcon?
+        /// Drawn at its document's row under the Documents heading of the sidebar, not among the tabs (roadmap 0031).
+        public internal(set) var shelved = false
 
         public var panes: [PaneID] { layout.panes }
         /// More than one pane.

@@ -24,6 +24,12 @@ extension Reader {
                 case "autoHide": if let flag = bool(path, value) { configuration.sidebar.autoHide = flag }
                 case "side":
                     if let side = choice(path, value, as: Configuration.Side.self) { configuration.sidebar.side = side }
+                case "library": if let flag = bool(path, value) { configuration.sidebar.library = flag }
+                case "documents": if let flag = bool(path, value) { configuration.sidebar.documents = flag }
+                case "documentSort":
+                    if let sort = choice(path, value, as: Configuration.Sidebar.DocumentSort.self) {
+                        configuration.sidebar.documentSort = sort
+                    }
                 // Removed: the sidebar takes the window's material and blur. Files written before still have them; they are ignored without a warning.
                 case "material", "blur": break
                 default: unknown(path)

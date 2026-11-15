@@ -38,8 +38,10 @@ package final class TabsModel {
     package var editingCommand: Favorites.NodeID?
     /// The choice of kind for a new tab is open (Shift-Cmd-T).
     package var choosingKind = false
-    /// The history panel is shown on the side opposite the tabs (Cmd-Y, web step e); Clear History's sheet is open.
+    /// The panel on the side opposite the tabs is shown (Cmd-Y, web step e), and which section each sidebar is on (roadmap 0031).
     package var showsHistory = false
+    package var sections = SidebarSections()
+    @ObservationIgnored package let shelf = DocumentShelf()
     /// A private window (web step h): the group its pages share by default, and whether they do (the window's selector).
     package var privateGroup: UUID?
     package var privateShares = true

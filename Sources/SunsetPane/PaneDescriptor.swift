@@ -1,3 +1,5 @@
+public import Foundation
+
 /// What is saved to bring the content of a pane back: which kind it is and what that kind needs, as text (a terminal its directory, a note its text, a
 /// page its address). The model does not know the kinds: one that the running build cannot make is kept as it is and written back, not dropped.
 public struct PaneDescriptor: Sendable, Equatable, Codable {
@@ -18,6 +20,16 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     /// A terminal, to be started in `directory` (programs cannot be saved: a restored pane is a new shell there).
     public static func terminal(directory: String?) -> PaneDescriptor {
         PaneDescriptor(kind: terminalKind, state: directory.map { ["directory": $0] } ?? [:])
+    }
+
+    /// A document that lives in Sunset's store, by its id.
+    public static func document(stored id: UUID) -> PaneDescriptor {
+        PaneDescriptor(kind: documentKind, state: ["document": id.uuidString])
+    }
+
+    /// The stored document this brings back; nil for a file's document and for any other kind.
+    public var storedDocument: UUID? {
+        kind == Self.documentKind ? state["document"].flatMap(UUID.init(uuidString:)) : nil
     }
 
     /// The directory of a terminal; nil for any other kind.

@@ -174,7 +174,10 @@ enum SettingsPane: String, CaseIterable, Identifiable {
             entry(pane, "sidebar.enabled", "Show the sidebar", ["tabs", "vertical", "list"]),
             entry(pane, "sidebar.side", "Side", ["left", "right", "edge", "mirror"]),
             entry(pane, "sidebar.width", "Width", ["size", "wide"]),
-            entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"])
+            entry(pane, "sidebar.padding", "Space around the terminal", ["padding", "margin", "gap"]),
+            entry(pane, "sidebar.library", "Library", ["sections", "documents", "history", "downloads", "rail"]),
+            entry(pane, "sidebar.documents", "Documents among the tabs", ["heading", "section", "notes", "markdown"]),
+            entry(pane, "sidebar.documentSort", "Order of documents", ["sort", "latest", "name", "kind", "changed"])
         ]
     }
 }

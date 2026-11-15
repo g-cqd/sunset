@@ -134,6 +134,9 @@ public enum ConfigurationWriter {
         extra["appearance.tint.light"] = color(configuration.appearance.lightTintColor)
         extra["appearance.tint.lightAlpha"] = number(configuration.appearance.lightTintAlpha)
         extra["appearance.accent"] = string(configuration.appearance.accent.rawValue)
+        extra["sidebar.library"] = String(configuration.sidebar.library)
+        extra["sidebar.documents"] = String(configuration.sidebar.documents)
+        extra["sidebar.documentSort"] = string(configuration.sidebar.documentSort.rawValue)
         return extra
     }
 

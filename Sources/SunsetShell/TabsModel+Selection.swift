@@ -122,7 +122,7 @@ extension TabsModel {
             switch dragged {
                 case .item(let id): .tab(id)
                 case .entry(let id): .node(id)
-                case .pane, nil: nil
+                case .pane, .document, nil: nil
             }
         guard let row, marked.count > 1, marked.contains(row) else { return nil }
         return marked

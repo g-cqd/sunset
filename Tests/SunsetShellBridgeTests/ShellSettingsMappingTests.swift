@@ -65,9 +65,12 @@ import Testing
         configuration.sidebar.padding = 9
         configuration.sidebar.autoHide = true
         configuration.sidebar.side = .right
+        configuration.sidebar.library = false
+        configuration.sidebar.documents = false
+        configuration.sidebar.documentSort = .kind
         let settings = ShellSettings(configuration)
         #expect(fields(settings.sidebar) == fields(configuration.sidebar))
-        #expect(settings.sidebar.side == .right)
+        #expect(settings.sidebar.side == .right && settings.sidebar.documentSort == .kind && !settings.sidebar.library)
     }
 
     @Test func `what a tab's row shows reaches the shell, each switch by itself`() {
