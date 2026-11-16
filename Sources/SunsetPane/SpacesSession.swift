@@ -37,12 +37,14 @@ public struct SpacesSession: Sendable, Equatable {
         }
     }
 
-    /// A session of before Spaces: one Space, unnamed, with the windows' tabs one after the other in the windows' order
-    /// and the Favorites; each window is a view of it with the selection it had.
+    /// A session of before Spaces, or the windows of an app whose windows are one tab each: one Space with the windows'
+    /// tabs one after the other in the windows' order and the Favorites; each window is a view of it with the selection it
+    /// had.
     /// - Parameters:
-    ///   - old: the session as versions 1 and 2 had it.
-    ///   - id: the id of the Space it becomes.
-    public init(_ old: SavedSession, space id: Space.ID = Space.ID()) {
+    ///   - old: the windows and the Favorites, as versions 1 and 2 had them.
+    ///   - named: what names the Space they become; unnamed, with a new id, for a file of before.
+    public init(_ old: SavedSession, space named: Space = Space()) {
+        let id = named.id
         var tabs = Workspace()
         var contents: [PaneID: PaneDescriptor] = [:]
         var views: [SavedView] = []
@@ -52,7 +54,7 @@ public struct SpacesSession: Sendable, Equatable {
             let entry = window.workspace.selectedEntry
             views.append(SavedView(space: id, selected: entry == nil ? window.workspace.selectedID : nil, entry: entry))
         }
-        let space = SavedSpace(space: Space(id: id), favorites: old.favorites, tabs: tabs, contents: contents)
+        let space = SavedSpace(space: named, favorites: old.favorites, tabs: tabs, contents: contents)
         self.init(spaces: [space], views: views)
     }
 

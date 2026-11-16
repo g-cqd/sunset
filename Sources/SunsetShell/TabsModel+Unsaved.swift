@@ -47,11 +47,15 @@ extension TabsModel {
     /// The window is asked to close (its red button, Close Window): `close` runs at once when its tabs hold no edits that
     /// would be lost, else after the answer. A kept entry is not the window's: it runs on.
     package func closeWindow(then close: @escaping @MainActor () -> Void) {
+        guard space.viewerCount <= 1 else { return close() }
         losingNothing(closing: workspace.allPanes, close)
     }
 
-    /// Whether closing this window would lose edits (what `windowShouldClose` asks).
-    package var windowHoldsUnsaved: Bool { !unsaved(lostBy: workspace.allPanes).documents.isEmpty }
+    /// Whether closing this window would lose edits (what `windowShouldClose` asks): not while another window shows its
+    /// Space, since nothing closes then.
+    package var windowHoldsUnsaved: Bool {
+        space.viewerCount <= 1 && !unsaved(lostBy: workspace.allPanes).documents.isEmpty
+    }
 
     private func show(_ pane: PaneID) {
         if let item = workspace.item(containing: pane)?.id { select(item: item) }

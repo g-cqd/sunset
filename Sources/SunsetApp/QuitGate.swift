@@ -128,7 +128,9 @@ final class QuitGate {
         var pages: [(PaneID, WebContent)] = []
         var panes: [(PaneID?, any PaneContent)] = []
         var tabCount = 0
-        for (_, tabs) in TabRegistry.shared.allWindows() {
+        // By Space: windows on one Space list the same tabs.
+        var spaces = Set<ObjectIdentifier>()
+        for (_, tabs) in TabRegistry.shared.allWindows() where spaces.insert(ObjectIdentifier(tabs.space)).inserted {
             tabCount += tabs.isPrivateWindow ? 0 : tabs.workspace.count
             for (pane, content) in tabs.contents {
                 tabsOfPane[pane] = tabs

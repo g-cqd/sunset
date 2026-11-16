@@ -184,7 +184,7 @@ struct PaneArea: View {
                 .surface(Capsule())
         }
         .contentShape(.rect)
-        .onTapGesture { tabs.takeShownEntry() }
+        .onTapGesture { tabs.takeShown() }
     }
 
     /// Only the panes that touch the top of the area have the strip above them.

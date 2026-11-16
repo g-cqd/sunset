@@ -1,7 +1,8 @@
 # 0004 — Spaces: what holds the tabs, and what a window is
 
 What is intended for roadmap 0021 (R4, and the owner's answers of 2026-11-16). ADR-0045 says why. Built so far: the
-model and the file (S-a); the rest of this page is not built.
+file, the Space at run time, and windows as views of the app's one Space; not the setting that cleans stopped tabs, not
+a second Space.
 
 ## The three things
 
@@ -38,8 +39,12 @@ This is what kept entries already do between windows (`FavoritesModel.claim`); t
 
 `Space` and `SpacesSession` (SunsetPane) are values. At run time a `SpaceModel` (SunsetShell) holds a Space's tabs and
 the content of their panes, as `FavoritesModel` holds the Favorites'; a `TabsModel` stays one window's, and its
-`Workspace` becomes that window's copy of the Space's tabs with its own selection: a change made in one window is
-written to the Space and read by the other windows that show it, each keeping a selection that still exists.
+`workspace` is the Space's tabs with that window's selection: a change made in one window is written to the Space and
+read by the other windows that show it, each keeping a selection that still exists (`tabsChanged`).
+
+A window starts with a Space of its own and joins the app's (`TabsModel.join`) when the presentation lists tabs. A
+content is wired to the window that draws it (`wireContent`, on `claim`): what it asks of a window (a link to open, the
+font) is asked of that one. What ends by itself is closed by the Space (`ended`), whichever windows are left.
 
 ## The file
 

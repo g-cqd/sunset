@@ -4,11 +4,22 @@ package import SunsetPane
 extension TabsModel {
     /// The kept entry this window shows, when it shows one.
     package var shownEntry: Favorites.Entry? { workspace.selectedEntry.flatMap { favorites.favorites.entry($0) } }
-    /// Whether this window draws what it shows; false while the kept entry it shows is live in another window (it shows the last picture then).
-    package var showsLive: Bool { workspace.selectedEntry.map { favorites.isLive($0, in: self) } ?? true }
+    /// Whether this window draws what it shows; false while the tab or the kept entry it shows is live in another window (it
+    /// shows the last picture then).
+    package var showsLive: Bool {
+        if let entry = selectedEntry { return favorites.isLive(entry, in: self) }
+        return selectedID.map { space.isLive($0, in: self) } ?? true
+    }
 
-    /// Brings the entry this window shows here from the window it was live in (a click on its picture).
-    package func takeShownEntry() { if let id = workspace.selectedEntry { select(entry: id) } }
+    /// Brings what this window shows here from the window it was live in (a click on its picture, or on its tab).
+    package func takeShown() {
+        if let id = selectedEntry {
+            select(entry: id)
+        } else if let id = selectedID {
+            space.claim(id, by: self, force: true)
+            syncStates()
+        }
+    }
 
     /// What the pane area shows: the kept entry's live tab, or the window's selected tab.
     package var shownItem: Workspace.Item? {

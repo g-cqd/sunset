@@ -38,8 +38,34 @@ S-d, fourth). S-d keeps what the picture looks like.
 
 ## S-a as built (2026-11-16)
 
-`Space`, `SavedSpace`, `SavedView` and `SpacesSession` in `SunsetPane`: the session file's version 3, which reads versions
-1 and 2 as one Space. Tested (`SpacesSessionTests`); **the app does not use it yet**: it still reads and writes version 2,
-and each window still has its own tabs. Next: the Space at run time (`SpaceModel`), the windows as views of it, and the
-app on version 3, together.
+- **The file**: `Space`, `SavedSpace`, `SavedView` and `SpacesSession` (`SunsetPane`): version 3 of the session, which
+  reads versions 1 and 2 as one Space. The app reads and writes it.
+- **The Space at run time** (`SpaceModel`, `SunsetShell`): the tabs, the content of their panes, the Favorites. A window
+  (`TabsModel`) is a view of one, with its own selection.
+- **Every window that lists tabs shows the app's one Space**: the same tabs in each. A tab is drawn and typed into in one
+  window, the one that last clicked it (or went to it with a key); another window that has it selected shows its last
+  picture, dimmed, with "Shown in another window. Click to bring it here."
+- **Closing a window closes nothing** while another shows the Space. **The last window stops the tabs and keeps them**:
+  the next window, or the next launch, has them again, each started from what it was (a shell in its folder, a page at
+  its address, a file).
+- **New Window** shows the same tabs, none selected, with the command bar open: what is chosen or opened there is shown
+  in that window.
+- **One tab a window** (`tabs.mode` none, the system's tab bar): as before; a window is one tab, closing it closes the
+  tab. Changing the mode while Sunset runs moves the tabs between the two.
+- **A private window** has its own tabs, never saved.
 
+Seen in a test copy: the list in the diary (2026-11-16-02).
+
+Not done, and where it goes:
+
+- **Only one Space exists.** Nothing makes, names, switches or deletes one (S-b, S-c). A second Space in the file is kept
+  as it was read and written back, not shown.
+- **The setting the owner asked for**, to clean the tabs of a Space after its last window closed (at once, or after a
+  delay): next, before S-b.
+- **No cue in the list** for a tab another window draws, or for a tab that is stopped (R4: a dimmed icon). A document
+  shown elsewhere has no picture, only the label (S-d: what the picture looks like).
+- **A window in front takes nothing**, as answered; the keys that go to a tab (Cmd-1..9, next, previous) do take it.
+- **The font zoom is the window's**: a terminal taken by another window takes that window's size.
+- Not seen: a click on a row or on the picture (keys were used); the last window closing while Sunset stays running.
+- A second saved window came up 229 by 32 until the next window waits for the first to be in place: fixed by waiting a
+  turn, not explained (diary).

@@ -33,7 +33,7 @@ import Testing
         #expect(second.tabs.showsLive && !first.tabs.showsLive)
         #expect(first.tabs.workspace.selectedEntry == entry, "still selected there, as a picture")
         #expect(content.visible && !content.stopped)
-        first.tabs.takeShownEntry()
+        first.tabs.takeShown()
         #expect(first.tabs.showsLive && !second.tabs.showsLive)
     }
 
@@ -85,7 +85,7 @@ import Testing
         other.tabs.workspace.select(entry: entry)
         gone = nil
         #expect(!other.tabs.showsLive)
-        other.tabs.takeShownEntry()
+        other.tabs.takeShown()
         #expect(other.tabs.showsLive)
     }
 }

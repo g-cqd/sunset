@@ -2,18 +2,35 @@ package import Foundation
 package import Observation
 package import SunsetPane
 
-/// The tabs of one window: their order, the selection and the split of each (`Workspace`), and the content of each pane (`PaneContent`: a terminal, a
-/// note). The contents belong to this store, not to a view, so the presentation (built-in bar, or one tab per window with the sidebar listing them) can
-/// change while they run. A pane that is not shown is told it has no focus and is not visible, so that it neither blinks nor draws; of the shown panes
-/// only the focused one blinks.
+/// One window's view of a Space (`SpaceModel`; ADR-0045): the Space's tabs with this window's selection (`workspace`), and
+/// what is only the window's (the command bar, a rename in progress, the pointer). The tabs and the content of each pane
+/// (`PaneContent`: a terminal, a page) are the Space's, not a view's and not a window's: the presentation can change, and
+/// a window can close, while they run. A pane that is not shown is told it has no focus and is not visible, so that it
+/// neither blinks nor draws; of the shown panes only the focused one blinks.
 @MainActor @Observable
 package final class TabsModel {
-    package internal(set) var workspace = Workspace()
-    package internal(set) var contents: [PaneID: any PaneContent] = [:]
-    /// Makes the content of a pane: the app's default kind for nil, else what the descriptor says. Until the app says how, a pane is a placeholder.
+    /// The Space this window shows.
+    package internal(set) var space: SpaceModel
+    /// The tab this window has selected among the Space's, and the kept entry it shows instead (`workspace`).
+    var selectedID: Workspace.ItemID?
+    var selectedEntry: Favorites.NodeID?
+    /// Makes the content of a pane: the app's default kind for nil, else what the descriptor says. Until the app says how, a
+    /// pane is a placeholder. Once it can, the tabs of the Space that have no content (stopped with its last window, or read
+    /// from the session) are given theirs.
     @ObservationIgnored package var makeContent: (PaneDescriptor?) -> any PaneContent = {
         UnknownContent($0 ?? PaneDescriptor(kind: ""))
     }
+    {
+        didSet {
+            canMake = true
+            revive()
+        }
+    }
+    @ObservationIgnored var canMake = false
+    /// What a content asks of a window (links to open, the font zoom) is asked of this one from now on: it draws it.
+    @ObservationIgnored package var wireContent: (any PaneContent) -> Void = { _ in }
+    /// The window chose what it shows (its Space, a first tab): done once, though its content can be built again.
+    @ObservationIgnored package var started = false
     /// The last tab was closed: the window goes.
     @ObservationIgnored package var onEmpty: () -> Void = {}
     /// The tabs changed (added, closed, moved, split, selected): the session is to be saved.
@@ -61,12 +78,19 @@ package final class TabsModel {
     package var confirmClose = true
     @ObservationIgnored private var expiryTask: Task<Void, Never>?
 
-    /// The Favorites every window shows (one for the app).
-    package let favorites: FavoritesModel
+    /// The Favorites of the Space.
+    package var favorites: FavoritesModel { space.favorites }
 
-    package init(favorites: FavoritesModel = FavoritesModel()) {
-        self.favorites = favorites
-        favorites.register(self)
+    /// A window on `space`, with nothing selected.
+    package init(space: SpaceModel) {
+        self.space = space
+        space.register(self)
+        space.favorites.register(self)
+    }
+
+    /// A window with tabs of its own: a Space no other window shows, that ends with it.
+    package convenience init(favorites: FavoritesModel = FavoritesModel()) {
+        self.init(space: SpaceModel(favorites: favorites))
     }
 
     package var selectedContent: (any PaneContent)? { shownPane.flatMap(content) }
@@ -129,13 +153,11 @@ package final class TabsModel {
     func register(_ model: any PaneContent, as pane: PaneID) {
         contents[pane] = model
         onChange()
-        model.onExit = { [weak self] in self?.close(pane: pane) }
+        // Asked of the Space, which knows the window that draws the pane now: this one may be gone by then.
+        model.onExit = { [weak space] in space?.ended(pane) }
         // A terminal that is not shown cannot be clicked: a request from one is the window handing the keyboard back to a view that is going away (when the
         // command bar closes), and must not select its tab again.
-        model.onFocusRequest = { [weak self] in
-            guard let self, shownItem?.panes.contains(pane) == true else { return }
-            focus(pane)
-        }
+        model.onFocusRequest = { [weak space] in space?.focusRequested(pane) }
         syncStates()
     }
 
@@ -180,8 +202,9 @@ package final class TabsModel {
         return allowed
     }
 
-    /// Stops every program (the window is going).
-    package func stopAll() { for content in contents.values { content.stop() } }
+    /// The window closed: it no longer shows its Space. While another window does, nothing stops; the last window of a Space
+    /// that keeps its tabs stops them and they stay; any other Space ends with its window.
+    package func windowClosed() { space.leave(self) }
 
     func stop(_ panes: [PaneID]) {
         for pane in panes {
@@ -197,14 +220,12 @@ package final class TabsModel {
         if workspace.isEmpty, workspace.selectedEntry == nil, favorites.isEmpty { onEmpty() } else { syncStates() }
     }
 
-    /// Tells every content of this window whether it is shown and whether it has the keyboard: its own tabs', and the panes of the kept entry it shows.
+    /// Tells every content whether it is shown and whether it has the keyboard: the Space's tabs', each by the window it is
+    /// live in, and the panes of the kept entry this window shows.
     func syncStates() {
-        let shown = Set(shownItem?.panes ?? [])
+        space.syncStates()
+        guard workspace.selectedEntry != nil, showsLive else { return }
         let focused = shownPane
-        for (pane, content) in contents {
-            content.setState(focused: pane == focused, visible: shown.contains(pane))
-        }
-        guard showsLive else { return }
         for pane in shownEntry?.open?.panes ?? [] {
             favorites.contents[pane]?.setState(focused: pane == focused, visible: true)
         }

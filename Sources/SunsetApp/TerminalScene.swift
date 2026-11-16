@@ -26,8 +26,8 @@ struct TerminalScene: View {
     @State var opensAtOnce = false
     /// What is typed in this window's address fields, for their list (web step c).
     @State var addressTyping = AddressTyping()
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.openWindow) var openWindow
     let config = AppConfiguration.shared
 
     /// As shown: its tint is the light scheme's while the app is light.
@@ -144,7 +144,7 @@ struct TerminalScene: View {
 
     /// The panes of what is shown; with nothing shown, the pane area's hint while the window stays for its Favorites, and nothing while it goes.
     @ViewBuilder private var terminal: some View {
-        if tabs.selectedContent != nil || !tabs.favorites.isEmpty {
+        if tabs.selectedContent != nil || !tabs.favorites.isEmpty || !tabs.workspace.isEmpty {
             PaneArea(
                 tabs: tabs,
                 optionAsMeta: configuration.keyboard.optionAsMeta,
@@ -191,48 +191,7 @@ struct TerminalScene: View {
         Color.clear.contentShape(.rect).gesture(WindowDragGesture())
     }
 
-    // MARK: Models
-
-    private func start() {
-        AppActions.shared.openTerminalWindow = { openWindow(id: "terminal") }
-        tabs.onEmpty = { dismiss() }
-        tabs.makeContent = { makeContent($0) }
-        AppDocuments.wire(tabs.shelf)
-        tabs.onChange = { SessionStore.shared.scheduleSave() }
-        SwitchProbe.startIfAsked(tabs)
-        if tabs.workspace.isEmpty, AppActions.shared.pendingPrivateWindow {
-            startPrivate()
-        } else if tabs.workspace.isEmpty {
-            // A terminal that was running in another window is waiting for this one, else the saved tabs of an earlier run, else a new one starts.
-            if !AppActions.shared.handoff.isEmpty {
-                let content = AppActions.shared.handoff.removeFirst()
-                if let page = content as? WebContent { WebOpening.wire(page, in: tabs) }
-                if let document = content as? DocumentContent { DocumentWiring.wire(document, in: tabs) }
-                if let settings = content as? SettingsContent { settings.tabs = tabs }
-                tabs.adopt(content)
-            } else if let saved = SessionStore.shared.take() {
-                tabs.restore(saved)
-                // The other windows of the session open one after the other, each taking the next saved window.
-                if SessionStore.shared.hasPending { AppActions.shared.openTerminalWindow() }
-            } else if !AppActions.shared.pendingSettings, AppActions.shared.pendingFiles.isEmpty {
-                tabs.newTab()
-            }
-        }
-        // Asked for with no window open: the settings (Cmd-,), the files Sunset was started with. Its only tabs, then.
-        AppActions.shared.finishStarting(tabs)
-    }
-
-    private func attach(_ window: NSWindow) {
-        guard self.window !== window else { return }
-        self.window = window
-        TabRegistry.shared.register(window, tabs: tabs)
-        WindowCloseGuard.install(on: window, tabs: tabs)
-        AppActions.shared.joinPendingTab(window)
-        if !tabs.workspace.isEmpty { AppActions.shared.finishStarting(tabs) }
-    }
-
     func configure(_ model: TerminalModel) {
-        model.wire(to: tabs)
         model.blinkSchedule = blinkSchedule
         model.defaultColors = colors
         model.paddingPoints = configuration.terminalPadding

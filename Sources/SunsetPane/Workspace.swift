@@ -154,3 +154,21 @@ public struct Workspace: Sendable, Equatable {
         items.insert(item, at: min(max(index, 0), items.count))
     }
 }
+
+extension Workspace {
+    /// The same tabs with another selection: what one window shows of tabs that several list (a Space's, ADR-0045). A tab
+    /// that is not there is not selected.
+    /// - Parameters:
+    ///   - item: the tab the window has selected, or nil for none.
+    ///   - entry: the kept entry it shows instead.
+    /// - Returns: the tabs, with that selection.
+    public func selecting(_ item: ItemID?, entry: Favorites.NodeID?) -> Workspace {
+        var copy = self
+        copy.selectedID = item.flatMap { id in items.contains { $0.id == id } ? id : nil }
+        copy.selectedEntry = entry
+        return copy
+    }
+
+    /// The same tabs with no selection: what a Space holds.
+    public var withoutSelection: Workspace { selecting(nil, entry: nil) }
+}

@@ -4,8 +4,8 @@ import Foundation
 /// Starts a test Sunset (`launch`): a fresh folder under /tmp/axdrive with the configuration and session given (or none), the app in the
 /// background (`SUNSET_BACKGROUND=1`) marked as a test (`AXDRIVE_TEST=1`); returns once a window of it exists, not after a fixed wait.
 enum Launcher {
-    static func launch(_ options: Options) async -> Int32 {
-        let folder = Guard.root + "\(Int(Date().timeIntervalSince1970 * 1000))"
+    /// A fresh folder with the configuration and the session given.
+    private static func prepare(_ folder: String, _ options: Options) {
         let manager = FileManager.default
         try? manager.createDirectory(atPath: folder, withIntermediateDirectories: true)
         let config = options.values["config"] ?? "{}"
@@ -16,6 +16,13 @@ enum Launcher {
         if let session = options.values["session"] {
             try? manager.copyItem(atPath: session, toPath: folder + "/session.json")
         }
+    }
+
+    static func launch(_ options: Options) async -> Int32 {
+        // `--again FOLDER`: a second run on the folder of an earlier one, as it was left (what a relaunch restores).
+        let again = options.values["again"].flatMap { $0.hasPrefix(Guard.root) ? $0 : nil }
+        let folder = again ?? Guard.root + "\(Int(Date().timeIntervalSince1970 * 1000))"
+        if again == nil { prepare(folder, options) }
         let binary = options.values["binary"] ?? ".build/out/Products/Debug/sunset-app"
         let process = Process()
         process.executableURL = URL(fileURLWithPath: binary)
