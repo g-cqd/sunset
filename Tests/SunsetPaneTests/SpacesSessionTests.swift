@@ -50,6 +50,15 @@ struct SpacesSessionTests {
         #expect(read.spaces[0].contents.count == 3)
     }
 
+    @Test func `when a Space's tabs were stopped is kept with it, and only while it has tabs`() throws {
+        var waiting = space("Waiting", tabs: 1)
+        waiting.stopped = Date(timeIntervalSince1970: 1_794_000_000)
+        var empty = space("Empty", tabs: 0)
+        empty.stopped = Date(timeIntervalSince1970: 5)
+        let read = try #require(SpacesSession(data: try SpacesSession(spaces: [waiting, empty], views: []).encoded()))
+        #expect(read.spaces[0].stopped == Date(timeIntervalSince1970: 1_794_000_000) && read.spaces[1].stopped == nil)
+    }
+
     @Test func `there is always a Space: nothing saved is one Space with nothing in it and no window`() {
         let empty = SpacesSession(spaces: [], views: [])
         #expect(empty.spaces.count == 1 && empty.spaces[0].tabs.isEmpty && empty.views.isEmpty)

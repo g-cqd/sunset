@@ -1,3 +1,4 @@
+import Foundation
 import SunsetPane
 import Testing
 
@@ -125,7 +126,51 @@ struct SpaceSharingTests {
         let only = harness.window()
         only.newTab()
         only.windowClosed()
-        #expect(harness.made[0].stopped && !harness.space.isStopped)
+        #expect(harness.made[0].stopped && !harness.space.isStopped && harness.space.tabs.isEmpty)
+    }
+
+    /// The owner's setting (`tabs.closeWithLastWindow`): the app's Space can be told not to keep them, while it runs.
+    @Test func `a Space told to close its tabs with its last window closes them; told again, it keeps them`() {
+        let harness = SpaceHarness()
+        harness.space.keepsTabs = false
+        let first = harness.window()
+        first.newTab()
+        first.windowClosed()
+        #expect(harness.space.tabs.isEmpty && harness.space.contents.isEmpty && harness.made[0].stopped)
+        #expect(harness.space.saved().tabs.isEmpty)
+        harness.space.keepsTabs = true
+        let second = harness.window()
+        second.newTab()
+        second.windowClosed()
+        #expect(harness.space.tabs.count == 1 && harness.space.isStopped)
+    }
+
+    /// The owner's setting (`tabs.closeStoppedAfter`): what was stopped is closed once it has waited long enough, even
+    /// across a quit (the time it was stopped is in the session).
+    @Test
+    func `tabs stopped with the last window are closed once they have waited long enough, not before, not once shown`()
+    {
+        let harness = SpaceHarness()
+        let first = harness.window()
+        first.newTab(.terminal(directory: "/a"))
+        let closed = Date(timeIntervalSince1970: 1000)
+        first.windowClosed(at: closed)
+        #expect(harness.space.stopped == closed && harness.space.saved().stopped == closed)
+        #expect(!harness.space.closeStopped(after: 3600, now: closed.addingTimeInterval(3599)))
+        #expect(harness.space.tabs.count == 1)
+        // Across a quit: read back, still waiting from the same moment.
+        let other = SpaceHarness()
+        other.space.restore(harness.space.saved())
+        #expect(other.space.isStopped && other.space.stopped == closed)
+        #expect(other.space.closeStopped(after: 3600, now: closed.addingTimeInterval(3600)))
+        #expect(other.space.tabs.isEmpty && !other.space.isStopped && other.space.saved().stopped == nil)
+        // Shown again in time, they are no longer waiting.
+        let next = harness.window()
+        #expect(harness.space.stopped == nil && next.workspace.count == 1)
+        #expect(!harness.space.closeStopped(after: 3600, now: closed.addingTimeInterval(99_999)))
+        // A Space with windows, or with nothing stopped, has nothing to close; 0 is never.
+        next.windowClosed(at: closed)
+        #expect(!harness.space.closeStopped(after: 0, now: closed.addingTimeInterval(99_999)))
     }
 
     @Test func `what is saved: the Space once, without what is private, and a view for each window`() throws {

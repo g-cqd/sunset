@@ -161,6 +161,11 @@ public struct Configuration: Sendable, Equatable {
         /// Quitting asks first (web step q): never, when something would be lost (a running command, a form being filled, a download, tabs
         /// that will not come back), or always.
         public var askBeforeQuit = QuitAsk.whenLosing
+        /// The tabs of a Space when its last window closes (ADR-0045): they stop and stay, for the next window or the next
+        /// launch. On: they close with it, as before Spaces.
+        public var closeWithLastWindow = false
+        /// Tabs that stayed, stopped, are closed once this many hours have passed with no window showing them; 0 is never.
+        public var closeStoppedAfter = 0.0
         public init() {}
 
         public enum QuitAsk: String, Sendable, Equatable, CaseIterable {

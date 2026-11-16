@@ -134,6 +134,9 @@ struct TerminalScene: View {
         .onChange(of: colors) { _, _ in forEachModel(configure) }
         .onChange(of: blinkSchedule) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.tabs.confirmClose, initial: true) { _, confirm in tabs.confirmClose = confirm }
+        .onChange(of: configuration.tabs.closeWithLastWindow, initial: true) { _, closes in
+            AppSpaces.shared.keepsTabs = !closes
+        }
         .onChange(of: configuration.documents, initial: true) { _, documents in AppDocuments.apply(documents) }
         .modifier(PagesFollowSettings(tabs: tabs, web: configuration.web))
         .modifier(StopsWithWindow(window: window, tabs: tabs))

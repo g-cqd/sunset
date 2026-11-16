@@ -137,6 +137,8 @@ public enum ConfigurationWriter {
         extra["storage.importedFiles"] = string(configuration.storage.importedFiles.rawValue)
         extra["documents.saveAfter"] = number(configuration.documents.saveAfter)
         extra["documents.saveOnFocusLoss"] = String(configuration.documents.saveOnFocusLoss)
+        extra["tabs.closeWithLastWindow"] = String(configuration.tabs.closeWithLastWindow)
+        extra["tabs.closeStoppedAfter"] = number(configuration.tabs.closeStoppedAfter)
         extra["sidebar.library"] = String(configuration.sidebar.library)
         extra["sidebar.documentSort"] = string(configuration.sidebar.documentSort.rawValue)
         return extra

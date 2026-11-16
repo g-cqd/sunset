@@ -8,6 +8,13 @@ public struct SavedSpace: Sendable, Equatable, Codable {
     public var favorites: SavedFavorites
     public private(set) var tabs: Workspace
     public private(set) var contents: [PaneID: PaneDescriptor]
+    /// When its tabs were stopped with its last window and have waited since (`tabs.closeStoppedAfter`); nil while a
+    /// window shows them, and for a Space with no tab.
+    public var stopped: Date? {
+        get { tabs.isEmpty ? nil : stoppedAt }
+        set { stoppedAt = newValue }
+    }
+    private var stoppedAt: Date?
 
     public init(
         space: Space,
@@ -45,8 +52,9 @@ public struct SavedSpace: Sendable, Equatable, Codable {
         return held
     }
 
-    /// `{"id", "name", "icon"?, "profile"?, "look"?, "favorites", "tabs": {"items"}, "contents": [{"pane", "kind", "state"}]}`.
-    private enum Key: String, CodingKey { case favorites, tabs, contents }
+    /// `{"id", "name", "icon"?, "profile"?, "look"?, "favorites", "tabs": {"items"}, "contents": [{"pane", "kind", "state"}],
+    /// "stopped"?: seconds since 1970}`.
+    private enum Key: String, CodingKey { case favorites, tabs, contents, stopped }
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: Key.self)
@@ -58,6 +66,8 @@ public struct SavedSpace: Sendable, Equatable, Codable {
             tabs: try container.decode(Workspace.self, forKey: .tabs),
             contents: PaneContentRecord.contents(of: records)
         )
+        stoppedAt = (try? container.decodeIfPresent(Double.self, forKey: .stopped))
+            .map(Date.init(timeIntervalSince1970:))
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -66,5 +76,6 @@ public struct SavedSpace: Sendable, Equatable, Codable {
         try container.encode(favorites, forKey: .favorites)
         try container.encode(tabs, forKey: .tabs)
         try container.encode(PaneContentRecord.records(of: contents, in: tabs.allPanes), forKey: .contents)
+        try container.encodeIfPresent(stopped?.timeIntervalSince1970, forKey: .stopped)
     }
 }

@@ -114,6 +114,14 @@ extension Reader {
                     if let ask = choice("tabs.askBeforeQuit", value, as: Configuration.Tabs.QuitAsk.self) {
                         configuration.tabs.askBeforeQuit = ask
                     }
+                case "closeWithLastWindow":
+                    if let flag = bool("tabs.closeWithLastWindow", value) {
+                        configuration.tabs.closeWithLastWindow = flag
+                    }
+                case "closeStoppedAfter":
+                    if let hours = number("tabs.closeStoppedAfter", value, range: 0 ... 8760) {
+                        configuration.tabs.closeStoppedAfter = hours
+                    }
                 case "bar": section("tabs.bar", value) { reader, bar in reader.readTabBar(bar) }
                 default: unknown("tabs.\(key)")
             }

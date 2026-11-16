@@ -204,7 +204,7 @@ package final class TabsModel {
 
     /// The window closed: it no longer shows its Space. While another window does, nothing stops; the last window of a Space
     /// that keeps its tabs stops them and they stay; any other Space ends with its window.
-    package func windowClosed() { space.leave(self) }
+    package func windowClosed(at date: Date = Date()) { space.leave(self, at: date) }
 
     func stop(_ panes: [PaneID]) {
         for pane in panes {

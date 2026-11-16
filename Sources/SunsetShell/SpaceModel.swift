@@ -1,3 +1,4 @@
+package import Foundation
 package import Observation
 package import SunsetPane
 
@@ -15,9 +16,11 @@ package final class SpaceModel {
     package private(set) var tabs = Workspace()
     package internal(set) var contents: [PaneID: any PaneContent] = [:]
     package let favorites: FavoritesModel
-    package let keepsTabs: Bool
-    /// Its tabs were stopped with its last window and wait for the next.
-    package private(set) var isStopped = false
+    /// Whether its tabs stay, stopped, when its last window closes (the app's Space, unless `tabs.closeWithLastWindow`).
+    package var keepsTabs: Bool
+    /// Its tabs were stopped with its last window and wait for the next; since when.
+    package var isStopped: Bool { stopped != nil }
+    package private(set) var stopped: Date?
     /// What brings back the content of a pane that has none: read from the session, or stopped with the last window.
     @ObservationIgnored private var pending: [PaneID: PaneDescriptor] = [:]
     @ObservationIgnored private var viewers: [Weak] = []
@@ -46,13 +49,37 @@ package final class SpaceModel {
 
     /// `viewer`'s window closed. What it drew goes to a window that still shows it; with no window left, the tabs stop and
     /// stay (a Space that keeps them) or end.
-    func leave(_ viewer: TabsModel) {
+    func leave(_ viewer: TabsModel, at date: Date = Date()) {
         viewers.removeAll { $0.tabs == nil || $0.tabs === viewer }
         for (id, owner) in live where owner.tabs === viewer { handOver(id) }
         if viewers.isEmpty {
-            if keepsTabs { stopKeeping() } else { for content in contents.values { content.stop() } }
+            if keepsTabs { stopKeeping(at: date) } else { closeAll() }
         }
         syncStates()
+    }
+
+    /// Ends every tab: what runs is stopped and nothing is kept.
+    private func closeAll() {
+        for content in contents.values {
+            content.onExit = {}
+            content.stop()
+        }
+        tabs = Workspace()
+        contents = [:]
+        pending = [:]
+        live = [:]
+        stopped = nil
+    }
+
+    /// Closes the tabs that were stopped with the last window once they have waited `interval` seconds (0 is never).
+    /// - Returns: whether they were closed.
+    @discardableResult
+    package func closeStopped(after interval: TimeInterval, now: Date = Date()) -> Bool {
+        guard interval > 0, let stopped, viewerCount == 0, now.timeIntervalSince(stopped) >= interval else {
+            return false
+        }
+        closeAll()
+        return true
     }
 
     /// The tab is live in `viewer` now, when no window has it or when `force` (a click): the window that had it shows its
@@ -143,7 +170,7 @@ package final class SpaceModel {
 
     /// The last window went: what runs is stopped, and the tabs stay with what brings each pane back. What is private
     /// keeps nothing: its tabs go.
-    private func stopKeeping() {
+    private func stopKeeping(at date: Date) {
         for (pane, content) in contents {
             if content.isPrivate { tabs.close(pane: pane) } else { pending[pane] = content.descriptor }
             // Its end is not a pane closing: the tab stays.
@@ -152,12 +179,12 @@ package final class SpaceModel {
         }
         contents = [:]
         live = [:]
-        isStopped = !tabs.isEmpty
+        stopped = tabs.isEmpty ? nil : date
     }
 
     /// What brings back the content of `pane`, which has none; taken, since the content is about to be made.
     func takePending(_ pane: PaneID) -> PaneDescriptor? {
-        isStopped = false
+        stopped = nil
         return pending.removeValue(forKey: pane)
     }
 
@@ -170,7 +197,9 @@ package final class SpaceModel {
         for (pane, content) in contents {
             if content.isPrivate { kept.close(pane: pane) } else { descriptors[pane] = content.descriptor }
         }
-        return SavedSpace(space: space, favorites: favorites.saved(), tabs: kept, contents: descriptors)
+        var saved = SavedSpace(space: space, favorites: favorites.saved(), tabs: kept, contents: descriptors)
+        saved.stopped = stopped
+        return saved
     }
 
     /// Whether the session keeps the tab: one with a pane that is not private.
@@ -184,5 +213,6 @@ package final class SpaceModel {
         guard reopening, tabs.isEmpty else { return }
         tabs = saved.tabs
         pending = saved.contents
+        stopped = saved.stopped
     }
 }

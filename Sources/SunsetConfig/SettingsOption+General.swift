@@ -36,7 +36,28 @@ extension SettingsOption {
             .noted(
                 "Closing the last window does not quit Sunset while something in Favorites is open; it goes on running, and "
                     + "a new window shows it again."
+            ),
+            toggle(
+                "tabs.closeWithLastWindow",
+                "Close the tabs with the last window",
+                "last window close tabs keep stop space red button",
+                \.tabs.closeWithLastWindow
             )
+            .noted(
+                "Off, closing the last window stops what runs in its tabs and keeps them: the next window, or the next "
+                    + "launch, has them again, each started from where it was."
+            ),
+            number(
+                "tabs.closeStoppedAfter",
+                "Close tabs left without a window after",
+                "last window stopped tabs clean delay hours forget space",
+                \.tabs.closeStoppedAfter,
+                0 ... 8760,
+                step: 1,
+                unit: "h",
+                digits: 0
+            )
+            .noted("Tabs kept after the last window closed are closed once this long has passed; 0 is never.")
         ]
 
     /// When a file is written by itself.

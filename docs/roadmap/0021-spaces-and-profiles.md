@@ -60,8 +60,10 @@ Not done, and where it goes:
 
 - **Only one Space exists.** Nothing makes, names, switches or deletes one (S-b, S-c). A second Space in the file is kept
   as it was read and written back, not shown.
-- **The setting the owner asked for**, to clean the tabs of a Space after its last window closed (at once, or after a
-  delay): next, before S-b.
+- **The setting the owner asked for** is built (ADR-0046, the same day): `tabs.closeWithLastWindow` (the tabs close with
+  the last window, as before) and `tabs.closeStoppedAfter` (hours; the tabs that stayed are closed after that long with
+  no window, across a quit too). Both off by default, in Settings > General. Seen in a test copy: tabs gone at the next
+  start with the first; with the second at 10.8 s, back when started at once and gone when started 14 s later.
 - **No cue in the list** for a tab another window draws, or for a tab that is stopped (R4: a dimmed icon). A document
   shown elsewhere has no picture, only the label (S-d: what the picture looks like).
 - **A window in front takes nothing**, as answered; the keys that go to a tab (Cmd-1..9, next, previous) do take it.

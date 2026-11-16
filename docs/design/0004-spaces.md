@@ -1,8 +1,8 @@
 # 0004 — Spaces: what holds the tabs, and what a window is
 
 What is intended for roadmap 0021 (R4, and the owner's answers of 2026-11-16). ADR-0045 says why. Built so far: the
-file, the Space at run time, and windows as views of the app's one Space; not the setting that cleans stopped tabs, not
-a second Space.
+file, the Space at run time, windows as views of the app's one Space, and the settings that clean stopped tabs; not a
+second Space.
 
 ## The three things
 
@@ -27,8 +27,8 @@ This is what kept entries already do between windows (`FavoritesModel.claim`); t
 - **Closing a window closes nothing** while another window shows the Space.
 - **Closing the last window of a Space stops its tabs and keeps them**, after the questions asked today about running
   commands and unsaved edits: a shell is ended, a page released; the tab stays in the Space, dimmed, and starts again
-  from where it was when it is next shown (as at a relaunch). A setting will clean such tabs away, after a delay or at
-  once (to be designed with the owner: `spaces.*`).
+  from where it was when it is next shown (as at a relaunch). Two settings clean such tabs away: at once
+  (`tabs.closeWithLastWindow`) or after some hours with no window (`tabs.closeStoppedAfter`); ADR-0046.
 - **New Window** opens on the same Space with nothing selected and the command bar open on a new tab: what is chosen
   there becomes a tab of the Space, shown in that window.
 - **Without a list of tabs** (`tabs.mode` none, or the system's tab bar): a window is one tab of the Space, and closing
@@ -54,6 +54,6 @@ windows, the Favorites, and one view for each window with the selection it had.
 ```
 { "version": 3,
   "spaces":  [ { "id", "name", "icon"?, "profile"?, "look"?, "favorites": {…}, "tabs": { "items": […] },
-                 "contents": [ { "pane", "kind", "state" } ] } ],
+                 "contents": [ { "pane", "kind", "state" } ], "stopped"?: seconds } ],
   "windows": [ { "space", "selected"?, "entry"? } ] }
 ```

@@ -17,6 +17,7 @@ struct StopsWithWindow: ViewModifier {
             // The last window of the Space: what it showed is remembered, and its tabs stop and stay (ADR-0045).
             SessionStore.shared.closing(tabs)
             tabs.windowClosed()
+            AppSpaces.cleanStopped()
             SessionStore.shared.scheduleSave()
         }
     }

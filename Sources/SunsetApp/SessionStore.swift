@@ -51,7 +51,9 @@ final class SessionStore {
             return
         }
         AppSpaces.shared.restore(first, reopening: enabled)
-        guard enabled, !first.tabs.isEmpty else { return }
+        // Tabs that were left by the last window long enough ago do not come back (`tabs.closeStoppedAfter`).
+        AppSpaces.cleanStopped()
+        guard enabled, !AppSpaces.shared.tabs.isEmpty else { return }
         // Tabs with no window recorded (the last one was closed, then the app): one window, on the first tab.
         pendingViews = views.isEmpty ? [SavedView(space: first.space.id, selected: first.tabs.items.first?.id)] : views
     }

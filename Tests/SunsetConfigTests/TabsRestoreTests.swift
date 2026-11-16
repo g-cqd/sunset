@@ -35,4 +35,24 @@ import Testing
         let bad = try ConfigurationParser.parse(#"{ "tabs": { "confirmClose": "no" } }"#)
         #expect(bad.configuration.tabs.confirmClose && bad.issues.map(\.path) == ["tabs.confirmClose"])
     }
+
+    /// The owner, 2026-11-16: the tabs of a Space stay, stopped, when its last window closes; "a setting should allow to
+    /// clean open tabs after a delay or when (last) window of a space closes".
+    @Test
+    func `the tabs left by the last window: kept by default; closed with it, or after some hours, when the file says`()
+        throws
+    {
+        #expect(!Configuration().tabs.closeWithLastWindow && Configuration().tabs.closeStoppedAfter == 0)
+        let set = try ConfigurationParser.parse(
+            #"{ "tabs": { "closeWithLastWindow": true, "closeStoppedAfter": 12 } }"#
+        )
+        #expect(set.issues.isEmpty)
+        #expect(set.configuration.tabs.closeWithLastWindow && set.configuration.tabs.closeStoppedAfter == 12)
+        let written = ConfigurationWriter.text(for: set.configuration)
+        let again = try ConfigurationParser.parse(written)
+        #expect(again.configuration.tabs == set.configuration.tabs)
+        let bad = try ConfigurationParser.parse(#"{ "tabs": { "closeWithLastWindow": 1, "closeStoppedAfter": -2 } }"#)
+        #expect(Set(bad.issues.map(\.path)) == ["tabs.closeWithLastWindow", "tabs.closeStoppedAfter"])
+        #expect(!bad.configuration.tabs.closeWithLastWindow && bad.configuration.tabs.closeStoppedAfter == 0)
+    }
 }
