@@ -36,6 +36,14 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
         PaneDescriptor(kind: settingsKind, state: ["topic": topic, "title": "Settings"])
     }
 
+    /// A document that is a file of the person's, by its path.
+    public static func document(file path: String) -> PaneDescriptor {
+        PaneDescriptor(kind: documentKind, state: ["file": path])
+    }
+
+    /// The file this brings back; nil for a document of the store and for any other kind.
+    public var documentFile: String? { kind == Self.documentKind ? state["file"] : nil }
+
     /// The stored document this brings back; nil for a file's document and for any other kind.
     public var storedDocument: UUID? {
         kind == Self.documentKind ? state["document"].flatMap(UUID.init(uuidString:)) : nil

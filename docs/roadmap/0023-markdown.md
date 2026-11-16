@@ -1,5 +1,5 @@
 ---
-status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c done 2026-11-15, M-d done 2026-11-16)
+status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c done 2026-11-15, M-d done 2026-11-16, M-f done 2026-11-16; M-e waits for the owner)
 blocked-by: 0018 (each step's own questions); 0019 (it comes after the web milestone, by the owner's order)
 date: 2026-11-11
 ---
@@ -134,4 +134,36 @@ Not done, and where it goes:
   without asking, and the edits are then kept and named at quit rather than lost.
 - No Save As, and no Revert; a stored document cannot be given a file yet (M-f). Changes on disk are still M-e.
 
-Not done: M-e to M-i.
+## M-f as built (2026-11-16)
+
+Decided without the owner (ADR-0040); each point is his to change. Done before M-e, which needs his answer on how a
+conflict is shown.
+
+- **Open With, and a drop on the icon**: Sunset declares Markdown, Mermaid and plain text, as an editor that is never the
+  default (rank Alternate). Each file opens in a tab of the window that acts; one that window already shows is shown. A
+  Sunset started on a file opens one window, with the session's tabs first when there is a session.
+- **A drop on the window**: on a terminal pane the paths are typed there as a paste, quoted for the shell, and the pane
+  takes the keyboard; nothing is run. A name that holds a control character is never typed. On any other pane each file
+  opens as a document; folders do nothing there.
+- **The + menu** has New Document and Open File….
+- **The command bar**: a typed path (`/…`, `~/…`, `file://…`) to a file that is there gives "Open name" as the first row;
+  stored documents whose title holds the words typed are listed, except those already in a tab.
+
+Found on the way and fixed on its own (ADR-0039): Sunset started with no window when the system's saved state said so.
+
+1,196 tests in 229 suites pass. Seen in a test copy: a cold start on a file, with and without a session; files sent to
+a running copy, one of them a link to a file already shown; the bar's Open row and Return on it
+(`docs/research/markdown/md-bar-file-row.png`).
+
+Not done, and where it goes:
+
+- **Not seen**: a drop of any kind (none can be made in the background; `FileDropTests` covers what is typed), the + menu's
+  two items, the stored documents' rows in the bar, Finder's Open With on the installed build.
+- The app target has no tests: `PaneDropDelegate`, `DocumentRows` and `AppDelegate.application(_:open:)` are covered by
+  what was seen.
+- A debug build beside the installed one declares the same types under the same bundle identifier: which of the two the
+  Finder starts is the system's choice. Test copies need an identifier of their own (t276).
+- No Save As; a stored document cannot be given a file yet. Relative paths and `file:line` in the bar are not read. A
+  dropped folder opens nothing.
+
+Not done: M-e, M-g to M-i.

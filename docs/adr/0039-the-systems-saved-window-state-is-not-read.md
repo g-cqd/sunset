@@ -48,4 +48,4 @@ Sunset restores its own session, from its own store. The system's record gives i
 ## Found on the way
 
 Test copies share the owner's defaults (`studio.aemi.sunset`) and so his remembered window frame, and they shared this
-record. They need a domain of their own (a task).
+record. They need a domain of their own (t276).

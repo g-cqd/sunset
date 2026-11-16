@@ -20,6 +20,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Files opened with Sunset (Finder's Open With, a drop on its icon, `open -a`): each in a tab of the window in front.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        let files = urls.filter(\.isFileURL).map(\.path)
+        MainActor.assumeIsolated { AppActions.shared.open(files: files) }
+    }
+
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         MainActor.assumeIsolated { QuitGate.shared.shouldTerminate() }
     }

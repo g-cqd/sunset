@@ -214,15 +214,12 @@ struct TerminalScene: View {
                 tabs.restore(saved)
                 // The other windows of the session open one after the other, each taking the next saved window.
                 if SessionStore.shared.hasPending { AppActions.shared.openTerminalWindow() }
-            } else if !AppActions.shared.pendingSettings {
+            } else if !AppActions.shared.pendingSettings, AppActions.shared.pendingFiles.isEmpty {
                 tabs.newTab()
             }
         }
-        // Cmd-, with no window open: this one shows the settings (its only tab, when nothing else was waiting for it).
-        if AppActions.shared.pendingSettings {
-            AppActions.shared.pendingSettings = false
-            AppSettings.show(in: tabs)
-        }
+        // Asked for with no window open: the settings (Cmd-,), the files Sunset was started with. Its only tabs, then.
+        AppActions.shared.finishStarting(tabs)
     }
 
     private func attach(_ window: NSWindow) {
@@ -231,6 +228,7 @@ struct TerminalScene: View {
         TabRegistry.shared.register(window, tabs: tabs)
         WindowCloseGuard.install(on: window, tabs: tabs)
         AppActions.shared.joinPendingTab(window)
+        if !tabs.workspace.isEmpty { AppActions.shared.finishStarting(tabs) }
     }
 
     func configure(_ model: TerminalModel) {

@@ -60,6 +60,31 @@ targets:
         NSRemovableVolumesUsageDescription: Programs you run in Sunset's terminals use removable volumes.
         NSNetworkVolumesUsageDescription: Programs you run in Sunset's terminals use network volumes.
         NSAppleEventsUsageDescription: Programs you run in Sunset's terminals can script other apps.
+        # What Sunset can be chosen to open (Open With); it never makes itself the app that opens them (ADR-0040).
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Markdown document
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [net.daringfireball.markdown]
+          - CFBundleTypeName: Mermaid diagram
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [studio.aemi.sunset.mermaid]
+          - CFBundleTypeName: Text document
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [public.plain-text]
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: net.daringfireball.markdown
+            UTTypeDescription: Markdown document
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [md, markdown, mdown, mkd, mkdn, mdwn]
+          - UTTypeIdentifier: studio.aemi.sunset.mermaid
+            UTTypeDescription: Mermaid diagram
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [mmd, mermaid]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset

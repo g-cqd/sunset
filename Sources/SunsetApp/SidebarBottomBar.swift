@@ -70,5 +70,8 @@ struct SidebarBottomBar: View {
         Button("New Terminal Tab") { AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil)) }
         Button("New Web Page") { AppActions.shared.newTab(kind: PaneContentKinds.newPage) }
         Button("New Private Tab") { AppActions.shared.newTab(kind: PaneContentKinds.newPrivatePage) }
+        Divider()
+        Button("New Document") { AppActions.shared.newDocument() }
+        Button("Open File\u{2026}") { AppActions.shared.openFile() }
     }
 }

@@ -5,7 +5,8 @@ import SunsetShell
 import SunsetWeb
 
 /// The rows of the command bar (the command bar study, web step c): the tabs that match, then what was typed as an address to go to or words to
-/// search, then pages of the history that match (web step e), then the engine's suggestions. Each with its actions: the first is Return's, the second Cmd-Return's, the third Option-Return's.
+/// search (a path to a file first: it opens), then the documents of the store that match, then pages of the history that match (web step e),
+/// then the engine's suggestions. Each with its actions: the first is Return's, the second Cmd-Return's, the third Option-Return's.
 @MainActor enum CommandBarRows {
     static func rows(
         _ bar: CommandBar,
@@ -23,7 +24,11 @@ import SunsetWeb
             if let chip { typed.isEmpty ? nil : .search(chip, words: typed) } else { settings.input(typed) }
         // Recalled with the engine's keyword, so that the chip comes back with the words.
         let recall = chip.map { $0.keyword + " " + bar.query } ?? bar.query
+        // A path to a file that is there is opened, not searched for: its row comes before what the web would do with it.
+        if chip == nil, let path = TypedPath.file(typed) { rows.append(DocumentRows.file(path, tabs: tabs)) }
         if let input { rows.append(web(input, id: "typed", tabs: tabs, recall: recall)) }
+        // The documents Sunset keeps, by title: after what was typed, so that Return does what it did.
+        if chip == nil { rows += tabs.barDocuments(bar).map { DocumentRows.stored($0, tabs: tabs) } }
         if chip == nil {
             let visited = (history?.suggestions(for: typed) ?? []).filter { $0.url != input?.url?.absoluteString }
             rows += visited.compactMap { entry in

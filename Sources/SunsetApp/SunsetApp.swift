@@ -27,6 +27,8 @@ public struct SunsetApp: App {
             TerminalScene(launch: launch)
         }
         .defaultSize(width: 820, height: 520)
+        // A file opened with Sunset opens in a tab (AppDelegate), not in a window SwiftUI makes for it (ADR-0040).
+        .handlesExternalEvents(matching: [])
         .commands { TerminalCommands() }
     }
 }

@@ -100,7 +100,7 @@ struct PaneArea: View {
                 .overlay { if !tabs.showsLive { elsewhere } }
                 .coordinateSpace(.named(Self.space))
                 .onDrop(
-                    of: [.plainText, .utf8PlainText],
+                    of: [.plainText, .utf8PlainText, .fileURL],
                     delegate: PaneDropDelegate(tabs: tabs, frames: frames, target: $dropTarget)
                 )
                 .anchorPreference(key: PaneCardShape.Key.self, value: .bounds) { bounds in

@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 
 /// Starts a test Sunset (`launch`): a fresh folder under /tmp/axdrive with the configuration and session given (or none), the app in the
@@ -23,6 +24,7 @@ enum Launcher {
         environment["SUNSET_BACKGROUND"] = "1"
         environment["AXDRIVE_TEST"] = "1"
         process.environment = environment
+        if let file = options.values["open"] { return await open(file, bundleOf: binary, folder: folder, options) }
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle(forWritingAtPath: "/dev/null")
         do { try process.run() } catch { return Commands.fail("could not start \(binary): \(error)") }
@@ -36,6 +38,46 @@ enum Launcher {
         }
         process.terminate()
         return Commands.fail("no window within the timeout")
+    }
+
+    /// `--open FILE`: the app is started by opening a file with it, as Finder's Open With does. Through Launch Services, as a
+    /// new instance (`open -n`), so the file cannot be handed to another Sunset that is running, and in the background.
+    private static func open(_ file: String, bundleOf binary: String, folder: String, _ options: Options) async -> Int32
+    {
+        let bundle = URL(fileURLWithPath: binary).deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent().path
+        let config = folder + "/config.json"
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        process.arguments = [
+            "-n", "-g", "-a", bundle, "--env", "SUNSET_CONFIG=" + config, "--env", "SUNSET_BACKGROUND=1", "--env",
+            "AXDRIVE_TEST=1", file
+        ]
+        do { try process.run() } catch { return Commands.fail("could not run open: \(error)") }
+        process.waitUntilExit()
+        let deadline = Date().addingTimeInterval(options.double("timeout", 20))
+        while Date() < deadline {
+            for pid in pids(running: binary) where Guard.environment(of: pid)?["SUNSET_CONFIG"] == config {
+                guard !Capture.windows(pid: pid).isEmpty else { continue }
+                print(pid, folder)
+                return 0
+            }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        return Commands.fail("no window within the timeout")
+    }
+
+    /// The processes whose executable is `binary`.
+    private static func pids(running binary: String) -> [pid_t] {
+        let wanted = URL(fileURLWithPath: binary).resolvingSymlinksInPath().path
+        var all = [pid_t](repeating: 0, count: 4096)
+        let bytes = proc_listallpids(&all, Int32(all.count * MemoryLayout<pid_t>.size))
+        return all.prefix(max(0, Int(bytes)))
+            .filter { pid in
+                var path = [CChar](repeating: 0, count: 4096)
+                guard pid > 0, proc_pidpath(pid, &path, UInt32(path.count)) > 0 else { return false }
+                return URL(fileURLWithPath: String(cString: path)).resolvingSymlinksInPath().path == wanted
+            }
     }
 
     /// Ends a test copy (only one the guard allows).

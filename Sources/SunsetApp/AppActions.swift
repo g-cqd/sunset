@@ -29,6 +29,8 @@ final class AppActions {
     var joinsRemaining = 0
     /// Contents that run already and are waiting for a window to show them (the presentation changed from one window of tabs to a window each).
     var handoff: [any PaneContent] = []
+    /// Files asked to be opened before any window was there (Sunset started by opening them): the first window opens them.
+    var pendingFiles: [String] = []
     /// The next window to appear is a private one (File > New Private Window, web step h).
     var pendingPrivateWindow = false
     /// The next window opens showing the settings (Cmd-, with no window open).
