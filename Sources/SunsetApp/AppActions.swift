@@ -12,7 +12,15 @@ final class AppActions {
     static let shared = AppActions()
 
     /// Opens a new terminal window (which joins the key window's tab group when the system tabs are on).
-    var openTerminalWindow: () -> Void = {}
+    var openTerminalWindow: () -> Void = {} { didSet { opens = true } }
+    /// Whether anything can open a window yet: the menus say how until a window has (`opensWindows(with:)`).
+    private var opens = false
+
+    /// How a window is opened while none has been: said by the menus, which exist before any window, so that New Window,
+    /// New Tab, the settings and a file opened from the Finder still get one in a Sunset that started with none.
+    func opensWindows(with open: @escaping () -> Void) {
+        if !opens { openTerminalWindow = open }
+    }
 
     /// The window a new tab is to join, set while the new window is being made (system tabs): `NSWindow.tabbingMode` only takes effect for a window that is
     /// not yet on screen, and SwiftUI shows it first, so the new window is added to the parent's group explicitly (`addTabbedWindow(_:ordered:)`).

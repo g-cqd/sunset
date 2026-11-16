@@ -9,6 +9,7 @@ import SwiftUI
 
 /// The menus. Copy, Paste and Select All are the system's own items: the view that has the keyboard answers them (`TerminalNSView+Pasteboard`).
 struct TerminalCommands: Commands {
+    @Environment(\.openWindow) private var openWindow
     @FocusedValue(\.terminalModel) private var model
     @FocusedValue(\.webPage) private var focusedPage
     @FocusedValue(\.documentPane) private var focusedDocument
@@ -20,6 +21,8 @@ struct TerminalCommands: Commands {
     }
 
     var body: some Commands {
+        let open = openWindow
+        let _ = AppActions.shared.opensWindows { open(id: "terminal") }
         // The settings are a tab of the window (roadmap 0032): there is no Settings scene to give this item.
         CommandGroup(replacing: .appSettings) {
             Button("Settings\u{2026}") { AppActions.shared.showSettings() }.keyboardShortcut(",")

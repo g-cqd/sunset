@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Started for a test driven through accessibility (`Tools/axdrive`): it stays behind what the person is doing.
         if ProcessInfo.processInfo.environment["SUNSET_BACKGROUND"] != "1" { NSApp.activate() }
         MainActor.assumeIsolated {
+            SystemRestoration.excludeEveryWindow()
             AppDownloads.start()
             AppConfiguration.shared.applyScheme()
         }

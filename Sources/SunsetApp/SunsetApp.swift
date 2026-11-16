@@ -14,6 +14,7 @@ public struct SunsetApp: App {
         // Positional command-line arguments are the command to run in the terminal, not document files for AppKit to open (without this, AppKit suppresses
         // the initial WindowGroup window whenever an argument matches an existing file path).
         UserDefaults.standard.register(defaults: ["NSTreatUnknownArgumentsAsOpen": false])
+        SystemRestoration.ignoreSavedState()
         // The saved tabs of the last run are read once, before the first window asks for them.
         SessionStore.shared.load(
             enabled: AppConfiguration.shared.configuration.tabs.restore,
