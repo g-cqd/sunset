@@ -6,7 +6,7 @@ import SwiftUI
 
 /// The bottom of the sidebar (R2's + button, t137, web step f, roadmap 0031), mirroring the pin at the top: the + on the corner nearest the panes
 /// (the owner's sketch E); at the window's edge the Library's glyph, which widens the sidebar by its rail, then downloads while there are any; all
-/// the sidebar's buttons (`SidebarIconButton`). The middle is left free (spaces, later). A click on + makes a tab of the focused kind; its menu
+/// the sidebar's buttons (`SidebarIconButton`). The Spaces are in the middle (`SpacesRow`), once there are two. A click on + makes a tab of the focused kind; its menu
 /// (right-click or long press) has every kind.
 struct SidebarBottomBar: View {
     let side: Configuration.Side
@@ -29,6 +29,8 @@ struct SidebarBottomBar: View {
             } else {
                 plus
             }
+            // The Spaces, between the two ends (R4): there once a second exists.
+            SpacesRow(tabs: tabs)
             Spacer(minLength: 0)
             if side == .left {
                 plus
@@ -73,5 +75,7 @@ struct SidebarBottomBar: View {
         Divider()
         Button("New Document") { AppActions.shared.newDocument() }
         Button("Open File\u{2026}") { AppActions.shared.openFile() }
+        Divider()
+        Button("New Space") { tabs.newSpace() }.disabled(tabs.spaces == nil)
     }
 }

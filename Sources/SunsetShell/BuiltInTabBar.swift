@@ -47,6 +47,7 @@ package struct BuiltInTabBar: View {
         let items = tabs.favorites.favorites.barItems(selected: tabs.workspace.selectedEntry)
         let count = items.count + tabs.workspace.items.count
         HStack(spacing: capsules ? Design.Space.m : Design.Space.xs) {
+            SpacesMenuButton(tabs: tabs)
             if let navigation { navigation.transition(.opacity) }
             // Pinned: the Favorites as circles before the tabs, outside their scroll (owner, 2026-11-13).
             if capsules, !pinnedItems.isEmpty { pinned(pinnedItems) }

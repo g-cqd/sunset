@@ -39,7 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// The app ends with its last window, unless a kept entry is open and the setting keeps it running for it (R3).
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         MainActor.assumeIsolated {
-            !(AppConfiguration.shared.configuration.tabs.keepRunningForFavorites && AppFavorites.shared.hasOpenEntry)
+            !(AppConfiguration.shared.configuration.tabs.keepRunningForFavorites && AppFavorites.hasOpenEntry)
         }
     }
 }

@@ -64,7 +64,12 @@ package struct TabSidebar: View {
             }
             .padding(.horizontal, layout.tabSideInset)
             .frame(maxWidth: .infinity)
+            // The swipe between Spaces: the list follows the fingers, and the other Space's comes in from its side.
+            .offset(x: tabs.spaceSwipe.offset)
+            .id(tabs.space.space.id)
+            .transition(.push(from: tabs.spaceCameFromNext ? .trailing : .leading))
         }
+        .background { SpaceSwipeCatcher(tabs: tabs, animation: layout.smooth) }
         .gesture(WindowDragGesture())
         // On the sidebar's empty area (a row's own menu wins over it).
         .contextMenu {

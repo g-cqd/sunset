@@ -6,14 +6,7 @@ extension TabsModel {
 
     /// What a candidate of the bar is searched by: the name the tab was given, and for each of its panes the title, the second line (a directory) and
     /// what else its content says it is found by (`PaneContent.searchTerms`).
-    package func fields(of item: Workspace.Item) -> [String] {
-        let own = [item.customTitle ?? ""]
-        let parts = item.panes.flatMap { pane -> [String] in
-            guard let content = contents[pane] else { return [] }
-            return [content.title, content.detail ?? ""] + content.searchTerms
-        }
-        return (own + parts).filter { !$0.isEmpty }
-    }
+    package func fields(of item: Workspace.Item) -> [String] { space.fields(of: item) }
 
     /// The tabs the bar lists for its query, best first (for splitting: all but the dropped tab).
     package func barResults(_ bar: CommandBar) -> [Workspace.Item] {

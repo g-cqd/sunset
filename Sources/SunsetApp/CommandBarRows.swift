@@ -17,7 +17,8 @@ import SunsetWeb
     ) -> [ChoiceRow] {
         let tabRows = tabs.barResults(bar).map { tab($0, bar: bar, tabs: tabs) }
         guard bar.purpose == .search else { return tabRows }
-        var rows = tabRows
+        // The other Spaces: by name, then their tabs (going to one changes Space).
+        var rows = tabRows + SpaceRows.rows(bar, tabs: tabs)
         let chip = bar.engine.flatMap { name in settings.engines.first { $0.name == name } }
         let typed = bar.query.trimmingCharacters(in: .whitespaces)
         let input: WebInput? =

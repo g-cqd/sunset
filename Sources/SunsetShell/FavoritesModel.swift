@@ -94,6 +94,34 @@ package final class FavoritesModel {
         for viewer in viewers where viewer.tabs?.workspace.selectedEntry == id { viewer.tabs?.leaveEntry() }
     }
 
+    /// Takes everything `other` holds, as it is: its entries that are open stay open and run on. A Space deleted into this one.
+    func absorb(_ other: FavoritesModel) {
+        let taken = other.favorites
+        for (pane, content) in other.contents {
+            content.onExit = { [weak self] in self?.paneEnded(pane) }
+            contents[pane] = content
+        }
+        pending.merge(other.pending) { first, _ in first }
+        unconfirmed.formUnion(other.unconfirmed)
+        other.favorites = Favorites()
+        other.contents = [:]
+        other.pending = [:]
+        other.live = [:]
+        edit { $0.absorb(taken) }
+    }
+
+    /// Stops everything that is open and forgets it all: its Space is deleted with what it holds.
+    func closeAll() {
+        for content in contents.values {
+            content.onExit = {}
+            content.stop()
+        }
+        contents = [:]
+        pending = [:]
+        live = [:]
+        favorites = Favorites()
+    }
+
     // MARK: Editing
 
     func edit(_ change: (inout Favorites) -> Void) {

@@ -19,7 +19,10 @@ extension AppActions {
     private func spreadTabsIntoWindows(joining group: Bool) {
         // The windows were views of one Space: one of them keeps its tabs, in a Space of its own from now on, and the
         // others, which showed the same tabs, close.
+        // (The other Spaces keep what they hold, with no window: one tab a window shows the first Space only.)
         let views = TabRegistry.shared.allWindows().filter { $0.tabs.space === AppSpaces.shared }
+        for (window, tabs) in TabRegistry.shared.allWindows()
+        where AppSpaces.all.contains(tabs.space) && tabs.space !== AppSpaces.shared { window.close() }
         for (window, tabs) in views.dropFirst() {
             tabs.join(SpaceModel(favorites: AppFavorites.shared))
             window.close()
@@ -39,7 +42,7 @@ extension AppActions {
         let all = TabRegistry.shared.allWindows()
         guard let target = all.first(where: { !$0.tabs.isPrivateWindow }) else { return }
         // One list of tabs from now on: the app's Space, which the first window joins with its tab.
-        target.tabs.join(AppSpaces.shared)
+        target.tabs.show(space: AppSpaces.shared, in: AppSpaces.all)
         for (window, tabs) in all where tabs !== target.tabs && !tabs.isPrivateWindow {
             for pane in tabs.workspace.allPanes {
                 if let model = tabs.detach(pane: pane) { target.tabs.adopt(model) }

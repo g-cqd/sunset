@@ -76,6 +76,9 @@ final class AppActions {
 
     private var keyTabs: TabsModel? { TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) }
 
+    /// The window that acts, when it shows one of the app's Spaces (not a private window, not a window that is one tab).
+    var spaceTabs: TabsModel? { keyTabs.flatMap { AppSpaces.all.contains($0.space) ? $0 : nil } }
+
     /// Closes the current tab: the tab of the built-in bar, or the window (which is the tab) with system tabs.
     func closeTab() {
         if let tabs = keyTabs {

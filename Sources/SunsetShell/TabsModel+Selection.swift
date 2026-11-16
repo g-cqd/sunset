@@ -101,6 +101,7 @@ extension TabsModel {
                     keep(item: id, in: folder, at: place, show: false)
                 case .node(let id):
                     favorites.edit { $0.move([id], into: folder, at: place ?? Int.max) }
+                case .space: break
             }
             place = place.map { $0 + 1 }
         }
@@ -148,6 +149,7 @@ extension TabsModel {
                         ?? false
                     favorites.edit { $0.move([id], into: place.parent, at: index - (before ? 1 : 0)) }
                     target = id
+                case .space: continue
             }
             behind = true
         }
@@ -186,6 +188,7 @@ extension TabsModel {
                     } else if let index = workspace.selectedIndex {
                         anchor = workspace.items[index].id
                     }
+                case .space: continue
             }
         }
         clearMarks()

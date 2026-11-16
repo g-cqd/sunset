@@ -30,8 +30,6 @@ final class SessionStore {
     private var pending: [SavedWindow] = []
     /// What the last window of the Space showed when it closed: the next window shows it again, and so does the next launch.
     private var lastView: SavedView?
-    /// Spaces and views of the file that this build does not show (it has one Space): written back as they were read.
-    private var others: (spaces: [SavedSpace], views: [SavedView]) = ([], [])
     private var writer: Task<Void, Never>?
     /// The app is quitting: its shells are about to end and close their panes, which must not shrink the file.
     private var frozen = false
@@ -42,20 +40,21 @@ final class SessionStore {
     func load(enabled: Bool, namedCommand: Bool) {
         active = !namedCommand
         guard !namedCommand, let session = read(), let first = session.spaces.first else { return }
-        others = (Array(session.spaces.dropFirst()), session.views.filter { $0.space != first.space.id })
-        let views = session.views.filter { $0.space == first.space.id }
         guard hostsTabs else {
-            // A window is one tab: the Space is named and has its Favorites, and each saved tab waits for a window.
-            AppSpaces.shared.restore(SavedSpace(space: first.space, favorites: first.favorites), reopening: enabled)
+            // A window is one tab: the first Space's saved tabs each wait for a window; the other Spaces are kept as they are.
+            let named = SavedSpace(space: first.space, favorites: first.favorites)
+            AppSpaces.all.restore([named] + session.spaces.dropFirst(), reopening: enabled)
             if enabled { pending = Self.windows(of: first) }
             return
         }
-        AppSpaces.shared.restore(first, reopening: enabled)
+        AppSpaces.all.restore(session.spaces, reopening: enabled)
         // Tabs that were left by the last window long enough ago do not come back (`tabs.closeStoppedAfter`).
         AppSpaces.cleanStopped()
-        guard enabled, !AppSpaces.shared.tabs.isEmpty else { return }
-        // Tabs with no window recorded (the last one was closed, then the app): one window, on the first tab.
-        pendingViews = views.isEmpty ? [SavedView(space: first.space.id, selected: first.tabs.items.first?.id)] : views
+        guard enabled, AppSpaces.all.spaces.contains(where: { !$0.tabs.isEmpty }) else { return }
+        // Tabs with no window recorded (the last one was closed, then the app): one window, on the first tab there is.
+        let shown = AppSpaces.all.spaces.first { !$0.tabs.isEmpty }
+        let fallback = shown.map { [SavedView(space: $0.space.id, selected: $0.tabs.items.first?.id)] } ?? []
+        pendingViews = session.views.isEmpty ? fallback : session.views
     }
 
     private var hostsTabs: Bool { AppConfiguration.shared.presentation.hostsTabsInWindow }
@@ -112,9 +111,10 @@ final class SessionStore {
         return lastView
     }
 
-    /// `tabs`' window is closing: when it is the last on the app's Space, what it showed is kept for the next.
+    /// `tabs`' window is closing: when it is the last window on any Space, what it showed is kept for the next.
     func closing(_ tabs: TabsModel) {
-        guard tabs.space === AppSpaces.shared, tabs.space.viewerCount <= 1 else { return }
+        let spaces = AppSpaces.all
+        guard spaces.contains(tabs.space), spaces.spaces.reduce(0, { $0 + $1.viewerCount }) <= 1 else { return }
         lastView = tabs.savedView()
     }
 
@@ -148,29 +148,27 @@ final class SessionStore {
         }
     }
 
-    /// The session as it is now: the Space with its Favorites, and, when `windows`, its tabs and a view for each window that
-    /// shows it (not the private ones, which keep nothing) and for each saved view not yet taken.
+    /// The session as it is now: the Spaces with their Favorites, and, when `windows`, their tabs and a view for each window
+    /// that shows one (not the private ones, which keep nothing) and for each saved view not yet taken.
     private func current(windows: Bool) -> SpacesSession {
         let open = TabRegistry.shared.allWindows().map(\.tabs).filter { !$0.isPrivateWindow }
-        let app = AppSpaces.shared
+        var spaces = AppSpaces.all.saved()
+        if !windows { spaces = spaces.map { SavedSpace(space: $0.space, favorites: $0.favorites) } }
         guard hostsTabs else {
-            // A window is one tab: the Space's tabs are the windows', in the windows' order.
+            // A window is one tab: the first Space's tabs are the windows', in the windows' order.
             let old = SavedSession(
                 windows: windows ? open.map { $0.savedWindow() } + pending : [],
                 favorites: AppFavorites.shared.saved()
             )
-            let session = SpacesSession(old, space: app.space)
-            return SpacesSession(spaces: session.spaces + others.spaces, views: session.views + others.views)
+            let session = SpacesSession(old, space: AppSpaces.shared.space)
+            return SpacesSession(spaces: session.spaces + spaces.dropFirst(), views: session.views)
         }
-        var space = app.saved()
         var views: [SavedView] = []
         if windows {
-            views = open.filter { $0.space === app }.map { $0.savedView() } + pendingViews
+            views = open.filter { AppSpaces.all.contains($0.space) }.map { $0.savedView() } + pendingViews
             if views.isEmpty, let lastView { views = [lastView] }
-        } else {
-            space = SavedSpace(space: space.space, favorites: space.favorites)
         }
-        return SpacesSession(spaces: [space] + others.spaces, views: views + others.views)
+        return SpacesSession(spaces: spaces, views: views)
     }
 
     /// The session as JSON a person can read, for Export All (R12 step ST-6): the open windows whatever the restoring setting.
@@ -180,7 +178,8 @@ final class SessionStore {
 
     /// There is something to write: the windows when restoring is on, and the Favorites whenever there are any.
     private var writes: Bool {
-        active && !frozen && !locked && seal != nil && (restoresWindows || !AppFavorites.shared.favorites.isEmpty)
+        active && !frozen && !locked && seal != nil
+            && (restoresWindows || AppSpaces.all.spaces.count > 1 || !AppFavorites.shared.favorites.isEmpty)
     }
 
     /// The app is quitting: the last write, then no more (see `frozen`).

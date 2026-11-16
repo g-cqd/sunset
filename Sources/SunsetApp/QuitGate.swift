@@ -19,6 +19,7 @@ final class QuitGate {
     private(set) var losses: [QuitLoss] = []
     private(set) var asking: ObjectIdentifier?
     @ObservationIgnored private var tabsOfPane: [PaneID: TabsModel] = [:]
+    @ObservationIgnored private var spaceOfPane: [PaneID: SpaceModel] = [:]
 
     /// The app was asked to quit: now, or later once answered.
     func shouldTerminate() -> NSApplication.TerminateReply {
@@ -86,6 +87,10 @@ final class QuitGate {
     }
 
     private func reveal(_ pane: PaneID, in tabs: TabsModel) {
+        // A pane of a Space the window does not show: the window changes to it.
+        if let space = spaceOfPane[pane], space !== tabs.space, AppSpaces.all.contains(space) {
+            tabs.show(space: space)
+        }
         if let item = tabs.workspace.item(containing: pane) { tabs.select(item: item.id) }
         tabs.focus(pane)
     }
@@ -122,30 +127,41 @@ final class QuitGate {
 
     // MARK: What would be lost
 
-    private func gather() async -> [QuitLoss] {
-        var found: [QuitLoss] = []
+    /// Everything that runs, by Space: windows on one Space list the same tabs, and a Space left by changing runs with no
+    /// window. Notes, for each pane, the Space it is in and a window that can show it.
+    private func everything() -> (panes: [(PaneID?, any PaneContent)], tabCount: Int) {
         tabsOfPane = [:]
-        var pages: [(PaneID, WebContent)] = []
+        spaceOfPane = [:]
         var panes: [(PaneID?, any PaneContent)] = []
         var tabCount = 0
-        // By Space: windows on one Space list the same tabs.
-        var spaces = Set<ObjectIdentifier>()
-        for (_, tabs) in TabRegistry.shared.allWindows() where spaces.insert(ObjectIdentifier(tabs.space)).inserted {
-            tabCount += tabs.isPrivateWindow ? 0 : tabs.workspace.count
-            for (pane, content) in tabs.contents {
-                tabsOfPane[pane] = tabs
+        let windows = TabRegistry.shared.allWindows().map(\.tabs)
+        var spaces = AppSpaces.all.spaces
+        for tabs in windows where !spaces.contains(where: { $0 === tabs.space }) { spaces.append(tabs.space) }
+        var favorites: [FavoritesModel] = []
+        for space in spaces {
+            // The window that shows it, else any window of the app's Spaces: it changes to it when a row is clicked.
+            let shower = windows.first { $0.space === space } ?? windows.first { AppSpaces.all.contains($0.space) }
+            if shower?.isPrivateWindow != true { tabCount += space.tabs.count }
+            for (pane, content) in space.contents {
+                spaceOfPane[pane] = space
+                if let shower { tabsOfPane[pane] = shower }
                 panes.append((pane, content))
-                if !(content is DocumentContent), let warning = content.closeWarning {
-                    found.append(QuitLoss(kind: .command, text: "\(content.title): \(warning)", pane: pane))
-                }
-                if let page = content as? WebContent { pages.append((pane, page)) }
             }
+            if !favorites.contains(where: { $0 === space.favorites }) { favorites.append(space.favorites) }
         }
-        for (_, content) in AppFavorites.shared.contents {
-            panes.append((nil, content))
+        panes += favorites.flatMap(\.contents).map { (nil, $0.value) }
+        return (panes, tabCount)
+    }
+
+    private func gather() async -> [QuitLoss] {
+        let (panes, tabCount) = everything()
+        var found: [QuitLoss] = []
+        var pages: [(PaneID, WebContent)] = []
+        for (pane, content) in panes {
             if !(content is DocumentContent), let warning = content.closeWarning {
-                found.append(QuitLoss(kind: .command, text: "\(content.title): \(warning)"))
+                found.append(QuitLoss(kind: .command, text: "\(content.title): \(warning)", pane: pane))
             }
+            if let pane, let page = content as? WebContent { pages.append((pane, page)) }
         }
         found += DocumentContent.quitLosses(of: AppStorage.shared.openDocuments, in: panes)
         for (pane, page) in pages where await page.hasUnsentForm() {

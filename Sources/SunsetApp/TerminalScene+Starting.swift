@@ -35,28 +35,36 @@ extension TerminalScene {
         AppActions.shared.finishStarting(tabs)
     }
 
-    /// A window that lists tabs is a view of the app's Space: its tabs are the Space's.
+    /// A window that lists tabs is a view of one of the app's Spaces: its tabs are the Space's.
     private func startOnSpace() {
-        let space = AppSpaces.shared
+        let all = AppSpaces.all
+        if AppActions.shared.handoff.isEmpty, let view = SessionStore.shared.takeView() {
+            // A window of the session, or the one after the last was closed: the Space it showed, and what it had selected.
+            tabs.show(space: all.space(view.space) ?? all.spaces[0], in: all)
+            tabs.makeContent = { makeContent($0) }
+            tabs.show(view)
+            return
+        }
+        // A new window shows the Space of the window it was asked from (the one in front), else the first.
+        let asked = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.space
+        let space = asked.flatMap { all.contains($0) ? $0 : nil } ?? all.spaces[0]
         let others = space.viewerCount
-        tabs.join(space)
+        tabs.show(space: space, in: all)
         // The Space's tabs that have no content (read from the session, or stopped with its last window) get theirs.
         tabs.makeContent = { makeContent($0) }
+        let nothingAsked = !AppActions.shared.pendingSettings && AppActions.shared.pendingFiles.isEmpty
         if !AppActions.shared.handoff.isEmpty {
             // Content that already runs (a page opened in a window of its own) is a tab of the Space, shown here.
             let content = AppActions.shared.handoff.removeFirst()
             wire(content)
             tabs.adopt(content)
-        } else if let view = SessionStore.shared.takeView() {
-            // The other windows of the session open one after the other, each taking the next saved view (`attach`).
-            tabs.show(view)
         } else if space.tabs.isEmpty {
-            if !AppActions.shared.pendingSettings, AppActions.shared.pendingFiles.isEmpty { tabs.newTab() }
+            if nothingAsked { tabs.newTab() }
         } else if others > 0 {
             // New Window: nothing selected, and the command bar open on a new tab (the owner, 2026-11-16).
-            if !AppActions.shared.pendingSettings, AppActions.shared.pendingFiles.isEmpty { tabs.toggleBar() }
-        } else if let first = space.tabs.items.first {
-            tabs.select(item: first.id)
+            if nothingAsked { tabs.toggleBar() }
+        } else if let first = space.lastShown ?? space.tabs.items.first?.id {
+            tabs.select(item: first)
         }
     }
 

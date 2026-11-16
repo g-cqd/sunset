@@ -27,6 +27,17 @@ package final class TabsModel {
         }
     }
     @ObservationIgnored var canMake = false
+    /// The Spaces this window can change to (the app's); nil for a window whose Space is its own. Observed: what shows the
+    /// Spaces is drawn before a window is among them.
+    package weak var spaces: SpacesModel?
+    /// What this window had selected in each Space it left: shown again when it comes back.
+    @ObservationIgnored var selections: [Space.ID: SavedView] = [:]
+    /// The Space whose editor (name, icon) is open in this window, and the one being deleted, which is asked about first.
+    package var editingSpace: Space.ID?
+    package var deletingSpace: Space.ID?
+    /// The swipe between Spaces under way on this window's sidebar, and the side the list last came in from.
+    package var spaceSwipe = SpaceSwipe()
+    package var spaceCameFromNext = true
     /// What a content asks of a window (links to open, the font zoom) is asked of this one from now on: it draws it.
     @ObservationIgnored package var wireContent: (any PaneContent) -> Void = { _ in }
     /// The window chose what it shows (its Space, a first tab): done once, though its content can be built again.
@@ -153,11 +164,10 @@ package final class TabsModel {
     func register(_ model: any PaneContent, as pane: PaneID) {
         contents[pane] = model
         onChange()
-        // Asked of the Space, which knows the window that draws the pane now: this one may be gone by then.
-        model.onExit = { [weak space] in space?.ended(pane) }
-        // A terminal that is not shown cannot be clicked: a request from one is the window handing the keyboard back to a view that is going away (when the
-        // command bar closes), and must not select its tab again.
-        model.onFocusRequest = { [weak space] in space?.focusRequested(pane) }
+        // What it asks is asked of the Space, which knows the window that draws the pane now: this one may be gone by then.
+        // (A terminal that is not shown cannot be clicked: a request from one is the window handing the keyboard back to
+        // a view that is going away, and must not select its tab again: `SpaceModel.focusRequested`.)
+        space.wire(model, as: pane)
         syncStates()
     }
 
@@ -204,7 +214,10 @@ package final class TabsModel {
 
     /// The window closed: it no longer shows its Space. While another window does, nothing stops; the last window of a Space
     /// that keeps its tabs stops them and they stay; any other Space ends with its window.
-    package func windowClosed(at date: Date = Date()) { space.leave(self, at: date) }
+    package func windowClosed(at date: Date = Date()) {
+        space.leave(self, at: date)
+        spaces?.windowClosed(at: date)
+    }
 
     func stop(_ panes: [PaneID]) {
         for pane in panes {

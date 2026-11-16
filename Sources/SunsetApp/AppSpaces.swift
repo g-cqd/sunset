@@ -2,12 +2,21 @@ import Foundation
 import SunsetConfig
 import SunsetShell
 
-/// The Space of the app (R4; ADR-0045): the one there is until Spaces can be made (roadmap 0021, S-c). Every window that
-/// lists tabs (the sidebar, the built-in bar) is a view of it; it keeps its tabs when its last window closes, unless the
-/// settings say otherwise. A private window, and a window that is one tab (the system's tab bar, a window each), has a
-/// Space of its own instead.
+/// The Spaces of the app (R4; ADR-0045, ADR-0047). Every window that lists tabs (the sidebar, the built-in bar) shows one
+/// of them; a Space keeps its tabs when its last window closes, unless the settings say otherwise. A private window, and a
+/// window that is one tab (the system's tab bar, a window each), has a Space of its own instead.
 @MainActor enum AppSpaces {
-    static let shared = SpaceModel(favorites: AppFavorites.shared, keepsTabs: true)
+    static let all: SpacesModel = {
+        let spaces = SpacesModel(
+            first: SpaceModel(favorites: AppFavorites.shared, keepsTabs: true),
+            makeFavorites: AppFavorites.make
+        )
+        spaces.onChange = { SessionStore.shared.scheduleSave() }
+        return spaces
+    }()
+
+    /// The first Space: the one there was before there were several.
+    static var shared: SpaceModel { all.spaces[0] }
 
     private static var cleaner: Task<Void, Never>?
 
@@ -16,12 +25,12 @@ import SunsetShell
     static func cleanStopped() {
         cleaner?.cancel()
         let seconds = AppConfiguration.shared.configuration.tabs.closeStoppedAfter * 3600
-        guard seconds > 0, let since = shared.stopped else { return }
-        if shared.closeStopped(after: seconds) {
-            SessionStore.shared.scheduleSave()
-            return
-        }
-        let left = max(seconds - Date().timeIntervalSince(since), 1)
+        guard seconds > 0 else { return }
+        var closed = false
+        for space in all.spaces where space.closeStopped(after: seconds) { closed = true }
+        if closed { SessionStore.shared.scheduleSave() }
+        guard let soonest = all.spaces.compactMap(\.stopped).min() else { return }
+        let left = max(seconds - Date().timeIntervalSince(soonest), 1)
         cleaner = Task {
             try? await Task.sleep(for: .seconds(left))
             guard !Task.isCancelled else { return }

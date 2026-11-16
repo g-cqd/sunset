@@ -1,5 +1,5 @@
 ---
-status: in-progress (S-a done 2026-11-16, with the sharing of a Space between windows; one Space only)
+status: in-progress (S-a, S-b, S-c done 2026-11-17; S-d the picture, S-e, S-f and profiles not started)
 blocked-by: 0018 (each step's own questions); 0020 (Favorites and folders); 0019 (the web pane, for profiles and sleeping)
 date: 2026-11-11
 ---
@@ -71,3 +71,41 @@ Not done, and where it goes:
 - Not seen: a click on a row or on the picture (keys were used); the last window closing while Sunset stays running.
 - A second saved window came up 229 by 32 until the next window waits for the first to be in place: fixed by waiting a
   turn, not explained (diary).
+
+## S-b and S-c as built (2026-11-17; ADR-0047)
+
+The owner's answers are in the ADR. Built together: switching needs a second Space to switch to.
+
+- **The Spaces menu**: New Space, Edit Space…, Delete Space…, Show Next/Previous Space (Option-Command-Right/Left), and
+  the Spaces by name (Option-Command-1…9).
+- **A row of icons at the bottom of the sidebar**, between the Library and the +, once there are two Spaces: a click
+  shows the Space; its menu edits it, moves it left or right in the order, deletes it. With the built-in tab bar and no
+  sidebar, one button in the bar names the Space shown and lists them.
+- **The command bar** finds a Space by its name and the tabs of the other Spaces (marked with the Space's name).
+- **The swipe**: two fingers sideways on the sidebar's list; the list follows, slow at first, and snaps to the next Space
+  at 30% of the sidebar's width, once a gesture, with a tap of the trackpad.
+- **A Space left by switching keeps running.** Every Space stops when the last window of the app closes.
+- **A new Space** is named "Space N" with a numbered circle, has a copy of the Favorites of the Space it was made from
+  and no tab; its editor (name, icon) opens. The first Space becomes Home, with a house, at that moment.
+- **Move to Space**, in a tab's menu: the tab goes there running and the window follows.
+- **Deleting** asks when the Space holds something: move it to the neighbour, or close everything.
+- **The session** keeps the Spaces in their order and, for each window, the Space it showed.
+
+Seen in a test copy (diary 2026-11-17-01): New Space and its editor; the row; Option-Command-1, 2, Right; a command still
+running in a Space no window showed; the bar's row for a tab of another Space, and Return on it; both Spaces back after
+a quit, the window on the one it showed; New Window on the Space in front; the question on deleting, and Move; the
+button in the built-in tab bar. Pictures: `docs/research/sidebar/spaces-*.png`.
+
+Not done, and where it goes:
+
+- **Not seen, and not testable in the background**: the swipe and its tap (the numbers are tested, `SpaceSwipeTests`; the
+  view that reads the trackpad is not), Move to Space from a tab's menu, the icons' menu (Edit, Move Left/Right), a
+  click on an icon (keys and the menu were used).
+- **Dragging**: a tab onto a Space's icon or to the sidebar's edge (R4), and Spaces reordered by dragging.
+- **Closing the last tab of a Space closes the window**, as with one Space: to ask.
+- **A new Space shows an empty window** once its editor is closed (it has no tab); the command bar does not open by itself.
+- **No keys section**: the keys are fixed. No haptics layer: one call at the snap.
+- **Spaces need a list of tabs**: with one tab a window only the first Space shows.
+- S-d (what the picture of a tab drawn elsewhere looks like), S-e (the tabs of a Space no window shows: sleep and unload),
+  S-f, profiles and the Pinned grid.
+

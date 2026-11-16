@@ -17,6 +17,7 @@ struct SelectionMenu: View {
                 Button("Remove \(count(rows, tabs: false)) from Favorites") { tabs.removeFromFavorites(rows) }
                 Button("Delete \(nodes(rows)) Items") { tabs.delete(rows) }
             }
+            if count(rows, tabs: true) > 0 { MoveToSpaceMenu(tabs: tabs, rows: rows) }
             Divider()
         }
     }
@@ -27,6 +28,7 @@ struct SelectionMenu: View {
             switch row {
                 case .tab: wantTabs
                 case .node(let id): !wantTabs && tabs.favorites.favorites.entry(id) != nil
+                case .space: false
             }
         }
         .count

@@ -1,8 +1,8 @@
 # 0004 — Spaces: what holds the tabs, and what a window is
 
 What is intended for roadmap 0021 (R4, and the owner's answers of 2026-11-16). ADR-0045 says why. Built so far: the
-file, the Space at run time, windows as views of the app's one Space, and the settings that clean stopped tabs; not a
-second Space.
+file, the Space at run time, windows as views of a Space, the settings that clean stopped tabs, and making, switching
+and deleting Spaces (ADR-0047).
 
 ## The three things
 
@@ -45,6 +45,17 @@ read by the other windows that show it, each keeping a selection that still exis
 A window starts with a Space of its own and joins the app's (`TabsModel.join`) when the presentation lists tabs. A
 content is wired to the window that draws it (`wireContent`, on `claim`): what it asks of a window (a link to open, the
 font) is asked of that one. What ends by itself is closed by the Space (`ended`), whichever windows are left.
+
+## Several Spaces (ADR-0047)
+
+`SpacesModel` holds the Spaces in their one order; `AppSpaces.all` is the app's. A window changes Space with
+`TabsModel.show(space:)`: it leaves the old one (`SpaceModel.park`: what it drew goes to another window that shows it, or
+is hidden; nothing stops), remembers what it had selected there, and shows in the new one what it had selected there
+before. `SpaceModel.adopt` takes tabs that run elsewhere (Move to Space, a Space deleted into another);
+`FavoritesModel.absorb` does the same for kept entries. When the app's last window closes, `SpacesModel.windowClosed`
+stops every Space.
+
+The swipe is `SpaceSwipe` (numbers only, tested) fed by `SpaceSwipeCatcher` (an event monitor over the sidebar's list).
 
 ## The file
 

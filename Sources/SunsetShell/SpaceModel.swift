@@ -11,23 +11,23 @@ package import SunsetPane
 /// in the next window; one that does not (a private window's, a window that is one tab) ends them with its window.
 @MainActor @Observable
 package final class SpaceModel {
-    package private(set) var space: Space
+    package internal(set) var space: Space
     /// The tabs in order, with no selection: each window has its own.
-    package private(set) var tabs = Workspace()
+    package internal(set) var tabs = Workspace()
     package internal(set) var contents: [PaneID: any PaneContent] = [:]
     package let favorites: FavoritesModel
     /// Whether its tabs stay, stopped, when its last window closes (the app's Space, unless `tabs.closeWithLastWindow`).
     package var keepsTabs: Bool
     /// Its tabs were stopped with its last window and wait for the next; since when.
     package var isStopped: Bool { stopped != nil }
-    package private(set) var stopped: Date?
+    package internal(set) var stopped: Date?
     /// What brings back the content of a pane that has none: read from the session, or stopped with the last window.
-    @ObservationIgnored private var pending: [PaneID: PaneDescriptor] = [:]
+    @ObservationIgnored var pending: [PaneID: PaneDescriptor] = [:]
     @ObservationIgnored private var viewers: [Weak] = []
     /// The window each tab is live in.
-    private var live: [Workspace.ItemID: Weak] = [:]
+    var live: [Workspace.ItemID: Weak] = [:]
 
-    private struct Weak {
+    struct Weak {
         weak var tabs: TabsModel?
     }
 
@@ -38,6 +38,12 @@ package final class SpaceModel {
     }
 
     package var viewerCount: Int { viewers.count { $0.tabs != nil } }
+    /// The windows that show it.
+    var currentViewers: [TabsModel] { viewers.compactMap(\.tabs) }
+    /// It has a tab, or something in its Favorites: deleting it asks first.
+    package var holdsSomething: Bool { !tabs.isEmpty || !favorites.isEmpty }
+    /// The tab a window last went to: what a window that comes to this Space for the first time shows.
+    package private(set) var lastShown: Workspace.ItemID?
     private func others(than viewer: TabsModel?) -> [TabsModel] { viewers.compactMap(\.tabs).filter { $0 !== viewer } }
 
     // MARK: Windows
@@ -50,16 +56,27 @@ package final class SpaceModel {
     /// `viewer`'s window closed. What it drew goes to a window that still shows it; with no window left, the tabs stop and
     /// stay (a Space that keeps them) or end.
     func leave(_ viewer: TabsModel, at date: Date = Date()) {
+        park(viewer)
+        stopIfUnshown(at: date)
+    }
+
+    /// `viewer` changed to another Space: what it drew goes to a window that still shows it, or is hidden. Nothing
+    /// stops: a Space left by changing runs on (R4; the owner, 2026-11-17).
+    func park(_ viewer: TabsModel) {
         viewers.removeAll { $0.tabs == nil || $0.tabs === viewer }
         for (id, owner) in live where owner.tabs === viewer { handOver(id) }
-        if viewers.isEmpty {
-            if keepsTabs { stopKeeping(at: date) } else { closeAll() }
-        }
         syncStates()
     }
 
+    /// With no window on it: its tabs stop and stay (a Space that keeps them), or end. What a window closing does to its
+    /// Space, and what the app's last window closing does to every Space.
+    func stopIfUnshown(at date: Date = Date()) {
+        guard viewerCount == 0, !contents.isEmpty || !keepsTabs else { return }
+        if keepsTabs { stopKeeping(at: date) } else { closeAll() }
+    }
+
     /// Ends every tab: what runs is stopped and nothing is kept.
-    private func closeAll() {
+    func closeAll() {
         for content in contents.values {
             content.onExit = {}
             content.stop()
@@ -88,6 +105,7 @@ package final class SpaceModel {
         let previous = live[id]?.tabs
         guard previous !== viewer, previous == nil || force else { return }
         live[id] = Weak(tabs: viewer)
+        lastShown = id
         for pane in tabs.items.first(where: { $0.id == id })?.panes ?? [] {
             if let content = contents[pane] { viewer.wireContent(content) }
         }
@@ -186,33 +204,5 @@ package final class SpaceModel {
     func takePending(_ pane: PaneID) -> PaneDescriptor? {
         stopped = nil
         return pending.removeValue(forKey: pane)
-    }
-
-    // MARK: Session
-
-    /// The Space as the session keeps it: without what is private (a tab of only private panes goes).
-    package func saved() -> SavedSpace {
-        var kept = tabs
-        var descriptors = pending
-        for (pane, content) in contents {
-            if content.isPrivate { kept.close(pane: pane) } else { descriptors[pane] = content.descriptor }
-        }
-        var saved = SavedSpace(space: space, favorites: favorites.saved(), tabs: kept, contents: descriptors)
-        saved.stopped = stopped
-        return saved
-    }
-
-    /// Whether the session keeps the tab: one with a pane that is not private.
-    func keeps(_ item: Workspace.Item) -> Bool { item.panes.contains { contents[$0]?.isPrivate != true } }
-
-    /// Takes a saved Space, before any window shows it: what names it, its Favorites, and (when `reopening`) its tabs,
-    /// whose contents are made by the first window. With `reopening` off no entry comes back open and no tab comes back.
-    package func restore(_ saved: SavedSpace, reopening: Bool = true) {
-        space = saved.space
-        favorites.restore(saved.favorites, reopening: reopening)
-        guard reopening, tabs.isEmpty else { return }
-        tabs = saved.tabs
-        pending = saved.contents
-        stopped = saved.stopped
     }
 }
