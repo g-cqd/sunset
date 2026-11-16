@@ -1,5 +1,5 @@
 ---
-status: in-progress (S-a: the model and the file, 2026-11-16; nothing of it shows yet)
+status: in-progress (S-a done 2026-11-16, with the sharing of a Space between windows; one Space only)
 blocked-by: 0018 (each step's own questions); 0020 (Favorites and folders); 0019 (the web pane, for profiles and sleeping)
 date: 2026-11-11
 ---
