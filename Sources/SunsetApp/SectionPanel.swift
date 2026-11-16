@@ -27,18 +27,37 @@ struct SectionPanel: View {
     @FocusState var searching: Bool
 
     var layout: LayoutMetrics { buttons.layout }
-    var header: SidebarHeader { buttons.header }
-    /// The title's row when it is under the window buttons' row.
-    var titleRow: Double { place == .library ? layout.closeButtonSize + layout.tabSpacing : 0 }
-    /// Where the list starts: under the header, the title and the field, as the sidebar's rows start under its accessory.
-    var listTop: Double { header.height + titleRow + Design.Size.field + layout.tabSpacing + Design.Space.xs }
+    /// How many things the section lists, whatever is searched: with none there is no search field.
+    var count: Int {
+        switch section {
+            case .documents: return tabs.shelf.list().count
+            case .history:
+                let _ = HistoryChanges.shared.generation
+                return AppHistory.shared?.entries(limit: 1).count ?? 0
+            case .downloads: return DownloadCenter.shared.items.count
+            case .tabs, .settings: return 0
+        }
+    }
+    /// The measures of the title's row and of the field under it.
+    var topMeasures: SectionTop {
+        SectionTop(buttons: buttons, underLights: place == .library, searchable: section.isSearched(count: count))
+    }
+    /// Where the list starts: under the title and the field, as the sidebar's rows start under its accessory.
+    var listTop: Double { topMeasures.listTop }
     /// The room the switch takes at the foot.
-    var footInset: Double { place == .opposite ? buttons.metrics.size.height + layout.tabSpacing : 0 }
+    var footInset: Double { place == .opposite ? buttons.barRoom : 0 }
 
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: layout.tabSpacing) {
-                SectionList(tabs: tabs, section: section, layout: layout, sort: sort, query: query)
+                // What was searched for is forgotten with the field (the last document deleted while searching).
+                SectionList(
+                    tabs: tabs,
+                    section: section,
+                    layout: layout,
+                    sort: sort,
+                    query: topMeasures.searchable ? query : ""
+                )
             }
             .padding(.horizontal, layout.tabSideInset)
             .frame(maxWidth: .infinity)
@@ -56,6 +75,7 @@ struct SectionPanel: View {
         .onChange(of: AppSettings.content(in: tabs)?.query) { _, new in
             if section == .settings, let new, new != query { query = new }
         }
+        .onChange(of: topMeasures.searchable) { _, searchable in if !searchable { query = "" } }
         .onAppear { if place == .library { searching = true } }
     }
 }

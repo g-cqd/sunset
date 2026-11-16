@@ -13,6 +13,8 @@ struct AppSidebar: View {
     let configuration: Configuration
     var floating = false
     var panelRadius: Double?
+    /// The window's corner radius: docked, the button at its bottom corner is concentric with it.
+    var windowRadius = ConcentricRadius.standardWindow
     var accessory: AnyView?
 
     var body: some View {
@@ -21,7 +23,8 @@ struct AppSidebar: View {
         let buttons = SidebarButtons(
             layout: floating ? settings.layout.floatingTabs : settings.layout,
             margin: settings.sidebar.padding,
-            panelRadius: panelRadius
+            panelRadius: panelRadius,
+            windowRadius: windowRadius
         )
         LibraryFrame(railLeading: settings.sidebar.side == .left, buttons: buttons, railShown: section != nil) {
             ZStack {
@@ -38,7 +41,8 @@ struct AppSidebar: View {
             SectionRail(
                 selection: section ?? .tabs,
                 sections: settings.sidebar.library ? SidebarSection.rail : [],
-                buttons: buttons
+                buttons: buttons,
+                leading: settings.sidebar.side == .left
             ) { chosen in
                 if chosen == .settings { AppSettings.show(in: tabs) } else { tabs.sections.show(library: chosen) }
             }
@@ -51,6 +55,7 @@ struct AppSidebar: View {
             settings: settings,
             floating: floating,
             panelRadius: panelRadius,
+            windowRadius: windowRadius,
             accessory: accessory,
             bottomBar: AnyView(
                 SidebarBottomBar(side: configuration.sidebar.side, tabs: tabs, library: configuration.sidebar.library)

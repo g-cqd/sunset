@@ -38,7 +38,8 @@ struct SettingsPage: View {
         }
         .padding(.top, context.topInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(context.translucent ? Color.clear : Color(nsColor: .windowBackgroundColor))
+        // On the terminal's background, as every pane (the owner, 2026-11-15).
+        .paneBackdrop(context.backdrop)
         .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
     }
 

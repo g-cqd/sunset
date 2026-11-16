@@ -18,6 +18,16 @@ package enum SidebarSection: String, Sendable, CaseIterable {
         }
     }
 
+    /// Whether the section has a search field while it lists `count` things: with nothing in it there is nothing to search
+    /// (the owner, 2026-11-15). The settings are always there to search; the tabs have no field of their own.
+    package func isSearched(count: Int) -> Bool {
+        switch self {
+            case .settings: true
+            case .tabs: false
+            case .documents, .history, .downloads: count > 0
+        }
+    }
+
     /// An SF Symbol.
     package var symbol: String {
         switch self {

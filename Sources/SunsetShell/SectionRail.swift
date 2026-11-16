@@ -9,17 +9,21 @@ package struct SectionRail: View {
     /// The Library's lists, from the top: none while the Library is not offered (the gear and the way back are still there).
     var sections = SidebarSection.rail
     let buttons: SidebarButtons
+    /// The rail is at the window's leading edge: its foot is at that bottom corner, whose button is concentric with it.
+    var leading = false
     let choose: (SidebarSection) -> Void
 
     package init(
         selection: SidebarSection,
         sections: [SidebarSection] = SidebarSection.rail,
         buttons: SidebarButtons,
+        leading: Bool = false,
         choose: @escaping (SidebarSection) -> Void
     ) {
         self.selection = selection
         self.sections = sections
         self.buttons = buttons
+        self.leading = leading
         self.choose = choose
     }
 
@@ -40,6 +44,7 @@ package struct SectionRail: View {
             glyph(.settings)
             SidebarIconButton(symbol: "arrow.left", help: "Back to the Tabs (Escape)") { choose(.tabs) }
                 .accessibilityLabel("Back to the Tabs")
+                .environment(\.sidebarButtonCorner, leading ? .bottomLeading : .bottomTrailing)
         }
         .environment(\.sidebarButtonMetrics, buttons.metrics)
         .padding(.top, buttons.header.height)

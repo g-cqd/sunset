@@ -39,6 +39,7 @@ struct DocumentPaneView: View {
         }
         .padding(.top, context.topInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(context.translucent ? Color.clear : Color(nsColor: .textBackgroundColor))
+        // On the terminal's background, as every pane (the owner, 2026-11-15).
+        .paneBackdrop(context.backdrop)
     }
 }

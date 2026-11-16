@@ -28,6 +28,8 @@ package import SwiftUI
                 description: Text("This version of Sunset cannot show it. It is kept as it was.")
             )
             .padding(.top, context.topInset)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .paneBackdrop(context.backdrop)
         )
     }
 }

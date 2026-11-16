@@ -125,7 +125,9 @@ package final class WebContent: PaneContent {
 
     package func makeView(_ context: PaneViewContext) -> AnyView {
         if webView == nil { makeWebView(configuration: nil) }
-        return AnyView(WebPaneView(content: self, focused: context.focused, topInset: context.topInset))
+        return AnyView(
+            WebPaneView(content: self, focused: context.focused, topInset: context.topInset, backdrop: context.backdrop)
+        )
     }
 
     // MARK: Navigating

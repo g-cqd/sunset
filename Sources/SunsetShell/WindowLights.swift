@@ -8,6 +8,11 @@ package import AppKit
 /// them moves the buttons are put back. Taken out of the title bar, as Sunset did before, AppKit took them back in and nothing
 /// noticed: they stayed at its place, the top left, whatever side the sidebar was on (diary 2026-11-15). The way of the
 /// Search browser by Office Commun (its `Lights.swift`, read for this; none of its code is here).
+///
+/// A button cannot be moved while it says that it moved: AppKit's `-[_NSThemeWidget setFrameOrigin:ignoreRentry:]` drops the
+/// call. Each button was so put back while the next one said it had moved, and the last, the zoom button, never: a new title
+/// left it at the top left (diary 2026-11-15-02). So a button that moves is put back again once AppKit is done: at once when
+/// it is the title that changed (the window's title is watched), else on the run loop's next turn, before anything is drawn.
 @MainActor
 package final class WindowLights {
     /// Where the buttons go and whether they show.
@@ -47,6 +52,9 @@ package final class WindowLights {
     private var observers: [any NSObjectProtocol] = []
     private var watched: [ObjectIdentifier] = []
     private var viewObservers: [any NSObjectProtocol] = []
+    private var titleObserver: NSKeyValueObservation?
+    /// A pass is waiting for the run loop's next turn.
+    private var pending = false
     private static let types: [NSWindow.ButtonType] = [.closeButton, .miniaturizeButton, .zoomButton]
     /// Where a hidden button is parked: outside the window, with nothing to click.
     private static let parked = -200.0
@@ -66,9 +74,14 @@ package final class WindowLights {
                 MainActor.assumeIsolated { self?.place() }
             }
         }
+        // Told when AppKit is done with a new title, its title bar tiled: every button can be moved then.
+        titleObserver = window.observe(\.title) { [weak self] _, _ in
+            MainActor.assumeIsolated { self?.place() }
+        }
     }
 
     isolated deinit {
+        titleObserver?.invalidate()
         (observers + viewObservers).forEach { NotificationCenter.default.removeObserver($0) }
     }
 
@@ -88,7 +101,23 @@ package final class WindowLights {
                 object: view,
                 queue: nil
             ) { [weak self] _ in
-                MainActor.assumeIsolated { self?.place() }
+                MainActor.assumeIsolated {
+                    self?.place()
+                    // The view that says it moved may not be moved now: once more when AppKit is done.
+                    self?.placeLater()
+                }
+            }
+        }
+    }
+
+    /// Another pass on the run loop's next turn, which comes before the window is drawn; one however many ask.
+    private func placeLater() {
+        guard !pending else { return }
+        pending = true
+        RunLoop.main.perform(inModes: [.common]) { [weak self] in
+            MainActor.assumeIsolated {
+                self?.pending = false
+                self?.place()
             }
         }
     }

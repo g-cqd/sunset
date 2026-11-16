@@ -10,6 +10,8 @@ struct WebPaneView: View {
     let focused: Bool
     @Environment(\.windowBarHostsFind) private var findInWindowBar
     let topInset: Double
+    /// The terminal's background: behind what is not a page (the empty pane, a page that failed).
+    let backdrop: PaneBackdrop
     @State private var warning = false
     @Environment(\.webAddressRow) private var addressRow
     @Environment(\.addressTyping) private var typing
@@ -24,8 +26,10 @@ struct WebPaneView: View {
             ZStack(alignment: .top) {
                 if let webView = content.webView {
                     WebViewHost(webView: webView, focused: focused && content.url != nil && content.failure == nil)
+                        // No page to show: its blank does not show through a background that is not opaque.
+                        .opacity(isEmpty || content.failure != nil ? 0 : 1)
                 }
-                if content.url == nil, content.webView?.url == nil { empty }
+                if isEmpty { empty }
                 if let failure = content.failure { failed(failure) }
                 if let request = content.permissionRequest {
                     PermissionPanel(request: request, store: content.permissions)
@@ -60,8 +64,17 @@ struct WebPaneView: View {
         }
         .padding(.top, topInset)
         // The page's own colour, above it too (the strip that drags the window; note n71).
-        .background(content.pageBackground.map { Color(nsColor: $0) } ?? Color(nsColor: .windowBackgroundColor))
+        .background(pageColor)
         .animation(BarGroupSlide.animation, value: content.find.isOpen)
+    }
+
+    private var isEmpty: Bool { content.url == nil && content.webView?.url == nil }
+
+    /// Behind a page, its own colour; behind no page or one that failed, the terminal's background, as every pane (the owner,
+    /// 2026-11-15).
+    private var pageColor: Color {
+        if isEmpty || content.failure != nil { return backdrop.color }
+        return content.pageBackground.map { Color(nsColor: $0) } ?? backdrop.color
     }
 
     private var empty: some View {
@@ -69,7 +82,7 @@ struct WebPaneView: View {
             .font(.system(size: Design.Symbol.hero))
             .foregroundStyle(.tertiary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(nsColor: .windowBackgroundColor))
+            .paneBackdrop(backdrop)
     }
 
     private func failed(_ failure: WebFailure) -> some View {
@@ -90,7 +103,7 @@ struct WebPaneView: View {
         }
         .padding(Design.Space.xxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .paneBackdrop(backdrop)
         .alert("Visit this page anyway?", isPresented: $warning) {
             Button("Cancel", role: .cancel) {}
             Button("Visit Anyway", role: .destructive) { content.acceptCertificate() }

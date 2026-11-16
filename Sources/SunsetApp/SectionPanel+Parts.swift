@@ -8,27 +8,18 @@ import SwiftUI
 extension SectionPanel {
     /// The title with what the section offers, then the search field.
     var top: some View {
-        VStack(spacing: 0) {
-            if place == .library { Color.clear.frame(height: header.height) }
-            HStack(spacing: Design.Space.xs) {
-                Text(section.title).font(Design.Text.body.weight(.semibold))
-                Spacer(minLength: 0)
-                actions
-                if place == .opposite {
-                    SidebarIconButton(symbol: "sidebar.trailing", help: "Hide \(section.title) (Cmd-Y)") {
-                        tabs.showsHistory = false
-                    }
+        SectionHeading(top: topMeasures, title: section.title) {
+            actions
+            if place == .opposite {
+                SidebarIconButton(symbol: "sidebar.trailing", help: "Hide \(section.title) (Cmd-Y)") {
+                    tabs.showsHistory = false
                 }
             }
-            .environment(\.sidebarButtonMetrics, buttons.metrics)
-            .padding(.leading, layout.tabPaddingLeading)
-            .padding(.top, place == .opposite ? header.dockedButtonInset : 0)
-            .frame(height: place == .opposite ? header.height : titleRow, alignment: .top)
+        } field: {
             TextField("Search \(section.title)", text: $query).textFieldStyle(.plain).fieldSurface()
                 .focused($searching)
                 .onExitCommand { escape() }
         }
-        .padding(.horizontal, layout.tabSideInset)
     }
 
     /// Escape in the search field: the search is cleared; with none, the Library goes back to the tabs and the pane has the

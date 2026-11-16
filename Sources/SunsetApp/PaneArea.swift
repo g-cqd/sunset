@@ -14,6 +14,8 @@ struct PaneArea: View {
     let tabs: TabsModel
     let optionAsMeta: Bool
     let translucent: Bool
+    /// The terminal's background, which the panes that are not terminals are drawn on.
+    let backdrop: PaneBackdrop
     /// The strip at the top that drags a window with no title bar: the panes that touch the top of the area start their text below it.
     let topInset: Double
     let layout: Configuration.Layout
@@ -159,7 +161,8 @@ struct PaneArea: View {
                     focused: pane == item.focused,
                     translucent: translucent,
                     optionAsMeta: optionAsMeta,
-                    topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0
+                    topInset: frame.minY <= bounds.minY + 0.5 ? topInset : 0,
+                    backdrop: backdrop
                 )
             )
         } else if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {

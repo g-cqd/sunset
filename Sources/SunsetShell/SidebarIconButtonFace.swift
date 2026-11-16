@@ -7,9 +7,11 @@ struct SidebarIconButtonFace<Label: View>: View {
     let metrics: SidebarButtonMetrics
     @State private var hovering = false
     @Environment(\.isEnabled) private var enabled
+    /// The corner of this button that is at the window's corner, when it is the one there.
+    @Environment(\.sidebarButtonCorner) private var corner
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: metrics.radius, style: .continuous)
+        let shape = SidebarButtonCorner.shape(metrics, at: corner)
         label
             .foregroundStyle(
                 !enabled ? AnyShapeStyle(.tertiary) : AnyShapeStyle(hovering || pressed ? .primary : .secondary)

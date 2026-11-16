@@ -152,6 +152,20 @@ it's really the content and the sidebar themselves that should change and expand
   the rail fades in at the window's edge, and what the list shows fades from the tabs to the section where it is
   (`library-open-after.png`). The tabs stay underneath, unseen and out of reach, so going back does not make them again.
 
+## The corner, the top of a section, the panes' background (2026-11-15, the owner with the build in hand)
+
+In his words: "background for documents and all other panes should use the same background we use for terminals screens /
+library button does not have concentric corners to the window edges / documents sorting and adding buttons overlap with the
+search and the search makes no sense with no documents existing". Diary 2026-11-15-02.
+
+- Every pane that is not a terminal is drawn on the terminal's background, as opaque as the terminal is seen (ADR-0037).
+- The bar at the sidebar's foot is 2 pt higher when docked, as far from the window's bottom as from its side, and the corner
+  of the button at the window's corner shares its centre (his choice A1 of `docs/research/sidebar/library-corner-sketches.png`;
+  as built, `library-corner-built.png`). The + is therefore 2 pt above the card's bottom.
+- The title's row of a section is as tall as its buttons (`SectionTop`, `SectionHeading`), and a section with nothing in it has
+  no search field.
+- Found on the way: a change of tab left the zoom button at the top left (`WindowLights`, the way of ADR-0036 made to hold).
+
 ## As built (2026-11-15)
 
 | Part | Where |

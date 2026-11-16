@@ -16,6 +16,8 @@ package struct TabSidebar: View {
     var floating = false
     /// The floating panel's corner radius: the pin button's corner towards the panel's is concentric with it (same gap to both edges).
     var panelRadius: Double?
+    /// The window's corner radius: docked, the button at its bottom corner is concentric with it.
+    var windowRadius = ConcentricRadius.standardWindow
     /// What the app puts at the top, under the window's buttons (the address of the focused page, web step b).
     var accessory: AnyView?
     /// What the app puts at the bottom, against the window's edge (the + button and downloads, R2 and web step f).
@@ -39,6 +41,7 @@ package struct TabSidebar: View {
         settings: ShellSettings,
         floating: Bool = false,
         panelRadius: Double? = nil,
+        windowRadius: Double = ConcentricRadius.standardWindow,
         accessory: AnyView? = nil,
         bottomBar: AnyView? = nil,
         togglePin: @escaping () -> Void
@@ -49,6 +52,7 @@ package struct TabSidebar: View {
         self.settings = settings
         self.floating = floating
         self.panelRadius = panelRadius
+        self.windowRadius = windowRadius
         self.togglePin = togglePin
     }
 

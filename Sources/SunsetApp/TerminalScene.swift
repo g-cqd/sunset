@@ -148,6 +148,7 @@ struct TerminalScene: View {
                 tabs: tabs,
                 optionAsMeta: configuration.keyboard.optionAsMeta,
                 translucent: !look.isOpaque,
+                backdrop: configuration.paneBackdrop,
                 topInset: topInset,
                 layout: configuration.layout,
                 docked: configuration.sidebarDocked,

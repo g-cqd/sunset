@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetHost
+import SunsetShell
 
 /// What the window needs from the configuration, worked out in one place.
 extension Configuration {
@@ -17,6 +18,9 @@ extension Configuration {
     var backgroundAlpha: UInt8 {
         window.material == .opaque ? 255 : UInt8((terminal.opacity * 255).rounded())
     }
+
+    /// What the panes that are not terminals are drawn on: the terminal's default background, as opaque as the terminal's.
+    var paneBackdrop: PaneBackdrop { PaneBackdrop(rgb: colors.background, terminalAlpha: backgroundAlpha) }
 
     /// How the tabs are shown.
     var presentation: TabPresentation { TabPresentation.resolve(mode: tabs.mode, sidebar: sidebar.enabled) }
