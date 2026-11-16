@@ -5,6 +5,10 @@ import Foundation
 /// `$SUNSET_SESSION` names the session's file itself and puts everything else beside it; else `$SUNSET_CONFIG` (a test, a second
 /// setup) puts everything beside that file, so that it never touches the person's own; else
 /// `~/Library/Application Support/Sunset`. Empty variables count as unset.
+///
+/// A development build (a bundle identifier that ends in `.dev`: every debug build, t276) is another app than the installed
+/// one: started with nothing named it keeps `~/Library/Application Support/Sunset Dev` and keys of its own in the Keychain, so
+/// it never reads or writes the person's session and never asks for his keys.
 public struct StoragePlaces: Sendable, Equatable {
     public let directory: String
     /// The open tabs, the folders and the Favorites: one file, sealed, read whole.
@@ -14,8 +18,15 @@ public struct StoragePlaces: Sendable, Equatable {
     public let legacySession: String?
     /// The person's own setup, not one named by a variable (a test, a second setup).
     public let isDefault: Bool
+    /// Not the installed build: its bundle identifier ends in `.dev`.
+    public let isDevelopment: Bool
 
-    public init(environment: [String: String], home: String) {
+    /// - Parameters:
+    ///   - environment: the process's variables.
+    ///   - home: the home folder.
+    ///   - identifier: the bundle identifier of the app that runs, when there is one.
+    public init(environment: [String: String], home: String, identifier: String? = nil) {
+        isDevelopment = identifier?.hasSuffix(".dev") ?? false
         if let file = environment["SUNSET_SESSION"], !file.isEmpty {
             session = file
             legacySession = nil
@@ -29,7 +40,7 @@ public struct StoragePlaces: Sendable, Equatable {
         } else {
             var base = home
             while base.count > 1, base.hasSuffix("/") { base.removeLast() }
-            directory = base + "/Library/Application Support/Sunset"
+            directory = base + "/Library/Application Support/" + (isDevelopment ? "Sunset Dev" : "Sunset")
             isDefault = true
         }
         session = directory + "/session.sealed"
@@ -37,7 +48,11 @@ public struct StoragePlaces: Sendable, Equatable {
     }
 
     /// The places of this run.
-    public static let current = StoragePlaces(environment: ProcessInfo.processInfo.environment, home: NSHomeDirectory())
+    public static let current = StoragePlaces(
+        environment: ProcessInfo.processInfo.environment,
+        home: NSHomeDirectory(),
+        identifier: Bundle.main.bundleIdentifier
+    )
 
     /// The small records: page history, site zoom, site permissions, downloads (ST-3).
     public var state: String { directory + "/state.sqlite" }
@@ -49,8 +64,17 @@ public struct StoragePlaces: Sendable, Equatable {
     /// Where the key that seals all this is kept: the login Keychain for the person's own setup; a file beside the others for
     /// a named one, which must not touch the Keychain.
     public var keyVault: any KeyVault {
-        isDefault ? KeychainKeyVault() : FileKeyVault(path: directory + "/storage.key")
+        isDefault ? KeychainKeyVault(service: keyService) : FileKeyVault(path: directory + "/storage.key")
     }
+
+    /// The Keychain item of the key that seals the store: a development build has its own.
+    public var keyService: String { serviceRoot + ".storage-key" }
+    /// The Keychain item of the key that seals the commands of kept terminals (t145): a development build has its own.
+    public var commandSealService: String { serviceRoot + ".command-seal" }
+    /// Where that key is for a named setup, which must not touch the Keychain.
+    public var commandSealFile: String { directory + "/command-seal.key" }
+
+    private var serviceRoot: String { isDevelopment ? "studio.aemi.sunset.dev" : "studio.aemi.sunset" }
 
     // The files of before the database, imported once by ST-3.
     public var legacyZoom: String { directory + "/site-zoom.json" }

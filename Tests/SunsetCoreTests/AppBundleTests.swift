@@ -28,4 +28,13 @@ struct AppBundleTests {
         let tags = try #require(mermaid["UTTypeTagSpecification"] as? [String: Any])
         #expect(tags["public.filename-extension"] as? [String] == ["mmd", "mermaid"])
     }
+
+    /// t276: a debug build is another app to the Mac than the installed one (its own defaults, saved state, permissions and
+    /// Open With entry), named so that the two are told apart.
+    @Test func `a debug build has an identity and a name of its own`() throws {
+        let project = try String(contentsOf: RepositoryFiles.root.appending(path: "project.yml"), encoding: .utf8)
+        #expect(project.contains("PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.dev"))
+        #expect(project.contains("SUNSET_DISPLAY_NAME: Sunset Dev"))
+        #expect(try plist()["CFBundleDisplayName"] as? String == "$(SUNSET_DISPLAY_NAME)")
+    }
 }

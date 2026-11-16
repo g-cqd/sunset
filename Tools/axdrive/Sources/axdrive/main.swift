@@ -6,7 +6,8 @@ let usage = """
     (AXDRIVE_TEST=1, configuration under /tmp/axdrive) is touched; any other process is refused (exit 4).
 
       axdrive launch [--config JSON|FILE] [--session FILE] [--binary PATH]    prints "PID FOLDER" once a window exists
-      axdrive stop PID
+      axdrive stop PID                                 ends it (SIGTERM)
+      axdrive quit PID                                 its own Quit, whatever the app is called, then waits for it to end
       axdrive run PID < steps                          one step per line ("press OK --role button"), in one process; stops at a failure
 
       axdrive windows PID                              the app's windows (id, title, frame)
@@ -48,5 +49,6 @@ guard options.pid > 0 else {
 }
 guard Guard.allows(options.pid) else { exit(Launcher.refused(options.pid)) }
 if options.command == "stop" { exit(Launcher.stop(options.pid)) }
+if options.command == "quit" { exit(Menus.quit(pid: options.pid)) }
 if options.command == "run" { exit(await Runner.run(pid: options.pid)) }
 exit(await Commands.run(options))

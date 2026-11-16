@@ -23,4 +23,27 @@ enum Menus {
         }
         return 3
     }
+
+    /// The app's own Quit: the item of the application menu (the one after Apple's) whose title is "Quit" and the app's
+    /// name, which a debug build and the installed one do not share. Waits for the process to end: a question it asks
+    /// first (unsaved edits, running commands) leaves it running, and that is said.
+    static func quit(pid: pid_t) -> Int32 {
+        let app = AXUIElementCreateApplication(pid)
+        guard let bar = Node.element(app, kAXMenuBarAttribute) else { return Commands.fail("no menu bar") }
+        let menus = Node.elements(bar, kAXChildrenAttribute)
+        guard menus.count > 1, let menu = Node.elements(menus[1], kAXChildrenAttribute).first else {
+            return Commands.fail("no application menu")
+        }
+        let items = Node.elements(menu, kAXChildrenAttribute).map { Node($0, path: "", window: "menu") }
+        guard let item = items.first(where: { $0.title.hasPrefix("Quit ") && !$0.title.hasPrefix("Quit and ") }) else {
+            return Commands.fail("no Quit among \(items.map(\.title).filter { !$0.isEmpty })")
+        }
+        let pressed = Commands.perform(item, kAXPressAction)
+        guard pressed == 0 else { return pressed }
+        for _ in 0 ..< 50 {
+            if kill(pid, 0) != 0 { return 0 }
+            usleep(100_000)
+        }
+        return Commands.fail("\(pid) is still running 5 s after \(item.title): it may be asking a question")
+    }
 }

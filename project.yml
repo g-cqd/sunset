@@ -43,7 +43,8 @@ targets:
     info:
       path: App/Info.plist
       properties:
-        CFBundleDisplayName: Sunset
+        # "Sunset Dev" for a debug build, so that Open With and the Dock tell it from the installed one (t276).
+        CFBundleDisplayName: $(SUNSET_DISPLAY_NAME)
         CFBundleIconFile: Sunset
         LSApplicationCategoryType: public.app-category.developer-tools
         NSHighResolutionCapable: true
@@ -89,3 +90,10 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset
         PRODUCT_NAME: Sunset
+        SUNSET_DISPLAY_NAME: Sunset
+      configs:
+        # A debug build is another app to the Mac than the installed one: its own defaults (the window's frame), saved
+        # state, permissions and Open With entry, and its own folder and keys (StoragePlaces). The owner, 2026-11-16, t276.
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.dev
+          SUNSET_DISPLAY_NAME: Sunset Dev

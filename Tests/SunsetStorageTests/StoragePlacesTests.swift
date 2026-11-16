@@ -27,6 +27,26 @@ struct StoragePlacesTests {
         #expect(empty == StoragePlaces(environment: [:], home: "/h"))
     }
 
+    /// t276: a build that is not the installed one (its identifier ends in `.dev`) started with nothing named must not read
+    /// or write the person's session, nor ask for his keys (a test copy started on his session once, 2026-11-16).
+    @Test
+    func `a development build keeps its own folder and its own keys; a named setup is the same whatever the build`() {
+        let installed = StoragePlaces(environment: [:], home: "/h", identifier: "studio.aemi.sunset")
+        #expect(installed == StoragePlaces(environment: [:], home: "/h") && !installed.isDevelopment)
+        #expect(installed.keyService == "studio.aemi.sunset.storage-key")
+        #expect(installed.commandSealService == "studio.aemi.sunset.command-seal")
+        let development = StoragePlaces(environment: [:], home: "/h", identifier: "studio.aemi.sunset.dev")
+        #expect(development.isDevelopment && development.isDefault)
+        #expect(development.directory == "/h/Library/Application Support/Sunset Dev")
+        #expect(development.session == "/h/Library/Application Support/Sunset Dev/session.sealed")
+        #expect(development.keyService == "studio.aemi.sunset.dev.storage-key")
+        #expect(development.commandSealService == "studio.aemi.sunset.dev.command-seal")
+        let named = ["SUNSET_CONFIG": "/t/config.json"]
+        let test = StoragePlaces(environment: named, home: "/h", identifier: "studio.aemi.sunset.dev")
+        #expect(test.directory == "/t" && !test.isDefault)
+        #expect(test.directory == StoragePlaces(environment: named, home: "/h").directory)
+    }
+
     @Test func `the files of before the database are still found, to be imported`() {
         let places = StoragePlaces(environment: ["SUNSET_CONFIG": "/t/config.json"], home: "/h")
         #expect(places.legacyZoom == "/t/site-zoom.json" && places.legacyHistory == "/t/history.sqlite")

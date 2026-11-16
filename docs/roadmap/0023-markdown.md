@@ -161,8 +161,8 @@ Not done, and where it goes:
   two items, the stored documents' rows in the bar, Finder's Open With on the installed build.
 - The app target has no tests: `PaneDropDelegate`, `DocumentRows` and `AppDelegate.application(_:open:)` are covered by
   what was seen.
-- A debug build beside the installed one declares the same types under the same bundle identifier: which of the two the
-  Finder starts is the system's choice. Test copies need an identifier of their own (t276).
+- A debug build declared the same types under the same bundle identifier as the installed one. Since ADR-0042 (the same
+  day) it is "Sunset Dev", `studio.aemi.sunset.dev`: Open With lists both while a debug build exists.
 - No Save As; a stored document cannot be given a file yet. Relative paths and `file:line` in the bar are not read. A
   dropped folder opens nothing.
 
