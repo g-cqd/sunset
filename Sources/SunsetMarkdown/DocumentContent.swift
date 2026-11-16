@@ -19,6 +19,10 @@ package final class DocumentContent: PaneContent {
     package private(set) var fontSize = Double(ViewerSettings.defaultTextSize)
     /// Why the last save did not happen, until it is dismissed or a save does.
     package var failure: String?
+    /// The conflict this pane is on (its id), while it waits for an answer.
+    package internal(set) var shownConflict: Int?
+    /// Counts each time a conflict is to be brought into view: the views follow it.
+    package internal(set) var reveal = 0
     /// The handle on this pane's editor: its focus, and later its commands.
     @ObservationIgnored package let proxy = MarkdownEditorProxy()
     @ObservationIgnored package var onExit: () -> Void = {}

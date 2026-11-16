@@ -19,6 +19,13 @@ public struct DocumentConflict: Identifiable, Equatable, Sendable {
     /// What they were before either side changed them.
     public let base: String
 
+    public init(id: Int, range: Range<Int>, theirs: String, base: String) {
+        self.id = id
+        self.range = range
+        self.theirs = theirs
+        self.base = base
+    }
+
     /// An edit replaced `removed` units at `location` with `inserted`: the range moves with what is before it, and grows
     /// or shrinks with what is typed in it. Typed exactly at its start, or at its end, is outside.
     mutating func follow(location: Int, removed: Int, inserted: Int) {

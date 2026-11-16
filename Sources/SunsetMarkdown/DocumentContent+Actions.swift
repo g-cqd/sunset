@@ -11,11 +11,15 @@ extension DocumentContent {
         return URL(fileURLWithPath: (path as NSString).deletingLastPathComponent, isDirectory: true)
     }
 
-    /// Writes the document where it lives (Cmd-S). A failure is said in the pane and the edits stay.
+    /// Writes the document where it lives (Cmd-S). A failure is said in the pane and the edits stay. While a block changed
+    /// here and on disk waits for an answer nothing is written: the first of them is shown instead (step M-e).
     package func save() {
         do {
             try document.save()
             failure = nil
+        } catch .conflicts {
+            failure = nil
+            if let first = document.conflicts.first { show(conflict: first.id) }
         } catch {
             failure = error.sentence
         }

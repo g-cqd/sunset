@@ -1,5 +1,5 @@
 ---
-status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c done 2026-11-15, M-d done 2026-11-16, M-f done 2026-11-16; M-e waits for the owner)
+status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c done 2026-11-15, M-d done 2026-11-16, M-f done 2026-11-16, M-e done 2026-11-16)
 blocked-by: 0018 (each step's own questions); 0019 (it comes after the web milestone, by the owner's order)
 date: 2026-11-11
 ---
@@ -178,4 +178,42 @@ Not done, and where it goes:
 | Test copies | Debug builds become `studio.aemi.sunset.dev` (t276) |
 | After M-e | The test identity, the Library leftovers (t279), t263; then Spaces, profiles and the Pinned grid; then acting as Chrome on some sites (t280) |
 
-Not done: M-e, M-g to M-i.
+## M-e as built (2026-11-16)
+
+ADR-0043 says how; the owner's answers above say what it looks like.
+
+- **A file that changes on disk under edits made here is merged block by block.** What only the disk changed is put in, as
+  one step of undo; the pane says "Merged N changes from the file on disk" with Undo for a few seconds, and in the source
+  the blocks that came in are tinted for a moment.
+- **A block both changed is a conflict, shown on the block.** In the source: mine tinted where it stands, and under it a
+  card with what the disk says and Keep Mine, Keep Disk's, Keep Both; the text makes room for the card. On the page: both
+  drawn one above the other, the answers under them. A bar counts them ("1 of 2") with previous and next.
+- **Nothing is written while one waits**: Cmd-S shows the first conflict; the document does not save itself; Save in the
+  sheet on closing closes nothing; Save All at quit says why.
+- **Never by a guess**: the merged text is read again and must be exactly the blocks that were chosen, else the whole text
+  is one conflict. Text and Mermaid files merge by lines.
+- A file that stops being text under edits is still said in a line, with Reload from Disk and Keep Mine.
+
+1,245 tests in 235 suites pass. Seen in a test copy (diary 2026-11-16-01): a merge of three blocks with the tint and the line; two
+conflicts in the source and on the page; Keep Disk's, Keep Both, then Save; Save refused with a conflict, by the menu and
+by the sheet on closing; Undo of a merge; next and previous; the card following its block as lines are typed above it; the
+quit sheet with a conflict waiting. Pictures: `docs/research/markdown/md-conflict-source.png`, `md-conflict-page.png`.
+
+Not done, and where it goes:
+
+- **The page does not tint the blocks a merge put in**: only the source does. The kit's page gives no handle on a row by
+  its place in the text; that is to be added there, and Sunset's pin of AemiMarkdown is one family repin behind (t281).
+- **While conflicts wait the page is drawn in parts by Sunset**, not by the kit's view: no selection across parts, links
+  inside the page do not jump, a reference defined in another part does not resolve, a Mermaid file shows its lines and
+  not its diagram, and the parts are made again on the main actor at each edit. Answered, the page is whole again, from
+  its top.
+- **Not seen**: a text file and a Mermaid file with a conflict, the whole text as one conflict, two panes on one
+  document, a light theme, a card taller than the pane, a merge of a long document off the main actor (tested, not
+  seen).
+- No keys for the next conflict or for the answers; no word-level view of what differs inside a block.
+- One more copy of each open file's text is kept in memory (the base of the next merge).
+- `OpenDocumentsTests`, "a change on disk to a block edited here…", which goes through the real file watcher, failed
+  once in fourteen runs (the change was not seen within 2 s); not reproduced, and not explained.
+- The app target has no tests: `SourceMarksFinder` and the views are covered by what was seen.
+
+Not done: M-g to M-i.
