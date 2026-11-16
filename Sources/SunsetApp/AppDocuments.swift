@@ -14,6 +14,10 @@ enum AppDocuments {
         shelf.list = { (AppStorage.shared.documents?.documents ?? []).map(ShelfDocument.init) }
         shelf.create = { try? AppStorage.shared.documents?.create().id }
         shelf.delete = { delete($0) }
+        let recent = AppStorage.shared.recentFiles
+        shelf.files = { recent.entries.map { ShelfDocument(file: $0.path, opened: $0.opened) } }
+        shelf.noteFile = { recent.note($0) }
+        shelf.forgetFile = { recent.remove($0) }
     }
 
     /// Deletes a document at once (the owner, ST-5): what was typed and not saved is saved first, so that the plain text put

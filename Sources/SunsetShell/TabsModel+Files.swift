@@ -8,6 +8,8 @@ extension TabsModel {
     package func open(files paths: [String]) {
         for path in paths {
             let wanted = Self.onePath(path)
+            // Opened lately, for the Library's list: a private window leaves no such trace.
+            if !isPrivateWindow { shelf.noteFile(wanted) }
             let pane = workspace.allPanes.first { pane in
                 content(pane)?.descriptor.documentFile.map(Self.onePath) == wanted
             }
@@ -20,12 +22,26 @@ extension TabsModel {
         }
     }
 
-    /// The documents of the store the bar offers for what is typed: the ones whose title holds every word, but for the ones
-    /// a tab of this window shows (the tab is listed). None for nothing typed, and none when the bar picks a tab to split.
+    /// The documents this window lists (the Library, the panel opposite the tabs, the command bar): the store's, then the
+    /// files opened lately. None in a private window (the owner, 2026-11-16): their names are the person's.
+    package var listedDocuments: [ShelfDocument] { isPrivateWindow ? [] : shelf.list() + shelf.files() }
+
+    /// The documents the bar offers for what is typed: the listed ones whose title holds every word, but for the ones a tab
+    /// of this window shows (the tab is listed). None for nothing typed, and none when the bar picks a tab to split.
     package func barDocuments(_ bar: CommandBar) -> [ShelfDocument] {
         guard bar.purpose == .search, !bar.query.trimmingCharacters(in: .whitespaces).isEmpty else { return [] }
-        let shown = Set(workspace.allPanes.compactMap { document(in: $0) })
-        return ShelfDocument.matching(bar.query, in: shelf.list()).filter { !shown.contains($0.id) }
+        let stored = Set(workspace.allPanes.compactMap { document(in: $0) })
+        let files = Set(workspace.allPanes.compactMap { content($0)?.descriptor.documentFile.map(Self.onePath) })
+        return ShelfDocument.matching(bar.query, in: listedDocuments)
+            .filter { document in
+                document.file.map { !files.contains(Self.onePath($0)) } ?? !stored.contains(document.id)
+            }
+    }
+
+    /// Whether a tab of this window shows the file at `path`.
+    package func shows(file path: String) -> Bool {
+        let wanted = Self.onePath(path)
+        return workspace.allPanes.contains { content($0)?.descriptor.documentFile.map(Self.onePath) == wanted }
     }
 
     private static func onePath(_ path: String) -> String {

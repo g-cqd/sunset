@@ -36,13 +36,26 @@ Sunset restores its own session, from its own store. The system's record gives i
 ## Consequences
 
 - A crash or a kill no longer decides what the next start shows; the session store does.
-- Nothing of Sunset's is to be found in the saved state — **intended, not yet shown**: see below.
+- Nothing of Sunset's is written to the saved state — shown the same evening, once the screen was unlocked: see below.
 
-## Not shown
+## Shown later the same day (t263)
 
-- That nothing is written. With the screen locked (it was, for the whole probe) neither the build before the change nor the
-  one after wrote a record in fifteen seconds with two windows, nor at a kill: the probe does not tell them apart. t263
-  stays open for it.
+With the screen unlocked, the same debug build twice, a session of two tabs (one a file, `notes.md`), a second window,
+twenty seconds, then ended:
+
+| Build | While running | After SIGTERM | After its own Quit |
+|---|---|---|---|
+| Points 1 and 2 taken out | `windows.plist` written: 2 titles, one of them the file's name | the same | (not tried) |
+| As committed | nothing written | nothing written | nothing written |
+
+So the record did hold window titles in plain (a file's name here), and no longer does. In the morning, with the screen
+locked, neither build wrote anything: the system does not record windows then.
+
+## Not shown, and what is left
+
+- A record written by a build of before stays where it is: this build neither reads it nor removes it, and its own Quit
+  does not either. The owner's was removed by hand on 2026-11-16 (it then held no window). Removing it from the app would
+  mean reading the system's map of records, which is not ours to read.
 - The app target has no suite; all of this was seen in the app, through the menus and pictures of its windows.
 
 ## Found on the way

@@ -13,6 +13,12 @@ import SunsetWeb
             guard let tabs, let content else { return }
             switch opening {
                 case .document(let other):
+                    // A link to another file: opened lately too, but not from a private window.
+                    if !tabs.isPrivateWindow, other.document !== content.document,
+                        let file = other.descriptor.documentFile
+                    {
+                        tabs.shelf.noteFile(file)
+                    }
                     wire(other, in: tabs)
                     tabs.split(.right, with: other, beside: content)
                 case .web(let url):

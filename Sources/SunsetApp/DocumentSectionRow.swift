@@ -16,12 +16,23 @@ struct DocumentSectionRow: View {
     private static let lines = 2
     @State private var hovered = false
 
-    private var isOpen: Bool { tabs.workspace.allPanes.contains { tabs.document(in: $0) == document.id } }
+    private var isOpen: Bool {
+        if let file = document.file { return tabs.shows(file: file) }
+        return tabs.workspace.allPanes.contains { tabs.document(in: $0) == document.id }
+    }
 
+    /// When it was changed; for a file opened lately, when it was opened and the folder it is in.
     private var changed: String {
-        byDay
+        let when =
+            byDay
             ? document.modified.formatted(date: .omitted, time: .shortened)
             : document.modified.formatted(date: .abbreviated, time: .shortened)
+        guard let file = document.file else { return when }
+        return when + "  " + TabLabel.shortened((file as NSString).deletingLastPathComponent)
+    }
+
+    private func open() {
+        if let file = document.file { tabs.open(files: [file]) } else { tabs.show(document: document.id) }
     }
 
     var body: some View {
@@ -44,19 +55,31 @@ struct DocumentSectionRow: View {
         .animation(layout.smooth, value: hovered)
         .onHover { hovered = $0 }
         .onTapGesture {
-            if NSEvent.modifierFlags.contains(.command) { openInNewTab() } else { tabs.show(document: document.id) }
+            if NSEvent.modifierFlags.contains(.command), document.file == nil { openInNewTab() } else { open() }
         }
-        .onDrag { tabs.itemProvider(for: .document(document.id)) }
+        .onDrag {
+            // A file is dragged as a file (onto a terminal its path is typed); a document of the store as a tab.
+            guard let file = document.file else { return tabs.itemProvider(for: .document(document.id)) }
+            return NSItemProvider(object: URL(fileURLWithPath: file) as NSURL)
+        }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
         // A press through accessibility (VoiceOver, Voice Control) does not reach a tap gesture on a combined element: seen in
         // the app, where pressing the row did nothing (diary 2026-11-15).
-        .accessibilityAction { tabs.show(document: document.id) }
+        .accessibilityAction { open() }
         .contextMenu {
-            Button("Open") { tabs.show(document: document.id) }
-            Button("Open in New Tab") { openInNewTab() }
-            Divider()
-            Button("Delete", role: .destructive) { tabs.delete(document: document.id) }
+            Button("Open") { open() }
+            if let file = document.file {
+                Button("Show in Finder") {
+                    NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: file)])
+                }
+                Divider()
+                Button("Remove from This List") { tabs.shelf.forgetFile(file) }
+            } else {
+                Button("Open in New Tab") { openInNewTab() }
+                Divider()
+                Button("Delete", role: .destructive) { tabs.delete(document: document.id) }
+            }
         }
     }
 

@@ -33,7 +33,7 @@ struct SectionList: View {
                     HistoryRow(entry: $0, layout: layout)
                 }
             case .documents:
-                let found = ShelfDocument.matching(query, in: tabs.shelf.list())
+                let found = ShelfDocument.matching(query, in: tabs.listedDocuments)
                 groups(sort.groups(found), none: noDocuments, noMatch: "No document matches") {
                     DocumentSectionRow(
                         tabs: tabs,
@@ -59,7 +59,8 @@ struct SectionList: View {
     }
 
     private var noDocuments: String {
-        tabs.shelf.available() ? "No documents yet" : "Nothing can be kept in this run: see Settings, Storage"
+        if tabs.isPrivateWindow { return "Documents are not listed in a private window" }
+        return tabs.shelf.available() ? "No documents yet" : "Nothing can be kept in this run: see Settings, Storage"
     }
 
     @ViewBuilder

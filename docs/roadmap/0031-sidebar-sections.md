@@ -200,3 +200,26 @@ Pictures: `docs/research/sidebar/sections-built.png` (the parts, off screen), `s
 - A private window lists the same documents; that was not asked.
 - A document's text is not searched (it is sealed and is not read to list it): the search is on titles.
 - Spaces: only their room at the foot.
+
+## The owner's answers on what was left (2026-11-16), and what was built (ADR-0044)
+
+| Left over | Answer | Built |
+| --- | --- | --- |
+| Only documents of the store are listed | **List recently opened files with them** | The last twenty, among the documents by day, kind or name; sealed; Show in Finder, Remove from This List |
+| A private window lists the same documents | **It hides them** | No document is listed there (Library, opposite panel, command bar), and a file opened there is not noted |
+| Escape only from the search field | **From anywhere in the Library** | The Library has the keyboard when it opens and when its section changes (the field, or the list when there is nothing to search); a click beside the rows gives it back |
+| The downloads button at the foot beside the Library | Not chosen: it stays | |
+| Keys for the sections | Not chosen | |
+| A document dragged from the list when a tab shows it | A second tab, as built | |
+
+Seen in a test copy (diary 2026-11-16-01): a stored document and three files in one list (`docs/research/sidebar/
+library-recent-files.png`); the private window's empty list; Escape closing the Library from Downloads and History (nothing
+to search), and from Documents reached from Downloads.
+
+Not done, or not seen:
+
+- A click beside the rows giving the keyboard back, a drag of a file's row, the row's menu: none can be made in the
+  background. Escape was sent as a key to a window that is never the key window of the Mac.
+- The files are not cleared with the history, and nothing clears them all at once.
+- The command bar offers the files opened lately by name; not seen.
+

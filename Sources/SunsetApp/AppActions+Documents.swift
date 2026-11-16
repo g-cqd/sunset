@@ -45,7 +45,10 @@ extension AppActions {
             return
         }
         guard AppConfiguration.shared.presentation.hostsTabsInWindow else {
-            for path in paths { newTab(kind: DocumentContent.descriptor(file: path)) }
+            for path in paths {
+                if !tabs.isPrivateWindow { tabs.shelf.noteFile(path) }
+                newTab(kind: DocumentContent.descriptor(file: path))
+            }
             return
         }
         tabs.open(files: paths)

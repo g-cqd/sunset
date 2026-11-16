@@ -66,6 +66,10 @@ final class AppStorage {
         }
     }()
 
+    /// The files opened lately, listed with the documents (roadmap 0031): sealed in the state database, or in memory only
+    /// when nothing can be kept in this run.
+    private(set) lazy var recentFiles = RecentFiles(table: table("recent-files"))
+
     /// The records of one kind; nil when nothing can be kept in this run (they are then in memory only).
     func table(_ kind: String) -> SealedTable? { database?.table(kind) }
 

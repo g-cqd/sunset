@@ -28,7 +28,15 @@ import SunsetWeb
         if chip == nil, let path = TypedPath.file(typed) { rows.append(DocumentRows.file(path, tabs: tabs)) }
         if let input { rows.append(web(input, id: "typed", tabs: tabs, recall: recall)) }
         // The documents Sunset keeps, by title: after what was typed, so that Return does what it did.
-        if chip == nil { rows += tabs.barDocuments(bar).map { DocumentRows.stored($0, tabs: tabs) } }
+        if chip == nil {
+            let typedFile = TypedPath.file(typed)
+            rows += tabs.barDocuments(bar)
+                .compactMap { document in
+                    guard let file = document.file else { return DocumentRows.stored(document, tabs: tabs) }
+                    // A file opened lately, by its name; not twice when its path is what was typed.
+                    return file == typedFile ? nil : DocumentRows.file(file, tabs: tabs)
+                }
+        }
         if chip == nil {
             let visited = (history?.suggestions(for: typed) ?? []).filter { $0.url != input?.url?.absoluteString }
             rows += visited.compactMap { entry in

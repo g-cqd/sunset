@@ -14,6 +14,12 @@ package final class DocumentShelf {
     package var create: () -> UUID? = { nil }
     /// Puts the document away for good (its plain text in the Mac's Trash), in every window; false when it could not be.
     package var delete: (UUID) -> Bool = { _ in false }
+    /// The files opened lately, each as a row among the documents (`ShelfDocument.file`), the latest first.
+    package var files: () -> [ShelfDocument] = { [] }
+    /// A file was opened in a window that is not private.
+    package var noteFile: (String) -> Void = { _ in }
+    /// A file is taken off the ones opened lately.
+    package var forgetFile: (String) -> Void = { _ in }
 
     package init() {}
 }

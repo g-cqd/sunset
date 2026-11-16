@@ -22,9 +22,9 @@ extension SectionPanel {
         }
     }
 
-    /// Escape in the search field: the search is cleared; with none, the Library goes back to the tabs and the pane has the
-    /// keyboard again.
-    private func escape() {
+    /// Escape in the search field or on the list: the search is cleared; with none, the Library goes back to the tabs and
+    /// the pane has the keyboard again.
+    func escape() {
         guard query.isEmpty else {
             query = ""
             return

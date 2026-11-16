@@ -25,12 +25,15 @@ struct SectionPanel: View {
     @State var query = ""
     /// The Library opens with its search field ready: typing searches, Escape goes back to the tabs.
     @FocusState var searching: Bool
+    /// The list itself has the keyboard: a section with nothing to search, or a click beside its rows. Escape then goes
+    /// back to the tabs too (the owner, 2026-11-16: from anywhere in the Library).
+    @FocusState var inList: Bool
 
     var layout: LayoutMetrics { buttons.layout }
     /// How many things the section lists, whatever is searched: with none there is no search field.
     var count: Int {
         switch section {
-            case .documents: return tabs.shelf.list().count
+            case .documents: return tabs.listedDocuments.count
             case .history:
                 let _ = HistoryChanges.shared.generation
                 return AppHistory.shared?.entries(limit: 1).count ?? 0
@@ -63,19 +66,41 @@ struct SectionPanel: View {
             .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.never)
+        // Under the rows: a click beside them gives the Library the keyboard. On a row it does what the row does.
+        .background(Color.clear.contentShape(Rectangle()).onTapGesture { if place == .library { inList = true } })
+        .focusable(place == .library)
+        .focusEffectDisabled()
+        .focused($inList)
+        .onExitCommand { escape() }
         .contentMargins(.top, listTop, for: .scrollContent)
         .contentMargins(.bottom, buttons.margin + footInset, for: .scrollContent)
         .mask { fade }
         .overlay(alignment: .top) { topBlur }
         .overlay(alignment: .top) { top }
         .overlay(alignment: .bottom) { foot }
-        .onChange(of: section) { _, _ in query = "" }
+        .onChange(of: section) { _, _ in
+            query = ""
+            takeKeyboard()
+        }
         // The settings' search is the page's: what is typed here goes there, and a row chosen there ends it here.
         .onChange(of: query) { _, new in if section == .settings { AppSettings.search(new, in: tabs) } }
         .onChange(of: AppSettings.content(in: tabs)?.query) { _, new in
             if section == .settings, let new, new != query { query = new }
         }
         .onChange(of: topMeasures.searchable) { _, searchable in if !searchable { query = "" } }
-        .onAppear { if place == .library { searching = true } }
+        .onAppear { takeKeyboard() }
+    }
+
+    /// The Library has the keyboard when it opens and when its section changes: in its search field, or, with nothing to
+    /// search, on its list. The panel opposite the tabs never takes it.
+    private func takeKeyboard() {
+        guard place == .library else { return }
+        guard topMeasures.searchable else {
+            inList = true
+            return
+        }
+        // In the next turn: a field that comes with this very change (from a section with nothing to search) is not there
+        // to take the keyboard yet (seen 2026-11-16: Escape did nothing after Downloads, then Documents).
+        Task { @MainActor in searching = true }
     }
 }
