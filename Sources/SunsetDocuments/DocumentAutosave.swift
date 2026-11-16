@@ -1,5 +1,6 @@
-/// When a document saves itself (R6, roadmap 0023 step M-d). A file does only when a setting says so, and both settings are
-/// off by default; a document of Sunset's own store always does, a moment after an edit ("kept by Sunset until saved").
+/// When a document saves itself (R6, roadmap 0023 step M-d). A file does when a setting says so (the app's settings say two
+/// seconds after an edit and on losing focus, ADR-0041; with none given here, never); a document of Sunset's own store
+/// always does, a moment after an edit ("kept by Sunset until saved").
 public struct DocumentAutosave: Sendable, Equatable {
     /// A file is written this long after its first unsaved edit, so no more than that much typing is ever unsaved; nil is
     /// never (`documents.saveAfter`, 0).

@@ -48,13 +48,13 @@ extension SettingsOption {
                 "autosave document markdown timer seconds write edits",
                 \.documents.saveAfter,
                 0 ... 3600,
-                step: 5,
+                step: 1,
                 unit: "s",
                 digits: 0
             )
             .noted(
-                "A file is written this long after its first unsaved edit; 0 is never, and it is then written only by "
-                    + "\u{2318}S. It is never written over a change made elsewhere, and a deleted file is not made again."
+                "A file is written this long after its first unsaved edit; 0 is never. It is never written over a change "
+                    + "made elsewhere, and a deleted file is not made again."
             ),
             toggle(
                 "documents.saveOnFocusLoss",

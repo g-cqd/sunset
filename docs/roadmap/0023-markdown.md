@@ -166,4 +166,16 @@ Not done, and where it goes:
 - No Save As; a stored document cannot be given a file yet. Relative paths and `file:line` in the bar are not read. A
   dropped folder opens nothing.
 
+## The owner's answers on his return (2026-11-16)
+
+| Question | Answer |
+| --- | --- |
+| The decisions of M-d and M-f taken in his absence | Kept, but one: **a file saves itself by default**, 2 s after an edit and on losing focus (ADR-0041; done the same day) |
+| M-e: how a conflict is shown | **On the block, in the document**: both versions tinted in place, Keep Mine, Keep Disk's, Keep Both on the block, a count with previous and next at the top; in both views |
+| M-e: while a conflict is unanswered | **Save is refused**: Cmd-S shows the first conflict; a save by itself waits |
+| M-e: blocks merged by themselves | **They flash** (a brief tint on each), with a notice that has Undo; the merge is one undo step |
+| A document dragged from the Library when a tab shows it | A second tab (as built); opening a file selects the tab that shows it |
+| Test copies | Debug builds become `studio.aemi.sunset.dev` (t276) |
+| After M-e | The test identity, the Library leftovers (t279), t263; then Spaces, profiles and the Pinned grid; then acting as Chrome on some sites (t280) |
+
 Not done: M-e, M-g to M-i.

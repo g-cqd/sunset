@@ -2,12 +2,18 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `documents.saveAfter` and `documents.saveOnFocusLoss` (R6, roadmap 0023 step M-d): a file is written by itself only when
-/// one of them says so, and neither does by default.
+/// `documents.saveAfter` and `documents.saveOnFocusLoss` (R6, roadmap 0023 step M-d): when a file is written by itself. By
+/// default two seconds after an edit and when it loses focus (the owner, 2026-11-16, ADR-0041); the file can say never.
 @Suite("Configuration: documents") struct ConfigurationDocumentsTests {
-    @Test func `a file is not saved by itself unless the file says when`() throws {
+    @Test
+    func `a file is saved by itself two seconds after an edit and on losing focus, unless the file says otherwise`()
+        throws
+    {
         let plain = try ConfigurationParser.parse("{}").configuration.documents
-        #expect(plain.saveAfter == 0 && !plain.saveOnFocusLoss)
+        #expect(plain.saveAfter == 2 && plain.saveOnFocusLoss)
+        let never = try ConfigurationParser.parse(#"{ "documents": { "saveAfter": 0, "saveOnFocusLoss": false } }"#)
+        #expect(never.issues.isEmpty)
+        #expect(never.configuration.documents.saveAfter == 0 && !never.configuration.documents.saveOnFocusLoss)
         let result = try ConfigurationParser.parse(#"{ "documents": { "saveAfter": 30, "saveOnFocusLoss": true } }"#)
         #expect(result.issues.isEmpty)
         #expect(result.configuration.documents.saveAfter == 30 && result.configuration.documents.saveOnFocusLoss)
