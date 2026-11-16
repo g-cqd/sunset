@@ -24,4 +24,6 @@ Read [docs/WHITE-PAPER.md](docs/WHITE-PAPER.md) first; it binds everything below
 - The core (parser, screen, modes, replies, PTY host) imports no Darwin-only API outside a seam, and no UI.
 - Oracles (kitty, ghostty, wezterm, Terminal.app, SwiftTerm, libghostty) run as processes in tests and benchmarks; they are never linked or vendored. Their numbers are quoted as theirs.
 - Anything an untrusted program can ask the terminal to do has a policy and a test for it (white paper §9).
+- Install a build with `Scripts/install-app.sh` and repeat what it prints: a Sunset that is running goes on running the build
+  before until it is quit and reopened. Never look for it with `pgrep` (it leaves out its own ancestors).
 - Style and gates: adopt TerminalKit's (aemi's synced `.swift-format`/`.swiftlint.yml`, `Scripts/quality.sh --check`) when the first target lands.
