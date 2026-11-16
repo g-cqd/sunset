@@ -140,13 +140,16 @@ struct OpenDocumentsTests {
         open.close(document)
     }
 
-    @Test func `a change on disk while edited here is kept apart and said, not taken`() async throws {
+    @Test func `a change on disk to a block edited here is kept apart and asked about, not taken`() async throws {
         let path = try file("c.md", "base\n")
         let open = OpenDocuments(store: nil)
         let document = open.open(.file(path))
         type("mine\n", into: document)
         try "theirs\n".write(toFile: path, atomically: true, encoding: .utf8)
-        #expect(await eventually { document.changedOnDisk })
+        #expect(
+            await eventually { document.conflicts.map(\.theirs) == ["theirs\n"] },
+            "\(document.conflicts) \(document.changedOnDisk) \(String(describing: document.problem)) \(document.source.text.debugDescription) \(document.isEdited)"
+        )
         #expect(document.source.text == "base\nmine\n" && document.isEdited)
         // The file deleted: the text stays, and it is said.
         try FileManager.default.removeItem(atPath: path)

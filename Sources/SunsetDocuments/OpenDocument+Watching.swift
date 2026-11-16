@@ -2,7 +2,7 @@ internal import Foundation
 internal import MarkdownLookKit
 internal import SunsetHost
 
-/// The file behind a document, watched (R6: "reloaded silently if unedited"; merging an edited one is step M-e).
+/// The file behind a document, watched (R6: "reloaded silently if unedited; merged if edited", `OpenDocument+Merging`).
 extension OpenDocument {
     func startWatching() {
         guard case .file(let path) = place, watcher == nil else { return }
@@ -12,7 +12,7 @@ extension OpenDocument {
         watching = Task { [weak self] in
             for await _ in watcher.changes {
                 let read = await FileContent.readConcurrently(path)
-                self?.fileChanged(read)
+                await self?.fileSettled(read)
             }
         }
     }
@@ -36,7 +36,16 @@ extension OpenDocument {
         known = read.mark
         problem = read.problem
         changedOnDisk = false
-        if read.problem == nil { source.reload(text: read.text) }
+        if read.problem == nil { take(read.text) }
+    }
+
+    /// The text is the file's, whole: nothing of before is left to ask about or to undo.
+    func take(_ text: String) {
+        base = text
+        savedElsewhere = false
+        conflicts = []
+        lastMerge = nil
+        source.reload(text: text)
     }
 
     /// The person chose the edits made here over the file: nothing is read, and saving writes this text over it.
@@ -51,12 +60,18 @@ extension OpenDocument {
             problem = .missing
             return
         }
-        guard !source.isEdited else {
-            changedOnDisk = true
+        guard !isEdited else {
+            // Text on both sides is merged; a file that is no longer text is said, and nothing is touched.
+            if read.problem == nil, let base { merge(theirs: read.text, base: base) } else { changedOnDisk = true }
             return
         }
         problem = read.problem
         changedOnDisk = false
-        source.reload(text: read.text)
+        if read.problem == nil {
+            take(read.text)
+        } else {
+            base = nil
+            source.reload(text: read.text)
+        }
     }
 }

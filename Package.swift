@@ -170,6 +170,8 @@ let package = Package(
             name: "SunsetDocuments",
             dependencies: [
                 "SunsetStorage", "SunsetHost", .product(name: "MarkdownLookKit", package: "AemiMarkdown"),
+                // The parser itself: a text cut at its top-level blocks, for merging a change on disk (step M-e).
+                .product(name: "AemiMarkdown", package: "AemiMarkdown"),
                 .product(name: "AemiIO", package: "aemi")
             ],
             path: "Sources/SunsetDocuments",

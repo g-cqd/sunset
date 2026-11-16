@@ -103,7 +103,9 @@ struct DocumentAutosaveTests {
         #expect(!other.isEdited, "the app went to the back: every one")
     }
 
-    @Test func `it never writes over a file that changed on disk under the edits`() async throws {
+    @Test func `it never writes over a block that changed on disk under the edits, until the person has answered`()
+        async throws
+    {
         let path = try file("a.md", "one\n")
         let open = OpenDocuments(store: nil)
         open.autosave = DocumentAutosave(fileDelay: .milliseconds(30), onFocusLoss: true)
@@ -111,10 +113,31 @@ struct DocumentAutosaveTests {
         type("mine\n", into: document)
         try "theirs\n".write(toFile: path, atomically: true, encoding: .utf8)
         document.checkFile()
+        #expect(document.conflicts.count == 1)
+        document.focusLost()
+        type("more\n", into: document)
+        try await Task.sleep(for: .milliseconds(120))
+        #expect(read(path) == "theirs\n" && document.isEdited)
+        document.resolve(try #require(document.conflicts.first).id, keeping: .mine)
+        document.focusLost()
+        #expect(read(path) == "one\nmine\nmore\n", "the person chose these edits: they are written again")
+    }
+
+    @Test
+    func `it never writes over a file that stopped being text under the edits, until the person says to keep them`()
+        async throws
+    {
+        let path = try file("b.md", "one\n")
+        let open = OpenDocuments(store: nil)
+        open.autosave = DocumentAutosave(fileDelay: .milliseconds(30), onFocusLoss: true)
+        let document = open.open(.file(path))
+        type("mine\n", into: document)
+        try Data([0xFF, 0xFE, 0x00]).write(to: URL(fileURLWithPath: path))
+        document.checkFile()
         #expect(document.changedOnDisk)
         document.focusLost()
         try await Task.sleep(for: .milliseconds(120))
-        #expect(read(path) == "theirs\n" && document.isEdited)
+        #expect(FileManager.default.contents(atPath: path) == Data([0xFF, 0xFE, 0x00]) && document.isEdited)
         document.keepEdits()
         document.focusLost()
         #expect(read(path) == "one\nmine\n", "the person chose these edits: they are written again")

@@ -78,20 +78,24 @@ extension DocumentContentTests {
         #expect(page.shown.rows.isEmpty)
     }
 
-    @Test func `a file that changed on disk under edits is reloaded or kept, as the person says`() throws {
+    /// Step M-e: the block changed on both sides is a conflict the pane shows, answered there; the whole file can still be
+    /// taken instead.
+    @Test func `a block changed here and on disk is kept as it is here until the person says, or takes the file`()
+        throws
+    {
         let path = try file("c.md", "disk\n")
         let pane = try content(path)
         type("mine\n", into: pane)
         try "theirs\n".write(toFile: path, atomically: true, encoding: .utf8)
         pane.document.checkFile()
-        #expect(pane.document.changedOnDisk && pane.document.source.text == "disk\nmine\n")
-        pane.document.keepEdits()
-        #expect(!pane.document.changedOnDisk && pane.isEdited)
+        #expect(pane.document.conflicts.count == 1 && pane.document.source.text == "disk\nmine\n")
+        pane.document.resolve(try #require(pane.document.conflicts.first).id, keeping: .mine)
+        #expect(pane.document.conflicts.isEmpty && pane.isEdited)
         try "theirs again\n".write(toFile: path, atomically: true, encoding: .utf8)
         pane.document.checkFile()
-        #expect(pane.document.changedOnDisk)
+        #expect(pane.document.conflicts.map(\.theirs) == ["theirs again\n"])
         pane.document.reloadFromDisk()
-        #expect(!pane.document.changedOnDisk && !pane.isEdited && pane.document.source.text == "theirs again\n")
+        #expect(pane.document.conflicts.isEmpty && !pane.isEdited && pane.document.source.text == "theirs again\n")
         pane.stop()
     }
 

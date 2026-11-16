@@ -100,6 +100,7 @@ public final class OpenDocuments {
     private func forget(_ document: OpenDocument) {
         document.stopAutosaving()
         document.stopWatching()
+        document.stopFollowingEdits()
         open[document.place] = nil
     }
 }

@@ -16,8 +16,8 @@ extension OpenDocument {
     /// Sunset keeps it without being asked, and nothing says it cannot: its edits need no question.
     public var keepsItself: Bool { isStored && saveFailure == nil && problem == nil && !changedOnDisk }
 
-    /// The edits can be written without anyone being asked.
-    var canSaveItself: Bool { source.isEdited && !changedOnDisk && problem == nil && !givenUp }
+    /// The edits can be written without anyone being asked: not while a block changed here and on disk waits for an answer.
+    var canSaveItself: Bool { isEdited && !changedOnDisk && problem == nil && !givenUp && conflicts.isEmpty }
 
     /// Watches the text: each edit is told to `textChanged`. Observation tells once, so it is asked again each time.
     func watchEdits() {
@@ -41,7 +41,7 @@ extension OpenDocument {
     /// The text changed: when it is to save itself after a time and no save waits, one does. The time is the setting's at the
     /// first unsaved edit.
     func textChanged() {
-        guard source.isEdited, pendingSave == nil, let owner else { return }
+        guard isEdited, pendingSave == nil, let owner else { return }
         guard let delay = isStored ? owner.autosave.storedDelay : owner.autosave.fileDelay else { return }
         pendingSave = Task { [weak self] in
             try? await Task.sleep(for: delay)
