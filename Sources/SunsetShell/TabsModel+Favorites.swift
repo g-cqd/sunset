@@ -74,8 +74,10 @@ extension TabsModel {
         guard let open = favorites.favorites.entry(id)?.open else { return }
         let busy = open.panes.contains { favorites.contents[$0]?.closeWarning != nil }
         guard confirmed(.item(open.id), isBusy: busy) else { return }
-        favorites.unload(id)
-        finishClosing()
+        losingNothing(closing: open.panes) { [self] in
+            favorites.unload(id)
+            finishClosing()
+        }
     }
 
     /// Removes a kept entry for good (what runs in it stops, asking first when something would be lost).
@@ -83,8 +85,10 @@ extension TabsModel {
         let open = favorites.favorites.entry(id)?.open
         let busy = open?.panes.contains { favorites.contents[$0]?.closeWarning != nil } ?? false
         if let open { guard confirmed(.item(open.id), isBusy: busy) else { return } }
-        favorites.delete(id)
-        finishClosing()
+        losingNothing(closing: open?.panes ?? []) { [self] in
+            favorites.delete(id)
+            finishClosing()
+        }
     }
 
     /// This window shows its own selected tab again (the entry it showed stopped, went, or is shown in another window now).

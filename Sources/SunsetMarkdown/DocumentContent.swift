@@ -28,6 +28,7 @@ package final class DocumentContent: PaneContent {
     @ObservationIgnored package var onOpen: (DocumentOpening) -> Void = { _ in }
     @ObservationIgnored let documents: OpenDocuments
     @ObservationIgnored private var isVisible = false
+    @ObservationIgnored private var hadFocus = false
     @ObservationIgnored private var stopped = false
 
     /// The pane a saved descriptor says; nil when it names no document.
@@ -61,10 +62,8 @@ package final class DocumentContent: PaneContent {
     package var glyph: PaneGlyph { .symbol(PaneDescriptor.documentSymbol) }
     package var progress: Double? { nil }
     package var isEdited: Bool { document.isEdited }
-    /// Until the sheet of step M-d (Save, Don't Save, Cancel): closing the last pane on an edited document is confirmed.
-    package var closeWarning: String? {
-        document.isEdited && document.paneCount <= 1 ? "\(title) has edits that are not saved." : nil
-    }
+    /// Nothing runs in a document: its edits are asked about in a sheet (`unsaved`), not by the red tab of a busy terminal.
+    package var closeWarning: String? { nil }
     package var descriptor: PaneDescriptor {
         var state = document.place.state
         state["view"] = mode.rawValue
@@ -75,6 +74,9 @@ package final class DocumentContent: PaneContent {
     package func setState(focused: Bool, visible: Bool) {
         guard !stopped else { return }
         isVisible = visible
+        // Another pane took the keyboard: the document saves itself when the setting says so.
+        if hadFocus, !focused { document.focusLost() }
+        hadFocus = focused
         tellPage()
         if focused, visible, mode == .source { proxy.focus() }
     }

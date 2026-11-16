@@ -1,4 +1,5 @@
 import Foundation
+import SunsetConfig
 import SunsetDocuments
 import SunsetShell
 import SunsetStorage
@@ -33,8 +34,17 @@ enum AppDocuments {
             )
             return false
         }
+        // It is gone: nothing typed in the moment between is written back, which would make it again.
+        if let open = storage.openDocuments.document(at: .stored(id)) { storage.openDocuments.discard(open) }
         for (_, tabs) in TabRegistry.shared.allWindows() { tabs.closePanes(showing: id) }
         return true
+    }
+
+    /// When a file is written by itself, from the settings (`documents.saveAfter`, `documents.saveOnFocusLoss`).
+    static func apply(_ settings: Configuration.Documents) {
+        let asked = DocumentAutosave(seconds: settings.saveAfter, onFocusLoss: settings.saveOnFocusLoss)
+        AppStorage.shared.openDocuments.autosave.fileDelay = asked.fileDelay
+        AppStorage.shared.openDocuments.autosave.onFocusLoss = asked.onFocusLoss
     }
 }
 

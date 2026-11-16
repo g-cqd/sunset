@@ -9,6 +9,7 @@ extension SettingsSection {
         symbol: "gearshape",
         topics: [
             SettingsTopic("general.startup", "Startup, closing and quitting", SettingsOption.startup),
+            SettingsTopic("general.documents", "Documents", SettingsOption.documents),
             SettingsTopic("general.file", "Configuration file", SettingsOption.configurationFile)
         ]
     )

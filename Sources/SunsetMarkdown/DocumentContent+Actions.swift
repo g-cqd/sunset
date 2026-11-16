@@ -1,7 +1,7 @@
 package import Foundation
 internal import SunsetDocuments
-package import SunsetPane
-package import SunsetShell
+internal import SunsetPane
+internal import SunsetShell
 
 /// What a document pane does when asked: saving, the other view beside it, a link.
 extension DocumentContent {
@@ -17,10 +17,7 @@ extension DocumentContent {
             try document.save()
             failure = nil
         } catch {
-            switch error {
-                case .readOnly: failure = "This document was not read, so it is not written."
-                case .write(let reason): failure = "Not saved: \(reason)."
-            }
+            failure = error.sentence
         }
     }
 
@@ -48,23 +45,5 @@ extension DocumentContent {
 
     private func openDocument(at path: String) {
         onOpen(.document(DocumentContent(document: documents.open(.file(path)), mode: nil, documents: documents)))
-    }
-}
-
-extension DocumentContent {
-    /// What quitting would lose of the documents: each edited one once, however many panes show it. Closing a pane loses
-    /// nothing while another shows the document (`closeWarning`); quitting closes them all.
-    /// - Parameter panes: every pane of the app, with its id when it is in a window.
-    /// - Returns: a loss per edited document, at the first pane found that shows it.
-    package static func quitLosses(in panes: [(PaneID?, any PaneContent)]) -> [QuitLoss] {
-        var seen: Set<ObjectIdentifier> = []
-        var losses: [QuitLoss] = []
-        for (pane, content) in panes {
-            guard let content = content as? Self, content.document.isEdited,
-                seen.insert(ObjectIdentifier(content.document)).inserted
-            else { continue }
-            losses.append(QuitLoss(kind: .document, text: "\(content.title) has edits that are not saved.", pane: pane))
-        }
-        return losses
     }
 }

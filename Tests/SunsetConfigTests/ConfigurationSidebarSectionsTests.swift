@@ -29,7 +29,7 @@ import Testing
             #expect(result.issues.isEmpty && result.configuration.sidebar.width == 240)
         }
         #expect(!ConfigurationKeys.all.contains("sidebar.documents"))
-        #expect(!ConfigurationWriter.text(for: Configuration()).contains("\"documents\""))
+        #expect(ConfigurationWriter.literals(for: Configuration())["sidebar.documents"] == nil)
         #expect(try read(#"{ "sidebar": { "document": true } }"#).issues.map(\.path) == ["sidebar.document"])
     }
 

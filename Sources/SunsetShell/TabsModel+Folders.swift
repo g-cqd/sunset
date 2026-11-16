@@ -24,8 +24,10 @@ extension TabsModel {
         let open = Self.entries(in: folder.children).compactMap(\.open)
         let busy = open.flatMap(\.panes).contains { favorites.contents[$0]?.closeWarning != nil }
         if let first = open.first { guard confirmed(.item(first.id), isBusy: busy) else { return } }
-        favorites.delete(id)
-        finishClosing()
+        losingNothing(closing: open.flatMap(\.panes)) { [self] in
+            favorites.delete(id)
+            finishClosing()
+        }
     }
 
     /// Drops what is dragged into a folder, at its end: a tab is kept there, an entry or a folder moves there.

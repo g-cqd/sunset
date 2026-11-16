@@ -28,6 +28,8 @@ package import SwiftUI
     func toggleMuted()
     /// It has edits that are not saved (a document): a dot on its tab.
     var isEdited: Bool { get }
+    /// Its unsaved edits, when closing it could lose some: asked about before it closes (`TabsModel.losingNothing`).
+    var unsaved: UnsavedEdits? { get }
     /// Nothing of it is kept: not in the session, not restored (a private page, web step h).
     var isPrivate: Bool { get }
     /// How to bring it back in another run.
@@ -51,4 +53,5 @@ extension PaneContent {
     package func toggleMuted() {}
     package var isPrivate: Bool { false }
     package var isEdited: Bool { false }
+    package var unsaved: UnsavedEdits? { nil }
 }

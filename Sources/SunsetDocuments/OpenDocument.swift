@@ -19,6 +19,8 @@ public final class OpenDocument {
     public internal(set) var problem: OpenDocumentProblem?
     /// The file changed on disk while this text had edits: neither was touched. Saving writes this text over it.
     public internal(set) var changedOnDisk = false
+    /// Why a save nobody watched failed (by itself, or with every other at quit), until a save does or it is dismissed.
+    public var saveFailure: String?
 
     @ObservationIgnored let store: DocumentStore?
     /// What the file held when it was last read or written here: a change on disk that says the same is not a change.
@@ -27,6 +29,13 @@ public final class OpenDocument {
     @ObservationIgnored var watching: Task<Void, Never>?
     /// How many panes hold it.
     @ObservationIgnored var holders = 0
+    /// The documents of the app, which say when one saves itself.
+    @ObservationIgnored weak var owner: OpenDocuments?
+    /// The save that waits for its time.
+    @ObservationIgnored var pendingSave: Task<Void, Never>?
+    @ObservationIgnored var stoppedWatchingEdits = false
+    /// Its edits were given up (Don't Save): it is forgotten with its last pane, edited as it is.
+    @ObservationIgnored var givenUp = false
 
     init(place: DocumentPlace, kind: DocumentKind, read: FileContent, store: DocumentStore?) {
         self.place = place
@@ -78,6 +87,7 @@ public final class OpenDocument {
         }
         problem = nil
         changedOnDisk = false
+        saveFailure = nil
         source.markSaved()
     }
 }

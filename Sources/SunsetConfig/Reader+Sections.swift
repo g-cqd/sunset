@@ -78,6 +78,22 @@ extension Reader {
         }
     }
 
+    mutating func readDocuments(_ object: Object) {
+        for (key, value) in object {
+            switch key {
+                case "saveAfter":
+                    if let seconds = number("documents.saveAfter", value, range: 0 ... 3600) {
+                        configuration.documents.saveAfter = seconds
+                    }
+                case "saveOnFocusLoss":
+                    if let flag = bool("documents.saveOnFocusLoss", value) {
+                        configuration.documents.saveOnFocusLoss = flag
+                    }
+                default: unknown("documents.\(key)")
+            }
+        }
+    }
+
     mutating func readScroll(_ object: Object) {
         for (key, value) in object {
             switch key {

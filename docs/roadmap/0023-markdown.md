@@ -1,5 +1,5 @@
 ---
-status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c done 2026-11-15)
+status: in-progress (M-a done 2026-11-13, M-b done 2026-11-14, M-c done 2026-11-15, M-d done 2026-11-16)
 blocked-by: 0018 (each step's own questions); 0019 (it comes after the web milestone, by the owner's order)
 date: 2026-11-11
 ---
@@ -15,7 +15,7 @@ beyond (0022). Each step starts with its own questions.
 | M-a | In AemiMarkdown: the editor, atomic saving and commands into `MarkdownLookKit` (proposed there). **Done 2026-11-13**, AemiMarkdown 26128d4 (its ADR 0008): the kit is a product of its root package; `MarkdownSource` (one text, one undo history), `MarkdownSourceEditor`, `AtomicFile`, `MarkdownCommand`; 123 kit tests. Not seen: the editor on screen | t115 |
 | M-b | The document behind a pane, app-wide by file; the note kind removed. **Done 2026-11-14** (see below) | t164 |
 | M-c | The pane: rendered natively, source, the toggle, Show Beside, Mermaid, text files, local images, links in a split. **Done 2026-11-15**, seen in the running app but for a click on a link (see below) | t165 |
-| M-d | Saving: Cmd-S, the two settings, the sheet on closing, quitting | t166 |
+| M-d | Saving: Cmd-S, the two settings, the sheet on closing, quitting. **Done 2026-11-16** (see below, ADR-0038) | t166 |
 | M-e | Changes on disk: reload, merge by nodes, conflicts asked | t167 |
 | M-f | Opening: Open File, the + menu, a drop, the command bar, the handler for .md | t168 |
 | M-g | The editor's tools: find and replace, formatting keys, the outline, smooth scroll sync | t169 |
@@ -76,7 +76,7 @@ Brought forward from M-f, as the owner agreed: **File > Open File (Cmd-O)**, eac
   at once for a text up to 32,768 UTF-16 units, off the main actor for a longer one. Typing in a long document no longer
   waits for its page (M-b's open point); the page then follows a moment behind, one page at a time.
 - **A file that changed on disk under edits** is said in the pane with Reload from Disk and Keep Mine, until M-e merges.
-- **Closing the last pane on an edited document** is confirmed like a running command, until M-d's sheet.
+- **Closing the last pane on an edited document** was confirmed like a running command; M-d's sheet replaced that.
 
 1,036 tests in 197 suites pass, on the pinned kit (AemiMarkdown 563e645, TerminalKit 791a6ca).
 
@@ -100,4 +100,38 @@ Not done, and where it goes:
 - The page of a long document is still made whole each time (330 ms at 2 MB, off the main actor): rows by block is the
   kit's next step.
 
-Not done: M-d to M-i.
+## M-d as built (2026-11-16)
+
+Decided without the owner, who was away and said to go on with sensible defaults; the decisions and their reasons are
+ADR-0038, and each is his to change.
+
+- **Two settings, both off**: `documents.saveAfter` (seconds; a file is written that long after its first unsaved edit) and
+  `documents.saveOnFocusLoss` (when another pane takes the keyboard, or another app comes to the front). Settings > General >
+  Documents. A file is never written by itself over a change made on disk under the edits, never made again once deleted,
+  never written when it was not read; a save that fails by itself is said in the pane and tried again after the next edit.
+- **A document with no file is kept by Sunset**: two seconds after an edit, when it loses focus, when its last pane closes,
+  at quit. It is asked about only when keeping it has failed.
+- **Closing asks Save, Don't Save, Cancel**, in a sheet on the window, whatever closes: a pane, a tab, the other tabs, a
+  kept entry unloaded or deleted, a folder, the window (its red button, Close Window). Only for a document whose every pane
+  is going: one pane of two closes without a word, a tab that holds both asks once (before, that lost the edits silently).
+  A running command is confirmed first, as before. A Save that fails closes nothing and shows the pane, which says why.
+- **Quitting asks about unsaved files whatever `tabs.askBeforeQuit` says**, with Save All and Quit as the answer of Return.
+- **Edits are never forgotten without a word**: a pane closed by a way that did not ask leaves its document open, held by
+  no pane, until it is saved or given up; opening the file shows the edits again, and quitting names them.
+
+1,185 tests in 225 suites pass. Seen in a test copy of the app (diary 2026-11-16-01): the sheet on Cmd-W, on Close Window
+and on the red button pressed through accessibility; Save, Don't Save and Cancel; a Save that fails; the quit sheet with
+`askBeforeQuit` at never; a file written 1 s after an edit, and on switching tab; a new document kept without a question;
+the settings page. Pictures: `docs/research/markdown/md-unsaved-sheet.png`, `md-quit-sheet.png`.
+
+Not done, and where it goes:
+
+- **Not seen**: a real click on the red button, the keys of the sheet (Return, Escape, Cmd-D), saving when another app
+  comes to the front (a test copy is never the front app; the model's side has a test), the alert when quitting with no
+  window left, a window closed by the system.
+- The app target has no tests: `QuitGate`, `WindowCloseGuard` and the sheets are covered by what was seen, not by a suite.
+- `WindowCloseGuard` stands in front of SwiftUI's window delegate; if SwiftUI ever puts its own back the window closes
+  without asking, and the edits are then kept and named at quit rather than lost.
+- No Save As, and no Revert; a stored document cannot be given a file yet (M-f). Changes on disk are still M-e.
+
+Not done: M-e to M-i.

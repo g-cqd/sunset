@@ -39,6 +39,7 @@ struct Reader {
                 case "theme": readTheme(value)
                 case "keyboard": section("keyboard", value) { reader, object in reader.readKeyboard(object) }
                 case "storage": section("storage", value) { reader, object in reader.readStorage(object) }
+                case "documents": section("documents", value) { reader, object in reader.readDocuments(object) }
                 case "web": section("web", value) { reader, object in reader.readWeb(object) }
                 case "scroll": section("scroll", value) { reader, object in reader.readScroll(object) }
                 case "scrollback": section("scrollback", value) { reader, object in reader.readScrollback(object) }

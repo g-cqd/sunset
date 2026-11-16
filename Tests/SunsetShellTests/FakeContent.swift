@@ -12,6 +12,9 @@ import SwiftUI
     var progress: Double?
     var closeWarning: String?
     var isEdited = false
+    /// The document it shows, when it plays one.
+    var edits: FakeEdits?
+    var unsaved: UnsavedEdits? { edits?.unsaved }
     var searchTerms: [String] = []
     var isPrivate = false
     var descriptor: PaneDescriptor

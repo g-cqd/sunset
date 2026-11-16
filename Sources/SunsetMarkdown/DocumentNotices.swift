@@ -3,7 +3,8 @@ internal import SunsetShell
 internal import SwiftUI
 
 /// What a document pane says above its text: that the file is gone or did not read, that it changed on disk under edits
-/// made here (until step M-e merges them: reload, or keep these), that a save failed.
+/// made here (until step M-e merges them: reload, or keep these), that a save failed (one asked for here, or one the
+/// document made by itself).
 struct DocumentNotices: View {
     let content: DocumentContent
 
@@ -22,9 +23,12 @@ struct DocumentNotices: View {
                     Button("Keep Mine") { document.keepEdits() }
                 }
             }
-            if let failure = content.failure {
+            if let failure = content.failure ?? document.saveFailure {
                 DocumentNotice(symbol: "xmark.octagon", text: failure) {
-                    Button("Dismiss") { content.failure = nil }
+                    Button("Dismiss") {
+                        content.failure = nil
+                        document.saveFailure = nil
+                    }
                 }
             }
         }

@@ -52,5 +52,13 @@ struct WindowDialogs: ViewModifier {
             ) {
                 QuitSheet(gate: .shared)
             }
+            .sheet(
+                isPresented: Binding(
+                    get: { tabs.unsavedQuestion != nil },
+                    set: { if !$0 { tabs.answerUnsaved(.cancel) } }
+                )
+            ) {
+                if let question = tabs.unsavedQuestion { UnsavedSheet(tabs: tabs, question: question) }
+            }
     }
 }

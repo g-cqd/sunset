@@ -135,6 +135,8 @@ public enum ConfigurationWriter {
         extra["appearance.tint.lightAlpha"] = number(configuration.appearance.lightTintAlpha)
         extra["appearance.accent"] = string(configuration.appearance.accent.rawValue)
         extra["storage.importedFiles"] = string(configuration.storage.importedFiles.rawValue)
+        extra["documents.saveAfter"] = number(configuration.documents.saveAfter)
+        extra["documents.saveOnFocusLoss"] = String(configuration.documents.saveOnFocusLoss)
         extra["sidebar.library"] = String(configuration.sidebar.library)
         extra["sidebar.documentSort"] = string(configuration.sidebar.documentSort.rawValue)
         return extra

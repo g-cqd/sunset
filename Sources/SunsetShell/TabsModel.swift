@@ -55,6 +55,8 @@ package final class TabsModel {
     package var markAnchor: RowTarget?
     /// Two-step confirmation before closing a tab that has a command running (`n28`).
     package var closeConfirmation = CloseConfirmation()
+    /// What is asked before unsaved edits close (`UnsavedSheet`); nil when nothing is.
+    package var unsavedQuestion: UnsavedQuestion?
     /// Whether closing a busy tab requires a second click or ⌘W (`tabs.confirmClose`).
     package var confirmClose = true
     @ObservationIgnored private var expiryTask: Task<Void, Never>?
@@ -160,31 +162,6 @@ package final class TabsModel {
         finishClosing()
     }
 
-    /// User-initiated request to close a pane: when a command is running in it, arms its tab for confirmation first (`n28`). A pane of a kept entry
-    /// closes the same way, and its last pane unloads the entry (it stays in the Favorites).
-    package func requestClose(pane: PaneID) {
-        if let entry = favorites.favorites.entry(containing: pane), let item = entry.open, let model = content(pane) {
-            guard confirmed(.pane(pane, in: item.id), isBusy: model.closeWarning != nil) else { return }
-            favorites.close(pane: pane)
-            syncStates()
-            return
-        }
-        guard let item = workspace.item(containing: pane)?.id, let model = contents[pane] else { return }
-        guard confirmed(.pane(pane, in: item), isBusy: model.closeWarning != nil) else { return }
-        close(pane: pane)
-    }
-
-    /// Closes a tab with all its panes (asking for confirmation first when any of its panes has a command running).
-    package func close(item: Workspace.ItemID) {
-        if hoveredItem == item { hoveredItem = nil }
-        guard let target = workspace.items.first(where: { $0.id == item }) else { return }
-        guard confirmed(.item(item), isBusy: target.panes.contains { contents[$0]?.closeWarning != nil }) else {
-            return
-        }
-        stop(workspace.close(item: item))
-        finishClosing()
-    }
-
     /// Whether `item` is currently armed for close confirmation (tinted red).
     package func isCloseArmed(_ item: Workspace.ItemID) -> Bool {
         closeConfirmation.isArmed(item: item, now: .now)
@@ -203,22 +180,10 @@ package final class TabsModel {
         return allowed
     }
 
-    /// Closes every tab but `item`, asking first when a command is running in one of them (they go red).
-    package func closeOthers(than item: Workspace.ItemID) {
-        let others = workspace.items.filter { $0.id != item }.flatMap(\.panes)
-        guard confirmed(.others(item), isBusy: others.contains { contents[$0]?.closeWarning != nil }) else { return }
-        stop(workspace.closeOthers(than: item))
-        syncStates()
-        onChange()
-    }
-
-    /// Closes the focused pane (the tab with its last pane; a kept entry is unloaded with its last pane).
-    package func closeSelected() { if let pane = shownPane { requestClose(pane: pane) } }
-
     /// Stops every program (the window is going).
     package func stopAll() { for content in contents.values { content.stop() } }
 
-    private func stop(_ panes: [PaneID]) {
+    func stop(_ panes: [PaneID]) {
         for pane in panes {
             if hoveredPane == pane { hoveredPane = nil }
             contents[pane]?.stop()

@@ -85,9 +85,11 @@ extension TabsModel {
         }
         let busy = open.flatMap(\.panes).contains { favorites.contents[$0]?.closeWarning != nil }
         if let first = open.first { guard confirmed(.item(first.id), isBusy: busy) else { return } }
-        for id in nodes { favorites.delete(id) }
-        clearMarks()
-        finishClosing()
+        losingNothing(closing: open.flatMap(\.panes)) { [self] in
+            for id in nodes { favorites.delete(id) }
+            clearMarks()
+            finishClosing()
+        }
     }
 
     /// Moves rows into `folder` (the top of the Favorites for nil) at `index` (the end for nil): tabs are kept there, nodes move there.

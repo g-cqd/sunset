@@ -25,7 +25,8 @@ extension SettingsOption {
                 "quit confirm running lost form",
                 \.tabs.askBeforeQuit,
                 [(.never, "Never"), (.whenLosing, "When something would be lost"), (.always, "Always")]
-            ),
+            )
+            .noted("Edits to a file that are not saved are asked about whatever this says."),
             toggle(
                 "tabs.keepRunningForFavorites",
                 "Keep running while a favourite is open",
@@ -35,6 +36,35 @@ extension SettingsOption {
             .noted(
                 "Closing the last window does not quit Sunset while something in Favorites is open; it goes on running, and "
                     + "a new window shows it again."
+            )
+        ]
+
+    /// When a file is written by itself.
+    static let documents: [Self] =
+        [
+            number(
+                "documents.saveAfter",
+                "Save a file by itself after",
+                "autosave document markdown timer seconds write edits",
+                \.documents.saveAfter,
+                0 ... 3600,
+                step: 5,
+                unit: "s",
+                digits: 0
+            )
+            .noted(
+                "A file is written this long after its first unsaved edit; 0 is never, and it is then written only by "
+                    + "\u{2318}S. It is never written over a change made elsewhere, and a deleted file is not made again."
+            ),
+            toggle(
+                "documents.saveOnFocusLoss",
+                "Save a file when it loses focus",
+                "autosave document markdown focus switch pane app background",
+                \.documents.saveOnFocusLoss
+            )
+            .noted(
+                "When another pane takes the keyboard, or another app comes to the front. A document that has no file is "
+                    + "always kept by Sunset, whatever these say."
             )
         ]
 

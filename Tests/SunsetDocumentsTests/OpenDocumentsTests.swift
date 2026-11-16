@@ -56,12 +56,12 @@ struct OpenDocumentsTests {
         let open = OpenDocuments(store: nil)
         let first = open.open(.file(path))
         _ = open.open(.file(path))
-        type("unsaved", into: first)
         open.close(first)
         #expect(open.all.count == 1 && open.document(at: .file(path)) === first)
         open.close(first)
         #expect(open.all.isEmpty && open.document(at: .file(path)) == nil)
-        #expect(open.open(.file(path)).source.text == "one\n", "what was not saved is gone with its last pane")
+        try "two\n".write(toFile: path, atomically: true, encoding: .utf8)
+        #expect(open.open(.file(path)).source.text == "two\n", "it is another document, read from the file")
     }
 
     @Test func `the kind comes from the file's name, the title is the file's name`() throws {
