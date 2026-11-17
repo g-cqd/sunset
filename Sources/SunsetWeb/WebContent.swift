@@ -46,6 +46,10 @@ package final class WebContent: PaneContent {
     package internal(set) var hoveredLink: String?
     /// The page, once it has been shown.
     @ObservationIgnored package internal(set) var webView: WKWebView?
+    /// The page's last snapshot (`takePicture`).
+    package internal(set) var picture: CGImage?
+    /// It was on screen at the last `setState`.
+    @ObservationIgnored var shown = false
 
     package var onExit: () -> Void = {}
     package var onFocusRequest: () -> Void = {}
@@ -112,6 +116,20 @@ package final class WebContent: PaneContent {
 
     package func setState(focused: Bool, visible: Bool) {
         if visible, webView == nil { makeWebView(configuration: nil) }
+        // Hidden: its last picture is taken while it is still drawn, for its tab's preview (roadmap 0035 C).
+        if !visible, shown { takePicture() }
+        shown = visible
+    }
+
+    /// A snapshot of the page as it is drawn now (roadmap 0035 C, J): kept as its `picture` when it arrives.
+    package func takePicture() {
+        guard let webView, webView.window != nil, webView.bounds.width > 0, webView.bounds.height > 0 else { return }
+        webView.takeSnapshot(with: nil) { [weak self] image, _ in
+            MainActor.assumeIsolated {
+                guard let image, let self else { return }
+                self.picture = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+            }
+        }
     }
 
     package func stop() {

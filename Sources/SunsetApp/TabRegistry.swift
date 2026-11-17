@@ -28,8 +28,14 @@ final class TabRegistry {
     private init() {
         for name in [NSWindow.didBecomeKeyNotification, NSWindow.didBecomeMainNotification] {
             observers.append(
-                NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                    MainActor.assumeIsolated { self?.touch() }
+                NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] note in
+                    let window = note.object as? NSWindow
+                    let key = name == NSWindow.didBecomeKeyNotification
+                    MainActor.assumeIsolated {
+                        // A window of a Space brought to the front draws what it shows (roadmap 0035 J).
+                        if key { self?.tabs(for: window)?.cameToFront() }
+                        self?.touch()
+                    }
                 }
             )
         }

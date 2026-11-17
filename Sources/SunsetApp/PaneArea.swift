@@ -183,6 +183,13 @@ struct PaneArea: View {
             )
         } else if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
             SurfacePreviewView(surface: surface, background: terminal.layerBackground)
+        } else if let picture = content.picture {
+            // A page's last snapshot (roadmap 0035 J), the size it was drawn at.
+            Image(decorative: picture, scale: 1)
+                .resizable()
+                .scaledToFill()
+                .frame(width: frame.width, height: frame.height, alignment: .top)
+                .clipped()
         } else {
             Color.primary.opacity(Design.Fill.faint)
         }

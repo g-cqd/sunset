@@ -73,7 +73,11 @@ package final class FavoritesModel {
     func claim(_ id: Favorites.NodeID, by tabs: TabsModel) {
         let previous = live[id]?.tabs
         live[id] = Weak(tabs: tabs)
-        if let previous, previous !== tabs { previous.syncStates() }
+        if let previous, previous !== tabs {
+            // The window it leaves shows its picture (roadmap 0035 J).
+            for pane in favorites.entry(id)?.open?.panes ?? [] { contents[pane]?.takePicture() }
+            previous.syncStates()
+        }
     }
 
     /// Whether the entry is live in `tabs`. An entry live nowhere (its window went) is live in no window until one takes it: two windows never

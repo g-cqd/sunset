@@ -1,5 +1,6 @@
 ---
 status: accepted
+superseded-in-part-by: 0059 (a window brought to the front)
 date: 2026-11-16
 ---
 

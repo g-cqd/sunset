@@ -42,6 +42,11 @@ package import SwiftUI
     func setState(focused: Bool, visible: Bool)
     /// The pane is closing: whatever runs for it ends.
     func stop()
+    /// Its last picture, for a window that shows it while another draws it and for its tab's preview (a page's snapshot); nil
+    /// when it has none. Kinds that draw their own (a terminal's last surface) leave it nil.
+    var picture: CGImage? { get }
+    /// Takes its picture now, as it leaves a window or is hidden (roadmap 0035 C, J); kinds without one ignore it.
+    func takePicture()
     func makeView(_ context: PaneViewContext) -> AnyView
 }
 
@@ -54,4 +59,6 @@ extension PaneContent {
     package var isPrivate: Bool { false }
     package var isEdited: Bool { false }
     package var unsaved: UnsavedEdits? { nil }
+    package var picture: CGImage? { nil }
+    package func takePicture() {}
 }

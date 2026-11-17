@@ -20,7 +20,7 @@ Space list the same tabs.
 
 The content of a pane is one view, so a tab is **live** in one window at most: where it is drawn and typed into. A
 window that has a tab selected which is live elsewhere shows its last picture. A click on the tab, or on the picture,
-takes it: the window that had it shows the picture in turn. Bringing a window to the front takes nothing (the owner).
+takes it: the window that had it shows the picture in turn. Bringing a window to the front takes what it shows, and leaves the other its picture (ADR-0059).
 This is what kept entries already do between windows (`FavoritesModel.claim`); tabs do the same.
 
 ## What a window does to the tabs

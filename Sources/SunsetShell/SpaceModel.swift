@@ -111,7 +111,10 @@ package final class SpaceModel {
         live[id] = Weak(tabs: viewer)
         lastShown = id
         for pane in tabs.items.first(where: { $0.id == id })?.panes ?? [] {
-            if let content = contents[pane] { viewer.wireContent(content) }
+            guard let content = contents[pane] else { continue }
+            // The window it leaves shows its picture (roadmap 0035 J).
+            if previous != nil { content.takePicture() }
+            viewer.wireContent(content)
         }
     }
 

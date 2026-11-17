@@ -21,6 +21,13 @@ extension TabsModel {
         }
     }
 
+    /// The window came to the front: it draws what it shows, which the window that drew it shows as a picture (the owner,
+    /// 2026-11-17, roadmap 0035 J; supersedes ADR-0045's "bringing a window to the front takes nothing").
+    package func cameToFront() {
+        guard !showsLive else { return }
+        takeShown()
+    }
+
     /// What the pane area shows: the kept entry's live tab, or the window's selected tab.
     package var shownItem: Workspace.Item? {
         workspace.selectedEntry == nil ? workspace.selectedItem : shownEntry?.open
