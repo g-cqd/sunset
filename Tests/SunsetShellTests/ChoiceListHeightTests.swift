@@ -6,7 +6,8 @@ import Testing
 @Suite("A list of choices' height")
 struct ChoiceListHeightTests {
     @Test func `rows, their spaces and the padding add up`() {
-        #expect(ChoiceList.height(rows: 1, spacing: 4) == 34 + 8)
-        #expect(ChoiceList.height(rows: 3, spacing: 4) == 3 * 34 + 2 * 4 + 8)
+        #expect(ChoiceList.height(rows: 1, spacing: 4, inset: 4) == 34 + 8)
+        #expect(ChoiceList.height(rows: 3, spacing: 4, inset: 4) == 3 * 34 + 2 * 4 + 8)
+        #expect(ChoiceList.height(rows: 3, spacing: 2, inset: 6) == 3 * 34 + 2 * 2 + 12)
     }
 }

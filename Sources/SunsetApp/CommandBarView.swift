@@ -53,10 +53,15 @@ struct CommandBarView: View {
             .frame(height: anchor.map { Double($0.height) } ?? Design.Size.fieldLarge)
             if !rows.isEmpty {
                 Divider().opacity(Design.Fill.fainterDivider)
-                // Rows as the sidebar's tabs: their corner radius and the space between them (the owner, 2026-11-17).
-                ChoiceList(rows: rows, selection: selection, radius: layout.tabRadius, spacing: layout.tabSpacing) {
-                    run(rows, $0, action: 0)
-                }
+                // Under the sidebar's field, rows as its tabs: their space between them, 2 pt closer to the edge (the
+                // owner, 2026-11-17); the large bar keeps its own look.
+                ChoiceList(
+                    rows: rows,
+                    selection: selection,
+                    radius: layout.tabRadius,
+                    spacing: anchor == nil ? Design.Space.hair : layout.tabSpacing,
+                    inset: anchor == nil ? Design.Space.s : Design.Space.xs
+                ) { run(rows, $0, action: 0) }
             } else if !bar.query.isEmpty {
                 Text("Nothing matches").foregroundStyle(.secondary).padding(Design.Space.xl)
             }
@@ -84,8 +89,7 @@ struct CommandBarView: View {
     }
 
     private func field(_ bar: CommandBar, _ rows: [ChoiceRow], _ selection: Int, _ settings: WebSettings) -> some View {
-        // Searching, the bar takes addresses and searches as well as tabs: it says so, as the sidebar's field does.
-        let prompt = bar.purpose == .search ? SidebarCommandField.prompt : bar.prompt
+        let prompt = anchor != nil && bar.purpose == .search ? SidebarCommandField.prompt : bar.prompt
         return TextField(bar.engine.map { "Search \($0)\u{2026}" } ?? prompt, text: query)
             .textFieldStyle(.plain)
             .font(anchor == nil ? Design.Text.input : Design.Text.body)

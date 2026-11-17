@@ -6,8 +6,9 @@ package struct ChoiceList: View {
     let rows: [ChoiceRow]
     let selection: Int
     let radius: Double
-    /// Between two rows: the sidebar's between two tabs, where the caller has it (the owner, 2026-11-17).
+    /// Between two rows, and from the rows to the list's edge.
     let spacing: Double
+    let inset: Double
     /// A row was clicked: its first action.
     let activate: (Int) -> Void
 
@@ -16,12 +17,14 @@ package struct ChoiceList: View {
         selection: Int,
         radius: Double,
         spacing: Double = Design.Space.hair,
+        inset: Double = Design.Space.s,
         activate: @escaping (Int) -> Void
     ) {
         self.rows = rows
         self.selection = selection
         self.radius = radius
         self.spacing = spacing
+        self.inset = inset
         self.activate = activate
     }
 
@@ -39,8 +42,7 @@ package struct ChoiceList: View {
                         .id(row.id)
                     }
                 }
-                // Rows close to the panel's edge (the owner, 2026-11-17: 2 pt less than before).
-                .padding(Design.Space.xs)
+                .padding(inset)
             }
             .bouncesOnlyWhenScrolling()
             .scrollIndicators(.never)
@@ -49,7 +51,7 @@ package struct ChoiceList: View {
             }
         }
         // As tall as its rows (a scroll view takes all the room it is offered), up to nine of them.
-        .frame(height: Self.height(rows: min(rows.count, 9), spacing: spacing))
+        .frame(height: Self.height(rows: min(rows.count, 9), spacing: spacing, inset: inset))
     }
 
     package static let rowHeight = 36.0
@@ -58,9 +60,10 @@ package struct ChoiceList: View {
     /// - Parameters:
     ///   - rows: How many rows show.
     ///   - spacing: Between two rows.
+    ///   - inset: From the rows to the list's edge.
     /// - Returns: The height in points.
-    package static func height(rows: Int, spacing: Double) -> Double {
+    package static func height(rows: Int, spacing: Double, inset: Double) -> Double {
         let row = rowHeight - Design.Space.hair
-        return Double(rows) * row + Double(max(rows - 1, 0)) * spacing + 2 * Design.Space.xs
+        return Double(rows) * row + Double(max(rows - 1, 0)) * spacing + 2 * inset
     }
 }
