@@ -33,8 +33,14 @@ struct PinnedGrid: View {
             }
             .animation(layout.smooth, value: entries.map(\.id))
             .animation(layout.smooth, value: takesDrag)
-            .padding(Design.Space.xs)
-            .dropTarget(shown: takesDrag && !entries.isEmpty, targeted: false, radius: layout.tabRadius)
+            // The tiles reach the rows' edges (the owner, 2026-11-17, roadmap 0035 B); the grid's outline is drawn around them,
+            // past the edges, so that it does not move them.
+            .background {
+                Color.clear
+                    .padding(-Design.Space.xs)
+                    .dropTarget(shown: takesDrag && !entries.isEmpty, targeted: false, radius: layout.tabRadius)
+            }
+            .padding(.vertical, Design.Space.xs)
             .padding(.bottom, Design.Space.s)
             .contentShape(.rect)
             .onDrop(of: [.plainText, .utf8PlainText], isTargeted: $targeted) { _ in
