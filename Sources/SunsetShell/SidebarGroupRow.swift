@@ -73,10 +73,11 @@ struct SidebarGroupRow: View {
         )
         .onDrag { tabs.itemProvider(for: .pane(pane)) }
         .contextMenu {
-            TabLayoutMenu(tabs: tabs, row: .tab(item.id))
-            Button("Rename Tab…") { tabs.beginRename(item: item.id) }
+            // The pane's own items first, then all of its tab's.
             Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
             Button("Close Pane") { tabs.requestClose(pane: pane) }
+            Divider()
+            TabRowMenu(tabs: tabs, item: item.id, animation: layout.smooth)
         }
     }
 

@@ -189,19 +189,7 @@ package struct TabSidebar: View {
                     active: $rowDrop
                 )
             )
-            .contextMenu {
-                TabLayoutMenu(tabs: tabs, row: .tab(item.id))
-                SelectionMenu(tabs: tabs, row: .tab(item.id))
-                Button("Rename") { tabs.renamingRow = .tab(item.id) }
-                Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item.id) }
-                Divider()
-                TabKeepMenu(tabs: tabs, item: item.id, animation: layout.smooth)
-                KeepAwakeMenu(tabs: tabs, item: item.id)
-                Divider()
-                Button("Close Tab") { tabs.close(item: item.id) }
-                Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
-                    .disabled(tabs.workspace.count < 2)
-            }
+            .contextMenu { TabRowMenu(tabs: tabs, item: item.id, animation: layout.smooth) }
     }
 
     /// The in-place name of a row while it is being renamed.

@@ -6,6 +6,9 @@ import SwiftUI
 struct SectionSeparator: View {
     let layout: ShellSettings.Layout
     var visible = true
+    /// Hidden and taking no room: the Pinned grid's own line already makes the gap (the owner, 2026-11-17: one space
+    /// between the grid and the tabs when there is no Favorite).
+    var collapsed = false
     @Environment(\.sectionSeparators) private var drawn
 
     /// The room it takes: the line in the middle.
@@ -20,7 +23,16 @@ struct SectionSeparator: View {
             .padding(.horizontal, layout.tabPaddingLeading)
             // Off (`sidebar.separators`), the line goes and its room stays.
             .opacity(visible && drawn ? 1 : 0)
-            .frame(height: visible ? Self.room : Self.hiddenRoom)
+            .frame(height: Self.height(visible: visible, collapsed: collapsed))
             .accessibilityHidden(true)
+    }
+
+    /// The room it takes.
+    /// - Parameters:
+    ///   - visible: Its line can show.
+    ///   - collapsed: Another section's line already makes the gap.
+    /// - Returns: The height in points.
+    static func height(visible: Bool, collapsed: Bool) -> Double {
+        collapsed ? 0 : visible ? room : hiddenRoom
     }
 }

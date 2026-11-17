@@ -28,7 +28,7 @@ struct FavoritesLine: View {
                     .padding(.vertical, Design.Space.xs)
                     .transition(.opacity)
             } else {
-                SectionSeparator(layout: layout, visible: visible)
+                SectionSeparator(layout: layout, visible: visible, collapsed: !visible && !tabs.pinnedEntries.isEmpty)
             }
         }
         .contentShape(.rect)
