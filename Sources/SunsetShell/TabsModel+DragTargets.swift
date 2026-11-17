@@ -33,5 +33,8 @@ extension TabsModel {
     }
 
     /// The drag is over, whatever became of it.
-    package func endDrag() { dragged = nil }
+    package func endDrag() {
+        dragged = nil
+        if Self.dragOrigin === self { Self.dragOrigin = nil }
+    }
 }

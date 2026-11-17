@@ -9,7 +9,7 @@ struct TabRowDropDelegate: DropDelegate {
     let size: CGSize
     @Binding var active: (item: Workspace.ItemID, action: TabDropAction)?
 
-    func validateDrop(info: DropInfo) -> Bool { tabs.dragged != nil }
+    func validateDrop(info: DropInfo) -> Bool { tabs.hasDrag }
 
     func dropEntered(info: DropInfo) { update(info) }
 

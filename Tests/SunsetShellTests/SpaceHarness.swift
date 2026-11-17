@@ -9,7 +9,9 @@ import SunsetPane
     var emptied: [ObjectIdentifier] = []
     var wired: [(window: ObjectIdentifier, content: FakeContent)] = []
 
-    init(keepsTabs: Bool = true) { space = SpaceModel(keepsTabs: keepsTabs) }
+    init(keepsTabs: Bool = true, favorites: FavoritesModel = FavoritesModel()) {
+        space = SpaceModel(favorites: favorites, keepsTabs: keepsTabs)
+    }
 
     /// A window on the Space, with nothing selected.
     func window() -> TabsModel {

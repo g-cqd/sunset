@@ -33,5 +33,5 @@ folders that can only be moved within favorites".
 ## Not done
 
 - Not seen: no drag can be made by the agent's tools; the model is tested, the views' drop places are not.
-- A drag from one window dropped in another is still refused: what is dragged is known to the window it started in.
+- A drag from one window dropped in another: taken since roadmap 0036 F (a tab of another Space comes to the window's).
 - Several rows marked and dragged together keep their paths of before (onto the grid, a folder, a row, the line).

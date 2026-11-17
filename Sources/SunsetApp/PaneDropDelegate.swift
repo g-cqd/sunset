@@ -10,13 +10,13 @@ struct PaneDropDelegate: DropDelegate {
     let frames: [PaneID: CGRect]
     @Binding var target: DropZone.Target?
 
-    func validateDrop(info: DropInfo) -> Bool { tabs.dragged != nil || info.hasItemsConforming(to: [.fileURL]) }
+    func validateDrop(info: DropInfo) -> Bool { tabs.hasDrag || info.hasItemsConforming(to: [.fileURL]) }
 
     func dropEntered(info: DropInfo) { update(info) }
 
     func dropUpdated(info: DropInfo) -> DropProposal? {
         // Files from outside: no half of a pane is shown, they are typed or opened where they fall.
-        guard tabs.dragged != nil else { return DropProposal(operation: .copy) }
+        guard tabs.hasDrag else { return DropProposal(operation: .copy) }
         update(info)
         return DropProposal(operation: target == nil ? .cancel : .move)
     }
@@ -25,13 +25,13 @@ struct PaneDropDelegate: DropDelegate {
 
     func performDrop(info: DropInfo) -> Bool {
         defer { target = nil }
-        guard tabs.dragged != nil else { return FileDropping.perform(at: info.location, frames: frames, tabs: tabs) }
+        guard tabs.hasDrag else { return FileDropping.perform(at: info.location, frames: frames, tabs: tabs) }
         guard let target else { return false }
         return tabs.dropDragged(onto: target.pane, edge: target.edge)
     }
 
     private func update(_ info: DropInfo) {
-        guard tabs.dragged != nil else { return }
+        guard tabs.hasDrag else { return }
         let found = DropZone.target(at: info.location, among: frames)
         target = found.flatMap { tabs.canDrop(onto: $0.pane) ? $0 : nil }
     }

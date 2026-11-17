@@ -8,13 +8,15 @@ extension TabsModel {
     /// the drop areas can tell at once what would happen.
     package func itemProvider(for payload: PaneDragPayload) -> NSItemProvider {
         dragged = payload
+        Self.dragOrigin = self
         return NSItemProvider(object: payload.text as NSString)
     }
 
     /// Whether what is dragged could be dropped on a pane: a pane not on itself; a tab on another tab's pane, or on its own when there is another tab to ask for
     /// (`choice`).
     package func canDrop(onto pane: PaneID) -> Bool {
-        switch dragged {
+        adoptDrag()
+        return switch dragged {
             case .item(let id): workspace.item(containing: pane)?.id != id || workspace.count > 1
             case .pane(let id): id != pane
             case .document: true
@@ -26,6 +28,7 @@ extension TabsModel {
     @discardableResult
     package func dropDragged(onto pane: PaneID, edge: PaneEdge) -> Bool {
         guard canDrop(onto: pane) else { return false }
+        bringDraggedHere()
         takeDocumentDrag()
         guard let drag = dragged else { return false }
         dragged = nil
@@ -48,6 +51,7 @@ extension TabsModel {
 
     /// Whether what is dragged can be dropped on the tab row `item` with `action`.
     package func canDrop(onto item: Workspace.ItemID, action: TabDropAction) -> Bool {
+        adoptDrag()
         switch (dragged, action) {
             case (.item(let id), _):
                 return id != item
@@ -75,6 +79,7 @@ extension TabsModel {
             return dropSelection(onTab: item, after: action == .moveAfter)
         }
         guard canDrop(onto: item, action: action) else { return false }
+        bringDraggedHere()
         takeDocumentDrag()
         guard let drag = dragged else { return false }
         if case .entry = drag {

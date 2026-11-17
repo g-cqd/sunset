@@ -34,6 +34,7 @@ extension TabsModel {
 
     /// Whether what is dragged can be dropped at `place`.
     package func canDropDragged(in place: SectionDrop) -> Bool {
+        adoptDrag()
         guard let source = dragSource else { return false }
         switch (source, place) {
             case (.tile, .pinned): return true
@@ -53,6 +54,7 @@ extension TabsModel {
     @discardableResult
     package func dropDragged(in place: SectionDrop) -> Bool {
         guard canDropDragged(in: place) else { return false }
+        bringDraggedHere()
         takeDocumentDrag()
         guard let source = dragSource else { return false }
         dragged = nil
