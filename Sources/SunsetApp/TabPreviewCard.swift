@@ -97,8 +97,11 @@ struct TabPreviewCard: View {
         if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
             SurfacePreviewView(surface: surface, background: terminal.layerBackground)
         } else if let picture = tabs.content(pane)?.picture {
-            // A page's last snapshot (roadmap 0035 C).
-            Image(decorative: picture, scale: 1).resizable().scaledToFill()
+            // A page's last snapshot (roadmap 0035 C); cut at its bottom when the card is shorter, its top kept (seen
+            // 2026-11-17: centred, the page's heading was cut).
+            Color.clear
+                .overlay(alignment: .top) { Image(decorative: picture, scale: 1).resizable().scaledToFill() }
+                .clipped()
         } else {
             Color.primary.opacity(Design.Fill.open)
         }
