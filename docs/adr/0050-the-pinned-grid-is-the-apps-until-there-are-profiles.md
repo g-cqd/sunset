@@ -17,6 +17,7 @@ it earlier (2026-11-17: "pinned grid, chrome impersonation and then profiles"), 
 | How many, in what shape | "Up to 3x4 items or 4x3": **twelve at most**, four columns; "depending on the size of the sidebar, we could down to 2 columns or even 1" |
 | The tiles | Icon only, sharing the width: "not necessarily a square, but with a max and min width, as well as height obviously" |
 | A tile that is loaded | "Active pinned tabs should have a stroke (that does not expand their size) that is visible when active, and invisible when not loaded": **a line inside the tile** (the pane's hairline, stronger; the accent's colour for the one shown) |
+| The tiles' corners | "Corner radii should be the same than for tabs": **a tab row's corner** (`layout.tabRadius`, continuous) |
 | A pinned page that was navigated away | A click shows it where it is; "the reset to where it started should happen in a context menu item" |
 
 Decided by the builder, to be said:

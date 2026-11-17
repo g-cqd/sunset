@@ -1,3 +1,4 @@
+import SunsetMetrics
 import SunsetPane
 import SwiftUI
 import UniformTypeIdentifiers
@@ -11,7 +12,6 @@ struct PinnedGrid: View {
     let layout: ShellSettings.Layout
     @State private var targeted = false
     @Environment(\.accent) private var accent
-    @Environment(\.surfaceStyle) private var surface
 
     private var showsSlot: Bool { targeted && tabs.canPinDragged }
 
@@ -40,6 +40,8 @@ struct PinnedGrid: View {
     private func tile(_ entry: Favorites.Entry) -> some View {
         let shown = tabs.workspace.selectedEntry == entry.id
         let pane = entry.open?.focused ?? entry.home.focused
+        // The corner of a tab's row (the owner, 2026-11-17): a tile is a tab, shown as its icon.
+        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         return Button {
             tabs.select(entry: entry.id)
         } label: {
@@ -52,12 +54,11 @@ struct PinnedGrid: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
                 shown ? AnyShapeStyle(accent.color.opacity(Design.Fill.target)) : AnyShapeStyle(.quaternary),
-                in: .rect(cornerRadius: Design.Radius.small(surface.layout))
+                in: shape
             )
             .overlay {
                 // Loaded: a line inside the tile, which does not change its size; none when it is not loaded (the owner,
                 // 2026-11-17). In the accent's colour for the one this window shows.
-                let shape = RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout))
                 Group {
                     if shown { shape.focusHairline(layout, accent: accent.color) } else { shape.hoverHairline(layout) }
                 }
