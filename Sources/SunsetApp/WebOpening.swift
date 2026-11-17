@@ -8,6 +8,9 @@ import SunsetWeb
     static func wire(_ page: WebContent, in tabs: TabsModel) {
         page.onChange = { SessionStore.shared.scheduleSave() }
         page.history = page.isPrivate ? nil : AppHistory.shared
+        page.onNotify = { [weak page] note in
+            if let page { AppWebNotifications.shared.post(note, from: page) }
+        }
         page.onOpen = { [weak tabs, weak page] opened, placement in
             guard let tabs, let page else { return }
             wire(opened, in: tabs)

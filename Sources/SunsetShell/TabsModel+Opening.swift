@@ -9,6 +9,22 @@ extension TabsModel {
             ?? pinned?.contents.first { $0.value === content }?.key
     }
 
+    /// Shows the tab, or the kept entry, that holds `content`, with the keyboard in its pane (a page's notification clicked,
+    /// roadmap 0035 D). False when this window holds it nowhere.
+    @discardableResult
+    package func reveal(_ content: any PaneContent) -> Bool {
+        guard let pane = pane(of: content) else { return false }
+        if let item = workspace.item(containing: pane) {
+            select(item: item.id)
+        } else if let entry = keeper(ofPane: pane)?.favorites.entry(containing: pane) {
+            select(entry: entry.id)
+        } else {
+            return false
+        }
+        focus(pane)
+        return true
+    }
+
     /// The content of the kind `kind` in this window's tabs or in the kept entry it shows: for a kind there is one of in a window
     /// (the settings).
     package func single(kind: String) -> (any PaneContent)? {

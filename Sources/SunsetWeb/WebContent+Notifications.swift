@@ -1,0 +1,67 @@
+import Foundation
+import WebKit
+
+/// A page's notifications (roadmap 0035 D): what its `Notification` asks (`WebNotifications`) is answered here by the site's
+/// standing answer; what may be shown is handed to the app (`onNotify`), which posts it to the system.
+extension WebContent {
+    /// Answers the page's `Notification`: `permission` (the API's word for the site's answer), `request` (asks the person when the
+    /// site was not answered), `show` (true when it was handed on). Only the page itself, not a frame in it, and only by the
+    /// site WebKit says it is; at most one a second.
+    func notificationAsked(
+        _ kind: String,
+        _ fields: [String: Any],
+        host: String?,
+        mainFrame: Bool,
+        at now: Double
+    ) async -> Any? {
+        guard mainFrame, let host, !host.isEmpty else { return kind == "show" ? false : "denied" }
+        switch kind {
+            case "permission":
+                return notificationWord(host)
+            case "request":
+                if permissions.answer(.notifications, for: host) == .ask, !notificationHosts.contains(host),
+                    await ask([.notifications], host: host)
+                {
+                    // Allow Once: for this page's life.
+                    notificationHosts.insert(host)
+                }
+                return notificationWord(host)
+            case "show":
+                guard notificationWord(host) == "granted" else { return false }
+                if let last = lastNotification, now >= last, now - last < 1 { return false }
+                lastNotification = now
+                let id = (fields["id"] as? Int) ?? (fields["id"] as? Double).map(Int.init) ?? 0
+                onNotify(
+                    WebNotification(
+                        id: id,
+                        title: fields["title"] as? String ?? "",
+                        body: fields["body"] as? String ?? "",
+                        host: host
+                    )
+                )
+                return true
+            default:
+                return nil
+        }
+    }
+
+    /// The API's word for what the site may do: granted, denied, default (not answered).
+    private func notificationWord(_ host: String) -> String {
+        if notificationHosts.contains(host) { return "granted" }
+        switch permissions.answer(.notifications, for: host) {
+            case .allow: return "granted"
+            case .deny: return "denied"
+            case .ask: return "default"
+        }
+    }
+
+    /// The person clicked the notification `id` this page showed: the page hears it as its `click` event.
+    package func notificationClicked(_ id: Int) {
+        webView?
+            .evaluateJavaScript(
+                "dispatchEvent(new CustomEvent('\(WebNotifications.clickEvent)', { detail: \(id) }))",
+                in: nil,
+                in: .page
+            )
+    }
+}
