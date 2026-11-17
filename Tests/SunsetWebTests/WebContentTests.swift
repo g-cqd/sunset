@@ -22,6 +22,27 @@ import WebKit
         #expect(page.webView == nil)
     }
 
+    /// Profiles (ADR-0053): a profile's pages have a website data store of their own; the first profile's is the one
+    /// there always was; a private page's is never a profile's.
+    @Test func `a page of a profile has that profile's website data; of the first, the default one; private, its own`()
+    {
+        let profile = UUID()
+        var own = settings
+        own.profile = profile
+        let page = WebContent(url: URL(string: "https://example.com"), settings: own)
+        page.setState(focused: true, visible: true)
+        let store = page.webView?.configuration.websiteDataStore
+        #expect(store?.identifier == profile && store?.isPersistent == true)
+        let first = WebContent(url: URL(string: "https://example.com"), settings: settings)
+        first.setState(focused: true, visible: true)
+        #expect(first.webView?.configuration.websiteDataStore === WKWebsiteDataStore.default())
+        own.privacy = PagePrivacy()
+        let hidden = WebContent(url: URL(string: "https://example.com"), settings: own)
+        hidden.setState(focused: true, visible: true)
+        #expect(hidden.webView?.configuration.websiteDataStore.isPersistent == false)
+        for one in [page, first, hidden] { one.stop() }
+    }
+
     @Test func `its descriptor keeps the address and the title, and reads back`() {
         let page = WebContent(url: URL(string: "https://example.com/a"), title: "Example", settings: settings)
         let descriptor = page.descriptor

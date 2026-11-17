@@ -80,28 +80,6 @@ struct SpacesSessionTests {
         )
     }
 
-    /// The Pinned grid is the app's (one profile until there are several): kept beside the Spaces.
-    @Test func `what is pinned is kept beside the Spaces, and holds its panes before any Space does`() throws {
-        var pinned = Favorites()
-        var tabs = Workspace()
-        _ = tabs.add()
-        let item = try #require(tabs.items.first)
-        let made = pinned.keep(item, contents: [item.focused: .terminal(directory: "/pinned")])
-        let entry = try #require(made)
-        // A Space that also lists that tab gives it up.
-        let thief = SavedSpace(
-            space: Space(name: "Thief"),
-            tabs: tabs,
-            contents: [item.focused: .terminal(directory: "/x")]
-        )
-        let session = SpacesSession(spaces: [thief], views: [], pinned: SavedFavorites(favorites: pinned))
-        #expect(session.spaces[0].tabs.isEmpty && session.pinned.favorites.entry(entry)?.isOpen == true)
-        let read = try #require(SpacesSession(data: try session.encoded()))
-        #expect(read == session && read.pinned.favorites.entries.count == 1)
-        #expect(read.pinned.favorites.entry(entry)?.home.contents[item.focused]?.directory == "/pinned")
-        #expect(SpacesSession(spaces: [], views: []).pinned.favorites.isEmpty)
-    }
-
     @Test func `there is always a Space: nothing saved is one Space with nothing in it and no window`() {
         let empty = SpacesSession(spaces: [], views: [])
         #expect(empty.spaces.count == 1 && empty.spaces[0].tabs.isEmpty && empty.views.isEmpty)

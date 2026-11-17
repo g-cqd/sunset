@@ -66,6 +66,7 @@ struct SpaceSheet: View {
                     }
                 }
             }
+            profileRow
             HStack {
                 Spacer()
                 SwiftUI.Button("Cancel", role: .cancel) { tabs.spaceDraft = nil }.keyboardShortcut(.cancelAction)
@@ -77,6 +78,24 @@ struct SpaceSheet: View {
         .padding(Design.Space.xxl)
         .frame(width: 380)
         .onAppear { naming = true }
+    }
+
+    /// The profile, once there are several (R4: the Space's own editor is one of the places a profile is chosen).
+    @ViewBuilder private var profileRow: some View {
+        if let profiles = tabs.spaces?.profiles, profiles.profiles.count > 1 {
+            VStack(alignment: .leading, spacing: Design.Space.xs) {
+                Picker("Profile", selection: $draft.profile) {
+                    ForEach(profiles.profiles, id: \.profile.id) { profile in
+                        Text(profile.profile.name).tag(profile.profile.isFirst ? Profile.ID?.none : profile.profile.id)
+                    }
+                }
+                if draft.space != nil {
+                    Text("With another profile its pages load again, signed in as that profile is.")
+                        .font(Design.Text.detail)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
     }
 
     /// A field that is clicked, not typed in: what it holds, and a mark that it opens something.

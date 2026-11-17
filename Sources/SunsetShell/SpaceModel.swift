@@ -40,6 +40,8 @@ package final class SpaceModel {
     package var viewerCount: Int { viewers.count { $0.tabs != nil } }
     /// The windows that show it.
     var currentViewers: [TabsModel] { viewers.compactMap(\.tabs) }
+    /// A window that shows it, if any.
+    package var currentViewer: TabsModel? { currentViewers.first }
     /// It has a tab, or something in its Favorites: deleting it asks first.
     package var holdsSomething: Bool { !tabs.isEmpty || !favorites.isEmpty }
     /// The tab a window last went to: what a window that comes to this Space for the first time shows.
@@ -198,6 +200,20 @@ package final class SpaceModel {
         contents = [:]
         live = [:]
         stopped = tabs.isEmpty ? nil : date
+    }
+
+    /// Stops the contents of the kind `kind` and has them made again from where each is (a Space given another
+    /// profile: its pages load again with that profile's website data): by a window that shows the Space, or, with
+    /// none, by the next that does.
+    package func restart(kind: String, by viewer: TabsModel?) {
+        for (pane, content) in contents where content.descriptor.kind == kind && !content.isPrivate {
+            pending[pane] = content.descriptor
+            content.onExit = {}
+            content.stop()
+            contents[pane] = nil
+        }
+        viewer?.revive()
+        syncStates()
     }
 
     /// What brings back the content of `pane`, which has none; taken, since the content is about to be made.

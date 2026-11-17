@@ -38,7 +38,6 @@ extension TerminalScene {
     /// A window that lists tabs is a view of one of the app's Spaces: its tabs are the Space's.
     private func startOnSpace() {
         let all = AppSpaces.all
-        tabs.pinned = AppFavorites.pinned
         if AppActions.shared.handoff.isEmpty, let view = SessionStore.shared.takeView() {
             // A window of the session, or the one after the last was closed: the Space it showed, and what it had selected.
             tabs.show(space: all.space(view.space) ?? all.spaces[0], in: all)

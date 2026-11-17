@@ -7,7 +7,8 @@ extension TabsModel {
     /// the tab a window last went to). It is not registered with the Space: nothing is drawn or claimed through it.
     func preview(of other: SpaceModel) -> TabsModel {
         let selected = selections[other.space.id]?.selected ?? other.lastShown ?? other.tabs.items.first?.id
-        return TabsModel(previewing: other, selected: selected, pinned: pinned)
+        let grid = spaces?.profiles.profile(of: other.space).pinned ?? pinned
+        return TabsModel(previewing: other, selected: selected, pinned: grid)
     }
 
     /// Puts the list `points` from its place (the fingers are on it): the list of the Space on that side is beside it.

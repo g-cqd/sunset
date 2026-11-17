@@ -15,14 +15,29 @@ public struct SpacesSession: Sendable, Equatable {
 
     public private(set) var spaces: [SavedSpace]
     public private(set) var views: [SavedView]
-    /// The Pinned grid: the app's, the same in every Space (one profile until there are several). It holds its panes
-    /// before any Space does.
-    public private(set) var pinned: SavedFavorites
+    /// The profiles, the first always there, each with its Pinned grid. The grids hold their panes before any Space does.
+    public private(set) var profiles: [SavedProfile]
+    /// The first profile's Pinned grid: all there was before profiles.
+    public var pinned: SavedFavorites { profiles.first { $0.profile.isFirst }?.pinned ?? SavedFavorites() }
 
-    public init(spaces: [SavedSpace], views: [SavedView], pinned: SavedFavorites = SavedFavorites()) {
-        self.pinned = pinned
+    /// - Parameters:
+    ///   - spaces: the Spaces, in their order.
+    ///   - views: the windows.
+    ///   - pinned: the first profile's grid, when `profiles` does not hold the first (a file of before profiles).
+    ///   - given: the profiles, each once.
+    public init(
+        spaces: [SavedSpace],
+        views: [SavedView],
+        pinned: SavedFavorites = SavedFavorites(),
+        profiles given: [SavedProfile] = []
+    ) {
+        var known = Set<Profile.ID>()
+        var profiles = given.filter { known.insert($0.profile.id).inserted }
+        if !known.contains(Profile.firstID) { profiles.insert(SavedProfile(profile: .first, pinned: pinned), at: 0) }
+        self.profiles = profiles
+        let grids = profiles.map(\.pinned.favorites)
         var seen = Set<Space.ID>()
-        var held = Set(pinned.favorites.livePanes)
+        var held = Set(grids.flatMap(\.livePanes))
         var kept: [SavedSpace] = []
         for var space in spaces where kept.count < Self.maximumSpaces && seen.insert(space.space.id).inserted {
             held = space.settle(taken: held)
@@ -37,7 +52,8 @@ public struct SpacesSession: Sendable, Equatable {
             if let selected = view.selected, !space.tabs.items.contains(where: { $0.id == selected }) {
                 view.selected = nil
             }
-            let kept = space.favorites.favorites.entry(entry(of: view)) ?? pinned.favorites.entry(entry(of: view))
+            let wanted = entry(of: view)
+            let kept = space.favorites.favorites.entry(wanted) ?? grids.lazy.compactMap { $0.entry(wanted) }.first
             if view.entry != nil, kept?.isOpen != true { view.entry = nil }
             return view
         }
@@ -77,9 +93,13 @@ public struct SpacesSession: Sendable, Equatable {
     public func encoded() throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
-        let kept = pinned.favorites.isEmpty ? nil : pinned
         return try encoder.encode(
-            File(version: Self.version, spaces: spaces.map(Lossy.init), windows: views.map(Lossy.init), pinned: kept)
+            File(
+                version: Self.version,
+                spaces: spaces.map(Lossy.init),
+                windows: views.map(Lossy.init),
+                profiles: profiles
+            )
         )
     }
 
@@ -94,7 +114,8 @@ public struct SpacesSession: Sendable, Equatable {
         self.init(
             spaces: file.spaces.compactMap(\.value),
             views: file.windows.compactMap(\.value),
-            pinned: file.pinned ?? SavedFavorites()
+            pinned: file.pinned ?? SavedFavorites(),
+            profiles: file.profiles?.compactMap(\.value) ?? []
         )
     }
 
@@ -106,17 +127,19 @@ public struct SpacesSession: Sendable, Equatable {
         let version: Int
         let spaces: [Lossy<SavedSpace>]
         let windows: [Lossy<SavedView>]
-        /// Read as none when it cannot be read: what is pinned does not fail the Spaces.
+        /// Of a file of before profiles: the one grid there was. Read as none when it cannot be read.
         let pinned: SavedFavorites?
+        let profiles: [Lossy<SavedProfile>]?
 
-        init(version: Int, spaces: [Lossy<SavedSpace>], windows: [Lossy<SavedView>], pinned: SavedFavorites?) {
+        init(version: Int, spaces: [Lossy<SavedSpace>], windows: [Lossy<SavedView>], profiles: [SavedProfile]) {
             self.version = version
             self.spaces = spaces
             self.windows = windows
-            self.pinned = pinned
+            self.pinned = nil
+            self.profiles = profiles.map(Lossy.init)
         }
 
-        private enum Key: String, CodingKey { case version, spaces, windows, pinned }
+        private enum Key: String, CodingKey { case version, spaces, windows, pinned, profiles }
 
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: Key.self)
@@ -124,6 +147,7 @@ public struct SpacesSession: Sendable, Equatable {
             spaces = try container.decode([Lossy<SavedSpace>].self, forKey: .spaces)
             windows = try container.decode([Lossy<SavedView>].self, forKey: .windows)
             pinned = try? container.decodeIfPresent(SavedFavorites.self, forKey: .pinned)
+            profiles = try? container.decodeIfPresent([Lossy<SavedProfile>].self, forKey: .profiles)
         }
     }
 

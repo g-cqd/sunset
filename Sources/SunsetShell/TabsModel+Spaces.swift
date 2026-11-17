@@ -14,7 +14,10 @@ extension TabsModel {
         if let all { spaces = all }
         guard other !== space else { return }
         // From a Space of its own (a window that starts, a private one): what it had comes along.
-        guard let spaces, spaces.contains(space) else { return join(other) }
+        guard let spaces, spaces.contains(space) else {
+            join(other)
+            return followProfile()
+        }
         if let entry = selectedEntry { left(entry) }
         selections[space.space.id] = SavedView(space: space.space.id, selected: selectedID, entry: selectedEntry)
         let old = space
@@ -25,6 +28,7 @@ extension TabsModel {
         space = other
         other.register(self)
         other.favorites.register(self)
+        followProfile()
         revive()
         let back = selections[other.space.id]
         let item = back?.selected ?? other.lastShown ?? other.tabs.items.first?.id
@@ -55,7 +59,11 @@ extension TabsModel {
     }
 
     /// Opens the editor of a new Space. Nothing is made until it is saved.
-    package func newSpace() { spaceDraft = spaces?.newDraft() }
+    package func newSpace() {
+        // In the profile of the Space it is made from.
+        spaceDraft = spaces?.newDraft()
+        spaceDraft?.profile = space.space.profile
+    }
 
     /// Opens the editor of a Space that exists.
     package func edit(space target: SpaceModel) {
@@ -63,7 +71,8 @@ extension TabsModel {
             space: target.space.id,
             name: target.space.name,
             tint: target.space.tint,
-            icon: target.space.icon
+            icon: target.space.icon,
+            profile: target.space.profile
         )
     }
 
@@ -73,7 +82,11 @@ extension TabsModel {
         guard let spaces, draft.canSave else { return }
         spaceDraft = nil
         if let id = draft.space {
-            if let target = spaces.space(id) { spaces.apply(draft, to: target) }
+            guard let target = spaces.space(id) else { return }
+            let before = target.space.profile
+            spaces.apply(draft, to: target)
+            // Another profile: its pages load again with that profile's website data (R4; Save is the confirmation).
+            if target.space.profile != before { target.restart(kind: "web", by: target.currentViewers.first) }
             return
         }
         let made = spaces.add(from: space, as: draft)

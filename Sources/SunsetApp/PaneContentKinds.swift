@@ -9,12 +9,22 @@ import SunsetWeb
 @MainActor enum PaneContentKinds {
     /// The content `descriptor` says; a kind this build does not have is kept as a placeholder. `changed` is called when the content has something
     /// new to save.
-    static func make(_ descriptor: PaneDescriptor, privacy: PagePrivacy? = nil, changed: @escaping () -> Void)
-        -> any PaneContent
-    {
+    /// - Parameters:
+    ///   - descriptor: what to make.
+    ///   - privacy: a private page's store, in a private window.
+    ///   - profile: the profile of the Space the content is made in (nil: the first), whose website data a page uses.
+    ///   - changed: called when the content has something new to save.
+    /// - Returns: the content, or a placeholder for a kind this build does not have.
+    static func make(
+        _ descriptor: PaneDescriptor,
+        privacy: PagePrivacy? = nil,
+        profile: UUID? = nil,
+        changed: @escaping () -> Void
+    ) -> any PaneContent {
         switch descriptor.kind {
             case WebContent.kind:
                 var settings = webSettings
+                settings.profile = profile
                 settings.privacy = privacy ?? (descriptor.state["private"] == "1" ? PagePrivacy() : nil)
                 let page = WebContent(descriptor: descriptor, settings: settings)
                 page.onChange = changed
@@ -63,6 +73,7 @@ import SunsetWeb
     /// The settings for what the command bar opens or suggests in `tabs`: private in a private window, or when its shown page is private.
     static func webSettings(for tabs: TabsModel) -> WebSettings {
         var settings = webSettings
+        settings.profile = profile(of: tabs)
         if let page = tabs.selectedContent as? WebContent, page.isPrivate {
             settings.privacy = page.settings.privacy
         } else if let group = tabs.privateGroup {
@@ -83,5 +94,13 @@ import SunsetWeb
     static func isDirectory(_ path: String) -> Bool {
         var isDirectory: ObjCBool = false
         return FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) && isDirectory.boolValue
+    }
+
+    /// The profile whose website data a page made in `tabs` uses: its Space's; nil for the first, and for a window that
+    /// is not among the app's Spaces.
+    static func profile(of tabs: TabsModel) -> UUID? {
+        guard AppSpaces.all.contains(tabs.space) else { return nil }
+        let profile = AppSpaces.all.profiles.profile(of: tabs.space.space).profile
+        return profile.isFirst ? nil : profile.id
     }
 }

@@ -49,6 +49,18 @@ extension SettingsOption {
             )
         ]
 
+    /// The profiles (R4; ADR-0053): kept with the session, not in the file.
+    static let profiles: [Self] =
+        [
+            custom("profiles.list", "Profiles", "profile identity cookies login account work personal", .profiles)
+                .setting([])
+                .noted(
+                    "A profile is a web identity: its pages have their own cookies, logins and storage, and its own "
+                        + "Pinned grid. A Space belongs to one profile, chosen in the Space's editor. History, what "
+                        + "sites may do and how sites see Sunset are shared by all profiles for now."
+                )
+        ]
+
     /// What websites may do.
     static let websites: [Self] =
         [

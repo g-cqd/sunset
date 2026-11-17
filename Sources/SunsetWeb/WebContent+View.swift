@@ -8,7 +8,10 @@ extension WebContent {
     func makeWebView(configuration given: WKWebViewConfiguration?) {
         let configuration = given ?? WKWebViewConfiguration()
         if given == nil {
-            configuration.websiteDataStore = settings.privacy.map(PrivateStores.store(for:)) ?? .default()
+            // A private page's own; else its profile's; else the one there always was (the first profile's).
+            configuration.websiteDataStore =
+                settings.privacy.map(PrivateStores.store(for:))
+                ?? settings.profile.map { WKWebsiteDataStore(forIdentifier: $0) } ?? .default()
         }
         configuration.applicationNameForUserAgent = settings.applicationName
         LinkHover.install(on: configuration, for: self)

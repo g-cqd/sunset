@@ -1,5 +1,5 @@
 ---
-status: in-progress (S-a, S-b, S-c and the Pinned grid P-b done 2026-11-17; S-d with the previews, S-e, S-f and profiles not started)
+status: in-progress (S-a, S-b, S-c, P-b and P-a built 2026-11-17, P-a not seen on screen; S-d with the previews, S-e, S-f not started)
 blocked-by: 0018 (each step's own questions); 0020 (Favorites and folders); 0019 (the web pane, for profiles and sleeping)
 date: 2026-11-11
 ---
@@ -169,4 +169,22 @@ Not done, or not seen:
   and the swipe itself.
 - **n80, for profiles**: what is open in a profile shows as active in every Space of that profile, pinned and
   favourites; a question for P-a, since a new Space has a copy of the Favorites today (t152).
+
+## P-a as built: profiles (2026-11-17; ADR-0053)
+
+Built while the owner was away, on R4's decisions and the builder's for the rest; his to change.
+
+- **A profile is a web identity**: its pages have their own cookies, logins and storage, and it has its own Pinned grid,
+  the same in each of its Spaces. The first profile, "Personal", always exists and has what there was before.
+- **Settings > Web > Profiles**: the profiles, each named in place; New Profile; Remove…, which asks, moves the
+  profile's Spaces to the first, closes what was pinned in it and erases its website data.
+- **A Space's editor has a Profile row** once there are two profiles; changing it loads the Space's pages again with
+  the other profile's data.
+- Kept with the session.
+
+**Nothing of it was seen on screen** (the screen was locked): tested only. 1,330 tests in 255 suites pass.
+
+Not done: history, site permissions, how sites see Sunset and zoom per profile (all shared for now); the favourites
+part of n80 (his choice between two designs, ADR-0053); a profile's icon; naming the profile in the sidebar; the Spaces
+menu; measuring what a profile costs.
 

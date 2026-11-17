@@ -7,6 +7,8 @@ package import SunsetPane
 @MainActor @Observable
 package final class SpacesModel {
     package private(set) var spaces: [SpaceModel]
+    /// The profiles the Spaces belong to.
+    package let profiles: ProfilesModel
     /// Makes the Favorites of a new Space (the app's save with the session and can seal commands).
     @ObservationIgnored private let makeFavorites: @MainActor () -> FavoritesModel
     /// Something changed that the session file holds.
@@ -14,9 +16,15 @@ package final class SpacesModel {
 
     /// - Parameters:
     ///   - first: the one Space there is at the start; a new one, unnamed, by default.
-    ///   - makeFavorites: the Favorites of each Space made later.
-    package init(first: SpaceModel? = nil, makeFavorites: @escaping @MainActor () -> FavoritesModel) {
+    ///   - pinned: the first profile's Pinned grid; a new one by default.
+    ///   - makeFavorites: the Favorites of each Space, and the grid of each profile, made later.
+    package init(
+        first: SpaceModel? = nil,
+        pinned: FavoritesModel? = nil,
+        makeFavorites: @escaping @MainActor () -> FavoritesModel
+    ) {
         self.makeFavorites = makeFavorites
+        profiles = ProfilesModel(firstPinned: pinned, makeFavorites: makeFavorites)
         spaces = [first ?? SpaceModel(favorites: makeFavorites(), keepsTabs: true)]
     }
 
@@ -52,6 +60,7 @@ package final class SpacesModel {
         }
         var named = Space(name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines), icon: draft.icon)
         named.tint = draft.tint
+        named.profile = draft.profile == Profile.firstID ? nil : draft.profile
         let made = SpaceModel(space: named, favorites: favorites, keepsTabs: spaces.first?.keepsTabs ?? true)
         spaces.append(made)
         onChange()
@@ -64,6 +73,7 @@ package final class SpacesModel {
         space.rename(to: draft.name.trimmingCharacters(in: .whitespacesAndNewlines))
         space.setIcon(draft.icon)
         space.setTint(draft.tint)
+        setProfile(draft.profile, for: space)
         onChange()
     }
 
@@ -110,6 +120,33 @@ package final class SpacesModel {
     package func neighbour(of space: SpaceModel) -> SpaceModel? {
         guard spaces.count > 1, let index = index(of: space) else { return nil }
         return spaces[index == 0 ? 1 : index - 1]
+    }
+
+    // MARK: Profiles
+
+    package func spaces(of profile: ProfileModel) -> [SpaceModel] {
+        spaces.filter { profiles.profile(of: $0.space) === profile }
+    }
+
+    /// Gives a Space a profile (nil, or the first's id: the first). Its windows show that profile's Pinned grid, and what
+    /// its pages are made with is the caller's to make again (`SpaceModel.restart`).
+    package func setProfile(_ id: Profile.ID?, for space: SpaceModel) {
+        let wanted = id == Profile.firstID ? nil : id
+        guard space.space.profile != wanted else { return }
+        space.setProfile(wanted)
+        for viewer in space.currentViewers { viewer.followProfile() }
+        onChange()
+    }
+
+    /// Removes a profile: its Spaces are of the first from now on, and what was pinned in it is closed. The first stays.
+    /// - Returns: its id, for its website data to be erased; nil when nothing was removed.
+    @discardableResult
+    package func remove(profile: ProfileModel) -> Profile.ID? {
+        let its = spaces(of: profile)
+        guard profiles.remove(profile) else { return nil }
+        for space in its { setProfile(nil, for: space) }
+        for space in spaces { for viewer in space.currentViewers { viewer.followProfile() } }
+        return profile.profile.id
     }
 
     // MARK: Windows

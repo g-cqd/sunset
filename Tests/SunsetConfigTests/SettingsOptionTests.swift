@@ -25,7 +25,8 @@ import Testing
         let others = options.filter { $0.keys != [$0.id] }.map(\.id).sorted()
         let pages = ["storage.enterCode", "storage.export", "storage.key", "storage.sealed", "storage.setAside"]
         #expect(
-            others == ["file.location"] + pages + ["storage.websiteData", "web.permissions"],
+            // `profiles.list`: the profiles are kept with the session, not in the file (ADR-0053).
+            others == ["file.location", "profiles.list"] + pages + ["storage.websiteData", "web.permissions"],
             "only these are not one key of the file: \(others)"
         )
         #expect(options.allSatisfy { !$0.title.isEmpty && !$0.topic.isEmpty })
@@ -55,7 +56,7 @@ import Testing
 
     @Test func `the sentences under the controls are kept when options move`() {
         let noted = options.filter { $0.note != nil }.map(\.id)
-        #expect(noted.count == 27, "a sentence was added or lost: \(noted)")
+        #expect(noted.count == 28, "a sentence was added or lost: \(noted)")
         #expect(SettingsOption.named("sidebar.enabled")?.note?.contains("lists the tabs") == true)
         #expect(SettingsOption.named("scrollback.lines")?.note?.contains("opened after the change") == true)
     }

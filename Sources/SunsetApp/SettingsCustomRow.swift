@@ -35,6 +35,7 @@ struct SettingsCustomRow: View {
             case .engines: EngineList(engines: config.binding(\.web.engines))
             case .websites: WebsitesSettings(defaults: config.binding(\.web.permissions))
             case .siteAgents: SiteAgentsSettings(agent: config.binding(\.web.agent))
+            case .profiles: ProfilesSettings()
             case .fileLocation: fileInfo
             case .storageSealed, .storageWebsiteData, .storageSetAside, .storageKey, .storageEnterCode, .storageExport:
                 StorageRows(custom: custom)

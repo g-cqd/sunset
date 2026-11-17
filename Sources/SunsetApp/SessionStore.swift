@@ -40,7 +40,7 @@ final class SessionStore {
     func load(enabled: Bool, namedCommand: Bool) {
         active = !namedCommand
         guard !namedCommand, let session = read(), let first = session.spaces.first else { return }
-        AppFavorites.pinned.restore(session.pinned, reopening: enabled)
+        AppSpaces.all.profiles.restore(session.profiles, reopening: enabled)
         guard hostsTabs else {
             // A window is one tab: the first Space's saved tabs each wait for a window; the other Spaces are kept as they are.
             let named = SavedSpace(space: first.space, favorites: first.favorites)
@@ -165,7 +165,7 @@ final class SessionStore {
             return SpacesSession(
                 spaces: session.spaces + spaces.dropFirst(),
                 views: session.views,
-                pinned: AppFavorites.pinned.saved()
+                profiles: AppSpaces.all.profiles.saved()
             )
         }
         var views: [SavedView] = []
@@ -173,7 +173,7 @@ final class SessionStore {
             views = open.filter { AppSpaces.all.contains($0.space) }.map { $0.savedView() } + pendingViews
             if views.isEmpty, let lastView { views = [lastView] }
         }
-        return SpacesSession(spaces: spaces, views: views, pinned: AppFavorites.pinned.saved())
+        return SpacesSession(spaces: spaces, views: views, profiles: AppSpaces.all.profiles.saved())
     }
 
     /// The session as JSON a person can read, for Export All (R12 step ST-6): the open windows whatever the restoring setting.
@@ -185,7 +185,7 @@ final class SessionStore {
     private var writes: Bool {
         active && !frozen && !locked && seal != nil
             && (restoresWindows || AppSpaces.all.spaces.count > 1 || !AppFavorites.shared.favorites.isEmpty
-                || !AppFavorites.pinned.favorites.isEmpty)
+                || AppSpaces.all.profiles.profiles.count > 1 || !AppFavorites.pinned.favorites.isEmpty)
     }
 
     /// The app is quitting: the last write, then no more (see `frozen`).

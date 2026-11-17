@@ -19,6 +19,20 @@ extension TabsModel {
         return nil
     }
 
+    /// Shows the Pinned grid of the profile of this window's Space (a window among the app's Spaces): another Space,
+    /// or another profile for the Space, is another grid. An entry of the grid it leaves is no longer shown here.
+    func followProfile() {
+        guard let spaces else { return }
+        let grid = spaces.profiles.profile(of: space.space).pinned
+        guard grid !== pinned else { return }
+        if let shown = selectedEntry, pinned?.favorites.entry(shown) != nil {
+            left(shown)
+            selectedEntry = nil
+        }
+        pinned = grid
+        syncStates()
+    }
+
     package var pinnedEntries: [Favorites.Entry] { pinned?.favorites.entries ?? [] }
     package func isPinned(_ id: Favorites.NodeID) -> Bool { pinned?.favorites.entry(id) != nil }
     /// There is a grid, and room in it.

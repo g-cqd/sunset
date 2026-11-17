@@ -137,7 +137,7 @@ final class QuitGate {
         let windows = TabRegistry.shared.allWindows().map(\.tabs)
         var spaces = AppSpaces.all.spaces
         for tabs in windows where !spaces.contains(where: { $0 === tabs.space }) { spaces.append(tabs.space) }
-        var favorites: [FavoritesModel] = [AppFavorites.pinned]
+        var favorites: [FavoritesModel] = AppSpaces.all.profiles.profiles.map(\.pinned)
         for space in spaces {
             // The window that shows it, else any window of the app's Spaces: it changes to it when a row is clicked.
             let shower = windows.first { $0.space === space } ?? windows.first { AppSpaces.all.contains($0.space) }

@@ -14,9 +14,12 @@ import SunsetShell
     }
 
     /// The Pinned grid: the app's, the same in every Space, until there are profiles (roadmap 0021, P-b; ADR-0050).
-    static let pinned = make()
+    static var pinned: FavoritesModel { AppSpaces.all.profiles.first.pinned }
 
     /// Whether an entry is open in any Space or in the grid: something of the user's would run with no window if the
     /// app stayed.
-    static var hasOpenEntry: Bool { pinned.hasOpenEntry || AppSpaces.all.spaces.contains { $0.favorites.hasOpenEntry } }
+    static var hasOpenEntry: Bool {
+        AppSpaces.all.profiles.profiles.contains { $0.pinned.hasOpenEntry }
+            || AppSpaces.all.spaces.contains { $0.favorites.hasOpenEntry }
+    }
 }

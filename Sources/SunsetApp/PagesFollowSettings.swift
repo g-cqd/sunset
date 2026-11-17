@@ -29,6 +29,7 @@ struct PagesFollowSettings: ViewModifier {
                 for page in tabs.allPages {
                     var own = settings
                     own.privacy = page.settings.privacy
+                    own.profile = page.settings.profile
                     page.settings = own
                     page.applyZoom()
                 }

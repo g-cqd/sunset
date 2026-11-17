@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 
 /// What a page is made with, from the app's configuration (`web.*`).
 package struct WebSettings: Sendable, Equatable {
@@ -22,6 +22,8 @@ package struct WebSettings: Sendable, Equatable {
     package var textOnlyZoom: Bool
     /// A private page's store (web step h); nil for a page of the persistent store. Pages it opens inherit it.
     package var privacy: PagePrivacy?
+    /// The profile whose website data the page uses (ADR-0053); nil: the first profile's, the store there always was.
+    package var profile: UUID?
     /// Suggestions while typing in a private page (`web.privateSuggestions`).
     package var privateSuggestions = false
     /// The browser a site with no rule of its own is shown (`web.agent`): Safari is Sunset as it is.

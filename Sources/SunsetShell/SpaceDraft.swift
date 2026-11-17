@@ -10,15 +10,24 @@ package struct SpaceDraft: Equatable, Identifiable {
     /// The colour that tints the window showing the Space.
     package var tint: IconColor?
     package var icon: PaneIcon?
+    /// The profile the Space belongs to; nil: the first.
+    package var profile: Profile.ID?
 
     package var id: String { space?.uuidString ?? "new" }
     /// A Space has a name.
     package var canSave: Bool { !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
-    package init(space: Space.ID?, name: String, tint: IconColor? = nil, icon: PaneIcon? = nil) {
+    package init(
+        space: Space.ID?,
+        name: String,
+        tint: IconColor? = nil,
+        icon: PaneIcon? = nil,
+        profile: Profile.ID? = nil
+    ) {
         self.space = space
         self.name = name
         self.tint = tint
         self.icon = icon
+        self.profile = profile
     }
 }

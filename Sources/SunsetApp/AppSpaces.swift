@@ -12,6 +12,7 @@ import SunsetShell
             makeFavorites: AppFavorites.make
         )
         spaces.onChange = { SessionStore.shared.scheduleSave() }
+        spaces.profiles.onChange = { SessionStore.shared.scheduleSave() }
         return spaces
     }()
 

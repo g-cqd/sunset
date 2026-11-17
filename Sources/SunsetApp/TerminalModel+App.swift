@@ -17,7 +17,7 @@ extension TerminalModel {
                 NSWorkspace.shared.open(url)
                 return
             }
-            let page = WebContent(url: url, settings: PaneContentKinds.webSettings)
+            let page = WebContent(url: url, settings: PaneContentKinds.webSettings(for: tabs))
             WebOpening.wire(page, in: tabs)
             tabs.split(.right, with: page, beside: self)
         }

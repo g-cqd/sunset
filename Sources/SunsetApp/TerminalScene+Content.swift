@@ -13,7 +13,13 @@ extension TerminalScene {
         if let descriptor, descriptor.kind != PaneDescriptor.terminalKind {
             // In a private window a page is private: in the window's group, or one of its own when the window's pages do not share.
             let privacy = tabs.privateGroup.map { tabs.privateShares ? PagePrivacy(group: $0) : PagePrivacy() }
-            let content = PaneContentKinds.make(descriptor, privacy: privacy) { SessionStore.shared.scheduleSave() }
+            let content = PaneContentKinds.make(
+                descriptor,
+                privacy: privacy,
+                profile: PaneContentKinds.profile(of: tabs)
+            ) {
+                SessionStore.shared.scheduleSave()
+            }
             wire(content)
             return content
         }
