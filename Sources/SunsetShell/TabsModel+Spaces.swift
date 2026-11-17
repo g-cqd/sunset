@@ -51,8 +51,7 @@ extension TabsModel {
     package func stepSpace(by offset: Int) {
         guard let spaces, let index = spaces.index(of: space), spaces.spaces.count > 1 else { return }
         let count = spaces.spaces.count
-        spaceCameFromNext = offset > 0
-        show(space: spaces.spaces[((index + offset) % count + count) % count])
+        slide(to: spaces.spaces[((index + offset) % count + count) % count], isNext: offset > 0)
     }
 
     /// Opens the editor of a new Space. Nothing is made until it is saved.
@@ -78,7 +77,6 @@ extension TabsModel {
             return
         }
         let made = spaces.add(from: space, as: draft)
-        spaceCameFromNext = true
         show(space: made)
         if bar == nil { toggleBar() }
     }
@@ -103,12 +101,12 @@ extension TabsModel {
         show(spaceInOrder: spaces.spaces[number - 1])
     }
 
-    /// Shows a Space picked by its place (its icon, its key): the list comes in from the side it is on.
+    /// Shows a Space picked by its place (its icon, its key): the list slides in from the side it is on.
     package func show(spaceInOrder other: SpaceModel) {
-        if let spaces, let from = spaces.index(of: space), let to = spaces.index(of: other) {
-            spaceCameFromNext = to > from
+        guard let spaces, let from = spaces.index(of: space), let to = spaces.index(of: other) else {
+            return show(space: other)
         }
-        show(space: other)
+        slide(to: other, isNext: to > from)
     }
 
     /// Whether there is a Space before this window's, and one after: where a swipe can go (it does not go round).

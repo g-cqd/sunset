@@ -72,8 +72,8 @@ package struct SpaceSwipe: Equatable {
             return .follow
         }
         if distance >= width * Self.threshold {
+            // The list is left where the fingers had it: the slide to the other Space goes on from there.
             phase = .done
-            offset = 0
             return .snap(towardsNext ? 1 : -1)
         }
         // Slow at first, then with the fingers: a part of the width, raised.

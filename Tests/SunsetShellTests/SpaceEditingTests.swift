@@ -1,5 +1,6 @@
 import Foundation
 import SunsetPane
+import SwiftUI
 import Testing
 
 @testable import SunsetShell
@@ -96,5 +97,64 @@ struct SpaceEditingTests {
         alone.newTab()
         alone.close(item: try #require(alone.workspace.selectedID))
         #expect(gone == 1)
+    }
+
+    // MARK: The slide between Spaces (the owner's note n79)
+
+    /// "When swiping through spaces, we should still see the space we're swiping away, it should still exist until the
+    /// end of the snapping": while the list is off its place, the neighbour's list is beside it, and the window is still
+    /// on the Space it leaves.
+    @Test func `while the list is off its place the neighbour's is beside it, and the Space is not left yet`() throws {
+        let (spaces, made) = (spaces(), MadeContents())
+        let window = window(on: spaces, made: made)
+        window.newTab()
+        let home = spaces.spaces[0]
+        let work = spaces.add(from: home)
+        let play = spaces.add(from: home)
+        window.show(space: work)
+        window.newTab()
+        let shown = try #require(window.workspace.selectedID)
+        // Fingers to the left: the next Space's list comes from the right.
+        window.shift(spaceListTo: -30)
+        #expect(window.space === work && window.slide.shift == -30)
+        var beside = try #require(window.slide.beside)
+        #expect(beside.isNext && beside.tabs.space === play && beside.tabs.workspace.isEmpty)
+        #expect(play.viewerCount == 0, "a list to look at, not a window on the Space")
+        // Back past the middle, to the right: the previous one, with the tab this window had selected there.
+        window.shift(spaceListTo: 12)
+        beside = try #require(window.slide.beside)
+        #expect(!beside.isNext && beside.tabs.space === home && beside.tabs.workspace.count == 1)
+        #expect(beside.tabs.workspace.selectedID == home.tabs.items[0].id)
+        // Let go: back to its place, nothing beside, still on Work with what was shown.
+        window.shift(spaceListTo: 0)
+        #expect(window.slide.beside == nil && window.space === work && window.workspace.selectedID == shown)
+        // At an end there is nothing beside.
+        window.show(space: play)
+        window.shift(spaceListTo: -30)
+        #expect(window.slide.beside == nil && window.slide.shift == -30)
+    }
+
+    @Test func `with no sidebar to slide in, a Space is gone to at once; with one, when the slide has ended`() {
+        let (spaces, made) = (spaces(), MadeContents())
+        let window = window(on: spaces, made: made)
+        let work = spaces.add(from: spaces.spaces[0])
+        window.stepSpace(by: 1)
+        #expect(window.space === work && window.slide.beside == nil)
+        // With a sidebar: the list is beside, the slide is under way, and the Space changes when it ends.
+        window.slide.width = 240
+        window.slide.animation = .default
+        var ended: (() -> Void)?
+        window.runSlide = { _, change, completion in
+            change()
+            ended = completion
+        }
+        window.stepSpace(by: 1)
+        #expect(window.space === work && window.slide.isRunning, "still on the Space it leaves")
+        #expect(window.slide.beside?.tabs.space === spaces.spaces[0] && window.slide.beside?.isNext == true)
+        window.stepSpace(by: 1)
+        #expect(window.slide.beside?.tabs.space === spaces.spaces[0], "one slide at a time")
+        ended?()
+        #expect(window.space === spaces.spaces[0] && !window.slide.isRunning && window.slide.beside == nil)
+        #expect(window.slide.shift == 0)
     }
 }

@@ -161,7 +161,12 @@ Not done, or not seen:
 - **n81, done**: the Spaces' icons are buttons of the sidebar, of the size and with the hover of the + and the Library,
   and the row is centred between the two ends (measured: its middle at 1805.5, the middle of the gap at 1805.5;
   `docs/research/sidebar/spaces-row-centred.png`). Not seen: the hover itself.
-- **n79, not done yet**: the Space being left stays in sight until the snap ends (t288).
+- **n79, done**: going to another Space (the swipe, the keys, an icon), the sidebar's list slides and the list of the
+  other Space is drawn beside it; the window is still on the Space it leaves until the slide has ended (`SpaceSlide`).
+  Under the fingers the neighbour's list is there from the first point moved. Seen: one frame at the end of a slide by
+  the keys, the other Space's rows in place while the pane and the Spaces' row were still the old Space's
+  (`docs/research/sidebar/space-slide-end.png`). **Not seen**: a frame in the middle of the slide (too short to catch),
+  and the swipe itself.
 - **n80, for profiles**: what is open in a profile shows as active in every Space of that profile, pinned and
   favourites; a question for P-a, since a new Space has a copy of the Favorites today (t152).
 

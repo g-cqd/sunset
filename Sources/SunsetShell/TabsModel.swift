@@ -29,21 +29,20 @@ package final class TabsModel {
     @ObservationIgnored var canMake = false
     /// The Pinned grid this window shows (the app's); nil for a window that has none (a private one).
     package var pinned: FavoritesModel? { didSet { pinned?.register(self) } }
-    /// The Spaces this window can change to (the app's); nil for a window whose Space is its own. Observed: what shows the
-    /// Spaces is drawn before a window is among them.
+    /// The Spaces this window can change to (the app's); nil for one whose Space is its own. Observed: drawn before set.
     package weak var spaces: SpacesModel?
     /// What this window had selected in each Space it left: shown again when it comes back.
     @ObservationIgnored var selections: [Space.ID: SavedView] = [:]
-    /// What the editor of a Space holds while it is open in this window (a new Space's, or one's that exists), and the
-    /// Space being deleted, which is asked about first.
+    /// What a Space's editor holds while it is open in this window; the Space being deleted, asked about first.
     package var spaceDraft: SpaceDraft?
     package var deletingSpace: Space.ID?
-    /// Whether the window closes when the last tab of its Space does (`tabs.closeWindowWithLastTab`); off, it stays, on an
-    /// empty Space (the owner, 2026-11-17).
+    /// The window closes with the last tab of its Space (`tabs.closeWindowWithLastTab`); off, it stays, empty.
     @ObservationIgnored package var closesWithLastTab = false
-    /// The swipe between Spaces under way on this window's sidebar, and the side the list last came in from.
-    package var spaceSwipe = SpaceSwipe()
-    package var spaceCameFromNext = true
+    /// The swipe between Spaces under way on this window's sidebar, and the list's slide from one Space to another.
+    @ObservationIgnored package var spaceSwipe = SpaceSwipe()
+    package var slide = SpaceSlide()
+    /// Runs a slide: the change, animated, then what follows it (a test runs it by hand).
+    @ObservationIgnored package var runSlide = SpaceSlide.animated
     /// What a content asks of a window (links to open, the font zoom) is asked of this one from now on: it draws it.
     @ObservationIgnored package var wireContent: (any PaneContent) -> Void = { _ in }
     /// The window chose what it shows (its Space, a first tab): done once, though its content can be built again.
@@ -103,6 +102,13 @@ package final class TabsModel {
         self.space = space
         space.register(self)
         space.favorites.register(self)
+    }
+
+    /// A window that only looks at `space` (`preview(of:)`): not among its viewers.
+    init(previewing space: SpaceModel, selected: Workspace.ItemID?, pinned: FavoritesModel?) {
+        self.space = space
+        self.selectedID = selected
+        self.pinned = pinned
     }
 
     /// A window with tabs of its own: a Space no other window shows, that ends with it.

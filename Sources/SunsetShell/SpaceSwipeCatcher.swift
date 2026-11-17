@@ -62,15 +62,22 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
                     canGo: tabs.spaceNeighbours
                 )
                 : tabs.spaceSwipe.move(dx: 0, dy: 0, width: bounds.width, canGo: tabs.spaceNeighbours)
-            if event.phase.contains(.ended) || event.phase.contains(.cancelled) {
-                withAnimation(animation) { _ = tabs.spaceSwipe.end() }
+            defer {
+                // Fingers up before enough was swiped: the list goes back to its place.
+                if event.phase.contains(.ended) || event.phase.contains(.cancelled) {
+                    _ = tabs.spaceSwipe.end()
+                    tabs.settleSpaceList()
+                }
             }
             switch step {
                 case .scroll: return false
-                case .follow, .consumed: return true
+                case .consumed: return true
+                case .follow:
+                    tabs.shift(spaceListTo: tabs.spaceSwipe.offset)
+                    return true
                 case .snap(let direction):
                     NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
-                    withAnimation(animation) { tabs.stepSpace(by: direction) }
+                    tabs.stepSpace(by: direction)
                     return true
             }
         }

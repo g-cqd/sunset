@@ -8,8 +8,10 @@ import UniformTypeIdentifiers
 /// (the window's own colour or material shows through, with the window's settings) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
 /// content starts below the traffic lights and scrolls beneath them, fading out there. A click selects a tab, a drag reorders them.
 package struct TabSidebar: View {
-    let tabs: TabsModel
+    var tabs: TabsModel
     let settings: ShellSettings
+    /// The list alone, of a Space the window is sliding to (`SpaceSlide`): looked at, not acted on.
+    var isPreview = false
     /// The pin button was pressed: the sidebar is to stay beside the content, or to hide and float (`sidebar.autoHide`, which the app owns).
     let togglePin: () -> Void
     /// The floating panel: its traffic lights are a little further from the corner.
@@ -57,18 +59,19 @@ package struct TabSidebar: View {
     }
 
     package var body: some View {
+        if isPreview { list } else { whole }
+    }
+
+    private var whole: some View {
         ScrollView {
-            LazyVStack(spacing: layout.tabSpacing) {
-                PinnedGrid(tabs: tabs, layout: layout)
-                FavoritesSection(tabs: tabs, settings: settings, layout: layout)
-                ForEach(tabs.workspace.items) { item in row(item) }
-            }
-            .padding(.horizontal, layout.tabSideInset)
-            .frame(maxWidth: .infinity)
-            // The swipe between Spaces: the list follows the fingers, and the other Space's comes in from its side.
-            .offset(x: tabs.spaceSwipe.offset)
-            .id(tabs.space.space.id)
-            .transition(.push(from: tabs.spaceCameFromNext ? .trailing : .leading))
+            // The swipe between Spaces: the list follows the fingers, with the neighbour's beside it.
+            list
+                .offset(x: tabs.slide.shift)
+                .overlay(alignment: .top) { beside }
+        }
+        .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { width in
+            tabs.slide.width = width
+            tabs.slide.animation = layout.smooth
         }
         .background { SpaceSwipeCatcher(tabs: tabs, animation: layout.smooth) }
         .gesture(WindowDragGesture())
@@ -150,7 +153,7 @@ package struct TabSidebar: View {
         }
     }
 
-    private func row(_ item: Workspace.Item) -> some View {
+    func row(_ item: Workspace.Item) -> some View {
         rowContent(item)
             .onGeometryChange(for: CGSize.self, of: \.size) { rowSizes[item.id] = $0 }
             .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { rowFrames[item.id] = $0 }

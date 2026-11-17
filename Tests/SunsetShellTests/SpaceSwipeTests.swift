@@ -35,7 +35,7 @@ struct SpaceSwipeTests {
         }
         #expect(result == .snap(1), "the next Space")
         #expect(travelled <= width * SpaceSwipe.threshold + 10 && travelled >= width * SpaceSwipe.threshold)
-        #expect(swipe.offset == 0, "the list is the other Space's now")
+        #expect(swipe.offset < -30, "left where the fingers had it: the slide goes on from there (n79)")
     }
 
     @Test func `one Space a gesture: what is swiped after the snap, and the trackpad's momentum, change nothing`() {
