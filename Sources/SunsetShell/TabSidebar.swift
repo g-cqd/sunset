@@ -29,6 +29,8 @@ package struct TabSidebar: View {
     @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
     /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
     @State private var closingSlot: Int?
+    /// How far Today's tabs are scrolled down: the fade at their top grows with it.
+    @State var scrolledBy = 0.0
     @Environment(\.accent) private var accentStyle
 
     var margin: Double { settings.sidebar.padding }
@@ -63,12 +65,26 @@ package struct TabSidebar: View {
     }
 
     private var whole: some View {
-        ScrollView {
-            // The swipe between Spaces: the list follows the fingers, with the neighbour's beside it.
-            list
+        VStack(spacing: layout.tabSpacing) {
+            // The Pinned grid and the Favorites stay where they are; only Today's tabs scroll (the owner, 2026-11-17, roadmap
+            // 0035 F). The swipe between Spaces moves both, with the neighbour's beside them.
+            kept
                 .offset(x: tabs.slide.shift)
-                .overlay(alignment: .top) { beside }
+                .overlay(alignment: .top) { beside(.kept) }
+            ScrollView {
+                today
+                    .offset(x: tabs.slide.shift)
+                    .overlay(alignment: .top) { beside(.today) }
+            }
+            .scrollIndicators(.never)
+            .contentMargins(.bottom, margin + bottomInset, for: .scrollContent)
+            .onScrollGeometryChange(for: Double.self, of: { Double($0.contentOffset.y + $0.contentInsets.top) }) {
+                scrolledBy = max($1, 0)
+            }
+            // Rows that scroll past either end fade out: an alpha mask, no blur (roadmap 0035 F).
+            .mask { fade }
         }
+        .padding(.top, topInset)
         .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { width in
             tabs.slide.width = width
             tabs.slide.animation = layout.smooth
@@ -80,38 +96,11 @@ package struct TabSidebar: View {
             Button("New Folder") { tabs.newFolder() }
             Button("New Tab") { tabs.newTab() }
         }
-        .scrollIndicators(.never)
         .modifier(EscapeClearsMarks(tabs: tabs))
-        .contentMargins(.top, topInset, for: .scrollContent)
-        .contentMargins(.bottom, margin + bottomInset, for: .scrollContent)
         .onHover { inside in if !inside { closingSlot = nil } }
-        .mask { fade }
-        // Under the pin and the + bar, the rows that scroll there blur out as they fade (Sunset research/blur). Docked, the window
-        // draws the sidebar under the panes, so the bands go on under them with no side (owner, 2026-11-13).
-        .overlay(alignment: .top) { listEndBlur(.top, over: topInset, reach: floating ? 0 : margin) }
-        .overlay(alignment: .bottom) { listEndBlur(.bottom, over: bottomInset + margin) }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
         .overlay(alignment: .top) { accessoryView }
         .overlay(alignment: .bottom) { bottomBarView }
-    }
-
-    /// Content that scrolls up past the traffic lights fades out over the height of the strip they sit in; rows at rest start below it, untouched.
-    /// With an accessory (the address field), nothing shows behind its upper half: the rows fade in, eased, from there to below it
-    /// (owner, 2026-11-13, t231).
-    private var fade: some View {
-        // Hidden to the field's middle, then an eased fade over its lower half and the gap below it.
-        let hidden = accessory == nil ? 0 : header.height + Self.accessoryHeight / 2
-        return VStack(spacing: 0) {
-            Color.clear.frame(height: hidden)
-            LinearGradient(gradient: .eased(from: .clear, to: .black), startPoint: .top, endPoint: .bottom)
-                .frame(height: max(topInset - hidden, 0))
-            Color.black
-            // And under the bottom bar.
-            if bottomBar != nil {
-                LinearGradient(gradient: .eased(from: .black, to: .clear), startPoint: .top, endPoint: .bottom)
-                    .frame(height: bottomInset + margin)
-            }
-        }
     }
 
     @ViewBuilder private func rowContent(_ item: Workspace.Item) -> some View {
