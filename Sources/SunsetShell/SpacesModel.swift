@@ -24,8 +24,10 @@ package final class SpacesModel {
         makeFavorites: @escaping @MainActor () -> FavoritesModel
     ) {
         self.makeFavorites = makeFavorites
-        profiles = ProfilesModel(firstPinned: pinned, makeFavorites: makeFavorites)
-        spaces = [first ?? SpaceModel(favorites: makeFavorites(), keepsTabs: true)]
+        let space = first ?? SpaceModel(favorites: makeFavorites(), keepsTabs: true)
+        // The first profile's Favorites are the ones the first Space has.
+        profiles = ProfilesModel(firstPinned: pinned, firstFavorites: space.favorites, makeFavorites: makeFavorites)
+        spaces = [space]
     }
 
     package func index(of space: SpaceModel) -> Int? { spaces.firstIndex { $0 === space } }
@@ -41,10 +43,10 @@ package final class SpacesModel {
         return SpaceDraft(space: nil, name: "Space \(number)", icon: number <= 50 ? .symbol("\(number).circle") : nil)
     }
 
-    /// A new Space after the others, with a copy of the Favorites of `origin` (kept, none open) and no tab (the owner,
-    /// 2026-11-17). The Space of before there were several is named then: Home, with a house.
+    /// A new Space after the others, with no tab; its Favorites are its profile's, as every Space's are (ADR-0055). The
+    /// Space of before there were several is named then: Home, with a house.
     /// - Parameters:
-    ///   - origin: the Space whose Favorites are copied.
+    ///   - origin: the Space it is made from (its profile is the draft's to say).
     ///   - draft: its name, colour and icon; "Space N" with a numbered circle when none is given.
     /// - Returns: the Space made.
     @discardableResult
@@ -54,13 +56,10 @@ package final class SpacesModel {
             first.rename(to: "Home")
             if first.space.icon == nil { first.setIcon(.symbol("house")) }
         }
-        let favorites = makeFavorites()
-        if let origin {
-            favorites.restore(SavedFavorites(favorites: origin.favorites.favorites.copied()), reopening: false)
-        }
         var named = Space(name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines), icon: draft.icon)
         named.tint = draft.tint
         named.profile = draft.profile == Profile.firstID ? nil : draft.profile
+        let favorites = profiles.profile(of: named).favorites
         let made = SpaceModel(space: named, favorites: favorites, keepsTabs: spaces.first?.keepsTabs ?? true)
         spaces.append(made)
         onChange()
@@ -107,10 +106,8 @@ package final class SpacesModel {
         if let target {
             let given = space.giveAll()
             target.adopt(given.items, contents: given.contents, pending: given.pending)
-            target.favorites.absorb(space.favorites)
         } else {
             space.closeAll()
-            space.favorites.closeAll()
         }
         spaces.remove(at: index)
         onChange()
@@ -133,8 +130,15 @@ package final class SpacesModel {
     package func setProfile(_ id: Profile.ID?, for space: SpaceModel) {
         let wanted = id == Profile.firstID ? nil : id
         guard space.space.profile != wanted else { return }
+        // What its windows show of what the profile keeps (a favourite, a pinned entry) is the other profile's no more.
+        let viewers = space.currentViewers
+        for viewer in viewers { viewer.leaveKeptEntry() }
         space.setProfile(wanted)
-        for viewer in space.currentViewers { viewer.followProfile() }
+        space.favorites = profiles.profile(wanted).favorites
+        for viewer in viewers {
+            space.favorites.register(viewer)
+            viewer.followProfile()
+        }
         onChange()
     }
 
@@ -164,12 +168,15 @@ package final class SpacesModel {
 
     package func saved() -> [SavedSpace] { spaces.map { $0.saved() } }
 
-    /// Takes the saved Spaces, in their order, before any window shows one: the first is the one there was.
+    /// Takes the saved Spaces, in their order, before any window shows one, and after the profiles (each Space has its
+    /// profile's Favorites): the first is the one there was.
     package func restore(_ saved: [SavedSpace], reopening: Bool) {
         guard let first = saved.first, spaces.count == 1 else { return }
         spaces[0].restore(first, reopening: reopening)
+        spaces[0].favorites = profiles.profile(of: spaces[0].space).favorites
         for other in saved.dropFirst() {
-            let space = SpaceModel(space: other.space, favorites: makeFavorites(), keepsTabs: spaces[0].keepsTabs)
+            let favorites = profiles.profile(of: other.space).favorites
+            let space = SpaceModel(space: other.space, favorites: favorites, keepsTabs: spaces[0].keepsTabs)
             space.restore(other, reopening: reopening)
             spaces.append(space)
         }

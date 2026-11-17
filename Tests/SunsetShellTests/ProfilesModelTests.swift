@@ -99,4 +99,46 @@ struct ProfilesModelTests {
         orphan.profile = UUID()
         #expect(again.profiles.profile(of: orphan) === again.profiles.profiles[0])
     }
+
+    /// The owner, 2026-11-17: "Favorites become the profile's": one list, the same in every Space of the profile; what is
+    /// open there shows as open in all of them (his note n80).
+    @Test
+    func
+        `the Favorites are the profile's: the same in each of its Spaces, a new Space included; another profile's are its own`()
+        throws
+    {
+        let (spaces, made) = (spaces(), MadeContents())
+        let window = window(on: spaces, made: made)
+        let home = spaces.spaces[0]
+        window.newTab()
+        let tab = try #require(window.workspace.selectedID)
+        let entry = try #require(window.keep(item: tab))
+        let second = spaces.add(from: home)
+        #expect(second.favorites === home.favorites && home.favorites === spaces.profiles.first.favorites)
+        window.show(space: second)
+        #expect(window.favorites.favorites.entry(entry)?.isOpen == true && !made.all[0].stopped, "open here too (n80)")
+        window.select(entry: entry)
+        #expect(window.shownEntry?.id == entry && window.showsLive && made.all[0].visible)
+        // A Space that is deleted takes no favourite with it: they are not its own.
+        #expect(!second.holdsSomething)
+        spaces.remove(second, movingTo: nil)
+        #expect(home.favorites.favorites.entry(entry)?.isOpen == true && !made.all[0].stopped && window.space === home)
+        // Another profile has its own; a Space given that profile shows them, and no longer the first's.
+        let work = spaces.profiles.add()
+        let third = spaces.add(from: home)
+        window.show(space: third)
+        window.select(entry: entry)
+        spaces.setProfile(work.profile.id, for: third)
+        #expect(third.favorites === work.favorites && work.favorites !== home.favorites && window.favorites.isEmpty)
+        #expect(window.shownEntry == nil && !made.all[0].stopped && !made.all[0].visible, "left, not closed")
+        // Saved with the profile, and back with it.
+        let saved = spaces.profiles.saved()
+        #expect(saved[0].favorites.favorites.entry(entry) != nil && saved[1].favorites.favorites.isEmpty)
+        #expect(spaces.saved().allSatisfy { $0.favorites.favorites.isEmpty })
+        let again = self.spaces()
+        again.profiles.restore(saved, reopening: false)
+        again.restore(spaces.saved(), reopening: false)
+        #expect(again.spaces[0].favorites.favorites.entry(entry)?.isOpen == false)
+        #expect(again.spaces[1].favorites === again.profiles.profiles[1].favorites)
+    }
 }

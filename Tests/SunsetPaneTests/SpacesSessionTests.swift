@@ -45,7 +45,7 @@ struct SpacesSessionTests {
         #expect(read == session)
         #expect(read.spaces.map(\.space.name) == ["Work", ""] && read.views == views)
         #expect(
-            read.spaces[0].space.look == ["tint": "orange"] && read.spaces[0].favorites.favorites.entry(kept) != nil
+            read.spaces[0].space.look == ["tint": "orange"] && read.profiles[0].favorites.favorites.entry(kept) != nil
         )
         #expect(read.spaces[0].contents.count == 3)
     }
@@ -110,7 +110,9 @@ struct SpacesSessionTests {
         #expect(session.workspace(for: SavedView(space: UUID(), selected: nil)) == nil)
     }
 
-    @Test func `a pane is in one place: of two Spaces that hold it the first keeps it, and a kept entry gives it up`()
+    /// What is kept (the profile's Favorites, ADR-0055, as its Pinned grid) holds its panes before any Space does.
+    @Test
+    func `a pane is in one place: of two Spaces that hold it the first keeps it; a tab gives way to a kept entry`()
         throws
     {
         let first = space("First", tabs: 2)
@@ -125,8 +127,12 @@ struct SpacesSessionTests {
         third.favorites = SavedFavorites(favorites: favorites)
         let session = SpacesSession(spaces: [first, second, third, first], views: [])
         #expect(session.spaces.map(\.space.name) == ["First", "Second", "Third"], "a Space is there once")
-        #expect(session.spaces[0].tabs.count == 2 && session.spaces[1].tabs.count == 1)
-        #expect(session.spaces[2].favorites.favorites.entry(kept)?.isOpen == false)
+        #expect(
+            session.spaces[0].tabs.items.map(\.id) == [first.tabs.items[0].id],
+            "its second tab is the kept entry's"
+        )
+        #expect(session.spaces[1].tabs.count == 1)
+        #expect(session.profiles[0].favorites.favorites.entry(kept)?.isOpen == true)
     }
 
     @Test func `a damaged Space or view is left out, the rest is read`() throws {
@@ -173,7 +179,7 @@ struct SpacesSessionTests {
         #expect(read.spaces.count == 1 && read.spaces[0].space.name.isEmpty)
         let space = read.spaces[0]
         #expect(space.tabs.items == first.items + second.items)
-        #expect(space.contents == directories && space.favorites.favorites.entry(kept)?.isOpen == true)
+        #expect(space.contents == directories && read.profiles[0].favorites.favorites.entry(kept)?.isOpen == true)
         #expect(
             read.views == [
                 SavedView(space: space.space.id, selected: first.items[0].id),

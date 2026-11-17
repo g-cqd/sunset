@@ -211,3 +211,13 @@ built-in tab bar. 1,336 tests in 256 suites pass.
 Not seen: any drag (onto the grid, or a tile out of it), the menu of several rows, the red outline of a tile asked
 about. Not done: pinning a folder, reordering tiles.
 
+## The Favorites become the profile's (2026-11-17; ADR-0055)
+
+The owner's choice for the rest of his note n80. One list of Favorites for a profile, the same in each of its Spaces;
+what is open there is open in all. A new Space no longer has a copy; a deleted Space takes none with it; a session of
+before has its Spaces' Favorites put together in their profile, a copy and its original once.
+
+Seen in a test copy: a favourite kept in Home listed in a new Space, and in both after a quit
+(`docs/research/sidebar/favorites-in-every-space.png`). Not seen: a real session of before with copies in two Spaces
+(tested, `SessionProfilesTests`); a Space given another profile while it shows a favourite (tested).
+

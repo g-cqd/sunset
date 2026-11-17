@@ -33,6 +33,13 @@ extension TabsModel {
         syncStates()
     }
 
+    /// Stops showing the kept entry this window shows, without closing it: its Space is given another profile.
+    func leaveKeptEntry() {
+        guard let shown = selectedEntry else { return }
+        left(shown)
+        selectedEntry = nil
+    }
+
     package var pinnedEntries: [Favorites.Entry] { pinned?.favorites.entries ?? [] }
     package func isPinned(_ id: Favorites.NodeID) -> Bool { pinned?.favorites.entry(id) != nil }
     /// There is a grid, and room in it.

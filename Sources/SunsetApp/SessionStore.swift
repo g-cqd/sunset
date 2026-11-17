@@ -43,7 +43,7 @@ final class SessionStore {
         AppSpaces.all.profiles.restore(session.profiles, reopening: enabled)
         guard hostsTabs else {
             // A window is one tab: the first Space's saved tabs each wait for a window; the other Spaces are kept as they are.
-            let named = SavedSpace(space: first.space, favorites: first.favorites)
+            let named = SavedSpace(space: first.space)
             AppSpaces.all.restore([named] + session.spaces.dropFirst(), reopening: enabled)
             if enabled { pending = Self.windows(of: first) }
             return
@@ -154,12 +154,13 @@ final class SessionStore {
     private func current(windows: Bool) -> SpacesSession {
         let open = TabRegistry.shared.allWindows().map(\.tabs).filter { !$0.isPrivateWindow }
         var spaces = AppSpaces.all.saved()
-        if !windows { spaces = spaces.map { SavedSpace(space: $0.space, favorites: $0.favorites) } }
+        if !windows { spaces = spaces.map { SavedSpace(space: $0.space) } }
         guard hostsTabs else {
             // A window is one tab: the first Space's tabs are the windows', in the windows' order.
             let old = SavedSession(
                 windows: windows ? open.map { $0.savedWindow() } + pending : [],
-                favorites: AppFavorites.shared.saved()
+                // The Favorites are the profiles' (below).
+                favorites: SavedFavorites()
             )
             let session = SpacesSession(old, space: AppSpaces.shared.space)
             return SpacesSession(

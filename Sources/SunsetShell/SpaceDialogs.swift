@@ -2,8 +2,7 @@ import SunsetPane
 package import SwiftUI
 
 /// A window's dialogs about Spaces (roadmap 0021 step S-c): the editor of a Space, as a sheet; and what is asked before a
-/// Space that holds things is deleted: its tabs and Favorites go to the neighbouring Space, still running, or everything
-/// in it closes.
+/// Space that has tabs is deleted: they go to the neighbouring Space, still running, or close.
 package struct SpaceDialogs: ViewModifier {
     let tabs: TabsModel
 
@@ -24,18 +23,16 @@ package struct SpaceDialogs: ViewModifier {
                 titleVisibility: .visible
             ) {
                 if let neighbour {
-                    Button("Move What It Holds to \(neighbour.space.name)") { tabs.answerDelete(moving: true) }
+                    Button("Move Its Tabs to \(neighbour.space.name)") { tabs.answerDelete(moving: true) }
                 }
-                Button("Close Everything in It", role: .destructive) { tabs.answerDelete(moving: false) }
+                Button("Close Its Tabs", role: .destructive) { tabs.answerDelete(moving: false) }
                 Button("Cancel", role: .cancel) { tabs.deletingSpace = nil }
             } message: {
-                Text(Self.sentence(tabs: target?.tabs.count ?? 0, kept: target?.favorites.favorites.count ?? 0))
+                Text(Self.sentence(tabs: target?.tabs.count ?? 0))
             }
     }
 
-    static func sentence(tabs: Int, kept: Int) -> String {
-        let tabsPart = tabs == 1 ? "1 tab" : "\(tabs) tabs"
-        let keptPart = kept == 1 ? "1 item in its Favorites" : "\(kept) items in its Favorites"
-        return "It has \(tabsPart) and \(keptPart). What runs in a tab that closes is stopped."
+    static func sentence(tabs: Int) -> String {
+        (tabs == 1 ? "It has 1 tab." : "It has \(tabs) tabs.") + " What runs in a tab that closes is stopped."
     }
 }

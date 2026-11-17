@@ -67,7 +67,7 @@ extension SpaceModel {
         for (pane, content) in contents {
             if content.isPrivate { kept.close(pane: pane) } else { descriptors[pane] = content.descriptor }
         }
-        var saved = SavedSpace(space: space, favorites: favorites.saved(), tabs: kept, contents: descriptors)
+        var saved = SavedSpace(space: space, tabs: kept, contents: descriptors)
         saved.stopped = stopped
         return saved
     }
@@ -79,7 +79,6 @@ extension SpaceModel {
     /// whose contents are made by the first window. With `reopening` off no entry comes back open and no tab comes back.
     package func restore(_ saved: SavedSpace, reopening: Bool = true) {
         space = saved.space
-        favorites.restore(saved.favorites, reopening: reopening)
         guard reopening, tabs.isEmpty else { return }
         tabs = saved.tabs
         pending = saved.contents

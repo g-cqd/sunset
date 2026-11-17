@@ -1,7 +1,7 @@
 public import Foundation
 
 /// What the app had open, since Spaces (roadmap 0021 step S-a; ADR-0045): the Spaces in their one order, each with its
-/// Favorites and its tabs, and the windows as views of them. Written when it quits and as things change, read at launch.
+/// tabs, the profiles with what is kept in each (the Pinned grid, the Favorites), and the windows as views of the Spaces. Written when it quits and as things change, read at launch.
 ///
 /// Reading never fails the launch: a file that cannot be understood is no session, a damaged Space or view is left out.
 /// What is read holds together: there is always a Space; a Space is there once; a pane is in one place (of two Spaces
@@ -15,7 +15,8 @@ public struct SpacesSession: Sendable, Equatable {
 
     public private(set) var spaces: [SavedSpace]
     public private(set) var views: [SavedView]
-    /// The profiles, the first always there, each with its Pinned grid. The grids hold their panes before any Space does.
+    /// The profiles, the first always there, each with its Pinned grid and its Favorites, which hold their panes before
+    /// any Space does.
     public private(set) var profiles: [SavedProfile]
     /// The first profile's Pinned grid: all there was before profiles.
     public var pinned: SavedFavorites { profiles.first { $0.profile.isFirst }?.pinned ?? SavedFavorites() }
@@ -34,12 +35,27 @@ public struct SpacesSession: Sendable, Equatable {
         var known = Set<Profile.ID>()
         var profiles = given.filter { known.insert($0.profile.id).inserted }
         if !known.contains(Profile.firstID) { profiles.insert(SavedProfile(profile: .first, pinned: pinned), at: 0) }
-        self.profiles = profiles
-        let grids = profiles.map(\.pinned.favorites)
         var seen = Set<Space.ID>()
+        var own: [SavedSpace] = []
+        for var space in spaces where own.count < Self.maximumSpaces && seen.insert(space.space.id).inserted {
+            // Favorites are the profile's (ADR-0055): a Space's own, of a file of before, go to its profile.
+            if !space.favorites.favorites.isEmpty {
+                let index = profiles.firstIndex { $0.profile.id == space.space.profile } ?? 0
+                var all = profiles[index].favorites.favorites
+                all.merge(space.favorites.favorites)
+                let contents = profiles[index].favorites.contents
+                    .merging(space.favorites.contents) { first, _ in first }
+                profiles[index].favorites = SavedFavorites(favorites: all, contents: contents)
+                space.favorites = SavedFavorites()
+            }
+            own.append(space)
+        }
+        self.profiles = profiles
+        // What is kept holds its panes before any Space does.
+        let grids = profiles.map(\.pinned.favorites) + profiles.map(\.favorites.favorites)
         var held = Set(grids.flatMap(\.livePanes))
         var kept: [SavedSpace] = []
-        for var space in spaces where kept.count < Self.maximumSpaces && seen.insert(space.space.id).inserted {
+        for var space in own {
             held = space.settle(taken: held)
             kept.append(space)
         }
@@ -53,7 +69,7 @@ public struct SpacesSession: Sendable, Equatable {
                 view.selected = nil
             }
             let wanted = entry(of: view)
-            let kept = space.favorites.favorites.entry(wanted) ?? grids.lazy.compactMap { $0.entry(wanted) }.first
+            let kept = grids.lazy.compactMap { $0.entry(wanted) }.first
             if view.entry != nil, kept?.isOpen != true { view.entry = nil }
             return view
         }

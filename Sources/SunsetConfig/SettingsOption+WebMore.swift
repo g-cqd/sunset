@@ -55,9 +55,10 @@ extension SettingsOption {
             custom("profiles.list", "Profiles", "profile identity cookies login account work personal", .profiles)
                 .setting([])
                 .noted(
-                    "A profile is a web identity: its pages have their own cookies, logins and storage, and its own "
-                        + "Pinned grid. A Space belongs to one profile, chosen in the Space's editor. History, what "
-                        + "sites may do and how sites see Sunset are shared by all profiles for now."
+                    "A profile is a web identity: its pages have their own cookies, logins and storage, and it has "
+                        + "its own Pinned grid and Favorites, the same in each of its Spaces. A Space belongs to one "
+                        + "profile, chosen in the Space's editor. History, what sites may do and how sites see Sunset "
+                        + "are shared by all profiles for now."
                 )
         ]
 

@@ -30,7 +30,7 @@ struct SpacesModelTests {
     }
 
     @Test
-    func `there is one Space, unnamed; the second names the first Home and is Space 2, with the first's Favorites`()
+    func `there is one Space, unnamed; the second names the first Home and is Space 2, with the profile's Favorites`()
         throws
     {
         let spaces = spaces()
@@ -41,9 +41,10 @@ struct SpacesModelTests {
         let second = spaces.add(from: home)
         #expect(spaces.spaces.map(\.space.name) == ["Home", "Space 2"])
         #expect(home.space.icon == .symbol("house") && second.space.icon == .symbol("2.circle"))
-        #expect(second.favorites !== home.favorites && second.keepsTabs)
+        // The Favorites are the profile's (ADR-0055): the same in both, not a copy.
+        #expect(second.favorites === home.favorites && second.keepsTabs)
         let original = try #require(folder)
-        #expect(second.favorites.favorites.count == 1 && second.favorites.favorites.node(original) == nil)
+        #expect(second.favorites.favorites.count == 1 && second.favorites.favorites.node(original) != nil)
         #expect(second.tabs.isEmpty)
         // A name that is taken is not given twice; a Space that was named keeps its name.
         spaces.rename(home, to: "Space 3")
@@ -118,7 +119,7 @@ struct SpacesModelTests {
         window.show(space: work, in: spaces)
         window.newTab()
         work.favorites.edit { $0.addFolder(named: "Kept") }
-        #expect(work.holdsSomething && !play.holdsSomething)
+        #expect(work.holdsSomething && !play.holdsSomething, "its tab; the Favorites are the profile's")
         spaces.remove(work, movingTo: home)
         #expect(spaces.spaces.count == 2 && window.space === home)
         #expect(home.tabs.count == 1 && !made.all[0].stopped && home.favorites.favorites.count == 1)

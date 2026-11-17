@@ -8,7 +8,8 @@ and deleting Spaces (ADR-0047).
 
 | Thing | Holds | Lives |
 | --- | --- | --- |
-| A **Space** | A name, an icon, a look (room only), a profile (one for all until P-a), its **Favorites**, its **Tabs** in order, and the content of every pane of both | Once for the app; in the session file |
+| A **Space** | A name, an icon, a colour, a profile, its **Tabs** in order, and the content of every pane of them | Once for the app; in the session file |
+| A **profile** | A name, its website data, its **Pinned grid** and its **Favorites**, the same in each of its Spaces (ADR-0053, ADR-0055) | Once for the app; in the session file |
 | A **window** | The Space it shows, the tab or kept entry it has selected, and what is only its own (the command bar, a rename in progress, the pointer) | While it is open; in the session file as a view |
 | The **Spaces** | The Spaces, in one order for the whole app | Once for the app |
 

@@ -2,7 +2,7 @@ package import Foundation
 package import Observation
 package import SunsetPane
 
-/// A Space while the app runs (R4; ADR-0045): its tabs, the content of their panes, and its Favorites. A window is a view of
+/// A Space while the app runs (R4; ADR-0045): its tabs and the content of their panes. A window is a view of
 /// one (`TabsModel`): every window on a Space lists the same tabs, each with its own selection, and a tab is drawn and typed
 /// into in one window at most, the one that last clicked it; the others show its last picture.
 ///
@@ -15,7 +15,9 @@ package final class SpaceModel {
     /// The tabs in order, with no selection: each window has its own.
     package internal(set) var tabs = Workspace()
     package internal(set) var contents: [PaneID: any PaneContent] = [:]
-    package let favorites: FavoritesModel
+    /// The Favorites its windows show: its profile's, the same in every Space of the profile (ADR-0055); its own for a
+    /// Space that is not among the app's (a private window's, a window that is one tab).
+    package internal(set) var favorites: FavoritesModel
     /// Whether its tabs stay, stopped, when its last window closes (the app's Space, unless `tabs.closeWithLastWindow`).
     package var keepsTabs: Bool
     /// Its tabs were stopped with its last window and wait for the next; since when.
@@ -42,8 +44,8 @@ package final class SpaceModel {
     var currentViewers: [TabsModel] { viewers.compactMap(\.tabs) }
     /// A window that shows it, if any.
     package var currentViewer: TabsModel? { currentViewers.first }
-    /// It has a tab, or something in its Favorites: deleting it asks first.
-    package var holdsSomething: Bool { !tabs.isEmpty || !favorites.isEmpty }
+    /// It has a tab: deleting it asks first. (The Favorites are its profile's, and stay.)
+    package var holdsSomething: Bool { !tabs.isEmpty }
     /// The tab a window last went to: what a window that comes to this Space for the first time shows.
     package private(set) var lastShown: Workspace.ItemID?
     private func others(than viewer: TabsModel?) -> [TabsModel] { viewers.compactMap(\.tabs).filter { $0 !== viewer } }

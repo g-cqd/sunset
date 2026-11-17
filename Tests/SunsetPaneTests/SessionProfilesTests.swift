@@ -55,4 +55,52 @@ struct SessionProfilesTests {
         #expect(old.pinned.favorites.entries.count == 1)
         #expect(SpacesSession(spaces: [], views: []).profiles.map(\.profile.name) == ["Personal"])
     }
+
+    /// The owner, 2026-11-17 (on his note n80): "Favorites become the profile's". A file of before, where each Space had
+    /// its own (a new Space had a copy of another's), gives each profile the Favorites of its Spaces, a copy once.
+    @Test
+    func `the Favorites are the profile's: those of its Spaces in a file of before are put together, a copy once`()
+        throws
+    {
+        func kept(_ title: String, directory: String, open: Bool) throws -> (Favorites, Favorites.NodeID) {
+            var favorites = Favorites()
+            var tabs = Workspace()
+            _ = tabs.add()
+            let item = try #require(tabs.items.first)
+            let made = favorites.keep(item, contents: [item.focused: .terminal(directory: directory)])
+            let id = try #require(made)
+            favorites.rename(id, to: title)
+            if !open { favorites.unload(id) }
+            return (favorites, id)
+        }
+        let (logs, original) = try kept("Logs", directory: "/var/log", open: false)
+        // The second Space's: a copy of Logs, which is open there, and one of its own.
+        var (second, copy) = try kept("Logs", directory: "/var/log", open: true)
+        let (mail, own) = try kept("Mail", directory: "/mail", open: false)
+        second.merge(mail)
+        // A Space of another profile, with the same name kept: it is that profile's, not a copy.
+        let work = SavedProfile(profile: Profile(name: "Work"))
+        let (other, others) = try kept("Logs", directory: "/var/log", open: false)
+        var first = space("Home", tabs: 1)
+        first.favorites = SavedFavorites(favorites: logs)
+        var next = space("Second", tabs: 0)
+        next.favorites = SavedFavorites(favorites: second)
+        var third = space("Third", tabs: 0)
+        third.space.profile = work.profile.id
+        third.favorites = SavedFavorites(favorites: other)
+        let session = SpacesSession(spaces: [first, next, third], views: [], profiles: [work])
+        #expect(session.spaces.allSatisfy { $0.favorites.favorites.isEmpty }, "none is the Space's any more")
+        let personal = try #require(session.profiles.first { $0.profile.isFirst })
+        #expect(personal.favorites.favorites.entries.map(\.title) == ["Logs", "Mail"])
+        #expect(
+            personal.favorites.favorites.entry(copy)?.isOpen == true,
+            "of a copy and its original, the open one is kept"
+        )
+        #expect(personal.favorites.favorites.entry(original) == nil && personal.favorites.favorites.entry(own) != nil)
+        let theirs = try #require(session.profiles.first { $0.profile.id == work.profile.id })
+        #expect(theirs.favorites.favorites.entries.map(\.id) == [others])
+        // Written and read again, it is the same, and nothing is put together twice.
+        let read = try #require(SpacesSession(data: try session.encoded()))
+        #expect(read == session && read.profiles[0].favorites.favorites.entries.count == 2)
+    }
 }

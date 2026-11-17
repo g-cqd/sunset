@@ -4,7 +4,7 @@ import SunsetWeb
 import SwiftUI
 
 /// Settings > Web > Profiles (R4; ADR-0053): the profiles, each named in place; a new one; and a profile removed, after
-/// a question: its Spaces become the first profile's, what was pinned in it is closed, and its website data is erased.
+/// a question: its Spaces become the first profile's, what it kept (pinned, favourites) is removed, and its website data is erased.
 struct ProfilesSettings: View {
     private let spaces = AppSpaces.all
     @State private var removing: ProfileModel?
@@ -39,7 +39,7 @@ struct ProfilesSettings: View {
         } message: {
             Text(
                 "Its Spaces become \(spaces.profiles.first.profile.name)\u{2019}s and their pages load again. What is "
-                    + "pinned in it is closed. Its cookies, logins and storage are erased."
+                    + "pinned or kept in its Favorites is removed. Its cookies, logins and storage are erased."
             )
         }
     }

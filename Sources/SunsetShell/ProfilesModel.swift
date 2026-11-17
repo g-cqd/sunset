@@ -12,10 +12,20 @@ package final class ProfilesModel {
 
     /// - Parameters:
     ///   - firstPinned: the first profile's Pinned grid; a new one by default.
-    ///   - makeFavorites: the grid of each profile made later.
-    package init(firstPinned: FavoritesModel? = nil, makeFavorites: @escaping @MainActor () -> FavoritesModel) {
+    ///   - firstFavorites: the first profile's Favorites; new ones by default.
+    ///   - makeFavorites: the grid and the Favorites of each profile made later.
+    package init(
+        firstPinned: FavoritesModel? = nil,
+        firstFavorites: FavoritesModel? = nil,
+        makeFavorites: @escaping @MainActor () -> FavoritesModel
+    ) {
         self.makeFavorites = makeFavorites
-        profiles = [ProfileModel(profile: .first, pinned: firstPinned ?? makeFavorites())]
+        let first = ProfileModel(
+            profile: .first,
+            pinned: firstPinned ?? makeFavorites(),
+            favorites: firstFavorites ?? makeFavorites()
+        )
+        profiles = [first]
     }
 
     package var first: ProfileModel { profiles[0] }
@@ -27,7 +37,8 @@ package final class ProfilesModel {
     package func add() -> ProfileModel {
         var number = profiles.count + 1
         while profiles.contains(where: { $0.profile.name == "Profile \(number)" }) { number += 1 }
-        let made = ProfileModel(profile: Profile(name: "Profile \(number)"), pinned: makeFavorites())
+        let named = Profile(name: "Profile \(number)")
+        let made = ProfileModel(profile: named, pinned: makeFavorites(), favorites: makeFavorites())
         profiles.append(made)
         onChange()
         return made
@@ -41,10 +52,12 @@ package final class ProfilesModel {
         onChange()
     }
 
-    /// Takes a profile off the list and closes what is pinned in it; the first stays. The Spaces are the caller's.
+    /// Takes a profile off the list and closes what is kept in it (pinned, favourites); the first stays. The Spaces are
+    /// the caller's.
     func remove(_ profile: ProfileModel) -> Bool {
         guard profile !== first, let index = profiles.firstIndex(where: { $0 === profile }) else { return false }
         profile.pinned.closeAll()
+        profile.favorites.closeAll()
         profiles.remove(at: index)
         onChange()
         return true
@@ -53,18 +66,20 @@ package final class ProfilesModel {
     // MARK: Session
 
     package func saved() -> [SavedProfile] {
-        profiles.map { SavedProfile(profile: $0.profile, pinned: $0.pinned.saved()) }
+        profiles.map { SavedProfile(profile: $0.profile, pinned: $0.pinned.saved(), favorites: $0.favorites.saved()) }
     }
 
-    /// Takes the saved profiles, before any window: the first's name and grid, then the others in their order.
+    /// Takes the saved profiles, before any window: the first's name and what is kept in it, then the others in order.
     package func restore(_ saved: [SavedProfile], reopening: Bool) {
         for one in saved {
             if one.profile.isFirst {
                 first.profile = one.profile
                 first.pinned.restore(one.pinned, reopening: reopening)
+                first.favorites.restore(one.favorites, reopening: reopening)
             } else if !profiles.contains(where: { $0.profile.id == one.profile.id }) {
-                let made = ProfileModel(profile: one.profile, pinned: makeFavorites())
+                let made = ProfileModel(profile: one.profile, pinned: makeFavorites(), favorites: makeFavorites())
                 made.pinned.restore(one.pinned, reopening: reopening)
+                made.favorites.restore(one.favorites, reopening: reopening)
                 profiles.append(made)
             }
         }
