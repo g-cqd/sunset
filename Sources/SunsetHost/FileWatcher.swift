@@ -28,23 +28,28 @@ public final class FileWatcher: Sendable {
     /// How many times the thread woke up (for a file nobody touches it does not).
     public var wakeupCount: Int { wakeups.withLock { $0 } }
 
-    /// Starts watching on a thread of its own.
+    /// Starts watching: the file and its directory are watched when it returns (a change made at once after is told; it was
+    /// missed when they were opened on the thread, 2026-11-17), and waited on by a thread of its own.
     public func start() {
+        let queue = kqueue()
+        guard queue >= 0 else {
+            continuation.finish()
+            return
+        }
+        arm(queue, descriptor: stopWake.readEnd, filter: Int16(EVFILT_READ), flags: 0)
+        let opened = open(forPath: path, queue: queue)
         let watcher = self
-        Thread.detachNewThread { watcher.run() }
+        Thread.detachNewThread { watcher.run(queue: queue, opened: opened) }
     }
 
     public func stop() { stopWake.poke() }
 
     // MARK: Thread
 
-    private func run() {
+    private func run(queue: Int32, opened first: [Int32]) {
         defer { continuation.finish() }
-        let queue = kqueue()
-        guard queue >= 0 else { return }
         defer { close(queue) }
-        arm(queue, descriptor: stopWake.readEnd, filter: Int16(EVFILT_READ), flags: 0)
-        var opened = open(forPath: path, queue: queue)
+        var opened = first
         defer { for descriptor in opened { close(descriptor) } }
         while true {
             wakeups.withLock { $0 += 1 }

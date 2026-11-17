@@ -14,15 +14,8 @@ struct WebPictureTests {
 
     /// The page's picture once it has one: waited for as a change of `picture`, never on a clock.
     private func picture(of page: WebContent) async -> CGImage? {
-        while page.picture == nil {
-            await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
-                withObservationTracking {
-                    _ = page.picture
-                } onChange: {
-                    done.resume()
-                }
-            }
-        }
+        // Given up when the test's time limit cancels it, so that a regression fails instead of hanging.
+        await Waiting.until { page.picture != nil }
         return page.picture
     }
 

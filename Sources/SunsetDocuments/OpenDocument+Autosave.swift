@@ -19,17 +19,26 @@ extension OpenDocument {
     /// The edits can be written without anyone being asked: not while a block changed here and on disk waits for an answer.
     var canSaveItself: Bool { isEdited && !changedOnDisk && problem == nil && !givenUp && conflicts.isEmpty }
 
-    /// Watches the text: each edit is told to `textChanged`. Observation tells once, so it is asked again each time.
+    /// Watches the text: each edit is told to `textChanged`. Observation tells once, so it is asked again each time. The
+    /// setting is read as the edit is made, on the main actor where edits are made; the rest follows once the edit is in
+    /// (it was all read after, and a setting changed meanwhile was taken for an edit made before it: a flaky test, 2026-11-17).
     func watchEdits() {
         guard !stoppedWatchingEdits else { return }
         withObservationTracking {
             _ = source.revision
         } onChange: { [weak self] in
+            let delay = MainActor.assumeIsolated { self?.saveDelay }
             Task { @MainActor in
-                self?.textChanged()
+                self?.textChanged(delay: delay)
                 self?.watchEdits()
             }
         }
+    }
+
+    /// How long after an edit made now it saves itself: the setting's now; nil when it does not.
+    var saveDelay: Duration? {
+        guard let owner else { return nil }
+        return isStored ? owner.autosave.storedDelay : owner.autosave.fileDelay
     }
 
     func stopAutosaving() {
@@ -40,9 +49,8 @@ extension OpenDocument {
 
     /// The text changed: when it is to save itself after a time and no save waits, one does. The time is the setting's at the
     /// first unsaved edit.
-    func textChanged() {
-        guard isEdited, pendingSave == nil, let owner else { return }
-        guard let delay = isStored ? owner.autosave.storedDelay : owner.autosave.fileDelay else { return }
+    func textChanged(delay: Duration?) {
+        guard isEdited, pendingSave == nil, let delay else { return }
         pendingSave = Task { [weak self] in
             try? await Task.sleep(for: delay)
             guard !Task.isCancelled, let self else { return }
