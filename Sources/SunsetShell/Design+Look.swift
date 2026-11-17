@@ -35,8 +35,6 @@ extension Design {
         /// A separator drawn as a fill (primary), and a divider made fainter.
         package static let separator = 0.18
         package static let fainterDivider = 0.5
-        /// A note's own background over the window.
-        package static let noteBackground = 0.6
         /// A choice that does not apply (the icon picker's colours with no symbol, its categories while searching).
         package static let notApplicable = 0.4
         /// A folder's own icon while it is collapsed.
@@ -69,8 +67,6 @@ extension Design {
         package let y: Double
         /// Under a popover or a panel attached to a bar.
         package static let popover = Self(opacity: 0.25, radius: 14, y: 6)
-        /// Under a surface floating over the window (the command bar).
-        package static let float = Self(opacity: 0.3, radius: 24, y: 8)
     }
 
     /// The sizes of SF Symbols that are not in a row's glyph slot.
@@ -153,7 +149,5 @@ extension Design {
         package static let thumbnailSymbol = 0.5
         /// The per-site rows in Settings > Websites start under the site's name (to confirm by the owner: not measured).
         package static let siteRowsIndent = 26.0
-        /// The download card's illustration: a one-off size, not a symbol step.
-        package static let downloadIllustration = 64.0
     }
 }

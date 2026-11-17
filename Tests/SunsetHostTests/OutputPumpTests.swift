@@ -58,7 +58,8 @@ import Testing
         let start = ContinuousClock.now
         pump.stop()
         await running.value
-        #expect(ContinuousClock.now - start < .milliseconds(100))
+        // Stopping is prompt, not a poll's timeout later: no count says that.
+        #expect(ContinuousClock.now - start < .milliseconds(100))  // lint:allow
         process.hangUp()
     }
 }

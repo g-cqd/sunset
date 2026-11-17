@@ -21,7 +21,8 @@ import Testing
         let start = ContinuousClock.now
         reading.cancel()
         _ = await reading.value
-        #expect(ContinuousClock.now - start < .milliseconds(30), "took \(ContinuousClock.now - start)")
+        // Stopping is prompt, not a poll's timeout later: no count says that.
+        #expect(ContinuousClock.now - start < .milliseconds(30), "took \(ContinuousClock.now - start)")  // lint:allow
         process.hangUp()
     }
 

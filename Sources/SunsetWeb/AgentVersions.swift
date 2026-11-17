@@ -4,5 +4,4 @@ enum AgentVersions {
     static let chrome = 158
     static let edge = 152
     static let firefox = 160
-    static let asOf = "2026-11-17"
 }

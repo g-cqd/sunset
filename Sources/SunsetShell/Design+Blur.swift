@@ -5,14 +5,6 @@ extension Design {
     package enum Blur {
         /// Under a bar: full over the bar, falling to none over a bar's height beyond it.
         package static let barRadius = 8.0
-        /// How far the blur under a bar falls below it: two bars' heights (owner, 2026-11-13).
-        package static let barFall = 2 * Size.bar
-        /// The fall starts half way down the bar, not after it (owner, 2026-11-13): full blur from the window's edge to the bar's
-        /// middle, then falling through the bar's lower half and its margin to `barFall` below it.
-        package static let barSolid = Space.m + Size.bar / 2
-        package static let barFade = (barSolid + Size.bar / 2 + Space.m + barFall) * barKeep - barSolid
-        /// The share of the full height (to two bars below the bar) the blur keeps (owner, 2026-11-13: a third less of the 130 pt it had).
-        package static let barKeep = 0.67
         /// Under one group of a bar's controls (`View.barGroup`): full to its bottom edge, then falling `groupFall` below it and
         /// `groupReach` past its ends, from `haloInset` inside them (owner, 2026-11-13: R48 of research/blur §7h).
         package static let groupReach = Space.xl + 3 * Space.xxl
@@ -36,16 +28,6 @@ extension Design {
             )
         }
 
-        /// How far the sidebar's bands reach past its sides, so that no side of theirs shows: under the panes on one side (they draw
-        /// above the sidebar), past the window's edge on the other (owner, 2026-11-13).
-        package static let listBleed = Space.xxl
-        /// At the ends of the sidebar's list, under the pin and the + bar.
-        package static let listRadius = 12.0
-        /// The part of a list end that is fully blurred (the rest falls to none)...
-        package static let listSolidShare = 0.15
-        /// ...and how far the fall reaches past it, over the rows at rest: none (owner, 2026-11-13: the first rows looked blurred at
-        /// launch). The fall is longer instead: it takes the whole end's height after its solid part.
-        package static let listOverhang = 0.0
         /// The tab bar's row of capsules, at the tabs' trailing end before +: a little fully blurred, then a fall over a tab's
         /// end (owner, 2026-11-13).
         package static let tabEndSolid = Space.s

@@ -173,7 +173,4 @@ public final class MetalCompositor {
         }
         return Surface(width: texture.width, height: texture.height, pixels: pixels)
     }
-
-    /// Glyphs the atlas holds (for tests and probes).
-    var atlasGlyphs: Int { atlas.count }
 }

@@ -46,12 +46,8 @@ package enum Design {
         /// A row's glyph: its frame, and the symbol in it.
         package static let glyphFrame = 18.0
         package static let glyphSymbol = 15.0
-        /// A close button: `layout.closeButtonSize`.
-        package static func controlSmall(_ layout: LayoutMetrics) -> Double { layout.closeButtonSize }
         /// An icon button in a bar.
         package static let control = 24.0
-        /// A button of the docked sidebar.
-        package static let sidebarButton = 28.0
         /// A field in a bar (the address field): a control and a point above and below for its text.
         package static let field = control + 2
         /// A bar: a field and the container inset around it, so that the field's corners nest in the bar's.
@@ -82,10 +78,6 @@ package enum Design {
     /// keeps the layout's padding.
     /// How far a frame of `outer` overhangs a centred `inner` on each side.
     package static func overhang(of outer: Double, over inner: Double) -> Double { (outer - inner) / 2 }
-
-    package static func oneLinePadding(_ layout: LayoutMetrics, height: Double) -> Double {
-        rowPadding(layout, lines: 1, height: height)
-    }
 
     /// The height of every one-line row: `height`, or what its close button and padding need when that is more. Set as the row's
     /// height (`View.rowHeight`), not left to its content: an emoji or a taller glyph made some rows taller (owner note n69).

@@ -48,6 +48,7 @@ public final class PTYProcess: Sendable {
         let fileDescriptor = master
         let counters = counters
         // One writer, in order, on its own thread: a child that is not reading blocks that thread and nothing else.
+        // @al:accept -- the task holds the stream, the descriptor and the counters, not self; it ends when deinit finishes the stream
         Task(executorPreference: writeThread) {
             for await chunk in stream {
                 _ = try? PTYProcess.write(chunk, to: fileDescriptor)

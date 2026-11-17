@@ -101,6 +101,7 @@ import Testing
         let start = ContinuousClock.now
         watcher.stop()
         for await _ in watcher.changes {}
-        #expect(ContinuousClock.now - start < .milliseconds(200))
+        // Stopping is prompt, not a poll's timeout later: no count says that.
+        #expect(ContinuousClock.now - start < .milliseconds(200))  // lint:allow
     }
 }

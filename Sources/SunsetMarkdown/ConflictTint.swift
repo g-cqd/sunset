@@ -10,5 +10,4 @@ enum ConflictTint {
 
     static var mineColor: Color { Color(nsColor: mine) }
     static var theirsColor: Color { Color(nsColor: theirs) }
-    static var mergedColor: Color { Color(nsColor: merged) }
 }
