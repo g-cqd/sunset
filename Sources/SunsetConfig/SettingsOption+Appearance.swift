@@ -10,7 +10,7 @@ extension SettingsOption {
                 .optionalText(SettingsValue(\.theme), prompt: "nord")
             )
             .noted(
-                "A file themes/<name>.json beside the configuration file; it can set the font, colours, window, sidebar and "
+                "A file themes/<name>.json beside the configuration file; it can set the font, colors, window, sidebar and "
                     + "appearance. Your own keys win."
             ),
             choice(
@@ -18,7 +18,7 @@ extension SettingsOption {
                 "Color scheme",
                 "dark light system appearance mode lock",
                 \.appearance.scheme,
-                [(.dark, "Dark (locked)"), (.light, "Light"), (.system, "Follow the system")]
+                [(.dark, "Dark"), (.light, "Light"), (.system, "Follow the system")]
             )
             .noted("For the whole app. Light has its own tint; a dark terminal theme stays dark and opaque in it."),
             color("colors.foreground", "Foreground", "text color colour theme", \.colors.foreground, [229, 229, 229]),
@@ -34,7 +34,7 @@ extension SettingsOption {
                 "Accent",
                 "colour color highlight selection sunset neutral system",
                 \.appearance.accent,
-                [(.system, "The system's"), (.sunset, "Sunset"), (.neutral, "Neutral")]
+                [(.system, "System"), (.sunset, "Sunset"), (.neutral, "Neutral")]
             ),
             color("appearance.tint.color", "Tint", "colour color overlay glass", \.appearance.tintColor, [48, 96, 255]),
             number(
@@ -79,7 +79,7 @@ extension SettingsOption {
                 "Window background",
                 "material glass transparent opaque blur vibrancy",
                 \.window.material,
-                [(.opaque, "Opaque"), (.material, "Material"), (.glass, "Glass"), (.fill, "Colour fill")],
+                [(.opaque, "Opaque"), (.material, "Material"), (.glass, "Glass"), (.fill, "Color fill")],
                 label: "Window and sidebar background"
             ),
             number("window.blur", "Window blur", "radius frosted background", \.window.blur, 0 ... 100, step: 1),
@@ -108,7 +108,7 @@ extension SettingsOption {
                 "Under the bars",
                 "blur variable fade bar sidebar",
                 \.appearance.barBlur,
-                [(.variable, "Fading blur"), (.surface, "The bar's surface"), (.none, "Nothing")]
+                [(.variable, "Fading blur"), (.surface, "Bar surface"), (.none, "Nothing")]
             )
         ]
 }

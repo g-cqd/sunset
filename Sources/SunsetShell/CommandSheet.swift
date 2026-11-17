@@ -17,9 +17,9 @@ package struct CommandSheet: View {
     package var body: some View {
         let saved = tabs.keeper(of: entry).favorites.entry(entry)
         VStack(alignment: .leading, spacing: Design.Space.l) {
-            Text("Command for \u{201C}\(saved?.title ?? "this favourite")\u{201D}").font(Design.Text.title)
+            Text("Command for \u{201C}\(saved?.title ?? "this favorite")\u{201D}").font(Design.Text.title)
             Text(
-                "Typed into the shell, then Return, each time this favourite starts: when it is opened, and when Sunset comes back with it open."
+                "Typed into the shell, then Return, each time this favorite starts: when it is opened, and when Sunset comes back with it open."
             )
             .font(Design.Text.secondary)
             .foregroundStyle(.secondary)

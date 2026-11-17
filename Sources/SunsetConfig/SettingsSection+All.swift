@@ -8,7 +8,7 @@ extension SettingsSection {
         title: "General",
         symbol: "gearshape",
         topics: [
-            SettingsTopic("general.features", "What Sunset does", SettingsOption.features),
+            SettingsTopic("general.features", "Features", SettingsOption.features),
             SettingsTopic("general.startup", "Startup, closing and quitting", SettingsOption.startup),
             SettingsTopic("general.documents", "Documents", SettingsOption.documents),
             SettingsTopic("general.file", "Configuration file", SettingsOption.configurationFile)
@@ -20,7 +20,7 @@ extension SettingsSection {
         title: "Appearance",
         symbol: "paintpalette",
         topics: [
-            SettingsTopic("appearance.theme", "Theme and colours", SettingsOption.theme),
+            SettingsTopic("appearance.theme", "Theme and colors", SettingsOption.theme),
             SettingsTopic("appearance.tint", "Accent and tint", SettingsOption.tint),
             SettingsTopic("appearance.materials", "Materials", SettingsOption.materials)
         ]

@@ -42,7 +42,7 @@ extension SettingsOption {
                 "What programs get unless they choose their own cursor (an editor often does); they get it back when they "
                     + "ask for the default."
             ),
-            color("colors.cursor", "Cursor colour", "caret color colour", \.colors.cursor, [229, 229, 229]),
+            color("colors.cursor", "Cursor color", "caret color colour", \.colors.cursor, [229, 229, 229]),
             toggle("cursor.blink", "Cursor blinks", "blink steady caret", \.cursorBlinks),
             custom("cursor.blinkTimeout", "Stop blinking after", "blink caret idle seconds for ever", .blinkTimeout)
         ]
@@ -52,7 +52,7 @@ extension SettingsOption {
         [
             number(
                 "scroll.trackpad",
-                "Trackpad (lines per line of travel)",
+                "Trackpad scroll speed",
                 "sensitivity speed touch finger scroll",
                 \.scroll.trackpad,
                 0.05 ... 20,
@@ -61,7 +61,7 @@ extension SettingsOption {
             ),
             number(
                 "scroll.wheel",
-                "Wheel (lines per notch)",
+                "Wheel scroll speed",
                 "sensitivity speed mouse notch scroll",
                 \.scroll.wheel,
                 0.05 ... 50,
@@ -87,7 +87,7 @@ extension SettingsOption {
         [
             text(
                 "terminal.directory",
-                "New terminals start in",
+                "Starting directory",
                 "directory folder home cd path",
                 \.terminal.directory,
                 prompt: "~"
@@ -104,8 +104,9 @@ extension SettingsOption {
                 "Option sends Escape",
                 "meta alt option emacs",
                 \.keyboard.optionAsMeta,
-                label: "Option sends Escape (Meta)"
+                label: "Option sends Escape"
             )
+            .noted("As Meta does, for the shell's and editors' keys.")
         ]
 
     /// How the terminal is drawn.

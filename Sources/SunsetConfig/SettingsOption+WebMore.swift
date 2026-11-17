@@ -38,14 +38,14 @@ extension SettingsOption {
             ),
             choice(
                 "web.keepDownloads",
-                "Keep the list of downloads",
+                "Remove download list items",
                 "download list remove clear keep",
                 \.web.keepDownloads,
                 [
-                    (.byHand, "Until removed by hand"), (.day, "One day"), (.week, "One week"), (.month, "One month"),
-                    (.untilQuit, "Until Sunset quits"), (.whenFinished, "Only while they download")
-                ],
-                label: "A finished download stays in the list"
+                    (.byHand, "Manually"), (.day, "After one day"), (.week, "After one week"),
+                    (.month, "After one month"), (.untilQuit, "When Sunset quits"),
+                    (.whenFinished, "Upon successful download")
+                ]
             )
         ]
 
@@ -55,10 +55,8 @@ extension SettingsOption {
             custom("profiles.list", "Profiles", "profile identity cookies login account work personal", .profiles)
                 .setting([])
                 .noted(
-                    "A profile is a web identity: its pages have their own cookies, logins and storage, and it has "
-                        + "its own Pinned grid and Favorites, the same in each of its Spaces. A Space belongs to one "
-                        + "profile, chosen in the Space's editor. History, what sites may do and how sites see Sunset "
-                        + "are shared by all profiles for now."
+                    "A profile is a web identity: its own cookies, logins, storage, Pinned grid and Favorites. History "
+                        + "and what sites may do are shared by all profiles for now."
                 )
         ]
 
@@ -90,8 +88,8 @@ extension SettingsOption {
                 \.web.agentScripts
             )
             .noted(
-                "A page shown Chrome, Edge or Firefox also reads that browser's vendor and client hints from its "
-                    + "scripts. Turn it off if a site breaks: only the User-Agent is then changed. Applies to pages opened after."
+                "A page shown Chrome, Edge or Firefox also reads that browser's vendor and client hints. Turn it off if a "
+                    + "site breaks; pages opened after follow."
             )
         ]
 
@@ -103,14 +101,16 @@ extension SettingsOption {
                 "Page inspector",
                 "inspect developer devtools",
                 \.web.developer,
-                label: "Pages can be inspected (Inspect Element)"
-            ),
+                label: "Allow inspecting pages"
+            )
+            .noted("Adds Inspect Element to a page's menu."),
             toggle(
                 "web.fullFrameRate",
-                "Pages render at the screen's full rate",
+                "Render pages at the screen's full rate",
                 "120 fps promotion frame animation smooth",
                 \.web.fullFrameRate,
-                label: "Pages render at the screen's full rate (120 fps on ProMotion)"
+                label: "Render pages at the screen's full rate"
             )
+            .noted("120 frames a second on a ProMotion display.")
         ]
 }

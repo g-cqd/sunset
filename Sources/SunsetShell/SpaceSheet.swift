@@ -30,8 +30,8 @@ struct SpaceSheet: View {
                         .accessibilityLabel("Space name")
                 }
                 GridRow {
-                    Text("Colour").foregroundStyle(.secondary)
-                    field(action: { pickingTint = true }, label: "Space colour") {
+                    Text("Color").foregroundStyle(.secondary)
+                    field(action: { pickingTint = true }, label: "Space color") {
                         if let tint = draft.tint {
                             Circle().fill(Color(tint)).frame(width: 14, height: 14)
                             Text(tint.hex).monospaced()

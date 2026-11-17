@@ -10,15 +10,16 @@ extension SettingsOption {
                 "Title bar",
                 "decorations chrome frame native",
                 \.window.decorations,
-                [(.none, "None (content under the title bar)"), (.native, "System")]
-            ),
+                [(.none, "None"), (.native, "System")]
+            )
+            .noted("With none, the content reaches under the title bar."),
             number("window.dragStrip", "Drag strip", "move drag top", \.window.dragStrip, 0 ... 64, step: 1),
             choice(
                 "window.trafficLights.side",
-                "Traffic lights, side",
+                "Traffic light side",
                 "close mirror left right buttons",
                 \.window.lightsSide,
-                [(.sidebar, "With the sidebar"), (.left, "Left"), (.right, "Right (mirrored)")]
+                [(.sidebar, "With the sidebar"), (.left, "Left"), (.right, "Right, mirrored")]
             ),
             number(
                 "window.trafficLights.x",

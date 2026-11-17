@@ -11,9 +11,12 @@ extension SettingsOption {
                 "native internal built-in none windows",
                 \.tabs.mode,
                 [
-                    (.none, "None (one terminal per window)"), (.native, "Native (system tabs)"),
-                    (.internal, "Built-in (a bar in the window)")
+                    (.none, "None"), (.native, "Native"),
+                    (.internal, "Built-in")
                 ]
+            )
+            .noted(
+                "Native tabs are the system's; built-in tabs are a bar in the window; none is one terminal per window."
             ),
             choice(
                 "tabs.bar.position",
@@ -36,7 +39,7 @@ extension SettingsOption {
                 "Hide the sidebar",
                 "float hover pin reveal auto",
                 \.sidebar.autoHide,
-                label: "The sidebar hides, and floats over the content when the pointer is at its edge"
+                label: "Hide the sidebar until the pointer reaches its edge"
             )
             .noted("The same as the pin at the top of the sidebar."),
             number("sidebar.width", "Width", "size wide", \.sidebar.width, 120 ... 480, step: 5)
@@ -73,11 +76,10 @@ extension SettingsOption {
             toggle("tabs.bar.progress", "Show progress", "tab bar osc 9 download", \.tabs.bar.showProgress),
             choice(
                 "web.tabIcon",
-                "A page's tab picture",
+                "Page tab icon",
                 "icon globe letter favicon",
                 \.web.tabIcon,
-                [(.favicon, "The site's icon"), (.initial, "The first letter of its title"), (.globe, "A globe")],
-                label: "A page's tab shows"
+                [(.favicon, "Site icon"), (.initial, "First letter of the title"), (.globe, "Globe")]
             )
         ]
 

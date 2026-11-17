@@ -6,7 +6,7 @@ extension Configuration.Layout {
         field("tabSpacing", "Space between tabs", ["gap", "margin", "list"], 0 ... 24, 1, \.tabSpacing),
         field(
             "tabSideInset",
-            "Tabs: space to the sidebar's sides",
+            "Tab side inset",
             ["margin", "edge", "leading", "trailing"],
             0 ... 24,
             1,
@@ -41,7 +41,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingTabSpacing",
-            "Floating: space between tabs",
+            "Floating tab spacing",
             ["gap", "margin", "panel", "hover"],
             0 ... 24,
             1,
@@ -49,7 +49,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingTabSideInset",
-            "Floating: tabs' space to the panel's sides",
+            "Floating tab side inset",
             ["margin", "edge", "panel", "hover"],
             0 ... 24,
             1,
@@ -57,7 +57,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingTabPaddingLeading",
-            "Floating: tab padding, leading",
+            "Floating tab leading padding",
             ["inner", "panel", "title"],
             0 ... 32,
             1,
@@ -65,7 +65,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingTabPaddingTrailing",
-            "Floating: tab padding, trailing",
+            "Floating tab trailing padding",
             ["inner", "panel"],
             0 ... 32,
             1,
@@ -73,7 +73,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingTabPaddingVertical",
-            "Floating: tab padding, vertical",
+            "Floating tab vertical padding",
             ["inner", "panel", "height"],
             0 ... 24,
             1,
@@ -81,7 +81,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingTabRadius",
-            "Floating: tab corner radius",
+            "Floating tab corner radius",
             ["rounding", "panel", "corners"],
             0 ... 24,
             1,
@@ -89,7 +89,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingCloseButtonSize",
-            "Floating: close button size",
+            "Floating close button size",
             ["tab", "panel", "x"],
             8 ... 32,
             1,
@@ -97,7 +97,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingCloseButtonRadius",
-            "Floating: close button corner radius",
+            "Floating close button corner radius",
             ["tab", "panel", "x"],
             0 ... 16,
             1,
@@ -113,7 +113,7 @@ extension Configuration.Layout {
         ),
         field(
             "lightsInset",
-            "Traffic lights: inset",
+            "Traffic light inset",
             ["top", "leading", "corner", "buttons", "distance"],
             0 ... 32,
             1,
@@ -121,7 +121,7 @@ extension Configuration.Layout {
         ),
         field(
             "lightsGap",
-            "Traffic lights: space to the first tab",
+            "Traffic light gap to the first tab",
             ["gap", "below", "buttons"],
             0 ... 32,
             1,
@@ -129,7 +129,7 @@ extension Configuration.Layout {
         ),
         field(
             "floatingLightsExtra",
-            "Traffic lights: extra inset when floating",
+            "Extra traffic light inset when floating",
             ["panel", "hover", "buttons"],
             0 ... 16,
             1,
@@ -137,7 +137,7 @@ extension Configuration.Layout {
         ),
         field(
             "sidebarButtonSize",
-            "Sidebar buttons: size when floating",
+            "Floating sidebar button size",
             ["pin", "plus", "container", "hit box", "sidebar button"],
             12 ... 40,
             1,
@@ -145,7 +145,7 @@ extension Configuration.Layout {
         ),
         field(
             "sidebarButtonRadius",
-            "Sidebar buttons: corner radius when docked",
+            "Docked sidebar button corner radius",
             ["pin", "plus", "rounding", "container"],
             0 ... 20,
             1,
@@ -178,7 +178,7 @@ extension Configuration.Layout {
         ),
         field(
             "paneGap",
-            "Gap between split panes (sidebar not docked)",
+            "Gap between split panes when the sidebar floats",
             ["split", "divider", "pane", "space"],
             0 ... 16,
             1,
@@ -194,7 +194,7 @@ extension Configuration.Layout {
         ),
         field(
             "hideDelay",
-            "Floating sidebar: hide delay",
+            "Floating sidebar hide delay",
             ["leave", "floating", "hover"],
             0 ... 3,
             0.05,

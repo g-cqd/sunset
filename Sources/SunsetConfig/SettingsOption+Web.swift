@@ -5,31 +5,28 @@ extension SettingsOption {
         [
             choice(
                 "web.address",
-                "Where the address is",
+                "Address field",
                 "address url bar",
                 \.web.address,
                 [
-                    (.sidebar, "A field at the top of the sidebar"),
-                    (.window, "A bar of the window, shown at its edge"),
-                    (.pane, "A row at the top of every page")
-                ],
-                label: "The address is typed in"
+                    (.sidebar, "At the top of the sidebar"),
+                    (.window, "In a bar at the window's edge"),
+                    (.pane, "At the top of every page")
+                ]
             ),
             choice(
                 "web.windowBar",
-                "Window bar edge",
+                "Window bar position",
                 "address top bottom",
                 \.web.windowBar,
-                [(.top, "Top"), (.bottom, "Bottom")],
-                label: "The window bar is at the"
+                [(.top, "Top"), (.bottom, "Bottom")]
             ),
             choice(
                 "web.splitBar",
                 "Window bar in a split",
                 "address split margin pane",
                 \.web.splitBar,
-                [(.margin, "Above the panes"), (.pane, "Over the focused pane")],
-                label: "In a split, the window bar goes"
+                [(.margin, "Above the panes"), (.pane, "Over the focused pane")]
             )
         ]
 
@@ -73,15 +70,15 @@ extension SettingsOption {
             ),
             choice(
                 "web.zoomScope",
-                "Page zoom applies to",
+                "Page zoom",
                 "zoom site scale",
                 \.web.zoomScope,
                 [
-                    (.site, "Its site, remembered"), (.session, "Its site, until Sunset quits"),
-                    (.page, "The page alone, saved with it")
-                ],
-                label: "A page's zoom applies to"
-            ),
+                    (.site, "Per site"), (.session, "Per site until Sunset quits"),
+                    (.page, "Per page")
+                ]
+            )
+            .noted("Per page, the zoom is saved with the page's tab."),
             custom("web.textOnlyZoom", "Zoom text only", "zoom text font", .textOnlyZoom)
         ]
 }

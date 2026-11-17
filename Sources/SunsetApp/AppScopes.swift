@@ -39,7 +39,7 @@ import SunsetShell
         let what = count == 1 ? "1 tab of it is open and closes" : "\(count) tabs of it are open and close"
         let running = scope == .terminal ? " What runs in them is stopped." : ""
         let edits = scope == .documents ? " Edits that are not saved are kept, and asked about when Sunset quits." : ""
-        return what + "." + running + edits + " What is kept of it (pinned, favourites) is hidden until it is on again."
+        return what + "." + running + edits + " What is kept of it (pinned, favorites) is hidden until it is on again."
     }
 
     /// Closes and unloads everything of the scopes that are off, and tells every window. Called when the configuration

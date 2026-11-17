@@ -11,9 +11,8 @@ extension SettingsOption {
             )
             .setting(["features.terminal", "features.web", "features.documents"])
             .noted(
-                "Turning one off removes it from Sunset: its menus, its settings, its tabs (closed after a question) "
-                    + "and what is kept of it, which is hidden and comes back when it is turned on again. Its data is "
-                    + "kept untouched. At least one stays on."
+                "Turning one off hides its menus, settings and tabs, which come back when it is turned on; its data is "
+                    + "kept. At least one stays on."
             )
         ]
 }

@@ -29,7 +29,7 @@ extension SettingsOption {
             .noted("Edits to a file that are not saved are asked about whatever this says."),
             toggle(
                 "tabs.keepRunningForFavorites",
-                "Keep running while a favourite is open",
+                "Keep running while a favorite is open",
                 "quit last window favorites background dock",
                 \.tabs.keepRunningForFavorites
             )
@@ -145,14 +145,13 @@ extension SettingsOption {
         [
             choice(
                 "web.historyKeep",
-                "Keep history for",
+                "Remove history items",
                 "history remove days",
                 \.web.historyKeep,
                 [
-                    (.day, "One day"), (.week, "One week"), (.twoWeeks, "Two weeks"), (.month, "One month"),
-                    (.year, "One year"), (.forever, "Always")
-                ],
-                label: "Keep the history of pages for"
+                    (.day, "After one day"), (.week, "After one week"), (.twoWeeks, "After two weeks"),
+                    (.month, "After one month"), (.year, "After one year"), (.forever, "Manually")
+                ]
             ),
             toggle(
                 "web.clearHistoryOnQuit",
@@ -166,16 +165,17 @@ extension SettingsOption {
                 "Clear website data when Sunset quits",
                 "cookies cache quit privacy",
                 \.web.clearWebsiteDataOnQuit,
-                label: "Clear website data when Sunset quits (signs you out of sites)"
-            ),
+                label: "Clear website data when Sunset quits"
+            )
+            .noted("Signs you out of sites."),
             toggle(
                 "web.privateWindowShares",
                 "Private windows share their data",
                 "private incognito store cookies",
                 \.web.privateWindowShares,
-                label:
-                    "The pages of a new private window share their data (a private tab of a normal window never does)"
+                label: "Share data between a private window's pages"
             )
+            .noted("A private tab of a normal window never shares.")
         ]
 
     /// What is kept, and what protects it (R12 step ST-6).
@@ -230,15 +230,14 @@ extension SettingsOption {
             .setting([]),
             choice(
                 "storage.importedFiles",
-                "Imported plain files go to",
+                "Imported plain files",
                 "import old files trash delete plain legacy",
                 \.storage.importedFiles,
-                [(.trash, "The Trash"), (.delete, "Deleted at once")],
-                label: "Plain files Sunset has imported go to"
+                [(.trash, "Move to Trash"), (.delete, "Delete immediately")]
             )
             .noted(
-                "The files of before sealing (a session, a history) once what they held is in the sealed store. In the Trash "
-                    + "they are readable until it is emptied; deleted, no plain copy is left."
+                "The plain files of before sealing, once what they held is sealed. In the Trash they are readable until it is "
+                    + "emptied."
             )
         ]
 }
