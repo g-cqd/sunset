@@ -34,24 +34,12 @@ extension TabsModel {
     @discardableResult
     package func dropDragged(intoFolder folder: Favorites.NodeID) -> Bool {
         if draggedSelection != nil { return dropSelection(into: folder) }
-        takeDocumentDrag()
-        guard let drag = dragged else { return false }
-        switch drag {
-            case .item(let item): keep(item: item, in: folder)
-            case .entry(let id): favorites.edit { $0.move([id], into: folder, at: Int.max) }
-            case .pane, .document: return false
-        }
-        dragged = nil
-        return true
+        return dropDragged(in: .favorites(in: folder, at: nil))
     }
 
     /// Whether what is dragged can go into a folder.
     package func canDrop(intoFolder folder: Favorites.NodeID) -> Bool {
-        switch dragged {
-            case .item, .document: true
-            case .entry(let id): id != folder
-            case .pane, nil: false
-        }
+        canDropDragged(in: .favorites(in: folder, at: nil))
     }
 
     private static func entries(in nodes: [Favorites.Node]) -> [Favorites.Entry] {

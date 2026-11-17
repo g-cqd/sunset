@@ -14,7 +14,7 @@ extension TabsModel {
         }
         dragTargets = DragTargets(
             pinned: canPinDragged,
-            favorites: canDropOnFavoritesLine || isPinnedDrag,
+            favorites: canDropOnFavoritesLine,
             panes: workspace.allPanes.contains { canDrop(onto: $0) }
         )
         dragWatch = Task { [weak self] in
@@ -30,12 +30,6 @@ extension TabsModel {
                 }
             }
         }
-    }
-
-    /// A tile of the grid is dragged: it can go to the Favorites.
-    private var isPinnedDrag: Bool {
-        guard case .entry(let id)? = dragged else { return false }
-        return isPinned(id)
     }
 
     /// The drag is over, whatever became of it.

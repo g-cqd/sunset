@@ -11,6 +11,9 @@ struct PinnedGrid: View {
     let tabs: TabsModel
     let layout: ShellSettings.Layout
     @State private var targeted = false
+    /// The tile a drag is over, and on which side of it it would land (roadmap 0035 A).
+    @State private var tileDrop: (index: Int, after: Bool)?
+    @State private var tileWidths: [Favorites.NodeID: Double] = [:]
     @Environment(\.accent) private var accent
 
     /// A drag under way would be pinned here: the grid is there, even empty, and outlined (the owner, 2026-11-17).
@@ -20,8 +23,22 @@ struct PinnedGrid: View {
         let entries = tabs.pinnedEntries
         if !entries.isEmpty || takesDrag {
             PinnedTiles {
-                ForEach(entries) { entry in
-                    tile(entry).transition(.scale(scale: 0.6).combined(with: .opacity))
+                ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                    tile(entry)
+                        .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { tileWidths[entry.id] = $0 }
+                        .overlay(alignment: tileDrop?.after == true ? .trailing : .leading) {
+                            if tileDrop?.index == index { dropMark }
+                        }
+                        .onDrop(
+                            of: [.plainText, .utf8PlainText],
+                            delegate: PinnedTileDropDelegate(
+                                tabs: tabs,
+                                index: index,
+                                width: tileWidths[entry.id] ?? PinnedLayout.widths.lowerBound,
+                                active: $tileDrop
+                            )
+                        )
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
                 }
                 // The place kept for what is being dragged in (the owner, 2026-11-17: "an invisible placeholder slot"),
                 // outlined as the grid is while the drag is under way.
@@ -49,6 +66,16 @@ struct PinnedGrid: View {
             .accessibilityElement(children: .contain)
             .accessibilityLabel("Pinned")
         }
+    }
+
+    /// Where a dragged tile or tab would land: a line at the side of the tile, in the gap between two.
+    private var dropMark: some View {
+        Capsule()
+            .fill(accent.color)
+            .frame(width: Design.Space.hair)
+            .padding(.vertical, Design.Space.xs)
+            .offset(x: (tileDrop?.after == true ? 1 : -1) * PinnedLayout.gap / 2)
+            .allowsHitTesting(false)
     }
 
     private func tile(_ entry: Favorites.Entry) -> some View {

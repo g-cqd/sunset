@@ -49,11 +49,11 @@ extension TabsModel {
     /// Pins the tab `item`: it leaves the Tabs for the grid, where its content keeps running, and this window shows it
     /// there. Nil when there is no grid or no room.
     @discardableResult
-    package func pin(item: Workspace.ItemID, show: Bool = true) -> Favorites.NodeID? {
+    package func pin(item: Workspace.ItemID, show: Bool = true, at index: Int? = nil) -> Favorites.NodeID? {
         guard canPin, let pinned, let taken = workspace.take(item: item) else { return nil }
         var moved: [PaneID: any PaneContent] = [:]
         for pane in taken.panes { moved[pane] = contents.removeValue(forKey: pane) }
-        guard let id = pinned.keep(taken, contents: moved, in: nil, at: nil) else { return nil }
+        guard let id = pinned.keep(taken, contents: moved, in: nil, at: index) else { return nil }
         for (pane, content) in moved { content.onExit = { [weak pinned] in pinned?.close(pane: pane) } }
         if show {
             showEntry(id)
@@ -76,18 +76,20 @@ extension TabsModel {
     /// Pins an entry of the Favorites: the same entry, as it is, goes to the grid (open, it runs on, and a window that
     /// shows it goes on showing it). False for a folder, for one already pinned, and with no room.
     @discardableResult
-    package func pin(entry id: Favorites.NodeID) -> Bool {
-        guard canPin, let pinned, favorites.give(id, to: pinned) else { return false }
+    package func pin(entry id: Favorites.NodeID, at index: Int? = nil) -> Bool {
+        guard canPin, let pinned, favorites.give(id, to: pinned, at: index) else { return false }
         marked.removeAll { $0 == .node(id) }
         syncStates()
         onChange()
         return true
     }
 
-    /// Makes a pinned entry a favourite: the same entry, as it is, at the end of the Favorites of the Space shown.
+    /// Makes a pinned entry a favourite: the same entry, as it is, in the Favorites of the Space shown (at the end, unless a
+    /// folder and a place are given).
     @discardableResult
-    package func favorite(pinned id: Favorites.NodeID) -> Bool {
-        guard let pinned, pinned.give(id, to: favorites) else { return false }
+    package func favorite(pinned id: Favorites.NodeID, in parent: Favorites.NodeID? = nil, at index: Int? = nil) -> Bool
+    {
+        guard let pinned, pinned.give(id, to: favorites, in: parent, at: index) else { return false }
         syncStates()
         onChange()
         return true
@@ -119,13 +121,16 @@ extension TabsModel {
 
     /// Pins what is dragged (a tab's row, a favourite's, or the rows marked): dropped on the grid.
     package func pinDragged() -> Bool {
+        guard draggedSelection != nil else { return dropDragged(in: .pinned(at: nil)) }
         let rows = draggedRows
         dragged = nil
         return pin(rows) > 0
     }
 
-    /// Whether what is dragged could be pinned: a tab or a favourite, with room for one more.
-    package var canPinDragged: Bool { draggedRows.contains { canPin($0) } }
+    /// Whether what is dragged could be pinned: a tab, a split, a favourite, with room for one more; a tile, moved in the grid.
+    package var canPinDragged: Bool {
+        draggedSelection == nil ? canDropDragged(in: .pinned(at: nil)) : draggedRows.contains { canPin($0) }
+    }
 
     /// Starts a kept entry again from where it was pinned or kept: what it runs is stopped (asking first when something
     /// would be lost, as unloading does), and it opens anew (a page at its address, a terminal in its folder). The owner,

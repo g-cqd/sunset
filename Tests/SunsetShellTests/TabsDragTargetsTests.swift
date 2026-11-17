@@ -47,13 +47,14 @@ struct TabsDragTargetsTests {
         #expect(tabs.dragTargets == nil && tabs.dragged == nil)
     }
 
-    @Test func `what shows is what would take it: a pane does not go to the grid, a full grid takes nothing`() throws {
+    /// A pane carries its tab to the grid and the Favorites (roadmap 0035 A; it went to neither before).
+    @Test func `what shows is what would take it: a pane goes as its tab, a full grid takes nothing`() throws {
         let tabs = window(MadeContents())
         tabs.newTab()
         let pane = try #require(tabs.workspace.selectedPane)
         _ = tabs.itemProvider(for: .pane(pane))
         let ofPane = try #require(tabs.dragTargets)
-        #expect(!ofPane.pinned && !ofPane.favorites)
+        #expect(ofPane.pinned && ofPane.favorites)
         tabs.endDrag()
         for _ in 0 ..< TabsModel.pinnedLimit {
             tabs.newTab()

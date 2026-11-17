@@ -71,11 +71,14 @@ import Testing
         #expect(harness.tabs.workspace.selectedIndex == 2)
     }
 
-    @Test func `a pane or nothing cannot be dropped on the Favorites`() throws {
+    /// A pane carries its tab (the owner, 2026-11-17, roadmap 0035 A: "drag the container itself to whatever section"; it
+    /// could not be dropped there before).
+    @Test func `a pane is kept as its whole tab; nothing cannot be dropped on the Favorites`() throws {
         let (harness, entries) = try window(tabs: 2, kept: 1)
         _ = harness.tabs.itemProvider(for: .pane(harness.tabs.workspace.items[0].focused))
-        #expect(!harness.tabs.canDrop(onEntry: entries[0]) && !harness.tabs.canDropOnFavoritesLine)
-        #expect(!harness.tabs.dropDragged(onEntry: entries[0], after: true))
+        #expect(harness.tabs.canDrop(onEntry: entries[0]) && harness.tabs.canDropOnFavoritesLine)
+        #expect(harness.tabs.dropDragged(onEntry: entries[0], after: true))
+        #expect(order(harness).count == 2 && harness.tabs.workspace.isEmpty)
         harness.tabs.dragged = nil
         #expect(!harness.tabs.dropDraggedOnFavoritesLine())
     }

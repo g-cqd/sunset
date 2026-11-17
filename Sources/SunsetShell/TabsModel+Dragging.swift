@@ -54,9 +54,14 @@ extension TabsModel {
             case (.pane(let pane), .split):
                 return workspace.item(containing: pane)?.focused != pane || workspace.item(containing: pane)?.id != item
             case (.pane(let pane), .moveBefore), (.pane(let pane), .moveAfter):
+                // The pane of a split's row carries the split (roadmap 0035 A).
                 guard let source = workspace.item(containing: pane) else { return false }
-                return source.isSplit || source.id != item
-            case (.entry, .moveBefore), (.entry, .moveAfter), (.document, _):
+                return source.id != item
+            case (.entry, .moveBefore), (.entry, .moveAfter):
+                // A favourite or a tile, not a folder (roadmap 0035 A).
+                guard let index = workspace.items.firstIndex(where: { $0.id == item }) else { return false }
+                return canDropDragged(in: .today(at: action == .moveBefore ? index : index + 1))
+            case (.document, _):
                 return true
             case (.entry, .split), (nil, _):
                 return false
@@ -72,14 +77,20 @@ extension TabsModel {
         guard canDrop(onto: item, action: action) else { return false }
         takeDocumentDrag()
         guard let drag = dragged else { return false }
-        dragged = nil
-        if case .entry(let entry) = drag {
-            // A kept entry dropped among the tabs leaves the Favorites, as a tab at that place.
+        if case .entry = drag {
+            // A kept entry dropped among the tabs leaves the Favorites or the grid, as a tab at that place.
             guard let index = workspace.items.firstIndex(where: { $0.id == item }) else { return false }
-            release(entry: entry, at: action == .moveBefore ? index : index + 1)
-            return true
+            return dropDragged(in: .today(at: action == .moveBefore ? index : index + 1))
         }
-        change { $0.applyTabDrop(drag, onto: item, action: action) }
+        dragged = nil
+        // Put in order among the tabs, a pane of a split moves its whole tab (roadmap 0035 A); on a row's half it still joins it.
+        var moved = drag
+        if case .pane(let pane) = drag, action == .moveBefore || action == .moveAfter,
+            let source = workspace.item(containing: pane)
+        {
+            moved = .item(source.id)
+        }
+        change { $0.applyTabDrop(moved, onto: item, action: action) }
         return true
     }
 }

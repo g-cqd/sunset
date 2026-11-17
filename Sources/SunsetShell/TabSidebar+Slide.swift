@@ -29,6 +29,7 @@ extension TabSidebar {
     var today: some View {
         LazyVStack(spacing: layout.tabSpacing) {
             ForEach(tabs.workspace.items) { item in row(item) }
+            if tabs.dragTargets != nil, !isPreview { TodayEndDrop(tabs: tabs, layout: layout) }
         }
         .padding(.horizontal, layout.tabSideInset)
         .frame(maxWidth: .infinity)

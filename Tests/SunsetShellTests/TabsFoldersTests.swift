@@ -44,8 +44,10 @@ import Testing
         _ = harness.tabs.itemProvider(for: .entry(loose))
         #expect(harness.tabs.dropDragged(intoFolder: made.id))
         #expect(try #require(folder(harness)).children.count == 2)
+        // A pane carries its whole tab (roadmap 0035 A).
         _ = harness.tabs.itemProvider(for: .pane(harness.tabs.workspace.items[0].focused))
-        #expect(!harness.tabs.canDrop(intoFolder: made.id) && !harness.tabs.dropDragged(intoFolder: made.id))
+        #expect(harness.tabs.canDrop(intoFolder: made.id) && harness.tabs.dropDragged(intoFolder: made.id))
+        #expect(try #require(folder(harness)).children.count == 3)
         _ = harness.tabs.itemProvider(for: .entry(made.id))
         #expect(!harness.tabs.canDrop(intoFolder: made.id))
     }
