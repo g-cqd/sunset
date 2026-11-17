@@ -44,9 +44,19 @@ take decisions, update the settings, and don't await for me"). Each point is his
 - A link opened from outside goes to the Space shown, whatever its profile (R4: rules by site are R5's).
 - Each profile in use adds WebKit's storage and network processes (R4: "to be measured"): not measured.
 
-## Not seen
+## Seen later the same day
 
-Nothing of it on screen: the screen was locked while it was built (accessibility then shows menus only). Tested: the
-model (`ProfilesModelTests`), the session (`SessionProfilesTests`), and a page's data store by its profile
-(`WebContentTests`). The Settings page, the editor's Profile row, a page loading again in another profile, and the
-erasing of a removed profile's data were not seen run.
+With the screen unlocked, in a test copy, against a server on this machine that gives each visitor an identity in a
+cookie and says it back:
+
+| Step | Seen |
+| --- | --- |
+| Settings > Web > Profiles, New Profile | "Personal, 1 Space" and "Profile 2, no Space", with Remove… on the second |
+| A page in Home (Personal) | identity `6503214f`, new |
+| New Space, its Profile row set to Profile 2, the same site | identity `4a040343`, new: another visitor |
+| Each Space again, the page loaded again | each its own identity, known |
+| Edit Space: Profile 2 to Personal, Save | the page loaded again by itself as `6503214f` |
+| Remove… on Profile 2, "Remove and Erase Its Website Data" | one profile listed; its data store's folder gone from `~/Library/WebKit/…/WebsiteDataStore` (1 folder, then 0) |
+
+Not seen still: a profile removed while one of its Spaces has pages open (the Space was moved first here), two windows on
+two profiles at once, what a profile costs in processes and memory.

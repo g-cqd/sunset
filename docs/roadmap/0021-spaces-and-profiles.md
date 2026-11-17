@@ -1,5 +1,5 @@
 ---
-status: in-progress (S-a, S-b, S-c, P-b and P-a built 2026-11-17, P-a not seen on screen; S-d with the previews, S-e, S-f not started)
+status: in-progress (S-a, S-b, S-c, P-b and P-a done 2026-11-17; S-d with the previews, S-e, S-f not started)
 blocked-by: 0018 (each step's own questions); 0020 (Favorites and folders); 0019 (the web pane, for profiles and sleeping)
 date: 2026-11-11
 ---
@@ -182,7 +182,9 @@ Built while the owner was away, on R4's decisions and the builder's for the rest
   the other profile's data.
 - Kept with the session.
 
-**Nothing of it was seen on screen** (the screen was locked): tested only. 1,330 tests in 255 suites pass.
+Nothing of it was seen while it was built (the screen was locked). **Seen later the same day** (ADR-0053 has the
+table): the Settings page; two Spaces of two profiles holding two identities on one site; a Space given another
+profile reloading its page as that profile; a removed profile's data erased from disk.
 
 Not done: history, site permissions, how sites see Sunset and zoom per profile (all shared for now); the favourites
 part of n80 (his choice between two designs, ADR-0053); a profile's icon; naming the profile in the sidebar; the Spaces
