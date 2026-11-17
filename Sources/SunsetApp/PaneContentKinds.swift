@@ -56,6 +56,7 @@ import SunsetWeb
             textOnlyZoom: web.textOnlyZoom
         )
         settings.agent = BrowserAgent(rawValue: web.agent.rawValue) ?? .safari
+        settings.agentScripts = web.agentScripts
         return settings
     }
 

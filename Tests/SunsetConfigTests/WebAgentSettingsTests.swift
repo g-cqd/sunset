@@ -17,5 +17,13 @@ struct WebAgentSettingsTests {
         let bad = try ConfigurationParser.parse(#"{ "web": { "agent": "netscape" } }"#)
         #expect(bad.issues.map(\.path) == ["web.agent"] && bad.configuration.web.agent == .safari)
         #expect(Configuration.Web.Agent.allCases.map(\.rawValue) == ["safari", "chrome", "edge", "firefox"])
+        // The second rung is on unless the file turns it off.
+        #expect(Configuration().web.agentScripts)
+        let off = try ConfigurationParser.parse(#"{ "web": { "agentScripts": false } }"#)
+        #expect(off.issues.isEmpty && !off.configuration.web.agentScripts)
+        #expect(
+            try !ConfigurationParser.parse(ConfigurationWriter.text(for: off.configuration)).configuration.web
+                .agentScripts
+        )
     }
 }

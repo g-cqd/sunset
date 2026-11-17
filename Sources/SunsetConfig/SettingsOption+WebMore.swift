@@ -67,8 +67,18 @@ extension SettingsOption {
                 .siteAgents
             )
             .noted(
-                "Changes what Sunset says it is (the User-Agent) at a page's next load, and nothing else: the engine is "
-                    + "still WebKit, and a site can tell. A site can be given its own, from its panel in the address field."
+                "Changes what Sunset says it is (the User-Agent) at a page's next load: the engine is still WebKit, and a "
+                    + "site can tell. A site can be given its own, from its panel in the address field."
+            ),
+            toggle(
+                "web.agentScripts",
+                "Tell a page's scripts the same",
+                "user agent scripts navigator vendor client hints chrome detect",
+                \.web.agentScripts
+            )
+            .noted(
+                "A page shown Chrome, Edge or Firefox also reads that browser's vendor and client hints from its "
+                    + "scripts. Turn it off if a site breaks: only the User-Agent is then changed. Applies to pages opened after."
             )
         ]
 

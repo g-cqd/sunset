@@ -17,7 +17,14 @@ package final class SuggestionSource {
     package init() {}
 
     /// What is typed now, with the engine it would be searched with (nil: nothing is asked).
-    package func update(_ typed: String, engine: SearchEngine?, words: String, enabled: Bool) {
+    /// - Parameters:
+    ///   - typed: what the field holds.
+    ///   - engine: the engine the words would be searched with.
+    ///   - words: the words to ask about.
+    ///   - enabled: whether what is typed may be sent at all.
+    ///   - userAgent: what the request says it is: what a page would say (`WebSettings.userAgent`). The engine is not
+    ///     told that the question comes from Sunset (seen 2026-11-17: "Sunset/<build> CFNetwork/… Darwin/…").
+    package func update(_ typed: String, engine: SearchEngine?, words: String, enabled: Bool, userAgent: String) {
         let key = (engine?.name ?? "") + "\u{0}" + words
         guard key != asked else { return }
         asked = key
@@ -29,9 +36,10 @@ package final class SuggestionSource {
         }
         task = Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(120))
-            guard !Task.isCancelled, let (data, _) = try? await Self.session.data(from: url), !Task.isCancelled else {
-                return
-            }
+            var request = URLRequest(url: url)
+            request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+            guard !Task.isCancelled, let (data, _) = try? await Self.session.data(for: request), !Task.isCancelled
+            else { return }
             let found = OpenSearchSuggestions.parse(data).filter { $0.lowercased() != words.lowercased() }
             self?.suggestions = found
             self?.answering = typed

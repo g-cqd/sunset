@@ -64,3 +64,15 @@ Not done, or not seen:
 - **Not seen**: the row in Settings (tested as a setting; not looked at), a real site.
 - The search suggestions' request still names Sunset (t290). No shipped list (W-b). The later rungs.
 
+## W-g taken early, and what Sunset asks for by itself (2026-11-17; ADR-0052)
+
+Decided by the builder while the owner was away; his to change.
+
+- **`web.agentScripts`, on by default**: a page shown Chrome or Edge reads Google's vendor, `navigator.userAgentData`
+  and a `window.chrome` from its scripts; one shown Firefox reads Firefox's. Off: the User-Agent only.
+- **The search suggestions' request** says what a page would say; it named Sunset.
+
+Probed in `BrowserAgentTests` with a server on this machine and a real page: each browser's values read back from the
+page's scripts; untouched for Safari and with the setting off. **Not seen on screen, and no real site tried**: whether the
+owner's sites now work is his to try, with the setting and the site's rule as the way back.
+

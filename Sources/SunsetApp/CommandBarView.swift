@@ -162,7 +162,8 @@ struct CommandBarView: View {
             bar.query,
             engine: question?.0,
             words: question?.1 ?? "",
-            enabled: settings.suggestsWhileTyping
+            enabled: settings.suggestsWhileTyping,
+            userAgent: settings.userAgent
         )
     }
 }

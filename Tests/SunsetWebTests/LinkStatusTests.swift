@@ -19,10 +19,10 @@ import WebKit
         let page = WebContent(url: nil, settings: WebSettings())
         page.setState(focused: true, visible: true)
         let controller = try #require(page.webView?.configuration.userContentController)
-        #expect(controller.userScripts.count == 1 && !controller.userScripts[0].isForMainFrameOnly)
+        #expect(controller.userScripts.count == 2 && controller.userScripts.allSatisfy { !$0.isForMainFrameOnly })
         let opened = WebContent(configuration: try #require(page.webView?.configuration), settings: WebSettings())
         #expect(opened.webView?.configuration.userContentController !== controller)
-        #expect(opened.webView?.configuration.userContentController.userScripts.count == 1)
+        #expect(opened.webView?.configuration.userContentController.userScripts.count == 2)
         page.hoveredLink = "x"
         page.linkHovered("")
         #expect(page.hoveredLink == nil)

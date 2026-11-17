@@ -26,6 +26,8 @@ package struct WebSettings: Sendable, Equatable {
     package var privateSuggestions = false
     /// The browser a site with no rule of its own is shown (`web.agent`): Safari is Sunset as it is.
     package var agent = BrowserAgent.safari
+    /// What a page's scripts read to tell a browser is set too (`web.agentScripts`): the second rung.
+    package var agentScripts = true
 
     /// Whether what is typed is sent for suggestions: `suggestions`, or for a private page `privateSuggestions`.
     package var suggestsWhileTyping: Bool { privacy == nil ? suggestions : privateSuggestions }
@@ -62,6 +64,14 @@ package struct WebSettings: Sendable, Equatable {
             engines.first { $0.name.lowercased() == engine.lowercased() } ?? engines.first ?? SearchEngine.builtIn[0]
         self.suggestions = suggestions
         self.httpFallback = httpFallback
+    }
+
+    /// What Sunset says it is in the requests it makes without a page (search suggestions): the default browser's
+    /// User-Agent; for Safari, what WebKit says by itself on a Mac, with the installed Safari's version.
+    package var userAgent: String {
+        agent.userAgent
+            ?? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) "
+            + applicationName
     }
 
     /// What `typed` means with these engines.

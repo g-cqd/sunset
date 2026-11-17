@@ -98,6 +98,9 @@ extension Configuration {
         public var httpFallback = false
         public var zoomScope = ZoomScope.site
         public var agent = Agent.safari
+        /// What a page's scripts read to tell a browser is set to what `agent` (or the site's rule) names: the second
+        /// rung (ADR-0052). Off: the User-Agent only.
+        public var agentScripts = true
         /// Zoom makes only the text bigger, not the images (WebKit's private text zoom; nothing where it is missing).
         public var textOnlyZoom = false
         public var historyKeep = HistoryKeep.year

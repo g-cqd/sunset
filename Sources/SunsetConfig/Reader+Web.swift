@@ -5,7 +5,7 @@ extension Reader {
     /// The switches of `web`, by key. Never changed after it is made (key paths are not marked Sendable).
     private nonisolated(unsafe) static let webFlags: [String: WritableKeyPath<Configuration.Web, Bool>] = [
         "openLinksInSunset": \.openLinksInSunset, "developer": \.developer, "suggestions": \.suggestions,
-        "httpFallback": \.httpFallback, "textOnlyZoom": \.textOnlyZoom,
+        "httpFallback": \.httpFallback, "agentScripts": \.agentScripts, "textOnlyZoom": \.textOnlyZoom,
         "clearHistoryOnQuit": \.clearHistoryOnQuit, "clearWebsiteDataOnQuit": \.clearWebsiteDataOnQuit,
         "askWhereToSave": \.askWhereToSave, "openSafeDownloads": \.openSafeDownloads,
         "notifyDownloads": \.notifyDownloads,

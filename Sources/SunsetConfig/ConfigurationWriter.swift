@@ -111,6 +111,7 @@ public enum ConfigurationWriter {
             "web.engines": "[" + web.engines.map(engine).joined(separator: ", ") + "]",
             "web.suggestions": String(web.suggestions), "web.httpFallback": String(web.httpFallback),
             "web.zoomScope": string(web.zoomScope.rawValue), "web.agent": string(web.agent.rawValue),
+            "web.agentScripts": String(web.agentScripts),
             "web.textOnlyZoom": String(web.textOnlyZoom),
             "web.historyKeep": string(web.historyKeep.rawValue),
             "web.clearHistoryOnQuit": String(web.clearHistoryOnQuit),
