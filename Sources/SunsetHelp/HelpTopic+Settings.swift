@@ -11,6 +11,12 @@ extension HelpTopic {
         "tabs.keepRunningForFavorites": .favorites,
         "sidebar.library": .library,
         "sidebar.documentSort": .library,
-        "web.address": .sidebarField
+        "web.address": .sidebarField,
+        "web.permissions": .sitePermissions,
+        "web.approveRiskyDownloads": .downloads,
+        "web.askWhereToSave": .downloads,
+        "profiles.list": .profiles,
+        "web.privateWindowShares": .privateBrowsing,
+        "web.httpFallback": .plainHTTP
     ]
 }
