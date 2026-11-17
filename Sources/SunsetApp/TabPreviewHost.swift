@@ -25,7 +25,7 @@ struct TabPreviewHost: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            if let shown, let item = tabs.workspace.items.first(where: { $0.id == shown.item }) {
+            if let shown, let item = tabs.previewItem(shown.item) {
                 let card = TabPreviewCard(item: item, tabs: tabs, layout: layout)
                 let size = CGSize(
                     width: TabPreviewCard.width + 2 * Design.Space.s,
@@ -58,7 +58,7 @@ struct TabPreviewHost: View {
 
     /// Whether the panes of the tab under the pointer have a picture to show: a terminal's last frame, a page's snapshot.
     private var hoveredHasPicture: Bool {
-        guard let id = tabs.hoveredItem, let item = tabs.workspace.items.first(where: { $0.id == id }) else {
+        guard let id = tabs.hoveredItem, let item = tabs.previewItem(id) else {
             return false
         }
         return item.panes.contains { tabs.terminal($0)?.lastSurface != nil || tabs.content($0)?.picture != nil }
@@ -79,7 +79,7 @@ struct TabPreviewHost: View {
             shown = nil
             return
         }
-        if let id = tabs.hoveredItem, let item = tabs.workspace.items.first(where: { $0.id == id }) {
+        if let id = tabs.hoveredItem, let item = tabs.previewItem(id) {
             // A page on screen is pictured as it is now; one that is hidden keeps the picture taken as it was hidden.
             for pane in item.panes { tabs.content(pane)?.takePicture() }
         }

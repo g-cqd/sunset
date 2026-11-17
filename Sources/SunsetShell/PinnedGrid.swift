@@ -131,6 +131,7 @@ struct PinnedGrid: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .hoverPreview(tabs, entry: entry.id)
         .help(name(entry))
         .accessibilityLabel(name(entry))
         .accessibilityAddTraits(shown ? .isSelected : [])

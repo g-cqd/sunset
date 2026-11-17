@@ -39,7 +39,7 @@ extension TabsModel {
             if let now = shownTab { space.claim(now, by: self, force: false) }
         }
         marked.removeAll { if case .tab(let id) = $0 { !present.contains(id) } else { false } }
-        if let hovered = hoveredItem, !present.contains(hovered) { hoveredItem = nil }
+        if let hovered = hoveredItem, previewItem(hovered) == nil { hoveredItem = nil }
         if items.isEmpty, selectedEntry == nil, favorites.isEmpty { emptied() }
     }
 
