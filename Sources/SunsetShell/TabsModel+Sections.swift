@@ -3,6 +3,7 @@ extension TabsModel {
     /// A key or a menu asks for `section` in the panel opposite the tabs: shown on it, or hidden when it was already showing
     /// it. `show` says which, when the asker knows.
     package func toggleOpposite(_ section: SidebarSection, show: Bool? = nil) {
+        guard section.isShown(for: scopes) else { return }
         let shown = showsHistory && sections.opposite == section
         showsHistory = show ?? !shown
         if showsHistory { sections.opposite = section }

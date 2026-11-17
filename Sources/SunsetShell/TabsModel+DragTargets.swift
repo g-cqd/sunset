@@ -1,0 +1,43 @@
+import AppKit
+import SunsetPane
+
+/// What shows while something is dragged (`DragTargets`).
+extension TabsModel {
+    /// A drag began, or ended: what would take it is worked out once, and the drag is watched until the mouse button is
+    /// let go (SwiftUI says nothing of a drag dropped where nothing takes it).
+    func draggedChanged() {
+        dragWatch?.cancel()
+        dragWatch = nil
+        guard dragged != nil else {
+            dragTargets = nil
+            return
+        }
+        dragTargets = DragTargets(
+            pinned: canPinDragged,
+            favorites: canDropOnFavoritesLine || isPinnedDrag,
+            panes: workspace.allPanes.contains { canDrop(onto: $0) }
+        )
+        dragWatch = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(100))
+                guard let self, !Task.isCancelled else { return }
+                if !mouseIsDown() {
+                    // Dropped where nothing took it; a drop that did take it has cleared it already. A moment more, so
+                    // that a drop being done now is not cut short.
+                    try? await Task.sleep(for: .milliseconds(100))
+                    if !Task.isCancelled { endDrag() }
+                    return
+                }
+            }
+        }
+    }
+
+    /// A tile of the grid is dragged: it can go to the Favorites.
+    private var isPinnedDrag: Bool {
+        guard case .entry(let id)? = dragged else { return false }
+        return isPinned(id)
+    }
+
+    /// The drag is over, whatever became of it.
+    package func endDrag() { dragged = nil }
+}

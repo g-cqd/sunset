@@ -19,7 +19,7 @@ struct SettingsTopicList: View {
 
     var body: some View {
         VStack(spacing: layout.tabSpacing) {
-            ForEach(SettingsSection.all) { section in
+            ForEach(SettingsSection.sections(for: AppConfiguration.shared.configuration.features)) { section in
                 row(
                     section.title,
                     symbol: section.symbol,

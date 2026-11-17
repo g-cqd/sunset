@@ -1,3 +1,5 @@
+package import SunsetPane
+
 /// Which section each sidebar of a window is on (roadmap 0031): the panel opposite the tabs, and the Library of the tab
 /// sidebar, which is closed while it is on the tabs. Each is on its own section.
 package struct SidebarSections: Sendable, Equatable {
@@ -24,4 +26,14 @@ package struct SidebarSections: Sendable, Equatable {
     package mutating func toggleLibrary() { show(library: isLibraryOpen ? .tabs : lastLibrary) }
 
     package mutating func closeLibrary() { show(library: .tabs) }
+
+    /// A scope of the app went off, or came back (roadmap 0033): a sidebar on a section that is not shown goes to one
+    /// that is, and the Library's glyph opens one that is; with none, it opens nothing.
+    package mutating func settle(for scopes: Scopes) {
+        if !library.isShown(for: scopes) { library = .tabs }
+        if !lastLibrary.isShown(for: scopes) || lastLibrary == .tabs {
+            lastLibrary = SidebarSection.rail(for: scopes).first { $0 != .tabs } ?? .tabs
+        }
+        if !opposite.isShown(for: scopes), let first = SidebarSection.panel(for: scopes).first { opposite = first }
+    }
 }

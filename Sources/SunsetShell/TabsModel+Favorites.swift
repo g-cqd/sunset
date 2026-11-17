@@ -65,7 +65,10 @@ extension TabsModel {
 
     /// Shows a kept entry in this window, opening it first when it is not open (its panes start from where it was kept).
     package func select(entry id: Favorites.NodeID) {
-        guard keeper(of: id).open(id, make: makeContent) != nil else { return }
+        // An entry of a scope that is off is not opened (it is not listed either).
+        guard keeper(of: id).favorites.entry(id).map(scopes.allows) != false,
+            keeper(of: id).open(id, make: makeContent) != nil
+        else { return }
         showEntry(id)
     }
 

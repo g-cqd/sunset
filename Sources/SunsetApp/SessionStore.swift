@@ -49,6 +49,8 @@ final class SessionStore {
             return
         }
         AppSpaces.all.restore(session.spaces, reopening: enabled)
+        // Nor does anything of a scope that is off (roadmap 0033).
+        AppScopes.enforce()
         // Tabs that were left by the last window long enough ago do not come back (`tabs.closeStoppedAfter`).
         AppSpaces.cleanStopped()
         guard enabled, AppSpaces.all.spaces.contains(where: { !$0.tabs.isEmpty }) else { return }

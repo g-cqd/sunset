@@ -135,6 +135,8 @@ struct TerminalScene: View {
         .onChange(of: colors) { _, _ in forEachModel(configure) }
         .onChange(of: blinkSchedule) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.tabs.confirmClose, initial: true) { _, confirm in tabs.confirmClose = confirm }
+        // A scope of the app turned off, or on (roadmap 0033): what is open of it closes, in every window.
+        .onChange(of: configuration.features, initial: true) { _, _ in AppScopes.enforce() }
         .onChange(of: configuration.tabs.closeWindowWithLastTab, initial: true) { _, closes in
             tabs.closesWithLastTab = closes
         }

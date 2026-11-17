@@ -21,7 +21,8 @@ struct FavoritesSection: View {
                 ForEach(favorites.rows(selected: tabs.workspace.selectedEntry)) { row in
                     Group {
                         switch favorites.node(row.id) {
-                            case .entry(let entry): entryRow(entry)
+                            // An entry of a scope that is off is hidden, and comes back with it (roadmap 0033).
+                            case .entry(let entry): if tabs.shows(entry) { entryRow(entry) }
                             case .folder(let folder): FolderRow(tabs: tabs, folder: folder, layout: layout)
                             case nil: EmptyView()
                         }

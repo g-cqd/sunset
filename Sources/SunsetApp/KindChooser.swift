@@ -12,8 +12,10 @@ struct KindChooser: View {
         VStack(alignment: .leading, spacing: Design.Space.l) {
             Text("New Tab").font(Design.Text.title)
             HStack(spacing: Design.Space.l) {
-                choice("Terminal", symbol: "terminal", key: "t", kind: PaneDescriptor.terminal(directory: nil))
-                choice("Web Page", symbol: "globe", key: "w", kind: PaneContentKinds.newPage)
+                if tabs.scopes.terminal {
+                    choice("Terminal", symbol: "terminal", key: "t", kind: PaneDescriptor.terminal(directory: nil))
+                }
+                if tabs.scopes.web { choice("Web Page", symbol: "globe", key: "w", kind: PaneContentKinds.newPage) }
             }
             HStack {
                 Spacer()

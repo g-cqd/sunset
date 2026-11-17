@@ -44,8 +44,9 @@ struct SidebarBottomBar: View {
     }
 
     @ViewBuilder private var libraryButton: some View {
-        if library {
-            SidebarIconButton(symbol: "books.vertical", help: "Library: Documents, History, Downloads") {
+        // No Library when no section of it is of a scope that is on.
+        if library, SidebarSection.rail(for: tabs.scopes).count > 1 {
+            SidebarIconButton(symbol: "books.vertical", help: "Library") {
                 tabs.sections.toggleLibrary()
             }
             .accessibilityLabel("Library")
@@ -71,12 +72,19 @@ struct SidebarBottomBar: View {
     }
 
     @ViewBuilder private var kinds: some View {
-        Button("New Terminal Tab") { AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil)) }
-        Button("New Web Page") { AppActions.shared.newTab(kind: PaneContentKinds.newPage) }
-        Button("New Private Tab") { AppActions.shared.newTab(kind: PaneContentKinds.newPrivatePage) }
-        Divider()
-        Button("New Document") { AppActions.shared.newDocument() }
-        Button("Open File\u{2026}") { AppActions.shared.openFile() }
+        let scopes = tabs.scopes
+        if scopes.terminal {
+            Button("New Terminal Tab") { AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil)) }
+        }
+        if scopes.web {
+            Button("New Web Page") { AppActions.shared.newTab(kind: PaneContentKinds.newPage) }
+            Button("New Private Tab") { AppActions.shared.newTab(kind: PaneContentKinds.newPrivatePage) }
+        }
+        if scopes.documents {
+            Divider()
+            Button("New Document") { AppActions.shared.newDocument() }
+            Button("Open File\u{2026}") { AppActions.shared.openFile() }
+        }
         Divider()
         Button("New Space") { tabs.newSpace() }.disabled(tabs.spaces == nil)
     }

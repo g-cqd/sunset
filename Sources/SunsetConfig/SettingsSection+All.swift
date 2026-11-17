@@ -8,6 +8,7 @@ extension SettingsSection {
         title: "General",
         symbol: "gearshape",
         topics: [
+            SettingsTopic("general.features", "What Sunset does", SettingsOption.features),
             SettingsTopic("general.startup", "Startup, closing and quitting", SettingsOption.startup),
             SettingsTopic("general.documents", "Documents", SettingsOption.documents),
             SettingsTopic("general.file", "Configuration file", SettingsOption.configurationFile)

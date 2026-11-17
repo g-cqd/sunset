@@ -1,13 +1,18 @@
 import SunsetConfig
+import SunsetPane
 import SunsetShell
 import SwiftUI
 
 /// View's items for the sections of the sidebars (roadmap 0031). No keys of their own yet: Cmd-Y stays the history's.
 struct SectionCommands: View {
+    let scopes: Scopes
+
     var body: some View {
-        Button("Library") { AppActions.shared.toggleLibrary() }
-            .disabled(!AppConfiguration.shared.configuration.sidebar.library)
-        Button("Documents") { AppActions.shared.toggleOpposite(.documents) }
-        Button("Downloads") { AppActions.shared.toggleOpposite(.downloads) }
+        if SidebarSection.rail(for: scopes).count > 1 {
+            Button("Library") { AppActions.shared.toggleLibrary() }
+                .disabled(!AppConfiguration.shared.configuration.sidebar.library)
+        }
+        if scopes.documents { Button("Documents") { AppActions.shared.toggleOpposite(.documents) } }
+        if scopes.web { Button("Downloads") { AppActions.shared.toggleOpposite(.downloads) } }
     }
 }

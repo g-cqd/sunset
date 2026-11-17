@@ -129,6 +129,10 @@ extension Design {
         package static let stronger = 1.5
         package static let hover = 2.5
         package static let hoverCap = 0.45
+        /// A place a drag could be dropped, outlined from the start of the drag (the owner, 2026-11-17): the dash and the gap.
+        package static let dropDash: [CGFloat] = [4, 3]
+        /// The outline's strength, as an opacity of the accent: there, not loud; full under the pointer.
+        package static let dropOutline = 0.55
     }
 
     /// Measures the grid gets wrong to the eye, each named, with its reason and its measurement (design 0003 §4).

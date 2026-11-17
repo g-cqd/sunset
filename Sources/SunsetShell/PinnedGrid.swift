@@ -13,21 +13,29 @@ struct PinnedGrid: View {
     @State private var targeted = false
     @Environment(\.accent) private var accent
 
-    private var showsSlot: Bool { targeted && tabs.canPinDragged }
+    /// A drag under way would be pinned here: the grid is there, even empty, and outlined (the owner, 2026-11-17).
+    private var takesDrag: Bool { tabs.dragTargets?.pinned == true }
 
     var body: some View {
         let entries = tabs.pinnedEntries
-        if !entries.isEmpty || tabs.canPinDragged {
+        if !entries.isEmpty || takesDrag {
             PinnedTiles {
                 ForEach(entries) { entry in
                     tile(entry).transition(.scale(scale: 0.6).combined(with: .opacity))
                 }
-                // The place kept for what is being dragged in (the owner, 2026-11-17: "an invisible placeholder slot").
-                if showsSlot || entries.isEmpty { Color.clear.accessibilityHidden(true) }
+                // The place kept for what is being dragged in (the owner, 2026-11-17: "an invisible placeholder slot"),
+                // outlined as the grid is while the drag is under way.
+                if takesDrag {
+                    Color.clear
+                        .dropTarget(shown: true, targeted: targeted, radius: layout.tabRadius)
+                        .accessibilityHidden(true)
+                }
             }
             .animation(layout.smooth, value: entries.map(\.id))
-            .animation(layout.smooth, value: showsSlot)
-            .padding(.bottom, Design.Space.m)
+            .animation(layout.smooth, value: takesDrag)
+            .padding(Design.Space.xs)
+            .dropTarget(shown: takesDrag && !entries.isEmpty, targeted: false, radius: layout.tabRadius)
+            .padding(.bottom, Design.Space.s)
             .contentShape(.rect)
             .onDrop(of: [.plainText, .utf8PlainText], isTargeted: $targeted) { _ in
                 withAnimation(layout.smooth) { tabs.pinDragged() }

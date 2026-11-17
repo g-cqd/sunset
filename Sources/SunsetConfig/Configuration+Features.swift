@@ -1,0 +1,20 @@
+extension Configuration {
+    /// The scopes of the app, each of which can be removed whole (roadmap 0033; the owner, 2026-11-16: "a toggle that
+    /// remove all the web navigation scope, one that removes completely the terminal from the app features, and one
+    /// that removes document visualization and handling and rendering except downloads"). All on by default; at least one
+    /// stays on (ADR-0056).
+    public struct Features: Sendable, Equatable {
+        public var terminal: Bool
+        public var web: Bool
+        public var documents: Bool
+
+        public init(terminal: Bool = true, web: Bool = true, documents: Bool = true) {
+            self.terminal = terminal
+            self.web = web
+            self.documents = documents
+        }
+
+        /// How many are on.
+        public var count: Int { [terminal, web, documents].count { $0 } }
+    }
+}

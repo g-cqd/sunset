@@ -1,3 +1,4 @@
+import AppKit
 package import Foundation
 package import Observation
 package import SunsetPane
@@ -27,6 +28,8 @@ package final class TabsModel {
         }
     }
     @ObservationIgnored var canMake = false
+    /// The scopes of the app that are on (roadmap 0033): nothing of one that is off is made or listed here.
+    package var scopes = Scopes() { didSet { if scopes != oldValue { scopesChanged() } } }
     /// The Pinned grid this window shows (the app's); nil for a window that has none (a private one).
     package var pinned: FavoritesModel? { didSet { pinned?.register(self) } }
     /// The Spaces this window can change to (the app's); nil for one whose Space is its own. Observed: drawn before set.
@@ -52,7 +55,12 @@ package final class TabsModel {
     /// The tabs changed (added, closed, moved, split, selected): the session is to be saved.
     @ObservationIgnored package var onChange: () -> Void = {}
     /// What a sidebar or bar drag in this window carries, from its start until it is dropped (set when the drag begins; see `beginDrag`).
-    @ObservationIgnored package var dragged: PaneDragPayload?
+    @ObservationIgnored package var dragged: PaneDragPayload? { didSet { draggedChanged() } }
+    /// Where what is dragged could go, while a drag is under way: what the views outline (`DragTargets`).
+    package internal(set) var dragTargets: DragTargets?
+    /// Whether a mouse button is down: a drag let go where nothing takes it ends when none is.
+    @ObservationIgnored package var mouseIsDown: @MainActor () -> Bool = { NSEvent.pressedMouseButtons != 0 }
+    @ObservationIgnored var dragWatch: Task<Void, Never>?
     /// The command bar, when it is open: searching the tabs, or (after the selected tab was dropped on its own content) choosing the tab to split with.
     package var bar: CommandBar?
     /// What was gone to or searched from the bar in this window, latest last; Up in its empty field brings them back (kept for the session).
@@ -119,27 +127,6 @@ package final class TabsModel {
     package var selectedContent: (any PaneContent)? { shownPane.flatMap(content) }
 
     // MARK: Adding
-
-    /// A new tab, selected, after the current one: a terminal, or what `descriptor` says.
-    package func newTab(_ descriptor: PaneDescriptor? = nil) {
-        let entry = workspace.selectedEntry
-        register(makeContent(descriptor), as: workspace.add().pane)
-        if let entry { left(entry) }
-    }
-
-    /// A new terminal beside the focused pane, in the same tab, with the keyboard; nothing when there is no focused pane.
-    package func newSplit(_ edge: PaneEdge) {
-        if shownEntry != nil, let target = shownPane {
-            if keeper(ofPane: target)?.addPane(beside: target, edge: edge, content: makeContent(nil)) == true {
-                syncStates()
-            }
-            return
-        }
-        guard let target = workspace.selectedPane, let pane = workspace.addPane(beside: target, edge: edge) else {
-            return
-        }
-        register(makeContent(nil), as: pane)
-    }
 
     /// Takes content that already runs (moved from another window when the presentation changed): a tab like any other, selected.
     package func adopt(_ content: any PaneContent) {

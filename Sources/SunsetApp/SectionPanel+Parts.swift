@@ -82,10 +82,13 @@ extension SectionPanel {
     /// The switch between the sections, at the foot of the panel opposite the tabs (the owner's choice B6).
     @ViewBuilder var foot: some View {
         if place == .opposite {
-            SectionSwitch(selection: Binding(get: { section }, set: { tabs.sections.opposite = $0 }))
-                .environment(\.sidebarButtonMetrics, buttons.metrics)
-                .padding(.horizontal, buttons.gap)
-                .padding(.bottom, buttons.bottom)
+            SectionSwitch(
+                sections: SidebarSection.panel(for: tabs.scopes),
+                selection: Binding(get: { section }, set: { tabs.sections.opposite = $0 })
+            )
+            .environment(\.sidebarButtonMetrics, buttons.metrics)
+            .padding(.horizontal, buttons.gap)
+            .padding(.bottom, buttons.bottom)
         }
     }
 

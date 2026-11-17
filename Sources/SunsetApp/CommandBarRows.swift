@@ -21,28 +21,31 @@ import SunsetWeb
         var rows = tabRows + SpaceRows.rows(bar, tabs: tabs)
         let chip = bar.engine.flatMap { name in settings.engines.first { $0.name == name } }
         let typed = bar.query.trimmingCharacters(in: .whitespaces)
+        // Nothing of a scope that is off is offered (roadmap 0033): no address or search without the web, no file or
+        // stored document without documents.
+        let (web, documents) = (tabs.scopes.web, tabs.scopes.documents)
         let input: WebInput? =
-            if let chip { typed.isEmpty ? nil : .search(chip, words: typed) } else { settings.input(typed) }
+            if !web { nil } else if let chip { typed.isEmpty ? nil : .search(chip, words: typed) } else {
+                settings.input(typed)
+            }
         // Recalled with the engine's keyword, so that the chip comes back with the words.
         let recall = chip.map { $0.keyword + " " + bar.query } ?? bar.query
         // A path to a file that is there is opened, not searched for: its row comes before what the web would do with it.
-        if chip == nil, let path = TypedPath.file(typed) { rows.append(DocumentRows.file(path, tabs: tabs)) }
-        if let input { rows.append(web(input, id: "typed", tabs: tabs, recall: recall)) }
+        if documents, chip == nil, let path = TypedPath.file(typed) { rows.append(DocumentRows.file(path, tabs: tabs)) }
+        if let input { rows.append(Self.web(input, id: "typed", tabs: tabs, recall: recall)) }
         // The documents Sunset keeps, by title: after what was typed, so that Return does what it did.
-        if chip == nil {
-            let typedFile = TypedPath.file(typed)
-            rows += tabs.barDocuments(bar)
-                .compactMap { document in
-                    guard let file = document.file else { return DocumentRows.stored(document, tabs: tabs) }
-                    // A file opened lately, by its name; not twice when its path is what was typed.
-                    return file == typedFile ? nil : DocumentRows.file(file, tabs: tabs)
-                }
-        }
+        if documents, chip == nil { rows += documentRows(bar, typed: typed, tabs: tabs) }
+        guard web else { return rows }
         if chip == nil {
             let visited = (history?.suggestions(for: typed) ?? []).filter { $0.url != input?.url?.absoluteString }
             rows += visited.compactMap { entry in
                 guard let url = URL(string: entry.url) else { return nil }
-                var row = web(.address(url, guessed: false), id: "visited " + entry.url, tabs: tabs, recall: entry.url)
+                var row = Self.web(
+                    .address(url, guessed: false),
+                    id: "visited " + entry.url,
+                    tabs: tabs,
+                    recall: entry.url
+                )
                 row.glyph = .symbol("clock")
                 row.title = entry.title.isEmpty ? entry.url : entry.title
                 row.subtitle = AddressChoice.shortAddress(entry.url)
@@ -52,9 +55,20 @@ import SunsetWeb
         }
         let engine: SearchEngine = if case .search(let chosen, _)? = input { chosen } else { chip ?? settings.engine }
         rows += suggestions.map {
-            web(.search(engine, words: $0), id: "suggestion " + $0, tabs: tabs, recall: $0, suggested: true)
+            Self.web(.search(engine, words: $0), id: "suggestion " + $0, tabs: tabs, recall: $0, suggested: true)
         }
         return rows
+    }
+
+    /// The documents of the store and the files opened lately whose title matches; not a file twice when its path is
+    /// what was typed.
+    private static func documentRows(_ bar: CommandBar, typed: String, tabs: TabsModel) -> [ChoiceRow] {
+        let typedFile = TypedPath.file(typed)
+        return tabs.barDocuments(bar)
+            .compactMap { document in
+                guard let file = document.file else { return DocumentRows.stored(document, tabs: tabs) }
+                return file == typedFile ? nil : DocumentRows.file(file, tabs: tabs)
+            }
     }
 
     private static func tab(_ item: Workspace.Item, bar: CommandBar, tabs: TabsModel) -> ChoiceRow {

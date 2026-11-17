@@ -13,7 +13,9 @@ extension TerminalModel {
         hostPolicy = { HostPolicy(clipboardWrite: AppConfiguration.shared.configuration.terminal.clipboardWrite) }
         onZoomRequest = { AppActions.shared.zoomFont(by: $0) }
         openURL = { [weak self, weak tabs] url in
-            guard AppConfiguration.shared.configuration.web.openLinksInSunset, let self, let tabs else {
+            // With the web off a link goes to the system's browser (roadmap 0033).
+            guard AppConfiguration.shared.configuration.web.openLinksInSunset, AppScopes.current.web, let self, let tabs
+            else {
                 NSWorkspace.shared.open(url)
                 return
             }

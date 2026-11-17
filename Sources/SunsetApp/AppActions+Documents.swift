@@ -31,6 +31,8 @@ extension AppActions {
     /// one is opened for them: SwiftUI makes none for a file (`handlesExternalEvents(matching: [])`, ADR-0040), and AppKit
     /// makes no first window for a Sunset started on one.
     func open(files paths: [String]) {
+        // With documents off Sunset shows no file: each goes to the app that opens it by default (roadmap 0033).
+        guard AppScopes.current.documents else { return AppScopes.openElsewhere(paths) }
         // A window that is not on screen yet (Sunset is starting, or is behind) is not the one that acts: any window will do.
         let acting = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
         guard let tabs = acting ?? TabRegistry.shared.allWindows().first?.tabs, !tabs.workspace.isEmpty else {

@@ -40,7 +40,7 @@ struct AppSidebar: View {
         } rail: {
             SectionRail(
                 selection: section ?? .tabs,
-                sections: settings.sidebar.library ? SidebarSection.rail : [],
+                sections: settings.sidebar.library ? SidebarSection.rail(for: tabs.scopes) : [],
                 buttons: buttons,
                 leading: settings.sidebar.side == .left
             ) { chosen in

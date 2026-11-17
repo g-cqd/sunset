@@ -21,11 +21,16 @@ import SunsetWeb
                     }
                     wire(other, in: tabs)
                     tabs.split(.right, with: other, beside: content)
+                case .web(let url) where !AppScopes.current.web: NSWorkspace.shared.open(url)
                 case .web(let url):
                     // In a private window the page is private, as any page made there is.
                     let privacy = tabs.privateGroup.map { tabs.privateShares ? PagePrivacy(group: $0) : PagePrivacy() }
                     let wanted = PaneDescriptor(kind: WebContent.kind, state: ["url": url.absoluteString])
-                    let page = PaneContentKinds.make(wanted, privacy: privacy) { SessionStore.shared.scheduleSave() }
+                    // With the website data of the Space's profile, as any page made there.
+                    let profile = PaneContentKinds.profile(of: tabs)
+                    let page = PaneContentKinds.make(wanted, privacy: privacy, profile: profile) {
+                        SessionStore.shared.scheduleSave()
+                    }
                     if let page = page as? WebContent { WebOpening.wire(page, in: tabs) }
                     tabs.split(.right, with: page, beside: content)
                 case .system(let url): NSWorkspace.shared.open(url)

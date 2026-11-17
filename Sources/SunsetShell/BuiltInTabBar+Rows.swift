@@ -6,7 +6,7 @@ extension BuiltInTabBar {
     @ViewBuilder func barItem(_ item: Favorites.BarItem) -> some View {
         switch item {
             case .entry(let id):
-                if let entry = tabs.favorites.favorites.entry(id) { entryRow(entry) }
+                if let entry = tabs.favorites.favorites.entry(id), tabs.shows(entry) { entryRow(entry) }
             case .folder(let id, let count):
                 if case .folder(let folder)? = tabs.favorites.favorites.node(id) { folderRow(folder, count: count) }
         }

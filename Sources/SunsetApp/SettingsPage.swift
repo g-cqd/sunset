@@ -14,7 +14,11 @@ struct SettingsPage: View {
 
     private static let entries = SettingsOption.all.map(\.entry)
     private var results: [SettingsOption] {
-        SettingsSearch.matches(content.query, in: Self.entries).compactMap { SettingsOption.named($0.id) }
+        let features = config.configuration.features
+        return SettingsSearch.matches(content.query, in: Self.entries)
+            .compactMap { SettingsOption.named($0.id) }
+            // The settings of a scope that is off are not found (roadmap 0033).
+            .filter { SettingsSection.showsTopic($0.topic, features) }
     }
     private var ownList: Bool {
         content.tabs?.settingsListInPage(sidebarDocked: config.configuration.sidebarDocked) ?? true

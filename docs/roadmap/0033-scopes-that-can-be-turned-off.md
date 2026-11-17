@@ -1,6 +1,6 @@
 ---
-status: not-started
-blocked-by: its own questions (below); nothing built
+status: done
+blocked-by:
 date: 2026-11-16
 ---
 
@@ -57,3 +57,17 @@ and everything that exists only for it:
 ## Not done
 
 Everything. No ADR is written: there is no decision yet beyond wanting the three toggles.
+
+## As built (2026-11-17; ADR-0056)
+
+The owner answered the questions above (the ADR has his answers). Three settings, `features.terminal`, `features.web`,
+`features.documents`, in Settings > General > What Sunset does; at least one stays on.
+
+Seen in a test copy: with the web off in the file, File's items without the web's, the History menu gone, a page tab
+closed and a favourite page hidden, then back when it was on again; the question on turning terminals off with a
+terminal open ("1 tab of it is open and closes…", `docs/research/settings/scope-off-question.png`), the terminal tab
+closed, Cmd-T opening the command bar, Settings' Terminal section gone at once. 
+
+Not seen: documents off (tested), a link going to the default browser, a file going to its default app, the Library
+with no section. Not done: ADR-0056's list.
+

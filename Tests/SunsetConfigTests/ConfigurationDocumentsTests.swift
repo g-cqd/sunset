@@ -37,6 +37,9 @@ import Testing
                 "documents.saveAfter", "documents.saveOnFocusLoss"
             ]
         )
-        #expect(SettingsSection.all.first?.topics.map(\.id) == ["general.startup", "general.documents", "general.file"])
+        #expect(
+            SettingsSection.all.first?.topics.map(\.id)
+                == ["general.features", "general.startup", "general.documents", "general.file"]
+        )
     }
 }
