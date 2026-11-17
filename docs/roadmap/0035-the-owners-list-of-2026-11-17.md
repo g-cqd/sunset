@@ -25,6 +25,8 @@ Asked by the owner on 2026-11-17, as a checklist of ten, with his answers to sev
 
 ## Not done
 
+As of the end of 0035; most were taken up in 0036 to 0038, the rest are in 0042.
+
 - A: a drag from one window to another is refused; several marked rows keep their earlier paths.
 - C: a page's picture is taken as it is hidden or pointed at, not refreshed while another window draws it.
 - D: service-worker (push) notifications; `icon`, actions, `close()` of a posted one.
