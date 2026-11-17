@@ -13,19 +13,25 @@ struct SidebarBottomBar: View {
     let tabs: TabsModel
     /// `sidebar.library`: the Library's glyph is there.
     let library: Bool
+    /// Between two buttons side by side: the rows' spacing, as between the Library rail's buttons (the owner, 2026-11-17:
+    /// the downloads' button was flush against the Library's).
+    let spacing: Double
     private let downloads = DownloadCenter.shared
 
-    init(side: Configuration.Side, tabs: TabsModel, library: Bool) {
+    init(side: Configuration.Side, tabs: TabsModel, library: Bool, spacing: Double) {
         self.side = side
         self.tabs = tabs
         self.library = library
+        self.spacing = spacing
     }
 
     var body: some View {
         HStack(spacing: 0) {
             if side == .left {
-                libraryButton
-                downloadsButton
+                HStack(spacing: spacing) {
+                    libraryButton
+                    downloadsButton
+                }
             } else {
                 plus
             }
@@ -37,8 +43,10 @@ struct SidebarBottomBar: View {
             if side == .left {
                 plus
             } else {
-                downloadsButton
-                libraryButton
+                HStack(spacing: spacing) {
+                    downloadsButton
+                    libraryButton
+                }
             }
         }
     }

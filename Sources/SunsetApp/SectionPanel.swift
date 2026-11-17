@@ -28,6 +28,8 @@ struct SectionPanel: View {
     /// The list itself has the keyboard: a section with nothing to search, or a click beside its rows. Escape then goes
     /// back to the tabs too (the owner, 2026-11-16: from anywhere in the Library).
     @FocusState var inList: Bool
+    /// How far the rows are scrolled down: the fade under the field grows with it.
+    @State var scrolledBy = 0.0
 
     var layout: LayoutMetrics { buttons.layout }
     /// How many things the section lists, whatever is searched: with none there is no search field.
@@ -73,9 +75,11 @@ struct SectionPanel: View {
         .focused($inList)
         .onExitCommand { escape() }
         .contentMargins(.top, listTop, for: .scrollContent)
+        .onScrollGeometryChange(for: Double.self, of: { Double($0.contentOffset.y + $0.contentInsets.top) }) {
+            scrolledBy = max($1, 0)
+        }
         .contentMargins(.bottom, buttons.margin + footInset, for: .scrollContent)
         .mask { fade }
-        .overlay(alignment: .top) { topBlur }
         .overlay(alignment: .top) { top }
         .overlay(alignment: .bottom) { foot }
         .onChange(of: section) { _, _ in

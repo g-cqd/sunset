@@ -92,31 +92,19 @@ extension SectionPanel {
         }
     }
 
-    /// Rows that scroll up under the top fade out over it, and under the switch at the foot.
+    /// Rows that scroll up are gone under the title and the search field, and fade out just below them (the owner,
+    /// 2026-11-17: under the field they were unreadable; an alpha mask, no blur); and under the switch at the foot.
     var fade: some View {
         VStack(spacing: 0) {
+            Color.clear.frame(height: max(listTop - Design.Space.xs, 0))
             LinearGradient(gradient: .eased(from: .clear, to: .black), startPoint: .top, endPoint: .bottom)
-                .frame(height: max(listTop - Design.Space.xs, 0))
+                // As tall as the rows are scrolled, up to its full height: rows at rest are untouched.
+                .frame(height: min(scrolledBy, Design.Space.xl))
             Color.black
             if place == .opposite {
                 LinearGradient(gradient: .eased(from: .black, to: .clear), startPoint: .top, endPoint: .bottom)
                     .frame(height: footInset + buttons.margin)
             }
         }
-    }
-
-    /// And blur out there, as at the sidebar's ends (research/blur).
-    var topBlur: some View {
-        let solid = listTop * Design.Blur.listSolidShare
-        return Color.clear
-            .frame(height: listTop)
-            .padding(.horizontal, -Design.Blur.listBleed)
-            .blurUnder(
-                .top,
-                solid: solid,
-                fade: listTop - solid + Design.Blur.listOverhang,
-                radius: Design.Blur.listRadius
-            )
-            .allowsHitTesting(false)
     }
 }

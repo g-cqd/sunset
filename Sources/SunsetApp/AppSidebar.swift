@@ -61,7 +61,12 @@ struct AppSidebar: View {
             accessory: accessory,
             notices: notices,
             bottomBar: AnyView(
-                SidebarBottomBar(side: configuration.sidebar.side, tabs: tabs, library: configuration.sidebar.library)
+                SidebarBottomBar(
+                    side: configuration.sidebar.side,
+                    tabs: tabs,
+                    library: configuration.sidebar.library,
+                    spacing: settings.layout.tabSpacing
+                )
             ),
             togglePin: AppConfiguration.togglePin
         )
