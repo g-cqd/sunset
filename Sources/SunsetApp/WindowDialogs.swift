@@ -25,11 +25,19 @@ struct WindowDialogs: ViewModifier {
                         addressBar(area?.card)
                             .frame(width: panes.width, height: panes.height)
                             .offset(x: panes.minX, y: panes.minY)
-                        // Centred over the panes, not the window (owner, 2026-11-13).
-                        CommandBarView(tabs: tabs, layout: layout)
-                            .modifier(RenameTabAlert(tabs: tabs))
-                            .frame(width: panes.width, height: proxy.size.height, alignment: .top)
-                            .offset(x: panes.minX)
+                        if tabs.bar?.inSidebar == true, let field = tabs.sidebarField {
+                            // In the sidebar's field, its size, the rows under it (roadmap 0035 G).
+                            let origin = proxy.frame(in: .global).origin
+                            CommandBarView(tabs: tabs, layout: layout, anchor: field.size)
+                                .modifier(RenameTabAlert(tabs: tabs))
+                                .offset(x: field.minX - origin.x, y: field.minY - origin.y)
+                        } else {
+                            // Centred over the panes, not the window (owner, 2026-11-13).
+                            CommandBarView(tabs: tabs, layout: layout)
+                                .modifier(RenameTabAlert(tabs: tabs))
+                                .frame(width: panes.width, height: proxy.size.height, alignment: .top)
+                                .offset(x: panes.minX)
+                        }
                     }
                 }
             }

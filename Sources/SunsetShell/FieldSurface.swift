@@ -13,7 +13,9 @@ struct FieldSurface: ViewModifier {
         let shape = RoundedRectangle(cornerRadius: controlRadius ?? surface.leafRadius, style: .continuous)
         content
             .padding(.horizontal, controlPadding ?? Design.Space.m)
-            .frame(height: height.map { CGFloat(controlHeight ?? $0) })
+            // The container's height for its fields when it sets one, the field's own given or not (the sidebar's field, a tab's
+            // height: roadmap 0035 G).
+            .frame(height: (height == nil ? controlHeight : height.map { controlHeight ?? $0 }).map { CGFloat($0) })
             .background(
                 shape.fill(dark ? Color.black.opacity(Design.Fill.darkField) : Color.primary.opacity(Design.Fill.field))
             )

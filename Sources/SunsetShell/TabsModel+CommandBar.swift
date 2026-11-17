@@ -2,7 +2,16 @@ package import SunsetPane
 
 extension TabsModel {
     /// Opens the bar for searching the tabs, or closes it when it is open.
-    package func toggleBar() { bar = bar == nil ? CommandBar(purpose: .search) : nil }
+    package func toggleBar() {
+        guard bar == nil else {
+            bar = nil
+            return
+        }
+        var opened = CommandBar(purpose: .search)
+        // In the sidebar's field while the sidebar shows one (roadmap 0035 G).
+        opened.inSidebar = sidebarField != nil
+        bar = opened
+    }
 
     /// What a candidate of the bar is searched by: the name the tab was given, and for each of its panes the title, the second line (a directory) and
     /// what else its content says it is found by (`PaneContent.searchTerms`).

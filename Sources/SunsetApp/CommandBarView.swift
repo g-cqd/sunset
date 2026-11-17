@@ -13,6 +13,8 @@ import SwiftUI
 struct CommandBarView: View {
     let tabs: TabsModel
     let layout: Configuration.Layout
+    /// The sidebar's field it opens in (roadmap 0035 G): its field is that size, its rows as wide; nil over the panes.
+    var anchor: CGSize?
     @State private var suggestions = SuggestionSource()
     @FocusState private var typing: Bool
 
@@ -27,7 +29,7 @@ struct CommandBarView: View {
             let rows = CommandBarRows.rows(bar, tabs: tabs, settings: settings, suggestions: shown)
             // Its backdrop is the window's (`WindowDialogs`), under the address bar.
             panel(bar, rows, settings)
-                .padding(.top, Design.System.commandBarTop)
+                .padding(.top, anchor == nil ? Design.System.commandBarTop : 0)
                 .transition(.opacity)
                 .onAppear { typing = true }
                 .onChange(of: bar.query + "\u{0}" + (bar.engine ?? ""), initial: true) {
@@ -47,8 +49,8 @@ struct CommandBarView: View {
                 if let engine = bar.engine { chip(engine) }
                 field(bar, rows, selection, settings)
             }
-            .padding(.horizontal, Design.Space.xl)
-            .frame(height: Design.Size.fieldLarge)
+            .padding(.horizontal, anchor == nil ? Design.Space.xl : layout.tabPaddingLeading)
+            .frame(height: anchor.map { Double($0.height) } ?? Design.Size.fieldLarge)
             if !rows.isEmpty {
                 Divider().opacity(Design.Fill.fainterDivider)
                 ChoiceList(rows: rows, selection: selection, radius: layout.tabRadius) { run(rows, $0, action: 0) }
@@ -56,7 +58,7 @@ struct CommandBarView: View {
                 Text("Nothing matches").foregroundStyle(.secondary).padding(Design.Space.xl)
             }
         }
-        .frame(width: Design.Width.commandBar)
+        .frame(width: anchor.map { Double($0.width) } ?? Design.Width.commandBar)
         // The bars' tint (`appearance.barTint`), its scheme set inside the glass, as the address bar's groups (owner,
         // 2026-11-13); the backdrop under it blurs the rest.
         .environment(\.colorScheme, scheme)
@@ -65,7 +67,7 @@ struct CommandBarView: View {
         .overlay(alignment: .top) {
             if bar.showsActions, rows.indices.contains(selection) {
                 CommandBarActionsPanel(tabs: tabs, row: rows[selection], radius: style.leafRadius)
-                    .padding(.top, Design.Size.fieldLarge + Design.Space.s)
+                    .padding(.top, (anchor.map { Double($0.height) } ?? Design.Size.fieldLarge) + Design.Space.s)
             }
         }
     }
@@ -79,9 +81,10 @@ struct CommandBarView: View {
     }
 
     private func field(_ bar: CommandBar, _ rows: [ChoiceRow], _ selection: Int, _ settings: WebSettings) -> some View {
-        TextField(bar.engine.map { "Search \($0)\u{2026}" } ?? bar.prompt, text: query)
+        let prompt = anchor != nil && bar.purpose == .search ? SidebarCommandField.prompt : bar.prompt
+        return TextField(bar.engine.map { "Search \($0)\u{2026}" } ?? prompt, text: query)
             .textFieldStyle(.plain)
-            .font(Design.Text.input)
+            .font(anchor == nil ? Design.Text.input : Design.Text.body)
             .focused($typing)
             .onKeyPress(.return, phases: .down) { press in
                 run(

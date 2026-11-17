@@ -75,7 +75,8 @@ extension TerminalScene {
                 settings: configuration,
                 windowRadius: windowRadius,
                 shown: $floatingShown,
-                opensAtOnce: $opensAtOnce
+                opensAtOnce: $opensAtOnce,
+                accessory: sidebarAddress
             )
             .transition(.opacity)
         }

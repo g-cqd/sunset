@@ -40,8 +40,10 @@ extension TerminalScene {
         )
     }
 
+    /// The sidebar's field, always there (roadmap 0035 G): the focused page's address where pages have it in the sidebar, else
+    /// the field where a search, an address or a tab is typed.
     var sidebarAddress: AnyView? {
-        guard addressPlace == .sidebar, let page = focusedPage else { return nil }
+        guard addressPlace == .sidebar, let page = focusedPage else { return AnyView(SidebarCommandField(tabs: tabs)) }
         return AnyView(AddressField(content: page).id(ObjectIdentifier(page)))
     }
 

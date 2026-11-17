@@ -34,6 +34,9 @@ package final class TabsModel {
     package var pinned: FavoritesModel? { didSet { pinned?.register(self) } }
     /// The Spaces this window can change to (the app's); nil for one whose Space is its own. Observed: drawn before set.
     package weak var spaces: SpacesModel?
+    /// Where the sidebar's field is, in the window (global coordinates), while the sidebar shows one: the command bar opens
+    /// there (roadmap 0035 G).
+    package var sidebarField: CGRect?
     /// The window is kept awake, and until when (roadmap 0035 E).
     package internal(set) var windowAwake: KeepAwake?
     /// What this window had selected in each Space it left: shown again when it comes back.

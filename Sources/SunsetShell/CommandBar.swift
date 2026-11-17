@@ -16,6 +16,8 @@ package struct CommandBar: Equatable {
     package var showsActions = false
     package var actionsQuery = ""
     package var actionsSelection = 0
+    /// Opened in the sidebar's field, in its place and its width, the rows under it (roadmap 0035 G); else over the panes.
+    package var inSidebar = false
     /// Up in an empty field went back this many entries (`TabsModel.barRecall`).
     package var recalled = 0
 
