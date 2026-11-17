@@ -12,8 +12,11 @@ package struct IconPopover: View {
     }
 
     package var body: some View {
-        IconPicker(icon: Binding(get: { tabs.icon(of: row) }, set: { tabs.setIcon($0, for: row) }))
-            .padding(Design.Space.xl)
-            .frame(width: 340)
+        IconPicker(
+            icon: Binding(get: { tabs.icon(of: row) }, set: { tabs.setIcon($0, for: row) }),
+            clearTitle: tabs.clearIconTitle(for: row)
+        )
+        .padding(Design.Space.xl)
+        .frame(width: 340)
     }
 }

@@ -10,6 +10,8 @@ package struct IconPicker: View {
     @Binding var icon: PaneIcon?
     /// Whether the colours are offered here; not when the form around the picker has a field for them.
     var showsColours = true
+    /// What the way back to no icon of its own says (a page: "Use Site Icon", roadmap 0036 A).
+    var clearTitle = "No Icon"
     @State private var catalogs: IconCatalogs? = IconLibrary.shared.ready
     @State private var query = ""
     @State private var showsEmoji = false
@@ -32,9 +34,10 @@ package struct IconPicker: View {
         .init(red: 0x98, green: 0x98, blue: 0x9D)
     ]
 
-    package init(icon: Binding<PaneIcon?>, showsColours: Bool = true) {
+    package init(icon: Binding<PaneIcon?>, showsColours: Bool = true, clearTitle: String = "No Icon") {
         _icon = icon
         self.showsColours = showsColours
+        self.clearTitle = clearTitle
     }
 
     private var searching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -81,7 +84,7 @@ package struct IconPicker: View {
             HStack {
                 moreEmoji
                 Spacer()
-                SwiftUI.Button("No Icon") { icon = nil }.disabled(icon == nil)
+                SwiftUI.Button(clearTitle) { icon = nil }.disabled(icon == nil)
             }
         }
         .onChange(of: query) { _, _ in refresh() }

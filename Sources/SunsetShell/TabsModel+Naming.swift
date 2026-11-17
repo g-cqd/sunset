@@ -49,6 +49,21 @@ extension TabsModel {
         }
     }
 
+    /// What the icon picker's way back is called for the row (roadmap 0036 A): a page goes back to its site's icon (ADR-0063),
+    /// anything else to no icon of its own.
+    package func clearIconTitle(for row: RowTarget) -> String {
+        let descriptor: PaneDescriptor?
+        switch row {
+            case .tab(let id):
+                descriptor = workspace.items.first { $0.id == id }.flatMap { content($0.focused)?.descriptor }
+            case .node(let id):
+                guard case .entry(let entry) = keeper(of: id).favorites.node(id) else { return "No Icon" }
+                let pane = entry.open?.focused ?? entry.home.focused
+                descriptor = content(pane)?.descriptor ?? entry.home.contents[pane]
+        }
+        return descriptor?.state["url"] != nil || descriptor?.kind == "web" ? "Use Site Icon" : "No Icon"
+    }
+
     /// Names a row (blank gives a tab or entry its content's title back; a folder keeps its name).
     package func rename(_ row: RowTarget, to name: String) {
         switch row {
