@@ -1,5 +1,5 @@
 ---
-status: in-progress (S-a, S-b, S-c done 2026-11-17; S-d the picture, S-e, S-f and profiles not started)
+status: in-progress (S-a, S-b, S-c and the Pinned grid P-b done 2026-11-17; S-d with the previews, S-e, S-f and profiles not started)
 blocked-by: 0018 (each step's own questions); 0020 (Favorites and folders); 0019 (the web pane, for profiles and sleeping)
 date: 2026-11-11
 ---
@@ -128,4 +128,31 @@ Not done, or not seen:
 - Not seen: scrolling the picker by hand, the pointer over a cell, the colour well (any colour), the picker on a tab's
   row (it is the same view; opened only from the Space's sheet here), editing a Space that exists from the icons' menu.
 - What 0047 listed and is still so: the swipe, Move to Space and the icons' menu were never seen; dragging is not built.
+
+## The order, as the owner changed it (2026-11-17)
+
+The Pinned grid, then acting as Chrome on some sites (roadmap 0022, W-a), then profiles, then the toggles that remove a
+scope (roadmap 0033). S-d (the picture of a tab drawn in another window) is done with the tab previews, after profiles.
+
+## P-b as built: the Pinned grid (2026-11-17; ADR-0050)
+
+- **A grid of icon tiles at the top of the sidebar**, above the Favorites, the same in every Space: twelve at most, four
+  columns that share the width, fewer as the sidebar narrows.
+- **Pin**, in a tab's menu, moves the tab into the grid, still running; the menu bar's "Pin or Unpin Tab" acts on what
+  the window shows. A tab's row dragged over the grid is given a slot and is pinned when dropped.
+- **A tile**: a click shows the entry, opening it when it is not open; a line inside the tile says it is loaded, and
+  there is none when it is not (the owner, the same day; it replaced a bar under the icon). Its menu
+  resets it to where it was pinned, unloads it, renames it, changes its icon, unpins it, deletes it.
+- Kept in the session, beside the Spaces.
+
+Seen in a test copy: a document and a terminal pinned from the menu bar (two tiles, 51 by 36 and 50 by 36, the Tabs
+list without them); a tile pressed showing its entry; both back, open, after a quit; the shown one unpinned and a tab
+again (`docs/research/sidebar/pinned-grid.png`).
+
+Not done, or not seen:
+
+- **Not seen** (none can be made in the background): a drag onto the grid and its slot, the animation of a tab moving
+  in, the tile's menu (Reset, Unload, Rename, Change Icon, Delete), the grid at two columns and at one.
+- A favourite cannot be pinned directly; tiles are not reordered by dragging; the slot is at the end, not under the
+  pointer; no grid with the built-in tab bar. ADR-0050 has the list.
 

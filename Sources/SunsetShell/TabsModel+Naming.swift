@@ -27,7 +27,7 @@ extension TabsModel {
                 guard let item = workspace.items.first(where: { $0.id == id }) else { return "" }
                 return item.customTitle ?? content(item.focused)?.title ?? ""
             case .node(let id):
-                switch favorites.favorites.node(id) {
+                switch keeper(of: id).favorites.node(id) {
                     case .folder(let folder): return folder.name
                     case .entry(let entry):
                         return entry.title ?? entry.open.flatMap { content($0.focused)?.title } ?? ""
@@ -41,7 +41,7 @@ extension TabsModel {
         switch row {
             case .tab(let id): workspace.items.first { $0.id == id }?.customIcon
             case .node(let id):
-                switch favorites.favorites.node(id) {
+                switch keeper(of: id).favorites.node(id) {
                     case .folder(let folder): folder.icon
                     case .entry(let entry): entry.icon
                     case nil: nil
@@ -53,7 +53,7 @@ extension TabsModel {
     package func rename(_ row: RowTarget, to name: String) {
         switch row {
             case .tab(let id): change { $0.setTitle(name, for: id) }
-            case .node(let id): favorites.edit { $0.rename(id, to: name) }
+            case .node(let id): keeper(of: id).edit { $0.rename(id, to: name) }
         }
         if renamingRow == row { renamingRow = nil }
     }
@@ -62,7 +62,7 @@ extension TabsModel {
     package func setIcon(_ icon: PaneIcon?, for row: RowTarget) {
         switch row {
             case .tab(let id): change { $0.setIcon(icon, for: id) }
-            case .node(let id): favorites.edit { $0.setIcon(icon, for: id) }
+            case .node(let id): keeper(of: id).edit { $0.setIcon(icon, for: id) }
         }
     }
 }

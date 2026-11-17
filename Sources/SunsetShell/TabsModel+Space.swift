@@ -84,12 +84,23 @@ extension TabsModel {
         syncStates()
     }
 
+    /// Tells every content whether it is shown and whether it has the keyboard: the Space's tabs', each by the window it is
+    /// live in, and the panes of the kept entry this window shows.
+    func syncStates() {
+        space.syncStates()
+        guard workspace.selectedEntry != nil, showsLive else { return }
+        let focused = shownPane
+        for pane in shownEntry?.open?.panes ?? [] {
+            content(pane)?.setState(focused: pane == focused, visible: true)
+        }
+    }
+
     // MARK: Session
 
     /// This window as the session keeps it: its Space, and what it had selected of what the session keeps.
     package func savedView() -> SavedView {
         let selected = space.tabs.items.first { $0.id == selectedID }.flatMap { space.keeps($0) ? $0.id : nil }
-        let entry = selectedEntry.flatMap { favorites.favorites.entry($0)?.isOpen == true ? $0 : nil }
+        let entry = selectedEntry.flatMap { keeper(of: $0).favorites.entry($0)?.isOpen == true ? $0 : nil }
         return SavedView(space: space.space.id, selected: entry == nil ? selected : nil, entry: entry)
     }
 

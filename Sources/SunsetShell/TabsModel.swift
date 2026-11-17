@@ -27,6 +27,8 @@ package final class TabsModel {
         }
     }
     @ObservationIgnored var canMake = false
+    /// The Pinned grid this window shows (the app's); nil for a window that has none (a private one).
+    package var pinned: FavoritesModel? { didSet { pinned?.register(self) } }
     /// The Spaces this window can change to (the app's); nil for a window whose Space is its own. Observed: what shows the
     /// Spaces is drawn before a window is among them.
     package weak var spaces: SpacesModel?
@@ -122,7 +124,9 @@ package final class TabsModel {
     /// A new terminal beside the focused pane, in the same tab, with the keyboard; nothing when there is no focused pane.
     package func newSplit(_ edge: PaneEdge) {
         if shownEntry != nil, let target = shownPane {
-            if favorites.addPane(beside: target, edge: edge, content: makeContent(nil)) { syncStates() }
+            if keeper(ofPane: target)?.addPane(beside: target, edge: edge, content: makeContent(nil)) == true {
+                syncStates()
+            }
             return
         }
         guard let target = workspace.selectedPane, let pane = workspace.addPane(beside: target, edge: edge) else {
@@ -235,16 +239,5 @@ package final class TabsModel {
     func finishClosing() {
         onChange()
         if workspace.isEmpty, workspace.selectedEntry == nil, favorites.isEmpty { emptied() } else { syncStates() }
-    }
-
-    /// Tells every content whether it is shown and whether it has the keyboard: the Space's tabs', each by the window it is
-    /// live in, and the panes of the kept entry this window shows.
-    func syncStates() {
-        space.syncStates()
-        guard workspace.selectedEntry != nil, showsLive else { return }
-        let focused = shownPane
-        for pane in shownEntry?.open?.panes ?? [] {
-            favorites.contents[pane]?.setState(focused: pane == focused, visible: true)
-        }
     }
 }

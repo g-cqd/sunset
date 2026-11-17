@@ -29,7 +29,7 @@ extension TabsModel {
         let back = selections[other.space.id]
         let item = back?.selected ?? other.lastShown ?? other.tabs.items.first?.id
         workspace = workspace.selecting(item, entry: nil)
-        if let entry = back?.entry, other.favorites.favorites.entry(entry)?.isOpen == true { select(entry: entry) }
+        if let entry = back?.entry, keeper(of: entry).favorites.entry(entry)?.isOpen == true { select(entry: entry) }
         syncStates()
         onChange()
     }

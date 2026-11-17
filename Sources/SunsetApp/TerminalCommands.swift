@@ -86,6 +86,7 @@ struct TerminalCommands: Commands {
             Button("Move Pane to Its Own Tab") { AppActions.shared.moveFocusedPaneToTab() }
             Divider()
             Button("Rename Tab…") { AppActions.shared.renameTab() }
+            Button("Pin or Unpin Tab") { AppActions.shared.togglePinned() }
         }
         CommandMenu("History") {
             Button("Back") { page?.goBack() }.keyboardShortcut("[").disabled(page?.canGoBack != true)

@@ -59,6 +59,7 @@ package struct TabSidebar: View {
     package var body: some View {
         ScrollView {
             LazyVStack(spacing: layout.tabSpacing) {
+                PinnedGrid(tabs: tabs, layout: layout)
                 FavoritesSection(tabs: tabs, settings: settings, layout: layout)
                 ForEach(tabs.workspace.items) { item in row(item) }
             }
@@ -186,6 +187,7 @@ package struct TabSidebar: View {
                 Button("Rename") { tabs.renamingRow = .tab(item.id) }
                 Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item.id) }
                 Button("Add to Favorites") { tabs.keep(item: item.id) }
+                Button("Pin") { withAnimation(layout.smooth) { _ = tabs.pin(item: item.id) } }.disabled(!tabs.canPin)
                 Button("New Folder with This Tab") { tabs.newFolder(with: item.id) }
                 Button("Close Tab") { tabs.close(item: item.id) }
                 Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }

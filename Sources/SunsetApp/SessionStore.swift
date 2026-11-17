@@ -40,6 +40,7 @@ final class SessionStore {
     func load(enabled: Bool, namedCommand: Bool) {
         active = !namedCommand
         guard !namedCommand, let session = read(), let first = session.spaces.first else { return }
+        AppFavorites.pinned.restore(session.pinned, reopening: enabled)
         guard hostsTabs else {
             // A window is one tab: the first Space's saved tabs each wait for a window; the other Spaces are kept as they are.
             let named = SavedSpace(space: first.space, favorites: first.favorites)
@@ -161,14 +162,18 @@ final class SessionStore {
                 favorites: AppFavorites.shared.saved()
             )
             let session = SpacesSession(old, space: AppSpaces.shared.space)
-            return SpacesSession(spaces: session.spaces + spaces.dropFirst(), views: session.views)
+            return SpacesSession(
+                spaces: session.spaces + spaces.dropFirst(),
+                views: session.views,
+                pinned: AppFavorites.pinned.saved()
+            )
         }
         var views: [SavedView] = []
         if windows {
             views = open.filter { AppSpaces.all.contains($0.space) }.map { $0.savedView() } + pendingViews
             if views.isEmpty, let lastView { views = [lastView] }
         }
-        return SpacesSession(spaces: spaces, views: views)
+        return SpacesSession(spaces: spaces, views: views, pinned: AppFavorites.pinned.saved())
     }
 
     /// The session as JSON a person can read, for Export All (R12 step ST-6): the open windows whatever the restoring setting.
@@ -179,7 +184,8 @@ final class SessionStore {
     /// There is something to write: the windows when restoring is on, and the Favorites whenever there are any.
     private var writes: Bool {
         active && !frozen && !locked && seal != nil
-            && (restoresWindows || AppSpaces.all.spaces.count > 1 || !AppFavorites.shared.favorites.isEmpty)
+            && (restoresWindows || AppSpaces.all.spaces.count > 1 || !AppFavorites.shared.favorites.isEmpty
+                || !AppFavorites.pinned.favorites.isEmpty)
     }
 
     /// The app is quitting: the last write, then no more (see `frozen`).

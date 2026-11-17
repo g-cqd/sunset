@@ -6,7 +6,9 @@ extension TabsModel {
     /// User-initiated request to close a pane: when a command is running in it, arms its tab for confirmation first (`n28`). A pane of a kept entry
     /// closes the same way, and its last pane unloads the entry (it stays in the Favorites).
     package func requestClose(pane: PaneID) {
-        if let entry = favorites.favorites.entry(containing: pane), let item = entry.open, let model = content(pane) {
+        if let favorites = keeper(ofPane: pane), let entry = favorites.favorites.entry(containing: pane),
+            let item = entry.open, let model = content(pane)
+        {
             guard confirmed(.pane(pane, in: item.id), isBusy: model.closeWarning != nil) else { return }
             return losingNothing(closing: [pane]) { [self] in
                 favorites.close(pane: pane)

@@ -6,6 +6,7 @@ extension TabsModel {
     /// The pane that holds `content`, in this window's tabs or in an open kept entry.
     package func pane(of content: any PaneContent) -> PaneID? {
         contents.first { $0.value === content }?.key ?? favorites.contents.first { $0.value === content }?.key
+            ?? pinned?.contents.first { $0.value === content }?.key
     }
 
     /// The content of the kind `kind` in this window's tabs or in the kept entry it shows: for a kind there is one of in a window
@@ -41,7 +42,7 @@ extension TabsModel {
     /// `content` in a new pane on `edge` of the pane of `opener` (a kept entry's pane too), with the keyboard.
     package func split(_ edge: PaneEdge, with content: any PaneContent, beside opener: any PaneContent) {
         guard let target = pane(of: opener) else { return insertTab(content, after: opener, show: true) }
-        if favorites.favorites.entry(containing: target) != nil {
+        if let favorites = keeper(ofPane: target) {
             if favorites.addPane(beside: target, edge: edge, content: content) { syncStates() }
             return
         }
