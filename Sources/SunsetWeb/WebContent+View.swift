@@ -17,6 +17,7 @@ extension WebContent {
         LinkHover.install(on: configuration, for: self)
         WebNotifications.install(on: configuration, for: self)
         IconWatch.install(on: configuration, for: self)
+        TextWatch.install(on: configuration, for: self)
         if settings.agentScripts { AgentScript.install(on: configuration) }
         WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
         WebPermissionHooks.enable(on: configuration.preferences)
@@ -107,6 +108,15 @@ extension WebContent {
                 takePicture()
             }
         }
+    }
+
+    /// The page's text changed and its title did not (`TextWatch`): pictured once, it is pictured again, as for a new title,
+    /// at most every two seconds (roadmap 0042 D).
+    func textChanged(at now: Double) {
+        guard picture != nil, !isLoading else { return }
+        if let last = lastTextPicture, now >= last, now - last < Double(TextWatch.interval) / 1000 { return }
+        lastTextPicture = now
+        takePicture()
     }
 
     func changed(url new: URL?) {

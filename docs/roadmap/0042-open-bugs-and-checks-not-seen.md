@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress
 blocked-by: nothing
 date: 2026-11-17
 ---
@@ -14,14 +14,14 @@ tasks for everything").
 | A | n2: the Library's document list empty though there are documents (not reproduced in thirty rounds; the owner has no steps) | not-started |
 | B | A split holding a page opened from a document "not considered as a web tab" (a GitHub link) | not-started |
 | C | A context menu on a link in a rendered document (Open in New Tab, Beside, New Window, Copy Link): needs AemiMarkdown to hand the menu to Sunset | not-started |
-| D | A page whose text changes without its title is not pictured again for its card | not-started |
+| D | A page whose text changes without its title is not pictured again for its card | done: `TextWatch`, a script in Sunset's own world, posts at most every two seconds; pictured again (`WebPictureTextTests`, red: not in a minute) |
 | E | Seen on screen: the separator under the Pinned grid; the Library's way back on a right sidebar; scroll views not bouncing; a drag from another window lighting this window's gaps; a kept entry's Keep Mac Awake menu; a drag into a window of another profile | not-started |
 | G | The keep-awake cup's slash is drawn over the symbol, not a native slash variant (the owner, 2026-11-17). SF Symbols has no `cup.and.saucer.slash` (searched: none of the ~200 `.slash` symbols is a cup): a custom symbol made from the cup with SF Symbols' slash (its gap cut, as the system's), or another symbol that has a slash variant | not-started |
 | F | Seen on screen: a page's notification in Notification Centre, its click, its tag and close (needs the test copy allowed to notify) | not-started |
 
 ## Not done
 
-Everything above.
+A, B (not reproduced), C, E, F, G.
 
 ## Not to be done
 

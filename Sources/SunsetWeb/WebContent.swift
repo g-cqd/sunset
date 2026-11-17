@@ -50,6 +50,8 @@ package final class WebContent: PaneContent {
     package internal(set) var picture: CGImage?
     /// When a title change last asked for a picture (seconds of uptime).
     @ObservationIgnored var lastTitlePicture: Double?
+    /// When the page was last pictured again for a change of its text (roadmap 0042 D).
+    @ObservationIgnored var lastTextPicture: Double?
     /// A snapshot was asked for and has not arrived.
     @ObservationIgnored package internal(set) var takingPicture = false
     /// It was on screen at the last `setState`.
