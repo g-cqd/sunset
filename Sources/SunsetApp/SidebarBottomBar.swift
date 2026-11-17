@@ -29,7 +29,9 @@ struct SidebarBottomBar: View {
             } else {
                 plus
             }
-            // The Spaces, between the two ends (R4): there once a second exists.
+            // The Spaces, centred between the two ends (R4; the owner, 2026-11-17): there once a second exists. The row
+            // takes the width between the buttons; with one Space it is not there and the width is left empty.
+            Spacer(minLength: 0)
             SpacesRow(tabs: tabs)
             Spacer(minLength: 0)
             if side == .left {

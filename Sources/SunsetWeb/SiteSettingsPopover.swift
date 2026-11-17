@@ -26,10 +26,30 @@ struct SiteSettingsPopover: View {
                 }
             }
             .disabled(host.isEmpty)
+            Divider()
+            HStack {
+                Label("Appears as", systemImage: "theatermasks")
+                Spacer()
+                Picker("Appears as", selection: agentBinding) {
+                    Text("Default (\(content.settings.agent.title))").tag(BrowserAgent?.none)
+                    ForEach(BrowserAgent.allCases, id: \.self) { Text($0.title).tag(BrowserAgent?.some($0)) }
+                }
+                .labelsHidden()
+                .fixedSize()
+            }
+            .disabled(host.isEmpty)
+            Text("What this site and its subdomains are told Sunset is. The page loads again.")
+                .font(Design.Text.detail)
+                .foregroundStyle(.secondary)
             Text("Some apply when the page is opened again (sound, pop-ups).").font(Design.Text.detail)
                 .foregroundStyle(.secondary)
         }
         .padding(Design.Space.xl)
+    }
+
+    /// The site's own rule (nil: none, the default); changing it loads the page again.
+    private var agentBinding: Binding<BrowserAgent?> {
+        Binding(get: { content.agents.rule(for: content.siteHost) }, set: { content.appear(as: $0) })
     }
 
     private func binding(_ permission: SitePermission, _ host: String) -> Binding<PermissionAnswer> {

@@ -156,3 +156,12 @@ Not done, or not seen:
 - A favourite cannot be pinned directly; tiles are not reordered by dragging; the slot is at the end, not under the
   pointer; no grid with the built-in tab bar. ADR-0050 has the list.
 
+## The owner's notes of 2026-11-17 on Spaces (n79, n80, n81)
+
+- **n81, done**: the Spaces' icons are buttons of the sidebar, of the size and with the hover of the + and the Library,
+  and the row is centred between the two ends (measured: its middle at 1805.5, the middle of the gap at 1805.5;
+  `docs/research/sidebar/spaces-row-centred.png`). Not seen: the hover itself.
+- **n79, not done yet**: the Space being left stays in sight until the snap ends (t288).
+- **n80, for profiles**: what is open in a profile shows as active in every Space of that profile, pinned and
+  favourites; a question for P-a, since a new Space has a copy of the Favorites today (t152).
+

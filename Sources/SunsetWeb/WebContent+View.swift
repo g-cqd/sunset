@@ -25,6 +25,7 @@ extension WebContent {
                 permissions.answer(.autoplay, for: host) == .allow ? [] : .audio
         }
         let view = SunsetWebView(frame: .zero, configuration: configuration)
+        view.customUserAgent = agent(for: url).userAgent
         view.isInspectable = settings.developer
         view.allowsBackForwardNavigationGestures = true
         view.allowsMagnification = true

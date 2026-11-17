@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress (W-a done 2026-11-17; the rest not started)
 blocked-by: 0018 (each step's own questions); 0019 (the web pane); 0021 (Spaces and profiles)
 date: 2026-11-11
 ---
@@ -38,3 +38,29 @@ refined and nothing built (task t261; questions and probes first):
 | A proxy set in Sunset, for the whole app first, later per profile or per Space | W-f (t158), which no longer waits for profiles for its first form | Apple's documentation lists `WKWebsiteDataStore.proxyConfigurations` (macOS 14 and later), an array of the Network framework's `ProxyConfiguration`. Not tried here: which kinds it takes, whether every path of a store goes through it (downloads, favicons, suggestions, our own `URLSession`s), and where credentials are kept |
 | Extensions that set a proxy work | The extensions study (t161) | Whether WebKit's extension engine (`WKWebExtension`, macOS 15.4 and later) offers the `proxy` interface to an extension is not known: to be read in WebKit's source and tried with one such extension |
 | DNS over HTTPS, TLS or QUIC, set in Sunset | A probe of its own, before anything is promised | The Network framework has `NWParameters.PrivacyContext.requireEncryptedNameResolution` with a resolver over TLS or HTTPS, for connections an app makes itself; nothing public was found that gives a resolver to a web view, and none for DNS over QUIC. A way that would not need one: a proxy inside Sunset that resolves names itself, which the pages are sent through. Unproven |
+
+## W-a as built: appearing as another browser (2026-11-17; ADR-0051)
+
+Taken before profiles at the owner's asking. His answers are in the ADR.
+
+- **Chrome, Edge, Firefox or Safari on macOS**: what the User-Agent says, in every request of the page, to its scripts,
+  and in Sunset's own request for the tab's icon.
+- **Per site**: the site's panel in the address field has "Appears as" (Default, Safari, Chrome, Edge, Firefox); the rule
+  is for the site and its subdomains, kept sealed, and the page loads again.
+- **For every site**: `web.agent`, in Settings > Web > Websites ("Sites see Sunset as"), with the sites that have a rule
+  listed under it, each changeable or removed.
+- **Versions** are the vendors', written into the build by `Scripts/update-agent-versions.sh` (Chrome 158, Edge 152,
+  Firefox 160 on 2026-11-17).
+
+Probed with a server on this machine that says what it was sent (`BrowserAgentTests`, and on screen): the default; a
+site's rule on the very navigation that goes to it; `navigator.userAgent`; back to WebKit's own; no `Sec-CH-UA`. Seen in
+a test copy: "Appears as" set to Chrome on `localhost`, the page loaded again as Chrome 158, the rule and the icon's
+request still Chrome after a quit (`docs/research/web/agent-chrome-on-a-site.png`).
+
+Not done, or not seen:
+
+- **Only the User-Agent**: no client hints (WebKit has none), nothing of what scripts can probe, nothing of the
+  connection. A site that checks more than the User-Agent can tell; whether the owner's sites do is his to try.
+- **Not seen**: the row in Settings (tested as a setting; not looked at), a real site.
+- The search suggestions' request still names Sunset (t290). No shipped list (W-b). The later rungs.
+

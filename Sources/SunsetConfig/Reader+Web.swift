@@ -46,6 +46,8 @@ extension Reader {
                 if let scope = choice(path, value, as: Configuration.Web.ZoomScope.self) {
                     configuration.web.zoomScope = scope
                 }
+            case "agent":
+                if let agent = choice(path, value, as: Configuration.Web.Agent.self) { configuration.web.agent = agent }
             case "historyKeep":
                 if let keep = choice(path, value, as: Configuration.Web.HistoryKeep.self) {
                     configuration.web.historyKeep = keep

@@ -42,6 +42,12 @@ extension Configuration {
             case site, session, page
         }
 
+        /// The browser a site with no rule of its own is shown (roadmap 0022, W-a): Safari is Sunset as it is; the others
+        /// change what the User-Agent says, and nothing else of the engine.
+        public enum Agent: String, Sendable, Equatable, CaseIterable {
+            case safari, chrome, edge, firefox
+        }
+
         /// How long the history keeps a page (web step e).
         public enum HistoryKeep: String, Sendable, Equatable, CaseIterable {
             case day, week, twoWeeks, month, year, forever
@@ -91,6 +97,7 @@ extension Configuration {
         /// A host typed without a scheme that fails over https is tried over http (marked Not Secure).
         public var httpFallback = false
         public var zoomScope = ZoomScope.site
+        public var agent = Agent.safari
         /// Zoom makes only the text bigger, not the images (WebKit's private text zoom; nothing where it is missing).
         public var textOnlyZoom = false
         public var historyKeep = HistoryKeep.year

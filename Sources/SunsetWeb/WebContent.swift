@@ -58,6 +58,8 @@ package final class WebContent: PaneContent {
 
     /// Followed when the configuration changes (`TerminalScene`); the engine, suggestions and http fallback apply at once.
     @ObservationIgnored package var settings: WebSettings
+    /// The browser each site is shown (W-a): the app's rules; a test gives its own.
+    @ObservationIgnored package var agents = SiteAgents.shared
     @ObservationIgnored var savedHistory: Data?
     @ObservationIgnored var observations: [NSKeyValueObservation] = []
     @ObservationIgnored var coordinator: WebCoordinator?

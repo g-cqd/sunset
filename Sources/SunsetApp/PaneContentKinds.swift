@@ -41,7 +41,7 @@ import SunsetWeb
         let added = web.engines.map {
             SearchEngine(name: $0.name, keyword: $0.keyword, search: $0.search, suggest: $0.suggest)
         }
-        return WebSettings(
+        var settings = WebSettings(
             applicationName: safariName,
             developer: web.developer,
             initialIcon: web.tabIcon != .globe,
@@ -55,6 +55,8 @@ import SunsetWeb
             zoomScope: web.zoomScope == .site ? .site : (web.zoomScope == .session ? .session : .page),
             textOnlyZoom: web.textOnlyZoom
         )
+        settings.agent = BrowserAgent(rawValue: web.agent.rawValue) ?? .safari
+        return settings
     }
 
     /// The settings for what the command bar opens or suggests in `tabs`: private in a private window, or when its shown page is private.

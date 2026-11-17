@@ -24,6 +24,8 @@ package struct WebSettings: Sendable, Equatable {
     package var privacy: PagePrivacy?
     /// Suggestions while typing in a private page (`web.privateSuggestions`).
     package var privateSuggestions = false
+    /// The browser a site with no rule of its own is shown (`web.agent`): Safari is Sunset as it is.
+    package var agent = BrowserAgent.safari
 
     /// Whether what is typed is sent for suggestions: `suggestions`, or for a private page `privateSuggestions`.
     package var suggestsWhileTyping: Bool { privacy == nil ? suggestions : privateSuggestions }

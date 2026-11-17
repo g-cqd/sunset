@@ -58,7 +58,18 @@ extension SettingsOption {
                 "camera microphone location notifications popup permission screen",
                 .websites
             )
-            .setting(Configuration.Web.permissionNames.map { "web.permissions.\($0)" })
+            .setting(Configuration.Web.permissionNames.map { "web.permissions.\($0)" }),
+            // The default for every site, and under it the sites that have a rule of their own (kept sealed, not in the file).
+            custom(
+                "web.agent",
+                "Sites see Sunset as",
+                "user agent chrome edge firefox safari appear impersonate browser disguise site rule",
+                .siteAgents
+            )
+            .noted(
+                "Changes what Sunset says it is (the User-Agent) at a page's next load, and nothing else: the engine is "
+                    + "still WebKit, and a site can tell. A site can be given its own, from its panel in the address field."
+            )
         ]
 
     /// For developers.

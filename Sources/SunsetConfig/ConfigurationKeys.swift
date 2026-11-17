@@ -39,7 +39,7 @@ public enum ConfigurationKeys {
         "web.address", "web.windowBar", "web.splitBar", "web.fullFrameRate", "web.engine", "web.engines",
         "web.suggestions",
         "web.httpFallback",
-        "web.zoomScope", "web.textOnlyZoom",
+        "web.zoomScope", "web.textOnlyZoom", "web.agent",
         "web.historyKeep", "web.clearHistoryOnQuit", "web.clearWebsiteDataOnQuit",
         "web.downloadFolder", "web.askWhereToSave", "web.openSafeDownloads", "web.notifyDownloads",
         "web.approveRiskyDownloads", "web.keepDownloads",
