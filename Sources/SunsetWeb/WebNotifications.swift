@@ -59,7 +59,9 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
             static get permission() { return permission; }
             static get maxActions() { return 0; }
             static requestPermission(callback) {
-              return bridge.postMessage({ kind: "request" }).then(answer => {
+              // As Safari: only from what the person did (a click, a key) is anybody asked.
+              const activated = !!(navigator.userActivation && navigator.userActivation.isActive);
+              return bridge.postMessage({ kind: "request", activated }).then(answer => {
                 permission = answer;
                 if (typeof callback === "function") callback(answer);
                 return answer;

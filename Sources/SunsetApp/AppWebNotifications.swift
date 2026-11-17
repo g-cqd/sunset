@@ -41,10 +41,13 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
             content.sound = note.silent ? nil : .default
             // A later one with the same tag is a new alert: macOS shows a replaced banner again.
             content.interruptionLevel = .active
-            if let file = await page.notificationIcon(for: note),
-                let picture = try? UNNotificationAttachment(identifier: "icon", url: file)
-            {
-                content.attachments = [picture]
+            if let file = await page.notificationIcon(for: note) {
+                // The centre moves the file it takes; one it refuses is ours to remove.
+                if let picture = try? UNNotificationAttachment(identifier: "icon", url: file) {
+                    content.attachments = [picture]
+                } else {
+                    try? FileManager.default.removeItem(at: file)
+                }
             }
             try? await center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: nil))
         }

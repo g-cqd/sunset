@@ -6,6 +6,9 @@ import WebKit
 /// not loaded shows it too; an icon the page changes while it runs (`IconWatch`) replaces the one kept. Private pages show their
 /// mask, and fetch and keep nothing.
 extension WebContent {
+    /// The most read of a site's icon.
+    static let faviconLimit = 1 << 20
+
     /// Hosts that have no icon, this run: not asked again until the next.
     @MainActor private static var missing: Set<String> = []
 
@@ -23,7 +26,11 @@ extension WebContent {
             """
         webView.evaluateJavaScript(script) { [weak self] value, _ in
             let answer = value as? [String] ?? []
+            // What the page names, from the web only (white paper §9): never a file of the Mac.
             let declared = answer.first.flatMap { $0.isEmpty ? nil : URL(string: $0) }
+                .flatMap {
+                    WebFetch.allows($0) ? $0 : nil
+                }
             let agent = answer.count > 1 ? answer[1] : nil
             MainActor.assumeIsolated {
                 guard let self else { return }
@@ -53,13 +60,11 @@ extension WebContent {
         // Not asked for at all when the page did not say what it is: better no icon than a request that names Sunset.
         guard let address, let agent, !agent.isEmpty else { return }
         Task { @MainActor [weak self] in
-            let session = URLSession(configuration: .ephemeral)
-            var request = URLRequest(url: address.absoluteURL)
-            request.setValue(agent, forHTTPHeaderField: "User-Agent")
-            let fetched = try? await session.data(for: request)
+            let fetched = await WebFetch.data(address, agent: agent, limit: Self.faviconLimit)
             guard let self else { return }
-            let expires = FaviconStore.expiry(of: fetched?.1 as? HTTPURLResponse, at: Date())
-            if let data = fetched?.0, icons.keep(host: host, source: address.absoluteURL, data: data, expires: expires)
+            let expires = FaviconStore.expiry(of: fetched?.response as? HTTPURLResponse, at: Date())
+            if let data = fetched?.data,
+                icons.keep(host: host, source: address.absoluteURL, data: data, expires: expires)
             {
                 Self.missing.remove(host)
             } else if icons.image(for: host) == nil {

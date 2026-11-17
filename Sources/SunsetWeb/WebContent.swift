@@ -69,6 +69,8 @@ package final class WebContent: PaneContent {
     @ObservationIgnored var lastNotification: Double?
     /// Sites allowed to notify once, for this page's life (Allow Once).
     @ObservationIgnored var notificationHosts: Set<String> = []
+    /// A notification question of this page is shown: another asked meanwhile is answered at once.
+    @ObservationIgnored var notificationAsking = false
     /// A page this one opened, and where it goes.
     @ObservationIgnored package var onOpen: (WebContent, WebPlacement) -> Void = { _, _ in }
     /// The history visits are written to (web step e); nil keeps none (tests, and private pages in step h).

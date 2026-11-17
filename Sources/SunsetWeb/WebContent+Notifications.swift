@@ -5,7 +5,7 @@ import WebKit
 /// standing answer; what may be shown is handed to the app (`onNotify`), which posts it to the system.
 extension WebContent {
     /// Answers the page's `Notification`: `permission` (the API's word for the site's answer), `request` (asks the person when the
-    /// site was not answered), `show` (true when it was handed on). Only the page itself, not a frame in it, and only by the
+    /// site was not answered, from a gesture, one question at a time), `show` (true when it was handed on). Only the page itself, not a frame in it, and only by the
     /// site WebKit says it is; at most one a second.
     func notificationAsked(
         _ kind: String,
@@ -19,12 +19,14 @@ extension WebContent {
             case "permission":
                 return notificationWord(host)
             case "request":
-                if permissions.answer(.notifications, for: host) == .ask, !notificationHosts.contains(host),
-                    await ask([.notifications], host: host)
-                {
-                    // Allow Once: for this page's life.
-                    notificationHosts.insert(host)
-                }
+                // Asked only from what the person did, and one question at a time: else the site's answer as it stands.
+                guard fields["activated"] as? Bool == true, !notificationAsking,
+                    permissions.answer(.notifications, for: host) == .ask, !notificationHosts.contains(host)
+                else { return notificationWord(host) }
+                notificationAsking = true
+                defer { notificationAsking = false }
+                // Allow Once: for this page's life.
+                if await ask([.notifications], host: host) { notificationHosts.insert(host) }
                 return notificationWord(host)
             case "show":
                 guard notificationWord(host) == "granted" else { return false }

@@ -11,11 +11,9 @@ extension WebContent {
     package func notificationIcon(for note: WebNotification) async -> URL? {
         guard let address = note.icon, !isPrivate || address.scheme == "data" else { return nil }
         let agent = try? await webView?.evaluateJavaScript("navigator.userAgent") as? String
-        guard let agent, !agent.isEmpty else { return nil }
-        var request = URLRequest(url: address)
-        request.setValue(agent, forHTTPHeaderField: "User-Agent")
-        guard let (data, _) = try? await URLSession(configuration: .ephemeral).data(for: request),
-            data.count <= Self.notificationIconLimit, let png = FaviconStore.small(data, side: 256)
+        guard let agent, !agent.isEmpty,
+            let (data, _) = await WebFetch.data(address, agent: agent, limit: Self.notificationIconLimit),
+            let png = FaviconStore.small(data, side: 256)
         else { return nil }
         let file = FileManager.default.temporaryDirectory.appendingPathComponent(
             "sunset-notification-\(UUID().uuidString).png"
