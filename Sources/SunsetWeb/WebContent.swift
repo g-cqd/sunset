@@ -48,6 +48,8 @@ package final class WebContent: PaneContent {
     @ObservationIgnored package internal(set) var webView: WKWebView?
     /// The page's last snapshot (`takePicture`).
     package internal(set) var picture: CGImage?
+    /// A snapshot was asked for and has not arrived.
+    @ObservationIgnored package internal(set) var takingPicture = false
     /// It was on screen at the last `setState`.
     @ObservationIgnored var shown = false
 
@@ -124,10 +126,12 @@ package final class WebContent: PaneContent {
     /// A snapshot of the page as it is drawn now (roadmap 0035 C, J): kept as its `picture` when it arrives.
     package func takePicture() {
         guard let webView, webView.window != nil, webView.bounds.width > 0, webView.bounds.height > 0 else { return }
+        takingPicture = true
         webView.takeSnapshot(with: nil) { [weak self] image, _ in
             MainActor.assumeIsolated {
-                guard let image, let self else { return }
-                self.picture = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+                guard let self else { return }
+                self.takingPicture = false
+                if let image { self.picture = image.cgImage(forProposedRect: nil, context: nil, hints: nil) }
             }
         }
     }

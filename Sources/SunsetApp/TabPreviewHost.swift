@@ -52,6 +52,16 @@ struct TabPreviewHost: View {
         .onChange(of: tabs.hoveredItem, initial: true) { _, _ in follow() }
         .onChange(of: tabs.hoveredRowFrame) { _, _ in follow() }
         .onChange(of: tabs.dragged == nil) { _, _ in follow() }
+        // A page's snapshot taken as the pointer came arrives a moment later (roadmap 0035 C).
+        .onChange(of: hoveredHasPicture) { _, _ in follow() }
+    }
+
+    /// Whether the panes of the tab under the pointer have a picture to show: a terminal's last frame, a page's snapshot.
+    private var hoveredHasPicture: Bool {
+        guard let id = tabs.hoveredItem, let item = tabs.workspace.items.first(where: { $0.id == id }) else {
+            return false
+        }
+        return item.panes.contains { tabs.terminal($0)?.lastSurface != nil || tabs.content($0)?.picture != nil }
     }
 
     /// The point of the area nearest the row's middle, as a unit point of the area: where the card comes from.
@@ -69,9 +79,11 @@ struct TabPreviewHost: View {
             shown = nil
             return
         }
-        if let id = tabs.hoveredItem, let item = tabs.workspace.items.first(where: { $0.id == id }),
-            item.panes.contains(where: { tabs.terminal($0)?.lastSurface != nil })
-        {
+        if let id = tabs.hoveredItem, let item = tabs.workspace.items.first(where: { $0.id == id }) {
+            // A page on screen is pictured as it is now; one that is hidden keeps the picture taken as it was hidden.
+            for pane in item.panes { tabs.content(pane)?.takePicture() }
+        }
+        if hoveredHasPicture, let id = tabs.hoveredItem {
             leaving?.cancel()
             shown = Shown(item: id, row: tabs.hoveredRowFrame)
         } else {

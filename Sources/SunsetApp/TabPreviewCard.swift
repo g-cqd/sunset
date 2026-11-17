@@ -7,7 +7,7 @@ import SunsetTerminal
 import SwiftUI
 
 /// A floating card beside the row of a tab while the pointer is over it (`n36`, R2; `TabPreviewHost` places it): the tab's layout in miniature, each pane with
-/// the last frame it drew (a pane that has not drawn yet is a blank card). Drawn when asked; nothing is kept (R2).
+/// the last frame it drew, a page its last snapshot (a pane that has not drawn yet is a blank card). Drawn when asked; nothing is kept (R2).
 struct TabPreviewCard: View {
     let item: Workspace.Item
     let tabs: TabsModel
@@ -23,6 +23,8 @@ struct TabPreviewCard: View {
         for pane in item.panes {
             if let surface = tabs.terminal(pane)?.lastSurface {
                 sizes[pane] = CGSize(width: surface.width, height: surface.height)
+            } else if let picture = tabs.content(pane)?.picture {
+                sizes[pane] = CGSize(width: picture.width, height: picture.height)
             }
         }
         guard let aspect = item.layout.aspect(drawn: sizes) else { return 175 }
@@ -94,6 +96,9 @@ struct TabPreviewCard: View {
     @ViewBuilder private func picture(of pane: PaneID) -> some View {
         if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
             SurfacePreviewView(surface: surface, background: terminal.layerBackground)
+        } else if let picture = tabs.content(pane)?.picture {
+            // A page's last snapshot (roadmap 0035 C).
+            Image(decorative: picture, scale: 1).resizable().scaledToFill()
         } else {
             Color.primary.opacity(Design.Fill.open)
         }
