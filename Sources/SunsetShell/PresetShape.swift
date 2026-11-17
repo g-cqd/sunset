@@ -1,21 +1,30 @@
+import AppKit
 import SunsetPane
 import SwiftUI
 
-/// A preset drawn as its shape: its panes as rounded cells, as the green light's panel draws window tiles.
-struct PresetShape: View {
-    let preset: SplitPreset
-    @Environment(\.isEnabled) private var enabled
+/// A layout drawn as its shape (its panes as rounded cells), as a template picture for menus: no SF Symbol draws them all.
+enum PresetShape {
+    @MainActor private static var drawn: [SplitPreset: NSImage] = [:]
 
-    var body: some View {
-        Canvas { context, size in
+    /// The picture of `preset`, drawn once.
+    /// - Parameter preset: The layout.
+    /// - Returns: A template picture at a symbol's size in a menu.
+    @MainActor static func image(_ preset: SplitPreset) -> NSImage {
+        if let image = drawn[preset] { return image }
+        let size = NSSize(width: Design.Size.presetShapeWidth, height: Design.Size.presetShapeHeight)
+        let image = NSImage(size: size, flipped: true) { bounds in
             let panes = (0 ..< preset.paneCount).map { _ in PaneID() }
-            let frames = preset.layout(of: panes).frames(in: CGRect(origin: .zero, size: size), gap: Design.Space.hair)
+            let frames = preset.layout(of: panes).frames(in: bounds.insetBy(dx: 1, dy: 1), gap: 1.5)
+            NSColor.black.setFill()
             for pane in panes {
                 guard let frame = frames[pane] else { continue }
-                let cell = Path(roundedRect: frame, cornerRadius: Design.Space.hair)
-                context.fill(cell, with: .color(.accentColor.opacity(enabled ? 1 : Design.Fill.notApplicable)))
+                NSBezierPath(roundedRect: frame, xRadius: 1.5, yRadius: 1.5).fill()
             }
+            return true
         }
-        .frame(width: Design.Size.presetShapeWidth, height: Design.Size.presetShapeHeight)
+        image.isTemplate = true
+        image.accessibilityDescription = preset.title
+        drawn[preset] = image
+        return image
     }
 }

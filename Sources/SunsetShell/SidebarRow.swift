@@ -29,7 +29,7 @@ struct SidebarRow: View {
     var open = true
     /// A row of the Favorites tree: one line is `Design.Size.favoriteRow` tall instead of `tabRow`.
     var compact = false
-    /// One of several rows selected together (R3 step d): drawn lighter than the shown row.
+    /// One of several rows selected together (R3 step d): in the accent; stronger when it is also the shown row.
     var marked = false
     /// It keeps the Mac awake (roadmap 0035 E): a cup after its title.
     var awake = false
@@ -152,7 +152,12 @@ struct SidebarRow: View {
     /// Hover and selection variants of the highlight.
     private var highlight: Color {
         if armed { return .red.opacity(hovering || keepCloseVisible ? Design.Fill.armedHover : Design.Fill.armed) }
-        if marked, !selected { return accent.color.opacity(hovering ? Design.Fill.markedHover : Design.Fill.marked) }
+        switch RowEmphasis.of(shown: selected, marked: marked) {
+            case .marked: return accent.color.opacity(hovering ? Design.Fill.markedHover : Design.Fill.marked)
+            case .markedShown:
+                return accent.color.opacity(hovering ? Design.Fill.markedShownHover : Design.Fill.markedShown)
+            case .shown, .none: break
+        }
         let inactive = activeState == .inactive
         return switch (selected, hovering || keepCloseVisible) {
             case (true, true):

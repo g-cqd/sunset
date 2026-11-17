@@ -9,15 +9,6 @@ extension TabSidebar {
 
     var pinButton: some View { SidebarPinButton(sidebar: settings.sidebar, buttons: buttons, toggle: togglePin) }
 
-    /// The fourth light (t287), after the zoom button: the lights' inset and three of their pitch from the sidebar's edge.
-    var presetLight: some View {
-        let header = buttons.header
-        let along = header.lightsOrigin - margin + 3 * Design.System.lightsPitch
-        return PresetLight(tabs: tabs)
-            .padding(settings.sidebar.side == .left ? .leading : .trailing, along)
-            .padding(.top, header.lightsOrigin - margin)
-    }
-
     /// How much room the rows leave at the bottom for the app's bar.
     var bottomInset: Double { bottomBar == nil ? 0 : buttons.barRoom }
 

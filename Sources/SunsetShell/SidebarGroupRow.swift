@@ -9,10 +9,13 @@ struct SidebarGroupRow: View {
     let item: Workspace.Item
     let tabs: TabsModel
     let selected: Bool
+    /// Among several rows selected together (R3 step d).
+    var marked = false
     var armed = false
     let layout: ShellSettings.Layout
     @State private var hovering = false
     @Environment(\.controlActiveState) private var activeState
+    @Environment(\.accent) private var accent
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
@@ -70,6 +73,7 @@ struct SidebarGroupRow: View {
         )
         .onDrag { tabs.itemProvider(for: .pane(pane)) }
         .contextMenu {
+            TabLayoutMenu(tabs: tabs, row: .tab(item.id))
             Button("Rename Tab…") { tabs.beginRename(item: item.id) }
             Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
             Button("Close Pane") { tabs.requestClose(pane: pane) }
@@ -78,6 +82,12 @@ struct SidebarGroupRow: View {
 
     private var containerHighlight: Color {
         if armed { return .red.opacity(hovering ? Design.Fill.armedHover : Design.Fill.armed) }
+        switch RowEmphasis.of(shown: selected, marked: marked) {
+            case .marked: return accent.color.opacity(hovering ? Design.Fill.markedHover : Design.Fill.marked)
+            case .markedShown:
+                return accent.color.opacity(hovering ? Design.Fill.markedShownHover : Design.Fill.markedShown)
+            case .shown, .none: break
+        }
         return switch (selected, hovering) {
             case (true, _): .primary.opacity(activeState == .inactive ? Design.Fill.open : Design.Fill.openHover)
             case (false, true): .primary.opacity(Design.Fill.openHover)

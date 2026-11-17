@@ -109,7 +109,6 @@ package struct TabSidebar: View {
         .modifier(EscapeClearsMarks(tabs: tabs))
         .onHover { inside in if !inside { closingSlot = nil } }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
-        .overlay(alignment: settings.sidebar.side == .left ? .topLeading : .topTrailing) { presetLight }
         .overlay(alignment: .top) { accessoryView }
         .overlay(alignment: .top) { noticesView }
         .overlay(alignment: .bottom) { bottomBarView }
@@ -122,6 +121,7 @@ package struct TabSidebar: View {
                 item: item,
                 tabs: tabs,
                 selected: tabs.isSelected(item.id),
+                marked: tabs.isMarked(.tab(item.id)),
                 armed: armed,
                 layout: layout
             )
@@ -189,6 +189,7 @@ package struct TabSidebar: View {
                 )
             )
             .contextMenu {
+                TabLayoutMenu(tabs: tabs, row: .tab(item.id))
                 SelectionMenu(tabs: tabs, row: .tab(item.id))
                 Button("Rename") { tabs.renamingRow = .tab(item.id) }
                 Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item.id) }

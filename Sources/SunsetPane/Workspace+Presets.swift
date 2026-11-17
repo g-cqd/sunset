@@ -1,30 +1,30 @@
 extension Workspace {
-    /// Lays the tab `id` out as `preset` says (n78, t287): with too few panes, the panes of the tabs after it join, in their
-    /// order; with too many, the extra ones become tabs right after it. The tab stays selected and keeps its focus when it can.
+    /// The layouts that fit the tabs `ids` (n78, t287): those of as many panes as they hold together.
+    /// - Parameter ids: Tabs of this window.
+    /// - Returns: The presets, in their order; none when a tab is not here.
+    public func presets(for ids: [ItemID]) -> [SplitPreset] {
+        let found = ids.compactMap { id in items.first { $0.id == id } }
+        guard found.count == ids.count, !found.isEmpty else { return [] }
+        let count = found.reduce(0) { $0 + $1.panes.count }
+        return SplitPreset.allCases.filter { $0.paneCount == count }
+    }
+
+    /// Lays the tabs `ids` out together as `preset` says (the owner, 2026-11-17: several tabs selected, or one split tab):
+    /// their panes, in the sidebar's order, become one tab where the first of them is, shown; the others go.
     /// - Parameters:
-    ///   - preset: The shape.
-    ///   - id: The tab.
-    /// - Returns: False, and nothing changed, when the tab and those after it hold too few panes.
+    ///   - preset: The shape; it must take as many panes as the tabs hold.
+    ///   - ids: Tabs of this window.
+    /// - Returns: False, and nothing changed, when the preset does not fit them.
     @discardableResult
-    public mutating func apply(_ preset: SplitPreset, to id: ItemID) -> Bool {
-        guard let index = items.firstIndex(where: { $0.id == id }) else { return false }
-        let need = preset.paneCount
-        let available = items[index...].reduce(0) { $0 + $1.panes.count }
-        guard available >= need else { return false }
-        var panes = items[index].panes
-        while panes.count < need, index + 1 < items.count {
-            var next = items[index + 1]
-            let pane = next.panes[0]
-            panes.append(pane)
-            if next.remove(pane) { items[index + 1] = next } else { items.remove(at: index + 1) }
-        }
-        let extra = panes.dropFirst(need)
-        for (offset, pane) in extra.enumerated() {
-            items.insert(Item(layout: .pane(pane), focused: pane), at: index + 1 + offset)
-        }
-        let kept = Array(panes.prefix(need))
-        items[index].layout = preset.layout(of: kept)
-        if !kept.contains(items[index].focused) { items[index].focused = kept[0] }
+    public mutating func apply(_ preset: SplitPreset, to ids: [ItemID]) -> Bool {
+        guard presets(for: ids).contains(preset) else { return false }
+        let ordered = items.filter { ids.contains($0.id) }
+        let first = ordered[0]
+        let panes = ordered.flatMap(\.panes)
+        items.removeAll { ids.contains($0.id) && $0.id != first.id }
+        guard let index = items.firstIndex(where: { $0.id == first.id }) else { return false }
+        items[index].layout = preset.layout(of: panes)
+        show(first.id)
         return true
     }
 }

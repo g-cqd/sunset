@@ -19,6 +19,9 @@ extension Design {
         /// A row among several selected, and a place a drag would drop into (the accent at these opacities).
         package static let marked = 0.18
         package static let markedHover = 0.26
+        /// The shown row among several selected: the selection's accent, stronger (the owner, 2026-11-17).
+        package static let markedShown = 0.34
+        package static let markedShownHover = 0.42
         package static let target = 0.22
         /// A busy tab whose close was clicked once (red), at rest and under the pointer; its outline; its close button.
         package static let armed = 0.2
@@ -37,8 +40,6 @@ extension Design {
         package static let fainterDivider = 0.5
         /// A choice that does not apply (the icon picker's colours with no symbol, its categories while searching).
         package static let notApplicable = 0.4
-        /// A traffic light's glyph shown on hover (dark on its colour, as AppKit's).
-        package static let lightGlyph = 0.55
         /// A folder's own icon while it is collapsed.
         package static let collapsedIcon = 0.7
         /// A field's fill (primary at this opacity), and a private page's dark one (black).

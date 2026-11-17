@@ -107,14 +107,15 @@ extension HelpCatalog {
             ],
             related: [.tabs, .pinned, .favorites, .folders]
         ),
-        .layoutLight: HelpEntry(
+        .tabLayout: HelpEntry(
             title: "Laying out a tab",
             summary:
-                "The fourth light lays the tab out: side by side, stacked, three columns, one large and two, or a grid.",
+                "Select several tabs, or right-click a split tab, to lay them out side by side, stacked or in a grid.",
             text: [
-                "Click it, or rest the pointer on it, and choose a shape. With too few panes, the tabs after this one join "
-                    + "it; with too many, the extra panes become tabs after it.",
-                "Its color is the system's accent, or blue when the accent is close to the other lights' colors."
+                "⌘-click tabs to select them, then right-click one: the menu starts with the layouts for as many panes as "
+                    + "they hold. Choosing one makes them a single tab, where the first of them was.",
+                "Two panes: side by side or stacked. Three: three columns, or one large and two stacked. Four: a grid. "
+                    + "One tab that is not a split has none."
             ],
             related: [.splitTabs, .tabs]
         ),
