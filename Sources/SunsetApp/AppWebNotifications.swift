@@ -26,7 +26,8 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
     /// Posts what `page` may show (`WebContent.onNotify` has checked the site's answer and cleaned the text).
     func post(_ note: WebNotification, from page: WebContent) {
         guard Bundle.main.bundleIdentifier != nil else { return }
-        let identifier = UUID().uuidString
+        // With a tag, the site's later one with the same tag replaces it (roadmap 0036 E).
+        let identifier = note.tag.isEmpty ? UUID().uuidString : "web|\(note.host)|\(note.tag)"
         posted[identifier] = (WeakPage(page: page), note.id)
         posted = posted.filter { $0.value.page.page != nil }
         Task {
@@ -36,8 +37,23 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
             content.title = note.title.isEmpty ? note.host : note.title
             content.subtitle = note.title.isEmpty ? "" : note.host
             content.body = note.body
+            if let file = await page.notificationIcon(for: note),
+                let picture = try? UNNotificationAttachment(identifier: "icon", url: file)
+            {
+                content.attachments = [picture]
+            }
             try? await center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: nil))
         }
+    }
+
+    /// The page took a notification of its own away (`close()`).
+    func close(_ id: Int, from page: WebContent) {
+        let identifiers = posted.filter { $0.value.page.page === page && $0.value.id == id }.map(\.key)
+        guard !identifiers.isEmpty else { return }
+        for identifier in identifiers { posted[identifier] = nil }
+        let center = UNUserNotificationCenter.current()
+        center.removeDeliveredNotifications(withIdentifiers: identifiers)
+        center.removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
     nonisolated func userNotificationCenter(

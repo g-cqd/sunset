@@ -92,8 +92,9 @@ package final class FaviconStore {
         return format.date(from: text)
     }
 
-    /// The picture as a PNG no larger than `side` on its longer edge; nil when it is not a picture.
-    private static func small(_ data: Data) -> Data? {
+    /// The picture as a PNG no larger than `side` on its longer edge (`FaviconStore.side` by default); nil when it is not a
+    /// picture.
+    package static func small(_ data: Data, side: Int = side) -> Data? {
         guard let image = NSImage(data: data), image.isValid,
             let source = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
         else { return nil }

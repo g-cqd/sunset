@@ -11,6 +11,9 @@ import SunsetWeb
         page.onNotify = { [weak page] note in
             if let page { AppWebNotifications.shared.post(note, from: page) }
         }
+        page.onNotificationClose = { [weak page] id in
+            if let page { AppWebNotifications.shared.close(id, from: page) }
+        }
         page.onOpen = { [weak tabs, weak page] opened, placement in
             guard let tabs, let page else { return }
             wire(opened, in: tabs)

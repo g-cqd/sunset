@@ -36,9 +36,17 @@ extension WebContent {
                         id: id,
                         title: fields["title"] as? String ?? "",
                         body: fields["body"] as? String ?? "",
-                        host: host
+                        host: host,
+                        tag: fields["tag"] as? String ?? "",
+                        icon: fields["icon"] as? String
                     )
                 )
+                return true
+            case "close":
+                // The page takes one of its own away (roadmap 0036 E).
+                if let id = (fields["id"] as? Int) ?? (fields["id"] as? Double).map(Int.init) {
+                    onNotificationClose(id)
+                }
                 return true
             default:
                 return nil

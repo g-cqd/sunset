@@ -23,13 +23,16 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
               this.title = String(title);
               this.body = options.body == null ? "" : String(options.body);
               this.tag = options.tag == null ? "" : String(options.tag);
-              this.icon = options.icon == null ? "" : String(options.icon);
+              let icon = "";
+              try { icon = options.icon == null ? "" : new URL(String(options.icon), location.href).href; } catch (e) {}
+              this.icon = icon;
               this.data = options.data === undefined ? null : options.data;
               this.silent = !!options.silent;
               this.onclick = null; this.onshow = null; this.onerror = null; this.onclose = null;
               const id = next++;
               shown.set(id, this);
-              bridge.postMessage({ kind: "show", id, title: this.title, body: this.body })
+              this.__id = id;
+              bridge.postMessage({ kind: "show", id, title: this.title, body: this.body, tag: this.tag, icon: this.icon })
                 .then(ok => this.__fire(ok ? "show" : "error"), () => this.__fire("error"));
             }
             __fire(type) {
@@ -38,7 +41,12 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
               const handler = this["on" + type];
               if (typeof handler === "function") handler.call(this, event);
             }
-            close() { this.__fire("close"); }
+            close() {
+              if (!shown.has(this.__id)) return;
+              shown.delete(this.__id);
+              bridge.postMessage({ kind: "close", id: this.__id });
+              this.__fire("close");
+            }
             static get permission() { return permission; }
             static get maxActions() { return 0; }
             static requestPermission(callback) {

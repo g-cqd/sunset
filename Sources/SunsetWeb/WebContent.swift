@@ -61,6 +61,8 @@ package final class WebContent: PaneContent {
     @ObservationIgnored var lastIconChange: Double?
     /// A notification the page may show, to post (roadmap 0035 D).
     @ObservationIgnored package var onNotify: (WebNotification) -> Void = { _ in }
+    /// The page took a notification of its own away (`close()`, roadmap 0036 E).
+    @ObservationIgnored package var onNotificationClose: (Int) -> Void = { _ in }
     /// When it last showed one (seconds of uptime): one a second at most.
     @ObservationIgnored var lastNotification: Double?
     /// Sites allowed to notify once, for this page's life (Allow Once).
