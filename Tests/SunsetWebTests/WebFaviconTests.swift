@@ -24,36 +24,6 @@ struct WebFaviconTests {
         return "data:image/png;base64," + png.base64EncodedString()
     }
 
-    /// Waits for `condition`, looking again each time what it reads changes; given up when the test is cancelled (its
-    /// time limit), so that a regression fails instead of hanging.
-    private func until(_ condition: @escaping @MainActor () -> Bool) async {
-        final class Once: @unchecked Sendable {
-            // Touched on the main actor only.
-            var resume: (() -> Void)?
-        }
-        while !condition(), !Task.isCancelled {
-            let once = Once()
-            await withTaskCancellationHandler {
-                await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
-                    once.resume = { done.resume() }
-                    withObservationTracking {
-                        _ = condition()
-                    } onChange: {
-                        Task { @MainActor in
-                            once.resume?()
-                            once.resume = nil
-                        }
-                    }
-                }
-            } onCancel: {
-                Task { @MainActor in
-                    once.resume?()
-                    once.resume = nil
-                }
-            }
-        }
-    }
-
     @Test(.timeLimit(.minutes(1)))
     func `the icon the page names is kept for its site, and one it changes to replaces it`() async throws {
         let page = WebContent(url: nil, settings: WebSettings(applicationName: "Version/26.0 Safari/605.1.15"))
@@ -66,7 +36,7 @@ struct WebFaviconTests {
             "<html><head><link rel='icon' href='\(red)'></head><body>icons</body></html>",
             baseURL: URL(string: "https://icons.example/")
         )
-        await until { page.favicon != nil }
+        await Waiting.until { page.favicon != nil }
         try #require(page.favicon != nil)
         #expect(store.isFresh(host: "icons.example", source: URL(string: red)))
         let blue = Self.address(.blue)
@@ -75,7 +45,7 @@ struct WebFaviconTests {
             arguments: ["icon": blue],
             contentWorld: .page
         )
-        await until { store.isFresh(host: "icons.example", source: URL(string: blue)) }
+        await Waiting.until { store.isFresh(host: "icons.example", source: URL(string: blue)) }
         #expect(store.isFresh(host: "icons.example", source: URL(string: blue)), "the new one replaced it")
         page.stop()
     }

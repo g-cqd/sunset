@@ -190,6 +190,8 @@ struct PaneArea: View {
                 .scaledToFill()
                 .frame(width: frame.width, height: frame.height, alignment: .top)
                 .clipped()
+                // As it is now, when this window comes to show it (roadmap 0036 D).
+                .onAppear { content.takePicture() }
         } else {
             Color.primary.opacity(Design.Fill.faint)
         }

@@ -72,6 +72,9 @@ extension WebContent {
                     if !view.isLoading {
                         self?.progress = nil
                         self?.refreshFavicon()
+                        // Pictured once (another window shows its picture, its tab's card): pictured again as it is now
+                        // (roadmap 0036 D).
+                        if self?.picture != nil { self?.takePicture() }
                     }
                 }
             },

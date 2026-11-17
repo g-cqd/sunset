@@ -54,4 +54,29 @@ struct WebPictureTests {
         page.takePicture()
         #expect(!page.takingPicture && page.picture == nil && page.webView == nil)
     }
+
+    /// 0035's "not done" (roadmap 0036 D): a page pictured once (another window shows its picture) is pictured again when it
+    /// has loaded something new, so that the picture follows it.
+    @Test(.timeLimit(.minutes(1)))
+    func `a page pictured once is pictured again when it has loaded something new`() async throws {
+        let page = WebContent(url: nil, settings: settings)
+        page.setState(focused: true, visible: true)
+        let view = try #require(page.webView)
+        let window = NSWindow(
+            contentRect: CGRect(x: 0, y: 0, width: 320, height: 200),
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        window.isReleasedWhenClosed = false
+        window.contentView = view
+        view.loadHTMLString("<body style='background: rgb(255, 0, 0)'></body>", baseURL: nil)
+        page.takePicture()
+        let first = try #require(await picture(of: page))
+        view.loadHTMLString("<body style='background: rgb(0, 0, 255)'></body>", baseURL: nil)
+        await Waiting.until { page.picture !== first }
+        #expect(page.picture !== first, "a new picture once the new page loaded")
+        window.close()
+        page.stop()
+    }
 }
