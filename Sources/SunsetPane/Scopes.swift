@@ -16,7 +16,7 @@ public struct Scopes: Sendable, Equatable {
         public var title: String {
             switch self {
                 case .terminal: "Terminals"
-                case .web: "The web"
+                case .web: "Web"
                 case .documents: "Documents"
             }
         }

@@ -46,6 +46,11 @@ package enum Design {
         /// A row's glyph: its frame, and the symbol in it.
         package static let glyphFrame = 18.0
         package static let glyphSymbol = 15.0
+        /// A help popover's width: a short paragraph per line group, as VMRunner's (roadmap 0041 A).
+        package static let helpPopoverWidth = 320.0
+        /// Help's list of topics, and the width its text reads best at.
+        package static let helpListWidth = 220.0
+        package static let helpTextWidth = 560.0
         /// An icon button in a bar.
         package static let control = 24.0
         /// A field in a bar (the address field): a control and a point above and below for its text.

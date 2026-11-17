@@ -34,6 +34,7 @@ let package = Package(
         // The window's shell (R8): the tabs of a window and what shows them, knowing no kind of content. It does not read the configuration file: it
         // has plain settings of its own (`ShellSettings`). Package access for now: nothing is promised outside this repository.
         .library(name: "SunsetShell", targets: ["SunsetShell"]),
+        .library(name: "SunsetHelp", targets: ["SunsetHelp"]),
         // The terminal as a kind of pane content: model, view, input (R8). Package access.
         .library(name: "SunsetTerminal", targets: ["SunsetTerminal"]),
         // A web page as a kind of pane content (R1). Package access.
@@ -143,7 +144,7 @@ let package = Package(
         .target(
             name: "SunsetApp",
             dependencies: [
-                "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
+                "SunsetHelp", "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
                 "SunsetStorage", "SunsetDocuments",
                 "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal",
                 "SunsetWeb", "SunsetMarkdown", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR"),
@@ -233,9 +234,17 @@ let package = Package(
             path: "Tests/SunsetPaneTests",
             swiftSettings: strictSettings
         ),
+        // Help (roadmap 0041): its topics and their texts, one source for a control's tooltip and its explanation. No UI.
+        .target(name: "SunsetHelp", path: "Sources/SunsetHelp", swiftSettings: strictSettings),
+        .testTarget(
+            name: "SunsetHelpTests",
+            dependencies: ["SunsetHelp"],
+            path: "Tests/SunsetHelpTests",
+            swiftSettings: strictSettings
+        ),
         .target(
             name: "SunsetShell",
-            dependencies: ["SunsetPane", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR")],
+            dependencies: ["SunsetPane", "SunsetMetrics", "SunsetHelp", .product(name: "AemiSDR", package: "AemiSDR")],
             path: "Sources/SunsetShell",
             swiftSettings: strictSettings
         ),

@@ -1,3 +1,4 @@
+import SunsetHelp
 import SunsetMetrics
 import SunsetPane
 import SwiftUI
@@ -118,7 +119,7 @@ struct PinnedGrid: View {
                         .font(.system(size: Design.Symbol.badge))
                         .foregroundStyle(.secondary)
                         .padding(Design.Space.xs)
-                        .help("Keeps the Mac awake")
+                        .helpTopic(.keepAwake)
                         .accessibilityLabel("Keeps the Mac awake")
                 }
             }

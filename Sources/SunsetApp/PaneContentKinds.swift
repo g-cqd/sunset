@@ -40,6 +40,10 @@ import SunsetWeb
                 let settings = SettingsContent(descriptor)
                 settings.onChange = changed
                 return settings
+            case HelpContent.kind:
+                let help = HelpContent(descriptor)
+                help.onChange = changed
+                return help
             default:
                 return UnknownContent(descriptor)
         }

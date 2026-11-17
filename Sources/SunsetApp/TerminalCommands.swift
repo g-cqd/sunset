@@ -26,6 +26,10 @@ struct TerminalCommands: Commands {
         // What is of a scope that is off is not in the menus (roadmap 0033).
         let scopes = AppScopes.current
         // The settings are a tab of the window (roadmap 0032): there is no Settings scene to give this item.
+        // Help is a tab of its own window (roadmap 0041 E; the owner, 2026-11-17: a window reusing the shell).
+        CommandGroup(replacing: .help) {
+            Button("Sunset Help") { AppActions.shared.showHelp() }.keyboardShortcut("?", modifiers: .command)
+        }
         CommandGroup(replacing: .appSettings) {
             Button("Settings\u{2026}") { AppActions.shared.showSettings() }.keyboardShortcut(",")
         }

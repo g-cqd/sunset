@@ -14,6 +14,8 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     /// The settings, as a tab (roadmap 0032). Its state names the topic shown.
     public static let settingsKind = "settings"
     public static let settingsSymbol = "gearshape"
+    public static let helpKind = "help"
+    public static let helpSymbol = "questionmark.circle"
 
     public var kind: String
     public var state: [String: String]
@@ -36,6 +38,11 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     /// The settings on the topic `topic` ("terminal.cursor").
     public static func settings(topic: String) -> PaneDescriptor {
         PaneDescriptor(kind: settingsKind, state: ["topic": topic, "title": "Settings"])
+    }
+
+    /// Help, on the topic `topic` (roadmap 0041 E).
+    public static func help(topic: String) -> PaneDescriptor {
+        PaneDescriptor(kind: helpKind, state: ["topic": topic, "title": "Help"])
     }
 
     /// A document that is a file of the person's, by its path.

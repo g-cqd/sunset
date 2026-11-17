@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetHelp
 import SunsetShell
 import SwiftUI
 
@@ -11,8 +12,20 @@ struct SettingsRow: View {
     var body: some View {
         if let note = option.note {
             VStack(alignment: .leading, spacing: Design.Space.xs) {
-                control
+                explained
                 Text(note).font(Design.Text.detail).foregroundStyle(.secondary)
+            }
+        } else {
+            explained
+        }
+    }
+
+    /// The control, with a "?" beside it when help explains it (roadmap 0041 C).
+    @ViewBuilder private var explained: some View {
+        if let topic = HelpTopic.explaining(setting: option.id) {
+            HStack(spacing: Design.Space.s) {
+                control
+                HelpButton(topic)
             }
         } else {
             control

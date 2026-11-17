@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetHelp
 import SunsetPane
 import SunsetShell
 import SwiftUI
@@ -31,7 +32,7 @@ struct SidebarCommandField: View {
         .buttonStyle(.plain)
         // Under the command bar while it is open here: its field takes this place.
         .opacity(tabs.bar?.inSidebar == true ? 0 : 1)
-        .help("Search, enter an address, or go to a tab (⌘L)")
+        .helpTopic(.sidebarField)
         .accessibilityLabel("Search or Enter Address")
     }
 }

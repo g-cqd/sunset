@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetMetrics
+import SunsetPane
 import SunsetShell
 import SwiftUI
 
@@ -11,6 +12,8 @@ struct SettingsTopicList: View {
     let layout: LayoutMetrics
     /// A row was chosen: its tag (a topic, or a section's).
     var choose: ((String) -> Void)?
+    /// Help was chosen (roadmap 0041 E: a Help section in Settings); nil, no Help row.
+    var help: (() -> Void)?
 
     private var shown: (section: SettingsSection, topic: SettingsTopic)? {
         guard let content, !content.isSearching else { return nil }
@@ -31,6 +34,15 @@ struct SettingsTopicList: View {
                         row(topic.title, symbol: nil, selected: topic.id == shown?.topic.id, tag: topic.id)
                     }
                 }
+            }
+            if let help {
+                SettingsListRow(
+                    title: "Help",
+                    symbol: PaneDescriptor.helpSymbol,
+                    selected: false,
+                    layout: layout,
+                    action: help
+                )
             }
         }
         .animation(layout.smooth, value: shown?.section.id)

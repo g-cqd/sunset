@@ -1,3 +1,4 @@
+import SunsetHelp
 import SunsetMetrics
 import SwiftUI
 
@@ -32,7 +33,7 @@ extension SidebarRow {
                 .accessibilityLabel("Stop Keeping the Mac Awake")
         } else {
             cup(slashed: false)
-                .help("Keeps the Mac awake")
+                .helpTopic(.keepAwake)
                 .accessibilityElement()
                 .accessibilityLabel("Keeps the Mac awake")
         }
