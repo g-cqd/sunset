@@ -2,7 +2,7 @@ import SunsetPane
 package import SwiftUI
 
 /// The Spaces as a row of icons at the bottom of the sidebar, beside the + (R4; roadmap 0021 step S-b): a click shows the
-/// Space in this window; the one shown is marked. Not there while there is one Space. A Space's menu edits it (name, icon),
+/// Space in this window; the one shown is marked. Not there while there is one Space. A Space's menu opens its editor,
 /// moves it in the order and deletes it.
 package struct SpacesRow: View {
     let tabs: TabsModel
@@ -45,18 +45,11 @@ package struct SpacesRow: View {
         .accessibilityLabel(space.space.name)
         .accessibilityAddTraits(shown ? .isSelected : [])
         .contextMenu {
-            Button("Edit Space\u{2026}") { tabs.editingSpace = space.space.id }
+            Button("Edit Space\u{2026}") { tabs.edit(space: space) }
             Button("Move Left") { spaces.move(space, to: index - 1) }.disabled(index == 0)
             Button("Move Right") { spaces.move(space, to: index + 1) }.disabled(index == spaces.spaces.count - 1)
             Divider()
             Button("Delete Space\u{2026}", role: .destructive) { tabs.deleteSpace(space) }
         }
-        .popover(
-            isPresented: Binding(
-                get: { tabs.editingSpace == space.space.id },
-                set: { if !$0, tabs.editingSpace == space.space.id { tabs.editingSpace = nil } }
-            ),
-            arrowEdge: .top
-        ) { SpaceEditor(tabs: tabs, space: space) }
     }
 }

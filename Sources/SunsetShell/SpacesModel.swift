@@ -26,29 +26,45 @@ package final class SpacesModel {
 
     // MARK: Making, naming, deleting
 
+    /// What the editor of a new Space starts from: "Space N", with a numbered circle (the system has one for 0 to 50).
+    package func newDraft() -> SpaceDraft {
+        var number = spaces.count + 1
+        while spaces.contains(where: { $0.space.name == "Space \(number)" }) { number += 1 }
+        return SpaceDraft(space: nil, name: "Space \(number)", icon: number <= 50 ? .symbol("\(number).circle") : nil)
+    }
+
     /// A new Space after the others, with a copy of the Favorites of `origin` (kept, none open) and no tab (the owner,
     /// 2026-11-17). The Space of before there were several is named then: Home, with a house.
+    /// - Parameters:
+    ///   - origin: the Space whose Favorites are copied.
+    ///   - draft: its name, colour and icon; "Space N" with a numbered circle when none is given.
+    /// - Returns: the Space made.
     @discardableResult
-    package func add(from origin: SpaceModel?) -> SpaceModel {
+    package func add(from origin: SpaceModel?, as draft: SpaceDraft? = nil) -> SpaceModel {
+        let draft = draft ?? newDraft()
         if spaces.count == 1, let first = spaces.first, first.space.name.isEmpty {
             first.rename(to: "Home")
             if first.space.icon == nil { first.setIcon(.symbol("house")) }
         }
-        var number = spaces.count + 1
-        while spaces.contains(where: { $0.space.name == "Space \(number)" }) { number += 1 }
         let favorites = makeFavorites()
         if let origin {
             favorites.restore(SavedFavorites(favorites: origin.favorites.favorites.copied()), reopening: false)
         }
-        let made = SpaceModel(
-            // The system has a numbered circle for 0 to 50.
-            space: Space(name: "Space \(number)", icon: number <= 50 ? .symbol("\(number).circle") : nil),
-            favorites: favorites,
-            keepsTabs: spaces.first?.keepsTabs ?? true
-        )
+        var named = Space(name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines), icon: draft.icon)
+        named.tint = draft.tint
+        let made = SpaceModel(space: named, favorites: favorites, keepsTabs: spaces.first?.keepsTabs ?? true)
         spaces.append(made)
         onChange()
         return made
+    }
+
+    /// Gives a Space what its editor was saved with.
+    package func apply(_ draft: SpaceDraft, to space: SpaceModel) {
+        guard draft.canSave else { return }
+        space.rename(to: draft.name.trimmingCharacters(in: .whitespacesAndNewlines))
+        space.setIcon(draft.icon)
+        space.setTint(draft.tint)
+        onChange()
     }
 
     /// Names a Space; a blank name is not taken (a Space among several has a name).

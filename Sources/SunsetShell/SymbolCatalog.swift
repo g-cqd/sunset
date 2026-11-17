@@ -2,14 +2,30 @@ package import Foundation
 import SunsetPane
 
 /// The SF Symbols a person can pick from (R3, step c), read from the system's own data (`CoreGlyphs.bundle`: the order, the search words, the
-/// categories, the symbols Apple restricts). Read when the icon popover opens and dropped when it closes. The files are the system's, not an API: when
-/// they are missing or change shape, the catalog is empty and the popover says so.
+/// categories, the symbols Apple restricts). Read once, when an icon picker first opens, and kept (`SymbolLibrary`). The files are the system's, not an
+/// API: when they are missing or change shape, the catalog is empty and the picker says so.
 package struct SymbolCatalog: Sendable {
     package struct Symbol: Sendable, Equatable, Identifiable {
         package let name: String
         package let keywords: [String]
         package let categories: [String]
+        /// What it is found by, made once (a search is made at each key typed): the words of its name, the words of its
+        /// search words in lower case, and both as the loose match reads them.
+        let parts: [String]
+        let terms: [String]
+        let fields: [String]
         package var id: String { name }
+
+        package init(name: String, keywords: [String], categories: [String]) {
+            self.name = name
+            self.keywords = keywords
+            self.categories = categories
+            parts = name.split(separator: ".").map(String.init)
+            terms = keywords.flatMap { $0.lowercased().split(separator: " ").map(String.init) }
+            fields = [parts.joined(separator: " ")] + keywords
+        }
+
+        package static func == (first: Symbol, second: Symbol) -> Bool { first.name == second.name }
     }
 
     package static let systemResources = URL(
@@ -63,17 +79,16 @@ package struct SymbolCatalog: Sendable {
 
     /// The symbols for what was typed, best first, in `category` when one is given ("all" is every one); an empty query keeps the system's order.
     /// Every typed word must begin a word of the name (`rock` finds `rocket` and `rocket.fill`) or of one of its search words;
-    /// names score above search words, an exact word above a beginning, a short name above a long one. Only when nothing matches so does the loose match
-    /// tabs use (letters in order) give an answer.
-    package func search(_ query: String, in category: String? = nil) -> [Symbol] {
+    /// names score above search words, an exact word above a beginning, a short name above a long one. Only when nothing matches so, and `loosely`,
+    /// does the loose match tabs use (letters in order) give an answer.
+    package func search(_ query: String, in category: String? = nil, loosely: Bool = true) -> [Symbol] {
         let pool =
             category.map { key in key == "all" ? symbols : symbols.filter { $0.categories.contains(key) } } ?? symbols
         let words = query.lowercased().split(whereSeparator: { $0 == " " || $0 == "." }).map(String.init)
         guard !words.isEmpty else { return pool }
         var scored: [(index: Int, score: Int)] = []
         for (index, symbol) in pool.enumerated() {
-            let parts = symbol.name.split(separator: ".").map(String.init)
-            let terms = symbol.keywords.flatMap { $0.lowercased().split(separator: " ").map(String.init) }
+            let (parts, terms) = (symbol.parts, symbol.terms)
             var total = 0
             for word in words {
                 let best: Int
@@ -96,16 +111,13 @@ package struct SymbolCatalog: Sendable {
             }
             if total > 0 { scored.append((index, total * 10 - parts.count)) }
         }
-        if scored.isEmpty {
-            let candidates = pool.enumerated()
-                .map { index, symbol in
-                    TabSearch.Candidate(
-                        id: index,
-                        fields: [symbol.name.replacingOccurrences(of: ".", with: " ")] + symbol.keywords
-                    )
-                }
-            return TabSearch.rank(query: query, candidates: candidates).map { pool[$0] }
-        }
+        if scored.isEmpty { return loosely ? looselyMatching(query, in: pool) : [] }
         return scored.sorted { $0.score != $1.score ? $0.score > $1.score : $0.index < $1.index }.map { pool[$0.index] }
+    }
+
+    /// The loose match tabs use (letters in order), for a search no word of which begins anything.
+    private func looselyMatching(_ query: String, in pool: [Symbol]) -> [Symbol] {
+        let candidates = pool.enumerated().map { TabSearch.Candidate(id: $0.offset, fields: $0.element.fields) }
+        return TabSearch.rank(query: query, candidates: candidates).map { pool[$0] }
     }
 }

@@ -57,7 +57,14 @@ extension SettingsOption {
                 unit: "h",
                 digits: 0
             )
-            .noted("Tabs kept after the last window closed are closed once this long has passed; 0 is never.")
+            .noted("Tabs kept after the last window closed are closed once this long has passed; 0 is never."),
+            toggle(
+                "tabs.closeWindowWithLastTab",
+                "Close the window with its last tab",
+                "last tab close window empty space stay",
+                \.tabs.closeWindowWithLastTab
+            )
+            .noted("Off, a window stays open, empty, when the last tab of its Space closes.")
         ]
 
     /// When a file is written by itself.

@@ -1,5 +1,6 @@
 import AppKit
 import SunsetConfig
+import SunsetPane
 
 /// What is behind a window's terminal, as the configuration says: a material, glass, nothing (with a blur radius), and the tint over it.
 struct WindowLook: Equatable {
@@ -35,6 +36,23 @@ struct WindowLook: Equatable {
             alpha: tintAlpha
         )
     }
+
+    /// The same look with a Space's colour in its tint: a third of it mixed into the window's own tint, so that the window
+    /// is tinted and not painted (text must still read on it). A window with no tint of its own takes the colour as its
+    /// tint, as faint as a tint is by default.
+    func tinted(by color: IconColor?) -> WindowLook {
+        guard let color else { return self }
+        var look = self
+        if let tint, tint.count == 3, tintAlpha > 0 {
+            look.tint = color.mixed(into: tint, share: Self.spaceShare)
+        } else {
+            look.tint = [color.red, color.green, color.blue]
+            look.tintAlpha = 0.25
+        }
+        return look
+    }
+
+    static let spaceShare = 1.0 / 3
 
     var isOpaque: Bool { material == .opaque }
 }

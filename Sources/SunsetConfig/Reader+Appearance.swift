@@ -118,6 +118,10 @@ extension Reader {
                     if let flag = bool("tabs.closeWithLastWindow", value) {
                         configuration.tabs.closeWithLastWindow = flag
                     }
+                case "closeWindowWithLastTab":
+                    if let flag = bool("tabs.closeWindowWithLastTab", value) {
+                        configuration.tabs.closeWindowWithLastTab = flag
+                    }
                 case "closeStoppedAfter":
                     if let hours = number("tabs.closeStoppedAfter", value, range: 0 ... 8760) {
                         configuration.tabs.closeStoppedAfter = hours

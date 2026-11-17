@@ -109,3 +109,23 @@ Not done, and where it goes:
 - S-d (what the picture of a tab drawn elsewhere looks like), S-e (the tabs of a Space no window shows: sleep and unload),
   S-f, profiles and the Pinned grid.
 
+## After the owner tried S-b and S-c (2026-11-17; ADR-0048, ADR-0049)
+
+- **The editor is a sheet** with three fields: Name, Colour, Icon; Cancel and Save. Nothing is made or changed before
+  Save. The colour and the icon are fields that open their pickers.
+- **A Space has a colour that tints the window** while it shows the Space (a third of it in the window's tint).
+- **The last tab of a Space closing leaves the window open**, empty; `tabs.closeWindowWithLastTab` closes it.
+- **The icon picker** (tabs, entries, folders, Spaces) is fast and has emoji: ADR-0048 has the measurements.
+
+Seen in a test copy: the sheet; the picker from the Icon field, "rocket" typed and picked; a colour picked; Save making
+the Space with its icon in the row; the window blue-tinted in that Space (pixel 11, 32, 49) and not in Home (10, 10,
+10); Cmd-W on its last tab leaving "No tab". Pictures: `space-editor-sheet.png`, `icon-picker-from-field.png`,
+`space-tinted-window.png` in `docs/research/sidebar/`.
+
+Not done, or not seen:
+
+- The tint does not show with an opaque window material. The Spaces row does not use the colour.
+- Not seen: scrolling the picker by hand, the pointer over a cell, the colour well (any colour), the picker on a tab's
+  row (it is the same view; opened only from the Space's sheet here), editing a Space that exists from the icons' menu.
+- What 0047 listed and is still so: the swipe, Move to Space and the icons' menu were never seen; dragging is not built.
+

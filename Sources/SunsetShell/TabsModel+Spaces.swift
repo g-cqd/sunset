@@ -45,7 +45,6 @@ extension TabsModel {
         iconRow = nil
         editingCommand = nil
         unsavedQuestion = nil
-        editingSpace = nil
     }
 
     /// The next Space (1) or the one before (-1), round and round.
@@ -56,13 +55,32 @@ extension TabsModel {
         show(space: spaces.spaces[((index + offset) % count + count) % count])
     }
 
-    /// A new Space with a copy of this one's Favorites, shown here with its editor open (name, icon).
-    package func newSpace() {
-        guard let spaces else { return }
-        let made = spaces.add(from: space)
+    /// Opens the editor of a new Space. Nothing is made until it is saved.
+    package func newSpace() { spaceDraft = spaces?.newDraft() }
+
+    /// Opens the editor of a Space that exists.
+    package func edit(space target: SpaceModel) {
+        spaceDraft = SpaceDraft(
+            space: target.space.id,
+            name: target.space.name,
+            tint: target.space.tint,
+            icon: target.space.icon
+        )
+    }
+
+    /// Save, in the editor. A new Space is made, with a copy of this one's Favorites, and shown here with the command bar
+    /// open (it has no tab); a Space that exists takes what was edited. A draft with no name is not saved.
+    package func save(_ draft: SpaceDraft) {
+        guard let spaces, draft.canSave else { return }
+        spaceDraft = nil
+        if let id = draft.space {
+            if let target = spaces.space(id) { spaces.apply(draft, to: target) }
+            return
+        }
+        let made = spaces.add(from: space, as: draft)
         spaceCameFromNext = true
         show(space: made)
-        editingSpace = made.space.id
+        if bar == nil { toggleBar() }
     }
 
     /// Deletes a Space: at once when it holds nothing, else after the question (`deletingSpace`). The last one stays.

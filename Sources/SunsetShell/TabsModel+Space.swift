@@ -40,7 +40,7 @@ extension TabsModel {
         }
         marked.removeAll { if case .tab(let id) = $0 { !present.contains(id) } else { false } }
         if let hovered = hoveredItem, !present.contains(hovered) { hoveredItem = nil }
-        if items.isEmpty, selectedEntry == nil, favorites.isEmpty { onEmpty() }
+        if items.isEmpty, selectedEntry == nil, favorites.isEmpty { emptied() }
     }
 
     /// Gives their content to the panes of the Space's tabs that have none, from what was kept for each; once this window
@@ -74,6 +74,13 @@ extension TabsModel {
         workspace = tabs.selecting(selected, entry: selectedEntry)
         for (pane, content) in moved.contents { register(content, as: pane) }
         revive()
+        syncStates()
+    }
+
+    /// Nothing is left to show: no tab, and nothing in the Favorites. A window among the app's Spaces stays, on its empty
+    /// Space, unless it is told to close with its last tab; any other window is its tab, and closes.
+    func emptied() {
+        guard spaces != nil, !closesWithLastTab else { return onEmpty() }
         syncStates()
     }
 

@@ -59,7 +59,8 @@ struct TerminalScene: View {
         guard look.isOpaque else { return .clear }
         return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
-    private var look: WindowLook { WindowLook(configuration, light: config.isLight) }
+    /// The window's look, tinted by the colour of the Space it shows (the owner, 2026-11-17).
+    private var look: WindowLook { WindowLook(configuration, light: config.isLight).tinted(by: tabs.space.space.tint) }
     var colors: DefaultColors {
         DefaultColors(configuration.colors, cursorShape: configuration.cursorShape, blinks: configuration.cursorBlinks)
     }
@@ -134,6 +135,9 @@ struct TerminalScene: View {
         .onChange(of: colors) { _, _ in forEachModel(configure) }
         .onChange(of: blinkSchedule) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.tabs.confirmClose, initial: true) { _, confirm in tabs.confirmClose = confirm }
+        .onChange(of: configuration.tabs.closeWindowWithLastTab, initial: true) { _, closes in
+            tabs.closesWithLastTab = closes
+        }
         .onChange(of: configuration.tabs.closeWithLastWindow, initial: true) { _, closes in
             AppSpaces.all.keepTabs(!closes)
         }
@@ -147,7 +151,8 @@ struct TerminalScene: View {
 
     /// The panes of what is shown; with nothing shown, the pane area's hint while the window stays for its Favorites, and nothing while it goes.
     @ViewBuilder private var terminal: some View {
-        if tabs.selectedContent != nil || !tabs.favorites.isEmpty || !tabs.workspace.isEmpty {
+        // A window on one of the app's Spaces stays when the Space is empty (ADR-0048): it says so, and lists nothing.
+        if tabs.selectedContent != nil || !tabs.favorites.isEmpty || !tabs.workspace.isEmpty || tabs.spaces != nil {
             PaneArea(
                 tabs: tabs,
                 optionAsMeta: configuration.keyboard.optionAsMeta,

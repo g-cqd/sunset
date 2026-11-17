@@ -33,7 +33,6 @@ extension TabsModel {
                         return entry.title ?? entry.open.flatMap { content($0.focused)?.title } ?? ""
                     case nil: return ""
                 }
-            case .space(let id): return spaces?.space(id)?.space.name ?? ""
         }
     }
 
@@ -47,7 +46,6 @@ extension TabsModel {
                     case .entry(let entry): entry.icon
                     case nil: nil
                 }
-            case .space(let id): spaces?.space(id)?.space.icon
         }
     }
 
@@ -56,7 +54,6 @@ extension TabsModel {
         switch row {
             case .tab(let id): change { $0.setTitle(name, for: id) }
             case .node(let id): favorites.edit { $0.rename(id, to: name) }
-            case .space(let id): if let space = spaces?.space(id) { spaces?.rename(space, to: name) }
         }
         if renamingRow == row { renamingRow = nil }
     }
@@ -66,7 +63,6 @@ extension TabsModel {
         switch row {
             case .tab(let id): change { $0.setIcon(icon, for: id) }
             case .node(let id): favorites.edit { $0.setIcon(icon, for: id) }
-            case .space(let id): if let space = spaces?.space(id) { spaces?.setIcon(icon, for: space) }
         }
     }
 }

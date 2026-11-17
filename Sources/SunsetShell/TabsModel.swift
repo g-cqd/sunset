@@ -32,9 +32,13 @@ package final class TabsModel {
     package weak var spaces: SpacesModel?
     /// What this window had selected in each Space it left: shown again when it comes back.
     @ObservationIgnored var selections: [Space.ID: SavedView] = [:]
-    /// The Space whose editor (name, icon) is open in this window, and the one being deleted, which is asked about first.
-    package var editingSpace: Space.ID?
+    /// What the editor of a Space holds while it is open in this window (a new Space's, or one's that exists), and the
+    /// Space being deleted, which is asked about first.
+    package var spaceDraft: SpaceDraft?
     package var deletingSpace: Space.ID?
+    /// Whether the window closes when the last tab of its Space does (`tabs.closeWindowWithLastTab`); off, it stays, on an
+    /// empty Space (the owner, 2026-11-17).
+    @ObservationIgnored package var closesWithLastTab = false
     /// The swipe between Spaces under way on this window's sidebar, and the side the list last came in from.
     package var spaceSwipe = SpaceSwipe()
     package var spaceCameFromNext = true
@@ -230,7 +234,7 @@ package final class TabsModel {
     /// The window goes with its last tab, unless it shows a kept entry or there are Favorites to show (it stays, with a hint: R3).
     func finishClosing() {
         onChange()
-        if workspace.isEmpty, workspace.selectedEntry == nil, favorites.isEmpty { onEmpty() } else { syncStates() }
+        if workspace.isEmpty, workspace.selectedEntry == nil, favorites.isEmpty { emptied() } else { syncStates() }
     }
 
     /// Tells every content whether it is shown and whether it has the keyboard: the Space's tabs', each by the window it is

@@ -28,7 +28,6 @@ struct SelectionMenu: View {
             switch row {
                 case .tab: wantTabs
                 case .node(let id): !wantTabs && tabs.favorites.favorites.entry(id) != nil
-                case .space: false
             }
         }
         .count

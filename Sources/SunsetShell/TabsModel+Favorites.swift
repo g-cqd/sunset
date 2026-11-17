@@ -108,7 +108,7 @@ extension TabsModel {
         workspace.select(entry: nil)
         left(entry)
         syncStates()
-        if workspace.isEmpty, favorites.isEmpty { onEmpty() }
+        if workspace.isEmpty, favorites.isEmpty { emptied() }
     }
 
     /// This window stopped showing `id` (another tab or entry is shown): when it was live here, its panes are told they are hidden, and it goes live in

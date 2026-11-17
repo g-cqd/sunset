@@ -7,6 +7,7 @@ extension SpaceModel {
 
     func rename(to name: String) { space.name = name }
     func setIcon(_ icon: PaneIcon?) { space.icon = icon }
+    func setTint(_ tint: IconColor?) { space.tint = tint }
 
     /// What a content of this Space's tabs asks is asked here: the Space knows the window that draws it.
     func wire(_ content: any PaneContent, as pane: PaneID) {

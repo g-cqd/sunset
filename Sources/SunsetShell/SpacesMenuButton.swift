@@ -22,7 +22,7 @@ struct SpacesMenuButton: View {
                 }
                 Divider()
                 Button("New Space") { tabs.newSpace() }
-                Button("Edit Space\u{2026}") { tabs.editingSpace = tabs.space.space.id }
+                Button("Edit Space\u{2026}") { tabs.edit(space: tabs.space) }
                 Button("Delete Space\u{2026}", role: .destructive) { tabs.deleteSpace() }
             } label: {
                 HStack(spacing: Design.Space.xs) {
@@ -35,13 +35,6 @@ struct SpacesMenuButton: View {
             .tint(.secondary)
             .fixedSize()
             .help("Spaces")
-            .popover(
-                isPresented: Binding(
-                    get: { tabs.editingSpace == tabs.space.space.id },
-                    set: { if !$0 { tabs.editingSpace = nil } }
-                ),
-                arrowEdge: .bottom
-            ) { SpaceEditor(tabs: tabs, space: tabs.space) }
         }
     }
 }

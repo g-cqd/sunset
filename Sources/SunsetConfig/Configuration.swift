@@ -166,6 +166,9 @@ public struct Configuration: Sendable, Equatable {
         public var closeWithLastWindow = false
         /// Tabs that stayed, stopped, are closed once this many hours have passed with no window showing them; 0 is never.
         public var closeStoppedAfter = 0.0
+        /// The window when the last tab of its Space closes: it stays, on the empty Space (the owner, 2026-11-17). On: it
+        /// closes with the tab, as before Spaces.
+        public var closeWindowWithLastTab = false
         public init() {}
 
         public enum QuitAsk: String, Sendable, Equatable, CaseIterable {

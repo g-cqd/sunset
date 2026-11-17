@@ -59,6 +59,27 @@ struct SpacesSessionTests {
         #expect(read.spaces[0].stopped == Date(timeIntervalSince1970: 1_794_000_000) && read.spaces[1].stopped == nil)
     }
 
+    /// The owner, 2026-11-17: a Space has a colour, which tints the window that shows it.
+    @Test
+    func `a Space's tint is kept in its look, as a colour; what is not one is no tint; mixed into a window's tint`() {
+        var space = Space(name: "Work")
+        #expect(space.tint == nil && space.look == nil)
+        space.tint = IconColor(red: 0x0A, green: 0x84, blue: 0xFF)
+        #expect(space.look == ["tint": "#0A84FF"] && space.tint == IconColor(red: 0x0A, green: 0x84, blue: 0xFF))
+        space.look?["material"] = "glass"
+        space.tint = nil
+        #expect(space.look == ["material": "glass"], "what else the look holds is left")
+        space.look = ["tint": "blue"]
+        #expect(space.tint == nil)
+        // A third of the Space's colour in the window's own tint: tinted, not painted.
+        #expect(IconColor(red: 255, green: 0, blue: 90).mixed(into: [0, 0, 0], share: 1.0 / 3) == [85, 0, 30])
+        #expect(IconColor(red: 0, green: 0, blue: 0).mixed(into: [255, 255, 255], share: 0.5) == [128, 128, 128])
+        #expect(
+            IconColor(red: 9, green: 9, blue: 9).mixed(into: [1, 2], share: 0.5) == [9, 9, 9],
+            "no tint to mix into"
+        )
+    }
+
     @Test func `there is always a Space: nothing saved is one Space with nothing in it and no window`() {
         let empty = SpacesSession(spaces: [], views: [])
         #expect(empty.spaces.count == 1 && empty.spaces[0].tabs.isEmpty && empty.views.isEmpty)

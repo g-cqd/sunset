@@ -13,7 +13,7 @@ struct SpaceCommands: Commands {
             Button("New Space") { AppActions.shared.spaceTabs?.newSpace() }
             Button("Edit Space\u{2026}") {
                 guard let tabs = AppActions.shared.spaceTabs else { return }
-                tabs.editingSpace = tabs.space.space.id
+                tabs.edit(space: tabs.space)
             }
             .disabled(spaces.spaces.count < 2)
             Button("Delete Space\u{2026}") { AppActions.shared.spaceTabs?.deleteSpace() }

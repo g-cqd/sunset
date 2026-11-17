@@ -27,7 +27,7 @@ public enum ConfigurationKeys {
         "appearance.tint.lightAlpha",
         "appearance.tint.alpha",
         "tabs.mode", "tabs.restore", "tabs.confirmClose", "tabs.askBeforeQuit", "tabs.keepRunningForFavorites",
-        "tabs.closeWithLastWindow", "tabs.closeStoppedAfter",
+        "tabs.closeWithLastWindow", "tabs.closeStoppedAfter", "tabs.closeWindowWithLastTab",
         "tabs.bar.position",
         "tabs.bar.icon", "tabs.bar.title",
         "tabs.bar.directory", "tabs.bar.monospacedDirectory",

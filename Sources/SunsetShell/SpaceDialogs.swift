@@ -1,8 +1,9 @@
 import SunsetPane
 package import SwiftUI
 
-/// What a window asks before a Space that holds things is deleted (roadmap 0021 step S-c): its tabs and Favorites go to the
-/// neighbouring Space, still running, or everything in it closes.
+/// A window's dialogs about Spaces (roadmap 0021 step S-c): the editor of a Space, as a sheet; and what is asked before a
+/// Space that holds things is deleted: its tabs and Favorites go to the neighbouring Space, still running, or everything
+/// in it closes.
 package struct SpaceDialogs: ViewModifier {
     let tabs: TabsModel
 
@@ -13,19 +14,23 @@ package struct SpaceDialogs: ViewModifier {
     package func body(content: Content) -> some View {
         let target = target
         let neighbour = target.flatMap { tabs.spaces?.neighbour(of: $0) }
-        content.confirmationDialog(
-            "Delete the Space \u{201C}\(target?.space.name ?? "")\u{201D}?",
-            isPresented: Binding(get: { tabs.deletingSpace != nil }, set: { if !$0 { tabs.deletingSpace = nil } }),
-            titleVisibility: .visible
-        ) {
-            if let neighbour {
-                Button("Move What It Holds to \(neighbour.space.name)") { tabs.answerDelete(moving: true) }
+        content
+            .sheet(item: Binding(get: { tabs.spaceDraft }, set: { tabs.spaceDraft = $0 })) { draft in
+                SpaceSheet(tabs: tabs, draft: draft)
             }
-            Button("Close Everything in It", role: .destructive) { tabs.answerDelete(moving: false) }
-            Button("Cancel", role: .cancel) { tabs.deletingSpace = nil }
-        } message: {
-            Text(Self.sentence(tabs: target?.tabs.count ?? 0, kept: target?.favorites.favorites.count ?? 0))
-        }
+            .confirmationDialog(
+                "Delete the Space \u{201C}\(target?.space.name ?? "")\u{201D}?",
+                isPresented: Binding(get: { tabs.deletingSpace != nil }, set: { if !$0 { tabs.deletingSpace = nil } }),
+                titleVisibility: .visible
+            ) {
+                if let neighbour {
+                    Button("Move What It Holds to \(neighbour.space.name)") { tabs.answerDelete(moving: true) }
+                }
+                Button("Close Everything in It", role: .destructive) { tabs.answerDelete(moving: false) }
+                Button("Cancel", role: .cancel) { tabs.deletingSpace = nil }
+            } message: {
+                Text(Self.sentence(tabs: target?.tabs.count ?? 0, kept: target?.favorites.favorites.count ?? 0))
+            }
     }
 
     static func sentence(tabs: Int, kept: Int) -> String {

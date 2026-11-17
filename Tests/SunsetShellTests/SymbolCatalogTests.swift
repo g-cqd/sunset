@@ -58,4 +58,11 @@ import Testing
         #expect(catalog.search("arrow circle").first?.name.contains("arrow") == true)
         #expect(!catalog.symbols.contains { $0.name == "0.circle.ar" })
     }
+
+    @Test func `what a symbol is found by is made once, when the catalog is read`() throws {
+        let catalog = SymbolCatalog.load(from: try resources())
+        let rack = try #require(catalog.symbols.first { $0.name == "server.rack" })
+        #expect(rack.parts == ["server", "rack"] && rack.terms == ["computer", "network"])
+        #expect(rack.fields == ["server rack", "computer", "network"])
+    }
 }
