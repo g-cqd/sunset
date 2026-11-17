@@ -25,6 +25,6 @@ running". His answers: both ways, chosen; whether the display stays on too is "c
 
 ## Not done
 
-- A kept entry (Pinned, Favorites) cannot be kept awake from its menu: only Today's tabs and windows.
+- A kept entry (Pinned, Favorites) can be since roadmap 0036 C, while it is open (`FavoritesModel.awake`).
 - A Space whose last window closes stops its tabs (ADR-0045): what they kept awake lets go with them.
 - Not seen on screen.

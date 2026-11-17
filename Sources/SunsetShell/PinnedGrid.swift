@@ -105,6 +105,17 @@ struct PinnedGrid: View {
                 }
                 .opacity(entry.isOpen ? 1 : 0)
             }
+            .overlay(alignment: .topTrailing) {
+                // Kept awake (roadmap 0036 C): a cup in its corner.
+                if entry.isOpen, tabs.keepsAwake(entry: entry.id) != nil {
+                    Image(systemName: "cup.and.saucer.fill")
+                        .font(.system(size: Design.Symbol.badge))
+                        .foregroundStyle(.secondary)
+                        .padding(Design.Space.xs)
+                        .help("Keeps the Mac awake")
+                        .accessibilityLabel("Keeps the Mac awake")
+                }
+            }
             .overlay {
                 // Asked whether to stop what runs in it (Unload, Reset, Delete): marked as a tab's row is.
                 if entry.open.map({ tabs.isCloseArmed($0.id) }) == true {

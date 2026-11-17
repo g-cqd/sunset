@@ -1,24 +1,52 @@
 package import SunsetPane
 package import SwiftUI
 
-/// "Keep Mac Awake" in a tab's menu, or the window's (roadmap 0035 E): until it is closed, or until its command ends (only
-/// while one runs). The item that is on is ticked; choosing it again turns it off.
+/// "Keep Mac Awake" in a tab's menu, a kept entry's, or the window's (roadmap 0035 E, 0036 C): until it is closed, or until
+/// its command ends (only while one runs). The item that is on is ticked; choosing it again turns it off.
 package struct KeepAwakeMenu: View {
-    let tabs: TabsModel
-    /// The tab; nil for the window.
-    let item: Workspace.ItemID?
+    enum Target {
+        case window
+        case tab(Workspace.ItemID)
+        case entry(Favorites.NodeID)
+    }
 
+    let tabs: TabsModel
+    let target: Target
+
+    /// A tab's menu; nil: the window's.
     package init(tabs: TabsModel, item: Workspace.ItemID?) {
         self.tabs = tabs
-        self.item = item
+        target = item.map(Target.tab) ?? .window
+    }
+
+    /// A kept entry's menu (a favourite, a tile of the grid).
+    package init(tabs: TabsModel, entry: Favorites.NodeID) {
+        self.tabs = tabs
+        target = .entry(entry)
+    }
+
+    private var now: KeepAwake? {
+        switch target {
+            case .window: tabs.windowAwake
+            case .tab(let id): tabs.keepsAwake(item: id)
+            case .entry(let id): tabs.keepsAwake(entry: id)
+        }
+    }
+
+    private var canWait: Bool {
+        switch target {
+            case .window: tabs.canKeepWindowAwakeUntilDone
+            case .tab(let id): tabs.canKeepAwakeUntilDone(item: id)
+            case .entry(let id): tabs.canKeepAwakeUntilDone(entry: id)
+        }
     }
 
     package var body: some View {
-        let now = item.map { tabs.keepsAwake(item: $0) } ?? tabs.windowAwake
-        let canWait = item.map { tabs.canKeepAwakeUntilDone(item: $0) } ?? tabs.canKeepWindowAwakeUntilDone
+        let now = now
+        let isWindow = if case .window = target { true } else { false }
         Menu("Keep Mac Awake") {
-            Toggle(item == nil ? "Until the Window Closes" : "Until the Tab Closes", isOn: binding(.closed, now))
-            Toggle(item == nil ? "Until Its Commands End" : "Until Its Command Ends", isOn: binding(.commandEnds, now))
+            Toggle(isWindow ? "Until the Window Closes" : "Until the Tab Closes", isOn: binding(.closed, now))
+            Toggle(isWindow ? "Until Its Commands End" : "Until Its Command Ends", isOn: binding(.commandEnds, now))
                 .disabled(now != .commandEnds && !canWait)
         }
     }
@@ -28,7 +56,11 @@ package struct KeepAwakeMenu: View {
             get: { now == until },
             set: { on in
                 let next = on ? until : nil
-                if let item { tabs.keepAwake(item: item, until: next) } else { tabs.keepWindowAwake(until: next) }
+                switch target {
+                    case .window: tabs.keepWindowAwake(until: next)
+                    case .tab(let id): tabs.keepAwake(item: id, until: next)
+                    case .entry(let id): tabs.keepAwake(entry: id, until: next)
+                }
             }
         )
     }

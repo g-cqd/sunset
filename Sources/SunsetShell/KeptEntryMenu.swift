@@ -41,6 +41,8 @@ struct KeptEntryMenu: View {
         if entry.isOpen {
             Button(isPinned ? "Pin Where It Is Now" : "Set Home to Current") { keeper.setHomeToCurrent(entry.id) }
             Button("Unload") { tabs.unload(entry: entry.id) }
+            // While it is open: unloading it lets go (roadmap 0036 C).
+            KeepAwakeMenu(tabs: tabs, entry: entry.id)
         }
         Divider()
         Button("Delete", role: .destructive) { tabs.delete(entry: entry.id) }

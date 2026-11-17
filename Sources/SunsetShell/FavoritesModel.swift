@@ -34,6 +34,9 @@ package final class FavoritesModel {
     /// Entries whose command failed its check (something other than Sunset wrote it): shown, never run, until confirmed in the dialog.
     package internal(set) var unconfirmed: Set<Favorites.NodeID> = []
 
+    /// The entries kept awake, and until when (roadmap 0036 C): seen alike by every window that shows them.
+    package internal(set) var awake: [Favorites.NodeID: KeepAwake] = [:]
+
     package init() {}
 
     struct Weak {
