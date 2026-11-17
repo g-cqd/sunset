@@ -4,7 +4,7 @@ import Testing
 
 @testable import SunsetShell
 
-/// An entry between the Favorites and the Pinned grid (ADR-0054; the owner, 2026-11-18: "the context menus of tabs and
+/// An entry between the Favorites and the Pinned grid (ADR-0054; the owner, 2026-11-17: "the context menus of tabs and
 /// sidebar don't contain all features related to pinning and marking as favorites and i fail to set an already
 /// favorites tab as a pinned tab").
 @MainActor
@@ -97,7 +97,7 @@ struct TabsPinnedFavoritesTests {
         let tab = try #require(tabs.workspace.selectedID)
         #expect(tabs.pin([.node(kept), .tab(tab)]) == 2)
         #expect(pinned.favorites.entries.count == 2 && tabs.favorites.isEmpty && tabs.workspace.isEmpty)
-        // Dragged onto the grid: one tab's row (found 2026-11-18: a single row dragged there was never pinned).
+        // Dragged onto the grid: one tab's row (found 2026-11-17: a single row dragged there was never pinned).
         tabs.newTab()
         let single = try #require(tabs.workspace.selectedID)
         _ = tabs.itemProvider(for: .item(single))

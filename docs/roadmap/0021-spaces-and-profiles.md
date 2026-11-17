@@ -91,7 +91,7 @@ The owner's answers are in the ADR. Built together: switching needs a second Spa
 - **Deleting** asks when the Space holds something: move it to the neighbour, or close everything.
 - **The session** keeps the Spaces in their order and, for each window, the Space it showed.
 
-Seen in a test copy (diary 2026-11-17-01): New Space and its editor; the row; Option-Command-1, 2, Right; a command still
+Seen in a test copy (diary): New Space and its editor; the row; Option-Command-1, 2, Right; a command still
 running in a Space no window showed; the bar's row for a tab of another Space, and Return on it; both Spaces back after
 a quit, the window on the one it showed; New Window on the Space in front; the question on deleting, and Move; the
 button in the built-in tab bar. Pictures: `docs/research/sidebar/spaces-*.png`.
