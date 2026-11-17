@@ -119,6 +119,7 @@ struct FavoritesSection: View {
             compact: true,
             marked: tabs.isMarked(.node(entry.id)),
             awake: entry.isOpen && tabs.keepsAwake(entry: entry.id) != nil,
+            stopAwake: { tabs.keepAwake(entry: entry.id, until: nil) },
             renaming: tabs.renamingRow == .node(entry.id)
                 ? (
                     tabs.name(of: .node(entry.id)),

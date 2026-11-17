@@ -33,6 +33,8 @@ struct SidebarRow: View {
     var marked = false
     /// It keeps the Mac awake (roadmap 0035 E): a cup after its title.
     var awake = false
+    /// Lets the Mac sleep again: the cup is a button while the row is pointed at (note n5).
+    var stopAwake: (() -> Void)?
     /// While its name is edited in place: the field's first text, and what to do with the result (nil: Escape, nothing changes).
     var renaming: (start: String, done: (String?) -> Void)?
     let close: () -> Void
@@ -51,6 +53,7 @@ struct SidebarRow: View {
     }
     @State private var hovering = false
     @State private var overClose = false
+    @State private var overAwake = false
     @Environment(\.controlActiveState) private var activeState
     @Environment(\.accent) private var accent
 
@@ -149,17 +152,48 @@ struct SidebarRow: View {
 
     private var showsClose: Bool { hovering || armed || keepCloseVisible }
 
-    /// Kept awake (roadmap 0038 C): the close button's size, its symbol's size and weight, in its place while it is hidden
-    /// and just before it while it shows; not a button.
-    private var awakeMark: some View {
+    /// Kept awake (roadmap 0038 C): the close button's size, its symbol's size and weight, in its place while it is hidden.
+    /// While the row is pointed at it is a button beside the close button (note n5), slashed under the pointer: a click lets
+    /// the Mac sleep again.
+    @ViewBuilder private var awakeMark: some View {
+        if showsClose, let stopAwake {
+            SwiftUI.Button(action: stopAwake) { cup(slashed: overAwake) }
+                .buttonStyle(.plain)
+                .onHover { overAwake = $0 }
+                .help("Stop Keeping the Mac Awake")
+                .accessibilityLabel("Stop Keeping the Mac Awake")
+        } else {
+            cup(slashed: false)
+                .help("Keeps the Mac awake")
+                .accessibilityElement()
+                .accessibilityLabel("Keeps the Mac awake")
+        }
+    }
+
+    private func cup(slashed: Bool) -> some View {
         Image(systemName: "cup.and.saucer.fill")
             .font(.system(size: Design.Symbol.badge, weight: .semibold))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(slashed ? Color.primary : Color.secondary)
+            // No slashed cup among the symbols: a slash drawn over it, as the symbols' own.
+            .overlay {
+                if slashed {
+                    Capsule()
+                        .fill(Color.primary)
+                        .frame(width: Design.Space.hair, height: layout.closeButtonSize * Self.slashShare)
+                        .rotationEffect(.degrees(Self.slashAngle))
+                }
+            }
             .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-            .help("Keeps the Mac awake")
-            .accessibilityElement()
-            .accessibilityLabel("Keeps the Mac awake")
+            .background(
+                RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
+                    .fill(Color.primary.opacity(slashed ? Design.Fill.selected : 0))
+            )
+            .contentShape(.rect)
     }
+
+    /// The slash over the cup: its share of the button's height, and its angle.
+    private static let slashShare = 0.7
+    private static let slashAngle = -45.0
 
     /// How far the cup's centre is from the row's end: where the close button is, moved before it while it shows (the
     /// edited mark is before the cup).
