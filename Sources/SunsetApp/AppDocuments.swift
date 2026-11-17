@@ -44,11 +44,13 @@ enum AppDocuments {
         return true
     }
 
-    /// When a file is written by itself, from the settings (`documents.saveAfter`, `documents.saveOnFocusLoss`).
+    /// When a file is written by itself, and how sources look, from the settings (`documents.saveAfter`,
+    /// `documents.saveOnFocusLoss`, `documents.largerHeadings`).
     static func apply(_ settings: Configuration.Documents) {
         let asked = DocumentAutosave(seconds: settings.saveAfter, onFocusLoss: settings.saveOnFocusLoss)
         AppStorage.shared.openDocuments.autosave.fileDelay = asked.fileDelay
         AppStorage.shared.openDocuments.autosave.onFocusLoss = asked.onFocusLoss
+        AppStorage.shared.openDocuments.look.largerHeadings = settings.largerHeadings
     }
 }
 

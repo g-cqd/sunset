@@ -34,12 +34,25 @@ import Testing
         #expect(back.issues.isEmpty && back.configuration.documents == configuration.documents)
         #expect(
             SettingsSection.topic("general.documents")?.topic.options.map(\.id) == [
-                "documents.saveAfter", "documents.saveOnFocusLoss"
+                "documents.saveAfter", "documents.saveOnFocusLoss", "documents.largerHeadings"
             ]
         )
         #expect(
             SettingsSection.all.first?.topics.map(\.id)
                 == ["general.features", "general.startup", "general.documents", "general.file"]
         )
+    }
+
+    /// `documents.largerHeadings` (roadmap 0034 step B): the source shows a heading at the page's size for its level, closer
+    /// to what it becomes; on by default, since the owner asked for the source to look like its page.
+    @Test func `the source's headings are at the page's size unless the file says otherwise`() throws {
+        #expect(try ConfigurationParser.parse("{}").configuration.documents.largerHeadings)
+        let off = try ConfigurationParser.parse(#"{ "documents": { "largerHeadings": false } }"#)
+        #expect(off.issues.isEmpty && !off.configuration.documents.largerHeadings)
+        var configuration = Configuration()
+        configuration.documents.largerHeadings = false
+        let back = try ConfigurationParser.parse(ConfigurationWriter.text(for: configuration))
+        #expect(back.issues.isEmpty && back.configuration.documents == configuration.documents)
+        #expect(SettingsSection.topic("general.documents")?.topic.options.map(\.id).last == "documents.largerHeadings")
     }
 }

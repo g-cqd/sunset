@@ -67,7 +67,7 @@ extension SettingsOption {
             .noted("Off, a window stays open, empty, when the last tab of its Space closes.")
         ]
 
-    /// When a file is written by itself.
+    /// When a file is written by itself, and how its source looks.
     static let documents: [Self] =
         [
             number(
@@ -93,7 +93,14 @@ extension SettingsOption {
             .noted(
                 "When another pane takes the keyboard, or another app comes to the front. A document that has no file is "
                     + "always kept by Sunset, whatever these say."
+            ),
+            toggle(
+                "documents.largerHeadings",
+                "Show headings larger in the source",
+                "markdown source editor heading size font page look rendered",
+                \.documents.largerHeadings
             )
+            .noted("A heading's text is at the size the page gives it; off, every line of the source has one height.")
         ]
 
     /// The configuration file.

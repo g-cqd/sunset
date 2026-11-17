@@ -7,6 +7,8 @@ extension Configuration {
         public var saveAfter = 2.0
         /// A file is written when its pane, or Sunset, stops being the one typed in.
         public var saveOnFocusLoss = true
+        /// The source shows a heading at the page's size for its level (roadmap 0034): closer to what it becomes.
+        public var largerHeadings = true
 
         public init() {}
     }

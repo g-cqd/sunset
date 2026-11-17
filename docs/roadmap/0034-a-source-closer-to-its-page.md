@@ -1,13 +1,13 @@
 ---
-status: in-progress
+status: done
 blocked-by:
 date: 2026-11-17
 ---
 
 # 0034 — The Markdown source, closer to its page: larger headings behind a setting, code coloured by its language only
 
-Asked by the owner on 2026-11-17. Task t295. Step A is done (AemiMarkdown e8640c9, seen in Sunset on screen); B and C are
-not started.
+Asked by the owner on 2026-11-17. Task t295. Done: A (AemiMarkdown e8640c9), B (AemiMarkdown 847a761, ADR-0058), C (on
+screen, diary 2026-11-17-02).
 
 ## What he asked
 
@@ -27,9 +27,9 @@ colour; every byte of code orange (`systemOrange`) on a grey background; the fen
   already uses for its code, `AemiLexers`) is coloured as on the page; any other code, and a code span, is the label colour
   with no background. The fence and the language stay dimmed as markers. Test: a `swift` fence gets the page's colours, an
   unknown language and a code span get `labelColor` and no `.backgroundColor`.
-- **B — `documents.sourceLook`: `plain` or `page` (default `page`).** `page`: a heading's line takes the page's heading
-  scale (the native view's `Spacing.scale(.heading(n))`, 1.0 for body) and weight, the `#` markers in the same size but
-  tertiary; a quote's text secondary; emphasis and strong as now. `plain`: today's single size. The default is `page`
+- **B — `documents.largerHeadings`, on by default. Done** (a toggle rather than the two-valued `sourceLook` first written
+  here; ADR-0058). On: a heading's text takes the page's heading scale (the native view's `Spacing.scale(.heading(n))`, 1.0
+  for body) and weight, the `#` markers at the body's size, tertiary; a quote's text secondary; emphasis and strong as now. `plain`: today's single size. The default is `page`
   because the owner asked for the source to look like what it becomes; the setting exists for those who want columns to
   line up. Lines are then of different heights: the editor's measured scroll and the source marks (`SourceMarksFinder`)
   must use the layout's line rectangles, not a fixed line height — to probe first, red, with a document of headings.
@@ -37,5 +37,6 @@ colour; every byte of code orange (`systemOrange`) on a grey background; the fen
 
 ## Not done
 
-Steps B and C. Proportional body text in the source (it stays the editor's font), hiding markers, and live preview inline
+The source marks of a merge under a larger heading are not seen on screen. A long README in both looks is not captured
+(C used three short fixtures). Proportional body text in the source (it stays the editor's font), hiding markers, and live preview inline
 (Typora-style) are not proposed.

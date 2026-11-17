@@ -89,6 +89,10 @@ extension Reader {
                     if let flag = bool("documents.saveOnFocusLoss", value) {
                         configuration.documents.saveOnFocusLoss = flag
                     }
+                case "largerHeadings":
+                    if let flag = bool("documents.largerHeadings", value) {
+                        configuration.documents.largerHeadings = flag
+                    }
                 default: unknown("documents.\(key)")
             }
         }

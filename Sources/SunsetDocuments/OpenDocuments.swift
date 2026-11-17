@@ -8,6 +8,8 @@ public final class OpenDocuments {
     private let store: DocumentStore?
     /// When a document saves itself (the settings; both off for files by default).
     public var autosave = DocumentAutosave()
+    /// How their source looks (the settings).
+    public let look = DocumentLook()
 
     /// - Parameter store: where stored documents are read and saved; nil when there is none in this run.
     public init(store: DocumentStore?) {

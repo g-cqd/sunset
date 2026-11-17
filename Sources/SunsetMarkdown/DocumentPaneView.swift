@@ -36,7 +36,10 @@ struct DocumentPaneView: View {
             } else {
                 MarkdownSourceEditor(
                     source: document.source,
-                    configuration: MarkdownEditorConfiguration(fontSize: content.fontSize),
+                    configuration: MarkdownEditorConfiguration(
+                        fontSize: content.fontSize,
+                        scalesHeadings: content.documents.look.largerHeadings
+                    ),
                     proxy: content.proxy
                 )
                 .background(marks)
