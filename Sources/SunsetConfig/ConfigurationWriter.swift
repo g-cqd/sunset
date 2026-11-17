@@ -150,6 +150,7 @@ public enum ConfigurationWriter {
         extra["tabs.keepAwakeDisplay"] = String(configuration.tabs.keepAwakeDisplay)
         extra["sidebar.library"] = String(configuration.sidebar.library)
         extra["sidebar.documentSort"] = string(configuration.sidebar.documentSort.rawValue)
+        extra["sidebar.separators"] = String(configuration.sidebar.separators)
         return extra
     }
 

@@ -6,6 +6,7 @@ import SwiftUI
 struct SectionSeparator: View {
     let layout: ShellSettings.Layout
     var visible = true
+    @Environment(\.sectionSeparators) private var drawn
 
     /// The room it takes: the line in the middle.
     static let room = 6.0
@@ -17,7 +18,8 @@ struct SectionSeparator: View {
             .fill(.primary.opacity(layout.hairlineOpacity * Design.Line.stronger))
             .frame(height: max(layout.hairlineWidth, 0.5))
             .padding(.horizontal, layout.tabPaddingLeading)
-            .opacity(visible ? 1 : 0)
+            // Off (`sidebar.separators`), the line goes and its room stays.
+            .opacity(visible && drawn ? 1 : 0)
             .frame(height: visible ? Self.room : Self.hiddenRoom)
             .accessibilityHidden(true)
     }

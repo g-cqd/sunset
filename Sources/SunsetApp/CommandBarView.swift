@@ -31,7 +31,15 @@ struct CommandBarView: View {
             panel(bar, rows, settings)
                 .padding(.top, anchor == nil ? Design.System.commandBarTop : 0)
                 .transition(.opacity)
+                // The field takes the keyboard as the bar shows; asked again once it is in the window, where the terminal
+                // kept it before (typed text went to the terminal, the owner's report of 2026-11-17).
                 .onAppear { typing = true }
+                .task {
+                    for wait in [16, 50, 120] {
+                        try? await Task.sleep(for: .milliseconds(wait))
+                        if !typing { typing = true }
+                    }
+                }
                 .onChange(of: bar.query + "\u{0}" + (bar.engine ?? ""), initial: true) {
                     takeChip(settings)
                     if let now = tabs.bar { ask(now, settings) }
@@ -53,13 +61,13 @@ struct CommandBarView: View {
             .frame(height: anchor.map { Double($0.height) } ?? Design.Size.fieldLarge)
             if !rows.isEmpty {
                 Divider().opacity(Design.Fill.fainterDivider)
-                // Under the sidebar's field, rows as its tabs: their space between them, 2 pt closer to the edge (the
-                // owner, 2026-11-17); the large bar keeps its own look.
+                // Under the sidebar's field, rows as its tabs: their space between them, 2 pt closer to the edge; the
+                // large bar's rows a little further apart than they were (the owner, 2026-11-17).
                 ChoiceList(
                     rows: rows,
                     selection: selection,
                     radius: layout.tabRadius,
-                    spacing: anchor == nil ? Design.Space.hair : layout.tabSpacing,
+                    spacing: anchor == nil ? Design.Space.xs : layout.tabSpacing,
                     inset: anchor == nil ? Design.Space.s : Design.Space.xs
                 ) { run(rows, $0, action: 0) }
             } else if !bar.query.isEmpty {

@@ -87,6 +87,14 @@ extension SettingsOption {
     static let library: [Self] =
         [
             toggle(
+                "sidebar.separators",
+                "Section separators",
+                "line divider pinned favorites tabs separator",
+                \.sidebar.separators,
+                label: "Show lines between Pinned, Favorites and tabs"
+            )
+            .noted("Off, the sections keep their space without a line."),
+            toggle(
                 "sidebar.library",
                 "Library",
                 "sections documents history downloads rail",

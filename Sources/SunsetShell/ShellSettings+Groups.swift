@@ -18,6 +18,8 @@ extension ShellSettings {
         package var library = true
         /// The order of the documents in the sidebars' lists.
         package var documentSort = DocumentSort.changed
+        /// The lines between the Pinned grid, the Favorites and the tabs (`sidebar.separators`).
+        package var separators = true
 
         package init() {}
     }

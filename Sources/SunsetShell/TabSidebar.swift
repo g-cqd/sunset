@@ -112,6 +112,7 @@ package struct TabSidebar: View {
         .overlay(alignment: .top) { accessoryView }
         .overlay(alignment: .top) { noticesView }
         .overlay(alignment: .bottom) { bottomBarView }
+        .environment(\.sectionSeparators, settings.sidebar.separators)
     }
 
     @ViewBuilder private func rowContent(_ item: Workspace.Item) -> some View {

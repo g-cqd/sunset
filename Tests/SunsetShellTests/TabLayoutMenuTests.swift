@@ -25,6 +25,7 @@ struct TabLayoutMenuTests {
     }
 
     @Test func `every layout has its picture`() {
-        #expect(SplitPreset.allCases.allSatisfy { PresetShape.image($0).isTemplate })
+        #expect(SplitPreset.allCases.allSatisfy { !PresetShape.image($0, dark: true).isTemplate })
+        #expect(PresetShape.image(.grid, dark: true) !== PresetShape.image(.grid, dark: false))
     }
 }

@@ -20,6 +20,8 @@ extension Configuration {
         /// The Library (roadmap 0031): a glyph at the sidebar's foot that widens it by a rail of sections.
         public var library = true
         public var documentSort = DocumentSort.changed
+        /// The lines between the Pinned grid, the Favorites and the tabs; off, their space stays (the owner, 2026-11-17).
+        public var separators = true
 
         public init() {}
     }

@@ -6,6 +6,7 @@ import SwiftUI
 struct TabLayoutMenu: View {
     let tabs: TabsModel
     let row: RowTarget
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         let ids = tabs.layoutTabs(for: row)
@@ -19,7 +20,7 @@ struct TabLayoutMenu: View {
                         Label {
                             Text(preset.title)
                         } icon: {
-                            Image(nsImage: PresetShape.image(preset))
+                            Image(nsImage: PresetShape.image(preset, dark: scheme == .dark))
                         }
                     }
                 }
@@ -27,7 +28,6 @@ struct TabLayoutMenu: View {
                 Text("Layout")
             }
             .controlGroupStyle(.palette)
-            .tint(.primary)
             Divider()
         }
     }

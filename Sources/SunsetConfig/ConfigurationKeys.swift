@@ -10,7 +10,7 @@ public enum ConfigurationKeys {
         "window.material", "window.blur", "terminal.opacity", "terminal.clipboardWrite", "terminal.shellIntegration",
         "terminal.directory",
         "sidebar.enabled", "sidebar.width", "sidebar.padding", "sidebar.autoHide", "sidebar.side",
-        "sidebar.library", "sidebar.documentSort",
+        "sidebar.library", "sidebar.documentSort", "sidebar.separators",
 
         "layout.tabSpacing", "layout.tabSideInset", "layout.tabPaddingLeading", "layout.tabPaddingTrailing",
         "layout.tabPaddingVertical", "layout.tabRadius", "layout.closeButtonSize", "layout.closeButtonRadius",
