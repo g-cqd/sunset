@@ -107,6 +107,17 @@ extension HelpCatalog {
             ],
             related: [.tabs, .pinned, .favorites, .folders]
         ),
+        .layoutLight: HelpEntry(
+            title: "Laying out a tab",
+            summary:
+                "The fourth light lays the tab out: side by side, stacked, three columns, one large and two, or a grid.",
+            text: [
+                "Click it, or rest the pointer on it, and choose a shape. With too few panes, the tabs after this one join "
+                    + "it; with too many, the extra panes become tabs after it.",
+                "Its color is the system's accent, or blue when the accent is close to the other lights' colors."
+            ],
+            related: [.splitTabs, .tabs]
+        ),
         .renaming: HelpEntry(
             title: "Renaming",
             summary: "Double-click a row's name, or choose Rename Tab… in its menu, to give it a name of your own.",

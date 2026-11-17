@@ -51,6 +51,10 @@ package enum Design {
         /// Help's list of topics, and the width its text reads best at.
         package static let helpListWidth = 220.0
         package static let helpTextWidth = 560.0
+        /// The fourth light's hover glyph, and a preset's shape in its panel (t287).
+        package static let presetLightGlyph = 8.0
+        package static let presetShapeWidth = 36.0
+        package static let presetShapeHeight = 24.0
         /// An icon button in a bar.
         package static let control = 24.0
         /// A field in a bar (the address field): a control and a point above and below for its text.

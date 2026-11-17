@@ -37,6 +37,8 @@ extension Design {
         package static let fainterDivider = 0.5
         /// A choice that does not apply (the icon picker's colours with no symbol, its categories while searching).
         package static let notApplicable = 0.4
+        /// A traffic light's glyph shown on hover (dark on its colour, as AppKit's).
+        package static let lightGlyph = 0.55
         /// A folder's own icon while it is collapsed.
         package static let collapsedIcon = 0.7
         /// A field's fill (primary at this opacity), and a private page's dark one (black).

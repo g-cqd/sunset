@@ -109,6 +109,7 @@ package struct TabSidebar: View {
         .modifier(EscapeClearsMarks(tabs: tabs))
         .onHover { inside in if !inside { closingSlot = nil } }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
+        .overlay(alignment: settings.sidebar.side == .left ? .topLeading : .topTrailing) { presetLight }
         .overlay(alignment: .top) { accessoryView }
         .overlay(alignment: .top) { noticesView }
         .overlay(alignment: .bottom) { bottomBarView }
