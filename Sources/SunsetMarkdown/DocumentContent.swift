@@ -11,6 +11,24 @@ package import SwiftUI
 /// on the same file shows the same text, edits and undo history.
 @MainActor @Observable
 package final class DocumentContent: PaneContent {
+    /// The size it was last drawn at, and on what: its picture is made at that size.
+    @ObservationIgnored var drawnSize = CGSize.zero
+    @ObservationIgnored var backdrop = PaneBackdrop.black
+    /// Its last picture: for its tab's hover card, and a window that shows it while another draws it.
+    package private(set) var picture: CGImage?
+
+    /// Pictured as it is: the page drawn again from its rows (rendered), or its first lines (source), at the size it was last
+    /// drawn, on its backdrop. Drawn from the document, not from the window, so that nothing over it (the hover card itself)
+    /// is pictured (the owner, 2026-11-17: previews were nested in previews).
+    package func takePicture() {
+        guard drawnSize.width > 0, drawnSize.height > 0, document.problem != .notText, document.problem != .unreadable
+        else { return }
+        let page = DocumentPicture(content: self, size: drawnSize).paneBackdrop(backdrop)
+        let renderer = ImageRenderer(content: page)
+        renderer.scale = NSScreen.main?.backingScaleFactor ?? 2
+        picture = renderer.cgImage
+    }
+
     package static let kind = PaneDescriptor.documentKind
 
     package let document: OpenDocument
@@ -29,7 +47,8 @@ package final class DocumentContent: PaneContent {
     @ObservationIgnored package var onFocusRequest: () -> Void = {}
     /// Something the session keeps has changed (which view).
     @ObservationIgnored package var onChange: () -> Void = {}
-    @ObservationIgnored package var onOpen: (DocumentOpening) -> Void = { _ in }
+    /// What it opens, and where (Show Beside: beside; a link: where the keys held and the setting say).
+    @ObservationIgnored package var onOpen: (DocumentOpening, LinkPlace) -> Void = { _, _ in }
     @ObservationIgnored let documents: OpenDocuments
     @ObservationIgnored private var isVisible = false
     @ObservationIgnored private var hadFocus = false
@@ -80,6 +99,8 @@ package final class DocumentContent: PaneContent {
 
     package func setState(focused: Bool, visible: Bool) {
         guard !stopped else { return }
+        // Hidden: pictured while it is still drawn, for its tab's hover card (the owner, 2026-11-17).
+        if isVisible, !visible { takePicture() }
         isVisible = visible
         // Another pane took the keyboard: the document saves itself when the setting says so.
         if hadFocus, !focused { document.focusLost() }

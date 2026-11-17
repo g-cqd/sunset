@@ -132,7 +132,8 @@ final class AppActions {
 
     /// The focused pane of a split leaves it, to a tab of its own.
     func moveFocusedPaneToTab() {
-        if let tabs = keyTabs, let pane = tabs.workspace.selectedPane { tabs.detachIntoTab(pane) }
+        // A kept entry's too (the owner, 2026-11-17: "separate any tabs from split tabs anywhere").
+        if let tabs = keyTabs, let pane = tabs.shownPane { tabs.separate(pane: pane) }
     }
 
     func selectNextTab() {

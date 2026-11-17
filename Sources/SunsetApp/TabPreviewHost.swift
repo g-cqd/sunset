@@ -83,7 +83,9 @@ struct TabPreviewHost: View {
             // A page on screen is pictured as it is now; one that is hidden keeps the picture taken as it was hidden.
             for pane in item.panes { tabs.content(pane)?.takePicture() }
         }
-        if hoveredHasPicture, let id = tabs.hoveredItem {
+        // Not for the tab on screen: its card would picture what is under it (the owner, 2026-11-17: "nesting of the preview
+        // in previews").
+        if hoveredHasPicture, let id = tabs.hoveredItem, id != tabs.shownItem?.id {
             leaving?.cancel()
             shown = Shown(item: id, row: tabs.hoveredRowFrame)
         } else {

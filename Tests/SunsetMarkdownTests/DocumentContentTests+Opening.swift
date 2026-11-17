@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import MarkdownLookKit
 import SunsetDocuments
@@ -17,8 +18,13 @@ extension DocumentContentTests {
     @Test func `Show Beside opens the other view of the same document`() throws {
         let pane = try content(try file("b.md", "# B\n"))
         var opened: [DocumentOpening] = []
-        pane.onOpen = { opened.append($0) }
+        var places: [LinkPlace] = []
+        pane.onOpen = {
+            opened.append($0)
+            places.append($1)
+        }
         pane.showBeside()
+        #expect(places == [.beside], "Show Beside is beside")
         guard case .document(let other) = try #require(opened.first) else {
             Issue.record("a document pane is opened")
             return
@@ -26,7 +32,7 @@ extension DocumentContentTests {
         #expect(other.document === pane.document && other.mode == .source && pane.mode == .rendered)
         #expect(pane.document.paneCount == 2)
         let text = try content(try file("b.txt", "text\n"))
-        text.onOpen = { opened.append($0) }
+        text.onOpen = { opening, _ in opened.append(opening) }
         text.showBeside()
         #expect(opened.count == 1, "a text file has one view")
         other.stop()
@@ -34,18 +40,30 @@ extension DocumentContentTests {
         text.stop()
     }
 
-    @Test func `a link is opened beside: a web address as a page, a file as a document, mail by the system`() throws {
+    /// The owner, 2026-11-17: a link opened in a split; now in a new tab unless `documents.linksOpen` or the keys say
+    /// otherwise.
+    @Test func `a link opens in a new tab by default, beside when set or with Option: a page, a document, mail`() throws
+    {
         let pane = try content(try file("links.md", "[a](other.md)\n"))
         _ = try file("other.md", "# Other\n")
         var opened: [DocumentOpening] = []
-        pane.onOpen = { opened.append($0) }
+        var places: [LinkPlace] = []
+        pane.onOpen = {
+            opened.append($0)
+            places.append($1)
+        }
         let web = try #require(URL(string: "https://example.org/a"))
         let mail = try #require(URL(string: "mailto:me@example.org"))
-        pane.open(link: web)
-        pane.open(link: URL(fileURLWithPath: root + "/other.md"))
-        pane.open(link: mail)
-        pane.open(link: URL(fileURLWithPath: root))
-        #expect(opened.count == 4)
+        pane.open(link: web, modifiers: [])
+        pane.open(link: URL(fileURLWithPath: root + "/other.md"), modifiers: [])
+        pane.open(link: mail, modifiers: [])
+        pane.open(link: URL(fileURLWithPath: root), modifiers: [])
+        #expect(opened.count == 4 && places == [.tab, .tab, .tab, .tab])
+        pane.open(link: web, modifiers: [.option])
+        pane.documents.look.linksBeside = true
+        pane.open(link: web, modifiers: [])
+        pane.open(link: web, modifiers: [.command])
+        #expect(places.suffix(3) == [.beside, .beside, .backgroundTab])
         if case .web(let url) = opened[0] { #expect(url == web) } else { Issue.record("a page") }
         if case .document(let other) = opened[1] {
             #expect(other.title == "other.md" && other.document !== pane.document)

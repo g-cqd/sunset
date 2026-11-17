@@ -143,6 +143,7 @@ public enum ConfigurationWriter {
         extra["documents.saveAfter"] = number(configuration.documents.saveAfter)
         extra["documents.saveOnFocusLoss"] = String(configuration.documents.saveOnFocusLoss)
         extra["documents.largerHeadings"] = String(configuration.documents.largerHeadings)
+        extra["documents.linksOpen"] = string(configuration.documents.linksOpen.rawValue)
         extra["tabs.closeWithLastWindow"] = String(configuration.tabs.closeWithLastWindow)
         extra["tabs.closeStoppedAfter"] = number(configuration.tabs.closeStoppedAfter)
         extra["tabs.closeWindowWithLastTab"] = String(configuration.tabs.closeWindowWithLastTab)

@@ -56,7 +56,7 @@ struct SidebarGroupRow: View {
 
     private func part(_ pane: PaneID) -> some View {
         SidebarGroupPart(
-            model: tabs.contents[pane],
+            model: tabs.content(pane),
             lit: selected && pane == item.focused,
             layout: layout,
             onHoverChange: { inside in
@@ -66,15 +66,12 @@ struct SidebarGroupRow: View {
                     tabs.hoveredPane = nil
                 }
             },
-            select: {
-                tabs.select(item: item.id)
-                tabs.focus(pane)
-            }
+            select: { tabs.choose(part: pane, of: .tab(item.id)) }
         )
         .onDrag { tabs.itemProvider(for: .pane(pane)) }
         .contextMenu {
             Button("Rename Tab…") { tabs.beginRename(item: item.id) }
-            Button("Move Pane to Its Own Tab") { tabs.detachIntoTab(pane) }
+            Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
             Button("Close Pane") { tabs.requestClose(pane: pane) }
         }
     }

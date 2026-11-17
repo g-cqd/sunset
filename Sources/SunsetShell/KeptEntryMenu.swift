@@ -41,6 +41,14 @@ struct KeptEntryMenu: View {
         if entry.isOpen {
             Button(isPinned ? "Pin Where It Is Now" : "Set Home to Current") { keeper.setHomeToCurrent(entry.id) }
             Button("Unload") { tabs.unload(entry: entry.id) }
+            if let open = entry.open, open.isSplit {
+                // Any pane out of a kept split, into a tab of its own (the owner, 2026-11-17).
+                Menu("Move Pane to Its Own Tab") {
+                    ForEach(open.panes, id: \.self) { pane in
+                        Button(tabs.content(pane)?.title ?? "Pane") { tabs.separate(pane: pane) }
+                    }
+                }
+            }
             // While it is open: unloading it lets go (roadmap 0036 C).
             KeepAwakeMenu(tabs: tabs, entry: entry.id)
         }

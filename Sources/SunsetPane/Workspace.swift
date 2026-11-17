@@ -129,6 +129,14 @@ public struct Workspace: Sendable, Equatable {
         return pane
     }
 
+    /// Puts `pane`, taken out of a kept entry's split, in a tab of its own at `index`, selected; its id.
+    @discardableResult
+    public mutating func insert(pane: PaneID, at index: Int) -> ItemID {
+        let item = Item(layout: .pane(pane), focused: pane)
+        insert(item, at: index)
+        return item.id
+    }
+
     /// Puts a tab that exists (released from the Favorites, or taken from another window) at `index`, brought inside, and selects it. A tab that is
     /// already here is not put twice.
     public mutating func insert(_ item: Item, at index: Int) {

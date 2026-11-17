@@ -1,3 +1,4 @@
+package import AppKit
 package import Foundation
 internal import SunsetDocuments
 internal import SunsetPane
@@ -29,25 +30,33 @@ extension DocumentContent {
     package func showBeside() {
         guard canRender else { return }
         onOpen(
-            .document(DocumentContent(document: documents.open(document.place), mode: mode.other, documents: documents))
+            .document(
+                DocumentContent(document: documents.open(document.place), mode: mode.other, documents: documents)
+            ),
+            .beside
         )
     }
 
-    /// A link of the page was followed: it opens beside this pane, and never in it.
-    package func open(link url: URL) {
+    /// A link of the page was followed: where the keys held say, else where `documents.linksOpen` says (the owner,
+    /// 2026-11-17); never in this pane.
+    package func open(link url: URL, modifiers: NSEvent.ModifierFlags = NSApp?.currentEvent?.modifierFlags ?? []) {
+        let place = LinkPlace(modifiers: modifiers, besideByDefault: documents.look.linksBeside)
         guard url.isFileURL else {
             let scheme = url.scheme?.lowercased()
-            return onOpen(scheme == "http" || scheme == "https" ? .web(url) : .system(url))
+            return onOpen(scheme == "http" || scheme == "https" ? .web(url) : .system(url), place)
         }
         var isFolder: ObjCBool = false
         guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isFolder), !isFolder.boolValue else {
             // A folder is the Finder's; a file that is not there opens as a document that says so.
-            return isFolder.boolValue ? onOpen(.system(url)) : openDocument(at: url.path)
+            return isFolder.boolValue ? onOpen(.system(url), place) : openDocument(at: url.path, place: place)
         }
-        openDocument(at: url.path)
+        openDocument(at: url.path, place: place)
     }
 
-    private func openDocument(at path: String) {
-        onOpen(.document(DocumentContent(document: documents.open(.file(path)), mode: nil, documents: documents)))
+    private func openDocument(at path: String, place: LinkPlace) {
+        onOpen(
+            .document(DocumentContent(document: documents.open(.file(path)), mode: nil, documents: documents)),
+            place
+        )
     }
 }

@@ -9,6 +9,15 @@ extension Configuration {
         public var saveOnFocusLoss = true
         /// The source shows a heading at the page's size for its level (roadmap 0034): closer to what it becomes.
         public var largerHeadings = true
+        /// Where a plain click on a document's link opens it (the owner, 2026-11-17).
+        public var linksOpen = LinksOpen.tab
+
+        public enum LinksOpen: String, Sendable, Equatable, CaseIterable {
+            /// In a new tab, shown, as a browser.
+            case tab
+            /// Beside the document, in a split.
+            case beside
+        }
 
         public init() {}
     }

@@ -107,7 +107,17 @@ extension SettingsOption {
                 "markdown source editor heading size font page look rendered",
                 \.documents.largerHeadings
             )
-            .noted("A heading's text is at the size the page gives it; off, every line of the source has one height.")
+            .noted("A heading's text is at the size the page gives it; off, every line of the source has one height."),
+            choice(
+                "documents.linksOpen",
+                "Open links from documents",
+                "link click markdown rendered page tab split beside open",
+                \.documents.linksOpen,
+                [(.tab, "In a new tab"), (.beside, "Beside the document")]
+            )
+            .noted(
+                "⌘-click opens a link in a tab behind, ⇧⌘-click in a tab shown, ⇧-click in a new window, ⌥-click beside."
+            )
         ]
 
     /// The configuration file.

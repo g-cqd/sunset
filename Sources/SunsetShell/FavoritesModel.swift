@@ -204,6 +204,16 @@ package final class FavoritesModel {
         if unloaded { released(id) }
     }
 
+    /// Takes one pane out of an open entry's split, running: its content, handed to whoever takes the pane; nil when the
+    /// entry does not hold it with another.
+    func separate(pane: PaneID) -> (any PaneContent)? {
+        var taken = false
+        edit { taken = $0.separate(pane: pane) }
+        guard taken else { return nil }
+        pending[pane] = nil
+        return contents.removeValue(forKey: pane)
+    }
+
     /// A program in an entry's pane ended by itself.
     func paneEnded(_ pane: PaneID) { close(pane: pane) }
 

@@ -33,13 +33,25 @@ struct EntryGroupRow: View {
             HStack(spacing: inset) {
                 ForEach(panes, id: \.self) { pane in
                     SidebarGroupPart(
-                        model: entry.open == nil ? nil : tabs.favorites.contents[pane],
+                        model: entry.open == nil ? nil : tabs.content(pane),
                         saved: entry.home.contents[pane],
                         lit: selected && pane == (entry.open?.focused ?? entry.home.focused),
                         layout: layout,
                         height: Design.Size.favoriteRow - 2 * inset,
-                        select: { tabs.select(entry: entry.id) }
+                        // Open: shows the entry with the keyboard in that pane (the owner, 2026-11-17); not loaded, opens it.
+                        select: {
+                            if entry.isOpen {
+                                tabs.choose(part: pane, of: .node(entry.id))
+                            } else {
+                                tabs.select(entry: entry.id)
+                            }
+                        }
                     )
+                    .contextMenu {
+                        if entry.isOpen, panes.count > 1 {
+                            Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
+                        }
+                    }
                 }
             }
         }

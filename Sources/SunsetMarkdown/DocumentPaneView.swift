@@ -51,6 +51,10 @@ struct DocumentPaneView: View {
         }
         .padding(.top, context.topInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Its size and backdrop, for its picture (its tab's hover card).
+        .onGeometryChange(for: CGSize.self, of: { $0.size }) { content.drawnSize = $0 }
+        .onAppear { content.backdrop = context.backdrop }
+        .onChange(of: context.backdrop) { _, new in content.backdrop = new }
         // On the terminal's background, as every pane (the owner, 2026-11-15).
         .paneBackdrop(context.backdrop)
         .task(id: document.lastMerge?.id) { await show(document.lastMerge) }

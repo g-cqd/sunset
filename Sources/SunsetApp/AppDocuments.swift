@@ -51,6 +51,7 @@ enum AppDocuments {
         AppStorage.shared.openDocuments.autosave.fileDelay = asked.fileDelay
         AppStorage.shared.openDocuments.autosave.onFocusLoss = asked.onFocusLoss
         AppStorage.shared.openDocuments.look.largerHeadings = settings.largerHeadings
+        AppStorage.shared.openDocuments.look.linksBeside = settings.linksOpen == .beside
     }
 }
 

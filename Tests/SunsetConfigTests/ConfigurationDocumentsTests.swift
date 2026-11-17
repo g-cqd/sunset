@@ -34,7 +34,7 @@ import Testing
         #expect(back.issues.isEmpty && back.configuration.documents == configuration.documents)
         #expect(
             SettingsSection.topic("general.documents")?.topic.options.map(\.id) == [
-                "documents.saveAfter", "documents.saveOnFocusLoss", "documents.largerHeadings"
+                "documents.saveAfter", "documents.saveOnFocusLoss", "documents.largerHeadings", "documents.linksOpen"
             ]
         )
         #expect(
@@ -53,6 +53,9 @@ import Testing
         configuration.documents.largerHeadings = false
         let back = try ConfigurationParser.parse(ConfigurationWriter.text(for: configuration))
         #expect(back.issues.isEmpty && back.configuration.documents == configuration.documents)
-        #expect(SettingsSection.topic("general.documents")?.topic.options.map(\.id).last == "documents.largerHeadings")
+        #expect(
+            SettingsSection.topic("general.documents")?.topic.options.map(\.id).contains("documents.largerHeadings")
+                == true
+        )
     }
 }
