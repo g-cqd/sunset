@@ -38,7 +38,8 @@ extension WebContent {
                         body: fields["body"] as? String ?? "",
                         host: host,
                         tag: fields["tag"] as? String ?? "",
-                        icon: fields["icon"] as? String
+                        icon: fields["icon"] as? String,
+                        silent: fields["silent"] as? Bool ?? false
                     )
                 )
                 return true

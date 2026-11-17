@@ -37,6 +37,10 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
             content.title = note.title.isEmpty ? note.host : note.title
             content.subtitle = note.title.isEmpty ? "" : note.host
             content.body = note.body
+            // The page asked for no sound, or has not (roadmap 0037 C).
+            content.sound = note.silent ? nil : .default
+            // A later one with the same tag is a new alert: macOS shows a replaced banner again.
+            content.interruptionLevel = .active
             if let file = await page.notificationIcon(for: note),
                 let picture = try? UNNotificationAttachment(identifier: "icon", url: file)
             {

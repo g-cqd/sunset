@@ -30,5 +30,6 @@ in an app WebKit has nowhere to post a notification: probed in a real page with 
 ## Not done
 
 - Notifications from service workers (push while no page is open): not supported.
-- `tag`, `close()` and `icon` since roadmap 0036 E; `actions` and `requireInteraction` are not passed on.
+- `tag`, `close()` and `icon` since roadmap 0036 E; `silent` since 0037 C. `actions` throw as the standard says (a
+  service worker's only); `requireInteraction` has no per-notification switch on macOS.
 - The click is not seen working: posting needs Sunset.app's identity and the person's leave, not probed from a test.

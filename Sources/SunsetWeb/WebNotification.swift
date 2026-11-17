@@ -16,8 +16,19 @@ package struct WebNotification: Sendable, Equatable {
     package let tag: String
     /// Its picture: an http, https or data address only (roadmap 0036 E).
     package let icon: URL?
+    /// The page asked for no sound (roadmap 0037 C).
+    package let silent: Bool
 
-    init(id: Int, title: String, body: String, host: String, tag: String = "", icon: String? = nil) {
+    init(
+        id: Int,
+        title: String,
+        body: String,
+        host: String,
+        tag: String = "",
+        icon: String? = nil,
+        silent: Bool = false
+    ) {
+        self.silent = silent
         self.id = id
         self.title = String(UntrustedText.oneLine(title).prefix(Self.titleLimit))
         self.body = String(UntrustedText.oneLine(body).prefix(Self.bodyLimit))

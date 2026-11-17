@@ -20,6 +20,9 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
               super();
               if (arguments.length === 0) throw new TypeError("Failed to construct 'Notification': 1 argument required.");
               options = options || {};
+              // As the standard: actions are a service worker's only, renotify needs a tag (roadmap 0037 C).
+              if (options.actions && options.actions.length) throw new TypeError("Failed to construct 'Notification': Actions are only supported for persistent notifications shown using ServiceWorkerRegistration.showNotification().");
+              if (options.renotify && !options.tag) throw new TypeError("Failed to construct 'Notification': Notifications which set the renotify flag must specify a non-empty tag.");
               this.title = String(title);
               this.body = options.body == null ? "" : String(options.body);
               this.tag = options.tag == null ? "" : String(options.tag);
@@ -27,12 +30,18 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
               try { icon = options.icon == null ? "" : new URL(String(options.icon), location.href).href; } catch (e) {}
               this.icon = icon;
               this.data = options.data === undefined ? null : options.data;
-              this.silent = !!options.silent;
+              this.silent = options.silent == null ? null : !!options.silent;
+              this.requireInteraction = !!options.requireInteraction;
+              this.renotify = !!options.renotify;
+              this.actions = Object.freeze([]);
+              this.dir = options.dir || "auto";
+              this.lang = options.lang == null ? "" : String(options.lang);
+              this.timestamp = options.timestamp == null ? Date.now() : Number(options.timestamp);
               this.onclick = null; this.onshow = null; this.onerror = null; this.onclose = null;
               const id = next++;
               shown.set(id, this);
               this.__id = id;
-              bridge.postMessage({ kind: "show", id, title: this.title, body: this.body, tag: this.tag, icon: this.icon })
+              bridge.postMessage({ kind: "show", id, title: this.title, body: this.body, tag: this.tag, icon: this.icon, silent: this.silent === true })
                 .then(ok => this.__fire(ok ? "show" : "error"), () => this.__fire("error"));
             }
             __fire(type) {
