@@ -17,7 +17,7 @@ final class MacAwake {
     func update() {
         let windows = TabRegistry.shared.allWindows().map(\.tabs)
         // What no longer applies is forgotten first (a command ended), outside the observation.
-        for tabs in windows { tabs.settleAwake() }
+        TabsModel.settleAwake(in: windows)
         let (wanted, keepsDisplay) = withObservationTracking {
             (windows.contains { $0.keepsMacAwake }, AppConfiguration.shared.configuration.tabs.keepAwakeDisplay)
         } onChange: {

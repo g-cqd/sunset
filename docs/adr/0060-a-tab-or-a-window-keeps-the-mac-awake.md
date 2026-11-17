@@ -15,7 +15,8 @@ running". His answers: both ways, chosen; whether the display stays on too is "c
    offered only while a command runs, and does not wait for the next one: it is forgotten once the command has ended.
 2. A command runs when a terminal's shell has a program in front (`foregroundCommand`, already looked at after the screen
    changes): `PaneContent.runsCommand`, read without asking the system.
-3. **A tab kept awake is the Space's** (`SpaceModel.awake`): every window on the Space sees it. A window's is its own
+3. **A tab kept awake is its panes'** (`KeepAwakePanes`, roadmap 0038 A; it was the Space's, by the tab's id, and was lost
+   when the tab moved): every window sees it, and it goes with the tab wherever it goes. A window's is its own
    (`TabsModel.windowAwake`).
 4. **One system activity for the app** (`MacAwake`, `ProcessInfo.beginActivity` with `idleSystemSleepDisabled`), held
    while one window wants it, followed by observation. With **`tabs.keepAwakeDisplay`** (off by default) the display stays

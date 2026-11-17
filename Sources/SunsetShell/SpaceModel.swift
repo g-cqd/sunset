@@ -26,8 +26,6 @@ package final class SpaceModel {
     /// What brings back the content of a pane that has none: read from the session, or stopped with the last window.
     @ObservationIgnored var pending: [PaneID: PaneDescriptor] = [:]
     @ObservationIgnored private var viewers: [Weak] = []
-    /// The tabs kept awake, and until when (roadmap 0035 E): seen alike by every window on the Space.
-    package internal(set) var awake: [Workspace.ItemID: KeepAwake] = [:]
     /// The window each tab is live in.
     var live: [Workspace.ItemID: Weak] = [:]
 
