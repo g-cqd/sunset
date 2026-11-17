@@ -137,6 +137,12 @@ package final class WebContent: PaneContent {
         shown = visible
     }
 
+    /// Its row is pointed at (note n1): a page not made yet is made, and starts loading, so that it is drawn by the time
+    /// its tab is shown.
+    package func prepare() {
+        if webView == nil { makeWebView(configuration: nil) }
+    }
+
     /// A snapshot of the page as it is drawn now (roadmap 0035 C, J): kept as its `picture` when it arrives.
     package func takePicture() {
         guard let webView, webView.window != nil, webView.bounds.width > 0, webView.bounds.height > 0 else { return }

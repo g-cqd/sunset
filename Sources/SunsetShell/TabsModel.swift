@@ -75,7 +75,13 @@ package final class TabsModel {
     /// The pane whose sub-tab is currently under the pointer in a split container (`SidebarGroupRow`), so its terminal card can highlight its stroke.
     package var hoveredPane: PaneID?
     /// The tab row currently under the pointer in the sidebar or tab bar, so an unselected tab can show a screen preview (`n36`).
-    package var hoveredItem: Workspace.ItemID?
+    package var hoveredItem: Workspace.ItemID? {
+        didSet {
+            // Pointed at: what it would show gets ready (note n1).
+            guard let hoveredItem, hoveredItem != oldValue, let item = previewItem(hoveredItem) else { return }
+            for pane in item.panes { content(pane)?.prepare() }
+        }
+    }
     /// Where that row is, in the window (global coordinates): the preview is placed beside it (n47).
     package var hoveredRowFrame: CGRect?
     /// The tab being renamed, while its dialog is open (`RenameTabAlert`).

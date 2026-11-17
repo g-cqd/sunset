@@ -27,6 +27,8 @@ import SwiftUI
     private(set) var typed: [String] = []
     /// How many times it was asked to take a picture of itself.
     private(set) var pictures = 0
+    /// How many times it was asked to get ready (its row pointed at).
+    private(set) var readied = 0
 
     init(_ descriptor: PaneDescriptor? = nil) { self.descriptor = descriptor ?? PaneDescriptor(kind: "fake") }
 
@@ -37,6 +39,7 @@ import SwiftUI
 
     func stop() { stopped = true }
     func takePicture() { pictures += 1 }
+    func prepare() { readied += 1 }
     func type(command: String) { typed.append(command) }
     func makeView(_ context: PaneViewContext) -> AnyView { AnyView(EmptyView()) }
 }
