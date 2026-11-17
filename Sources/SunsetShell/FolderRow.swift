@@ -52,7 +52,7 @@ struct FolderRow: View {
         .contentShape(.rect)
         .onHover { hovering = $0 }
         .animation(layout.smooth, value: hovering)
-        .selectionTaps(tabs, row: .node(folder.id)) { toggle() }
+        .selectionTaps(tabs, row: .node(folder.id), undo: toggle) { toggle() }
         .onDrag { tabs.itemProvider(for: .entry(folder.id)) }
         .iconPopover(tabs: tabs, row: .node(folder.id))
         .onDrop(of: [.plainText, .utf8PlainText], delegate: Drop(tabs: tabs, folder: folder.id, targeted: $targeted))

@@ -7,13 +7,25 @@ extension View {
     /// The double click is beside the click, not before it: a two-click gesture put first holds the click until a second one
     /// can no longer come, and every click on a row was 360 ms late (measured in `SidebarClickTests`; owner notes n15, n56,
     /// n59). The first click of a double click therefore runs `plain` too.
-    func selectionTaps(_ tabs: TabsModel, row: RowTarget, plain: @escaping () -> Void) -> some View {
+    /// `undo` takes back what the first click of a double click did (a folder folded by it is as it was; roadmap 0036 G).
+    func selectionTaps(
+        _ tabs: TabsModel,
+        row: RowTarget,
+        undo: @escaping () -> Void = {},
+        plain: @escaping () -> Void
+    ) -> some View {
         gesture(TapGesture().modifiers(.command).onEnded { tabs.click(row, command: true, shift: false) })
             .gesture(TapGesture().modifiers(.shift).onEnded { tabs.click(row, command: false, shift: true) })
             .onTapGesture {
                 tabs.click(row, command: false, shift: false)
                 plain()
             }
-            .simultaneousGesture(TapGesture(count: 2).onEnded { tabs.renamingRow = row })
+            .simultaneousGesture(
+                TapGesture(count: 2)
+                    .onEnded {
+                        undo()
+                        tabs.renamingRow = row
+                    }
+            )
     }
 }
