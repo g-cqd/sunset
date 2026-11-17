@@ -15,7 +15,7 @@ package struct CommandSheet: View {
     }
 
     package var body: some View {
-        let saved = tabs.favorites.favorites.entry(entry)
+        let saved = tabs.keeper(of: entry).favorites.entry(entry)
         VStack(alignment: .leading, spacing: Design.Space.l) {
             Text("Command for \u{201C}\(saved?.title ?? "this favourite")\u{201D}").font(Design.Text.title)
             Text(
@@ -27,7 +27,7 @@ package struct CommandSheet: View {
             if let directory = saved?.home.contents[saved?.home.focused ?? PaneID()]?.directory {
                 Text("In \(directory)").font(Design.Text.secondary.monospaced()).foregroundStyle(.secondary)
             }
-            if tabs.favorites.unconfirmed.contains(entry) {
+            if tabs.keeper(of: entry).unconfirmed.contains(entry) {
                 Label(
                     "This command was not written by Sunset (the session file was changed by something else). It was not run. Save it to trust it.",
                     systemImage: "exclamationmark.shield"
@@ -46,7 +46,7 @@ package struct CommandSheet: View {
                 Spacer()
                 SwiftUI.Button("Cancel", role: .cancel) { dismiss() }.keyboardShortcut(.cancelAction)
                 SwiftUI.Button("Save") {
-                    tabs.favorites.setCommand(text, for: entry)
+                    tabs.keeper(of: entry).setCommand(text, for: entry)
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)

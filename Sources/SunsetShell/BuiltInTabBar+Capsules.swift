@@ -4,6 +4,18 @@ import SwiftUI
 
 extension BuiltInTabBar {
     /// The Favorites in the row of capsules: a circle each (a folder's too); the tabs' leading blur sets them off.
+    /// The entries of the Pinned grid, as icons before everything else in the bar.
+    var pinnedTiles: some View {
+        HStack(spacing: Design.Space.s) {
+            ForEach(tabs.pinnedEntries) { entry in
+                entryRow(entry).frame(width: Design.TabCapsules.height)
+            }
+        }
+        .environment(\.tabIconOnly, true)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Pinned")
+    }
+
     func pinned(_ items: [Favorites.BarItem]) -> some View {
         HStack(spacing: Design.Space.s) {
             ForEach(items, id: \.self) { item in

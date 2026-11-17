@@ -50,6 +50,8 @@ package struct BuiltInTabBar: View {
             SpacesMenuButton(tabs: tabs)
             if let navigation { navigation.transition(.opacity) }
             // Pinned: the Favorites as circles before the tabs, outside their scroll (owner, 2026-11-13).
+            // The Pinned grid has no place in a bar: its entries are the first tabs, as icons (ADR-0054).
+            if !tabs.pinnedEntries.isEmpty { pinnedTiles }
             if capsules, !pinnedItems.isEmpty { pinned(pinnedItems) }
             GeometryReader { proxy in
                 let width = Self.width(

@@ -56,27 +56,82 @@ extension TabsModel {
         return id
     }
 
-    /// Pins the tabs that are dragged (a row, or the rows marked): dropped on the grid.
+    /// Whether the row could be pinned: a tab, or an entry of the Favorites (a folder is not pinned), with room in the grid.
+    package func canPin(_ row: RowTarget) -> Bool {
+        guard canPin else { return false }
+        switch row {
+            case .tab(let id): return workspace.items.contains { $0.id == id }
+            case .node(let id): return favorites.favorites.entry(id) != nil
+        }
+    }
+
+    /// Pins an entry of the Favorites: the same entry, as it is, goes to the grid (open, it runs on, and a window that
+    /// shows it goes on showing it). False for a folder, for one already pinned, and with no room.
+    @discardableResult
+    package func pin(entry id: Favorites.NodeID) -> Bool {
+        guard canPin, let pinned, favorites.give(id, to: pinned) else { return false }
+        marked.removeAll { $0 == .node(id) }
+        syncStates()
+        onChange()
+        return true
+    }
+
+    /// Makes a pinned entry a favourite: the same entry, as it is, at the end of the Favorites of the Space shown.
+    @discardableResult
+    package func favorite(pinned id: Favorites.NodeID) -> Bool {
+        guard let pinned, pinned.give(id, to: favorites) else { return false }
+        syncStates()
+        onChange()
+        return true
+    }
+
+    /// Pins the tabs and the favourites among `rows`, in order, while there is room; says how many.
+    @discardableResult
+    package func pin(_ rows: [RowTarget]) -> Int {
+        var count = 0
+        for row in rows {
+            switch row {
+                case .tab(let id): if pin(item: id, show: false) != nil { count += 1 }
+                case .node(let id): if pin(entry: id) { count += 1 }
+            }
+        }
+        clearMarks()
+        return count
+    }
+
+    /// What is dragged, as rows: the rows marked when the dragged one is among them, else the dragged one alone.
+    private var draggedRows: [RowTarget] {
+        if let several = draggedSelection { return several }
+        switch dragged {
+            case .item(let id): return [.tab(id)]
+            case .entry(let id): return [.node(id)]
+            case .pane, .document, nil: return []
+        }
+    }
+
+    /// Pins what is dragged (a tab's row, a favourite's, or the rows marked): dropped on the grid.
     package func pinDragged() -> Bool {
-        let rows = draggedSelection ?? []
+        let rows = draggedRows
         dragged = nil
-        var pinnedAny = false
-        for case .tab(let id) in rows where pin(item: id, show: false) != nil { pinnedAny = true }
-        return pinnedAny
+        return pin(rows) > 0
     }
 
-    /// Whether what is dragged could be pinned: a tab, or tabs, with room for one more.
-    package var canPinDragged: Bool {
-        canPin && (draggedSelection ?? []).contains { if case .tab = $0 { true } else { false } }
-    }
+    /// Whether what is dragged could be pinned: a tab or a favourite, with room for one more.
+    package var canPinDragged: Bool { draggedRows.contains { canPin($0) } }
 
-    /// Starts a pinned entry again from where it was pinned: what it runs is stopped, and it opens anew (a page at its
-    /// pinned address, a terminal in its folder). The owner, 2026-11-17: in the tile's menu, not on a second click.
+    /// Starts a kept entry again from where it was pinned or kept: what it runs is stopped (asking first when something
+    /// would be lost, as unloading does), and it opens anew (a page at its address, a terminal in its folder). The owner,
+    /// 2026-11-17: in the menu, not on a second click.
     package func reset(entry id: Favorites.NodeID) {
         let keeper = keeper(of: id)
-        guard keeper.favorites.entry(id) != nil else { return }
-        if workspace.selectedEntry == id { left(id) }
-        keeper.unload(id)
-        select(entry: id)
+        guard let entry = keeper.favorites.entry(id) else { return }
+        guard let open = entry.open else { return select(entry: id) }
+        let busy = open.panes.contains { keeper.contents[$0]?.closeWarning != nil }
+        guard confirmed(.item(open.id), isBusy: busy) else { return }
+        losingNothing(closing: open.panes) { [self] in
+            if workspace.selectedEntry == id { left(id) }
+            keeper.unload(id)
+            select(entry: id)
+        }
     }
 }

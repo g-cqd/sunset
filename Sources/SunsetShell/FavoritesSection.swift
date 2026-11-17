@@ -120,18 +120,6 @@ struct FavoritesSection: View {
 
     @ViewBuilder private func entryMenu(_ entry: Favorites.Entry) -> some View {
         SelectionMenu(tabs: tabs, row: .node(entry.id))
-        Button("Remove from Favorites") { tabs.release(entry: entry.id) }
-        Button("Rename") { tabs.renamingRow = .node(entry.id) }
-        Button("Change Icon…") { tabs.iconRow = .node(entry.id) }
-        Button("Edit Command…") { tabs.editingCommand = entry.id }
-        if entry.isOpen {
-            if entry.command != nil {
-                Button("Run Command Now") { tabs.favorites.runCommandNow(entry.id) }
-                    .disabled(!tabs.favorites.isTrusted(entry.id))
-            }
-            Button("Set Home to Current") { tabs.favorites.setHomeToCurrent(entry.id) }
-            Button("Unload") { tabs.unload(entry: entry.id) }
-        }
-        Button("Delete") { tabs.delete(entry: entry.id) }
+        KeptEntryMenu(tabs: tabs, entry: entry, animation: layout.smooth)
     }
 }

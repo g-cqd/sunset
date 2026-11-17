@@ -10,6 +10,8 @@ struct SelectionMenu: View {
         let rows = tabs.rows(actingOn: row)
         if rows.count > 1 {
             Button("New Folder with \(rows.count) Items") { tabs.group(rows) }
+            let pinnable = rows.filter { tabs.canPin($0) }.count
+            if pinnable > 0 { Button("Pin \(pinnable)") { tabs.pin(rows) } }
             if rows.contains(where: { if case .tab = $0 { true } else { false } }) {
                 Button("Add \(count(rows, tabs: true)) to Favorites") { tabs.addToFavorites(rows) }
             }

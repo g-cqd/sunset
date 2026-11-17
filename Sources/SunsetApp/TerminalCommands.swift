@@ -87,6 +87,7 @@ struct TerminalCommands: Commands {
             Divider()
             Button("Rename Tab…") { AppActions.shared.renameTab() }
             Button("Pin or Unpin Tab") { AppActions.shared.togglePinned() }
+            Button("Add to or Remove from Favorites") { AppActions.shared.toggleFavorite() }
         }
         CommandMenu("History") {
             Button("Back") { page?.goBack() }.keyboardShortcut("[").disabled(page?.canGoBack != true)

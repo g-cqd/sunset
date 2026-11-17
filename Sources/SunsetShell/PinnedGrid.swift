@@ -64,13 +64,21 @@ struct PinnedGrid: View {
                 }
                 .opacity(entry.isOpen ? 1 : 0)
             }
+            .overlay {
+                // Asked whether to stop what runs in it (Unload, Reset, Delete): marked as a tab's row is.
+                if entry.open.map({ tabs.isCloseArmed($0.id) }) == true {
+                    shape.strokeBorder(Color.red.opacity(Design.Fill.armedLine), lineWidth: 1)
+                }
+            }
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .help(name(entry))
         .accessibilityLabel(name(entry))
         .accessibilityAddTraits(shown ? .isSelected : [])
-        .contextMenu { menu(entry) }
+        .contextMenu { KeptEntryMenu(tabs: tabs, entry: entry, animation: layout.smooth) }
+        // Dragged out: onto the Favorites it is a favourite there, onto the tabs a tab again.
+        .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
         .iconPopover(tabs: tabs, row: .node(entry.id))
         // A tile has no text to edit in place: its name is asked beside it.
         .popover(
@@ -88,18 +96,5 @@ struct PinnedGrid: View {
         if !own.isEmpty { return own }
         return entry.home.contents[entry.home.focused].map { TabLabel.title(of: $0, command: entry.command) }
             ?? "Pinned"
-    }
-
-    @ViewBuilder
-    private func menu(_ entry: Favorites.Entry) -> some View {
-        Button(entry.isOpen ? "Show" : "Open") { tabs.select(entry: entry.id) }
-        Button("Reset to Where It Was Pinned") { tabs.reset(entry: entry.id) }
-        if entry.isOpen { Button("Unload") { tabs.unload(entry: entry.id) } }
-        Divider()
-        Button("Rename") { tabs.renamingRow = .node(entry.id) }
-        Button("Change Icon\u{2026}") { tabs.iconRow = .node(entry.id) }
-        Divider()
-        Button("Unpin") { tabs.release(entry: entry.id) }
-        Button("Delete", role: .destructive) { tabs.delete(entry: entry.id) }
     }
 }

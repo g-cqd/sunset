@@ -189,9 +189,9 @@ package struct TabSidebar: View {
                 SelectionMenu(tabs: tabs, row: .tab(item.id))
                 Button("Rename") { tabs.renamingRow = .tab(item.id) }
                 Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item.id) }
-                Button("Add to Favorites") { tabs.keep(item: item.id) }
-                Button("Pin") { withAnimation(layout.smooth) { _ = tabs.pin(item: item.id) } }.disabled(!tabs.canPin)
-                Button("New Folder with This Tab") { tabs.newFolder(with: item.id) }
+                Divider()
+                TabKeepMenu(tabs: tabs, item: item.id, animation: layout.smooth)
+                Divider()
                 Button("Close Tab") { tabs.close(item: item.id) }
                 Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
                     .disabled(tabs.workspace.count < 2)

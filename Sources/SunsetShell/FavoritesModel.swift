@@ -8,13 +8,13 @@ package import SunsetPane
 package final class FavoritesModel {
     package private(set) var favorites = Favorites()
     /// The content of the live panes of open entries, made when an entry is first shown.
-    package private(set) var contents: [PaneID: any PaneContent] = [:]
+    package internal(set) var contents: [PaneID: any PaneContent] = [:]
     /// What brings back the content of a live pane that has none yet (an entry that was open when the session was written).
-    @ObservationIgnored private var pending: [PaneID: PaneDescriptor] = [:]
+    @ObservationIgnored var pending: [PaneID: PaneDescriptor] = [:]
     /// The windows that can show entries, to tell the others when one takes an entry or when an entry goes.
     @ObservationIgnored private var viewers: [Weak] = []
     /// The window each open entry is live in.
-    private var live: [Favorites.NodeID: Weak] = [:]
+    var live: [Favorites.NodeID: Weak] = [:]
     /// Something changed that the session file holds.
     @ObservationIgnored package var onChange: () -> Void = {}
     /// Makes the sealer of kept terminals' commands, the first time a command is checked or saved: the app's reads a key from the Keychain, which can
@@ -36,7 +36,7 @@ package final class FavoritesModel {
 
     package init() {}
 
-    private struct Weak {
+    struct Weak {
         weak var tabs: TabsModel?
     }
 
@@ -217,7 +217,7 @@ package final class FavoritesModel {
     }
 
     /// A program in an entry's pane ended by itself.
-    private func paneEnded(_ pane: PaneID) { close(pane: pane) }
+    func paneEnded(_ pane: PaneID) { close(pane: pane) }
 
     private func stop(_ panes: [PaneID]) {
         for pane in panes {

@@ -188,3 +188,24 @@ Not done: history, site permissions, how sites see Sunset and zoom per profile (
 part of n80 (his choice between two designs, ADR-0053); a profile's icon; naming the profile in the sidebar; the Spaces
 menu; measuring what a profile costs.
 
+## After the owner tried the Pinned grid (2026-11-17; ADR-0054)
+
+His words: "the context menus of tabs and sidebar don't contain all features related to pinning and marking as favorites
+and i fail to set an already favorites tab as a pinned tab".
+
+- **A favourite is pinned, and a pinned entry made a favourite**, as the same entry: its name, icon, command, what runs
+  in it.
+- **One menu for a kept entry** wherever it is shown, and **one group for a tab**: Pin, Add to Favorites, New Folder
+  with This Tab, Move to Space. The built-in tab bar has the same, and shows what is pinned.
+- **The menu bar** has "Pin or Unpin Tab" (a favourite too) and "Add to or Remove from Favorites".
+- **A single row dragged onto the grid is pinned**: it was not, though the roadmap said so (only a marked selection
+  was). A tile can be dragged out.
+
+Seen in a test copy: a tab made a favourite, the favourite pinned, made a favourite again, pinned, unpinned (the menu
+bar); the three context menus read through accessibility, item by item (a tab's, a favourite's, a tile's); Pin chosen
+from a favourite's context menu, the tile appearing (`docs/research/sidebar/pinned-from-favourite.png`); a tile in the
+built-in tab bar. 1,336 tests in 256 suites pass.
+
+Not seen: any drag (onto the grid, or a tile out of it), the menu of several rows, the red outline of a tile asked
+about. Not done: pinning a folder, reordering tiles.
+

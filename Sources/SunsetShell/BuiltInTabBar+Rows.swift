@@ -37,8 +37,8 @@ extension BuiltInTabBar {
         )
     }
 
-    private func entryRow(_ entry: Favorites.Entry) -> some View {
-        let model = entry.open.flatMap { tabs.favorites.contents[$0.focused] }
+    func entryRow(_ entry: Favorites.Entry) -> some View {
+        let model = entry.open.flatMap { tabs.content($0.focused) }
         return BarTab(
             selected: tabs.workspace.selectedEntry == entry.id,
             armed: entry.open.map { tabs.isCloseArmed($0.id) } ?? false,
@@ -57,13 +57,7 @@ extension BuiltInTabBar {
         )
         .help(capsules ? entry.title ?? "" : "")
         .onTapGesture { tabs.select(entry: entry.id) }
-        .contextMenu {
-            Button("Remove from Favorites") { tabs.release(entry: entry.id) }
-            Button("Edit Command…") { tabs.editingCommand = entry.id }
-            Button("Set Home to Current") { tabs.favorites.setHomeToCurrent(entry.id) }
-            Button("Unload") { tabs.unload(entry: entry.id) }
-            Button("Delete") { tabs.delete(entry: entry.id) }
-        }
+        .contextMenu { KeptEntryMenu(tabs: tabs, entry: entry, editsInPlace: false) }
     }
 
     func row(_ item: Workspace.Item) -> some View {
@@ -94,7 +88,8 @@ extension BuiltInTabBar {
         }
         .contextMenu {
             Button("Rename Tab…") { tabs.beginRename(item: item.id) }
-            Button("Add to Favorites") { tabs.keep(item: item.id) }
+            TabKeepMenu(tabs: tabs, item: item.id)
+            Divider()
             Button("Close Tab") { tabs.close(item: item.id) }
             Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }.disabled(tabs.workspace.count < 2)
         }
