@@ -74,7 +74,8 @@ struct SidebarRow: View {
                             showsProgress: false
                         )
                     }
-                    // Its second line stays under the name being typed: the row keeps its height.
+                    // Only the name being typed (the owner, 2026-11-17); the second line's room is kept, empty, so that the row
+                    // keeps its height.
                     VStack(alignment: .leading, spacing: Design.Space.hair) {
                         RenameField(
                             text: Binding(get: { typed ?? renaming.start }, set: { typed = $0 }),
@@ -88,8 +89,8 @@ struct SidebarRow: View {
                         if lines > 1, let directory = model?.detail ?? saved?.directory {
                             Text(TabLabel.shortened(directory))
                                 .font(Design.Text.detail)
-                                .foregroundStyle(.secondary)
                                 .lineLimit(1)
+                                .hidden()
                         }
                     }
                 }

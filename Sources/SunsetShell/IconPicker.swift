@@ -137,6 +137,7 @@ package struct IconPicker: View {
                 }
             }
         }
+        .bouncesOnlyWhenScrolling()
         .opacity(searching ? Design.Fill.notApplicable : 1)
     }
 

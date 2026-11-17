@@ -22,6 +22,7 @@ struct DownloadsList: View {
                         ForEach(center.items) { item in DownloadRow(item: item, center: center) }
                     }
                 }
+                .bouncesOnlyWhenScrolling()
                 .frame(maxHeight: 320)
             }
         }

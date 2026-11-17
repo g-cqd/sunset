@@ -32,6 +32,7 @@ package struct ChoiceList: View {
                 }
                 .padding(Design.Space.s)
             }
+            .bouncesOnlyWhenScrolling()
             .scrollIndicators(.never)
             .onChange(of: selection) { _, now in
                 if rows.indices.contains(now) { proxy.scrollTo(rows[now].id) }

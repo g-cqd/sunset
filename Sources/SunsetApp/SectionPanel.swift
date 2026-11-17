@@ -67,6 +67,7 @@ struct SectionPanel: View {
             .padding(.horizontal, layout.tabSideInset)
             .frame(maxWidth: .infinity)
         }
+        .bouncesOnlyWhenScrolling()
         .scrollIndicators(.never)
         // Under the rows: a click beside them gives the Library the keyboard. On a row it does what the row does.
         .background(Color.clear.contentShape(Rectangle()).onTapGesture { if place == .library { inList = true } })

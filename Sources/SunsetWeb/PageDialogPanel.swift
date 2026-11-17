@@ -20,6 +20,7 @@ struct PageDialogPanel: View {
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .bouncesOnlyWhenScrolling()
                 .frame(maxHeight: Design.Size.dialogMessage)
                 .fixedSize(horizontal: false, vertical: true)
                 if case .prompt = dialog.kind {

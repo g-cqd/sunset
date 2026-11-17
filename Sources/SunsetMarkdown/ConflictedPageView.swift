@@ -33,6 +33,7 @@ struct ConflictedPageView: View {
                 .padding(.top, size * 3.5)
                 .padding(.bottom, size * 5)
             }
+            .bouncesOnlyWhenScrolling()
             .onChange(of: content.reveal) {
                 withAnimation { proxy.scrollTo(content.shownConflict, anchor: .center) }
             }

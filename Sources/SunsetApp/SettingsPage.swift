@@ -32,6 +32,7 @@ struct SettingsPage: View {
                     ScrollView {
                         SettingsTopicList(content: content, layout: ShellSettings(config.configuration).layout)
                     }
+                    .bouncesOnlyWhenScrolling()
                     .scrollIndicators(.never)
                 }
                 .padding(Design.Space.m)

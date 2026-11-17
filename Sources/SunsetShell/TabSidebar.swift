@@ -85,6 +85,7 @@ package struct TabSidebar: View {
                     .offset(x: tabs.slide.shift)
                     .overlay(alignment: .top) { beside(.today) }
             }
+            .bouncesOnlyWhenScrolling()
             .scrollIndicators(.never)
             .contentMargins(.bottom, margin + bottomInset, for: .scrollContent)
             .onScrollGeometryChange(for: Double.self, of: { Double($0.contentOffset.y + $0.contentInsets.top) }) {

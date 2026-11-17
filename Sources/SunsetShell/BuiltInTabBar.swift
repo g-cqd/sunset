@@ -76,6 +76,7 @@ package struct BuiltInTabBar: View {
                         }
                         .frame(maxHeight: .infinity)
                     }
+                    .bouncesOnlyWhenScrolling()
                     // The selected tab is scrolled into view (a click, Show Next Tab, an accessibility press).
                     .onChange(of: tabs.workspace.selectedID, initial: true) { _, id in
                         guard let id else { return }

@@ -17,6 +17,7 @@ package struct SpacesRow: View {
             ViewThatFits(in: .horizontal) {
                 icons(spaces)
                 ScrollView(.horizontal, showsIndicators: false) { icons(spaces) }
+                    .bouncesOnlyWhenScrolling()
             }
             .frame(maxWidth: .infinity)
             .accessibilityElement(children: .contain)
