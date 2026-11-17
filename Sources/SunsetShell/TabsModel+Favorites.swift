@@ -80,8 +80,9 @@ extension TabsModel {
     }
 
     /// Takes a kept entry out of the Favorites as a tab of this window, at `index` (after its selected tab when nil), selected.
-    package func release(entry id: Favorites.NodeID, at index: Int? = nil) {
-        guard let released = keeper(of: id).release(id) else { return }
+    @discardableResult
+    package func release(entry id: Favorites.NodeID, at index: Int? = nil) -> Workspace.ItemID? {
+        guard let released = keeper(of: id).release(id) else { return nil }
         let index = index ?? workspace.selectedIndex.map { $0 + 1 } ?? workspace.count
         workspace.insert(released.item, at: index)
         for pane in released.item.panes {
@@ -90,6 +91,7 @@ extension TabsModel {
         }
         syncStates()
         onChange()
+        return released.item.id
     }
 
     /// Unloads the kept entry: what runs in it stops (asking first when something would be lost), it stays in the Favorites.

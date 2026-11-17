@@ -212,8 +212,9 @@ package final class SpaceModel {
     /// Stops the contents of the kind `kind` and has them made again from where each is (a Space given another
     /// profile: its pages load again with that profile's website data): by a window that shows the Space, or, with
     /// none, by the next that does.
-    package func restart(kind: String, by viewer: TabsModel?) {
-        for (pane, content) in contents where content.descriptor.kind == kind && !content.isPrivate {
+    package func restart(kind: String, panes only: Set<PaneID>? = nil, by viewer: TabsModel?) {
+        for (pane, content) in contents
+        where content.descriptor.kind == kind && !content.isPrivate && only.map({ $0.contains(pane) }) ?? true {
             pending[pane] = content.descriptor
             content.onExit = {}
             content.stop()

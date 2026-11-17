@@ -19,12 +19,12 @@ struct KeptEntryMenu: View {
         Button(entry.isOpen ? "Show" : "Open") { tabs.select(entry: entry.id) }
         Divider()
         if isPinned {
-            Button("Unpin") { withAnimation(animation) { tabs.release(entry: entry.id) } }
+            Button("Unpin") { withAnimation(animation) { _ = tabs.release(entry: entry.id) } }
             Button("Move to Favorites") { withAnimation(animation) { _ = tabs.favorite(pinned: entry.id) } }
         } else {
             Button("Pin") { withAnimation(animation) { _ = tabs.pin(entry: entry.id) } }
                 .disabled(!tabs.canPin(.node(entry.id)))
-            Button("Remove from Favorites") { withAnimation(animation) { tabs.release(entry: entry.id) } }
+            Button("Remove from Favorites") { withAnimation(animation) { _ = tabs.release(entry: entry.id) } }
         }
         Divider()
         if editsInPlace {

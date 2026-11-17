@@ -23,8 +23,8 @@ extension TabsModel {
                 guard let item = origin.workspace.item(containing: pane) else { return false }
                 dragged = .item(item.id)
             case .entry(let id):
-                // The same entry where the profile is the same; another profile's is not this window's to take.
-                guard origin.keeper(of: id) === favorites || origin.keeper(of: id) === pinned else { return false }
+                // The same entry where the profile is the same; another profile's comes as a tab (roadmap 0037 B).
+                guard origin.keeper(of: id).favorites.entry(id) != nil else { return false }
                 dragged = drag
         }
         return true
@@ -34,8 +34,16 @@ extension TabsModel {
     /// window it came from forgets the drag.
     func bringDraggedHere() {
         guard let origin = Self.dragOrigin, origin !== self else { return }
+        // A kept entry of another profile leaves it as a tab first (roadmap 0037 B).
+        if case .entry(let id) = dragged, case .foreignEntry? = dragSource, let item = origin.release(entry: id) {
+            dragged = .item(item)
+        }
         if case .item(let id) = dragged, !workspace.items.contains(where: { $0.id == id }) {
             origin.give(item: id, to: space)
+            // From another profile: its pages load again as this one's (as a Space given another profile, ADR-0053).
+            if origin.space.favorites !== space.favorites, let item = workspace.items.first(where: { $0.id == id }) {
+                space.restart(kind: "web", panes: Set(item.panes), by: self)
+            }
         }
         origin.dragged = nil
         Self.dragOrigin = nil

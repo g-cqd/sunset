@@ -9,6 +9,8 @@ extension TabsModel {
         case favorite(Favorites.NodeID)
         case folder(Favorites.NodeID)
         case tile(Favorites.NodeID)
+        /// A kept entry of another profile, dragged from a window of it: it comes as a tab (roadmap 0037 B).
+        case foreignEntry(Favorites.NodeID)
         case document
     }
 
@@ -25,7 +27,11 @@ extension TabsModel {
                 switch favorites.favorites.node(id) {
                     case .entry: return .favorite(id)
                     case .folder: return .folder(id)
-                    case nil: return nil
+                    case nil:
+                        guard let origin = Self.dragOrigin, origin !== self,
+                            origin.keeper(of: id).favorites.entry(id) != nil
+                        else { return nil }
+                        return .foreignEntry(id)
                 }
             case .document: return .document
             case nil: return nil
@@ -38,7 +44,7 @@ extension TabsModel {
         guard let source = dragSource else { return false }
         switch (source, place) {
             case (.tile, .pinned): return true
-            case (.tab, .pinned), (.favorite, .pinned): return canPin
+            case (.tab, .pinned), (.favorite, .pinned), (.foreignEntry, .pinned): return canPin
             case (.folder, .pinned), (.document, .pinned): return false
             case (.folder(let id), .favorites(let parent, _)):
                 // Not into itself, nor into a folder it holds.
@@ -83,7 +89,7 @@ extension TabsModel {
             case (.favorite(let id), .today(let index)), (.tile(let id), .today(let index)):
                 release(entry: id, at: index)
                 return true
-            case (.folder, _), (.document, _), (.tab, _), (.favorite, _), (.tile, _):
+            case (.folder, _), (.document, _), (.tab, _), (.favorite, _), (.tile, _), (.foreignEntry, _):
                 return false
         }
     }
