@@ -28,12 +28,7 @@ struct FavoritesLine: View {
                     .padding(.vertical, Design.Space.xs)
                     .transition(.opacity)
             } else {
-                Rectangle()
-                    .fill(.primary.opacity(layout.hairlineOpacity * Design.Line.stronger))
-                    .frame(height: max(layout.hairlineWidth, 0.5))
-                    .padding(.horizontal, layout.tabPaddingLeading)
-                    .opacity(visible ? 1 : 0)
-                    .frame(height: visible ? 6 : 8)
+                SectionSeparator(layout: layout, visible: visible)
             }
         }
         .contentShape(.rect)

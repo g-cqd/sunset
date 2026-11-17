@@ -77,6 +77,9 @@ package struct TabSidebar: View {
             kept
                 .offset(x: tabs.slide.shift)
                 .overlay(alignment: .top) { beside(.kept) }
+                // Its rows keep their height; Today's scroll view takes what is left (seen 2026-11-17: six favourites in a
+                // short window were squeezed).
+                .layoutPriority(1)
             ScrollView {
                 today
                     .offset(x: tabs.slide.shift)
@@ -212,17 +215,20 @@ package struct TabSidebar: View {
         let accent = accentStyle.color
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         switch action {
+            // In the gap beside the row, where a drop there would land (roadmap 0038 F), not on the row's edge.
             case .moveBefore:
                 VStack {
-                    Capsule().fill(accent).frame(height: 2)
+                    Capsule().fill(accent).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
                     Spacer(minLength: 0)
                 }
+                .padding(.vertical, -(layout.tabSpacing + Design.Space.hair) / 2)
                 .allowsHitTesting(false)
             case .moveAfter:
                 VStack {
                     Spacer(minLength: 0)
-                    Capsule().fill(accent).frame(height: 2)
+                    Capsule().fill(accent).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
                 }
+                .padding(.vertical, -(layout.tabSpacing + Design.Space.hair) / 2)
                 .allowsHitTesting(false)
             case .split(let edge):
                 GeometryReader { proxy in

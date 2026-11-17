@@ -1,11 +1,15 @@
+import Observation
 import SunsetPane
 
 /// A drag that ends in another window than the one it started in (roadmap 0036 F). What is dragged is known to the window it
 /// started in (`dragged`); the window it is over takes it up (`adoptDrag`), and, dropped, brings a tab of another Space to its
 /// own (`bringDraggedHere`). The first window stays on its Space.
 extension TabsModel {
-    /// The window the drag under way started in.
-    package internal(set) static weak var dragOrigin: TabsModel?
+    /// The window the drag under way started in (observed: every window's drop places show while it is set).
+    package internal(set) static var dragOrigin: TabsModel? {
+        get { DragUnderWay.shared.origin }
+        set { DragUnderWay.shared.origin = newValue }
+    }
 
     /// Whether a drag of tabs is under way over this window, started here or in another window (taken up then).
     package var hasDrag: Bool { adoptDrag() }
@@ -61,4 +65,12 @@ extension TabsModel {
         syncStates()
         onChange()
     }
+}
+
+/// The drag of tabs under way in the app, whichever window it started in (roadmap 0038 F): every window's gaps take drops
+/// while it is set.
+@MainActor @Observable
+final class DragUnderWay {
+    static let shared = DragUnderWay()
+    weak var origin: TabsModel?
 }

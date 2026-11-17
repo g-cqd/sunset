@@ -27,8 +27,16 @@ extension TabSidebar {
 
     /// Today's tabs.
     var today: some View {
-        LazyVStack(spacing: layout.tabSpacing) {
-            ForEach(tabs.workspace.items) { item in row(item) }
+        // Between two tabs, and at the top, a gap that takes a drop (roadmap 0038 F); after the last, `TodayEndDrop`.
+        LazyVStack(spacing: 0) {
+            ForEach(Array(tabs.workspace.items.enumerated()), id: \.element.id) { index, item in
+                if isPreview {
+                    if index > 0 { Color.clear.frame(height: layout.tabSpacing) }
+                } else {
+                    GapDrop(tabs: tabs, layout: layout, place: .today(at: index), between: index > 0)
+                }
+                row(item)
+            }
             if tabs.dragTargets != nil, !isPreview { TodayEndDrop(tabs: tabs, layout: layout) }
         }
         .padding(.horizontal, layout.tabSideInset)

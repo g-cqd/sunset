@@ -75,13 +75,6 @@ struct SidebarRow: View {
                 )
                 .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
             }
-            if awake {
-                Image(systemName: "cup.and.saucer.fill")
-                    .font(Design.Text.detail)
-                    .foregroundStyle(.secondary)
-                    .help("Keeps the Mac awake")
-                    .accessibilityLabel("Keeps the Mac awake")
-            }
         }
         .mask { titleMask }
         .padding(.leading, layout.tabPaddingLeading)
@@ -93,6 +86,7 @@ struct SidebarRow: View {
                 let middle = proxy.size.height / 2
                 closeButton.position(x: proxy.size.width - middle, y: middle)
                 if edited { EditedMark().position(x: proxy.size.width - markInset(middle: middle), y: middle) }
+                if awake { awakeMark.position(x: proxy.size.width - awakeInset(middle: middle), y: middle) }
             }
         }
         .background(shape.fill(highlight))
@@ -155,6 +149,27 @@ struct SidebarRow: View {
 
     private var showsClose: Bool { hovering || armed || keepCloseVisible }
 
+    /// Kept awake (roadmap 0038 C): the close button's size, its symbol's size and weight, in its place while it is hidden
+    /// and just before it while it shows; not a button.
+    private var awakeMark: some View {
+        Image(systemName: "cup.and.saucer.fill")
+            .font(.system(size: Design.Symbol.badge, weight: .semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
+            .help("Keeps the Mac awake")
+            .accessibilityElement()
+            .accessibilityLabel("Keeps the Mac awake")
+    }
+
+    /// How far the cup's centre is from the row's end: where the close button is, moved before it while it shows (the
+    /// edited mark is before the cup).
+    private func awakeInset(middle: Double) -> Double {
+        showsClose ? middle + layout.closeButtonSize + Design.Space.xs : middle
+    }
+
+    /// The cup's room at the row's end, beside the close button's.
+    private var awakeRoom: Double { awake ? layout.closeButtonSize + Design.Space.xs : 0 }
+
     /// A document with edits that are not saved: the row says so at its end, and the title stops before it.
     private var edited: Bool { model?.isEdited == true && renaming == nil }
 
@@ -164,15 +179,22 @@ struct SidebarRow: View {
     /// How far the mark's centre is from the row's end (owner note n76): just before the close button while it shows; else at the
     /// end, as far from it as the icon is from the row's start, the button keeping no place.
     private func markInset(middle: Double) -> Double {
-        showsClose
-            ? middle + layout.closeButtonSize / 2 + markRoom / 2
-            : layout.tabPaddingLeading + Design.Size.editedMark / 2
+        if showsClose { return middle + layout.closeButtonSize / 2 + markRoom / 2 + awakeRoom }
+        // Before the cup, which is in the close button's place.
+        if awake { return middle + layout.closeButtonSize / 2 + markRoom / 2 }
+        return layout.tabPaddingLeading + Design.Size.editedMark / 2
     }
 
     /// What the title leaves free at the row's end: the shown button's place, the mark's, both or nothing.
     private var titleEnd: Double {
         let shown = showsClose && renaming == nil
-        if shown { return layout.closeButtonSize + Design.Space.xs + (edited ? markRoom : 0) }
+        if shown { return layout.closeButtonSize + Design.Space.xs + (edited ? markRoom : 0) + awakeRoom }
+        if awake {
+            // The cup in the close button's place, and the mark before it.
+            return max(0, layout.tabPaddingLeading - layout.tabPaddingTrailing) + layout.closeButtonSize
+                + Design.Space.xs
+                + (edited ? markRoom : 0)
+        }
         guard edited else { return 0 }
         return max(0, layout.tabPaddingLeading - layout.tabPaddingTrailing) + Design.Size.editedMark + Design.Space.xs
     }

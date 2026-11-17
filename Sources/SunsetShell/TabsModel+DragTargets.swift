@@ -10,6 +10,8 @@ extension TabsModel {
         dragWatch = nil
         guard dragged != nil else {
             dragTargets = nil
+            // Dropped, here or in another window: the gaps stop taking drops (roadmap 0038 F).
+            if Self.dragOrigin === self { Self.dragOrigin = nil }
             return
         }
         dragTargets = DragTargets(

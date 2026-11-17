@@ -22,7 +22,7 @@ struct PinnedGrid: View {
     var body: some View {
         let entries = tabs.pinnedEntries
         if !entries.isEmpty || takesDrag {
-            PinnedTiles {
+            PinnedTiles(gap: layout.tabSpacing) {
                 ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                     tile(entry)
                         .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { tileWidths[entry.id] = $0 }
@@ -57,8 +57,13 @@ struct PinnedGrid: View {
                     .padding(-Design.Space.xs)
                     .dropTarget(shown: takesDrag && !entries.isEmpty, targeted: false, radius: layout.tabRadius)
             }
-            .padding(.vertical, Design.Space.xs)
-            .padding(.bottom, Design.Space.s)
+            .padding(.top, Design.Space.xs)
+            // The line under the grid, as under the Favorites (roadmap 0038 E); the rows' spacing above it.
+            .padding(.bottom, layout.tabSpacing)
+            .overlay(alignment: .bottom) {
+                SectionSeparator(layout: layout, visible: !entries.isEmpty && !takesDrag).offset(y: 6)
+            }
+            .padding(.bottom, 6)
             .contentShape(.rect)
             .onDrop(of: [.plainText, .utf8PlainText], isTargeted: $targeted) { _ in
                 withAnimation(layout.smooth) { tabs.pinDragged() }
@@ -74,7 +79,7 @@ struct PinnedGrid: View {
             .fill(accent.color)
             .frame(width: Design.Space.hair)
             .padding(.vertical, Design.Space.xs)
-            .offset(x: (tileDrop?.after == true ? 1 : -1) * PinnedLayout.gap / 2)
+            .offset(x: (tileDrop?.after == true ? 1 : -1) * layout.tabSpacing / 2)
             .allowsHitTesting(false)
     }
 

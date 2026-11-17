@@ -17,18 +17,25 @@ struct FavoritesSection: View {
         let favorites = tabs.favorites.favorites
         if !favorites.isEmpty {
             // The tree's rows are the tabs' rows: their height and their spacing (owner, 2026-11-13, t227).
-            VStack(spacing: layout.tabSpacing) {
-                ForEach(favorites.rows(selected: tabs.workspace.selectedEntry)) { row in
+            // Between two rows, and at the top and the bottom, a gap that takes a drop (roadmap 0038 B, F).
+            let shown = favorites.rows(selected: tabs.workspace.selectedEntry)
+                .filter { row in
+                    if case .entry(let entry) = favorites.node(row.id) { return tabs.shows(entry) }
+                    return true
+                }
+            VStack(spacing: 0) {
+                ForEach(Array(shown.enumerated()), id: \.element.id) { index, row in
+                    GapDrop(tabs: tabs, layout: layout, place: tabs.favoritesGap(index), between: index > 0)
                     Group {
                         switch favorites.node(row.id) {
-                            // An entry of a scope that is off is hidden, and comes back with it (roadmap 0033).
-                            case .entry(let entry): if tabs.shows(entry) { entryRow(entry) }
+                            case .entry(let entry): entryRow(entry)
                             case .folder(let folder): FolderRow(tabs: tabs, folder: folder, layout: layout)
                             case nil: EmptyView()
                         }
                     }
                     .padding(.leading, Double(row.level) * Design.Space.l)
                 }
+                GapDrop(tabs: tabs, layout: layout, place: tabs.favoritesGap(shown.count), between: false)
             }
         }
         FavoritesLine(tabs: tabs, layout: layout, visible: !favorites.isEmpty)
@@ -37,11 +44,13 @@ struct FavoritesSection: View {
     /// An insertion line at the top or the bottom of the row a drag is over.
     @ViewBuilder private func dropMark(_ id: Favorites.NodeID) -> some View {
         if let drop, drop.entry == id {
+            // In the gap beside the row, where a drop there would land (roadmap 0038 F), not on the row's edge.
             VStack {
                 if drop.after { Spacer(minLength: 0) }
-                Capsule().fill(accent.color).frame(height: Design.Space.hair)
+                Capsule().fill(accent.color).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
                 if !drop.after { Spacer(minLength: 0) }
             }
+            .padding(.vertical, -(layout.tabSpacing + Design.Space.hair) / 2)
             .allowsHitTesting(false)
         }
     }
