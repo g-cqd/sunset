@@ -99,6 +99,14 @@ extension WebContent {
         guard title != pageTitle else { return }
         pageTitle = title
         onChange()
+        // Pictured once: pictured again as it changes without loading (a chat's count), once a second at most (roadmap 0037 A).
+        if picture != nil, !isLoading {
+            let now = ProcessInfo.processInfo.systemUptime
+            if lastTitlePicture.map({ now - $0 >= 1 || now < $0 }) ?? true {
+                lastTitlePicture = now
+                takePicture()
+            }
+        }
     }
 
     func changed(url new: URL?) {

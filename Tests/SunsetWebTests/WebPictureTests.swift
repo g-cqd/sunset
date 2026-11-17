@@ -79,4 +79,29 @@ struct WebPictureTests {
         window.close()
         page.stop()
     }
+
+    /// Roadmap 0037 A: a page that changes without loading (a chat's title counting what is unread) is pictured again.
+    @Test(.timeLimit(.minutes(1)))
+    func `a page pictured once is pictured again when its title changes`() async throws {
+        let page = WebContent(url: nil, settings: settings)
+        page.setState(focused: true, visible: true)
+        let view = try #require(page.webView)
+        let window = NSWindow(
+            contentRect: CGRect(x: 0, y: 0, width: 320, height: 200),
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        window.isReleasedWhenClosed = false
+        window.contentView = view
+        view.loadHTMLString("<title>a</title><body>a</body>", baseURL: nil)
+        await Waiting.until { page.pageTitle == "a" && !page.isLoading }
+        page.takePicture()
+        let first = try #require(await picture(of: page))
+        _ = try await view.evaluateJavaScript("document.title = 'b (1)'; document.body.textContent = 'b'; 1")
+        await Waiting.until { page.picture !== first }
+        #expect(page.picture !== first, "pictured again as its title changed")
+        window.close()
+        page.stop()
+    }
 }

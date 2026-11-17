@@ -48,6 +48,8 @@ package final class WebContent: PaneContent {
     @ObservationIgnored package internal(set) var webView: WKWebView?
     /// The page's last snapshot (`takePicture`).
     package internal(set) var picture: CGImage?
+    /// When a title change last asked for a picture (seconds of uptime).
+    @ObservationIgnored var lastTitlePicture: Double?
     /// A snapshot was asked for and has not arrived.
     @ObservationIgnored package internal(set) var takingPicture = false
     /// It was on screen at the last `setState`.
