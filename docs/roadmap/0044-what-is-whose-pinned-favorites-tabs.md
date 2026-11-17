@@ -13,7 +13,7 @@ of the morning, n80) into a setting whose default is now the Space.
 
 | Step | What | Status |
 |---|---|---|
-| A | A swipe between Spaces of one profile leaves the Pinned grid still; only what is the Space's slides | not-started |
+| A | A swipe between Spaces of one profile leaves the Pinned grid still; only what is the Space's slides | done: `sharesPinned`, the grid apart from the Favorites in the list (test; a swipe not seen) |
 | B | `scopes.favorites`: `space` (default) or `profile`. Per Space: each Space its own list; a session of before (profile's) gives every Space of the profile a copy of it, kept open where it was in the first | not-started |
 | C | `scopes.pinned`: `profile` (default) or `app`, one grid for all profiles | not-started |
 | D | `scopes.tabs`: `space` (default) or `window` (a window has its own tabs in a Space, as a window that is one tab does) | not-started |

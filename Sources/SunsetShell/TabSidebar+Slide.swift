@@ -2,27 +2,33 @@ import SunsetMetrics
 import SunsetPane
 import SwiftUI
 
-/// The sidebar's list, and the list of the Space the window is sliding to (`SpaceSlide`; the owner's note n79).
+/// The sidebar's list, and the list of the Space the window is sliding to (`SpaceSlide`; the owner's note n79). The Pinned
+/// grid slides only to a Space of another profile (roadmap 0044 A).
 extension TabSidebar {
-    /// The parts of the list: the kept entries, which stay, and Today's tabs, which scroll (roadmap 0035 F).
-    enum Part { case kept, today }
+    /// The parts of the list: the Pinned grid and the Favorites, which stay, and Today's tabs, which scroll (roadmap 0035 F).
+    enum Part { case pinned, favorites, today }
 
     /// The rows: the Pinned grid, the Favorites, the tabs.
     var list: some View {
         VStack(spacing: layout.tabSpacing) {
-            kept
+            pinnedPart
+            favoritesPart
             today
         }
     }
 
-    /// The Pinned grid and the Favorites.
-    var kept: some View {
-        VStack(spacing: layout.tabSpacing) {
-            PinnedGrid(tabs: tabs, layout: layout)
-            FavoritesSection(tabs: tabs, settings: settings, layout: layout)
-        }
-        .padding(.horizontal, layout.tabSideInset)
-        .frame(maxWidth: .infinity)
+    /// The Pinned grid.
+    var pinnedPart: some View {
+        PinnedGrid(tabs: tabs, layout: layout)
+            .padding(.horizontal, layout.tabSideInset)
+            .frame(maxWidth: .infinity)
+    }
+
+    /// The Favorites.
+    var favoritesPart: some View {
+        FavoritesSection(tabs: tabs, settings: settings, layout: layout)
+            .padding(.horizontal, layout.tabSideInset)
+            .frame(maxWidth: .infinity)
     }
 
     /// Today's tabs.
@@ -45,10 +51,11 @@ extension TabSidebar {
 
     /// The part of the list of the Space the window is sliding to, beside this one's (n79).
     @ViewBuilder func beside(_ part: Part) -> some View {
-        if let beside = tabs.slide.beside {
+        if let beside = tabs.slide.beside, !(part == .pinned && beside.sharesPinned) {
             Group {
                 switch part {
-                    case .kept: preview(beside.tabs).kept
+                    case .pinned: preview(beside.tabs).pinnedPart
+                    case .favorites: preview(beside.tabs).favoritesPart
                     case .today: preview(beside.tabs).today
                 }
             }

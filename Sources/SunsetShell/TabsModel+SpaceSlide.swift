@@ -11,6 +11,14 @@ extension TabsModel {
         return TabsModel(previewing: other, selected: selected, pinned: grid)
     }
 
+    /// What is beside the list while sliding to `other`: its preview, and whether its Pinned grid is this one's.
+    func beside(_ other: SpaceModel, isNext: Bool) -> SpaceSlide.Beside {
+        let shown = preview(of: other)
+        var beside = SpaceSlide.Beside(tabs: shown, isNext: isNext)
+        beside.sharesPinned = shown.pinned === pinned
+        return beside
+    }
+
     /// Puts the list `points` from its place (the fingers are on it): the list of the Space on that side is beside it.
     /// Back at its place there is nothing beside. Not while a slide runs.
     package func shift(spaceListTo points: Double) {
@@ -28,7 +36,7 @@ extension TabsModel {
         }
         let other = spaces.spaces[neighbour]
         if slide.beside?.tabs.space !== other {
-            slide.beside = SpaceSlide.Beside(tabs: preview(of: other), isNext: isNext)
+            slide.beside = beside(other, isNext: isNext)
         }
     }
 
@@ -45,7 +53,7 @@ extension TabsModel {
             return show(space: other)
         }
         if slide.beside?.tabs.space !== other {
-            slide.beside = SpaceSlide.Beside(tabs: preview(of: other), isNext: isNext)
+            slide.beside = beside(other, isNext: isNext)
         }
         slide.isRunning = true
         let end = isNext ? -slide.width : slide.width

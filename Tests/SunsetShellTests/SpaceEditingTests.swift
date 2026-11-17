@@ -104,6 +104,22 @@ struct SpaceEditingTests {
     /// "When swiping through spaces, we should still see the space we're swiping away, it should still exist until the
     /// end of the snapping": while the list is off its place, the neighbour's list is beside it, and the window is still
     /// on the Space it leaves.
+    /// Roadmap 0044 A: between Spaces of one profile the Pinned grid does not slide; to another profile's it does.
+    @Test func `the Pinned grid stays still between Spaces of one profile`() throws {
+        let (spaces, made) = (spaces(), MadeContents())
+        let window = window(on: spaces, made: made)
+        let home = spaces.spaces[0]
+        let work = spaces.add(from: home)
+        _ = work
+        window.shift(spaceListTo: -30)
+        #expect(try #require(window.slide.beside).sharesPinned)
+        window.shift(spaceListTo: 0)
+        let other = spaces.profiles.add()
+        spaces.setProfile(other.profile.id, for: work)
+        window.shift(spaceListTo: -30)
+        #expect(try #require(window.slide.beside).sharesPinned == false)
+    }
+
     @Test func `while the list is off its place the neighbour's is beside it, and the Space is not left yet`() throws {
         let (spaces, made) = (spaces(), MadeContents())
         let window = window(on: spaces, made: made)

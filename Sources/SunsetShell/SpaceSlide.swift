@@ -9,6 +9,8 @@ package struct SpaceSlide {
         package let tabs: TabsModel
         /// It is the next Space: its list is to the right of this one.
         package let isNext: Bool
+        /// Its Pinned grid is this window's (the same profile): the grid stays still while the rest slides (roadmap 0044 A).
+        package var sharesPinned = false
     }
 
     /// Where the list is drawn, in points from its place (negative: towards the next Space).
