@@ -45,10 +45,35 @@ struct FolderRow: View {
         .padding(.trailing, layout.tabPaddingTrailing)
         .overlay {
             GeometryReader { proxy in
-                disclosure.position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
+                if tabs.renamingRow == .node(folder.id) {
+                    // Renaming: a button that clears the name in the chevron's place (the owner, 2026-11-17).
+                    Button {
+                        name = ""
+                    } label: {
+                        Image(systemName: "delete.left")
+                            .font(.system(size: Design.Symbol.badge, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .focusable(false)
+                    .help("Clear the Name")
+                    .accessibilityLabel("Clear the Name")
+                    .position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
+                } else {
+                    disclosure.position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
+                }
             }
         }
         .background(RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous).fill(fill))
+        .overlay {
+            // Being renamed: the row is the field (note n4).
+            if tabs.renamingRow == .node(folder.id) {
+                RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
+                    .focusHairline(layout, accent: accent.color)
+            }
+        }
         .contentShape(.rect)
         .onHover { hovering = $0 }
         .animation(layout.smooth, value: hovering)

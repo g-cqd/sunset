@@ -53,7 +53,9 @@ struct SidebarRow: View {
     }
     @State private var hovering = false
     @State private var overClose = false
-    @State private var overAwake = false
+    @State var overAwake = false
+    /// The name being typed while the row is renamed; nil: the name it started from.
+    @State var typed: String?
     @Environment(\.controlActiveState) private var activeState
     @Environment(\.accent) private var accent
 
@@ -61,8 +63,37 @@ struct SidebarRow: View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         return HStack(spacing: Design.Space.xs) {
             if let renaming {
-                RenameField(start: renaming.start, done: renaming.done)
-                    .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
+                // The row is the field: its picture stays, the text is where the title was (note n4).
+                HStack(spacing: GlyphSpacing.toText) {
+                    if showIcon {
+                        TabIcon(
+                            model: model,
+                            icon: icon,
+                            saved: saved,
+                            savedCommand: savedCommand,
+                            showsProgress: false
+                        )
+                    }
+                    // Its second line stays under the name being typed: the row keeps its height.
+                    VStack(alignment: .leading, spacing: Design.Space.hair) {
+                        RenameField(
+                            text: Binding(get: { typed ?? renaming.start }, set: { typed = $0 }),
+                            done: { name in
+                                typed = nil
+                                renaming.done(name)
+                            }
+                        )
+                        // Clear of the clear button at the row's end.
+                        .padding(.trailing, layout.closeButtonSize)
+                        if lines > 1, let directory = model?.detail ?? saved?.directory {
+                            Text(TabLabel.shortened(directory))
+                                .font(Design.Text.detail)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
             } else {
                 TabLabel(
                     model: model,
@@ -87,7 +118,12 @@ struct SidebarRow: View {
         .overlay {
             GeometryReader { proxy in
                 let middle = proxy.size.height / 2
-                closeButton.position(x: proxy.size.width - middle, y: middle)
+                if renaming == nil {
+                    closeButton.position(x: proxy.size.width - middle, y: middle)
+                } else {
+                    // Renaming: no close button; in its place, one that clears the name (the owner, 2026-11-17).
+                    clearButton.position(x: proxy.size.width - middle, y: middle)
+                }
                 if edited { EditedMark().position(x: proxy.size.width - markInset(middle: middle), y: middle) }
                 if awake { awakeMark.position(x: proxy.size.width - awakeInset(middle: middle), y: middle) }
             }
@@ -96,6 +132,9 @@ struct SidebarRow: View {
         .overlay {
             if armed {
                 shape.strokeBorder(Color.red.opacity(Design.Fill.armedLine), lineWidth: 1).allowsHitTesting(false)
+            } else if renaming != nil {
+                // Being renamed: the row is the field, outlined as a field with the keyboard is.
+                shape.focusHairline(layout, accent: accent.color)
             } else {
                 shape.hairline(layout).opacity(selected ? 1 : 0)
             }
@@ -150,50 +189,7 @@ struct SidebarRow: View {
         .help(armed ? "Click again to close running command" : button.help)
     }
 
-    private var showsClose: Bool { hovering || armed || keepCloseVisible }
-
-    /// Kept awake (roadmap 0038 C): the close button's size, its symbol's size and weight, in its place while it is hidden.
-    /// While the row is pointed at it is a button beside the close button (note n5), slashed under the pointer: a click lets
-    /// the Mac sleep again.
-    @ViewBuilder private var awakeMark: some View {
-        if showsClose, let stopAwake {
-            SwiftUI.Button(action: stopAwake) { cup(slashed: overAwake) }
-                .buttonStyle(.plain)
-                .onHover { overAwake = $0 }
-                .help("Stop Keeping the Mac Awake")
-                .accessibilityLabel("Stop Keeping the Mac Awake")
-        } else {
-            cup(slashed: false)
-                .help("Keeps the Mac awake")
-                .accessibilityElement()
-                .accessibilityLabel("Keeps the Mac awake")
-        }
-    }
-
-    private func cup(slashed: Bool) -> some View {
-        Image(systemName: "cup.and.saucer.fill")
-            .font(.system(size: Design.Symbol.badge, weight: .semibold))
-            .foregroundStyle(slashed ? Color.primary : Color.secondary)
-            // No slashed cup among the symbols: a slash drawn over it, as the symbols' own.
-            .overlay {
-                if slashed {
-                    Capsule()
-                        .fill(Color.primary)
-                        .frame(width: Design.Space.hair, height: layout.closeButtonSize * Self.slashShare)
-                        .rotationEffect(.degrees(Self.slashAngle))
-                }
-            }
-            .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-            .background(
-                RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
-                    .fill(Color.primary.opacity(slashed ? Design.Fill.selected : 0))
-            )
-            .contentShape(.rect)
-    }
-
-    /// The slash over the cup: its share of the button's height, and its angle.
-    private static let slashShare = 0.7
-    private static let slashAngle = -45.0
+    var showsClose: Bool { hovering || armed || keepCloseVisible }
 
     /// How far the cup's centre is from the row's end: where the close button is, moved before it while it shows (the
     /// edited mark is before the cup).

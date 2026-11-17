@@ -32,6 +32,8 @@ struct InPlaceNameField: NSViewRepresentable {
 
     func updateNSView(_ field: NSTextField, context: Context) {
         context.coordinator.parent = self
+        // Changed from outside (the row's clear button): shown, the keyboard kept.
+        if field.stringValue != text { field.stringValue = text }
     }
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
