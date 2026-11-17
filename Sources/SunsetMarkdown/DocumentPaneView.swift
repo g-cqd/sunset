@@ -30,6 +30,8 @@ struct DocumentPaneView: View {
                     base: content.base,
                     onLink: { content.open(link: $0) }
                 )
+                // A task's box checks it off in the text (AemiMarkdown ADR-0011).
+                .onTaskToggle { document.source.toggleTask(at: $0) }
                 .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
             } else {
                 MarkdownSourceEditor(
