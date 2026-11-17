@@ -13,6 +13,8 @@ import UserNotifications
         let storage = AppStorage.shared
         // The browser each site is shown (W-a): kept sealed, as what each site may do is.
         SiteAgents.shared.table = storage.table("agents")
+        // The sites' icons, for tabs not loaded (roadmap 0035 H).
+        FaviconStore.shared.table = storage.table("favicons")
         let permissions = storage.table("permissions")
         SitePermissions.shared.table = permissions
         if let permissions, SitePermissions.shared.importLegacy(at: storage.places.legacyPermissions) != nil {

@@ -141,3 +141,17 @@ extension TerminalScene {
         tabs.newTab(PaneContentKinds.newPage)
     }
 }
+
+extension TerminalScene {
+    /// A page not loaded shows its site's icon, kept (roadmap 0035 H), while tabs show sites' icons (`web.tabIcon`); not a
+    /// private page's.
+    var savedPicture: SavedPictures {
+        guard configuration.web.tabIcon == .favicon else { return SavedPictures() }
+        return SavedPictures(source: 1) { saved in
+            guard saved.state["private"] != "1", let host = saved.state["url"].flatMap(URL.init(string:))?.host(),
+                let image = FaviconStore.shared.image(for: host)
+            else { return nil }
+            return .image(image)
+        }
+    }
+}

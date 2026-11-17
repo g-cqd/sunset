@@ -10,6 +10,7 @@ package struct TabIcon: View {
     /// The loading ring shows while the content loads (`tabs.bar.showProgress` and the sidebar's).
     var showsProgress = true
     @Environment(\.accent) private var accent
+    @Environment(\.savedPicture) private var savedPicture
 
     package init(
         model: (any PaneContent)?,
@@ -50,6 +51,9 @@ package struct TabIcon: View {
             PaneIconView(icon: icon)
         } else if let model {
             PaneGlyphView(glyph: model.glyph)
+        } else if let saved, let picture = savedPicture(saved) {
+            // A page not loaded: its site's icon, kept (roadmap 0035 H).
+            PaneGlyphView(glyph: picture)
         } else {
             PaneGlyphView(
                 glyph: TabLabel.glyph(

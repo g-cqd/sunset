@@ -16,6 +16,7 @@ extension WebContent {
         configuration.applicationNameForUserAgent = settings.applicationName
         LinkHover.install(on: configuration, for: self)
         WebNotifications.install(on: configuration, for: self)
+        IconWatch.install(on: configuration, for: self)
         if settings.agentScripts { AgentScript.install(on: configuration) }
         WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
         WebPermissionHooks.enable(on: configuration.preferences)

@@ -2,19 +2,20 @@ import AppKit
 import WebKit
 
 /// The site's icon for its tab (owner, 2026-11-13): the page's `<link rel="icon">`, else `/favicon.ico`, fetched once the page has
-/// loaded, without cookies; kept per host for the app's life. Private pages show their mask and fetch nothing.
+/// loaded, without cookies. Kept on disk by host (`FaviconStore`, roadmap 0035 H) until the server says it expires, so that a tab
+/// not loaded shows it too; an icon the page changes while it runs (`IconWatch`) replaces the one kept. Private pages show their
+/// mask, and fetch and keep nothing.
 extension WebContent {
-    /// Icons already fetched, by host (an empty image: the site has none).
-    @MainActor private static var known: [String: NSImage] = [:]
+    /// Hosts that have no icon, this run: not asked again until the next.
+    @MainActor private static var missing: Set<String> = []
 
     func refreshFavicon() {
         guard settings.favicons, !isPrivate, let webView, let url = webView.url, let host = url.host(),
             ["http", "https"].contains(url.scheme?.lowercased() ?? "")
         else { return }
-        if let known = Self.known[host] {
-            favicon = known.isValid ? known : nil
-            return
-        }
+        // What is kept shows at once, fresh or not.
+        favicon = icons.image(for: host)
+        if favicon == nil, Self.missing.contains(host) { return }
         // With what the page says it is: the icon is asked for by Sunset, and must not say otherwise (W-a).
         let script = """
             (() => { const l = document.querySelector('link[rel~="icon"], link[rel="apple-touch-icon"]');
@@ -25,8 +26,26 @@ extension WebContent {
             let declared = answer.first.flatMap { $0.isEmpty ? nil : URL(string: $0) }
             let agent = answer.count > 1 ? answer[1] : nil
             MainActor.assumeIsolated {
-                self?.fetchFavicon(declared ?? URL(string: "/favicon.ico", relativeTo: url), host: host, agent: agent)
+                guard let self else { return }
+                let address = declared ?? URL(string: "/favicon.ico", relativeTo: url)
+                if self.icons.isFresh(host: host, source: declared) { return }
+                self.fetchFavicon(address, host: host, agent: agent)
             }
+        }
+    }
+
+    /// The page changed its icon while it runs (roadmap 0035 H): the new one is fetched and replaces the one kept.
+    func iconChanged(to address: String) {
+        guard settings.favicons, !isPrivate, let webView, let host = webView.url?.host(),
+            let url = URL(string: address, relativeTo: webView.url),
+            ["http", "https", "data"].contains(url.scheme?.lowercased() ?? "")
+        else { return }
+        let now = ProcessInfo.processInfo.systemUptime
+        // At most one a second: a page that animates its icon is not followed frame by frame.
+        if let last = lastIconChange, now >= last, now - last < 1 { return }
+        lastIconChange = now
+        webView.evaluateJavaScript("navigator.userAgent") { [weak self] agent, _ in
+            MainActor.assumeIsolated { self?.fetchFavicon(url, host: host, agent: agent as? String) }
         }
     }
 
@@ -37,10 +56,16 @@ extension WebContent {
             let session = URLSession(configuration: .ephemeral)
             var request = URLRequest(url: address.absoluteURL)
             request.setValue(agent, forHTTPHeaderField: "User-Agent")
-            let data = try? await session.data(for: request).0
-            let image = data.flatMap(NSImage.init(data:)) ?? NSImage()
-            Self.known[host] = image
-            if self?.webView?.url?.host() == host { self?.favicon = image.isValid ? image : nil }
+            let fetched = try? await session.data(for: request)
+            guard let self else { return }
+            let expires = FaviconStore.expiry(of: fetched?.1 as? HTTPURLResponse, at: Date())
+            if let data = fetched?.0, icons.keep(host: host, source: address.absoluteURL, data: data, expires: expires)
+            {
+                Self.missing.remove(host)
+            } else if icons.image(for: host) == nil {
+                Self.missing.insert(host)
+            }
+            if webView?.url?.host() == host { favicon = icons.image(for: host) }
         }
     }
 }

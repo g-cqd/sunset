@@ -99,6 +99,7 @@ struct TerminalScene: View {
         // Outside the dialogs, so that the command bar and the sheets draw their surfaces the window's way too.
         .environment(\.surfaceStyle, SurfaceStyle(configuration))
         .environment(\.monospacedDetail, configuration.tabs.bar.monospacedDirectory)
+        .environment(\.savedPicture, savedPicture)
         .environment(\.barBlur, configuredBarBlur)
         .accent(configuration.appearance.accent.rawValue, tint: configuration.appearance.tintColor)
         .animation(configuration.layout.smooth, value: tabs.bar != nil)

@@ -9,6 +9,8 @@ import WebKit
         if history {
             AppHistory.shared?.clear(since: date)
             DownloadCenter.shared.clear()
+            // The sites' icons say where one went (roadmap 0035 H).
+            FaviconStore.shared.forgetAll()
         }
         if siteZoom { SiteZoom.shared.clearAll() }
         if websiteData {
@@ -25,7 +27,10 @@ import WebKit
     /// up to two seconds).
     static func clearAtQuit() {
         let web = AppConfiguration.shared.configuration.web
-        if web.clearHistoryOnQuit { AppHistory.shared?.clear(since: .distantPast) }
+        if web.clearHistoryOnQuit {
+            AppHistory.shared?.clear(since: .distantPast)
+            FaviconStore.shared.forgetAll()
+        }
         guard web.clearWebsiteDataOnQuit else { return }
         var done = false
         WKWebsiteDataStore.default()

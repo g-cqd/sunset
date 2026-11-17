@@ -55,6 +55,10 @@ package final class WebContent: PaneContent {
 
     package var onExit: () -> Void = {}
     package var onFocusRequest: () -> Void = {}
+    /// Where the sites' icons are kept (roadmap 0035 H): the app's; a test gives its own.
+    @ObservationIgnored package var icons = FaviconStore.shared
+    /// When the page last changed its icon (seconds of uptime): followed once a second at most.
+    @ObservationIgnored var lastIconChange: Double?
     /// A notification the page may show, to post (roadmap 0035 D).
     @ObservationIgnored package var onNotify: (WebNotification) -> Void = { _ in }
     /// When it last showed one (seconds of uptime): one a second at most.
