@@ -39,7 +39,8 @@ struct DocumentContentTests {
     @Test func `the tab is the file's name with a document picture, and says when the text has edits`() throws {
         let path = try file("notes.md", "# Notes\n")
         let pane = try content(path)
-        #expect(pane.title == "notes.md" && pane.glyph == .symbol("doc.text") && pane.detail == root)
+        // Rendered, its picture is a page of rich text (note n3).
+        #expect(pane.title == "notes.md" && pane.glyph == .symbol("richtext.page") && pane.detail == root)
         #expect(!pane.isEdited && pane.unsaved == nil)
         type("more\n", into: pane)
         #expect(pane.isEdited && pane.unsaved?.title == "notes.md" && pane.unsaved?.paneCount == 1)

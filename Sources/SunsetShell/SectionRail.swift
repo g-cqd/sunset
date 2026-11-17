@@ -36,15 +36,21 @@ package struct SectionRail: View {
         buttons.metrics.size.width + buttons.gap + gutter
     }
 
+    /// The way back points at the edge the sidebar closes to, at a bar (the owner, 2026-11-17): left for a sidebar on the
+    /// left, right for one on the right.
+    static func closeSymbol(leading: Bool) -> String { leading ? "arrow.left.to.line" : "arrow.right.to.line" }
+
     package var body: some View {
         VStack(spacing: buttons.layout.tabSpacing) {
             ForEach(sections, id: \.self) { section in glyph(section) }
             Spacer(minLength: 0)
             // The settings (roadmap 0032): the gear, above the way back.
             glyph(.settings)
-            SidebarIconButton(symbol: "arrow.left", help: "Back to the Tabs (Escape)") { choose(.tabs) }
-                .accessibilityLabel("Back to the Tabs")
-                .environment(\.sidebarButtonCorner, leading ? .bottomLeading : .bottomTrailing)
+            SidebarIconButton(symbol: Self.closeSymbol(leading: leading), help: "Back to the Tabs (Escape)") {
+                choose(.tabs)
+            }
+            .accessibilityLabel("Back to the Tabs")
+            .environment(\.sidebarButtonCorner, leading ? .bottomLeading : .bottomTrailing)
         }
         .environment(\.sidebarButtonMetrics, buttons.metrics)
         .padding(.top, buttons.header.height)

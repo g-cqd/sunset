@@ -86,7 +86,10 @@ package struct TabLabel: View {
     /// letter, another kind its generic mark.
     static func glyph(of saved: PaneDescriptor, command: String? = nil) -> PaneGlyph {
         if saved.state["url"] != nil { return .symbol("globe") }
-        if saved.kind == PaneDescriptor.documentKind { return .symbol(PaneDescriptor.documentSymbol) }
+        if saved.kind == PaneDescriptor.documentKind {
+            let rendered = saved.state["view"] == "rendered"
+            return .symbol(rendered ? PaneDescriptor.renderedDocumentSymbol : PaneDescriptor.documentSymbol)
+        }
         if saved.kind == PaneDescriptor.settingsKind { return .symbol(PaneDescriptor.settingsSymbol) }
         guard saved.kind == PaneDescriptor.terminalKind else { return .symbol("square.dashed") }
         if let command, !command.isEmpty { return .tab(TabGlyph(kind: .command, letter: nil)) }

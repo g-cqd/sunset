@@ -8,6 +8,8 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     public static let documentKind = "document"
     /// The picture of a document's tab.
     public static let documentSymbol = "doc.text"
+    /// A document drawn as its page (rendered Markdown), not its source (note n3).
+    public static let renderedDocumentSymbol = "richtext.page"
 
     /// The settings, as a tab (roadmap 0032). Its state names the topic shown.
     public static let settingsKind = "settings"

@@ -63,7 +63,10 @@ package final class DocumentContent: PaneContent {
         guard case .file(let path) = document.place else { return nil }
         return (path as NSString).deletingLastPathComponent
     }
-    package var glyph: PaneGlyph { .symbol(PaneDescriptor.documentSymbol) }
+    /// Rendered, a page of rich text; as source, a document of text (note n3).
+    package var glyph: PaneGlyph {
+        .symbol(mode == .rendered ? PaneDescriptor.renderedDocumentSymbol : PaneDescriptor.documentSymbol)
+    }
     package var progress: Double? { nil }
     package var isEdited: Bool { document.isEdited }
     /// Nothing runs in a document: its edits are asked about in a sheet (`unsaved`), not by the red tab of a busy terminal.
