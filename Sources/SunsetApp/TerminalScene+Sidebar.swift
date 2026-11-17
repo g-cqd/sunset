@@ -92,12 +92,18 @@ extension TerminalScene {
 
     /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge. Any empty area in it drags the window.
     var dockedSidebar: some View {
-        AppSidebar(tabs: tabs, configuration: configuration, windowRadius: windowRadius, accessory: sidebarAddress)
-            .padding(.top, configuration.sidebar.padding)
-            .padding(sidebarSide.edge, configuration.sidebar.padding)
-            .frame(width: configuration.sidebar.width + libraryWidth, alignment: sidebarSide.alignment)
-            .frame(maxHeight: .infinity)
-            .background { windowDragSurface }
-            .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
+        AppSidebar(
+            tabs: tabs,
+            configuration: configuration,
+            windowRadius: windowRadius,
+            accessory: sidebarAddress,
+            notices: AnyView(SidebarNotices(tabs: tabs, layout: configuration.layout))
+        )
+        .padding(.top, configuration.sidebar.padding)
+        .padding(sidebarSide.edge, configuration.sidebar.padding)
+        .frame(width: configuration.sidebar.width + libraryWidth, alignment: sidebarSide.alignment)
+        .frame(maxHeight: .infinity)
+        .background { windowDragSurface }
+        .transition(.move(edge: sidebarSide.moveEdge).combined(with: .opacity))
     }
 }

@@ -10,6 +10,23 @@ extension TabSidebar {
     /// How much further down the rows start for it: its height and the gap between two rows; nothing without one.
     var accessoryInset: Double { accessory == nil ? 0 : accessoryHeight + layout.tabSpacing }
 
+    /// How much further down the rows start for the calls to action: their height and a row's gap; nothing without any.
+    var noticesInset: Double { notices == nil || noticesHeight == 0 ? 0 : noticesHeight + layout.tabSpacing }
+
+    /// The calls to action, under the accessory (roadmap 0035 I).
+    @ViewBuilder var noticesView: some View {
+        if let notices {
+            notices
+                .onGeometryChange(for: Double.self, of: { Double($0.size.height) }) { noticesHeight = $0 }
+                .padding(
+                    .top,
+                    SidebarHeader(layout: layout, margin: settings.sidebar.padding, floating: floating).height
+                        + accessoryInset
+                )
+                .padding(.horizontal, layout.tabSideInset)
+        }
+    }
+
     @ViewBuilder var accessoryView: some View {
         if let accessory {
             accessory

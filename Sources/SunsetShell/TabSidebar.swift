@@ -22,6 +22,8 @@ package struct TabSidebar: View {
     var windowRadius = ConcentricRadius.standardWindow
     /// What the app puts at the top, under the window's buttons (the address of the focused page, web step b).
     var accessory: AnyView?
+    /// What the app puts under the accessory: calls to action (roadmap 0035 I); the rows start below it, as tall as it is.
+    var notices: AnyView?
     /// What the app puts at the bottom, against the window's edge (the + button and downloads, R2 and web step f).
     var bottomBar: AnyView?
     @State private var rowDrop: (item: Workspace.ItemID, action: TabDropAction)?
@@ -31,6 +33,8 @@ package struct TabSidebar: View {
     @State private var closingSlot: Int?
     /// How far Today's tabs are scrolled down: the fade at their top grows with it.
     @State var scrolledBy = 0.0
+    /// How tall the calls to action under the field are.
+    @State var noticesHeight = 0.0
     @Environment(\.accent) private var accentStyle
 
     var margin: Double { settings.sidebar.padding }
@@ -38,7 +42,7 @@ package struct TabSidebar: View {
     var layout: ShellSettings.Layout { floating ? settings.layout.floatingTabs : settings.layout }
     var header: SidebarHeader { SidebarHeader(layout: layout, margin: margin, floating: floating) }
     /// Where the rows start: below the window's buttons, and the accessory with a gap.
-    private var topInset: Double { header.height + accessoryInset }
+    private var topInset: Double { header.height + accessoryInset + noticesInset }
 
     package init(
         tabs: TabsModel,
@@ -47,10 +51,12 @@ package struct TabSidebar: View {
         panelRadius: Double? = nil,
         windowRadius: Double = ConcentricRadius.standardWindow,
         accessory: AnyView? = nil,
+        notices: AnyView? = nil,
         bottomBar: AnyView? = nil,
         togglePin: @escaping () -> Void
     ) {
         self.accessory = accessory
+        self.notices = notices
         self.bottomBar = bottomBar
         self.tabs = tabs
         self.settings = settings
@@ -100,6 +106,7 @@ package struct TabSidebar: View {
         .onHover { inside in if !inside { closingSlot = nil } }
         .overlay(alignment: settings.sidebar.side == .left ? .topTrailing : .topLeading) { pinButton }
         .overlay(alignment: .top) { accessoryView }
+        .overlay(alignment: .top) { noticesView }
         .overlay(alignment: .bottom) { bottomBarView }
     }
 

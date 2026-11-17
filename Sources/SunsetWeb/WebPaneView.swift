@@ -14,6 +14,7 @@ struct WebPaneView: View {
     let backdrop: PaneBackdrop
     @State private var warning = false
     @Environment(\.webAddressRow) private var addressRow
+    @Environment(\.permissionsInSidebar) private var permissionsInSidebar
     @Environment(\.addressTyping) private var typing
 
     var body: some View {
@@ -31,7 +32,7 @@ struct WebPaneView: View {
                 }
                 if isEmpty { empty }
                 if let failure = content.failure { failed(failure) }
-                if let request = content.permissionRequest {
+                if let request = content.permissionRequest, !permissionsInSidebar {
                     PermissionPanel(request: request, store: content.permissions)
                         .frame(maxWidth: .infinity, alignment: .leading).id(request.id)
                 }

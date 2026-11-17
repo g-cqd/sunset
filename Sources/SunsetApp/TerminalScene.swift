@@ -92,6 +92,8 @@ struct TerminalScene: View {
         }
         .background(rootColor)
         .environment(\.webAddressRow, addressPlace == .pane)
+        // Docked, the sidebar asks the pages' questions under its field (roadmap 0035 I).
+        .environment(\.permissionsInSidebar, configuration.sidebarDocked)
         .environment(\.addressTyping, addressTyping)
         .modifier(
             WindowDialogs(tabs: tabs, layout: configuration.layout) { card in AnyView(windowAddressBar(card: card)) }

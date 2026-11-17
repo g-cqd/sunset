@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             SystemRestoration.excludeEveryWindow()
             AppDownloads.start()
             AppWebNotifications.start()
+            SystemAuthorizations.shared.start()
             AppConfiguration.shared.applyScheme()
         }
     }

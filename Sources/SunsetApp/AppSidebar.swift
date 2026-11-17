@@ -16,6 +16,8 @@ struct AppSidebar: View {
     /// The window's corner radius: docked, the button at its bottom corner is concentric with it.
     var windowRadius = ConcentricRadius.standardWindow
     var accessory: AnyView?
+    /// The calls to action under it (roadmap 0035 I).
+    var notices: AnyView?
 
     var body: some View {
         let settings = ShellSettings(configuration)
@@ -57,6 +59,7 @@ struct AppSidebar: View {
             panelRadius: panelRadius,
             windowRadius: windowRadius,
             accessory: accessory,
+            notices: notices,
             bottomBar: AnyView(
                 SidebarBottomBar(side: configuration.sidebar.side, tabs: tabs, library: configuration.sidebar.library)
             ),
