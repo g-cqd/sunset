@@ -64,7 +64,14 @@ extension SettingsOption {
                 "last tab close window empty space stay",
                 \.tabs.closeWindowWithLastTab
             )
-            .noted("Off, a window stays open, empty, when the last tab of its Space closes.")
+            .noted("Off, a window stays open, empty, when the last tab of its Space closes."),
+            toggle(
+                "tabs.keepAwakeDisplay",
+                "Keep the display on with the Mac",
+                "awake sleep caffeinate display screen power keep",
+                \.tabs.keepAwakeDisplay
+            )
+            .noted("A tab or a window kept awake keeps the screen on too; off, only the Mac stays awake.")
         ]
 
     /// When a file is written by itself, and how its source looks.

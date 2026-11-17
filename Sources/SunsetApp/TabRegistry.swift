@@ -44,11 +44,14 @@ final class TabRegistry {
     func register(_ window: NSWindow, tabs: TabsModel) {
         entries[ObjectIdentifier(window)] = Entry(window: window, tabs: tabs)
         touch()
+        MacAwake.shared.update()
     }
 
     func unregister(_ window: NSWindow) {
         entries[ObjectIdentifier(window)] = nil
         touch()
+        // A window kept awake lets go as it closes.
+        MacAwake.shared.update()
     }
 
     func touch() { revision &+= 1 }

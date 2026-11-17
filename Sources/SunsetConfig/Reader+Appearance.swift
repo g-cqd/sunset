@@ -122,6 +122,8 @@ extension Reader {
                     if let flag = bool("tabs.closeWindowWithLastTab", value) {
                         configuration.tabs.closeWindowWithLastTab = flag
                     }
+                case "keepAwakeDisplay":
+                    if let flag = bool("tabs.keepAwakeDisplay", value) { configuration.tabs.keepAwakeDisplay = flag }
                 case "closeStoppedAfter":
                     if let hours = number("tabs.closeStoppedAfter", value, range: 0 ... 8760) {
                         configuration.tabs.closeStoppedAfter = hours

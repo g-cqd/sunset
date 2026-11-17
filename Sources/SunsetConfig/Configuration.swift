@@ -169,6 +169,8 @@ public struct Configuration: Sendable, Equatable {
         /// The window when the last tab of its Space closes: it stays, on the empty Space (the owner, 2026-11-17). On: it
         /// closes with the tab, as before Spaces.
         public var closeWindowWithLastTab = false
+        /// A tab or a window kept awake keeps the display on too, not only the Mac from sleeping (roadmap 0035 E).
+        public var keepAwakeDisplay = false
         public init() {}
 
         public enum QuitAsk: String, Sendable, Equatable, CaseIterable {

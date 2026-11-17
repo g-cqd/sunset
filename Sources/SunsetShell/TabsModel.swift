@@ -34,6 +34,8 @@ package final class TabsModel {
     package var pinned: FavoritesModel? { didSet { pinned?.register(self) } }
     /// The Spaces this window can change to (the app's); nil for one whose Space is its own. Observed: drawn before set.
     package weak var spaces: SpacesModel?
+    /// The window is kept awake, and until when (roadmap 0035 E).
+    package internal(set) var windowAwake: KeepAwake?
     /// What this window had selected in each Space it left: shown again when it comes back.
     @ObservationIgnored var selections: [Space.ID: SavedView] = [:]
     /// What a Space's editor holds while it is open in this window; the Space being deleted, asked about first.

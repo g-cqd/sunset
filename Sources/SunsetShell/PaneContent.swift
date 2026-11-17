@@ -17,6 +17,9 @@ package import SwiftUI
     func type(command: String)
     /// Activity to show under the title, 0 to 1; nil when there is none.
     var progress: Double? { get }
+    /// A command runs in it, in front of its shell (a terminal): what a tab kept awake until its command ends waits for
+    /// (roadmap 0035 E). Read often: it does not ask the system, unlike `closeWarning`.
+    var runsCommand: Bool { get }
     /// Why closing it now would lose something (a command is running), asked at the moment of closing; nil when it can go at once. Not the same thing
     /// as `progress`: a page that loads can be closed, a command that prints nothing cannot.
     var closeWarning: String? { get }
@@ -60,5 +63,6 @@ extension PaneContent {
     package var isEdited: Bool { false }
     package var unsaved: UnsavedEdits? { nil }
     package var picture: CGImage? { nil }
+    package var runsCommand: Bool { false }
     package func takePicture() {}
 }

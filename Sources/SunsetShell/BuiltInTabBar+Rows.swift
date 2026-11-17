@@ -89,6 +89,7 @@ extension BuiltInTabBar {
         .contextMenu {
             Button("Rename Tab…") { tabs.beginRename(item: item.id) }
             TabKeepMenu(tabs: tabs, item: item.id)
+            KeepAwakeMenu(tabs: tabs, item: item.id)
             Divider()
             Button("Close Tab") { tabs.close(item: item.id) }
             Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }.disabled(tabs.workspace.count < 2)

@@ -146,6 +146,7 @@ public enum ConfigurationWriter {
         extra["tabs.closeWithLastWindow"] = String(configuration.tabs.closeWithLastWindow)
         extra["tabs.closeStoppedAfter"] = number(configuration.tabs.closeStoppedAfter)
         extra["tabs.closeWindowWithLastTab"] = String(configuration.tabs.closeWindowWithLastTab)
+        extra["tabs.keepAwakeDisplay"] = String(configuration.tabs.keepAwakeDisplay)
         extra["sidebar.library"] = String(configuration.sidebar.library)
         extra["sidebar.documentSort"] = string(configuration.sidebar.documentSort.rawValue)
         return extra

@@ -17,6 +17,7 @@ import SwiftUI
     var unsaved: UnsavedEdits? { edits?.unsaved }
     var searchTerms: [String] = []
     var isPrivate = false
+    var runsCommand = false
     var descriptor: PaneDescriptor
     var onExit: () -> Void = {}
     var onFocusRequest: () -> Void = {}

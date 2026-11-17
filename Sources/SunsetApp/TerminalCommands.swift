@@ -120,6 +120,11 @@ struct TerminalCommands: Commands {
                 Button("Tab \(number)") { AppActions.shared.selectTab(number: number) }
                     .keyboardShortcut(KeyEquivalent(Character("\(number)")), modifiers: .command)
             }
+            // The acting window kept awake (roadmap 0035 E).
+            if let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) {
+                Divider()
+                KeepAwakeMenu(tabs: tabs, item: nil)
+            }
         }
     }
 

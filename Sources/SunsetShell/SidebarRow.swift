@@ -31,6 +31,8 @@ struct SidebarRow: View {
     var compact = false
     /// One of several rows selected together (R3 step d): drawn lighter than the shown row.
     var marked = false
+    /// It keeps the Mac awake (roadmap 0035 E): a cup after its title.
+    var awake = false
     /// While its name is edited in place: the field's first text, and what to do with the result (nil: Escape, nothing changes).
     var renaming: (start: String, done: (String?) -> Void)?
     let close: () -> Void
@@ -72,6 +74,13 @@ struct SidebarRow: View {
                     savedCommand: savedCommand
                 )
                 .frame(maxWidth: .infinity, minHeight: layout.closeButtonSize, alignment: .leading)
+            }
+            if awake {
+                Image(systemName: "cup.and.saucer.fill")
+                    .font(Design.Text.detail)
+                    .foregroundStyle(.secondary)
+                    .help("Keeps the Mac awake")
+                    .accessibilityLabel("Keeps the Mac awake")
             }
         }
         .mask { titleMask }

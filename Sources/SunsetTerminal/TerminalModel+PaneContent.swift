@@ -15,6 +15,9 @@ extension TerminalModel: PaneContent {
         .tab(TabGlyph.make(directory: directory, command: foregroundCommand, home: NSHomeDirectory()))
     }
 
+    /// A command is in front of the shell, as last looked at (debounced after the screen changes; roadmap 0035 E).
+    package var runsCommand: Bool { isRunning && foregroundCommand != nil }
+
     /// A command in front of the shell would be killed. Asked now: the debounced look at the foreground would be late.
     package var closeWarning: String? {
         guard isRunning, let command = refreshForegroundNow() else { return nil }

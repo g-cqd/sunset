@@ -129,6 +129,7 @@ package struct TabSidebar: View {
                 showProgress: settings.tabs.bar.showProgress,
                 layout: layout,
                 marked: tabs.isMarked(.tab(item.id)),
+                awake: tabs.keepsAwake(item: item.id) != nil,
                 renaming: renaming(.tab(item.id)),
                 close: {
                     closingSlot = slot
@@ -180,6 +181,7 @@ package struct TabSidebar: View {
                 Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item.id) }
                 Divider()
                 TabKeepMenu(tabs: tabs, item: item.id, animation: layout.smooth)
+                KeepAwakeMenu(tabs: tabs, item: item.id)
                 Divider()
                 Button("Close Tab") { tabs.close(item: item.id) }
                 Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
