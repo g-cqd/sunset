@@ -221,14 +221,14 @@ package struct TabSidebar: View {
                     Capsule().fill(accent).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
                     Spacer(minLength: 0)
                 }
-                .padding(.vertical, -(layout.tabSpacing + Design.Space.hair) / 2)
+                .padding(.vertical, -layout.gapMarkOutset)
                 .allowsHitTesting(false)
             case .moveAfter:
                 VStack {
                     Spacer(minLength: 0)
                     Capsule().fill(accent).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
                 }
-                .padding(.vertical, -(layout.tabSpacing + Design.Space.hair) / 2)
+                .padding(.vertical, -layout.gapMarkOutset)
                 .allowsHitTesting(false)
             case .split(let edge):
                 GeometryReader { proxy in

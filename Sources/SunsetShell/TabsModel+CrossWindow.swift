@@ -1,4 +1,3 @@
-import Observation
 import SunsetPane
 
 /// A drag that ends in another window than the one it started in (roadmap 0036 F). What is dragged is known to the window it
@@ -65,12 +64,4 @@ extension TabsModel {
         syncStates()
         onChange()
     }
-}
-
-/// The drag of tabs under way in the app, whichever window it started in (roadmap 0038 F): every window's gaps take drops
-/// while it is set.
-@MainActor @Observable
-final class DragUnderWay {
-    static let shared = DragUnderWay()
-    weak var origin: TabsModel?
 }

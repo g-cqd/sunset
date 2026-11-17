@@ -50,7 +50,7 @@ struct FavoritesSection: View {
                 Capsule().fill(accent.color).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
                 if !drop.after { Spacer(minLength: 0) }
             }
-            .padding(.vertical, -(layout.tabSpacing + Design.Space.hair) / 2)
+            .padding(.vertical, -layout.gapMarkOutset)
             .allowsHitTesting(false)
         }
     }

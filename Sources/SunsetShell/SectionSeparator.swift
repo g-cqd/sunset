@@ -7,13 +7,18 @@ struct SectionSeparator: View {
     let layout: ShellSettings.Layout
     var visible = true
 
+    /// The room it takes: the line in the middle.
+    static let room = 6.0
+    /// The room it takes hidden (the Favorites' line with no Favorites, as before).
+    static let hiddenRoom = 8.0
+
     var body: some View {
         Rectangle()
             .fill(.primary.opacity(layout.hairlineOpacity * Design.Line.stronger))
             .frame(height: max(layout.hairlineWidth, 0.5))
             .padding(.horizontal, layout.tabPaddingLeading)
             .opacity(visible ? 1 : 0)
-            .frame(height: visible ? 6 : 8)
+            .frame(height: visible ? Self.room : Self.hiddenRoom)
             .accessibilityHidden(true)
     }
 }

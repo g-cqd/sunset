@@ -61,3 +61,8 @@ struct GapDrop: View {
         }
     }
 }
+
+extension ShellSettings.Layout {
+    /// How far a row's drop line reaches past its edge, to sit in the middle of the gap beside it (roadmap 0038 F).
+    var gapMarkOutset: Double { (tabSpacing + Design.Space.hair) / 2 }
+}
