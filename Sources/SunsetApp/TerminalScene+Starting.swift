@@ -100,6 +100,7 @@ extension TerminalScene {
         if let page = content as? WebContent { WebOpening.wire(page, in: tabs) }
         if let document = content as? DocumentContent { DocumentWiring.wire(document, in: tabs) }
         if let settings = content as? SettingsContent { settings.tabs = tabs }
+        if let help = content as? HelpContent { help.tabs = tabs }
     }
 
     func attach(_ window: NSWindow) {

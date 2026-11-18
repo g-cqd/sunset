@@ -10,6 +10,9 @@ import SwiftUI
 final class HelpContent: PaneContent {
     static let kind = PaneDescriptor.helpKind
 
+    /// The window's tabs, for Settings (its row in the list).
+    @ObservationIgnored weak var tabs: TabsModel?
+
     /// The topic shown.
     var topic: HelpTopic {
         didSet { if topic != oldValue { onChange() } }
@@ -32,7 +35,7 @@ final class HelpContent: PaneContent {
     // MARK: PaneContent
 
     var title: String { "Help" }
-    var detail: String? { HelpCatalog.entry(topic).title }
+    var detail: String? { HelpTopicView.heading(topic) }
     var glyph: PaneGlyph { .symbol(PaneDescriptor.helpSymbol) }
     var progress: Double? { nil }
     var closeWarning: String? { nil }

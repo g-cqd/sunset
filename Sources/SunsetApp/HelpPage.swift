@@ -1,21 +1,28 @@
+import SunsetConfig
 import SunsetHelp
+import SunsetMetrics
+import SunsetPane
 import SunsetShell
+import SunsetShellBridge
 import SwiftUI
 
-/// Help's page (roadmap 0041 E): the topics by area, narrowed by a search, on the left; the chosen topic on the right, the
-/// part for experienced people shown, and the topics it leads to.
+/// Help's page (roadmap 0041 E), built as the settings' (the owner's note n16): the settings' sections on the left, in their
+/// order and with their pictures, the topics of the one shown under it (all of them while searching), Settings last; the
+/// chosen topic on the right, under its section's name.
 struct HelpPage: View {
     @Bindable var content: HelpContent
+    private let config = AppConfiguration.shared
 
     var body: some View {
         HStack(spacing: 0) {
-            VStack(spacing: 0) {
-                TextField("Search Help", text: $content.query)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(Design.Space.m)
-                list
+            VStack(spacing: Design.Space.s) {
+                TextField("Search Help", text: $content.query).textFieldStyle(.plain).fieldSurface()
+                ScrollView { list }
+                    .bouncesOnlyWhenScrolling()
+                    .scrollIndicators(.never)
             }
-            .frame(width: Design.Size.helpListWidth)
+            .padding(Design.Space.m)
+            .frame(width: Design.Size.settingsList)
             Divider()
             ScrollView { HelpTopicView(topic: content.topic) { content.topic = $0 } }
                 .bouncesOnlyWhenScrolling()
@@ -23,15 +30,41 @@ struct HelpPage: View {
     }
 
     private var list: some View {
-        List(selection: Binding(get: { content.topic }, set: { if let topic = $0 { content.topic = topic } })) {
-            ForEach(HelpArea.allCases, id: \.self) { area in
-                let topics = content.listed.filter { $0.area == area }
-                if !topics.isEmpty {
-                    Section(area.title) {
-                        ForEach(topics) { Text(HelpCatalog.entry($0).title).tag($0) }
+        let layout = ShellSettings(config.configuration).layout
+        let searching = !content.query.trimmingCharacters(in: .whitespaces).isEmpty
+        return VStack(spacing: layout.tabSpacing) {
+            ForEach(HelpTree.sections(content.listed)) { section in
+                let settings = SettingsSection.all.first { $0.id == section.id }
+                SettingsListRow(
+                    title: settings?.title ?? section.id,
+                    symbol: settings?.symbol ?? PaneDescriptor.helpSymbol,
+                    selected: false,
+                    layout: layout
+                ) {
+                    if let first = section.topics.first { content.topic = first }
+                }
+                if searching || section.id == content.topic.settingsSection {
+                    ForEach(section.topics) { topic in
+                        SettingsListRow(
+                            title: HelpCatalog.entry(topic).title,
+                            symbol: nil,
+                            selected: topic == content.topic,
+                            layout: layout
+                        ) { content.topic = topic }
                     }
                 }
             }
+            if let tabs = content.tabs {
+                SettingsListRow(
+                    title: "Settings",
+                    symbol: PaneDescriptor.settingsSymbol,
+                    selected: false,
+                    layout: layout
+                ) {
+                    AppSettings.show(content.topic.settingsTopic, in: tabs)
+                }
+            }
         }
+        .animation(layout.smooth, value: content.topic.settingsSection)
     }
 }

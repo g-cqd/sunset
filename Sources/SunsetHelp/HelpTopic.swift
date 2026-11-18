@@ -8,16 +8,26 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
 
     public var id: String { rawValue }
 
-    /// The area it is listed under.
-    public var area: HelpArea {
+    /// The settings' topic it is about (`SettingsTopic.id`, "web.downloads"): Help is listed under the settings' sections, in
+    /// their order (the owner's note n16), and its page opens those settings.
+    public var settingsTopic: String {
         switch self {
-            case .tabs, .splitTabs, .pinned, .favorites, .folders, .sidebarField, .bottomBar, .library, .keepAwake,
-                .dragAndDrop, .renaming, .tabLayout, .spaces:
-                .sidebar
-            case .features: .general
-            case .sitePermissions, .webNotifications, .popUps, .pageDialogs, .downloads, .profiles, .privateBrowsing,
-                .plainHTTP, .browserIdentity, .blocking:
-                .web
+            case .features: "general.features"
+            case .keepAwake: "general.startup"
+            case .spaces, .pinned, .favorites: "general.spaces"
+            case .tabs, .splitTabs, .bottomBar, .dragAndDrop, .tabLayout: "tabs.placement"
+            case .folders, .renaming: "tabs.labels"
+            case .library: "tabs.library"
+            case .sidebarField: "web.address"
+            case .pageDialogs, .plainHTTP: "web.pages"
+            case .downloads: "web.downloads"
+            case .sitePermissions, .webNotifications, .popUps, .browserIdentity: "web.websites"
+            case .profiles: "web.profiles"
+            case .blocking: "web.blocking"
+            case .privateBrowsing: "privacy.browsing"
         }
     }
+
+    /// The settings' section it is listed under: its topic's.
+    public var settingsSection: String { String(settingsTopic.prefix { $0 != "." }) }
 }

@@ -1,3 +1,4 @@
+import SunsetConfig
 import SunsetHelp
 import SunsetShell
 import SwiftUI
@@ -8,10 +9,16 @@ struct HelpTopicView: View {
     let topic: HelpTopic
     let open: (HelpTopic) -> Void
 
+    /// Its section's name and its own, as a settings page's heading ("Web › Downloads").
+    static func heading(_ topic: HelpTopic) -> String {
+        let section = SettingsSection.all.first { $0.id == topic.settingsSection }?.title
+        return [section, HelpCatalog.entry(topic).title].compactMap(\.self).joined(separator: " \u{203A} ")
+    }
+
     var body: some View {
         let entry = HelpCatalog.entry(topic)
         VStack(alignment: .leading, spacing: Design.Space.l) {
-            Text(entry.title).font(.title2.weight(.semibold))
+            Text(Self.heading(topic)).font(.title2.weight(.semibold))
             Text(entry.summary).font(.headline).foregroundStyle(.secondary)
             paragraphs(entry.text)
             if !entry.expert.isEmpty {

@@ -5,14 +5,12 @@ import Testing
 
 /// Help's texts (roadmap 0041 A; research help-system-from-vmrunner-2026-11-17): one source for a control's tooltip and its
 /// explanation. Every topic has its text, a summary is one short sentence (it is the tooltip), titles are unique, related
-/// topics exist, every area has topics.
+/// topics exist.
 @Suite("Help's texts")
 struct HelpCatalogTests {
-    @Test func `every topic has its text, and every area its topics`() {
+    @Test func `every topic has its text`() {
         let missing = HelpTopic.allCases.filter { HelpCatalog.entries[$0] == nil }
         #expect(missing.isEmpty, "\(missing)")
-        let empty = HelpArea.allCases.filter { area in !HelpTopic.allCases.contains { $0.area == area } }
-        #expect(empty.isEmpty, "\(empty)")
         let blank = HelpTopic.allCases.filter { HelpCatalog.entry($0).text.isEmpty }
         #expect(blank.isEmpty, "\(blank)")
     }

@@ -1,3 +1,4 @@
+import SunsetHelp
 import SunsetMetrics
 import SunsetShell
 import SunsetWeb
@@ -54,7 +55,7 @@ struct SectionList: View {
                     content: AppSettings.content(in: tabs),
                     layout: layout,
                     choose: { AppSettings.show($0, in: tabs) },
-                    help: { AppHelp.show(in: tabs) }
+                    help: { AppHelp.show(HelpTree.topic(about: AppSettings.content(in: tabs)?.topic), in: tabs) }
                 )
             case .tabs:
                 EmptyView()
