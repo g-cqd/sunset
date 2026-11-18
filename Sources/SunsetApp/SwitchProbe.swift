@@ -26,7 +26,10 @@ enum SwitchProbe {
                     await idle()
                     let settled = ContinuousClock.now
                     lines.append("\(round) \(index) \(milliseconds(selected - begin)) \(milliseconds(settled - begin))")
-                    try? await Task.sleep(for: .milliseconds(250))
+                    // `SUNSET_PROBE_GAP` (ms): longer than a second, each switch is followed by its session save.
+                    try? await Task.sleep(
+                        for: .milliseconds(Int(ProcessInfo.processInfo.environment["SUNSET_PROBE_GAP"] ?? "") ?? 250)
+                    )
                 }
             }
             try? lines.joined(separator: "\n").write(toFile: path, atomically: true, encoding: .utf8)

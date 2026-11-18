@@ -128,19 +128,33 @@ final class SessionStore {
         writer = Task { [weak self] in
             try? await Task.sleep(for: .seconds(1))
             guard !Task.isCancelled else { return }
-            self?.saveNow()
+            self?.saveNow(inBackground: true)
         }
     }
 
+    /// Where a session write is sealed and synced, one after the other, off the main thread (roadmap 0049: a write held the
+    /// main thread for milliseconds each time a change settled).
+    private static let disk = DispatchQueue(label: "studio.aemi.sunset.session-write", qos: .utility)
+
     /// Writes the session now, from the windows that are open (and the saved ones not yet taken, so that a quit during launch loses nothing).
-    func saveNow() {
+    /// - Parameter inBackground: sealed and written off the main thread (a scheduled save); else here, waiting for any write
+    ///   under way first (a quit, the app going to the background).
+    func saveNow(inBackground: Bool = false) {
         guard writes else { return }
-        guard let data = try? current(windows: restoresWindows).encoded() else { return }
+        let started = ContinuousClock.now
+        defer { SaveProbe.record(ContinuousClock.now - started, inBackground: inBackground) }
+        guard let data = try? current(windows: restoresWindows).encoded(), let seal else { return }
+        let path = path
         // Sealed, written whole beside the file, synced and moved over it: a crash mid-write leaves the old session, not half
-        // of a new one.
-        guard let seal, (try? SealedFile.write(data, to: path, seal: seal, identity: Self.identity)) != nil else {
+        // of a new one. One write at a time, in the order asked.
+        if inBackground, legacy == nil, !SaveProbe.writesHere {
+            Self.disk.async { _ = try? SealedFile.write(data, to: path, seal: seal, identity: Self.identity) }
             return
         }
+        let written = Self.disk.sync {
+            (try? SealedFile.write(data, to: path, seal: seal, identity: Self.identity)) != nil
+        }
+        guard written else { return }
         if let old = legacy {
             // The plain file goes once the sealed one reads back.
             let kept = SealedFile.read(path, as: Self.what, seal: seal, identity: Self.identity) {
