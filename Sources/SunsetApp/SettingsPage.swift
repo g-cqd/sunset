@@ -66,13 +66,13 @@ struct SettingsPage: View {
                 // A topic of measures only (the floating sidebar's) shows them at once: a page with only More is empty.
                 let plain = shown.topic.first.isEmpty ? shown.topic.further : shown.topic.first
                 let heading = shown.section.title + " \u{203A} " + shown.topic.title
-                blocks(SettingsBlock.blocks(plain), heading: heading)
+                blocks(SettingsBlock.blocks(applying(plain)), heading: heading)
                 // The measures and the finer choices a level down (roadmap 0047 G).
                 if !shown.topic.first.isEmpty, !shown.topic.further.isEmpty {
                     Section {
                         DisclosureGroup("More", isExpanded: $content.showsMore) {}
                     }
-                    if content.showsMore { blocks(SettingsBlock.blocks(shown.topic.further), heading: nil) }
+                    if content.showsMore { blocks(SettingsBlock.blocks(applying(shown.topic.further)), heading: nil) }
                 }
             }
         }
@@ -109,7 +109,15 @@ struct SettingsPage: View {
         }
     }
 
+    /// The options that act under the configuration now; a group left empty is not shown (note n29).
+    private func applying(_ options: [SettingsOption]) -> [SettingsOption] {
+        options.filter { $0.isShown(in: config.configuration) }
+    }
+
     private func rows(_ options: [SettingsOption]) -> some View {
-        ForEach(options) { option in SettingsRow(option: option, config: config) }
+        // A choice that acts only under another is shown under it only (the owner's note n29).
+        ForEach(options.filter { $0.isShown(in: config.configuration) }) { option in
+            SettingsRow(option: option, config: config)
+        }
     }
 }

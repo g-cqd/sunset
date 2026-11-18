@@ -13,6 +13,8 @@ import SunsetPrivate
 final class WindowBackdrop {
     private var backdrop: NSView?
     private var tintView: NSView?
+    /// `window.blur` over the material or the glass (the owner's note n28: it only reached the floating sidebar).
+    private var blurView: NSView?
     private var applied: WindowLook?
     private var appliedWindowNumber = -1
 
@@ -33,6 +35,7 @@ final class WindowBackdrop {
             // The tint's colour and alpha, nothing under it; the desktop is not blurred (that "never really worked": owner, 2026-11-12).
             case .fill: install(nil, in: window, tint: look.tintColor)
         }
+        if look.material == .material || look.material == .glass { installBlur(look.blur, in: window) }
         WindowBlur.setRadius(0, forWindowNumber: window.windowNumber)
         window.invalidateShadow()
     }
@@ -70,10 +73,27 @@ final class WindowBackdrop {
         }
     }
 
+    /// A backdrop layer of its own radius over the material, under the tint and the content, as the sidebar has.
+    private func installBlur(_ radius: Double, in window: NSWindow) {
+        guard let frame = window.contentView?.superview, let backdrop,
+            let layer = BackdropBlur.makeLayer(radius: radius)
+        else { return }
+        let view = NSView(frame: frame.bounds)
+        view.autoresizingMask = [.width, .height]
+        view.wantsLayer = true
+        layer.frame = view.bounds
+        layer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        view.layer?.addSublayer(layer)
+        frame.addSubview(view, positioned: .above, relativeTo: backdrop)
+        blurView = view
+    }
+
     private func remove() {
         backdrop?.removeFromSuperview()
         tintView?.removeFromSuperview()
+        blurView?.removeFromSuperview()
         backdrop = nil
         tintView = nil
+        blurView = nil
     }
 }

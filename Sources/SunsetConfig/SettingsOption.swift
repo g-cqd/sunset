@@ -19,6 +19,19 @@ public struct SettingsOption: Sendable, Identifiable {
     /// What it holds is an address, a pattern, a file's name or code: its field is in monospace (the owner's note n26).
     public var isCode = false
 
+    /// Shown only while this holds (the owner's note n29: a choice that acts only under another); nil, always.
+    public var shownWhen: (@Sendable (Configuration) -> Bool)?
+
+    /// Whether it is shown under `configuration`.
+    public func isShown(in configuration: Configuration) -> Bool { shownWhen?(configuration) ?? true }
+
+    /// The same, shown only while `condition` holds.
+    public func shown(when condition: @escaping @Sendable (Configuration) -> Bool) -> Self {
+        var copy = self
+        copy.shownWhen = condition
+        return copy
+    }
+
     /// The heading it is shown under on its page, with the options next to it that have the same (the owner's note n13).
     public var group: String?
 

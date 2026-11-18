@@ -95,10 +95,21 @@ extension SettingsOption {
                     (.ultraThick, "Ultra thick")
                 ]
             )
-            .noted("With the window background set to Material: how much of what is behind the window shows through.")
-            .grouped("Window"),
+            .noted("How much of what is behind the window shows through.")
+            .grouped("Window")
+            .shown { $0.window.material == .material },
+            choice(
+                "appearance.glass",
+                "Glass style",
+                "liquid glass regular clear",
+                \.appearance.glass,
+                [(.regular, "Regular"), (.clear, "Clear")]
+            )
+            .grouped("Window")
+            .shown { $0.window.material == .glass },
             number("window.blur", "Window blur", "radius frosted background", \.window.blur, 0 ... 100, step: 1)
-                .grouped("Window"),
+                .grouped("Window")
+                .shown { $0.window.material == .material || $0.window.material == .glass },
             number(
                 "terminal.opacity",
                 "Background opacity",
@@ -108,19 +119,9 @@ extension SettingsOption {
                 step: 0.05,
                 unit: ""
             )
-            .noted(
-                "How opaque the terminal screen's own background is. It only shows when the window background is not Opaque "
-                    + "(the option above); the sidebar follows the window's settings."
-            )
-            .grouped("Terminal"),
-            choice(
-                "appearance.glass",
-                "Glass style",
-                "liquid glass regular clear",
-                \.appearance.glass,
-                [(.regular, "Regular"), (.clear, "Clear")]
-            )
-            .grouped("Bars"),
+            .noted("How opaque the terminal screen's own background is; the sidebar follows the window's settings.")
+            .grouped("Terminal")
+            .shown { $0.window.material != .opaque },
             choice(
                 "appearance.barBlur",
                 "Under the bars",
