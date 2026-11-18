@@ -6,36 +6,65 @@ import SwiftUI
 /// Settings > Web > Profiles (R4; ADR-0053): the profiles, each named in place; a new one; and a profile removed, after
 /// a question: its Spaces become the first profile's, what it kept (pinned, favourites) is removed, and its website data is erased.
 struct ProfilesSettings: View {
+    /// The page's heading over the first section, when it is the page's first block.
+    var heading: String?
+    var title = "Your profiles"
+    var note: String?
     private let spaces = AppSpaces.all
     @State private var removing: ProfileModel?
 
     var body: some View {
         Group {
-            // Each profile's name in a field on the leading edge (its label), what it holds and Remove on the trailing one.
+            // New Profile in the list's heading, on its own: nothing of one profile is next to it (the owner's note n39).
+            Section {
+                EmptyView()
+            } header: {
+                VStack(alignment: .leading, spacing: Design.Space.m) {
+                    if let heading { Text(heading).font(Design.Text.heading).foregroundStyle(.primary) }
+                    HStack {
+                        Text(title)
+                        Spacer()
+                        Button("New Profile", systemImage: "plus") { spaces.profiles.add() }
+                            .buttonStyle(.borderless)
+                    }
+                }
+            } footer: {
+                if let note { Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary) }
+            }
+            // Each profile a section of its own: what is under it is its (note n38).
             ForEach(spaces.profiles.profiles, id: \.profile.id) { profile in
-                LabeledContent {
-                    HStack(spacing: Design.Space.m) {
+                Section {
+                    LabeledContent {
+                        TextField(
+                            "Profile name",
+                            text: Binding(
+                                get: { profile.profile.name },
+                                set: { spaces.profiles.rename(profile, to: $0) }
+                            ),
+                            prompt: Text("Name")
+                        )
+                        .labelsHidden()
+                        .textFieldStyle(.roundedBorder)
+                        .frame(maxWidth: Design.Size.settingsField)
+                    } label: {
+                        SettingsLabel("Name")
+                    }
+                    LabeledContent {
                         Text(Self.sentence(spaces: spaces.spaces(of: profile).count)).foregroundStyle(.secondary)
-                        if !profile.profile.isFirst {
-                            Button("Remove\u{2026}") { removing = profile }
+                    } label: {
+                        SettingsLabel("Spaces")
+                    }
+                    ProfileKeepRows(profile: profile, profiles: spaces.profiles)
+                    if !profile.profile.isFirst {
+                        LabeledContent {
+                            Button("Remove Profile\u{2026}", role: .destructive) { removing = profile }
+                        } label: {
+                            EmptyView()
                         }
                     }
-                } label: {
-                    TextField(
-                        "Profile name",
-                        text: Binding(get: { profile.profile.name }, set: { spaces.profiles.rename(profile, to: $0) }),
-                        prompt: Text("Name")
-                    )
-                    .labelsHidden()
-                    .textFieldStyle(.roundedBorder)
-                    .frame(maxWidth: Design.Size.settingsField)
+                } header: {
+                    Text(profile.profile.name.isEmpty ? "Profile" : profile.profile.name)
                 }
-                ProfileKeepRows(profile: profile, profiles: spaces.profiles)
-            }
-            LabeledContent {
-                Button("New Profile") { spaces.profiles.add() }
-            } label: {
-                EmptyView()
             }
         }
         .confirmationDialog(

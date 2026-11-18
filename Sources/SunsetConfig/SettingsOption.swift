@@ -36,6 +36,12 @@ public struct SettingsOption: Sendable, Identifiable {
     public var group: String?
 
     /// Its control is a list of things the person added or answered (search engines, sites, profiles): its own block.
+    /// Its control draws a section for each of its things (`SettingsControl.Custom.ownsSections`).
+    public var ownsSections: Bool {
+        guard case .custom(let custom) = control else { return false }
+        return custom.ownsSections
+    }
+
     public var isList: Bool {
         guard case .custom(let custom) = control else { return false }
         return custom.isList

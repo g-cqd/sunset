@@ -21,8 +21,12 @@ struct SettingsRow: View {
     }
 
     /// A list's rows, for its own section: its title and note are the section's.
-    @ViewBuilder static func list(_ option: SettingsOption, config: AppConfiguration) -> some View {
-        if case .custom(let custom) = option.control {
+    @ViewBuilder static func list(_ option: SettingsOption, config: AppConfiguration, heading: String? = nil)
+        -> some View
+    {
+        if option.ownsSections {
+            ProfilesSettings(heading: heading, title: option.title, note: option.note)
+        } else if case .custom(let custom) = option.control {
             SettingsCustomRow(custom: custom, option: option, config: config)
         }
     }

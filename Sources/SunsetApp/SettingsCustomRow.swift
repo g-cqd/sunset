@@ -41,7 +41,7 @@ struct SettingsCustomRow: View {
             case .engines: EngineList(engines: config.binding(\.web.engines))
             case .websites: WebsitesSettings(defaults: config.binding(\.web.permissions))
             case .siteAgents: SiteAgentsSettings(agent: config.binding(\.web.agent))
-            case .profiles: ProfilesSettings()
+            case .profiles: ProfilesSettings(note: option.note)
             case .blockingLists: BlockingListsSettings()
             case .sites: SitesSettings()
             case .features: FeaturesSettings(features: config.binding(\.features))

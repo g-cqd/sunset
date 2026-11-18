@@ -21,6 +21,9 @@ public enum SettingsControl: Sendable {
         /// Settings, Storage (R12 step ST-6): what is sealed, the website data, the files set aside, the key, a code, export.
         case storageSealed, storageWebsiteData, storageSetAside, storageKey, storageEnterCode, storageExport
 
+        /// A list that draws a section for each of its things (the profiles, notes n38, n39): the page does not wrap it.
+        public var ownsSections: Bool { self == .profiles }
+
         /// A list of things the person added or answered, drawn as a section of its own under its title (note n13).
         public var isList: Bool {
             switch self {

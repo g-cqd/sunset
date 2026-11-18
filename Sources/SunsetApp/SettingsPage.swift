@@ -99,23 +99,32 @@ struct SettingsPage: View {
     /// it; the page's heading above the first.
     private func blocks(_ blocks: [SettingsBlock], heading: String?) -> some View {
         ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
-            Section {
-                if block.isList, let list = block.options.first {
-                    SettingsRow.list(list, config: config)
-                    // Its note right under it when other rows follow it, else under the section.
-                    if block.options.count > 1, let note = list.note {
-                        Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary)
-                    }
-                    rows(Array(block.options.dropFirst()))
-                } else {
-                    rows(block.options)
-                }
-            } header: {
-                SettingsBlockHeader(page: index == 0 ? heading : nil, block: block)
-            } footer: {
-                if block.isList, block.options.count == 1, let note = block.options.first?.note {
+            if block.isList, let list = block.options.first, list.ownsSections {
+                // Its own sections, one a thing (the profiles, notes n38, n39), the page's heading over the first.
+                SettingsRow.list(list, config: config, heading: index == 0 ? heading : nil)
+            } else {
+                section(block, index: index, heading: heading)
+            }
+        }
+    }
+
+    private func section(_ block: SettingsBlock, index: Int, heading: String?) -> some View {
+        Section {
+            if block.isList, let list = block.options.first {
+                SettingsRow.list(list, config: config)
+                // Its note right under it when other rows follow it, else under the section.
+                if block.options.count > 1, let note = list.note {
                     Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary)
                 }
+                rows(Array(block.options.dropFirst()))
+            } else {
+                rows(block.options)
+            }
+        } header: {
+            SettingsBlockHeader(page: index == 0 ? heading : nil, block: block)
+        } footer: {
+            if block.isList, block.options.count == 1, let note = block.options.first?.note {
+                Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary)
             }
         }
     }

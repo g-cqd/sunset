@@ -62,3 +62,13 @@ import Testing
         }
     }
 }
+
+extension SettingsBlockTests {
+    /// The owner's notes n38, n39 (2026-11-18): "profiles should be more separated from each other … a subsection belongs to the
+    /// profile set above it", and New Profile "at a location that does not make it confusable with another button for a
+    /// specific profile". The profiles draw a section each; no other list does.
+    @Test func `the profiles draw their own sections, one a profile`() {
+        let owning = SettingsOption.all.filter(\.ownsSections).map(\.id)
+        #expect(owning == ["profiles.list"])
+    }
+}
