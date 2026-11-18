@@ -45,7 +45,7 @@ struct SidebarGroupRow: View {
             }
         }
         .contentShape(shape)
-        .onHover { hovering = $0 }
+        .keptHover($hovering)
         .animation(layout.smooth, value: hovering)
         .animation(layout.smooth, value: selected)
         .animation(layout.smooth, value: armed)

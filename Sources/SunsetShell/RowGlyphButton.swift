@@ -47,7 +47,7 @@ package struct RowGlyphButton<Glyph: View>: View {
                 .contentShape(.rect)
                 // The press is felt (the owner's note n11).
                 .scaleEffect(pressed ? Design.Motion.pressedScale : 1)
-                .onHover { hovering = $0 }
+                .keptHover($hovering)
                 .animation(layout.smooth, value: hovering)
                 .animation(.snappy(duration: 0.12), value: pressed)
         }

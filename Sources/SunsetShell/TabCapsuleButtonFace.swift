@@ -18,7 +18,7 @@ struct TabCapsuleButtonFace<Label: View>: View {
             .background(Circle().fill(.primary.opacity(fill)))
             .overlay { Circle().hairline(surface.layout) }
             .contentShape(Circle())
-            .onHover { hovering = $0 }
+            .keptHover($hovering)
             .animation(surface.layout.smooth, value: hovering)
     }
 

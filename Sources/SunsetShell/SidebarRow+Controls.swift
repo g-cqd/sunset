@@ -28,7 +28,7 @@ extension SidebarRow {
         if showsClose, let stopAwake {
             SwiftUI.Button(action: stopAwake) { cup(slashed: overAwake) }
                 .buttonStyle(.plain)
-                .onHover { overAwake = $0 }
+                .keptHover($overAwake)
                 .help("Stop Keeping the Mac Awake")
                 .accessibilityLabel("Stop Keeping the Mac Awake")
         } else {

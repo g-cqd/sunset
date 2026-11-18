@@ -138,7 +138,7 @@ struct SidebarRow: View {
             }
         }
         .contentShape(shape)
-        .onHover { hovering = $0 }
+        .keptHover($hovering)
         .animation(layout.smooth, value: hovering)
         .animation(layout.smooth, value: overClose)
         .animation(layout.smooth, value: selected)
@@ -188,7 +188,7 @@ struct SidebarRow: View {
         .buttonStyle(.plain)
         .opacity(showsClose ? 1 : 0)
         .allowsHitTesting(showsClose)
-        .onHover { overClose = $0 }
+        .keptHover($overClose)
         .help(armed ? "Click again to close running command" : button.help)
     }
 

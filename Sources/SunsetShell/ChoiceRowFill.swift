@@ -12,7 +12,7 @@ struct ChoiceRowFill<Label: View>: View {
     var body: some View {
         label
             .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(fill))
-            .onHover { hovered = $0 }
+            .keptHover($hovered)
     }
 
     private var fill: Color {

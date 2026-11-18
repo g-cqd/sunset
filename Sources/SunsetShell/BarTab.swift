@@ -101,7 +101,7 @@ struct BarTab<Icon: View, Label: View>: View {
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .onHover { overClose = $0 }
+        .keptHover($overClose)
         .help(armed ? "Click again to close running command" : button.help)
     }
 }

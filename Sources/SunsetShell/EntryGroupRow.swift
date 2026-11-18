@@ -59,7 +59,7 @@ struct EntryGroupRow: View {
         .background(shape.fill(fill))
         .overlay { shape.hairline(layout).opacity(selected ? 1 : 0) }
         .contentShape(shape)
-        .onHover { hovering = $0 }
+        .keptHover($hovering)
         .animation(layout.smooth, value: hovering)
         .animation(layout.smooth, value: selected)
     }

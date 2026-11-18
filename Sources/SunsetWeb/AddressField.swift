@@ -65,7 +65,7 @@ package struct AddressField: View {
             }
         }
         .contextMenu { pageMenu }
-        .onHover { inside in hovering = inside }
+        .keptHover($hovering)
         .animation(.easeOut(duration: 0.15), value: hovering)
         // A private page's field is dark, its text light (web step h).
         .fieldSurface(dark: content.isPrivate)

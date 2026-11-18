@@ -34,7 +34,7 @@ struct SettingsListRow: View {
             .contentShape(shape)
         }
         .buttonStyle(.plain)
-        .onHover { hovered = $0 }
+        .keptHover($hovered)
         .animation(layout.smooth, value: hovered)
         .accessibilityAddTraits(selected ? .isSelected : [])
     }

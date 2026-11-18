@@ -53,7 +53,7 @@ struct DocumentSectionRow: View {
         )
         .contentShape(shape)
         .animation(layout.smooth, value: hovered)
-        .onHover { hovered = $0 }
+        .keptHover($hovered)
         .onTapGesture {
             if NSEvent.modifierFlags.contains(.command), document.file == nil { openInNewTab() } else { open() }
         }

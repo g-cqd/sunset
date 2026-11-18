@@ -75,7 +75,7 @@ struct FolderRow: View {
             }
         }
         .contentShape(.rect)
-        .onHover { hovering = $0 }
+        .keptHover($hovering)
         .hoverPreview(tabs, folder: folder.id)
         .animation(layout.smooth, value: hovering)
         .selectionTaps(tabs, row: .node(folder.id), undo: toggle) { toggle() }
