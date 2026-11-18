@@ -13,7 +13,13 @@ struct FavoritesSection: View {
     @State private var heights: [Favorites.NodeID: Double] = [:]
     @Environment(\.accent) private var accent
 
+    /// One view: the rows, then their line. As two, a modifier on the section (a measure) laid them over each other, the
+    /// line across the rows (the owner's screenshot of 13:05, roadmap 0047 D).
     var body: some View {
+        VStack(spacing: layout.tabSpacing) { rowsAndLine }
+    }
+
+    @ViewBuilder private var rowsAndLine: some View {
         let favorites = tabs.favorites.favorites
         if !favorites.isEmpty {
             // The tree's rows are the tabs' rows: their height and their spacing (owner, 2026-11-13, t227).
