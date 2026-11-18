@@ -97,6 +97,15 @@ extension Reader {
         }
     }
 
+    /// The switches of `tabs.*`, by their key.
+    static var tabFlags: [String: WritableKeyPath<Configuration.Tabs, Bool>] {
+        [
+            "restore": \.restore, "confirmClose": \.confirmClose, "keepRunningForFavorites": \.keepRunningForFavorites,
+            "closeWithLastWindow": \.closeWithLastWindow, "closeWindowWithLastTab": \.closeWindowWithLastTab,
+            "closeGoesBack": \.closeGoesBack, "keepAwakeDisplay": \.keepAwakeDisplay
+        ]
+    }
+
     mutating func readTabs(_ object: Object) {
         for (key, value) in object {
             switch key {
@@ -104,27 +113,14 @@ extension Reader {
                     if let choice = choice("tabs.mode", value, as: Configuration.Tabs.Mode.self) {
                         configuration.tabs.mode = choice
                     }
-                case "restore": if let flag = bool("tabs.restore", value) { configuration.tabs.restore = flag }
-                case "confirmClose":
-                    if let flag = bool("tabs.confirmClose", value) { configuration.tabs.confirmClose = flag }
-                case "keepRunningForFavorites":
-                    if let flag = bool("tabs.keepRunningForFavorites", value) {
-                        configuration.tabs.keepRunningForFavorites = flag
+                case _ where Self.tabFlags[key] != nil:
+                    if let path = Self.tabFlags[key], let flag = bool("tabs.\(key)", value) {
+                        configuration.tabs[keyPath: path] = flag
                     }
                 case "askBeforeQuit":
                     if let ask = choice("tabs.askBeforeQuit", value, as: Configuration.Tabs.QuitAsk.self) {
                         configuration.tabs.askBeforeQuit = ask
                     }
-                case "closeWithLastWindow":
-                    if let flag = bool("tabs.closeWithLastWindow", value) {
-                        configuration.tabs.closeWithLastWindow = flag
-                    }
-                case "closeWindowWithLastTab":
-                    if let flag = bool("tabs.closeWindowWithLastTab", value) {
-                        configuration.tabs.closeWindowWithLastTab = flag
-                    }
-                case "keepAwakeDisplay":
-                    if let flag = bool("tabs.keepAwakeDisplay", value) { configuration.tabs.keepAwakeDisplay = flag }
                 case "closeStoppedAfter":
                     if let hours = number("tabs.closeStoppedAfter", value, range: 0 ... 8760) {
                         configuration.tabs.closeStoppedAfter = hours

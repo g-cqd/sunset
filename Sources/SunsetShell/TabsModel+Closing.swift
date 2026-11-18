@@ -20,6 +20,19 @@ extension TabsModel {
         losingNothing(closing: [pane]) { [self] in close(pane: pane) }
     }
 
+    /// Closes a pane immediately (used when its program exits on its own).
+    package func close(pane: PaneID) {
+        guard let model = contents[pane] else { return }
+        if let item = workspace.item(containing: pane)?.id, isCloseArmed(item) { closeConfirmation.disarm() }
+        if hoveredPane == pane { hoveredPane = nil }
+        let back = goingBack(closingLastOf: pane)
+        workspace.close(pane: pane)
+        back?()
+        contents[pane] = nil
+        model.stop()
+        finishClosing()
+    }
+
     /// Closes a tab with all its panes (asking for confirmation first when any of its panes has a command running).
     package func close(item: Workspace.ItemID) {
         if hoveredItem == item { hoveredItem = nil }
@@ -28,7 +41,10 @@ extension TabsModel {
             return
         }
         losingNothing(closing: target.panes) { [self] in
+            let back = closeGoesBack && selectedID == item ? previouslyShown(before: item) : nil
             stop(workspace.close(item: item))
+            shownBefore.removeAll { $0 == item }
+            if let back { select(item: back) }
             finishClosing()
         }
     }
@@ -46,4 +62,28 @@ extension TabsModel {
 
     /// Closes the focused pane (the tab with its last pane; a kept entry is unloaded with its last pane).
     package func closeSelected() { if let pane = shownPane { requestClose(pane: pane) } }
+
+    /// The tab this window showed last before `item`, still among the Space's (n4).
+    func previouslyShown(before item: Workspace.ItemID) -> Workspace.ItemID? {
+        let open = Set(workspace.items.map(\.id))
+        return shownBefore.last { $0 != item && open.contains($0) }
+    }
+
+    /// Keeps `shown` last of the tabs this window showed.
+    func remember(_ shown: Workspace.ItemID?, was: Workspace.ItemID?) {
+        guard let shown, shown != was else { return }
+        shownBefore.removeAll { $0 == shown }
+        shownBefore.append(shown)
+    }
+
+    /// When `pane` is the last of the shown tab: what shows the tab shown before it, once the tab is closed.
+    func goingBack(closingLastOf pane: PaneID) -> (() -> Void)? {
+        guard closeGoesBack, let tab = workspace.item(containing: pane), tab.panes.count == 1, tab.id == selectedID,
+            let back = previouslyShown(before: tab.id)
+        else { return nil }
+        return { [self] in
+            shownBefore.removeAll { $0 == tab.id }
+            select(item: back)
+        }
+    }
 }

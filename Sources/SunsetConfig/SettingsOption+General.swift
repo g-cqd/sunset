@@ -66,6 +66,13 @@ extension SettingsOption {
             )
             .noted("Off, a window stays open, empty, when the last tab of its Space closes."),
             toggle(
+                "tabs.closeGoesBack",
+                "Show the previous tab after closing one",
+                "close tab previous recent last neighbour back",
+                \.tabs.closeGoesBack
+            )
+            .noted("Off, the tab next to the closed one is shown."),
+            toggle(
                 "tabs.keepAwakeDisplay",
                 "Keep the display on with the Mac",
                 "awake sleep caffeinate display screen power keep",

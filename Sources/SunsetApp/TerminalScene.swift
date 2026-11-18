@@ -150,6 +150,7 @@ struct TerminalScene: View {
         .onChange(of: configuration.tabs.closeWindowWithLastTab, initial: true) { _, closes in
             tabs.closesWithLastTab = closes
         }
+        .onChange(of: configuration.tabs.closeGoesBack, initial: true) { _, back in tabs.closeGoesBack = back }
         .onChange(of: configuration.tabs.closeWithLastWindow, initial: true) { _, closes in
             AppSpaces.all.keepTabs(!closes)
         }

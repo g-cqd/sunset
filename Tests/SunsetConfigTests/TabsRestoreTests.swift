@@ -59,6 +59,10 @@ import Testing
     /// The owner, 2026-11-17: "closing the last tab of a space should not close the window, but this could be a behaviour
     /// to decide about in a setting".
     @Test func `the window stays when the last tab of its Space closes, unless the file says it closes`() throws {
+        #expect(Configuration().tabs.closeGoesBack, "n4: on by default")
+        #expect(
+            try !ConfigurationParser.parse(#"{ "tabs": { "closeGoesBack": false } }"#).configuration.tabs.closeGoesBack
+        )
         #expect(!Configuration().tabs.closeWindowWithLastTab)
         let set = try ConfigurationParser.parse(#"{ "tabs": { "closeWindowWithLastTab": true } }"#)
         #expect(set.issues.isEmpty && set.configuration.tabs.closeWindowWithLastTab)

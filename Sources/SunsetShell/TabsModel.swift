@@ -12,7 +12,9 @@ package final class TabsModel {
     /// The Space this window shows.
     package internal(set) var space: SpaceModel
     /// The tab this window selected among the Space's, and the kept entry it shows instead (`workspace`).
-    var selectedID: Workspace.ItemID?
+    var selectedID: Workspace.ItemID? { didSet { remember(selectedID, was: oldValue) } }
+    /// The tabs this window showed, the last last (n4): closing the shown one goes back to the one before it.
+    @ObservationIgnored var shownBefore: [Workspace.ItemID] = []
     var selectedEntry: Favorites.NodeID?
     /// Makes a pane's content: the default kind for nil, else what the descriptor says; a placeholder until the app says
     /// how, then the Space's tabs with none (stopped with its last window, or read from the session) are given theirs.
@@ -32,8 +34,7 @@ package final class TabsModel {
     package var pinned: FavoritesModel? { didSet { pinned?.register(self) } }
     /// The Spaces this window can change to (the app's); nil for one whose Space is its own. Observed: drawn before set.
     package weak var spaces: SpacesModel?
-    /// Where the sidebar's field is, in the window (global coordinates), while the sidebar shows one: the command bar opens
-    /// there (roadmap 0035 G).
+    /// Where the sidebar's field is, in the window, while it shows one: the command bar opens there (roadmap 0035 G).
     package var sidebarField: CGRect?
     /// The window is kept awake, and until when (roadmap 0035 E).
     package internal(set) var windowAwake: KeepAwake?
@@ -42,8 +43,9 @@ package final class TabsModel {
     /// What a Space's editor holds while it is open in this window; the Space being deleted, asked about first.
     package var spaceDraft: SpaceDraft?
     package var deletingSpace: Space.ID?
-    /// The window closes with the last tab of its Space (`tabs.closeWindowWithLastTab`); off, it stays, empty.
+    /// The window closes with its Space's last tab; closing the shown tab shows the one before it (`tabs.*`, n4).
     @ObservationIgnored package var closesWithLastTab = false
+    @ObservationIgnored package var closeGoesBack = true
     /// The swipe between Spaces under way on this window's sidebar, and the list's slide from one Space to another.
     @ObservationIgnored package var spaceSwipe = SpaceSwipe()
     package var slide = SpaceSlide()
@@ -51,22 +53,20 @@ package final class TabsModel {
     @ObservationIgnored package var runSlide = SpaceSlide.animated
     /// What a content asks of a window (links to open, the font zoom) is asked of this one from now on: it draws it.
     @ObservationIgnored package var wireContent: (any PaneContent) -> Void = { _ in }
-    /// The window chose what it shows (its Space, a first tab): done once, though its content can be built again.
+    /// The window chose what it shows (its Space, a first tab), once; the last tab was closed: the window goes.
     @ObservationIgnored package var started = false
-    /// The last tab was closed: the window goes.
     @ObservationIgnored package var onEmpty: () -> Void = {}
     /// The tabs changed (added, closed, moved, split, selected): the session is to be saved.
     @ObservationIgnored package var onChange: () -> Void = {}
-    /// What a sidebar or bar drag in this window carries, from its start until it is dropped (set when the drag begins; see `beginDrag`).
+    /// What a drag in this window carries, from its start (`beginDrag`) until it is dropped.
     @ObservationIgnored package var dragged: PaneDragPayload? { didSet { draggedChanged() } }
     /// Where what is dragged could go, while a drag is under way: what the views outline (`DragTargets`).
     package internal(set) var dragTargets: DragTargets?
-    /// Whether a mouse button is down: a drag let go where nothing takes it ends when none is.
+    /// Whether a mouse button is down: a drag let go where nothing takes it ends when none is (watched by `dragWatch`).
     @ObservationIgnored package var mouseIsDown: @MainActor () -> Bool = { NSEvent.pressedMouseButtons != 0 }
     @ObservationIgnored var dragWatch: Task<Void, Never>?
-    /// The command bar, when it is open: searching the tabs, or (after the selected tab was dropped on its own content) choosing the tab to split with.
+    /// The command bar when open; what was gone to or searched from it, latest last (Up in its empty field).
     package var bar: CommandBar?
-    /// What was gone to or searched from the bar in this window, latest last; Up in its empty field brings them back (kept for the session).
     package var barRecall: [String] = []
     /// This window's temporary font size change (⌘+, ⌘−, ⌘0).
     package var fontZoom = FontZoom()
@@ -80,20 +80,19 @@ package final class TabsModel {
             for pane in item.panes { content(pane)?.prepare() }
         }
     }
-    /// Where that row is, in the window (global coordinates): the preview is placed beside it (n47).
+    /// Where that row, the pane area and the sidebar are, in the window: the preview goes in the area, beside the sidebar
+    /// (n47, roadmap 0047 B).
     package var hoveredRowFrame: CGRect?
-    /// Where the pane area and the sidebar are, in the window: previews go in the one, beside the other (roadmap 0047 B).
     package var paneAreaFrame: CGRect?
     package var sidebarFrame: CGRect?
     /// The folder of the Favorites under the pointer: its card lists its tabs (the owner's note n77).
     package var hoveredFolder: Favorites.NodeID?
-    /// The tab being renamed, while its dialog is open (`RenameTabAlert`).
+    /// The tab being renamed (`RenameTabAlert`) and the kept entry whose command is edited (`CommandSheet`).
     package var renaming: Workspace.ItemID?
-    /// The kept entry whose command is being edited, while its sheet is open (`CommandSheet`).
     package var editingCommand: Favorites.NodeID?
-    /// The choice of kind for a new tab is open (Shift-Cmd-T).
+    /// The choice of kind for a new tab is open (Shift-Cmd-T); the panel opposite the tabs is shown (Cmd-Y, web step e);
+    /// which section each sidebar is on (roadmap 0031).
     package var choosingKind = false
-    /// The panel on the side opposite the tabs is shown (Cmd-Y, web step e), and which section each sidebar is on (roadmap 0031).
     package var showsHistory = false
     package var sections = SidebarSections()
     @ObservationIgnored package let shelf = DocumentShelf()
@@ -196,17 +195,6 @@ package final class TabsModel {
         syncStates()
         onChange()
         return model
-    }
-
-    /// Closes a pane immediately (used when its program exits on its own).
-    package func close(pane: PaneID) {
-        guard let model = contents[pane] else { return }
-        if let item = workspace.item(containing: pane)?.id, isCloseArmed(item) { closeConfirmation.disarm() }
-        if hoveredPane == pane { hoveredPane = nil }
-        workspace.close(pane: pane)
-        contents[pane] = nil
-        model.stop()
-        finishClosing()
     }
 
     /// Whether `item` is currently armed for close confirmation (tinted red).
