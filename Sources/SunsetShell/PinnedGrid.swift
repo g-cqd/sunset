@@ -123,7 +123,7 @@ struct PinnedGrid: View {
                         .accessibilityLabel("Keeps the Mac awake")
                 }
             }
-            .overlay(alignment: .bottomTrailing) { if tabs.isAway(entry: entry) { AwayBadge() } }
+            .awayDot(tabs.isAway(entry: entry))
             .overlay {
                 // Asked whether to stop what runs in it (Unload, Reset, Delete): marked as a tab's row is.
                 if entry.open.map({ tabs.isCloseArmed($0.id) }) == true {

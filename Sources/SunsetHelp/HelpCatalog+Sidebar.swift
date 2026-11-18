@@ -30,7 +30,7 @@ extension HelpCatalog {
                 "Pin a tab from its menu, or drag it onto the grid. A tile that is closed keeps its place and opens again "
                     + "when clicked.",
                 "The grid belongs to the profile: every Space of a profile shows the same tiles.",
-                "A page that went elsewhere shows a turn-back arrow; double-click it to go back to where it was kept. "
+                "A page that went elsewhere shows a small dot under its icon; double-click it to go back to where it was kept. "
                     + "Favorites do the same."
             ],
             related: [.favorites, .dragAndDrop, .keepAwake]
