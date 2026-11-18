@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import Observation
 package import SunsetStorage
 
@@ -37,16 +37,46 @@ package final class SiteRules<Value: Sendable> {
         values.sorted { $0.key < $1.key }.map { ($0.key, $0.value) }
     }
 
-    /// The value for `host`: its own rule, else the rule of the nearest site it is a subdomain of.
+    /// The value for `host`: its own rule, else the rule of the nearest site it is a subdomain of, else a pattern's.
     package func value(for host: String?) -> Value? {
-        guard let host = host.map(SiteHost.key) else { return nil }
+        guard let host = host.map(SiteHost.key), !host.isEmpty else { return nil }
         if let own = values[host] { return own }
-        var labels = host.split(separator: ".").dropFirst()
-        while labels.count > 1 {
-            if let value = values[labels.joined(separator: ".")] { return value }
-            labels = labels.dropFirst()
+        var parts = URLComponents()
+        parts.scheme = "https"
+        parts.host = host
+        parts.path = "/"
+        return parts.url.flatMap { value(for: $0) }
+    }
+
+    /// The value for an address: the most specific rule that matches it (`SitePattern`; the owner's note n40).
+    package func value(for url: URL) -> Value? {
+        var best: (score: Int, value: Value)?
+        for (key, value) in values {
+            guard let pattern = SitePattern(key) ?? (allowsBareLabel ? .site(key) : nil),
+                let score = Self.score(pattern, key: key, url: url)
+            else { continue }
+            if best.map({ score > $0.score }) ?? true { best = (score, value) }
         }
-        return nil
+        return best?.value
+    }
+
+    /// A bare label ("localhost") is matched as itself: `SitePattern` reads none.
+    private static func score(_ pattern: SitePattern, key: String, url: URL) -> Int? {
+        if !key.contains("."), !key.contains("://") {
+            return url.host().map(SiteHost.key) == key ? 10_000 : nil
+        }
+        return pattern.specificity(for: url)
+    }
+
+    /// Gives a pattern a rule, or takes it away (nil).
+    package func set(_ value: Value?, for pattern: SitePattern) {
+        let key = pattern.key
+        values[key] = value
+        if let value {
+            table?.put(key, payload: Data("\(key)\n\(encode(value))".utf8))
+        } else {
+            table?.remove(key)
+        }
     }
 
     /// The rule of exactly this site.
