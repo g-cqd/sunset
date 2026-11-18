@@ -20,5 +20,13 @@ public enum SettingsControl: Sendable {
             siteAgents, profiles, features, blockingLists, sites, defaultBrowser
         /// Settings, Storage (R12 step ST-6): what is sealed, the website data, the files set aside, the key, a code, export.
         case storageSealed, storageWebsiteData, storageSetAside, storageKey, storageEnterCode, storageExport
+
+        /// A list of things the person added or answered, drawn as a section of its own under its title (note n13).
+        public var isList: Bool {
+            switch self {
+                case .engines, .websites, .siteAgents, .profiles, .blockingLists, .sites, .features: true
+                default: false
+            }
+        }
     }
 }

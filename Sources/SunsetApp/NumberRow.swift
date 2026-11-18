@@ -1,3 +1,4 @@
+import SunsetHelp
 import SunsetShell
 import SwiftUI
 
@@ -11,9 +12,11 @@ struct NumberRow: View {
     var unit = ""
     /// Digits after the decimal point that the field shows at most.
     var fractionDigits = 2
+    /// The help that explains it: its "?" after the title.
+    var help: HelpTopic?
 
     var body: some View {
-        LabeledContent(name) {
+        LabeledContent {
             HStack(spacing: Design.Space.s) {
                 TextField(name, value: clamped, format: .number.precision(.fractionLength(0 ... fractionDigits)))
                     .labelsHidden()
@@ -23,6 +26,8 @@ struct NumberRow: View {
                 Stepper(name, value: clamped, in: range, step: step).labelsHidden()
                 if !unit.isEmpty { Text(unit).foregroundStyle(.secondary).frame(minWidth: 22, alignment: .leading) }
             }
+        } label: {
+            SettingsLabel(name, help: help)
         }
     }
 

@@ -5,7 +5,7 @@ extension SettingsOption {
         [
             custom(
                 "features",
-                "Terminals, the web, documents",
+                "What Sunset does",
                 "features scope remove disable turn off terminal web browser documents markdown only",
                 .features
             )

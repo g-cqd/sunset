@@ -41,10 +41,14 @@ extension SettingsOption {
             .noted(
                 "What programs get unless they choose their own cursor (an editor often does); they get it back when they "
                     + "ask for the default."
-            ),
-            color("colors.cursor", "Cursor color", "caret color colour", \.colors.cursor, [229, 229, 229]),
-            toggle("cursor.blink", "Cursor blinks", "blink steady caret", \.cursorBlinks),
+            )
+            .grouped("Shape and color"),
+            color("colors.cursor", "Cursor color", "caret color colour", \.colors.cursor, [229, 229, 229])
+                .grouped("Shape and color"),
+            toggle("cursor.blink", "Cursor blinks", "blink steady caret", \.cursorBlinks)
+                .grouped("Blinking"),
             custom("cursor.blinkTimeout", "Stop blinking after", "blink caret idle seconds for ever", .blinkTimeout)
+                .grouped("Blinking")
         ]
 
     /// Scrolling and the history.

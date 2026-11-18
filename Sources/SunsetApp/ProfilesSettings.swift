@@ -10,24 +10,32 @@ struct ProfilesSettings: View {
     @State private var removing: ProfileModel?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Design.Space.s) {
+        Group {
+            // Each profile's name in a field on the leading edge (its label), what it holds and Remove on the trailing one.
             ForEach(spaces.profiles.profiles, id: \.profile.id) { profile in
-                HStack {
-                    TextField(
-                        "Name",
-                        text: Binding(get: { profile.profile.name }, set: { spaces.profiles.rename(profile, to: $0) })
-                    )
-                    .textFieldStyle(.roundedBorder)
-                    .frame(maxWidth: 220)
-                    .accessibilityLabel("Profile name")
-                    Text(Self.sentence(spaces: spaces.spaces(of: profile).count)).foregroundStyle(.secondary)
-                    Spacer()
-                    if !profile.profile.isFirst {
-                        Button("Remove\u{2026}") { removing = profile }
+                LabeledContent {
+                    HStack(spacing: Design.Space.m) {
+                        Text(Self.sentence(spaces: spaces.spaces(of: profile).count)).foregroundStyle(.secondary)
+                        if !profile.profile.isFirst {
+                            Button("Remove\u{2026}") { removing = profile }
+                        }
                     }
+                } label: {
+                    TextField(
+                        "Profile name",
+                        text: Binding(get: { profile.profile.name }, set: { spaces.profiles.rename(profile, to: $0) }),
+                        prompt: Text("Name")
+                    )
+                    .labelsHidden()
+                    .textFieldStyle(.roundedBorder)
+                    .frame(maxWidth: Design.Size.settingsField)
                 }
             }
-            Button("New Profile") { spaces.profiles.add() }
+            LabeledContent {
+                Button("New Profile") { spaces.profiles.add() }
+            } label: {
+                EmptyView()
+            }
         }
         .confirmationDialog(
             "Remove the profile \u{201C}\(removing?.profile.name ?? "")\u{201D}?",

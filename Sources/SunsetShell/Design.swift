@@ -76,6 +76,8 @@ package enum Design {
         /// The list of sections and topics at the side of the settings' page, and the most the page's form is wide.
         package static let settingsList = 220.0
         package static let settingsPage = 720.0
+        /// A text field of a settings row, at most.
+        package static let settingsField = 340.0
         /// The dot of a document with edits that are not saved.
         package static let editedMark = 6.0
         /// A split tab's sub-row narrower than this shows its icon alone.

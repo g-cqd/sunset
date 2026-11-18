@@ -4,7 +4,7 @@ extension SettingsOption {
         [
             custom(
                 "web.sites",
-                "Sites",
+                "Sites with settings of their own",
                 "site each own forget rules permissions zoom space blocking paused agent",
                 .sites
             )

@@ -3,51 +3,33 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// Settings > Web > Websites (web step g): for each permission, what a site not yet answered gets, and the sites answered, each changeable or
-/// removed (the default applies to it again).
+/// Settings > Web > Websites (web step g), rows of their section (the owner's note n13): for each permission, what a site not
+/// yet answered gets, and under it the sites answered, each changeable or removed (the default applies to it again).
 struct WebsitesSettings: View {
     @Binding var defaults: [String: Configuration.Web.PermissionDefault]
     private let store = SitePermissions.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Design.Space.l) {
-            Text("Websites").font(Design.Text.title)
-            ForEach(SitePermission.allCases, id: \.self) { permission in section(permission) }
-        }
-    }
-
-    private func section(_ permission: SitePermission) -> some View {
-        VStack(alignment: .leading, spacing: Design.Space.xs) {
-            HStack {
-                Label(permission.title, systemImage: permission.symbol).fixedSize()
-                Spacer()
-                Text("Other sites").foregroundStyle(.secondary).fixedSize()
-                Picker("Other sites", selection: defaultBinding(permission)) {
+        ForEach(SitePermission.allCases, id: \.self) { permission in
+            LabeledContent {
+                Picker(permission.title, selection: defaultBinding(permission)) {
                     ForEach(Configuration.Web.PermissionDefault.allCases, id: \.self) {
                         Text($0.rawValue.capitalized).tag($0)
                     }
                 }
                 .labelsHidden()
                 .fixedSize()
+            } label: {
+                Label(permission.title, systemImage: permission.symbol)
             }
             ForEach(store.sites(for: permission), id: \.host) { site in
-                HStack {
-                    Text(site.host).foregroundStyle(.secondary)
-                    Spacer()
-                    Picker("", selection: siteBinding(permission, site.host)) {
+                SiteRuleRow(host: site.host) {
+                    Picker(site.host, selection: siteBinding(permission, site.host)) {
                         ForEach(PermissionAnswer.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
-                    .labelsHidden()
-                    .fixedSize()
-                    Button {
-                        store.set(nil, permission, for: site.host)
-                    } label: {
-                        Image(systemName: "minus.circle")
-                    }
-                    .buttonStyle(.borderless)
-                    .help("Remove: the default applies again")
+                } remove: {
+                    store.set(nil, permission, for: site.host)
                 }
-                .padding(.leading, Design.Optical.siteRowsIndent)
             }
         }
     }

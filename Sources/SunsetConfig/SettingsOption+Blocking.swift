@@ -14,7 +14,7 @@ extension SettingsOption {
             ),
             custom(
                 "web.blockingLists",
-                "Lists",
+                "Lists fetched",
                 "block lists easylist easyprivacy address updated rules",
                 .blockingLists
             )

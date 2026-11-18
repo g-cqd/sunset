@@ -10,11 +10,15 @@ struct FeaturesSettings: View {
     @State private var asking: Scopes.Scope?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Design.Space.s) {
+        Group {
             ForEach(Scopes.Scope.allCases, id: \.self) { scope in
-                Toggle(scope.title, isOn: binding(scope)).settingSwitch()
-                    .disabled(isOn(scope) && features.count == 1)
-                    .accessibilityLabel(scope.title)
+                LabeledContent {
+                    Toggle(scope.title, isOn: binding(scope)).settingSwitch().labelsHidden()
+                        .disabled(isOn(scope) && features.count == 1)
+                        .accessibilityLabel(scope.title)
+                } label: {
+                    Text(scope.title)
+                }
             }
         }
         .confirmationDialog(

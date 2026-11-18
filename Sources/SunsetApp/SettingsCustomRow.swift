@@ -27,10 +27,16 @@ struct SettingsCustomRow: View {
                 )
             case .blinkTimeout: blinkTimeout
             case .searchEngine:
-                Picker("Search engine", selection: config.binding(\.web.engine)) {
-                    ForEach(PaneContentKinds.webSettings.engines, id: \.name) { engine in
-                        Text("\(engine.name)  (\(engine.keyword))").tag(engine.name)
+                LabeledContent {
+                    Picker(option.title, selection: config.binding(\.web.engine)) {
+                        ForEach(PaneContentKinds.webSettings.engines, id: \.name) { engine in
+                            Text("\(engine.name)  (\(engine.keyword))").tag(engine.name)
+                        }
                     }
+                    .labelsHidden()
+                    .fixedSize()
+                } label: {
+                    SettingsLabel(option.title)
                 }
             case .engines: EngineList(engines: config.binding(\.web.engines))
             case .websites: WebsitesSettings(defaults: config.binding(\.web.permissions))
@@ -45,20 +51,29 @@ struct SettingsCustomRow: View {
             case .defaultBrowser: DefaultBrowserRow()
             case .textOnlyZoom:
                 if WebTextZoomProbe.isAvailable {
-                    Toggle("Zoom makes only the text bigger", isOn: config.binding(\.web.textOnlyZoom))
+                    LabeledContent {
+                        Toggle(option.title, isOn: config.binding(\.web.textOnlyZoom)).labelsHidden()
+                    } label: {
+                        SettingsLabel("Zoom makes only the text bigger")
+                    }
                 }
         }
     }
 
     /// The cursor blinks for ever, or stops after a number of seconds.
     @ViewBuilder private var blinkTimeout: some View {
-        Toggle(
-            "Cursor blinks for ever",
-            isOn: Binding(
-                get: { config.configuration.cursorBlinkTimeout == nil },
-                set: { forever in config.update { $0.cursorBlinkTimeout = forever ? nil : 15 } }
+        LabeledContent {
+            Toggle(
+                "Cursor blinks for ever",
+                isOn: Binding(
+                    get: { config.configuration.cursorBlinkTimeout == nil },
+                    set: { forever in config.update { $0.cursorBlinkTimeout = forever ? nil : 15 } }
+                )
             )
-        )
+            .labelsHidden()
+        } label: {
+            SettingsLabel("Cursor blinks for ever")
+        }
         NumberRow(
             name: option.title,
             value: config.binding(\.cursorBlinkTimeoutSeconds),
@@ -75,8 +90,14 @@ struct SettingsCustomRow: View {
 
     private var fileInfo: some View {
         VStack(alignment: .leading, spacing: Design.Space.m) {
-            Text(config.path).font(Design.Text.secondary).textSelection(.enabled)
+            LabeledContent {
+                Text(config.path).font(Design.Text.secondary).textSelection(.enabled).lineLimit(1)
+                    .truncationMode(.middle)
+            } label: {
+                SettingsLabel(option.title)
+            }
             HStack {
+                Spacer()
                 Button("Reveal in Finder") {
                     NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: config.path)])
                 }

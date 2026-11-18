@@ -9,25 +9,25 @@ struct BlockingListsSettings: View {
     private let blocker = ContentBlocker.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Design.Space.xs) {
-            if blocker.states.isEmpty {
-                Text("Not fetched yet.").font(Design.Text.detail).foregroundStyle(.secondary)
+        if blocker.states.isEmpty {
+            Text("Not fetched yet.").foregroundStyle(.secondary)
+        }
+        ForEach(blocker.states, id: \.address) { state in
+            LabeledContent {
+                EmptyView()
+            } label: {
+                Text(state.address).lineLimit(1).truncationMode(.middle)
+                Text(detail(state))
             }
-            ForEach(blocker.states, id: \.address) { state in
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(state.address).lineLimit(1).truncationMode(.middle)
-                    Text(detail(state)).font(Design.Text.detail).foregroundStyle(.secondary)
+        }
+        ForEach(blocker.pauses.paused, id: \.self) { host in
+            LabeledContent {
+                Button("Resume") {
+                    blocker.pauses.set(false, for: host)
+                    blocker.reapplyAll()
                 }
-            }
-            ForEach(blocker.pauses.paused, id: \.self) { host in
-                HStack {
-                    Text("Paused on \(host)").foregroundStyle(.secondary)
-                    Spacer()
-                    Button("Resume") {
-                        blocker.pauses.set(false, for: host)
-                        blocker.reapplyAll()
-                    }
-                }
+            } label: {
+                Text("Paused on \(host)")
             }
         }
     }

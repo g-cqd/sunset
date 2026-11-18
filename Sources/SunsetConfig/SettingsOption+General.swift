@@ -7,7 +7,8 @@ extension SettingsOption {
                 .noted(
                     "The windows, tabs and splits come back, each pane as a new shell in the directory it was in. Programs "
                         + "that were running are not restarted."
-                ),
+                )
+                .grouped("Launch"),
             toggle(
                 "tabs.confirmClose",
                 "Confirm closing a tab with a running command",
@@ -18,15 +19,24 @@ extension SettingsOption {
             .noted(
                 "When a foreground command is running, the first click on the close button or \u{2318}W tints the tab red; "
                     + "a second one closes it."
-            ),
-            choice(
-                "tabs.askBeforeQuit",
-                "Ask before quitting",
-                "quit confirm running lost form",
-                \.tabs.askBeforeQuit,
-                [(.never, "Never"), (.whenLosing, "When something would be lost"), (.always, "Always")]
             )
-            .noted("Edits to a file that are not saved are asked about whatever this says."),
+            .grouped("Closing a tab"),
+            toggle(
+                "tabs.closeGoesBack",
+                "Show the previous tab after closing one",
+                "close tab previous recent last neighbour back",
+                \.tabs.closeGoesBack
+            )
+            .noted("Off, the tab next to the closed one is shown.")
+            .grouped("Closing a tab"),
+            toggle(
+                "tabs.closeWindowWithLastTab",
+                "Close the window with its last tab",
+                "last tab close window empty space stay",
+                \.tabs.closeWindowWithLastTab
+            )
+            .noted("Off, a window stays open, empty, when the last tab of its Space closes.")
+            .grouped("Closing a tab"),
             toggle(
                 "tabs.keepRunningForFavorites",
                 "Keep running while a favorite is open",
@@ -36,7 +46,8 @@ extension SettingsOption {
             .noted(
                 "Closing the last window does not quit Sunset while something in Favorites is open; it goes on running, and "
                     + "a new window shows it again."
-            ),
+            )
+            .grouped("Closing the last window"),
             toggle(
                 "tabs.closeWithLastWindow",
                 "Close the tabs with the last window",
@@ -46,7 +57,8 @@ extension SettingsOption {
             .noted(
                 "Off, closing the last window stops what runs in its tabs and keeps them: the next window, or the next "
                     + "launch, has them again, each started from where it was."
-            ),
+            )
+            .grouped("Closing the last window"),
             number(
                 "tabs.closeStoppedAfter",
                 "Close tabs left without a window after",
@@ -57,21 +69,17 @@ extension SettingsOption {
                 unit: "h",
                 digits: 0
             )
-            .noted("Tabs kept after the last window closed are closed once this long has passed; 0 is never."),
-            toggle(
-                "tabs.closeWindowWithLastTab",
-                "Close the window with its last tab",
-                "last tab close window empty space stay",
-                \.tabs.closeWindowWithLastTab
+            .noted("Tabs kept after the last window closed are closed once this long has passed; 0 is never.")
+            .grouped("Closing the last window"),
+            choice(
+                "tabs.askBeforeQuit",
+                "Ask before quitting",
+                "quit confirm running lost form",
+                \.tabs.askBeforeQuit,
+                [(.never, "Never"), (.whenLosing, "When something would be lost"), (.always, "Always")]
             )
-            .noted("Off, a window stays open, empty, when the last tab of its Space closes."),
-            toggle(
-                "tabs.closeGoesBack",
-                "Show the previous tab after closing one",
-                "close tab previous recent last neighbour back",
-                \.tabs.closeGoesBack
-            )
-            .noted("Off, the tab next to the closed one is shown."),
+            .noted("Edits to a file that are not saved are asked about whatever this says.")
+            .grouped("Quitting"),
             toggle(
                 "tabs.keepAwakeDisplay",
                 "Keep the display on with the Mac",
@@ -79,52 +87,7 @@ extension SettingsOption {
                 \.tabs.keepAwakeDisplay
             )
             .noted("A tab or a window kept awake keeps the screen on too; off, only the Mac stays awake.")
-        ]
-
-    /// When a file is written by itself, and how its source looks.
-    static let documents: [Self] =
-        [
-            number(
-                "documents.saveAfter",
-                "Save a file by itself after",
-                "autosave document markdown timer seconds write edits",
-                \.documents.saveAfter,
-                0 ... 3600,
-                step: 1,
-                unit: "s",
-                digits: 0
-            )
-            .noted(
-                "A file is written this long after its first unsaved edit; 0 is never. It is never written over a change "
-                    + "made elsewhere, and a deleted file is not made again."
-            ),
-            toggle(
-                "documents.saveOnFocusLoss",
-                "Save a file when it loses focus",
-                "autosave document markdown focus switch pane app background",
-                \.documents.saveOnFocusLoss
-            )
-            .noted(
-                "When another pane takes the keyboard, or another app comes to the front. A document that has no file is "
-                    + "always kept by Sunset, whatever these say."
-            ),
-            toggle(
-                "documents.largerHeadings",
-                "Show headings larger in the source",
-                "markdown source editor heading size font page look rendered",
-                \.documents.largerHeadings
-            )
-            .noted("A heading's text is at the size the page gives it; off, every line of the source has one height."),
-            choice(
-                "documents.linksOpen",
-                "Open links from documents",
-                "link click markdown rendered page tab split beside open",
-                \.documents.linksOpen,
-                [(.tab, "In a new tab"), (.beside, "Beside the document")]
-            )
-            .noted(
-                "⌘-click opens a link in a tab behind, ⇧⌘-click in a tab shown, ⇧-click in a new window, ⌥-click beside."
-            )
+            .grouped("Keeping awake")
         ]
 
     /// The configuration file.

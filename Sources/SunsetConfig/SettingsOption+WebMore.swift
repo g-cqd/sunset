@@ -9,33 +9,38 @@ extension SettingsOption {
                 "download folder save where path",
                 \.web.downloadFolder,
                 prompt: "~/Downloads"
-            ),
+            )
+            .grouped("Saving"),
             toggle(
                 "web.askWhereToSave",
                 "Ask where to save each download",
                 "download save ask panel where",
                 \.web.askWhereToSave
-            ),
-            toggle(
-                "web.openSafeDownloads",
-                "Open safe files once downloaded",
-                "download open picture pdf text sound film",
-                \.web.openSafeDownloads
             )
-            .noted("Pictures, PDF, text, sound and film. Never an app, an installer or a script."),
-            toggle(
-                "web.notifyDownloads",
-                "Notify when a download has finished",
-                "download notification banner finished",
-                \.web.notifyDownloads
-            ),
+            .grouped("Saving"),
             toggle(
                 "web.approveRiskyDownloads",
                 "Approve apps, installers and scripts",
                 "download risky app installer script approve security",
                 \.web.approveRiskyDownloads,
                 label: "Apps, installers and scripts are downloaded only after an approval"
-            ),
+            )
+            .grouped("Saving"),
+            toggle(
+                "web.openSafeDownloads",
+                "Open safe files once downloaded",
+                "download open picture pdf text sound film",
+                \.web.openSafeDownloads
+            )
+            .noted("Pictures, PDF, text, sound and film. Never an app, an installer or a script.")
+            .grouped("Once downloaded"),
+            toggle(
+                "web.notifyDownloads",
+                "Notify when a download has finished",
+                "download notification banner finished",
+                \.web.notifyDownloads
+            )
+            .grouped("Once downloaded"),
             choice(
                 "web.keepDownloads",
                 "Remove download list items",
@@ -47,12 +52,13 @@ extension SettingsOption {
                     (.whenFinished, "Upon successful download")
                 ]
             )
+            .grouped("Once downloaded")
         ]
 
     /// The profiles (R4; ADR-0053): kept with the session, not in the file.
     static let profiles: [Self] =
         [
-            custom("profiles.list", "Profiles", "profile identity cookies login account work personal", .profiles)
+            custom("profiles.list", "Your profiles", "profile identity cookies login account work personal", .profiles)
                 .setting([])
                 .noted(
                     "A profile is a web identity: its own cookies, logins, storage, Pinned grid and Favorites. History "
@@ -65,11 +71,15 @@ extension SettingsOption {
         [
             custom(
                 "web.permissions",
-                "Websites",
+                "What sites may do",
                 "camera microphone location notifications popup permission screen",
                 .websites
             )
-            .setting(Configuration.Web.permissionNames.map { "web.permissions.\($0)" }),
+            .setting(Configuration.Web.permissionNames.map { "web.permissions.\($0)" })
+            .noted(
+                "Each choice is what a site gets until you answer it; the sites answered are listed under it, each "
+                    + "changeable."
+            ),
             toggle(
                 "web.notificationsWithoutClick",
                 "Ask about notifications without a click",
@@ -105,6 +115,7 @@ extension SettingsOption {
                 "user agent scripts navigator vendor client hints chrome detect",
                 \.web.agentScripts
             )
+            .grouped("Browser shown to sites")
             .noted(
                 "A page shown Chrome, Edge or Firefox also reads that browser's vendor and client hints. Turn it off if a "
                     + "site breaks; pages opened after follow."

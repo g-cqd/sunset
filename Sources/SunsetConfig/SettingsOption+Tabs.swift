@@ -17,23 +17,27 @@ extension SettingsOption {
             )
             .noted(
                 "Native tabs are the system's; built-in tabs are a bar in the window; none is one terminal per window."
-            ),
+            )
+            .grouped("Tabs"),
             choice(
                 "tabs.bar.position",
                 "Built-in bar position",
                 "top bottom internal",
                 \.tabs.bar.position,
                 [(.top, "Top"), (.bottom, "Bottom")]
-            ),
+            )
+            .grouped("Tabs"),
             toggle("sidebar.enabled", "Show the sidebar", "tabs vertical list", \.sidebar.enabled)
-                .noted("The sidebar lists the tabs. It needs tabs set to Native (the built-in bar replaces it)."),
+                .noted("The sidebar lists the tabs. It needs tabs set to Native (the built-in bar replaces it).")
+                .grouped("Sidebar"),
             choice(
                 "sidebar.side",
                 "Side",
                 "left right edge mirror",
                 \.sidebar.side,
                 [(.left, "Left"), (.right, "Right")]
-            ),
+            )
+            .grouped("Sidebar"),
             toggle(
                 "sidebar.autoHide",
                 "Hide the sidebar",
@@ -41,8 +45,10 @@ extension SettingsOption {
                 \.sidebar.autoHide,
                 label: "Hide the sidebar until the pointer reaches its edge"
             )
-            .noted("The same as the pin at the top of the sidebar."),
+            .noted("The same as the pin at the top of the sidebar.")
+            .grouped("Sidebar"),
             number("sidebar.width", "Width", "size wide", \.sidebar.width, 120 ... 480, step: 5)
+                .grouped("Sidebar")
         ]
 
     /// The floating sidebar's corner.

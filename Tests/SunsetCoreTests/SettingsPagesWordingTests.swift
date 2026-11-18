@@ -8,13 +8,15 @@ import Testing
     /// The files of the pages Settings draw by hand.
     static let pages = [
         "FeaturesSettings.swift", "ProfilesSettings.swift", "SettingsCustomRow.swift", "SiteAgentsSettings.swift",
-        "StorageSettings.swift", "WebsitesSettings.swift"
+        "StorageSettings.swift", "WebsitesSettings.swift", "EngineList.swift", "SitesSettings.swift",
+        "BlockingListsSettings.swift", "SettingsRow.swift"
     ]
 
     /// The names given to controls: the first string of a `Toggle`, `Picker`, `Label`, `Section`, `LabeledContent`,
-    /// `Button` or `TextField`, by file.
+    /// `Button`, `TextField`, `SettingsLabel` or an engine's `field`, by file.
     static var names: [(file: String, name: String)] {
-        let control = #"\b(Toggle|Picker|Label|Section|LabeledContent|Button|TextField)\("([^"\\]+)""#
+        let control =
+            #"\b(Toggle|Picker|Label|Section|LabeledContent|Button|TextField|SettingsLabel|field)\("([^"\\]+)""#
         let pattern = try? NSRegularExpression(pattern: control)
         var found: [(String, String)] = []
         for file in RepositoryFiles.swiftFiles(in: ["Sources/SunsetApp"]) where pages.contains(file.name) {

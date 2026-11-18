@@ -20,21 +20,25 @@ struct SettingsRow: View {
         }
     }
 
-    /// The control, with a "?" beside it when help explains it (roadmap 0041 C).
-    @ViewBuilder private var explained: some View {
-        if let topic = HelpTopic.explaining(setting: option.id) {
-            HStack(spacing: Design.Space.s) {
-                control
-                HelpButton(topic)
-            }
-        } else {
-            control
+    /// A list's rows, for its own section: its title and note are the section's.
+    @ViewBuilder static func list(_ option: SettingsOption, config: AppConfiguration) -> some View {
+        if case .custom(let custom) = option.control {
+            SettingsCustomRow(custom: custom, option: option, config: config)
         }
     }
 
-    @ViewBuilder private var control: some View {
+    private var help: HelpTopic? { HelpTopic.explaining(setting: option.id) }
+
+    /// The title on the leading edge with its "?" beside it, the control on the trailing edge (the owner, 2026-11-18): every
+    /// control of a page lines up on one edge, every title on the other.
+    @ViewBuilder private var explained: some View {
         switch option.control {
-            case .toggle(let value, let label): Toggle(label ?? option.title, isOn: config.binding(value))
+            case .toggle(let value, let label):
+                LabeledContent {
+                    Toggle(label ?? option.title, isOn: config.binding(value)).labelsHidden()
+                } label: {
+                    SettingsLabel(label ?? option.title, help: help)
+                }
             case .number(let value, let range, let step, let unit, let digits):
                 NumberRow(
                     name: option.title,
@@ -42,16 +46,31 @@ struct SettingsRow: View {
                     range: range,
                     step: step,
                     unit: unit,
-                    fractionDigits: digits
+                    fractionDigits: digits,
+                    help: help
                 )
             case .choice(let choice, let label):
-                Picker(label ?? option.title, selection: binding(choice)) {
-                    ForEach(choice.items, id: \.value) { Text($0.label).tag($0.value) }
+                LabeledContent {
+                    Picker(label ?? option.title, selection: binding(choice)) {
+                        ForEach(choice.items, id: \.value) { Text($0.label).tag($0.value) }
+                    }
+                    .labelsHidden()
+                    .fixedSize()
+                } label: {
+                    SettingsLabel(label ?? option.title, help: help)
                 }
             case .text(let value, let prompt):
-                TextField(option.title, text: config.binding(value), prompt: Text(prompt))
+                LabeledContent {
+                    TextField(option.title, text: config.binding(value), prompt: Text(prompt)).labelsHidden()
+                } label: {
+                    SettingsLabel(option.title, help: help)
+                }
             case .optionalText(let value, let prompt):
-                TextField(option.title, text: config.textBinding(value), prompt: Text(prompt))
+                LabeledContent {
+                    TextField(option.title, text: config.textBinding(value), prompt: Text(prompt)).labelsHidden()
+                } label: {
+                    SettingsLabel(option.title, help: help)
+                }
             case .color(let value, let fallback): colorRow(value, fallback: fallback)
             case .radius(let value): radiusRow(value)
             case .custom(let custom): SettingsCustomRow(custom: custom, option: option, config: config)
@@ -67,7 +86,7 @@ struct SettingsRow: View {
 
     /// A colour that can be left unset: a switch, and a well that is live while it is on.
     private func colorRow(_ value: SettingsValue<[UInt8]?>, fallback: [UInt8]) -> some View {
-        LabeledContent(option.title) {
+        LabeledContent {
             HStack {
                 Toggle("Custom", isOn: config.switchBinding(value, whenOn: fallback)).labelsHidden()
                 ColorPicker(
@@ -78,6 +97,8 @@ struct SettingsRow: View {
                 .labelsHidden()
                 .disabled(value.get(config.configuration) == nil)
             }
+        } label: {
+            SettingsLabel(option.title, help: help)
         }
     }
 
@@ -92,7 +113,11 @@ struct SettingsRow: View {
             set: { new in config.update { value.set(&$0, new) } }
         )
         return VStack(alignment: .leading, spacing: Design.Space.xs) {
-            Toggle("\(option.title): match the window", isOn: follows)
+            LabeledContent {
+                Toggle("\(option.title): match the window", isOn: follows).labelsHidden()
+            } label: {
+                SettingsLabel("\(option.title): match the window", help: help)
+            }
             NumberRow(name: option.title, value: points, range: 0 ... 40, step: 1, unit: "pt")
                 .disabled(follows.wrappedValue)
         }

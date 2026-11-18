@@ -16,6 +16,14 @@ public struct SettingsOption: Sendable, Identifiable {
     public var note: String?
     /// Shown a level down, under its topic's More, not first (roadmap 0047 G); found by search all the same.
     public var advanced = false
+    /// The heading it is shown under on its page, with the options next to it that have the same (the owner's note n13).
+    public var group: String?
+
+    /// Its control is a list of things the person added or answered (search engines, sites, profiles): its own block.
+    public var isList: Bool {
+        guard case .custom(let custom) = control else { return false }
+        return custom.isList
+    }
 
     public init(_ id: String, _ title: String, _ words: String, _ control: SettingsControl) {
         self.id = id
@@ -41,6 +49,13 @@ public struct SettingsOption: Sendable, Identifiable {
     public var further: Self {
         var copy = self
         copy.advanced = true
+        return copy
+    }
+
+    /// The same, under the heading `title` on its page.
+    public func grouped(_ title: String) -> Self {
+        var copy = self
+        copy.group = title
         return copy
     }
 

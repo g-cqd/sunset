@@ -82,7 +82,8 @@ extension SettingsOption {
                 \.window.material,
                 [(.opaque, "Opaque"), (.material, "Material"), (.glass, "Glass"), (.fill, "Color fill")],
                 label: "Window and sidebar background"
-            ),
+            )
+            .grouped("Window"),
             choice(
                 "window.materialThickness",
                 "Material thickness",
@@ -93,8 +94,10 @@ extension SettingsOption {
                     (.ultraThick, "Ultra thick")
                 ]
             )
-            .noted("With the window background set to Material: how much of what is behind the window shows through."),
-            number("window.blur", "Window blur", "radius frosted background", \.window.blur, 0 ... 100, step: 1),
+            .noted("With the window background set to Material: how much of what is behind the window shows through.")
+            .grouped("Window"),
+            number("window.blur", "Window blur", "radius frosted background", \.window.blur, 0 ... 100, step: 1)
+                .grouped("Window"),
             number(
                 "terminal.opacity",
                 "Background opacity",
@@ -107,14 +110,16 @@ extension SettingsOption {
             .noted(
                 "How opaque the terminal screen's own background is. It only shows when the window background is not Opaque "
                     + "(the option above); the sidebar follows the window's settings."
-            ),
+            )
+            .grouped("Terminal"),
             choice(
                 "appearance.glass",
                 "Glass style",
                 "liquid glass regular clear",
                 \.appearance.glass,
                 [(.regular, "Regular"), (.clear, "Clear")]
-            ),
+            )
+            .grouped("Bars"),
             choice(
                 "appearance.barBlur",
                 "Under the bars",
@@ -122,5 +127,6 @@ extension SettingsOption {
                 \.appearance.barBlur,
                 [(.variable, "Fading blur"), (.surface, "Bar surface"), (.none, "Nothing")]
             )
+            .grouped("Bars")
         ]
 }

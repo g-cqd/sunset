@@ -65,12 +65,14 @@ struct SettingsPage: View {
             } else if let shown = SettingsSection.topic(content.topic) {
                 // A topic of measures only (the floating sidebar's) shows them at once: a page with only More is empty.
                 let plain = shown.topic.first.isEmpty ? shown.topic.further : shown.topic.first
-                Section(shown.section.title + " \u{203A} " + shown.topic.title) { rows(plain) }
+                let heading = shown.section.title + " \u{203A} " + shown.topic.title
+                blocks(SettingsBlock.blocks(plain), heading: heading)
                 // The measures and the finer choices a level down (roadmap 0047 G).
                 if !shown.topic.first.isEmpty, !shown.topic.further.isEmpty {
                     Section {
-                        DisclosureGroup("More", isExpanded: $content.showsMore) { rows(shown.topic.further) }
+                        DisclosureGroup("More", isExpanded: $content.showsMore) {}
                     }
+                    if content.showsMore { blocks(SettingsBlock.blocks(shown.topic.further), heading: nil) }
                 }
             }
         }
@@ -80,6 +82,31 @@ struct SettingsPage: View {
         .scrollContentBackground(.hidden)
         .frame(maxWidth: Design.Size.settingsPage)
         .frame(maxWidth: .infinity)
+    }
+
+    /// Each block a section (the owner's note n13): a group under its heading, a list under its title with its note under
+    /// it; the page's heading above the first.
+    private func blocks(_ blocks: [SettingsBlock], heading: String?) -> some View {
+        ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
+            Section {
+                if block.isList, let list = block.options.first {
+                    SettingsRow.list(list, config: config)
+                    // Its note right under it when other rows follow it, else under the section.
+                    if block.options.count > 1, let note = list.note {
+                        Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary)
+                    }
+                    rows(Array(block.options.dropFirst()))
+                } else {
+                    rows(block.options)
+                }
+            } header: {
+                SettingsBlockHeader(page: index == 0 ? heading : nil, block: block)
+            } footer: {
+                if block.isList, block.options.count == 1, let note = block.options.first?.note {
+                    Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary)
+                }
+            }
+        }
     }
 
     private func rows(_ options: [SettingsOption]) -> some View {
