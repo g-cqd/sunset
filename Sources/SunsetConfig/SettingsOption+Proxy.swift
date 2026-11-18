@@ -7,6 +7,9 @@ extension SettingsOption {
                 .noted(
                     "`http://host:port` or `socks5://host:port`. Every page, of every profile and private window, goes "
                         + "through it; Sunset's own requests do not yet."
-                )
+                ),
+            // Whether pages go through it (the owner's note n37).
+            custom("web.proxyCheck", "Pages go through it", "proxy check test verify works", .proxyCheck)
+                .setting([])
         ]
 }

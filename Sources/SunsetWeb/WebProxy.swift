@@ -1,5 +1,5 @@
 import Foundation
-import Network
+package import Network
 package import WebKit
 
 /// A proxy for the pages (roadmap 0022 W-f, first form; the owner's note n75): an HTTP (CONNECT) or SOCKS5 proxy, given to
@@ -31,19 +31,20 @@ package struct WebProxy: Equatable, Sendable {
         self.port = port
     }
 
-    /// Gives the store this proxy; every page of it goes through it.
-    package func apply(to store: WKWebsiteDataStore) {
+    /// The configuration pages are given, and the check (`ProxyCheck`) too.
+    package var configuration: ProxyConfiguration {
         let endpoint = NWEndpoint.hostPort(
             host: NWEndpoint.Host(host),
             port: NWEndpoint.Port(rawValue: UInt16(port)) ?? .any
         )
-        let configuration: ProxyConfiguration =
-            switch kind {
-                case .http: ProxyConfiguration(httpCONNECTProxy: endpoint)
-                case .socks: ProxyConfiguration(socksv5Proxy: endpoint)
-            }
-        store.proxyConfigurations = [configuration]
+        return switch kind {
+            case .http: ProxyConfiguration(httpCONNECTProxy: endpoint)
+            case .socks: ProxyConfiguration(socksv5Proxy: endpoint)
+        }
     }
+
+    /// Gives the store this proxy; every page of it goes through it.
+    package func apply(to store: WKWebsiteDataStore) { store.proxyConfigurations = [configuration] }
 
     /// Takes the proxy away from a store.
     package static func clear(_ store: WKWebsiteDataStore) { store.proxyConfigurations = [] }

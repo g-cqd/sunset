@@ -15,6 +15,6 @@ struct ConfigurationProxyTests {
             let read = try ConfigurationParser.parse(#"{ "web": { "proxy": "\#(bad)" } }"#)
             #expect(read.issues.count == 1 && read.configuration.web.proxy.isEmpty, "\(bad)")
         }
-        #expect(SettingsSection.topic("web.proxy")?.topic.options.map(\.id) == ["web.proxy"])
+        #expect(SettingsSection.topic("web.proxy")?.topic.options.map(\.id) == ["web.proxy", "web.proxyCheck"])
     }
 }

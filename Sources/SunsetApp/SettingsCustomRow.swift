@@ -42,6 +42,7 @@ struct SettingsCustomRow: View {
             case .websites: WebsitesSettings(defaults: config.binding(\.web.permissions))
             case .siteAgents: SiteAgentsSettings(agent: config.binding(\.web.agent))
             case .profiles: ProfilesSettings(note: option.note)
+            case .proxyCheck: ProxyCheckRow(address: config.configuration.web.proxy, title: option.title)
             case .blockingLists: BlockingListsSettings()
             case .sites: SitesSettings()
             case .features: FeaturesSettings(features: config.binding(\.features))
