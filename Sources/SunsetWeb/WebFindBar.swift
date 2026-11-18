@@ -62,6 +62,8 @@ struct WebFindBar: View {
             SidebarIconButton(symbol: "chevron.down", help: "Next (Cmd-G)") { find.search() }
             SidebarIconButton(symbol: "xmark", help: "Done (Escape)") { close() }
         }
+        // Inside its capsule, as back and forward are (the owner's note n43).
+        .padding(.horizontal, Design.BarGroup.buttonInset)
         .environment(\.sidebarButtonMetrics, BarButton.group(surface))
     }
 

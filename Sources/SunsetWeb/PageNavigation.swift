@@ -36,6 +36,7 @@ package struct PageNavigation: View {
             button("chevron.left", "Back", enabled: content.canGoBack) { content.goBack() }
             button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
         }
+        .padding(.horizontal, Design.BarGroup.buttonInset)
         .frame(height: Design.Size.bar)
         .barGroup(margin: Design.Space.m, top: atTop)
     }

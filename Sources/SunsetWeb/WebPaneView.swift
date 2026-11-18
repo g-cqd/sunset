@@ -53,13 +53,18 @@ struct WebPaneView: View {
                         .id(dialog.id)
                         .transition(.opacity)
                 }
-                if content.find.isOpen, !(focused && findInWindowBar) {
-                    GlassEffectContainer(spacing: Design.Space.m) { WebFindBar(content: content) }
-                        .barGroupBlurs()
-                        .padding(Design.Space.m)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .transition(BarGroupSlide.transition(atTop: true, inset: Design.Space.m))
+                // The container stays and the bar comes and goes inside it: a glass container that leaves takes its glass
+                // with it at once, and the bar did not slide away (the owner's note n43).
+                GlassEffectContainer(spacing: Design.Space.m) {
+                    if content.find.isOpen, !(focused && findInWindowBar) {
+                        WebFindBar(content: content)
+                            .transition(BarGroupSlide.transition(atTop: true, inset: Design.Space.m))
+                    }
                 }
+                .barGroupBlurs()
+                .padding(Design.Space.m)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .allowsHitTesting(content.find.isOpen)
                 if addressRow, let typing { AddressSuggestionList(typing: typing, places: [.pane], page: content) }
             }
         }

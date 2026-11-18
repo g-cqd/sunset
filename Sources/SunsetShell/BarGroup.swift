@@ -21,6 +21,7 @@ struct BarGroup: ViewModifier {
             .environment(\.controlRadius, Design.BarGroup.control / 2)
             .environment(\.controlHeight, Design.BarGroup.control)
             .environment(\.controlPadding, Design.BarGroup.fieldPadding)
+            .environment(\.inBarGroup, true)
             .background {
                 if choice == .variable, !blursBelow {
                     GeometryReader { proxy in

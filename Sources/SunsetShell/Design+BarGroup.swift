@@ -6,5 +6,10 @@ extension Design {
         package static let control = Size.bar
         /// A field's text from its rounded end: the field's own spacing and the half of the height it gained.
         package static let fieldPadding = Space.m + (control - Size.field) / 2
+        /// A button's room inside its group, on every side (the owner's note n43: buttons as tall as the group read as
+        /// spilling over it); the button concentric with the group.
+        package static let buttonInset = Space.xs
+        /// A button's side in a group.
+        package static let button = control - 2 * buttonInset
     }
 }

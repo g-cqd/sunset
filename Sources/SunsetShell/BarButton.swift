@@ -6,8 +6,8 @@ package enum BarButton {
     /// In a bar group: as tall as its fields, capsules.
     package static func group(_ surface: SurfaceStyle) -> SidebarButtonMetrics {
         SidebarButtonMetrics(
-            size: CGSize(width: Design.BarGroup.control, height: Design.BarGroup.control),
-            radius: Design.BarGroup.control / 2,
+            size: CGSize(width: Design.BarGroup.button, height: Design.BarGroup.button),
+            radius: Design.BarGroup.button / 2,
             smooth: surface.layout.smooth
         )
     }

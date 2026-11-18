@@ -9,12 +9,14 @@ struct SidebarIconButtonFace<Label: View>: View {
     @Environment(\.isEnabled) private var enabled
     /// The corner of this button that is at the window's corner, when it is the one there.
     @Environment(\.sidebarButtonCorner) private var corner
+    @Environment(\.inBarGroup) private var inBar
 
     var body: some View {
         let shape = SidebarButtonCorner.shape(metrics, at: corner)
         label
             .foregroundStyle(
-                !enabled ? AnyShapeStyle(.tertiary) : AnyShapeStyle(hovering || pressed ? .primary : .secondary)
+                !enabled
+                    ? AnyShapeStyle(.tertiary) : AnyShapeStyle(hovering || pressed || inBar ? .primary : .secondary)
             )
             .frame(width: metrics.size.width, height: metrics.size.height)
             .background(
