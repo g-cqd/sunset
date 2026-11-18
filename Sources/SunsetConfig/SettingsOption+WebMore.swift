@@ -10,6 +10,7 @@ extension SettingsOption {
                 \.web.downloadFolder,
                 prompt: "~/Downloads"
             )
+            .folder()
             .grouped("Saving"),
             toggle(
                 "web.askWhereToSave",

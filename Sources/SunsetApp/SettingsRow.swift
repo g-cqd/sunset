@@ -61,8 +61,12 @@ struct SettingsRow: View {
                 }
             case .text(let value, let prompt):
                 LabeledContent {
-                    TextField(option.title, text: config.binding(value), prompt: Text(prompt)).labelsHidden()
-                        .code(option.isCode)
+                    HStack(spacing: Design.Space.s) {
+                        TextField(option.title, text: config.binding(value), prompt: Text(prompt)).labelsHidden()
+                            .code(option.isCode)
+                        // A folder: the system's panel too (the owner's note n36).
+                        if option.isFolder { FolderPicker(title: option.title, path: config.binding(value)) }
+                    }
                 } label: {
                     SettingsLabel(option.title, help: help)
                 }

@@ -95,7 +95,8 @@ extension SettingsOption {
                 "directory folder home cd path",
                 \.terminal.directory,
                 prompt: "~"
-            ),
+            )
+            .folder(),
             toggle(
                 "terminal.shellIntegration",
                 "Shell marks its prompts",

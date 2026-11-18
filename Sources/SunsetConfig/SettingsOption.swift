@@ -68,6 +68,30 @@ public struct SettingsOption: Sendable, Identifiable {
         return copy
     }
 
+    /// What it holds is a folder: its row has a picker beside the field (the owner's note n36).
+    public var isFolder = false
+
+    /// The same, a folder's: in monospace, with a picker.
+    public func folder() -> Self {
+        var copy = code()
+        copy.isFolder = true
+        return copy
+    }
+
+    /// A folder chosen in the picker, as the file writes it: `~` for the home folder.
+    public static func written(folder: String, home: String) -> String {
+        func trimmed(_ path: String) -> String {
+            var path = path
+            while path.count > 1, path.hasSuffix("/") { path.removeLast() }
+            return path
+        }
+        let folder = trimmed(folder)
+        let home = trimmed(home)
+        if folder == home { return "~" }
+        if folder.hasPrefix(home + "/") { return "~" + folder.dropFirst(home.count) }
+        return folder
+    }
+
     /// The same, its field in monospace.
     public func code() -> Self {
         var copy = self
