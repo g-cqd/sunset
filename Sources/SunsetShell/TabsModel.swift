@@ -84,6 +84,8 @@ package final class TabsModel {
     }
     /// Where that row is, in the window (global coordinates): the preview is placed beside it (n47).
     package var hoveredRowFrame: CGRect?
+    /// The folder of the Favorites under the pointer: its card lists its tabs (the owner's note n77).
+    package var hoveredFolder: Favorites.NodeID?
     /// The tab being renamed, while its dialog is open (`RenameTabAlert`).
     package var renaming: Workspace.ItemID?
     /// The kept entry whose command is being edited, while its sheet is open (`CommandSheet`).

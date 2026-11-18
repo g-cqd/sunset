@@ -1,6 +1,7 @@
 import SunsetConfig
 import SunsetPane
 import SunsetShell
+import SunsetShellBridge
 import SunsetTerminal
 import SwiftUI
 
@@ -18,42 +19,48 @@ struct TabPreviewHost: View {
     @State private var shown: Shown?
     @State private var leaving: Task<Void, Never>?
 
+    /// A tab's card, or a folder's (n77).
     struct Shown: Equatable {
-        var item: Workspace.ItemID
+        var item: Workspace.ItemID?
+        var folder: Favorites.NodeID?
         var row: CGRect?
     }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            if let shown, let item = tabs.previewItem(shown.item) {
+            if let shown, let id = shown.item, let item = tabs.previewItem(id) {
                 let card = TabPreviewCard(item: item, tabs: tabs, layout: layout)
-                let size = CGSize(
-                    width: TabPreviewCard.width + 2 * Design.Space.s,
-                    height: card.height + Design.Preview.chrome
+                placed(
+                    card,
+                    size: CGSize(
+                        width: TabPreviewCard.width + 2 * Design.Space.s,
+                        height: card.height + Design.Preview.chrome
+                    ),
+                    row: shown.row
                 )
-                let origin = PreviewPlacement.origin(
-                    size: size,
-                    row: shown.row,
-                    area: area,
-                    sidebarOnRight: sidebarOnRight
-                )
-                // In an area-sized frame, so that the transition's anchor is a point of the area: the card grows out of its
-                // tab's row and shrinks back into it (owner, 2026-11-13), not from the card's or the window's middle.
-                ZStack(alignment: .topLeading) { card.offset(x: origin.x, y: origin.y) }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .transition(
-                        .opacity.combined(with: .scale(scale: Design.Preview.inScale, anchor: rowAnchor(shown.row)))
-                    )
+            } else if let shown, let id = shown.folder, let folder = tabs.favorites.favorites.folder(id) {
+                let card = FolderPreviewCard(folder: folder, kept: tabs.favorites, layout: ShellSettings.Layout(layout))
+                placed(card, size: CGSize(width: FolderPreviewCard.width, height: card.height), row: shown.row)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .allowsHitTesting(false)
         .animation(Design.Preview.glide, value: shown)
         .onChange(of: tabs.hoveredItem, initial: true) { _, _ in follow() }
+        .onChange(of: tabs.hoveredFolder) { _, _ in follow() }
         .onChange(of: tabs.hoveredRowFrame) { _, _ in follow() }
         .onChange(of: tabs.dragged == nil) { _, _ in follow() }
         // A page's snapshot taken as the pointer came arrives a moment later (roadmap 0035 C).
         .onChange(of: hoveredHasPicture) { _, _ in follow() }
+    }
+
+    /// A card beside the row it is about. In an area-sized frame, so that the transition's anchor is a point of the area: the
+    /// card grows out of its row and shrinks back into it (owner, 2026-11-13), not from the card's or the window's middle.
+    private func placed(_ card: some View, size: CGSize, row: CGRect?) -> some View {
+        let origin = PreviewPlacement.origin(size: size, row: row, area: area, sidebarOnRight: sidebarOnRight)
+        return ZStack(alignment: .topLeading) { card.offset(x: origin.x, y: origin.y) }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .transition(.opacity.combined(with: .scale(scale: Design.Preview.inScale, anchor: rowAnchor(row))))
     }
 
     /// Whether the panes of the tab under the pointer have a picture to show: a terminal's last frame, a page's snapshot.
@@ -83,11 +90,14 @@ struct TabPreviewHost: View {
             // A page on screen is pictured as it is now; one that is hidden keeps the picture taken as it was hidden.
             for pane in item.panes { tabs.content(pane)?.takePicture() }
         }
-        // Not for the tab on screen: its card would picture what is under it (the owner, 2026-11-17: "nesting of the preview
-        // in previews").
-        if hoveredHasPicture, let id = tabs.hoveredItem, id != tabs.shownItem?.id {
+        // Every kind has a card, a pane with no picture showing its icon (n77); not the tab on screen: its card would picture
+        // what is under it (the owner, 2026-11-17: "nesting of the preview in previews").
+        if let id = tabs.hoveredItem, id != tabs.shownItem?.id, tabs.previewItem(id) != nil {
             leaving?.cancel()
             shown = Shown(item: id, row: tabs.hoveredRowFrame)
+        } else if let folder = tabs.hoveredFolder {
+            leaving?.cancel()
+            shown = Shown(folder: folder, row: tabs.hoveredRowFrame)
         } else {
             leaving?.cancel()
             leaving = Task {

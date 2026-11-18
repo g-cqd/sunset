@@ -31,8 +31,6 @@ struct TabPreviewCard: View {
         return min(max(Self.width * aspect, 110), 220)
     }
 
-    @Environment(\.accent) private var accent
-
     var body: some View {
         // The miniature's corners (small) nest in the card's, `Design.Space.s` inside.
         let shape = RoundedRectangle(
@@ -80,8 +78,10 @@ struct TabPreviewCard: View {
                         .overlay {
                             RoundedRectangle(cornerRadius: Design.Radius.small(layout), style: .continuous)
                                 .strokeBorder(
-                                    accent.color.opacity(
-                                        pane == item.focused && item.isSplit ? Design.Fill.accentPressed : 0
+                                    // The pane whose part is under the pointer in the split's row, not the focused one
+                                    // (the owner's note n77).
+                                    Color.primary.opacity(
+                                        pane == tabs.hoveredPane && item.isSplit ? Design.Fill.focusLine : 0
                                     ),
                                     lineWidth: 1
                                 )
@@ -103,7 +103,9 @@ struct TabPreviewCard: View {
                 .overlay(alignment: .top) { Image(decorative: picture, scale: 1).resizable().scaledToFill() }
                 .clipped()
         } else {
+            // A pane with nothing pictured (a settings tab, a page not loaded yet): its icon, so every kind has a card (n77).
             Color.primary.opacity(Design.Fill.open)
+                .overlay { TabIcon(model: tabs.content(pane), showsProgress: false).opacity(Design.Fill.inkSecondary) }
         }
     }
 }

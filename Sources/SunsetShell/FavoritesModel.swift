@@ -17,6 +17,8 @@ package final class FavoritesModel {
     var live: [Favorites.NodeID: Weak] = [:]
     /// Something changed that the session file holds.
     @ObservationIgnored package var onChange: () -> Void = {}
+    /// When each entry was last shown, as a count of entries shown since launch (a folder's preview, n77): not saved.
+    @ObservationIgnored var used: [Favorites.NodeID: Int] = [:]
     /// Makes the sealer of kept terminals' commands, the first time a command is checked or saved: the app's reads a key from the Keychain, which can
     /// ask the person, so it is never done at launch for nothing (t145).
     @ObservationIgnored package var makeSealer: () -> (any CommandSealing)? = { nil }
@@ -73,6 +75,7 @@ package final class FavoritesModel {
     func claim(_ id: Favorites.NodeID, by tabs: TabsModel) {
         let previous = live[id]?.tabs
         live[id] = Weak(tabs: tabs)
+        noteUsed(id)
         if let previous, previous !== tabs {
             // The window it leaves shows its picture (roadmap 0035 J).
             for pane in favorites.entry(id)?.open?.panes ?? [] { contents[pane]?.takePicture() }

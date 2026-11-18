@@ -18,7 +18,7 @@ tooling, then the owner's own open reports, then the steps already decided, then
 | 4 | Help: topics, the "?" and its popover, the gates; then the sidebar's controls, the settings, the web's permissions; a Help section and window | 0041 A–E, t301–t305 | done (2026-11-18: the settings whose notes were cut have topics) |
 | 5 | The owner's open reports: the Library's empty list (n2), a split not a web tab, the cup's slash (a design question) | 0042 A, B, G, t306, t307, t312 | open: not reproduced, or waiting for the owner |
 | 6 | A page pictured again when its text changes; a context menu on a rendered document's links | 0042 D, C, t309, t308 | done (C not seen on screen) |
-| 7 | A fourth traffic light laying out split tabs (n78); previews of every kind, folders included (n77) | t287, t139 | n78 done (ADR-0069, which superseded the light of 0068); n77 not started |
+| 7 | A fourth traffic light laying out split tabs (n78); previews of every kind, folders included (n77) | t287, t139 | n78 done (ADR-0069, which superseded the light of 0068); n77 done 2026-11-18 (a card for every kind, folders listing their tabs, the hovered part stroked), not seen |
 | 7b | Whose Pinned, Favorites and tabs are, as settings (the owner, evening) | roadmap 0044 | done but D (`spaces.tabs`) |
 | 8 | Seen on screen: what only tests checked (0042 E, F; t271, t273, t275, t277, t283) | screen | not-started |
 | 9 | Spaces S-d to S-f; web W-b to W-h and its studies; restoring S-1 to S-4; commands C-1 to C-8 | t149–t151, t154–t163, t122, t174–t176, t186–t194 | as their roadmaps say |
@@ -26,4 +26,4 @@ tooling, then the owner's own open reports, then the steps already decided, then
 
 ## Not done
 
-0040 D, 0041 C beyond eleven settings, 0042 C, n77, rows 5 and 8 to 10.
+Rows 5 and 8 to 10; 0044 D; what was not seen on screen (0042 C, n77, 0040 D beyond General).
