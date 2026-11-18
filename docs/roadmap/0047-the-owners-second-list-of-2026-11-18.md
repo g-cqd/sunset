@@ -19,6 +19,7 @@ you just mentioned" (roadmap 0046). His items, kept in his words in the tasks; i
 | F | The sidebar's address bar: the lock as one of our buttons; on hover at its trailing edge Copy and Reload (with the tabs' alpha mask); its context menu with the page's features and the site's settings; layout, wording and contrast (glass) of its popovers | t23 | not-started |
 | G | Settings: organisation, layout, naming, wording; the most straightforward first, the rest a level down. A tab's context menu: the site's settings, the tab's settings | t24 | not-started |
 | H | The focused tab's accent from the site's icon or its declared theme colour | t25 | not-started |
+| I | A page tab active at quit, not loaded after relaunch, is drawn as loaded; its preview says "Terminal" with a folder for picture (the owner's screenshot of 11:56) | t26 | not-started |
 
 Also from the owner, 2026-11-18:
 

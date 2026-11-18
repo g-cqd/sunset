@@ -42,6 +42,9 @@ let page = """
         "scrollTo(0, 4000); document.getElementById('inner').scrollTop = 2000;"
             + " document.getElementById('wide').scrollLeft = 1500; 0"
     )
+    _ = try? await view.evaluateJavaScript(
+        "window.__sizes = []; addEventListener('resize', () => __sizes.push(innerWidth + 'x' + innerHeight)); 0"
+    )
     let before = await positions(view)
     // Hidden: out of the window, as a tab switched away from.
     view.removeFromSuperview()
@@ -62,6 +65,8 @@ let page = """
     host.frame = frame
     if !zeroFirst { view.frame = host.bounds }
     let after = await positions(view)
+    let sizes = (try? await view.evaluateJavaScript("__sizes.join(' ')") as? String) ?? "?"
+    print("  sizes the page saw: [\(sizes)]")
     print("\(name): before \(before) | after \(after)")
     window.close()
 }

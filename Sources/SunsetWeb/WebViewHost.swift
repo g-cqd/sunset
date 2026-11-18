@@ -8,23 +8,16 @@ struct WebViewHost: NSViewRepresentable {
     let webView: WKWebView
     let focused: Bool
 
-    func makeNSView(context: Context) -> NSView {
-        let host = NSView()
-        place(in: host)
+    func makeNSView(context: Context) -> WebViewHostView {
+        let host = WebViewHostView(webView: webView)
+        host.place()
         return host
     }
 
-    func updateNSView(_ host: NSView, context: Context) {
-        if webView.superview !== host { place(in: host) }
-        guard focused, let window = host.window else { return }
+    func updateNSView(_ host: WebViewHostView, context: Context) {
+        host.place()
+        guard focused, webView.superview === host, let window = host.window else { return }
         let responder = window.firstResponder as? NSView
         if responder == nil || !(responder?.isDescendant(of: webView) ?? false) { window.makeFirstResponder(webView) }
-    }
-
-    private func place(in host: NSView) {
-        webView.removeFromSuperview()
-        webView.frame = host.bounds
-        webView.autoresizingMask = [.width, .height]
-        host.addSubview(webView)
     }
 }
