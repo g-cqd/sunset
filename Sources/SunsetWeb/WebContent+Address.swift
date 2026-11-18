@@ -1,4 +1,5 @@
 package import AppKit
+package import SunsetShell
 
 /// What the address bar does with the page's address (roadmap 0047 F).
 extension WebContent {
@@ -10,5 +11,15 @@ extension WebContent {
         board.setString(address, forType: .string)
         board.setString(address, forType: .URL)
         return true
+    }
+
+    /// What a page adds to its tab's menu: Reload, Copy Address, and its site's settings, shown beside its address.
+    package var menuActions: [PaneMenuAction] {
+        guard url != nil else { return [] }
+        return [
+            PaneMenuAction("Reload Page") { [weak self] in self?.reload() },
+            PaneMenuAction("Copy Address") { [weak self] in self?.copyAddress() },
+            PaneMenuAction("Site Settings\u{2026}") { [weak self] in self?.showsSiteSettings = true }
+        ]
     }
 }

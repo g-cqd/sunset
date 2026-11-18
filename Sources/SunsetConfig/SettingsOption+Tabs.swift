@@ -54,6 +54,7 @@ extension SettingsOption {
                 "rounding panel layout window",
                 .radius(SettingsValue(\.layout.panelRadius))
             )
+            .further
         ]
 
     /// What a tab's row shows.
@@ -101,25 +102,29 @@ extension SettingsOption {
                 \.sidebar.previews,
                 label: "Show a preview when pointing at a tab"
             ),
-            toggle("sidebar.previewPages", "Previews of pages", "preview web page site", \.sidebar.previewPages),
+            toggle("sidebar.previewPages", "Previews of pages", "preview web page site", \.sidebar.previewPages)
+                .further,
             toggle(
                 "sidebar.previewTerminals",
                 "Previews of terminals",
                 "preview terminal shell",
                 \.sidebar.previewTerminals
-            ),
+            )
+            .further,
             toggle(
                 "sidebar.previewDocuments",
                 "Previews of documents",
                 "preview document markdown note",
                 \.sidebar.previewDocuments
-            ),
+            )
+            .further,
             toggle(
                 "sidebar.previewFolders",
                 "Previews of folders",
                 "preview folder favorites list",
                 \.sidebar.previewFolders
-            ),
+            )
+            .further,
             toggle(
                 "sidebar.library",
                 "Library",

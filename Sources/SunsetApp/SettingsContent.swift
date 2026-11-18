@@ -17,6 +17,8 @@ final class SettingsContent: PaneContent {
     }
     /// What is searched for; while it is not blank the page shows what it finds, under each option's section and topic.
     var query = ""
+    /// The topic's More is open (roadmap 0047 G).
+    var showsMore = false
     @ObservationIgnored var onExit: () -> Void = {}
     @ObservationIgnored var onFocusRequest: () -> Void = {}
     /// Something the session keeps has changed (which topic).

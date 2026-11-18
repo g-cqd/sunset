@@ -14,6 +14,8 @@ public struct SettingsOption: Sendable, Identifiable {
     public let control: SettingsControl
     /// A sentence under the control.
     public var note: String?
+    /// Shown a level down, under its topic's More, not first (roadmap 0047 G); found by search all the same.
+    public var advanced = false
 
     public init(_ id: String, _ title: String, _ words: String, _ control: SettingsControl) {
         self.id = id
@@ -32,6 +34,13 @@ public struct SettingsOption: Sendable, Identifiable {
     public func noted(_ note: String) -> Self {
         var copy = self
         copy.note = note
+        return copy
+    }
+
+    /// The same, a level down.
+    public var further: Self {
+        var copy = self
+        copy.advanced = true
         return copy
     }
 

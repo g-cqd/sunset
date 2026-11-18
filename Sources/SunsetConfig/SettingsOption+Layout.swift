@@ -18,6 +18,8 @@ extension SettingsOption {
                 words,
                 .number(value, field.range, step: field.step, unit: field.unit, digits: 2)
             )
+            // The measures are a level down (roadmap 0047 G).
+            .further
         }
     }
 }

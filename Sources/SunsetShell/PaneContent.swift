@@ -55,6 +55,8 @@ package import SwiftUI
     func prepare()
     /// It let go of its memory while hidden and is made again when shown (a page, S-f): its icon is dimmed.
     var isUnloaded: Bool { get }
+    /// What it adds to its tab's menu (a page: Reload, Copy Address, Site Settings; roadmap 0047 G).
+    var menuActions: [PaneMenuAction] { get }
     func makeView(_ context: PaneViewContext) -> AnyView
 }
 
@@ -72,4 +74,5 @@ extension PaneContent {
     package func takePicture() {}
     package func prepare() {}
     package var isUnloaded: Bool { false }
+    package var menuActions: [PaneMenuAction] { [] }
 }

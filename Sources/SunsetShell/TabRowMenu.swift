@@ -18,6 +18,19 @@ struct TabRowMenu: View {
             Button("Rename") { tabs.renamingRow = .tab(item) }
         }
         Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item) }
+        // The page's own (roadmap 0047 G): its site's settings open beside its address, the tab shown.
+        let actions =
+            tabs.workspace.items.first { $0.id == item }.flatMap { tabs.content($0.focused) }?.menuActions ?? []
+        if !actions.isEmpty {
+            Divider()
+            ForEach(actions.indices, id: \.self) { index in
+                Button(actions[index].title) {
+                    tabs.select(item: item)
+                    actions[index].run()
+                }
+            }
+        }
+        Button("Tab Settings\u{2026}") { tabs.showSingle(.settings(topic: "tabs.placement")) }
         Divider()
         TabKeepMenu(tabs: tabs, item: item, animation: animation)
         KeepAwakeMenu(tabs: tabs, item: item)

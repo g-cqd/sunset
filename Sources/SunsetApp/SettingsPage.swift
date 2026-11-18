@@ -56,7 +56,13 @@ struct SettingsPage: View {
                     Section(SettingsSection.heading(of: topic)) { rows(results.filter { $0.topic == topic }) }
                 }
             } else if let shown = SettingsSection.topic(content.topic) {
-                Section(shown.section.title + " \u{203A} " + shown.topic.title) { rows(shown.topic.options) }
+                Section(shown.section.title + " \u{203A} " + shown.topic.title) { rows(shown.topic.first) }
+                // The measures and the finer choices a level down (roadmap 0047 G).
+                if !shown.topic.further.isEmpty {
+                    Section {
+                        DisclosureGroup("More", isExpanded: $content.showsMore) { rows(shown.topic.further) }
+                    }
+                }
             }
         }
         .formStyle(.grouped)

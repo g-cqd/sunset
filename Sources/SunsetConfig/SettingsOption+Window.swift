@@ -66,5 +66,6 @@ extension SettingsOption {
                 "rounding card layout window",
                 .radius(SettingsValue(\.layout.terminalRadius))
             )
+            .further
         ]
 }
