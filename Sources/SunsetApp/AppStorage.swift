@@ -14,6 +14,8 @@ final class AppStorage {
     /// Nil when the key cannot be had: the Keychain refused, or sealed things are here and their key is not.
     let key: StorageKey?
     let database: StateDatabase?
+    /// The documents' index's database, once the documents are opened.
+    private var library: StateDatabase?
 
     init(places: StoragePlaces = .current, problems: StorageProblems = .shared) {
         self.places = places
@@ -56,6 +58,7 @@ final class AppStorage {
     private(set) lazy var documents: DocumentStore? = {
         guard let key else { return nil }
         let library = StateDatabase.open(at: places.library, key: key).database
+        self.library = library
         let ours = places.isDefault
         return DocumentStore(folder: places.documents, library: library, key: key) { url in
             if ours {
@@ -101,5 +104,11 @@ final class AppStorage {
         guard let handle = FileHandle(forReadingAtPath: places.session) else { return false }
         defer { try? handle.close() }
         return Seal.isSealed((try? handle.read(upToCount: 4)) ?? Data())
+    }
+
+    /// Sunset quits: the databases are closed, their logs emptied (roadmap 0051 B).
+    func close() {
+        database?.close()
+        library?.close()
     }
 }

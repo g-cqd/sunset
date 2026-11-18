@@ -33,7 +33,19 @@ public final class StateDatabase {
         indexKey = key.derived("state-index")
     }
 
-    isolated deinit { unsafe sqlite3_close(handle) }
+    isolated deinit { close() }
+
+    /// Closes the database, its write-ahead log emptied first: nothing of what was written or deleted stays in the log beside
+    /// it (roadmap 0051 B). Closed once; a database closed is not used again.
+    public func close() {
+        guard handle != nil else { return }
+        compact()
+        unsafe sqlite3_close(handle)
+        handle = nil
+    }
+
+    /// Writes the log into the database and empties it (after a removal of many records: history cleared).
+    public func compact() { run("PRAGMA wal_checkpoint(TRUNCATE)") }
 
     /// Opens the database at `path`, making it when there is none (":memory:" for one that is never written).
     public static func open(at path: String, key: StorageKey, now: Date = Date()) -> Opened {
@@ -62,10 +74,14 @@ public final class StateDatabase {
 
     private static func attempt(_ path: String, _ key: StorageKey) -> Attempt {
         if path != ":memory:" {
+            // Its owner's only (roadmap 0051 A): made so, and set so when it was made before.
+            let folder = (path as NSString).deletingLastPathComponent
             try? FileManager.default.createDirectory(
-                atPath: (path as NSString).deletingLastPathComponent,
-                withIntermediateDirectories: true
+                atPath: folder,
+                withIntermediateDirectories: true,
+                attributes: [.posixPermissions: 0o700]
             )
+            try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: folder)
         }
         var handle: OpaquePointer?
         guard unsafe sqlite3_open_v2(path, &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) == SQLITE_OK else {
@@ -73,6 +89,14 @@ public final class StateDatabase {
             return .unreadable
         }
         let database = unsafe StateDatabase(handle: handle, key: key)
+        // The file, and its log and index (SQLite gives them the database's mode), its owner's only.
+        if path != ":memory:" {
+            for file in [path, path + "-wal", path + "-shm"] where FileManager.default.fileExists(atPath: file) {
+                try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: file)
+            }
+        }
+        // A record deleted is overwritten, not left in a free page (roadmap 0051 B).
+        guard database.run("PRAGMA secure_delete = ON") else { return .unreadable }
         // Ordered writes without a wait for the disk at each record: a crash keeps the database whole; the last records
         // before a power loss may be gone, which history can bear.
         guard database.run("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;"),

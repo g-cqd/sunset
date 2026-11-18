@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress
 blocked-by: nothing
 date: 2026-11-18
 ---
@@ -12,8 +12,8 @@ roadmap with priority to be addressed as soon as possible". The audit: docs/rese
 
 | Step | What | Task | Status |
 |---|---|---|---|
-| A | The folder 0700, the databases and their WAL and SHM 0600, set on every open and on files made | t47 | not-started (0755/0644 probed) |
-| B | No residue: `secure_delete` on, the WAL checkpointed and truncated on close and after deletes (history cleared) | t47 | not-started (2.7 MB WAL probed) |
+| A | The folder 0700, the databases and their WAL and SHM 0600, set on every open and on files made | t47 | done: 0700/0600 on open and made; seen on a test copy |
+| B | No residue: `secure_delete` on, the WAL checkpointed and truncated on close and after deletes (history cleared) | t47 | done: `secure_delete` on, the log truncated on quit and after a kind is cleared; seen 0 bytes after quit |
 | C | Less in clear: times and counts inside the sealed payload, or coarse; opaque ids for kinds; row keys by HMAC with a key of their own; a migration that reseals | t48 | not-started |
 | D | The recovery code: what it is (random, or typed); a memory-hard KDF (Argon2id, our own, in an Aemi package) if it can be typed | t48 | not-started |
 | E | Exports: sealed by default, or opt-in with a warning | t48 | not-started |

@@ -80,5 +80,9 @@ public struct SealedTable {
         database.execute("DELETE FROM records WHERE kind = ?1 AND sort >= ?2", [.text(kind), .real(limit)])
     }
 
-    public func removeAll() { database.execute("DELETE FROM records WHERE kind = ?1", [.text(kind)]) }
+    /// Every record of the kind, and the log emptied after (history cleared: roadmap 0051 B).
+    public func removeAll() {
+        database.execute("DELETE FROM records WHERE kind = ?1", [.text(kind)])
+        database.compact()
+    }
 }
