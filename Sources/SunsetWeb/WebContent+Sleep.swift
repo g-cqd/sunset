@@ -24,6 +24,8 @@ extension WebContent {
         webView = nil
         coordinator = nil
         progress = nil
+        // It loads no more (roadmap 0045 C): nothing is left saying it does.
+        isLoading = false
         isUnloaded = true
         hiddenSince = nil
         return true

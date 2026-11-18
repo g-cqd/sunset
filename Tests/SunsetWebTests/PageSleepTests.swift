@@ -61,4 +61,18 @@ struct PageSleepTests {
         window.close()
         page.stop()
     }
+
+    /// Roadmap 0045 C: the owner saw load indicators not following a page's end. A page let go of while it loads no longer
+    /// loads: nothing is left saying it does (its ring, the Stop item, the window bar's stop button).
+    @Test func `a page unloaded while it loads is said to load no more`() async throws {
+        let page = WebContent(url: nil, settings: settings)
+        page.setState(focused: true, visible: true)
+        // An address nothing answers: it loads until it is stopped.
+        page.load(try #require(URL(string: "http://10.255.255.1/")))
+        await Waiting.until { page.isLoading }
+        page.setState(focused: false, visible: false)
+        #expect(page.unload())
+        #expect(!page.isLoading && page.progress == nil)
+        page.stop()
+    }
 }
