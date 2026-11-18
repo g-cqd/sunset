@@ -4,14 +4,11 @@ import WebKit
 
 /// What the address bar does with the page's address (roadmap 0047 F).
 extension WebContent {
-    /// Puts the page's whole address on `board`, as text and as a link; false when the page has none.
+    /// Puts the page's whole address on `board`, as text and as a link; blocked when the page has none.
     @discardableResult
-    package func copyAddress(to board: NSPasteboard = .general) -> Bool {
-        guard let address = url?.absoluteString else { return false }
-        board.clearContents()
-        board.setString(address, forType: .string)
-        board.setString(address, forType: .URL)
-        return true
+    package func copyAddress(to board: NSPasteboard = .general) -> ActionFeedback {
+        guard let address = url?.absoluteString else { return .blocked("This page has no address") }
+        return Clipboard.copy(address, isLink: true, what: "Copied the address", to: board)
     }
 
     package var isBlankPage: Bool { url == nil && webView?.url == nil }
@@ -23,7 +20,7 @@ extension WebContent {
         guard url != nil else { return [] }
         return [
             PaneMenuAction("Reload Page") { [weak self] in self?.reload() },
-            PaneMenuAction("Copy Address") { [weak self] in self?.copyAddress() },
+            PaneMenuAction("Copy Address") { [weak self] in if let self { Feedback.give(copyAddress()) } },
             PaneMenuAction("Site Settings\u{2026}") { [weak self] in self?.showsSiteSettings = true }
         ]
     }

@@ -1,6 +1,7 @@
 import AppKit
 import LocalAuthentication
 import Observation
+import SunsetShell
 import SunsetStorage
 
 /// What Settings show of what Sunset keeps (R12, roadmap 0030 step ST-6): the inventory of its folder, the website data's size,
@@ -71,12 +72,10 @@ final class StorageSettings {
     func hideCode() { code = nil }
 
     /// Puts the shown code on the clipboard, marked as a secret so that clipboard managers that follow the convention leave it.
-    func copyCode() {
-        guard let code else { return }
-        let board = NSPasteboard.general
-        board.clearContents()
-        board.setString(code, forType: .string)
-        board.setString("", forType: NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType"))
+    @discardableResult
+    func copyCode() -> ActionFeedback {
+        guard let code else { return .blocked("The code is hidden") }
+        return Clipboard.copy(code, concealed: true, what: "Copied")
     }
 
     /// What entering a recovery code did.

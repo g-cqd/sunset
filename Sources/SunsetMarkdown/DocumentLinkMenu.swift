@@ -1,4 +1,5 @@
 package import AppKit
+package import SunsetShell
 package import SwiftUI
 
 /// The menu of a link of a rendered document (roadmap 0042 C), as a page's link has one: where it opens, and Copy Link.
@@ -25,9 +26,15 @@ package enum DocumentLinkMenu {
     /// - Parameters:
     ///   - url: where the link leads.
     ///   - board: the pasteboard; the general one by default.
-    package static func copy(_ url: URL, to board: NSPasteboard = .general) {
-        board.clearContents()
-        board.setString(url.isFileURL ? url.path : url.absoluteString, forType: .string)
+    /// - Returns: What it did, for the person to be told.
+    @discardableResult
+    package static func copy(_ url: URL, to board: NSPasteboard = .general) -> ActionFeedback {
+        Clipboard.copy(
+            url.isFileURL ? url.path : url.absoluteString,
+            isLink: !url.isFileURL,
+            what: url.isFileURL ? "Copied the path" : "Copied the link",
+            to: board
+        )
     }
 
     /// The menu's items, for a link of `content`'s page.
@@ -40,7 +47,7 @@ package enum DocumentLinkMenu {
                 Button(item.title) { content.open(link: url, in: item.place) }
             }
             Divider()
-            Button("Copy Link") { DocumentLinkMenu.copy(url) }
+            Button("Copy Link") { Feedback.give(DocumentLinkMenu.copy(url)) }
         }
     }
 }

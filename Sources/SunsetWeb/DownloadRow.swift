@@ -33,8 +33,7 @@ package struct DownloadRow: View {
             }
             if let source = item.source {
                 Button("Copy Address") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(source.absoluteString, forType: .string)
+                    Clipboard.copyAndSay(source.absoluteString, isLink: true, what: "Copied the address")
                 }
             }
             Divider()

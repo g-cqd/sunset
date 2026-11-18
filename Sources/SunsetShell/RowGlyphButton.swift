@@ -45,8 +45,11 @@ package struct RowGlyphButton<Glyph: View>: View {
                         .fill(.primary.opacity(pressed ? Design.Fill.pressed : hovering ? Design.Fill.selected : 0))
                 )
                 .contentShape(.rect)
+                // The press is felt (the owner's note n11).
+                .scaleEffect(pressed ? Design.Motion.pressedScale : 1)
                 .onHover { hovering = $0 }
                 .animation(layout.smooth, value: hovering)
+                .animation(.snappy(duration: 0.12), value: pressed)
         }
     }
 }

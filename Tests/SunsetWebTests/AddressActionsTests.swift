@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SunsetShell
 import Testing
 
 @testable import SunsetWeb
@@ -14,10 +15,10 @@ struct AddressActionsTests {
             url: URL(string: "https://example.org/path?q=1#part"),
             settings: WebSettings(applicationName: "x")
         )
-        #expect(page.copyAddress(to: board))
+        #expect(page.copyAddress(to: board) == .done("Copied the address"))
         #expect(board.string(forType: .string) == "https://example.org/path?q=1#part")
         #expect(board.string(forType: .URL) == "https://example.org/path?q=1#part")
         let empty = WebContent(url: nil, settings: WebSettings(applicationName: "x"))
-        #expect(!empty.copyAddress(to: board))
+        #expect(empty.copyAddress(to: board) == .blocked("This page has no address"))
     }
 }

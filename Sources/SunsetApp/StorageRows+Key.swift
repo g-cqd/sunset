@@ -21,7 +21,7 @@ extension StorageRows {
                 )
                 .font(Design.Text.detail).foregroundStyle(.secondary)
                 HStack {
-                    Button("Copy") { storage.copyCode() }
+                    FeedbackButton("Copy") { storage.copyCode() }
                     Button("Hide") { storage.hideCode() }
                 }
             }

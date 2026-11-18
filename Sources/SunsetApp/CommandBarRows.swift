@@ -176,8 +176,7 @@ import SunsetWeb
         }
         let copy = ChoiceAction("Copy Address", symbol: "doc.on.doc", key: nil) {
             tabs.bar = nil
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(input.url?.absoluteString ?? "", forType: .string)
+            Clipboard.copyAndSay(input.url?.absoluteString, isLink: true, what: "Copied the address")
         }
         return ChoiceAction.keyed(inPage ? [here, newTab, split, copy] : [here, split, copy])
     }

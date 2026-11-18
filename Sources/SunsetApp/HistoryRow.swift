@@ -44,10 +44,7 @@ struct HistoryRow: View {
         .contextMenu {
             Button("Open") { AppActions.shared.openFromHistory(entry.url, newTab: false) }
             Button("Open in New Tab") { AppActions.shared.openFromHistory(entry.url, newTab: true) }
-            Button("Copy Address") {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(entry.url, forType: .string)
-            }
+            Button("Copy Address") { Clipboard.copyAndSay(entry.url, isLink: true, what: "Copied the address") }
             Divider()
             Button("Delete from History", role: .destructive) { AppHistory.shared?.delete(entry.url) }
         }

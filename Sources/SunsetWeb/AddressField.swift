@@ -55,7 +55,7 @@ package struct AddressField: View {
             if showsActions {
                 HStack(spacing: 0) {
                     if hovering, content.url != nil {
-                        RowGlyphButton(symbol: "doc.on.doc", help: "Copy Address") { content.copyAddress() }
+                        FeedbackGlyphButton(symbol: "doc.on.doc", help: "Copy Address") { content.copyAddress() }
                     }
                     reloadButton
                 }
@@ -134,7 +134,7 @@ package struct AddressField: View {
 
     /// Right-click: the page's own actions, then the tab's (the app's menu).
     @ViewBuilder private var pageMenu: some View {
-        Button("Copy Address") { content.copyAddress() }.disabled(content.url == nil)
+        Button("Copy Address") { Feedback.give(content.copyAddress()) }.disabled(content.url == nil)
         Button(content.isLoading ? "Stop" : "Reload") {
             if content.isLoading { content.stopLoading() } else { content.reload() }
         }
