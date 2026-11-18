@@ -14,6 +14,7 @@ import SunsetWeb
     static func start() {
         let storage = AppStorage.shared
         ContentBlocker.shared.pauses.table = storage.table("blocking-pauses")
+        HiddenElements.shared.table = storage.table("hidden-elements")
         // Beside what else Sunset keeps (a debug build's apart: ADR-0042).
         ContentBlocker.shared.folder = URL(fileURLWithPath: storage.places.directory)
             .appending(
@@ -43,6 +44,7 @@ import SunsetWeb
 
     /// Each list as kept, or fetched again when it is older than `maxAge` or not kept; then compiled and put on pages.
     static func refresh() async {
+        await ContentBlocker.shared.compileHidden()
         let web = AppConfiguration.shared.configuration.web
         addresses = web.blockingLists
         guard web.blocking else { return }

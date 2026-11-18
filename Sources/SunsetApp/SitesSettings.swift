@@ -24,7 +24,7 @@ struct SitesSettings: View {
                     Spacer()
                     Button("Forget") {
                         SiteSummary.forget(row.host, in: stores)
-                        ContentBlocker.shared.reapplyAll()
+                        Task { await ContentBlocker.shared.compileHidden() }
                     }
                 }
             }

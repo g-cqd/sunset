@@ -11,19 +11,22 @@ package enum SiteSummary {
         package let pauses: BlockingPauses
         package let zoom: SiteZoom
         package let spaces: SiteRules<UUID>
+        package let hidden: SiteRules<[String]>
 
         package init(
             permissions: SitePermissions,
             agents: SiteAgents,
             pauses: BlockingPauses,
             zoom: SiteZoom,
-            spaces: SiteRules<UUID>
+            spaces: SiteRules<UUID>,
+            hidden: SiteRules<[String]> = HiddenElements.make()
         ) {
             self.permissions = permissions
             self.agents = agents
             self.pauses = pauses
             self.zoom = zoom
             self.spaces = spaces
+            self.hidden = hidden
         }
 
         /// The app's.
@@ -33,7 +36,8 @@ package enum SiteSummary {
                 agents: .shared,
                 pauses: ContentBlocker.shared.pauses,
                 zoom: .shared,
-                spaces: SiteSpaces.shared
+                spaces: SiteSpaces.shared,
+                hidden: HiddenElements.shared
             )
         }
     }
@@ -58,6 +62,10 @@ package enum SiteSummary {
         for (host, level) in stores.zoom.sites {
             parts[host, default: []].append("zoom \(Int((level * 100).rounded())) %")
         }
+        for (host, selectors) in stores.hidden.rules {
+            parts[host, default: []]
+                .append(selectors.count == 1 ? "1 element hidden" : "\(selectors.count) elements hidden")
+        }
         for (host, space) in stores.spaces.rules {
             parts[host, default: []].append("opens in \(spaceName(space) ?? "a Space that is gone")")
         }
@@ -71,5 +79,6 @@ package enum SiteSummary {
         stores.pauses.set(false, for: host)
         stores.zoom.set(1, for: host, remember: stores.zoom.remembers)
         stores.spaces.set(nil, for: host)
+        stores.hidden.set(nil, for: host)
     }
 }

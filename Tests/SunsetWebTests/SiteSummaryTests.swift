@@ -13,7 +13,8 @@ struct SiteSummaryTests {
             agents: SiteAgents(),
             pauses: BlockingPauses(),
             zoom: SiteZoom(),
-            spaces: SiteSpaces.make()
+            spaces: SiteSpaces.make(),
+            hidden: HiddenElements.make()
         )
         let work = UUID()
         stores.permissions.set(.allow, .camera, for: "meet.example")
@@ -21,13 +22,16 @@ struct SiteSummaryTests {
         stores.pauses.set(true, for: "news.example")
         stores.zoom.set(1.25, for: "news.example", remember: false)
         stores.spaces.set(work, for: "tracker.example")
+        stores.hidden.add("#promo", for: "tracker.example")
         let rows = SiteSummary.rows(stores) { $0 == work ? "Work" : nil }
         #expect(rows.map(\.host) == ["meet.example", "news.example", "tracker.example"])
         #expect(rows[0].parts == ["1 answer", "shown Chrome"])
         #expect(rows[1].parts == ["blocking paused", "zoom 125 %"])
-        #expect(rows[2].parts == ["opens in Work"])
+        #expect(rows[2].parts == ["1 element hidden", "opens in Work"])
         SiteSummary.forget("meet.example", in: stores)
         SiteSummary.forget("news.example", in: stores)
         #expect(SiteSummary.rows(stores) { _ in nil }.map(\.host) == ["tracker.example"])
+        SiteSummary.forget("tracker.example", in: stores)
+        #expect(stores.hidden.rules.isEmpty && stores.spaces.rules.isEmpty)
     }
 }

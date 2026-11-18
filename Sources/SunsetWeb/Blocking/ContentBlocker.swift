@@ -9,7 +9,8 @@ package final class ContentBlocker {
     /// The app's: its folder is set where the app keeps its files, before the lists are loaded.
     package static let shared = ContentBlocker(
         folder: FileManager.default.temporaryDirectory.appending(path: "SunsetBlocking", directoryHint: .isDirectory),
-        pauses: BlockingPauses()
+        pauses: BlockingPauses(),
+        hidden: HiddenElements.shared
     )
 
     /// A list as it was given: its address, its text, when it was fetched.
@@ -41,6 +42,9 @@ package final class ContentBlocker {
         didSet { if enabled != oldValue { reapplyAll() } }
     }
     @ObservationIgnored package let pauses: BlockingPauses
+    /// The elements hidden for good, per site (W-e): on their sites whatever blocking says.
+    @ObservationIgnored package let hidden: SiteRules<[String]>
+    @ObservationIgnored private var hiddenList: WKContentRuleList?
     /// Where the lists and their compiled rules are kept.
     @ObservationIgnored package var folder: URL
     @ObservationIgnored private(set) var compiled: [WKContentRuleList] = []
@@ -50,9 +54,10 @@ package final class ContentBlocker {
         weak var view: WKWebView?
     }
 
-    package init(folder: URL, pauses: BlockingPauses) {
+    package init(folder: URL, pauses: BlockingPauses, hidden: SiteRules<[String]> = HiddenElements.make()) {
         self.folder = folder
         self.pauses = pauses
+        self.hidden = hidden
     }
 
     // MARK: Pages
@@ -70,6 +75,7 @@ package final class ContentBlocker {
         if let index = views.firstIndex(where: { $0.view.view === view }) { views[index].host = host }
         let controller = view.configuration.userContentController
         controller.removeAllContentRuleLists()
+        if let hiddenList { controller.add(hiddenList) }
         guard enabled, !pauses.isPaused(host) else { return }
         for list in compiled { controller.add(list) }
     }
@@ -81,6 +87,27 @@ package final class ContentBlocker {
     }
 
     // MARK: Lists
+
+    /// Compiles the elements hidden for good again, and puts them on every page.
+    package func compileHidden() async {
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        guard let store = WKContentRuleListStore(url: folder) else { return }
+        let rules = hidden.rules.map { site in
+            BlockingRules.Rule(
+                trigger: .init(urlFilter: ".*", ifDomain: ["*" + site.host]),
+                action: .init(type: "css-display-none", selector: site.value.joined(separator: ", "))
+            )
+        }
+        if rules.isEmpty {
+            hiddenList = nil
+        } else if let json = try? BlockingRules.json(rules) {
+            hiddenList = try? await store.compileContentRuleList(
+                forIdentifier: "hidden",
+                encodedContentRuleList: String(decoding: json, as: UTF8.self)
+            )
+        }
+        reapplyAll()
+    }
 
     /// Converts and compiles the lists, then puts them on every page. A list that does not compile is said in its state
     /// and left out; the others are used.

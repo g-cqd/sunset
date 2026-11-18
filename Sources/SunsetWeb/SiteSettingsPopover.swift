@@ -3,6 +3,7 @@ import SwiftUI
 
 /// What one site was allowed (web step g), changed in place; and Stop while the page captures.
 struct SiteSettingsPopover: View {
+    @Environment(\.dismiss) private var dismiss
     let content: WebContent
     private var store: SitePermissions { content.permissions }
 
@@ -47,6 +48,20 @@ struct SiteSettingsPopover: View {
             }
             .disabled(host.isEmpty || !ContentBlocker.shared.enabled)
             SiteZoomRow(content: content)
+            HStack {
+                Button("Hide an Element…") {
+                    dismiss()
+                    Task { await content.pickElementToHide() }
+                }
+                Spacer()
+                let count = content.hiddenOnSite.count
+                if count > 0 {
+                    Button(count == 1 ? "Show 1 Hidden" : "Show \(count) Hidden") {
+                        Task { await content.showHiddenElements() }
+                    }
+                }
+            }
+            .disabled(host.isEmpty)
             let spaces = content.spaceChoices()
             if !spaces.isEmpty, !content.isPrivate {
                 HStack {
