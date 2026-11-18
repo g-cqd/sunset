@@ -42,6 +42,7 @@ struct SettingsCustomRow: View {
             case .fileLocation: fileInfo
             case .storageSealed, .storageWebsiteData, .storageSetAside, .storageKey, .storageEnterCode, .storageExport:
                 StorageRows(custom: custom)
+            case .defaultBrowser: DefaultBrowserRow()
             case .textOnlyZoom:
                 if WebTextZoomProbe.isAvailable {
                     Toggle("Zoom makes only the text bigger", isOn: config.binding(\.web.textOnlyZoom))

@@ -31,6 +31,8 @@ final class AppActions {
     var handoff: [any PaneContent] = []
     /// Files asked to be opened before any window was there (Sunset started by opening them): the first window opens them.
     var pendingFiles: [String] = []
+    /// Links to pages asked for before a window was there (note n18).
+    var pendingPages: [URL] = []
     /// The next window to appear is a private one (File > New Private Window, web step h).
     var pendingPrivateWindow = false
     /// The next window opens showing the settings (Cmd-, with no window open).

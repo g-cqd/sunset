@@ -24,10 +24,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// Files opened with Sunset (Finder's Open With, a drop on its icon, `open -a`): each in a tab of the window in front.
+    /// Files opened with Sunset (Finder's Open With, a drop on its icon, `open -a`): each in a tab of the window in front;
+    /// links to pages from other apps, Sunset being the Mac's browser (note n18): each a page in a tab of that window.
     func application(_ application: NSApplication, open urls: [URL]) {
-        let files = urls.filter(\.isFileURL).map(\.path)
-        MainActor.assumeIsolated { AppActions.shared.open(files: files) }
+        let incoming = IncomingLinks.split(urls)
+        MainActor.assumeIsolated {
+            if !incoming.files.isEmpty { AppActions.shared.open(files: incoming.files) }
+            if !incoming.pages.isEmpty { AppActions.shared.open(pages: incoming.pages) }
+        }
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {

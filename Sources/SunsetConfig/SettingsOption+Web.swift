@@ -54,6 +54,14 @@ extension SettingsOption {
     /// Pages.
     static let pages: [Self] =
         [
+            // Not a key of the file: the system's choice, shown and asked for (the owner's note n18).
+            custom(
+                "web.defaultBrowser",
+                "Default browser",
+                "default browser links open system macos safari",
+                .defaultBrowser
+            )
+            .setting([]),
             toggle(
                 "web.openLinksInSunset",
                 "Open terminal links in Sunset",

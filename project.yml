@@ -61,6 +61,12 @@ targets:
         NSRemovableVolumesUsageDescription: Programs you run in Sunset's terminals use removable volumes.
         NSNetworkVolumesUsageDescription: Programs you run in Sunset's terminals use network volumes.
         NSAppleEventsUsageDescription: Programs you run in Sunset's terminals can script other apps.
+        # Links to pages: what lets the person choose Sunset as the Mac's browser (note n18); it becomes it only when the
+        # person says so (Settings > Web > Pages, or System Settings), never by itself (ADR-0040).
+        CFBundleURLTypes:
+          - CFBundleURLName: Web site URL
+            CFBundleTypeRole: Viewer
+            CFBundleURLSchemes: [http, https]
         # What Sunset can be chosen to open (Open With); it never makes itself the app that opens them (ADR-0040).
         CFBundleDocumentTypes:
           - CFBundleTypeName: Markdown document

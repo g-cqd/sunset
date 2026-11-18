@@ -59,6 +59,7 @@ extension AppActions {
     /// A window has its tabs: the files that waited for one open in it, and the settings when they were asked for with no
     /// window open (Cmd-,).
     func finishStarting(_ tabs: TabsModel) {
+        openPendingPages(in: tabs)
         if pendingSettings {
             pendingSettings = false
             AppSettings.show(in: tabs)
