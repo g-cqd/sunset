@@ -24,7 +24,11 @@ struct FolderRow: View {
 
     var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
-            if let icon = folder.icon, PaneIconView.canShow(icon) {
+            // Under the pointer the fold's chevron takes the icon's place, on the leading edge as every fold's
+            // (docs/design/folds-and-menus.md, the owner's note n45).
+            if hovering, tabs.renamingRow != .node(folder.id) {
+                disclosure
+            } else if let icon = folder.icon, PaneIconView.canShow(icon) {
                 PaneIconView(icon: icon).opacity(folder.isCollapsed ? Design.Fill.collapsedIcon : 1)
             } else {
                 Image(systemName: folder.isCollapsed ? "folder" : "folder.fill")
@@ -61,8 +65,6 @@ struct FolderRow: View {
                     .help("Clear the Name")
                     .accessibilityLabel("Clear the Name")
                     .position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
-                } else {
-                    disclosure.position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
                 }
             }
         }
@@ -93,17 +95,17 @@ struct FolderRow: View {
         }
     }
 
-    /// Under the pointer: the folder's chevron, down to expand, up to collapse; a click on it does what a click on the row does.
+    /// Under the pointer: the fold's chevron in the icon's place, right while folded, down while open; a click on it does
+    /// what a click on the row does.
     private var disclosure: some View {
         Button(action: toggle) {
-            Image(systemName: folder.isCollapsed ? "chevron.down" : "chevron.up")
+            Image(systemName: folder.isCollapsed ? "chevron.right" : "chevron.down")
                 .font(.system(size: Design.Symbol.badge, weight: .semibold))
-                .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
+                .foregroundStyle(.secondary)
+                .frame(width: Design.Size.glyphFrame, height: layout.closeButtonSize)
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .opacity(hovering ? 1 : 0)
-        .allowsHitTesting(hovering)
         .help(folder.isCollapsed ? "Expand" : "Collapse")
     }
 

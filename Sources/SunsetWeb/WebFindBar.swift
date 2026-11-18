@@ -76,7 +76,7 @@ struct WebFindBar: View {
             Image(systemName: "magnifyingglass")
         }
         .menuStyle(.borderlessButton)
-        .menuIndicator(.visible)
+        .menuIndicator(.hidden)
         // Not the accent: blue on the dark glass read badly (owner, 2026-11-13); the address field's lock is secondary too.
         .tint(.secondary)
         .foregroundStyle(.secondary)

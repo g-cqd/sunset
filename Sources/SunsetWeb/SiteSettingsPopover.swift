@@ -48,7 +48,7 @@ struct SiteSettingsPopover: View {
             DisclosureGroup(isExpanded: $showsPermissions) {
                 permissions(host).padding(.top, Design.Space.s)
             } label: {
-                Label(permissionsTitle(host), systemImage: "checkmark.shield")
+                Text(permissionsTitle(host))
             }
             .disabled(host.isEmpty)
             DisclosureGroup(isExpanded: $showsMore) {
@@ -63,7 +63,7 @@ struct SiteSettingsPopover: View {
                 }
                 .padding(.top, Design.Space.s)
             } label: {
-                Label("More", systemImage: "ellipsis.circle")
+                Text("More")
             }
             .disabled(host.isEmpty)
         }

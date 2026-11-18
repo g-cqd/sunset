@@ -7,7 +7,9 @@ import Testing
 @Suite("Switches and checkboxes, each for its role") struct ToggleRolesTests {
     /// Files whose toggles are menu items (a menu draws them as checkmarks) or take their role from the settings' form.
     static let inMenusOrForm: Set<String> = [
-        "KeepAwakeMenu.swift", "WebFindBar.swift", "SettingsRow.swift", "SettingsCustomRow.swift"
+        "KeepAwakeMenu.swift", "WebFindBar.swift", "SettingsRow.swift", "SettingsCustomRow.swift",
+        // The switch style itself.
+        "SpreadSwitchStyle.swift"
     ]
 
     @Test func `every toggle outside a menu and the settings' form says whether it is a switch or a checkbox`() {

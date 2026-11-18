@@ -5,8 +5,8 @@ package import SwiftUI
 /// things an action applies to — what Clear History clears, a sheet's "Don't ask again" — is a checkbox. In a menu, a
 /// toggle is the menu's checkmark.
 extension View {
-    /// On or off: a switch, small, its label before it.
-    package func settingSwitch() -> some View { toggleStyle(.switch).controlSize(.small) }
+    /// On or off: a switch, small, its label on the leading edge and the switch on the trailing one (note n45).
+    package func settingSwitch() -> some View { toggleStyle(SpreadSwitchStyle()).controlSize(.small) }
 
     /// One of the things an action applies to: a checkbox.
     package func choiceBox() -> some View { toggleStyle(.checkbox) }
