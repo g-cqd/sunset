@@ -2,6 +2,7 @@ import AppKit
 import SunsetConfig
 import SunsetDocuments
 import SunsetShell
+import SunsetStorage
 import SunsetWeb
 
 /// The few things SwiftUI's `App` does not say: this process is a regular app even when started as a bare executable, and it ends with its last window.
@@ -13,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Started for a test driven through accessibility (`Tools/axdrive`): it stays behind what the person is doing.
         if ProcessInfo.processInfo.environment["SUNSET_BACKGROUND"] != "1" { NSApp.activate() }
+        WebKitFolders.tightenOwn()
         MainActor.assumeIsolated {
             SystemRestoration.excludeEveryWindow()
             AppDownloads.start()
@@ -36,6 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         MainActor.assumeIsolated { AppStorage.shared.close() }
+        WebKitFolders.tightenOwn()
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
