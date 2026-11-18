@@ -33,9 +33,16 @@ package final class FaviconStore {
 
     package init() {}
 
-    /// The site's icon, if one is kept; expired or not (it shows until a new one comes).
-    package func image(for host: String) -> NSImage? {
-        let key = host.lowercased()
+    /// Where a profile's icon of a site is kept: by profile and host (note n17: a site can say something of the page shown
+    /// through its icon, which another profile's page of the same site does not share). The first profile's (nil) is the
+    /// host alone, as icons were kept before.
+    static func key(host: String, profile: UUID?) -> String {
+        profile.map { "\($0.uuidString)/\(host.lowercased())" } ?? host.lowercased()
+    }
+
+    /// The site's icon for the profile, if one is kept; expired or not (it shows until a new one comes).
+    package func image(for host: String, profile: UUID? = nil) -> NSImage? {
+        let key = Self.key(host: host, profile: profile)
         guard let entry = kept[key] else { return nil }
         if let image = images[key] { return image }
         let image = NSImage(data: entry.png)
@@ -44,17 +51,19 @@ package final class FaviconStore {
     }
 
     /// Whether the icon kept for the site is the one the page names (when it names one) and has not expired.
-    package func isFresh(host: String, source: URL?, at now: Date = Date()) -> Bool {
-        guard let entry = kept[host.lowercased()], entry.expires > now.timeIntervalSince1970 else { return false }
+    package func isFresh(host: String, profile: UUID? = nil, source: URL?, at now: Date = Date()) -> Bool {
+        guard let entry = kept[Self.key(host: host, profile: profile)], entry.expires > now.timeIntervalSince1970 else {
+            return false
+        }
         guard let source else { return true }
         return entry.source == source.absoluteString
     }
 
     /// Keeps the site's icon, made small, in place of the one there was. False when `data` is not a picture.
     @discardableResult
-    package func keep(host: String, source: URL?, data: Data, expires: Date) -> Bool {
+    package func keep(host: String, profile: UUID? = nil, source: URL?, data: Data, expires: Date) -> Bool {
         guard let png = Self.small(data) else { return false }
-        let key = host.lowercased()
+        let key = Self.key(host: host, profile: profile)
         let entry = Kept(host: key, source: source?.absoluteString, png: png, expires: expires.timeIntervalSince1970)
         kept[key] = entry
         images[key] = nil

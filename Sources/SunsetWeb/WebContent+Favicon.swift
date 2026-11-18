@@ -11,14 +11,15 @@ extension WebContent {
 
     /// Hosts that have no icon, this run: not asked again until the next.
     @MainActor private static var missing: Set<String> = []
+    // (by profile and host, as kept)
 
     func refreshFavicon() {
         guard settings.favicons, !isPrivate, let webView, let url = webView.url, let host = url.host(),
             ["http", "https"].contains(url.scheme?.lowercased() ?? "")
         else { return }
         // What is kept shows at once, fresh or not.
-        favicon = icons.image(for: host)
-        if favicon == nil, Self.missing.contains(host) { return }
+        favicon = icons.image(for: host, profile: settings.profile)
+        if favicon == nil, Self.missing.contains(FaviconStore.key(host: host, profile: settings.profile)) { return }
         // With what the page says it is: the icon is asked for by Sunset, and must not say otherwise (W-a).
         let script = """
             (() => { const l = document.querySelector('link[rel~="icon"], link[rel="apple-touch-icon"]');
@@ -35,7 +36,7 @@ extension WebContent {
             MainActor.assumeIsolated {
                 guard let self else { return }
                 let address = declared ?? URL(string: "/favicon.ico", relativeTo: url)
-                if self.icons.isFresh(host: host, source: declared) { return }
+                if self.icons.isFresh(host: host, profile: self.settings.profile, source: declared) { return }
                 self.fetchFavicon(address, host: host, agent: agent)
             }
         }
@@ -64,13 +65,19 @@ extension WebContent {
             guard let self else { return }
             let expires = FaviconStore.expiry(of: fetched?.response as? HTTPURLResponse, at: Date())
             if let data = fetched?.data,
-                icons.keep(host: host, source: address.absoluteURL, data: data, expires: expires)
+                icons.keep(
+                    host: host,
+                    profile: settings.profile,
+                    source: address.absoluteURL,
+                    data: data,
+                    expires: expires
+                )
             {
-                Self.missing.remove(host)
-            } else if icons.image(for: host) == nil {
-                Self.missing.insert(host)
+                Self.missing.remove(FaviconStore.key(host: host, profile: settings.profile))
+            } else if icons.image(for: host, profile: settings.profile) == nil {
+                Self.missing.insert(FaviconStore.key(host: host, profile: settings.profile))
             }
-            if webView?.url?.host() == host { favicon = icons.image(for: host) }
+            if webView?.url?.host() == host { favicon = icons.image(for: host, profile: settings.profile) }
         }
     }
 }

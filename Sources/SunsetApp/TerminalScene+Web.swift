@@ -154,7 +154,7 @@ extension TerminalScene {
         guard configuration.web.tabIcon == .favicon else { return SavedPictures() }
         return SavedPictures(source: 1) { saved in
             guard saved.state["private"] != "1", let host = saved.state["url"].flatMap(URL.init(string:))?.host(),
-                let image = FaviconStore.shared.image(for: host)
+                let image = FaviconStore.shared.image(for: host, profile: PaneContentKinds.profile(of: tabs))
             else { return nil }
             return .image(image)
         }
