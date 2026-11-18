@@ -62,9 +62,10 @@ package struct FloatingEdgeBar<Content: View>: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: atTop ? .top : .bottom)
         .animation(BarGroupSlide.animation, value: reveal.isOut)
         .onChange(of: hides) { _, now in reveal.hides = now }
+        // Asked for or typed in: out, and it stays until the pointer has come over it and left.
         .onChange(of: typing, initial: true) { _, now in
             reveal.typing = now
-            if !now { settleSoon() }
+            if now { reveal.reachedEdge() }
         }
     }
 

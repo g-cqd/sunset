@@ -36,3 +36,15 @@ import Testing
         #expect(!bar.isOut)
     }
 }
+
+extension EdgeRevealTests {
+    /// Asked for (Open Address) then given up before the pointer came: it stays out until the pointer has been over it.
+    @Test func `asked for, it stays out after the typing ends until the pointer comes and goes`() {
+        var bar = EdgeReveal(hides: true)
+        bar.typing = true
+        bar.reachedEdge()
+        bar.typing = false
+        bar.settle()
+        #expect(!bar.isOut, "settle alone takes it away: the view settles only after the pointer leaves")
+    }
+}

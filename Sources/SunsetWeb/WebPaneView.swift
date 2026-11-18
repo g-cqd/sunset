@@ -13,17 +13,14 @@ struct WebPaneView: View {
     /// The terminal's background: behind what is not a page (the empty pane, a page that failed).
     let backdrop: PaneBackdrop
     @State private var warning = false
+    /// Its floating address row is typed in: it stays out.
+    @State private var rowTyping = false
     @Environment(\.webAddressRow) private var addressRow
     @Environment(\.permissionsInSidebar) private var permissionsInSidebar
     @Environment(\.addressTyping) private var typing
 
     var body: some View {
         VStack(spacing: 0) {
-            if addressRow {
-                AddressField(content: content, place: .pane).padding(.horizontal, Design.Space.s)
-                    .padding(.vertical, Design.Space.xs)
-                Divider()
-            }
             ZStack(alignment: .top) {
                 if let webView = content.webView {
                     WebViewHost(webView: webView, focused: focused && content.url != nil && content.failure == nil)
@@ -65,6 +62,15 @@ struct WebPaneView: View {
                 .padding(Design.Space.m)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 .allowsHitTesting(content.find.isOpen)
+                // The page's own address row floats over its top, revealed there (roadmap 0055 D); the page keeps its top.
+                if addressRow {
+                    FloatingEdgeBar(atTop: true, hides: true, typing: rowTyping || content.wantsAddress) {
+                        AddressField(content: content, place: .pane) { rowTyping = $0 }
+                            .padding(.horizontal, Design.Space.m)
+                            .padding(.vertical, Design.Space.s)
+                    }
+                    .padding(.top, Self.addressRowTop(topInset: topInset))
+                }
                 if addressRow, let typing { AddressSuggestionList(typing: typing, places: [.pane], page: content) }
             }
         }
@@ -78,7 +84,10 @@ struct WebPaneView: View {
     /// lies over the page, which reaches the top as a docked card does: pushed below it, the page left a band of its colour
     /// (the owner, 2026-11-18: "an odd blank space at the top", roadmap 0045 D). A row of the page's own address is kept
     /// below it, out of the strip.
-    static func contentTop(topInset: Double, addressRow: Bool) -> Double { addressRow ? topInset : 0 }
+    static func contentTop(topInset: Double, addressRow: Bool) -> Double { 0 }
+
+    /// Where the page's floating address row is: below the strip.
+    static func addressRowTop(topInset: Double) -> Double { topInset }
 
     private var isEmpty: Bool { content.url == nil && content.webView?.url == nil }
 

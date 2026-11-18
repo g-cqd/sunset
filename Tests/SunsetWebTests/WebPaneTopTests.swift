@@ -7,9 +7,12 @@ import Testing
 /// it by, and the page was pushed below it.
 @Suite("Where a page starts in its pane")
 struct WebPaneTopTests {
-    @Test func `a page reaches the top under the strip; a row of its address stays below it`() {
+    /// Roadmap 0055 D (the owner's note n41, his answer "keep, make it float"): the row of the page's own address floats over
+    /// the page's top, below the strip, revealed there; the page itself always reaches the top.
+    @Test func `a page reaches the top under the strip; its address row floats over it, below the strip`() {
         #expect(WebPaneView.contentTop(topInset: 16, addressRow: false) == 0)
-        #expect(WebPaneView.contentTop(topInset: 16, addressRow: true) == 16)
-        #expect(WebPaneView.contentTop(topInset: 0, addressRow: true) == 0)
+        #expect(WebPaneView.contentTop(topInset: 16, addressRow: true) == 0)
+        #expect(WebPaneView.addressRowTop(topInset: 16) == 16)
+        #expect(WebPaneView.addressRowTop(topInset: 0) == 0)
     }
 }
