@@ -1,5 +1,5 @@
 ---
-status: in-progress (S-a, S-b, S-c, P-b and P-a done 2026-11-17; S-d done 2026-11-18 with the previews; S-e, S-f not started)
+status: in-progress (S-a, S-b, S-c, P-b and P-a done 2026-11-17; S-d done 2026-11-18 with the previews; S-e done 2026-11-18 for notifications, not seen; S-f not started)
 blocked-by: 0018 (each step's own questions); 0020 (Favorites and folders); 0019 (the web pane, for profiles and sleeping)
 date: 2026-11-11
 ---

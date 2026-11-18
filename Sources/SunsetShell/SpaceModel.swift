@@ -26,6 +26,8 @@ package final class SpaceModel {
     /// Its tabs were stopped with its last window and wait for the next; since when.
     package var isStopped: Bool { stopped != nil }
     package internal(set) var stopped: Date?
+    /// Something in it asked for attention while no window showed it (S-e): its icon is marked until one does.
+    package internal(set) var needsAttention = false
     /// What brings back the content of a pane that has none: read from the session, or stopped with the last window.
     @ObservationIgnored var pending: [PaneID: PaneDescriptor] = [:]
     @ObservationIgnored private var viewers: [Weak] = []
@@ -58,6 +60,12 @@ package final class SpaceModel {
     func register(_ viewer: TabsModel) {
         viewers.removeAll { $0.tabs == nil || $0.tabs === viewer }
         viewers.append(Weak(tabs: viewer))
+        needsAttention = false
+    }
+
+    /// Something in it asks for attention (a notification, S-e): marked when no window shows it.
+    package func noteActivity() {
+        if viewerCount == 0 { needsAttention = true }
     }
 
     /// `viewer`'s window closed. What it drew goes to a window that still shows it; with no window left, the tabs stop and

@@ -41,7 +41,17 @@ package struct SpacesRow: View {
             help: index < 9 ? "\(space.space.name) (\u{2325}\u{2318}\(index + 1))" : space.space.name,
             menu: AnyView(menu(space, at: index, in: spaces)),
             action: { tabs.show(spaceInOrder: space) },
-            label: { SpaceIcon(space: space.space) }
+            label: {
+                SpaceIcon(space: space.space)
+                    // Something in it asked for attention while no window showed it (S-e).
+                    .overlay(alignment: .topTrailing) {
+                        if space.needsAttention && !shown {
+                            Circle().fill(accent.color).frame(width: Design.Symbol.mark, height: Design.Symbol.mark)
+                                .offset(x: Design.Space.xs, y: -Design.Space.xs)
+                                .accessibilityLabel("Needs attention")
+                        }
+                    }
+            }
         )
         .background(
             shown ? AnyShapeStyle(accent.color.opacity(Design.Fill.target)) : AnyShapeStyle(Color.clear),

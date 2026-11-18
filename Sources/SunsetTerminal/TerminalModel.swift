@@ -32,6 +32,9 @@ package import SunsetRenderMac
     /// The view asked for a bigger font (⌘= or ⌘⇧=, which the menu's ⌘+ does not always catch): the window's zoom, which the app owns.
     @ObservationIgnored package var onZoomRequest: (Double) -> Void = { _ in }
     @ObservationIgnored package var openURL: (URL) -> Void = { _ in }
+    /// Shows a notification the program asked for and the policy admitted: the app's (it names the Space, and a click goes
+    /// to the tab: S-e); nil, the notification centre's as it is.
+    @ObservationIgnored package var post: ((_ title: String, _ body: String) -> Void)?
     /// The directory the program starts in (a restored tab); nil: the user's home.
     @ObservationIgnored package var startDirectory: String?
     @ObservationIgnored package var session: TerminalSession?

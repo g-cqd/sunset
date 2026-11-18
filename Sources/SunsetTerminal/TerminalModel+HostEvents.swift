@@ -17,7 +17,7 @@ extension TerminalModel {
                 case .notification(let title, let body):
                     let now = ProcessInfo.processInfo.systemUptime
                     guard gate.admits(atSecond: now, windowFocused: NSApp.isActive) else { continue }
-                    await show(title: title, body: body)
+                    if let post { post(title, body) } else { await Self.show(title: title, body: body) }
             }
         }
     }
@@ -25,13 +25,26 @@ extension TerminalModel {
     /// Read for each event: a setting changed while the shell runs applies to what it asks next.
     private var policy: HostPolicy { hostPolicy() }
 
-    private func show(title: String, body: String) async {
+    /// Posts a program's notification to the notification centre: only for a bundled app (the centre stops a bare
+    /// executable), once Sunset may notify.
+    /// - Parameters:
+    ///   - title: the program's title; "Sunset" when it gave none.
+    ///   - subtitle: what names where it came from (the tab, the Space: S-e).
+    ///   - body: the program's text.
+    ///   - identifier: the request's identifier, for a click to find its pane.
+    package static func show(
+        title: String,
+        subtitle: String = "",
+        body: String,
+        identifier: String = UUID().uuidString
+    ) async {
         guard Bundle.main.bundleIdentifier != nil else { return }
         let center = UNUserNotificationCenter.current()
         guard (try? await center.requestAuthorization(options: [.alert])) == true else { return }
         let content = UNMutableNotificationContent()
         content.title = title.isEmpty ? "Sunset" : title
+        content.subtitle = subtitle
         content.body = body
-        try? await center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
+        try? await center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: nil))
     }
 }

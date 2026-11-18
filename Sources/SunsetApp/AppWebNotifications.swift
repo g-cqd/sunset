@@ -10,11 +10,12 @@ import UserNotifications
 final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
     static let shared = AppWebNotifications()
 
-    /// The page each posted notification came from, by its request's identifier.
-    private var posted: [String: (page: WeakPage, id: Int)] = [:]
+    /// The pane each posted notification came from (a page, a terminal), by its request's identifier; a page's own id.
+    var posted: [String: (from: WeakContent, id: Int)] = [:]
 
-    struct WeakPage {
-        weak var page: WebContent?
+    struct WeakContent {
+        weak var content: (any PaneContent)?
+        var page: WebContent? { content as? WebContent }
     }
 
     /// Becomes the notification centre's delegate. Only for an app with a bundle: without one the centre stops the process.
@@ -28,14 +29,15 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
         guard Bundle.main.bundleIdentifier != nil else { return }
         // With a tag, the site's later one with the same tag replaces it (roadmap 0036 E).
         let identifier = note.tag.isEmpty ? UUID().uuidString : "web|\(note.host)|\(note.tag)"
-        posted[identifier] = (WeakPage(page: page), note.id)
-        posted = posted.filter { $0.value.page.page != nil }
+        remember(identifier, from: page, id: note.id)
+        let space = spaceName(of: page)
         Task {
             let center = UNUserNotificationCenter.current()
             guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
             let content = UNMutableNotificationContent()
             content.title = note.title.isEmpty ? note.host : note.title
-            content.subtitle = note.title.isEmpty ? "" : note.host
+            content.subtitle = [note.title.isEmpty ? nil : note.host, space].compactMap { $0 }
+                .joined(separator: " \u{00B7} ")
             content.body = note.body
             // The page asked for no sound, or has not (roadmap 0037 C).
             content.sound = note.silent ? nil : .default
@@ -55,7 +57,7 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
 
     /// The page took a notification of its own away (`close()`).
     func close(_ id: Int, from page: WebContent) {
-        let identifiers = posted.filter { $0.value.page.page === page && $0.value.id == id }.map(\.key)
+        let identifiers = posted.filter { $0.value.from.page === page && $0.value.id == id }.map(\.key)
         guard !identifiers.isEmpty else { return }
         for identifier in identifiers { posted[identifier] = nil }
         let center = UNUserNotificationCenter.current()
@@ -80,15 +82,11 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
         await MainActor.run { clicked(identifier) }
     }
 
-    /// The notification was clicked: its page's tab is shown in the window that holds it, in front, and the page hears it.
+    /// The notification was clicked: its pane's tab is shown in the window that holds it, in front (a window goes to its
+    /// Space when none shows it: S-e), and a page hears it.
     private func clicked(_ identifier: String) {
-        guard let found = posted[identifier], let page = found.page.page else { return }
-        for (window, tabs) in TabRegistry.shared.allWindows() where tabs.reveal(page) {
-            NSApp.activate()
-            TabRegistry.shared.select(window)
-            window.makeKeyAndOrderFront(nil)
-            break
-        }
-        page.notificationClicked(found.id)
+        guard let found = posted[identifier], let content = found.from.content else { return }
+        reveal(content)
+        found.from.page?.notificationClicked(found.id)
     }
 }

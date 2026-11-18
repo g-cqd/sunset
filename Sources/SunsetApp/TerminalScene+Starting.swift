@@ -90,6 +90,10 @@ extension TerminalScene {
     func wire(_ content: any PaneContent) {
         if let model = content as? TerminalModel {
             model.wire(to: tabs)
+            // Its notifications name its Space and go to it (S-e).
+            model.post = { [weak model] title, body in
+                if let model { AppWebNotifications.shared.post(title: title, body: body, from: model) }
+            }
             configure(model)
             model.apply(font: font)
         }
