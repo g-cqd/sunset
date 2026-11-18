@@ -55,6 +55,10 @@ package import SwiftUI
     func prepare()
     /// It let go of its memory while hidden and is made again when shown (a page, S-f): its icon is dimmed.
     var isUnloaded: Bool { get }
+    /// A page with no address yet (a new tab's): the command bar opens on it (note n12).
+    var isBlankPage: Bool { get }
+    /// The command bar takes the keyboard for its address: its own field does not ask for it.
+    func leaveAddressToBar()
     /// What it adds to its tab's menu (a page: Reload, Copy Address, Site Settings; roadmap 0047 G).
     var menuActions: [PaneMenuAction] { get }
     func makeView(_ context: PaneViewContext) -> AnyView
@@ -75,4 +79,6 @@ extension PaneContent {
     package func prepare() {}
     package var isUnloaded: Bool { false }
     package var menuActions: [PaneMenuAction] { [] }
+    package var isBlankPage: Bool { false }
+    package func leaveAddressToBar() {}
 }

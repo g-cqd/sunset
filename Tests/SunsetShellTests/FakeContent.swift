@@ -19,6 +19,8 @@ import SwiftUI
     var isPrivate = false
     var runsCommand = false
     var descriptor: PaneDescriptor
+    /// A page with no address, as a new tab's.
+    var isBlankPage: Bool { descriptor.kind == "web" && descriptor.state["url"] == nil }
     var onExit: () -> Void = {}
     var onFocusRequest: () -> Void = {}
     private(set) var focused = false

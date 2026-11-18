@@ -24,6 +24,8 @@ package final class WebContent: PaneContent {
     package var wantsAddress = false
     /// The site's settings are open beside its address field (its lock, or the field's menu: roadmap 0047 F).
     package var showsSiteSettings = false
+    /// The command bar asks where to go (a new tab, note n12): the page's own field does not take the keyboard.
+    @ObservationIgnored var addressToBar = false
     /// The question waiting for an answer in the panel under the address (web step g).
     package internal(set) var permissionRequest: PermissionRequest?
     /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).

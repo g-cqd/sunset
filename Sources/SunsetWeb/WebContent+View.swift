@@ -58,7 +58,7 @@ extension WebContent {
             savedHistory = nil
         }
         if view.url == nil, let url { view.load(URLRequest(url: url)) }
-        if url == nil, view.url == nil { wantsAddress = true }
+        if url == nil, view.url == nil, !addressToBar { wantsAddress = true }
     }
 
     func observe(_ view: WKWebView) {

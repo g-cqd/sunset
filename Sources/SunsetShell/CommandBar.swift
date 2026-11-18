@@ -20,12 +20,14 @@ package struct CommandBar: Equatable {
     package var inSidebar = false
     /// Up in an empty field went back this many entries (`TabsModel.barRecall`).
     package var recalled = 0
+    /// Opened on a new empty page (note n12): it asks where to go, not which tab.
+    package var forNewPage = false
 
     package init(purpose: Purpose) { self.purpose = purpose }
 
     package var prompt: String {
         switch purpose {
-            case .search: "Go to a tab…"
+            case .search: forNewPage ? "Search or enter an address…" : "Go to a tab…"
             case .splitWith: "Split with…"
         }
     }

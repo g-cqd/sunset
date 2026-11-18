@@ -1,5 +1,6 @@
 package import AppKit
 package import SunsetShell
+import WebKit
 
 /// What the address bar does with the page's address (roadmap 0047 F).
 extension WebContent {
@@ -12,6 +13,10 @@ extension WebContent {
         board.setString(address, forType: .URL)
         return true
     }
+
+    package var isBlankPage: Bool { url == nil && webView?.url == nil }
+
+    package func leaveAddressToBar() { addressToBar = true }
 
     /// What a page adds to its tab's menu: Reload, Copy Address, and its site's settings, shown beside its address.
     package var menuActions: [PaneMenuAction] {

@@ -11,8 +11,16 @@ extension TabsModel {
             return
         }
         let entry = workspace.selectedEntry
-        register(makeContent(descriptor), as: workspace.add().pane)
+        let made = makeContent(descriptor)
+        register(made, as: workspace.add().pane)
         if let entry { left(entry) }
+        // A page with nowhere to go yet: the command bar, to type an address or a search (the owner's note n12); its own
+        // address field leaves the keyboard to it.
+        if made.isBlankPage, bar == nil {
+            made.leaveAddressToBar()
+            toggleBar()
+            bar?.forNewPage = true
+        }
     }
 
     /// A new terminal beside the focused pane, in the same tab, with the keyboard; nothing when there is no focused pane.
