@@ -8,8 +8,11 @@ final class EchoServer: @unchecked Sendable {
     private var requests: [String] = []
     private let listening: Int32
     let port: UInt16
+    /// What some paths add to their page, after the User-Agent (a script that sends a browser it does not like away).
+    private let pages: [String: String]
 
-    init() throws {
+    init(pages: [String: String] = [:]) throws {
+        self.pages = pages
         let listening = socket(AF_INET, SOCK_STREAM, 0)
         self.listening = listening
         var yes: Int32 = 1
@@ -68,7 +71,10 @@ final class EchoServer: @unchecked Sendable {
         let agent =
             head.components(separatedBy: "\r\n").first { $0.lowercased().hasPrefix("user-agent:") }
             .map { String($0.dropFirst("user-agent:".count)).trimmingCharacters(in: .whitespaces) } ?? ""
-        let body = "<html><head><title>echo</title></head><body><p id=\"agent\">\(agent)</p></body></html>"
+        let path =
+            head.split(separator: " ", maxSplits: 2).dropFirst().first.map { String($0.split(separator: "?")[0]) } ?? ""
+        let body =
+            "<html><head><title>echo</title></head><body><p id=\"agent\">\(agent)</p>\(pages[path] ?? "")</body></html>"
         let response =
             "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \(body.utf8.count)\r\n"
             + "Cache-Control: no-store\r\nConnection: close\r\n\r\n" + body

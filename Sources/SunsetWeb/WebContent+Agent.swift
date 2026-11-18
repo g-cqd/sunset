@@ -16,10 +16,16 @@ extension WebContent {
         if webView.customUserAgent != (wanted ?? "") { webView.customUserAgent = wanted }
     }
 
-    /// Gives this page's site a rule (nil: none, the default), and loads the page again so that the site sees it.
+    /// Gives this page's site a rule (nil: none, the default), and loads the page again so that the site sees it: at the
+    /// address the person asked for when a script of the site has sent the page away from it since (a site's "browser
+    /// not supported" page never sends a browser back; roadmap 0045 F), else where it is.
     package func appear(as agent: BrowserAgent?) {
         guard let host = siteHost else { return }
         agents.set(agent, for: host)
+        if let target = asked.target(current: webView?.url ?? url) {
+            load(target)
+            return
+        }
         appear(for: url ?? webView?.url)
         webView?.reload()
     }

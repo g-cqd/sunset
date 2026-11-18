@@ -102,6 +102,8 @@ package final class WebContent: PaneContent {
     @ObservationIgnored var ownPermissions: SitePermissions?
     /// The host last typed without a scheme while the http setting is on: if https fails for it, http is tried (`WebCoordinator`).
     @ObservationIgnored var fallbackHost: String?
+    /// What the person last asked this page for (roadmap 0045 F): loaded again when its site is shown another browser.
+    @ObservationIgnored var asked = AskedAddress()
 
     /// A page to open at `url` (nil: an empty page that asks for an address), with what brings its history back.
     package init(url: URL?, title: String = "", history: Data? = nil, settings: WebSettings) {
@@ -205,6 +207,7 @@ package final class WebContent: PaneContent {
 
     package func load(_ address: URL) {
         url = address
+        asked.asked(address)
         failure = nil
         if webView == nil { makeWebView(configuration: nil) }
         webView?.load(URLRequest(url: address))

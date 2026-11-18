@@ -16,6 +16,7 @@ import WebKit
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction) async -> WKNavigationActionPolicy {
         // The page the view goes to is shown the browser its site is to see (W-a): set before the request leaves.
         if action.targetFrame?.isMainFrame == true {
+            content?.asked.navigation(to: action.request.url, type: action.navigationType)
             content?.appear(for: action.request.url)
             // Blocking, or its pause on the site the page goes to (W-c): decided before the page loads.
             ContentBlocker.shared.apply(to: webView, host: action.request.url?.host())
