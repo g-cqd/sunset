@@ -11,6 +11,8 @@ import SwiftUI
 /// chosen topic on the right, under its section's name.
 struct HelpPage: View {
     @Bindable var content: HelpContent
+    /// The pane's backdrop and top inset, as Settings' (the owner's note n44).
+    let context: PaneViewContext
     private let config = AppConfiguration.shared
 
     var body: some View {
@@ -27,6 +29,10 @@ struct HelpPage: View {
             ScrollView { HelpTopicView(topic: content.topic) { content.topic = $0 } }
                 .bouncesOnlyWhenScrolling()
         }
+        .padding(.top, context.topInset)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // On the terminal's background, as Settings and every pane.
+        .paneBackdrop(context.backdrop)
     }
 
     private var list: some View {

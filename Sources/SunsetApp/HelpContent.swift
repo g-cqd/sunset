@@ -44,5 +44,5 @@ final class HelpContent: PaneContent {
 
     func setState(focused: Bool, visible: Bool) {}
     func stop() {}
-    func makeView(_ context: PaneViewContext) -> AnyView { AnyView(HelpPage(content: self)) }
+    func makeView(_ context: PaneViewContext) -> AnyView { AnyView(HelpPage(content: self, context: context)) }
 }
