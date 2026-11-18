@@ -32,3 +32,31 @@ One gateway inside Sunset that every page goes through (the stores' proxy, as `w
    bypass list; a PAC script evaluated by JavaScriptCore), per profile later.
 3. Costs to measure before it is adopted: a second hop on every connection (latency at the first byte, CPU, memory), and
    what is lost (WebKit's own happy eyeballs and HTTP/3: a CONNECT tunnel carries TCP; whether pages keep QUIC is to probe).
+
+## WebKit's private interfaces for the network (probed 2026-11-18, the owner: "investigate private apis through webkit")
+
+Read from the Objective-C runtime of macOS 27.2.1's WebKit (names only; what they do is probed below or is a claim):
+
+- `_WKWebsiteDataStoreConfiguration`: `proxyConfiguration` (a CFNetwork proxy dictionary), `httpProxy`, `httpsProxy`,
+  `requiresSecureHTTPSProxyConnection`, `preventsSystemHTTPProxyAuthentication`, `allowsServerPreconnect`,
+  `alternativeServicesStorageDirectory` (HTTP/3's Alt-Svc), `legacyTLSEnabled`.
+- `WKWebsiteDataStore`: `_setProxyConfiguration:`, `_setAllowsTLSFallback:`, `_allowTLSCertificateChain:forHost:`,
+  `_terminateNetworkProcess`.
+- `WKPreferences`: `_setDNSPrefetchingEnabled:`. `WKWebViewConfiguration`: `_setAllowedNetworkHosts:`, `_setLoadsFromNetwork:`.
+- Nothing names a resolver: no DNS over HTTPS, TLS or QUIC of WebKit's own.
+
+| Claim | Probe | Verdict |
+|---|---|---|
+| A proxy auto-configuration script (PAC) given in the private configuration routes a page's requests per host | `PrivateProxyProbeTests` (`SUNSET_PRIVATE_PROBE`): `ProxyAutoConfigJavaScript` with `FindProxyForURL` sending `*.by-script.invalid` to a proxy on this Mac and the rest direct; a store made by `-[WKWebsiteDataStore _initWithConfiguration:]` | Yes: `page.by-script.invalid` loaded through the proxy (title "proxied"), `elsewhere.invalid` did not reach it. A fixed HTTP proxy in the same dictionary sent both |
+| The same dictionary set on a store after it is made (`_setProxyConfiguration:`) | Same probe | No: nothing reached the proxy, either form |
+
+So `chrome.proxy` with `pac_script` and `fixed_servers` could map onto WebKit's own networking (a store per proxy
+setting, made with it), with no gateway: by private interface, which a macOS update can take away (ADR on the
+`SunsetPrivate` seam's rule). Encrypted DNS still needs Sunset's own resolver (above).
+
+## The own engine (roadmap 0022 E, t119; the owner again 2026-11-18)
+
+Not probed today. Claims to probe in the spike: a WebKit built from the tip of main (`Tools/Scripts/build-webkit`)
+bundled in Sunset with its XPC services (WebContent, Networking, GPU) and their sandbox profiles, loaded by a signed app;
+what is lost (FairPlay video, passkeys, Apple Pay, the system's content filters: R5 suspected, not verified); the build's
+time and size on this Mac (8 cores, 95 GB free); and that Playwright ships patched WebKit builds for macOS (their claim).
