@@ -52,6 +52,9 @@ struct SiteSettingsPopover: View {
         }
         .frame(width: 320, alignment: .leading)
         .padding(Design.Space.xl)
+        // Read on any page: the popover's glass took the page's white under it while its text was the window's (light on
+        // a dark window), which could not be read (seen 2026-11-18, roadmap 0047 F). The window's own background under it.
+        .presentationBackground(Color(nsColor: .windowBackgroundColor))
     }
 
     /// "Permissions", with how many this site was given an answer of its own.

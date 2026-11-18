@@ -7,6 +7,8 @@ struct TabRowMenu: View {
     let tabs: TabsModel
     let item: Workspace.ItemID
     let animation: Animation?
+    /// The page's own items (Reload, Copy Address, Site Settings); not in the address bar's menu, which has them first.
+    var pageActions = true
 
     var body: some View {
         TabLayoutMenu(tabs: tabs, row: .tab(item))
@@ -21,7 +23,7 @@ struct TabRowMenu: View {
         // The page's own (roadmap 0047 G): its site's settings open beside its address, the tab shown.
         let actions =
             tabs.workspace.items.first { $0.id == item }.flatMap { tabs.content($0.focused) }?.menuActions ?? []
-        if !actions.isEmpty {
+        if pageActions, !actions.isEmpty {
             Divider()
             ForEach(actions.indices, id: \.self) { index in
                 Button(actions[index].title) {

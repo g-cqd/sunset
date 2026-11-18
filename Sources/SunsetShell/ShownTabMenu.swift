@@ -12,7 +12,7 @@ package struct ShownTabMenu: View {
         if let entry = tabs.shownEntry {
             KeptEntryMenu(tabs: tabs, entry: entry, editsInPlace: false)
         } else if let item = tabs.workspace.selectedID {
-            TabRowMenu(tabs: tabs, item: item, animation: nil)
+            TabRowMenu(tabs: tabs, item: item, animation: nil, pageActions: false)
         }
     }
 }
