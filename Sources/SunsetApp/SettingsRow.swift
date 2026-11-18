@@ -62,12 +62,14 @@ struct SettingsRow: View {
             case .text(let value, let prompt):
                 LabeledContent {
                     TextField(option.title, text: config.binding(value), prompt: Text(prompt)).labelsHidden()
+                        .code(option.isCode)
                 } label: {
                     SettingsLabel(option.title, help: help)
                 }
             case .optionalText(let value, let prompt):
                 LabeledContent {
                     TextField(option.title, text: config.textBinding(value), prompt: Text(prompt)).labelsHidden()
+                        .code(option.isCode)
                 } label: {
                     SettingsLabel(option.title, help: help)
                 }

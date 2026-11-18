@@ -16,7 +16,7 @@ struct BlockingListsSettings: View {
             LabeledContent {
                 EmptyView()
             } label: {
-                Text(state.address).lineLimit(1).truncationMode(.middle)
+                Text(state.address).code().lineLimit(1).truncationMode(.middle)
                 Text(detail(state))
             }
         }
@@ -27,7 +27,7 @@ struct BlockingListsSettings: View {
                     blocker.reapplyAll()
                 }
             } label: {
-                Text("Paused on \(host)")
+                Text("Paused on \(Text(host).code())")
             }
         }
     }

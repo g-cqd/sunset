@@ -100,7 +100,7 @@ struct WebPaneView: View {
             Text(failure.heading).font(Design.Text.heading)
             Text(failure.reason).foregroundStyle(.secondary).multilineTextAlignment(.center)
             if let url = failure.url {
-                Text(url.absoluteString).font(Design.Text.secondary.monospaced()).foregroundStyle(.tertiary)
+                Text(url.absoluteString).font(Design.Text.secondary).code().foregroundStyle(.tertiary)
                     .textSelection(.enabled)
             }
             HStack {

@@ -13,7 +13,7 @@ struct CredentialPanel: View {
         ZStack {
             Color.black.opacity(Design.Fill.veil).contentShape(.rect).onTapGesture {}
             VStack(alignment: .leading, spacing: Design.Space.l) {
-                Text(request.title).font(Design.Text.body.weight(.semibold))
+                Text.sentence(request.title, code: [request.host]).font(Design.Text.body.weight(.semibold))
                 if !request.realm.isEmpty { Text(verbatim: request.realm).foregroundStyle(.secondary) }
                 if let warning = request.warning {
                     Label(warning, systemImage: "exclamationmark.triangle").font(Design.Text.detail)

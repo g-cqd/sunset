@@ -16,6 +16,9 @@ public struct SettingsOption: Sendable, Identifiable {
     public var note: String?
     /// Shown a level down, under its topic's More, not first (roadmap 0047 G); found by search all the same.
     public var advanced = false
+    /// What it holds is an address, a pattern, a file's name or code: its field is in monospace (the owner's note n26).
+    public var isCode = false
+
     /// The heading it is shown under on its page, with the options next to it that have the same (the owner's note n13).
     public var group: String?
 
@@ -49,6 +52,13 @@ public struct SettingsOption: Sendable, Identifiable {
     public var further: Self {
         var copy = self
         copy.advanced = true
+        return copy
+    }
+
+    /// The same, its field in monospace.
+    public func code() -> Self {
+        var copy = self
+        copy.isCode = true
         return copy
     }
 

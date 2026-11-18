@@ -17,9 +17,9 @@ struct EngineList: View {
         ForEach(engines.indices, id: \.self) { index in
             DisclosureGroup(isExpanded: expanded(index)) {
                 field("Name", text(index, \.name), prompt: "Shown in the list")
-                field("Keyword", text(index, \.keyword), prompt: "One short word")
-                field("Search address", text(index, \.search), prompt: "An address with %s")
-                field("Suggestion address", suggest(index), prompt: "Optional, with %s")
+                field("Keyword", text(index, \.keyword), prompt: "One short word", code: true)
+                field("Search address", text(index, \.search), prompt: "An address with %s", code: true)
+                field("Suggestion address", suggest(index), prompt: "Optional, with %s", code: true)
                 // Here, not in the label: macOS makes the label one control with the disclosure, and a press on it would
                 // remove the engine (seen, 2026-11-18).
                 LabeledContent {
@@ -49,7 +49,7 @@ struct EngineList: View {
         return HStack(spacing: Design.Space.s) {
             Text(engine.map { $0.name.isEmpty ? "New engine" : $0.name } ?? "")
             if let keyword = engine?.keyword, !keyword.isEmpty {
-                Text(keyword).font(Design.Text.mono).foregroundStyle(.secondary)
+                Text(keyword).code().foregroundStyle(.secondary)
             }
         }
     }
@@ -60,11 +60,13 @@ struct EngineList: View {
         engines.remove(at: index)
     }
 
-    private func field(_ title: String, _ text: Binding<String>, prompt: String) -> some View {
+    /// A labelled field; `code`, an address or a keyword, in monospace (note n26).
+    private func field(_ title: String, _ text: Binding<String>, prompt: String, code: Bool = false) -> some View {
         LabeledContent {
             TextField(title, text: text, prompt: Text(prompt))
                 .labelsHidden()
                 .textFieldStyle(.roundedBorder)
+                .code(code)
                 .multilineTextAlignment(.leading)
                 .frame(width: Design.Size.settingsField)
         } label: {

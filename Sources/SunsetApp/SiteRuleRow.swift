@@ -18,7 +18,7 @@ struct SiteRuleRow<Choice: View>: View {
                     .accessibilityLabel("Remove the rule of \(host)")
             }
         } label: {
-            Text(host).foregroundStyle(.secondary).padding(.leading, Design.Optical.siteRowsIndent)
+            Text(host).code().foregroundStyle(.secondary).padding(.leading, Design.Optical.siteRowsIndent)
         }
     }
 }

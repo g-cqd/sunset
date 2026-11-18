@@ -14,7 +14,7 @@ struct PageDialogPanel: View {
         ZStack {
             Color.black.opacity(Design.Fill.veil).contentShape(.rect).onTapGesture {}
             VStack(alignment: .leading, spacing: Design.Space.l) {
-                Text(dialog.title).font(Design.Text.body.weight(.semibold))
+                Text.sentence(dialog.title, code: [dialog.host]).font(Design.Text.body.weight(.semibold))
                 ScrollView {
                     Text(verbatim: dialog.message)
                         .textSelection(.enabled)

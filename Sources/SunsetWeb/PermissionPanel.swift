@@ -15,7 +15,7 @@ struct PermissionPanel: View {
                 ForEach(request.permissions, id: \.self) { permission in
                     Image(systemName: permission.symbol).foregroundStyle(.secondary)
                 }
-                Text(request.sentence).fixedSize(horizontal: false, vertical: true)
+                Text.sentence(request.sentence, code: [request.host]).fixedSize(horizontal: false, vertical: true)
             }
             if request.unavailable {
                 Text(

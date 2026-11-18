@@ -86,12 +86,12 @@ struct SettingsCustomRow: View {
 
     private static let fileNote =
         "Saving here rewrites the file with every option; comments in a hand-written file are not kept (the previous file is "
-        + "saved as config.json.bak)."
+        + "saved as `config.json.bak`)."
 
     private var fileInfo: some View {
         VStack(alignment: .leading, spacing: Design.Space.m) {
             LabeledContent {
-                Text(config.path).font(Design.Text.secondary).textSelection(.enabled).lineLimit(1)
+                Text(config.path).code().font(Design.Text.secondary).textSelection(.enabled).lineLimit(1)
                     .truncationMode(.middle)
             } label: {
                 SettingsLabel(option.title)
@@ -111,7 +111,7 @@ struct SettingsCustomRow: View {
             ForEach(Array(config.issues.enumerated()), id: \.offset) { _, issue in
                 Label("\(issue.path): \(issue.message)", systemImage: "exclamationmark.circle").foregroundStyle(.orange)
             }
-            Text(Self.fileNote).font(Design.Text.detail).foregroundStyle(.secondary)
+            Text(RichText.attributed(Self.fileNote)).font(Design.Text.detail).foregroundStyle(.secondary)
         }
     }
 }

@@ -21,7 +21,7 @@ struct SitesSettings: View {
                     Task { await ContentBlocker.shared.compileHidden() }
                 }
             } label: {
-                Text(row.host)
+                Text(row.host).code()
                 Text(row.parts.joined(separator: " · "))
             }
         }

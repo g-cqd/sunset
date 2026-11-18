@@ -68,7 +68,10 @@ struct WordCasingTests {
             let plain = text.replacingOccurrences(of: "\\*\\*[^*]*\\*\\*", with: "", options: .regularExpression)
                 .replacingOccurrences(of: "`[^`]*`", with: "", options: .regularExpression)
             if plain.contains("Settings >") { wrong.append("\(whose): a place not bold in “\(text.prefix(70))”") }
-            if plain.range(of: #"[A-Za-z0-9_<>-]+\.(json|md|sealed|sqlite|bak)\b|~/"#, options: .regularExpression)
+            if plain.range(
+                of: #"[A-Za-z0-9_<>-]+\.(json|md|sealed|sqlite|bak)\b|~/|[a-z0-9]+://"#,
+                options: .regularExpression
+            )
                 != nil
             {
                 wrong.append("\(whose): a file not monospace in “\(text.prefix(70))”")

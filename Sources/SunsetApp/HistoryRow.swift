@@ -20,6 +20,7 @@ struct HistoryRow: View {
             VStack(alignment: .leading, spacing: Design.Space.hair) {
                 Text(entry.title.isEmpty ? AddressChoice.shortAddress(entry.url) : entry.title).lineLimit(1)
                 Text(AddressChoice.shortAddress(entry.url))
+                    .code()
                     .font(Design.Text.detail)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

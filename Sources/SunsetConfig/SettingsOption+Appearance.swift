@@ -9,6 +9,7 @@ extension SettingsOption {
                 "colors scheme file themes nord dark light",
                 .optionalText(SettingsValue(\.theme), prompt: "nord")
             )
+            .code()
             .noted(
                 "A file `themes/<name>.json` beside the configuration file; it can set the font, colors, window, sidebar and "
                     + "appearance. Your own keys win."
