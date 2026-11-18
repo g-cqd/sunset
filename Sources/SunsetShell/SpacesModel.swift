@@ -112,6 +112,15 @@ package final class SpacesModel {
         onChange()
     }
 
+    /// A Space's icon dragged over another's (note n14): it takes that one's place, the others making room; over itself,
+    /// nothing moves.
+    package func drag(_ dragged: Space.ID, over target: Space.ID) {
+        guard dragged != target, let space = spaces.first(where: { $0.space.id == dragged }),
+            let to = spaces.firstIndex(where: { $0.space.id == target })
+        else { return }
+        move(space, to: to)
+    }
+
     /// Deletes a Space; the last one stays. What it holds goes to `target`, still running, or closes. The windows that
     /// showed it show `target`, or the Space before it.
     package func remove(_ space: SpaceModel, movingTo target: SpaceModel?) {

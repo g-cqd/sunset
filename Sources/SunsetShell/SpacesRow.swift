@@ -1,5 +1,7 @@
+import AppKit
 import SunsetPane
 package import SwiftUI
+import UniformTypeIdentifiers
 
 /// The Spaces as a row of icons at the bottom of the sidebar, beside the + (R4; roadmap 0021 step S-b): a click shows the
 /// Space in this window; the one shown is marked. Not there while there is one Space. A Space's menu opens its editor,
@@ -8,6 +10,9 @@ package struct SpacesRow: View {
     let tabs: TabsModel
     @Environment(\.accent) private var accent
     @Environment(\.sidebarButtonMetrics) private var metrics
+    @Environment(\.surfaceStyle) private var surface
+    /// The Space whose icon is being dragged (note n14).
+    @State private var dragged: Space.ID?
 
     package init(tabs: TabsModel) { self.tabs = tabs }
 
@@ -59,7 +64,24 @@ package struct SpacesRow: View {
         )
         .accessibilityLabel(space.space.name)
         .accessibilityAddTraits(shown ? .isSelected : [])
+        // Dragged onto another's place, the others making room as it passes (note n14).
+        .opacity(dragged == space.space.id ? Design.Fill.inkSecondary : 1)
+        .onDrag {
+            dragged = space.space.id
+            // Let go anywhere (outside the row, or cancelled): the drag ends when no button is down.
+            Task { @MainActor in
+                while NSEvent.pressedMouseButtons != 0 { try? await Task.sleep(for: .milliseconds(100)) }
+                dragged = nil
+            }
+            return NSItemProvider(object: space.space.id.uuidString as NSString)
+        }
+        .onDrop(
+            of: [.text],
+            delegate: SpaceDrop(target: space.space.id, dragged: $dragged, spaces: spaces, animation: animation)
+        )
     }
+
+    private var animation: Animation? { surface.layout.smooth }
 
     @ViewBuilder
     private func menu(_ space: SpaceModel, at index: Int, in spaces: SpacesModel) -> some View {
