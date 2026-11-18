@@ -28,6 +28,19 @@ struct SiteSettingsPopover: View {
             }
             .settingSwitch()
             .disabled(host.isEmpty || !ContentBlocker.shared.enabled)
+            if !content.isPrivate, KeptSites.shared.applies(content.settings.profile) {
+                // ADR-0081: the sites chosen keep their data when Sunset quits; the others' is cleared.
+                Toggle(
+                    isOn: Binding(
+                        get: { KeptSites.shared.keeps(host) },
+                        set: { KeptSites.shared.set($0, for: host) }
+                    )
+                ) {
+                    Label("Keep its data when Sunset quits", systemImage: "archivebox")
+                }
+                .settingSwitch()
+                .disabled(host.isEmpty)
+            }
             SiteZoomRow(content: content)
             appearsAs.disabled(host.isEmpty)
             opensIn.disabled(host.isEmpty)

@@ -30,6 +30,7 @@ struct ProfilesSettings: View {
                     .textFieldStyle(.roundedBorder)
                     .frame(maxWidth: Design.Size.settingsField)
                 }
+                ProfileKeepRows(profile: profile, profiles: spaces.profiles)
             }
             LabeledContent {
                 Button("New Profile") { spaces.profiles.add() }

@@ -30,3 +30,16 @@ struct ConfigurationKeepTests {
         #expect(!ConfigurationKeys.all.contains("web.clearWebsiteDataOnQuit"))
     }
 }
+
+extension ConfigurationKeepTests {
+    /// "Both should be possible" (the owner, 2026-11-18): a profile's own choice wins; none, or one not known, is the app's.
+    @Test func `a profile's choices win over the app's, one by one`() {
+        let app = Configuration.Web.Keep(cache: .keep, traces: .clearOnQuit, siteData: .keepChosen)
+        #expect(app.overriding(cache: nil, traces: nil, siteData: nil) == app)
+        #expect(
+            app.overriding(cache: "clearOnQuit", traces: nil, siteData: "keep")
+                == .init(cache: .clearOnQuit, traces: .clearOnQuit, siteData: .keep)
+        )
+        #expect(app.overriding(cache: "sometimes", traces: nil, siteData: nil) == app)
+    }
+}

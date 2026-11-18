@@ -27,7 +27,7 @@ clear and hold more than the sealed store. Added, and first among C–J once the
 | Step | What | Task | Status |
 |---|---|---|---|
 | G | WebKit's folders and files Sunset's own only: 0700 on `Caches/<id>`, `WebKit/<id>`, `HTTPStorages/<id>`, 0600 on the cookie jar, at launch and at quit (`WebKitFolders`) | t50 | done: the folders hold; the jar is rewritten 0644 at quit and is kept only by `~/Library/HTTPStorages` (0700). Defense in depth only: `~/Library` is 0700 already |
-| H | Choices for what WebKit keeps, per profile: the network cache off or cleared on quit; HSTS, resource load statistics, alternative services cleared on quit; cookies and website data kept, cleared on quit, or the profile's store non-persistent (with what is lost: sign-ins) | t50 | not-started |
+| H | What WebKit keeps between runs (ADR-0081): `web.keep.cache`, `.traces` (kept), `.siteData` (kept for the sites chosen or signed in to); each profile may set its own; the site's panel keeps a site; Each site lists it | t50 | done: probed per site in a store of its own; not seen in the app; the first quit with it keeps the visited sites holding cookies and clears the others' (trackers') data |
 | I | Probe whether WebKit's stores can be sealed at all (a data store at a custom location on an encrypted volume or a sealed disk image, mounted with the Keychain's key; `WKWebsiteDataStore(forIdentifier:)`'s location); the own engine (0048) as the other way | t51 | not-started |
 | J | A development build's data (`.dev`) under the same rules | t50 | done for G (the running bundle's id); not run as `.dev` |
 

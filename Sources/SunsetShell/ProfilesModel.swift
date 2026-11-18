@@ -57,6 +57,13 @@ package final class ProfilesModel {
         onChange()
     }
 
+    /// Sets what `profile` keeps between runs (ADR-0081); nil choices are the app's.
+    package func setKeep(_ keep: Profile.Keep, for profile: ProfileModel) {
+        guard keep != profile.profile.keep else { return }
+        profile.profile.keep = keep
+        onChange()
+    }
+
     /// Takes a profile off the list and closes what is kept in it (pinned, favourites); the first stays. The Spaces are
     /// the caller's.
     func remove(_ profile: ProfileModel) -> Bool {

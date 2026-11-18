@@ -20,6 +20,7 @@ extension WebContent {
         WebNotifications.install(on: configuration, for: self)
         IconWatch.install(on: configuration, for: self)
         TextWatch.install(on: configuration, for: self)
+        SignInWatch.install(on: configuration, privately: isPrivate)
         if settings.agentScripts { AgentScript.install(on: configuration) }
         WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
         WebPermissionHooks.enable(on: configuration.preferences)

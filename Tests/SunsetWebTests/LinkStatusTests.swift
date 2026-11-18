@@ -19,12 +19,12 @@ import WebKit
         let page = WebContent(url: nil, settings: WebSettings())
         page.setState(focused: true, visible: true)
         let controller = try #require(page.webView?.configuration.userContentController)
-        // The link's two scripts in every frame; the page's `Notification`, its icon's and its text's watches in the page itself
-        // (roadmaps 0035, 0042 D).
-        #expect(controller.userScripts.count == 5 && controller.userScripts.count { !$0.isForMainFrameOnly } == 2)
+        // The link's two scripts and the sign-in watch (ADR-0081) in every frame; the page's `Notification`, its icon's and
+        // its text's watches in the page itself (roadmaps 0035, 0042 D).
+        #expect(controller.userScripts.count == 6 && controller.userScripts.count { !$0.isForMainFrameOnly } == 3)
         let opened = WebContent(configuration: try #require(page.webView?.configuration), settings: WebSettings())
         #expect(opened.webView?.configuration.userContentController !== controller)
-        #expect(opened.webView?.configuration.userContentController.userScripts.count == 5)
+        #expect(opened.webView?.configuration.userContentController.userScripts.count == 6)
         page.hoveredLink = "x"
         page.linkHovered("")
         #expect(page.hoveredLink == nil)

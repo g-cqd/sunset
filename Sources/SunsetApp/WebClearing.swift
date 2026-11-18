@@ -23,21 +23,15 @@ import WebKit
         if !history { HistoryChanges.shared.bump() }
     }
 
-    /// At quit, by `web.clearHistoryOnQuit` and `web.clearWebsiteDataOnQuit`. Website data is removed before the app ends (it waits for WebKit,
-    /// up to two seconds).
+    /// At quit, by `web.clearHistoryOnQuit`, and what WebKit keeps by `web.keep` and each profile's (`AppKeeping`), before
+    /// the app ends.
     static func clearAtQuit() {
         let web = AppConfiguration.shared.configuration.web
         if web.clearHistoryOnQuit {
             AppHistory.shared?.clear(since: .distantPast)
             FaviconStore.shared.forgetAll()
         }
-        guard web.keep.siteData == .clearOnQuit else { return }
-        var done = false
-        WKWebsiteDataStore.default()
-            .removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: .distantPast) {
-                done = true
-            }
-        let limit = Date().addingTimeInterval(2)
-        while !done, Date() < limit { RunLoop.main.run(until: Date().addingTimeInterval(0.05)) }
+        // What WebKit keeps, by each profile (ADR-0081).
+        AppKeeping.clearAtQuit()
     }
 }

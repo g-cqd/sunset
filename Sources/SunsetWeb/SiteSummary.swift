@@ -12,6 +12,7 @@ package enum SiteSummary {
         package let zoom: SiteZoom
         package let spaces: SiteRules<UUID>
         package let hidden: SiteRules<[String]>
+        package let kept: KeptSites
 
         package init(
             permissions: SitePermissions,
@@ -19,8 +20,10 @@ package enum SiteSummary {
             pauses: BlockingPauses,
             zoom: SiteZoom,
             spaces: SiteRules<UUID>,
-            hidden: SiteRules<[String]> = HiddenElements.make()
+            hidden: SiteRules<[String]> = HiddenElements.make(),
+            kept: KeptSites = KeptSites()
         ) {
+            self.kept = kept
             self.permissions = permissions
             self.agents = agents
             self.pauses = pauses
@@ -37,7 +40,8 @@ package enum SiteSummary {
                 pauses: ContentBlocker.shared.pauses,
                 zoom: .shared,
                 spaces: SiteSpaces.shared,
-                hidden: HiddenElements.shared
+                hidden: HiddenElements.shared,
+                kept: .shared
             )
         }
     }
@@ -69,6 +73,7 @@ package enum SiteSummary {
         for (host, space) in stores.spaces.rules {
             parts[host, default: []].append("opens in \(spaceName(space) ?? "a Space that is gone")")
         }
+        for host in stores.kept.hosts { parts[host, default: []].append("data kept") }
         return parts.sorted { $0.key < $1.key }.map { Row(host: $0.key, parts: $0.value) }
     }
 
@@ -80,5 +85,6 @@ package enum SiteSummary {
         stores.zoom.set(1, for: host, remember: stores.zoom.remembers)
         stores.spaces.set(nil, for: host)
         stores.hidden.set(nil, for: host)
+        stores.kept.set(false, for: host)
     }
 }

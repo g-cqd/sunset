@@ -142,3 +142,17 @@ struct ProfilesModelTests {
         #expect(again.spaces[1].favorites === again.profiles.profiles[1].favorites)
     }
 }
+
+extension ProfilesModelTests {
+    /// ADR-0081: a profile may keep otherwise than the app's `web.keep`; nil is the app's. Kept with the session.
+    @Test func `a profile's own choices of what is kept are set, cleared, and read back from the session`() throws {
+        var profile = Profile(name: "Work")
+        #expect(profile.keep == Profile.Keep())
+        profile.keep.siteData = "clearOnQuit"
+        profile.keep.cache = "clearOnQuit"
+        let back = try JSONDecoder().decode(Profile.self, from: JSONEncoder().encode(profile))
+        #expect(back.keep == Profile.Keep(cache: "clearOnQuit", siteData: "clearOnQuit"))
+        let before = try JSONDecoder().decode(Profile.self, from: Data(#"{"id":"\#(UUID())","name":"Old"}"#.utf8))
+        #expect(before.keep == Profile.Keep(), "a session of before has none")
+    }
+}

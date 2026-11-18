@@ -23,8 +23,12 @@ differ), "also can't we encrypt everything ?".
    › Web › Each site), else cleared when Sunset quits. A site is put on the list by itself when a password is sent from one
    of its pages (a form with a password field submitted): generic, no list of sites. A site is a host and its subdomains
    (`SiteRules`).
-3. Turning `keepChosen` on (and the first run with it, the default) does not sign the person out: every site holding cookies
-   then is put on the list first. Nothing already there is lost by the change.
+3. Turning `keepChosen` on (and the first run with it, the default) does not sign the person out: at the first quit that
+   keeps the chosen sites, every site holding cookies that is in the history (a site visited, not one only loaded under
+   others) is put on the list first, in every profile; with no history, every site holding cookies. The mark that this was
+   done is kept with the list, in Sunset's sealed store.
+6. Only the person's own setup clears WebKit's stores: they are the bundle's, shared with a test copy or a second setup
+   (`SUNSET_CONFIG`, `SUNSET_SESSION`), which never clears them.
 4. Clearing happens before Sunset ends (the quit waits for WebKit's answer, at most a few seconds) in every profile's store;
    a private window's store is not persistent and has nothing to clear.
 5. Encrypting all of it (the owner's question) is step 0051 I: WebKit writes these files itself; whether its stores can live

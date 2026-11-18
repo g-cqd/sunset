@@ -70,6 +70,15 @@ extension Configuration {
                 self.traces = traces
                 self.siteData = siteData
             }
+
+            /// The same, with a profile's own choices (their names; nil, or one not known: this one's).
+            public func overriding(cache: String?, traces: String?, siteData: String?) -> Self {
+                Self(
+                    cache: cache.flatMap(Choice.init(rawValue:)) ?? self.cache,
+                    traces: traces.flatMap(Choice.init(rawValue:)) ?? self.traces,
+                    siteData: siteData.flatMap(SiteData.init(rawValue:)) ?? self.siteData
+                )
+            }
         }
 
         public enum HistoryKeep: String, Sendable, Equatable, CaseIterable {

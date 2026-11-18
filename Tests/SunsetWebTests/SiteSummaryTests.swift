@@ -34,4 +34,21 @@ struct SiteSummaryTests {
         SiteSummary.forget("tracker.example", in: stores)
         #expect(stores.hidden.rules.isEmpty && stores.spaces.rules.isEmpty)
     }
+
+    /// ADR-0081: a site whose data is kept is listed so; Forget lets it go too.
+    @Test func `a site kept is listed, and forgotten`() {
+        let stores = SiteSummary.Stores(
+            permissions: SitePermissions(),
+            agents: SiteAgents(),
+            pauses: BlockingPauses(),
+            zoom: SiteZoom(),
+            spaces: SiteSpaces.make(),
+            hidden: HiddenElements.make(),
+            kept: KeptSites()
+        )
+        stores.kept.set(true, for: "mail.example")
+        #expect(SiteSummary.rows(stores) { _ in nil } == [.init(host: "mail.example", parts: ["data kept"])])
+        SiteSummary.forget("mail.example", in: stores)
+        #expect(!stores.kept.keeps("mail.example"))
+    }
 }
