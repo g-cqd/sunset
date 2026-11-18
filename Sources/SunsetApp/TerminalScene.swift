@@ -17,6 +17,8 @@ struct TerminalScene: View {
     let launch: LaunchOptions
     @State var tabs = TabsModel(favorites: AppFavorites.shared)
     @State var window: NSWindow?
+    /// The window is full screen (its notifications): the panes' geometry follows, and the corners come back after.
+    @State var fullScreen = false
     /// How much of the window's top the title bar and the system tab bar cover.
     @State private var obscured = 0.0
     @State var barOut = false
@@ -162,6 +164,12 @@ struct TerminalScene: View {
         .onChange(of: configuration.documents, initial: true) { _, documents in AppDocuments.apply(documents) }
         .modifier(PagesFollowSettings(tabs: tabs, web: configuration.web))
         .modifier(StopsWithWindow(window: window, tabs: tabs))
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) { note in
+            if note.object as? NSWindow === window { fullScreen = true }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { note in
+            if note.object as? NSWindow === window { fullScreen = false }
+        }
         .modifier(StorageProblemsBanner())
     }
 
@@ -182,6 +190,7 @@ struct TerminalScene: View {
                 margin: configuration.sidebar.padding,
                 windowRadius: windowRadius,
                 windowCorners: areaWindowCorners,
+                fullScreen: fullScreen,
                 barInset: splitBarInset
             )
             .environment(\.windowBarHostsFind, hostsFind)

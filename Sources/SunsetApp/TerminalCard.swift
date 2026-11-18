@@ -19,6 +19,8 @@ struct TerminalCard: ViewModifier {
     var windowCorners = CornerSet.all
     var layout: Configuration.Layout
     var stroke = PaneStrokeStyle.hairline
+    /// The radius of the other corners; nil: `layout.innerCornerRadius`, never more than `cornerRadius`.
+    var innerRadius: Double?
     @Environment(\.accent) private var accent
 
     func body(content: Content) -> some View {
@@ -37,16 +39,26 @@ struct TerminalCard: ViewModifier {
     }
 
     private var radii: RectangleCornerRadii {
-        Self.radii(isCard: isCard, outer: cornerRadius, windowCorners: windowCorners, layout: layout)
+        Self.radii(
+            isCard: isCard,
+            outer: cornerRadius,
+            windowCorners: windowCorners,
+            layout: layout,
+            inner: innerRadius
+        )
     }
 
     /// The radius of each corner: `outer` at the window's corners, `layout.innerCornerRadius` (never more than `outer`) where the card is next to the sidebar
     /// or to another card; none when it is not a card.
-    static func radii(isCard: Bool, outer: Double, windowCorners: CornerSet, layout: Configuration.Layout)
-        -> RectangleCornerRadii
-    {
+    static func radii(
+        isCard: Bool,
+        outer: Double,
+        windowCorners: CornerSet,
+        layout: Configuration.Layout,
+        inner given: Double? = nil
+    ) -> RectangleCornerRadii {
         guard isCard else { return RectangleCornerRadii() }
-        let inner = min(layout.innerCornerRadius, outer)
+        let inner = given ?? min(layout.innerCornerRadius, outer)
         func radius(_ corner: CornerSet) -> Double { windowCorners.contains(corner) ? outer : inner }
         return RectangleCornerRadii(
             topLeading: radius(.topLeading),

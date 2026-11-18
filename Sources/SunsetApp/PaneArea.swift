@@ -25,6 +25,8 @@ struct PaneArea: View {
     let windowRadius: Double
     /// The corners of the area that are corners of the window (the sidebar or a tab bar covers the others).
     let windowCorners: CornerSet
+    /// The window is full screen: nothing around the content but a grid's margins (`PaneAreaGeometry`).
+    var fullScreen = false
     /// In a split, the margin the window bar opens above the panes while it is out: the top panes' cards start this much lower and
     /// show that much less of their content, which keeps its size (no page or terminal is laid out again for it).
     var barInset = 0.0
@@ -39,11 +41,23 @@ struct PaneArea: View {
             if let item = tabs.shownItem {
                 // Cards: with the sidebar docked, or when the tab is split. The space between two cards is the space between a card and the window's edge
                 // (the sidebar's margin; `layout.paneGap` for a split with no docked sidebar), so the window's colour frames every card the same.
-                let card = docked || item.isSplit
-                let space = card ? (docked ? margin : layout.paneGap) : 0
-                let area = CGRect(origin: .zero, size: proxy.size).insetBy(dx: space, dy: space)
+                let geometry = PaneAreaGeometry.make(
+                    fullScreen: fullScreen,
+                    docked: docked,
+                    panes: item.panes.count,
+                    measures: .init(
+                        margin: margin,
+                        paneGap: layout.paneGap,
+                        windowRadius: windowRadius,
+                        terminalRadius: layout.terminalRadius,
+                        innerCornerRadius: layout.innerCornerRadius
+                    )
+                )
+                let card = geometry.isCard
+                let space = geometry.gap
+                let area = CGRect(origin: .zero, size: proxy.size).insetBy(dx: geometry.inset, dy: geometry.inset)
                 let bounds = area
-                let radius = layout.terminalRadius ?? ConcentricRadius.inner(outer: windowRadius, inset: space)
+                let radius = geometry.outerRadius
                 let frames = item.layout.frames(in: bounds, gap: space)
                 ZStack(alignment: .topLeading) {
                     ForEach(item.panes, id: \.self) { pane in
@@ -65,7 +79,8 @@ struct PaneArea: View {
                                             isSplit: item.isSplit,
                                             focused: item.focused,
                                             hovered: tabs.hoveredPane
-                                        )
+                                        ),
+                                        innerRadius: geometry.innerRadius
                                     )
                                 )
                                 .animation(layout.smooth, value: tabs.hoveredPane)
