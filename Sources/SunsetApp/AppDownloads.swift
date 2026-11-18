@@ -13,6 +13,8 @@ import UserNotifications
         let storage = AppStorage.shared
         // The browser each site is shown (W-a): kept sealed, as what each site may do is.
         SiteAgents.shared.table = storage.table("agents")
+        // The Space each site opens in (W-d).
+        SiteSpaces.shared.table = storage.table("site-spaces")
         // The sites' icons, for tabs not loaded (roadmap 0035 H).
         FaviconStore.shared.table = storage.table("favicons")
         let permissions = storage.table("permissions")

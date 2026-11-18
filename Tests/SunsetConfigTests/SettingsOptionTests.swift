@@ -28,7 +28,7 @@ import Testing
             // `profiles.list`: the profiles are kept with the session, not in the file (ADR-0053).
             // `features`: three keys under one control (ADR-0056).
             others == ["features", "file.location", "profiles.list"] + pages + [
-                "storage.websiteData", "web.permissions"
+                "storage.websiteData", "web.permissions", "web.sites"
             ],
             "only these are not one key of the file: \(others)"
         )

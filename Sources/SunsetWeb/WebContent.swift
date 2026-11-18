@@ -79,6 +79,11 @@ package final class WebContent: PaneContent {
     @ObservationIgnored var notificationAsking = false
     /// A page this one opened, and where it goes.
     @ObservationIgnored package var onOpen: (WebContent, WebPlacement) -> Void = { _, _ in }
+    /// The Space it is in, and the Spaces a site can be sent to (W-d): the app's; none in a test or a private window.
+    @ObservationIgnored package var currentSpace: () -> UUID? = { nil }
+    @ObservationIgnored package var spaceChoices: () -> [(id: UUID, name: String)] = { [] }
+    /// Opens `url` in the Space `id`, as the site's rule says (W-d).
+    @ObservationIgnored package var openInSpace: (URL, UUID) -> Void = { _, _ in }
     /// The history visits are written to (web step e); nil keeps none (tests, and private pages in step h).
     @ObservationIgnored package var history: HistoryStore?
     /// Something the session file holds changed (the address, the title).

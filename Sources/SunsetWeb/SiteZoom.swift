@@ -23,6 +23,8 @@ package final class SiteZoom {
 
     /// How many sites have a level of their own.
     package var count: Int { levels.count }
+    /// The sites with a level of their own, and it.
+    package var sites: [(host: String, level: Double)] { levels.sorted { $0.key < $1.key }.map { ($0.key, $0.value) } }
 
     /// The levels are kept from one run to the next.
     package var remembers: Bool { table != nil }

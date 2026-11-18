@@ -32,6 +32,11 @@ package final class SitePermissions {
         keep(key)
     }
 
+    /// The sites with an answer of their own, and how many.
+    package var answeredSites: [(host: String, count: Int)] {
+        answers.map { ($0.key, $0.value.count) }.sorted { $0.host < $1.host }
+    }
+
     /// The sites answered for `permission`, by name.
     package func sites(for permission: SitePermission) -> [(host: String, answer: PermissionAnswer)] {
         answers.compactMap { host, kept in kept[permission].map { (host, $0) } }.sorted { $0.host < $1.host }

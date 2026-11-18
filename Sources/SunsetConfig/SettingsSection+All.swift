@@ -118,6 +118,7 @@ extension SettingsSection {
             SettingsTopic("web.pages", "Pages", SettingsOption.pages),
             SettingsTopic("web.downloads", "Downloads", SettingsOption.downloads),
             SettingsTopic("web.websites", "Websites", SettingsOption.websites),
+            SettingsTopic("web.sites", "Each site", SettingsOption.sites),
             SettingsTopic("web.profiles", "Profiles", SettingsOption.profiles),
             SettingsTopic("web.memory", "Memory", SettingsOption.memory),
             SettingsTopic("web.blocking", "Blocking", SettingsOption.blocking),

@@ -46,10 +46,33 @@ struct SiteSettingsPopover: View {
                 Label("Block ads and trackers", systemImage: "hand.raised")
             }
             .disabled(host.isEmpty || !ContentBlocker.shared.enabled)
+            SiteZoomRow(content: content)
+            let spaces = content.spaceChoices()
+            if !spaces.isEmpty, !content.isPrivate {
+                HStack {
+                    Label("Opens in", systemImage: "square.stack")
+                    Spacer()
+                    Picker("Opens in", selection: spaceBinding) {
+                        Text("Any Space").tag(UUID?.none)
+                        ForEach(spaces, id: \.id) { Text($0.name).tag(UUID?.some($0.id)) }
+                    }
+                    .labelsHidden()
+                    .fixedSize()
+                }
+                .disabled(host.isEmpty)
+            }
             Text("Some apply when the page is opened again (sound, pop-ups).").font(Design.Text.detail)
                 .foregroundStyle(.secondary)
         }
         .padding(Design.Space.xl)
+    }
+
+    /// The Space the site and its subdomains open in, from a link of another Space's page (W-d).
+    private var spaceBinding: Binding<UUID?> {
+        Binding(
+            get: { SiteSpaces.shared.rule(for: content.siteHost) },
+            set: { SiteSpaces.shared.set($0, for: content.siteHost) }
+        )
     }
 
     /// The site's own rule (nil: none, the default); changing it loads the page again.

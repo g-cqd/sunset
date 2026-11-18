@@ -1,3 +1,4 @@
+import Foundation
 import SunsetPane
 import SunsetShell
 import SunsetWeb
@@ -13,6 +14,19 @@ import SunsetWeb
         }
         page.onNotificationClose = { [weak page] id in
             if let page { AppWebNotifications.shared.close(id, from: page) }
+        }
+        page.currentSpace = { [weak tabs] in
+            guard let tabs, !tabs.isPrivateWindow, AppSpaces.all.contains(tabs.space) else { return nil }
+            return tabs.space.space.id
+        }
+        page.spaceChoices = {
+            AppSpaces.all.spaces.count > 1 ? AppSpaces.all.spaces.map { ($0.space.id, $0.space.name) } : []
+        }
+        page.openInSpace = { [weak tabs, weak page] url, id in
+            // The window goes to the site's Space and opens it there, as that Space's (its profile's logins).
+            guard let tabs, page?.currentSpace() != nil, let target = AppSpaces.all.space(id) else { return }
+            tabs.show(space: target, in: AppSpaces.all)
+            tabs.newTab(PaneDescriptor(kind: WebContent.kind, state: ["url": url.absoluteString]))
         }
         page.onOpen = { [weak tabs, weak page] opened, placement in
             guard let tabs, let page else { return }

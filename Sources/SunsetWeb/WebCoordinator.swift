@@ -20,6 +20,14 @@ import WebKit
             // Blocking, or its pause on the site the page goes to (W-c): decided before the page loads.
             ContentBlocker.shared.apply(to: webView, host: action.request.url?.host())
         }
+        // A link to a site that opens in another Space goes there, with that Space's profile (W-d).
+        if action.targetFrame?.isMainFrame == true, action.navigationType == .linkActivated, let content,
+            !content.isPrivate, let url = action.request.url,
+            let space = SiteSpaces.shared.elsewhere(url, from: content.currentSpace())
+        {
+            content.openInSpace(url, space)
+            return .cancel
+        }
         // A link that says download, or an Option-click (web step f).
         if action.shouldPerformDownload
             || (action.navigationType == .linkActivated && action.modifierFlags.contains(.option))
