@@ -13,6 +13,8 @@ extension WebContent {
                 settings.privacy.map(PrivateStores.store(for:))
                 ?? settings.profile.map { WKWebsiteDataStore(forIdentifier: $0) } ?? .default()
         }
+        // Through the app's proxy, if there is one (W-f).
+        WebProxy.applyCurrent(to: configuration.websiteDataStore)
         configuration.applicationNameForUserAgent = settings.applicationName
         LinkHover.install(on: configuration, for: self)
         WebNotifications.install(on: configuration, for: self)

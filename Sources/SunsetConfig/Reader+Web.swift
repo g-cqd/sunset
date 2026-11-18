@@ -24,6 +24,7 @@ extension Reader {
                 case "engine": if let name = string("web.engine", value) { configuration.web.engine = name }
                 case "engines": readEngines(value)
                 case "blockingLists": readBlockingLists(value)
+                case "proxy": readProxy(value)
                 case "permissions":
                     section("web.permissions", value) { reader, object in reader.readPermissions(object) }
                 case "downloadFolder":

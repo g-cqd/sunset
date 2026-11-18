@@ -127,6 +127,8 @@ extension Configuration {
         /// Ads and trackers are blocked with these lists, which Sunset fetches itself (roadmap 0022 W-c): https only.
         public var blocking = true
         public var blockingLists = Self.defaultBlockingLists
+        /// The proxy every page goes through (W-f): `http://host:port` or `socks5://host:port`; empty for none.
+        public var proxy = ""
         public static let defaultBlockingLists = [
             "https://easylist.to/easylist/easylist.txt", "https://easylist.to/easylist/easyprivacy.txt"
         ]

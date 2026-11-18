@@ -40,7 +40,7 @@ public enum ConfigurationKeys {
         "features.web",
         "features.documents",
         "web.openLinksInSunset", "web.developer", "web.tabIcon", "web.unloadAfter", "web.unloadUnderPressure",
-        "web.blocking", "web.blockingLists",
+        "web.blocking", "web.blockingLists", "web.proxy",
         "web.address", "web.windowBar", "web.splitBar", "web.fullFrameRate", "web.engine", "web.engines",
         "web.suggestions",
         "web.httpFallback",

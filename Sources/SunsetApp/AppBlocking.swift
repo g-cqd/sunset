@@ -1,7 +1,10 @@
 import Foundation
 import SunsetConfig
+import SunsetPane
+import SunsetShell
 import SunsetStorage
 import SunsetWeb
+import WebKit
 
 /// The app's side of blocking (roadmap 0022 W-c): the pauses kept sealed; the lists read from where they were kept, and
 /// fetched again when older than four days (EasyList's own "Expires"), checked every six hours. These are the only
@@ -31,8 +34,17 @@ import SunsetWeb
         }
     }
 
-    /// The settings changed: on or off at once; other lists fetched.
+    /// The settings changed: on or off at once; other lists fetched; the proxy given to the stores of pages made from now,
+    /// and to the stores that exist (W-f).
     static func apply(_ web: Configuration.Web) {
+        let proxy = WebProxy(web.proxy)
+        if proxy != WebProxy.current {
+            WebProxy.current = proxy
+            WebProxy.applyCurrent(to: .default())
+            for profile in AppSpaces.all.profiles.profiles where !profile.profile.isFirst {
+                WebProxy.applyCurrent(to: WKWebsiteDataStore(forIdentifier: profile.profile.id))
+            }
+        }
         ContentBlocker.shared.enabled = web.blocking
         if web.blockingLists != addresses, loop != nil {
             addresses = web.blockingLists
