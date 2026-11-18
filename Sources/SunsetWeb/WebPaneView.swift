@@ -63,11 +63,17 @@ struct WebPaneView: View {
                 if addressRow, let typing { AddressSuggestionList(typing: typing, places: [.pane], page: content) }
             }
         }
-        .padding(.top, topInset)
+        .padding(.top, Self.contentTop(topInset: topInset, addressRow: addressRow))
         // The page's own colour, above it too (the strip that drags the window; note n71).
         .background(pageColor)
         .animation(BarGroupSlide.animation, value: content.find.isOpen)
     }
+
+    /// How far below the pane's top the page starts. The strip that drags a window with no title bar (the floating sidebar's)
+    /// lies over the page, which reaches the top as a docked card does: pushed below it, the page left a band of its colour
+    /// (the owner, 2026-11-18: "an odd blank space at the top", roadmap 0045 D). A row of the page's own address is kept
+    /// below it, out of the strip.
+    static func contentTop(topInset: Double, addressRow: Bool) -> Double { addressRow ? topInset : 0 }
 
     private var isEmpty: Bool { content.url == nil && content.webView?.url == nil }
 
