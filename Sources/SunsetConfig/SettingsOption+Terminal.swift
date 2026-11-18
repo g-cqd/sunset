@@ -117,10 +117,10 @@ extension SettingsOption {
                 "Renderer",
                 "gpu cpu metal auto graphics",
                 \.renderer,
-                [(.auto, "auto"), (.gpu, "gpu"), (.cpu, "cpu")]
+                [(.auto, "Automatic"), (.gpu, "GPU"), (.cpu, "CPU")]
             )
             .noted(
-                "GPU draws with Metal, CPU on the processor; auto picks the GPU when the machine has one. Both draw the same "
+                "GPU draws with Metal, CPU on the processor; Automatic picks the GPU when the machine has one. Both draw the same "
                     + "pixels."
             )
         ]

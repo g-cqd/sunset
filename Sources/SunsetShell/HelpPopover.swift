@@ -10,13 +10,13 @@ struct HelpPopover: View {
         VStack(alignment: .leading, spacing: Design.Space.m) {
             Text(entry.title).font(.headline)
             ForEach(Array(entry.text.enumerated()), id: \.offset) { _, paragraph in
-                Text(paragraph).fixedSize(horizontal: false, vertical: true)
+                Text(RichText.attributed(paragraph)).fixedSize(horizontal: false, vertical: true)
             }
             if !entry.expert.isEmpty {
                 DisclosureGroup("For experienced users") {
                     VStack(alignment: .leading, spacing: Design.Space.s) {
                         ForEach(Array(entry.expert.enumerated()), id: \.offset) { _, paragraph in
-                            Text(paragraph).fixedSize(horizontal: false, vertical: true)
+                            Text(RichText.attributed(paragraph)).fixedSize(horizontal: false, vertical: true)
                         }
                     }
                     .padding(.top, Design.Space.xs)

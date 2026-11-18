@@ -243,7 +243,7 @@ let package = Package(
         ),
         .testTarget(
             name: "SunsetShellTests",
-            dependencies: ["SunsetShell", "SunsetPane", "SunsetMetrics", "SunsetHelp"],
+            dependencies: ["SunsetShell", "SunsetPane", "SunsetMetrics", "SunsetHelp", "SunsetConfig"],
             path: "Tests/SunsetShellTests",
             swiftSettings: strictSettings
         ),

@@ -5,7 +5,7 @@ extension HelpCatalog {
             title: "Blocking ads and trackers",
             summary: "Pages load without the ads and trackers that EasyList and EasyPrivacy name.",
             text: [
-                "Sunset fetches the lists itself every few days, from the addresses in Settings > Web > Blocking: the "
+                "Sunset fetches the lists itself every few days, from the addresses in **Settings > Web > Blocking**: the "
                     + "only requests it makes on its own. A list can hide parts of a page or stop what it loads, nothing "
                     + "else.",
                 "A site that breaks can be let through: its panel in the address field has \"Block ads and trackers\", "

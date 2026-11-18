@@ -71,10 +71,10 @@ extension SettingsOption {
             ),
             toggle(
                 "web.httpFallback",
-                "Fall back to http",
+                "Fall back to HTTP",
                 "http https insecure",
                 \.web.httpFallback,
-                label: "Try http when https fails for a host typed without a scheme"
+                label: "Try HTTP when HTTPS fails for a host typed without a scheme"
             ),
             choice(
                 "web.zoomScope",

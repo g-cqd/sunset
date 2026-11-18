@@ -144,7 +144,7 @@ extension SettingsOption {
                 \.terminal.clipboardWrite,
                 label: "Programs may copy to the clipboard"
             )
-            .noted("What a program asks to copy (OSC 52), over ssh too. No program can read the clipboard.")
+            .noted("What a program asks to copy (OSC 52), over SSH too. No program can read the clipboard.")
         ]
 
     /// What is kept of the web.

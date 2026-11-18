@@ -138,7 +138,7 @@ extension HelpCatalog {
             text: [
                 "By default each Space has its own Favorites, and each profile its own Pinned grid: between Spaces of "
                     + "one profile the grid stays still while the rest slides.",
-                "In Settings > General > Spaces, the Favorites can be shared by the Spaces of a profile, and the Pinned "
+                "In **Settings > General > Spaces**, the Favorites can be shared by the Spaces of a profile, and the Pinned "
                     + "grid by every profile. A change takes effect the next time Sunset opens; what was kept is moved, "
                     + "not lost."
             ],

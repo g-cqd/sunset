@@ -33,7 +33,7 @@ struct HelpTopicView: View {
 
     private func paragraphs(_ text: [String]) -> some View {
         ForEach(Array(text.enumerated()), id: \.offset) { _, paragraph in
-            Text(paragraph).fixedSize(horizontal: false, vertical: true)
+            Text(RichText.attributed(paragraph)).fixedSize(horizontal: false, vertical: true)
         }
     }
 }

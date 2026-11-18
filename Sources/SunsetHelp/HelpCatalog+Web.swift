@@ -7,7 +7,7 @@ extension HelpCatalog {
             summary: "A site asks before it uses the camera, microphone, screen, location or notifications.",
             text: [
                 "Allow keeps the answer for the site; Allow Once lasts while the page is open; Don't Allow keeps the refusal.",
-                "Pop-up windows and sound that plays on its own are blocked unless you allow them. Settings > Web > "
+                "Pop-up windows and sound that plays on its own are blocked unless you allow them. **Settings > Web** > "
                     + "Websites lists every site's answers and the defaults."
             ],
             expert: [
@@ -50,7 +50,7 @@ extension HelpCatalog {
             summary:
                 "Apps, installers and scripts are downloaded only after you approve them; other files go to your folder.",
             text: [
-                "Settings > Web > Downloads sets the folder, whether to ask where to save each file, and how long the "
+                "**Settings > Web > Downloads** sets the folder, whether to ask where to save each file, and how long the "
                     + "list keeps finished downloads.",
                 "Safe files (pictures, PDF, text, sound and film) can open once downloaded; an app, an installer or a "
                     + "script never does."
@@ -73,16 +73,16 @@ extension HelpCatalog {
             text: [
                 "Open one from +'s menu (New Private Tab) or in a private window. A private tab of a normal window shares "
                     + "nothing with other pages.",
-                "Settings > Privacy and security sets whether the pages of one private window share their data."
+                "**Settings > Privacy and security** sets whether the pages of one private window share their data."
             ],
             related: [.profiles]
         ),
         .plainHTTP: HelpEntry(
-            title: "Pages over plain http",
-            summary: "A page over plain http is marked: what it sends and receives can be read and changed on the way.",
+            title: "Pages over plain HTTP",
+            summary: "A page over plain HTTP is marked: what it sends and receives can be read and changed on the way.",
             text: [
-                "An address typed without a scheme is tried over https first; Settings > Web says whether to fall back to "
-                    + "http when https fails."
+                "An address typed without a scheme is tried over HTTPS first; **Settings > Web** says whether to fall back to "
+                    + "HTTP when HTTPS fails."
             ],
             related: [.sitePermissions]
         ),
@@ -91,7 +91,7 @@ extension HelpCatalog {
             summary:
                 "Sunset can tell sites it is Chrome, Edge or Firefox, for every site or for one, when a site needs it.",
             text: [
-                "Settings > Web > Websites sets the browser every site is shown; a site's panel in the address field gives "
+                "**Settings > Web > Websites** sets the browser every site is shown; a site's panel in the address field gives "
                     + "that site its own. The page loads again to take it.",
                 "What changes is what Sunset says it is: the User-Agent of each request, and, unless \"Tell a page's "
                     + "scripts the same\" is off, what the page's scripts read (the vendor, the client hints)."

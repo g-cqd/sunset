@@ -10,7 +10,7 @@ extension SettingsOption {
                 .optionalText(SettingsValue(\.theme), prompt: "nord")
             )
             .noted(
-                "A file themes/<name>.json beside the configuration file; it can set the font, colors, window, sidebar and "
+                "A file `themes/<name>.json` beside the configuration file; it can set the font, colors, window, sidebar and "
                     + "appearance. Your own keys win."
             ),
             choice(

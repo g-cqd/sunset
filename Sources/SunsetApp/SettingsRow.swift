@@ -13,7 +13,7 @@ struct SettingsRow: View {
         if let note = option.note {
             VStack(alignment: .leading, spacing: Design.Space.xs) {
                 explained
-                Text(note).font(Design.Text.detail).foregroundStyle(.secondary)
+                Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary)
             }
         } else {
             explained
