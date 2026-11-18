@@ -33,6 +33,8 @@ package struct TabSidebar: View {
     @State private var closingSlot: Int?
     /// How far Today's tabs are scrolled down: the fade at their top grows with it.
     @State var scrolledBy = 0.0
+    /// How tall this list's Pinned grid and Favorites are: their places in the neighbour's column while sliding.
+    @State var keptHeights = (pinned: 0.0, favorites: 0.0)
     /// How tall the calls to action under the field are.
     @State var noticesHeight = 0.0
     @Environment(\.accent) var accentStyle
@@ -77,11 +79,11 @@ package struct TabSidebar: View {
             VStack(spacing: layout.tabSpacing) {
                 // Still while the swipe is to a Space that shows the same (roadmap 0044 A, E).
                 pinnedPart
+                    .onGeometryChange(for: Double.self, of: { Double($0.size.height) }) { keptHeights.pinned = $0 }
                     .offset(x: tabs.slide.beside?.shares(.pinned) == true ? 0 : tabs.slide.shift)
-                    .overlay(alignment: .top) { beside(.pinned) }
                 favoritesPart
+                    .onGeometryChange(for: Double.self, of: { Double($0.size.height) }) { keptHeights.favorites = $0 }
                     .offset(x: tabs.slide.beside?.shares(.favorites) == true ? 0 : tabs.slide.shift)
-                    .overlay(alignment: .top) { beside(.favorites) }
             }
             // Its rows keep their height; Today's scroll view takes what is left (seen 2026-11-17: six favourites in a
             // short window were squeezed).
@@ -89,7 +91,6 @@ package struct TabSidebar: View {
             ScrollView {
                 today
                     .offset(x: tabs.slide.shift)
-                    .overlay(alignment: .top) { beside(.today) }
             }
             .bouncesOnlyWhenScrolling()
             .scrollIndicators(.never)
@@ -100,8 +101,11 @@ package struct TabSidebar: View {
             // Rows that scroll past either end fade out: an alpha mask, no blur (roadmap 0035 F).
             .mask { fade }
         }
-        // Swiping between Spaces, cut and faded at the sidebar's sides, not under the panes (the owner, 2026-11-17).
-        .mask { LateralFade(sliding: tabs.slide.beside != nil || tabs.slide.shift != 0) }
+        // The neighbour's list, a column of its own from the top (roadmap 0045 E).
+        .overlay(alignment: .top) { besideColumn }
+        // Swiping between Spaces, cut and faded at the sidebar's sides, not under the panes (the owner, 2026-11-17); the
+        // fade comes and goes in its own time (roadmap 0045 E).
+        .mask { LateralFade(sliding: tabs.slide.masks || tabs.slide.beside != nil || tabs.slide.shift != 0) }
         .padding(.top, topInset)
         .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { width in
             tabs.slide.width = width

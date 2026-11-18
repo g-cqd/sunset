@@ -25,6 +25,7 @@ extension TabsModel {
     package func shift(spaceListTo points: Double) {
         guard !slide.isRunning else { return }
         slide.shift = points
+        if points != 0 { slide.masks = true }
         guard points != 0, let spaces, let index = spaces.index(of: space) else {
             slide.beside = nil
             return
@@ -70,7 +71,9 @@ extension TabsModel {
                 self.slide.beside = nil
                 self.show(space: other)
             }
+            self.unmask()
         }
+        slide.masks = true
         runSlide(animation, arrive, finish)
     }
 
@@ -79,8 +82,20 @@ extension TabsModel {
         guard !slide.isRunning, slide.shift != 0, let animation = slide.animation else { return shift(spaceListTo: 0) }
         let back: () -> Void = { [weak self] in self?.slide.shift = 0 }
         let finish: () -> Void = { [weak self] in
-            if self?.slide.isRunning == false, self?.slide.shift == 0 { self?.slide.beside = nil }
+            guard let self, !self.slide.isRunning, self.slide.shift == 0 else { return }
+            self.slide.beside = nil
+            self.unmask()
         }
         runSlide(animation, back, finish)
+    }
+
+    /// The sides' fade goes, in an animation of its own once the list is at rest (roadmap 0045 E).
+    private func unmask() {
+        guard slide.masks else { return }
+        guard let animation = slide.animation else {
+            slide.masks = false
+            return
+        }
+        runSlide(animation, { [weak self] in self?.slide.masks = false }, {})
     }
 }

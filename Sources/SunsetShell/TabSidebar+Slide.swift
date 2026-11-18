@@ -49,16 +49,26 @@ extension TabSidebar {
         .frame(maxWidth: .infinity)
     }
 
-    /// The part of the list of the Space the window is sliding to, beside this one's (n79).
-    @ViewBuilder func beside(_ part: Part) -> some View {
-        if let beside = tabs.slide.beside, !beside.shares(part) {
-            Group {
-                switch part {
-                    case .pinned: preview(beside.tabs).pinnedPart
-                    case .favorites: preview(beside.tabs).favoritesPart
-                    case .today: preview(beside.tabs).today
+    /// The list of the Space the window is sliding to, beside this one's (n79): a column of its own from the top, so that
+    /// its tabs follow its own Pinned grid and Favorites, where they will be once the slide has ended (roadmap 0045 E). A
+    /// part both Spaces show keeps its place, empty: this list draws it, still.
+    @ViewBuilder var besideColumn: some View {
+        if let beside = tabs.slide.beside {
+            let other = preview(beside.tabs)
+            VStack(spacing: layout.tabSpacing) {
+                ForEach(beside.column, id: \.self) { part in
+                    switch part {
+                        case .kept(.pinned): Color.clear.frame(height: keptHeights.pinned)
+                        case .kept(.favorites): Color.clear.frame(height: keptHeights.favorites)
+                        case .own(.pinned): other.pinnedPart
+                        case .own(.favorites): other.favoritesPart
+                        case .own(.today), .kept(.today): other.today
+                    }
                 }
             }
+            .frame(maxHeight: .infinity, alignment: .top)
+            // Faded above the app's bar as this list's tabs are.
+            .mask { fade(scrolled: 0) }
             .offset(x: tabs.slide.shift + (beside.isNext ? tabs.slide.width : -tabs.slide.width))
             .allowsHitTesting(false)
             .accessibilityHidden(true)

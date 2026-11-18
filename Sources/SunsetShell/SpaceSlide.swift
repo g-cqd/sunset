@@ -14,6 +14,13 @@ package struct SpaceSlide {
         /// Its Favorites are this window's (the profile's, `spaces.favorites`): they stay still too (roadmap 0044 E).
         package var sharesFavorites = false
 
+        /// The neighbour's list as a column of its own, from the top (roadmap 0045 E): a part both Spaces show keeps its
+        /// place, empty, and stays still in this list; the others are the neighbour's, so its tabs follow its own Pinned
+        /// grid and Favorites, at the top when it has none, as they will be once the slide has ended.
+        var column: [ColumnPart] {
+            [TabSidebar.Part.pinned, .favorites, .today].map { shares($0) ? .kept($0) : .own($0) }
+        }
+
         /// Whether a part of the list is the same on both sides, and stays still.
         func shares(_ part: TabSidebar.Part) -> Bool {
             switch part {
@@ -24,6 +31,15 @@ package struct SpaceSlide {
         }
     }
 
+    /// A part of the neighbour's column: its own, or the place of one this list shows for both.
+    enum ColumnPart: Hashable {
+        case own(TabSidebar.Part)
+        case kept(TabSidebar.Part)
+    }
+
+    /// The list is cut and faded at the sidebar's sides (`LateralFade`): from the first move, until an animation of its own
+    /// after the slide has ended (roadmap 0045 E: it came and went in one frame).
+    package var masks = false
     /// Where the list is drawn, in points from its place (negative: towards the next Space).
     package var shift = 0.0
     package var beside: Beside?
