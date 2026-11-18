@@ -132,9 +132,9 @@ final class SessionStore {
         }
     }
 
-    /// Where a session write is sealed and synced, one after the other, off the main thread (roadmap 0049: a write held the
-    /// main thread for milliseconds each time a change settled).
-    private static let disk = DispatchQueue(label: "studio.aemi.sunset.session-write", qos: .utility)
+    /// Writes the session's file one at a time, the newest last (roadmap 0049: a write held the main thread for milliseconds
+    /// each time a change settled).
+    private static let disk = NewestWrites()
 
     /// Writes the session now, from the windows that are open (and the saved ones not yet taken, so that a quit during launch loses nothing).
     /// - Parameter inBackground: sealed and written off the main thread (a scheduled save); else here, waiting for any write
@@ -147,14 +147,17 @@ final class SessionStore {
         let path = path
         // Sealed, written whole beside the file, synced and moved over it: a crash mid-write leaves the old session, not half
         // of a new one. One write at a time, in the order asked.
+        let identity = Self.identity
+        let write: @Sendable () -> Bool = {
+            (try? SealedFile.write(data, to: path, seal: seal, identity: identity)) != nil
+        }
+        let disk = Self.disk
+        let turn = disk.next()
         if inBackground, legacy == nil, !SaveProbe.writesHere {
-            Self.disk.async { _ = try? SealedFile.write(data, to: path, seal: seal, identity: Self.identity) }
+            Task.detached(priority: .utility) { _ = disk.write(turn, write) }
             return
         }
-        let written = Self.disk.sync {
-            (try? SealedFile.write(data, to: path, seal: seal, identity: Self.identity)) != nil
-        }
-        guard written else { return }
+        guard disk.write(turn, write) else { return }
         if let old = legacy {
             // The plain file goes once the sealed one reads back.
             let kept = SealedFile.read(path, as: Self.what, seal: seal, identity: Self.identity) {
