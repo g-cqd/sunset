@@ -1,4 +1,5 @@
 import SunsetMetrics
+import SunsetPane
 package import SwiftUI
 
 /// The Library's rail (roadmap 0031, the owner's choice L2): the sections as glyphs laid out vertically on the window's edge
@@ -9,6 +10,8 @@ package struct SectionRail: View {
     /// The Library's lists, from the top: none while the Library is not offered (the gear and the way back are still there).
     var sections = SidebarSection.rail
     let buttons: SidebarButtons
+    /// Opens Help (the owner's note n27): its glyph above the gear; nil, none.
+    var help: (() -> Void)?
     /// The rail is at the window's leading edge: its foot is at that bottom corner, whose button is concentric with it.
     var leading = false
     let choose: (SidebarSection) -> Void
@@ -18,8 +21,10 @@ package struct SectionRail: View {
         sections: [SidebarSection] = SidebarSection.rail,
         buttons: SidebarButtons,
         leading: Bool = false,
+        help: (() -> Void)? = nil,
         choose: @escaping (SidebarSection) -> Void
     ) {
+        self.help = help
         self.selection = selection
         self.sections = sections
         self.buttons = buttons
@@ -36,6 +41,12 @@ package struct SectionRail: View {
         buttons.metrics.size.width + buttons.gap + gutter
     }
 
+    /// What the rail's foot holds, from the top.
+    package enum Foot: Sendable { case help, settings, back }
+
+    /// The foot's glyphs, from the top: Help above the gear (the owner's note n27), the way back last, at the corner.
+    static func foot(hasHelp: Bool) -> [Foot] { (hasHelp ? [.help] : []) + [.settings, .back] }
+
     /// The way back points at the edge the sidebar closes to, at a bar (the owner, 2026-11-17): left for a sidebar on the
     /// left, right for one on the right.
     static func closeSymbol(leading: Bool) -> String { leading ? "arrow.left.to.line" : "arrow.right.to.line" }
@@ -44,13 +55,26 @@ package struct SectionRail: View {
         VStack(spacing: buttons.layout.tabSpacing) {
             ForEach(sections, id: \.self) { section in glyph(section) }
             Spacer(minLength: 0)
-            // The settings (roadmap 0032): the gear, above the way back.
-            glyph(.settings)
-            SidebarIconButton(symbol: Self.closeSymbol(leading: leading), help: "Back to the Tabs (Escape)") {
-                choose(.tabs)
+            // Help and the settings (roadmap 0032), above the way back.
+            ForEach(Self.foot(hasHelp: help != nil), id: \.self) { part in
+                switch part {
+                    case .help:
+                        SidebarIconButton(help: "Help") {
+                            help?()
+                        } label: {
+                            SidebarSymbol(name: PaneDescriptor.helpSymbol, filled: false).foregroundStyle(.secondary)
+                        }
+                        .accessibilityLabel("Help")
+                    case .settings: glyph(.settings)
+                    case .back:
+                        SidebarIconButton(symbol: Self.closeSymbol(leading: leading), help: "Back to the Tabs (Escape)")
+                        {
+                            choose(.tabs)
+                        }
+                        .accessibilityLabel("Back to the Tabs")
+                        .environment(\.sidebarButtonCorner, leading ? .bottomLeading : .bottomTrailing)
+                }
             }
-            .accessibilityLabel("Back to the Tabs")
-            .environment(\.sidebarButtonCorner, leading ? .bottomLeading : .bottomTrailing)
         }
         .environment(\.sidebarButtonMetrics, buttons.metrics)
         .padding(.top, buttons.header.height)

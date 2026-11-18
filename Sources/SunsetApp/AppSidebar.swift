@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetHelp
 import SunsetMetrics
 import SunsetShell
 import SunsetShellBridge
@@ -44,7 +45,12 @@ struct AppSidebar: View {
                 selection: section ?? .tabs,
                 sections: settings.sidebar.library ? SidebarSection.rail(for: tabs.scopes) : [],
                 buttons: buttons,
-                leading: settings.sidebar.side == .left
+                leading: settings.sidebar.side == .left,
+                help: {
+                    // On the settings' page shown, its topic; elsewhere, where Help was.
+                    let page = section == .settings ? AppSettings.content(in: tabs)?.topic : nil
+                    AppHelp.show(HelpTree.topic(about: page), in: tabs)
+                }
             ) { chosen in
                 if chosen == .settings { AppSettings.show(in: tabs) } else { tabs.sections.show(library: chosen) }
             }
