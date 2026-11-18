@@ -1,5 +1,5 @@
 ---
-status: in-progress (S-a, S-b, S-c, P-b and P-a done 2026-11-17; S-d with the previews, S-e, S-f not started)
+status: in-progress (S-a, S-b, S-c, P-b and P-a done 2026-11-17; S-d done 2026-11-18 with the previews; S-e, S-f not started)
 blocked-by: 0018 (each step's own questions); 0020 (Favorites and folders); 0019 (the web pane, for profiles and sleeping)
 date: 2026-11-11
 ---
@@ -64,8 +64,9 @@ Not done, and where it goes:
   the last window, as before) and `tabs.closeStoppedAfter` (hours; the tabs that stayed are closed after that long with
   no window, across a quit too). Both off by default, in Settings > General. Seen in a test copy: tabs gone at the next
   start with the first; with the second at 10.8 s, back when started at once and gone when started 14 s later.
-- **No cue in the list** for a tab another window draws, or for a tab that is stopped (R4: a dimmed icon). A document
-  shown elsewhere has no picture, only the label (S-d: what the picture looks like).
+- **No cue in the list** for a tab another window draws, or for a tab that is stopped (R4: a dimmed icon, with S-f).
+  S-d (2026-11-18): every kind shown elsewhere has a picture: a terminal its last frame, a page or a document its
+  snapshot, settings and help their icon; the same pictures as the hover card (n77).
 - **A window in front takes nothing**, as answered; the keys that go to a tab (Cmd-1..9, next, previous) do take it.
 - **The font zoom is the window's**: a terminal taken by another window takes that window's size.
 - Not seen: a click on a row or on the picture (keys were used); the last window closing while Sunset stays running.

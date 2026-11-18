@@ -193,7 +193,9 @@ struct PaneArea: View {
                 // As it is now, when this window comes to show it (roadmap 0036 D).
                 .onAppear { content.takePicture() }
         } else {
+            // Nothing pictured (settings, help, a page not drawn yet): its icon, as its preview card has (S-d, n77).
             Color.primary.opacity(Design.Fill.faint)
+                .overlay { TabIcon(model: content, showsProgress: false).opacity(Design.Fill.inkSecondary) }
         }
     }
 
