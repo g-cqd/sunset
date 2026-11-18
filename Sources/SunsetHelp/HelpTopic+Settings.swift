@@ -19,6 +19,9 @@ extension HelpTopic {
         "web.privateWindowShares": .privateBrowsing,
         "web.httpFallback": .plainHTTP,
         "spaces.favorites": .spaces,
-        "spaces.pinned": .spaces
+        "spaces.pinned": .spaces,
+        "features": .features,
+        "web.agent": .browserIdentity,
+        "web.agentScripts": .browserIdentity
     ]
 }

@@ -38,6 +38,13 @@ struct HelpCatalogTests {
         #expect(HelpCatalog.search("").count == HelpTopic.allCases.count)
     }
 
+    /// Roadmap 0041 C: what the notes under these settings had to leave out is in a topic, opened by their "?".
+    @Test func `the settings whose notes were cut have their topics`() {
+        let settings = ["web.agent", "web.agentScripts", "features"]
+        let missing = settings.filter { HelpTopic.explaining(setting: $0) == nil }
+        #expect(missing.isEmpty, "\(missing)")
+    }
+
     /// Roadmap 0044 E: whose the Favorites and the grid are is explained beside both settings.
     @Test func `the settings of whose the Favorites and the grid are have their topic`() {
         let topics = ["spaces.favorites", "spaces.pinned"].map { HelpTopic.explaining(setting: $0) }

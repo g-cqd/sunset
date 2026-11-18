@@ -73,7 +73,7 @@ extension SettingsOption {
             // The default for every site, and under it the sites that have a rule of their own (kept sealed, not in the file).
             custom(
                 "web.agent",
-                "Sites see Sunset as",
+                "Browser shown to sites",
                 "user agent chrome edge firefox safari appear impersonate browser disguise site rule",
                 .siteAgents
             )

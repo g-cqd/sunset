@@ -56,7 +56,7 @@ struct SettingsWordingTests {
     }
 
     @Test func `no name is a fragment its values finish`() {
-        let endings = [" the", " in", " to", " at", " for", " goes", " shows", " is"]
+        let endings = [" the", " in", " to", " at", " for", " goes", " shows", " is", " with", " see", " as"]
         let found = Self.names.filter { name in endings.contains { name.text.hasSuffix($0) } }
         #expect(found.isEmpty, "\(found.map { "\($0.place): \($0.text)" })")
     }

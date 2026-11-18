@@ -15,9 +15,9 @@ written correctly".
 | A | Read how VMRunner and macOS's System Settings word titles, options, sections and the notes under them; write the rules down (design) | done: docs/design/0005-settings-wording.md |
 | B | A gate: titles and options do not start with an article, are in title case or sentence case as the rules say, notes are sentences of at most a set length | done: `SettingsWordingTests` (red: five rules broken) |
 | C | Every title, option and note of `SettingsOption+*.swift` and the Settings pages rewritten to the rules | done for the options, their labels, values and notes, and three sheets' spellings; the hand-built pages (Websites, Profiles, Storage) read by eye only |
-| D | Seen in Settings: sections and topics read right | not-started |
+| D | A gate over the hand-built pages; seen in Settings: sections and topics read right | gate done 2026-11-18 (`SettingsPagesWordingTests`; red: two fragment names, then a third in the options once " with", " see", " as" were added to the endings); seeing: see below |
 
 ## Not done
 
-D. A gate over the hand-built Settings pages' strings. The longer notes cut to 200 characters lost detail that belongs
-in help (roadmap 0041 C): the features' hiding, profiles and Spaces, the User-Agent's scripts.
+D seen on screen. What the cut notes lost is in help now (roadmap 0041 C: features, Spaces, appearing as another
+browser); profiles had its topic.

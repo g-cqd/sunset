@@ -13,7 +13,7 @@ struct SiteAgentsSettings: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.xs) {
-            Picker("Sites with no rule of their own see", selection: $agent) {
+            Picker("Browser shown to other sites", selection: $agent) {
                 ForEach(Configuration.Web.Agent.allCases, id: \.self) { Text($0.rawValue.capitalized).tag($0) }
             }
             .fixedSize()

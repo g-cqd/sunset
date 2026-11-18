@@ -5,6 +5,5 @@
 .swiftpm/
 *.xcodeproj
 /DerivedData/
-.ci/baselines/
 .benchmarkBaselines/
 Signing.local.xcconfig

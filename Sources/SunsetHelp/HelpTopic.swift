@@ -2,7 +2,9 @@
 public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
     case tabs, splitTabs, pinned, favorites, folders, sidebarField, bottomBar, library, keepAwake, dragAndDrop, renaming
     case tabLayout, spaces
+    case features
     case sitePermissions, webNotifications, popUps, pageDialogs, downloads, profiles, privateBrowsing, plainHTTP
+    case browserIdentity
 
     public var id: String { rawValue }
 
@@ -12,8 +14,9 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
             case .tabs, .splitTabs, .pinned, .favorites, .folders, .sidebarField, .bottomBar, .library, .keepAwake,
                 .dragAndDrop, .renaming, .tabLayout, .spaces:
                 .sidebar
+            case .features: .general
             case .sitePermissions, .webNotifications, .popUps, .pageDialogs, .downloads, .profiles, .privateBrowsing,
-                .plainHTTP:
+                .plainHTTP, .browserIdentity:
                 .web
         }
     }

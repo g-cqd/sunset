@@ -85,6 +85,22 @@ extension HelpCatalog {
                     + "http when https fails."
             ],
             related: [.sitePermissions]
+        ),
+        .browserIdentity: HelpEntry(
+            title: "Appearing as another browser",
+            summary:
+                "Sunset can tell sites it is Chrome, Edge or Firefox, for every site or for one, when a site needs it.",
+            text: [
+                "Settings > Web > Websites sets the browser every site is shown; a site's panel in the address field gives "
+                    + "that site its own. The page loads again to take it.",
+                "What changes is what Sunset says it is: the User-Agent of each request, and, unless \"Tell a page's "
+                    + "scripts the same\" is off, what the page's scripts read (the vendor, the client hints)."
+            ],
+            expert: [
+                "The engine is still WebKit: features Chrome has and WebKit has not stay missing, client-hint headers are "
+                    + "not sent, and a site that looks further can tell. If a site breaks, show it Safari again."
+            ],
+            related: [.sitePermissions, .profiles]
         )
     ]
 }

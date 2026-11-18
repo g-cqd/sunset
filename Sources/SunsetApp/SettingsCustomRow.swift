@@ -27,7 +27,7 @@ struct SettingsCustomRow: View {
                 )
             case .blinkTimeout: blinkTimeout
             case .searchEngine:
-                Picker("Words are searched with", selection: config.binding(\.web.engine)) {
+                Picker("Search engine", selection: config.binding(\.web.engine)) {
                     ForEach(PaneContentKinds.webSettings.engines, id: \.name) { engine in
                         Text("\(engine.name)  (\(engine.keyword))").tag(engine.name)
                     }
