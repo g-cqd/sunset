@@ -23,7 +23,7 @@ struct EntryRowDropDelegate: DropDelegate {
 
     func performDrop(info: DropInfo) -> Bool {
         defer { if active?.entry == entry { active = nil } }
-        return tabs.dropDragged(onEntry: entry, after: info.location.y > height / 2)
+        return Feedback.dropped(tabs.dropDragged(onEntry: entry, after: info.location.y > height / 2))
     }
 
     private func update(_ info: DropInfo) {

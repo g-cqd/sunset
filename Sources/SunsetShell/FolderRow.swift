@@ -131,7 +131,7 @@ struct FolderRow: View {
         func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: targeted ? .move : .cancel) }
         func performDrop(info: DropInfo) -> Bool {
             targeted = false
-            return tabs.dropDragged(intoFolder: folder)
+            return Feedback.dropped(tabs.dropDragged(intoFolder: folder))
         }
     }
 }

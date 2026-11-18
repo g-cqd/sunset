@@ -57,7 +57,7 @@ struct GapDrop: View {
 
         func performDrop(info: DropInfo) -> Bool {
             targeted = false
-            return tabs.dropDragged(in: place)
+            return Feedback.dropped(tabs.dropDragged(in: place))
         }
     }
 }

@@ -102,7 +102,7 @@ public enum ConfigurationWriter {
         return lines.joined(separator: "\n") + "\n"
     }
 
-    private static func web(_ web: Configuration.Web) -> [String: String] {
+    static func web(_ web: Configuration.Web) -> [String: String] {
         [
             "web.openLinksInSunset": String(web.openLinksInSunset), "web.developer": String(web.developer),
             "web.notificationsWithoutClick": String(web.notificationsWithoutClick),
@@ -131,44 +131,7 @@ public enum ConfigurationWriter {
         ]
     }
 
-    /// The keys added since the table below was full: the web pane's and a few others.
-    private static func extras(_ configuration: Configuration) -> [String: String] {
-        var extra = web(configuration.web).merging(permissions(configuration.web)) { $1 }
-        extra["tabs.askBeforeQuit"] = string(configuration.tabs.askBeforeQuit.rawValue)
-        extra["scroll.inertia"] = number(configuration.scroll.inertia)
-        extra["tabs.bar.monospacedDirectory"] = String(configuration.tabs.bar.monospacedDirectory)
-        extra["appearance.barBlur"] = string(configuration.appearance.barBlur.rawValue)
-        extra["appearance.barTint"] = string(configuration.appearance.barTint.rawValue)
-        extra["appearance.tint.light"] = color(configuration.appearance.lightTintColor)
-        extra["appearance.tint.lightAlpha"] = number(configuration.appearance.lightTintAlpha)
-        extra["appearance.accent"] = string(configuration.appearance.accent.rawValue)
-        extra["storage.importedFiles"] = string(configuration.storage.importedFiles.rawValue)
-        extra["features.terminal"] = String(configuration.features.terminal)
-        extra["features.web"] = String(configuration.features.web)
-        extra["features.documents"] = String(configuration.features.documents)
-        extra["documents.saveAfter"] = number(configuration.documents.saveAfter)
-        extra["documents.saveOnFocusLoss"] = String(configuration.documents.saveOnFocusLoss)
-        extra["documents.largerHeadings"] = String(configuration.documents.largerHeadings)
-        extra["documents.linksOpen"] = string(configuration.documents.linksOpen.rawValue)
-        extra["spaces.favorites"] = string(configuration.spaces.favorites.rawValue)
-        extra["spaces.pinned"] = string(configuration.spaces.pinned.rawValue)
-        extra["tabs.closeWithLastWindow"] = String(configuration.tabs.closeWithLastWindow)
-        extra["tabs.closeStoppedAfter"] = number(configuration.tabs.closeStoppedAfter)
-        extra["tabs.closeWindowWithLastTab"] = String(configuration.tabs.closeWindowWithLastTab)
-        extra["tabs.closeGoesBack"] = String(configuration.tabs.closeGoesBack)
-        extra["tabs.keepAwakeDisplay"] = String(configuration.tabs.keepAwakeDisplay)
-        extra["sidebar.library"] = String(configuration.sidebar.library)
-        extra["sidebar.documentSort"] = string(configuration.sidebar.documentSort.rawValue)
-        extra["sidebar.separators"] = String(configuration.sidebar.separators)
-        extra["sidebar.previews"] = String(configuration.sidebar.previews)
-        extra["sidebar.previewPages"] = String(configuration.sidebar.previewPages)
-        extra["sidebar.previewTerminals"] = String(configuration.sidebar.previewTerminals)
-        extra["sidebar.previewDocuments"] = String(configuration.sidebar.previewDocuments)
-        extra["sidebar.previewFolders"] = String(configuration.sidebar.previewFolders)
-        return extra
-    }
-
-    private static func permissions(_ web: Configuration.Web) -> [String: String] {
+    static func permissions(_ web: Configuration.Web) -> [String: String] {
         Dictionary(
             uniqueKeysWithValues: Configuration.Web.permissionNames.map {
                 ("web.permissions.\($0)", string((web.permissions[$0] ?? .ask).rawValue))
@@ -185,17 +148,17 @@ public enum ConfigurationWriter {
         return "{ " + fields.joined(separator: ", ") + " }"
     }
 
-    private static func number(_ value: Double) -> String {
+    static func number(_ value: Double) -> String {
         value == value.rounded() && abs(value) < 1e15 ? String(Int(value)) : String(value)
     }
 
-    private static func color(_ bytes: [UInt8]?) -> String {
+    static func color(_ bytes: [UInt8]?) -> String {
         guard let bytes, bytes.count == 3 else { return "null" }
         let digits = Array("0123456789abcdef")
         return "\"#" + bytes.map { String([digits[Int($0 >> 4)], digits[Int($0 & 15)]]) }.joined() + "\""
     }
 
-    private static func string(_ text: String) -> String {
+    static func string(_ text: String) -> String {
         var result = "\""
         for scalar in text.unicodeScalars {
             switch scalar {

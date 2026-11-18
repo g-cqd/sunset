@@ -18,6 +18,6 @@ struct SpaceDrop: DropDelegate {
 
     func performDrop(info: DropInfo) -> Bool {
         dragged = nil
-        return true
+        return Feedback.dropped(true)
     }
 }

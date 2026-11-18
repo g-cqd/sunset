@@ -4,12 +4,17 @@ import AppKit
 /// it went through, a firmer one when it was blocked, on a Force Touch trackpad only) and VoiceOver (its announcement).
 @MainActor
 package enum Feedback {
+    /// Whether the trackpad taps (`appearance.haptics`).
+    package static var taps = true
+
     /// Gives `outcome`.
     package static func give(_ outcome: ActionFeedback) {
-        NSHapticFeedbackManager.defaultPerformer.perform(
-            outcome.isDone ? .generic : .levelChange,
-            performanceTime: .now
-        )
+        if taps {
+            NSHapticFeedbackManager.defaultPerformer.perform(
+                outcome.isDone ? .generic : .levelChange,
+                performanceTime: .now
+            )
+        }
         guard let window = NSApp?.keyWindow ?? NSApp?.mainWindow else { return }
         NSAccessibility.post(
             element: window,
@@ -19,5 +24,13 @@ package enum Feedback {
                 .priority: NSAccessibilityPriorityLevel.high.rawValue
             ]
         )
+    }
+
+    /// A drop's answer: refused, it is said (a firmer tap, VoiceOver); taken, nothing more than what it moved.
+    /// - Parameter taken: what the drop returned.
+    /// - Returns: `taken`, for `performDrop` to return.
+    package static func dropped(_ taken: Bool) -> Bool {
+        if !taken { give(.blocked("It cannot be dropped here")) }
+        return taken
     }
 }

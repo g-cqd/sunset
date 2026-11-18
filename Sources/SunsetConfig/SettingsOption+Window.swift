@@ -36,7 +36,15 @@ extension SettingsOption {
                 \.window.trafficLightsY,
                 0 ... 400,
                 step: 1
+            ),
+            toggle(
+                "appearance.haptics",
+                "Tap the trackpad when a click goes through or is blocked",
+                "haptic haptics feedback trackpad force touch click tap",
+                \.appearance.haptics
             )
+            .grouped("Buttons")
+            .noted("On a Force Touch trackpad: a light tap when it went through, a firmer one when it was blocked.")
         ]
 
     /// Spacing and corners.

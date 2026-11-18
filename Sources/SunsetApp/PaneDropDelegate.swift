@@ -25,9 +25,11 @@ struct PaneDropDelegate: DropDelegate {
 
     func performDrop(info: DropInfo) -> Bool {
         defer { target = nil }
-        guard tabs.hasDrag else { return FileDropping.perform(at: info.location, frames: frames, tabs: tabs) }
-        guard let target else { return false }
-        return tabs.dropDragged(onto: target.pane, edge: target.edge)
+        guard tabs.hasDrag else {
+            return Feedback.dropped(FileDropping.perform(at: info.location, frames: frames, tabs: tabs))
+        }
+        guard let target else { return Feedback.dropped(false) }
+        return Feedback.dropped(tabs.dropDragged(onto: target.pane, edge: target.edge))
     }
 
     private func update(_ info: DropInfo) {

@@ -28,7 +28,7 @@ struct PinnedTileDropDelegate: DropDelegate {
     func performDrop(info: DropInfo) -> Bool {
         let place = place(info)
         defer { if active?.index == index { active = nil } }
-        return tabs.dropDragged(in: .pinned(at: place.index + (place.after ? 1 : 0)))
+        return Feedback.dropped(tabs.dropDragged(in: .pinned(at: place.index + (place.after ? 1 : 0))))
     }
 
     private func update(_ info: DropInfo) {

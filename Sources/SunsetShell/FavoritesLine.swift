@@ -47,7 +47,7 @@ struct FavoritesLine: View {
         func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: targeted ? .move : .cancel) }
         func performDrop(info: DropInfo) -> Bool {
             targeted = false
-            return tabs.dropDraggedOnFavoritesLine()
+            return Feedback.dropped(tabs.dropDraggedOnFavoritesLine())
         }
     }
 }

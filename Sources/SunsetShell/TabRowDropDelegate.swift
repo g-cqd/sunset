@@ -25,7 +25,7 @@ struct TabRowDropDelegate: DropDelegate {
     func performDrop(info: DropInfo) -> Bool {
         let resolved = action(at: info.location)
         defer { if active?.item == item { active = nil } }
-        return tabs.dropDragged(onto: item, action: resolved)
+        return Feedback.dropped(tabs.dropDragged(onto: item, action: resolved))
     }
 
     /// A kept entry cannot be split with a tab: over a tab's row it goes before or after it, by halves.
