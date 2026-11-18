@@ -4,6 +4,7 @@ import Observation
 import SunsetConfig
 import SunsetHost
 import SunsetShell
+import SunsetStorage
 
 /// The configuration file as the app sees it: read at launch, watched, and re-read whenever it settles after a change. Views read `configuration` and update
 /// themselves; a file that cannot be read leaves the last good configuration in force and says why.
@@ -87,7 +88,11 @@ final class AppConfiguration {
     @ObservationIgnored private var watchedTheme: String?
 
     private init() {
-        path = ConfigurationLocation.path(environment: ProcessInfo.processInfo.environment, home: NSHomeDirectory())
+        path = ConfigurationLocation.path(
+            environment: ProcessInfo.processInfo.environment,
+            home: NSHomeDirectory(),
+            variant: StoragePlaces.current.variant
+        )
         reload()
         let watcher = FileWatcher(path: path)
         self.watcher = watcher
