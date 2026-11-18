@@ -95,6 +95,32 @@ extension SettingsOption {
             )
             .noted("Off, the sections keep their space without a line."),
             toggle(
+                "sidebar.previews",
+                "Previews",
+                "preview card hover thumbnail picture",
+                \.sidebar.previews,
+                label: "Show a preview when pointing at a tab"
+            ),
+            toggle("sidebar.previewPages", "Previews of pages", "preview web page site", \.sidebar.previewPages),
+            toggle(
+                "sidebar.previewTerminals",
+                "Previews of terminals",
+                "preview terminal shell",
+                \.sidebar.previewTerminals
+            ),
+            toggle(
+                "sidebar.previewDocuments",
+                "Previews of documents",
+                "preview document markdown note",
+                \.sidebar.previewDocuments
+            ),
+            toggle(
+                "sidebar.previewFolders",
+                "Previews of folders",
+                "preview folder favorites list",
+                \.sidebar.previewFolders
+            ),
+            toggle(
                 "sidebar.library",
                 "Library",
                 "sections documents history downloads rail",

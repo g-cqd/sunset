@@ -157,6 +157,11 @@ public enum ConfigurationWriter {
         extra["sidebar.library"] = String(configuration.sidebar.library)
         extra["sidebar.documentSort"] = string(configuration.sidebar.documentSort.rawValue)
         extra["sidebar.separators"] = String(configuration.sidebar.separators)
+        extra["sidebar.previews"] = String(configuration.sidebar.previews)
+        extra["sidebar.previewPages"] = String(configuration.sidebar.previewPages)
+        extra["sidebar.previewTerminals"] = String(configuration.sidebar.previewTerminals)
+        extra["sidebar.previewDocuments"] = String(configuration.sidebar.previewDocuments)
+        extra["sidebar.previewFolders"] = String(configuration.sidebar.previewFolders)
         return extra
     }
 

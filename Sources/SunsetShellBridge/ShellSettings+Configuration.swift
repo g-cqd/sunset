@@ -12,6 +12,11 @@ extension ShellSettings {
         sidebar.side = configuration.sidebar.side == .left ? .left : .right
         sidebar.library = configuration.sidebar.library
         sidebar.separators = configuration.sidebar.separators
+        sidebar.previews = configuration.sidebar.previews
+        sidebar.previewPages = configuration.sidebar.previewPages
+        sidebar.previewTerminals = configuration.sidebar.previewTerminals
+        sidebar.previewDocuments = configuration.sidebar.previewDocuments
+        sidebar.previewFolders = configuration.sidebar.previewFolders
         sidebar.documentSort = DocumentSort(rawValue: configuration.sidebar.documentSort.rawValue) ?? .changed
         tabs.bar.position = configuration.tabs.bar.position == .top ? .top : .bottom
         tabs.bar.showTitle = configuration.tabs.bar.showTitle

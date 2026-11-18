@@ -14,6 +14,8 @@ struct TabPreviewHost: View {
     /// The pane area, in the window.
     let area: CGRect
     let sidebarOnRight: Bool
+    /// Which rows show a card (`sidebar.previews` and the kinds).
+    var kinds = PreviewKinds()
 
     /// What the card shows: it stays a moment after the pointer left its row, so that going from a row to the next moves it.
     @State private var shown: Shown?
@@ -50,6 +52,7 @@ struct TabPreviewHost: View {
         .onChange(of: tabs.hoveredFolder) { _, _ in follow() }
         .onChange(of: tabs.hoveredRowFrame) { _, _ in follow() }
         .onChange(of: tabs.dragged == nil) { _, _ in follow() }
+        .onChange(of: kinds) { _, _ in follow() }
         // A page's snapshot taken as the pointer came arrives a moment later (roadmap 0035 C).
         .onChange(of: hoveredHasPicture) { _, _ in follow() }
     }
@@ -98,10 +101,14 @@ struct TabPreviewHost: View {
         }
         // Every kind has a card, a pane with no picture showing its icon (n77); not the tab on screen: its card would picture
         // what is under it (the owner, 2026-11-17: "nesting of the preview in previews").
-        if let id = tabs.hoveredItem, id != tabs.shownItem?.id, tabs.previewItem(id) != nil {
+        if let id = tabs.hoveredItem, id != tabs.shownItem?.id, let item = tabs.previewItem(id),
+            kinds.shows(
+                kinds: item.panes.map { tabs.content($0)?.descriptor.kind ?? tabs.pendingDescriptor($0)?.kind ?? "" }
+            )
+        {
             leaving?.cancel()
             shown = Shown(item: id, row: tabs.hoveredRowFrame)
-        } else if let folder = tabs.hoveredFolder {
+        } else if let folder = tabs.hoveredFolder, kinds.showsFolders {
             leaving?.cancel()
             shown = Shown(folder: folder, row: tabs.hoveredRowFrame)
         } else {

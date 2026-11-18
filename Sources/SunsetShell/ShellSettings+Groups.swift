@@ -20,8 +20,25 @@ extension ShellSettings {
         package var documentSort = DocumentSort.changed
         /// The lines between the Pinned grid, the Favorites and the tabs (`sidebar.separators`).
         package var separators = true
+        /// A card when a row is pointed at, and of which kinds (`sidebar.previews`, `sidebar.preview*`).
+        package var previews = true
+        package var previewPages = true
+        package var previewTerminals = true
+        package var previewDocuments = true
+        package var previewFolders = true
 
         package init() {}
+
+        /// Which rows show a preview card.
+        package var previewKinds: PreviewKinds {
+            var kinds = PreviewKinds()
+            kinds.enabled = previews
+            kinds.pages = previewPages
+            kinds.terminals = previewTerminals
+            kinds.documents = previewDocuments
+            kinds.folders = previewFolders
+            return kinds
+        }
     }
 
     /// `tabs.*`, as far as the shell's views read it.

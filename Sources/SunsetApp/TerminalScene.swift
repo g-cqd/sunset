@@ -92,7 +92,8 @@ struct TerminalScene: View {
                 PanePreviews(
                     tabs: tabs,
                     layout: configuration.layout,
-                    sidebarOnRight: configuration.sidebar.side == .right
+                    sidebarOnRight: configuration.sidebar.side == .right,
+                    kinds: ShellSettings(configuration).sidebar.previewKinds
                 )
             }
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }

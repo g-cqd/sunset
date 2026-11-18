@@ -22,6 +22,12 @@ extension Configuration {
         public var documentSort = DocumentSort.changed
         /// The lines between the Pinned grid, the Favorites and the tabs; off, their space stays (the owner, 2026-11-17).
         public var separators = true
+        /// A card when a row is pointed at (`previews`), and of which kinds (the owner, 2026-11-18).
+        public var previews = true
+        public var previewPages = true
+        public var previewTerminals = true
+        public var previewDocuments = true
+        public var previewFolders = true
 
         public init() {}
     }
