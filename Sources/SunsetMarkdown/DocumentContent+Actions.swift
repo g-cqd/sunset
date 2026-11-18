@@ -2,7 +2,7 @@ package import AppKit
 package import Foundation
 internal import SunsetDocuments
 internal import SunsetPane
-internal import SunsetShell
+package import SunsetShell
 
 /// What a document pane does when asked: saving, the other view beside it, a link.
 extension DocumentContent {
@@ -65,5 +65,20 @@ extension DocumentContent {
             .document(DocumentContent(document: documents.open(.file(path)), mode: nil, documents: documents)),
             place
         )
+    }
+}
+
+extension DocumentContent {
+    /// What a document adds to its tab's menu (the owner's note n8): the other view in place, and beside; nothing for a text
+    /// file, which has no page.
+    package var menuActions: [PaneMenuAction] {
+        guard canRender else { return [] }
+        let rendered = mode == .rendered
+        return [
+            PaneMenuAction(rendered ? "Show Source" : "Show Rendered") { [weak self] in self?.toggleMode() },
+            PaneMenuAction(rendered ? "Show Source Beside" : "Show Rendering Beside") { [weak self] in
+                self?.showBeside()
+            }
+        ]
     }
 }

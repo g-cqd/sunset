@@ -81,4 +81,23 @@ struct KeptEntryAwayTests {
         let back = try #require(pinned.favorites.entry(entry))
         #expect(!tabs.isAway(entry: back))
     }
+
+    /// The owner's note n8: "the edit command should only show for pinned/favorites terminal tabs".
+    @Test func `only a kept terminal has a command to edit`() throws {
+        let pinned = FavoritesModel()
+        let tabs = TabsModel()
+        tabs.makeContent = { FakeContent($0) }
+        tabs.pinned = pinned
+        tabs.newTab(PaneDescriptor(kind: "web", state: ["url": "https://mail.example/"]))
+        let first = try #require(tabs.workspace.selectedID)
+        let pinnedPage = tabs.pin(item: first)
+        let page = try #require(pinnedPage)
+        tabs.newTab(.terminal(directory: "/tmp"))
+        let second = try #require(tabs.workspace.selectedID)
+        let pinnedShell = tabs.pin(item: second)
+        let shell = try #require(pinnedShell)
+        let pageEntry = try #require(pinned.favorites.entry(page))
+        let shellEntry = try #require(pinned.favorites.entry(shell))
+        #expect(!tabs.runsTerminal(pageEntry) && tabs.runsTerminal(shellEntry))
+    }
 }

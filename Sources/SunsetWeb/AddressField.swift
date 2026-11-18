@@ -15,6 +15,8 @@ package struct AddressField: View {
     /// What its context menu adds after the page's own items: the tab's menu (the app's).
     var menu: AnyView?
     @State private var hovering = false
+    /// Being typed in: no buttons over its end and no fade, so that the text and the caret are never hidden (note n9).
+    @State private var editing = false
     @State private var focusNow = false
     @Environment(\.addressTyping) private var typing
     @Environment(\.colorScheme) private var colorScheme
@@ -90,6 +92,7 @@ package struct AddressField: View {
                 content.focusPage()
             },
             onEditing: { editing in
+                self.editing = editing
                 if editing { typing?.begin(content, place: place) } else if typing?.page === content { endSoon() }
                 onEditing(editing)
             },
@@ -98,7 +101,14 @@ package struct AddressField: View {
         )
     }
 
-    private var showsActions: Bool { reload && (hovering || content.isLoading) }
+    private var showsActions: Bool {
+        Self.showsActions(reload: reload, hovering: hovering, loading: content.isLoading, editing: editing)
+    }
+
+    /// Copy and Reload at the end: asked for, under the pointer or loading, and never while it is typed in (note n9).
+    static func showsActions(reload: Bool, hovering: Bool, loading: Bool, editing: Bool) -> Bool {
+        reload && !editing && (hovering || loading)
+    }
 
     /// The text fades out under the buttons at its end while they show.
     private var textMask: some View {

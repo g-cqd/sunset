@@ -13,6 +13,7 @@ struct KeptEntryMenu: View {
     var animation: Animation?
 
     private var isPinned: Bool { tabs.isPinned(entry.id) }
+    private var runsTerminal: Bool { tabs.runsTerminal(entry) }
     private var keeper: FavoritesModel { tabs.keeper(of: entry.id) }
 
     var body: some View {
@@ -31,10 +32,11 @@ struct KeptEntryMenu: View {
             Button("Rename") { tabs.renamingRow = .node(entry.id) }
             Button("Change Icon\u{2026}") { tabs.iconRow = .node(entry.id) }
         }
-        Button("Edit Command\u{2026}") { tabs.editingCommand = entry.id }
-        if entry.isOpen, entry.command != nil {
+        if runsTerminal { Button("Edit Command\u{2026}") { tabs.editingCommand = entry.id } }
+        if runsTerminal, entry.isOpen, entry.command != nil {
             Button("Run Command Now") { keeper.runCommandNow(entry.id) }.disabled(!keeper.isTrusted(entry.id))
         }
+        PaneActionsMenu(tabs: tabs, panes: entry.open?.panes ?? []) { tabs.select(entry: entry.id) }
         Divider()
         // Where it starts from: gone back to, or set to where it is now.
         Button(isPinned ? "Reset to Where It Was Pinned" : "Reset to Home") { tabs.reset(entry: entry.id) }

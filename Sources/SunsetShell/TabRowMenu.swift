@@ -20,16 +20,10 @@ struct TabRowMenu: View {
             Button("Rename") { tabs.renamingRow = .tab(item) }
         }
         Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item) }
-        // The page's own (roadmap 0047 G): its site's settings open beside its address, the tab shown.
-        let actions =
-            tabs.workspace.items.first { $0.id == item }.flatMap { tabs.content($0.focused) }?.menuActions ?? []
-        if pageActions, !actions.isEmpty {
-            Divider()
-            ForEach(actions.indices, id: \.self) { index in
-                Button(actions[index].title) {
-                    tabs.select(item: item)
-                    actions[index].run()
-                }
+        // What its panes' contents offer (a page's Reload, a document's other view; roadmap 0047 G, note n8).
+        if pageActions {
+            PaneActionsMenu(tabs: tabs, panes: tabs.workspace.items.first { $0.id == item }?.panes ?? []) {
+                tabs.select(item: item)
             }
         }
         Button("Tab Settings\u{2026}") { tabs.showSingle(.settings(topic: "tabs.placement")) }

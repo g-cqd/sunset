@@ -32,6 +32,15 @@ extension TabsModel {
         select(entry: id)
     }
 
+    /// Whether a kept entry has a terminal among its panes, live or saved: only then has it a command to edit or run (the
+    /// owner's note n8).
+    package func runsTerminal(_ entry: Favorites.Entry) -> Bool {
+        let panes = entry.open?.panes ?? entry.home.layout.panes
+        return panes.contains { pane in
+            (content(pane)?.descriptor ?? entry.home.contents[pane])?.kind == PaneDescriptor.terminalKind
+        }
+    }
+
     private static func withoutFragment(_ address: String) -> String {
         guard var parts = URLComponents(string: address) else { return address }
         parts.fragment = nil
