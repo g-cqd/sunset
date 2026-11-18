@@ -73,6 +73,17 @@ struct PageSleepTests {
         #expect(PageSleep.memoryIsShort(level: 4))
     }
 
+    /// Roadmap 0047 I: a page back from the session is not loaded until it is shown or pointed at; its icon says so, as an
+    /// unloaded page's does.
+    @Test func `a page back from the session is unloaded until its view is made`() {
+        let saved = PaneDescriptor(kind: WebContent.kind, state: ["url": "https://example.org/", "title": "Example"])
+        let page = WebContent(descriptor: saved, settings: settings)
+        #expect(page.isUnloaded && page.webView == nil)
+        page.prepare()
+        #expect(!page.isUnloaded && page.webView != nil)
+        page.stop()
+    }
+
     @Test func `a page unloaded while it loads is said to load no more`() async throws {
         let page = WebContent(url: nil, settings: settings)
         page.setState(focused: true, visible: true)

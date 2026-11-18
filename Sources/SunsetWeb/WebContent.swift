@@ -129,6 +129,8 @@ package final class WebContent: PaneContent {
             settings: settings
         )
         zoom = descriptor.state["zoom"].flatMap(Double.init) ?? 1
+        // Not loaded until it is shown or pointed at (roadmap 0047 I).
+        isUnloaded = url != nil
     }
 
     // MARK: PaneContent

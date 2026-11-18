@@ -115,7 +115,7 @@ struct FavoritesSection: View {
             showProgress: settings.tabs.bar.showProgress,
             layout: layout,
             button: entry.isOpen ? .unload : .delete,
-            open: entry.isOpen,
+            open: tabs.isLoaded(entry: entry),
             compact: true,
             marked: tabs.isMarked(.node(entry.id)),
             awake: entry.isOpen && tabs.keepsAwake(entry: entry.id) != nil,

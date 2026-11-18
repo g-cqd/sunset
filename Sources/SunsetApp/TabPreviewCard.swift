@@ -55,7 +55,9 @@ struct TabPreviewCard: View {
                 showDirectory: true,
                 showProgress: false,
                 name: custom.name,
-                icon: custom.icon
+                icon: custom.icon,
+                // Not made yet (back from the session): what it is saved as, not a terminal (roadmap 0047 I).
+                saved: tabs.pendingDescriptor(item.focused)
             )
             .padding(.horizontal, Design.Space.l)
             .padding(.top, Design.Space.m)
@@ -105,7 +107,10 @@ struct TabPreviewCard: View {
         } else {
             // A pane with nothing pictured (a settings tab, a page not loaded yet): its icon, so every kind has a card (n77).
             Color.primary.opacity(Design.Fill.open)
-                .overlay { TabIcon(model: tabs.content(pane), showsProgress: false).opacity(Design.Fill.inkSecondary) }
+                .overlay {
+                    TabIcon(model: tabs.content(pane), saved: tabs.pendingDescriptor(pane), showsProgress: false)
+                        .opacity(Design.Fill.inkSecondary)
+                }
         }
     }
 }

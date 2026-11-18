@@ -110,7 +110,7 @@ struct PinnedGrid: View {
                 Group {
                     if shown { shape.focusHairline(layout, accent: accent.color) } else { shape.hoverHairline(layout) }
                 }
-                .opacity(entry.isOpen ? 1 : 0)
+                .opacity(tabs.isLoaded(entry: entry) ? 1 : 0)
             }
             .overlay(alignment: .topTrailing) {
                 // Kept awake (roadmap 0036 C): a cup in its corner.

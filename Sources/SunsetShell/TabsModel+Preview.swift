@@ -16,4 +16,18 @@ extension TabsModel {
     package func hoverID(entry id: Favorites.NodeID) -> Workspace.ItemID? {
         keeper(of: id).favorites.entry(id)?.open?.id
     }
+
+    /// What a pane not made yet is saved as (an open entry back from the session, a tab not shown since): its preview names
+    /// and pictures it from this (roadmap 0047 I).
+    package func pendingDescriptor(_ pane: PaneID) -> PaneDescriptor? {
+        guard content(pane) == nil else { return nil }
+        return space.pending[pane] ?? favorites.pending[pane] ?? pinned?.pending[pane]
+    }
+
+    /// Whether a kept entry runs now: open, and each of its panes made and loaded. Open but not made (back from the session),
+    /// it is not drawn as loaded (roadmap 0047 I).
+    package func isLoaded(entry: Favorites.Entry) -> Bool {
+        guard let open = entry.open else { return false }
+        return open.panes.allSatisfy { content($0).map { !$0.isUnloaded } ?? false }
+    }
 }

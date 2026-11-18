@@ -47,6 +47,7 @@ extension WebContent {
         view.uiDelegate = coordinator
         self.coordinator = coordinator
         webView = view
+        isUnloaded = false
         find.attach(view)
         applyZoom()
         observe(view)
