@@ -39,7 +39,7 @@ public enum ConfigurationKeys {
         "spaces.pinned", "features.terminal",
         "features.web",
         "features.documents",
-        "web.openLinksInSunset", "web.developer", "web.tabIcon",
+        "web.openLinksInSunset", "web.developer", "web.tabIcon", "web.unloadAfter", "web.unloadUnderPressure",
         "web.address", "web.windowBar", "web.splitBar", "web.fullFrameRate", "web.engine", "web.engines",
         "web.suggestions",
         "web.httpFallback",

@@ -112,6 +112,7 @@ public enum ConfigurationWriter {
             "web.suggestions": String(web.suggestions), "web.httpFallback": String(web.httpFallback),
             "web.zoomScope": string(web.zoomScope.rawValue), "web.agent": string(web.agent.rawValue),
             "web.agentScripts": String(web.agentScripts),
+            "web.unloadAfter": number(web.unloadAfter), "web.unloadUnderPressure": String(web.unloadUnderPressure),
             "web.textOnlyZoom": String(web.textOnlyZoom),
             "web.historyKeep": string(web.historyKeep.rawValue),
             "web.clearHistoryOnQuit": String(web.clearHistoryOnQuit),

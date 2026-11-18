@@ -53,6 +53,8 @@ package import SwiftUI
     /// Gets ready to be shown, without showing (its row is pointed at: note n1): a page not made yet starts loading. Kinds
     /// that are ready at once ignore it.
     func prepare()
+    /// It let go of its memory while hidden and is made again when shown (a page, S-f): its icon is dimmed.
+    var isUnloaded: Bool { get }
     func makeView(_ context: PaneViewContext) -> AnyView
 }
 
@@ -69,4 +71,5 @@ extension PaneContent {
     package var runsCommand: Bool { false }
     package func takePicture() {}
     package func prepare() {}
+    package var isUnloaded: Bool { false }
 }

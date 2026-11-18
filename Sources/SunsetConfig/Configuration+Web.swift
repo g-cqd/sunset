@@ -120,6 +120,10 @@ extension Configuration {
         public var privateSuggestions = false
         /// The pages of a new private window share one store (its selector changes it for the window).
         public var privateWindowShares = true
+        /// A page not on screen is unloaded after this many hours (0: never by the delay), and when memory runs short,
+        /// the longest idle first (roadmap 0021 S-f, ADR-0071).
+        public var unloadAfter = 12.0
+        public var unloadUnderPressure = true
         /// By permission name (camera, microphone, screen, location, notifications, popups, autoplay): what a site not yet answered gets.
         public var permissions: [String: PermissionDefault] = Self.permissionDefaults
         public static let permissionNames = [

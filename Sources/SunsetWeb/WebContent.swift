@@ -56,6 +56,10 @@ package final class WebContent: PaneContent {
     @ObservationIgnored package internal(set) var takingPicture = false
     /// It was on screen at the last `setState`.
     @ObservationIgnored var shown = false
+    /// Since when it is not on screen, once it was made (S-f): what decides when it is unloaded.
+    @ObservationIgnored package internal(set) var hiddenSince: Date?
+    /// Its view was let go of to free memory (S-f): it is made again, where it was, when it is shown. Its icon is dimmed.
+    package internal(set) var isUnloaded = false
 
     package var onExit: () -> Void = {}
     package var onFocusRequest: () -> Void = {}
@@ -136,8 +140,10 @@ package final class WebContent: PaneContent {
 
     package func setState(focused: Bool, visible: Bool) {
         if visible, webView == nil { makeWebView(configuration: nil) }
+        if visible { isUnloaded = false }
         // Hidden: its last picture is taken while it is still drawn, for its tab's preview (roadmap 0035 C).
         if !visible, shown { takePicture() }
+        if visible { hiddenSince = nil } else if hiddenSince == nil, webView != nil { hiddenSince = Date() }
         shown = visible
     }
 

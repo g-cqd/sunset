@@ -31,6 +31,8 @@ package struct TabIcon: View {
         let loading = progress != nil
         ZStack {
             picture
+                // Unloaded to free memory (S-f): dimmed until it is shown again.
+                .opacity(model?.isUnloaded == true ? Design.Fill.collapsedIcon : 1)
                 .scaleEffect(loading ? Design.Ring.iconScale : 1)
                 .clipShape(Circle().scale(loading ? Design.Ring.clipLoading : Design.Ring.clipAtRest))
             // Completes when the page has loaded (no progress left), then fades as the icon grows back.

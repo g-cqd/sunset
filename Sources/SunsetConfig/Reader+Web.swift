@@ -10,7 +10,7 @@ extension Reader {
         "askWhereToSave": \.askWhereToSave, "openSafeDownloads": \.openSafeDownloads,
         "notifyDownloads": \.notifyDownloads,
         "approveRiskyDownloads": \.approveRiskyDownloads, "privateSuggestions": \.privateSuggestions,
-        "privateWindowShares": \.privateWindowShares
+        "privateWindowShares": \.privateWindowShares, "unloadUnderPressure": \.unloadUnderPressure
     ]
 
     mutating func readWeb(_ object: Object) {
@@ -60,6 +60,8 @@ extension Reader {
                 if let edge = choice(path, value, as: Configuration.Web.BarEdge.self) {
                     configuration.web.windowBar = edge
                 }
+            case "unloadAfter":
+                if let hours = number(path, value, range: 0 ... 168) { configuration.web.unloadAfter = hours }
             case "fullFrameRate":
                 if let on = bool(path, value) { configuration.web.fullFrameRate = on }
             case "splitBar":
