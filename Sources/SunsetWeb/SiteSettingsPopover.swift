@@ -41,6 +41,11 @@ struct SiteSettingsPopover: View {
             Text("What this site and its subdomains are told Sunset is. The page loads again.")
                 .font(Design.Text.detail)
                 .foregroundStyle(.secondary)
+            // Blocking, paused for this site and its subdomains (W-c); off for every site in Settings.
+            Toggle(isOn: Binding(get: { content.blocksOnSite }, set: { content.setBlocking($0) })) {
+                Label("Block ads and trackers", systemImage: "hand.raised")
+            }
+            .disabled(host.isEmpty || !ContentBlocker.shared.enabled)
             Text("Some apply when the page is opened again (sound, pop-ups).").font(Design.Text.detail)
                 .foregroundStyle(.secondary)
         }

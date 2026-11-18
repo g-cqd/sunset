@@ -124,6 +124,12 @@ extension Configuration {
         /// the longest idle first (roadmap 0021 S-f, ADR-0071).
         public var unloadAfter = 12.0
         public var unloadUnderPressure = true
+        /// Ads and trackers are blocked with these lists, which Sunset fetches itself (roadmap 0022 W-c): https only.
+        public var blocking = true
+        public var blockingLists = Self.defaultBlockingLists
+        public static let defaultBlockingLists = [
+            "https://easylist.to/easylist/easylist.txt", "https://easylist.to/easylist/easyprivacy.txt"
+        ]
         /// By permission name (camera, microphone, screen, location, notifications, popups, autoplay): what a site not yet answered gets.
         public var permissions: [String: PermissionDefault] = Self.permissionDefaults
         public static let permissionNames = [

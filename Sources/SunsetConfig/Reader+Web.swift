@@ -10,7 +10,8 @@ extension Reader {
         "askWhereToSave": \.askWhereToSave, "openSafeDownloads": \.openSafeDownloads,
         "notifyDownloads": \.notifyDownloads,
         "approveRiskyDownloads": \.approveRiskyDownloads, "privateSuggestions": \.privateSuggestions,
-        "privateWindowShares": \.privateWindowShares, "unloadUnderPressure": \.unloadUnderPressure
+        "privateWindowShares": \.privateWindowShares, "unloadUnderPressure": \.unloadUnderPressure,
+        "blocking": \.blocking
     ]
 
     mutating func readWeb(_ object: Object) {
@@ -22,6 +23,7 @@ extension Reader {
             switch key {
                 case "engine": if let name = string("web.engine", value) { configuration.web.engine = name }
                 case "engines": readEngines(value)
+                case "blockingLists": readBlockingLists(value)
                 case "permissions":
                     section("web.permissions", value) { reader, object in reader.readPermissions(object) }
                 case "downloadFolder":

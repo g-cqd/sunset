@@ -62,6 +62,23 @@ struct BlockingRulesTests {
         #expect(String(decoding: json, as: UTF8.self).contains(#""url-filter":".*""#))
     }
 
+    /// White paper §9: a list is third-party text; whatever it says, it can only block, hide, or let through.
+    @Test func `a list can only block, hide or let through`() {
+        let hostile = """
+            ||a.example^$redirect=noop.js
+            ||b.example^$removeparam=x
+            example.com#$#abort-on-property-read alert
+            example.com##+js(set-constant, x, 1)
+            ||c.example^$csp=script-src *
+            @@||d.example^$elemhide
+            ||e.example^$rewrite=abp-resource:blank-js
+            """
+        let made = rules(hostile)
+        let kinds = Set(made.rules.map(\.action.type))
+        #expect(kinds.isSubset(of: ["block", "css-display-none", "ignore-previous-rules"]))
+        #expect(made.rules.allSatisfy { $0.action.selector?.contains("+js(") != true })
+    }
+
     @Test func `the list is bounded: no rule past WebKit's limit, and nothing but ASCII in a filter`() {
         let many = (0 ..< 20).map { "||site\($0).example^" }.joined(separator: "\n") + "\n||exämple.com^"
         let made = BlockingRules.convert(many, limit: 10)

@@ -1,5 +1,5 @@
 ---
-status: in-progress (W-a done 2026-11-17; the rest not started)
+status: in-progress (W-a done 2026-11-17; W-g done with W-a, ADR-0052; W-c done 2026-11-18, ADR-0072; W-b deferred by the owner, ADR-0051; the rest not started)
 blocked-by: 0018 (each step's own questions); 0019 (the web pane); 0021 (Spaces and profiles)
 date: 2026-11-11
 ---

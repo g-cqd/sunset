@@ -15,7 +15,11 @@ import WebKit
     /// Cmd-click on a link opens it in a tab right after, not shown (as a link asking for a new tab does).
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction) async -> WKNavigationActionPolicy {
         // The page the view goes to is shown the browser its site is to see (W-a): set before the request leaves.
-        if action.targetFrame?.isMainFrame == true { content?.appear(for: action.request.url) }
+        if action.targetFrame?.isMainFrame == true {
+            content?.appear(for: action.request.url)
+            // Blocking, or its pause on the site the page goes to (W-c): decided before the page loads.
+            ContentBlocker.shared.apply(to: webView, host: action.request.url?.host())
+        }
         // A link that says download, or an Option-click (web step f).
         if action.shouldPerformDownload
             || (action.navigationType == .linkActivated && action.modifierFlags.contains(.option))

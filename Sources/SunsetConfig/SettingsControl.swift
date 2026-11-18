@@ -17,7 +17,7 @@ public enum SettingsControl: Sendable {
     /// The controls built by hand.
     public enum Custom: Sendable {
         case ansiPalette, scrollback, blinkTimeout, searchEngine, engines, websites, fileLocation, textOnlyZoom,
-            siteAgents, profiles, features
+            siteAgents, profiles, features, blockingLists
         /// Settings, Storage (R12 step ST-6): what is sealed, the website data, the files set aside, the key, a code, export.
         case storageSealed, storageWebsiteData, storageSetAside, storageKey, storageEnterCode, storageExport
     }

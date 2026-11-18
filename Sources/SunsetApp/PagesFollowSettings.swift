@@ -25,6 +25,7 @@ struct PagesFollowSettings: ViewModifier {
             }
             .onChange(of: web) { _, now in
                 AppDownloads.apply(now)
+                AppBlocking.apply(now)
                 let settings = PaneContentKinds.webSettings
                 for page in tabs.allPages {
                     var own = settings

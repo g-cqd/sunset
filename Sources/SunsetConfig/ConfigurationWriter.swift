@@ -113,6 +113,8 @@ public enum ConfigurationWriter {
             "web.zoomScope": string(web.zoomScope.rawValue), "web.agent": string(web.agent.rawValue),
             "web.agentScripts": String(web.agentScripts),
             "web.unloadAfter": number(web.unloadAfter), "web.unloadUnderPressure": String(web.unloadUnderPressure),
+            "web.blocking": String(web.blocking),
+            "web.blockingLists": "[" + web.blockingLists.map(string).joined(separator: ", ") + "]",
             "web.textOnlyZoom": String(web.textOnlyZoom),
             "web.historyKeep": string(web.historyKeep.rawValue),
             "web.clearHistoryOnQuit": String(web.clearHistoryOnQuit),

@@ -2,7 +2,7 @@
 public enum HelpCatalog {
     /// Every topic's text.
     public static let entries: [HelpTopic: HelpEntry] = sidebar.merging(web) { first, _ in first }
-        .merging(general) { first, _ in first }
+        .merging(general) { first, _ in first }.merging(blocking) { first, _ in first }
 
     /// The text of `topic`.
     /// - Parameter topic: The topic.

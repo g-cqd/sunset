@@ -32,6 +32,8 @@ extension WebContent {
                 permissions.answer(.autoplay, for: host) == .allow ? [] : .audio
         }
         let view = SunsetWebView(frame: .zero, configuration: configuration)
+        // Ads and trackers blocked (W-c), unless paused for the site.
+        ContentBlocker.shared.attach(view, host: url?.host())
         view.customUserAgent = agent(for: url).userAgent
         view.isInspectable = settings.developer
         view.allowsBackForwardNavigationGestures = true

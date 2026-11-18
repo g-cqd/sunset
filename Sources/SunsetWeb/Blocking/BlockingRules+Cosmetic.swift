@@ -10,7 +10,9 @@ extension BlockingRules {
         private static let groupSize = 100
         /// Pseudo-classes of the lists' own, which a browser's CSS does not know.
         private static let foreign = [
-            ":-abp-", ":has-text(", ":xpath(", ":style(", ":matches-css", ":upward(", ":remove("
+            ":-abp-", ":has-text(", ":xpath(", ":style(", ":matches-css", ":upward(", ":remove(",
+            // A scriptlet: never run, nor taken for a selector.
+            "+js("
         ]
 
         static func isCosmetic(_ line: String) -> Bool {
@@ -22,7 +24,10 @@ extension BlockingRules {
             guard let marker = line.range(of: "##"), !line.contains("#@#"), !line.contains("#?#"), !line.contains("#$#")
             else { return false }
             let selector = String(line[marker.upperBound...])
-            guard !selector.isEmpty, selector.isASCII, !Self.foreign.contains(where: selector.contains) else {
+            // `##^…` is an HTML filter, not a selector.
+            guard !selector.isEmpty, !selector.hasPrefix("^"), selector.isASCII,
+                !Self.foreign.contains(where: selector.contains)
+            else {
                 return false
             }
             let sites = line[..<marker.lowerBound].split(separator: ",").map(String.init)

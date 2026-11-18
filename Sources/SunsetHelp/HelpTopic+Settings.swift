@@ -22,6 +22,7 @@ extension HelpTopic {
         "spaces.pinned": .spaces,
         "features": .features,
         "web.agent": .browserIdentity,
-        "web.agentScripts": .browserIdentity
+        "web.agentScripts": .browserIdentity,
+        "web.blocking": .blocking
     ]
 }

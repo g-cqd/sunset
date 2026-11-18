@@ -120,6 +120,7 @@ extension SettingsSection {
             SettingsTopic("web.websites", "Websites", SettingsOption.websites),
             SettingsTopic("web.profiles", "Profiles", SettingsOption.profiles),
             SettingsTopic("web.memory", "Memory", SettingsOption.memory),
+            SettingsTopic("web.blocking", "Blocking", SettingsOption.blocking),
             SettingsTopic("web.advanced", "Advanced", SettingsOption.webAdvanced)
         ]
     )

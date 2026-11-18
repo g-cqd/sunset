@@ -30,7 +30,7 @@ package final class SiteAgents {
     /// What `host` is shown: its own rule, else the rule of the nearest site it is a subdomain of, else `fallback`. A
     /// rule is never for a bare last label ("com").
     package func agent(for host: String?, default fallback: BrowserAgent) -> BrowserAgent {
-        guard let host = host.map(Self.key) else { return fallback }
+        guard let host = host.map(SiteHost.key) else { return fallback }
         if let own = agents[host] { return own }
         var labels = host.split(separator: ".").dropFirst()
         while labels.count > 1 {
@@ -41,11 +41,11 @@ package final class SiteAgents {
     }
 
     /// The rule of exactly this site, if it has one.
-    package func rule(for host: String?) -> BrowserAgent? { host.flatMap { agents[Self.key($0)] } }
+    package func rule(for host: String?) -> BrowserAgent? { host.flatMap { agents[SiteHost.key($0)] } }
 
     /// Gives a site a rule, or takes it away (nil): it is then shown the default.
     package func set(_ agent: BrowserAgent?, for host: String?) {
-        guard let host = host.map(Self.key), !host.isEmpty else { return }
+        guard let host = host.map(SiteHost.key), !host.isEmpty else { return }
         agents[host] = agent
         if let agent {
             table?.put(host, payload: Data("\(host)\n\(agent.rawValue)".utf8))
@@ -57,12 +57,6 @@ package final class SiteAgents {
     package func clearAll() {
         agents = [:]
         table?.removeAll()
-    }
-
-    /// One entry for a site with or without "www.".
-    static func key(_ host: String) -> String {
-        let lower = host.lowercased()
-        return lower.hasPrefix("www.") ? String(lower.dropFirst(4)) : lower
     }
 
     private func load() {

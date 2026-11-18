@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             AppDownloads.start()
             AppWebNotifications.start()
             AppPageSleep.start()
+            AppBlocking.start()
             SystemAuthorizations.shared.start()
             AppConfiguration.shared.applyScheme()
         }
