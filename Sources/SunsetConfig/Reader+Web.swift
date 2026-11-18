@@ -6,7 +6,7 @@ extension Reader {
     private nonisolated(unsafe) static let webFlags: [String: WritableKeyPath<Configuration.Web, Bool>] = [
         "openLinksInSunset": \.openLinksInSunset, "developer": \.developer, "suggestions": \.suggestions,
         "httpFallback": \.httpFallback, "agentScripts": \.agentScripts, "textOnlyZoom": \.textOnlyZoom,
-        "clearHistoryOnQuit": \.clearHistoryOnQuit,
+        "clearHistoryOnQuit": \.clearHistoryOnQuit, "shareOtherProfiles": \.shareOtherProfiles,
         "askWhereToSave": \.askWhereToSave, "openSafeDownloads": \.openSafeDownloads,
         "notifyDownloads": \.notifyDownloads,
         "approveRiskyDownloads": \.approveRiskyDownloads, "privateSuggestions": \.privateSuggestions,

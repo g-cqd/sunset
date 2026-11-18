@@ -60,11 +60,14 @@ extension WebContent {
         guard let webView else { return }
         webView.setCameraCaptureState(.none)
         webView.setMicrophoneCaptureState(.none)
+        share?.stop(.stopped)
         capture = nil
     }
 
     package var captureDot: Color? {
-        switch capture {
+        // Shared into a call (ADR-0082): its tab says so, as the call's does.
+        if sharedInto > 0 { return .orange }
+        return switch capture {
             case .cameraOrMicrophone: .red
             case .screen: .orange
             case nil: nil

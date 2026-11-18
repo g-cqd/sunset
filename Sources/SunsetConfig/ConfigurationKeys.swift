@@ -56,6 +56,6 @@ public enum ConfigurationKeys {
         "web.approveRiskyDownloads", "web.keepDownloads",
         "web.permissions.camera", "web.permissions.microphone", "web.permissions.screen", "web.permissions.location",
         "web.permissions.notifications", "web.permissions.popups", "web.permissions.autoplay",
-        "web.privateSuggestions", "web.privateWindowShares"
+        "web.privateSuggestions", "web.privateWindowShares", "web.shareOtherProfiles"
     ]
 }

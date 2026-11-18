@@ -44,6 +44,12 @@ struct WebPaneView: View {
                         .id(request.id)
                         .transition(.opacity)
                 }
+                if let request = content.shareRequest {
+                    SharePanel(request: request, host: content.url?.host() ?? "This page")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .id(request.id)
+                        .transition(.opacity)
+                }
                 if let dialog = content.dialog {
                     PageDialogPanel(dialog: dialog) { content.silenceDialogs() }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

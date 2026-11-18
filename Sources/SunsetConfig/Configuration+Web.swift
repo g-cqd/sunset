@@ -143,6 +143,8 @@ extension Configuration {
         /// What goes when Sunset quits: the history, the website data (cookies, caches, storage).
         public var clearHistoryOnQuit = false
         public var keep = Keep(siteData: .keepChosen)
+        /// A page may be offered other profiles' tabs to share (ADR-0082).
+        public var shareOtherProfiles = false
         /// Where files are downloaded; empty: ~/Downloads.
         public var downloadFolder = ""
         public var askWhereToSave = false

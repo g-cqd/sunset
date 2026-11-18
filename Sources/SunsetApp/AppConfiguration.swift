@@ -5,6 +5,7 @@ import SunsetConfig
 import SunsetHost
 import SunsetShell
 import SunsetStorage
+import SunsetWeb
 
 /// The configuration file as the app sees it: read at launch, watched, and re-read whenever it settles after a change. Views read `configuration` and update
 /// themselves; a file that cannot be read leaves the last good configuration in force and says why.
@@ -19,6 +20,7 @@ final class AppConfiguration {
         didSet {
             if configuration.appearance.scheme != oldValue.appearance.scheme { applyScheme() }
             Feedback.taps = configuration.appearance.haptics
+            WebShare.otherProfiles = configuration.web.shareOtherProfiles
             refreshShown()
         }
     }

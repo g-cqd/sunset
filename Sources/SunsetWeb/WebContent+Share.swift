@@ -1,0 +1,44 @@
+import Foundation
+import WebKit
+
+/// Sharing a tab into this page (ADR-0082): the sheet's question, and the session once a tab is chosen.
+extension WebContent {
+    /// Asks the sheet; one question at a time.
+    func askShare() async -> ShareChoice {
+        guard shareRequest == nil, share == nil else { return .cancel }
+        let offered = TabShare.offered(
+            WebShare.sources(self),
+            to: settings.profile,
+            otherProfiles: WebShare.otherProfiles
+        )
+        return await withCheckedContinuation { continuation in
+            shareRequest = ShareRequest(sources: offered) { [weak self] choice in
+                self?.shareRequest = nil
+                continuation.resume(returning: choice)
+            }
+        }
+    }
+
+    func startShare(from id: UUID) {
+        guard let feed = WebShare.feed(id), let wrapper = shareWrapper else { return }
+        let session = ShareSession(
+            source: id,
+            feed: feed,
+            page: self,
+            frameFunction: wrapper.frameFunction,
+            endFunction: wrapper.endFunction
+        )
+        share = session
+        capture = .screen
+        session.start()
+    }
+
+    /// A page chosen to be shared that was never shown: made and loaded now, drawn off screen.
+    package func makeLoadedForSharing() {
+        if webView == nil { makeWebView(configuration: nil) }
+        isUnloaded = false
+    }
+
+    /// The person stops it, from the page's tab or the shared one.
+    package func stopShare() { share?.stop(.stopped) }
+}

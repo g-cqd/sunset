@@ -8,6 +8,7 @@ extension ConfigurationWriter {
         extra["appearance.barBlur"] = string(configuration.appearance.barBlur.rawValue)
         extra["appearance.haptics"] = String(configuration.appearance.haptics)
         extra["tabs.bar.autoHide"] = String(configuration.tabs.bar.autoHide)
+        extra["web.shareOtherProfiles"] = String(configuration.web.shareOtherProfiles)
         extra["appearance.ends"] = string(configuration.appearance.ends.rawValue)
         extra["appearance.barTint"] = string(configuration.appearance.barTint.rawValue)
         extra["appearance.tint.light"] = color(configuration.appearance.lightTintColor)

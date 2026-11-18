@@ -45,6 +45,7 @@ import WebKit
 
     /// At launch: the kept list, from the sealed store.
     static func start() {
+        AppShare.start()
         KeptSites.shared.table = AppStorage.shared.table("kept-sites")
         KeptSites.shared.marks = AppStorage.shared.table("kept-sites-marks")
         KeptSites.shared.applies = { id in

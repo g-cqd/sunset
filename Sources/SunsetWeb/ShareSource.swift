@@ -1,0 +1,20 @@
+package import Foundation
+
+/// A tab that can be shared into a call (ADR-0082): what the list shows of it, its profile, and what draws its frames.
+package struct ShareSource: Identifiable, Sendable {
+    package let id: UUID
+    package let title: String
+    package let space: String
+    /// Its profile; nil: the first.
+    package let profile: UUID?
+    /// A page's host, when it is a page: sharing stops if it goes to another site.
+    package let host: String?
+
+    package init(id: UUID, title: String, space: String, profile: UUID?, host: String?) {
+        self.id = id
+        self.title = title
+        self.space = space
+        self.profile = profile
+        self.host = host
+    }
+}

@@ -30,8 +30,7 @@ package final class WebContent: PaneContent {
     package internal(set) var permissionRequest: PermissionRequest?
     /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).
     package internal(set) var capture: PageCapture?
-    /// The microphone and the camera it uses, each live or muted (the owner's note n47).
-    package internal(set) var devices = PaneCapture()
+    package internal(set) var devices = PaneCapture()  // The microphone and the camera, each live or muted (n47).
     /// Find in the page (Cmd-F).
     package let find = PageFind()
     /// The page's zoom, 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
@@ -46,6 +45,11 @@ package final class WebContent: PaneContent {
     package internal(set) var iconColor: [UInt8]?
     /// The dialog the page asked for, waiting for its answer (`WebContent+Dialogs`).
     package internal(set) var dialog: PageDialog?
+    /// Sharing (ADR-0082): a tab asked for (the sheet shows it), the tab shared into this page, the calls it is shared into.
+    package internal(set) var shareRequest: ShareRequest?
+    package internal(set) var share: ShareSession?
+    package var sharedInto = 0
+    @ObservationIgnored var shareWrapper: ShareWrapper?
     @ObservationIgnored var dialogPolicy = PageDialogPolicy()
     /// A server's question for a name and a password, waiting (`CredentialRequest`).
     package internal(set) var credentialRequest: CredentialRequest?
@@ -167,11 +171,8 @@ package final class WebContent: PaneContent {
         shown = visible
     }
 
-    /// Its row is pointed at (note n1): a page not made yet is made, and starts loading, so that it is drawn by the time
-    /// its tab is shown.
-    package func prepare() {
-        if webView == nil { makeWebView(configuration: nil) }
-    }
+    /// Its row is pointed at (note n1): a page not made yet is made and starts loading, drawn by the time it is shown.
+    package func prepare() { if webView == nil { makeWebView(configuration: nil) } }
 
     /// A snapshot of the page as it is drawn now (roadmap 0035 C, J): kept as its `picture` when it arrives.
     package func takePicture() {

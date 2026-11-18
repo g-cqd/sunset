@@ -21,6 +21,7 @@ extension WebContent {
         IconWatch.install(on: configuration, for: self)
         TextWatch.install(on: configuration, for: self)
         SignInWatch.install(on: configuration, privately: isPrivate)
+        if !isPrivate { shareWrapper = ShareWrapper.install(on: configuration, for: self) }
         if settings.agentScripts { AgentScript.install(on: configuration) }
         WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
         WebPermissionHooks.enable(on: configuration.preferences)
