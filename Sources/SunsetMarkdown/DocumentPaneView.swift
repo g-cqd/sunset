@@ -32,6 +32,8 @@ struct DocumentPaneView: View {
                 )
                 // A task's box checks it off in the text (AemiMarkdown ADR-0011).
                 .onTaskToggle { document.source.toggleTask(at: $0) }
+                // A link's own menu (roadmap 0042 C).
+                .linkMenu { DocumentLinkMenu.Buttons(url: $0, content: content) }
                 .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
             } else {
                 MarkdownSourceEditor(

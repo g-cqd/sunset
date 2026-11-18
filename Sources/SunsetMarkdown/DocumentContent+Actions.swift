@@ -40,7 +40,14 @@ extension DocumentContent {
     /// A link of the page was followed: where the keys held say, else where `documents.linksOpen` says (the owner,
     /// 2026-11-17); never in this pane.
     package func open(link url: URL, modifiers: NSEvent.ModifierFlags = NSApp?.currentEvent?.modifierFlags ?? []) {
-        let place = LinkPlace(modifiers: modifiers, besideByDefault: documents.look.linksBeside)
+        open(link: url, in: LinkPlace(modifiers: modifiers, besideByDefault: documents.look.linksBeside))
+    }
+
+    /// A link of the page opened where its menu said (roadmap 0042 C).
+    /// - Parameters:
+    ///   - url: where the link leads: a web address, or a file of this Mac.
+    ///   - place: where it opens.
+    package func open(link url: URL, in place: LinkPlace) {
         guard url.isFileURL else {
             let scheme = url.scheme?.lowercased()
             return onOpen(scheme == "http" || scheme == "https" ? .web(url) : .system(url), place)

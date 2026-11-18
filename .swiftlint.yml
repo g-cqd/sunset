@@ -42,6 +42,7 @@ only_rules:
 # `.swift-format`. The metrics gate the shipped `Sources/` tree; `Tests/` are gated separately.
 excluded:
   - .build
+  - "**/.build/**"  # a nested package's build (bench/instructions, Tools/axdrive): its checkouts are other repositories
   - .git
   - docs         # research probes (throwaway models), not shipped source
   - Benchmarks   # ordo-one statistical benchmark suites, not shipped source
