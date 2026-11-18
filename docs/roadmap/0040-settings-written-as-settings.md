@@ -19,5 +19,6 @@ written correctly".
 
 ## Not done
 
-D seen on screen. What the cut notes lost is in help now (roadmap 0041 C: features, Spaces, appearing as another
+D seen on screen for General (2026-11-18: its five groups, Spaces and Features); the other sections and Web > Websites'
+new name not seen. What the cut notes lost is in help now (roadmap 0041 C: features, Spaces, appearing as another
 browser); profiles had its topic.
