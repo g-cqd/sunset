@@ -21,6 +21,5 @@ struct FolderPicker: View {
             guard panel.runModal() == .OK, let url = panel.url else { return }
             path = SettingsOption.written(folder: url.path, home: NSHomeDirectory())
         }
-        .help("Choose a folder")
     }
 }
