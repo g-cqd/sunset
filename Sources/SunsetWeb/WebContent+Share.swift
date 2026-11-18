@@ -39,6 +39,11 @@ extension WebContent {
         isUnloaded = false
     }
 
+    /// The person stops every share of this page into a call, from its own tab (its site panel).
+    package func stopBeingShared() {
+        for session in WebShare.sessions where session.shares(self) { session.stop(.stopped) }
+    }
+
     /// The person stops it, from the page's tab or the shared one.
     package func stopShare() { share?.stop(.stopped) }
 }

@@ -7,4 +7,6 @@ package enum WebShare {
     package static var feed: (_ id: UUID) -> ShareFeed? = { _ in nil }
     /// Other profiles' tabs offered too (`web.shareOtherProfiles`).
     package static var otherProfiles = false
+    /// The shares running now, in every page.
+    package internal(set) static var sessions: [ShareSession] = []
 }

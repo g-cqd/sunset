@@ -22,6 +22,10 @@ struct SiteSettingsPopover: View {
             if content.capture != nil {
                 Button("Stop Camera, Microphone and Screen") { content.stopCapture() }
             }
+            // This page is shared into a call (ADR-0082): stopped from here too.
+            if content.sharedInto > 0 {
+                Button("Stop Sharing This Tab") { content.stopBeingShared() }
+            }
             // Blocking, paused for this site and its subdomains (W-c); off for every site in Settings.
             Toggle(isOn: Binding(get: { content.blocksOnSite }, set: { content.setBlocking($0) })) {
                 Label("Block ads and trackers", systemImage: "hand.raised")

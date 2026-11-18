@@ -26,7 +26,11 @@ package final class ShareSession {
         startHost = feed.host()
     }
 
+    /// Whether `page` is the tab this session shares.
+    package func shares(_ page: WebContent) -> Bool { feed.page() === page }
+
     func start() {
+        WebShare.sessions.append(self)
         feed.shared(true)
         task = Task { @MainActor [weak self] in await self?.run() }
     }
@@ -37,6 +41,7 @@ package final class ShareSession {
         stopped = why
         task?.cancel()
         feed.shared(false)
+        WebShare.sessions.removeAll { $0 === self }
         if tellPage, let view = page?.webView {
             view.evaluateJavaScript("window[\"\(endFunction)\"] && window[\"\(endFunction)\"]()", in: nil, in: .page)
         }

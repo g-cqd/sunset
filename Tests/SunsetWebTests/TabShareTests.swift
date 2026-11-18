@@ -1,4 +1,5 @@
 import Foundation
+import SunsetPane
 import Testing
 
 @testable import SunsetWeb
@@ -39,5 +40,27 @@ import Testing
             TabShare.stop(sourceOpen: true, requesterOpen: true, startHost: nil, hostNow: nil, stoppedByPerson: false)
                 == nil
         )
+    }
+}
+
+extension TabShareTests {
+    /// ADR-0082: the shared tab stops being shared from its own panel; the call's track ends.
+    @Test @MainActor func `a shared page stops every share of itself, and only those`() {
+        let shared = WebContent(descriptor: PaneDescriptor(kind: "web", state: [:]), settings: WebSettings())
+        let other = WebContent(descriptor: PaneDescriptor(kind: "web", state: [:]), settings: WebSettings())
+        let call = WebContent(descriptor: PaneDescriptor(kind: "web", state: [:]), settings: WebSettings())
+        func session(of page: WebContent) -> ShareSession {
+            let feed = ShareFeed(frame: { nil }, isOpen: { true }, host: { nil }, page: { page })
+            return ShareSession(source: UUID(), feed: feed, page: call, frameFunction: "f", endFunction: "e")
+        }
+        let one = session(of: shared)
+        let two = session(of: other)
+        one.start()
+        two.start()
+        #expect(WebShare.sessions.count >= 2)
+        shared.stopBeingShared()
+        #expect(one.stopped == .stopped && two.stopped == nil)
+        #expect(!WebShare.sessions.contains { $0 === one })
+        two.stop(.stopped)
     }
 }

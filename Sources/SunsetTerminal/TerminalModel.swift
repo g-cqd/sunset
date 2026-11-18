@@ -214,28 +214,10 @@ package import SunsetRenderMac
             setDisplayLinkPaused(true)
             return
         }
-        guard !renderInFlight, let session, let renderer else { return }
+        guard !renderInFlight, session != nil, renderer != nil else { return }
         frameWanted = false
+        // Claimed here, before the task starts: a tick in between draws nothing.
         renderInFlight = true
-        let phase = cursorPhase
-        let alpha = backgroundAlpha
-        Task { [weak self] in
-            let snapshot = await session.takeSnapshot()
-            self?.viewport.follow(historyCount: snapshot.scrollbackCount)
-            self?.lastScreen = snapshot
-            let changed = await renderer.present(
-                snapshot,
-                cursorVisible: phase || !snapshot.cursorBlinks,
-                textBlinkVisible: phase,
-                view: FrameView(
-                    scrolledBack: self?.viewport.scrolledBack ?? 0,
-                    selection: self?.selection,
-                    hoveredLink: self?.hoveredLink ?? 0,
-                    backgroundAlpha: alpha,
-                    extraPixels: self?.extraPixels(for: snapshot) ?? (0, 0)
-                )
-            )
-            self?.presented(changed: changed, snapshot: snapshot)
-        }
+        Task { [weak self] in await self?.drawClaimed() }
     }
 }
