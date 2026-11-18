@@ -20,5 +20,16 @@ there to bring soon"; then C–F, then 0050.
 | E | Exports: sealed by default, or opt-in with a warning | t48 | not-started |
 | F | Signing: Developer ID, hardened runtime, library validation; a Secure Enclave key wrapping the storage key | t49 | not-started (needs the owner's certificate) |
 
+The extended audit (note n23; docs/research/storage-audit-webkit-data-2026-11-18.md, every real datum removed, n24): WebKit's own
+stores beside Sunset's (network cache, website data, cookies, HSTS, resource load statistics, alternative services) are in the
+clear and hold more than the sealed store. Added, and first among C–J once the notes not started are done:
+
+| Step | What | Task | Status |
+|---|---|---|---|
+| G | WebKit's folders and files Sunset's own only: 0700 on `Caches/<id>`, `WebKit/<id>`, `HTTPStorages`; 0600 on cookie jars and databases (probe what WebKit resets) | t50 | not-started |
+| H | Choices for what WebKit keeps, per profile: the network cache off or cleared on quit; HSTS, resource load statistics, alternative services cleared on quit; cookies and website data kept, cleared on quit, or the profile's store non-persistent (with what is lost: sign-ins) | t50 | not-started |
+| I | Probe whether WebKit's stores can be sealed at all (a data store at a custom location on an encrypted volume or a sealed disk image, mounted with the Keychain's key; `WKWebsiteDataStore(forIdentifier:)`'s location); the own engine (0048) as the other way | t51 | not-started |
+| J | A development build's data (`.dev`) under the same rules | t50 | not-started |
+
 Each step: red first (a test reading the modes, the WAL, the clear columns), the cost measured where it touches the hot path
 (history writes, launch).

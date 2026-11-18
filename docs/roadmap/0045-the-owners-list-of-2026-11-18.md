@@ -13,7 +13,7 @@ floating when on a webpage creates an odd blank space at the top of the content 
 and the alpha masking should be better animated … if a space has pinned, favorites and tabs and another one only tabs,
 the tabs get aligned together whereas they should be on the top of the sidebar in the space that only has one tab";
 and "further and deepen the work on the chrome (or other impersonation) as for example the sites like
-app.site.example or develop.site.example or staging.site.example are not loading properly". Commits
+[three hosts of one business site] are not loading properly". Commits
 local only (nothing can be pushed from this machine), rebased on the remote as it moves; rebuilt and installed at the end.
 
 | Step | What | Task | Status |
@@ -47,7 +47,7 @@ Not done in F, said plainly:
   nothing reaches workers. No `Sec-CH-UA` headers. Full versions
   are `.0.0.0`. `deviceMemory` above 16 GB is not probed against Chrome.
 - A tab restored at the site's "unsupported" page has no address asked for: it is loaded again where it is.
-- Nothing past the site login page was tried (no account); W-b (a shipped list of site rules) is still the
+- Nothing past the site's login page was tried (no account); W-b (a shipped list of site rules) is still the
   owner's deferral (ADR-0051), so each of these sites needs "Appears as Chrome" once.
 
 The owner, during the work (2026-11-18): "any browser impersonation effort … should be reliable, generic, resilient so
