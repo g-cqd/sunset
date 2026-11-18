@@ -1,3 +1,4 @@
+import AppKit
 import SunsetHelp
 import SunsetMetrics
 import SunsetPane
@@ -91,7 +92,7 @@ struct PinnedGrid: View {
         // The corner of a tab's row (the owner, 2026-11-17): a tile is a tab, shown as its icon.
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         return Button {
-            tabs.select(entry: entry.id)
+            tabs.clickTile(entry: entry.id, count: NSApp.currentEvent?.clickCount ?? 1)
         } label: {
             TabIcon(
                 model: tabs.content(pane),
@@ -140,8 +141,6 @@ struct PinnedGrid: View {
         .contextMenu { KeptEntryMenu(tabs: tabs, entry: entry, animation: layout.smooth) }
         // Dragged out: onto the Favorites it is a favourite there, onto the tabs a tab again.
         .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
-        // Away from where it was kept, back there; else its name is asked (n3).
-        .simultaneousGesture(TapGesture(count: 2).onEnded { tabs.doubleClick(entry: entry.id) })
         .iconPopover(tabs: tabs, row: .node(entry.id))
         // A tile has no text to edit in place: its name is asked beside it.
         .popover(

@@ -56,4 +56,29 @@ struct KeptEntryAwayTests {
         let worked = try #require(pinned.favorites.entry(entry))
         #expect(!tabs.isAway(entry: worked))
     }
+
+    /// The owner's note n7: a double click on a tile "stayed on the current page or nothing happened". A tile is a button,
+    /// which takes the clicks before a gesture beside it sees two: its own action reads the click count.
+    @Test func `a tile's second click of a double click takes an away page back`() throws {
+        let pinned = FavoritesModel()
+        let tabs = TabsModel()
+        var made: [FakeContent] = []
+        tabs.makeContent = { descriptor in
+            let content = FakeContent(descriptor)
+            made.append(content)
+            return content
+        }
+        tabs.pinned = pinned
+        tabs.newTab(PaneDescriptor(kind: "web", state: ["url": "https://mail.example/inbox"]))
+        let item = try #require(tabs.workspace.selectedID)
+        let pinnedEntry = tabs.pin(item: item)
+        let entry = try #require(pinnedEntry)
+        try #require(made.last).descriptor = PaneDescriptor(kind: "web", state: ["url": "https://mail.example/m/1"])
+        tabs.clickTile(entry: entry, count: 1)
+        let still = try #require(pinned.favorites.entry(entry))
+        #expect(tabs.isAway(entry: still), "one click shows it as it is")
+        tabs.clickTile(entry: entry, count: 2)
+        let back = try #require(pinned.favorites.entry(entry))
+        #expect(!tabs.isAway(entry: back))
+    }
 }

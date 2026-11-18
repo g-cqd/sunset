@@ -25,6 +25,13 @@ extension TabsModel {
         renamingRow = .node(id)
     }
 
+    /// A click on a Pinned tile, the `count`th of a run (the event's click count: a tile is a button, which takes the clicks
+    /// before a gesture beside it could count two; n7): the first shows it, the second is a double click.
+    package func clickTile(entry id: Favorites.NodeID, count: Int) {
+        if count >= 2 { return doubleClick(entry: id) }
+        select(entry: id)
+    }
+
     private static func withoutFragment(_ address: String) -> String {
         guard var parts = URLComponents(string: address) else { return address }
         parts.fragment = nil
