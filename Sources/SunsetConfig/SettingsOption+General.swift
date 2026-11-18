@@ -122,14 +122,16 @@ extension SettingsOption {
                     (.day, "After one day"), (.week, "After one week"), (.twoWeeks, "After two weeks"),
                     (.month, "After one month"), (.year, "After one year"), (.forever, "Manually")
                 ]
-            ),
+            )
+            .grouped("History"),
             toggle(
                 "web.clearHistoryOnQuit",
                 "Clear history when Sunset quits",
                 "history quit privacy",
                 \.web.clearHistoryOnQuit,
                 label: "Clear the history when Sunset quits"
-            ),
+            )
+            .grouped("History"),
             choice(
                 "web.keep.siteData",
                 "Sites' data",
@@ -172,6 +174,7 @@ extension SettingsOption {
                 \.web.privateWindowShares,
                 label: "Share data between a private window's pages"
             )
+            .grouped("Private windows")
             .noted("A private tab of a normal window never shares.")
         ]
 
