@@ -39,12 +39,12 @@ extension SettingsOption {
             ),
             toggle(
                 "appearance.haptics",
-                "Tap the trackpad when a click goes through or is blocked",
+                "Haptic feedback",
                 "haptic haptics feedback trackpad force touch click tap",
                 \.appearance.haptics
             )
             .grouped("Buttons")
-            .noted("On a Force Touch trackpad: a light tap when it went through, a firmer one when it was blocked.")
+            .noted("On a Force Touch trackpad, when a click goes through (light) or is blocked (firmer).")
         ]
 
     /// Spacing and corners.
@@ -58,22 +58,6 @@ extension SettingsOption {
                 0 ... 32,
                 step: 1
             )
-            .noted("Between the edge of the terminal's card and its text. Beside a docked sidebar it is at least 6 pt."),
-            number(
-                "sidebar.padding",
-                "Margin around the terminal's card",
-                "padding margin gap space window edge",
-                \.sidebar.padding,
-                0 ... 16,
-                step: 1
-            )
-            .noted("Between the window's edge, the sidebar and the card, while the sidebar is shown."),
-            Self(
-                "layout.terminalRadius",
-                "Terminal card corner radius",
-                "rounding card layout window",
-                .radius(SettingsValue(\.layout.terminalRadius))
-            )
-            .further
+            .noted("Between the edge of the terminal's card and its text. Beside a docked sidebar it is at least 6 pt.")
         ]
 }

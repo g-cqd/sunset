@@ -9,8 +9,7 @@ struct SidebarRow: View {
     let model: (any PaneContent)?
     let selected: Bool
     var armed = false
-    /// Kept true when the row just slid into the slot of a tab whose close button was clicked, so rapid clicks on the same spot close tabs without needing
-    /// pointer movement (`n27`).
+    /// Kept true when the row slid under a close button just clicked: rapid clicks there close tabs without a move (`n27`).
     var keepCloseVisible = false
     var name: String?
     var icon: PaneIcon?
@@ -24,16 +23,14 @@ struct SidebarRow: View {
     let layout: ShellSettings.Layout
     /// What the button at the row's end does: close a tab, unload a kept entry, delete one that is not open, close an open document.
     var button = Button.close
-    /// Open (every tab, an open kept entry): a faint fill at rest. A kept entry that is not open has none, and is not dimmed (owner,
-    /// 2026-11-12: dimmed looked disabled).
+    /// Open (every tab, an open kept entry): a faint fill at rest; a kept entry not open has none, and is not dimmed.
     var open = true
     /// A row of the Favorites tree: one line is `Design.Size.favoriteRow` tall instead of `tabRow`.
     var compact = false
     /// One of several rows selected together (R3 step d): in the accent; stronger when it is also the shown row.
     var marked = false
-    /// It keeps the Mac awake (roadmap 0035 E): a cup after its title.
+    /// It keeps the Mac awake (roadmap 0035 E): a cup after its title. Lets it sleep again: the cup, pointed at (note n5).
     var awake = false
-    /// Lets the Mac sleep again: the cup is a button while the row is pointed at (note n5).
     var stopAwake: (() -> Void)?
     /// While its name is edited in place: the field's first text, and what to do with the result (nil: Escape, nothing changes).
     var renaming: (start: String, done: (String?) -> Void)?
@@ -197,8 +194,7 @@ struct SidebarRow: View {
 
     var showsClose: Bool { hovering || armed || keepCloseVisible }
 
-    /// How far the cup's centre is from the row's end: where the close button is, moved before it while it shows (the
-    /// edited mark is before the cup).
+    /// How far the cup's centre is from the row's end: the close button's place, before it while it shows.
     private func awakeInset(middle: Double) -> Double {
         showsClose ? middle + layout.closeButtonSize + Design.Space.xs : middle
     }

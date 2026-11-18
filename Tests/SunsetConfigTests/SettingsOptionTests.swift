@@ -12,8 +12,10 @@ import Testing
         for option in options {
             for key in option.keys { owners[key, default: []].append(option.id) }
         }
-        let missing = ConfigurationKeys.all.filter { owners[$0] == nil }
+        let missing = ConfigurationKeys.all.filter { owners[$0] == nil && !ConfigurationKeys.fileOnly.contains($0) }
         #expect(missing.isEmpty, "keys with no control: \(missing)")
+        let shown = ConfigurationKeys.fileOnly.filter { owners[$0] != nil }.sorted()
+        #expect(shown.isEmpty, "keys of the file only with a control: \(shown)")
         let twice = owners.filter { $0.value.count > 1 }
         #expect(twice.isEmpty, "keys with several controls: \(twice)")
         let unknown = owners.keys.filter { !ConfigurationKeys.all.contains($0) }.sorted()
@@ -60,7 +62,7 @@ import Testing
 
     @Test func `the sentences under the controls are kept when options move`() {
         let noted = options.filter { $0.note != nil }.map(\.id)
-        #expect(noted.count == 58, "a sentence was added or lost: \(noted)")
+        #expect(noted.count == 57, "a sentence was added or lost: \(noted)")
         #expect(SettingsOption.named("sidebar.enabled")?.note?.contains("lists the tabs") == true)
         #expect(SettingsOption.named("scrollback.lines")?.note?.contains("opened after the change") == true)
     }

@@ -35,20 +35,7 @@ extension SettingsSection {
             SettingsTopic(
                 "window.titleBar",
                 "Title bar and buttons",
-                SettingsOption.titleBar + SettingsOption.layout("lightsInset", "lightsGap", "floatingLightsExtra")
-            ),
-            SettingsTopic(
-                "window.spacing",
-                "Spacing and corners",
-                SettingsOption.spacing
-                    + SettingsOption.layout(
-                        "innerCornerRadius",
-                        "paneGap",
-                        "resizeHandleWidth",
-                        "hairlineWidth",
-                        "hairlineOpacity",
-                        "animation"
-                    )
+                SettingsOption.titleBar
             )
         ]
     )
@@ -62,35 +49,9 @@ extension SettingsSection {
             SettingsTopic(
                 "tabs.floating",
                 "Floating sidebar",
-                SettingsOption.layout("hideDelay", "revealStripWidth") + SettingsOption.floatingRadius
-                    + SettingsOption.layout(
-                        "sidebarButtonSize",
-                        "floatingTabSpacing",
-                        "floatingTabSideInset",
-                        "floatingTabPaddingLeading",
-                        "floatingTabPaddingTrailing",
-                        "floatingTabPaddingVertical",
-                        "floatingTabRadius",
-                        "floatingCloseButtonSize",
-                        "floatingCloseButtonRadius"
-                    )
+                SettingsOption.layout("hideDelay", "revealStripWidth")
             ),
             SettingsTopic("tabs.labels", "Tab labels", SettingsOption.labels),
-            SettingsTopic(
-                "tabs.metrics",
-                "Tab metrics",
-                SettingsOption.layout(
-                    "tabSpacing",
-                    "tabSideInset",
-                    "tabPaddingLeading",
-                    "tabPaddingTrailing",
-                    "tabPaddingVertical",
-                    "tabRadius",
-                    "closeButtonSize",
-                    "closeButtonRadius",
-                    "sidebarButtonRadius"
-                )
-            ),
             SettingsTopic("tabs.library", "Library and documents", SettingsOption.library)
         ]
     )
@@ -100,7 +61,7 @@ extension SettingsSection {
         title: "Terminal",
         symbol: "terminal",
         topics: [
-            SettingsTopic("terminal.text", "Text", SettingsOption.text),
+            SettingsTopic("terminal.text", "Text", SettingsOption.text + SettingsOption.spacing),
             SettingsTopic("terminal.cursor", "Cursor", SettingsOption.cursor),
             SettingsTopic("terminal.scrolling", "Scrolling and history", SettingsOption.scrolling),
             SettingsTopic("terminal.shell", "Shell and programs", SettingsOption.shell),

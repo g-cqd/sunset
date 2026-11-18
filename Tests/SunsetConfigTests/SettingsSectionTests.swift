@@ -42,18 +42,15 @@ import Testing
         )
     }
 
-    @Test func `a number of the layout is with the thing it measures; the tab metrics are two topics (the owner)`() {
-        #expect(
-            options("window.titleBar").suffix(3) == [
-                "layout.lightsInset", "layout.lightsGap", "layout.floatingLightsExtra"
-            ]
-        )
-        #expect(options("window.spacing").prefix(2) == ["window.padding", "sidebar.padding"])
-        let floating = options("tabs.floating")
-        #expect(floating.filter { $0.hasPrefix("layout.floating") }.count == 8 && floating.contains("layout.hideDelay"))
-        let docked = options("tabs.metrics")
-        #expect(docked.count == 9 && docked.last == "layout.sidebarButtonRadius")
-        #expect(docked.allSatisfy { $0.hasPrefix("layout.") && !$0.hasPrefix("layout.floating") })
+    /// The owner's note n35 (2026-11-18): "remove all the padding/spacing/margin settings from the settings because now … we
+    /// figured them out". They stay in the file; Settings shows the terminal text's own padding and the floating sidebar's
+    /// behaviour only.
+    @Test func `no padding, spacing, margin or radius measure in Settings but the terminal text's padding`() {
+        let all = SettingsSection.all.flatMap(\.topics).flatMap { $0.first + $0.further }.map(\.id)
+        let measures = all.filter { $0.hasPrefix("layout.") || $0 == "sidebar.padding" }
+        #expect(measures == ["layout.hideDelay", "layout.revealStripWidth"], "\(measures)")
+        #expect(options("terminal.text").contains("window.padding"))
+        #expect(SettingsSection.topic("window.spacing") == nil && SettingsSection.topic("tabs.metrics") == nil)
     }
 
     @Test func `where the tabs are is one topic; what was found by search is under its section and topic`() {

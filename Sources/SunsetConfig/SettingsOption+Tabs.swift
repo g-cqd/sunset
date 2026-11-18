@@ -51,19 +51,6 @@ extension SettingsOption {
                 .grouped("Sidebar")
         ]
 
-    /// The floating sidebar's corner.
-    static let floatingRadius: [Self] =
-        [
-            Self(
-                "layout.panelRadius",
-                "Floating sidebar corner radius",
-                "rounding panel layout window",
-                .radius(SettingsValue(\.layout.panelRadius))
-            )
-            .further
-        ]
-
-    /// What a tab's row shows.
     static let labels: [Self] =
         [
             toggle("tabs.bar.icon", "Show the folder or command icon", "tab glyph letter picture", \.tabs.bar.showIcon),
