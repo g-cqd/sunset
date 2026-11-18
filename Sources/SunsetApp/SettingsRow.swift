@@ -24,7 +24,9 @@ struct SettingsRow: View {
     @ViewBuilder static func list(_ option: SettingsOption, config: AppConfiguration, heading: String? = nil)
         -> some View
     {
-        if option.ownsSections {
+        if option.ownsSections, case .custom(.sites) = option.control {
+            SitesSettings(heading: heading, config: config)
+        } else if option.ownsSections {
             ProfilesSettings(heading: heading, title: option.title, note: option.note)
         } else if case .custom(let custom) = option.control {
             SettingsCustomRow(custom: custom, option: option, config: config)

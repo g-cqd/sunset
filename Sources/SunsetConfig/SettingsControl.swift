@@ -22,7 +22,7 @@ public enum SettingsControl: Sendable {
         case storageSealed, storageWebsiteData, storageSetAside, storageKey, storageEnterCode, storageExport
 
         /// A list that draws a section for each of its things (the profiles, notes n38, n39): the page does not wrap it.
-        public var ownsSections: Bool { self == .profiles }
+        public var ownsSections: Bool { self == .profiles || self == .sites }
 
         /// A list of things the person added or answered, drawn as a section of its own under its title (note n13).
         public var isList: Bool {

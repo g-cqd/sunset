@@ -69,6 +69,6 @@ extension SettingsBlockTests {
     /// specific profile". The profiles draw a section each; no other list does.
     @Test func `the profiles draw their own sections, one a profile`() {
         let owning = SettingsOption.all.filter(\.ownsSections).map(\.id)
-        #expect(owning == ["profiles.list"])
+        #expect(owning.sorted() == ["profiles.list", "web.sites"])
     }
 }

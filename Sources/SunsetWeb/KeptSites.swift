@@ -37,6 +37,9 @@ package final class KeptSites {
     /// Whether `host`'s data is kept: it, or a site it is under, is on the list.
     package func keeps(_ host: String?) -> Bool { store.value(for: host) == true }
 
+    /// Puts a pattern on the list, or takes it off.
+    package func set(_ kept: Bool, for pattern: SitePattern) { store.set(kept ? true : nil, for: pattern) }
+
     /// Puts `host` on the list, or takes it off.
     package func set(_ kept: Bool, for host: String?) { store.set(kept ? true : nil, for: host) }
 

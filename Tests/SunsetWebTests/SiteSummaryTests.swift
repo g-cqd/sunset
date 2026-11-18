@@ -47,8 +47,31 @@ struct SiteSummaryTests {
             kept: KeptSites()
         )
         stores.kept.set(true, for: "mail.example")
-        #expect(SiteSummary.rows(stores) { _ in nil } == [.init(host: "mail.example", parts: ["data kept"])])
+        #expect(SiteSummary.rows(stores) { _ in nil }.map(\.parts) == [["data kept"]])
         SiteSummary.forget("mail.example", in: stores)
         #expect(!stores.kept.keeps("mail.example"))
+    }
+}
+
+extension SiteSummaryTests {
+    /// n40: each site folds open on what differs from the defaults, each line reset by itself.
+    @Test func `each part of a site has its kind, and resetting one leaves the others`() {
+        let stores = SiteSummary.Stores(
+            permissions: SitePermissions(),
+            agents: SiteAgents(),
+            pauses: BlockingPauses(),
+            zoom: SiteZoom(),
+            spaces: SiteSpaces.make(),
+            hidden: HiddenElements.make(),
+            kept: KeptSites()
+        )
+        stores.agents.set(.chrome, for: "app.example")
+        stores.kept.set(true, for: "app.example")
+        stores.zoom.set(1.25, for: "app.example", remember: false)
+        let row = SiteSummary.rows(stores) { _ in nil }.first
+        #expect(row?.kinds == [.agent, .zoom, .kept])
+        SiteSummary.reset(.zoom, of: "app.example", in: stores)
+        #expect(SiteSummary.rows(stores) { _ in nil }.first?.kinds == [.agent, .kept])
+        #expect(stores.agents.rule(for: "app.example") == .chrome)
     }
 }

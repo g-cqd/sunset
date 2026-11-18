@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import SunsetStorage
 
 /// The browser each site is shown (roadmap 0022, W-a): by host, for the site and its subdomains, kept as sealed records
@@ -27,6 +27,14 @@ package final class SiteAgents {
     package func agent(for host: String?, default fallback: BrowserAgent) -> BrowserAgent {
         store.value(for: host) ?? fallback
     }
+
+    /// What the page at `url` is shown: the most specific rule for it (an address prefix, its host, a pattern; note n40).
+    package func agent(for url: URL, default fallback: BrowserAgent) -> BrowserAgent {
+        store.value(for: url) ?? fallback
+    }
+
+    /// Gives a pattern a rule, or takes it away.
+    package func set(_ agent: BrowserAgent?, for pattern: SitePattern) { store.set(agent, for: pattern) }
 
     /// The rule of exactly this site, if it has one.
     package func rule(for host: String?) -> BrowserAgent? { store.rule(for: host) }

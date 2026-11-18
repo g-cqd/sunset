@@ -4,7 +4,10 @@ import WebKit
 /// The browser a page's site is shown (roadmap 0022, W-a).
 extension WebContent {
     /// The browser the site of `url` is to see: its rule, else the default.
-    func agent(for url: URL?) -> BrowserAgent { agents.agent(for: url?.host(), default: settings.agent) }
+    func agent(for url: URL?) -> BrowserAgent {
+        guard let url else { return settings.agent }
+        return agents.agent(for: url, default: settings.agent)
+    }
 
     /// The browser this page's site sees now.
     package var agent: BrowserAgent { agent(for: url ?? webView?.url) }

@@ -46,10 +46,36 @@ package enum SiteSummary {
         }
     }
 
-    /// A site and what it has, in words.
+    /// What a site can have of its own.
+    package enum Kind: Sendable, Equatable, CaseIterable {
+        case permissions, agent, blocking, zoom, hidden, space, kept
+    }
+
+    /// A site and what it has, in words, each part of its kind.
     package struct Row: Equatable, Sendable {
         package let host: String
         package let parts: [String]
+        package var kinds: [Kind] = []
+
+        package init(host: String, parts: [String], kinds: [Kind] = []) {
+            self.host = host
+            self.parts = parts
+            self.kinds = kinds
+        }
+    }
+
+    /// Takes one kind of the site's own away; the others stay.
+    package static func reset(_ kind: Kind, of host: String, in stores: Stores) {
+        switch kind {
+            case .permissions:
+                for permission in SitePermission.allCases { stores.permissions.set(nil, permission, for: host) }
+            case .agent: stores.agents.set(nil, for: SitePattern(host) ?? .site(host))
+            case .blocking: stores.pauses.set(false, for: host)
+            case .zoom: stores.zoom.set(1, for: host, remember: stores.zoom.remembers)
+            case .hidden: stores.hidden.set(nil, for: SitePattern(host) ?? .site(host))
+            case .space: stores.spaces.set(nil, for: SitePattern(host) ?? .site(host))
+            case .kept: stores.kept.set(false, for: SitePattern(host) ?? .site(host))
+        }
     }
 
     /// - Parameters:
@@ -57,34 +83,31 @@ package enum SiteSummary {
     ///   - spaceName: a Space's name, by its id; nil for one that is gone.
     /// - Returns: one row a site, by host.
     package static func rows(_ stores: Stores, spaceName: (UUID) -> String?) -> [Row] {
-        var parts: [String: [String]] = [:]
+        var parts: [String: [(Kind, String)]] = [:]
         for (host, count) in stores.permissions.answeredSites {
-            parts[host, default: []].append(count == 1 ? "1 answer" : "\(count) answers")
+            parts[host, default: []].append((.permissions, count == 1 ? "1 answer" : "\(count) answers"))
         }
-        for (host, agent) in stores.agents.rules { parts[host, default: []].append("shown \(agent.title)") }
-        for host in stores.pauses.paused { parts[host, default: []].append("blocking paused") }
+        for (host, agent) in stores.agents.rules { parts[host, default: []].append((.agent, "shown \(agent.title)")) }
+        for host in stores.pauses.paused { parts[host, default: []].append((.blocking, "blocking paused")) }
         for (host, level) in stores.zoom.sites {
-            parts[host, default: []].append("zoom \(Int((level * 100).rounded())) %")
+            parts[host, default: []].append((.zoom, "zoom \(Int((level * 100).rounded())) %"))
         }
         for (host, selectors) in stores.hidden.rules {
-            parts[host, default: []]
-                .append(selectors.count == 1 ? "1 element hidden" : "\(selectors.count) elements hidden")
+            let count = selectors.count
+            parts[host, default: []].append((.hidden, count == 1 ? "1 element hidden" : "\(count) elements hidden"))
         }
         for (host, space) in stores.spaces.rules {
-            parts[host, default: []].append("opens in \(spaceName(space) ?? "a Space that is gone")")
+            parts[host, default: []].append((.space, "opens in \(spaceName(space) ?? "a Space that is gone")"))
         }
-        for host in stores.kept.hosts { parts[host, default: []].append("data kept") }
-        return parts.sorted { $0.key < $1.key }.map { Row(host: $0.key, parts: $0.value) }
+        for host in stores.kept.hosts { parts[host, default: []].append((.kept, "data kept")) }
+        return parts.sorted { $0.key < $1.key }
+            .map { host, list in
+                Row(host: host, parts: list.map(\.1), kinds: list.map(\.0))
+            }
     }
 
     /// Takes everything of the site's own away: the defaults apply to it again.
     package static func forget(_ host: String, in stores: Stores) {
-        for permission in SitePermission.allCases { stores.permissions.set(nil, permission, for: host) }
-        stores.agents.set(nil, for: host)
-        stores.pauses.set(false, for: host)
-        stores.zoom.set(1, for: host, remember: stores.zoom.remembers)
-        stores.spaces.set(nil, for: host)
-        stores.hidden.set(nil, for: host)
-        stores.kept.set(false, for: host)
+        for kind in Kind.allCases { reset(kind, of: host, in: stores) }
     }
 }
