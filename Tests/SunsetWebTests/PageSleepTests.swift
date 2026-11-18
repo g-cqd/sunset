@@ -64,6 +64,15 @@ struct PageSleepTests {
 
     /// Roadmap 0045 C: the owner saw load indicators not following a page's end. A page let go of while it loads no longer
     /// loads: nothing is left saying it does (its ring, the Stop item, the window bar's stop button).
+    /// Roadmap 0045 A (the owner: a tab shown again "does not always keep its exact state"): this Mac read macOS's warning
+    /// level (2) for minutes on end with 48 % of its memory free, and a page was unloaded every minute of it. Only the
+    /// critical level (4) is memory short.
+    @Test func `memory is short at macOS's critical level only, not at its warning`() {
+        #expect(!PageSleep.memoryIsShort(level: 1))
+        #expect(!PageSleep.memoryIsShort(level: 2), "warning: the system compresses, nothing is short yet")
+        #expect(PageSleep.memoryIsShort(level: 4))
+    }
+
     @Test func `a page unloaded while it loads is said to load no more`() async throws {
         let page = WebContent(url: nil, settings: settings)
         page.setState(focused: true, visible: true)

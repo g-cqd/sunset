@@ -26,7 +26,7 @@ let page = """
     return (try? await view.evaluateJavaScript(script) as? String) ?? "?"
 }
 
-@MainActor func run(_ name: String, zeroFirst: Bool, turn: Bool) async {
+@MainActor func run(_ name: String, zeroFirst: Bool, turn: Bool, interim: CGRect? = nil) async {
     let frame = CGRect(x: 0, y: 0, width: 900, height: 700)
     let window = NSWindow(contentRect: frame, styleMask: [.titled], backing: .buffered, defer: false)
     window.isReleasedWhenClosed = false
@@ -53,6 +53,12 @@ let page = """
     view.autoresizingMask = zeroFirst ? [.width, .height] : []
     host.addSubview(view)
     if turn { try? await Task.sleep(for: .milliseconds(100)) }
+    // Laid out at another size first, for a turn (an animated frame), when asked.
+    if let other = interim {
+        host.frame = other
+        if !zeroFirst { view.frame = host.bounds }
+        try? await Task.sleep(for: .milliseconds(300))
+    }
     host.frame = frame
     if !zeroFirst { view.frame = host.bounds }
     let after = await positions(view)
@@ -67,6 +73,13 @@ Task { @MainActor in
     await run("zero frame first, same turn", zeroFirst: true, turn: false)
     await run("zero frame first, a turn at zero", zeroFirst: true, turn: true)
     await run("own size", zeroFirst: false, turn: false)
+    await run(
+        "half width for a moment",
+        zeroFirst: false,
+        turn: false,
+        interim: CGRect(x: 0, y: 0, width: 450, height: 700)
+    )
+    await run("tiny for a moment", zeroFirst: false, turn: false, interim: CGRect(x: 0, y: 0, width: 40, height: 40))
     exit(0)
 }
 app.run()
