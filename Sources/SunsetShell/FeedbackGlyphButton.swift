@@ -27,16 +27,14 @@ package struct FeedbackGlyphButton: View {
             }
         } glyph: {
             Image(systemName: cue?.symbol ?? symbol)
-                .contentTransition(.symbolEffect(.replace))
-                .foregroundStyle(
-                    cue.map { $0.isDone ? AnyShapeStyle(.green) : AnyShapeStyle(.red) } ?? AnyShapeStyle(.primary)
-                )
+                // The owner, 2026-11-18: no change of colour (the button's own), and quick.
+                .contentTransition(.symbolEffect(.replace.downUp.wholeSymbol, options: .speed(3)))
                 .keyframeAnimator(initialValue: 0.0, trigger: shakes) { glyph, offset in
                     glyph.offset(x: offset)
                 } keyframes: { _ in
                     // A shake: no, no (blocked).
                     KeyframeTrack {
-                        for x in [-3.0, 3, -2, 2, 0] { SpringKeyframe(x, duration: 0.06) }
+                        for x in [-3.0, 3, -2, 0] { SpringKeyframe(x, duration: 0.04) }
                     }
                 }
         }

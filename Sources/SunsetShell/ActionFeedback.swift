@@ -9,7 +9,7 @@ package enum ActionFeedback: Equatable, Sendable {
     case blocked(String)
 
     /// How long a button shows it.
-    package static let shown: Duration = .milliseconds(1200)
+    package static let shown: Duration = .milliseconds(700)
 
     /// The symbol a button shows in place of its own while it does.
     package var symbol: String {
