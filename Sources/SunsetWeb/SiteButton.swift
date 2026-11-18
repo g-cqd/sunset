@@ -5,24 +5,24 @@ import SwiftUI
 /// a menu with this site's answers.
 struct SiteButton: View {
     let content: WebContent
-    @State private var open = false
 
     var body: some View {
-        Button {
-            open.toggle()
-        } label: {
+        // One of the rows' buttons, its fill under the pointer (roadmap 0047 F).
+        RowGlyphButton(help: "This site's settings") {
+            content.showsSiteSettings.toggle()
+        } glyph: {
             HStack(spacing: Design.Space.xs) {
                 if content.isNotSecure {
                     NotSecureMark()
                 } else {
-                    Image(systemName: "lock").font(Design.Text.detail).foregroundStyle(.secondary)
+                    Image(systemName: "lock")
                 }
                 if let dot = content.captureDot { Circle().fill(dot).frame(width: 6, height: 6) }
             }
-            .contentShape(.rect)
+            .padding(.horizontal, Design.Space.xs)
         }
-        .buttonStyle(.plain)
-        .help("This site's settings")
-        .popover(isPresented: $open, arrowEdge: .bottom) { SiteSettingsPopover(content: content) }
+        .popover(isPresented: Bindable(content).showsSiteSettings, arrowEdge: .bottom) {
+            SiteSettingsPopover(content: content)
+        }
     }
 }

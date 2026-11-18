@@ -9,7 +9,7 @@ import Testing
         "EngineList.swift": 1, "SiteAgentsSettings.swift": 1, "SectionPanel+Parts.swift": 1,
         "WebsitesSettings.swift": 1,
         "SidebarNotices.swift": 1, "StorageProblemsBanner.swift": 1, "PrivateMark.swift": 1, "AddressField.swift": 1,
-        "SiteButton.swift": 1, "NotSecureMark.swift": 1, "DocumentNotices.swift": 2, "EditedMark.swift": 1,
+        "NotSecureMark.swift": 1, "DocumentNotices.swift": 2, "EditedMark.swift": 1,
         "SidebarRow+Controls.swift": 2, "SpacesMenuButton.swift": 1, "TabLabel.swift": 1, "IconPicker.swift": 1,
         "FolderRow.swift": 1, "FavoritesSection.swift": 1
     ]

@@ -9,8 +9,11 @@ package struct AddressField: View {
     var place = AddressTyping.Place.top
     /// Tells whether the field is being typed in (the window bar stays out meanwhile).
     var onEditing: (Bool) -> Void = { _ in }
-    /// Reload (Stop while loading) at its trailing end, while the pointer is over it or the page loads.
+    /// Copy and Reload (Stop while loading) at its trailing end, while the pointer is over it or the page loads, the text fading
+    /// under them as a tab's title does under its buttons (roadmap 0047 F).
     var reload = false
+    /// What its context menu adds after the page's own items: the tab's menu (the app's).
+    var menu: AnyView?
     @State private var hovering = false
     @State private var focusNow = false
     @Environment(\.addressTyping) private var typing
@@ -22,11 +25,13 @@ package struct AddressField: View {
         content: WebContent,
         place: AddressTyping.Place = .top,
         reload: Bool = false,
+        menu: AnyView? = nil,
         onEditing: @escaping (Bool) -> Void = { _ in }
     ) {
         self.content = content
         self.place = place
         self.reload = reload
+        self.menu = menu
         self.onEditing = onEditing
     }
 
@@ -34,7 +39,7 @@ package struct AddressField: View {
         HStack(spacing: Design.Optical.fieldGlyphToText) {
             if content.isPrivate { PrivateMark() }
             if content.url != nil { SiteButton(content: content) }
-            textField
+            textField.mask { textMask }
             if abs(content.zoom - 1) > 0.001 {
                 Button(ZoomLevels.label(content.zoom)) { content.resetZoom() }
                     .buttonStyle(.borderless)
@@ -43,8 +48,19 @@ package struct AddressField: View {
                     .fixedSize()
                     .help("Zoom: click for 100%")
             }
-            if reload, hovering || content.isLoading { reloadButton.transition(.opacity) }
         }
+        .overlay(alignment: .trailing) {
+            if showsActions {
+                HStack(spacing: 0) {
+                    if hovering, content.url != nil {
+                        RowGlyphButton(symbol: "doc.on.doc", help: "Copy Address") { content.copyAddress() }
+                    }
+                    reloadButton
+                }
+                .transition(.opacity)
+            }
+        }
+        .contextMenu { pageMenu }
         .onHover { inside in hovering = inside }
         .animation(.easeOut(duration: 0.15), value: hovering)
         // A private page's field is dark, its text light (web step h).
@@ -82,18 +98,44 @@ package struct AddressField: View {
         )
     }
 
-    private var reloadButton: some View {
-        Button {
-            if content.isLoading { content.stopLoading() } else { content.reload() }
-        } label: {
-            Image(systemName: content.isLoading ? "xmark" : "arrow.clockwise")
-                .font(Design.Text.detail.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .contentShape(.rect)
+    private var showsActions: Bool { reload && (hovering || content.isLoading) }
+
+    /// The text fades out under the buttons at its end while they show.
+    private var textMask: some View {
+        HStack(spacing: 0) {
+            Color.black
+            if showsActions {
+                LinearGradient(gradient: .eased(from: .black, to: .clear), startPoint: .leading, endPoint: .trailing)
+                    .frame(width: Design.Space.m)
+                Color.clear.frame(width: Design.Space.l * (hovering && content.url != nil ? 2 : 1))
+            }
         }
-        .buttonStyle(.plain)
-        .help(content.isLoading ? "Stop" : "Reload")
+    }
+
+    private var reloadButton: some View {
+        RowGlyphButton(
+            symbol: content.isLoading ? "xmark" : "arrow.clockwise",
+            help: content.isLoading ? "Stop" : "Reload"
+        ) {
+            if content.isLoading { content.stopLoading() } else { content.reload() }
+        }
         .disabled(content.url == nil)
+    }
+
+    /// Right-click: the page's own actions, then the tab's (the app's menu).
+    @ViewBuilder private var pageMenu: some View {
+        Button("Copy Address") { content.copyAddress() }.disabled(content.url == nil)
+        Button(content.isLoading ? "Stop" : "Reload") {
+            if content.isLoading { content.stopLoading() } else { content.reload() }
+        }
+        .disabled(content.url == nil)
+        Button("Edit Address") { focusNow = true }
+        Button("Site Settings\u{2026}") { content.showsSiteSettings = true }.disabled(content.url == nil)
+        if abs(content.zoom - 1) > 0.001 { Button("Actual Size") { content.resetZoom() } }
+        if let menu {
+            Divider()
+            menu
+        }
     }
 
     /// The field stopped being typed in (a click elsewhere): the list goes a moment later, so that a click on one of its rows is taken first.

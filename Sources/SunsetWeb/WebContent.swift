@@ -22,6 +22,8 @@ package final class WebContent: PaneContent {
     package internal(set) var isLoading = false
     /// The page asks for its address to be typed (a new empty page): the address field of the window takes the keyboard and clears this.
     package var wantsAddress = false
+    /// The site's settings are open beside its address field (its lock, or the field's menu: roadmap 0047 F).
+    package var showsSiteSettings = false
     /// The question waiting for an answer in the panel under the address (web step g).
     package internal(set) var permissionRequest: PermissionRequest?
     /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).

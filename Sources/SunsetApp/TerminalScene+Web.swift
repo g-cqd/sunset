@@ -44,7 +44,10 @@ extension TerminalScene {
     /// the field where a search, an address or a tab is typed.
     var sidebarAddress: AnyView? {
         guard addressPlace == .sidebar, let page = focusedPage else { return AnyView(SidebarCommandField(tabs: tabs)) }
-        return AnyView(AddressField(content: page).id(ObjectIdentifier(page)))
+        return AnyView(
+            AddressField(content: page, reload: true, menu: AnyView(ShownTabMenu(tabs: tabs)))
+                .id(ObjectIdentifier(page))
+        )
     }
 
     /// The window's address bar and its list, in one glass container (they render together; spacing 0: they do not blend at rest).
