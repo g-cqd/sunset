@@ -31,6 +31,9 @@ final class AddressNSField: NSTextField {
             return
         }
         stringValue = address
+        // Typed in, the text scrolls and is clipped, not truncated: a truncating cell's editor kept the end of a long address
+        // (and the caret there) a couple of points past what it shows (the owner's note n10).
+        typingLayout(true)
         currentEditor()?.selectAll(nil)
         onEditing(true)
     }
@@ -45,7 +48,41 @@ final class AddressNSField: NSTextField {
 
     func endTyping() {
         typing = false
+        typingLayout(false)
         stringValue = host
         onEditing(false)
+    }
+
+    /// Laid out narrower while typed in (its row's buttons, its sidebar's width), the field kept its editor at the width it
+    /// began with: the editor scrolled to an end the field no longer showed, and the end of the address and the caret were
+    /// hidden past the field's edge (the owner's note n10). The editor follows the field.
+    override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        fitEditor()
+    }
+
+    override func layout() {
+        super.layout()
+        fitEditor()
+    }
+
+    private static let edge = 2.0
+
+    private func fitEditor() {
+        guard let editor = currentEditor() as? NSTextView, let clip = editor.superview, let cell else { return }
+        // Its width only: the editor's height and line are AppKit's.
+        // Inside the field's own edges, which clip what the editor draws past them (2 points each side).
+        let drawn = cell.drawingRect(forBounds: bounds).insetBy(dx: Self.edge, dy: 0)
+        let shown = CGRect(x: drawn.minX, y: clip.frame.minY, width: drawn.width, height: clip.frame.height)
+        guard clip.frame != shown else { return }
+        clip.frame = shown
+        editor.scrollRangeToVisible(editor.selectedRange())
+    }
+
+    /// Scrolling and clipped while typed in; truncated in its middle when showing the host.
+    private func typingLayout(_ typed: Bool) {
+        cell?.isScrollable = typed
+        cell?.lineBreakMode = typed ? .byClipping : .byTruncatingMiddle
+        cell?.truncatesLastVisibleLine = !typed
     }
 }
