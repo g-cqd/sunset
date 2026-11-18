@@ -7,8 +7,9 @@ date: 2026-11-18
 # 0051 — Storage hardening, from the owner's audit
 
 The owner, note n22 (2026-11-18): "the following informations need to be persisted to the repo and staged and scheduled in the
-roadmap with priority to be addressed as soon as possible". The audit: docs/research/storage-audit-2026-11-18.md. First, before
-0050.
+roadmap with priority to be addressed as soon as possible". The audit: docs/research/storage-audit-2026-11-18.md. A and B done
+first; the owner, later that day: the notes not started (n11, n13, n14, n16, n21) come before C–F, "as i'll have more findings
+there to bring soon"; then C–F, then 0050.
 
 | Step | What | Task | Status |
 |---|---|---|---|
