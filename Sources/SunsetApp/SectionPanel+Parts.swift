@@ -97,13 +97,21 @@ extension SectionPanel {
     var fade: some View {
         VStack(spacing: 0) {
             Color.clear.frame(height: max(listTop - Design.Space.xs, 0))
-            LinearGradient(gradient: .eased(from: .clear, to: .black), startPoint: .top, endPoint: .bottom)
-                // As tall as the rows are scrolled, up to its full height: rows at rest are untouched.
-                .frame(height: min(scrolledBy, Design.Space.xl))
+            LinearGradient(
+                gradient: .end(from: .clear, to: .black, fading: fadesEnds),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            // As tall as the rows are scrolled, up to its full height: rows at rest are untouched.
+            .frame(height: min(scrolledBy, Design.Space.xl))
             Color.black
             if place == .opposite {
-                LinearGradient(gradient: .eased(from: .black, to: .clear), startPoint: .top, endPoint: .bottom)
-                    .frame(height: footInset + buttons.margin)
+                LinearGradient(
+                    gradient: .end(from: .black, to: .clear, fading: fadesEnds),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: footInset + buttons.margin)
             }
         }
     }

@@ -113,6 +113,7 @@ struct TerminalScene: View {
         .environment(\.monospacedDetail, configuration.tabs.bar.monospacedDirectory)
         .environment(\.savedPicture, savedPicture)
         .environment(\.barBlur, configuredBarBlur)
+        .environment(\.fadesEnds, configuration.appearance.ends == .fade)
         .accent(
             configuration.appearance.accent.rawValue,
             tint: configuration.appearance.tintColor,

@@ -8,6 +8,8 @@ package import SwiftUI
 /// its width. The kept entries that are open come first, then a thin line and the window's tabs (R3). Tabs are selected by a click, closed
 /// by their button (in the icon's place under the pointer) or the menu, and reordered by dragging; an entry's button unloads it.
 package struct BuiltInTabBar: View {
+    /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
+    @Environment(\.fadesEnds) var fadesEnds
     let tabs: TabsModel
     let settings: ShellSettings.Bar
     @Environment(\.surfaceStyle) var surface

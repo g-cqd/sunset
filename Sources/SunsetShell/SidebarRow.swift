@@ -2,10 +2,10 @@ import SunsetMetrics
 import SunsetPane
 import SwiftUI
 
-/// One tab in the sidebar (its padding, radius and close button from `layout.*`), the title cut with "…" when it does not fit. While the pointer is over it a close button
-/// appears and the row is highlighted; the selected tab has a stronger highlight, dimmer when the window is not the active one, and the hairline stroke
-/// that the terminal card has (only the selected tab has it).
+/// One tab in the sidebar (its padding, radius and close button from `layout.*`), its title faded or cut at its end. While the pointer is over it a close
+/// button appears and the row is highlighted; the selected tab has a stronger highlight (dimmer in an inactive window) and the terminal card's hairline.
 struct SidebarRow: View {
+    @Environment(\.fadesEnds) var fadesEnds  // `appearance.ends` (n30)
     let model: (any PaneContent)?
     let selected: Bool
     var armed = false
@@ -240,8 +240,12 @@ struct SidebarRow: View {
         HStack(spacing: 0) {
             Color.black
             if titleEnd > 0 {
-                LinearGradient(gradient: .eased(from: .black, to: .clear), startPoint: .leading, endPoint: .trailing)
-                    .frame(width: Design.Space.m)
+                LinearGradient(
+                    gradient: .end(from: .black, to: .clear, fading: fadesEnds),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: Design.Space.m)
                 // The close button sits half the row's height from its edge, a little further in on a taller row.
                 Color.clear.frame(width: titleEnd)
             }

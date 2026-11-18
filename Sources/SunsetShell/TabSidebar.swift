@@ -8,6 +8,8 @@ import UniformTypeIdentifiers
 /// (the window's own colour or material shows through, with the window's settings) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
 /// content starts below the traffic lights and scrolls beneath them, fading out there. A click selects a tab, a drag reorders them.
 package struct TabSidebar: View {
+    /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
+    @Environment(\.fadesEnds) var fadesEnds
     var tabs: TabsModel
     let settings: ShellSettings
     /// The list alone, of a Space the window is sliding to (`SpaceSlide`): looked at, not acted on.

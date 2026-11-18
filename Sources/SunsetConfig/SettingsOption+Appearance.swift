@@ -123,6 +123,15 @@ extension SettingsOption {
             .grouped("Terminal")
             .shown { $0.window.material != .opaque },
             choice(
+                "appearance.ends",
+                "Ends of lists and titles",
+                "fade fading alpha ends cut list title edge",
+                \.appearance.ends,
+                [(.fade, "Fade out"), (.cut, "Cut")]
+            )
+            .grouped("Lists and titles")
+            .noted("Where a list scrolls under a title or a bar, and where a title is too long."),
+            choice(
                 "appearance.barBlur",
                 "Under the bars",
                 "blur variable fade bar sidebar",

@@ -4,6 +4,8 @@ package import SwiftUI
 /// Where the address of a page is typed (web step b): the field, showing the host until clicked, and a thin line along its bottom edge while the page
 /// loads. Used by the sidebar, the window bar and the row of a page. Return opens what was typed and gives the page the keyboard; Escape gives it back.
 package struct AddressField: View {
+    /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
+    @Environment(\.fadesEnds) var fadesEnds
     let content: WebContent
     /// Where its list goes.
     var place = AddressTyping.Place.top
@@ -115,8 +117,12 @@ package struct AddressField: View {
         HStack(spacing: 0) {
             Color.black
             if showsActions {
-                LinearGradient(gradient: .eased(from: .black, to: .clear), startPoint: .leading, endPoint: .trailing)
-                    .frame(width: Design.Space.m)
+                LinearGradient(
+                    gradient: .end(from: .black, to: .clear, fading: fadesEnds),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: Design.Space.m)
                 Color.clear.frame(width: Design.Space.l * (hovering && content.url != nil ? 2 : 1))
             }
         }

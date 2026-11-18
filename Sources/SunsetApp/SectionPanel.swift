@@ -9,6 +9,8 @@ import SwiftUI
 /// sidebar's address field is, the rows as sidebar rows under their headings; the list scrolls under the top, fading and
 /// blurring there as the sidebar's.
 struct SectionPanel: View {
+    /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
+    @Environment(\.fadesEnds) var fadesEnds
     /// Where it is shown.
     enum Place {
         /// Opposite the tabs: the title on the window buttons' row with a hide button, the switch between sections at the foot.

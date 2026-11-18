@@ -114,6 +114,7 @@ public struct Configuration: Sendable, Equatable {
         /// What is under the bars (the address bar, the find bar, the ends of the sidebar's list) and behind the command bar: a
         /// blur that fades out (AemiSDR's variable blur), the surface the bar draws itself, or nothing (Sunset research/blur).
         public var barBlur = BarBlur.variable
+        public var ends = Ends.fade
         /// The bars' fill and controls (`BarTint`); `scheme` follows the colour scheme (owner, 2026-11-13).
         public var barTint = BarTint.scheme
         public init() {}

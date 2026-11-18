@@ -56,6 +56,10 @@ extension Reader {
                         configuration.appearance.glass = choice
                     }
                 case "tint": section("appearance.tint", value) { reader, tint in reader.readTint(tint) }
+                case "ends":
+                    if let ends = choice("appearance.ends", value, as: Configuration.Appearance.Ends.self) {
+                        configuration.appearance.ends = ends
+                    }
                 case "haptics":
                     if let flag = bool("appearance.haptics", value) { configuration.appearance.haptics = flag }
                 case "barTint":

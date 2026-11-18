@@ -14,4 +14,10 @@ extension Gradient {
                 }
         )
     }
+
+    /// An end's mask (`appearance.ends`, the owner's note n30): the eased fade from `start` to `end` while ends fade;
+    /// else all shown (black), the end cut where the band stops.
+    package static func end(from start: Color, to end: Color, fading: Bool) -> Gradient {
+        fading ? eased(from: start, to: end) : Gradient(colors: [.black, .black])
+    }
 }
