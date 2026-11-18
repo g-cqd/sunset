@@ -6,8 +6,10 @@ internal import InternedStrings
 public enum WebDeveloperExtras {
     @MainActor
     public static func set(_ enabled: Bool, on preferences: NSObject) {
+        // WebKit's accessors carry an underscore (`_setDeveloperExtrasEnabled:`); key-value coding finds them under the plain
+        // key. Checked for the plain getter, the preference was never set (the owner, 2026-11-18: no Inspect Element).
         let key = #Interned("developerExtrasEnabled")
-        guard preferences.responds(to: NSSelectorFromString(key)) else { return }
+        guard preferences.responds(to: NSSelectorFromString(#Interned("_setDeveloperExtrasEnabled:"))) else { return }
         preferences.setValue(enabled, forKey: key)
     }
 }

@@ -1,7 +1,6 @@
+import SunsetPrivate
 import Testing
 import WebKit
-
-@testable import SunsetPrivate
 
 /// The owner, 2026-11-18: no Inspect Element in a page's menu, the setting on. WebKit has `_developerExtrasEnabled` and
 /// `_setDeveloperExtrasEnabled:`, not `developerExtrasEnabled`: the check for the getter without its underscore failed, and
