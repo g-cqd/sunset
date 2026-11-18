@@ -1,0 +1,6 @@
+<!doctype html><title>Sink</title><canvas id=c width=1920 height=1080></canvas><script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+window.stream=c.captureStream(0);
+window.drawB64=async(b)=>{const r=await fetch('data:image/jpeg;base64,'+b);const bm=await createImageBitmap(await r.blob());x.drawImage(bm,0,0,1920,1080);window.stream.getVideoTracks()[0].requestFrame&&window.stream.getVideoTracks()[0].requestFrame();return 1};
+window.pull=async(n)=>{const r=await fetch('sunsetframe://f/'+n);const bm=await createImageBitmap(await r.blob());x.drawImage(bm,0,0,1920,1080);return r.headers.get('x-made')};
+</script>

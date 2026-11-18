@@ -1,0 +1,2 @@
+<!doctype html><title>Source</title><style>body{margin:0;background:#123}#b{position:absolute;width:200px;height:200px;background:#f80;}#t{font:80px system-ui;color:#fff;position:absolute;top:400px;left:40px}</style>
+<div id=b></div><div id=t>0</div><script>let i=0;function f(){i++;b.style.left=(i*7%1700)+'px';b.style.top=(i*3%800)+'px';t.textContent=performance.now().toFixed(0);requestAnimationFrame(f)}f()</script>
