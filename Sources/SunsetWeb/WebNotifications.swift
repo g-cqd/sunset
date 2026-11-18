@@ -73,6 +73,19 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
             if (notification) notification.__fire("click");
           });
           Object.defineProperty(window, "Notification", { value: Notification, writable: true, configurable: true });
+          // The Permissions API reads the same answer (WebKit's would say "prompt" whatever it is: roadmap 0045 B).
+          if (window.Permissions && Permissions.prototype.query) {
+            const query = Permissions.prototype.query;
+            Object.defineProperty(Permissions.prototype, "query", { writable: true, enumerable: true, configurable: true, value: { query(descriptor) {
+              const status = Reflect.apply(query, this, arguments);
+              if (!descriptor || descriptor.name !== "notifications") return status;
+              return Promise.all([status, bridge.postMessage({ kind: "permission" })]).then(([found, answer]) => {
+                permission = answer;
+                Object.defineProperty(found, "state", { get: () => permission === "default" ? "prompt" : permission, configurable: true });
+                return found;
+              });
+            } }.query });
+          }
           bridge.postMessage({ kind: "permission" }).then(answer => { permission = answer; });
         })();
         """

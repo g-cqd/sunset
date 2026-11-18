@@ -5,7 +5,8 @@ package import SunsetHost
 import UserNotifications
 
 /// What the program asked of the host (ADR-0010), applied under the policy: a clipboard write goes to the pasteboard; a notification is shown only while the
-/// app is not frontmost, at most one a second, and only when the process is a bundled app (the notification centre refuses a bare executable).
+/// pane is not seen (a tab in the background of Sunset in front notifies: roadmap 0045 B), at most one a second, and only when the process is a bundled
+/// app (the notification centre refuses a bare executable).
 extension TerminalModel {
     package func watchHostEvents(_ session: TerminalSession) async {
         var gate = NotificationGate()
@@ -16,7 +17,13 @@ extension TerminalModel {
                     NSPasteboard.general.setString(text, forType: .string)
                 case .notification(let title, let body):
                     let now = ProcessInfo.processInfo.systemUptime
-                    guard gate.admits(atSecond: now, windowFocused: NSApp.isActive) else { continue }
+                    let seen = NotificationGate.seen(
+                        appActive: NSApp.isActive,
+                        windowKey: gates.windowFocused,
+                        windowVisible: gates.windowVisible,
+                        paneVisible: gates.paneVisible
+                    )
+                    guard gate.admits(atSecond: now, windowFocused: seen) else { continue }
                     if let post { post(title, body) } else { await Self.show(title: title, body: body) }
             }
         }

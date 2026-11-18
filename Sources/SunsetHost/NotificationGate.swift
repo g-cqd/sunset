@@ -4,6 +4,12 @@ public struct NotificationGate: Sendable {
 
     public init() {}
 
+    /// Whether the person sees the pane that asked (roadmap 0045 B): it is shown, in the key window, of the app in front.
+    /// A pane in a tab not shown, or in a window behind, is not seen though Sunset is in front.
+    public static func seen(appActive: Bool, windowKey: Bool, windowVisible: Bool, paneVisible: Bool) -> Bool {
+        appActive && windowKey && windowVisible && paneVisible
+    }
+
     public mutating func admits(atSecond now: Double, windowFocused: Bool) -> Bool {
         guard !windowFocused else { return false }
         if let lastShown, now >= lastShown, now - lastShown < 1 { return false }
