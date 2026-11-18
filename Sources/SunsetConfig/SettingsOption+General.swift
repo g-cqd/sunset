@@ -130,14 +130,41 @@ extension SettingsOption {
                 \.web.clearHistoryOnQuit,
                 label: "Clear the history when Sunset quits"
             ),
-            toggle(
-                "web.clearWebsiteDataOnQuit",
-                "Clear website data when Sunset quits",
-                "cookies cache quit privacy",
-                \.web.clearWebsiteDataOnQuit,
-                label: "Clear website data when Sunset quits"
+            choice(
+                "web.keep.siteData",
+                "Sites' data",
+                "cookies sign in website data local storage indexeddb service workers quit keep clear",
+                \.web.keep.siteData,
+                [(.keep, "Kept"), (.keepChosen, "Kept for the sites chosen"), (.clearOnQuit, "Cleared on quit")]
             )
-            .noted("Signs you out of sites."),
+            .grouped("Between runs")
+            .noted(
+                "Cookies, sign-ins and what sites store. Kept for the sites chosen: a site is chosen from its panel, or by "
+                    + "itself when a password is sent from it; the others are cleared when Sunset quits."
+            ),
+            choice(
+                "web.keep.cache",
+                "Cache",
+                "cache disk network quit keep clear",
+                \.web.keep.cache,
+                [(.keep, "Kept"), (.clearOnQuit, "Cleared on quit")]
+            )
+            .grouped("Between runs")
+            .noted(
+                "Pages and files fetched, with their addresses. Cleared, pages load from the network after a relaunch."
+            ),
+            choice(
+                "web.keep.traces",
+                "Traces of visits",
+                "hsts tracking statistics http3 alternative services quit keep clear",
+                \.web.keep.traces,
+                [(.keep, "Kept"), (.clearOnQuit, "Cleared on quit")]
+            )
+            .grouped("Between runs")
+            .noted(
+                "The sites that asked for HTTPS only, when each was last used and what follows it, how each answers over "
+                    + "HTTP/3. Cleared, nothing you see is lost."
+            ),
             toggle(
                 "web.privateWindowShares",
                 "Private windows share their data",

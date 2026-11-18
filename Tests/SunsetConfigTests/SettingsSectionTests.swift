@@ -36,7 +36,8 @@ import Testing
         #expect(options("privacy.programs") == ["terminal.clipboardWrite"])
         #expect(
             options("privacy.browsing") == [
-                "web.historyKeep", "web.clearHistoryOnQuit", "web.clearWebsiteDataOnQuit", "web.privateWindowShares"
+                "web.historyKeep", "web.clearHistoryOnQuit", "web.keep.siteData", "web.keep.cache", "web.keep.traces",
+                "web.privateWindowShares"
             ]
         )
     }

@@ -31,7 +31,7 @@ import WebKit
             AppHistory.shared?.clear(since: .distantPast)
             FaviconStore.shared.forgetAll()
         }
-        guard web.clearWebsiteDataOnQuit else { return }
+        guard web.keep.siteData == .clearOnQuit else { return }
         var done = false
         WKWebsiteDataStore.default()
             .removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: .distantPast) {

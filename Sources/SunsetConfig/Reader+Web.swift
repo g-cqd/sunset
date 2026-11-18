@@ -6,7 +6,7 @@ extension Reader {
     private nonisolated(unsafe) static let webFlags: [String: WritableKeyPath<Configuration.Web, Bool>] = [
         "openLinksInSunset": \.openLinksInSunset, "developer": \.developer, "suggestions": \.suggestions,
         "httpFallback": \.httpFallback, "agentScripts": \.agentScripts, "textOnlyZoom": \.textOnlyZoom,
-        "clearHistoryOnQuit": \.clearHistoryOnQuit, "clearWebsiteDataOnQuit": \.clearWebsiteDataOnQuit,
+        "clearHistoryOnQuit": \.clearHistoryOnQuit,
         "askWhereToSave": \.askWhereToSave, "openSafeDownloads": \.openSafeDownloads,
         "notifyDownloads": \.notifyDownloads,
         "approveRiskyDownloads": \.approveRiskyDownloads, "privateSuggestions": \.privateSuggestions,
@@ -26,6 +26,16 @@ extension Reader {
                 case "engines": readEngines(value)
                 case "blockingLists": readBlockingLists(value)
                 case "proxy": readProxy(value)
+                case "keep": section("web.keep", value) { reader, object in reader.readKeep(object) }
+                // Before ADR-0081: one switch that cleared everything at quit.
+                case "clearWebsiteDataOnQuit":
+                    if bool("web.clearWebsiteDataOnQuit", value) == true {
+                        configuration.web.keep = .init(
+                            cache: .clearOnQuit,
+                            traces: .clearOnQuit,
+                            siteData: .clearOnQuit
+                        )
+                    }
                 case "permissions":
                     section("web.permissions", value) { reader, object in reader.readPermissions(object) }
                 case "downloadFolder":

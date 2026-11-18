@@ -49,6 +49,29 @@ extension Configuration {
         }
 
         /// How long the history keeps a page (web step e).
+        /// What WebKit keeps between runs (ADR-0081): app-wide; a profile may set otherwise.
+        public struct Keep: Sendable, Equatable {
+            /// The caches, the traces: kept, or cleared when Sunset quits.
+            public enum Choice: String, Sendable, Equatable, CaseIterable {
+                case keep, clearOnQuit
+            }
+
+            /// A site's data: kept, kept for the sites chosen or signed in to only, or cleared when Sunset quits.
+            public enum SiteData: String, Sendable, Equatable, CaseIterable {
+                case keep, keepChosen, clearOnQuit
+            }
+
+            public var cache: Choice
+            public var traces: Choice
+            public var siteData: SiteData
+
+            public init(cache: Choice = .keep, traces: Choice = .keep, siteData: SiteData = .keep) {
+                self.cache = cache
+                self.traces = traces
+                self.siteData = siteData
+            }
+        }
+
         public enum HistoryKeep: String, Sendable, Equatable, CaseIterable {
             case day, week, twoWeeks, month, year, forever
 
@@ -110,7 +133,7 @@ extension Configuration {
         public var historyKeep = HistoryKeep.year
         /// What goes when Sunset quits: the history, the website data (cookies, caches, storage).
         public var clearHistoryOnQuit = false
-        public var clearWebsiteDataOnQuit = false
+        public var keep = Keep(siteData: .keepChosen)
         /// Where files are downloaded; empty: ~/Downloads.
         public var downloadFolder = ""
         public var askWhereToSave = false

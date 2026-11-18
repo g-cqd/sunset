@@ -50,7 +50,7 @@ public enum ConfigurationKeys {
         "web.suggestions",
         "web.httpFallback",
         "web.zoomScope", "web.textOnlyZoom", "web.agent", "web.agentScripts",
-        "web.historyKeep", "web.clearHistoryOnQuit", "web.clearWebsiteDataOnQuit",
+        "web.historyKeep", "web.clearHistoryOnQuit", "web.keep.cache", "web.keep.traces", "web.keep.siteData",
         "web.downloadFolder", "web.askWhereToSave", "web.openSafeDownloads", "web.notifyDownloads",
         "web.approveRiskyDownloads", "web.keepDownloads",
         "web.permissions.camera", "web.permissions.microphone", "web.permissions.screen", "web.permissions.location",
