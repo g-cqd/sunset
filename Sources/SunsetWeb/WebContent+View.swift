@@ -95,7 +95,7 @@ extension WebContent {
             },
             view.observe(\.microphoneCaptureState, options: [.new]) { [weak self] view, _ in
                 MainActor.assumeIsolated { self?.captureChanged(view) }
-            }, observePageColor(view)
+            }, observePageColor(view), observeThemeColor(view)
         ]
     }
 

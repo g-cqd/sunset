@@ -105,7 +105,7 @@ public struct Configuration: Sendable, Equatable {
         public var lightTintAlpha = 0.8
         public var tintAlpha = 0.5
         /// The colour that marks a selection, a focus, a filled control (design 0003 §3.5): the system's accent, Sunset's (`tint.color`, the
-        /// system's when unset), or neutral shades of the scheme.
+        /// system's when unset), neutral shades of the scheme, or the shown site's colour.
         public var accent = Accent.system
         /// What is under the bars (the address bar, the find bar, the ends of the sidebar's list) and behind the command bar: a
         /// blur that fades out (AemiSDR's variable blur), the surface the bar draws itself, or nothing (Sunset research/blur).
@@ -120,6 +120,8 @@ public struct Configuration: Sendable, Equatable {
 
         public enum Accent: String, Sendable, Equatable, CaseIterable {
             case system, sunset, neutral
+            /// The site shown: its theme colour or its icon's, else the system's (roadmap 0047 H).
+            case site
         }
     }
 

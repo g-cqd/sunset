@@ -33,8 +33,13 @@ package final class WebContent: PaneContent {
     /// The page's zoom, 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
     package internal(set) var zoom = 1.0
     /// The site's icon, once fetched (`WebContent+Favicon`).
-    package internal(set) var favicon: NSImage?
+    package internal(set) var favicon: NSImage? {
+        didSet { if favicon !== oldValue { iconColor = favicon.flatMap(Self.colour) } }
+    }
     package internal(set) var pageBackground: NSColor?
+    /// The colours the site declares (`<meta name="theme-color">`) and its icon has, as sRGB bytes (roadmap 0047 H).
+    package internal(set) var themeColor: [UInt8]?
+    package internal(set) var iconColor: [UInt8]?
     /// The dialog the page asked for, waiting for its answer (`WebContent+Dialogs`).
     package internal(set) var dialog: PageDialog?
     @ObservationIgnored var dialogPolicy = PageDialogPolicy()

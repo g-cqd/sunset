@@ -32,10 +32,11 @@ extension SettingsOption {
             choice(
                 "appearance.accent",
                 "Accent",
-                "colour color highlight selection sunset neutral system",
+                "colour color highlight selection sunset neutral system site website theme icon",
                 \.appearance.accent,
-                [(.system, "System"), (.sunset, "Sunset"), (.neutral, "Neutral")]
-            ),
+                [(.system, "System"), (.sunset, "Sunset"), (.neutral, "Neutral"), (.site, "From the website")]
+            )
+            .noted("From the website: the color the page declares, else its icon's; the system's for anything else."),
             color("appearance.tint.color", "Tint", "colour color overlay glass", \.appearance.tintColor, [48, 96, 255]),
             number(
                 "appearance.tint.alpha",

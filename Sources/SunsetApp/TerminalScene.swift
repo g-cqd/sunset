@@ -111,7 +111,11 @@ struct TerminalScene: View {
         .environment(\.monospacedDetail, configuration.tabs.bar.monospacedDirectory)
         .environment(\.savedPicture, savedPicture)
         .environment(\.barBlur, configuredBarBlur)
-        .accent(configuration.appearance.accent.rawValue, tint: configuration.appearance.tintColor)
+        .accent(
+            configuration.appearance.accent.rawValue,
+            tint: configuration.appearance.tintColor,
+            site: Design.Accent.site(theme: focusedPage?.themeColor, icon: focusedPage?.iconColor)
+        )
         .animation(configuration.layout.smooth, value: tabs.bar != nil)
         .animation(configuration.layout.smooth, value: tabs.showsHistory)
         .animation(configuration.layout.smooth, value: tabs.sections)
