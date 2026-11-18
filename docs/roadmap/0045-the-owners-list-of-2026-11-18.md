@@ -18,11 +18,11 @@ local only (nothing can be pushed from this machine), rebased on the remote as i
 
 | Step | What | Task | Status |
 |---|---|---|---|
-| A | A loaded tab shown again keeps its exact state, scroll included | t2 | not-started |
-| B | A page's notifications reach the system: Sunset asks the system to notify | t3 | not-started |
-| C | A tab that fails to load, or whose load indicator is wrong or not updated when it ends | t4 | not-started |
-| D | The floating sidebar on a page leaves no blank space at the top of the content | t5 | not-started |
-| E | Space and profile switches, the alpha mask, animated smoothly; a Space with only tabs has them at the top | t6 | not-started |
+| A | A loaded tab shown again keeps its exact state, scroll included | t2 | done: pages unloaded under pressure at macOS's critical level only (ADR-0076); not seen |
+| B | Notifications from tabs reach the system | t3 | done: a terminal in a tab not seen notifies while Sunset is in front (ADR-0075); `permissions.query` reads the site's answer; not seen |
+| C | A tab that fails to load, or whose load indicator is wrong or not updated when it ends | t4 | not reproduced; an unloaded page no longer says it loads; A's fix ends most reloads of hidden pages |
+| D | The floating sidebar on a page leaves no blank space at the top of the content | t5 | done: the page reaches the top under the drag strip; not seen |
+| E | Space and profile switches, the alpha mask, animated smoothly; a Space with only tabs has them at the top | t6 | done: the neighbour slides in as its own column; the sides' fade animated; not seen |
 | F | Appearing as Chrome, deeper; the site.example sites load | t7 | done (below) |
 | G | Rebuilt and installed (`Scripts/install-app.sh`) | t8 | not-started |
 
@@ -49,3 +49,16 @@ Not done in F, said plainly:
 - A tab restored at the site's "unsupported" page has no address asked for: it is loaded again where it is.
 - Nothing past the site login page was tried (no account); W-b (a shipped list of site rules) is still the
   owner's deferral (ADR-0051), so each of these sites needs "Appears as Chrome" once.
+
+The owner, during the work (2026-11-18): "any browser impersonation effort … should be reliable, generic, resilient so
+that it works on all website that we would need to be using as chrome|firefox or whatever". F holds to it: nothing is
+per site; the asked address is kept for any site's script redirect, and the identity is set in every frame of every
+page shown another browser. What is not generic yet is listed above (workers, `window.webkit`, client-hint headers).
+
+## Not done (all steps)
+
+- Nothing was seen on screen: this terminal may neither record the screen nor use accessibility (axdrive refused).
+- B: a page's service worker `showNotification` is not routed; `requestPermission()` without a gesture still asks no
+  one (ADR-0067): Chrome would ask, Safari does not. Both are the owner's to decide.
+- C: the owner's failures were not reproduced; no site was named.
+- E: frame times of a slide were not measured.
