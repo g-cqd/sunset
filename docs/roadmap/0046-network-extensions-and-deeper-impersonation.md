@@ -29,6 +29,14 @@ S1 and S2 are small; the owner did not place them among A–D.
 
 The owner, 2026-11-18 (later): roadmap 0047 comes before this one.
 
+## The owner's decisions, 2026-11-18 (later)
+
+- Network: WebKit's private proxy configuration first, the gateway for DNS after (ADR-0079); app-wide, a profile may differ.
+- D: APIs filled in natively, staged after the profiles and the network (ADR-0080, superseding ADR-0074's rule 2). Stages:
+  D1 the list (what Chrome and Firefox have that WebKit lacks, which detection scripts read, from Search and the oracle's diff),
+  D2 the first APIs that pages call (one by one, each with its test), D3 error messages, D4 codecs (what can and cannot be).
+- Order after 0047 and 0049: the profiles (roadmap 0050) first.
+
 ## First reading (2026-11-18; docs/research/network-dns-proxy-extensions-2026-11-18.md)
 
 - A: the system's encrypted-DNS switch for an app's connections does not let Sunset choose the resolver (probed): Sunset

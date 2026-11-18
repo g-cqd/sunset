@@ -25,5 +25,8 @@ building on top of it is something some projects are already doing"; "we can do 
 
 | E | The own engine as a component downloaded at run time, at the person's choice: one Sunset, the system's WebKit until the person fetches ours; where it is kept, how it is checked (signature), updated, and given up | t28 | not-started |
 
+The owner's directive (ADR-0078): our own WebKit only when shown more performant, safer, more efficient and more reliable;
+its form decided after the spike reassesses reliability, safety, convenience and complexity.
+
 Not done: nothing built of WebKit; the cost of keeping a fork current (security fixes between our builds) is R5's first
 risk and is the owner's to weigh after B.
