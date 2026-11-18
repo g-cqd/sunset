@@ -26,7 +26,6 @@ struct TabRowMenu: View {
                 tabs.select(item: item)
             }
         }
-        Button("Tab Settings\u{2026}") { tabs.showSingle(.settings(topic: "tabs.placement")) }
         Divider()
         TabKeepMenu(tabs: tabs, item: item, animation: animation)
         KeepAwakeMenu(tabs: tabs, item: item)
