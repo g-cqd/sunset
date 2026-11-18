@@ -4,6 +4,8 @@ import SwiftUI
 /// What one site was allowed (web step g), changed in place; and Stop while the page captures.
 struct SiteSettingsPopover: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.barTint) private var tint
+    @Environment(\.colorScheme) private var outer
     let content: WebContent
     private var store: SitePermissions { content.permissions }
 
@@ -54,8 +56,10 @@ struct SiteSettingsPopover: View {
         .frame(width: 320, alignment: .leading)
         .padding(Design.Space.xl)
         // Read on any page: the popover's glass took the page's white under it while its text was the window's (light on
-        // a dark window), which could not be read (seen 2026-11-18, roadmap 0047 F). The window's own background under it.
-        .presentationBackground(Color(nsColor: .windowBackgroundColor))
+        // a dark window), which could not be read (seen 2026-11-18). The chrome's glass kept, its tint stronger under the
+        // text, and the controls in the tint's scheme (note n19).
+        .environment(\.colorScheme, tint.resolved(in: outer))
+        .background(BarTint.fill(for: tint.resolved(in: outer)).opacity(Design.Fill.popoverShade))
     }
 
     /// "Permissions", with how many this site was given an answer of its own.
