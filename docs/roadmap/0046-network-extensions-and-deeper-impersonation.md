@@ -26,3 +26,12 @@ In his order. Each step starts with its questions and probes; nothing below is a
 | S2 | A setting: a page's service-worker `showNotification` is posted as its other notifications are | t17 | not-started |
 
 S1 and S2 are small; the owner did not place them among A–D.
+
+The owner, 2026-11-18 (later): roadmap 0047 comes before this one.
+
+## First reading (2026-11-18; docs/research/network-dns-proxy-extensions-2026-11-18.md)
+
+- A: the system's encrypted-DNS switch for an app's connections does not let Sunset choose the resolver (probed): Sunset
+  must resolve names itself; the pages' names reach a proxy as names (probed upstream), so a gateway inside Sunset can.
+- B: WebKit's extension engine has no `proxy` permission: Sunset provides `chrome.proxy`, as Search fills APIs in.
+- A proposition (one gateway: Sunset's resolver, then direct, `web.proxy` or an extension's proxy) waits for the owner.
