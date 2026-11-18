@@ -73,6 +73,7 @@ struct FavoritesSection: View {
                         .offset(x: 2, y: 1)
                 }
             }
+            .overlay(alignment: .bottomTrailing) { if tabs.isAway(entry: entry) { AwayBadge() } }
             .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
             .hoverPreview(tabs, entry: entry.id)
             .overlay { dropMark(entry.id) }

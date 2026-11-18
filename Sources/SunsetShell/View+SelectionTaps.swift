@@ -1,3 +1,4 @@
+import SunsetPane
 import SwiftUI
 
 extension View {
@@ -24,7 +25,12 @@ extension View {
                 TapGesture(count: 2)
                     .onEnded {
                         undo()
-                        tabs.renamingRow = row
+                        // A kept entry away from where it was kept goes back there (n3); anything else is renamed.
+                        if case .node(let id) = row, tabs.keeper(of: id).favorites.entry(id) != nil {
+                            tabs.doubleClick(entry: id)
+                        } else {
+                            tabs.renamingRow = row
+                        }
                     }
             )
     }

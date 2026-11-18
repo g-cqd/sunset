@@ -123,6 +123,7 @@ struct PinnedGrid: View {
                         .accessibilityLabel("Keeps the Mac awake")
                 }
             }
+            .overlay(alignment: .bottomTrailing) { if tabs.isAway(entry: entry) { AwayBadge() } }
             .overlay {
                 // Asked whether to stop what runs in it (Unload, Reset, Delete): marked as a tab's row is.
                 if entry.open.map({ tabs.isCloseArmed($0.id) }) == true {
@@ -139,6 +140,8 @@ struct PinnedGrid: View {
         .contextMenu { KeptEntryMenu(tabs: tabs, entry: entry, animation: layout.smooth) }
         // Dragged out: onto the Favorites it is a favourite there, onto the tabs a tab again.
         .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
+        // Away from where it was kept, back there; else its name is asked (n3).
+        .simultaneousGesture(TapGesture(count: 2).onEnded { tabs.doubleClick(entry: entry.id) })
         .iconPopover(tabs: tabs, row: .node(entry.id))
         // A tile has no text to edit in place: its name is asked beside it.
         .popover(
