@@ -62,8 +62,25 @@ package struct TabLabel: View {
                 .buttonStyle(.plain)
                 .help(sound.help)
             }
-            if let dot = model?.captureDot {
-                Circle().fill(dot).frame(width: 7, height: 7).help("Using the camera, microphone or screen")
+            // The microphone and the camera it uses, each muted from here (the owner's note n47); the screen's dot stays.
+            if let model {
+                ForEach(PaneCapture.Device.allCases, id: \.self) { device in
+                    if let state = model.devices[device] {
+                        Button {
+                            model.toggle(device)
+                        } label: {
+                            Image(systemName: PaneCapture.symbol(device, state))
+                                .font(Design.Text.detail)
+                                .foregroundStyle(state == .live ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
+                        }
+                        .buttonStyle(.plain)
+                        .help(PaneCapture.help(device, state))
+                        .accessibilityLabel(PaneCapture.help(device, state))
+                    }
+                }
+            }
+            if let dot = model?.captureDot, model?.devices.isEmpty != false {
+                Circle().fill(dot).frame(width: 7, height: 7).help("Sharing the screen")
             }
         }
     }

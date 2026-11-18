@@ -41,6 +41,24 @@ struct SiteSettingsPopover: View {
                 .settingSwitch()
                 .disabled(host.isEmpty)
             }
+            // What the page uses now, each muted from here (the owner's note n47).
+            if let sound = content.sound {
+                Toggle(isOn: Binding(get: { sound != .muted }, set: { _ in content.toggleMuted() })) {
+                    Label("Sound", systemImage: sound.symbol)
+                }
+                .settingSwitch()
+            }
+            ForEach(PaneCapture.Device.allCases, id: \.self) { device in
+                if let state = content.devices[device] {
+                    Toggle(isOn: Binding(get: { state == .live }, set: { _ in content.toggle(device) })) {
+                        Label(
+                            device == .microphone ? "Microphone" : "Camera",
+                            systemImage: PaneCapture.symbol(device, state)
+                        )
+                    }
+                    .settingSwitch()
+                }
+            }
             SiteZoomRow(content: content)
             appearsAs.disabled(host.isEmpty)
             opensIn.disabled(host.isEmpty)

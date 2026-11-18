@@ -1,4 +1,5 @@
 import Foundation
+package import SunsetShell
 package import SwiftUI
 import WebKit
 
@@ -29,6 +30,29 @@ extension WebContent {
     func captureChanged(_ view: WKWebView) {
         let active = view.cameraCaptureState != .none || view.microphoneCaptureState != .none
         if active { capture = .cameraOrMicrophone } else if capture == .cameraOrMicrophone { capture = nil }
+        devices = PaneCapture(
+            microphone: Self.state(view.microphoneCaptureState),
+            camera: Self.state(view.cameraCaptureState)
+        )
+    }
+
+    private static func state(_ state: WKMediaCaptureState) -> PaneCapture.State? {
+        switch state {
+            case .active: .live
+            case .muted: .muted
+            default: nil
+        }
+    }
+
+    /// Mutes the microphone or the camera, or turns it back on (WebKit keeps the page's stream; it gets silence or black).
+    package func toggle(_ device: PaneCapture.Device) {
+        guard let webView, let now = devices[device] else { return }
+        let next: WKMediaCaptureState = now == .live ? .muted : .active
+        switch device {
+            case .microphone: webView.setMicrophoneCaptureState(next)
+            case .camera: webView.setCameraCaptureState(next)
+        }
+        devices[device] = now == .live ? .muted : .live
     }
 
     /// The dot was clicked: the camera and microphone stop.

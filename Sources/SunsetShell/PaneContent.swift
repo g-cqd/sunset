@@ -29,6 +29,10 @@ package import SwiftUI
     var sound: PaneSound? { get }
     /// Mutes it, or lets it be heard again.
     func toggleMuted()
+    /// The microphone and the camera it uses (a web page, the owner's note n47): each on its tab, muted from there.
+    var devices: PaneCapture { get }
+    /// Mutes a device it uses, or turns it back on.
+    func toggle(_ device: PaneCapture.Device)
     /// It has edits that are not saved (a document): a dot on its tab.
     var isEdited: Bool { get }
     /// Its unsaved edits, when closing it could lose some: asked about before it closes (`TabsModel.losingNothing`).
@@ -70,6 +74,8 @@ extension PaneContent {
     package var captureDot: Color? { nil }
     package var sound: PaneSound? { nil }
     package func toggleMuted() {}
+    package var devices: PaneCapture { PaneCapture() }
+    package func toggle(_ device: PaneCapture.Device) {}
     package var isPrivate: Bool { false }
     package var isEdited: Bool { false }
     package var unsaved: UnsavedEdits? { nil }

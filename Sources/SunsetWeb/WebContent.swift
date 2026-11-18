@@ -30,6 +30,8 @@ package final class WebContent: PaneContent {
     package internal(set) var permissionRequest: PermissionRequest?
     /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).
     package internal(set) var capture: PageCapture?
+    /// The microphone and the camera it uses, each live or muted (the owner's note n47).
+    package internal(set) var devices = PaneCapture()
     /// Find in the page (Cmd-F).
     package let find = PageFind()
     /// The page's zoom, 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
