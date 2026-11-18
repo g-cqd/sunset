@@ -13,19 +13,21 @@ struct ProfileKeepRows: View {
 
     var body: some View {
         DisclosureGroup(isExpanded: $open) {
-            row(
-                "Sites' data",
-                \.siteData,
-                Configuration.Web.Keep.SiteData.allCases.map(\.rawValue),
-                app: app.siteData.rawValue
-            )
-            row("Cache", \.cache, Configuration.Web.Keep.Choice.allCases.map(\.rawValue), app: app.cache.rawValue)
-            row(
-                "Traces of visits",
-                \.traces,
-                Configuration.Web.Keep.Choice.allCases.map(\.rawValue),
-                app: app.traces.rawValue
-            )
+            FoldContent {
+                row(
+                    "Sites' data",
+                    \.siteData,
+                    Configuration.Web.Keep.SiteData.allCases.map(\.rawValue),
+                    app: app.siteData.rawValue
+                )
+                row("Cache", \.cache, Configuration.Web.Keep.Choice.allCases.map(\.rawValue), app: app.cache.rawValue)
+                row(
+                    "Traces of visits",
+                    \.traces,
+                    Configuration.Web.Keep.Choice.allCases.map(\.rawValue),
+                    app: app.traces.rawValue
+                )
+            }
         } label: {
             Text("Between runs: \(Self.summary(profile.profile.keep))").foregroundStyle(.secondary)
         }

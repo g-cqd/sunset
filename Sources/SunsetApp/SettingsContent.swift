@@ -18,7 +18,9 @@ final class SettingsContent: PaneContent {
     /// What is searched for; while it is not blank the page shows what it finds, under each option's section and topic.
     var query = ""
     /// The topic's More is open (roadmap 0047 G).
-    var showsMore = false
+    var showsMore = false {
+        didSet { if showsMore != oldValue { onChange() } }
+    }
     @ObservationIgnored var onExit: () -> Void = {}
     @ObservationIgnored var onFocusRequest: () -> Void = {}
     /// Something the session keeps has changed (which topic).
@@ -29,6 +31,7 @@ final class SettingsContent: PaneContent {
     /// The page a saved descriptor says; a topic that is no longer one is the first.
     init(_ descriptor: PaneDescriptor) {
         topic = SettingsSection.shown(for: descriptor.state["topic"]) ?? SettingsSection.all[0].topics[0].id
+        showsMore = descriptor.state["more"] == "true"
     }
 
     var isSearching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -48,7 +51,11 @@ final class SettingsContent: PaneContent {
     var progress: Double? { nil }
     var closeWarning: String? { nil }
     var searchTerms: [String] { ["preferences", "options", "configuration"] }
-    var descriptor: PaneDescriptor { .settings(topic: topic) }
+    var descriptor: PaneDescriptor {
+        var descriptor = PaneDescriptor.settings(topic: topic)
+        if showsMore { descriptor.state["more"] = "true" }
+        return descriptor
+    }
 
     func setState(focused: Bool, visible: Bool) {}
     func stop() {}

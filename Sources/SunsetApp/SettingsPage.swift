@@ -69,10 +69,21 @@ struct SettingsPage: View {
                 blocks(SettingsBlock.blocks(applying(plain)), heading: heading)
                 // The measures and the finer choices a level down (roadmap 0047 G).
                 if !shown.topic.first.isEmpty, !shown.topic.further.isEmpty {
+                    // The finer choices inside the fold, right under it, each group under its heading (the owner's notes
+                    // n32, n33: in sections of their own they were far from it).
                     Section {
-                        DisclosureGroup("More", isExpanded: $content.showsMore) {}
+                        DisclosureGroup("More", isExpanded: $content.showsMore) {
+                            FoldContent {
+                                ForEach(SettingsBlock.blocks(applying(shown.topic.further))) { block in
+                                    if let title = block.title {
+                                        Text(title).font(Design.Text.body.weight(.semibold))
+                                            .padding(.top, Design.Space.s)
+                                    }
+                                    rows(block.options)
+                                }
+                            }
+                        }
                     }
-                    if content.showsMore { blocks(SettingsBlock.blocks(applying(shown.topic.further)), heading: nil) }
                 }
             }
         }

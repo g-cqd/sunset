@@ -16,16 +16,18 @@ struct EngineList: View {
         }
         ForEach(engines.indices, id: \.self) { index in
             DisclosureGroup(isExpanded: expanded(index)) {
-                field("Name", text(index, \.name), prompt: "Shown in the list")
-                field("Keyword", text(index, \.keyword), prompt: "One short word", code: true)
-                field("Search address", text(index, \.search), prompt: "An address with %s", code: true)
-                field("Suggestion address", suggest(index), prompt: "Optional, with %s", code: true)
-                // Here, not in the label: macOS makes the label one control with the disclosure, and a press on it would
-                // remove the engine (seen, 2026-11-18).
-                LabeledContent {
-                    Button("Remove Engine", role: .destructive) { remove(index) }
-                } label: {
-                    EmptyView()
+                FoldContent {
+                    field("Name", text(index, \.name), prompt: "Shown in the list")
+                    field("Keyword", text(index, \.keyword), prompt: "One short word", code: true)
+                    field("Search address", text(index, \.search), prompt: "An address with %s", code: true)
+                    field("Suggestion address", suggest(index), prompt: "Optional, with %s", code: true)
+                    // Here, not in the label: macOS makes the label one control with the disclosure, and a press on it would
+                    // remove the engine (seen, 2026-11-18).
+                    LabeledContent {
+                        Button("Remove Engine", role: .destructive) { remove(index) }
+                    } label: {
+                        EmptyView()
+                    }
                 }
             } label: {
                 label(index)
