@@ -163,6 +163,7 @@ extension Reader {
                 case "monospacedDirectory":
                     if let flag = bool(path, value) { configuration.tabs.bar.monospacedDirectory = flag }
                 case "progress": if let flag = bool(path, value) { configuration.tabs.bar.showProgress = flag }
+                case "autoHide": if let flag = bool(path, value) { configuration.tabs.bar.autoHide = flag }
                 default: unknown(path)
             }
         }

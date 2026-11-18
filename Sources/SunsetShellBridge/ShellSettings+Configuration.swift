@@ -24,6 +24,7 @@ extension ShellSettings {
         tabs.bar.showDirectory = configuration.tabs.bar.showDirectory
         tabs.bar.monospacedDirectory = configuration.tabs.bar.monospacedDirectory
         tabs.bar.showProgress = configuration.tabs.bar.showProgress
+        tabs.bar.autoHide = configuration.tabs.bar.autoHide
         layout = Layout(configuration.layout)
     }
 }

@@ -33,7 +33,7 @@ public enum ConfigurationKeys {
         "tabs.mode", "tabs.restore", "tabs.confirmClose", "tabs.askBeforeQuit", "tabs.keepRunningForFavorites",
         "tabs.closeWithLastWindow", "tabs.closeStoppedAfter", "tabs.closeWindowWithLastTab", "tabs.closeGoesBack",
         "tabs.keepAwakeDisplay",
-        "tabs.bar.position",
+        "tabs.bar.position", "tabs.bar.autoHide",
         "tabs.bar.icon", "tabs.bar.title",
         "tabs.bar.directory", "tabs.bar.monospacedDirectory",
         "tabs.bar.progress",

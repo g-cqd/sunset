@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress
 blocked-by: nothing
 date: 2026-11-18
 ---
@@ -14,9 +14,9 @@ before. The page's own address row ("At the top of every page") stays, floating 
 
 | Step | What | Status |
 |---|---|---|
-| A | The bar over the page, not above it: the page full height, the groups at the edge | not-started |
-| B | Hidden until the pointer reaches the edge (a reveal strip, the floating sidebar's delay), or while typing in it; a setting keeps it shown | not-started |
-| C | Shown always: a native toolbar, or the page's colour under the fading blur | not-started |
+| A | The built-in bar over the page, not above it: the page full height (`FloatingEdgeBar`), the area keeping the window's corners | done |
+| B | Hidden until the pointer reaches the edge (a 6 pt strip), gone 0.4 s after it leaves, out while its address is typed in (`EdgeReveal`); `tabs.bar.autoHide` (on) | done; the reveal not seen (a hover cannot be given) |
+| C | Shown always: the bar's tint fading into the page over the fading blur, its controls in the tint's scheme | done (seen); a native toolbar instead: not done |
 | D | The page's own address row floats over its top, revealed there | not-started |
 
-Not done: all of it.
+Not done: D; C's native toolbar; the window bar (address in its own bar, `web.address` window with tabs not built in) already floated and hid before this.

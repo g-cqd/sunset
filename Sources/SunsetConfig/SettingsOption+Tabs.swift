@@ -27,6 +27,15 @@ extension SettingsOption {
                 [(.top, "Top"), (.bottom, "Bottom")]
             )
             .grouped("Tabs"),
+            toggle(
+                "tabs.bar.autoHide",
+                "Hide the bar until the pointer reaches its edge",
+                "auto hide floating bar reveal edge full height",
+                \.tabs.bar.autoHide
+            )
+            .grouped("Tabs")
+            .shown { $0.tabs.mode == .internal }
+            .noted("The bar floats over the page, which keeps the whole height. Shown, the page fades under it."),
             toggle("sidebar.enabled", "Show the sidebar", "tabs vertical list", \.sidebar.enabled)
                 .noted("The sidebar lists the tabs. It needs tabs set to Native (the built-in bar replaces it).")
                 .grouped("Sidebar"),

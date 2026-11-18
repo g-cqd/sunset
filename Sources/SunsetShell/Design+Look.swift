@@ -51,6 +51,8 @@ extension Design {
         package static let floatingMinimum = 0.85
         /// Under the window's address bar's surface (black), for its text over a light page (owner, 2026-11-13).
         package static let barShade = 0.5
+        /// The floating bar's tint at its edge, fading into the page (roadmap 0055): stronger than a group's, its text over any page.
+        package static let floatingBarShade = 0.8
         /// Under a popover's text, on its glass: the bars' tint, stronger, so that it reads over any page (note n19).
         package static let popoverShade = 0.75
         /// A dimming layer (Apple's figure for one under clear glass).

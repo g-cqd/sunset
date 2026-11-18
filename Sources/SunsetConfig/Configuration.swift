@@ -146,6 +146,7 @@ public struct Configuration: Sendable, Equatable {
             }
 
             public var position = Position.bottom
+            public var autoHide = true  // Hidden over the page until the pointer reaches its edge (roadmap 0055).
             public var showTitle = true
             /// A small picture before the title: a folder with the first letter of the directory's name, or a mark for a running command.
             public var showIcon = true

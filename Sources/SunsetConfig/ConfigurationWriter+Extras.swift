@@ -7,6 +7,7 @@ extension ConfigurationWriter {
         extra["tabs.bar.monospacedDirectory"] = String(configuration.tabs.bar.monospacedDirectory)
         extra["appearance.barBlur"] = string(configuration.appearance.barBlur.rawValue)
         extra["appearance.haptics"] = String(configuration.appearance.haptics)
+        extra["tabs.bar.autoHide"] = String(configuration.tabs.bar.autoHide)
         extra["appearance.ends"] = string(configuration.appearance.ends.rawValue)
         extra["appearance.barTint"] = string(configuration.appearance.barTint.rawValue)
         extra["appearance.tint.light"] = color(configuration.appearance.lightTintColor)

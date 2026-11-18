@@ -43,6 +43,8 @@ package enum Design {
     }
 
     package enum Size {
+        /// The strip at a window's edge that brings a floating bar out (roadmap 0055).
+        package static let edgeStrip = 6.0
         /// A row's glyph: its frame, and the symbol in it.
         package static let glyphFrame = 18.0
         package static let glyphSymbol = 15.0

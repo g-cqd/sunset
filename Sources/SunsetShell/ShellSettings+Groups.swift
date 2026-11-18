@@ -62,6 +62,8 @@ extension ShellSettings {
         /// The second line in the monospaced face.
         package var monospacedDirectory = true
         package var showProgress = true
+        /// Hidden over the page until the pointer reaches its edge (roadmap 0055).
+        package var autoHide = true
 
         package init() {}
     }

@@ -32,11 +32,13 @@ extension TerminalScene {
     var tabBarAddress: AnyView? {
         guard addressInTabBar, let page = focusedPage else { return nil }
         return AnyView(
-            AddressField(content: page, place: tabBarAtTop ? .top : .bottom, reload: true)
-                .environment(\.controlRadius, Design.TabCapsules.radius)
-                .environment(\.controlHeight, Design.TabCapsules.height)
-                .environment(\.controlPadding, Design.BarGroup.fieldPadding)
-                .id(ObjectIdentifier(page))
+            AddressField(content: page, place: tabBarAtTop ? .top : .bottom, reload: true) { typing in
+                tabBarTyping = typing
+            }
+            .environment(\.controlRadius, Design.TabCapsules.radius)
+            .environment(\.controlHeight, Design.TabCapsules.height)
+            .environment(\.controlPadding, Design.BarGroup.fieldPadding)
+            .id(ObjectIdentifier(page))
         )
     }
 
@@ -110,12 +112,7 @@ extension TerminalScene {
         if tabs.showsHistory {
             corners.subtract(sidebarSide == .left ? [.topTrailing, .bottomTrailing] : [.topLeading, .bottomLeading])
         }
-        if presentation.showsBuiltInBar {
-            corners.subtract(
-                configuration.tabs.bar.position == .top
-                    ? [.topLeading, .topTrailing] : [.bottomLeading, .bottomTrailing]
-            )
-        }
+        // The built-in bar floats over the pane area (roadmap 0055): the area keeps the window's corners.
         return corners
     }
 

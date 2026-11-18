@@ -22,6 +22,8 @@ struct TerminalScene: View {
     /// How much of the window's top the title bar and the system tab bar cover.
     @State private var obscured = 0.0
     @State var barOut = false
+    /// The floating tab bar's address is typed in: it stays out (roadmap 0055).
+    @State var tabBarTyping = false
     /// Whether the floating sidebar (and with it the traffic lights) is out.
     @State var floatingShown = false
     /// The sidebar was just unpinned: the panel starts out (the pointer is where the column was) and goes when the pointer is not on it.
@@ -51,7 +53,7 @@ struct TerminalScene: View {
 
     /// The strip at the top that drags a window with no title bar, in points: the terminal starts below it (the built-in bar at the top is the strip then).
     var topInset: Double {
-        guard noDecorations, !barAtTop, !configuration.sidebarDocked else { return 0 }
+        guard noDecorations, !configuration.sidebarDocked else { return 0 }
         // With no title bar the content goes under it; the system's tab bar (when there are tabs) is below the strip and covers more.
         return max(configuration.window.dragStrip, presentation.showsNativeTabBar ? obscured : 0)
     }
@@ -73,7 +75,6 @@ struct TerminalScene: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if barAtTop { tabBar }
             HStack(spacing: 0) {
                 if configuration.sidebarDocked, sidebarSide == .left { sidebarSlot }
                 if tabs.showsHistory, sidebarSide == .right { historyPanel }
@@ -90,6 +91,16 @@ struct TerminalScene: View {
             .overlay(alignment: sidebarSide.alignment) { resizeHandle }
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
             .overlay(alignment: sidebarSide.alignment) { floatingSidebar }
+            // The built-in bar floats over the page at its edge, which keeps the whole height (roadmap 0055).
+            .overlay {
+                if presentation.showsBuiltInBar {
+                    FloatingEdgeBar(
+                        atTop: configuration.tabs.bar.position == .top,
+                        hides: configuration.tabs.bar.autoHide,
+                        typing: tabBarTyping
+                    ) { tabBar }
+                }
+            }
             .overlay {
                 PanePreviews(
                     tabs: tabs,
@@ -98,7 +109,6 @@ struct TerminalScene: View {
                     kinds: ShellSettings(configuration).sidebar.previewKinds
                 )
             }
-            if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
         .background(rootColor)
         .environment(\.webAddressRow, addressPlace == .pane)
@@ -210,8 +220,6 @@ struct TerminalScene: View {
         )
         .padding(.leading, noDecorations && barAtTop ? tabBarLightsClearance : 0)
         .background { windowDragSurface }
-        // The row of capsules on the window's colour (not the terminal's black): it follows the scheme.
-        .background { if addressInTabBar { Color(nsColor: .windowBackgroundColor) } }
     }
 
     /// A transparent strip of a fixed height that drags the window (`WindowDragGesture`).
