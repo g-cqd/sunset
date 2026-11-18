@@ -50,8 +50,10 @@ import SunsetWeb
     }
 
     /// What pages are made with, from `web.*`.
-    static var webSettings: WebSettings {
-        let web = AppConfiguration.shared.configuration.web
+    static var webSettings: WebSettings { webSettings(from: AppConfiguration.shared.configuration.web) }
+
+    /// A page's settings from a configuration's (all profiles', or one profile's with its own values, roadmap 0050).
+    static func webSettings(from web: Configuration.Web) -> WebSettings {
         let added = web.engines.map {
             SearchEngine(name: $0.name, keyword: $0.keyword, search: $0.search, suggest: $0.suggest)
         }
@@ -73,12 +75,23 @@ import SunsetWeb
         settings.agentScripts = web.agentScripts
         settings.notificationAskWithoutClick = web.notificationsWithoutClick
         settings.workerNotifications = web.workerNotifications
+        settings.blocking = web.blocking
         return settings
     }
 
     /// The settings for what the command bar opens or suggests in `tabs`: private in a private window, or when its shown page is private.
     static func webSettings(for tabs: TabsModel) -> WebSettings {
+        let own = ownProfile(of: tabs)
         var settings = webSettings
+        if let own, !own.overrides.isEmpty {
+            // Its profile's own values over all profiles' (roadmap 0050).
+            let web = ProfileOverrides.apply(own.overrides, to: AppConfiguration.shared.configuration).web
+            settings = webSettings(from: web)
+            settings.proxy = WebProxy(web.proxy)
+            settings.permissionDefaults = AppDownloads.permissionDefaults(web)
+            settings.downloadFolder = AppDownloads.folder(web)
+            settings.askWhereToSave = web.askWhereToSave
+        }
         settings.profile = profile(of: tabs)
         if let page = tabs.selectedContent as? WebContent, page.isPrivate {
             settings.privacy = page.settings.privacy
@@ -104,6 +117,11 @@ import SunsetWeb
 
     /// The profile whose website data a page made in `tabs` uses: its Space's; nil for the first, and for a window that
     /// is not among the app's Spaces.
+    static func ownProfile(of tabs: TabsModel) -> Profile? {
+        guard AppSpaces.all.contains(tabs.space) else { return nil }
+        return AppSpaces.all.profiles.profile(of: tabs.space.space).profile
+    }
+
     static func profile(of tabs: TabsModel) -> UUID? {
         guard AppSpaces.all.contains(tabs.space) else { return nil }
         let profile = AppSpaces.all.profiles.profile(of: tabs.space.space).profile

@@ -42,10 +42,7 @@ import UserNotifications
 
     static func apply(_ web: Configuration.Web) {
         applyPermissions(web)
-        let folder =
-            web.downloadFolder.isEmpty
-            ? FileManager.default.homeDirectoryForCurrentUser.appending(path: "Downloads")
-            : URL(fileURLWithPath: (web.downloadFolder as NSString).expandingTildeInPath)
+        let folder = folder(web)
         let keep: DownloadSettings.Keep =
             switch web.keepDownloads {
                 case .byHand: .byHand
@@ -65,8 +62,17 @@ import UserNotifications
         )
     }
 
+    /// Where downloads go: the folder set, or ~/Downloads.
+    static func folder(_ web: Configuration.Web) -> URL {
+        web.downloadFolder.isEmpty
+            ? FileManager.default.homeDirectoryForCurrentUser.appending(path: "Downloads")
+            : URL(fileURLWithPath: (web.downloadFolder as NSString).expandingTildeInPath)
+    }
+
     /// The defaults of `web.permissions.*` (web step g).
-    static func applyPermissions(_ web: Configuration.Web) {
+    static func applyPermissions(_ web: Configuration.Web) { SitePermissions.shared.defaults = permissionDefaults(web) }
+
+    static func permissionDefaults(_ web: Configuration.Web) -> [SitePermission: PermissionAnswer] {
         var defaults: [SitePermission: PermissionAnswer] = [:]
         for (name, answer) in web.permissions {
             if let permission = SitePermission(rawValue: name), let value = PermissionAnswer(rawValue: answer.rawValue)
@@ -74,7 +80,7 @@ import UserNotifications
                 defaults[permission] = value
             }
         }
-        SitePermissions.shared.defaults = defaults
+        return defaults
     }
 
     private static func approve(_ name: String, origin: URL?) -> Bool {

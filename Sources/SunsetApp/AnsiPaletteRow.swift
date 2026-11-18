@@ -5,7 +5,7 @@ import SwiftUI
 
 /// The 16 ANSI colours as two rows of colour wells: the normal colours above, their bright variants below.
 struct AnsiPaletteRow: View {
-    let config: AppConfiguration
+    let config: any SettingsStore
 
     private static let names = ["Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White"]
 

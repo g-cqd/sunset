@@ -15,7 +15,8 @@ enum AppSettings {
     /// row; nil: where it was), and the list of sections and topics in the sidebar.
     static func show(_ selection: String? = nil, in tabs: TabsModel) {
         let topic =
-            SettingsSection.shown(for: selection) ?? content(in: tabs)?.topic ?? SettingsSection.all[0].topics[0].id
+            SettingsSection.shown(for: selection, profileOnly: content(in: tabs)?.scope != nil) ?? content(in: tabs)?
+            .topic ?? SettingsSection.all[0].topics[0].id
         let shown = tabs.showSingle(.settings(topic: topic)) as? SettingsContent
         if selection != nil { shown?.show(topic) }
         tabs.sections.show(library: .settings)

@@ -54,7 +54,6 @@ struct ProfilesSettings: View {
                     } label: {
                         SettingsLabel("Spaces")
                     }
-                    ProfileKeepRows(profile: profile, profiles: spaces.profiles)
                     if !profile.profile.isFirst {
                         LabeledContent {
                             Button("Remove Profile\u{2026}", role: .destructive) { removing = profile }

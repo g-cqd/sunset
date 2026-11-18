@@ -17,6 +17,8 @@ final class SettingsContent: PaneContent {
     }
     /// What is searched for; while it is not blank the page shows what it finds, under each option's section and topic.
     var query = ""
+    /// The profile whose own settings are shown (roadmap 0050); nil: all profiles'.
+    var scope: UUID?
     /// The topic's More is open (roadmap 0047 G).
     var showsMore = false {
         didSet { if showsMore != oldValue { onChange() } }
@@ -38,7 +40,7 @@ final class SettingsContent: PaneContent {
 
     /// A row of a list of sections and topics was chosen: its page is shown, and the search ends.
     func show(_ selection: String) {
-        guard let shown = SettingsSection.shown(for: selection) else { return }
+        guard let shown = SettingsSection.shown(for: selection, profileOnly: scope != nil) else { return }
         query = ""
         topic = shown
     }

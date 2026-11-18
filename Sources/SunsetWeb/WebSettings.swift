@@ -35,6 +35,13 @@ package struct WebSettings: Sendable, Equatable {
     package var notificationAskWithoutClick = false
     /// A page's `registration.showNotification(…)` is posted as its own are (`web.workerNotifications`; roadmap 0046 S2).
     package var workerNotifications = true
+    /// What its profile sets otherwise than all profiles (roadmap 0050), or all profiles' own: blocking, the proxy its store
+    /// is given, what a site gets until answered, where a download goes and whether it is asked.
+    package var blocking = true
+    package var proxy: WebProxy?
+    package var permissionDefaults: [SitePermission: PermissionAnswer]?
+    package var downloadFolder: URL?
+    package var askWhereToSave: Bool?
 
     /// Whether what is typed is sent for suggestions: `suggestions`, or for a private page `privateSuggestions`.
     package var suggestsWhileTyping: Bool { privacy == nil ? suggestions : privateSuggestions }

@@ -10,7 +10,7 @@ import SwiftUI
 /// winning. Everything a site's panel can set is listed here.
 struct SitesSettings: View {
     var heading: String?
-    let config: AppConfiguration
+    let config: any SettingsStore
     @State private var open: Set<String> = []
     @State private var pattern = ""
     @State private var adding = AddedRule.agent(.chrome)

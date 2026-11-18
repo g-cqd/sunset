@@ -14,18 +14,36 @@ package final class SitePermissions {
         didSet { load() }
     }
 
+    /// The answers it shares (a profile's pages, roadmap 0050), its defaults its own.
+    @ObservationIgnored private var base: SitePermissions?
+
+    /// Answers of `base`, defaults of its own.
+    package static func sharing(_ base: SitePermissions, defaults: [SitePermission: PermissionAnswer])
+        -> SitePermissions
+    {
+        let own = SitePermissions()
+        own.defaults = defaults
+        own.base = base
+        return own
+    }
+
     package init(table: SealedTable? = nil) {
         self.table = table
         load()
     }
 
     package func answer(_ permission: SitePermission, for host: String?) -> PermissionAnswer {
+        let answers = base?.answers ?? self.answers
         if let host, let kept = answers[Self.key(host)]?[permission] { return kept }
         return defaults[permission] ?? permission.defaultAnswer
     }
 
     /// The answer for `host`; nil forgets it (the default applies again).
     package func set(_ answer: PermissionAnswer?, _ permission: SitePermission, for host: String) {
+        if let base {
+            base.set(answer, permission, for: host)
+            return
+        }
         let key = Self.key(host)
         answers[key, default: [:]][permission] = answer
         if answers[key]?.isEmpty == true { answers[key] = nil }

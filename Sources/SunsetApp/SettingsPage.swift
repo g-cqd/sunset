@@ -1,4 +1,5 @@
 import SunsetConfig
+import SunsetPane
 import SunsetShell
 import SunsetShellBridge
 import SwiftUI
@@ -11,6 +12,17 @@ struct SettingsPage: View {
     @Bindable var content: SettingsContent
     let context: PaneViewContext
     private let config = AppConfiguration.shared
+
+    /// The profile chosen at the top, if one is (roadmap 0050).
+    private var scoped: ProfileSettingsStore? {
+        guard let id = content.scope,
+            let profile = AppSpaces.all.profiles.profiles.first(where: { $0.profile.id == id })
+        else { return nil }
+        return ProfileSettingsStore(profile: profile, profiles: AppSpaces.all.profiles)
+    }
+
+    /// Where the rows read and write: the profile chosen, or all profiles.
+    private var store: any SettingsStore { scoped ?? config }
 
     private static let entries = SettingsOption.all.map(\.entry)
     private static let byID = Dictionary(
@@ -54,6 +66,7 @@ struct SettingsPage: View {
 
     private var page: some View {
         Form {
+            ScopeRow(content: content)
             if content.isSearching {
                 // Searched once a keystroke, then grouped: the results were searched again for each topic shown (note n15).
                 let found = results
@@ -101,7 +114,7 @@ struct SettingsPage: View {
         ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
             if block.isList, let list = block.options.first, list.ownsSections {
                 // Its own sections, one a thing (the profiles, notes n38, n39), the page's heading over the first.
-                SettingsRow.list(list, config: config, heading: index == 0 ? heading : nil)
+                SettingsRow.list(list, config: store, heading: index == 0 ? heading : nil)
             } else {
                 section(block, index: index, heading: heading)
             }
@@ -111,7 +124,7 @@ struct SettingsPage: View {
     private func section(_ block: SettingsBlock, index: Int, heading: String?) -> some View {
         Section {
             if block.isList, let list = block.options.first {
-                SettingsRow.list(list, config: config)
+                SettingsRow.list(list, config: store)
                 // Its note right under it when other rows follow it, else under the section.
                 if block.options.count > 1, let note = list.note {
                     Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary)
@@ -131,13 +144,15 @@ struct SettingsPage: View {
 
     /// The options that act under the configuration now; a group left empty is not shown (note n29).
     private func applying(_ options: [SettingsOption]) -> [SettingsOption] {
-        options.filter { $0.isShown(in: config.configuration) }
+        // With a profile chosen, only what a profile can set (roadmap 0050).
+        options.filter { $0.isShown(in: store.configuration) && (scoped == nil || $0.isProfileSetting) }
     }
 
     private func rows(_ options: [SettingsOption]) -> some View {
         // A choice that acts only under another is shown under it only (the owner's note n29).
-        ForEach(options.filter { $0.isShown(in: config.configuration) }) { option in
-            SettingsRow(option: option, config: config)
+        ForEach(applying(options)) { option in
+            SettingsRow(option: option, config: store)
+            if let scoped, scoped.isOwn(option) { OwnSettingRow(store: scoped, option: option) }
         }
     }
 }

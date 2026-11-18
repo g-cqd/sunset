@@ -22,7 +22,11 @@ struct SettingsTopicList: View {
 
     var body: some View {
         VStack(spacing: layout.tabSpacing) {
-            ForEach(SettingsSection.sections(for: AppConfiguration.shared.configuration.features)) { section in
+            // With a profile chosen, the sections that have something it can set (roadmap 0050).
+            ForEach(
+                SettingsSection.sections(for: AppConfiguration.shared.configuration.features)
+                    .filter { content?.scope == nil || $0.topics.contains(where: \.hasProfileSettings) }
+            ) { section in
                 row(
                     section.title,
                     symbol: section.symbol,
@@ -30,7 +34,8 @@ struct SettingsTopicList: View {
                     tag: SettingsSection.sectionPrefix + section.id
                 )
                 if section.id == shown?.section.id {
-                    ForEach(section.topics) { topic in
+                    // With a profile chosen, the topics it can set (roadmap 0050).
+                    ForEach(section.topics.filter { content?.scope == nil || $0.hasProfileSettings }) { topic in
                         row(topic.title, symbol: nil, selected: topic.id == shown?.topic.id, tag: topic.id)
                     }
                 }

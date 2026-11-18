@@ -26,10 +26,12 @@ public struct SettingsSection: Sendable, Identifiable {
     }
 
     /// The topic to show for what is chosen in the sidebar: a topic itself, or the first topic of a section's row.
-    public static func shown(for selection: String?) -> String? {
+    /// `profileOnly`: a profile is chosen (roadmap 0050): a section opens on its first topic a profile can set.
+    public static func shown(for selection: String?, profileOnly: Bool = false) -> String? {
         guard let selection else { return nil }
         guard selection.hasPrefix(sectionPrefix) else { return topic(selection)?.topic.id }
         let section = selection.dropFirst(sectionPrefix.count)
-        return all.first { $0.id == section }?.topics.first?.id
+        let topics = all.first { $0.id == section }?.topics ?? []
+        return (profileOnly ? topics.first(where: \.hasProfileSettings) : nil)?.id ?? topics.first?.id
     }
 }

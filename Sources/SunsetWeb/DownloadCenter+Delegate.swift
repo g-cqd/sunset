@@ -18,7 +18,7 @@ extension DownloadCenter: WKDownloadDelegate {
             return nil
         }
         let folder: URL
-        if settings.askWhereToSave {
+        if item.asks ?? settings.askWhereToSave {
             guard let chosen = await choose(name) else {
                 remove(item)
                 return nil
@@ -26,7 +26,7 @@ extension DownloadCenter: WKDownloadDelegate {
             folder = chosen.deletingLastPathComponent()
             item.name = chosen.lastPathComponent
         } else {
-            folder = settings.folder
+            folder = item.folder ?? settings.folder
         }
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let free = DownloadNaming.free(item.name) {

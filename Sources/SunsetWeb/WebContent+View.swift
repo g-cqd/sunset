@@ -14,7 +14,12 @@ extension WebContent {
                 ?? settings.profile.map { WKWebsiteDataStore(forIdentifier: $0) } ?? .default()
         }
         // Through the app's proxy, if there is one (W-f).
-        WebProxy.applyCurrent(to: configuration.websiteDataStore)
+        // Its profile's proxy (roadmap 0050), else the app's.
+        if let proxy = settings.proxy {
+            proxy.apply(to: configuration.websiteDataStore)
+        } else {
+            WebProxy.applyCurrent(to: configuration.websiteDataStore)
+        }
         configuration.applicationNameForUserAgent = settings.applicationName
         LinkHover.install(on: configuration, for: self)
         WebNotifications.install(on: configuration, for: self)
@@ -37,7 +42,7 @@ extension WebContent {
         }
         let view = SunsetWebView(frame: .zero, configuration: configuration)
         // Ads and trackers blocked (W-c), unless paused for the site.
-        ContentBlocker.shared.attach(view, host: url?.host())
+        ContentBlocker.shared.attach(view, host: url?.host(), blocks: settings.blocking)
         view.customUserAgent = agent(for: url).userAgent
         view.isInspectable = settings.developer
         view.allowsBackForwardNavigationGestures = true

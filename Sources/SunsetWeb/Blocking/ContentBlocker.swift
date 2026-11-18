@@ -48,7 +48,7 @@ package final class ContentBlocker {
     /// Where the lists and their compiled rules are kept.
     @ObservationIgnored package var folder: URL
     @ObservationIgnored private(set) var compiled: [WKContentRuleList] = []
-    @ObservationIgnored private var views: [(view: WeakView, host: String?)] = []
+    @ObservationIgnored private var views: [(view: WeakView, host: String?, blocks: Bool)] = []
 
     struct WeakView {
         weak var view: WKWebView?
@@ -63,20 +63,25 @@ package final class ContentBlocker {
     // MARK: Pages
 
     /// A page's view, made: it has the lists from now on, as its site says.
-    package func attach(_ view: WKWebView, host: String?) {
+    /// `blocks`: its profile blocks (roadmap 0050); off, only the elements hidden for good are on it.
+    package func attach(_ view: WKWebView, host: String?, blocks: Bool = true) {
         views.removeAll { $0.view.view == nil || $0.view.view === view }
-        views.append((WeakView(view: view), host))
+        views.append((WeakView(view: view), host, blocks))
         apply(to: view, host: host)
     }
 
     /// Puts the lists on the view's content controller, or takes them off (blocking off, or the site paused): for the
     /// next load, decided before a page goes to `host`.
     package func apply(to view: WKWebView, host: String?) {
-        if let index = views.firstIndex(where: { $0.view.view === view }) { views[index].host = host }
+        var blocks = true
+        if let index = views.firstIndex(where: { $0.view.view === view }) {
+            views[index].host = host
+            blocks = views[index].blocks
+        }
         let controller = view.configuration.userContentController
         controller.removeAllContentRuleLists()
         if let hiddenList { controller.add(hiddenList) }
-        guard enabled, !pauses.isPaused(host) else { return }
+        guard enabled, blocks, !pauses.isPaused(host) else { return }
         for list in compiled { controller.add(list) }
     }
 

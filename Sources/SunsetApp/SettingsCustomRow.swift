@@ -8,7 +8,7 @@ import SwiftUI
 struct SettingsCustomRow: View {
     let custom: SettingsControl.Custom
     let option: SettingsOption
-    let config: AppConfiguration
+    let config: any SettingsStore
 
     var body: some View {
         switch custom {
@@ -92,7 +92,8 @@ struct SettingsCustomRow: View {
     private var fileInfo: some View {
         VStack(alignment: .leading, spacing: Design.Space.m) {
             LabeledContent {
-                Text(config.path).code().font(Design.Text.secondary).textSelection(.enabled).lineLimit(1)
+                Text(AppConfiguration.shared.path).code().font(Design.Text.secondary).textSelection(.enabled)
+                    .lineLimit(1)
                     .truncationMode(.middle)
             } label: {
                 SettingsLabel(option.title)
@@ -100,16 +101,16 @@ struct SettingsCustomRow: View {
             HStack {
                 Spacer()
                 Button("Reveal in Finder") {
-                    NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: config.path)])
+                    NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: AppConfiguration.shared.path)])
                 }
-                .disabled(!config.hasFile)
-                Button("Open in editor") { NSWorkspace.shared.open(URL(fileURLWithPath: config.path)) }
-                    .disabled(!config.hasFile)
+                .disabled(!AppConfiguration.shared.hasFile)
+                Button("Open in editor") { NSWorkspace.shared.open(URL(fileURLWithPath: AppConfiguration.shared.path)) }
+                    .disabled(!AppConfiguration.shared.hasFile)
             }
-            if let error = config.lastError {
+            if let error = AppConfiguration.shared.lastError {
                 Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red)
             }
-            ForEach(Array(config.issues.enumerated()), id: \.offset) { _, issue in
+            ForEach(Array(AppConfiguration.shared.issues.enumerated()), id: \.offset) { _, issue in
                 Label("\(issue.path): \(issue.message)", systemImage: "exclamationmark.circle").foregroundStyle(.orange)
             }
             Text(RichText.attributed(Self.fileNote)).font(Design.Text.detail).foregroundStyle(.secondary)

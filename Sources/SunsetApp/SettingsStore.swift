@@ -2,7 +2,16 @@ import SunsetConfig
 import SwiftUI
 
 /// Bindings from the Settings window to the configuration: reading is the configuration, writing is `update` (which saves the file).
-extension AppConfiguration {
+/// Where Settings reads and writes: all profiles' settings (`AppConfiguration`, the file), or one profile's own
+/// (`ProfileSettingsStore`, roadmap 0050).
+@MainActor protocol SettingsStore: AnyObject {
+    var configuration: Configuration { get }
+    func update(_ edit: (inout Configuration) -> Void)
+}
+
+extension AppConfiguration: SettingsStore {}
+
+extension SettingsStore {
     func binding<Value: Sendable>(_ keyPath: WritableKeyPath<Configuration, Value>) -> Binding<Value> {
         Binding(
             get: { self.configuration[keyPath: keyPath] },

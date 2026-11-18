@@ -1,5 +1,5 @@
 ---
-status: not-started
+status: in-progress
 blocked-by: nothing
 date: 2026-11-18
 ---
@@ -18,7 +18,7 @@ small mark showing that profile.
 
 | Step | What | Task | Status |
 |---|---|---|---|
-| A | The model: a profile's overrides over the app's settings, inheriting what it does not set; read, written, migrated | t9 | not-started |
-| B | Settings: a profile picker over the four groups, "Same as the app" per setting | t9 | not-started |
-| C | Pages made with their profile's settings, and remade when they change | t9 | not-started |
+| A | The model: a profile's overrides over the app's settings, inheriting what it does not set; read, written, migrated (`ProfileOverrides`, `Profile.overrides`; a session's "Between runs" carried over) | t9 | done |
+| B | Settings: "Settings for" at the top (all profiles or one); with a profile, only the sections, topics and options a profile can set; a setting of its own says so, with Use All Profiles' Setting (ADR-0083) | t9 | done (seen) |
+| C | Pages made with their profile's settings (search, suggestions, browser shown, blocking, permission defaults, downloads, what is kept), its store's proxy at once | t9 | done but: open pages keep theirs until reloaded; not seen in a page |
 | D | Reload as: the tab's menu and the address bar's; the tab keeps its place, its mark | t10 | not-started |

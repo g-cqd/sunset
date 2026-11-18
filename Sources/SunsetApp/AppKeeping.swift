@@ -11,11 +11,7 @@ import WebKit
 @MainActor enum AppKeeping {
     /// What `profile` keeps: its own choices over the app's.
     static func keep(for profile: Profile) -> Configuration.Web.Keep {
-        AppConfiguration.shared.configuration.web.keep.overriding(
-            cache: profile.keep.cache,
-            traces: profile.keep.traces,
-            siteData: profile.keep.siteData
-        )
+        ProfileOverrides.apply(profile.overrides, to: AppConfiguration.shared.configuration).web.keep
     }
 
     /// Each profile's store (the first's is WebKit's default one) and what it keeps. A private window's store is not

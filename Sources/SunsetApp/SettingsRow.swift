@@ -7,7 +7,7 @@ import SwiftUI
 /// no lookup by name: an option cannot show another's control.
 struct SettingsRow: View {
     let option: SettingsOption
-    let config: AppConfiguration
+    let config: any SettingsStore
 
     var body: some View {
         if let note = option.note {
@@ -21,7 +21,7 @@ struct SettingsRow: View {
     }
 
     /// A list's rows, for its own section: its title and note are the section's.
-    @ViewBuilder static func list(_ option: SettingsOption, config: AppConfiguration, heading: String? = nil)
+    @ViewBuilder static func list(_ option: SettingsOption, config: any SettingsStore, heading: String? = nil)
         -> some View
     {
         if option.ownsSections, case .custom(.sites) = option.control {

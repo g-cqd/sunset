@@ -24,6 +24,9 @@ package final class DownloadItem: Identifiable {
     @ObservationIgnored var resumeData: Data?
     /// From a private page (web step h): never written to the list's file.
     @ObservationIgnored package internal(set) var isPrivate = false
+    /// Where it goes and whether it is asked, from its page's profile (roadmap 0050); nil: the settings'.
+    @ObservationIgnored var folder: URL?
+    @ObservationIgnored var asks: Bool?
     @ObservationIgnored weak var download: WKDownload?
     @ObservationIgnored var observation: NSKeyValueObservation?
 

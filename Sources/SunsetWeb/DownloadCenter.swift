@@ -39,9 +39,18 @@ package final class DownloadCenter: NSObject {
 
     /// A navigation became a download: it is followed from here.
     /// `isPrivate`: from a private page: listed until Sunset quits, never written to the list's file (the file itself is saved).
-    package func adopt(_ download: WKDownload, origin: URL?, isPrivate: Bool = false) {
+    /// `folder`, `asks`: its page's profile's (roadmap 0050), else the settings'.
+    package func adopt(
+        _ download: WKDownload,
+        origin: URL?,
+        isPrivate: Bool = false,
+        folder: URL? = nil,
+        asks: Bool? = nil
+    ) {
         let item = DownloadItem(source: download.originalRequest?.url, origin: origin, name: "download")
         item.isPrivate = isPrivate
+        item.folder = folder
+        item.asks = asks
         item.download = download
         items.insert(item, at: 0)
         download.delegate = self

@@ -57,10 +57,10 @@ package final class ProfilesModel {
         onChange()
     }
 
-    /// Sets what `profile` keeps between runs (ADR-0081); nil choices are the app's.
-    package func setKeep(_ keep: Profile.Keep, for profile: ProfileModel) {
-        guard keep != profile.profile.keep else { return }
-        profile.profile.keep = keep
+    /// Sets what `profile` sets otherwise than all profiles (roadmap 0050): only what differs.
+    package func setOverrides(_ overrides: [String: String], for profile: ProfileModel) {
+        guard overrides != profile.profile.overrides else { return }
+        profile.profile.overrides = overrides
         onChange()
     }
 

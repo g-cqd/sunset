@@ -144,15 +144,17 @@ struct ProfilesModelTests {
 }
 
 extension ProfilesModelTests {
-    /// ADR-0081: a profile may keep otherwise than the app's `web.keep`; nil is the app's. Kept with the session.
-    @Test func `a profile's own choices of what is kept are set, cleared, and read back from the session`() throws {
+    /// Roadmap 0050: a profile's own settings are kept with the session; a session of before's "Between runs" become them.
+    @Test func `a profile's overrides are saved and read back, a session of before's choices carried over`() throws {
         var profile = Profile(name: "Work")
-        #expect(profile.keep == Profile.Keep())
-        profile.keep.siteData = "clearOnQuit"
-        profile.keep.cache = "clearOnQuit"
+        profile.overrides = ["web.engine": #""DuckDuckGo""#]
         let back = try JSONDecoder().decode(Profile.self, from: JSONEncoder().encode(profile))
-        #expect(back.keep == Profile.Keep(cache: "clearOnQuit", siteData: "clearOnQuit"))
-        let before = try JSONDecoder().decode(Profile.self, from: Data(#"{"id":"\#(UUID())","name":"Old"}"#.utf8))
-        #expect(before.keep == Profile.Keep(), "a session of before has none")
+        #expect(back.overrides == ["web.engine": #""DuckDuckGo""#])
+        let before = try JSONDecoder()
+            .decode(
+                Profile.self,
+                from: Data(#"{"id":"\#(UUID())","name":"Old","keep":{"siteData":"clearOnQuit"}}"#.utf8)
+            )
+        #expect(before.overrides == ["web.keep.siteData": #""clearOnQuit""#])
     }
 }

@@ -38,12 +38,13 @@ import WebKit
     /// and to the stores that exist (W-f).
     static func apply(_ web: Configuration.Web) {
         let proxy = WebProxy(web.proxy)
-        if proxy != WebProxy.current {
-            WebProxy.current = proxy
-            WebProxy.applyCurrent(to: .default())
-            for profile in AppSpaces.all.profiles.profiles where !profile.profile.isFirst {
-                WebProxy.applyCurrent(to: WKWebsiteDataStore(forIdentifier: profile.profile.id))
-            }
+        WebProxy.current = proxy
+        // Each profile's store its own proxy (roadmap 0050), else the app's; the first's is WebKit's default store.
+        for model in AppSpaces.all.profiles.profiles {
+            let profile = model.profile
+            let own = ProfileOverrides.apply(profile.overrides, to: AppConfiguration.shared.configuration).web.proxy
+            let store = profile.isFirst ? WKWebsiteDataStore.default() : WKWebsiteDataStore(forIdentifier: profile.id)
+            if let given = WebProxy(own) { given.apply(to: store) } else { WebProxy.clear(store) }
         }
         ContentBlocker.shared.enabled = web.blocking
         if web.blockingLists != addresses, loop != nil {
