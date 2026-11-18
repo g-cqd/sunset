@@ -13,10 +13,14 @@ struct SettingsPage: View {
     private let config = AppConfiguration.shared
 
     private static let entries = SettingsOption.all.map(\.entry)
+    private static let byID = Dictionary(
+        SettingsOption.all.map { ($0.id, $0) },
+        uniquingKeysWith: { first, _ in first }
+    )
     private var results: [SettingsOption] {
         let features = config.configuration.features
         return SettingsSearch.matches(content.query, in: Self.entries)
-            .compactMap { SettingsOption.named($0.id) }
+            .compactMap { Self.byID[$0.id] }
             // The settings of a scope that is off are not found (roadmap 0033).
             .filter { SettingsSection.showsTopic($0.topic, features) }
     }
@@ -51,9 +55,12 @@ struct SettingsPage: View {
     private var page: some View {
         Form {
             if content.isSearching {
-                if results.isEmpty { ContentUnavailableView.search(text: content.query) }
-                ForEach(SettingsSearch.panes(of: results.map(\.entry)), id: \.self) { topic in
-                    Section(SettingsSection.heading(of: topic)) { rows(results.filter { $0.topic == topic }) }
+                // Searched once a keystroke, then grouped: the results were searched again for each topic shown (note n15).
+                let found = results
+                let byTopic = Dictionary(grouping: found, by: \.topic)
+                if found.isEmpty { ContentUnavailableView.search(text: content.query) }
+                ForEach(SettingsSearch.panes(of: found.map(\.entry)), id: \.self) { topic in
+                    Section(SettingsSection.heading(of: topic)) { rows(byTopic[topic] ?? []) }
                 }
             } else if let shown = SettingsSection.topic(content.topic) {
                 // A topic of measures only (the floating sidebar's) shows them at once: a page with only More is empty.
