@@ -23,10 +23,8 @@ import SunsetShell
         return all
     }
 
-    /// Everything that keeps entries: each profile's Pinned grid and Favorites.
-    private static var kept: [FavoritesModel] {
-        AppSpaces.all.profiles.profiles.flatMap { [$0.pinned, $0.favorites] }
-    }
+    /// Everything that keeps entries: each profile's Pinned grid and Favorites, each Space's own Favorites.
+    private static var kept: [FavoritesModel] { AppSpaces.kept }
 
     /// How many tabs and open kept entries have a pane of the scope.
     static func openCount(of scope: Scopes.Scope) -> Int {

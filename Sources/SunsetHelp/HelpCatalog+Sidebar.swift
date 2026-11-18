@@ -128,6 +128,19 @@ extension HelpCatalog {
                 "The same menu picks an icon: a symbol, an emoji or a color."
             ],
             related: [.tabs, .folders]
+        ),
+        .spaces: HelpEntry(
+            title: "Spaces",
+            summary:
+                "Each Space has its own tabs and Favorites; swipe with two fingers on the sidebar to change Space.",
+            text: [
+                "By default each Space has its own Favorites, and each profile its own Pinned grid: between Spaces of "
+                    + "one profile the grid stays still while the rest slides.",
+                "In Settings > General > Spaces, the Favorites can be shared by the Spaces of a profile, and the Pinned "
+                    + "grid by every profile. A change takes effect the next time Sunset opens; what was kept is moved, "
+                    + "not lost."
+            ],
+            related: [.favorites, .pinned, .profiles]
         )
     ]
 }

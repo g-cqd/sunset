@@ -18,6 +18,9 @@ package final class SpaceModel {
     /// The Favorites its windows show: its profile's, the same in every Space of the profile (ADR-0055); its own for a
     /// Space that is not among the app's (a private window's, a window that is one tab).
     package internal(set) var favorites: FavoritesModel
+    /// Its Favorites are its own, not its profile's (`spaces.favorites`, roadmap 0044): saved with it, asked about when it
+    /// is deleted.
+    package internal(set) var ownsFavorites = false
     /// Whether its tabs stay, stopped, when its last window closes (the app's Space, unless `tabs.closeWithLastWindow`).
     package var keepsTabs: Bool
     /// Its tabs were stopped with its last window and wait for the next; since when.
@@ -45,7 +48,7 @@ package final class SpaceModel {
     /// A window that shows it, if any.
     package var currentViewer: TabsModel? { currentViewers.first }
     /// It has a tab: deleting it asks first. (The Favorites are its profile's, and stay.)
-    package var holdsSomething: Bool { !tabs.isEmpty }
+    package var holdsSomething: Bool { !tabs.isEmpty || (ownsFavorites && !favorites.isEmpty) }
     /// The tab a window last went to: what a window that comes to this Space for the first time shows.
     package private(set) var lastShown: Workspace.ItemID?
     private func others(than viewer: TabsModel?) -> [TabsModel] { viewers.compactMap(\.tabs).filter { $0 !== viewer } }

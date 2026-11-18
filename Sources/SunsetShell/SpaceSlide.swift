@@ -11,6 +11,17 @@ package struct SpaceSlide {
         package let isNext: Bool
         /// Its Pinned grid is this window's (the same profile): the grid stays still while the rest slides (roadmap 0044 A).
         package var sharesPinned = false
+        /// Its Favorites are this window's (the profile's, `spaces.favorites`): they stay still too (roadmap 0044 E).
+        package var sharesFavorites = false
+
+        /// Whether a part of the list is the same on both sides, and stays still.
+        func shares(_ part: TabSidebar.Part) -> Bool {
+            switch part {
+                case .pinned: sharesPinned
+                case .favorites: sharesFavorites
+                case .today: false
+            }
+        }
     }
 
     /// Where the list is drawn, in points from its place (negative: towards the next Space).

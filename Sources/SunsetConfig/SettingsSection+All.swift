@@ -11,6 +11,7 @@ extension SettingsSection {
             SettingsTopic("general.features", "Features", SettingsOption.features),
             SettingsTopic("general.startup", "Startup, closing and quitting", SettingsOption.startup),
             SettingsTopic("general.documents", "Documents", SettingsOption.documents),
+            SettingsTopic("general.spaces", "Spaces", SettingsOption.spaces),
             SettingsTopic("general.file", "Configuration file", SettingsOption.configurationFile)
         ]
     )

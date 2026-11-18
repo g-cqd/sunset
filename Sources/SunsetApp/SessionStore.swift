@@ -43,7 +43,7 @@ final class SessionStore {
         AppSpaces.all.profiles.restore(session.profiles, reopening: enabled)
         guard hostsTabs else {
             // A window is one tab: the first Space's saved tabs each wait for a window; the other Spaces are kept as they are.
-            let named = SavedSpace(space: first.space)
+            let named = SavedSpace(space: first.space, favorites: first.favorites)
             AppSpaces.all.restore([named] + session.spaces.dropFirst(), reopening: enabled)
             if enabled { pending = Self.windows(of: first) }
             return
@@ -80,7 +80,7 @@ final class SessionStore {
     private func read() -> SpacesSession? {
         if let seal {
             let read = SealedFile.read(path, as: Self.what, seal: seal, identity: Self.identity) {
-                SpacesSession(data: $0)
+                SpacesSession(data: $0, ownership: AppSpaces.ownership)
             }
             if let problem = read.problem { StorageProblems.shared.report(problem) }
             switch read {
@@ -96,7 +96,7 @@ final class SessionStore {
             return nil
         }
         guard let old = storage.places.legacySession else { return nil }
-        let read = StoredFile.read(old, as: Self.what) { SpacesSession(data: $0) }
+        let read = StoredFile.read(old, as: Self.what) { SpacesSession(data: $0, ownership: AppSpaces.ownership) }
         if let problem = read.problem { StorageProblems.shared.report(problem) }
         if read.value != nil { legacy = old }
         return read.value
@@ -144,7 +144,7 @@ final class SessionStore {
         if let old = legacy {
             // The plain file goes once the sealed one reads back.
             let kept = SealedFile.read(path, as: Self.what, seal: seal, identity: Self.identity) {
-                SpacesSession(data: $0)
+                SpacesSession(data: $0, ownership: AppSpaces.ownership)
             }
             storage.retire(old, when: kept.value != nil)
             legacy = nil
@@ -156,7 +156,7 @@ final class SessionStore {
     private func current(windows: Bool) -> SpacesSession {
         let open = TabRegistry.shared.allWindows().map(\.tabs).filter { !$0.isPrivateWindow }
         var spaces = AppSpaces.all.saved()
-        if !windows { spaces = spaces.map { SavedSpace(space: $0.space) } }
+        if !windows { spaces = spaces.map { SavedSpace(space: $0.space, favorites: $0.favorites) } }
         guard hostsTabs else {
             // A window is one tab: the first Space's tabs are the windows', in the windows' order.
             let old = SavedSession(
@@ -164,11 +164,14 @@ final class SessionStore {
                 // The Favorites are the profiles' (below).
                 favorites: SavedFavorites()
             )
-            let session = SpacesSession(old, space: AppSpaces.shared.space)
+            let session = SpacesSession(old, space: AppSpaces.shared.space, ownership: AppSpaces.ownership)
+            var first = session.spaces
+            if let own = spaces.first?.favorites, !first.isEmpty { first[0].favorites = own }
             return SpacesSession(
-                spaces: session.spaces + spaces.dropFirst(),
+                spaces: first + spaces.dropFirst(),
                 views: session.views,
-                profiles: AppSpaces.all.profiles.saved()
+                profiles: AppSpaces.all.profiles.saved(favorites: !AppSpaces.ownership.favoritesBySpace),
+                ownership: AppSpaces.ownership
             )
         }
         var views: [SavedView] = []
@@ -176,7 +179,12 @@ final class SessionStore {
             views = open.filter { AppSpaces.all.contains($0.space) }.map { $0.savedView() } + pendingViews
             if views.isEmpty, let lastView { views = [lastView] }
         }
-        return SpacesSession(spaces: spaces, views: views, profiles: AppSpaces.all.profiles.saved())
+        return SpacesSession(
+            spaces: spaces,
+            views: views,
+            profiles: AppSpaces.all.profiles.saved(favorites: !AppSpaces.ownership.favoritesBySpace),
+            ownership: AppSpaces.ownership
+        )
     }
 
     /// The session as JSON a person can read, for Export All (R12 step ST-6): the open windows whatever the restoring setting.

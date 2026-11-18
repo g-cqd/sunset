@@ -10,23 +10,34 @@ package final class SpacesModel {
     /// The profiles the Spaces belong to.
     package let profiles: ProfilesModel
     /// Makes the Favorites of a new Space (the app's save with the session and can seal commands).
-    @ObservationIgnored private let makeFavorites: @MainActor () -> FavoritesModel
+    @ObservationIgnored let makeFavorites: @MainActor () -> FavoritesModel
+    /// Whose the Favorites and the Pinned grid are (roadmap 0044); read when the app opens.
+    package let ownership: SpacesSession.Ownership
     /// Something changed that the session file holds.
     @ObservationIgnored package var onChange: () -> Void = {}
 
     /// - Parameters:
     ///   - first: the one Space there is at the start; a new one, unnamed, by default.
     ///   - pinned: the first profile's Pinned grid; a new one by default.
+    ///   - ownership: whose the Favorites and the Pinned grid are; each profile's, by default.
     ///   - makeFavorites: the Favorites of each Space, and the grid of each profile, made later.
     package init(
         first: SpaceModel? = nil,
         pinned: FavoritesModel? = nil,
+        ownership: SpacesSession.Ownership = SpacesSession.Ownership(),
         makeFavorites: @escaping @MainActor () -> FavoritesModel
     ) {
         self.makeFavorites = makeFavorites
+        self.ownership = ownership
         let space = first ?? SpaceModel(favorites: makeFavorites(), keepsTabs: true)
-        // The first profile's Favorites are the ones the first Space has.
-        profiles = ProfilesModel(firstPinned: pinned, firstFavorites: space.favorites, makeFavorites: makeFavorites)
+        // The first profile's Favorites are the ones the first Space has, unless each Space has its own.
+        space.ownsFavorites = ownership.favoritesBySpace
+        profiles = ProfilesModel(
+            firstPinned: pinned,
+            firstFavorites: ownership.favoritesBySpace ? nil : space.favorites,
+            sharesPinned: ownership.pinnedByApp,
+            makeFavorites: makeFavorites
+        )
         spaces = [space]
     }
 
@@ -43,7 +54,7 @@ package final class SpacesModel {
         return SpaceDraft(space: nil, name: "Space \(number)", icon: number <= 50 ? .symbol("\(number).circle") : nil)
     }
 
-    /// A new Space after the others, with no tab; its Favorites are its profile's, as every Space's are (ADR-0055). The
+    /// A new Space after the others, with no tab; its Favorites are its own, or its profile's (`ownership`). The
     /// Space of before there were several is named then: Home, with a house.
     /// - Parameters:
     ///   - origin: the Space it is made from (its profile is the draft's to say).
@@ -59,8 +70,12 @@ package final class SpacesModel {
         var named = Space(name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines), icon: draft.icon)
         named.tint = draft.tint
         named.profile = draft.profile == Profile.firstID ? nil : draft.profile
-        let favorites = profiles.profile(of: named).favorites
-        let made = SpaceModel(space: named, favorites: favorites, keepsTabs: spaces.first?.keepsTabs ?? true)
+        let made = SpaceModel(
+            space: named,
+            favorites: favorites(for: named),
+            keepsTabs: spaces.first?.keepsTabs ?? true
+        )
+        made.ownsFavorites = ownership.favoritesBySpace
         spaces.append(made)
         onChange()
         return made
@@ -109,6 +124,7 @@ package final class SpacesModel {
         } else {
             space.closeAll()
         }
+        giveFavorites(of: space, to: target)
         spaces.remove(at: index)
         onChange()
     }
@@ -134,7 +150,7 @@ package final class SpacesModel {
         let viewers = space.currentViewers
         for viewer in viewers { viewer.leaveKeptEntry() }
         space.setProfile(wanted)
-        space.favorites = profiles.profile(wanted).favorites
+        if !space.ownsFavorites { space.favorites = profiles.profile(wanted).favorites }
         for viewer in viewers {
             space.favorites.register(viewer)
             viewer.followProfile()
@@ -168,16 +184,21 @@ package final class SpacesModel {
 
     package func saved() -> [SavedSpace] { spaces.map { $0.saved() } }
 
-    /// Takes the saved Spaces, in their order, before any window shows one, and after the profiles (each Space has its
-    /// profile's Favorites): the first is the one there was.
+    /// Takes the saved Spaces, in their order, before any window shows one, and after the profiles (a Space has its
+    /// profile's Favorites, or its own: `ownership`): the first is the one there was.
     package func restore(_ saved: [SavedSpace], reopening: Bool) {
         guard let first = saved.first, spaces.count == 1 else { return }
         spaces[0].restore(first, reopening: reopening)
-        spaces[0].favorites = profiles.profile(of: spaces[0].space).favorites
+        restoreFavorites(of: spaces[0], from: first, reopening: reopening)
         for other in saved.dropFirst() {
-            let favorites = profiles.profile(of: other.space).favorites
-            let space = SpaceModel(space: other.space, favorites: favorites, keepsTabs: spaces[0].keepsTabs)
+            let space = SpaceModel(
+                space: other.space,
+                favorites: favorites(for: other.space),
+                keepsTabs: spaces[0].keepsTabs
+            )
+            space.ownsFavorites = ownership.favoritesBySpace
             space.restore(other, reopening: reopening)
+            restoreFavorites(of: space, from: other, reopening: reopening)
             spaces.append(space)
         }
     }

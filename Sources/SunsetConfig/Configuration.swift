@@ -209,6 +209,7 @@ public struct Configuration: Sendable, Equatable {
     public var keyboard = Keyboard()
     public var storage = Storage()
     public var documents = Documents()
+    public var spaces = Spaces()
     public var features = Features()
     public var web = Web()
     public var sidebar = Sidebar()

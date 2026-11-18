@@ -37,4 +37,11 @@ struct HelpCatalogTests {
         #expect(HelpCatalog.search("awake folder nothing-like-this").isEmpty)
         #expect(HelpCatalog.search("").count == HelpTopic.allCases.count)
     }
+
+    /// Roadmap 0044 E: whose the Favorites and the grid are is explained beside both settings.
+    @Test func `the settings of whose the Favorites and the grid are have their topic`() {
+        let topics = ["spaces.favorites", "spaces.pinned"].map { HelpTopic.explaining(setting: $0) }
+        #expect(topics.allSatisfy { $0 != nil && $0 == topics.first ?? nil })
+        #expect(HelpCatalog.search("each Space own Favorites").contains { $0.rawValue == "spaces" })
+    }
 }

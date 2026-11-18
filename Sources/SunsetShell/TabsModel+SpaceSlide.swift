@@ -16,6 +16,7 @@ extension TabsModel {
         let shown = preview(of: other)
         var beside = SpaceSlide.Beside(tabs: shown, isNext: isNext)
         beside.sharesPinned = shown.pinned === pinned
+        beside.sharesFavorites = shown.favorites === favorites
         return beside
     }
 

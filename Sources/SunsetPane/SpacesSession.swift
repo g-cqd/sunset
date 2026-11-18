@@ -26,11 +26,13 @@ public struct SpacesSession: Sendable, Equatable {
     ///   - views: the windows.
     ///   - pinned: the first profile's grid, when `profiles` does not hold the first (a file of before profiles).
     ///   - given: the profiles, each once.
+    ///   - ownership: whose the Favorites and the Pinned grid are (`spaces.favorites`, `spaces.pinned`; roadmap 0044).
     public init(
         spaces: [SavedSpace],
         views: [SavedView],
         pinned: SavedFavorites = SavedFavorites(),
-        profiles given: [SavedProfile] = []
+        profiles given: [SavedProfile] = [],
+        ownership: Ownership = Ownership()
     ) {
         var known = Set<Profile.ID>()
         var profiles = given.filter { known.insert($0.profile.id).inserted }
@@ -39,7 +41,7 @@ public struct SpacesSession: Sendable, Equatable {
         var own: [SavedSpace] = []
         for var space in spaces where own.count < Self.maximumSpaces && seen.insert(space.space.id).inserted {
             // Favorites are the profile's (ADR-0055): a Space's own, of a file of before, go to its profile.
-            if !space.favorites.favorites.isEmpty {
+            if !ownership.favoritesBySpace, !space.favorites.favorites.isEmpty {
                 let index = profiles.firstIndex { $0.profile.id == space.space.profile } ?? 0
                 var all = profiles[index].favorites.favorites
                 all.merge(space.favorites.favorites)
@@ -50,6 +52,10 @@ public struct SpacesSession: Sendable, Equatable {
             }
             own.append(space)
         }
+        // Each Space's (roadmap 0044): a profile's list, of a file written the other way, goes to its first Space.
+        if ownership.favoritesBySpace { Self.giveFavorites(of: &profiles, to: &own) }
+        // One grid for the app: the other profiles' grids, of a file written the other way, join the first's.
+        if ownership.pinnedByApp { Self.joinPinned(of: &profiles) }
         self.profiles = profiles
         // What is kept holds its panes before any Space does.
         let grids = profiles.map(\.pinned.favorites) + profiles.map(\.favorites.favorites)
@@ -69,7 +75,8 @@ public struct SpacesSession: Sendable, Equatable {
                 view.selected = nil
             }
             let wanted = entry(of: view)
-            let kept = grids.lazy.compactMap { $0.entry(wanted) }.first
+            let lists = grids + kept.map(\.favorites.favorites)
+            let kept = lists.lazy.compactMap { $0.entry(wanted) }.first
             if view.entry != nil, kept?.isOpen != true { view.entry = nil }
             return view
         }
@@ -81,7 +88,8 @@ public struct SpacesSession: Sendable, Equatable {
     /// - Parameters:
     ///   - old: the windows and the Favorites, as versions 1 and 2 had them.
     ///   - named: what names the Space they become; unnamed, with a new id, for a file of before.
-    public init(_ old: SavedSession, space named: Space = Space()) {
+    ///   - ownership: whose the Favorites and the Pinned grid are (roadmap 0044).
+    public init(_ old: SavedSession, space named: Space = Space(), ownership: Ownership = Ownership()) {
         let id = named.id
         var tabs = Workspace()
         var contents: [PaneID: PaneDescriptor] = [:]
@@ -93,7 +101,7 @@ public struct SpacesSession: Sendable, Equatable {
             views.append(SavedView(space: id, selected: entry == nil ? window.workspace.selectedID : nil, entry: entry))
         }
         let space = SavedSpace(space: named, favorites: old.favorites, tabs: tabs, contents: contents)
-        self.init(spaces: [space], views: views)
+        self.init(spaces: [space], views: views, ownership: ownership)
     }
 
     /// The tabs a window shows for `view`: its Space's, with the view's selection. Nil for a view of no Space.
@@ -119,11 +127,11 @@ public struct SpacesSession: Sendable, Equatable {
         )
     }
 
-    public init?(data: Data) {
+    public init?(data: Data, ownership: Ownership = Ownership()) {
         guard let version = (try? JSONDecoder().decode(Versioned.self, from: data))?.version else { return nil }
         if version < Self.version {
             guard let old = SavedSession(data: data) else { return nil }
-            self.init(old)
+            self.init(old, ownership: ownership)
             return
         }
         guard version == Self.version, let file = try? JSONDecoder().decode(File.self, from: data) else { return nil }
@@ -131,7 +139,8 @@ public struct SpacesSession: Sendable, Equatable {
             spaces: file.spaces.compactMap(\.value),
             views: file.windows.compactMap(\.value),
             pinned: file.pinned ?? SavedFavorites(),
-            profiles: file.profiles?.compactMap(\.value) ?? []
+            profiles: file.profiles?.compactMap(\.value) ?? [],
+            ownership: ownership
         )
     }
 

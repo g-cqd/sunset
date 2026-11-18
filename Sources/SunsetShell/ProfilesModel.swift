@@ -8,18 +8,23 @@ package import SunsetPane
 package final class ProfilesModel {
     package private(set) var profiles: [ProfileModel]
     @ObservationIgnored private let makeFavorites: @MainActor () -> FavoritesModel
+    /// One Pinned grid for every profile, the first's (`spaces.pinned`, roadmap 0044).
+    package let sharesPinned: Bool
     @ObservationIgnored package var onChange: () -> Void = {}
 
     /// - Parameters:
     ///   - firstPinned: the first profile's Pinned grid; a new one by default.
     ///   - firstFavorites: the first profile's Favorites; new ones by default.
+    ///   - sharesPinned: every profile shows the first's grid.
     ///   - makeFavorites: the grid and the Favorites of each profile made later.
     package init(
         firstPinned: FavoritesModel? = nil,
         firstFavorites: FavoritesModel? = nil,
+        sharesPinned: Bool = false,
         makeFavorites: @escaping @MainActor () -> FavoritesModel
     ) {
         self.makeFavorites = makeFavorites
+        self.sharesPinned = sharesPinned
         let first = ProfileModel(
             profile: .first,
             pinned: firstPinned ?? makeFavorites(),
@@ -38,7 +43,7 @@ package final class ProfilesModel {
         var number = profiles.count + 1
         while profiles.contains(where: { $0.profile.name == "Profile \(number)" }) { number += 1 }
         let named = Profile(name: "Profile \(number)")
-        let made = ProfileModel(profile: named, pinned: makeFavorites(), favorites: makeFavorites())
+        let made = ProfileModel(profile: named, pinned: newPinned(), favorites: makeFavorites())
         profiles.append(made)
         onChange()
         return made
@@ -56,7 +61,7 @@ package final class ProfilesModel {
     /// the caller's.
     func remove(_ profile: ProfileModel) -> Bool {
         guard profile !== first, let index = profiles.firstIndex(where: { $0 === profile }) else { return false }
-        profile.pinned.closeAll()
+        if profile.pinned !== first.pinned { profile.pinned.closeAll() }
         profile.favorites.closeAll()
         profiles.remove(at: index)
         onChange()
@@ -65,8 +70,18 @@ package final class ProfilesModel {
 
     // MARK: Session
 
-    package func saved() -> [SavedProfile] {
-        profiles.map { SavedProfile(profile: $0.profile, pinned: $0.pinned.saved(), favorites: $0.favorites.saved()) }
+    /// The profiles as the session file keeps them.
+    /// - Parameter favorites: the Favorites are the profiles' (else each Space's, which saves them: roadmap 0044).
+    /// - Returns: each profile, with its grid (a shared one with the first only) and its Favorites.
+    package func saved(favorites: Bool = true) -> [SavedProfile] {
+        profiles.map {
+            SavedProfile(
+                profile: $0.profile,
+                // A grid shared by all is saved once, with the first.
+                pinned: sharesPinned && !$0.profile.isFirst ? SavedFavorites() : $0.pinned.saved(),
+                favorites: favorites ? $0.favorites.saved() : SavedFavorites()
+            )
+        }
     }
 
     /// Takes the saved profiles, before any window: the first's name and what is kept in it, then the others in order.
@@ -77,11 +92,14 @@ package final class ProfilesModel {
                 first.pinned.restore(one.pinned, reopening: reopening)
                 first.favorites.restore(one.favorites, reopening: reopening)
             } else if !profiles.contains(where: { $0.profile.id == one.profile.id }) {
-                let made = ProfileModel(profile: one.profile, pinned: makeFavorites(), favorites: makeFavorites())
-                made.pinned.restore(one.pinned, reopening: reopening)
+                let made = ProfileModel(profile: one.profile, pinned: newPinned(), favorites: makeFavorites())
+                if !sharesPinned { made.pinned.restore(one.pinned, reopening: reopening) }
                 made.favorites.restore(one.favorites, reopening: reopening)
                 profiles.append(made)
             }
         }
     }
+
+    /// The grid of a profile made now: its own, or the first's when one is shared.
+    private func newPinned() -> FavoritesModel { sharesPinned ? first.pinned : makeFavorites() }
 }

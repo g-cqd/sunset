@@ -51,7 +51,7 @@ extension TabSidebar {
 
     /// The part of the list of the Space the window is sliding to, beside this one's (n79).
     @ViewBuilder func beside(_ part: Part) -> some View {
-        if let beside = tabs.slide.beside, !(part == .pinned && beside.sharesPinned) {
+        if let beside = tabs.slide.beside, !beside.shares(part) {
             Group {
                 switch part {
                     case .pinned: preview(beside.tabs).pinnedPart

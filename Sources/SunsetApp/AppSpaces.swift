@@ -1,5 +1,6 @@
 import Foundation
 import SunsetConfig
+import SunsetPane
 import SunsetShell
 
 /// The Spaces of the app (R4; ADR-0045, ADR-0047). Every window that lists tabs (the sidebar, the built-in bar) shows one
@@ -9,12 +10,28 @@ import SunsetShell
     static let all: SpacesModel = {
         let spaces = SpacesModel(
             first: SpaceModel(favorites: AppFavorites.shared, keepsTabs: true),
+            ownership: ownership,
             makeFavorites: AppFavorites.make
         )
         spaces.onChange = { SessionStore.shared.scheduleSave() }
         spaces.profiles.onChange = { SessionStore.shared.scheduleSave() }
         return spaces
     }()
+
+    /// Whose the Favorites and the Pinned grid are (`spaces.favorites`, `spaces.pinned`; roadmap 0044): read once, when the
+    /// Spaces are made; a change takes effect the next time Sunset opens.
+    static let ownership: SpacesSession.Ownership = {
+        let scopes = AppConfiguration.shared.configuration.spaces
+        return SpacesSession.Ownership(favoritesBySpace: scopes.favorites == .space, pinnedByApp: scopes.pinned == .app)
+    }()
+
+    /// Every set of kept entries: each profile's grid and Favorites, and each Space's own Favorites; each once.
+    static var kept: [FavoritesModel] {
+        var each: [FavoritesModel] = []
+        let lists = all.profiles.profiles.flatMap { [$0.pinned, $0.favorites] } + all.spaces.map(\.favorites)
+        for list in lists where !each.contains(where: { $0 === list }) { each.append(list) }
+        return each
+    }
 
     /// The first Space: the one there was before there were several.
     static var shared: SpaceModel { all.spaces[0] }

@@ -67,7 +67,12 @@ extension SpaceModel {
         for (pane, content) in contents {
             if content.isPrivate { kept.close(pane: pane) } else { descriptors[pane] = content.descriptor }
         }
-        var saved = SavedSpace(space: space, tabs: kept, contents: descriptors)
+        var saved = SavedSpace(
+            space: space,
+            favorites: ownsFavorites ? favorites.saved() : SavedFavorites(),
+            tabs: kept,
+            contents: descriptors
+        )
         saved.stopped = stopped
         return saved
     }

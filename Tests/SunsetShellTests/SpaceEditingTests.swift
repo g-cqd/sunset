@@ -113,6 +113,8 @@ struct SpaceEditingTests {
         _ = work
         window.shift(spaceListTo: -30)
         #expect(try #require(window.slide.beside).sharesPinned)
+        // The Favorites are the profile's here (the model's default): they stay still too (roadmap 0044 E).
+        #expect(try #require(window.slide.beside).sharesFavorites)
         window.shift(spaceListTo: 0)
         let other = spaces.profiles.add()
         spaces.setProfile(other.profile.id, for: work)

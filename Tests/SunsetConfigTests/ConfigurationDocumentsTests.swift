@@ -39,7 +39,7 @@ import Testing
         )
         #expect(
             SettingsSection.all.first?.topics.map(\.id)
-                == ["general.features", "general.startup", "general.documents", "general.file"]
+                == ["general.features", "general.startup", "general.documents", "general.spaces", "general.file"]
         )
     }
 

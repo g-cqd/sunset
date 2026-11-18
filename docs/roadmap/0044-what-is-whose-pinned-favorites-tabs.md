@@ -14,11 +14,13 @@ of the morning, n80) into a setting whose default is now the Space.
 | Step | What | Status |
 |---|---|---|
 | A | A swipe between Spaces of one profile leaves the Pinned grid still; only what is the Space's slides | done: `sharesPinned`, the grid apart from the Favorites in the list (test; a swipe not seen) |
-| B | `scopes.favorites`: `space` (default) or `profile`. Per Space: each Space its own list; a session of before (profile's) gives every Space of the profile a copy of it, kept open where it was in the first | not-started |
-| C | `scopes.pinned`: `profile` (default) or `app`, one grid for all profiles | not-started |
+| B | `spaces.favorites`: `space` (default) or `profile`. Per Space: each Space its own list; a session of before (profile's) gives its list to the profile's first Space, not a copy to each (a copy would be two entries, ADR-0055's reason) | done 2026-11-18 (ADR-0070; tests) |
+| C | `spaces.pinned`: `profile` (default) or `app`, one grid for all profiles | done 2026-11-18 (ADR-0070; tests) |
 | D | `scopes.tabs`: `space` (default) or `window` (a window has its own tabs in a Space, as a window that is one tab does) | not-started |
-| E | Settings > General > Spaces, a topic of help, the swipe and the menus following each choice | not-started |
+| E | Settings > General > Spaces, a topic of help, the swipe and the menus following each choice | done but menus and screen: the settings, the "Spaces" topic and its "?", shared Favorites still in a swipe (tests); no menu needed changing; not seen on screen |
+
+The settings are read when Sunset opens (ADR-0070, point 2).
 
 ## Not done
 
-Everything above.
+D (`spaces.tabs`); E seen on screen (Settings > General > Spaces, a swipe with each choice).

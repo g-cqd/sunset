@@ -19,6 +19,6 @@ import SunsetShell
     /// Whether an entry is open in any Space or in the grid: something of the user's would run with no window if the
     /// app stayed.
     static var hasOpenEntry: Bool {
-        AppSpaces.all.profiles.profiles.contains { $0.pinned.hasOpenEntry || $0.favorites.hasOpenEntry }
+        AppSpaces.kept.contains(where: \.hasOpenEntry)
     }
 }
