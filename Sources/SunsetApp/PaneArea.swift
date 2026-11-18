@@ -25,8 +25,6 @@ struct PaneArea: View {
     let windowRadius: Double
     /// The corners of the area that are corners of the window (the sidebar or a tab bar covers the others).
     let windowCorners: CornerSet
-    /// The sidebar is on the window's right: previews of its rows open on that side.
-    var sidebarOnRight = false
     /// In a split, the margin the window bar opens above the panes while it is out: the top panes' cards start this much lower and
     /// show that much less of their content, which keeps its size (no page or terminal is laid out again for it).
     var barInset = 0.0
@@ -91,14 +89,8 @@ struct PaneArea: View {
                     // While a drag the panes would take is under way, and none is under the pointer: each outlined.
                     if dropTarget == nil, tabs.dragTargets?.panes == true { dropOutlines(frames, radius: radius) }
                 }
-                .overlay(alignment: .topLeading) {
-                    TabPreviewHost(
-                        tabs: tabs,
-                        layout: layout,
-                        area: proxy.frame(in: .global),
-                        sidebarOnRight: sidebarOnRight
-                    )
-                }
+                // The tabs' previews are drawn by the window, over a floating sidebar too (`PanePreviews`, roadmap 0047 B).
+                .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { tabs.paneAreaFrame = $0 }
                 .overlay { if !tabs.showsLive { elsewhere } }
                 .coordinateSpace(.named(Self.space))
                 .onDrop(

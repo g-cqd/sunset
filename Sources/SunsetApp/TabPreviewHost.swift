@@ -57,7 +57,13 @@ struct TabPreviewHost: View {
     /// A card beside the row it is about. In an area-sized frame, so that the transition's anchor is a point of the area: the
     /// card grows out of its row and shrinks back into it (owner, 2026-11-13), not from the card's or the window's middle.
     private func placed(_ card: some View, size: CGSize, row: CGRect?) -> some View {
-        let origin = PreviewPlacement.origin(size: size, row: row, area: area, sidebarOnRight: sidebarOnRight)
+        let origin = PreviewPlacement.origin(
+            size: size,
+            row: row,
+            area: area,
+            sidebarOnRight: sidebarOnRight,
+            panel: tabs.sidebarFrame
+        )
         return ZStack(alignment: .topLeading) { card.offset(x: origin.x, y: origin.y) }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .transition(.opacity.combined(with: .scale(scale: Design.Preview.inScale, anchor: rowAnchor(row))))

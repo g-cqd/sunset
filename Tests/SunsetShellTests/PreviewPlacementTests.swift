@@ -37,6 +37,25 @@ import Testing
         #expect(abs(right.x - 296) < 0.001, "\(right.x)")
     }
 
+    /// Roadmap 0047 B (the owner, 2026-11-18): with the sidebar floating, the previews of the Pinned grid's tiles, of
+    /// indented rows and of groups showed beneath the sidebar: they were placed beside the row, which is inside the panel.
+    @Test func `beside the floating panel's edge, whatever the row's place in it`() {
+        let panel = CGRect(x: 700, y: 0, width: 300, height: 600)
+        let tile = CGRect(x: 860, y: 40, width: 120, height: 50)
+        let right = PreviewPlacement.origin(size: size, row: tile, area: area, sidebarOnRight: true, panel: panel)
+        #expect(right.x + area.minX + size.width <= panel.minX - 12 + 0.001, "left of the panel, not of the tile")
+        let leftPanel = CGRect(x: 200, y: 0, width: 300, height: 600)
+        let indented = CGRect(x: 260, y: 300, width: 200, height: 30)
+        let left = PreviewPlacement.origin(
+            size: size,
+            row: indented,
+            area: area,
+            sidebarOnRight: false,
+            panel: leftPanel
+        )
+        #expect(left.x + area.minX >= leftPanel.maxX + 12 - 0.001)
+    }
+
     @Test func `kept inside the area at its top and bottom`() {
         let high = PreviewPlacement.origin(
             size: size,

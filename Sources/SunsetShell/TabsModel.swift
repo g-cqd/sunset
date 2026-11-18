@@ -5,19 +5,17 @@ package import SunsetPane
 
 /// One window's view of a Space (`SpaceModel`; ADR-0045): the Space's tabs with this window's selection (`workspace`), and
 /// what is only the window's (the command bar, a rename in progress, the pointer). The tabs and the content of each pane
-/// (`PaneContent`: a terminal, a page) are the Space's, not a view's and not a window's: the presentation can change, and
-/// a window can close, while they run. A pane that is not shown is told it has no focus and is not visible, so that it
-/// neither blinks nor draws; of the shown panes only the focused one blinks.
+/// (`PaneContent`: a terminal, a page) are the Space's: they run while the presentation changes or a window closes. A pane
+/// not shown is told it has no focus and is not visible (it neither blinks nor draws); of those shown, the focused blinks.
 @MainActor @Observable
 package final class TabsModel {
     /// The Space this window shows.
     package internal(set) var space: SpaceModel
-    /// The tab this window has selected among the Space's, and the kept entry it shows instead (`workspace`).
+    /// The tab this window selected among the Space's, and the kept entry it shows instead (`workspace`).
     var selectedID: Workspace.ItemID?
     var selectedEntry: Favorites.NodeID?
-    /// Makes the content of a pane: the app's default kind for nil, else what the descriptor says. Until the app says how, a
-    /// pane is a placeholder. Once it can, the tabs of the Space that have no content (stopped with its last window, or read
-    /// from the session) are given theirs.
+    /// Makes a pane's content: the default kind for nil, else what the descriptor says; a placeholder until the app says
+    /// how, then the Space's tabs with none (stopped with its last window, or read from the session) are given theirs.
     @ObservationIgnored package var makeContent: (PaneDescriptor?) -> any PaneContent = {
         UnknownContent($0 ?? PaneDescriptor(kind: ""))
     }
@@ -84,6 +82,9 @@ package final class TabsModel {
     }
     /// Where that row is, in the window (global coordinates): the preview is placed beside it (n47).
     package var hoveredRowFrame: CGRect?
+    /// Where the pane area and the sidebar are, in the window: previews go in the one, beside the other (roadmap 0047 B).
+    package var paneAreaFrame: CGRect?
+    package var sidebarFrame: CGRect?
     /// The folder of the Favorites under the pointer: its card lists its tabs (the owner's note n77).
     package var hoveredFolder: Favorites.NodeID?
     /// The tab being renamed, while its dialog is open (`RenameTabAlert`).

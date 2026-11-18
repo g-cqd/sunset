@@ -88,6 +88,13 @@ struct TerminalScene: View {
             .overlay(alignment: sidebarSide.alignment) { resizeHandle }
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
             .overlay(alignment: sidebarSide.alignment) { floatingSidebar }
+            .overlay {
+                PanePreviews(
+                    tabs: tabs,
+                    layout: configuration.layout,
+                    sidebarOnRight: configuration.sidebar.side == .right
+                )
+            }
             if presentation.showsBuiltInBar, configuration.tabs.bar.position == .bottom { tabBar }
         }
         .background(rootColor)
@@ -169,7 +176,6 @@ struct TerminalScene: View {
                 margin: configuration.sidebar.padding,
                 windowRadius: windowRadius,
                 windowCorners: areaWindowCorners,
-                sidebarOnRight: configuration.sidebar.side == .right,
                 barInset: splitBarInset
             )
             .environment(\.windowBarHostsFind, hostsFind)

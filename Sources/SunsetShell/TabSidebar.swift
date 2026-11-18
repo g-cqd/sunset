@@ -107,6 +107,9 @@ package struct TabSidebar: View {
         // fade comes and goes in its own time (roadmap 0045 E).
         .mask { LateralFade(sliding: tabs.slide.masks || tabs.slide.beside != nil || tabs.slide.shift != 0) }
         .padding(.top, topInset)
+        .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frame in
+            if !isPreview { tabs.sidebarFrame = frame }
+        }
         .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { width in
             tabs.slide.width = width
             tabs.slide.animation = layout.smooth
