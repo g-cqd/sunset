@@ -15,6 +15,8 @@ package final class TabsModel {
     var selectedID: Workspace.ItemID? { didSet { remember(selectedID, was: oldValue) } }
     /// The tabs this window showed, the last last (n4): closing the shown one goes back to the one before it.
     @ObservationIgnored var shownBefore: [Workspace.ItemID] = []
+    /// The last click on a Pinned tile, and when (`clickTile`).
+    @ObservationIgnored var lastTileClick: (entry: Favorites.NodeID, time: TimeInterval)?
     var selectedEntry: Favorites.NodeID?
     /// Makes a pane's content: the default kind for nil, else what the descriptor says; a placeholder until the app says
     /// how, then the Space's tabs with none (stopped with its last window, or read from the session) are given theirs.
