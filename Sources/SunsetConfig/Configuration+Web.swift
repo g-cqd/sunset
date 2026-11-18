@@ -79,6 +79,10 @@ extension Configuration {
         public var openLinksInSunset = true
         /// The page's inspector (Inspect Element, and Safari's Develop menu) can be opened.
         public var developer = true
+        /// A page's request to notify asks without a click too (Chrome's way; roadmap 0046 S1); off, Safari's.
+        public var notificationsWithoutClick = false
+        /// A page's notifications through its service worker's registration are posted too (roadmap 0046 S2).
+        public var workerNotifications = true
         /// The site's icon, its initial in a square while it has none (owner, 2026-11-13).
         public var tabIcon = TabIcon.favicon
         public var address = AddressPlace.sidebar

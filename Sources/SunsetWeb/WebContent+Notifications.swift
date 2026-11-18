@@ -20,7 +20,7 @@ extension WebContent {
                 return notificationWord(host)
             case "request":
                 // Asked only from what the person did, and one question at a time: else the site's answer as it stands.
-                guard fields["activated"] as? Bool == true, !notificationAsking,
+                guard fields["activated"] as? Bool == true || settings.notificationAskWithoutClick, !notificationAsking,
                     permissions.answer(.notifications, for: host) == .ask, !notificationHosts.contains(host)
                 else { return notificationWord(host) }
                 notificationAsking = true
@@ -30,6 +30,8 @@ extension WebContent {
                 return notificationWord(host)
             case "show":
                 guard notificationWord(host) == "granted" else { return false }
+                // Through its service worker's registration: only when that is allowed (roadmap 0046 S2).
+                if fields["worker"] as? Bool == true, !settings.workerNotifications { return false }
                 if let last = lastNotification, now >= last, now - last < 1 { return false }
                 lastNotification = now
                 let id = (fields["id"] as? Int) ?? (fields["id"] as? Double).map(Int.init) ?? 0

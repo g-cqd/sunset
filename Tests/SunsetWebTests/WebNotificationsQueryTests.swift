@@ -34,7 +34,8 @@ struct WebNotificationsQueryTests {
         let result = try await view.callAsyncJavaScript(
             """
             const status = await navigator.permissions.query({ name: 'notifications' });
-            return [status.state, status.name, Notification.permission];
+            const routed = String(ServiceWorkerRegistration.prototype.showNotification).includes("worker: true");
+            return [status.state, status.name, Notification.permission, routed ? "routed" : "engine's"];
             """,
             contentWorld: .page
         )
@@ -46,8 +47,8 @@ struct WebNotificationsQueryTests {
         let allowed = try await state(.allow)
         let denied = try await state(.deny)
         let unanswered = try await state(nil)
-        #expect(allowed == ["granted", "notifications", "granted"])
-        #expect(denied == ["denied", "notifications", "denied"])
-        #expect(unanswered == ["prompt", "notifications", "default"])
+        #expect(allowed == ["granted", "notifications", "granted", "routed"])
+        #expect(denied == ["denied", "notifications", "denied", "routed"])
+        #expect(unanswered == ["prompt", "notifications", "default", "routed"])
     }
 }

@@ -18,8 +18,8 @@ and resilience as well as performances and efficiency of the app, as well as ux 
 | 4 | The sidebar's address bar: the lock as one of our buttons, Copy and Reload on hover, its context menu, contrast | t23 (0047 F) | done: lock as a row button, Copy and Reload on hover with the fade, menu with page and tab items and Site Settings, the popover a level deep; contrast not judged (not seen) |
 | 5 | Settings: the plainest first, the rest a level down; wording; a tab's menu with its site's and its own settings | t24 (0047 G) | partly: measures a level down (More), the tab's menu has its page's actions and Tab Settings; the wording of every topic not reviewed |
 | 6 | The focused tab's accent from the site's theme colour or icon | t25 (0047 H) | done: `appearance.accent` "From the website"; not seen |
-| 7 | The two notification settings | t16, t17 (0046 S1, S2) | not-started |
+| 7 | The two notification settings | t16, t17 (0046 S1, S2) | done (ADR-0077) |
 | 8 | Measured: switching tabs and Spaces, opening a window, the sidebar's frame times (release, percentiles) | — | partly: tab switches measured (unchanged since 2026-11-13); the session's write moved off the main thread (3.6 to 1–1.8 ms median); Spaces, a window's opening, frame times not measured |
-| 9 | Seen on screen, everything above and 0042 E, F: needs this terminal allowed to record the screen and use accessibility | — | blocked: permissions |
+| 9 | Seen on screen, everything above and 0042 E, F | — | in progress: allowed at 14:40; Cmd-L, the address menu, the site's popover, the floating sidebar's top seen; what needs a pointer's hover not yet |
 
 n1 and n2 (settings per profile, Reload as another profile) wait for the owner's refinement.

@@ -10,9 +10,10 @@ import Testing
 @MainActor
 @Suite("A page's notification question")
 struct WebNotificationsAskTests {
-    private func page() -> WebContent {
+    private func page(withoutClick: Bool = false) -> WebContent {
         var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
         settings.privacy = PagePrivacy()
+        settings.notificationAskWithoutClick = withoutClick
         return WebContent(url: URL(string: "https://chat.example"), settings: settings)
     }
 
@@ -64,5 +65,13 @@ struct WebNotificationsAskTests {
         #expect(!askedAgain, "not queued behind the question shown, nor asked again")
         #expect(await first.value == "granted")
         #expect(askedAgain || second == "default" || second == "granted")
+    }
+
+    /// Roadmap 0046 S1 (the owner, 2026-11-18: "this could be a setting"): as Chrome, a request without a click asks.
+    @Test(.timeLimit(.minutes(1)))
+    func `set to ask without a click, a request without a gesture asks the person`() async {
+        let page = page(withoutClick: true)
+        let asked = await asks(page) { _ = await self.request(page, activated: false) }
+        #expect(asked)
     }
 }

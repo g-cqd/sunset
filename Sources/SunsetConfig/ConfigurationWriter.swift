@@ -104,6 +104,8 @@ public enum ConfigurationWriter {
     private static func web(_ web: Configuration.Web) -> [String: String] {
         [
             "web.openLinksInSunset": String(web.openLinksInSunset), "web.developer": String(web.developer),
+            "web.notificationsWithoutClick": String(web.notificationsWithoutClick),
+            "web.workerNotifications": String(web.workerNotifications),
             "web.tabIcon": string(web.tabIcon.rawValue), "web.address": string(web.address.rawValue),
             "web.windowBar": string(web.windowBar.rawValue), "web.splitBar": string(web.splitBar.rawValue),
             "web.fullFrameRate": String(web.fullFrameRate),

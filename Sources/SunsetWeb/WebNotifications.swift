@@ -86,6 +86,18 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
               });
             } }.query });
           }
+          // A service worker's registration shows its notifications through Sunset too (roadmap 0046 S2): an app's web view
+          // has no notification centre of its own for them. The worker's `notificationclick` is not fired.
+          if (window.ServiceWorkerRegistration && ServiceWorkerRegistration.prototype.showNotification) {
+            Object.defineProperty(ServiceWorkerRegistration.prototype, "showNotification", { writable: true, configurable: true, value: { showNotification(title, options) {
+              if (permission !== "granted") return Promise.reject(new TypeError("No notification permission has been granted for this origin."));
+              options = options || {};
+              let icon = "";
+              try { icon = options.icon == null ? "" : new URL(String(options.icon), location.href).href; } catch (e) {}
+              return bridge.postMessage({ kind: "show", worker: true, id: next++, title: String(title), body: options.body == null ? "" : String(options.body), tag: options.tag == null ? "" : String(options.tag), icon, silent: options.silent === true })
+                .then(() => undefined);
+            } }.showNotification });
+          }
           bridge.postMessage({ kind: "permission" }).then(answer => { permission = answer; });
         })();
         """

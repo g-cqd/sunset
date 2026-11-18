@@ -71,6 +71,8 @@ import SunsetWeb
         )
         settings.agent = BrowserAgent(rawValue: web.agent.rawValue) ?? .safari
         settings.agentScripts = web.agentScripts
+        settings.notificationAskWithoutClick = web.notificationsWithoutClick
+        settings.workerNotifications = web.workerNotifications
         return settings
     }
 

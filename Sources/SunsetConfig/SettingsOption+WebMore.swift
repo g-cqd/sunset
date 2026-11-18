@@ -70,6 +70,24 @@ extension SettingsOption {
                 .websites
             )
             .setting(Configuration.Web.permissionNames.map { "web.permissions.\($0)" }),
+            toggle(
+                "web.notificationsWithoutClick",
+                "Ask about notifications without a click",
+                "notification permission request gesture click chrome safari ask",
+                \.web.notificationsWithoutClick
+            )
+            .noted(
+                "On, a site may ask to notify as soon as it opens, as in Chrome; off, only after a click, as in Safari."
+            )
+            .further,
+            toggle(
+                "web.workerNotifications",
+                "Notifications from a site's background script",
+                "notification service worker push registration background",
+                \.web.workerNotifications
+            )
+            .noted("The notifications a site sends through its service worker, while its page is open.")
+            .further,
             // The default for every site, and under it the sites that have a rule of their own (kept sealed, not in the file).
             custom(
                 "web.agent",

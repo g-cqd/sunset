@@ -30,6 +30,11 @@ package struct WebSettings: Sendable, Equatable {
     package var agent = BrowserAgent.safari
     /// What a page's scripts read to tell a browser is set too (`web.agentScripts`): the second rung.
     package var agentScripts = true
+    /// A page's request to notify asks the person without a click too (`web.notificationsWithoutClick`, as Chrome); off,
+    /// it is answered by the site's answer as it stands (Safari; ADR-0067).
+    package var notificationAskWithoutClick = false
+    /// A page's `registration.showNotification(…)` is posted as its own are (`web.workerNotifications`; roadmap 0046 S2).
+    package var workerNotifications = true
 
     /// Whether what is typed is sent for suggestions: `suggestions`, or for a private page `privateSuggestions`.
     package var suggestsWhileTyping: Bool { privacy == nil ? suggestions : privateSuggestions }
