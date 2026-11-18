@@ -83,6 +83,17 @@ extension SettingsOption {
                 [(.opaque, "Opaque"), (.material, "Material"), (.glass, "Glass"), (.fill, "Color fill")],
                 label: "Window and sidebar background"
             ),
+            choice(
+                "window.materialThickness",
+                "Material thickness",
+                "material thickness thin thick ultrathin ultrathick frosted opaque",
+                \.window.materialThickness,
+                [
+                    (.ultraThin, "Ultra thin"), (.thin, "Thin"), (.regular, "Regular"), (.thick, "Thick"),
+                    (.ultraThick, "Ultra thick")
+                ]
+            )
+            .noted("With the window background set to Material: how much of what is behind the window shows through."),
             number("window.blur", "Window blur", "radius frosted background", \.window.blur, 0 ... 100, step: 1),
             number(
                 "terminal.opacity",

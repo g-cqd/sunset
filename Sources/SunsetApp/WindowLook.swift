@@ -5,6 +5,7 @@ import SunsetPane
 /// What is behind a window's terminal, as the configuration says: a material, glass, nothing (with a blur radius), and the tint over it.
 struct WindowLook: Equatable {
     var material = Configuration.Material.opaque
+    var thickness = Configuration.MaterialThickness.regular
     var glass = Configuration.Appearance.Glass.regular
     var tint: [UInt8]?
     var tintAlpha = 0.25
@@ -19,6 +20,7 @@ struct WindowLook: Equatable {
     init(_ configuration: Configuration, light: Bool = false) {
         self.light = light
         material = configuration.window.material
+        thickness = configuration.window.materialThickness
         glass = configuration.appearance.glass
         tint = configuration.appearance.tintColor
         tintAlpha = configuration.appearance.tintAlpha

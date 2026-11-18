@@ -28,7 +28,7 @@ final class WindowBackdrop {
         remove()
         switch look.material {
             case .opaque: break
-            case .material: install(material(), in: window, tint: look.tintColor)
+            case .material: install(material(look.thickness), in: window, tint: look.tintColor)
             case .glass: install(glass(look), in: window, tint: look.light ? look.tintColor : nil)
             // The tint's colour and alpha, nothing under it; the desktop is not blurred (that "never really worked": owner, 2026-11-12).
             case .fill: install(nil, in: window, tint: look.tintColor)
@@ -37,9 +37,9 @@ final class WindowBackdrop {
         window.invalidateShadow()
     }
 
-    private func material() -> NSView {
+    private func material(_ thickness: Configuration.MaterialThickness) -> NSView {
         let view = NSVisualEffectView()
-        view.material = .underWindowBackground
+        view.material = thickness.systemMaterial(sidebar: false)
         view.blendingMode = .behindWindow
         view.state = .active
         return view

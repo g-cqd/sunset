@@ -41,6 +41,7 @@ public enum ConfigurationWriter {
             "terminal.shellIntegration": String(configuration.terminal.shellIntegration),
             "terminal.directory": string(configuration.terminal.directory),
             "window.blur": number(window.blur),
+            "window.materialThickness": string(window.materialThickness.rawValue),
             "sidebar.enabled": String(configuration.sidebar.enabled),
             "sidebar.width": number(configuration.sidebar.width),
             "sidebar.padding": number(configuration.sidebar.padding),

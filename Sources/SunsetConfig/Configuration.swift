@@ -62,6 +62,8 @@ public struct Configuration: Sendable, Equatable {
         /// Space between the window's edge and the terminal, in points (0: the text reaches the edge).
         public var padding = 4.0
         public var material = Material.glass
+        /// How thick the `material` background is (note n20).
+        public var materialThickness = MaterialThickness.regular
         /// The radius of the blur behind a `transparent` window, in points (0 to 100).
         public var blur = 0.0
         public init() {}

@@ -32,7 +32,7 @@ final class SidebarBackdropView: NSView {
                 }
                 view.layer?.backgroundColor = raised
             case .material:
-                view = Self.effect(.sidebar)
+                view = Self.effect(look.thickness.systemMaterial(sidebar: true))
             case .glass:
                 let glass = NSGlassEffectView()
                 glass.style = look.glass == .clear ? .clear : .regular
