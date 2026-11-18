@@ -23,6 +23,7 @@ struct SiteSettingsPopover: View {
             Toggle(isOn: Binding(get: { content.blocksOnSite }, set: { content.setBlocking($0) })) {
                 Label("Block ads and trackers", systemImage: "hand.raised")
             }
+            .settingSwitch()
             .disabled(host.isEmpty || !ContentBlocker.shared.enabled)
             SiteZoomRow(content: content)
             appearsAs.disabled(host.isEmpty)

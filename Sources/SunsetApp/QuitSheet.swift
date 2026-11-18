@@ -27,7 +27,7 @@ struct QuitSheet: View {
                 }
             }
             // Unsaved edits are asked about whatever the setting says: the box is offered only when it would change something.
-            if gate.asksBySetting { Toggle("Don't ask again", isOn: $dontAsk) }
+            if gate.asksBySetting { Toggle("Don't ask again", isOn: $dontAsk).choiceBox() }
             HStack {
                 Spacer()
                 Button("Cancel", role: .cancel) { gate.answer(quit: false) }.keyboardShortcut(.cancelAction)

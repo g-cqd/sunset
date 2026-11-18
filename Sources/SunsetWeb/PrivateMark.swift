@@ -30,7 +30,7 @@ struct PrivateMark: View {
             .fixedSize(horizontal: false, vertical: true)
             if let sharing {
                 Divider()
-                Toggle("Private pages of this window share their data", isOn: sharing)
+                Toggle("Private pages of this window share their data", isOn: sharing).settingSwitch()
                 Text("Applies to the pages opened after the change.").font(Design.Text.detail)
                     .foregroundStyle(.secondary)
             }

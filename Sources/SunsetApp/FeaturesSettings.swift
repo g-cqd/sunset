@@ -12,7 +12,7 @@ struct FeaturesSettings: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.s) {
             ForEach(Scopes.Scope.allCases, id: \.self) { scope in
-                Toggle(scope.title, isOn: binding(scope))
+                Toggle(scope.title, isOn: binding(scope)).settingSwitch()
                     .disabled(isOn(scope) && features.count == 1)
                     .accessibilityLabel(scope.title)
             }

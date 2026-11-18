@@ -19,15 +19,15 @@ struct ClearHistorySheet: View {
             }
             .fixedSize()
             VStack(alignment: .leading, spacing: Design.Space.s) {
-                Toggle("History of pages visited", isOn: $history)
-                Toggle("Website data: cookies, caches and what sites store", isOn: $websiteData)
+                Toggle("History of pages visited", isOn: $history).choiceBox()
+                Toggle("Website data: cookies, caches and what sites store", isOn: $websiteData).choiceBox()
                 if websiteData {
                     Text("You will be signed out of the sites visited in this span.")
                         .font(Design.Text.detail)
                         .foregroundStyle(.secondary)
                         .padding(.leading, Design.Space.xxl)
                 }
-                Toggle("Zoom levels of sites", isOn: $siteZoom)
+                Toggle("Zoom levels of sites", isOn: $siteZoom).choiceBox()
             }
             HStack {
                 Spacer()

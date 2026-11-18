@@ -56,9 +56,11 @@ struct SettingsPage: View {
                     Section(SettingsSection.heading(of: topic)) { rows(results.filter { $0.topic == topic }) }
                 }
             } else if let shown = SettingsSection.topic(content.topic) {
-                Section(shown.section.title + " \u{203A} " + shown.topic.title) { rows(shown.topic.first) }
+                // A topic of measures only (the floating sidebar's) shows them at once: a page with only More is empty.
+                let plain = shown.topic.first.isEmpty ? shown.topic.further : shown.topic.first
+                Section(shown.section.title + " \u{203A} " + shown.topic.title) { rows(plain) }
                 // The measures and the finer choices a level down (roadmap 0047 G).
-                if !shown.topic.further.isEmpty {
+                if !shown.topic.first.isEmpty, !shown.topic.further.isEmpty {
                     Section {
                         DisclosureGroup("More", isExpanded: $content.showsMore) { rows(shown.topic.further) }
                     }
@@ -66,6 +68,8 @@ struct SettingsPage: View {
             }
         }
         .formStyle(.grouped)
+        // Every setting that turns something on or off is a switch, wherever its row puts it (note n6).
+        .settingSwitch()
         .scrollContentBackground(.hidden)
         .frame(maxWidth: Design.Size.settingsPage)
         .frame(maxWidth: .infinity)
