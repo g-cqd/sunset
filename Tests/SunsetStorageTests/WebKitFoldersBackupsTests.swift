@@ -7,7 +7,7 @@ import Testing
 /// GB of website data on the owner's Mac) is left out of backups; what sites keep for the person (IndexedDB, local storage)
 /// stays in. The network cache is in `~/Library/Caches`, which Time Machine leaves out by itself (measured).
 @Suite("Website data: caches out of backups")
-struct WebDataBackupsTests {
+struct WebKitFoldersBackupsTests {
     @Test
     func `every cache folder under a store is excluded (the Cache API's, the network's, media's), and nothing else`()
         throws
