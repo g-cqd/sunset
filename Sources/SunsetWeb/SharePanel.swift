@@ -7,54 +7,46 @@ struct SharePanel: View {
     let request: ShareRequest
     let host: String
     @State private var chosen: UUID?
-    @Environment(\.surfaceStyle) private var surface
 
     var body: some View {
-        ZStack {
-            Color.black.opacity(Design.Fill.veil).contentShape(.rect).onTapGesture {}
-            VStack(alignment: .leading, spacing: Design.Space.l) {
-                Text.sentence("\(host) wants to see a tab or your screen", code: [host])
-                    .font(Design.Text.body.weight(.semibold))
-                if request.sources.isEmpty {
-                    Text("No tab can be shared now.").foregroundStyle(.secondary)
-                } else {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: Design.Space.m) {
-                            ForEach(spaces, id: \.self) { space in
-                                VStack(alignment: .leading, spacing: Design.Space.xs) {
-                                    Text(space).font(Design.Text.detail).foregroundStyle(.secondary)
-                                    ForEach(request.sources.filter { $0.space == space }) { source in row(source) }
-                                }
+        PagePanel {
+            Text.sentence("\(host) wants to see a tab or your screen", code: [host])
+                .font(Design.Text.body.weight(.semibold))
+            if request.sources.isEmpty {
+                Text("No tab can be shared now.").foregroundStyle(.secondary)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Design.Space.m) {
+                        ForEach(spaces, id: \.self) { space in
+                            VStack(alignment: .leading, spacing: Design.Space.xs) {
+                                Text(space).font(Design.Text.detail).foregroundStyle(.secondary)
+                                ForEach(request.sources.filter { $0.space == space }) { source in row(source) }
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .bouncesOnlyWhenScrolling()
-                    .frame(maxHeight: Design.Size.dialogMessage * 2)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                // macOS's own picker, under Sunset's tabs: a screen, a window, another app.
-                Button {
-                    request.answer(.system)
-                } label: {
-                    Label("Screen, Window or App\u{2026}", systemImage: "rectangle.on.rectangle")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(.rect)
-                }
-                .buttonStyle(.plain)
-                Divider()
-                HStack {
-                    Spacer()
-                    Button("Cancel") { request.answer(.cancel) }.keyboardShortcut(.cancelAction)
-                    Button("Share Tab") { if let chosen { request.answer(.tab(chosen)) } }
-                        .keyboardShortcut(.defaultAction)
-                        .disabled(chosen == nil)
-                }
+                .bouncesOnlyWhenScrolling()
+                .frame(maxHeight: Design.Size.dialogMessage * 2)
+                .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(Design.Space.xl)
-            .frame(width: Design.Width.panel, alignment: .leading)
-            .surface(surface.panelShape, shadow: .popover)
-            .padding(Design.Space.l)
+            // macOS's own picker, under Sunset's tabs: a screen, a window, another app.
+            Button {
+                request.answer(.system)
+            } label: {
+                Label("Screen, Window or App\u{2026}", systemImage: "rectangle.on.rectangle")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            Divider()
+            HStack {
+                Spacer()
+                Button("Cancel") { request.answer(.cancel) }.keyboardShortcut(.cancelAction)
+                Button("Share Tab") { if let chosen { request.answer(.tab(chosen)) } }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(chosen == nil)
+            }
         }
     }
 

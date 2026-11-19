@@ -7,10 +7,9 @@ struct PermissionPanel: View {
     let request: PermissionRequest
     /// Where Allow and Don't Allow are kept (a private page's own answers).
     let store: SitePermissions
-    @Environment(\.surfaceStyle) private var surface
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Design.Space.l) {
+        PagePanel(blocking: false) {
             HStack(spacing: Design.Space.m) {
                 ForEach(request.permissions, id: \.self) { permission in
                     Image(systemName: permission.symbol).foregroundStyle(.secondary)
@@ -36,9 +35,5 @@ struct PermissionPanel: View {
                 }
             }
         }
-        .padding(Design.Space.xl)
-        .frame(width: Design.Width.panel, alignment: .leading)
-        .surface(surface.panelShape, shadow: .popover)
-        .padding(Design.Space.l)
     }
 }
