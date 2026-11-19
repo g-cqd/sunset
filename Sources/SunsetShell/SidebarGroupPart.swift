@@ -17,6 +17,7 @@ struct SidebarGroupPart: View {
     @State private var hovering = false
     @State private var width = Design.Size.iconOnlyBelow
     @Environment(\.controlActiveState) private var activeState
+    @Environment(\.siteTint) private var siteTint
 
     var body: some View {
         let shape = RoundedRectangle(
@@ -50,6 +51,9 @@ struct SidebarGroupPart: View {
     }
 
     private var highlight: Color {
+        if let tint = RowFill.siteTint(siteTint, selected: lit, hovering: hovering, color: model?.siteColor) {
+            return tint.color
+        }
         let fill = RowFill.opacity(selected: lit, hovering: hovering, inactive: activeState == .inactive, open: false)
         return fill == 0 ? .clear : .primary.opacity(fill)
     }

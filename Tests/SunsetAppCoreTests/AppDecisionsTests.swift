@@ -2,6 +2,7 @@ import Foundation
 import SunsetConfig
 import SunsetHost
 import SunsetPane
+import SunsetShellModel
 import SunsetWeb
 import Testing
 
@@ -73,5 +74,13 @@ extension AppDecisionsTests {
         configuration.window.material = .glass
         configuration.terminal.opacity = 0.5
         #expect(configuration.backgroundAlpha == 128)
+    }
+}
+
+extension AppDecisionsTests {
+    @Test func `the tab colour setting as the rows read it`() {
+        #expect(Configuration.Tabs.SiteColor.off.tintMode == .off)
+        #expect(Configuration.Tabs.SiteColor.selected.tintMode == .selected)
+        #expect(Configuration.Tabs.SiteColor.every.tintMode == .every)
     }
 }

@@ -2,17 +2,21 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// Roadmap 0086 E (ADR-0087 rule 5): no new duplicated code. dolly runs over Sources with the baseline of what is left
-/// (`Scripts/quality/clones-baseline.json`); a finding outside it fails. Where dolly is not installed the test says so and
-/// passes: the baseline is the record, and a machine with dolly holds it.
+/// Roadmap 0086 E (ADR-0087 rule 5): no new duplicated code. dolly runs over Sources; the number of clones it finds may not
+/// rise above `remaining`, which is lowered as they are merged. A count, not a list of fingerprints: dolly's fingerprints change
+/// when the code around a clone moves, so a list failed on clones that were there before (seen 2026-11-19). Where dolly is not
+/// installed the test says so and passes.
 @Suite("No new clones")
 struct CloneRatchetTests {
+    /// The clones left (2026-11-19: 215 at the start of roadmap 0086 E).
+    static let remaining = 166
+
     private static let dolly = [
         "/Users/\(NSUserName())/.local/bin/dolly", "/opt/homebrew/bin/dolly", "/usr/local/bin/dolly"
     ]
     .first { FileManager.default.isExecutableFile(atPath: $0) }
 
-    @Test func `dolly finds nothing outside the baseline`() throws {
+    @Test func `dolly finds no more clones than are left`() throws {
         guard let dolly = Self.dolly else {
             print("dolly is not installed: the clone ratchet is not checked here")
             return
@@ -21,9 +25,7 @@ struct CloneRatchetTests {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: dolly)
         process.currentDirectoryURL = root
-        process.arguments = [
-            "analyze", "Sources", "--baseline", "Scripts/quality/clones-baseline.json", "--format", "json"
-        ]
+        process.arguments = ["analyze", "Sources", "--format", "json"]
         let output = Pipe()
         process.standardOutput = output
         process.standardError = Pipe()
@@ -32,12 +34,12 @@ struct CloneRatchetTests {
         process.waitUntilExit()
         let found = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         let findings = found?["findings"] as? [[String: Any]] ?? []
-        let places = findings.map { finding in
-            "\((finding["path"] as? String ?? "").replacingOccurrences(of: root.path + "/", with: "")):\(finding["line"] ?? 0)"
-        }
         #expect(
-            findings.isEmpty,
-            "\(findings.count) new clones: \(places.prefix(6)); merge them, they are code that says one thing"
+            findings.count <= Self.remaining,
+            "\(findings.count) clones, \(Self.remaining) allowed: merge the new one (dolly analyze Sources)"
         )
+        if findings.count < Self.remaining {
+            print("fewer clones than allowed (\(findings.count)): lower `remaining` to it")
+        }
     }
 }

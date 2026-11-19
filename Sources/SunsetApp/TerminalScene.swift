@@ -45,7 +45,7 @@ struct TerminalScene: View {
     var presentation: TabPresentation {
         configuration.presentation
     }
-    private var noDecorations: Bool {
+    var noDecorations: Bool {
         configuration.window.decorations == .none
     }
     private var barAtTop: Bool {
@@ -138,6 +138,7 @@ struct TerminalScene: View {
         .environment(\.savedPicture, savedPicture)
         .environment(\.barBlur, configuredBarBlur)
         .environment(\.fadesEnds, configuration.appearance.ends == .fade)
+        .environment(\.siteTint, configuration.tabs.siteColor.tintMode)
         .accent(
             configuration.appearance.accent.rawValue,
             tint: configuration.appearance.tintColor,
@@ -234,17 +235,5 @@ struct TerminalScene: View {
         )
         .padding(.leading, noDecorations && barAtTop ? tabBarLightsClearance : 0)
         .background { windowDragSurface }
-    }
-
-    /// A transparent strip of a fixed height that drags the window (`WindowDragGesture`).
-    @ViewBuilder private func dragHandle(height: Double) -> some View {
-        if noDecorations, height > 0 {
-            windowDragSurface.frame(height: height)
-        }
-    }
-
-    /// A transparent surface that drags the window from any non-interactive area above it.
-    var windowDragSurface: some View {
-        Color.clear.contentShape(.rect).gesture(WindowDragGesture())
     }
 }

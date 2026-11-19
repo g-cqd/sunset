@@ -57,6 +57,7 @@ struct SidebarRow: View {
     @State var typed: String?
     @Environment(\.controlActiveState) private var activeState
     @Environment(\.accent) private var accent
+    @Environment(\.siteTint) private var siteTint
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
@@ -160,6 +161,14 @@ struct SidebarRow: View {
             case .markedShown:
                 return accent.color.opacity(hovering ? Design.Fill.markedShownHover : Design.Fill.markedShown)
             case .shown, .none: break
+        }
+        if let tint = RowFill.siteTint(
+            siteTint,
+            selected: selected,
+            hovering: hovering || keepCloseVisible,
+            color: model?.siteColor
+        ) {
+            return tint.color
         }
         let fill = RowFill.opacity(
             selected: selected,

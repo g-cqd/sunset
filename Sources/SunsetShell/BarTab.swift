@@ -13,6 +13,8 @@ struct BarTab<Icon: View, Label: View>: View {
     @ViewBuilder let icon: Icon
     @ViewBuilder let label: Label
     var lines = 1
+    /// The colour of what the tab shows, for a tab coloured by its site (the owner's note n56).
+    var siteColor: [UInt8]?
     /// A pinned tab of the row of capsules: its icon only, in a circle (its name is its help).
     @Environment(\.tabIconOnly) private var iconOnly
     var onHover: (Bool) -> Void = { _ in }
@@ -21,6 +23,7 @@ struct BarTab<Icon: View, Label: View>: View {
     @Environment(\.surfaceStyle) private var surface
     @Environment(\.controlActiveState) private var activeState
     @Environment(\.tabCapsules) private var capsules
+    @Environment(\.siteTint) private var siteTint
 
     var body: some View {
         let layout = surface.layout
@@ -74,6 +77,9 @@ struct BarTab<Icon: View, Label: View>: View {
 
     private var fill: Color {
         if armed { return .red.opacity(RowFill.armed(hovering: hovering)) }
+        if let tint = RowFill.siteTint(siteTint, selected: selected, hovering: hovering, color: siteColor) {
+            return tint.color
+        }
         // A bar's tab is always open in its window; in capsules, at rest, a field's fill.
         if !selected, !hovering, capsules { return .primary.opacity(Design.Fill.field) }
         return .primary.opacity(

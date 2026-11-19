@@ -53,7 +53,8 @@ extension BuiltInTabBar {
                 )
             },
             label: { label(model: model, name: entry.title) },
-            lines: lines
+            lines: lines,
+            siteColor: model?.siteColor
         )
         .help(capsules ? entry.title ?? "" : "")
         .onTapGesture { tabs.select(entry: entry.id) }
@@ -70,6 +71,7 @@ extension BuiltInTabBar {
             icon: { TabIcon(model: model, icon: custom.icon, showsProgress: settings.showProgress) },
             label: { label(model: model, name: custom.name) },
             lines: lines,
+            siteColor: model?.siteColor,
             onHover: { inside in hover(item.id, inside) }
         )
         .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frames[item.id] = $0 }

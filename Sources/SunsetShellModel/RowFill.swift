@@ -24,3 +24,33 @@ package enum RowFill {
         return over ? Design.Fill.selected : 0
     }
 }
+
+extension RowFill {
+    /// Which tabs take their site's colour (the owner's note n56; `tabs.siteColor`).
+    package enum SiteTintMode: Hashable, Sendable {
+        case off, selected, every
+    }
+
+    /// A fill in the site's colour: its sRGB bytes, and how strongly.
+    package struct SiteTint: Equatable, Sendable {
+        package let rgb: [UInt8]
+        package let opacity: Double
+    }
+
+    /// A tab at rest, under the pointer, and selected, in its site's colour (the selected one stands out the most).
+    package static let siteResting = 0.12
+    package static let siteHover = 0.2
+    package static let siteSelected = 0.32
+
+    /// The tab's fill in its site's colour; nil where it keeps the grey ones: off, no colour, or (selected only) not selected.
+    package static func siteTint(_ mode: SiteTintMode, selected: Bool, hovering: Bool, color: [UInt8]?) -> SiteTint? {
+        guard let color, color.count >= 3 else { return nil }
+        let opacity: Double? =
+            switch mode {
+                case .off: nil
+                case .selected: selected ? siteSelected : nil
+                case .every: selected ? siteSelected : hovering ? siteHover : siteResting
+            }
+        return opacity.map { SiteTint(rgb: Array(color.prefix(3)), opacity: $0) }
+    }
+}

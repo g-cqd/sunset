@@ -28,13 +28,8 @@ struct FolderRow: View {
             // (docs/design/folds-and-menus.md, the owner's note n45).
             if hovering, tabs.renamingRow != .node(folder.id) {
                 disclosure
-            } else if let icon = folder.icon, PaneIconView.canShow(icon) {
-                PaneIconView(icon: icon).opacity(folder.isCollapsed ? Design.Fill.collapsedIcon : 1)
             } else {
-                Image(systemName: folder.isCollapsed ? "folder" : "folder.fill")
-                    .font(.system(size: Design.Symbol.row))
-                    .foregroundStyle(.secondary)
-                    .frame(width: Design.Size.glyphFrame)
+                FolderGlyph(folder: folder, open: !folder.isCollapsed)
             }
             if tabs.renamingRow == .node(folder.id) {
                 InPlaceNameField(text: $name, commit: commit) { tabs.renamingRow = nil }.inPlaceField()

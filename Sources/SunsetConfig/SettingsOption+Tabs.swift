@@ -62,6 +62,17 @@ extension SettingsOption {
 
     static let labels: [Self] =
         [
+            choice(
+                "tabs.siteColor",
+                "Color tabs by their site",
+                "tab colour color site theme icon tint accent favicon",
+                \.tabs.siteColor,
+                [(.off, "Off"), (.selected, "Selected tab"), (.every, "Every tab")]
+            )
+            .noted(
+                "From the site's own theme color, else its icon's, when it stands out. Every tab: faint, the selected one more."
+            )
+            .grouped("Color"),
             toggle("tabs.bar.icon", "Show the folder or command icon", "tab glyph letter picture", \.tabs.bar.showIcon),
             toggle("tabs.bar.title", "Show the title", "tab name", \.tabs.bar.showTitle),
             toggle(

@@ -25,6 +25,8 @@ package import SunsetPane
     var closeWarning: String? { get }
     /// It captures the camera, microphone or screen (a web page, step g): a dot on its tab, of this colour.
     var captureMark: PaneCaptureMark? { get }
+    /// The colour of what the pane shows (a site's theme or icon colour), for a tab coloured by it; nil: none.
+    var siteColor: [UInt8]? { get }
     /// It plays sound, or is muted (a web page): a speaker on its tab; nil for silence.
     var sound: PaneSound? { get }
     /// Mutes it, or lets it be heard again.
@@ -73,6 +75,10 @@ extension PaneContent {
     }
     package func type(command: String) {}
     package var captureMark: PaneCaptureMark? {
+        nil
+    }
+
+    package var siteColor: [UInt8]? {
         nil
     }
     package var sound: PaneSound? {

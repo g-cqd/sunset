@@ -32,7 +32,7 @@ package struct FolderPreviewCard: View {
         let shape = RoundedRectangle(cornerRadius: Design.Radius.small(layout) + Design.Space.s, style: .continuous)
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: GlyphSpacing.toText) {
-                Image(systemName: "folder").foregroundStyle(.secondary).frame(width: Design.Size.glyphFrame)
+                FolderGlyph(folder: folder, open: !folder.isCollapsed)
                 Text(folder.name).font(Design.Text.title).lineLimit(1)
             }
             .frame(height: Self.header, alignment: .leading)

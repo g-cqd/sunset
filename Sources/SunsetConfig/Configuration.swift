@@ -150,6 +150,8 @@ public struct Configuration: Sendable, Equatable {
         }
 
         public var mode = Mode.native
+        /// A tab coloured by its site (the owner's note n56).
+        public var siteColor = SiteColor.off
         public var bar = Bar()
         /// The tabs of each window (their splits and the directory of each) come back at the next launch, as new shells there (programs cannot be saved).
         public var restore = true

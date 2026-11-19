@@ -7,10 +7,12 @@ extension Design.Accent {
     package static let minimumChroma = 0.2
 
     package static func site(theme: [UInt8]?, icon: [UInt8]?) -> Self? {
-        for rgb in [theme, icon].compactMap(\.self) where stands(rgb) {
-            return .color(red: rgb[0], green: rgb[1], blue: rgb[2])
-        }
-        return nil
+        siteColor(theme: theme, icon: icon).map { .color(red: $0[0], green: $0[1], blue: $0[2]) }
+    }
+
+    /// The site's colour as sRGB bytes: its theme colour, else its icon's, the first that stands out.
+    package static func siteColor(theme: [UInt8]?, icon: [UInt8]?) -> [UInt8]? {
+        [theme, icon].compactMap(\.self).first(where: stands)
     }
 
     package static func stands(_ rgb: [UInt8]) -> Bool {
