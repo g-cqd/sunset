@@ -21,10 +21,10 @@ settings:
     CURRENT_PROJECT_VERSION: 0
     GENERATE_INFOPLIST_FILE: YES
     # Hardened (task t49: notarisation requires it): it constrains Sunset's own process only, not what the terminal runs; a page's
-    # camera, microphone and location are App/Sunset.entitlements's. Nothing is loaded at run time and only the system's
-    # libraries are linked, so library validation refuses nothing.
+    # camera, microphone and location are entitlements (Signing.xcconfig names the file, so that Signing.local.xcconfig may
+    # name the team's). Nothing is loaded at run time and only the system's libraries are linked, so library validation
+    # refuses nothing.
     ENABLE_HARDENED_RUNTIME: YES
-    CODE_SIGN_ENTITLEMENTS: App/Sunset.entitlements
   configs:
     Release:
       # No debugger's entitlement (get-task-allow) in the build that is installed.

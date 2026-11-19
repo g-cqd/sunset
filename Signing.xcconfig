@@ -5,4 +5,6 @@
 //   DEVELOPMENT_TEAM = <your team id>
 CODE_SIGN_STYLE = Manual
 CODE_SIGN_IDENTITY = -
+// What a page may use under the hardened runtime, needing no profile; Signing.local.xcconfig may name the team's file instead.
+CODE_SIGN_ENTITLEMENTS = App/Sunset.entitlements
 #include? "Signing.local.xcconfig"

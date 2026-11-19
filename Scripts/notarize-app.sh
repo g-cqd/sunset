@@ -10,12 +10,16 @@ cd "$(dirname "$0")/.."
 app="${1:-.build/app-release/Sunset.app}"
 profile="${SUNSET_NOTARY_PROFILE:-sunset-notary}"
 [ -x "$app/Contents/MacOS/Sunset" ] || { echo "notarize: no app at $app" >&2; exit 1; }
-authority="$(codesign -dvv "$app" 2>&1 | sed -n 's/^Authority=//p' | sed -n 1p)"
+details="$(codesign -dvv "$app" 2>&1 || true)"
+authority="$(printf '%s\n' "$details" | sed -n 's/^Authority=//p' | sed -n 1p)"
 case "$authority" in
     "Developer ID Application:"*) ;;
     *) echo "notarize: $app is not signed with a Developer ID (${authority:-ad hoc}); see Signing.xcconfig" >&2; exit 1 ;;
 esac
-codesign -dvv "$app" 2>&1 | grep -q "flags=.*runtime" || { echo "notarize: not hardened" >&2; exit 1; }
+case "$details" in
+    *"flags="*"(runtime)"* | *"flags="*",runtime"*) ;;
+    *) echo "notarize: $app is not hardened" >&2; exit 1 ;;
+esac
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT

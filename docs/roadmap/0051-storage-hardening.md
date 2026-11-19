@@ -18,7 +18,7 @@ there to bring soon"; then C–F, then 0050.
 | C | Less in clear: times and counts inside the sealed payload, or coarse; opaque ids for kinds; row keys by HMAC with a key of their own; a migration that reseals | t48 | not-started |
 | D | The recovery code: what it is (random, or typed); a memory-hard KDF (Argon2id, our own, in an Aemi package) if it can be typed | t48 | not-started |
 | E | Exports: sealed by default, or opt-in with a warning | t48 | not-started |
-| F | Signing: Developer ID, hardened runtime, library validation; a Secure Enclave key wrapping the storage key | t49 | not-started (needs the owner's certificate) |
+| F | Signing: Developer ID, hardened runtime, library validation; a Secure Enclave key wrapping the storage key | t49 | Developer ID, hardened runtime, notarisation done 2026-11-19 (diary 2026-11-19-10); the data-protection keychain item and the Secure Enclave wrap not started |
 
 The extended audit (note n23; docs/research/storage-audit-webkit-data-2026-11-18.md, every real datum removed, n24): WebKit's own
 stores beside Sunset's (network cache, website data, cookies, HSTS, resource load statistics, alternative services) are in the
