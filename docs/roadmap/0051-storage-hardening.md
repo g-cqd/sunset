@@ -31,5 +31,7 @@ clear and hold more than the sealed store. Added, and first among C–J once the
 | I | Probe whether WebKit's stores can be sealed at all (a data store at a custom location on an encrypted volume or a sealed disk image, mounted with the Keychain's key; `WKWebsiteDataStore(forIdentifier:)`'s location); the own engine (0048) as the other way | t51 | not-started |
 | J | A development build's data (`.dev`) under the same rules | t50 | done for G (the running bundle's id); not run as `.dev` |
 
+Re-studied 2026-11-19 (docs/research/security-realism-2026-11-19.md, roadmap 0100, ADR-0100 proposed): C kept as "storage format 2"; D moot (the recovery code is a random 256-bit key: no KDF); E split (exports 0600 with a warning; a sealed backup of everything); F the gate of Apple's side; I's image not worth building (FileVault on; open while Sunset runs), the cookie jar sealed at quit and caches out of backups instead. Awaiting the owner.
+
 Each step: red first (a test reading the modes, the WAL, the clear columns), the cost measured where it touches the hot path
 (history writes, launch).

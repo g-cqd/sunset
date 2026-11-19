@@ -30,4 +30,6 @@ The order proposed (the owner reorders):
 | 8 | 0098 Apple's side: passkeys, credential provider, Credential Exchange, iCloud | t49 (a team's signing), Apple's grant |
 | 9 | 0099 Payments and the web's credential APIs | the screen with the owner; maybe t49 |
 
+Since: the whole security scope is staged in docs/design/0007 (roadmap 0100), credentials as its S3–S6.
+
 Not done: C; nothing is built.
