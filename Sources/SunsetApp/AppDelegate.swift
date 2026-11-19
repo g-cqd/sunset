@@ -23,6 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             AppBlocking.start()
             SystemAuthorizations.shared.start()
             AppConfiguration.shared.applyScheme()
+            AppConfiguration.shared.applyIcon()
         }
     }
 

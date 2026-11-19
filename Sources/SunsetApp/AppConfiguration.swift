@@ -19,6 +19,7 @@ final class AppConfiguration {
     private(set) var configuration = Configuration() {
         didSet {
             if configuration.appearance.scheme != oldValue.appearance.scheme { applyScheme() }
+            if configuration.appearance.icon != oldValue.appearance.icon { applyIcon() }
             Feedback.taps = configuration.appearance.haptics
             WebShare.otherProfiles = configuration.web.shareOtherProfiles
             refreshShown()
@@ -43,6 +44,13 @@ final class AppConfiguration {
             }
         }
         refreshShown()
+    }
+
+    /// `appearance.icon` on the Dock tile and in the app switcher (roadmap 0084 F): an alternate from the asset catalog, or the
+    /// bundle's own (`nil`) for Sunset, so that the system's light, dark and tinted forms of it stay.
+    func applyIcon() {
+        let icon = configuration.appearance.icon
+        NSApp?.applicationIconImage = icon == .sunset ? nil : NSImage(named: icon.assetName)
     }
 
     /// A colour is dark (by its luma); none counts as dark (the terminal's default is black).

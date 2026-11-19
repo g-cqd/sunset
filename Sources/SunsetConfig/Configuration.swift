@@ -115,6 +115,8 @@ public struct Configuration: Sendable, Equatable {
         /// blur that fades out (AemiSDR's variable blur), the surface the bar draws itself, or nothing (Sunset research/blur).
         public var barBlur = BarBlur.variable
         public var ends = Ends.fade
+        /// The app's icon in the Dock and the app switcher while Sunset runs (roadmap 0084 F).
+        public var icon = Icon.sunset
         /// The bars' fill and controls (`BarTint`); `scheme` follows the colour scheme (owner, 2026-11-13).
         public var barTint = BarTint.scheme
         public init() {}

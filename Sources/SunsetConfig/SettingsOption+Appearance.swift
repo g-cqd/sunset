@@ -22,6 +22,16 @@ extension SettingsOption {
                 [(.dark, "Dark"), (.light, "Light"), (.system, "Follow the system")]
             )
             .noted("For the whole app. Light has its own tint; a dark terminal theme stays dark and opaque in it."),
+            choice(
+                "appearance.icon",
+                "App icon",
+                "icon dock app sky sunset twilight dawn dusk alternate",
+                \.appearance.icon,
+                [(.sunset, "Sunset"), (.twilight, "Twilight"), (.dawn, "Dawn"), (.dusk, "Dusk")]
+            )
+            .noted(
+                "In the Dock and the app switcher while Sunset runs; Finder and a Dock kept icon show Sunset's own when it is not running."
+            ),
             color("colors.foreground", "Foreground", "text color colour theme", \.colors.foreground, [229, 229, 229]),
             color("colors.background", "Background", "color colour theme", \.colors.background, [0, 0, 0]),
             custom("colors.ansi", "ANSI colors", "palette 16 red green blue terminal colors kitty", .ansiPalette)

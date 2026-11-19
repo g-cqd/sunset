@@ -60,6 +60,10 @@ extension Reader {
                     if let ends = choice("appearance.ends", value, as: Configuration.Appearance.Ends.self) {
                         configuration.appearance.ends = ends
                     }
+                case "icon":
+                    if let icon = choice("appearance.icon", value, as: Configuration.Appearance.Icon.self) {
+                        configuration.appearance.icon = icon
+                    }
                 case "haptics":
                     if let flag = bool("appearance.haptics", value) { configuration.appearance.haptics = flag }
                 case "barTint":
