@@ -55,7 +55,6 @@ package final class WebContent: PaneContent, PaneViewMaking {
     /// Sharing (ADR-0082): a tab asked for (the sheet shows it), the tab shared into this page, the calls it is shared into.
     package internal(set) var shareRequest: ShareRequest?
     package internal(set) var share: ShareSession?
-    package var sharedInto = 0
     package internal(set) var reloadedAs: OtherProfile?  // Reload as (roadmap 0050 D), and its Space's:
     @ObservationIgnored var homeProfile: OtherProfile?
     @ObservationIgnored var shareWrapper: ShareWrapper?

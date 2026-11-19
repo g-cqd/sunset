@@ -105,15 +105,18 @@ struct TerminalScene: View {
             .overlay(alignment: sidebarSide.alignment) { resizeHandle }
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
             .overlay(alignment: sidebarSide.alignment) { floatingSidebar }
-            // The built-in bar floats over the page at its edge, which keeps the whole height (roadmap 0055).
+            // The built-in bar floats over the page at its edge, which keeps the whole height; or, shown always on a toolbar,
+            // it takes a band of its own and the page starts past it (roadmap 0055 C).
             .overlay {
-                if presentation.showsBuiltInBar {
-                    FloatingEdgeBar(
-                        atTop: configuration.tabs.bar.position == .top,
-                        hides: configuration.tabs.bar.autoHide,
-                        typing: tabBarTyping
-                    ) { tabBar }
+                if presentation.showsBuiltInBar, case .over(let hides) = BarPlacement(configuration.tabs.bar) {
+                    FloatingEdgeBar(atTop: configuration.tabs.bar.position == .top, hides: hides, typing: tabBarTyping)
+                    {
+                        tabBar
+                    }
                 }
+            }
+            .safeAreaInset(edge: configuration.tabs.bar.position == .top ? .top : .bottom, spacing: 0) {
+                if presentation.showsBuiltInBar, BarPlacement(configuration.tabs.bar) == .toolbar { toolbarBar }
             }
             .overlay {
                 PanePreviews(
@@ -225,7 +228,7 @@ struct TerminalScene: View {
         }
     }
 
-    private var tabBar: some View {
+    var tabBar: some View {
         BuiltInTabBar(
             tabs: tabs,
             settings: ShellSettings(configuration).tabs.bar,

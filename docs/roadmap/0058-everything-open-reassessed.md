@@ -14,11 +14,11 @@ again. Supersedes the staging of roadmap 0056. Stages in order; within a stage, 
 | # | What | From |
 |---|---|---|
 | 1.1 | The crash while a menu was open: watch for it again on the new build; if it recurs, a symbolicated report | n46, t76 |
-| 1.2 | Share a tab: a page never loaded is listed by its address (its saved title instead); a shared terminal or document has no mark on its tab | 0057 |
-| 1.3 | Profiles: the Websites page's list of answers per profile; elements hidden per profile (one compiled list per profile) | 0050 E |
-| 1.4 | The floating bar's native-toolbar form (when kept shown) | 0055 C |
-| 1.5 | One flaky test (`WebNotificationsTests`, close reaching Sunset, timing) | diary |
-| 1.6 | The cookie jar is rewritten 0644 by WebKit at quit (kept only by its folder's 0700): set again after WebKit has written | 0051 G |
+| 1.2 | Share a tab: a page never loaded is listed by its address (its saved title instead); a shared terminal or document has no mark on its tab | 0057 — done (diary 2026-11-19-04) |
+| 1.3 | Profiles: the Websites page's list of answers per profile; elements hidden per profile (one compiled list per profile) | 0050 E — done |
+| 1.4 | The floating bar's native-toolbar form (when kept shown) | 0055 C — done, not seen |
+| 1.5 | One flaky test (`WebNotificationsTests`, close reaching Sunset, timing) | diary — done |
+| 1.6 | The cookie jar is rewritten 0644 by WebKit at quit (kept only by its folder's 0700): set again after WebKit has written | 0051 G — done, not checked in Sunset |
 
 ## Stage 2 — security and storage (0051), with the measurements asked
 

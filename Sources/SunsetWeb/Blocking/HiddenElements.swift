@@ -1,3 +1,5 @@
+package import Foundation
+
 /// The elements hidden for good on each site (roadmap 0022 W-e), as CSS selectors, kept per site (`SiteRules`): for the site
 /// and its subdomains, whatever blocking says.
 @MainActor
@@ -14,22 +16,23 @@ package enum HiddenElements {
 }
 
 extension SiteRules where Value == [String] {
-    /// The selectors hidden on `host`: its own, or its nearest parent site's.
-    package func selectors(for host: String?) -> [String] {
-        value(for: host) ?? []
+    /// The selectors hidden on `host` for a page of `profile`: its own, else all profiles' (roadmap 0050 E); nil: all
+    /// profiles'. A site's own, or its nearest parent site's.
+    package func selectors(for host: String?, profile: UUID? = nil) -> [String] {
+        value(for: host, profile: profile) ?? []
     }
 
-    /// Hides one more element on the site; once.
-    package func add(_ selector: String, for host: String?) {
-        var all = rule(for: host) ?? []
+    /// Hides one more element on the site, for `profile` (nil: all profiles); once.
+    package func add(_ selector: String, for host: String?, profile: UUID? = nil) {
+        var all = rule(for: host, profile: profile) ?? []
         guard !all.contains(selector) else { return }
         all.append(selector)
-        set(all, for: host)
+        set(all, for: host, profile: profile)
     }
 
     /// Shows an element again; the site's rule goes with its last selector.
-    package func remove(_ selector: String, for host: String?) {
-        let all = (rule(for: host) ?? []).filter { $0 != selector }
-        set(all.isEmpty ? nil : all, for: host)
+    package func remove(_ selector: String, for host: String?, profile: UUID? = nil) {
+        let all = (rule(for: host, profile: profile) ?? []).filter { $0 != selector }
+        set(all.isEmpty ? nil : all, for: host, profile: profile)
     }
 }

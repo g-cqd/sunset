@@ -46,7 +46,8 @@ package final class ContentBlocker {
     @ObservationIgnored package let pauses: BlockingPauses
     /// The elements hidden for good, per site (W-e): on their sites whatever blocking says.
     @ObservationIgnored package let hidden: SiteRules<[String]>
-    @ObservationIgnored private var hiddenList: WKContentRuleList?
+    /// The elements hidden for good, compiled: all profiles' (nil), and each profile with its own's (roadmap 0050 E).
+    @ObservationIgnored private var hiddenLists: [UUID?: WKContentRuleList] = [:]
     /// Where the lists and their compiled rules are kept.
     @ObservationIgnored package var folder: URL
     @ObservationIgnored private(set) var compiled: [WKContentRuleList] = []
@@ -92,7 +93,7 @@ package final class ContentBlocker {
         }
         let controller = view.configuration.userContentController
         controller.removeAllContentRuleLists()
-        if let hiddenList { controller.add(hiddenList) }
+        if let hidden = hiddenLists[profile] ?? hiddenLists[nil] { controller.add(hidden) }
         guard enabled, blocks, !pauses.isPaused(host, profile: profile) else { return }
         for list in compiled { controller.add(list) }
     }
@@ -109,21 +110,35 @@ package final class ContentBlocker {
     package func compileHidden() async {
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         guard let store = WKContentRuleListStore(url: folder) else { return }
-        let rules = hidden.rules.map { site in
-            BlockingRules.Rule(
-                trigger: .init(urlFilter: ".*", ifDomain: ["*" + site.host]),
-                action: .init(type: "css-display-none", selector: site.value.joined(separator: ", "))
-            )
-        }
-        if rules.isEmpty {
-            hiddenList = nil
-        } else if let json = try? BlockingRules.json(rules) {
-            hiddenList = try? await store.compileContentRuleList(
-                forIdentifier: "hidden",
+        var lists: [UUID?: WKContentRuleList] = [:]
+        for profile in [nil] + hidden.profilesWithOwn.map(Optional.some) {
+            let rules = Self.hiddenSites(hidden, profile: profile)
+                .map { site in
+                    BlockingRules.Rule(
+                        trigger: .init(urlFilter: ".*", ifDomain: ["*" + site.host]),
+                        action: .init(type: "css-display-none", selector: site.selectors.joined(separator: ", "))
+                    )
+                }
+            guard !rules.isEmpty, let json = try? BlockingRules.json(rules) else { continue }
+            lists[profile] = try? await store.compileContentRuleList(
+                forIdentifier: "hidden" + (profile.map { "-" + $0.uuidString } ?? ""),
                 encodedContentRuleList: String(decoding: json, as: UTF8.self)
             )
         }
+        hiddenLists = lists
         reapplyAll()
+    }
+
+    /// The sites with elements hidden for a page of `profile`: its own for a site, else all profiles' (nil: all profiles').
+    package static func hiddenSites(_ hidden: SiteRules<[String]>, profile: UUID?) -> [(
+        host: String, selectors: [String]
+    )] {
+        var sites: [String: [String]] = [:]
+        for rule in hidden.rules { sites[rule.host] = rule.value }
+        if let profile {
+            for rule in hidden.rules(profile: profile) { sites[rule.host] = rule.value }
+        }
+        return sites.sorted { $0.key < $1.key }.map { ($0.key, $0.value) }
     }
 
     /// Converts and compiles the lists, then puts them on every page. A list that does not compile is said in its state

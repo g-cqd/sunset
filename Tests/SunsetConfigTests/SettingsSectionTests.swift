@@ -58,8 +58,8 @@ import Testing
     @Test func `where the tabs are is one topic; what was found by search is under its section and topic`() {
         #expect(
             options("tabs.placement") == [
-                "tabs.mode", "tabs.bar.position", "tabs.bar.autoHide", "sidebar.enabled", "sidebar.side",
-                "sidebar.autoHide", "sidebar.width"
+                "tabs.mode", "tabs.bar.position", "tabs.bar.autoHide", "tabs.bar.backing", "sidebar.enabled",
+                "sidebar.side", "sidebar.autoHide", "sidebar.width"
             ]
         )
         #expect(SettingsSection.topic("tabs.placement")?.section.title == "Tabs and sidebar")

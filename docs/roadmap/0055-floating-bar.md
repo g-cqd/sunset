@@ -16,7 +16,7 @@ before. The page's own address row ("At the top of every page") stays, floating 
 |---|---|---|
 | A | The built-in bar over the page, not above it: the page full height (`FloatingEdgeBar`), the area keeping the window's corners | done |
 | B | Hidden until the pointer reaches the edge (a 6 pt strip), gone 0.4 s after it leaves, out while its address is typed in (`EdgeReveal`); `tabs.bar.autoHide` (on) | done; the reveal not seen (a hover cannot be given) |
-| C | Shown always: the bar's tint fading into the page over the fading blur, its controls in the tint's scheme | done (seen); a native toolbar instead: not done |
+| C | Shown always: the bar's tint fading into the page over the fading blur, its controls in the tint's scheme; or a native toolbar (`tabs.bar.backing`) | done; the toolbar not seen |
 | D | The page's own address row floats over its top (below the window's strip), revealed there or when asked for (Open Address), the page from the top | done |
 
-Not done: C's native toolbar; the window bar (address in its own bar, `web.address` window with tabs not built in) already floated and hid before this.
+Not done: C's toolbar seen on screen; the window bar (address in its own bar, `web.address` window with tabs not built in) already floated and hid before this.

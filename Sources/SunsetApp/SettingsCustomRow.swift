@@ -39,7 +39,7 @@ struct SettingsCustomRow: View {
                     SettingsLabel(option.title)
                 }
             case .engines: EngineList(engines: config.binding(\.web.engines))
-            case .websites: WebsitesSettings(defaults: config.binding(\.web.permissions))
+            case .websites: WebsitesSettings(defaults: config.binding(\.web.permissions), profile: config.profileID)
             case .siteAgents: SiteAgentsSettings(agent: config.binding(\.web.agent))
             case .profiles: ProfilesSettings(note: option.note)
             case .proxyCheck: ProxyCheckRow(address: config.configuration.web.proxy, title: option.title)

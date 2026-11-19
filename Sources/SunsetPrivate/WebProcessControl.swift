@@ -28,4 +28,17 @@ public enum WebProcessControl {
         call(webView, selector)
         return true
     }
+
+    /// Has WebKit write a store's cookies to disk now (`_flushCookiesToDiskWithCompletionHandler:`), so that nothing is left
+    /// to write after Sunset has gone (roadmap 0051 G: the jar was rewritten readable by every account at teardown).
+    /// Returns at once where WebKit no longer has it.
+    public static func flushCookies(_ cookieStore: NSObject) async {
+        let selector = NSSelectorFromString(#Interned("_flushCookiesToDiskWithCompletionHandler:"))
+        guard cookieStore.responds(to: selector) else { return }
+        typealias Flush = @convention(c) (AnyObject, Selector, @escaping @convention(block) () -> Void) -> Void
+        let call = unsafe unsafeBitCast(cookieStore.method(for: selector), to: Flush.self)
+        await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
+            call(cookieStore, selector) { done.resume() }
+        }
+    }
 }

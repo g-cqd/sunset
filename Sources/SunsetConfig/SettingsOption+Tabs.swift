@@ -36,6 +36,16 @@ extension SettingsOption {
             .grouped("Tabs")
             .shown { $0.tabs.mode == .internal }
             .noted("The bar floats over the page, which keeps the whole height. Shown, the page fades under it."),
+            choice(
+                "tabs.bar.backing",
+                "Under the bar",
+                "toolbar native fade blur page background under bar",
+                \.tabs.bar.backing,
+                [(.fade, "Page, fading"), (.toolbar, "Toolbar")]
+            )
+            .grouped("Tabs")
+            .shown { $0.tabs.mode == .internal && !$0.tabs.bar.autoHide }
+            .noted("Toolbar: the system's own bar, the page starting below it."),
             toggle("sidebar.enabled", "Show the sidebar", "tabs vertical list", \.sidebar.enabled)
                 .noted("The sidebar lists the tabs. It needs tabs set to Native (the built-in bar replaces it).")
                 .grouped("Sidebar"),

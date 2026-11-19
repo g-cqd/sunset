@@ -74,7 +74,7 @@ package enum SiteSummary {
             case .agent: stores.agents.set(nil, for: pattern, profile: profile)
             case .blocking: stores.pauses.set(false, for: host, profile: profile)
             case .zoom: stores.zoom.set(1, for: host, remember: stores.zoom.remembers, profile: profile)
-            case .hidden: stores.hidden.set(nil, for: pattern)
+            case .hidden: stores.hidden.set(nil, for: pattern, profile: profile)
             case .space: stores.spaces.set(nil, for: pattern, profile: profile)
             case .kept: stores.kept.set(false, for: pattern, profile: profile)
         }
@@ -99,7 +99,7 @@ package enum SiteSummary {
         for (host, level) in stores.zoom.sites(profile: profile) {
             parts[host, default: []].append((.zoom, "zoom \(Int((level * 100).rounded())) %"))
         }
-        for (host, selectors) in profile == nil ? stores.hidden.rules : [] {
+        for (host, selectors) in stores.hidden.rules(profile: profile) {
             let count = selectors.count
             parts[host, default: []].append((.hidden, count == 1 ? "1 element hidden" : "\(count) elements hidden"))
         }

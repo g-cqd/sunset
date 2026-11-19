@@ -74,8 +74,9 @@ extension PaneContent {
         []
     }
     package func type(command: String) {}
+    /// Shared into a call, whatever its kind (`SharedPanes`); a content that captures overrides it.
     package var captureMark: PaneCaptureMark? {
-        nil
+        SharedPanes.shared.mark(self)
     }
 
     package var siteColor: [UInt8]? {

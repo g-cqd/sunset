@@ -56,3 +56,14 @@ extension HistoryStore {
         }
     }
 }
+
+extension HistoryStore {
+    /// The title `url` was last seen with; nil when it was never seen, or seen with none (a page not loaded in this run
+    /// is named by it: roadmap 0057).
+    package func title(of url: String) -> String? {
+        guard let page = byAddress[url], !page.gone, !page.entry.title.isEmpty else {
+            return nil
+        }
+        return page.entry.title
+    }
+}

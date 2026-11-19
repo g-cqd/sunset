@@ -64,6 +64,13 @@ extension ShellSettings {
         package var showProgress = true
         /// Hidden over the page until the pointer reaches its edge (roadmap 0055).
         package var autoHide = true
+        /// Under it while shown always: the page fading, or a toolbar (roadmap 0055 C).
+        package var backing = Backing.fade
+
+        /// What is under the bar while it is shown always.
+        package enum Backing: Equatable, Sendable {
+            case fade, toolbar
+        }
 
         package init() {}
     }

@@ -54,7 +54,7 @@ import WebKit
                     }
                     return ShareSource(
                         id: pane,
-                        title: content.title,
+                        title: shownTitle(content),
                         space: space.space.name,
                         profile: space.space.profile,
                         host: host,
@@ -62,6 +62,17 @@ import WebKit
                     )
                 }
         }
+    }
+
+    /// A page with no title of its own in this run (never loaded) is named by the title its address was last seen with,
+    /// not by its host (roadmap 0057).
+    private static func shownTitle(_ content: any PaneContent) -> String {
+        if let page = content as? WebContent, page.pageTitle.isEmpty, let url = page.url,
+            let seen = AppHistory.shared?.title(of: url.absoluteString)
+        {
+            return seen
+        }
+        return content.title
     }
 
     private static let picker = ScreenPicker()
@@ -97,8 +108,14 @@ import WebKit
 
     static func feed(_ id: UUID) -> ShareFeed? {
         switch anyContent(id) {
-            case is TerminalModel, is DocumentContent:
-                return ShareFeed(frame: { await otherFrame(id) }, isOpen: { anyContent(id) != nil }, host: { nil })
+            case let other? where other is TerminalModel || other is DocumentContent:
+                // Its tab marked while shared, as a page's is (roadmap 0057).
+                return ShareFeed(
+                    frame: { await otherFrame(id) },
+                    isOpen: { anyContent(id) != nil },
+                    host: { nil },
+                    shared: { on in SharedPanes.shared.change(other, sharing: on) }
+                )
             default: break
         }
         guard let page = content(id) else { return nil }
@@ -107,7 +124,7 @@ import WebKit
             frame: { await frame(id) },
             isOpen: { content(id) != nil },
             host: { content(id)?.url?.host() },
-            shared: { on in if let page = content(id) { page.sharedInto = max(0, page.sharedInto + (on ? 1 : -1)) } },
+            shared: { on in if let page = content(id) { SharedPanes.shared.change(page, sharing: on) } },
             page: { content(id) }
         )
     }

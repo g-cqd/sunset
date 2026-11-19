@@ -2,6 +2,7 @@ import Foundation
 import SunsetAppCore
 import SunsetConfig
 import SunsetPane
+import SunsetPrivate
 import SunsetRuntime
 import SunsetShell
 import SunsetStorage
@@ -65,6 +66,10 @@ import WebKit
             let choosing = all.filter { $0.keep.siteData == .keepChosen }.map(\.store)
             if !choosing.isEmpty { await WebKeeping.seedKept(from: choosing, visited: visitedHosts()) }
             for (store, keep, profile) in all { await WebKeeping.clear(store, keep: keep, profile: profile) }
+            // Every cookie on disk now, then the jars made their owner's only: written at teardown instead, after Sunset
+            // has gone, they were readable by every account (roadmap 0051 G).
+            for (store, _, _) in all { await WebProcessControl.flushCookies(store.httpCookieStore) }
+            WebKitFolders.tightenOwn()
             done = true
         }
         // A deadline on the monotonic clock, not the wall clock (which may jump).

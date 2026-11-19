@@ -25,6 +25,7 @@ extension ShellSettings {
         tabs.bar.monospacedDirectory = configuration.tabs.bar.monospacedDirectory
         tabs.bar.showProgress = configuration.tabs.bar.showProgress
         tabs.bar.autoHide = configuration.tabs.bar.autoHide
+        tabs.bar.backing = configuration.tabs.bar.backing == .toolbar ? .toolbar : .fade
         layout = Layout(configuration.layout)
     }
 }

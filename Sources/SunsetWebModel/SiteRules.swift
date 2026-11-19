@@ -126,6 +126,11 @@ package final class SiteRules<Value: Sendable> {
         return host.flatMap { own[profile]?[SiteHost.key($0)] }
     }
 
+    /// The profiles that set a rule of their own.
+    package var profilesWithOwn: [UUID] {
+        own.filter { !$0.value.isEmpty }.keys.sorted { $0.uuidString < $1.uuidString }
+    }
+
     /// A profile's own rules (nil: all profiles').
     package func rules(profile: UUID?) -> [(host: String, value: Value)] {
         guard let profile else { return rules }
