@@ -29,6 +29,26 @@ struct AppBundleTests {
         #expect(tags["public.filename-extension"] as? [String] == ["mmd", "mermaid"])
     }
 
+    /// Roadmap 0084: the app's icon is the Icon Composer bundle `App/Sunset.icon` (light, dark, tinted), compiled by Xcode
+    /// into the asset catalog and into `Sunset.icns` for `CFBundleIconFile`; Twilight, Dawn and Dusk go in as alternates.
+    @Test func `the icon is Sunset.icon, with Twilight, Dawn and Dusk as alternates`() throws {
+        let project = try String(contentsOf: RepositoryFiles.root.appending(path: "project.yml"), encoding: .utf8)
+        #expect(project.contains("ASSETCATALOG_COMPILER_APPICON_NAME: Sunset"))
+        #expect(project.contains("ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: Twilight Dawn Dusk"))
+        #expect(try plist()["CFBundleIconFile"] as? String == "Sunset")
+        let files = FileManager.default
+        for name in ["Sunset", "Twilight", "Dawn", "Dusk"] {
+            let icon = RepositoryFiles.root.appending(path: "App/\(name).icon")
+            #expect(files.fileExists(atPath: icon.appending(path: "icon.json").path), "\(name).icon")
+            for suffix in ["", "-dark", "-tinted"] {
+                let image = icon.appending(path: "Assets/\(name.lowercased())\(suffix).png")
+                #expect(files.fileExists(atPath: image.path), "\(image.lastPathComponent)")
+            }
+        }
+        // The icns is made by Xcode from Sunset.icon: a hand-made one beside it would be a second file of the same name.
+        #expect(!files.fileExists(atPath: RepositoryFiles.root.appending(path: "App/Sunset.icns").path))
+    }
+
     /// t276: a debug build is another app to the Mac than the installed one (its own defaults, saved state, permissions and
     /// Open With entry), named so that the two are told apart.
     @Test func `a debug build has an identity and a name of its own`() throws {

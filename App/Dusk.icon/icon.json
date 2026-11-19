@@ -1,0 +1,53 @@
+{
+  "fill-specializations": [
+    {
+      "value": {
+        "solid": "srgb:0.677607,0.216682,0.184592,1.0"
+      }
+    },
+    {
+      "appearance": "dark",
+      "value": {
+        "solid": "srgb:0.505821,0.120481,0.0931691,1.0"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "layers": [
+        {
+          "name": "Sky",
+          "glass": false,
+          "image-name-specializations": [
+            {
+              "value": "dusk.png"
+            },
+            {
+              "appearance": "dark",
+              "value": "dusk-dark.png"
+            },
+            {
+              "appearance": "tinted",
+              "value": "dusk-tinted.png"
+            }
+          ]
+        }
+      ],
+      "specular": false,
+      "shadow": {
+        "kind": "none",
+        "opacity": 0
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": [
+      "iOS",
+      "macOS"
+    ]
+  }
+}
