@@ -253,6 +253,15 @@ let package = Package(
         // The web's policy (roadmap 0086 D): site rules, permissions, history, how sites see Sunset, search, downloads, what is
         // typed in the address field. No WebKit, no UI.
         module("SunsetWebModel", ["SunsetRuntime", "SunsetPane", "SunsetShellModel", "SunsetStorage"]),
+        // Data about sites (task t118): the Public Suffix List (MPL 2.0) and Apple's password-manager-resources (MIT), with
+        // their readers; nothing of Sunset's, so that it can move to Aemi as it is. Scripts/update-site-data.sh fetches them.
+        .target(
+            name: "SunsetSiteData",
+            path: "Sources/SunsetSiteData",
+            resources: [.copy("Resources")],
+            swiftSettings: strictSettings
+        ),
+        tests("SunsetSiteDataTests", ["SunsetSiteData"]),
         // The pages (WebKit) and what shows them; re-exports the web's model.
         module(
             "SunsetWeb",
