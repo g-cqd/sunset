@@ -1,3 +1,5 @@
+public import SunsetRuntime
+
 /// The documents that are open, for the whole app (R6; roadmap 0023 step M-b): asking for a place twice gives the same
 /// document, so every pane on a file shows one text. A document stays while a pane holds it; when the last lets go it is
 /// forgotten, unless it has edits nobody gave up (step M-d): what closes a pane asks first, a document of the store is kept
@@ -10,6 +12,8 @@ public final class OpenDocuments {
     public var autosave = DocumentAutosave()
     /// How their source looks (the settings).
     public let look = DocumentLook()
+    /// Where the documents' tasks run and the clock their saves wait on (ADR-0087): each document opened takes it.
+    public var runtime = Runtime.live
 
     /// - Parameter store: where stored documents are read and saved; nil when there is none in this run.
     public init(store: DocumentStore?) {
@@ -38,6 +42,7 @@ public final class OpenDocuments {
         switch place {
             case .file(let path):
                 document = OpenDocument(place: place, kind: DocumentKind(path: path), read: .read(path), store: nil)
+                document.runtime = runtime
                 document.startWatching()
             case .stored(let id):
                 let kind = store?.documents.first { $0.id == id }?.kind ?? .markdown
@@ -51,6 +56,7 @@ public final class OpenDocuments {
                 }
                 document = OpenDocument(place: place, kind: kind, read: read, store: store)
         }
+        document.runtime = runtime
         document.holders = 1
         document.owner = self
         document.watchEdits()

@@ -20,7 +20,7 @@ extension TabsModel {
             favorites: canDropOnFavoritesLine,
             panes: workspace.allPanes.contains { canDrop(onto: $0) }
         )
-        dragWatch = runtime.task { [weak self, runtime] in
+        dragWatch = runtime.task(role: .observation) { [weak self, runtime] in
             while !Task.isCancelled {
                 await runtime.sleep(for: .milliseconds(100))
                 guard let self, !Task.isCancelled else { return }

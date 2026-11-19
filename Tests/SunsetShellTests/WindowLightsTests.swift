@@ -1,4 +1,5 @@
 import AppKit
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
@@ -40,8 +41,9 @@ struct WindowLightsTests {
             }
     }
 
+    /// AppKit lays the window out (its own timing, not Sunset's).
     func settle() async {
-        try? await Task.sleep(for: .milliseconds(60))
+        RealWait.runLoop(for: .milliseconds(60))
     }
 
     func place(_ inset: Double, _ top: Double, fromRight: Bool = false, visible: Bool = true) -> WindowLights.Placement
@@ -112,13 +114,20 @@ struct WindowLightsTests {
         #expect(lights.placements == placed, "nothing is moved when nothing was")
     }
 
-    @Test func `hidden, they are out of reach and faded; shown again, they are back`() async {
+    @Test func `hidden, they are out of reach and faded; shown again, they are back`() async throws {
         let window = window()
         defer { window.close() }
+        // Layer-backed, as in the app: the buttons fade, and are put out of reach once the fade is over.
+        for button in buttons(window) {
+            button.wantsLayer = true
+        }
+        let time = TestTime()
         let lights = WindowLights(window: window)
+        lights.runtime = time.runtime
         lights.placement = place(11, 11)
+        let hiding = time.mark()
         lights.placement = place(11, 11, visible: false)
-        try? await Task.sleep(for: .milliseconds(350))
+        try await time.release(after: .milliseconds(200), since: hiding, count: buttons(window).count)
         #expect(corners(window).allSatisfy { $0.x < 0 }, "\(corners(window))")
         window.setFrame(NSRect(x: 0, y: 0, width: 950, height: 500), display: true)
         await settle()

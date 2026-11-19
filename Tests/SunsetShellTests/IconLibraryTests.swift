@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
@@ -42,19 +43,24 @@ struct IconLibraryTests {
 
     @Test func `dropped a while after the last picker closed; kept when one opens again in time`() async throws {
         let reads = Reads()
+        let time = TestTime()
         let library = library(reads, idle: .milliseconds(40))
+        library.runtime = time.runtime
         library.opened()
         _ = await library.catalogs()
         library.opened()
         library.closed()
-        try await Task.sleep(for: .milliseconds(120))
+        try await time.pass(.seconds(60))
         #expect(library.ready != nil, "a picker is still open")
+        let cancelled = time.mark()
         library.closed()
+        try await time.waited(since: cancelled)
         library.opened()
-        try await Task.sleep(for: .milliseconds(120))
+        try await time.pass(.seconds(60))
         #expect(library.ready != nil, "opened again in time")
+        let dropping = time.mark()
         library.closed()
-        try await Task.sleep(for: .milliseconds(160))
+        try await time.release(after: .milliseconds(40), since: dropping)
         #expect(library.ready == nil)
         _ = await library.catalogs()
         #expect(reads.total == 2)

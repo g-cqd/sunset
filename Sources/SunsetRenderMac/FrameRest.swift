@@ -21,8 +21,9 @@ public final class FrameRest {
     private var waiting: Task<Void, Never>?
     private var stopped = false
 
-    public init(after: Duration = FrameRest.usual) {
+    public init(after: Duration = FrameRest.usual, runtime: Runtime = .live) {
         self.after = after
+        self.runtime = runtime
         since = runtime.uptime()
     }
 

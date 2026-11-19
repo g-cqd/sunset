@@ -30,7 +30,7 @@ import WebKit
             )
         apply(AppConfiguration.shared.configuration.web)
         guard loop == nil else { return }
-        loop = runtime.task {
+        loop = runtime.task(role: .observation) {
             while !Task.isCancelled {
                 await refresh()
                 await runtime.sleep(for: .seconds(6 * 3600))

@@ -15,7 +15,7 @@ extension AppConfiguration {
         let watcher = FileWatcher(path: ConfigurationLocation.themePath(named: name, besideConfig: path))
         themeWatcher = watcher
         watcher.start()
-        themeWatching = runtime.task { [weak self] in
+        themeWatching = runtime.task(role: .observation) { [weak self] in
             for await _ in watcher.changes { self?.reloadForTheme() }
         }
     }

@@ -16,7 +16,7 @@ import SunsetWeb
 
     static func start() {
         guard loop == nil else { return }
-        loop = runtime.task {
+        loop = runtime.task(role: .observation) {
             while !Task.isCancelled {
                 await runtime.sleep(for: .seconds(60))
                 await tick()

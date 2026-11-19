@@ -110,7 +110,7 @@ final class AppConfiguration {
         let watcher = FileWatcher(path: path)
         self.watcher = watcher
         watcher.start()
-        watching = runtime.task { [weak self] in
+        watching = runtime.task(role: .observation) { [weak self] in
             for await _ in watcher.changes { self?.reload() }
         }
     }

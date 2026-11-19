@@ -1,4 +1,4 @@
-public import AemiRuntime
+@_exported public import AemiRuntime
 public import Foundation
 
 /// What a piece of Sunset needs of time and concurrency (ADR-0087, the owner's note n55): where its tasks are spawned, the

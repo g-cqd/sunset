@@ -10,7 +10,7 @@ extension OpenDocument {
         let watcher = FileWatcher(path: path)
         self.watcher = watcher
         watcher.start()
-        watching = runtime.task { [weak self] in
+        watching = runtime.task(role: .observation) { [weak self] in
             for await _ in watcher.changes {
                 let read = await FileContent.readConcurrently(path)
                 await self?.fileSettled(read)

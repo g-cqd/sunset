@@ -110,15 +110,21 @@ let package = Package(
         tests("SunsetRuntimeTests", ["SunsetRuntime", .product(name: "AemiTestKit", package: "aemi")]),
         tests(
             "SunsetRenderTests",
-            [.product(name: "AemiTestKit", package: "aemi"), "SunsetRender", "SunsetCore"],
+            ["SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi"), "SunsetRender", "SunsetCore"],
             settings: workSettings
         ),
         module("SunsetRenderMac", ["SunsetRuntime", "SunsetRender"], settings: workSettings),
         module("SunsetRenderMetal", ["SunsetRuntime", "SunsetRender", "SunsetRenderMac"]),
-        tests("SunsetRenderMetalTests", ["SunsetRenderMetal", "SunsetRenderMac", "SunsetRender", "SunsetCore"]),
+        tests(
+            "SunsetRenderMetalTests",
+            ["SunsetTestSupport", "SunsetRenderMetal", "SunsetRenderMac", "SunsetRender", "SunsetCore"]
+        ),
         tests(
             "SunsetRenderMacTests",
-            [.product(name: "AemiTestKit", package: "aemi"), "SunsetRenderMac", "SunsetRender", "SunsetCore"]
+            [
+                "SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi"), "SunsetRenderMac", "SunsetRender",
+                "SunsetCore"
+            ]
         ),
         .executableTarget(
             name: "SunsetAppMain",
@@ -144,6 +150,13 @@ let package = Package(
         ),
         // Tasks and time through seams (ADR-0087): the `TaskProvider`, the `Clock` and the "now" every module is given, live
         // by default, a spy and a test clock in tests (AemiRuntime, AemiTestKit).
+        // What every test target shares: the time and the tasks of what a test runs (ADR-0087).
+        .target(
+            name: "SunsetTestSupport",
+            dependencies: ["SunsetRuntime", .product(name: "AemiTestKit", package: "aemi")],
+            path: "Tests/SunsetTestSupport",
+            swiftSettings: strictSettings
+        ),
         module("SunsetRuntime", [.product(name: "AemiRuntime", package: "aemi")]),
         // The interface's measures (`layout.*`): one list, read by the configuration and drawn by the shell (design 0003).
         module("SunsetMetrics", []),
@@ -164,12 +177,15 @@ let package = Package(
         ),
         tests(
             "SunsetDocumentsTests",
-            ["SunsetDocuments", "SunsetStorage", .product(name: "MarkdownLookKit", package: "AemiMarkdown")]
+            [
+                "SunsetDocuments", "SunsetStorage", "SunsetTestSupport",
+                .product(name: "MarkdownLookKit", package: "AemiMarkdown")
+            ]
         ),
         module("SunsetStorage", ["SunsetRuntime", .product(name: "AemiIO", package: "aemi")]),
-        tests("SunsetStorageTests", ["SunsetStorage"]),
+        tests("SunsetStorageTests", ["SunsetTestSupport", "SunsetStorage"]),
         module("SunsetConfig", [.product(name: "AemiJSONCore", package: "AemiJSON"), "SunsetMetrics"]),
-        tests("SunsetConfigTests", ["SunsetConfig", "SunsetMetrics"]),
+        tests("SunsetConfigTests", ["SunsetTestSupport", "SunsetConfig", "SunsetMetrics"]),
         .target(
             name: "SunsetPrivate",
             // The names of the private symbols are not written in the binary as plain strings: InternedStrings (Aemi) stores them obfuscated.
@@ -177,9 +193,9 @@ let package = Package(
             path: "Sources/SunsetPrivate",
             swiftSettings: strictSettings
         ),
-        tests("SunsetPrivateTests", ["SunsetPrivate"]),
+        tests("SunsetPrivateTests", ["SunsetTestSupport", "SunsetPrivate"]),
         module("SunsetPane", []),
-        tests("SunsetPaneTests", ["SunsetPane"]),
+        tests("SunsetPaneTests", ["SunsetTestSupport", "SunsetPane"]),
         // Help (roadmap 0041): its topics and their texts, one source for a control's tooltip and its explanation. No UI.
         module("SunsetHelp", []),
         module(
@@ -189,7 +205,10 @@ let package = Package(
                 .product(name: "AemiSDR", package: "AemiSDR")
             ]
         ),
-        tests("SunsetShellTests", ["SunsetShell", "SunsetPane", "SunsetMetrics", "SunsetHelp", "SunsetConfig"]),
+        tests(
+            "SunsetShellTests",
+            ["SunsetTestSupport", "SunsetShell", "SunsetPane", "SunsetMetrics", "SunsetHelp", "SunsetConfig"]
+        ),
         // The terminal as a kind of pane content (R8: a target per kind): its model, its AppKit view, input, selection, the renderer's wiring.
         module(
             "SunsetTerminal",
@@ -210,6 +229,7 @@ let package = Package(
         tests(
             "SunsetMarkdownTests",
             [
+                "SunsetTestSupport",
                 "SunsetMarkdown", "SunsetPane", "SunsetShell", "SunsetDocuments",
                 .product(name: "MarkdownLookKit", package: "AemiMarkdown")
             ]
@@ -222,10 +242,16 @@ let package = Package(
                 .product(name: "AemiSDR", package: "AemiSDR")
             ]
         ),
-        tests("SunsetWebTests", ["SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics", "SunsetStorage"]),
+        tests(
+            "SunsetWebTests",
+            ["SunsetTestSupport", "SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics", "SunsetStorage"]
+        ),
         // What joins the configuration file to the shell's settings: a library so that the mapping is tested (the app target cannot be).
         module("SunsetShellBridge", ["SunsetShell", "SunsetConfig", "SunsetMetrics"]),
-        tests("SunsetShellBridgeTests", ["SunsetShellBridge", "SunsetShell", "SunsetConfig", "SunsetMetrics"]),
+        tests(
+            "SunsetShellBridgeTests",
+            ["SunsetTestSupport", "SunsetShellBridge", "SunsetShell", "SunsetConfig", "SunsetMetrics"]
+        ),
         module("SunsetHost", ["SunsetRuntime", "SunsetCore", "SunsetConfig", "SunsetMetrics"]),
         .executableTarget(
             name: "SunsetRun",
@@ -235,8 +261,11 @@ let package = Package(
         ),
         tests(
             "SunsetHostTests",
-            [.product(name: "AemiTestKit", package: "aemi"), "SunsetHost", "SunsetConfig", "SunsetMetrics"]
+            [
+                "SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi"), "SunsetHost", "SunsetConfig",
+                "SunsetMetrics"
+            ]
         ),
-        tests("SunsetCoreTests", [.product(name: "AemiTestKit", package: "aemi"), "SunsetCore"])
+        tests("SunsetCoreTests", ["SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi"), "SunsetCore"])
     ]
 )
