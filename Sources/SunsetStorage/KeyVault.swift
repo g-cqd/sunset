@@ -6,4 +6,6 @@ public protocol KeyVault: Sendable {
     func read() throws(StorageKeyFailure) -> Data?
     /// Keeps these bytes as the key, in place of any other.
     func write(_ bytes: Data) throws(StorageKeyFailure)
+    /// Takes the key out; none kept is not a failure.
+    func remove() throws(StorageKeyFailure)
 }

@@ -23,4 +23,9 @@ public final class MemoryKeyVault: KeyVault {
         if failing { throw .vault }
         self.bytes.withLock { $0 = bytes }
     }
+
+    public func remove() throws(StorageKeyFailure) {
+        if failing { throw .vault }
+        bytes.withLock { $0 = nil }
+    }
 }

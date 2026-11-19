@@ -22,4 +22,9 @@ public struct FileKeyVault: KeyVault {
             throw .vault
         }
     }
+
+    public func remove() throws(StorageKeyFailure) {
+        guard FileManager.default.fileExists(atPath: path) else { return }
+        do { try FileManager.default.removeItem(atPath: path) } catch { throw .vault }
+    }
 }

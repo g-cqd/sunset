@@ -17,9 +17,12 @@ struct FileKeyVaultTests {
         #expect(throws: StorageKeyFailure.vault) { try StorageKeyring(vault: vault).key() }
     }
 
-    @Test func `the default places keep the key in the Keychain; a named setup beside its files`() {
+    @Test
+    func
+        `the default places keep the key in the Keychain (moving to the Secure Enclave's wrap); a named setup beside its files`()
+    {
         let own = StoragePlaces(environment: [:], home: "/h")
-        #expect(own.isDefault && own.keyVault is KeychainKeyVault)
+        #expect(own.isDefault && own.keyVault is MovingKeyVault)
         let named = StoragePlaces(environment: ["SUNSET_CONFIG": "/t/c.json"], home: "/h")
         #expect(!named.isDefault && (named.keyVault as? FileKeyVault)?.path == "/t/storage.key")
     }

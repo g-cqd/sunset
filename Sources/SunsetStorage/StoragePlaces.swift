@@ -80,10 +80,15 @@ public struct StoragePlaces: Sendable, Equatable {
         directory + "/library.sqlite"
     }
 
-    /// Where the key that seals all this is kept: the login Keychain for the person's own setup; a file beside the others for
-    /// a named one, which must not touch the Keychain.
+    /// Where the key that seals all this is kept: for the person's own setup, the data-protection keychain, the key wrapped by
+    /// this Mac's Secure Enclave (ADR-0104, task t121), moved there from the login Keychain, where it stays for a build that
+    /// cannot use the new place; a file beside the others for a named one, which must not touch the Keychain.
     public var keyVault: any KeyVault {
-        isDefault ? KeychainKeyVault(service: keyService) : FileKeyVault(path: directory + "/storage.key")
+        guard isDefault else { return FileKeyVault(path: directory + "/storage.key") }
+        return MovingKeyVault(
+            new: EnclaveKeyVault(backing: KeychainKeyVault(service: keyService + ".enclave", dataProtection: true)),
+            old: KeychainKeyVault(service: keyService)
+        )
     }
 
     /// The Keychain item of the key that seals the store: a development build has its own.
