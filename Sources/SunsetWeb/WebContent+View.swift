@@ -33,6 +33,7 @@ extension WebContent {
         WebFrameRate.set(fullRate: settings.fullFrameRate, on: configuration.preferences)
         configuration.defaultWebpagePreferences = WebProtection.preferences(for: settings)
         WebAttribution.turnOff(on: configuration.preferences)
+        SafariParity.turnOn(on: configuration.preferences)
         if settings.mediaDevices { WebFeature.set("MediaDevicesEnabled", enabled: true, on: configuration.preferences) }
         // Pop-ups without a click reach Sunset, which decides by the site's answer; sound does not play on its own unless the site may.
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true

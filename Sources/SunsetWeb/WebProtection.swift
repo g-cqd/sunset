@@ -16,10 +16,13 @@ enum WebProtection {
         if #available(macOS 26.4, *) {
             preferences.securityRestrictionMode = settings.hardening == .noJIT ? .maximizeCompatibility : .none
         }
+        // Set only to send it: set false, WebKit gives pages `navigator.globalPrivacyControl` (false), which Safari does not
+        // have (the inventory, 2026-11-20); left alone, the property is not there.
         if #available(macOS 27, *) {
             let control = settings.globalPrivacyControl
-            preferences.globalPrivacyControlEnabled =
-                control == .always || (control == .privateWindows && settings.privacy != nil)
+            if control == .always || (control == .privateWindows && settings.privacy != nil) {
+                preferences.globalPrivacyControlEnabled = true
+            }
         }
         return preferences
     }

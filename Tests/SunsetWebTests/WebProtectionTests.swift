@@ -48,11 +48,13 @@ struct WebProtectionTests {
         let view = try #require(page.webView)
         view.loadHTMLString("<p>x</p>", baseURL: URL(string: "https://shop.example/"))
         await Waiting.until { !page.isLoading && page.webView?.url?.host() == "shop.example" }
+        // Off, the property is not there at all, as in Safari (the inventory against a driven Safari, 2026-11-20): a page
+        // reading `false` where Safari has nothing tells Sunset from it.
         let read = try await view.callAsyncJavaScript(
-            "return String(navigator.globalPrivacyControl)",
+            "return 'globalPrivacyControl' in navigator ? String(navigator.globalPrivacyControl) : 'absent'",
             contentWorld: .page
         )
-        #expect(read as? String == String(sent))
+        #expect(read as? String == (sent ? "true" : "absent"))
         page.stop()
     }
 }
