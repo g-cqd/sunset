@@ -12,6 +12,7 @@ extension WebContent {
         guard let view = webView else { return }
         if keepingHistory { savedHistory = view.interactionState as? Data }
         soundWatch = nil
+        notificationClicks.end()
         observations = []
         view.stopLoading()
         view.setAllMediaPlaybackSuspended(true)

@@ -100,6 +100,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var notificationHosts: Set<String> = []
     /// A notification question of this page is shown: another asked meanwhile is answered at once.
     @ObservationIgnored var notificationAsking = false
+    @ObservationIgnored let notificationClicks = NotificationClicks()
     /// A page this one opened, and where it goes.
     @ObservationIgnored package var onOpen: (WebContent, WebPlacement) -> Void = { _, _ in }
     /// The Space it is in, and the Spaces a site can be sent to (W-d): the app's; none in a test or a private window.

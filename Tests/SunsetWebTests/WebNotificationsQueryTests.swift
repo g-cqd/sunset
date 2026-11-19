@@ -35,8 +35,10 @@ struct WebNotificationsQueryTests {
         let result = try await view.callAsyncJavaScript(
             """
             const status = await navigator.permissions.query({ name: 'notifications' });
-            const routed = String(ServiceWorkerRegistration.prototype.showNotification).includes("worker: true");
-            return [status.state, status.name, Notification.permission, routed ? "routed" : "engine's"];
+            // Sunset's showNotification (WebWorkerNotificationsTests reads its route) answers a wrong `this` as WebKit's does.
+            const asWebKit = await ServiceWorkerRegistration.prototype.showNotification.call({}, "t").then(
+              () => "posted", (e) => e.message);
+            return [status.state, status.name, Notification.permission, asWebKit];
             """,
             contentWorld: .page
         )
@@ -48,8 +50,23 @@ struct WebNotificationsQueryTests {
         let allowed = try await state(.allow)
         let denied = try await state(.deny)
         let unanswered = try await state(nil)
-        #expect(allowed == ["granted", "notifications", "granted", "routed"])
-        #expect(denied == ["denied", "notifications", "denied", "routed"])
-        #expect(unanswered == ["prompt", "notifications", "default", "routed"])
+        #expect(
+            allowed == [
+                "granted", "notifications", "granted",
+                "Can only call ServiceWorkerRegistration.showNotification on instances of ServiceWorkerRegistration"
+            ]
+        )
+        #expect(
+            denied == [
+                "denied", "notifications", "denied",
+                "Can only call ServiceWorkerRegistration.showNotification on instances of ServiceWorkerRegistration"
+            ]
+        )
+        #expect(
+            unanswered == [
+                "prompt", "notifications", "default",
+                "Can only call ServiceWorkerRegistration.showNotification on instances of ServiceWorkerRegistration"
+            ]
+        )
     }
 }

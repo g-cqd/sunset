@@ -7,103 +7,160 @@ import WebKit
 @MainActor
 final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
     static let name = "sunsetNotifications"
-    static let clickEvent = "sunset-notification-click"
     static let script = """
         (() => {
           const bridge = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.\(name);
           if (!bridge || window.top !== window) return;
-          let permission = "default";
-          let next = 1;
+          \(PageNative.prelude)
+          // Shaped as WebKit's own (task t97, read in a bare WKWebView): attributes are the prototype's getters, the state
+          // is this script's, and what the page could patch later (postMessage, dispatchEvent) is taken now.
+          const define = Object.defineProperty;
+          const send = bridge.postMessage;
+          const post = (message) => Reflect.apply(send, bridge, [message]);
+          const dispatch = EventTarget.prototype.dispatchEvent;
+          const listen = EventTarget.prototype.addEventListener;
+          const fire = (note, type) => Reflect.apply(dispatch, note, [new Event(type)]);
+          const state = new WeakMap();
           const shown = new Map();
-          class Notification extends EventTarget {
-            constructor(title, options) {
-              super();
-              if (arguments.length === 0) throw new TypeError("Failed to construct 'Notification': 1 argument required.");
-              options = options || {};
-              // As the standard: actions are a service worker's only, renotify needs a tag (roadmap 0037 C).
-              if (options.actions && options.actions.length) throw new TypeError("Failed to construct 'Notification': Actions are only supported for persistent notifications shown using ServiceWorkerRegistration.showNotification().");
-              if (options.renotify && !options.tag) throw new TypeError("Failed to construct 'Notification': Notifications which set the renotify flag must specify a non-empty tag.");
-              this.title = String(title);
-              this.body = options.body == null ? "" : String(options.body);
-              this.tag = options.tag == null ? "" : String(options.tag);
-              let icon = "";
-              try { icon = options.icon == null ? "" : new URL(String(options.icon), location.href).href; } catch (e) {}
-              this.icon = icon;
-              this.data = options.data === undefined ? null : options.data;
-              this.silent = options.silent == null ? null : !!options.silent;
-              this.requireInteraction = !!options.requireInteraction;
-              this.renotify = !!options.renotify;
-              this.actions = Object.freeze([]);
-              this.dir = options.dir || "auto";
-              this.lang = options.lang == null ? "" : String(options.lang);
-              this.timestamp = options.timestamp == null ? Date.now() : Number(options.timestamp);
-              this.onclick = null; this.onshow = null; this.onerror = null; this.onclose = null;
-              const id = next++;
-              shown.set(id, this);
-              this.__id = id;
-              bridge.postMessage({ kind: "show", id, title: this.title, body: this.body, tag: this.tag, icon: this.icon, silent: this.silent === true })
-                .then(ok => this.__fire(ok ? "show" : "error"), () => this.__fire("error"));
-            }
-            __fire(type) {
-              const event = new Event(type);
-              this.dispatchEvent(event);
-              const handler = this["on" + type];
-              if (typeof handler === "function") handler.call(this, event);
-            }
-            close() {
-              if (!shown.has(this.__id)) return;
-              shown.delete(this.__id);
-              // The page hears of the close once Sunset has it, as it hears of the show (a race otherwise, seen once under load).
-              const done = () => this.__fire("close");
-              bridge.postMessage({ kind: "close", id: this.__id }).then(done, done);
-            }
-            static get permission() {
-                return permission;
-            }
-            static get maxActions() {
-                return 0;
-            }
-            static requestPermission(callback) {
-              // As Safari: only from what the person did (a click, a key) is anybody asked.
-              const activated = !!(navigator.userActivation && navigator.userActivation.isActive);
-              return bridge.postMessage({ kind: "request", activated }).then(answer => {
-                permission = answer;
-                if (typeof callback === "function") callback(answer);
-                return answer;
-              });
-            }
+          let next = 1;
+          const fields = (note, what) => {
+            const found = state.get(note);
+            if (!found) throw new TypeError("The Notification." + what + " can only be used on instances of Notification");
+            return found;
+          };
+          function Notification(title, options) {
+            if (!new.target) throw new TypeError("Constructor requires 'new' operator");
+            if (arguments.length === 0) throw new TypeError("Not enough arguments");
+            if (options != null && typeof options !== "object" && typeof options !== "function") throw new TypeError("Type error");
+            options = options || {};
+            const text = (value) => value === undefined ? "" : String(value);
+            const dir = options.dir === undefined ? "auto" : String(options.dir);
+            if (dir !== "auto" && dir !== "ltr" && dir !== "rtl") throw new TypeError("Type error");
+            let icon = "";
+            try { icon = options.icon === undefined ? "" : new URL(String(options.icon), location.href).href; } catch (e) {}
+            const note = Reflect.construct(EventTarget, [], new.target);
+            const own = {
+              id: next++, title: String(title), body: text(options.body), tag: text(options.tag), icon, dir,
+              lang: text(options.lang), data: options.data === undefined ? null : options.data,
+              silent: options.silent === undefined || options.silent === null ? null : !!options.silent, handlers: {},
+            };
+            state.set(note, own);
+            shown.set(own.id, note);
+            (async () => {
+              let ok = false;
+              try { ok = await post({ kind: "show", id: own.id, title: own.title, body: own.body, tag: own.tag, icon, silent: own.silent === true }); } catch (e) {}
+              fire(note, ok ? "show" : "error");
+              if (ok) hearClicks();
+            })();
+            return note;
           }
-          addEventListener("\(clickEvent)", event => {
-            const notification = shown.get(event.detail);
-            if (notification) notification.__fire("click");
+          // The person's clicks, pulled from Sunset one at a time once a notification is shown.
+          let hearing = false;
+          const hearClicks = async () => {
+            if (hearing) return;
+            hearing = true;
+            for (;;) {
+              let id = null;
+              try { id = await post({ kind: "clicks" }); } catch (e) {}
+              if (typeof id !== "number") break;
+              const note = shown.get(id);
+              if (note) fire(note, "click");
+            }
+            hearing = false;
+          };
+          nativeMark(Notification, "Notification", 1);
+          Object.setPrototypeOf(Notification, EventTarget);
+          const prototype = Object.create(EventTarget.prototype);
+          define(prototype, "constructor", { value: Notification, writable: true, enumerable: false, configurable: true });
+          define(Notification, "prototype", { value: prototype, writable: false, enumerable: false, configurable: false });
+          const attribute = (name) => define(prototype, name, {
+            get: native(function () { return fields(this, name + " getter")[name]; }, "get " + name),
+            set: undefined, enumerable: true, configurable: true,
           });
-          Object.defineProperty(window, "Notification", { value: Notification, writable: true, configurable: true });
+          const handler = (name) => define(prototype, name, {
+            get: native(function () { return fields(this, name + " getter").handlers[name] || null; }, "get " + name),
+            set: native(function (value) {
+              const own = fields(this, name + " setter");
+              const first = !(name in own.handlers);
+              own.handlers[name] = typeof value === "function" || (typeof value === "object" && value !== null) ? value : null;
+              // As an event handler attribute: one listener, in the place of the first time it was set.
+              if (first) Reflect.apply(listen, this, [name.slice(2), (event) => {
+                const call = own.handlers[name];
+                if (typeof call === "function") Reflect.apply(call, this, [event]);
+              }]);
+            }, "set " + name, 1),
+            enumerable: true, configurable: true,
+          });
+          const operation = (name, body) => define(prototype, name, { value: native(body, name), writable: true, enumerable: true, configurable: true });
+          handler("onclick"); handler("onerror");
+          define(prototype, "navigate", { get: native(function () { fields(this, "navigate getter"); return ""; }, "get navigate"), set: undefined, enumerable: true, configurable: true });
+          for (const name of ["title", "dir", "lang", "body", "tag", "icon", "silent", "data"]) attribute(name);
+          handler("onclose"); handler("ondisplay"); handler("onshow");
+          operation("close", function () {
+            if (!state.has(this)) throw new TypeError("Can only call Notification.close on instances of Notification");
+            const own = state.get(this);
+            if (!shown.has(own.id)) return;
+            shown.delete(own.id);
+            // The page hears of the close once Sunset has it, as it hears of the show (a race otherwise, seen once under load).
+            (async () => {
+              try { await post({ kind: "close", id: own.id }); } catch (e) {}
+              fire(this, "close");
+            })();
+          });
+          operation("show", function () {
+            if (!state.has(this)) throw new TypeError("Can only call Notification.show on instances of Notification");
+          });
+          define(prototype, Symbol.toStringTag, { value: "Notification", writable: false, enumerable: false, configurable: true });
+          // WebKit's `permission` is a value, not a getter: set again at each answer.
+          const answered = (answer) => {
+            define(Notification, "permission", { value: answer, writable: false, enumerable: true, configurable: true });
+            return answer;
+          };
+          answered("default");
+          define(Notification, "requestPermission", { writable: true, enumerable: true, configurable: true, value: native(async function (callback) {
+            // As Safari: only from what the person did (a click, a key) is anybody asked.
+            const activated = !!(navigator.userActivation && navigator.userActivation.isActive);
+            const answer = answered(await post({ kind: "request", activated }));
+            if (typeof callback === "function") callback(answer);
+            return answer;
+          }, "requestPermission") });
+          define(window, "Notification", { value: Notification, writable: true, enumerable: false, configurable: true });
           // The Permissions API reads the same answer (WebKit's would say "prompt" whatever it is: roadmap 0045 B).
-          if (window.Permissions && Permissions.prototype.query) {
+          const status = window.PermissionStatus && Object.getOwnPropertyDescriptor(PermissionStatus.prototype, "state");
+          if (window.Permissions && Permissions.prototype.query && status && status.get) {
             const query = Permissions.prototype.query;
-            Object.defineProperty(Permissions.prototype, "query", { writable: true, enumerable: true, configurable: true, value: { query(descriptor) {
-              const status = Reflect.apply(query, this, arguments);
-              if (!descriptor || descriptor.name !== "notifications") return status;
-              return Promise.all([status, bridge.postMessage({ kind: "permission" })]).then(([found, answer]) => {
-                permission = answer;
-                Object.defineProperty(found, "state", { get: () => permission === "default" ? "prompt" : permission, configurable: true });
+            const ours = new WeakSet();
+            define(PermissionStatus.prototype, "state", { ...status, get: native(function () {
+              if (!ours.has(this)) return Reflect.apply(status.get, this, []);
+              const answer = Notification.permission;
+              return answer === "default" ? "prompt" : answer;
+            }, "get state") });
+            define(Permissions.prototype, "query", { writable: true, enumerable: true, configurable: true, value: native(function (descriptor) {
+              const asked = Reflect.apply(query, this, arguments);
+              if (!descriptor || descriptor.name !== "notifications") return asked;
+              return (async () => {
+                const found = await asked;
+                answered(await post({ kind: "permission" }));
+                ours.add(found);
                 return found;
-              });
-            } }.query });
+              })();
+            }, "query", 1) });
           }
           // A service worker's registration shows its notifications through Sunset too (roadmap 0046 S2): an app's web view
           // has no notification centre of its own for them. The worker's `notificationclick` is not fired.
           if (window.ServiceWorkerRegistration && ServiceWorkerRegistration.prototype.showNotification) {
-            Object.defineProperty(ServiceWorkerRegistration.prototype, "showNotification", { writable: true, configurable: true, value: { showNotification(title, options) {
-              if (permission !== "granted") return Promise.reject(new TypeError("No notification permission has been granted for this origin."));
+            const scope = Object.getOwnPropertyDescriptor(ServiceWorkerRegistration.prototype, "scope").get;
+            define(ServiceWorkerRegistration.prototype, "showNotification", { writable: true, enumerable: true, configurable: true, value: native(async function (title, options) {
+              // WebKit's brand check, by one of its own getters on `this`, and its words.
+              try { Reflect.apply(scope, this, []); } catch (e) { throw new TypeError("Can only call ServiceWorkerRegistration.showNotification on instances of ServiceWorkerRegistration"); }
+              if (Notification.permission !== "granted") throw new TypeError("No notification permission has been granted for this origin.");
               options = options || {};
               let icon = "";
               try { icon = options.icon == null ? "" : new URL(String(options.icon), location.href).href; } catch (e) {}
-              return bridge.postMessage({ kind: "show", worker: true, id: next++, title: String(title), body: options.body == null ? "" : String(options.body), tag: options.tag == null ? "" : String(options.tag), icon, silent: options.silent === true })
-                .then(() => undefined);
-            } }.showNotification });
+              await post({ kind: "show", worker: true, id: next++, title: String(title), body: options.body == null ? "" : String(options.body), tag: options.tag == null ? "" : String(options.tag), icon, silent: options.silent === true });
+            }, "showNotification", 1) });
           }
-          bridge.postMessage({ kind: "permission" }).then(answer => { permission = answer; });
+          (async () => { try { answered(await post({ kind: "permission" })); } catch (e) {} })();
         })();
         """
 

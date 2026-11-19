@@ -47,6 +47,8 @@ extension WebContent {
                     )
                 )
                 return true
+            case "clicks":
+                return await notificationClicks.next()
             case "close":
                 // The page takes one of its own away (roadmap 0036 E).
                 if let id = (fields["id"] as? Int) ?? (fields["id"] as? Double).map(Int.init) {
@@ -70,11 +72,6 @@ extension WebContent {
 
     /// The person clicked the notification `id` this page showed: the page hears it as its `click` event.
     package func notificationClicked(_ id: Int) {
-        webView?
-            .evaluateJavaScript(
-                "dispatchEvent(new CustomEvent('\(WebNotifications.clickEvent)', { detail: \(id) }))",
-                in: nil,
-                in: .page
-            )
+        notificationClicks.clicked(id)
     }
 }

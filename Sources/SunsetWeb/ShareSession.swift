@@ -5,8 +5,9 @@ package import SunsetRuntime
 import UniformTypeIdentifiers
 import WebKit
 
-/// A tab's frames into a page that asked (ADR-0082): pipelined, 30 a second at most, as JPEG; it stops by the rules of
-/// `TabShare.stop`.
+/// A tab's frames into a page that asked (ADR-0082): 30 a second at most, as JPEG; it stops by the rules of `TabShare.stop`.
+/// The page pulls each frame through its message handler (`pull`), and only the origin that asked for the share is given
+/// any (task t97: no function of Sunset's on the page's window, which its scripts could list and call).
 @MainActor
 package final class ShareSession {
     /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
@@ -16,17 +17,19 @@ package final class ShareSession {
     private weak var page: WebContent?
     private let feed: ShareFeed
     private let startHost: String?
-    private let frameFunction: String
-    private let endFunction: String
+    /// The origin (scheme, host, port) of the frame that asked: the only one given frames.
+    package let asker: String?
     private var task: Task<Void, Never>?
+    /// The newest frame not yet pulled, as Base64; the page's pull waiting for one.
+    private var latest: String?
+    private var waiter: CheckedContinuation<String?, Never>?
     package private(set) var stopped: TabShare.Stop?
 
-    init(source: UUID, feed: ShareFeed, page: WebContent, frameFunction: String, endFunction: String) {
+    init(source: UUID, feed: ShareFeed, page: WebContent, asker: String?) {
         self.source = source
         self.feed = feed
         self.page = page
-        self.frameFunction = frameFunction
-        self.endFunction = endFunction
+        self.asker = asker
         startHost = feed.host()
     }
 
@@ -48,9 +51,10 @@ package final class ShareSession {
         task?.cancel()
         feed.shared(false)
         WebShare.sessions.removeAll { $0 === self }
-        if tellPage, let view = page?.webView {
-            view.evaluateJavaScript("window[\"\(endFunction)\"] && window[\"\(endFunction)\"]()", in: nil, in: .page)
-        }
+        // The page's pull is answered with nothing: its track ends (it ended it itself when `tellPage` is false).
+        latest = nil
+        waiter?.resume(returning: nil)
+        waiter = nil
         if page?.capture == .screen { page?.capture = nil }
         page?.share = nil
     }
@@ -58,7 +62,6 @@ package final class ShareSession {
     private static let interval = Duration.milliseconds(33)
 
     private func run() async {
-        var delivery: Task<Void, Never>?
         while !Task.isCancelled {
             let start = runtime.uptime()
             if let why = TabShare.stop(
@@ -76,18 +79,32 @@ package final class ShareSession {
                 continue
             }
             let encoded = await runtime.detached(priority: .userInitiated) { Self.jpeg(image) }.value
-            await delivery?.value
-            guard let view = page?.webView, !Task.isCancelled else { return }
-            let function = frameFunction
-            delivery = runtime.task { @MainActor in
-                _ = try? await view.callAsyncJavaScript(
-                    "return await window[f](b)",
-                    arguments: ["f": function, "b": encoded.base64EncodedString()],
-                    contentWorld: .page
-                )
-            }
+            guard page?.webView != nil, !Task.isCancelled else { return }
+            deliver(encoded.base64EncodedString())
             let spent = runtime.uptime() - start
             if spent < Self.interval { await runtime.sleep(for: Self.interval - spent) }
+        }
+    }
+
+    /// The next frame for a page's pull from `origin`: the newest not yet pulled, or the next made; nothing once stopped,
+    /// or for any origin but the asker's (a frame of another site inside the call's page gets no pixel of the share).
+    package func pull(from origin: String?) async -> String? {
+        guard stopped == nil, origin != nil, origin == asker else { return nil }
+        if let frame = latest {
+            latest = nil
+            return frame
+        }
+        waiter?.resume(returning: nil)
+        return await withCheckedContinuation { waiter = $0 }
+    }
+
+    /// A frame made: to the pull waiting, else kept in the place of one not pulled (none piles up).
+    package func deliver(_ frame: String) {
+        if let waiting = waiter {
+            waiter = nil
+            waiting.resume(returning: frame)
+        } else {
+            latest = frame
         }
     }
 

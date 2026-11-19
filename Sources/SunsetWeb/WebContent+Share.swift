@@ -19,21 +19,17 @@ extension WebContent {
         }
     }
 
-    func startShare(from id: UUID) {
+    func startShare(from id: UUID, asker: String?) {
         guard let feed = WebShare.feed(id) else { return }
-        startShare(feed, source: id)
+        startShare(feed, source: id, asker: asker)
     }
 
     /// Shares `feed` into this page: a tab's, or what was picked in macOS's picker (a source of its own then).
-    func startShare(_ feed: ShareFeed, source: UUID) {
-        guard let wrapper = shareWrapper else { return }
-        let session = ShareSession(
-            source: source,
-            feed: feed,
-            page: self,
-            frameFunction: wrapper.frameFunction,
-            endFunction: wrapper.endFunction
-        )
+    /// `asker` is the origin of the frame that asked, the only one given its frames.
+    func startShare(_ feed: ShareFeed, source: UUID, asker: String?) {
+        guard shareWrapper != nil else { return }
+        share?.stop(.stopped)
+        let session = ShareSession(source: source, feed: feed, page: self, asker: asker)
         share = session
         capture = .screen
         session.start()

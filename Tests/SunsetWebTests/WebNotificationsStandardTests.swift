@@ -7,14 +7,15 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0037 C: what the standard asks of `new Notification` beyond the text (notifications.spec.whatwg.org, read
-/// 2026-11-17): `actions` are for a service worker's notifications only, and the constructor throws a TypeError for them;
-/// `renotify` without a tag throws too; `silent` is the page's to ask, and is handed on.
+/// Roadmap 0037 C, as WebKit has it (task t97, read in a bare WKWebView 2026-11-19): the standard's TypeErrors for `actions`
+/// and for `renotify` without a tag (notifications.spec.whatwg.org) are not WebKit's, which ignores both, and has no
+/// `requireInteraction`, `renotify`, `timestamp`; a page tells Sunset from Safari by any difference. `silent` is the page's
+/// to ask, and is handed on.
 @MainActor
 @Suite("A page's notifications: what the standard asks")
 struct WebNotificationsStandardTests {
     @Test(.timeLimit(.minutes(1)))
-    func `actions and renotify without a tag throw; silent and requireInteraction are read back, silent handed on`()
+    func `as WebKit's: actions and renotify ignored, silent read back and handed on, no requireInteraction`()
         async throws
     {
         var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
@@ -31,15 +32,16 @@ struct WebNotificationsStandardTests {
             """
             await Notification.requestPermission();
             const thrown = (f) => { try { f(); return "none"; } catch (e) { return e.name; } };
-            const actions = thrown(() => new Notification("a", { actions: [{ action: "x", title: "X" }] }));
-            const renotify = thrown(() => new Notification("b", { renotify: true }));
             const note = new Notification("c", { silent: true, requireInteraction: true, tag: "t", renotify: true });
             await new Promise(done => { note.onshow = done; note.onerror = done; });
-            return [actions, renotify, String(note.silent), String(note.requireInteraction), String(note.renotify)];
+            // Within the second: made, not shown.
+            const actions = thrown(() => new Notification("a", { actions: [{ action: "x", title: "X" }] }));
+            const renotify = thrown(() => new Notification("b", { renotify: true }));
+            return [actions, renotify, String(note.silent), String(note.requireInteraction), String(note.renotify), String(note.timestamp)];
             """,
             contentWorld: .page
         )
-        #expect(result as? [String] == ["TypeError", "TypeError", "true", "true", "true"])
+        #expect(result as? [String] == ["none", "none", "true", "undefined", "undefined", "undefined"])
         #expect(shown.map(\.title) == ["c"] && shown.first?.silent == true)
         page.stop()
     }

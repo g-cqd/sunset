@@ -52,7 +52,7 @@ extension TabShareTests {
         let call = WebContent(descriptor: PaneDescriptor(kind: "web", state: [:]), settings: WebSettings())
         func session(of page: WebContent) -> ShareSession {
             let feed = ShareFeed(frame: { nil }, isOpen: { true }, host: { nil }, page: { page })
-            return ShareSession(source: UUID(), feed: feed, page: call, frameFunction: "f", endFunction: "e")
+            return ShareSession(source: UUID(), feed: feed, page: call, asker: "https://call.example")
         }
         let one = session(of: shared)
         let two = session(of: other)
