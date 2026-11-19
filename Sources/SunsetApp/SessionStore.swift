@@ -1,4 +1,5 @@
 import AppKit
+import SunsetAppCore
 import SunsetConfig
 import SunsetHost
 import SunsetPane
@@ -23,7 +24,7 @@ final class SessionStore {
         StoragePlaces.current.directory
     }
 
-    private let storage = AppStorage.shared
+    private let storage = SunsetStore.shared
     private var path: String {
         storage.places.session
     }
@@ -102,7 +103,7 @@ final class SessionStore {
                 case .absent: break
             }
         } else if FileManager.default.fileExists(atPath: path) {
-            // Sealed, and no key in this run: said by `AppStorage`.
+            // Sealed, and no key in this run: said by `SunsetStore`.
             return nil
         }
         guard let old = storage.places.legacySession else { return nil }

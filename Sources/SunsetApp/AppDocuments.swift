@@ -1,20 +1,21 @@
 import Foundation
+import SunsetAppCore
 import SunsetConfig
 import SunsetDocuments
 import SunsetShell
 import SunsetStorage
 
 /// The documents of the store as the sidebars reach them (roadmap 0030 step ST-5): the shell lists, makes and deletes them
-/// through a `DocumentShelf`, which is filled here from `AppStorage`.
+/// through a `DocumentShelf`, which is filled here from `SunsetStore`.
 @MainActor
 enum AppDocuments {
     /// Says to `shelf` how the store's documents are listed, made and deleted.
     static func wire(_ shelf: DocumentShelf) {
-        shelf.available = { AppStorage.shared.documents != nil }
-        shelf.list = { (AppStorage.shared.documents?.documents ?? []).map(ShelfDocument.init) }
-        shelf.create = { try? AppStorage.shared.documents?.create().id }
+        shelf.available = { SunsetStore.shared.documents != nil }
+        shelf.list = { (SunsetStore.shared.documents?.documents ?? []).map(ShelfDocument.init) }
+        shelf.create = { try? SunsetStore.shared.documents?.create().id }
         shelf.delete = { delete($0) }
-        let recent = AppStorage.shared.recentFiles
+        let recent = SunsetStore.shared.recentFiles
         shelf.files = { recent.entries.map { ShelfDocument(file: $0.path, opened: $0.opened) } }
         shelf.noteFile = { recent.note($0) }
         shelf.forgetFile = { recent.remove($0) }
@@ -25,7 +26,7 @@ enum AppDocuments {
     /// - Parameter id: the document.
     /// - Returns: whether it was deleted; when not, it is said (`StorageProblems`) and nothing closes.
     static func delete(_ id: UUID) -> Bool {
-        let storage = AppStorage.shared
+        let storage = SunsetStore.shared
         guard let store = storage.documents else { return false }
         if let open = storage.openDocuments.document(at: .stored(id)), open.isEdited { try? open.save() }
         let title = store.documents.first { $0.id == id }?.title ?? "Untitled"
@@ -48,10 +49,10 @@ enum AppDocuments {
     /// `documents.saveOnFocusLoss`, `documents.largerHeadings`).
     static func apply(_ settings: Configuration.Documents) {
         let asked = DocumentAutosave(seconds: settings.saveAfter, onFocusLoss: settings.saveOnFocusLoss)
-        AppStorage.shared.openDocuments.autosave.fileDelay = asked.fileDelay
-        AppStorage.shared.openDocuments.autosave.onFocusLoss = asked.onFocusLoss
-        AppStorage.shared.openDocuments.look.largerHeadings = settings.largerHeadings
-        AppStorage.shared.openDocuments.look.linksBeside = settings.linksOpen == .beside
+        SunsetStore.shared.openDocuments.autosave.fileDelay = asked.fileDelay
+        SunsetStore.shared.openDocuments.autosave.onFocusLoss = asked.onFocusLoss
+        SunsetStore.shared.openDocuments.look.largerHeadings = settings.largerHeadings
+        SunsetStore.shared.openDocuments.look.linksBeside = settings.linksOpen == .beside
     }
 }
 

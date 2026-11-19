@@ -15,7 +15,7 @@ import UserNotifications
     static func start() {
         let center = DownloadCenter.shared
         apply(AppConfiguration.shared.configuration.web)
-        let storage = AppStorage.shared
+        let storage = SunsetStore.shared
         // The browser each site is shown (W-a): kept sealed, as what each site may do is.
         SiteAgents.shared.table = storage.table("agents")
         // The sites whose data is kept (ADR-0081).

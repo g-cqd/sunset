@@ -1,5 +1,6 @@
 import AppKit
 import Observation
+import SunsetAppCore
 import SunsetConfig
 import SunsetDocuments
 import SunsetMarkdown
@@ -29,8 +30,8 @@ final class QuitGate {
     func shouldTerminate() -> NSApplication.TerminateReply {
         let level = AppConfiguration.shared.configuration.tabs.askBeforeQuit
         // The documents Sunset keeps are kept now; what is left edited is a file's, and is asked about whatever the level.
-        AppStorage.shared.openDocuments.keepStored()
-        guard level != .never || !AppStorage.shared.openDocuments.edited.isEmpty else { return finish() }
+        SunsetStore.shared.openDocuments.keepStored()
+        guard level != .never || !SunsetStore.shared.openDocuments.edited.isEmpty else { return finish() }
         runtime.task { await decide(level) }
         return .terminateLater
     }
@@ -72,7 +73,7 @@ final class QuitGate {
     /// Save All and Quit: every edited document is written, then the app quits. One that cannot be written cancels the quit
     /// and is shown, saying why.
     func saveAllAndQuit(dontAskAgain: Bool = false) {
-        let failed = AppStorage.shared.openDocuments.saveAll()
+        let failed = SunsetStore.shared.openDocuments.saveAll()
         guard let first = failed.first else { return answer(quit: true, dontAskAgain: dontAskAgain) }
         let shown = tabsOfPane.first { ($0.value.content($0.key) as? DocumentContent)?.document === first }
         answer(quit: false)
@@ -125,7 +126,7 @@ final class QuitGate {
 
     @discardableResult
     private func finish() -> NSApplication.TerminateReply {
-        AppStorage.shared.openDocuments.keepStored()
+        SunsetStore.shared.openDocuments.keepStored()
         SessionStore.shared.finish()
         AppConfiguration.shared.saveNow()
         DownloadCenter.shared.finish()
@@ -171,7 +172,7 @@ final class QuitGate {
             }
             if let pane, let page = content as? WebContent { pages.append((pane, page)) }
         }
-        found += DocumentContent.quitLosses(of: AppStorage.shared.openDocuments, in: panes)
+        found += DocumentContent.quitLosses(of: SunsetStore.shared.openDocuments, in: panes)
         for (pane, page) in pages where await page.hasUnsentForm() {
             found.append(QuitLoss(kind: .form, text: "Text typed and not sent on \(page.shownHost)", pane: pane))
         }

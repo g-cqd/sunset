@@ -1,4 +1,5 @@
 import Foundation
+import SunsetAppCore
 import SunsetConfig
 import SunsetShell
 import SunsetStorage
@@ -15,7 +16,7 @@ struct PagesFollowSettings: ViewModifier {
             .environment(\.privateWindowSharing, sharing)
             .onChange(of: web.zoomScope, initial: true) { _, scope in
                 // Kept from one run to the next for the "site" scope only; else in memory until the app quits.
-                let storage = AppStorage.shared
+                let storage = SunsetStore.shared
                 let table = scope == .site ? storage.table("zoom") : nil
                 guard SiteZoom.shared.remembers != (table != nil) else { return }
                 SiteZoom.shared.table = table

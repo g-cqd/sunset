@@ -3,13 +3,15 @@ import SunsetConfig
 import SunsetHost
 import SunsetPane
 import SunsetShellModel
+import SunsetStorage
 import SunsetWeb
+import SunsetWebModel
 import Testing
 
 @testable import SunsetAppCore
 
 /// Roadmap 0086 D (the owner's note n55): what the app decides, out of the app target, under tests. Before, none of it had any.
-@Suite("The app's decisions, tested")
+@MainActor @Suite("The app's decisions, tested")
 struct AppDecisionsTests {
     @Test func `the command line: our flags, a program after -- or as the first word, the login shell otherwise`() {
         let shell = LaunchOptions.parse(["sunset"], environment: ["SHELL": "/bin/fish"])
@@ -82,5 +84,61 @@ extension AppDecisionsTests {
         #expect(Configuration.Tabs.SiteColor.off.tintMode == .off)
         #expect(Configuration.Tabs.SiteColor.selected.tintMode == .selected)
         #expect(Configuration.Tabs.SiteColor.every.tintMode == .every)
+    }
+}
+
+extension AppDecisionsTests {
+    /// A named setup in a folder of its own: its key in a file there, never the Keychain.
+    private func places() throws -> StoragePlaces {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "sunset-storage-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return StoragePlaces(environment: ["SUNSET_SESSION": folder.appending(path: "session.json").path], home: "/")
+    }
+
+    @Test func `storage: a new folder gets a key and a database; nothing is said wrong`() throws {
+        let problems = StorageProblems()
+        let storage = SunsetStore(places: try places(), problems: problems) { false }
+        #expect(storage.key != nil && storage.database != nil && problems.items.isEmpty)
+        storage.close()
+    }
+
+    @Test func `storage: sealed things without their key are left alone, and said locked`() throws {
+        let here = try places()
+        let first = SunsetStore(places: here, problems: StorageProblems()) { false }
+        first.close()
+        try FileManager.default.removeItem(atPath: here.directory + "/storage.key")
+        let problems = StorageProblems()
+        let second = SunsetStore(places: here, problems: problems) { false }
+        #expect(second.key == nil && second.database == nil)
+        #expect(problems.items.map(\.kind) == [.locked], "a new key would open none of them and write over them")
+        #expect(FileManager.default.fileExists(atPath: here.state), "the sealed database is still there")
+    }
+
+    @Test func `storage: a file of before, once kept, goes; one not kept stays`() throws {
+        let here = try places()
+        let storage = SunsetStore(places: here, problems: StorageProblems()) { false }
+        let legacy = here.directory + "/old.json"
+        FileManager.default.createFile(atPath: legacy, contents: Data("{}".utf8))
+        storage.retire(legacy, when: false)
+        #expect(FileManager.default.fileExists(atPath: legacy))
+        storage.retire(legacy, when: true)
+        #expect(!FileManager.default.fileExists(atPath: legacy), "a named setup's are removed, not trashed")
+        storage.close()
+    }
+}
+
+extension AppDecisionsTests {
+    @Test func `what WebKit keeps: each choice as the stores read it, a profile's own over all profiles'`() {
+        var app = Configuration()
+        app.web.keep.cache = .clearOnQuit
+        app.web.keep.traces = .keep
+        app.web.keep.siteData = .keepChosen
+        let all = app.web.keep.webKeep
+        #expect(all.clearsCache && !all.clearsTraces && all.siteData == .keepChosen)
+        var work = Profile(name: "Work")
+        work.overrides = ["web.keep.siteData": "\"clearOnQuit\"", "web.keep.traces": "\"clearOnQuit\""]
+        let own = Configuration.Web.Keep.of(work, app: app)
+        #expect(own.webKeep.siteData == .clearOnQuit && own.webKeep.clearsTraces && own.webKeep.clearsCache)
+        #expect(Configuration.Web.Keep.of(Profile(name: "Plain"), app: app) == app.web.keep, "nothing of its own")
     }
 }

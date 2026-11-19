@@ -1,4 +1,5 @@
 import AppKit
+import SunsetAppCore
 import SunsetConfig
 import SunsetDocuments
 import SunsetShell
@@ -38,7 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        MainActor.assumeIsolated { AppStorage.shared.close() }
+        MainActor.assumeIsolated { SunsetStore.shared.close() }
         WebKitFolders.tightenOwn()
     }
 
@@ -49,7 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidResignActive(_ notification: Notification) {
         SessionStore.shared.saveNow()
         // Another app came to the front: the documents that save themselves then do (`documents.saveOnFocusLoss`).
-        MainActor.assumeIsolated { AppStorage.shared.openDocuments.focusLost() }
+        MainActor.assumeIsolated { SunsetStore.shared.openDocuments.focusLost() }
     }
 
     /// The app ends with its last window, unless a kept entry is open and the setting keeps it running for it (R3).

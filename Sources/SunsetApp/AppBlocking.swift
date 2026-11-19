@@ -1,4 +1,5 @@
 import Foundation
+import SunsetAppCore
 import SunsetConfig
 import SunsetPane
 import SunsetRuntime
@@ -15,11 +16,10 @@ import WebKit
     static var runtime = Runtime.live
 
     private static var loop: Task<Void, Never>?
-    private static let maxAge: TimeInterval = 4 * 24 * 3600
     private static let limit = 20 * 1024 * 1024
 
     static func start() {
-        let storage = AppStorage.shared
+        let storage = SunsetStore.shared
         ContentBlocker.shared.pauses.table = storage.table("blocking-pauses")
         HiddenElements.shared.table = storage.table("hidden-elements")
         // Beside what else Sunset keeps (a debug build's apart: ADR-0042).
@@ -69,10 +69,10 @@ import WebKit
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         var sources: [ContentBlocker.Source] = []
         for address in web.blockingLists {
-            guard let url = URL(string: address), url.scheme?.lowercased() == "https" else { continue }
-            let file = folder.appending(path: fileName(for: address))
+            guard let url = BlockingListPlan.address(address) else { continue }
+            let file = folder.appending(path: BlockingListPlan.fileName(for: address))
             let kept = try? FileManager.default.attributesOfItem(atPath: file.path)[.modificationDate] as? Date
-            if kept == nil || runtime.now().timeIntervalSince(kept ?? .distantPast) > maxAge,
+            if BlockingListPlan.isStale(keptAt: kept, now: runtime.now()),
                 let fetched = await WebFetch.data(url, agent: PaneContentKinds.webSettings.userAgent, limit: limit),
                 (fetched.response as? HTTPURLResponse)?.statusCode == 200
             {
@@ -85,11 +85,5 @@ import WebKit
             sources.append(ContentBlocker.Source(address: address, text: text, updated: updated ?? runtime.now()))
         }
         await ContentBlocker.shared.load(sources)
-    }
-
-    /// A file name for a list's address: its characters that are safe in a name.
-    private static func fileName(for address: String) -> String {
-        String(address.unicodeScalars.map { CharacterSet.alphanumerics.contains($0) ? Character($0) : "_" }.suffix(120))
-            + ".txt"
     }
 }

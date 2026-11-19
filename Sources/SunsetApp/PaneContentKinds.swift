@@ -34,7 +34,7 @@ import SunsetWeb
                 return page
             case DocumentContent.kind:
                 // One that names no document is kept as it was written.
-                guard let document = DocumentContent(descriptor, documents: AppStorage.shared.openDocuments) else {
+                guard let document = DocumentContent(descriptor, documents: SunsetStore.shared.openDocuments) else {
                     return UnknownContent(descriptor)
                 }
                 document.onChange = changed

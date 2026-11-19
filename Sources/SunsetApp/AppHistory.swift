@@ -1,4 +1,5 @@
 import Foundation
+import SunsetAppCore
 import SunsetConfig
 import SunsetRuntime
 import SunsetStorage
@@ -11,7 +12,7 @@ import SunsetWeb
     static var runtime = Runtime.live
 
     static let shared: HistoryStore? = {
-        let storage = AppStorage.shared
+        let storage = SunsetStore.shared
         let table = storage.table("history")
         let store = HistoryStore(table: table)
         if let table {

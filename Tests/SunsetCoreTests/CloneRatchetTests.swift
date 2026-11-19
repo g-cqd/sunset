@@ -9,7 +9,7 @@ import Testing
 @Suite("No new clones")
 struct CloneRatchetTests {
     /// The clones left (2026-11-19: 215 at the start of roadmap 0086 E).
-    static let remaining = 166
+    static let remaining = 165
 
     private static let dolly = [
         "/Users/\(NSUserName())/.local/bin/dolly", "/opt/homebrew/bin/dolly", "/usr/local/bin/dolly"

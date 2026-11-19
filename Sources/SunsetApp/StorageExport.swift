@@ -1,4 +1,5 @@
 import AppKit
+import SunsetAppCore
 import SunsetDocuments
 import SunsetStorage
 import SunsetWeb
@@ -19,13 +20,13 @@ enum StorageExport {
         return export(into: parent)
     }
 
-    static func export(into parent: URL, storage: AppStorage = .shared) -> ExportAll.Outcome {
+    static func export(into parent: URL, storage: SunsetStore = .shared) -> ExportAll.Outcome {
         ExportAll.run(into: parent) { folder in
             [documents(in: folder, storage), history(in: folder), session(in: folder)]
         }
     }
 
-    private static func documents(in folder: URL, _ storage: AppStorage) -> ExportAll.Step? {
+    private static func documents(in folder: URL, _ storage: SunsetStore) -> ExportAll.Step? {
         guard let store = storage.documents, !store.documents.isEmpty else { return nil }
         // What was typed and not saved yet is saved first, so that the export holds the latest.
         for document in store.documents {

@@ -273,11 +273,17 @@ let package = Package(
         // settings from the configuration and its profile. No UI framework.
         module(
             "SunsetAppCore",
-            ["SunsetRuntime", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost", "SunsetShellModel"]
+            [
+                "SunsetRuntime", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost", "SunsetShellModel",
+                "SunsetStorage", "SunsetDocuments", "SunsetWebModel"
+            ]
         ),
         tests(
             "SunsetAppCoreTests",
-            ["SunsetTestSupport", "SunsetAppCore", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost"]
+            [
+                "SunsetTestSupport", "SunsetAppCore", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost",
+                "SunsetShellModel", "SunsetStorage", "SunsetWebModel"
+            ]
         ),
         module("SunsetShellBridge", ["SunsetShell", "SunsetConfig", "SunsetMetrics"]),
         tests(

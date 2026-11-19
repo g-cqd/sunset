@@ -1,6 +1,7 @@
 import AppKit
 import LocalAuthentication
 import Observation
+import SunsetAppCore
 import SunsetRuntime
 import SunsetShell
 import SunsetStorage
@@ -25,11 +26,11 @@ final class StorageSettings {
     @ObservationIgnored private var reading: Task<Void, Never>?
 
     var places: StoragePlaces {
-        AppStorage.shared.places
+        SunsetStore.shared.places
     }
     /// The key is here: its code can be shown. False when the Keychain refused, or what is kept is sealed with another key.
     var hasKey: Bool {
-        AppStorage.shared.key != nil
+        SunsetStore.shared.key != nil
     }
 
     /// Reads the folder, the website data's size and FileVault's state again, off the main thread.
@@ -58,7 +59,7 @@ final class StorageSettings {
     /// keeps its key in a plain file beside its other files, and is not asked.
     func showCode() async {
         codeProblem = nil
-        guard let key = AppStorage.shared.key else { return }
+        guard let key = SunsetStore.shared.key else { return }
         if places.isDefault {
             do {
                 let reason = "show the recovery code of what Sunset keeps"

@@ -1,24 +1,29 @@
 import Foundation
-import SunsetConfig
-import SunsetDocuments
-import SunsetStorage
+package import SunsetDocuments
+package import SunsetStorage
 
 /// Everything Sunset keeps, opened once (R12, roadmap 0030): the places, the key that seals, and the database of small records.
 /// What goes wrong is said (`StorageProblems`), never passed over: without the key nothing is saved in this run, and what is
 /// sealed with another key is left as it is.
 @MainActor
-final class AppStorage {
-    static let shared = AppStorage()
-
-    let places: StoragePlaces
+package final class SunsetStore {
+    package let places: StoragePlaces
     /// Nil when the key cannot be had: the Keychain refused, or sealed things are here and their key is not.
-    let key: StorageKey?
-    let database: StateDatabase?
+    package let key: StorageKey?
+    package let database: StateDatabase?
     /// The documents' index's database, once the documents are opened.
     private var library: StateDatabase?
 
-    init(places: StoragePlaces = .current, problems: StorageProblems = .shared) {
+    /// Whether a file of before goes to the Trash once kept (`storage.importedFiles`), read when one is retired.
+    private let trashImported: @MainActor () -> Bool
+
+    /// - Parameters:
+    ///   - places: where everything is (`.current` for the app).
+    ///   - problems: where what goes wrong is said.
+    ///   - trashImported: the setting `storage.importedFiles` is `trash`.
+    package init(places: StoragePlaces, problems: StorageProblems, trashImported: @escaping @MainActor () -> Bool) {
         self.places = places
+        self.trashImported = trashImported
         let ring = StorageKeyring(vault: places.keyVault)
         var key: StorageKey?
         do {
@@ -53,9 +58,9 @@ final class AppStorage {
     /// one that did not read is not said.
     /// The documents that are open, one per file or stored document for the whole app (roadmap 0023): every pane on one shows
     /// the same text.
-    private(set) lazy var openDocuments = OpenDocuments(store: documents)
+    package private(set) lazy var openDocuments = OpenDocuments(store: documents)
 
-    private(set) lazy var documents: DocumentStore? = {
+    package private(set) lazy var documents: DocumentStore? = {
         guard let key else { return nil }
         let library = StateDatabase.open(at: places.library, key: key).database
         self.library = library
@@ -71,14 +76,14 @@ final class AppStorage {
 
     /// The files opened lately, listed with the documents (roadmap 0031): sealed in the state database, or in memory only
     /// when nothing can be kept in this run.
-    private(set) lazy var recentFiles = RecentFiles(table: table("recent-files"))
+    package private(set) lazy var recentFiles = RecentFiles(table: table("recent-files"))
 
     /// The records of one kind; nil when nothing can be kept in this run (they are then in memory only).
-    func table(_ kind: String) -> SealedTable? {
+    package func table(_ kind: String) -> SealedTable? {
         database?.table(kind)
     }
 
-    func seal(_ purpose: Seal.Purpose) -> Seal? {
+    package func seal(_ purpose: Seal.Purpose) -> Seal? {
         key.map { Seal(key: $0, purpose: purpose) }
     }
 
@@ -86,11 +91,9 @@ final class AppStorage {
     /// what the store holds). A plain copy left in the folder would defeat the sealing. The person's own files go to the Mac's
     /// Trash, where nothing is destroyed, or are deleted, by `storage.importedFiles` (the owner, 2026-11-15: a setting, the
     /// Trash by default); a named setup's (a test's) are removed, so that tests do not fill the Trash.
-    func retire(_ legacy: String, when kept: Bool) {
+    package func retire(_ legacy: String, when kept: Bool) {
         guard kept else { return }
-        let trash = places.trashesImported(
-            setting: AppConfiguration.shared.configuration.storage.importedFiles == .trash
-        )
+        let trash = places.trashesImported(setting: trashImported())
         for suffix in ["", "-journal", "-wal", "-shm"] {
             let path = legacy + suffix
             guard FileManager.default.fileExists(atPath: path) else { continue }
@@ -111,7 +114,7 @@ final class AppStorage {
     }
 
     /// Sunset quits: the databases are closed, their logs emptied (roadmap 0051 B).
-    func close() {
+    package func close() {
         database?.close()
         library?.close()
     }

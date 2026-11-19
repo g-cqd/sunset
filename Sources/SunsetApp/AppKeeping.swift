@@ -1,4 +1,5 @@
 import Foundation
+import SunsetAppCore
 import SunsetConfig
 import SunsetPane
 import SunsetRuntime
@@ -15,7 +16,7 @@ import WebKit
 
     /// What `profile` keeps: its own choices over the app's.
     static func keep(for profile: Profile) -> Configuration.Web.Keep {
-        ProfileOverrides.apply(profile.overrides, to: AppConfiguration.shared.configuration).web.keep
+        .of(profile, app: AppConfiguration.shared.configuration)
     }
 
     /// Each profile's store (the first's is WebKit's default one) and what it keeps. A private window's store is not
@@ -30,24 +31,14 @@ import WebKit
     }
 
     static func web(_ keep: Configuration.Web.Keep) -> WebKeep {
-        let siteData: WebKeep.SiteData =
-            switch keep.siteData {
-                case .keep: .keep
-                case .keepChosen: .keepChosen
-                case .clearOnQuit: .clearOnQuit
-            }
-        return WebKeep(
-            clearsCache: keep.cache == .clearOnQuit,
-            clearsTraces: keep.traces == .clearOnQuit,
-            siteData: siteData
-        )
+        keep.webKeep
     }
 
     /// At launch: the kept list, from the sealed store.
     static func start() {
         AppShare.start()
-        KeptSites.shared.table = AppStorage.shared.table("kept-sites")
-        KeptSites.shared.marks = AppStorage.shared.table("kept-sites-marks")
+        KeptSites.shared.table = SunsetStore.shared.table("kept-sites")
+        KeptSites.shared.marks = SunsetStore.shared.table("kept-sites-marks")
         KeptSites.shared.applies = { id in
             let profile = AppSpaces.all.profiles.profiles.map(\.profile).first { $0.id == (id ?? Profile.firstID) }
             return keep(for: profile ?? .first).siteData == .keepChosen
@@ -64,7 +55,7 @@ import WebKit
     static func clearAtQuit(limit: TimeInterval = 5) {
         // WebKit's stores are the bundle's, the person's: a setup of a test or a second setup (its own folder) never
         // clears them.
-        guard AppStorage.shared.places.isDefault else { return }
+        guard SunsetStore.shared.places.isDefault else { return }
         let all = stores().filter { $0.keep != WebKeep() }
         guard !all.isEmpty else { return }
         var done = false
