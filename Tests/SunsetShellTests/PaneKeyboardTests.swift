@@ -2,6 +2,7 @@ import AppKit
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-19: a tab being renamed lost its field when its page loaded again (going back where it was kept): the
 /// page's host took the keyboard back at each update. A pane takes the keyboard from nothing being typed into.

@@ -1,6 +1,7 @@
 import SwiftUI
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Round 4 of the review: a folder row with its disclosure mark at the trailing edge (where a tab's close button is, on hover), the mark's
 /// variants; symbols for a kept terminal that runs a command (no initial); the folder's initial at 6.5 pt, 1.75 pt down.

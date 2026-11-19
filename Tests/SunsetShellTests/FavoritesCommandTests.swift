@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("A kept terminal's command") struct FavoritesCommandTests {
     /// A window whose one tab was kept and unloaded; the entry's id.

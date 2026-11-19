@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The Pinned grid (roadmap 0021, P-b; the owner's answers of 2026-11-17): one for the app until there are profiles, the
 /// same in every Space; a tab that is pinned moves into it and is kept there; twelve at most.

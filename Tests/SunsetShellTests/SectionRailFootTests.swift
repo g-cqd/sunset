@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n27 (2026-11-18): "we could add an help icon above the settings icon in the library vertical section
 /// bar".

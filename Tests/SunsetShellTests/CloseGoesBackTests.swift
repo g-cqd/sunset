@@ -2,6 +2,7 @@ import Testing
 
 @testable import SunsetPane
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n4 (2026-11-18): "when closing a tab, the most recent tab that was focused before this one should be
 /// focused again (could be a configurable setting as well)".

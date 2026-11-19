@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0038 A): "Moving a tab to the favorites makes it lose its keep awake status". What is kept
 /// awake is the tab, wherever it goes: Today, the Favorites, the grid, another window.

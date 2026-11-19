@@ -1,7 +1,7 @@
 import Foundation
 import SunsetRuntime
 package import SunsetShell
-package import SwiftUI
+import SwiftUI
 import WebKit
 
 /// A page's questions to the person (web step g): answered from what the site was given, else asked in the panel, one at a time.
@@ -67,12 +67,12 @@ extension WebContent {
         capture = nil
     }
 
-    package var captureDot: Color? {
+    package var captureMark: PaneCaptureMark? {
         // Shared into a call (ADR-0082): its tab says so, as the call's does.
-        if sharedInto > 0 { return .orange }
+        if sharedInto > 0 { return .screen }
         return switch capture {
-            case .cameraOrMicrophone: .red
-            case .screen: .orange
+            case .cameraOrMicrophone: .cameraOrMicrophone
+            case .screen: .screen
             case nil: nil
         }
     }

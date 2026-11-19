@@ -20,7 +20,7 @@ extension WebContent {
 
     package var glyph: PaneGlyph {
         if isPrivate { return .symbol("eye.slash") }
-        if settings.favicons, let favicon { return .image(favicon) }
+        if settings.favicons, let faviconPicture { return .image(faviconPicture) }
         guard settings.initialIcon, let first = title.first(where: \.isLetter) else { return .symbol("globe") }
         return .initial(String(first).uppercased())
     }

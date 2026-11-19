@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n26: in a sentence, the host or the address is code, the words are not.
 @Suite("A host in a sentence") struct CodeSpansTests {

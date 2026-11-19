@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("The tabs of a window") struct TabsModelTests {
     @Test func `a new tab gets content from the app, and only the shown, focused pane is told so`() throws {

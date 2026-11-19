@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0035 J): switching to the other window of a Space showed a white or black page with
 /// "Click to bring it here", "not even the last snapshot". His answer: both; the window brought to the front draws the tab

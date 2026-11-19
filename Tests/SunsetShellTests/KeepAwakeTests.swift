@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0035 E): "a tab or a window keep the mac awake as long as it is running". His answers: both
 /// ways, chosen, until it is closed or until its command ends; whether the display stays on too is a setting (the app's).

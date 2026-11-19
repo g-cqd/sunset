@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// 0035's "not done" (roadmap 0036 B): the command bar's rows in the sidebar's width cut their title in the middle
 /// ("Searc…for "m""), the subtitle and the accessory taking its room. In a narrow row the title has the room first.

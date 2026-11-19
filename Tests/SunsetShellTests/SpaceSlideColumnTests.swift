@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Roadmap 0045 E (the owner, 2026-11-18: "if a space has pinned, favorites and tabs and another one only tabs, the tabs
 /// get aligned together whereas they should be on the top of the sidebar in the space that only has one tab"; "the space

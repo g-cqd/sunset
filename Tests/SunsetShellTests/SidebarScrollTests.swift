@@ -5,6 +5,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0035 F): "Scrolling for tabs should only happen for today's tabs not pinned and
 /// favorites". The Pinned grid and the Favorites stay where they are; the scroll view holds Today's tabs alone.

@@ -11,7 +11,7 @@ package import WebKit
 /// store; brought back with its address, history and scroll. Pages it opens (a link asking for a new tab, the link menu) are handed to `onOpen`, which
 /// places them.
 @MainActor @Observable
-package final class WebContent: PaneContent {
+package final class WebContent: PaneContent, PaneViewMaking {
     /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
     @ObservationIgnored package var runtime = Runtime.live
 
@@ -38,9 +38,14 @@ package final class WebContent: PaneContent {
     /// The site's icon, once fetched (`WebContent+Favicon`).
     package internal(set) var favicon: NSImage? {
         didSet {
-            if favicon !== oldValue { iconColor = favicon.flatMap(Self.colour) }
+            if favicon !== oldValue {
+                iconColor = favicon.flatMap(Self.colour)
+                faviconPicture = favicon?.panePicture
+            }
         }
     }
+    /// The icon as the tab's picture, made once for each icon (`glyph` is read at every drawing).
+    @ObservationIgnored var faviconPicture: PanePicture?
     package internal(set) var pageBackground: NSColor?
     /// The colours the site declares (`<meta name="theme-color">`) and its icon has, as sRGB bytes (roadmap 0047 H).
     package internal(set) var themeColor: [UInt8]?

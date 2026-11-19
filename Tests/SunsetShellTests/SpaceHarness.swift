@@ -1,6 +1,7 @@
 import SunsetPane
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A Space and windows on it, for tests: fake contents, and what each window was told.
 @MainActor final class SpaceHarness {

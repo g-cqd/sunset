@@ -97,8 +97,8 @@ package struct TabLabel: View {
                     }
                 }
             }
-            if let dot = model?.captureDot, model?.devices.isEmpty != false {
-                Circle().fill(dot).frame(width: 7, height: 7).help("Sharing the screen")
+            if let mark = model?.captureMark, model?.devices.isEmpty != false {
+                Circle().fill(mark.color).frame(width: 7, height: 7).help("Sharing the screen")
             }
         }
     }

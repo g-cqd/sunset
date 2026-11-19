@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Which section each sidebar shows (roadmap 0031).
 @Suite("The sections of the sidebars") struct SidebarSectionsTests {

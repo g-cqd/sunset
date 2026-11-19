@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("Content opened by other content") struct TabsOpeningTests {
     @Test func `a tab after its opener's, not shown`() throws {

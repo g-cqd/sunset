@@ -2,6 +2,7 @@ import AppKit
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The window's buttons while its title changes (seen 2026-11-15 in the app: going from a tab to another, whose title is
 /// another, left the zoom button at AppKit's place, the top left, under the content; close and minimise stayed).

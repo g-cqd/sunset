@@ -4,7 +4,7 @@ package import SunsetShell
 package import SwiftUI
 
 /// The terminal as the content of a pane.
-extension TerminalModel: PaneContent {
+extension TerminalModel: PaneContent, PaneViewMaking {
     package var detail: String? {
         directory
     }

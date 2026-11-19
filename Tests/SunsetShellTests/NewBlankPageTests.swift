@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// n12 and n52's cause: a new empty page is asked where to go by the action that makes it (the command bar), not by its view.
 @MainActor @Suite("A new empty page")

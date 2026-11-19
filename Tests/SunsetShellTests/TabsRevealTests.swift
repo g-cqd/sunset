@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A content that asks to be seen (a page's notification clicked, roadmap 0035 D): the window that holds it shows its tab,
 /// or its kept entry, with the keyboard in its pane.

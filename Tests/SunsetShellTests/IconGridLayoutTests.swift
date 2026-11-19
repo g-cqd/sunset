@@ -2,6 +2,7 @@ import CoreGraphics
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Where each icon of the picker's grid is (the owner, 2026-11-17: "the rendering and scrolling through the list should
 /// also be instantaneous"). The grid is one view that draws the cells in sight and finds a cell from a point by

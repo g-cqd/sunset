@@ -4,6 +4,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A Space's editor, and what a window does when the last tab of its Space closes (the owner, 2026-11-17).
 @MainActor
@@ -162,7 +163,7 @@ struct SpaceEditingTests {
         #expect(window.space === work && window.slide.beside == nil)
         // With a sidebar: the list is beside, the slide is under way, and the Space changes when it ends.
         window.slide.width = 240
-        window.slide.animation = .default
+        window.slide.duration = 0.25
         var ended: (() -> Void)?
         window.runSlide = { _, change, completion in
             change()

@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Files opened in a window (R6, roadmap 0023 step M-f): from the Open panel, a drop, Finder, the command bar. Each in a
 /// tab of its own; one this window already shows is shown, not opened twice.

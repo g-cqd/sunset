@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// n47: a tab shows the microphone and the camera a page uses, each muted from there.
 @Suite("The devices a page uses") struct PaneCaptureTests {

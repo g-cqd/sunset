@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Roadmap 0021 S-e (R4): something that asks for attention in a Space no window shows (a notification) marks the
 /// Space's icon until a window shows it; the system's notification names the Space and goes to it.

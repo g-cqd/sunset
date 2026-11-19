@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("Several rows selected together") struct TabsSelectionTests {
     /// A window with `count` tabs, the first shown; the tabs' rows. (`select(index:)` counts open entries first, as Cmd-1 does: `select(item:)` here.)

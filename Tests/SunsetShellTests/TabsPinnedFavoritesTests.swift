@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// An entry between the Favorites and the Pinned grid (ADR-0054; the owner, 2026-11-17: "the context menus of tabs and
 /// sidebar don't contain all features related to pinning and marking as favorites and i fail to set an already

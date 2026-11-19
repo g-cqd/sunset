@@ -4,6 +4,7 @@ import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The same for the rows of the Favorites: a kept entry and a folder.
 extension SidebarClickTests {

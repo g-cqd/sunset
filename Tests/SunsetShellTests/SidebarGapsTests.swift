@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0038 B, F): the places to drop are the gaps between rows, the top and the bottom of the
 /// Favorites included; "dragging tabs don't show the position placeholder at the top of favorites or the bottom of favorites

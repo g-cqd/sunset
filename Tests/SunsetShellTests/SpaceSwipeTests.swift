@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The two-finger swipe on the sidebar that changes Space (roadmap 0021 step S-b). The owner, 2026-11-17: "it should snap
 /// to the space, starting slow and snap when enough swiped, not swipe multiple ones at the same time", with a tap of the

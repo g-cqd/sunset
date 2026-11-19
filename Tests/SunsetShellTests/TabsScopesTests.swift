@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A window when a scope of the app is off (roadmap 0033; the owner's answers of 2026-11-17): nothing of the scope is
 /// made; its tabs close; what is kept of it is hidden, and comes back.

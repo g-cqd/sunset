@@ -1,6 +1,7 @@
 import SwiftUI
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Mock-ups of the guidance's row questions: a prominent look for open entries (regular tabs matching it), a compact tree, the trailing
 /// button's inset, split tabs, the monospaced second line, a kept terminal that is not open. Drawn with plain shapes, not `SidebarRow`.

@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A document's row dragged (the owner, 2026-11-15): onto the tab list it opens as a tab there, onto a pane it splits it, into
 /// the Favorites it is kept there. The document stays in Documents in each case.

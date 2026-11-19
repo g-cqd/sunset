@@ -1,6 +1,7 @@
 import SwiftUI
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 extension DesignCatalogTests {
     var splitAlignment: CatalogSheet {

@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @Suite("Concentric corner radius") struct ConcentricRadiusTests {
     @Test func `an inner corner keeps the window's centre: radius minus the gap`() {

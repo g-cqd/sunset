@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The sections of the sidebars when a scope of the app is off (roadmap 0033): History and Downloads are the web's,
 /// Documents is the documents'.

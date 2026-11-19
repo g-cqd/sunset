@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// 0035's "not done" (roadmap 0036 A): for a page, "No Icon" in the icon picker is the way back to the site's icon
 /// (ADR-0063); it says so. For the other rows it keeps its name.

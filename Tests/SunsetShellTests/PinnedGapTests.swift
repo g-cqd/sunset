@@ -2,6 +2,7 @@ import CoreGraphics
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0038 D): "the spacing between tabs of the pinned grid should be similar to the one between
 /// tabs": the grid's gap is the rows' spacing, whatever it is set to.

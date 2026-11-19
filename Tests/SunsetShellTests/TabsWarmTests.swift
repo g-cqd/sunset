@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (note n1): "switching to a web page first shows an empty grayish page and is not instantaneous".
 /// A page is made only when its tab is first shown; the pointer on its row comes first, so the row hovered asks its contents

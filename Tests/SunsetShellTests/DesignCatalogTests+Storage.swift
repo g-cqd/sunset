@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Mock-ups of Settings, Storage (roadmap 0030 step ST-6): where things are, what protects them, the recovery code, exporting.
 /// Drawn with plain shapes for the owner to choose from; nothing is built.

@@ -7,6 +7,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0035 I): calls to action "below the address bar": what the app puts there pushes the rows
 /// down, as tall as it is.

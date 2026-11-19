@@ -5,6 +5,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The design catalog (design 0003, migration step 3): every row and button variant, today's and proposed, drawn off-screen for the owner.
 /// Runs only with `SUNSET_CATALOG=<folder>`; otherwise it does nothing. Hover cannot be forced from outside a view; `keepCloseVisible` draws

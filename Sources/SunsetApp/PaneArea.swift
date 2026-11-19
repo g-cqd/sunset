@@ -178,8 +178,8 @@ struct PaneArea: View {
     private func paneView(_ content: any PaneContent, pane: PaneID, item: Workspace.Item, frame: CGRect, bounds: CGRect)
         -> some View
     {
-        if tabs.showsLive {
-            content.makeView(
+        if tabs.showsLive, let making = content as? any PaneViewMaking {
+            making.makeView(
                 PaneViewContext(
                     focused: pane == item.focused,
                     translucent: translucent,

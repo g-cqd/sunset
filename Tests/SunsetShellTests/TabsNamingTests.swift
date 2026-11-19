@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("Names and icons in place") struct TabsNamingTests {
     @Test func `a tab, an entry and a folder are renamed in place; a blank name gives a tab its content's title back`()

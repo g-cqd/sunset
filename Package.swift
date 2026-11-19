@@ -198,16 +198,22 @@ let package = Package(
         tests("SunsetPaneTests", ["SunsetTestSupport", "SunsetPane"]),
         // Help (roadmap 0041): its topics and their texts, one source for a control's tooltip and its explanation. No UI.
         module("SunsetHelp", []),
+        // The window's model (roadmap 0086 D): its tabs, Spaces, Favorites, sidebar sections, commands; no UI framework.
+        module("SunsetShellModel", ["SunsetRuntime", "SunsetPane", "SunsetMetrics", "SunsetHelp"]),
+        // What shows the window's model (SwiftUI, AppKit), which it re-exports.
         module(
             "SunsetShell",
             [
-                "SunsetRuntime", "SunsetPane", "SunsetMetrics", "SunsetHelp",
+                "SunsetShellModel", "SunsetRuntime", "SunsetPane", "SunsetMetrics", "SunsetHelp",
                 .product(name: "AemiSDR", package: "AemiSDR")
             ]
         ),
         tests(
             "SunsetShellTests",
-            ["SunsetTestSupport", "SunsetShell", "SunsetPane", "SunsetMetrics", "SunsetHelp", "SunsetConfig"]
+            [
+                "SunsetTestSupport", "SunsetShell", "SunsetShellModel", "SunsetPane", "SunsetMetrics", "SunsetHelp",
+                "SunsetConfig"
+            ]
         ),
         // The terminal as a kind of pane content (R8: a target per kind): its model, its AppKit view, input, selection, the renderer's wiring.
         module(

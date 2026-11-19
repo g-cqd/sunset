@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17: "one cannot focus on one of those tab by clicking on the inner tab of the split tabs container in
 /// the sidebar"; "make sure we can separate any tabs from split tabs anywhere". A split's part shows and focuses its pane;

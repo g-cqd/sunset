@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("Dragging across the Favorites line") struct TabsFavoritesDragTests {
     /// A window with `tabs` tabs whose first `kept` were kept, in order; the entries' ids.

@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @Suite("What the session keeps of private pages") @MainActor struct PrivateSessionTests {
     @Test func `a private tab is left out, and a private pane of a split goes from it`() throws {

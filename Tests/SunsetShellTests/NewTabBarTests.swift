@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n12 (2026-11-18): "when hitting cmd t and basically creating a new tab (web here i guess) the big command
 /// bar should be focused to let the user directly search or input the link".

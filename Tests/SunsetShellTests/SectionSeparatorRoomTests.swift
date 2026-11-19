@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17: with no Favorite, one space between the Pinned grid and the tabs, not the grid's and the
 /// Favorites' line's both.

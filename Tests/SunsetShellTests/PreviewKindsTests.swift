@@ -2,6 +2,7 @@ import Testing
 
 @testable import SunsetPane
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-18: "a setting to disable the previews (totally but also by kinds and even to disable it for folders
 /// or terminal or documents)".

@@ -1,4 +1,5 @@
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A sealer with a fixed secret: a seal is the secret and the text.
 struct TestSealer: CommandSealing {

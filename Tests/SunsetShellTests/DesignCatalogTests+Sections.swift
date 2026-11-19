@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Mock-ups for sections in the sidebars (roadmap 0031): the switch between History, Documents and the rest, in the panel
 /// opposite the tabs and in the tab sidebar itself. Drawn with plain shapes for the owner to choose from; nothing is built.

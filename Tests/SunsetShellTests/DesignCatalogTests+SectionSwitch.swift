@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Mock-ups of the switch at the foot of a sidebar (roadmap 0031, the owner's choice P3): six looks for the row of sections,
 /// then how it sits with the + of the tab sidebar. Drawn with plain shapes for the owner to choose from; nothing is built.

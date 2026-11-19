@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// 0035's "not done" (roadmap 0036 C): a kept entry (a favourite, a tile of the grid) is kept awake from its menu too; while
 /// it is open, until it is closed (unloaded or deleted) or until its command ends.

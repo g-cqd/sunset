@@ -4,6 +4,7 @@ import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// While a tab is dragged the places that would take it show (the owner, 2026-11-17: "when dragging, we might want that
 /// the target area show so that we know where to drop tabs"). A drag is known from its start until it is dropped, or

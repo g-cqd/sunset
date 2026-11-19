@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A Space's tabs in several windows (roadmap 0021; ADR-0045, the owner's answers of 2026-11-16): the windows list the same
 /// tabs, each with its own selection; a tab is drawn and typed into in one window, the one that last clicked it.

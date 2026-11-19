@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @Suite("Whether quitting asks") struct QuitLossTests {
     let one = [QuitLoss(kind: .command, text: "make")]

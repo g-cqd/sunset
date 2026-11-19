@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @Suite("The SF Symbols catalog") struct SymbolCatalogTests {
     /// A folder of the system's files with a few symbols, as `CoreGlyphs.bundle` has them.

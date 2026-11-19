@@ -6,7 +6,7 @@ import WebKit
 extension WebContent {
     /// Whether something would be lost or broken by unloading it now: it plays, captures, or holds a dialog or a question.
     package var mustStayLoaded: Bool {
-        playsSound || captureDot != nil || dialog != nil || credentialRequest != nil
+        playsSound || captureMark != nil || dialog != nil || credentialRequest != nil
     }
 
     /// Lets the view go, when it is not on screen and nothing keeps it.

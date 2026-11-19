@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Mock-ups of the settings shown in a window (roadmap 0032, the owner on 2026-11-15): the sidebar lists the sections and their
 /// topics, the pane area shows the settings. Drawn with plain shapes for the owner to choose from; nothing is built.

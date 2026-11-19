@@ -10,7 +10,7 @@ package import SwiftUI
 /// other text as source. The pane holds no text: it is a view of the app's one `OpenDocument` for the file, so a second pane
 /// on the same file shows the same text, edits and undo history.
 @MainActor @Observable
-package final class DocumentContent: PaneContent {
+package final class DocumentContent: PaneContent, PaneViewMaking {
     /// The size it was last drawn at, and on what: its picture is made at that size.
     @ObservationIgnored var drawnSize = CGSize.zero
     @ObservationIgnored var backdrop = PaneBackdrop.black

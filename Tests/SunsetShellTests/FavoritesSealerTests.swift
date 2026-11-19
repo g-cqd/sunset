@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("The command sealer is made only when needed") struct FavoritesSealerTests {
     @Test

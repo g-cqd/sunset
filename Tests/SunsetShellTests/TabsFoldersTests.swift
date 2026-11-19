@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("Folders from a window") struct TabsFoldersTests {
     private func window(_ count: Int) -> TabsHarness {

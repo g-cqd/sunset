@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// How a window comes to a Space, and what is then its own to do (roadmap 0021; ADR-0045).
 @MainActor

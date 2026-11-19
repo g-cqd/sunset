@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-19: the sound, the microphone and the camera are a tab's buttons as the close button and the cup are,
 /// at its end, the cup's size, one after another. Slot 0 is the close button's place while it hides, the next one while it shows.

@@ -6,7 +6,7 @@ import SwiftUI
 /// grid slides only to a Space of another profile (roadmap 0044 A).
 extension TabSidebar {
     /// The parts of the list: the Pinned grid and the Favorites, which stay, and Today's tabs, which scroll (roadmap 0035 F).
-    enum Part { case pinned, favorites, today }
+    typealias Part = SidebarPart
 
     /// The rows: the Pinned grid, the Favorites, the tabs.
     var list: some View {

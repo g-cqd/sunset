@@ -163,7 +163,7 @@ extension TerminalScene {
             guard saved.state["private"] != "1", let host = saved.state["url"].flatMap(URL.init(string:))?.host(),
                 let image = FaviconStore.shared.image(for: host, profile: PaneContentKinds.profile(of: tabs))
             else { return nil }
-            return .image(image)
+            return image.panePicture.map(PaneGlyph.image)
         }
     }
 }

@@ -6,6 +6,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// What the symbol picker costs (the owner, 2026-11-17: "not really performant right now at loading all symbols"): reading
 /// the catalog, a search for each key typed, and drawing the grid. Off unless `SUNSET_BENCH=1`; run in release:

@@ -3,6 +3,7 @@ import Testing
 
 @testable import SunsetPane
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Roadmap 0047 I (the owner, 2026-11-18, a screenshot of 11:56): a kept page that was the one shown at quit came back
 /// open but not made; its tile was drawn as loaded, and its preview said "Terminal" with a folder for a picture.

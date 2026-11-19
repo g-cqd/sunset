@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n25 (2026-11-18): "the keep awake … of a tab is removed when switching spaces, this should be fixed, even
 /// across profiles". A Space left runs on, and so does what it keeps awake.

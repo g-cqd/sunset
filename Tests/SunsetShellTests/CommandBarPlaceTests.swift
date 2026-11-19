@@ -2,6 +2,7 @@ import CoreGraphics
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17: "when in a tab … the big window-centered or pane-content-centered command bar, because sticking to
 /// the sidebar one is really not convenient to write long addresses". The sidebar's field opens the bar in its place only

@@ -3,6 +3,7 @@ import SunsetMetrics
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0035 G): "Address bar in the sidebar should always be there and be used as a central place
 /// where to start a search or creating a tab when focused on a terminal tab. its dimensions should match ones of a regular

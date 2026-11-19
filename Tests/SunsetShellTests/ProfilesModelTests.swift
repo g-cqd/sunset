@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Profiles (roadmap 0021, P-a; R4: "a web identity… a Space has one profile; several Spaces may share it"; decided by the
 /// builder while the owner was away, ADR-0053). The Pinned grid is the profile's: the same in each of its Spaces, and

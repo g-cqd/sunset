@@ -2,6 +2,7 @@ import CoreGraphics
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The Pinned grid's tiles (roadmap 0021, P-b; the owner, 2026-11-17): four columns that share the width, "not necessarily
 /// a square, but with a max and min width"; fewer columns as the sidebar narrows, down to one; twelve entries at most

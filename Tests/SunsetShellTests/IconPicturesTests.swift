@@ -2,6 +2,7 @@ import AppKit
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The symbols of the icon grid as pictures (the owner, 2026-11-17: rendering and scrolling "should also be
 /// instantaneous"). Drawing never waits for a symbol: what is not rendered yet is rendered off the main actor and drawn

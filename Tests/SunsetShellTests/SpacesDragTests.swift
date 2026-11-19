@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n14 (2026-11-18): "spaces order should be reorderable by drag and dropping the icons at the bottom of the
 /// sidebar".

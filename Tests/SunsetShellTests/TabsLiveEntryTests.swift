@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("A kept entry in several windows: one live view") struct TabsLiveEntryTests {
     /// Two windows on the same Favorites, the first with two tabs and its second tab kept and shown.

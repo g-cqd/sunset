@@ -5,6 +5,7 @@ import Testing
 
 @testable import SunsetPane
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Roadmap 0047 D (the owner, 2026-11-18, a screenshot of 13:05: "separators come across tabs in the sidebar"; "it's there
 /// all the time … between two folders of the favorites section"). The Favorites and the line under them were two views

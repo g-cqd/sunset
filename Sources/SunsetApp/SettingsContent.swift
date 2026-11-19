@@ -8,7 +8,7 @@ import SwiftUI
 /// what a search finds. The sidebar's list of sections and topics (the gear of the Library's rail) says which; the page carries
 /// that list itself when the sidebar does not show it.
 @MainActor @Observable
-final class SettingsContent: PaneContent {
+final class SettingsContent: PaneContent, PaneViewMaking {
     static let kind = PaneDescriptor.settingsKind
 
     /// The topic shown ("terminal.cursor").

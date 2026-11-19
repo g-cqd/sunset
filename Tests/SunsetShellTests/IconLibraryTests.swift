@@ -3,6 +3,7 @@ import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The catalogs of the icon picker, kept while a picker may want them (the owner, 2026-11-17: the picker "is not really
 /// performant right now at loading all symbols"). They were read again at each opening, with a spinner meanwhile.

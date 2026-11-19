@@ -5,6 +5,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0035 B): "Pinned tabs don't align with edges of other tabs". The grid is laid out in the
 /// rows' width; its tiles reach both of its edges, as a row does.

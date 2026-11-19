@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// 0035's "not done" (roadmap 0036 F): a tab dragged from one window is dropped in another. The drag is the window's it
 /// started in; the window it is dropped in takes it: a tab of another Space comes to its Space (the first window stays where

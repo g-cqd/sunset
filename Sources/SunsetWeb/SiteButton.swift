@@ -17,7 +17,7 @@ struct SiteButton: View {
                 } else {
                     Image(systemName: "lock")
                 }
-                if let dot = content.captureDot { Circle().fill(dot).frame(width: 6, height: 6) }
+                if let mark = content.captureMark { Circle().fill(mark.color).frame(width: 6, height: 6) }
             }
             .padding(.horizontal, Design.Space.xs)
         }

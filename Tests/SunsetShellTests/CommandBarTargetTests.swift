@@ -2,6 +2,7 @@ import Testing
 
 @testable import SunsetPane
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Roadmap 0047 E (the owner, 2026-11-18: "when focusing on command bar using cmd L, the focused input should contain the
 /// current tab target, for web tabs mostly").

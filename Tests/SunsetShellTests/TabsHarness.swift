@@ -1,6 +1,7 @@
 import SunsetPane
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A tab model that makes `FakeContent`s, with what it made, the number of changes it reported and whether it said it was empty.
 @MainActor final class TabsHarness {

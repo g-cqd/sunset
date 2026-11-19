@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Roadmap 0055: the floating bar comes out at the edge and goes after.
 @Suite("A bar at the window's edge") struct EdgeRevealTests {

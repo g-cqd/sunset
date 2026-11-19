@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-18: "when coming back from full screen corners of the terminal are not rounded anymore. also in full
 /// screen, no border or margin whatsoever should exist around the content area, unless sidebar is set to be fixed, then the

@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @MainActor @Suite("A window and the Favorites") struct TabsFavoritesTests {
     /// A window with `count` tabs, the last selected.

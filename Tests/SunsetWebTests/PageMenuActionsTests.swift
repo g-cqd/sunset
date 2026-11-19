@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 @testable import SunsetWeb
 
 /// Roadmap 0047 G (the owner, 2026-11-18): "tabs don't offer website settings or tab settings in the context menu".

@@ -2,6 +2,7 @@ import CoreGraphics
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @Suite("Where a tab's preview goes") struct PreviewPlacementTests {
     private let area = CGRect(x: 200, y: 0, width: 800, height: 600)

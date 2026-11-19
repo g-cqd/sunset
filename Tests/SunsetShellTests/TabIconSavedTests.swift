@@ -4,6 +4,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A page not loaded shows its site's icon when the app keeps one (roadmap 0035 H), else the globe; a picture the person
 /// gave the tab wins over both.

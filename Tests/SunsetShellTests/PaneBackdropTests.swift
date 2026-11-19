@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// What is behind a pane's content (the owner, 2026-11-15): "background for documents and all other panes should use the same
 /// background we use for terminals screens". The terminal's default background and how opaque it is, given to every pane.

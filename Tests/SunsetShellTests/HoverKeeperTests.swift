@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// n46: a hover's end while a menu is open waits for the menu to close.
 @Suite("A hover held while a menu is open") struct HoverKeeperTests {

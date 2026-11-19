@@ -13,6 +13,8 @@ extension TerminalScene {
     func start() {
         AppActions.shared.openTerminalWindow = { openWindow(id: "terminal") }
         tabs.onEmpty = { dismiss() }
+        // The mouse button, from the system: the model knows nothing of AppKit (roadmap 0086 D).
+        tabs.mouseIsDown = { NSEvent.pressedMouseButtons != 0 }
         tabs.wireContent = { wire($0) }
         AppDocuments.wire(tabs.shelf)
         tabs.onChange = { SessionStore.shared.scheduleSave() }

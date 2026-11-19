@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n3 (2026-11-18): "the pinned tabs that have navigated away from their pinned origin should show a visual
 /// cue that they're not loaded on the origin, and … a double click on a pinned tab or a favorite tab should reset it to its

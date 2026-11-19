@@ -5,6 +5,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17: "for all scrollviews that we use, bouncing should not be enabled if there's no reason to have
 /// scrolling". A scroll view whose content fits does not bounce; one whose content overflows does.

@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A path typed in the command bar (R6, roadmap 0023 step M-f): when it names a file that is there, the bar offers to open
 /// it. Only what is plainly a path: one from the root, or from the home folder.

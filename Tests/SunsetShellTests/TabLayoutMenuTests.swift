@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A tab's menu lays tabs out (n78, t287; the owner, 2026-11-17): for several tabs selected, or a split tab; never for one
 /// plain tab.

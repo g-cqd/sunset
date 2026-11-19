@@ -122,7 +122,9 @@ package struct TabSidebar: View {
         }
         .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { width in
             tabs.slide.width = width
-            tabs.slide.animation = layout.smooth
+            tabs.slide.duration = layout.animation
+            tabs.runSlide = SpaceSlide.animated
+            tabs.withoutAnimation = SpaceSlide.plain
         }
         .background { SpaceSwipeCatcher(tabs: tabs, animation: layout.smooth) }
         .gesture(WindowDragGesture())

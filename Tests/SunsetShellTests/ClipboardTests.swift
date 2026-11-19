@@ -2,6 +2,7 @@ import AppKit
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n11: a copy goes through, or is blocked, and says which.
 @MainActor

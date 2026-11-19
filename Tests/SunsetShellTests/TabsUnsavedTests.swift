@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Closing what holds unsaved edits asks Save, Don't Save or Cancel (R6, roadmap 0023 step M-d), whatever closes it: a pane,
 /// a tab, the other tabs, the window. A document is lost only when the panes that go are all the panes that show it.

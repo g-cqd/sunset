@@ -2,6 +2,7 @@ import SunsetMetrics
 import SwiftUI
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Mock-ups of the shared Field and of the bars' buttons (design 0003 step 3): the parts are drawn as the proposal would draw them; the
 /// address field's real lock and zoom label live in SunsetWeb and are shown in the app's shots.

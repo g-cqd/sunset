@@ -3,6 +3,7 @@ import SunsetPane
 import SwiftUI
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 extension DesignCatalogTests {
     /// The sidebar's buttons in each state (the face, so that hover and pressed can be drawn), and the choice rows for comparison.

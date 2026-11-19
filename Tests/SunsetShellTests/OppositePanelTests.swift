@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The panel opposite the tabs, by its keys and menus.
 @MainActor @Suite("The panel opposite the tabs") struct OppositePanelTests {

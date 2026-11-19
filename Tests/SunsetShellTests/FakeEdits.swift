@@ -1,4 +1,5 @@
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A document as the tab model sees it: whether it has edits, how many panes show it, and what was asked of it.
 @MainActor final class FakeEdits {

@@ -25,14 +25,17 @@ package struct PaneGlyphView: View {
                     .frame(width: Design.Size.glyphSymbol, height: Design.Size.glyphSymbol)
                     .background(Self.square.fill(.secondary))
                     .frame(width: Design.Size.glyphFrame)
-            case .image(let image):
-                Image(nsImage: image)
-                    .resizable()
-                    .interpolation(.high)
-                    .scaledToFill()
-                    .frame(width: Design.Size.glyphSymbol, height: Design.Size.glyphSymbol)
-                    .clipShape(Self.square)
-                    .frame(width: Design.Size.glyphFrame)
+            case .image(let picture):
+                Image(
+                    decorative: picture.image,
+                    scale: max(1, Double(picture.image.width) / max(picture.size.width, 1))
+                )
+                .resizable()
+                .interpolation(.high)
+                .scaledToFill()
+                .frame(width: Design.Size.glyphSymbol, height: Design.Size.glyphSymbol)
+                .clipShape(Self.square)
+                .frame(width: Design.Size.glyphFrame)
         }
     }
 

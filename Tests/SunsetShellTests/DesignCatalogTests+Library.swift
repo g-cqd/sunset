@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Mock-ups of the Library of the tab sidebar (roadmap 0031, the owner on 2026-11-15): the sidebar's foot keeps its middle
 /// for spaces, later; a Library glyph opposite the + extends the sidebar into a variant whose content is chosen by tabs laid

@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Roadmap 0047 C (the owner, 2026-11-18: "the alpha masking disappearing animation could be smoother on space
 /// switching"): the mask went from cut to uncut by moving its edges 400 points out, so its fade left the sidebar in the

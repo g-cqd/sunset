@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A file dropped on the window (R6, roadmap 0023 step M-f, ADR-0040): on a terminal its path is typed for the program
 /// there, as in every terminal; anywhere else it opens as a document. A dropped name is not the person's typing: one that

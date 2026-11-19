@@ -5,6 +5,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The sections of the sidebars as built (roadmap 0031, 0030 step ST-5): a document's tab among the tabs, the switch at the foot
 /// of the opposite panel, the Library's rail. The real views, drawn off screen.

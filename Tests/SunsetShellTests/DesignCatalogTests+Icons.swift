@@ -1,6 +1,7 @@
 import SwiftUI
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Candidate symbols for the folder, the sidebar pin, downloads and the private marker (owner's guidance 8 and 1), each in a 28 pt
 /// rounded square as the sidebar draws its buttons, and at a row's glyph size.

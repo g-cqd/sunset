@@ -4,6 +4,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The button at the window's bottom corner as built (the owner's A1, 2026-11-15): the real face, pressed so that its shape
 /// shows, in a corner of the window's radius, before (5 pt from the bottom, four corners of 5) and after.

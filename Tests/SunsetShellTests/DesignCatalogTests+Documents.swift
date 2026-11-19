@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Mock-ups for the Documents section of the sidebar (roadmap 0030 step ST-5): where it sits, how it is headed, what an open
 /// document looks like. Drawn with plain shapes for the owner to choose from; nothing here is the built section.

@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n77: a folder has a preview too, "the list of tabs present in the folder, not a tree"; his answer of
 /// 2026-11-17 on the order: open ones first, the most recently used first; then the others, in the folder's order.

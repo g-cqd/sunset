@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-17 (roadmap 0035 A): "Drag and drop of pinned, favorites and tabs does not work reliably"; "all tabs
 /// should be movable to all sections […] split dragging a tab from a split tab container should drag the container itself to

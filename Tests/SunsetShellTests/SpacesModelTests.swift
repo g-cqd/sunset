@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The Spaces of the app (roadmap 0021 steps S-b and S-c; the owner's answers of 2026-11-17): one order for every window;
 /// a window shows one and changes to another; a Space left by changing keeps running; a tab moves to another Space

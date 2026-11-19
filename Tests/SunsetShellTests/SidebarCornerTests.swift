@@ -4,6 +4,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The button at the window's bottom corner (the owner, 2026-11-15): "library button does not have concentric corners to the
 /// window edges". It was 6.5 pt from the window's side (the margin, the tabs' inset, half a hairline) and 4.5 from its

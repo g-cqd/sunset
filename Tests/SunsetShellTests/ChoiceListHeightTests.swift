@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The list is as tall as its rows, their spaces and its padding: none cut, none left over.
 @Suite("A list of choices' height")

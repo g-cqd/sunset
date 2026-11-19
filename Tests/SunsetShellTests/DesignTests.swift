@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @Suite("Design tokens") struct DesignTests {
     @Test func `the spacing scale is on a 2 pt base, and a value between steps moves up`() {

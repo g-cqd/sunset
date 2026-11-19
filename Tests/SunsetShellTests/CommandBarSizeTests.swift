@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner's note n52: "the command bar when window gets shrunk can overflow the window". Its width is its own while there
 /// is room, else the room left with a margin on each side; its rows scroll in the height left under it.

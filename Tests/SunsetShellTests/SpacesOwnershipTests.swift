@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// Whose the Favorites and the Pinned grid are (roadmap 0044; the owner, 2026-11-17): by default each Space has its own
 /// Favorites and each profile its grid; a setting shares the Favorites in a profile, another the grid in the app.

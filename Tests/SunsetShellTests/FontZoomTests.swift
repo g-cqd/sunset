@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 @Suite("Font zoom") struct FontZoomTests {
     @Test func `the size is the configured one plus the zoom`() {

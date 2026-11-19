@@ -2,6 +2,7 @@ import SunsetPane
 import SwiftUI
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// A content that records what the tab model tells it.
 @MainActor final class FakeContent: PaneContent {

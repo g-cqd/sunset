@@ -2,6 +2,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetShell
+@testable import SunsetShellModel
 
 /// The owner, 2026-11-19: a tab loaded as another profile shows that profile's name always, also while it is not loaded (a
 /// kept entry unloaded has no page: its saved state says which profile, `as`).
