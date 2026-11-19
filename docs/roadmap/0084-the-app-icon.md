@@ -13,7 +13,7 @@ desktop, from nothing across the screen and into the window.
 | Step | What | Status |
 |---|---|---|
 | A | References: 12 photos of sunsets and twilight (Wikimedia Commons), each sky's vertical gradient measured | done (in `~/Public/Sunset/photos`, not in the repository: 72 MB, licences per photo) |
-| B | The shader and the build (`Design/Icons`): scattering, the sun a glow half in haze; faint lens distortion, shimmer, chromatic aberration, round grain | done |
+| B | The shader and the build (`Design/Icons`: `Sky.metal`, `RenderIcon.swift`, `build_icons.py`): scattering, the sun a glow half in haze; faint lens distortion, shimmer, chromatic aberration, round grain | done |
 | C | Four skies, each light, dark and tinted: Sunset (default), Twilight, Dawn, Dusk; chosen by the owner over 12 rounds of candidates | done |
 | D | `App/*.icon` the app's icon and alternates; `Sunset.icns` made by Xcode (`CFBundleIconFile`), the hand-made one removed | done: built (release), the icon in the Dock's size seen, the four in `Assets.car` |
 | E | iOS and macOS before 26: `.build/icons/<sky>/pre-26` (Assets.xcassets, iOS 12+ and macOS 11+) and `.icns` | done, compiled by actool for iOS 15, 17, 26 and macOS 11, 14, 26; no iOS target in the repository yet to take them |
