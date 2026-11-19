@@ -15,6 +15,8 @@ struct CommandBarView: View {
     let layout: Configuration.Layout
     /// The sidebar's field it opens in (roadmap 0035 G): its field is that size, its rows as wide; nil over the panes.
     var anchor: CGSize?
+    /// The room it is shown in (the panes' width, the window's height): it fits in it (n52).
+    var room: CGSize?
     @State private var suggestions = SuggestionSource()
     @FocusState private var typing: Bool
 
@@ -48,6 +50,17 @@ struct CommandBarView: View {
         }
     }
 
+    /// The height left for the rows under the field, in the room it has.
+    private var listRoom: Double {
+        guard let room else { return .infinity }
+        let top = anchor == nil ? Design.System.commandBarTop : 0
+        return max(
+            0,
+            CommandBarSize.height(room: room.height, top: top)
+                - (anchor.map { Double($0.height) } ?? Design.Size.fieldLarge)
+        )
+    }
+
     private func panel(_ bar: CommandBar, _ rows: [ChoiceRow], _ settings: WebSettings) -> some View {
         let style = SurfaceStyle(layout: layout)
         let selection = rows.isEmpty ? -1 : min(bar.selection, rows.count - 1)
@@ -68,13 +81,17 @@ struct CommandBarView: View {
                     selection: selection,
                     radius: layout.tabRadius,
                     spacing: anchor == nil ? Design.Space.xs : layout.tabSpacing,
-                    inset: anchor == nil ? Design.Space.s : Design.Space.xs
+                    inset: anchor == nil ? Design.Space.s : Design.Space.xs,
+                    maxHeight: listRoom
                 ) { run(rows, $0, action: 0) }
             } else if !bar.query.isEmpty {
                 Text("Nothing matches").foregroundStyle(.secondary).padding(Design.Space.xl)
             }
         }
-        .frame(width: anchor.map { Double($0.width) } ?? Design.Width.commandBar)
+        .frame(
+            width: anchor.map { Double($0.width) } ?? room.map { CommandBarSize.width(room: $0.width) }
+                ?? Design.Width.commandBar
+        )
         // The bars' tint (`appearance.barTint`), its scheme set inside the glass, as the address bar's groups (owner,
         // 2026-11-13); the backdrop under it blurs the rest.
         .environment(\.colorScheme, scheme)

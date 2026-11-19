@@ -17,6 +17,8 @@ extension WebCoordinator {
 
     /// The page's process ended (it crashed, or the system took its memory): our failure page, whose Try Again loads it again.
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        // Ended on purpose by a force reload, which loads it again at once.
+        if content?.forcing == true { return }
         content?.failure = .processEnded(url: webView.url ?? content?.url)
     }
 }

@@ -33,10 +33,14 @@ struct WindowDialogs: ViewModifier {
                                 .offset(x: field.minX - origin.x, y: field.minY - origin.y)
                         } else {
                             // Centred over the panes, not the window (owner, 2026-11-13).
-                            CommandBarView(tabs: tabs, layout: layout)
-                                .modifier(RenameTabAlert(tabs: tabs))
-                                .frame(width: panes.width, height: proxy.size.height, alignment: .top)
-                                .offset(x: panes.minX)
+                            CommandBarView(
+                                tabs: tabs,
+                                layout: layout,
+                                room: CGSize(width: panes.width, height: proxy.size.height)
+                            )
+                            .modifier(RenameTabAlert(tabs: tabs))
+                            .frame(width: panes.width, height: proxy.size.height, alignment: .top)
+                            .offset(x: panes.minX)
                         }
                     }
                 }

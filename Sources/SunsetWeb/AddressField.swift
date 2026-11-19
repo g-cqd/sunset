@@ -141,10 +141,10 @@ package struct AddressField: View {
     /// Right-click: the page's own actions, then the tab's (the app's menu).
     @ViewBuilder private var pageMenu: some View {
         Button("Copy Address") { Feedback.give(content.copyAddress()) }.disabled(content.url == nil)
-        Button(content.isLoading ? "Stop" : "Reload") {
-            if content.isLoading { content.stopLoading() } else { content.reload() }
-        }
-        .disabled(content.url == nil)
+        // Stuck loading, or its process hung (n50): Reload and Force Reload are there while it loads too.
+        if content.isLoading { Button("Stop") { content.stopLoading() } }
+        Button("Reload") { content.reload() }.disabled(content.url == nil)
+        Button("Force Reload") { content.forceReload() }.disabled(content.url == nil)
         // The same page, loaded again with another profile's data (roadmap 0050 D).
         if let reloadAs = content.reloadAsAction {
             Menu(reloadAs.title) {

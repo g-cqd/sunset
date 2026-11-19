@@ -21,6 +21,9 @@ import SwiftUI
     var descriptor: PaneDescriptor
     /// A page with no address, as a new tab's.
     var isBlankPage: Bool { descriptor.kind == "web" && descriptor.state["url"] == nil }
+    /// Told that the command bar takes its address (n52).
+    var leftAddressToBar = false
+    func leaveAddressToBar() { leftAddressToBar = true }
     var onExit: () -> Void = {}
     var onFocusRequest: () -> Void = {}
     private(set) var focused = false

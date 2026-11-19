@@ -13,13 +13,18 @@ extension WebContent {
 
     package var isBlankPage: Bool { url == nil && webView?.url == nil }
 
-    package func leaveAddressToBar() { addressToBar = true }
+    package func leaveAddressToBar() {
+        addressToBar = true
+        // Asked for already (its view made empty): the bar has it now, the page's own bar stays in (n52).
+        wantsAddress = false
+    }
 
     /// What a page adds to its tab's menu: Reload, Copy Address, and its site's settings, shown beside its address.
     package var menuActions: [PaneMenuAction] {
         guard url != nil else { return [] }
         return [
             PaneMenuAction("Reload Page") { [weak self] in self?.reload() },
+            PaneMenuAction("Force Reload Page") { [weak self] in self?.forceReload() },
             reloadAsAction,
             PaneMenuAction("Copy Address") { [weak self] in if let self { Feedback.give(copyAddress()) } },
             PaneMenuAction("Site Settings\u{2026}") { [weak self] in self?.showsSiteSettings = true }

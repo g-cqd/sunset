@@ -141,6 +141,10 @@ struct TerminalCommands: Commands {
         Button("Reload Page Without Cache") { page?.reload(fromOrigin: true) }
             .keyboardShortcut("r", modifiers: [.command, .shift])
             .disabled(page?.url == nil)
+        // Its process ended and the page loaded in a new one (n50): for a page stuck loading or hung.
+        Button("Force Reload Page") { page?.forceReload() }
+            .keyboardShortcut("r", modifiers: [.command, .option])
+            .disabled(page?.url == nil)
         Button(page?.sound == .muted ? "Unmute Page" : "Mute Page") { page?.toggleMuted() }
             .disabled(page?.sound == nil)
         Button("Stop") { page?.stopLoading() }.keyboardShortcut(".").disabled(page?.isLoading != true)

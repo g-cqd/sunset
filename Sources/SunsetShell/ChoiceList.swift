@@ -12,14 +12,19 @@ package struct ChoiceList: View {
     /// A row was clicked: its first action.
     let activate: (Int) -> Void
 
+    /// The most it may be tall (the room left in a small window); its rows scroll in it.
+    let maxHeight: Double
+
     package init(
         rows: [ChoiceRow],
         selection: Int,
         radius: Double,
         spacing: Double = Design.Space.hair,
         inset: Double = Design.Space.s,
+        maxHeight: Double = .infinity,
         activate: @escaping (Int) -> Void
     ) {
+        self.maxHeight = maxHeight
         self.rows = rows
         self.selection = selection
         self.radius = radius
@@ -51,7 +56,7 @@ package struct ChoiceList: View {
             }
         }
         // As tall as its rows (a scroll view takes all the room it is offered), up to nine of them.
-        .frame(height: Self.height(rows: min(rows.count, 9), spacing: spacing, inset: inset))
+        .frame(height: min(maxHeight, Self.height(rows: min(rows.count, 9), spacing: spacing, inset: inset)))
     }
 
     package static let rowHeight = 36.0

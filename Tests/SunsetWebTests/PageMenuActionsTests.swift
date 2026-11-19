@@ -9,7 +9,11 @@ import Testing
 struct PageMenuActionsTests {
     @Test func `a page with an address offers Reload, Copy Address and its site's settings; an empty page none`() {
         let page = WebContent(url: URL(string: "https://example.org/"), settings: WebSettings(applicationName: "x"))
-        #expect(page.menuActions.map(\.title) == ["Reload Page", "Copy Address", "Site Settings\u{2026}"])
+        #expect(
+            page.menuActions.map(\.title) == [
+                "Reload Page", "Force Reload Page", "Copy Address", "Site Settings\u{2026}"
+            ]
+        )
         let empty = WebContent(url: nil, settings: WebSettings(applicationName: "x"))
         #expect(empty.menuActions.isEmpty)
         page.menuActions.last?.run()
