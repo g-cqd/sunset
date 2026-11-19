@@ -1,0 +1,90 @@
+{
+  "manifest_version": 3,
+  "name": "Web tester: extension APIs",
+  "version": "1.0",
+  "description": "Probes which extension APIs this browser offers, and saves them on the web tester's local server.",
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "probes.js",
+      "background.js"
+    ]
+  },
+  "action": {
+    "default_title": "Extension APIs",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "tabs",
+    "contextMenus",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "webRequest",
+    "scripting",
+    "cookies",
+    "history",
+    "bookmarks",
+    "downloads",
+    "notifications",
+    "webNavigation",
+    "idle",
+    "sessions",
+    "topSites",
+    "management",
+    "proxy",
+    "privacy",
+    "offscreen",
+    "sidePanel",
+    "tabGroups",
+    "search",
+    "browsingData",
+    "nativeMessaging",
+    "identity",
+    "userScripts",
+    "tts",
+    "fontSettings",
+    "dns",
+    "contextualIdentities",
+    "theme",
+    "menus",
+    "webRequestBlocking",
+    "declarativeNetRequestFeedback",
+    "downloads.open",
+    "system.cpu",
+    "debugger"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "web-tester@sunset.local",
+      "strict_min_version": "121.0"
+    },
+    "safari": {
+      "strict_min_version": "18.0"
+    }
+  },
+  "commands": {
+    "probe": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Probe the extension APIs"
+    }
+  },
+  "sidebar_action": {
+    "default_panel": "popup.html",
+    "default_title": "Extension APIs"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "devtools_page": "devtools.html",
+  "options_ui": {
+    "page": "popup.html"
+  }
+}

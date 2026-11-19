@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Web tester</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div>
+    <h1>Web tester</h1>
+    <p class="note">What this browser can do, the same tests in every browser. The automatic ones prompt for nothing; each
+    one under <b>Asks</b> needs your click, and says what the browser answered.</p>
+  </div>
+  <div class="bar">
+    <span id="label" class="label"></span>
+    <button id="rerun">Run the automatic ones again</button>
+    <button id="save">Save results</button>
+    <button id="download">Download</button>
+    <a class="button" href="compare.html">Compare browsers</a>
+    <a class="button" href="compare.html#extensions">Compare extension APIs</a>
+    <a class="button" href="calls.html">Call tester</a>
+    <a class="button" href="/isolated/index.html" id="isolated">Isolated</a>
+  </div>
+  <p id="summary" class="note"></p>
+</header>
+<nav id="toc"></nav>
+<main id="groups"></main>
+<script type="module">
+import { tests, results, run, runAutomatic, onResult, browserLabel, save, download } from "./js/core.js";
+import "./js/automatic.js";
+import "./js/asks.js";
+
+const groups = new Map();
+for (const test of tests) {
+  if (!groups.has(test.group)) groups.set(test.group, []);
+  groups.get(test.group).push(test);
+}
+
+const main = document.getElementById("groups");
+const toc = document.getElementById("toc");
+const rows = new Map();
+for (const [name, list] of groups) {
+  const id = name.toLowerCase().replace(/[^a-z]+/g, "-");
+  toc.append(Object.assign(document.createElement("a"), { href: `#${id}`, textContent: name }));
+  const section = Object.assign(document.createElement("section"), { id });
+  section.append(Object.assign(document.createElement("h2"), { textContent: name }));
+  const table = document.createElement("table");
+  for (const test of list) {
+    const row = table.insertRow();
+    const nameCell = row.insertCell();
+    nameCell.textContent = test.name;
+    nameCell.className = "name";
+    const statusCell = row.insertCell();
+    statusCell.className = "status";
+    const detailCell = row.insertCell();
+    detailCell.className = "detail";
+    if (test.kind === "ask") {
+      const button = Object.assign(document.createElement("button"), { textContent: "Try" });
+      // Called in the click itself: the browser sees the gesture.
+      button.onclick = () => { statusCell.textContent = "…"; run(test); };
+      statusCell.append(button);
+    } else {
+      statusCell.textContent = "…";
+    }
+    rows.set(test.id, { statusCell, detailCell, test });
+  }
+  section.append(table);
+  main.append(section);
+}
+
+onResult((test, result) => {
+  const row = rows.get(test.id);
+  if (!row) return;
+  row.statusCell.replaceChildren();
+  const pill = Object.assign(document.createElement("span"), { className: `pill ${result.status}`, textContent: result.status });
+  row.statusCell.append(pill);
+  if (test.kind === "ask") {
+    const again = Object.assign(document.createElement("button"), { textContent: "Again" });
+    again.onclick = () => run(test);
+    row.statusCell.append(again);
+  }
+  row.detailCell.textContent = result.detail + (result.ms > 50 ? `  (${result.ms} ms)` : "");
+  summarize();
+});
+
+function summarize() {
+  const done = Object.values(results);
+  const count = (status) => done.filter((r) => r.status === status).length;
+  const asks = tests.filter((t) => t.kind === "ask").length;
+  document.getElementById("summary").textContent =
+    `${done.length} of ${tests.length} run (${asks} need a click): ${count("yes")} yes, ${count("partial")} partly, ${count("no")} no, ` +
+    `${count("denied")} denied, ${count("error")} errors, ${count("timeout")} timeouts, ${count("skip")} skipped.`;
+}
+
+document.getElementById("label").textContent = browserLabel();
+document.getElementById("rerun").onclick = () => runAutomatic();
+document.getElementById("save").onclick = async (event) => {
+  const ok = await save();
+  event.target.textContent = ok ? "Saved" : "Not saved (no server): use Download";
+  setTimeout(() => (event.target.textContent = "Save results"), 2500);
+};
+document.getElementById("download").onclick = download;
+if (location.pathname.startsWith("/isolated/")) document.getElementById("isolated").href = "/index.html";
+document.getElementById("isolated").textContent = location.pathname.startsWith("/isolated/") ? "Not isolated" : "Isolated";
+
+const params = new URLSearchParams(location.search);
+summarize();
+await runAutomatic();
+// Opened to be run unattended (Scripts/web-tester.sh --check): the results go to the server by themselves.
+if (params.has("auto")) await save();
+</script>
+</body>
+</html>

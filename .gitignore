@@ -7,3 +7,4 @@
 /DerivedData/
 .benchmarkBaselines/
 Signing.local.xcconfig
+__pycache__/

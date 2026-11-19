@@ -34,11 +34,4 @@ it), then by setting the value when the keys did not land. A failed step leaves 
 Measured 2026-11-12: an 8-step flow (permission panel, menu, command bar typing, a page load) in about 1.3 s once launched, a launch in about
 0.5-1 s; 40 of 40 runs passed after the last fix, with the owner's app in front throughout.
 
-## The call tester
-
-`Scripts/call-tester.sh` serves `Fixtures/call.html` on `http://127.0.0.1:8767` (a secure context) and opens it in Sunset.
-It exercises what a call site does: the permissions' state; camera and microphone, together or alone, with a chosen
-device, size, rate, echo cancellation and noise suppression; the devices listed (and their change); the speaker
-(`setSinkId`); sharing a screen, a window or a tab, with or without audio, with Chrome's hints; muting, turning the camera
-off, stopping one track or all; a loopback through two peer connections in the page, with what was sent; a notification,
-full screen, picture in picture, the wake lock. Every answer, and every track that ends or mutes, is written in its log.
+The call tester moved: `Tools/webtester/calls.html`, served by `Scripts/web-tester.sh` (see `Tools/webtester/README.md`).

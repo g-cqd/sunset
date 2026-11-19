@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Web tester: web-platform-tests</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>web-platform-tests</h1>
+  <p class="note">The shared test suite Chromium, Firefox and WebKit each import and run (<a href="https://github.com/web-platform-tests/wpt">github.com/web-platform-tests/wpt</a>,
+  results at <a href="https://wpt.fyi">wpt.fyi</a>). The folders below are the ones about what the tester covers, fetched by
+  <code>Scripts/web-tester.sh wpt</code> and served from this server at their own paths.</p>
+  <p class="note"><b>Here</b>, by hand in any browser: a test that needs nothing but the page runs; one that grants itself a
+  permission or presses a key through <code>testdriver</code> cannot (that takes WebDriver), and says so. Tests whose name
+  has <code>manual</code> are meant for a person. <b>The official way</b>, every test in Chrome, Firefox or Safari:
+  <code>./wpt make-hosts-file | sudo tee -a /etc/hosts</code> once, then <code>./wpt run --channel=nightly firefox
+  mediacapture-streams</code> (or <code>chrome</code>, <code>safari</code> after <code>safaridriver --enable</code>), from the
+  checkout in <code>.build/web-tester/wpt</code>.</p>
+  <div class="bar"><a class="button" href="index.html">Back to the tests</a></div>
+  <p id="state" class="note"></p>
+</header>
+<main><table id="folders"></table></main>
+<script type="module">
+const folders = [
+  ["mediacapture-streams", "getUserMedia, tracks, constraints, devices"],
+  ["screen-capture", "getDisplayMedia, CaptureController"],
+  ["mediacapture-record", "MediaRecorder"],
+  ["mediacapture-fromelement", "captureStream of a canvas or a media element"],
+  ["webrtc", "RTCPeerConnection, data channels, stats"],
+  ["permissions", "navigator.permissions"],
+  ["notifications", "Notification (several manual tests)"],
+  ["clipboard-apis", "the async clipboard"],
+  ["screen-wake-lock", "the wake lock"],
+  ["fullscreen", "requestFullscreen"],
+  ["picture-in-picture", "picture in picture"],
+  ["webauthn", "WebAuthn"],
+  ["web-share", "Web Share"],
+  ["geolocation", "geolocation"],
+  ["storage", "the storage manager"],
+  ["storage-access-api", "requestStorageAccess"],
+  ["service-workers", "service workers"],
+  ["media-capabilities", "MediaCapabilities"],
+  ["webcodecs", "WebCodecs"],
+  ["html/semantics/embedded-content/media-elements", "audio and video elements"],
+];
+const table = document.getElementById("folders");
+let present = 0;
+for (const [path, what] of folders) {
+  const row = table.insertRow();
+  const ok = (await fetch(`/${path}/`, { method: "HEAD" }).catch(() => null))?.ok;
+  if (ok) present += 1;
+  const link = row.insertCell();
+  link.className = "name";
+  link.innerHTML = ok ? `<a href="/${path}/">${path}</a>` : `<span class="no pill">absent</span> ${path}`;
+  row.insertCell().textContent = what;
+}
+document.getElementById("state").textContent = present
+  ? `${present} of ${folders.length} folders here.`
+  : "Not fetched yet: run Scripts/web-tester.sh wpt, then reload.";
+</script>
+</body>
+</html>

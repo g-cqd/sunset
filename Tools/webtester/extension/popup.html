@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { color-scheme: light dark; font: 12px -apple-system, system-ui, sans-serif; }
+  body { margin: 10px; width: 420px; }
+  h1 { font-size: 14px; margin: 0 0 4px; }
+  table { border-collapse: collapse; width: 100%; }
+  td { padding: 2px 6px 2px 0; vertical-align: top; border-bottom: 1px solid color-mix(in srgb, currentColor 8%, transparent); }
+  td:last-child { font: 10.5px ui-monospace, Menlo, monospace; opacity: .8; word-break: break-word; }
+  .yes { color: #2a8f3d; } .no { opacity: .5; } .partial { color: #b07a10; } .denied { color: #6a4cf0; }
+</style>
+</head>
+<body>
+<h1>Extension APIs</h1>
+<p id="summary">Probing…</p>
+<button id="again">Probe and save again</button>
+<table id="rows"></table>
+<script src="popup.js"></script>
+</body>
+</html>

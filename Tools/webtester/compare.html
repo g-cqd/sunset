@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Web tester: browsers compared</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Browsers compared</h1>
+  <p class="note">The results each browser saved (its <b>Save results</b>), side by side; or files another machine downloaded.
+  Rows where the browsers differ are in bold.</p>
+  <div class="bar">
+    <a class="button" href="index.html">Back to the tests</a>
+    <label class="button">Add result files <input type="file" id="files" accept="application/json" multiple hidden></label>
+    <select id="kind">
+      <option value="web">Web APIs</option>
+      <option value="extension">Extension APIs (measured, and MDN's documented support)</option>
+    </select>
+    <label><input type="checkbox" id="onlyDiffers"> Only where they differ</label>
+    <label><input type="checkbox" id="details" checked> Details</label>
+  </div>
+</header>
+<main><table class="matrix" id="matrix"></table></main>
+<script type="module">
+const reports = new Map();
+
+async function loadSaved() {
+  try {
+    const list = await (await fetch("/results/", { cache: "no-store" })).json();
+    for (const report of list) reports.set(report.label, report);
+  } catch {}
+}
+
+function render() {
+  const table = document.getElementById("matrix");
+  const kind = document.getElementById("kind").value;
+  const labels = [...reports.keys()].filter((l) => (reports.get(l).kind ?? "web") === kind).sort((a, b) => {
+    // Each browser's measured column, then the documented one beside it.
+    const key = (l) => l.replace(/-(extension|mdn)$/, "") + (l.endsWith("-mdn") ? "~" : "");
+    return key(a).localeCompare(key(b));
+  });
+  const onlyDiffers = document.getElementById("onlyDiffers").checked;
+  const details = document.getElementById("details").checked;
+  table.replaceChildren();
+  if (!labels.length) {
+    table.insertRow().insertCell().textContent = kind === "web"
+      ? "No results yet: open the tests in each browser and press Save results."
+      : "No results yet: Scripts/web-tester.sh extensions, and mdn; or load Tools/webtester/extension in a browser.";
+    return;
+  }
+  const head = table.createTHead().insertRow();
+  head.append(Object.assign(document.createElement("th"), { textContent: "Test" }));
+  for (const label of labels) {
+    const th = document.createElement("th");
+    th.textContent = label;
+    th.title = reports.get(label).userAgent + "\n" + reports.get(label).date;
+    head.append(th);
+  }
+  // Every test any browser ran, in its group, in the order they were run.
+  const order = new Map();
+  for (const label of labels) {
+    for (const [id, r] of Object.entries(reports.get(label).results)) {
+      if (!order.has(id)) order.set(id, r);
+    }
+  }
+  const body = table.createTBody();
+  let group = "";
+  for (const [id, first] of order) {
+    const cells = labels.map((label) => reports.get(label).results[id]);
+    const statuses = new Set(cells.map((c) => c?.status ?? "—"));
+    const differs = statuses.size > 1;
+    if (onlyDiffers && !differs) continue;
+    if (first.group !== group) {
+      group = first.group;
+      const row = body.insertRow();
+      row.className = "group";
+      const cell = row.insertCell();
+      cell.colSpan = labels.length + 1;
+      cell.textContent = group;
+    }
+    const row = body.insertRow();
+    if (differs) row.className = "differs";
+    const name = row.insertCell();
+    name.className = "test";
+    name.textContent = first.name;
+    for (const result of cells) {
+      const cell = row.insertCell();
+      cell.className = "cell";
+      if (!result) { cell.textContent = "—"; continue; }
+      cell.append(Object.assign(document.createElement("span"), { className: `pill ${result.status}`, textContent: result.status }));
+      if (details && result.detail) cell.append(Object.assign(document.createElement("small"), { textContent: result.detail }));
+    }
+  }
+}
+
+document.getElementById("files").onchange = async (event) => {
+  for (const file of event.target.files) {
+    const report = JSON.parse(await file.text());
+    reports.set(report.label ?? file.name, report);
+  }
+  render();
+};
+document.getElementById("onlyDiffers").onchange = render;
+document.getElementById("kind").onchange = render;
+if (location.hash === "#extensions") document.getElementById("kind").value = "extension";
+document.getElementById("details").onchange = render;
+await loadSaved();
+render();
+</script>
+</body>
+</html>
