@@ -1,10 +1,10 @@
 ---
-status: in-progress
+status: done
 blocked-by: nothing
 date: 2026-11-18
 ---
 
-# 0056 — Where everything stands, and its order (the owner's note n48)
+# 0056 — (superseded by 0058) Where everything stands, and its order (the owner's note n48)
 
 Every note (n1–n49), task and request of the session reviewed on 2026-11-18 in the evening. Done items are in the diary
 (2026-11-18-04, -05) and their roadmap entries; this lists what is open, in the order it will be done: quick wins first.
