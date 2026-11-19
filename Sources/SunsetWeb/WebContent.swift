@@ -26,15 +26,12 @@ package final class WebContent: PaneContent {
     package var showsSiteSettings = false
     /// The command bar asks where to go (a new tab, note n12): the page's own field does not take the keyboard.
     @ObservationIgnored var addressToBar = false
-    /// The question waiting for an answer in the panel under the address (web step g).
-    package internal(set) var permissionRequest: PermissionRequest?
+    package internal(set) var permissionRequest: PermissionRequest?  // Waiting under the address (web step g).
     /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).
     package internal(set) var capture: PageCapture?
     package internal(set) var devices = PaneCapture()  // The microphone and the camera, each live or muted (n47).
-    /// Find in the page (Cmd-F).
-    package let find = PageFind()
-    /// The page's zoom, 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
-    package internal(set) var zoom = 1.0
+    package let find = PageFind()  // Find in the page (Cmd-F).
+    package internal(set) var zoom = 1.0  // 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
     /// The site's icon, once fetched (`WebContent+Favicon`).
     package internal(set) var favicon: NSImage? {
         didSet { if favicon !== oldValue { iconColor = favicon.flatMap(Self.colour) } }
@@ -49,6 +46,8 @@ package final class WebContent: PaneContent {
     package internal(set) var shareRequest: ShareRequest?
     package internal(set) var share: ShareSession?
     package var sharedInto = 0
+    package internal(set) var reloadedAs: OtherProfile?  // Reload as (roadmap 0050 D), and its Space's:
+    @ObservationIgnored var homeProfile: OtherProfile?
     @ObservationIgnored var shareWrapper: ShareWrapper?
     @ObservationIgnored var dialogPolicy = PageDialogPolicy()
     /// A server's question for a name and a password, waiting (`CredentialRequest`).
@@ -144,6 +143,7 @@ package final class WebContent: PaneContent {
             settings: settings
         )
         zoom = descriptor.state["zoom"].flatMap(Double.init) ?? 1
+        if let other = Self.savedProfile(descriptor.state["as"]) { takeProfile(other.id) }
         // Not loaded until it is shown or pointed at (roadmap 0047 I).
         isUnloaded = url != nil
     }
@@ -156,6 +156,7 @@ package final class WebContent: PaneContent {
         if !pageTitle.isEmpty { state["title"] = pageTitle }
         if settings.zoomScope == .page, abs(zoom - 1) > 0.001 { state["zoom"] = String(zoom) }
         if isPrivate { state["private"] = "1" }
+        if let reloadedAs { state["as"] = reloadedAs.id?.uuidString ?? "first" }
         if let history = (webView?.interactionState as? Data) ?? savedHistory {
             state["history"] = history.base64EncodedString()
         }

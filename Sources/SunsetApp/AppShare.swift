@@ -16,6 +16,16 @@ import WebKit
         WebShare.sources = { asking in sources(except: asking) }
         WebShare.feed = { id in feed(id) }
         WebShare.otherProfiles = AppConfiguration.shared.configuration.web.shareOtherProfiles
+        // Reload As (roadmap 0050 D): every profile, and a profile's page settings.
+        WebProfiles.all = {
+            AppSpaces.all.profiles.profiles.map(\.profile).map { ($0.isFirst ? nil : $0.id, $0.name) }
+        }
+        WebProfiles.settings = { id, like in
+            let profile = AppSpaces.all.profiles.profiles.map(\.profile).first { ($0.isFirst ? nil : $0.id) == id }
+            var settings = PaneContentKinds.webSettings(of: profile)
+            settings.privacy = like.privacy
+            return settings
+        }
     }
 
     /// Every open tab of every kind, by Space (ADR-0082, step D): pages, terminals, documents; not the asking page itself,

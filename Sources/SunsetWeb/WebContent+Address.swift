@@ -20,8 +20,10 @@ extension WebContent {
         guard url != nil else { return [] }
         return [
             PaneMenuAction("Reload Page") { [weak self] in self?.reload() },
+            reloadAsAction,
             PaneMenuAction("Copy Address") { [weak self] in if let self { Feedback.give(copyAddress()) } },
             PaneMenuAction("Site Settings\u{2026}") { [weak self] in self?.showsSiteSettings = true }
         ]
+        .compactMap(\.self)
     }
 }

@@ -81,7 +81,18 @@ import SunsetWeb
 
     /// The settings for what the command bar opens or suggests in `tabs`: private in a private window, or when its shown page is private.
     static func webSettings(for tabs: TabsModel) -> WebSettings {
-        let own = ownProfile(of: tabs)
+        var settings = webSettings(of: ownProfile(of: tabs))
+        settings.profile = profile(of: tabs)
+        if let page = tabs.selectedContent as? WebContent, page.isPrivate {
+            settings.privacy = page.settings.privacy
+        } else if let group = tabs.privateGroup {
+            settings.privacy = PagePrivacy(group: group)
+        }
+        return settings
+    }
+
+    /// A profile's page settings: its own values over all profiles' (ADR-0083); nil: all profiles'.
+    static func webSettings(of own: Profile?) -> WebSettings {
         var settings = webSettings
         if let own, !own.overrides.isEmpty {
             // Its profile's own values over all profiles' (roadmap 0050).
@@ -91,12 +102,6 @@ import SunsetWeb
             settings.permissionDefaults = AppDownloads.permissionDefaults(web)
             settings.downloadFolder = AppDownloads.folder(web)
             settings.askWhereToSave = web.askWhereToSave
-        }
-        settings.profile = profile(of: tabs)
-        if let page = tabs.selectedContent as? WebContent, page.isPrivate {
-            settings.privacy = page.settings.privacy
-        } else if let group = tabs.privateGroup {
-            settings.privacy = PagePrivacy(group: group)
         }
         return settings
     }

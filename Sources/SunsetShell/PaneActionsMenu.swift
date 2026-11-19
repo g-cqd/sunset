@@ -26,11 +26,22 @@ struct PaneActionsMenu: View {
 
     private func items(_ actions: [PaneMenuAction], of pane: PaneID) -> some View {
         ForEach(actions.indices, id: \.self) { index in
-            Button(actions[index].title) {
-                show()
-                tabs.focus(pane)
-                actions[index].run()
+            let action = actions[index]
+            if action.children.isEmpty {
+                button(action, of: pane)
+            } else {
+                Menu(action.title) {
+                    ForEach(action.children.indices, id: \.self) { child in button(action.children[child], of: pane) }
+                }
             }
+        }
+    }
+
+    private func button(_ action: PaneMenuAction, of pane: PaneID) -> some View {
+        Button(action.title) {
+            show()
+            tabs.focus(pane)
+            action.run()
         }
     }
 }

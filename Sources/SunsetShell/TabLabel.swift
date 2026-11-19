@@ -62,6 +62,16 @@ package struct TabLabel: View {
                 .buttonStyle(.plain)
                 .help(sound.help)
             }
+            // Loaded as another profile than its Space's (roadmap 0050 D): its name, small.
+            if let mark = model?.profileMark {
+                Text(mark)
+                    .font(Design.Text.detail.weight(.semibold))
+                    .lineLimit(1)
+                    .padding(.horizontal, Design.Space.xs)
+                    .background(.quaternary, in: .capsule)
+                    .fixedSize()
+                    .accessibilityLabel("Loaded as \(mark)")
+            }
             // The microphone and the camera it uses, each muted from here (the owner's note n47); the screen's dot stays.
             if let model {
                 ForEach(PaneCapture.Device.allCases, id: \.self) { device in

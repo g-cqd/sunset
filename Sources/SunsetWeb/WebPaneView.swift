@@ -24,6 +24,8 @@ struct WebPaneView: View {
             ZStack(alignment: .top) {
                 if let webView = content.webView {
                     WebViewHost(webView: webView, focused: focused && content.url != nil && content.failure == nil)
+                        // A view made again (Reload As) is a new host.
+                        .id(ObjectIdentifier(webView))
                         // No page to show: its blank does not show through a background that is not opaque.
                         .opacity(isEmpty || content.failure != nil ? 0 : 1)
                 }

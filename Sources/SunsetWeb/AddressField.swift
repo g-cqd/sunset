@@ -145,6 +145,14 @@ package struct AddressField: View {
             if content.isLoading { content.stopLoading() } else { content.reload() }
         }
         .disabled(content.url == nil)
+        // The same page, loaded again with another profile's data (roadmap 0050 D).
+        if let reloadAs = content.reloadAsAction {
+            Menu(reloadAs.title) {
+                ForEach(reloadAs.children.indices, id: \.self) { index in
+                    Button(reloadAs.children[index].title) { reloadAs.children[index].run() }
+                }
+            }
+        }
         Button("Edit Address") { focusNow = true }
         Button("Site Settings\u{2026}") { content.showsSiteSettings = true }.disabled(content.url == nil)
         if abs(content.zoom - 1) > 0.001 { Button("Actual Size") { content.resetZoom() } }

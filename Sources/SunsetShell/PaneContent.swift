@@ -29,6 +29,8 @@ package import SwiftUI
     var sound: PaneSound? { get }
     /// Mutes it, or lets it be heard again.
     func toggleMuted()
+    /// The profile it was loaded as, when it is not its Space's (Reload As, roadmap 0050 D): its tab shows its name.
+    var profileMark: String? { get }
     /// The microphone and the camera it uses (a web page, the owner's note n47): each on its tab, muted from there.
     var devices: PaneCapture { get }
     /// Mutes a device it uses, or turns it back on.
@@ -75,6 +77,7 @@ extension PaneContent {
     package var sound: PaneSound? { nil }
     package func toggleMuted() {}
     package var devices: PaneCapture { PaneCapture() }
+    package var profileMark: String? { nil }
     package func toggle(_ device: PaneCapture.Device) {}
     package var isPrivate: Bool { false }
     package var isEdited: Bool { false }
