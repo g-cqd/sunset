@@ -121,10 +121,6 @@ public struct Configuration: Sendable, Equatable {
         public var barTint = BarTint.scheme
         public init() {}
 
-        public enum BarBlur: String, Sendable, Equatable, CaseIterable {
-            case variable, surface, none
-        }
-
         public enum Accent: String, Sendable, Equatable, CaseIterable {
             case system, sunset, neutral
             /// The site shown: its theme colour or its icon's, else the system's (roadmap 0047 H).

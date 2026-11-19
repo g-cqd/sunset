@@ -1,5 +1,6 @@
 import Foundation
 import SunsetPane
+import SunsetShell
 import Testing
 
 @testable import SunsetWeb
@@ -19,6 +20,31 @@ import Testing
             settings.agent = profile == work ? .chrome : .safari
             return settings
         }
+    }
+
+    private static let thirdID = UUID()
+    private var profiles: [(id: UUID?, name: String)] { [(nil, "Personal"), (work, "Work"), (Self.thirdID, "Third")] }
+
+    /// The owner, 2026-11-19: the menu said "(its Space's)" beside a profile that was not the Space's. A page never reloaded
+    /// has no home kept, and the first profile's id (nil) matched that absence.
+    @Test func `only the profile of the page's own Space is marked as its Space's`() {
+        var home = WebSettings()
+        home.profile = work
+        let page = WebContent(url: address, settings: home)
+        #expect(
+            page.reloadAsAction(among: profiles)?.children.map(\.title) == ["Personal", "Third"],
+            "never reloaded: its Space's is the one it is in"
+        )
+        page.reload(as: Self.thirdID)
+        #expect(
+            page.reloadAsAction(among: profiles)?.children.map(\.title) == ["Personal", "Work (its Space\u{2019}s)"]
+        )
+        let first = WebContent(url: address, settings: WebSettings())
+        #expect(first.reloadAsAction(among: profiles)?.children.map(\.title) == ["Work", "Third"])
+        first.reload(as: work)
+        #expect(
+            first.reloadAsAction(among: profiles)?.children.map(\.title) == ["Personal (its Space\u{2019}s)", "Third"]
+        )
     }
 
     @Test func `the page keeps its address, takes the profile's data and settings, and says so; back, the mark goes`() {
