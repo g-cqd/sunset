@@ -63,7 +63,10 @@ extension HelpCatalog {
             text: [
                 "A Space belongs to one profile, chosen in the Space's editor. A tab dragged to a window of another profile "
                     + "loads its pages again as that profile's.",
-                "History, what sites may do and how sites see Sunset are shared by all profiles for now."
+                "**Settings** with a profile chosen in \u{201C}Settings for\u{201D} sets that profile's search, privacy, "
+                    + "network and downloads; a site's rules set from a page of a profile are that profile's. "
+                    + "History is shared by all profiles for now.",
+                "**Reload As** in a tab's menu loads it again as another profile; its tab says which."
             ],
             related: [.privateBrowsing, .dragAndDrop]
         ),

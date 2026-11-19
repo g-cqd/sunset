@@ -16,53 +16,39 @@ struct EntryGroupRow: View {
     @Environment(\.accent) private var accent
 
     private var inset: Double {
-        Design.Space.hair
+        GroupFrame<EmptyView, EmptyView>.inset
     }
     private var panes: [PaneID] {
         entry.open?.panes ?? entry.home.layout.panes
     }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-        VStack(alignment: .leading, spacing: inset) {
-            if entry.title != nil || entry.icon != nil {
-                HStack(spacing: Design.Space.xs) {
-                    if let icon = entry.icon { PaneIconView(icon: icon) }
-                    if let name = entry.title {
-                        Text(name).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
+        GroupFrame(name: entry.title, icon: entry.icon, layout: layout, fill: fill) {
+            ForEach(panes, id: \.self) { pane in
+                SidebarGroupPart(
+                    model: entry.open == nil ? nil : tabs.content(pane),
+                    saved: entry.home.contents[pane],
+                    lit: selected && pane == (entry.open?.focused ?? entry.home.focused),
+                    layout: layout,
+                    height: Design.Size.favoriteRow - 2 * inset,
+                    // Open: shows the entry with the keyboard in that pane (the owner, 2026-11-17); not loaded, opens it.
+                    select: {
+                        if entry.isOpen {
+                            tabs.choose(part: pane, of: .node(entry.id))
+                        } else {
+                            tabs.select(entry: entry.id)
+                        }
                     }
-                }
-                .padding(.horizontal, Design.Space.s)
-            }
-            HStack(spacing: inset) {
-                ForEach(panes, id: \.self) { pane in
-                    SidebarGroupPart(
-                        model: entry.open == nil ? nil : tabs.content(pane),
-                        saved: entry.home.contents[pane],
-                        lit: selected && pane == (entry.open?.focused ?? entry.home.focused),
-                        layout: layout,
-                        height: Design.Size.favoriteRow - 2 * inset,
-                        // Open: shows the entry with the keyboard in that pane (the owner, 2026-11-17); not loaded, opens it.
-                        select: {
-                            if entry.isOpen {
-                                tabs.choose(part: pane, of: .node(entry.id))
-                            } else {
-                                tabs.select(entry: entry.id)
-                            }
-                        }
-                    )
-                    .contextMenu {
-                        if entry.isOpen, panes.count > 1 {
-                            Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
-                        }
+                )
+                .contextMenu {
+                    if entry.isOpen, panes.count > 1 {
+                        Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
                     }
                 }
             }
+        } outline: { shape in
+            shape.hairline(layout).opacity(selected ? 1 : 0)
         }
-        .padding(inset)
-        .background(shape.fill(fill))
-        .overlay { shape.hairline(layout).opacity(selected ? 1 : 0) }
-        .contentShape(shape)
         .keptHover($hovering)
         .animation(layout.smooth, value: hovering)
         .animation(layout.smooth, value: selected)

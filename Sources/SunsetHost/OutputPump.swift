@@ -10,28 +10,17 @@ internal import Synchronization
 /// give). It waits on the master and on a pipe that `stop` writes to, with no timeout: an idle terminal does not wake up.
 final class OutputPump: Sendable {
     private let master: Int32
-    private let stopRead: Int32
-    private let stopWrite: Int32
+    /// Wakes the pump's wait to stop it.
+    private let stopping = WakePipe()
     private let polls = Mutex(0)
     private static let readSize = 128 * 1024
 
     init(master: Int32) {
         self.master = master
-        var ends: [Int32] = [-1, -1]
-        if pipe(&ends) == 0 {
-            for end in ends {
-                _ = fcntl(end, F_SETFL, fcntl(end, F_GETFL) | O_NONBLOCK)
-                _ = fcntl(end, F_SETFD, FD_CLOEXEC)
-            }
-        } else {
-            ends = [-1, -1]
-        }
-        (stopRead, stopWrite) = (ends[0], ends[1])
     }
 
     deinit {
-        if stopRead >= 0 { close(stopRead) }
-        if stopWrite >= 0 { close(stopWrite) }
+        stopping.close()
     }
 
     /// How many times the pump has gone to wait: an idle terminal must not make it wake.
@@ -41,9 +30,7 @@ final class OutputPump: Sendable {
 
     /// Ends `run` (a `stop` before the run began ends it as soon as it starts).
     func stop() {
-        guard stopWrite >= 0 else { return }
-        var byte: UInt8 = 1
-        _ = unsafe write(stopWrite, &byte, 1)
+        stopping.poke()
     }
 
     /// Reads until the output ends or `stop`, calling `body` with each piece, in order. Blocks the calling thread.
@@ -64,7 +51,7 @@ final class OutputPump: Sendable {
             guard errno == EAGAIN else { return }
             polls.withLock { $0 += 1 }
             var waits = [
-                pollfd(fd: stopRead, events: Int16(POLLIN), revents: 0),
+                pollfd(fd: stopping.readEnd, events: Int16(POLLIN), revents: 0),
                 pollfd(fd: master, events: Int16(POLLIN), revents: 0)
             ]
             let ready = unsafe poll(&waits, 2, -1)

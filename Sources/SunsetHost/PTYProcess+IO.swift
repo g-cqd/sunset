@@ -8,19 +8,16 @@ extension PTYProcess {
     /// on a thread of its own, so it never ties up the cooperative pool; the reader pulls, so a reader that falls behind makes the child wait in the kernel's
     /// buffer (the backpressure a terminal has to give).
     public func read() async -> [UInt8]? {
-        let (fileDescriptor, wake, counters) = (master, cancelRead, counters)
+        let (fileDescriptor, wake, counters) = (master, cancel.readEnd, counters)
         let waiting = Task(executorPreference: readThread) {
             PTYProcess.blockingRead(fileDescriptor, wake: wake, counters: counters)
         }
-        let cancelWrite = cancelWrite
+        let cancel = cancel
         return await withTaskCancellationHandler {
             await waiting.value
         } onCancel: {
             waiting.cancel()
-            if cancelWrite >= 0 {
-                var byte: UInt8 = 1
-                _ = unsafe Darwin.write(cancelWrite, &byte, 1)
-            }
+            cancel.poke()
         }
     }
 

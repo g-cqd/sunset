@@ -18,33 +18,19 @@ struct SidebarGroupRow: View {
     @Environment(\.accent) private var accent
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
+        // The tab's own name and icon, when it was given any: above its panes, which keep their programs' titles.
         let custom = tabs.custom(for: item)
-        return VStack(alignment: .leading, spacing: inset) {
-            // The tab's own name and icon, when it was given any: above its panes, which keep their programs' titles.
-            if custom.name != nil || custom.icon != nil {
-                HStack(spacing: Design.Space.xs) {
-                    if let icon = custom.icon { PaneIconView(icon: icon) }
-                    if let name = custom.name {
-                        Text(name).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
-                    }
-                }
-                .padding(.horizontal, Design.Space.s)
+        return GroupFrame(name: custom.name, icon: custom.icon, layout: layout, fill: containerHighlight) {
+            ForEach(item.panes, id: \.self) { pane in
+                part(pane)
             }
-            HStack(spacing: inset) {
-                ForEach(item.panes, id: \.self) { pane in part(pane) }
-            }
-        }
-        .padding(inset)
-        .background(shape.fill(containerHighlight))
-        .overlay {
+        } outline: { shape in
             if armed {
                 shape.strokeBorder(Color.red.opacity(Design.Fill.armedLine), lineWidth: 1).allowsHitTesting(false)
             } else {
                 shape.hairline(layout).opacity(selected ? 1 : 0)
             }
         }
-        .contentShape(shape)
         .keptHover($hovering)
         .animation(layout.smooth, value: hovering)
         .animation(layout.smooth, value: selected)
@@ -56,7 +42,7 @@ struct SidebarGroupRow: View {
     /// The same space between the container's edge and the small tabs on all four sides, and between the small tabs: small, so that the
     /// small tabs have the room (owner, 2026-11-12); their corner nests in the row's at it.
     private var inset: Double {
-        Design.Space.hair
+        GroupFrame<EmptyView, EmptyView>.inset
     }
 
     private func part(_ pane: PaneID) -> some View {

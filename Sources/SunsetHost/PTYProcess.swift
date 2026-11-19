@@ -16,8 +16,8 @@ public final class PTYProcess: Sendable {
     let pump: OutputPump
     /// A pipe that wakes the waiting reader when its task is cancelled (the reader waits with no timeout; -1 when the pipe could not be made, and it then falls back
     /// to waking every 50 ms to look).
-    let cancelRead: Int32
-    let cancelWrite: Int32
+    /// Wakes the reader's wait when the reading is cancelled.
+    let cancel = WakePipe()
 
     /// Bytes waiting to be written and sends dropped: shared with the writer task.
     final class Counters: Sendable {
@@ -32,16 +32,6 @@ public final class PTYProcess: Sendable {
     init(master: Int32, processID: Int32) {
         self.master = master
         self.processID = processID
-        var ends: [Int32] = [-1, -1]
-        if pipe(&ends) == 0 {
-            for end in ends {
-                _ = fcntl(end, F_SETFL, fcntl(end, F_GETFL) | O_NONBLOCK)
-                _ = fcntl(end, F_SETFD, FD_CLOEXEC)
-            }
-        } else {
-            ends = [-1, -1]
-        }
-        (cancelRead, cancelWrite) = (ends[0], ends[1])
         pump = OutputPump(master: master)
         let (stream, continuation) = AsyncStream.makeStream(of: [UInt8].self, bufferingPolicy: .unbounded)
         outbox = continuation
@@ -63,8 +53,7 @@ public final class PTYProcess: Sendable {
         readThread.stop()
         writeThread.stop()
         close(master)
-        if cancelRead >= 0 { close(cancelRead) }
-        if cancelWrite >= 0 { close(cancelWrite) }
+        cancel.close()
         if !reaped.withLock({ $0 }) {
             kill(processID, SIGHUP)
             var status: Int32 = 0
