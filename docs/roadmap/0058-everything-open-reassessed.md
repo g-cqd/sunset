@@ -28,7 +28,7 @@ again. Supersedes the staging of roadmap 0056. Stages in order; within a stage, 
 | 2.2 | D: what the recovery code is; Argon2id (our own, an Aemi package) if it can be typed | t48 |
 | 2.3 | E: exports sealed by default | t48 |
 | 2.4 | I: WebKit's stores sealed (an encrypted image opened with the Keychain key), performance, stress and benchmark runs against the stores in the clear (release, percentiles) before a decision | t51, t59 |
-| 2.5 | F: Developer ID, hardened runtime, library validation, Secure Enclave wrapping | t49 — **blocked on the owner's certificate** |
+| 2.5 | F: Developer ID, hardened runtime, library validation, Secure Enclave wrapping | t49 — **blocked on the owner's certificate**; also the gate of roadmap 0098 (passkeys, the credential provider, iCloud) |
 
 ## Stage 3 — settings and help, finished
 
@@ -70,6 +70,11 @@ again. Supersedes the staging of roadmap 0056. Stages in order; within a stage, 
 | 6.4 | Extensions, the proxy APIs first. WebKit's own host (`WKWebExtensionController`, macOS 15.4) measured: Safari's extension surface but notifications and commands, which the app gives | 0046 B, C, t14 |
 | 6.5 | Notifications without a click asked (Chrome) and service-worker notifications as settings (ADR-0077: decided) | 0046 S1, S2 |
 | 6.6 | The own WebKit: spike, two builds, our patch series, run-time download (ADR-0078: only if shown better) | 0048 B–E, t28 |
+
+## Not yet placed — credentials (the owner, 2026-11-19)
+
+Roadmap 0090 to 0099 (a vault, entries, one-time codes, filling, backups, sync, hardware keys, Apple's side, payments), their
+order proposed in 0090. Where they go among these stages is the owner's call.
 
 ## Stage 7 — the terminal's foundations (long running, partly done)
 
