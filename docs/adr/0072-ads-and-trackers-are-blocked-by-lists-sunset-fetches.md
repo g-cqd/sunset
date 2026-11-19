@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted (1 and "Not done" superseded by ADR-0101, 4 extended by it)
 date: 2026-11-18
 ---
 
