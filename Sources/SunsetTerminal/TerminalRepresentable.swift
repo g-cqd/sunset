@@ -1,3 +1,4 @@
+import SunsetShell
 package import SwiftUI
 
 /// SwiftUI's handle on the AppKit terminal view.
@@ -16,6 +17,8 @@ package struct TerminalRepresentable: NSViewRepresentable {
         view.layer?.isOpaque = !translucent
         // While the view is larger than the last frame (a layout that animates) the rest shows the terminal's own background, never black.
         view.layer?.backgroundColor = model.layerBackground
-        if focused, let window = view.window, window.firstResponder !== view { window.makeFirstResponder(view) }
+        if focused, let window = view.window, PaneKeyboard.takes(from: window.firstResponder, into: view) {
+            window.makeFirstResponder(view)
+        }
     }
 }

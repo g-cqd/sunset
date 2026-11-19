@@ -21,10 +21,15 @@ import WebKit
         WebProfiles.all = {
             AppSpaces.all.profiles.profiles.map(\.profile).map { ($0.isFirst ? nil : $0.id, $0.name) }
         }
+        ProfileNames.mark = { saved in
+            guard let profile = WebContent.savedProfile(saved) else { return nil }
+            return WebProfiles.all().first { $0.id == profile.id }?.name ?? "Another profile"
+        }
         WebProfiles.settings = { id, like in
             let profile = AppSpaces.all.profiles.profiles.map(\.profile).first { ($0.isFirst ? nil : $0.id) == id }
             var settings = PaneContentKinds.webSettings(of: profile)
             settings.privacy = like.privacy
+            settings.profile = id
             return settings
         }
     }

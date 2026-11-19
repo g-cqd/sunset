@@ -69,7 +69,7 @@ package struct TabLabel: View {
                 .help(sound.help)
             }
             // Loaded as another profile than its Space's (roadmap 0050 D): its name, small.
-            if let mark = model?.profileMark {
+            if let mark = Self.profileMark(model: model, saved: saved) {
                 Text(mark)
                     .font(Design.Text.detail.weight(.semibold))
                     .lineLimit(1)
@@ -113,6 +113,12 @@ package struct TabLabel: View {
                     .lineLimit(1)
             }
         }
+    }
+
+    /// The profile a page is loaded as, when not its Space's: the page's own say, or, not loaded, its saved state's.
+    static func profileMark(model: (any PaneContent)?, saved: PaneDescriptor?) -> String? {
+        if let model { return model.profileMark }
+        return saved?.state["as"].flatMap(ProfileNames.mark)
     }
 
     /// The picture of a pane that is not running: a terminal that runs a command its terminal mark, one in a folder the folder with its

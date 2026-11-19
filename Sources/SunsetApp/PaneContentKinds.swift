@@ -23,7 +23,11 @@ import SunsetWeb
     ) -> any PaneContent {
         switch descriptor.kind {
             case WebContent.kind:
-                var settings = webSettings
+                // Its Space's profile's own settings (ADR-0083), not all profiles' alone; a page saved as another profile
+                // takes that one's as it is made (`as`).
+                var settings = webSettings(
+                    of: AppSpaces.all.profiles.profiles.map(\.profile).first { ($0.isFirst ? nil : $0.id) == profile }
+                )
                 settings.profile = profile
                 settings.privacy = privacy ?? (descriptor.state["private"] == "1" ? PagePrivacy() : nil)
                 let page = WebContent(descriptor: descriptor, settings: settings)

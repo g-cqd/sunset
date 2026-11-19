@@ -1,4 +1,5 @@
 import AppKit
+import SunsetShell
 import SwiftUI
 import WebKit
 
@@ -17,7 +18,6 @@ struct WebViewHost: NSViewRepresentable {
     func updateNSView(_ host: WebViewHostView, context: Context) {
         host.place()
         guard focused, webView.superview === host, let window = host.window else { return }
-        let responder = window.firstResponder as? NSView
-        if responder == nil || !(responder?.isDescendant(of: webView) ?? false) { window.makeFirstResponder(webView) }
+        if PaneKeyboard.takes(from: window.firstResponder, into: webView) { window.makeFirstResponder(webView) }
     }
 }

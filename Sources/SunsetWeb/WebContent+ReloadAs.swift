@@ -67,7 +67,7 @@ extension WebContent {
     }
 
     /// "as" in the session: a profile's id, or "first".
-    static func savedProfile(_ text: String?) -> OtherProfile? {
+    package static func savedProfile(_ text: String?) -> OtherProfile? {
         guard let text else { return nil }
         return text == "first" ? OtherProfile(id: nil) : UUID(uuidString: text).map { OtherProfile(id: $0) }
     }
