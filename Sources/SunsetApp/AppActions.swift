@@ -55,6 +55,8 @@ final class AppActions {
         } else if let wanted, wanted.kind != PaneDescriptor.terminalKind {
             // A window of its own: a page waits for it as content handed over.
             let page = PaneContentKinds.make(wanted) { SessionStore.shared.scheduleSave() }
+            // A new empty page in a window of its own: its address is asked for there (n12, n52: this action's to ask).
+            if let made = page as? WebContent, made.isBlankPage { made.wantsAddress = true }
             handoff.append(page)
             tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? TabRegistry.shared.actingWindow : nil
             joinsRemaining = tabParent == nil ? 0 : 1

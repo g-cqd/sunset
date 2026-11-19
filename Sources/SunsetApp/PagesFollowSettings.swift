@@ -28,9 +28,10 @@ struct PagesFollowSettings: ViewModifier {
                 AppBlocking.apply(now)
                 // Each page its own profile's settings again (a page loaded as another profile, that one's), its privacy kept.
                 for page in tabs.allPages {
-                    var own = WebProfiles.settings(page.settings.profile, page.settings)
-                    own.profile = page.settings.profile
-                    page.settings = own
+                    page.settings = PaneContentKinds.pageSettings(
+                        profile: page.settings.profile,
+                        privacy: page.settings.privacy
+                    )
                     page.applyZoom()
                 }
             }

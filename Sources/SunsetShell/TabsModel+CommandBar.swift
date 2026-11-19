@@ -13,8 +13,6 @@ extension TabsModel {
         opened.inSidebar = sidebarField != nil && workspace.selectedID == nil && workspace.selectedEntry == nil
         // The shown tab's target in the field, selected as the field takes the keyboard: a page's address (roadmap 0047 E).
         if let address = shownPane.flatMap(content)?.descriptor.state["url"] { opened.query = address }
-        // An empty page shown: the bar takes its address, and its own bar stays in (the owner's note n52).
-        if let shown = shownPane.flatMap(content), shown.isBlankPage { shown.leaveAddressToBar() }
         bar = opened
     }
 

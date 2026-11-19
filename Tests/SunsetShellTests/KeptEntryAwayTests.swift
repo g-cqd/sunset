@@ -57,9 +57,10 @@ struct KeptEntryAwayTests {
         #expect(!tabs.isAway(entry: worked))
     }
 
-    /// The owner's note n7: a double click on a tile "stayed on the current page or nothing happened". A tile is a button,
-    /// which takes the clicks before a gesture beside it sees two: its own action reads the click count.
-    @Test func `a tile's second click of a double click takes an away page back`() throws {
+    /// The owner's note n7: a double click on a tile "stayed on the current page or nothing happened". Its cause: the tile
+    /// was a button (with a drag), which took the clicks before a gesture saw two. A tile now takes its clicks as a row does,
+    /// a click showing it and a double click (a gesture of its own) going through `doubleClick(entry:)`.
+    @Test func `a tile's click shows it as it is; its double click takes an away page back`() throws {
         let pinned = FavoritesModel()
         let tabs = TabsModel()
         var made: [FakeContent] = []
@@ -74,10 +75,10 @@ struct KeptEntryAwayTests {
         let pinnedEntry = tabs.pin(item: item)
         let entry = try #require(pinnedEntry)
         try #require(made.last).descriptor = PaneDescriptor(kind: "web", state: ["url": "https://mail.example/m/1"])
-        tabs.clickTile(entry: entry, count: 1)
+        tabs.select(entry: entry)
         let still = try #require(pinned.favorites.entry(entry))
         #expect(tabs.isAway(entry: still), "one click shows it as it is")
-        tabs.clickTile(entry: entry, count: 2)
+        tabs.doubleClick(entry: entry)
         let back = try #require(pinned.favorites.entry(entry))
         #expect(!tabs.isAway(entry: back))
     }
@@ -99,34 +100,5 @@ struct KeptEntryAwayTests {
         let pageEntry = try #require(pinned.favorites.entry(page))
         let shellEntry = try #require(pinned.favorites.entry(shell))
         #expect(!tabs.runsTerminal(pageEntry) && tabs.runsTerminal(shellEntry))
-    }
-}
-
-extension KeptEntryAwayTests {
-    /// The owner, 2026-11-18, the second time (n3, n7): a double click on a pinned page away from its page did not take it
-    /// back. The tile's button cannot be trusted with the event's click count (a drag watches the same clicks): two clicks
-    /// on the same tile within the system's double-click time are a double click, whatever the event says.
-    @Test func `two clicks on a tile within the double-click time take an away page back, even counted as one each`()
-        throws
-    {
-        let pinned = FavoritesModel()
-        let tabs = TabsModel()
-        var made: [FakeContent] = []
-        tabs.makeContent = { descriptor in
-            let content = FakeContent(descriptor)
-            made.append(content)
-            return content
-        }
-        tabs.pinned = pinned
-        tabs.newTab(PaneDescriptor(kind: "web", state: ["url": "https://mail.example/inbox"]))
-        let item = try #require(tabs.workspace.selectedID)
-        let entry = try #require(tabs.pin(item: item))
-        try #require(made.last).descriptor = PaneDescriptor(kind: "web", state: ["url": "https://mail.example/m/1"])
-        tabs.clickTile(entry: entry, count: 1, at: 10.0)
-        tabs.clickTile(entry: entry, count: 1, at: 10.0 + TabsModel.doubleClickTime * 2)
-        #expect(tabs.isAway(entry: try #require(pinned.favorites.entry(entry))), "two clicks far apart are two clicks")
-        tabs.clickTile(entry: entry, count: 1, at: 20.0)
-        tabs.clickTile(entry: entry, count: 1, at: 20.0 + TabsModel.doubleClickTime / 2)
-        #expect(!tabs.isAway(entry: try #require(pinned.favorites.entry(entry))), "two quick clicks take it back")
     }
 }

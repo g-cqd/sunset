@@ -14,10 +14,9 @@ extension TabsModel {
         let made = makeContent(descriptor)
         register(made, as: workspace.add().pane)
         if let entry { left(entry) }
-        // A page with nowhere to go yet: the command bar, to type an address or a search (the owner's note n12); its own
-        // address field leaves the keyboard to it.
+        // A page with nowhere to go yet: the command bar, to type an address or a search (the owner's note n12). Asking is
+        // this action's; a page's view asks for nothing by itself (n52).
         if made.isBlankPage, bar == nil {
-            made.leaveAddressToBar()
             toggleBar()
             bar?.forNewPage = true
         }

@@ -91,9 +91,9 @@ struct PinnedGrid: View {
         let pane = entry.open?.focused ?? entry.home.focused
         // The corner of a tab's row (the owner, 2026-11-17): a tile is a tab, shown as its icon.
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-        return Button {
-            tabs.clickTile(entry: entry.id, count: NSApp.currentEvent?.clickCount ?? 1)
-        } label: {
+        // Its clicks as a row's (n7's cause: a button with a drag took the clicks before a double click was seen): a click
+        // shows it, a double click of its own takes an away page back or asks its name.
+        return Group {
             TabIcon(
                 model: tabs.content(pane),
                 icon: entry.icon,
@@ -133,7 +133,10 @@ struct PinnedGrid: View {
             }
             .contentShape(.rect)
         }
-        .buttonStyle(.plain)
+        .onTapGesture { tabs.select(entry: entry.id) }
+        .simultaneousGesture(TapGesture(count: 2).onEnded { tabs.doubleClick(entry: entry.id) })
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { tabs.select(entry: entry.id) }
         .hoverPreview(tabs, entry: entry.id)
         .help(name(entry))
         .accessibilityLabel(name(entry))

@@ -23,13 +23,11 @@ import SunsetWeb
     ) -> any PaneContent {
         switch descriptor.kind {
             case WebContent.kind:
-                // Its Space's profile's own settings (ADR-0083), not all profiles' alone; a page saved as another profile
-                // takes that one's as it is made (`as`).
-                var settings = webSettings(
-                    of: AppSpaces.all.profiles.profiles.map(\.profile).first { ($0.isFirst ? nil : $0.id) == profile }
+                // Its Space's profile's settings; a page saved as another profile takes that one's as it is made (`as`).
+                let settings = pageSettings(
+                    profile: profile,
+                    privacy: privacy ?? (descriptor.state["private"] == "1" ? PagePrivacy() : nil)
                 )
-                settings.profile = profile
-                settings.privacy = privacy ?? (descriptor.state["private"] == "1" ? PagePrivacy() : nil)
                 let page = WebContent(descriptor: descriptor, settings: settings)
                 page.onChange = changed
                 return page
@@ -85,18 +83,28 @@ import SunsetWeb
 
     /// The settings for what the command bar opens or suggests in `tabs`: private in a private window, or when its shown page is private.
     static func webSettings(for tabs: TabsModel) -> WebSettings {
-        var settings = webSettings(of: ownProfile(of: tabs))
-        settings.profile = profile(of: tabs)
-        if let page = tabs.selectedContent as? WebContent, page.isPrivate {
-            settings.privacy = page.settings.privacy
-        } else if let group = tabs.privateGroup {
-            settings.privacy = PagePrivacy(group: group)
-        }
+        let privacy: PagePrivacy? =
+            if let page = tabs.selectedContent as? WebContent, page.isPrivate {
+                page.settings.privacy
+            } else {
+                tabs.privateGroup.map { PagePrivacy(group: $0) }
+            }
+        return pageSettings(profile: profile(of: tabs), privacy: privacy)
+    }
+
+    /// A page's settings, the one way they are made (every page made, Reload As, a change of settings): its profile's own
+    /// values over all profiles' (ADR-0083), its profile (nil: the first), its privacy. Before, four places each made them,
+    /// and one that forgot the profile or its own values sent a page to another profile's settings (the owner, 2026-11-19).
+    static func pageSettings(profile id: UUID?, privacy: PagePrivacy?) -> WebSettings {
+        let own = AppSpaces.all.profiles.profiles.map(\.profile).first { ($0.isFirst ? nil : $0.id) == id }
+        var settings = webSettings(of: own)
+        settings.profile = id
+        settings.privacy = privacy
         return settings
     }
 
     /// A profile's page settings: its own values over all profiles' (ADR-0083); nil: all profiles'.
-    static func webSettings(of own: Profile?) -> WebSettings {
+    private static func webSettings(of own: Profile?) -> WebSettings {
         var settings = webSettings
         if let own, !own.overrides.isEmpty {
             // Its profile's own values over all profiles' (roadmap 0050).
@@ -124,13 +132,7 @@ import SunsetWeb
         return FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) && isDirectory.boolValue
     }
 
-    /// The profile whose website data a page made in `tabs` uses: its Space's; nil for the first, and for a window that
-    /// is not among the app's Spaces.
-    static func ownProfile(of tabs: TabsModel) -> Profile? {
-        guard AppSpaces.all.contains(tabs.space) else { return nil }
-        return AppSpaces.all.profiles.profile(of: tabs.space.space).profile
-    }
-
+    /// The profile of the Space `tabs` shows (nil: the first, and a window not among the app's Spaces).
     static func profile(of tabs: TabsModel) -> UUID? {
         guard AppSpaces.all.contains(tabs.space) else { return nil }
         let profile = AppSpaces.all.profiles.profile(of: tabs.space.space).profile

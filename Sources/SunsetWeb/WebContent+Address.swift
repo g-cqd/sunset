@@ -13,12 +13,6 @@ extension WebContent {
 
     package var isBlankPage: Bool { url == nil && webView?.url == nil }
 
-    package func leaveAddressToBar() {
-        addressToBar = true
-        // Asked for already (its view made empty): the bar has it now, the page's own bar stays in (n52).
-        wantsAddress = false
-    }
-
     /// What a page adds to its tab's menu: Reload, Copy Address, and its site's settings, shown beside its address.
     package var menuActions: [PaneMenuAction] {
         guard url != nil else { return [] }

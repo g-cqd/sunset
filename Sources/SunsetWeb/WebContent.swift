@@ -25,7 +25,6 @@ package final class WebContent: PaneContent {
     @ObservationIgnored var forcing = false  // Its process ended on purpose (a force reload): not a crash to show.
     /// The site's settings are open beside its address field (its lock, or the field's menu: roadmap 0047 F).
     package var showsSiteSettings = false
-    @ObservationIgnored var addressToBar = false  // The command bar asks where to go (n12): not the page's own field.
     package internal(set) var permissionRequest: PermissionRequest?  // Waiting under the address (web step g).
     /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).
     package internal(set) var capture: PageCapture?

@@ -25,13 +25,7 @@ import WebKit
             guard let profile = WebContent.savedProfile(saved) else { return nil }
             return WebProfiles.all().first { $0.id == profile.id }?.name ?? "Another profile"
         }
-        WebProfiles.settings = { id, like in
-            let profile = AppSpaces.all.profiles.profiles.map(\.profile).first { ($0.isFirst ? nil : $0.id) == id }
-            var settings = PaneContentKinds.webSettings(of: profile)
-            settings.privacy = like.privacy
-            settings.profile = id
-            return settings
-        }
+        WebProfiles.settings = { id, like in PaneContentKinds.pageSettings(profile: id, privacy: like.privacy) }
     }
 
     /// Every open tab of every kind, by Space (ADR-0082, step D): pages, terminals, documents, the asking page itself among its
