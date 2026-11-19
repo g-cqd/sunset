@@ -22,10 +22,15 @@ public enum ExportAll {
         public var sentence: String
     }
 
-    /// A part that is one file: written whole in `folder`, readable by the person's other programs (it is theirs now).
+    /// A part that is one file: written whole in `folder`, the person's only (0600: task t48 E), readable by their programs.
     public static func file(_ data: Data, named name: String, in folder: URL, said: String) -> Step {
         do {
-            try StoredFile.write(data, to: folder.appending(path: name).path, durability: .ordered, permissions: 0o644)
+            try StoredFile.write(
+                data,
+                to: folder.appending(path: name).path,
+                durability: .ordered,
+                permissions: Self.mode
+            )
             return Step(said: said)
         } catch {
             return Step(problem: "\(name) could not be written.")
@@ -44,9 +49,15 @@ public enum ExportAll {
         }
         let done = steps(folder).compactMap(\.self)
         let said = done.compactMap(\.said)
-        let what = said.isEmpty ? "There was nothing to export." : "Exported \(joined(said)), as plain files."
+        let what =
+            said.isEmpty
+            ? "There was nothing to export."
+            : "Exported \(joined(said)), as plain files: they are not encrypted, so keep them where only you can read them."
         return Outcome(folder: folder, sentence: ([what] + done.compactMap(\.problem)).joined(separator: " "))
     }
+
+    /// An export's files: the person's only (task t48 E; they were 0644, readable by every account on the Mac).
+    public static let mode: UInt16 = 0o600
 
     /// "a", "a and b", "a, b and c".
     private static func joined(_ parts: [String]) -> String {

@@ -23,7 +23,7 @@ extension DocumentStore {
             let name = names.next(DocumentTitle.fileName(document.title, kind: document.kind))
             let path = folder.appending(path: name).path
             do {
-                try StoredFile.write(Data(text.utf8), to: path, durability: .ordered, permissions: 0o644)
+                try StoredFile.write(Data(text.utf8), to: path, durability: .ordered, permissions: ExportAll.mode)
                 result.written += 1
             } catch {
                 result.failed.append(document.title)

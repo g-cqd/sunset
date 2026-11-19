@@ -62,14 +62,14 @@ extension ExportFolderTests {
         #expect(folder.deletingLastPathComponent().path == URL(fileURLWithPath: root).path)
         #expect(
             outcome.sentence
-                == "Exported 2 documents, the history (1 page) and the session, as plain files. Not exported: Broken."
+                == "Exported 2 documents, the history (1 page) and the session, as plain files: they are not encrypted, so keep them where only you can read them. Not exported: Broken."
         )
         #expect(try String(contentsOf: folder.appending(path: "History.csv"), encoding: .utf8) == "a,b\r\n")
         let mode =
             try FileManager.default.attributesOfItem(atPath: folder.appending(path: "Session.json").path)[
                 .posixPermissions
             ]
-        #expect(mode as? Int == 0o644, "a file of the person's, not one of the store's")
+        #expect(mode as? Int == 0o600, "the person's only: plain text (task t48 E)")
     }
 
     @Test func `nothing to export is said; a folder that cannot be made is said, and nothing is written`() {
@@ -87,6 +87,9 @@ extension ExportFolderTests {
         )
         let one = ExportAll.run(into: URL(fileURLWithPath: root), now: day) { _ in [ExportAll.Step(said: "1 document")]
         }
-        #expect(one.sentence == "Exported 1 document, as plain files.")
+        #expect(
+            one.sentence
+                == "Exported 1 document, as plain files: they are not encrypted, so keep them where only you can read them."
+        )
     }
 }

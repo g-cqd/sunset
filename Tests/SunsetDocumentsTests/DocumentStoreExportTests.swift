@@ -36,7 +36,7 @@ import Testing
         #expect(Set(texts) == ["# Tides\n\nSix.\n", "# Tides\n\nSeven.\n"])
         let mode =
             try FileManager.default.attributesOfItem(atPath: folder.appending(path: "Tides.md").path)[.posixPermissions]
-        #expect(mode as? Int == 0o644)
+        #expect(mode as? Int == 0o600)
     }
 
     @Test func `a document that does not read is said by its title, and the others are written`() throws {
