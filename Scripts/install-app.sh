@@ -45,6 +45,19 @@ fi
 mkdir -p "$(dirname "$target")"
 mv "$target.new" "$target"
 codesign --verify "$target"
+# One Sunset known to Launch Services: the installed one. A copy it also knew (a build, a test copy, a replaced bundle, one
+# deleted since) could be the one the Dock, the app switcher or a notification took its icon from, by the bundle identifier:
+# the owner saw the orange icon of before roadmap 0084 that way (note n59). Unregistered, the installed one registered again.
+lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+if [ -x "$lsregister" ]; then
+    "$lsregister" -dump 2>/dev/null \
+        | awk '/^path:/ { sub(/^path: +/, ""); sub(/ \(0x[0-9a-f]+\)$/, ""); path = $0 }
+               /^identifier:/ && $2 == "studio.aemi.sunset" { print path }' \
+        | sort -u | while IFS= read -r copy; do
+            [ "$copy" = "$target" ] || "$lsregister" -u "$copy" 2>/dev/null || true
+        done
+    "$lsregister" -f "$target"
+fi
 echo "installed: $(version "$target") at $target"
 
 if [ -z "$stale" ]; then
