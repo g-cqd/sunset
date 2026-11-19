@@ -52,13 +52,14 @@ import WebKit
         return Array(Set(entries.compactMap { URL(string: $0.url)?.host() }))
     }
 
-    /// At quit: every store cleared by what it keeps; the quit waits for WebKit, at most `limit` seconds.
+    /// At quit: every store cleared by what it keeps, every jar flushed then sealed (task t114); the quit waits for WebKit,
+    /// at most `limit` seconds (past it, the jars stay as WebKit writes them).
     static func clearAtQuit(limit: TimeInterval = 5) {
         // WebKit's stores are the bundle's, the person's: a setup of a test or a second setup (its own folder) never
         // clears them.
         guard SunsetStore.shared.places.isDefault else { return }
-        let all = stores().filter { $0.keep != WebKeep() }
-        guard !all.isEmpty else { return }
+        let every = stores()
+        let all = every.filter { $0.keep != WebKeep() }
         var done = false
         runtime.task {
             // The first quit that keeps the chosen sites keeps every site holding cookies then, in every profile: the
@@ -67,9 +68,11 @@ import WebKit
             if !choosing.isEmpty { await WebKeeping.seedKept(from: choosing, visited: visitedHosts()) }
             for (store, keep, profile) in all { await WebKeeping.clear(store, keep: keep, profile: profile) }
             // Every cookie on disk now, then the jars made their owner's only: written at teardown instead, after Sunset
-            // has gone, they were readable by every account (roadmap 0051 G).
-            for (store, _, _) in all { await WebProcessControl.flushCookies(store.httpCookieStore) }
+            // has gone, they were readable by every account (roadmap 0051 G). Then sealed: flushed, WebKit does not write
+            // them again (diary 2026-11-19-12).
+            for (store, _, _) in every { await WebProcessControl.flushCookies(store.httpCookieStore) }
             WebKitFolders.tightenOwn()
+            AppCookieJars.sealAtQuit()
             done = true
         }
         // A deadline on the monotonic clock, not the wall clock (which may jump).

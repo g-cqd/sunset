@@ -8,7 +8,7 @@ public import Foundation
 /// The format: `SNSL`, a version byte, the key's four-byte identifier, the 12-byte nonce, the sealed bytes, the 16-byte tag.
 public struct Seal: Sendable {
     public enum Purpose: String, Sendable {
-        case document, session, state
+        case document, session, state, cookies
     }
 
     private static let magic = Data("SNSL".utf8)
