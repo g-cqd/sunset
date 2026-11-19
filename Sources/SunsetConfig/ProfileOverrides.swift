@@ -58,7 +58,10 @@ public enum ProfileOverrides {
 
 extension SettingsOption {
     /// A profile can set it otherwise (roadmap 0050): one of the keys it writes is a profile's.
-    public var isProfileSetting: Bool { keys.contains { ProfileOverrides.keySet.contains($0) } }
+    public var isProfileSetting: Bool {
+        // Each site: a profile's own site rules (roadmap 0050 E).
+        id == "web.sites" || keys.contains { ProfileOverrides.keySet.contains($0) }
+    }
 }
 
 extension SettingsTopic {

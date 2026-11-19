@@ -16,12 +16,12 @@ import WebKit
 
     /// Each profile's store (the first's is WebKit's default one) and what it keeps. A private window's store is not
     /// persistent and is not among them.
-    static func stores() -> [(store: WKWebsiteDataStore, keep: WebKeep)] {
+    static func stores() -> [(store: WKWebsiteDataStore, keep: WebKeep, profile: UUID?)] {
         AppSpaces.all.profiles.profiles.map(\.profile)
             .map { profile in
                 let store =
                     profile.isFirst ? WKWebsiteDataStore.default() : WKWebsiteDataStore(forIdentifier: profile.id)
-                return (store, web(keep(for: profile)))
+                return (store, web(keep(for: profile)), profile.isFirst ? nil : profile.id)
             }
     }
 
@@ -69,7 +69,7 @@ import WebKit
             // change signs no one out (ADR-0081, 3). Done here, when every profile's store is known.
             let choosing = all.filter { $0.keep.siteData == .keepChosen }.map(\.store)
             if !choosing.isEmpty { await WebKeeping.seedKept(from: choosing, visited: visitedHosts()) }
-            for (store, keep) in all { await WebKeeping.clear(store, keep: keep) }
+            for (store, keep, profile) in all { await WebKeeping.clear(store, keep: keep, profile: profile) }
             done = true
         }
         let end = Date().addingTimeInterval(limit)

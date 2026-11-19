@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import Observation
 package import SunsetStorage
 
@@ -18,14 +18,24 @@ package final class SitePermissions {
     @ObservationIgnored private var base: SitePermissions?
 
     /// Answers of `base`, defaults of its own.
-    package static func sharing(_ base: SitePermissions, defaults: [SitePermission: PermissionAnswer])
-        -> SitePermissions
-    {
+    /// `profile`: the answers given from its pages are its own (roadmap 0050 E), kept as `<profile>|<host>` in `base`; a
+    /// site it never answered falls to all profiles' answer, then to its defaults.
+    package static func sharing(
+        _ base: SitePermissions,
+        defaults: [SitePermission: PermissionAnswer],
+        profile: UUID? = nil
+    ) -> SitePermissions {
         let own = SitePermissions()
         own.defaults = defaults
         own.base = base
+        own.profile = profile
         return own
     }
+
+    /// The profile whose answers it gives and keeps first (a profile's pages).
+    @ObservationIgnored package private(set) var profile: UUID?
+
+    private func profileKey(_ host: String) -> String? { profile.map { $0.uuidString + "|" + Self.key(host) } }
 
     package init(table: SealedTable? = nil) {
         self.table = table
@@ -34,6 +44,7 @@ package final class SitePermissions {
 
     package func answer(_ permission: SitePermission, for host: String?) -> PermissionAnswer {
         let answers = base?.answers ?? self.answers
+        if let host, let key = profileKey(host), let kept = answers[key]?[permission] { return kept }
         if let host, let kept = answers[Self.key(host)]?[permission] { return kept }
         return defaults[permission] ?? permission.defaultAnswer
     }
@@ -41,7 +52,11 @@ package final class SitePermissions {
     /// The answer for `host`; nil forgets it (the default applies again).
     package func set(_ answer: PermissionAnswer?, _ permission: SitePermission, for host: String) {
         if let base {
-            base.set(answer, permission, for: host)
+            if let key = profileKey(host) {
+                base.setKey(answer, permission, key: key)
+            } else {
+                base.set(answer, permission, for: host)
+            }
             return
         }
         let key = Self.key(host)
@@ -50,14 +65,39 @@ package final class SitePermissions {
         keep(key)
     }
 
-    /// The sites with an answer of their own, and how many.
-    package var answeredSites: [(host: String, count: Int)] {
-        answers.map { ($0.key, $0.value.count) }.sorted { $0.host < $1.host }
+    private func setKey(_ answer: PermissionAnswer?, _ permission: SitePermission, key: String) {
+        answers[key, default: [:]][permission] = answer
+        if answers[key]?.isEmpty == true { answers[key] = nil }
+        keep(key)
     }
 
-    /// The sites answered for `permission`, by name.
-    package func sites(for permission: SitePermission) -> [(host: String, answer: PermissionAnswer)] {
-        answers.compactMap { host, kept in kept[permission].map { (host, $0) } }.sorted { $0.host < $1.host }
+    /// The answers of `profile` (nil: all profiles'), by host.
+    private func answers(of profile: UUID?) -> [String: [SitePermission: PermissionAnswer]] {
+        let prefix = profile.map { $0.uuidString + "|" }
+        var mine: [String: [SitePermission: PermissionAnswer]] = [:]
+        for (key, kept) in answers {
+            if let prefix {
+                if key.hasPrefix(prefix) { mine[String(key.dropFirst(prefix.count))] = kept }
+            } else if !key.contains("|") {
+                mine[key] = kept
+            }
+        }
+        return mine
+    }
+
+    /// The sites with an answer of their own, and how many; `profile`: its own (nil: all profiles').
+    package func answeredSites(profile: UUID? = nil) -> [(host: String, count: Int)] {
+        answers(of: profile).map { ($0.key, $0.value.count) }.sorted { $0.host < $1.host }
+    }
+
+    package var answeredSites: [(host: String, count: Int)] { answeredSites() }
+
+    /// The sites answered for `permission`, by name; `profile`: its own (nil: all profiles').
+    package func sites(for permission: SitePermission, profile: UUID? = nil) -> [(
+        host: String, answer: PermissionAnswer
+    )] {
+        answers(of: profile).compactMap { host, kept in kept[permission].map { (host, $0) } }
+            .sorted { $0.host < $1.host }
     }
 
     package func clearAll() {

@@ -14,14 +14,16 @@ package enum SiteSpaces {
 
 extension SiteRules where Value == UUID {
     /// The Space `host` opens in, its own or its nearest parent site's; never for a bare last label.
-    package func space(for host: String?) -> UUID? {
+    package func space(for host: String?, profile: UUID? = nil) -> UUID? {
         guard let host, host.contains(".") else { return nil }
-        return value(for: host)
+        return value(for: host, profile: profile)
     }
 
     /// The Space a page of `current` going to `url` should open it in instead; nil to go there in place.
-    package func elsewhere(_ url: URL, from current: UUID?) -> UUID? {
-        guard ["http", "https"].contains(url.scheme?.lowercased() ?? ""), let wanted = space(for: url.host()) else {
+    package func elsewhere(_ url: URL, from current: UUID?, profile: UUID? = nil) -> UUID? {
+        guard ["http", "https"].contains(url.scheme?.lowercased() ?? ""),
+            let wanted = space(for: url.host(), profile: profile)
+        else {
             return nil
         }
         return wanted == current ? nil : wanted

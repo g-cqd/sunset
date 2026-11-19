@@ -21,7 +21,10 @@ The owner's notes n1, n38 and his answers (2026-11-18): a profile may set search
 4. A page is made with its profile's settings (`ProfileOverrides.apply` onto all profiles'): what it searches with, its
    suggestions, the browser it is shown as, blocking, what a site gets until answered, where its downloads go. A store gets
    its profile's proxy as soon as it changes. Pages open keep what they were made with until reloaded.
-5. The answers given to sites stay one set for every profile (a profile has its own defaults only), as the site rules do,
-   until per-profile site rules (roadmap 0050).
+5. Site rules (the owner's answer, 2026-11-18: "that profile only"): a rule set from a page of a profile is that profile's
+   alone, kept as `<profile>|<site>` beside all profiles' rules; a profile with none for a site follows all profiles'. The
+   first profile's rules are all profiles' (as they always were). The browser shown, the Space a site opens in, its zoom,
+   blocking paused, its data kept and what it may do; not the elements hidden (one list compiled for every page).
+6. Reload As (roadmap 0050 D): a tab loaded again as another profile takes that profile's store, settings and site rules.
 
 Supersedes: the per-profile "Between runs" rows of ADR-0081 (their choices are carried into the overrides).

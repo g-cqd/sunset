@@ -35,13 +35,25 @@ package final class KeptSites {
     package var hosts: [String] { store.rules.map(\.host) }
 
     /// Whether `host`'s data is kept: it, or a site it is under, is on the list.
-    package func keeps(_ host: String?) -> Bool { store.value(for: host) == true }
+    package func keeps(_ host: String?, profile: UUID? = nil) -> Bool {
+        store.value(for: host, profile: profile) == true
+    }
+
+    /// The sites kept for a profile's store: its own and all profiles' (roadmap 0050 E).
+    package func hosts(profile: UUID?) -> [String] {
+        guard profile != nil else { return hosts }
+        return Array(Set(hosts + store.rules(profile: profile).map(\.host))).sorted()
+    }
 
     /// Puts a pattern on the list, or takes it off.
-    package func set(_ kept: Bool, for pattern: SitePattern) { store.set(kept ? true : nil, for: pattern) }
+    package func set(_ kept: Bool, for pattern: SitePattern, profile: UUID? = nil) {
+        store.set(kept ? true : nil, for: pattern, profile: profile)
+    }
 
     /// Puts `host` on the list, or takes it off.
-    package func set(_ kept: Bool, for host: String?) { store.set(kept ? true : nil, for: host) }
+    package func set(_ kept: Bool, for host: String?, profile: UUID? = nil) {
+        store.set(kept ? true : nil, for: host, profile: profile)
+    }
 
     /// The first time only: every site of `records` (WebKit's, holding cookies now) is put on the list.
     /// - Returns: whether it filled the list now.

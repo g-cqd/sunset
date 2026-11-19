@@ -24,21 +24,24 @@ final class SignInWatch: NSObject, WKScriptMessageHandler {
         })();
         """
 
-    private override init() {}
+    /// The page's profile: the site is kept for it (roadmap 0050 E).
+    private let profile: UUID?
+
+    private init(profile: UUID?) { self.profile = profile }
 
     /// Adds the script and its handler to the configuration's controller, unless the page is private.
-    static func install(on configuration: WKWebViewConfiguration, privately: Bool) {
+    static func install(on configuration: WKWebViewConfiguration, privately: Bool, profile: UUID?) {
         guard !privately else { return }
         let controller = configuration.userContentController
         controller.addUserScript(
             WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false, in: .defaultClient)
         )
-        controller.add(SignInWatch(), contentWorld: .defaultClient, name: name)
+        controller.add(SignInWatch(profile: profile), contentWorld: .defaultClient, name: name)
     }
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
         let host = message.frameInfo.securityOrigin.host
         guard !host.isEmpty else { return }
-        KeptSites.shared.set(true, for: host)
+        KeptSites.shared.set(true, for: host, profile: profile)
     }
 }

@@ -25,7 +25,7 @@ extension WebContent {
         WebNotifications.install(on: configuration, for: self)
         IconWatch.install(on: configuration, for: self)
         TextWatch.install(on: configuration, for: self)
-        SignInWatch.install(on: configuration, privately: isPrivate)
+        SignInWatch.install(on: configuration, privately: isPrivate, profile: settings.profile)
         if !isPrivate { shareWrapper = ShareWrapper.install(on: configuration, for: self) }
         if settings.agentScripts { AgentScript.install(on: configuration) }
         WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
@@ -42,7 +42,7 @@ extension WebContent {
         }
         let view = SunsetWebView(frame: .zero, configuration: configuration)
         // Ads and trackers blocked (W-c), unless paused for the site.
-        ContentBlocker.shared.attach(view, host: url?.host(), blocks: settings.blocking)
+        ContentBlocker.shared.attach(view, host: url?.host(), blocks: settings.blocking, profile: settings.profile)
         view.customUserAgent = agent(for: url).userAgent
         view.isInspectable = settings.developer
         view.allowsBackForwardNavigationGestures = true

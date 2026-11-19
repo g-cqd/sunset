@@ -6,7 +6,7 @@ extension WebContent {
     /// The browser the site of `url` is to see: its rule, else the default.
     func agent(for url: URL?) -> BrowserAgent {
         guard let url else { return settings.agent }
-        return agents.agent(for: url, default: settings.agent)
+        return agents.agent(for: url, default: settings.agent, profile: settings.profile)
     }
 
     /// The browser this page's site sees now.
@@ -24,7 +24,7 @@ extension WebContent {
     /// not supported" page never sends a browser back; roadmap 0045 F), else where it is.
     package func appear(as agent: BrowserAgent?) {
         guard let host = siteHost else { return }
-        agents.set(agent, for: host)
+        agents.set(agent, for: host, profile: settings.profile)
         if let target = asked.target(current: webView?.url ?? url) {
             load(target)
             return

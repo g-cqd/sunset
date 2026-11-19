@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import Observation
 package import SunsetStorage
 
@@ -20,22 +20,37 @@ package final class BlockingPauses {
         load()
     }
 
-    package var paused: [String] { hosts.sorted() }
+    package var paused: [String] { paused(profile: nil) }
 
-    /// Whether blocking is paused on `host`: it or a site it is a subdomain of.
-    package func isPaused(_ host: String?) -> Bool {
+    /// A profile's own pauses (roadmap 0050 E), kept as `<profile>|<host>`; nil: all profiles'.
+    package func paused(profile: UUID?) -> [String] {
+        let prefix = profile.map { $0.uuidString + "|" }
+        return
+            hosts.compactMap { key in
+                if let prefix { return key.hasPrefix(prefix) ? String(key.dropFirst(prefix.count)) : nil }
+                return key.contains("|") ? nil : key
+            }
+            .sorted()
+    }
+
+    /// Whether blocking is paused on `host`: it or a site it is a subdomain of; for a page of `profile`, its own pauses
+    /// too.
+    package func isPaused(_ host: String?, profile: UUID? = nil) -> Bool {
         guard let host = host.map(SiteHost.key) else { return false }
         var labels = host.split(separator: ".")[...]
         while labels.count > 1 {
-            if hosts.contains(labels.joined(separator: ".")) { return true }
+            let site = labels.joined(separator: ".")
+            if hosts.contains(site) { return true }
+            if let profile, hosts.contains(profile.uuidString + "|" + site) { return true }
             labels = labels.dropFirst()
         }
         return false
     }
 
-    /// Pauses blocking on a site, or takes the pause away.
-    package func set(_ paused: Bool, for host: String?) {
-        guard let host = host.map(SiteHost.key), host.contains(".") else { return }
+    /// Pauses blocking on a site, or takes the pause away; `profile`: for its pages only.
+    package func set(_ paused: Bool, for host: String?, profile: UUID? = nil) {
+        guard let site = host.map(SiteHost.key), site.contains(".") else { return }
+        let host = profile.map { $0.uuidString + "|" + site } ?? site
         if paused {
             hosts.insert(host)
             table?.put(host, payload: Data(host.utf8))

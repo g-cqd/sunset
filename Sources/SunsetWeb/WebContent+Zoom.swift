@@ -15,7 +15,12 @@ extension WebContent {
         zoom = level
         // A private page's zoom is its own and is never written (web step h).
         if settings.zoomScope != .page, !isPrivate {
-            SiteZoom.shared.set(level, for: url?.host(), remember: settings.zoomScope == .site)
+            SiteZoom.shared.set(
+                level,
+                for: url?.host(),
+                remember: settings.zoomScope == .site,
+                profile: settings.profile
+            )
         }
         applyZoom()
         onChange()
@@ -24,14 +29,16 @@ extension WebContent {
     /// The page went to another site: it takes that site's zoom (a page's own zoom stays).
     func siteChanged() {
         guard settings.zoomScope != .page, !isPrivate else { return }
-        zoom = SiteZoom.shared.level(for: url?.host())
+        zoom = SiteZoom.shared.level(for: url?.host(), profile: settings.profile)
         applyZoom()
     }
 
     /// The zoom on the view: the whole page, or (where WebKit has it) the text only.
     package func applyZoom() {
         guard let webView else { return }
-        if settings.zoomScope != .page, !isPrivate { zoom = SiteZoom.shared.level(for: url?.host()) }
+        if settings.zoomScope != .page, !isPrivate {
+            zoom = SiteZoom.shared.level(for: url?.host(), profile: settings.profile)
+        }
         if settings.textOnlyZoom, WebTextZoom.set(zoom, on: webView) {
             webView.pageZoom = 1
         } else {

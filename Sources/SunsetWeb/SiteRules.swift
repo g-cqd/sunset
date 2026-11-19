@@ -14,6 +14,8 @@ package final class SiteRules<Value: Sendable> {
         }
     }
     private var values: [String: Value] = [:]
+    /// Each profile's own (roadmap 0050 E), kept as `<profile>|<key>`.
+    private var own: [UUID: [String: Value]] = [:]
     @ObservationIgnored private let encode: (Value) -> String
     @ObservationIgnored private let decode: (String) -> Value?
     /// A rule may be for a bare last label ("localhost"): the browser a site is shown, as before.
@@ -49,7 +51,9 @@ package final class SiteRules<Value: Sendable> {
     }
 
     /// The value for an address: the most specific rule that matches it (`SitePattern`; the owner's note n40).
-    package func value(for url: URL) -> Value? {
+    package func value(for url: URL) -> Value? { best(in: values, for: url) }
+
+    private func best(in values: [String: Value], for url: URL) -> Value? {
         var best: (score: Int, value: Value)?
         for (key, value) in values {
             guard let pattern = SitePattern(key) ?? (allowsBareLabel ? .site(key) : nil),
@@ -94,8 +98,61 @@ package final class SiteRules<Value: Sendable> {
         }
     }
 
+    // MARK: A profile's own (roadmap 0050 E)
+
+    /// For a page of `profile`: its own rule, else all profiles'. Nil: all profiles' only (the first profile's pages).
+    package func value(for host: String?, profile: UUID?) -> Value? {
+        guard let profile, let host = host.map(SiteHost.key), !host.isEmpty else { return value(for: host) }
+        var parts = URLComponents()
+        parts.scheme = "https"
+        parts.host = host
+        parts.path = "/"
+        if let mine = own[profile]?[host] { return mine }
+        return parts.url.flatMap { value(for: $0, profile: profile) } ?? value(for: host)
+    }
+
+    package func value(for url: URL, profile: UUID?) -> Value? {
+        if let profile, let mine = own[profile], let found = best(in: mine, for: url) { return found }
+        return value(for: url)
+    }
+
+    /// The rule of exactly this site, the profile's own (nil: all profiles').
+    package func rule(for host: String?, profile: UUID?) -> Value? {
+        guard let profile else { return rule(for: host) }
+        return host.flatMap { own[profile]?[SiteHost.key($0)] }
+    }
+
+    /// A profile's own rules (nil: all profiles').
+    package func rules(profile: UUID?) -> [(host: String, value: Value)] {
+        guard let profile else { return rules }
+        return (own[profile] ?? [:]).sorted { $0.key < $1.key }.map { ($0.key, $0.value) }
+    }
+
+    package func set(_ value: Value?, for host: String?, profile: UUID?) {
+        guard let profile else { return set(value, for: host) }
+        guard let host = host.map(SiteHost.key), !host.isEmpty, value == nil || host.contains(".") || allowsBareLabel
+        else { return }
+        setOwn(value, key: host, profile: profile)
+    }
+
+    package func set(_ value: Value?, for pattern: SitePattern, profile: UUID?) {
+        guard let profile else { return set(value, for: pattern) }
+        setOwn(value, key: pattern.key, profile: profile)
+    }
+
+    private func setOwn(_ value: Value?, key: String, profile: UUID) {
+        own[profile, default: [:]][key] = value
+        let stored = profile.uuidString + "|" + key
+        if let value {
+            table?.put(stored, payload: Data("\(stored)\n\(encode(value))".utf8))
+        } else {
+            table?.remove(stored)
+        }
+    }
+
     package func clearAll() {
         values = [:]
+        own = [:]
         table?.removeAll()
     }
 
@@ -103,7 +160,14 @@ package final class SiteRules<Value: Sendable> {
         for row in table?.all().rows ?? [] {
             guard let text = String(data: row.payload, encoding: .utf8) else { continue }
             let parts = text.split(separator: "\n", maxSplits: 1)
-            if parts.count == 2, let value = decode(String(parts[1])) { values[String(parts[0])] = value }
+            guard parts.count == 2, let value = decode(String(parts[1])) else { continue }
+            let key = String(parts[0])
+            // A profile's own: `<profile>|<key>`.
+            if let bar = key.firstIndex(of: "|"), let profile = UUID(uuidString: String(key[..<bar])) {
+                own[profile, default: [:]][String(key[key.index(after: bar)...])] = value
+            } else {
+                values[key] = value
+            }
         }
     }
 }

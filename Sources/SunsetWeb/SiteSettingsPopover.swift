@@ -36,8 +36,8 @@ struct SiteSettingsPopover: View {
                 // ADR-0081: the sites chosen keep their data when Sunset quits; the others' is cleared.
                 Toggle(
                     isOn: Binding(
-                        get: { KeptSites.shared.keeps(host) },
-                        set: { KeptSites.shared.set($0, for: host) }
+                        get: { KeptSites.shared.keeps(host, profile: content.settings.profile) },
+                        set: { KeptSites.shared.set($0, for: host, profile: content.settings.profile) }
                     )
                 ) {
                     Label("Keep its data when Sunset quits", systemImage: "archivebox")
@@ -169,14 +169,17 @@ struct SiteSettingsPopover: View {
     /// The Space the site and its subdomains open in, from a link of another Space's page (W-d).
     private var spaceBinding: Binding<UUID?> {
         Binding(
-            get: { SiteSpaces.shared.rule(for: content.siteHost) },
-            set: { SiteSpaces.shared.set($0, for: content.siteHost) }
+            get: { SiteSpaces.shared.rule(for: content.siteHost, profile: content.settings.profile) },
+            set: { SiteSpaces.shared.set($0, for: content.siteHost, profile: content.settings.profile) }
         )
     }
 
     /// The site's own rule (nil: none, the default); changing it loads the page again.
     private var agentBinding: Binding<BrowserAgent?> {
-        Binding(get: { content.agents.rule(for: content.siteHost) }, set: { content.appear(as: $0) })
+        Binding(
+            get: { content.agents.rule(for: content.siteHost, profile: content.settings.profile) },
+            set: { content.appear(as: $0) }
+        )
     }
 
     private func binding(_ permission: SitePermission, _ host: String) -> Binding<PermissionAnswer> {

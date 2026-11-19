@@ -17,7 +17,7 @@ struct SitesSettings: View {
 
     var body: some View {
         let stores = SiteSummary.Stores.app
-        let rows = SiteSummary.rows(stores) { id in AppSpaces.all.space(id)?.space.name }
+        let rows = SiteSummary.rows(stores, profile: config.profileID) { id in AppSpaces.all.space(id)?.space.name }
         Group {
             Section {
                 defaults
@@ -103,7 +103,7 @@ struct SitesSettings: View {
                 ForEach(Array(zip(row.kinds, row.parts).enumerated()), id: \.offset) { _, pair in
                     LabeledContent {
                         Button("Reset") {
-                            SiteSummary.reset(pair.0, of: row.host, in: stores)
+                            SiteSummary.reset(pair.0, of: row.host, in: stores, profile: config.profileID)
                             changed()
                         }
                     } label: {
@@ -113,7 +113,7 @@ struct SitesSettings: View {
                 }
                 LabeledContent {
                     Button("Forget Site", role: .destructive) {
-                        SiteSummary.forget(row.host, in: stores)
+                        SiteSummary.forget(row.host, in: stores, profile: config.profileID)
                         changed()
                     }
                 } label: {
@@ -188,8 +188,8 @@ struct SitesSettings: View {
     private func add() {
         guard let rule = SitePattern(pattern) else { return }
         switch adding {
-            case .agent(let agent): SiteAgents.shared.set(agent, for: rule)
-            case .kept: KeptSites.shared.set(true, for: rule)
+            case .agent(let agent): SiteAgents.shared.set(agent, for: rule, profile: config.profileID)
+            case .kept: KeptSites.shared.set(true, for: rule, profile: config.profileID)
         }
         open.insert(rule.key)
         pattern = ""

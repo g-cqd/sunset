@@ -4,13 +4,15 @@ import WebKit
 extension WebContent {
     /// Whether ads and trackers are blocked on this page's site now.
     package var blocksOnSite: Bool {
-        ContentBlocker.shared.enabled && !ContentBlocker.shared.pauses.isPaused(siteHost)
+        ContentBlocker.shared.enabled && settings.blocking
+            && !ContentBlocker.shared.pauses.isPaused(siteHost, profile: settings.profile)
     }
 
     /// Pauses blocking on this page's site, or resumes it, and loads the page again so that it takes effect.
     package func setBlocking(_ on: Bool) {
         guard let host = siteHost, let webView else { return }
-        ContentBlocker.shared.pauses.set(!on, for: host)
+        // For this page's profile only (roadmap 0050 E); the first profile's are all profiles'.
+        ContentBlocker.shared.pauses.set(!on, for: host, profile: settings.profile)
         ContentBlocker.shared.apply(to: webView, host: host)
         webView.reload()
     }

@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import WebKit
 
 /// Clears what is not kept from WebKit's stores (ADR-0081), and fills the kept list once.
@@ -21,9 +21,15 @@ package enum WebKeeping {
     }
 
     /// Clears `store` by `keep`: what is cleared everywhere, then the data of the sites not kept.
-    package static func clear(_ store: WKWebsiteDataStore, keep: WebKeep, kept: KeptSites = .shared) async {
+    /// `profile`: the store's, whose own kept sites count with all profiles' (roadmap 0050 E).
+    package static func clear(
+        _ store: WKWebsiteDataStore,
+        keep: WebKeep,
+        profile: UUID? = nil,
+        kept: KeptSites = .shared
+    ) async {
         let records = await store.dataRecords(ofTypes: WebKeepPlan.siteDataTypes)
-        let plan = WebKeepPlan.make(keep, records: records.map(\.displayName), kept: kept.hosts)
+        let plan = WebKeepPlan.make(keep, records: records.map(\.displayName), kept: kept.hosts(profile: profile))
         if !plan.everywhere.isEmpty { await store.removeData(ofTypes: plan.everywhere, modifiedSince: .distantPast) }
         let cleared = Set(plan.sites)
         let gone = records.filter { cleared.contains($0.displayName) }

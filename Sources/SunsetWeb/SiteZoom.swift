@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import SunsetStorage
 
 /// The zoom each site was given (web step d, `web.zoomScope`): by host, kept as sealed records of the state database when
@@ -24,18 +24,31 @@ package final class SiteZoom {
     /// How many sites have a level of their own.
     package var count: Int { levels.count }
     /// The sites with a level of their own, and it.
-    package var sites: [(host: String, level: Double)] { levels.sorted { $0.key < $1.key }.map { ($0.key, $0.value) } }
+    package var sites: [(host: String, level: Double)] { sites(profile: nil) }
+
+    /// A profile's own levels (roadmap 0050 E), kept as `<profile>|<host>`; nil: all profiles'.
+    package func sites(profile: UUID?) -> [(host: String, level: Double)] {
+        let prefix = profile.map { $0.uuidString + "|" }
+        return
+            levels.compactMap { key, level in
+                if let prefix { return key.hasPrefix(prefix) ? (String(key.dropFirst(prefix.count)), level) : nil }
+                return key.contains("|") ? nil : (key, level)
+            }
+            .sorted { $0.host < $1.host }
+    }
 
     /// The levels are kept from one run to the next.
     package var remembers: Bool { table != nil }
 
-    package func level(for host: String?) -> Double {
+    package func level(for host: String?, profile: UUID? = nil) -> Double {
         guard let host = host.map(Self.key) else { return 1 }
+        if let profile, let own = levels[profile.uuidString + "|" + host] { return own }
         return levels[host] ?? 1
     }
 
-    package func set(_ level: Double, for host: String?, remember: Bool) {
-        guard let host = host.map(Self.key) else { return }
+    package func set(_ level: Double, for host: String?, remember: Bool, profile: UUID? = nil) {
+        guard let site = host.map(Self.key) else { return }
+        let host = profile.map { $0.uuidString + "|" + site } ?? site
         if abs(level - 1) < 0.001 { levels[host] = nil } else { levels[host] = level }
         if remember { keep(host) }
     }

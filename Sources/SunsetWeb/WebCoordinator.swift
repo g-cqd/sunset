@@ -24,7 +24,11 @@ import WebKit
         // A link to a site that opens in another Space goes there, with that Space's profile (W-d).
         if action.targetFrame?.isMainFrame == true, action.navigationType == .linkActivated, let content,
             !content.isPrivate, let url = action.request.url,
-            let space = SiteSpaces.shared.elsewhere(url, from: content.currentSpace())
+            let space = SiteSpaces.shared.elsewhere(
+                url,
+                from: content.currentSpace(),
+                profile: content.settings.profile
+            )
         {
             content.openInSpace(url, space)
             return .cancel

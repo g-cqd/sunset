@@ -48,10 +48,18 @@ package final class ContentBlocker {
     /// Where the lists and their compiled rules are kept.
     @ObservationIgnored package var folder: URL
     @ObservationIgnored private(set) var compiled: [WKContentRuleList] = []
-    @ObservationIgnored private var views: [(view: WeakView, host: String?, blocks: Bool)] = []
+    @ObservationIgnored private var views: [Attached] = []
 
     struct WeakView {
         weak var view: WKWebView?
+    }
+
+    /// A page blocking is put on: its site, whether its profile blocks, and its profile (for its own pauses).
+    struct Attached {
+        var view: WeakView
+        var host: String?
+        var blocks: Bool
+        var profile: UUID?
     }
 
     package init(folder: URL, pauses: BlockingPauses, hidden: SiteRules<[String]> = HiddenElements.make()) {
@@ -64,9 +72,9 @@ package final class ContentBlocker {
 
     /// A page's view, made: it has the lists from now on, as its site says.
     /// `blocks`: its profile blocks (roadmap 0050); off, only the elements hidden for good are on it.
-    package func attach(_ view: WKWebView, host: String?, blocks: Bool = true) {
+    package func attach(_ view: WKWebView, host: String?, blocks: Bool = true, profile: UUID? = nil) {
         views.removeAll { $0.view.view == nil || $0.view.view === view }
-        views.append((WeakView(view: view), host, blocks))
+        views.append(Attached(view: WeakView(view: view), host: host, blocks: blocks, profile: profile))
         apply(to: view, host: host)
     }
 
@@ -74,14 +82,16 @@ package final class ContentBlocker {
     /// next load, decided before a page goes to `host`.
     package func apply(to view: WKWebView, host: String?) {
         var blocks = true
+        var profile: UUID?
         if let index = views.firstIndex(where: { $0.view.view === view }) {
             views[index].host = host
             blocks = views[index].blocks
+            profile = views[index].profile
         }
         let controller = view.configuration.userContentController
         controller.removeAllContentRuleLists()
         if let hiddenList { controller.add(hiddenList) }
-        guard enabled, blocks, !pauses.isPaused(host) else { return }
+        guard enabled, blocks, !pauses.isPaused(host, profile: profile) else { return }
         for list in compiled { controller.add(list) }
     }
 

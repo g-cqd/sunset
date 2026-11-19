@@ -1,3 +1,4 @@
+import Foundation
 import SunsetConfig
 import SunsetPane
 import SunsetShell
@@ -13,6 +14,8 @@ import SunsetShell
         self.profile = profile
         self.profiles = profiles
     }
+
+    var profileID: UUID? { profile.profile.isFirst ? nil : profile.profile.id }
 
     var configuration: Configuration {
         ProfileOverrides.apply(profile.profile.overrides, to: AppConfiguration.shared.configuration)

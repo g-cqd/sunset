@@ -7,9 +7,13 @@ import SwiftUI
 @MainActor protocol SettingsStore: AnyObject {
     var configuration: Configuration { get }
     func update(_ edit: (inout Configuration) -> Void)
+    /// The profile whose own site rules are listed (roadmap 0050 E); nil: all profiles' (and the first profile's).
+    var profileID: UUID? { get }
 }
 
-extension AppConfiguration: SettingsStore {}
+extension AppConfiguration: SettingsStore {
+    var profileID: UUID? { nil }
+}
 
 extension SettingsStore {
     func binding<Value: Sendable>(_ keyPath: WritableKeyPath<Configuration, Value>) -> Binding<Value> {

@@ -29,18 +29,30 @@ package final class SiteAgents {
     }
 
     /// What the page at `url` is shown: the most specific rule for it (an address prefix, its host, a pattern; note n40).
-    package func agent(for url: URL, default fallback: BrowserAgent) -> BrowserAgent {
-        store.value(for: url) ?? fallback
+    /// `profile`: a page of that profile, its own rule first (roadmap 0050 E); nil: all profiles'.
+    package func agent(for url: URL, default fallback: BrowserAgent, profile: UUID? = nil) -> BrowserAgent {
+        store.value(for: url, profile: profile) ?? fallback
     }
 
     /// Gives a pattern a rule, or takes it away.
-    package func set(_ agent: BrowserAgent?, for pattern: SitePattern) { store.set(agent, for: pattern) }
+    package func set(_ agent: BrowserAgent?, for pattern: SitePattern, profile: UUID? = nil) {
+        store.set(agent, for: pattern, profile: profile)
+    }
 
     /// The rule of exactly this site, if it has one.
-    package func rule(for host: String?) -> BrowserAgent? { store.rule(for: host) }
+    package func rule(for host: String?, profile: UUID? = nil) -> BrowserAgent? {
+        store.rule(for: host, profile: profile)
+    }
 
     /// Gives a site a rule, or takes it away (nil): it is then shown the default.
-    package func set(_ agent: BrowserAgent?, for host: String?) { store.set(agent, for: host) }
+    package func set(_ agent: BrowserAgent?, for host: String?, profile: UUID? = nil) {
+        store.set(agent, for: host, profile: profile)
+    }
+
+    /// A profile's own rules (nil: all profiles').
+    package func rules(profile: UUID?) -> [(host: String, agent: BrowserAgent)] {
+        store.rules(profile: profile).map { ($0.host, $0.value) }
+    }
 
     package func clearAll() { store.clearAll() }
 }
