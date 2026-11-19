@@ -44,3 +44,18 @@ extension ModelLayerTests {
         }
     }
 }
+
+extension ModelLayerTests {
+    /// The terminal's model (its session, screen, renderer driving, selection, links) apart from its view: no AppKit, no
+    /// SwiftUI. The pasteboard and whether the app is in front come from the app.
+    @Test func `the terminal's model imports no AppKit nor SwiftUI`() {
+        let files = RepositoryFiles.swiftFiles(in: ["Sources/SunsetTerminalModel"])
+        #expect(files.count > 15, "the scan must see the module: \(files.count) files")
+        let banned = ["SwiftUI", "AppKit", "AemiSDR"]
+        let found = files.filter { file in
+            banned.contains { file.text.contains("import \($0)\n") }
+        }
+        #expect(found.isEmpty, "\(found.map(\.name))")
+        #expect(Set(files.map(\.name)).contains("TerminalModel.swift"))
+    }
+}

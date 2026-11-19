@@ -1,10 +1,9 @@
 import Foundation
 package import SunsetPane
-package import SunsetShell
-package import SwiftUI
+package import SunsetShellModel
 
 /// The terminal as the content of a pane.
-extension TerminalModel: PaneContent, PaneViewMaking {
+extension TerminalModel: PaneContent {
     package var detail: String? {
         directory
     }
@@ -37,16 +36,5 @@ extension TerminalModel: PaneContent, PaneViewMaking {
 
     package func setState(focused: Bool, visible: Bool) {
         paneStateChanged(focused: focused, visible: visible)
-    }
-
-    package func makeView(_ context: PaneViewContext) -> AnyView {
-        AnyView(
-            TerminalRepresentable(
-                model: self,
-                optionAsMeta: context.optionAsMeta,
-                translucent: context.translucent,
-                focused: context.focused
-            )
-        )
     }
 }

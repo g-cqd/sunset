@@ -216,12 +216,20 @@ let package = Package(
                 "SunsetConfig"
             ]
         ),
-        // The terminal as a kind of pane content (R8: a target per kind): its model, its AppKit view, input, selection, the renderer's wiring.
+        // The terminal's model (roadmap 0086 D): its session, screen, renderer's wiring, selection, links; no AppKit nor SwiftUI.
+        module(
+            "SunsetTerminalModel",
+            [
+                "SunsetRuntime", "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetRender",
+                "SunsetRenderMac", "SunsetRenderMetal", "SunsetShellModel"
+            ]
+        ),
+        // The terminal as a kind of pane content (R8): its AppKit view, keys and mouse, the view of its pane; re-exports its model.
         module(
             "SunsetTerminal",
             [
-                "SunsetRuntime", "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetRender",
-                "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetMetrics"
+                "SunsetTerminalModel", "SunsetRuntime", "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane",
+                "SunsetRender", "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetMetrics"
             ]
         ),
         // A document as a kind of pane content (R6, roadmap 0023 step M-c): Markdown and Mermaid drawn natively or as source,

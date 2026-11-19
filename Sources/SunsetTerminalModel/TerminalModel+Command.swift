@@ -15,7 +15,7 @@ extension TerminalModel {
     }
 
     /// Called when the session exists: waits for the prompt, then types what is pending.
-    func deliverPendingCommand() {
+    package func deliverPendingCommand() {
         guard pendingCommand != nil, let session, commandDelivery == nil else { return }
         commandDelivery = runtime.task { [weak self, runtime] in
             let start = runtime.uptime()

@@ -13,7 +13,7 @@ extension TerminalModel {
     }
 
     /// The frame, once claimed (`renderInFlight` set).
-    func drawClaimed() async {
+    package func drawClaimed() async {
         guard let session, let renderer else {
             renderInFlight = false
             return

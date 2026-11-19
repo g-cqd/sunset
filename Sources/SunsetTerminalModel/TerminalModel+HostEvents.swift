@@ -1,4 +1,3 @@
-import AppKit
 import SunsetConfig
 import SunsetCore
 package import SunsetHost
@@ -13,12 +12,11 @@ extension TerminalModel {
         for await event in session.hostEvents where policy.admits(event) {
             switch event {
                 case .clipboardWrite(let text):
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(text, forType: .string)
+                    writeClipboard(text)
                 case .notification(let title, let body):
                     let now = ProcessInfo.processInfo.systemUptime
                     let seen = NotificationGate.seen(
-                        appActive: NSApp.isActive,
+                        appActive: appIsActive(),
                         windowKey: gates.windowFocused,
                         windowVisible: gates.windowVisible,
                         paneVisible: gates.paneVisible

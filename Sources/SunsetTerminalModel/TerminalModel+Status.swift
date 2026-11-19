@@ -1,9 +1,9 @@
 import SunsetCore
-import SunsetHost
+package import SunsetHost
 
 extension TerminalModel {
     /// What the tab shows: changed only when it differs, so that nothing observing it redraws for nothing.
-    func apply(_ status: TerminalStatus) {
+    package func apply(_ status: TerminalStatus) {
         let shown = status.title.isEmpty ? "Sunset" : status.title
         if shown != title { title = shown }
         let path = status.workingDirectory?.path

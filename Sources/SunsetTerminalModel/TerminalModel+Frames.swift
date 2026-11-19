@@ -1,10 +1,10 @@
-import SunsetCore
+package import SunsetCore
 import SunsetHost
 import SunsetRenderMac
 
 /// What follows a frame.
 extension TerminalModel {
-    func presented(changed: Bool, snapshot: Screen) {
+    package func presented(changed: Bool, snapshot: Screen) {
         renderInFlight = false
         cursorBlinks = snapshot.cursorBlinks
         apply(TerminalStatus(snapshot))

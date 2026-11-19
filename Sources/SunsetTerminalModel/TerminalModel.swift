@@ -36,6 +36,10 @@ package import SunsetRuntime
     /// The view asked for a bigger font (⌘= or ⌘⇧=, which the menu's ⌘+ does not always catch): the window's zoom, which the app owns.
     @ObservationIgnored package var onZoomRequest: (Double) -> Void = { _ in }
     @ObservationIgnored package var openURL: (URL) -> Void = { _ in }
+    /// Writes what a program put on the clipboard (the app's: the system pasteboard); until the app says, nothing.
+    @ObservationIgnored package var writeClipboard: (String) -> Void = { _ in }
+    /// Whether Sunset is the app in front (the app's: `NSApp.isActive`); until it says, it is.
+    @ObservationIgnored package var appIsActive: () -> Bool = { true }
     /// Shows a notification the program asked for and the policy admitted: the app's (it names the Space, and a click goes
     /// to the tab: S-e); nil, the notification centre's as it is.
     @ObservationIgnored package var post: ((_ title: String, _ body: String) -> Void)?
@@ -45,10 +49,10 @@ package import SunsetRuntime
     @ObservationIgnored package var renderer: (any IOSurfaceRenderer)?
     @ObservationIgnored package var scale = 2.0
     @ObservationIgnored package var font = FontSettings()
-    @ObservationIgnored var frameWanted = false
-    @ObservationIgnored var renderInFlight = false
+    @ObservationIgnored package var frameWanted = false
+    @ObservationIgnored package var renderInFlight = false
     /// Lets the renderer go to rest a while after the last frame (`TerminalModel+Frames`).
-    @ObservationIgnored let frameRest = FrameRest()
+    @ObservationIgnored package let frameRest = FrameRest()
     @ObservationIgnored package var cursorPhase = true
     @ObservationIgnored package var cursorBlinks = true
     @ObservationIgnored package var viewPixels = (width: 0, height: 0)
@@ -69,8 +73,8 @@ package import SunsetRuntime
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
     @ObservationIgnored package var lastActivity: Duration = .zero
     /// A kept entry's command, typed at the prompt (`TerminalModel+Command`).
-    @ObservationIgnored var pendingCommand: String?
-    @ObservationIgnored var commandDelivery: Task<Void, Never>?
+    @ObservationIgnored package var pendingCommand: String?
+    @ObservationIgnored package var commandDelivery: Task<Void, Never>?
     /// The window is the key window (so the cursor blinks) and is on screen (so frames are drawn). Set by the view from the window's notifications.
     @ObservationIgnored package var hasFocus = true
     @ObservationIgnored package var isVisible = true
