@@ -29,9 +29,11 @@ plist="$work/Sunset Lab.app/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string Sunset Lab" "$plist" 2>/dev/null \
     || /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Sunset Lab" "$plist"
 /usr/libexec/PlistBuddy -c "Delete :CFBundleURLTypes" "$plist" 2>/dev/null || true
-# The identity the build was signed with, else ad hoc.
+# The identity the build was signed with, else ad hoc; hardened, with the entitlements that need no profile (the team's
+# profile is the bundle identifier studio.aemi.sunset's, not the Lab's).
 identity="$(codesign -dvv "$built" 2>&1 | sed -n 's/^Authority=//p' | sed -n 1p)"
-codesign --force --deep --sign "${identity:--}" "$work/Sunset Lab.app" 2>/dev/null
+codesign --force --deep --options runtime --entitlements App/Sunset.entitlements --sign "${identity:--}" \
+    "$work/Sunset Lab.app" 2>/dev/null
 codesign --verify "$work/Sunset Lab.app"
 
 rm -rf "$target"

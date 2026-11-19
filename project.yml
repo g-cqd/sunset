@@ -20,8 +20,11 @@ settings:
     # The commit, given by Scripts/make-app.sh.
     CURRENT_PROJECT_VERSION: 0
     GENERATE_INFOPLIST_FILE: YES
-    # Not hardened: a terminal runs what the person runs, and a page's camera and microphone need no entitlement this way.
-    ENABLE_HARDENED_RUNTIME: NO
+    # Hardened (task t49: notarisation requires it): it constrains Sunset's own process only, not what the terminal runs; a page's
+    # camera, microphone and location are App/Sunset.entitlements's. Nothing is loaded at run time and only the system's
+    # libraries are linked, so library validation refuses nothing.
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_ENTITLEMENTS: App/Sunset.entitlements
   configs:
     Release:
       # No debugger's entitlement (get-task-allow) in the build that is installed.

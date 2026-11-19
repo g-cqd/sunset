@@ -1,0 +1,8 @@
+// Copy to Signing.local.xcconfig (not committed) to sign with the team's Developer ID (task t49). The release build is
+// studio.aemi.sunset, which the "Sunset" Developer ID profile names; a debug build (studio.aemi.sunset.dev) is signed with
+// the same identity but without the profile or the team's entitlements.
+CODE_SIGN_IDENTITY = Developer ID Application: Your Name (YOURTEAMID)
+DEVELOPMENT_TEAM = YOURTEAMID
+OTHER_CODE_SIGN_FLAGS = --timestamp
+PROVISIONING_PROFILE_SPECIFIER[config=Release] = Sunset
+CODE_SIGN_ENTITLEMENTS[config=Release] = App/Sunset.team.entitlements
