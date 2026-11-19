@@ -40,6 +40,7 @@ final class AddressNSField: NSTextField {
         // Typed in, the text scrolls and is clipped, not truncated: a truncating cell's editor kept the end of a long address
         // (and the caret there) a couple of points past what it shows (the owner's note n10).
         typingLayout(true)
+        endEditorAtAlignment()
         editorMargin = currentEditor()?.superview.map { bounds.width - $0.frame.maxX }
         currentEditor()?.selectAll(nil)
         onEditing(true)
@@ -68,6 +69,21 @@ final class AddressNSField: NSTextField {
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
         followWidth()
+    }
+
+    /// Room after the caret at the end of the text: the caret, a point wide, and a hair, as before the text's start.
+    static let caretMargin = 2.0
+
+    /// AppKit's focus clip runs 2.5 points past the field's frame, which itself runs past what SwiftUI shows by the field's
+    /// alignment inset: with the caret at the end, the last letters and the caret were scrolled into that strip and cut
+    /// (the owner's screenshot of 2026-11-19, "…&rv=("). The clip's end is brought to the alignment edge; its start stays
+    /// where AppKit put it (note n41).
+    private func endEditorAtAlignment() {
+        guard let editor = currentEditor() as? NSTextView, let clip = editor.superview else { return }
+        let end = bounds.width - alignmentRectInsets.right - Self.caretMargin
+        guard clip.frame.maxX > end + 0.5 else { return }
+        clip.setFrameSize(CGSize(width: max(0, end - clip.frame.minX), height: clip.frame.height))
+        editor.scrollRangeToVisible(NSRange(location: 0, length: 0))
     }
 
     /// The space AppKit leaves after the editor, read when typing begins.

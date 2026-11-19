@@ -47,14 +47,27 @@ struct AddressFieldEditorTests {
         return editor.frame
     }
 
-    @Test func `beginning to type leaves the editor where AppKit puts it, after a layout too`() throws {
+    @Test
+    func
+        `beginning to type leaves the editor's start where AppKit puts it, its end inside the field, after a layout too`()
+        throws
+    {
         let (window, field) = field(width: 200)
         _ = window
         field.beginTyping()
         field.layoutSubtreeIfNeeded()
         field.layout()
         let clip = try #require(field.currentEditor()?.superview)
-        #expect(clip.frame == (try appKitFrame(width: 200)), "\(clip.frame)")
+        let appKit = try appKitFrame(width: 200)
+        #expect(
+            clip.frame.minX == appKit.minX && clip.frame.minY == appKit.minY && clip.frame.height == appKit.height,
+            "\(clip.frame)"
+        )
+        // Its end at the field's alignment edge less the caret's margin (the owner's screenshot of 2026-11-19).
+        #expect(
+            abs(clip.frame.maxX - (200 - field.alignmentRectInsets.right - AddressNSField.caretMargin)) < 0.5,
+            "\(clip.frame)"
+        )
     }
 
     @Test func `narrowed while typed in, the editor's end follows the field's, keeping AppKit's margin`() throws {

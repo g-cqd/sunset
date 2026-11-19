@@ -7,15 +7,14 @@ package import SwiftUI
 package struct AddressField: View {
     @Environment(\.runtime) var runtime
 
-    /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
-    @Environment(\.fadesEnds) var fadesEnds
     let content: WebContent
     /// Where its list goes.
     var place = AddressTyping.Place.top
     /// Tells whether the field is being typed in (the window bar stays out meanwhile).
     var onEditing: (Bool) -> Void = { _ in }
-    /// Copy and Reload (Stop while loading) at its trailing end, while the pointer is over it or the page loads, the text fading
-    /// under them as a tab's title does under its buttons (roadmap 0047 F).
+    /// Copy and Reload (Stop while loading) at its trailing end, while the pointer is over it or the page loads (roadmap 0047
+    /// F). The text ends before them, by their measured width, truncated in its middle: a fade under them hid the end of the
+    /// host, which says whose site it is (the owner's screenshot of 2026-11-19, "idmsa.apple.c" under the copy glyph).
     var reload = false
     /// What its context menu adds after the page's own items: the tab's menu (the app's).
     var menu: AnyView?
@@ -23,6 +22,8 @@ package struct AddressField: View {
     /// Being typed in: no buttons over its end and no fade, so that the text and the caret are never hidden (note n9).
     @State private var editing = false
     @State private var focusNow = false
+    /// Copy and Reload's width, as laid out.
+    @State private var actionsWidth = 0.0
     @Environment(\.addressTyping) private var typing
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.surfaceStyle) private var surface
@@ -33,8 +34,10 @@ package struct AddressField: View {
         place: AddressTyping.Place = .top,
         reload: Bool = false,
         menu: AnyView? = nil,
+        hovering: Bool = false,
         onEditing: @escaping (Bool) -> Void = { _ in }
     ) {
+        _hovering = State(initialValue: hovering)
         self.content = content
         self.place = place
         self.reload = reload
@@ -46,7 +49,8 @@ package struct AddressField: View {
         HStack(spacing: Design.Optical.fieldGlyphToText) {
             if content.isPrivate { PrivateMark() }
             if content.url != nil { SiteButton(content: content) }
-            textField.mask { textMask }
+            // Clipped to its own frame: an `NSTextField` draws past it.
+            textField.clipped()
             if abs(content.zoom - 1) > 0.001 {
                 Button(ZoomLevels.label(content.zoom)) { content.resetZoom() }
                     .buttonStyle(.borderless)
@@ -56,6 +60,7 @@ package struct AddressField: View {
                     .help("Zoom: click for 100%")
             }
         }
+        .padding(.trailing, showsActions ? actionsWidth + Design.Optical.fieldGlyphToText : 0)
         .overlay(alignment: .trailing) {
             if showsActions {
                 HStack(spacing: 0) {
@@ -64,6 +69,7 @@ package struct AddressField: View {
                     }
                     reloadButton
                 }
+                .onGeometryChange(for: Double.self, of: { $0.size.width }) { actionsWidth = $0 }
                 .transition(.opacity)
             }
         }
@@ -113,22 +119,6 @@ package struct AddressField: View {
     /// Copy and Reload at the end: asked for, under the pointer or loading, and never while it is typed in (note n9).
     static func showsActions(reload: Bool, hovering: Bool, loading: Bool, editing: Bool) -> Bool {
         reload && !editing && (hovering || loading)
-    }
-
-    /// The text fades out under the buttons at its end while they show.
-    private var textMask: some View {
-        HStack(spacing: 0) {
-            Color.black
-            if showsActions {
-                LinearGradient(
-                    gradient: .end(from: .black, to: .clear, fading: fadesEnds),
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(width: Design.Space.m)
-                Color.clear.frame(width: Design.Space.l * (hovering && content.url != nil ? 2 : 1))
-            }
-        }
     }
 
     private var reloadButton: some View {
