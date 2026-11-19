@@ -11,17 +11,6 @@ extension Reader {
     mutating func readTerminal(_ object: Object) {
         for (key, value) in object {
             switch key {
-                case "opacity":
-                    if let factor = number("terminal.opacity", value, range: 0 ... 1) {
-                        configuration.terminal.opacity = factor
-                        terminalOpacitySet = true
-                    }
-                case "clipboardWrite":
-                    guard let flag = bool("terminal.clipboardWrite", value) else { continue }
-                    configuration.terminal.clipboardWrite = flag
-                case "shellIntegration":
-                    guard let flag = bool("terminal.shellIntegration", value) else { continue }
-                    configuration.terminal.shellIntegration = flag
                 case "directory":
                     guard let path = string("terminal.directory", value) else { continue }
                     configuration.terminal.directory = path

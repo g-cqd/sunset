@@ -16,27 +16,11 @@ extension Reader {
         for (key, value) in object {
             let path = "sidebar.\(key)"
             switch key {
-                case "enabled": if let flag = bool(path, value) { configuration.sidebar.enabled = flag }
-                case "width":
-                    if let points = number(path, value, range: 120 ... 480) { configuration.sidebar.width = points }
                 case "padding":
                     if let points = number(path, value, range: 0 ... 16) { configuration.sidebar.padding = points }
-                case "autoHide": if let flag = bool(path, value) { configuration.sidebar.autoHide = flag }
-                case "side":
-                    if let side = choice(path, value, as: Configuration.Side.self) { configuration.sidebar.side = side }
-                case "library": if let flag = bool(path, value) { configuration.sidebar.library = flag }
-                case "separators": if let flag = bool(path, value) { configuration.sidebar.separators = flag }
-                case "previews", "previewPages", "previewTerminals", "previewDocuments", "previewFolders":
-                    if let flag = bool(path, value), let field = Self.previewFlags[key] {
-                        configuration.sidebar[keyPath: field] = flag
-                    }
                 // A Documents heading among the tabs, for a day (2026-11-15): the key is read and does nothing, so that a file
                 // written that day does not complain.
                 case "documents": break
-                case "documentSort":
-                    if let sort = choice(path, value, as: Configuration.Sidebar.DocumentSort.self) {
-                        configuration.sidebar.documentSort = sort
-                    }
                 // Removed: the sidebar takes the window's material and blur. Files written before still have them; they are ignored without a warning.
                 case "material", "blur": break
                 default: unknown(path)
@@ -47,37 +31,7 @@ extension Reader {
     mutating func readAppearance(_ object: Object) {
         for (key, value) in object {
             switch key {
-                case "scheme":
-                    if let choice = choice("appearance.scheme", value, as: Configuration.Appearance.Scheme.self) {
-                        configuration.appearance.scheme = choice
-                    }
-                case "glass":
-                    if let choice = choice("appearance.glass", value, as: Configuration.Appearance.Glass.self) {
-                        configuration.appearance.glass = choice
-                    }
                 case "tint": section("appearance.tint", value) { reader, tint in reader.readTint(tint) }
-                case "ends":
-                    if let ends = choice("appearance.ends", value, as: Configuration.Appearance.Ends.self) {
-                        configuration.appearance.ends = ends
-                    }
-                case "icon":
-                    if let icon = choice("appearance.icon", value, as: Configuration.Appearance.Icon.self) {
-                        configuration.appearance.icon = icon
-                    }
-                case "haptics":
-                    if let flag = bool("appearance.haptics", value) { configuration.appearance.haptics = flag }
-                case "barTint":
-                    if let tint = choice("appearance.barTint", value, as: Configuration.Appearance.BarTint.self) {
-                        configuration.appearance.barTint = tint
-                    }
-                case "barBlur":
-                    if let blur = choice("appearance.barBlur", value, as: Configuration.Appearance.BarBlur.self) {
-                        configuration.appearance.barBlur = blur
-                    }
-                case "accent":
-                    if let accent = choice("appearance.accent", value, as: Configuration.Appearance.Accent.self) {
-                        configuration.appearance.accent = accent
-                    }
                 default: unknown("appearance.\(key)")
             }
         }
@@ -97,14 +51,6 @@ extension Reader {
                         configuration.appearance.lightTintColor = nil
                     } else if let bytes = color("appearance.tint.light", value) {
                         configuration.appearance.lightTintColor = bytes
-                    }
-                case "lightAlpha":
-                    if let alpha = number("appearance.tint.lightAlpha", value, range: 0 ... 1) {
-                        configuration.appearance.lightTintAlpha = alpha
-                    }
-                case "alpha":
-                    if let alpha = number("appearance.tint.alpha", value, range: 0 ... 1) {
-                        configuration.appearance.tintAlpha = alpha
                     }
                 default: unknown("appearance.tint.\(key)")
             }
@@ -131,21 +77,9 @@ extension Reader {
     mutating func readTabs(_ object: Object) {
         for (key, value) in object {
             switch key {
-                case "mode":
-                    if let choice = choice("tabs.mode", value, as: Configuration.Tabs.Mode.self) {
-                        configuration.tabs.mode = choice
-                    }
                 case _ where Self.tabFlags[key] != nil:
                     if let path = Self.tabFlags[key], let flag = bool("tabs.\(key)", value) {
                         configuration.tabs[keyPath: path] = flag
-                    }
-                case "askBeforeQuit":
-                    if let ask = choice("tabs.askBeforeQuit", value, as: Configuration.Tabs.QuitAsk.self) {
-                        configuration.tabs.askBeforeQuit = ask
-                    }
-                case "closeStoppedAfter":
-                    if let hours = number("tabs.closeStoppedAfter", value, range: 0 ... 8760) {
-                        configuration.tabs.closeStoppedAfter = hours
                     }
                 case "bar": section("tabs.bar", value) { reader, bar in reader.readTabBar(bar) }
                 default: unknown("tabs.\(key)")
@@ -154,22 +88,9 @@ extension Reader {
     }
 
     private mutating func readTabBar(_ object: Object) {
-        for (key, value) in object {
-            let path = "tabs.bar.\(key)"
-            switch key {
-                case "position":
-                    if let choice = choice(path, value, as: Configuration.Tabs.Bar.Position.self) {
-                        configuration.tabs.bar.position = choice
-                    }
-                case "icon": if let flag = bool(path, value) { configuration.tabs.bar.showIcon = flag }
-                case "title": if let flag = bool(path, value) { configuration.tabs.bar.showTitle = flag }
-                case "directory": if let flag = bool(path, value) { configuration.tabs.bar.showDirectory = flag }
-                case "monospacedDirectory":
-                    if let flag = bool(path, value) { configuration.tabs.bar.monospacedDirectory = flag }
-                case "progress": if let flag = bool(path, value) { configuration.tabs.bar.showProgress = flag }
-                case "autoHide": if let flag = bool(path, value) { configuration.tabs.bar.autoHide = flag }
-                default: unknown(path)
-            }
+        // Every key is a plain value its option reads; anything else is not one.
+        for key in object.keys {
+            unknown("tabs.bar.\(key)")
         }
     }
 

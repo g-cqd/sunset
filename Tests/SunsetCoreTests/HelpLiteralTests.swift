@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 /// A control's explanation comes from help's topics (roadmap 0041 A): a tooltip written where it is used, `.help("…")`, is

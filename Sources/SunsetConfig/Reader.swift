@@ -27,6 +27,10 @@ struct Reader {
                 issue(key, "not allowed in a theme (a theme sets only what is visual)")
                 continue
             }
+            if let codec = SettingCodec.byKey[key] {
+                codec.read(&self, value)
+                continue
+            }
             switch key {
                 case "font": section("font", value) { reader, object in reader.readFont(object) }
                 case "colors": section("colors", value) { reader, object in reader.readColors(object) }
@@ -46,7 +50,6 @@ struct Reader {
                 case "scroll": section("scroll", value) { reader, object in reader.readScroll(object) }
                 case "scrollback": section("scrollback", value) { reader, object in reader.readScrollback(object) }
                 case "cursor": section("cursor", value) { reader, object in reader.readCursor(object) }
-                case "renderer": readRenderer(value)
                 default: unknown(key)
             }
         }
@@ -55,9 +58,16 @@ struct Reader {
     // MARK: Sections
 
     mutating func section(_ path: String, _ value: JSONValue, _ body: (inout Reader, Object) -> Void) {
-        guard case .object(let object) = value else {
+        guard case .object(var object) = value else {
             issue(path, "expected an object")
             return
+        }
+        // A plain value is read by its option's codec (roadmap 0086 C); the section's own reading sees the rest.
+        for (key, entry) in object {
+            if let codec = SettingCodec.byKey["\(path).\(key)"] {
+                codec.read(&self, entry)
+                object.removeValue(forKey: key)
+            }
         }
         body(&self, object)
     }

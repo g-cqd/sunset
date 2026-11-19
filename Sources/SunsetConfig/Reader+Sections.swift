@@ -8,10 +8,6 @@ extension Reader {
             switch key {
                 case "family":
                     if let text = string("font.family", value) { configuration.font.family = text.isEmpty ? nil : text }
-                case "size":
-                    if let number = number("font.size", value, range: 4 ... 200) { configuration.font.size = number }
-                case "ligatures":
-                    if let flag = bool("font.ligatures", value) { configuration.font.ligatures = flag }
                 case "features":
                     if let text = string("font.features", value) { configuration.font.features = text }
                 default: unknown("font.\(key)")
@@ -22,131 +18,46 @@ extension Reader {
     mutating func readWindow(_ object: Object) {
         for (key, value) in object {
             switch key {
-                case "decorations":
-                    guard case .string(let text) = value, let choice = Configuration.Window.Decorations(rawValue: text)
-                    else {
-                        let allowed = Configuration.Window.Decorations.allCases.map(\.rawValue).joined(separator: ", ")
-                        issue("window.decorations", "expected one of \(allowed)")
-                        continue
-                    }
-                    configuration.window.decorations = choice
                 case "trafficLights":
                     section("window.trafficLights", value) { reader, lights in reader.readTrafficLights(lights) }
-                case "padding":
-                    if let points = number("window.padding", value, range: 0 ... 32) {
-                        configuration.window.padding = points
-                    }
-                case "material":
-                    let renamed: JSONValue = value == .string("transparent") ? .string("fill") : value
-                    if let choice = choice("window.material", renamed, as: Configuration.Material.self) {
-                        configuration.window.material = choice
-                    }
                 case "opacity": readLegacyWindowOpacity(value)
-                case "materialThickness":
-                    if let thickness = choice(
-                        "window.materialThickness",
-                        value,
-                        as: Configuration.MaterialThickness.self
-                    ) {
-                        configuration.window.materialThickness = thickness
-                    }
-                case "blur":
-                    if let radius = number("window.blur", value, range: 0 ... 100) {
-                        configuration.window.blur = radius
-                    }
-                case "dragStrip":
-                    if let height = number("window.dragStrip", value, range: 0 ... 64) {
-                        configuration.window.dragStrip = height
-                    }
                 default: unknown("window.\(key)")
             }
         }
     }
 
     mutating func readKeyboard(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "optionAsMeta":
-                    if let flag = bool("keyboard.optionAsMeta", value) { configuration.keyboard.optionAsMeta = flag }
-                default: unknown("keyboard.\(key)")
-            }
+        // Every key is a plain value its option reads; anything else is not one.
+        for key in object.keys {
+            unknown("keyboard.\(key)")
         }
     }
 
     mutating func readStorage(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "importedFiles":
-                    if let choice = choice("storage.importedFiles", value, as: Configuration.Storage.ImportedFiles.self)
-                    {
-                        configuration.storage.importedFiles = choice
-                    }
-                default: unknown("storage.\(key)")
-            }
+        // Every key is a plain value its option reads; anything else is not one.
+        for key in object.keys {
+            unknown("storage.\(key)")
         }
     }
 
     mutating func readDocuments(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "saveAfter":
-                    if let seconds = number("documents.saveAfter", value, range: 0 ... 3600) {
-                        configuration.documents.saveAfter = seconds
-                    }
-                case "saveOnFocusLoss":
-                    if let flag = bool("documents.saveOnFocusLoss", value) {
-                        configuration.documents.saveOnFocusLoss = flag
-                    }
-                case "linksOpen":
-                    if let place = choice("documents.linksOpen", value, as: Configuration.Documents.LinksOpen.self) {
-                        configuration.documents.linksOpen = place
-                    }
-                case "largerHeadings":
-                    if let flag = bool("documents.largerHeadings", value) {
-                        configuration.documents.largerHeadings = flag
-                    }
-                default: unknown("documents.\(key)")
-            }
+        // Every key is a plain value its option reads; anything else is not one.
+        for key in object.keys {
+            unknown("documents.\(key)")
         }
     }
 
     mutating func readScroll(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "trackpad":
-                    if let factor = number("scroll.trackpad", value, range: 0.05 ... 20) {
-                        configuration.scroll.trackpad = factor
-                    }
-                case "wheel":
-                    if let factor = number("scroll.wheel", value, range: 0.05 ... 50) {
-                        configuration.scroll.wheel = factor
-                    }
-                case "inertia":
-                    if let seconds = number("scroll.inertia", value, range: 0 ... 2) {
-                        configuration.scroll.inertia = seconds
-                    }
-                default: unknown("scroll.\(key)")
-            }
+        // Every key is a plain value its option reads; anything else is not one.
+        for key in object.keys {
+            unknown("scroll.\(key)")
         }
     }
 
     mutating func readTrafficLights(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "x":
-                    if let x = number("window.trafficLights.x", value, range: 0 ... 400) {
-                        configuration.window.trafficLightsX = x
-                    }
-                case "y":
-                    if let y = number("window.trafficLights.y", value, range: 0 ... 400) {
-                        configuration.window.trafficLightsY = y
-                    }
-                case "side":
-                    if let side = choice("window.trafficLights.side", value, as: Configuration.Window.LightsSide.self) {
-                        configuration.window.lightsSide = side
-                    }
-                default: unknown("window.trafficLights.\(key)")
-            }
+        // Every key is a plain value its option reads; anything else is not one.
+        for key in object.keys {
+            unknown("window.trafficLights.\(key)")
         }
     }
 
@@ -201,24 +112,8 @@ extension Reader {
                     } else if let seconds = number("cursor.blinkTimeout", value, range: 0 ... 86_400) {
                         configuration.cursorBlinkTimeout = seconds == 0 ? nil : seconds
                     }
-                case "shape":
-                    if let choice = choice("cursor.shape", value, as: Configuration.CursorShape.self) {
-                        configuration.cursorShape = choice
-                    }
-                case "blink": if let flag = bool("cursor.blink", value) { configuration.cursorBlinks = flag }
                 default: unknown("cursor.\(key)")
             }
         }
-    }
-
-    mutating func readRenderer(_ value: JSONValue) {
-        guard case .string(let text) = value, let choice = Configuration.Renderer(rawValue: text) else {
-            issue(
-                "renderer",
-                "expected one of \(Configuration.Renderer.allCases.map(\.rawValue).joined(separator: ", "))"
-            )
-            return
-        }
-        configuration.renderer = choice
     }
 }

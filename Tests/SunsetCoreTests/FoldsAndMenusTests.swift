@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 /// docs/design/folds-and-menus.md (the owner's note n45): every fold shows only the system's chevron before a text label, no

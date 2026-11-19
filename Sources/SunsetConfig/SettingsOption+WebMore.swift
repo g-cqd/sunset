@@ -10,6 +10,7 @@ extension SettingsOption {
                 \.web.downloadFolder,
                 prompt: "~/Downloads"
             )
+            .perProfile
             .folder()
             .grouped("Saving"),
             toggle(
@@ -18,6 +19,7 @@ extension SettingsOption {
                 "download save ask panel where",
                 \.web.askWhereToSave
             )
+            .perProfile
             .grouped("Saving"),
             toggle(
                 "web.approveRiskyDownloads",
@@ -106,6 +108,7 @@ extension SettingsOption {
                 "user agent chrome edge firefox safari appear impersonate browser disguise site rule",
                 .siteAgents
             )
+            .perProfile
             .noted(
                 "Changes what Sunset says it is (the User-Agent) at a page's next load: the engine is still WebKit, and a "
                     + "site can tell. A site can be given its own, from its panel in the address field."
@@ -116,6 +119,7 @@ extension SettingsOption {
                 "user agent scripts navigator vendor client hints chrome detect",
                 \.web.agentScripts
             )
+            .perProfile
             .grouped("Browser shown to sites")
             .noted(
                 "A page shown Chrome, Edge or Firefox also reads that browser's vendor and client hints. Turn it off if a "

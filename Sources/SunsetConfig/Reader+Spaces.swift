@@ -1,20 +1,10 @@
 internal import OrderedCollections
 
 extension Reader {
-    /// `spaces` (roadmap 0044): `favorites` (`space`, `profile`) and `pinned` (`profile`, `app`).
+    /// `spaces` (roadmap 0044): every key is a plain value its option reads (`favorites`, `pinned`); anything else is not one.
     mutating func readSpaces(_ object: Object) {
-        for (key, value) in object {
-            switch key {
-                case "favorites":
-                    if let scope = choice("spaces.favorites", value, as: Configuration.Spaces.FavoritesScope.self) {
-                        configuration.spaces.favorites = scope
-                    }
-                case "pinned":
-                    if let scope = choice("spaces.pinned", value, as: Configuration.Spaces.PinnedScope.self) {
-                        configuration.spaces.pinned = scope
-                    }
-                default: unknown("spaces.\(key)")
-            }
+        for key in object.keys {
+            unknown("spaces.\(key)")
         }
     }
 }

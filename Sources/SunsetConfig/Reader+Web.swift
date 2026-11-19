@@ -48,40 +48,8 @@ extension Reader {
     private mutating func readWebChoice(_ key: String, _ value: JSONValue) {
         let path = "web.\(key)"
         switch key {
-            case "tabIcon":
-                if let icon = choice(path, value, as: Configuration.Web.TabIcon.self) {
-                    configuration.web.tabIcon = icon
-                }
-            case "address":
-                if let place = choice(path, value, as: Configuration.Web.AddressPlace.self) {
-                    configuration.web.address = place
-                }
-            case "zoomScope":
-                if let scope = choice(path, value, as: Configuration.Web.ZoomScope.self) {
-                    configuration.web.zoomScope = scope
-                }
             case "agent":
                 if let agent = choice(path, value, as: Configuration.Web.Agent.self) { configuration.web.agent = agent }
-            case "historyKeep":
-                if let keep = choice(path, value, as: Configuration.Web.HistoryKeep.self) {
-                    configuration.web.historyKeep = keep
-                }
-            case "keepDownloads":
-                if let keep = choice(path, value, as: Configuration.Web.DownloadsKeep.self) {
-                    configuration.web.keepDownloads = keep
-                }
-            case "windowBar":
-                if let edge = choice(path, value, as: Configuration.Web.BarEdge.self) {
-                    configuration.web.windowBar = edge
-                }
-            case "unloadAfter":
-                if let hours = number(path, value, range: 0 ... 168) { configuration.web.unloadAfter = hours }
-            case "fullFrameRate":
-                if let on = bool(path, value) { configuration.web.fullFrameRate = on }
-            case "splitBar":
-                if let place = choice(path, value, as: Configuration.Web.SplitBar.self) {
-                    configuration.web.splitBar = place
-                }
             default: unknown(path)
         }
     }

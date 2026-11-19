@@ -7,60 +7,27 @@ public enum ConfigurationWriter {
     public static func literals(for configuration: Configuration) -> [String: String] {
         let font = configuration.font
         let colors = configuration.colors
-        let window = configuration.window
         var layout: [String: String] = [:]
         layout["colors.ansi"] = "[" + colors.ansi.map { color($0) }.joined(separator: ", ") + "]"
         for field in Configuration.Layout.fields {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }
         layout.merge(extras(configuration)) { $1 }
+        // A plain value is written by its option's codec (roadmap 0086 C).
+        for (key, codec) in SettingCodec.byKey {
+            layout[key] = codec.literal(configuration)
+        }
         return layout.merging([
             "font.family": string(font.family ?? ""),
-            "font.size": number(font.size),
-            "font.ligatures": String(font.ligatures),
             "font.features": string(font.features),
             "colors.foreground": color(colors.foreground),
             "colors.background": color(colors.background),
             "colors.cursor": color(colors.cursor),
-            "window.decorations": string(window.decorations.rawValue),
-            "window.trafficLights.x": number(window.trafficLightsX),
-            "window.trafficLights.y": number(window.trafficLightsY),
-            "window.dragStrip": number(window.dragStrip),
-            "scroll.trackpad": number(configuration.scroll.trackpad),
-            "scroll.wheel": number(configuration.scroll.wheel),
             "scrollback.lines": String(configuration.scrollbackLines),
-            "cursor.shape": string(configuration.cursorShape.rawValue),
-            "cursor.blink": String(configuration.cursorBlinks),
             "cursor.blinkTimeout": configuration.cursorBlinkTimeout.map(number) ?? "null",
-            "renderer": string(configuration.renderer.rawValue),
-            "keyboard.optionAsMeta": String(configuration.keyboard.optionAsMeta),
-            "window.padding": number(window.padding),
-            "window.material": string(window.material.rawValue),
-            "terminal.opacity": number(configuration.terminal.opacity),
-            "terminal.clipboardWrite": String(configuration.terminal.clipboardWrite),
-            "terminal.shellIntegration": String(configuration.terminal.shellIntegration),
             "terminal.directory": string(configuration.terminal.directory),
-            "window.blur": number(window.blur),
-            "window.materialThickness": string(window.materialThickness.rawValue),
-            "sidebar.enabled": String(configuration.sidebar.enabled),
-            "sidebar.width": number(configuration.sidebar.width),
             "sidebar.padding": number(configuration.sidebar.padding),
-            "sidebar.autoHide": configuration.sidebar.autoHide ? "true" : "false",
-            "sidebar.side": string(configuration.sidebar.side.rawValue),
-            "window.trafficLights.side": string(window.lightsSide.rawValue),
-            "appearance.glass": string(configuration.appearance.glass.rawValue),
-            "appearance.scheme": string(configuration.appearance.scheme.rawValue),
             "appearance.tint.color": color(configuration.appearance.tintColor),
-            "appearance.tint.alpha": number(configuration.appearance.tintAlpha),
-            "tabs.mode": string(configuration.tabs.mode.rawValue),
-            "tabs.restore": String(configuration.tabs.restore),
-            "tabs.confirmClose": String(configuration.tabs.confirmClose),
-            "tabs.keepRunningForFavorites": String(configuration.tabs.keepRunningForFavorites),
-            "tabs.bar.position": string(configuration.tabs.bar.position.rawValue),
-            "tabs.bar.icon": String(configuration.tabs.bar.showIcon),
-            "tabs.bar.title": String(configuration.tabs.bar.showTitle),
-            "tabs.bar.directory": String(configuration.tabs.bar.showDirectory),
-            "tabs.bar.progress": String(configuration.tabs.bar.showProgress),
             "layout.terminalRadius": configuration.layout.terminalRadius.map(number) ?? "null",
             "layout.panelRadius": configuration.layout.panelRadius.map(number) ?? "null",
             "theme": configuration.theme.map(string) ?? "null"
@@ -104,32 +71,13 @@ public enum ConfigurationWriter {
 
     static func web(_ web: Configuration.Web) -> [String: String] {
         [
-            "web.openLinksInSunset": String(web.openLinksInSunset), "web.developer": String(web.developer),
-            "web.notificationsWithoutClick": String(web.notificationsWithoutClick),
-            "web.workerNotifications": String(web.workerNotifications),
-            "web.tabIcon": string(web.tabIcon.rawValue), "web.address": string(web.address.rawValue),
-            "web.windowBar": string(web.windowBar.rawValue), "web.splitBar": string(web.splitBar.rawValue),
-            "web.fullFrameRate": String(web.fullFrameRate),
             "web.engine": string(web.engine),
             "web.engines": "[" + web.engines.map(engine).joined(separator: ", ") + "]",
-            "web.suggestions": String(web.suggestions), "web.httpFallback": String(web.httpFallback),
-            "web.zoomScope": string(web.zoomScope.rawValue), "web.agent": string(web.agent.rawValue),
-            "web.agentScripts": String(web.agentScripts),
-            "web.unloadAfter": number(web.unloadAfter), "web.unloadUnderPressure": String(web.unloadUnderPressure),
-            "web.blocking": String(web.blocking), "web.proxy": string(web.proxy),
+            "web.agent": string(web.agent.rawValue),
+            "web.proxy": string(web.proxy),
             "web.blockingLists": "[" + web.blockingLists.map(string).joined(separator: ", ") + "]",
             "web.textOnlyZoom": String(web.textOnlyZoom),
-            "web.historyKeep": string(web.historyKeep.rawValue),
-            "web.clearHistoryOnQuit": String(web.clearHistoryOnQuit),
-            "web.keep.cache": string(web.keep.cache.rawValue),
-            "web.keep.traces": string(web.keep.traces.rawValue),
-            "web.keep.siteData": string(web.keep.siteData.rawValue),
-            "web.downloadFolder": string(web.downloadFolder), "web.askWhereToSave": String(web.askWhereToSave),
-            "web.openSafeDownloads": String(web.openSafeDownloads), "web.notifyDownloads": String(web.notifyDownloads),
-            "web.approveRiskyDownloads": String(web.approveRiskyDownloads),
-            "web.keepDownloads": string(web.keepDownloads.rawValue),
-            "web.privateSuggestions": String(web.privateSuggestions),
-            "web.privateWindowShares": String(web.privateWindowShares)
+            "web.downloadFolder": string(web.downloadFolder)
         ]
     }
 

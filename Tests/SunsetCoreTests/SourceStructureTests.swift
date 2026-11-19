@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 /// The structure rules, broken on purpose below, and then applied to this repository.

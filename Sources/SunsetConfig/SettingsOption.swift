@@ -76,6 +76,26 @@ public struct SettingsOption: Sendable, Identifiable {
         return copy
     }
 
+    /// A profile may set it otherwise than all profiles (the owner's answer, 2026-11-18: search, privacy, network, downloads).
+    public var isPerProfile = false
+
+    /// The same, settable by each profile.
+    public var perProfile: Self {
+        var copy = self
+        copy.isPerProfile = true
+        return copy
+    }
+
+    /// Names its value had in files written before, read as the names they became ("transparent" was "fill").
+    public var formerly: [String: String] = [:]
+
+    /// The same, reading `names` (old to new) from older files.
+    public func formerly(_ names: [String: String]) -> Self {
+        var copy = self
+        copy.formerly = names
+        return copy
+    }
+
     /// What it holds is a folder: its row has a picker beside the field (the owner's note n36).
     public var isFolder = false
 

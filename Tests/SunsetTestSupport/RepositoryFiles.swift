@@ -1,8 +1,8 @@
-import Foundation
+public import Foundation
 
 /// The Swift files of this repository, found from this file's own path (so the tests find them whatever the working directory).
-enum RepositoryFiles {
-    static let root: URL = {
+public enum RepositoryFiles {
+    public static let root: URL = {
         var directory = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
         while directory.path != "/",
             !FileManager.default.fileExists(atPath: directory.appending(path: "Package.swift").path)
@@ -12,7 +12,7 @@ enum RepositoryFiles {
         return directory
     }()
 
-    static func swiftFiles(in folders: [String]) -> [(name: String, text: String)] {
+    public static func swiftFiles(in folders: [String]) -> [(name: String, text: String)] {
         var files: [(name: String, text: String)] = []
         var pending = folders.map { root.appending(path: $0) }
         while let directory = pending.popLast() {

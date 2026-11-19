@@ -29,6 +29,7 @@ extension SettingsOption {
                 \.web.keep.siteData,
                 [(.keep, "Kept"), (.keepChosen, "Kept for the sites chosen"), (.clearOnQuit, "Cleared on quit")]
             )
+            .perProfile
             .grouped("Between runs")
             .noted(
                 "Cookies, sign-ins and what sites store. Kept for the sites chosen: a site is chosen from its panel, or by "
@@ -41,6 +42,7 @@ extension SettingsOption {
                 \.web.keep.cache,
                 [(.keep, "Kept"), (.clearOnQuit, "Cleared on quit")]
             )
+            .perProfile
             .grouped("Between runs")
             .noted(
                 "Pages and files fetched, with their addresses. Cleared, pages load from the network after a relaunch."
@@ -52,6 +54,7 @@ extension SettingsOption {
                 \.web.keep.traces,
                 [(.keep, "Kept"), (.clearOnQuit, "Cleared on quit")]
             )
+            .perProfile
             .grouped("Between runs")
             .noted(
                 "The sites that asked for HTTPS only, when each was last used and what follows it, how each answers over "

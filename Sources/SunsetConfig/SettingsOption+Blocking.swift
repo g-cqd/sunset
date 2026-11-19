@@ -8,6 +8,7 @@ extension SettingsOption {
                 "block ads trackers adblock easylist easyprivacy content blocker lists",
                 \.web.blocking
             )
+            .perProfile
             .noted(
                 "Sunset fetches EasyList and EasyPrivacy itself every few days: the only requests it makes on its own. A "
                     + "site's panel pauses blocking there."

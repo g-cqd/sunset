@@ -94,6 +94,7 @@ extension SettingsOption {
                 [(.opaque, "Opaque"), (.material, "Material"), (.glass, "Glass"), (.fill, "Color fill")],
                 label: "Window and sidebar background"
             )
+            .formerly(["transparent": "fill"])
             .grouped("Window"),
             choice(
                 "window.materialThickness",

@@ -33,7 +33,8 @@ extension SettingsOption {
     /// Search.
     static let search: [Self] =
         [
-            custom("web.engine", "Search engine", "search google duckduckgo kagi", .searchEngine),
+            custom("web.engine", "Search engine", "search google duckduckgo kagi", .searchEngine)
+                .perProfile,
             custom("web.engines", "Added search engines", "engine keyword custom", .engines)
                 .noted(
                     "Typing an engine's keyword, a space and words searches it. In its addresses, `%s` stands for the "
@@ -46,6 +47,7 @@ extension SettingsOption {
                 \.web.suggestions,
                 label: "Ask the engine for suggestions while typing"
             )
+            .perProfile
             .grouped("Suggestions"),
             toggle(
                 "web.privateSuggestions",
@@ -54,6 +56,7 @@ extension SettingsOption {
                 \.web.privateSuggestions,
                 label: "Ask the engine for suggestions in private pages"
             )
+            .perProfile
             .grouped("Suggestions")
         ]
 

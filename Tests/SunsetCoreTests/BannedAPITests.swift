@@ -1,3 +1,4 @@
+import SunsetTestSupport
 import Testing
 
 @Suite("Banned APIs") struct BannedAPITests {

@@ -8,6 +8,8 @@ public struct SettingsChoice: Sendable {
     public let items: [Item]
     public let get: @Sendable (Configuration) -> String
     public let set: @Sendable (inout Configuration, String) -> Void
+    /// Whether a name is one of the values (all of them, those not offered in the menu too).
+    public let accepts: @Sendable (String) -> Bool
 
     /// - Parameters:
     ///   - path: where the value is in the configuration.
@@ -22,6 +24,9 @@ public struct SettingsChoice: Sendable {
         }
         set = { configuration, raw in
             if let value = Value(rawValue: raw) { configuration[keyPath: path] = value }
+        }
+        accepts = { raw in
+            Value(rawValue: raw) != nil
         }
     }
 }

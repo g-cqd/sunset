@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 /// What the app says of itself to the Mac (`App/Info.plist`). R6, roadmap 0023 step M-f: Sunset can be chosen to open

@@ -2,14 +2,10 @@
 /// set (`profileKeys`), each kept as the file writes it, and only where it differs from all profiles. What a profile never
 /// changed follows all profiles.
 public enum ProfileOverrides {
-    /// The keys a profile may set otherwise: search, privacy, network, downloads (the owner's answer, 2026-11-18).
+    /// The keys a profile may set otherwise: its options marked so (`perProfile`), and what sites may do.
     public static let profileKeys: [String] =
-        [
-            "web.engine", "web.suggestions", "web.privateSuggestions",
-            "web.blocking", "web.agent", "web.agentScripts", "web.keep.cache", "web.keep.traces", "web.keep.siteData",
-            "web.proxy",
-            "web.downloadFolder", "web.askWhereToSave"
-        ] + Configuration.Web.permissionNames.map { "web.permissions.\($0)" }
+        SettingsOption.all.filter(\.isPerProfile).flatMap(\.keys)
+        + Configuration.Web.permissionNames.map { "web.permissions.\($0)" }
 
     static let keySet = Set(profileKeys)
 
