@@ -191,12 +191,7 @@ package final class WebContent: PaneContent {
     package func stop() {
         dialog?.answer(.cancel)
         credentialRequest?.answer(nil)
-        soundWatch = nil
-        observations = []
-        webView?.stopLoading()
-        webView?.navigationDelegate = nil
-        webView?.uiDelegate = nil
-        webView = nil
+        endView(keepingHistory: false)
     }
 
     package func makeView(_ context: PaneViewContext) -> AnyView {

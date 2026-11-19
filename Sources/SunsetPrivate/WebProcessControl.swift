@@ -17,4 +17,15 @@ public enum WebProcessControl {
         call(webView, selector)
         return true
     }
+
+    /// Closes `webView`'s page now, as when it is deallocated, whatever still holds the view (`_close`). False where WebKit
+    /// no longer has it: the media suspended by the caller stays the guarantee.
+    @discardableResult
+    public static func close(_ webView: NSObject) -> Bool {
+        let selector = NSSelectorFromString(#Interned("_close"))
+        guard webView.responds(to: selector) else { return false }
+        let call = unsafe unsafeBitCast(webView.method(for: selector), to: Call.self)
+        call(webView, selector)
+        return true
+    }
 }

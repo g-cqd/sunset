@@ -29,6 +29,8 @@ final class WebViewHostView: NSView {
     /// Takes the page's view at this view's size; with no size yet, leaves it where it is, at its own.
     func place() {
         guard bounds.width > 0, bounds.height > 0 else { return }
+        // In full screen the view is WebKit's, in its own window; it gives it back when full screen ends (n53).
+        guard Self.takesBack(webView.fullscreenState) else { return }
         if webView.superview !== self {
             webView.removeFromSuperview()
             webView.autoresizingMask = []
@@ -36,4 +38,8 @@ final class WebViewHostView: NSView {
         }
         if webView.frame != bounds { webView.frame = bounds }
     }
+
+    /// Whether the host may hold the page's view: not while WebKit has it for full screen, going in, in, or coming out
+    /// (taken back then, WebKit's full-screen window was left empty: the owner's note n53).
+    static func takesBack(_ state: WKWebView.FullscreenState) -> Bool { state == .notInFullscreen }
 }

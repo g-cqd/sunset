@@ -10,17 +10,7 @@ extension WebContent {
     package func reload(as profile: UUID?) {
         guard !isPrivate, profile != settings.profile else { return }
         let address = webView?.url ?? url
-        if let view = webView {
-            savedHistory = view.interactionState as? Data
-            soundWatch = nil
-            observations = []
-            view.stopLoading()
-            view.navigationDelegate = nil
-            view.uiDelegate = nil
-            view.removeFromSuperview()
-            webView = nil
-            coordinator = nil
-        }
+        endView(keepingHistory: true)
         url = address
         takeProfile(profile)
         isUnloaded = address != nil

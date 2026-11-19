@@ -13,16 +13,8 @@ extension WebContent {
     /// - Returns: whether it was unloaded.
     @discardableResult
     package func unload() -> Bool {
-        guard !shown, let view = webView, !mustStayLoaded else { return false }
-        savedHistory = view.interactionState as? Data
-        soundWatch = nil
-        observations = []
-        view.stopLoading()
-        view.navigationDelegate = nil
-        view.uiDelegate = nil
-        view.removeFromSuperview()
-        webView = nil
-        coordinator = nil
+        guard !shown, webView != nil, !mustStayLoaded else { return false }
+        endView(keepingHistory: true)
         progress = nil
         // It loads no more (roadmap 0045 C): nothing is left saying it does.
         isLoading = false
