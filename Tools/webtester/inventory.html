@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Web tester: API inventories</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  details { margin: 2px 0; }
+  summary { cursor: pointer; }
+  code { font: 11.5px ui-monospace, Menlo, monospace; }
+  .members { font: 11px ui-monospace, Menlo, monospace; opacity: .85; padding: 2px 0 6px 14px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<header>
+  <h1>API inventories</h1>
+  <p class="note">Every interface and member a page sees at runtime, as each browser saved it (<b>Save API inventory</b>, or an
+  unattended run). Two at a time: what one has that the other has not.</p>
+  <div class="bar">
+    <a class="button" href="index.html">Back to the tests</a>
+    <select id="a"></select> against <select id="b"></select>
+    <input id="filter" placeholder="Filter (Media, RTC, GPU…)">
+  </div>
+  <p id="summary" class="note"></p>
+</header>
+<main class="columns"><section id="onlyA"></section><section id="onlyB"></section></main>
+<script type="module">
+const list = await (await fetch("/inventory/", { cache: "no-store" })).json();
+const cache = new Map();
+const get = async (label) => {
+  if (!cache.has(label)) cache.set(label, await (await fetch(`/inventory/${label}.json`, { cache: "no-store" })).json());
+  return cache.get(label);
+};
+const [a, b] = [document.getElementById("a"), document.getElementById("b")];
+for (const s of [a, b]) for (const i of list) s.add(new Option(`${i.label} (${i.counts?.interfaces ?? "?"} interfaces, ${i.counts?.members ?? "?"} members)`, i.label));
+const params = new URLSearchParams(location.search);
+a.value = params.get("a") ?? list.find((i) => i.label === "safari")?.label ?? list[0]?.label;
+b.value = params.get("b") ?? list.find((i) => i.label === "sunset")?.label ?? list[1]?.label;
+
+/** What `x` has that `y` has not: interfaces missing whole, and members missing from interfaces both have. */
+function difference(x, y, filter) {
+  const missing = [], partly = [];
+  for (const [name, members] of Object.entries(x.interfaces)) {
+    if (filter && !name.toLowerCase().includes(filter)) continue;
+    if (!(name in y.interfaces)) { missing.push([name, members]); continue; }
+    const other = new Set(y.interfaces[name]);
+    const extra = members.filter((m) => !other.has(m) && !m.startsWith("extends "));
+    if (extra.length) partly.push([name, extra]);
+  }
+  for (const [name, members] of Object.entries(x.objects)) {
+    if (filter && !name.toLowerCase().includes(filter)) continue;
+    const other = new Set(y.objects[name] ?? []);
+    const extra = members.filter((m) => !other.has(m));
+    if (extra.length) partly.push([name, extra]);
+  }
+  return { missing, partly };
+}
+
+function render(target, label, other, { missing, partly }) {
+  const section = document.getElementById(target);
+  section.replaceChildren();
+  section.append(Object.assign(document.createElement("h2"), { textContent: `In ${label}, not in ${other}` }));
+  const block = (title, rows, open) => {
+    section.append(Object.assign(document.createElement("h2"), { textContent: `${title} (${rows.length})` }));
+    for (const [name, members] of rows) {
+      const details = document.createElement("details");
+      details.open = open;
+      details.append(Object.assign(document.createElement("summary"), { innerHTML: `<code>${name}</code> <small>${members.length}</small>` }));
+      details.append(Object.assign(document.createElement("div"), { className: "members", textContent: members.join("  ") }));
+      section.append(details);
+    }
+  };
+  block("Interfaces it has that the other has not", missing, false);
+  block("Members it has on interfaces both have", partly, partly.length < 40);
+}
+
+async function update() {
+  const filter = document.getElementById("filter").value.trim().toLowerCase();
+  const [x, y] = [await get(a.value), await get(b.value)];
+  const ab = difference(x, y, filter), ba = difference(y, x, filter);
+  render("onlyA", a.value, b.value, ab);
+  render("onlyB", b.value, a.value, ba);
+  document.getElementById("summary").textContent =
+    `${a.value}: ${x.counts.interfaces} interfaces, ${x.counts.members} members. ${b.value}: ${y.counts.interfaces} interfaces, ${y.counts.members} members.`;
+}
+for (const el of [a, b]) el.onchange = update;
+document.getElementById("filter").oninput = update;
+if (list.length >= 2) update();
+else document.getElementById("summary").textContent = "Fewer than two inventories saved yet.";
+</script>
+</body>
+</html>

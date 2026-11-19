@@ -10,6 +10,8 @@
 #                                            unattended where a browser allows it: WebKit's own extension host
 #                                            (WKWebExtensionController), Firefox Nightly (unsigned, in a profile of its
 #                                            own), Chrome (if its --load-extension still works); Safari by hand
+#   Scripts/web-tester.sh safari             drive Safari through safaridriver: the automatic tests, the inventory, every
+#                                            Ask clicked, dialogs answered, the extension installed (Safari must be quit)
 #   Scripts/web-tester.sh mdn                MDN's documented support for the same extension APIs, as more columns
 #   Scripts/web-tester.sh wpt                fetch the web-platform-tests the tester links to (into .build)
 #
@@ -172,6 +174,14 @@ PY
         rm -rf "$started"
         echo "Safari, Chrome by hand: load $built (Safari: Settings › Developer › Add Temporary Extension…;"
         echo "Chrome: chrome://extensions › Developer mode › Load unpacked). It saves its results itself."
+        ;;
+    safari)
+        serve_in_background
+        built="$work/extension"
+        rm -rf "$built"
+        cp -R "$here/Tools/webtester/extension" "$built"
+        echo "{\"port\": $port}" > "$built/config.json"
+        python3 "$here/Tools/webtester/safari-drive.py" "$base" "$built"
         ;;
     mdn)
         # MDN browser-compat-data's support for every member the extension probes: one report per browser, "<browser>-mdn".

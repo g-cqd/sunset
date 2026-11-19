@@ -27,6 +27,8 @@ PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8767
 RESULTS = Path(sys.argv[2] if len(sys.argv) > 2 else ROOT.parents[1] / ".build/web-tester/results")
 WPT = Path(sys.argv[3]) if len(sys.argv) > 3 else ROOT.parents[1] / ".build/web-tester/wpt"
 RESULTS.mkdir(parents=True, exist_ok=True)
+INVENTORY = RESULTS.parent / "inventory"
+INVENTORY.mkdir(parents=True, exist_ok=True)
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -38,6 +40,12 @@ class Handler(SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
+        # An extension saves its results from its own origin, its host permissions maybe not granted (Manifest V3 in
+        # Firefox and Safari asks the person): what is saved may come from anywhere on this machine.
+        if self.path.startswith("/results") or self.path.startswith("/inventory"):
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "content-type")
         if self.path.startswith("/isolated/"):
             self.send_header("Cross-Origin-Opener-Policy", "same-origin")
             self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
@@ -76,6 +84,18 @@ class Handler(SimpleHTTPRequestHandler):
                 self.wfile.flush()
                 time.sleep(0.1)
             return
+        if path in ("/inventory", "/inventory/"):
+            kept = []
+            for file in sorted(INVENTORY.glob("*.json")):
+                try:
+                    data = json.loads(file.read_text())
+                    kept.append({"label": data["label"], "date": data.get("date"), "userAgent": data.get("userAgent"), "counts": data.get("counts")})
+                except (ValueError, KeyError):
+                    pass
+            return self.json(kept)
+        match = re.fullmatch(r"/inventory/([A-Za-z0-9._-]{1,60})\.json", path)
+        if match and (INVENTORY / f"{match.group(1)}.json").exists():
+            return self.json(json.loads((INVENTORY / f"{match.group(1)}.json").read_text()))
         if path in ("/results", "/results/"):
             kept = []
             for file in sorted(RESULTS.glob("*.json")):
@@ -88,14 +108,27 @@ class Handler(SimpleHTTPRequestHandler):
             self.path = "/index.html"
         return super().do_GET()
 
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.end_headers()
+
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
-        body = self.rfile.read(min(length, 5_000_000))
+        body = self.rfile.read(min(length, 20_000_000))
         path = self.path.split("?", 1)[0]
         if path == "/beacon":
             self.send_response(204)
             self.end_headers()
             return
+        kept_inventory = re.fullmatch(r"/inventory/([A-Za-z0-9._-]{1,60})", path)
+        if kept_inventory:
+            try:
+                data = json.loads(body)
+            except ValueError:
+                return self.json({"error": "not JSON"}, 400)
+            data["label"] = kept_inventory.group(1)
+            (INVENTORY / f"{kept_inventory.group(1)}.json").write_text(json.dumps(data))
+            return self.json({"saved": kept_inventory.group(1)})
         match = re.fullmatch(r"/results/([A-Za-z0-9._-]{1,60})", path)
         if not match:
             return self.json({"error": "not here"}, 404)

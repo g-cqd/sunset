@@ -20,6 +20,8 @@
     <button id="download">Download</button>
     <a class="button" href="compare.html">Compare browsers</a>
     <a class="button" href="compare.html#extensions">Compare extension APIs</a>
+    <button id="inventory">Save API inventory</button>
+    <a class="button" href="inventory.html">Compare inventories</a>
     <a class="button" href="calls.html">Call tester</a>
     <a class="button" href="/isolated/index.html" id="isolated">Isolated</a>
   </div>
@@ -31,6 +33,7 @@
 import { tests, results, run, runAutomatic, onResult, browserLabel, save, download } from "./js/core.js";
 import "./js/automatic.js";
 import "./js/asks.js";
+import { saveInventory } from "./js/inventory.js";
 
 const groups = new Map();
 for (const test of tests) {
@@ -49,6 +52,9 @@ for (const [name, list] of groups) {
   const table = document.createElement("table");
   for (const test of list) {
     const row = table.insertRow();
+    // For a driver (Scripts/web-tester.sh safari): each row by its test, its state as an attribute.
+    row.dataset.test = test.id;
+    row.dataset.state = test.kind === "ask" ? "waiting" : "running";
     const nameCell = row.insertCell();
     nameCell.textContent = test.name;
     nameCell.className = "name";
@@ -58,13 +64,14 @@ for (const [name, list] of groups) {
     detailCell.className = "detail";
     if (test.kind === "ask") {
       const button = Object.assign(document.createElement("button"), { textContent: "Try" });
+      button.dataset.try = test.id;
       // Called in the click itself: the browser sees the gesture.
       button.onclick = () => { statusCell.textContent = "…"; run(test); };
       statusCell.append(button);
     } else {
       statusCell.textContent = "…";
     }
-    rows.set(test.id, { statusCell, detailCell, test });
+    rows.set(test.id, { statusCell, detailCell, test, row });
   }
   section.append(table);
   main.append(section);
@@ -74,6 +81,7 @@ onResult((test, result) => {
   const row = rows.get(test.id);
   if (!row) return;
   row.statusCell.replaceChildren();
+  row.row.dataset.state = result.status;
   const pill = Object.assign(document.createElement("span"), { className: `pill ${result.status}`, textContent: result.status });
   row.statusCell.append(pill);
   if (test.kind === "ask") {
@@ -102,6 +110,9 @@ document.getElementById("save").onclick = async (event) => {
   setTimeout(() => (event.target.textContent = "Save results"), 2500);
 };
 document.getElementById("download").onclick = download;
+document.getElementById("inventory").onclick = async (event) => {
+  event.target.textContent = (await saveInventory(browserLabel())) ? "Inventory saved" : "Not saved (no server)";
+};
 if (location.pathname.startsWith("/isolated/")) document.getElementById("isolated").href = "/index.html";
 document.getElementById("isolated").textContent = location.pathname.startsWith("/isolated/") ? "Not isolated" : "Isolated";
 
@@ -109,7 +120,11 @@ const params = new URLSearchParams(location.search);
 summarize();
 await runAutomatic();
 // Opened to be run unattended (Scripts/web-tester.sh --check): the results go to the server by themselves.
-if (params.has("auto")) await save();
+if (params.has("auto")) {
+  await save();
+  await saveInventory(browserLabel());
+}
+document.body.dataset.done = "yes";
 </script>
 </body>
 </html>

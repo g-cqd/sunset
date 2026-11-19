@@ -9,6 +9,7 @@ secure context, as https is), by `Scripts/web-tester.sh`.
 | `calls.html` | A call: devices chosen, constraints, a level meter, sharing, stopping, a loopback through two peer connections with its statistics. |
 | `compare.html` | The saved results side by side, web APIs or extension APIs; rows where browsers differ in bold; files from another machine can be added. |
 | `extension/` | A Manifest V3 extension that probes about 170 extension APIs from its background (each namespace and member; called where it can be without a click) and saves them. Its ids are MDN's (`ext:<namespace>.<member>`), so its columns sit beside MDN's documented support. |
+| `inventory.html` | Every interface and member a page sees at runtime, per browser (**Save API inventory**, or an unattended run); two compared: what one has that the other has not. |
 | `wpt.html` | The web-platform-tests folders about the same APIs, run here by hand (`Scripts/web-tester.sh wpt` fetches them). |
 | `/isolated/` | The same pages cross-origin isolated (COOP, COEP): SharedArrayBuffer. |
 | `/echo` | The request's headers: what a browser says it is. |
@@ -23,6 +24,8 @@ Scripts/web-tester.sh check            # the automatic tests unattended: Chrome 
 Scripts/web-tester.sh extensions       # the extension unattended: WebKit's host, Firefox Nightly
 Scripts/web-tester.sh mdn              # MDN's documented support for the same extension APIs
 Scripts/web-tester.sh wpt              # fetch the web-platform-tests folders
+Scripts/web-tester.sh safari           # drive Safari (safaridriver): automatic tests, inventory, every Ask clicked,
+                                       # dialogs answered, the extension installed; Safari must be quit first
 ```
 
 `PORT=8769 Scripts/web-tester.sh …` for another port. Results live in `.build/web-tester/results`, one file per browser.
