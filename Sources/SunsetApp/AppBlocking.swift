@@ -59,7 +59,8 @@ import WebKit
 
     private static var addresses: [String] = []
 
-    /// Each list as kept, or fetched again when it is older than `maxAge` or not kept; then compiled and put on pages.
+    /// The lists as kept go on pages first (looked up once compiled: task t109), then each list older than `maxAge` or not
+    /// kept is fetched again, and the lists are put on pages again only if one changed: blocking never waits on the network.
     static func refresh() async {
         await ContentBlocker.shared.compileHidden()
         let web = AppConfiguration.shared.configuration.web
@@ -67,23 +68,32 @@ import WebKit
         guard web.blocking else { return }
         let folder = ContentBlocker.shared.folder.appending(path: "lists", directoryHint: .isDirectory)
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        var sources: [ContentBlocker.Source] = []
+        let kept = sources(web.blockingLists, in: folder)
+        if !kept.isEmpty { await ContentBlocker.shared.load(kept) }
+        var fetchedAny = false
         for address in web.blockingLists {
             guard let url = BlockingListPlan.address(address) else { continue }
             let file = folder.appending(path: BlockingListPlan.fileName(for: address))
-            let kept = try? FileManager.default.attributesOfItem(atPath: file.path)[.modificationDate] as? Date
-            if BlockingListPlan.isStale(keptAt: kept, now: runtime.now()),
+            let keptAt = try? FileManager.default.attributesOfItem(atPath: file.path)[.modificationDate] as? Date
+            guard BlockingListPlan.isStale(keptAt: keptAt, now: runtime.now()),
                 let fetched = await WebFetch.data(url, agent: PaneContentKinds.webSettings.userAgent, limit: limit),
                 (fetched.response as? HTTPURLResponse)?.statusCode == 200
-            {
-                try? fetched.data.write(to: file, options: .atomic)
-            }
-            guard let data = try? Data(contentsOf: file), let text = String(data: data, encoding: .utf8) else {
-                continue
-            }
-            let updated = (try? FileManager.default.attributesOfItem(atPath: file.path)[.modificationDate] as? Date)
-            sources.append(ContentBlocker.Source(address: address, text: text, updated: updated ?? runtime.now()))
+            else { continue }
+            try? fetched.data.write(to: file, options: .atomic)
+            fetchedAny = true
         }
-        await ContentBlocker.shared.load(sources)
+        if fetchedAny || kept.isEmpty { await ContentBlocker.shared.load(sources(web.blockingLists, in: folder)) }
+    }
+
+    /// The lists as kept in `folder`, in the order of `addresses`; those not kept are not there.
+    private static func sources(_ addresses: [String], in folder: URL) -> [ContentBlocker.Source] {
+        addresses.compactMap { address in
+            let file = folder.appending(path: BlockingListPlan.fileName(for: address))
+            guard BlockingListPlan.address(address) != nil, let data = try? Data(contentsOf: file),
+                let text = String(data: data, encoding: .utf8)
+            else { return nil }
+            let updated = try? FileManager.default.attributesOfItem(atPath: file.path)[.modificationDate] as? Date
+            return ContentBlocker.Source(address: address, text: text, updated: updated ?? runtime.now())
+        }
     }
 }

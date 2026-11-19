@@ -35,8 +35,10 @@ extension BlockingRules {
                 everywhere.append(selector)
                 return true
             }
+            // Every site a host name, or the line is left out: dropping one of `~a.com,b.*` would hide more than it says.
+            guard BlockingRules.areSites(sites) else { return false }
             let on = sites.filter { !$0.hasPrefix("~") }.map { "*" + $0 }
-            guard !on.isEmpty, on.allSatisfy({ $0.isASCII }) else { return false }
+            guard !on.isEmpty else { return false }
             bySite.append(
                 Rule(
                     trigger: Rule.Trigger(urlFilter: ".*", ifDomain: on),

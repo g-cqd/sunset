@@ -10,8 +10,8 @@ extension SettingsOption {
             )
             .perProfile
             .noted(
-                "Sunset fetches EasyList and EasyPrivacy itself every few days: the only requests it makes on its own. A "
-                    + "site's panel pauses blocking there."
+                "Sunset fetches the lists below itself every few days (EasyList and EasyPrivacy, and any you add): the "
+                    + "only requests it makes on its own. A site's panel pauses blocking there."
             ),
             custom(
                 "web.blockingLists",

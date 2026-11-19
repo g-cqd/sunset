@@ -63,6 +63,7 @@ extension BlockingRules {
         /// `a.com|~b.a.com`: WebKit takes either sites to apply on or sites to leave alone, not both: the first kind given wins.
         private static func domains(_ list: String, into trigger: inout Rule.Trigger) -> Bool {
             let names = list.split(separator: "|").map(String.init)
+            guard BlockingRules.areSites(names) else { return false }
             let on = names.filter { !$0.hasPrefix("~") }.map { "*" + $0 }
             let off = names.filter { $0.hasPrefix("~") }.map { "*" + $0.dropFirst() }
             guard (on + off).allSatisfy({ $0.isASCII }) else { return false }

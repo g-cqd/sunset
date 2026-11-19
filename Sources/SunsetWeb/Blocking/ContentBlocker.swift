@@ -36,7 +36,9 @@ package final class ContentBlocker {
         package var problem: String?
     }
 
-    package private(set) var states: [ListState] = []
+    package internal(set) var states: [ListState] = []
+    /// How many lists were compiled by WebKit since this was made (the rest were looked up: task t109).
+    @ObservationIgnored package internal(set) var compilations = 0
     /// Blocking is on (`web.blocking`): every page has the lists, but those of paused sites.
     @ObservationIgnored package var enabled = true {
         didSet {
@@ -50,7 +52,7 @@ package final class ContentBlocker {
     @ObservationIgnored private var hiddenLists: [UUID?: WKContentRuleList] = [:]
     /// Where the lists and their compiled rules are kept.
     @ObservationIgnored package var folder: URL
-    @ObservationIgnored private(set) var compiled: [WKContentRuleList] = []
+    @ObservationIgnored var compiled: [WKContentRuleList] = []
     @ObservationIgnored private var views: [Attached] = []
 
     struct WeakView {
@@ -139,38 +141,5 @@ package final class ContentBlocker {
             for rule in hidden.rules(profile: profile) { sites[rule.host] = rule.value }
         }
         return sites.sorted { $0.key < $1.key }.map { ($0.key, $0.value) }
-    }
-
-    /// Converts and compiles the lists, then puts them on every page. A list that does not compile is said in its state
-    /// and left out; the others are used.
-    package func load(_ sources: [Source]) async {
-        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        guard let store = WKContentRuleListStore(url: folder) else { return }
-        var lists: [WKContentRuleList] = []
-        var states: [ListState] = []
-        for (index, source) in sources.enumerated() {
-            let converted = BlockingRules.convert(source.text)
-            var state = ListState(
-                address: source.address,
-                rules: converted.rules.count,
-                skipped: converted.skipped,
-                updated: source.updated
-            )
-            do {
-                let json = String(decoding: try BlockingRules.json(converted.rules), as: UTF8.self)
-                if let list = try await store.compileContentRuleList(
-                    forIdentifier: "list-\(index)",
-                    encodedContentRuleList: json
-                ) {
-                    lists.append(list)
-                }
-            } catch {
-                state.problem = "WebKit could not compile it: \(error.localizedDescription)"
-            }
-            states.append(state)
-        }
-        compiled = lists
-        self.states = states
-        reapplyAll()
     }
 }

@@ -84,7 +84,7 @@ struct BlockingRulesTests {
 
     @Test func `the list is bounded: no rule past WebKit's limit, and nothing but ASCII in a filter`() {
         let many = (0 ..< 20).map { "||site\($0).example^" }.joined(separator: "\n") + "\n||exämple.com^"
-        let made = BlockingRules.convert(many, limit: 10)
+        let made = BlockingRules.convert(many, limit: 10, parts: 1)
         #expect(made.rules.count == 10 && made.skipped == 11)
     }
 }
