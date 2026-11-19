@@ -27,3 +27,7 @@ nothing was tried against one (docs/research/credentials/hardware-keys.md).
 ## Consequences
 
 Nothing on this list is done without a red test run against the owner's key: each step is blocked on one.
+
+## Amended
+
+By ADR-0104 (2026-11-19): every key exchange here is hybrid post-quantum (Secure Enclave P-256 and ML-KEM-1024; X-Wing HPKE between devices); symmetric hardware-key factors first.

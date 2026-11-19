@@ -33,3 +33,7 @@ CloudKit and iCloud Keychain need t49 (probed −34018).
 
 - A second Mac joins with the master password or the recovery code, then wraps the key for its own Secure Enclave.
 - The merge rules and every format reader are red-first tests with published vectors where they exist.
+
+## Amended
+
+By ADR-0104 (2026-11-19): every key exchange here is hybrid post-quantum (Secure Enclave P-256 and ML-KEM-1024; X-Wing HPKE between devices); symmetric hardware-key factors first.

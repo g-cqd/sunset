@@ -37,3 +37,7 @@ cannot be what locks a vault.
 
 - Changing a factor rewraps one key; rotating the vault key reseals every record.
 - A filled password is in WebKit's memory, beyond Sunset: said in Help, not hidden.
+
+## Amended
+
+By ADR-0104 (2026-11-19): every key exchange here is hybrid post-quantum (Secure Enclave P-256 and ML-KEM-1024; X-Wing HPKE between devices); symmetric hardware-key factors first.
