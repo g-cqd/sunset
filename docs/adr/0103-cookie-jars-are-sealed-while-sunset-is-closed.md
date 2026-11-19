@@ -30,6 +30,9 @@ cookies are read.
 
 ## Consequences
 
+- The quit answers AppKit only once this work ends or 5 s pass (`QuitDeadline`), on every path: it spun the run loop
+  before, which from inside a main-actor task never ran the work (diary 2026-11-19-12).
+
 - While Sunset runs the jars are in the clear, 0600: another program of the same user (A3) is not answered by this.
 - **A crash or a forced quit** leaves the jars in the clear until the next quit.
 - **A run without the store's key** (the Keychain refused) seals nothing, and starts with no cookies from the sealed jars. A

@@ -25,13 +25,13 @@ import WebKit
 
     /// At quit, by `web.clearHistoryOnQuit`, and what WebKit keeps by `web.keep` and each profile's (`AppKeeping`), before
     /// the app ends.
-    static func clearAtQuit() {
+    static func clearAtQuit() async {
         let web = AppConfiguration.shared.configuration.web
         if web.clearHistoryOnQuit {
             AppHistory.shared?.clear(since: .distantPast)
             FaviconStore.shared.forgetAll()
         }
         // What WebKit keeps, by each profile (ADR-0081).
-        AppKeeping.clearAtQuit()
+        await AppKeeping.clearAtQuit()
     }
 }

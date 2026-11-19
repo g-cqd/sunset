@@ -25,13 +25,19 @@ final class QuitGate {
     private(set) var asking: ObjectIdentifier?
     @ObservationIgnored private var tabsOfPane: [PaneID: TabsModel] = [:]
     @ObservationIgnored private var spaceOfPane: [PaneID: SpaceModel] = [:]
+    @ObservationIgnored private var finishing = false
 
     /// The app was asked to quit: now, or later once answered.
     func shouldTerminate() -> NSApplication.TerminateReply {
         let level = AppConfiguration.shared.configuration.tabs.askBeforeQuit
         // The documents Sunset keeps are kept now; what is left edited is a file's, and is asked about whatever the level.
         SunsetStore.shared.openDocuments.keepStored()
-        guard level != .never || !SunsetStore.shared.openDocuments.edited.isEmpty else { return finish() }
+        // The quit's work is awaited (WebKit's stores cleared, their jars sealed), then AppKit is answered: never by
+        // spinning the run loop, which cannot run a main-actor task from inside one (diary 2026-11-19-12).
+        guard level != .never || !SunsetStore.shared.openDocuments.edited.isEmpty else {
+            runtime.task { await finishThenQuit() }
+            return .terminateLater
+        }
         runtime.task { await decide(level) }
         return .terminateLater
     }
@@ -66,8 +72,8 @@ final class QuitGate {
         if dontAskAgain { AppConfiguration.shared.update { $0.tabs.askBeforeQuit = .never } }
         asking = nil
         losses = []
-        if quit { finish() }
-        NSApp.reply(toApplicationShouldTerminate: quit)
+        guard quit else { return NSApp.reply(toApplicationShouldTerminate: false) }
+        runtime.task { await finishThenQuit() }
     }
 
     /// Save All and Quit: every edited document is written, then the app quits. One that cannot be written cancels the quit
@@ -124,14 +130,17 @@ final class QuitGate {
         }
     }
 
-    @discardableResult
-    private func finish() -> NSApplication.TerminateReply {
+    /// What is kept is written, WebKit's stores are cleared and sealed, then the app ends. Once: a second quit asked
+    /// meanwhile waits for this one.
+    private func finishThenQuit() async {
+        guard !finishing else { return }
+        finishing = true
         SunsetStore.shared.openDocuments.keepStored()
         SessionStore.shared.finish()
         AppConfiguration.shared.saveNow()
         DownloadCenter.shared.finish()
-        WebClearing.clearAtQuit()
-        return .terminateNow
+        await WebClearing.clearAtQuit()
+        NSApp.reply(toApplicationShouldTerminate: true)
     }
 
     // MARK: What would be lost
