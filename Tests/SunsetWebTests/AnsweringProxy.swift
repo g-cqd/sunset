@@ -6,9 +6,13 @@ import Network
 final class AnsweringProxy {
     private let listener: NWListener
     private(set) var requests: [String] = []
-    var port: Int { Int(listener.port?.rawValue ?? 0) }
+    var port: Int {
+        Int(listener.port?.rawValue ?? 0)
+    }
 
-    private init(listener: NWListener) { self.listener = listener }
+    private init(listener: NWListener) {
+        self.listener = listener
+    }
 
     static func start() async throws -> AnsweringProxy {
         let parameters = NWParameters.tcp
@@ -24,7 +28,9 @@ final class AnsweringProxy {
         return proxy
     }
 
-    func stop() { listener.cancel() }
+    func stop() {
+        listener.cancel()
+    }
 
     private func serve(_ connection: NWConnection) {
         connection.start(queue: .main)

@@ -33,13 +33,23 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
     }
 
     /// How many frame-sized textures the window holds (for tests: memory, n11).
-    var frameBufferCount: Int { ring?.slots.count ?? 0 }
+    var frameBufferCount: Int {
+        ring?.slots.count ?? 0
+    }
 
-    func setQuietAfter(_ duration: Duration) { quietAfter = duration }
+    func setQuietAfter(_ duration: Duration) {
+        quietAfter = duration
+    }
 
-    public nonisolated var latest: IOSurface? { shown.withLock { $0 } }
-    public nonisolated var backend: RendererBackend { .gpu }
-    public nonisolated var hasFailed: Bool { failed.withLock { $0 } }
+    public nonisolated var latest: IOSurface? {
+        shown.withLock { $0 }
+    }
+    public nonisolated var backend: RendererBackend {
+        .gpu
+    }
+    public nonisolated var hasFailed: Bool {
+        failed.withLock { $0 }
+    }
 
     public func present(_ screen: Screen, cursorVisible: Bool, textBlinkVisible: Bool, view: FrameView) async -> Bool {
         await takeTurn()

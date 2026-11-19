@@ -8,8 +8,12 @@ struct Recorder: VTSink {
     mutating func printASCII(_ run: Span<UInt8>) {
         for index in run.indices { events.append(.text(Unicode.Scalar(run[index]))) }
     }
-    mutating func print(_ scalar: Unicode.Scalar) { events.append(.text(scalar)) }
-    mutating func execute(_ control: UInt8) { events.append(.execute(control)) }
+    mutating func print(_ scalar: Unicode.Scalar) {
+        events.append(.text(scalar))
+    }
+    mutating func execute(_ control: UInt8) {
+        events.append(.execute(control))
+    }
     mutating func escape(_ intermediates: Intermediates, final: UInt8) {
         events.append(.escape(final, bytes(intermediates)))
     }
@@ -57,7 +61,9 @@ struct Recorder: VTSink {
         endings.append(terminator)
     }
 
-    private func list(_ parameters: Parameters) -> [Int] { (0 ..< parameters.count).map { parameters[$0] } }
+    private func list(_ parameters: Parameters) -> [Int] {
+        (0 ..< parameters.count).map { parameters[$0] }
+    }
     private func bytes(_ intermediates: Intermediates) -> [UInt8] {
         [intermediates.first, intermediates.second].prefix(intermediates.count).map { $0 }
     }

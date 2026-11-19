@@ -56,5 +56,7 @@ struct WindowLook: Equatable {
 
     static let spaceShare = 1.0 / 3
 
-    var isOpaque: Bool { material == .opaque }
+    var isOpaque: Bool {
+        material == .opaque
+    }
 }

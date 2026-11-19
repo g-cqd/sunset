@@ -15,7 +15,9 @@ final class SystemAuthorizations {
     @ObservationIgnored private var watch: (any NSObjectProtocol)?
 
     /// What to ask now: what a site may use and macOS has not allowed (`SystemAsk.needed`).
-    var asks: [SystemAsk] { SystemAsk.needed(statuses, sites: SitePermissions.shared) }
+    var asks: [SystemAsk] {
+        SystemAsk.needed(statuses, sites: SitePermissions.shared)
+    }
 
     /// Looks now, and again whenever the app comes to the front. Only for an app with a bundle (the notification centre stops
     /// a bare executable).

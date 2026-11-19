@@ -2,5 +2,7 @@
 package enum DocumentMode: String, Sendable {
     case rendered, source
 
-    package var other: DocumentMode { self == .rendered ? .source : .rendered }
+    package var other: DocumentMode {
+        self == .rendered ? .source : .rendered
+    }
 }

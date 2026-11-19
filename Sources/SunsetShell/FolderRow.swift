@@ -115,7 +115,9 @@ struct FolderRow: View {
         return .primary.opacity(hovering ? Design.Fill.hover : 0)
     }
 
-    private func toggle() { tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) } }
+    private func toggle() {
+        tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) }
+    }
 
     private func commit() {
         tabs.favorites.edit { $0.rename(folder.id, to: name) }
@@ -127,10 +129,18 @@ struct FolderRow: View {
         let folder: Favorites.NodeID
         @Binding var targeted: Bool
 
-        func validateDrop(info: DropInfo) -> Bool { tabs.canDrop(intoFolder: folder) }
-        func dropEntered(info: DropInfo) { targeted = tabs.canDrop(intoFolder: folder) }
-        func dropExited(info: DropInfo) { targeted = false }
-        func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: targeted ? .move : .cancel) }
+        func validateDrop(info: DropInfo) -> Bool {
+            tabs.canDrop(intoFolder: folder)
+        }
+        func dropEntered(info: DropInfo) {
+            targeted = tabs.canDrop(intoFolder: folder)
+        }
+        func dropExited(info: DropInfo) {
+            targeted = false
+        }
+        func dropUpdated(info: DropInfo) -> DropProposal? {
+            DropProposal(operation: targeted ? .move : .cancel)
+        }
         func performDrop(info: DropInfo) -> Bool {
             targeted = false
             return Feedback.dropped(tabs.dropDragged(intoFolder: folder))

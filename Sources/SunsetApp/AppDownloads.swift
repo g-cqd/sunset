@@ -70,7 +70,9 @@ import UserNotifications
     }
 
     /// The defaults of `web.permissions.*` (web step g).
-    static func applyPermissions(_ web: Configuration.Web) { SitePermissions.shared.defaults = permissionDefaults(web) }
+    static func applyPermissions(_ web: Configuration.Web) {
+        SitePermissions.shared.defaults = permissionDefaults(web)
+    }
 
     static func permissionDefaults(_ web: Configuration.Web) -> [SitePermission: PermissionAnswer] {
         var defaults: [SitePermission: PermissionAnswer] = [:]

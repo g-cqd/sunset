@@ -7,7 +7,9 @@ import Testing
 /// a merge that puts pieces together can then never lose or invent a character between them.
 @Suite("A text in pieces")
 struct TextPiecesTests {
-    private func joined(_ pieces: [TextPiece]) -> String { pieces.map { String($0.text) }.joined() }
+    private func joined(_ pieces: [TextPiece]) -> String {
+        pieces.map { String($0.text) }.joined()
+    }
 
     @Test func `Markdown is cut at its top-level blocks, the blank lines after a block with it`() {
         let text = "# Title\n\nOne paragraph\nof two lines.\n\n\n- a\n- b\n\n```\ncode\n\nmore\n```\n\nEnd"

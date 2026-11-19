@@ -3,7 +3,9 @@ import SunsetShell
 
 /// The sections of the sidebars (roadmap 0031), from the menus.
 extension AppActions {
-    private var actingTabs: TabsModel? { TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) }
+    private var actingTabs: TabsModel? {
+        TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
+    }
 
     /// View > Library: the tab sidebar's Library, opened where it was or closed. Nothing while `sidebar.library` is off.
     func toggleLibrary() {
@@ -12,8 +14,12 @@ extension AppActions {
     }
 
     /// View > Documents, Downloads: the panel opposite the tabs on that section, or hidden when it was showing it.
-    func toggleOpposite(_ section: SidebarSection) { actingTabs?.toggleOpposite(section) }
+    func toggleOpposite(_ section: SidebarSection) {
+        actingTabs?.toggleOpposite(section)
+    }
 
     /// File > New Document: a document of the store, opened as a tab. Nothing when none can be kept in this run.
-    func newDocument() { actingTabs?.newDocument() }
+    func newDocument() {
+        actingTabs?.newDocument()
+    }
 }

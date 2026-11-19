@@ -11,7 +11,9 @@ import Testing
         return workspace
     }
 
-    private func ids(_ workspace: Workspace) -> [Workspace.ItemID] { workspace.items.map(\.id) }
+    private func ids(_ workspace: Workspace) -> [Workspace.ItemID] {
+        workspace.items.map(\.id)
+    }
 
     @Test func `an empty workspace has no selection, and the first tab added is selected with its pane focused`() {
         var workspace = Workspace()

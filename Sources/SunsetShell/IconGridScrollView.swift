@@ -30,7 +30,9 @@ final class IconGridScrollView: NSScrollView {
     }
 
     @available(*, unavailable)
-    required init?(coder: NSCoder) { fatalError("made in code") }
+    required init?(coder: NSCoder) {
+        fatalError("made in code")
+    }
 
     override func tile() {
         super.tile()

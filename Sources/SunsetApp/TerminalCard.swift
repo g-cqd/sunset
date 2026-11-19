@@ -59,7 +59,9 @@ struct TerminalCard: ViewModifier {
     ) -> RectangleCornerRadii {
         guard isCard else { return RectangleCornerRadii() }
         let inner = given ?? min(layout.innerCornerRadius, outer)
-        func radius(_ corner: CornerSet) -> Double { windowCorners.contains(corner) ? outer : inner }
+        func radius(_ corner: CornerSet) -> Double {
+            windowCorners.contains(corner) ? outer : inner
+        }
         return RectangleCornerRadii(
             topLeading: radius(.topLeading),
             bottomLeading: radius(.bottomLeading),

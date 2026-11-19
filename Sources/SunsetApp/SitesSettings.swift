@@ -201,5 +201,7 @@ struct SitesSettings: View {
     }
 
     /// The hidden elements' rules changed: the pages' blocker is compiled again.
-    private func changed() { Task { await ContentBlocker.shared.compileHidden() } }
+    private func changed() {
+        Task { await ContentBlocker.shared.compileHidden() }
+    }
 }

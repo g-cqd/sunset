@@ -4,7 +4,11 @@ import SwiftUI
 struct WindowTitleKeeper: NSViewRepresentable {
     let title: String
 
-    func makeNSView(context: Context) -> WindowTitleView { WindowTitleView() }
+    func makeNSView(context: Context) -> WindowTitleView {
+        WindowTitleView()
+    }
 
-    func updateNSView(_ view: WindowTitleView, context: Context) { view.title = title }
+    func updateNSView(_ view: WindowTitleView, context: Context) {
+        view.title = title
+    }
 }

@@ -7,10 +7,14 @@ extension TabSidebar {
         SidebarButtons(layout: layout, margin: margin, panelRadius: panelRadius, windowRadius: windowRadius)
     }
 
-    var pinButton: some View { SidebarPinButton(sidebar: settings.sidebar, buttons: buttons, toggle: togglePin) }
+    var pinButton: some View {
+        SidebarPinButton(sidebar: settings.sidebar, buttons: buttons, toggle: togglePin)
+    }
 
     /// How much room the rows leave at the bottom for the app's bar.
-    var bottomInset: Double { bottomBar == nil ? 0 : buttons.barRoom }
+    var bottomInset: Double {
+        bottomBar == nil ? 0 : buttons.barRoom
+    }
 
     /// The app's bar at the bottom, as the pin is at the top: the same gap to the side edges, and to the bottom (the card's bottom when docked).
     @ViewBuilder var bottomBarView: some View {

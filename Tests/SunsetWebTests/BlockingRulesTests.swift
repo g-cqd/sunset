@@ -7,7 +7,9 @@ import Testing
 /// WebKit cannot do is left out and counted, never guessed at.
 @Suite("Blocking lists as WebKit's rules")
 struct BlockingRulesTests {
-    private func rules(_ text: String) -> BlockingRules.Converted { BlockingRules.convert(text) }
+    private func rules(_ text: String) -> BlockingRules.Converted {
+        BlockingRules.convert(text)
+    }
 
     @Test func `a domain anchor blocks the domain and its subdomains, any scheme, up to a separator`() throws {
         let made = rules("! comment\n[Adblock Plus 2.0]\n||ads.example.com^\n")

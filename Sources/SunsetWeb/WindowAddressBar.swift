@@ -36,8 +36,12 @@ package struct WindowAddressBar: View {
         self.hostsFind = hostsFind
     }
 
-    private var out: Bool { shown || editing || content.wantsAddress }
-    private var finding: Bool { hostsFind && content.find.isOpen }
+    private var out: Bool {
+        shown || editing || content.wantsAddress
+    }
+    private var finding: Bool {
+        hostsFind && content.find.isOpen
+    }
 
     package var body: some View {
         let frame = card?.frame

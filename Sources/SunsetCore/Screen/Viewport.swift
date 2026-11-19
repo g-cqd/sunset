@@ -7,10 +7,14 @@ public struct Viewport: Sendable, Equatable {
 
     public init() {}
 
-    public var isLive: Bool { scrolledBack == 0 }
+    public var isLive: Bool {
+        scrolledBack == 0
+    }
 
     /// The line (counted from the oldest of the history) the top row of the window shows.
-    public var firstLine: Int { historyCount - scrolledBack }
+    public var firstLine: Int {
+        historyCount - scrolledBack
+    }
 
     /// Moves the window by `lines`: positive goes back into the history, negative toward the live screen.
     public mutating func scroll(by lines: Int) {
@@ -30,5 +34,7 @@ public struct Viewport: Sendable, Equatable {
         scrolledBack = min(max(historyCount - line, 0), historyCount)
     }
 
-    public mutating func toLive() { scrolledBack = 0 }
+    public mutating func toLive() {
+        scrolledBack = 0
+    }
 }

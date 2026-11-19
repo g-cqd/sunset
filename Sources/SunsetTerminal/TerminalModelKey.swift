@@ -7,7 +7,11 @@ package struct TerminalModelKey: FocusedValueKey {
 
 extension FocusedValues {
     package var terminalModel: TerminalModel? {
-        get { self[TerminalModelKey.self] }
-        set { self[TerminalModelKey.self] = newValue }
+        get {
+            self[TerminalModelKey.self]
+        }
+        set {
+            self[TerminalModelKey.self] = newValue
+        }
     }
 }

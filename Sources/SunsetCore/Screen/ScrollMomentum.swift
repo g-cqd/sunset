@@ -18,7 +18,9 @@ public struct ScrollMomentum: Sendable, Equatable {
         self.timeConstant = timeConstant.isFinite ? max(timeConstant, 0) : 0
     }
 
-    public var isMoving: Bool { abs(velocity) > Self.restSpeed }
+    public var isMoving: Bool {
+        abs(velocity) > Self.restSpeed
+    }
 
     /// A notch worth `lines` lines (negative: toward the live screen).
     public mutating func push(lines: Double) {

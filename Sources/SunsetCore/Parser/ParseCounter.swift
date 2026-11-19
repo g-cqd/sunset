@@ -32,10 +32,18 @@ public struct ParseCounter: Sendable {
         var strings = 0
         var stringBytes = 0
 
-        mutating func printASCII(_ run: Span<UInt8>) { printable += run.count }
-        mutating func print(_ scalar: Unicode.Scalar) { printable += 1 }
-        mutating func execute(_ control: UInt8) { controls += 1 }
-        mutating func escape(_ intermediates: Intermediates, final: UInt8) { escapes += 1 }
+        mutating func printASCII(_ run: Span<UInt8>) {
+            printable += run.count
+        }
+        mutating func print(_ scalar: Unicode.Scalar) {
+            printable += 1
+        }
+        mutating func execute(_ control: UInt8) {
+            controls += 1
+        }
+        mutating func escape(_ intermediates: Intermediates, final: UInt8) {
+            escapes += 1
+        }
         mutating func csi(_ parameters: Parameters, marker: UInt8, intermediates: Intermediates, final: UInt8) {
             csis += 1
         }
@@ -46,7 +54,9 @@ public struct ParseCounter: Sendable {
             intermediates: Intermediates,
             final: UInt8
         ) { strings += 1 }
-        mutating func stringBytes(_ bytes: Span<UInt8>) { stringBytes += bytes.count }
+        mutating func stringBytes(_ bytes: Span<UInt8>) {
+            stringBytes += bytes.count
+        }
         mutating func stringEnd(completed: Bool, terminator: StringTerminator) {}
     }
 }

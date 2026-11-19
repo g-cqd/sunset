@@ -4,7 +4,9 @@ import Testing
 
 let escapeByte: UInt8 = 0x1B
 
-func bytes(_ string: String) -> [UInt8] { Array(string.utf8) }
+func bytes(_ string: String) -> [UInt8] {
+    Array(string.utf8)
+}
 
 func encode(_ press: KeyPress, application: Bool = false, flags: UInt8 = 0) -> [UInt8] {
     var modes = Modes()

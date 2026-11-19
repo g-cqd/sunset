@@ -7,9 +7,13 @@ public import Foundation
 public struct StorageKey: Sendable {
     private let key: SymmetricKey
 
-    init(bytes: Data) { key = SymmetricKey(data: bytes) }
+    init(bytes: Data) {
+        key = SymmetricKey(data: bytes)
+    }
 
-    static func random() -> StorageKey { StorageKey(bytes: SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }) }
+    static func random() -> StorageKey {
+        StorageKey(bytes: SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) })
+    }
 
     /// The key a recovery code holds.
     public init(recoveryCode: String) throws(StorageKeyFailure) {
@@ -17,14 +21,20 @@ public struct StorageKey: Sendable {
         self.init(bytes: bytes)
     }
 
-    var bytes: Data { key.withUnsafeBytes { Data($0) } }
+    var bytes: Data {
+        key.withUnsafeBytes { Data($0) }
+    }
 
     /// The key in a form to write down. Whoever has it and the files reads everything: shown once, on request.
-    public var recoveryCode: String { RecoveryCode.encode(bytes) }
+    public var recoveryCode: String {
+        RecoveryCode.encode(bytes)
+    }
 
     /// Four bytes that name the key without giving anything of it away: written in every seal, so that a thing sealed with
     /// another key is told apart from a damaged one.
-    public var identifier: Data { derived("key-id", count: 4).withUnsafeBytes { Data($0) } }
+    public var identifier: Data {
+        derived("key-id", count: 4).withUnsafeBytes { Data($0) }
+    }
 
     func derived(_ purpose: String, count: Int = 32) -> SymmetricKey {
         HKDF<SHA256>

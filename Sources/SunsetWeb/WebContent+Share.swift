@@ -51,5 +51,7 @@ extension WebContent {
     }
 
     /// The person stops it, from the page's tab or the shared one.
-    package func stopShare() { share?.stop(.stopped) }
+    package func stopShare() {
+        share?.stop(.stopped)
+    }
 }

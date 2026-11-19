@@ -1,6 +1,8 @@
 public struct Attributes: OptionSet, Sendable, Hashable {
     public let rawValue: UInt8
-    public init(rawValue: UInt8) { self.rawValue = rawValue }
+    public init(rawValue: UInt8) {
+        self.rawValue = rawValue
+    }
 
     public static let bold = Attributes(rawValue: 1 << 0)
     public static let faint = Attributes(rawValue: 1 << 1)

@@ -8,7 +8,9 @@ import Testing
         var rests = 0
     }
 
-    func waited(_ duration: Duration) async { try? await Task.sleep(for: duration) }
+    func waited(_ duration: Duration) async {
+        try? await Task.sleep(for: duration)
+    }
 
     @Test func `the renderer rests once, a while after the last frame, not while frames come`() async {
         let counter = Counter()

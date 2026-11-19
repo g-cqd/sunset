@@ -27,11 +27,15 @@ public struct Seal: Sendable {
     }
 
     /// The bytes start as a seal does.
-    public static func isSealed(_ data: Data) -> Bool { data.prefix(magic.count) == magic }
+    public static func isSealed(_ data: Data) -> Bool {
+        data.prefix(magic.count) == magic
+    }
 
     /// What is bound into a seal for a thing of this identity: the purpose and the identity. Made once by whoever seals many
     /// things (`SealedTable`), and extended with what tells them apart.
-    public func binding(_ identity: String) -> Data { Data("\(purpose.rawValue)\u{0}\(identity)".utf8) }
+    public func binding(_ identity: String) -> Data {
+        Data("\(purpose.rawValue)\u{0}\(identity)".utf8)
+    }
 
     /// - Complexity: O(the bytes).
     public func seal(_ plain: Data, identity: String) throws(SealFailure) -> Data {

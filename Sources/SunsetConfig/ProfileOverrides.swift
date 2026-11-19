@@ -66,5 +66,7 @@ extension SettingsOption {
 
 extension SettingsTopic {
     /// It has something a profile can set otherwise.
-    public var hasProfileSettings: Bool { (first + further).contains(where: \.isProfileSetting) }
+    public var hasProfileSettings: Bool {
+        (first + further).contains(where: \.isProfileSetting)
+    }
 }

@@ -85,7 +85,9 @@ public actor TerminalSession {
     }
 
     /// The program in front on the terminal (not the shell itself): see `PTYProcess.foregroundCommandName()`.
-    public nonisolated func foregroundCommand() -> String? { process.foregroundCommandName() }
+    public nonisolated func foregroundCommand() -> String? {
+        process.foregroundCommandName()
+    }
 
     /// Packs the old lines of the history, at most `limit` chunks of 128 lines (the terminal is locked for that long only: pack in small steps, never while
     /// output is arriving). Returns how many were packed; 0 when there is nothing more. Lines read back as they were.
@@ -98,20 +100,28 @@ public actor TerminalSession {
 
     /// A copy of the screen as it is, without the dirty marks being cleared (`takeSnapshot` clears them for the renderer): for a copy that is kept to read (the
     /// window's selection) to take the history that was packed in the meantime (`Screen.adoptHistory`).
-    public nonisolated func screenCopy() -> Screen { core.terminal.withLock { $0.screen } }
+    public nonisolated func screenCopy() -> Screen {
+        core.terminal.withLock { $0.screen }
+    }
 
     /// The title, directory and progress, read under the lock without copying the screen (`TerminalStatus`).
-    public nonisolated func status() -> TerminalStatus { core.terminal.withLock { TerminalStatus($0.screen) } }
+    public nonisolated func status() -> TerminalStatus {
+        core.terminal.withLock { TerminalStatus($0.screen) }
+    }
 
     /// Frees the cells that reading packed lines decoded (they are decoded again when read).
-    public nonisolated func releaseDecodedHistory() { core.terminal.withLock { $0.screen.releaseDecodedHistory() } }
+    public nonisolated func releaseDecodedHistory() {
+        core.terminal.withLock { $0.screen.releaseDecodedHistory() }
+    }
 
     public nonisolated func historyFootprint() -> HistoryFootprint {
         core.terminal.withLock { $0.screen.historyFootprint }
     }
 
     /// Sends bytes to the program, in order with everything else sent.
-    public func send(_ bytes: [UInt8]) { process.send(bytes) }
+    public func send(_ bytes: [UInt8]) {
+        process.send(bytes)
+    }
 
     /// Sends a key, encoded for the modes the program has set *now* (application cursor keys, the keyboard protocol's flags).
     public func send(_ press: KeyPress) {
@@ -142,7 +152,9 @@ public actor TerminalSession {
     }
 
     /// Sends typed text (composed by the input system) as the program should read it.
-    public func send(text: String) { process.send(Array(text.utf8)) }
+    public func send(text: String) {
+        process.send(Array(text.utf8))
+    }
 
     /// Sends a paste: bracketed when the program asked for that.
     public func paste(_ text: String) {

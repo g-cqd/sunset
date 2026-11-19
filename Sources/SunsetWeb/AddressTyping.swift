@@ -17,7 +17,9 @@ package final class AddressTyping {
 
     package init() {}
 
-    package var isActive: Bool { page != nil && !text.isEmpty }
+    package var isActive: Bool {
+        page != nil && !text.isEmpty
+    }
 
     func begin(_ page: WebContent, place: Place) {
         self.page = page
@@ -55,7 +57,9 @@ package final class AddressTyping {
         return [.typed(typed)] + visited.map { .visited($0) } + shown.map { .suggested(.search(engine, words: $0)) }
     }
 
-    package var rows: [ChoiceRow] { choices.map(\.row) }
+    package var rows: [ChoiceRow] {
+        choices.map(\.row)
+    }
 
     func move(_ steps: Int) {
         let count = choices.count

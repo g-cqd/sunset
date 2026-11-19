@@ -22,7 +22,9 @@ struct SettingsPage: View {
     }
 
     /// Where the rows read and write: the profile chosen, or all profiles.
-    private var store: any SettingsStore { scoped ?? config }
+    private var store: any SettingsStore {
+        scoped ?? config
+    }
 
     private static let entries = SettingsOption.all.map(\.entry)
     private static let byID = Dictionary(

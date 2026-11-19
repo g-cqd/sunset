@@ -9,8 +9,12 @@ extension Screen {
     }
 
     /// Flags are five bits (disambiguate, event types, alternates, all keys as escapes, associated text).
-    mutating func keyboardPush(_ flags: Int) { keyboard.push(UInt8(truncatingIfNeeded: flags & 31)) }
-    mutating func keyboardPop(_ count: Int) { keyboard.pop(count) }
+    mutating func keyboardPush(_ flags: Int) {
+        keyboard.push(UInt8(truncatingIfNeeded: flags & 31))
+    }
+    mutating func keyboardPop(_ count: Int) {
+        keyboard.pop(count)
+    }
     mutating func keyboardSet(_ flags: Int, mode: Int) {
         keyboard.set(UInt8(truncatingIfNeeded: flags & 31), mode: mode)
     }

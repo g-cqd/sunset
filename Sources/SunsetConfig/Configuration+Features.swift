@@ -15,6 +15,8 @@ extension Configuration {
         }
 
         /// How many are on.
-        public var count: Int { [terminal, web, documents].count { $0 } }
+        public var count: Int {
+            [terminal, web, documents].count { $0 }
+        }
     }
 }

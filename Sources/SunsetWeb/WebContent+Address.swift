@@ -11,7 +11,9 @@ extension WebContent {
         return Clipboard.copy(address, isLink: true, what: "Copied the address", to: board)
     }
 
-    package var isBlankPage: Bool { url == nil && webView?.url == nil }
+    package var isBlankPage: Bool {
+        url == nil && webView?.url == nil
+    }
 
     /// What a page adds to its tab's menu: Reload, Copy Address, and its site's settings, shown beside its address.
     package var menuActions: [PaneMenuAction] {

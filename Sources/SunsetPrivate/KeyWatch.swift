@@ -15,7 +15,9 @@ final class KeyWatch: NSObject {
         object.addObserver(self, forKeyPath: key, options: [.new], context: nil)
     }
 
-    deinit { object?.removeObserver(self, forKeyPath: key) }
+    deinit {
+        object?.removeObserver(self, forKeyPath: key)
+    }
 
     // swiftlint:disable:next block_based_kvo
     override func observeValue(

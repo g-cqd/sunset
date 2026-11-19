@@ -44,7 +44,9 @@ package final class DownloadItem: Identifiable {
         return min(Double(received) / Double(expected), 1)
     }
 
-    package var canResume: Bool { state == .paused && resumeData != nil }
+    package var canResume: Bool {
+        state == .paused && resumeData != nil
+    }
 
     var partial: URL? {
         destination.map { $0.deletingLastPathComponent().appending(path: DownloadNaming.partial($0.lastPathComponent)) }

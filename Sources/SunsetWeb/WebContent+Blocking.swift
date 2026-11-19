@@ -18,7 +18,9 @@ extension WebContent {
     }
 
     /// The elements hidden for good on this page's site (W-e).
-    package var hiddenOnSite: [String] { ContentBlocker.shared.hidden.selectors(for: siteHost) }
+    package var hiddenOnSite: [String] {
+        ContentBlocker.shared.hidden.selectors(for: siteHost)
+    }
 
     /// Lets the person pick an element of the page, and hides it for good on the site.
     package func pickElementToHide() async {

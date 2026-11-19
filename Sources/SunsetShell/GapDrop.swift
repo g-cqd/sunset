@@ -16,7 +16,9 @@ struct GapDrop: View {
     @Environment(\.accent) private var accent
 
     /// How far into the rows beside it the gap takes a drop.
-    private var reach: Double { Design.oneLineHeight(layout, height: Design.Size.tabRow) / 4 }
+    private var reach: Double {
+        Design.oneLineHeight(layout, height: Design.Size.tabRow) / 4
+    }
 
     var body: some View {
         let height = between ? layout.tabSpacing : 0
@@ -50,10 +52,18 @@ struct GapDrop: View {
         let place: SectionDrop
         @Binding var targeted: Bool
 
-        func validateDrop(info: DropInfo) -> Bool { tabs.canDropDragged(in: place) }
-        func dropEntered(info: DropInfo) { targeted = validateDrop(info: info) }
-        func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: targeted ? .move : .cancel) }
-        func dropExited(info: DropInfo) { targeted = false }
+        func validateDrop(info: DropInfo) -> Bool {
+            tabs.canDropDragged(in: place)
+        }
+        func dropEntered(info: DropInfo) {
+            targeted = validateDrop(info: info)
+        }
+        func dropUpdated(info: DropInfo) -> DropProposal? {
+            DropProposal(operation: targeted ? .move : .cancel)
+        }
+        func dropExited(info: DropInfo) {
+            targeted = false
+        }
 
         func performDrop(info: DropInfo) -> Bool {
             targeted = false
@@ -64,5 +74,7 @@ struct GapDrop: View {
 
 extension ShellSettings.Layout {
     /// How far a row's drop line reaches past its edge, to sit in the middle of the gap beside it (roadmap 0038 F).
-    var gapMarkOutset: Double { (tabSpacing + Design.Space.hair) / 2 }
+    var gapMarkOutset: Double {
+        (tabSpacing + Design.Space.hair) / 2
+    }
 }

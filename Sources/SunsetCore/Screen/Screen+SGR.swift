@@ -66,7 +66,9 @@ extension Screen {
         let colon = parameters.isSubParameter(index)
         let kind = parameters[index]
         index += 1
-        func byte(_ value: Int) -> UInt8 { UInt8(min(max(value, 0), 255)) }
+        func byte(_ value: Int) -> UInt8 {
+            UInt8(min(max(value, 0), 255))
+        }
         switch kind {
             case 5:
                 guard index < parameters.count else { return nil }

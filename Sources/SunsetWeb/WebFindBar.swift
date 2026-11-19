@@ -11,7 +11,9 @@ struct WebFindBar: View {
     @FocusState private var typing: Bool
     @Environment(\.surfaceStyle) private var surface
 
-    private var find: PageFind { content.find }
+    private var find: PageFind {
+        content.find
+    }
 
     /// Its groups only: its host places them, in a glass container whose `barGroupBlurs` draws their blurs (its pane, or the
     /// window bar's row).

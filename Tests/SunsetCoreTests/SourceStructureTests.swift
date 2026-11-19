@@ -3,7 +3,9 @@ import Testing
 
 /// The structure rules, broken on purpose below, and then applied to this repository.
 @Suite("Source structure") struct SourceStructureTests {
-    private func file(_ name: String, _ text: String) -> [(name: String, text: String)] { [(name, text)] }
+    private func file(_ name: String, _ text: String) -> [(name: String, text: String)] {
+        [(name, text)]
+    }
 
     @Test func `a file with one type, named for it, is sound`() {
         #expect(SourceStructure.problems(in: file("Box.swift", "struct Box {\n    struct Inner {}\n}\n")).isEmpty)

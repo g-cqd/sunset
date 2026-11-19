@@ -5,7 +5,11 @@ import SunsetShell
 
 /// The AppKit view of `SidebarBackdrop`.
 final class SidebarBackdropView: NSView {
-    var look: SidebarLook? { didSet { if look != oldValue { rebuild() } } }
+    var look: SidebarLook? {
+        didSet {
+            if look != oldValue { rebuild() }
+        }
+    }
     private var content: NSView?
 
     override func layout() {
@@ -79,5 +83,7 @@ final class SidebarBackdropView: NSView {
         return view
     }
 
-    @MainActor private static func blurLayer(_ radius: Double) -> CALayer? { BackdropBlur.makeLayer(radius: radius) }
+    @MainActor private static func blurLayer(_ radius: Double) -> CALayer? {
+        BackdropBlur.makeLayer(radius: radius)
+    }
 }

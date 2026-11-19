@@ -2,7 +2,9 @@
 /// while it is open (kept apart from the pen, so that a reset of the colours does not end it). Parameters (`id=`) are ignored.
 extension Screen {
     /// The address of the link a cell belongs to, or nil.
-    public func link(of cell: Cell) -> String? { links[styles[cell.styleID].link] }
+    public func link(of cell: Cell) -> String? {
+        links[styles[cell.styleID].link]
+    }
 
     /// The id of the link at a cell (stable while the screen lives; 0 is none), as a renderer is told which one is hovered.
     public func linkID(row: Int, column: Int) -> UInt16? {
@@ -15,7 +17,9 @@ extension Screen {
         return id == 0 ? nil : id
     }
 
-    public func link(row: Int, column: Int) -> String? { link(of: grid[row, column]) }
+    public func link(row: Int, column: Int) -> String? {
+        link(of: grid[row, column])
+    }
 
     public func viewportLink(row: Int, column: Int, scrolledBack: Int) -> String? {
         link(of: viewportCell(row: row, column: column, scrolledBack: scrolledBack))

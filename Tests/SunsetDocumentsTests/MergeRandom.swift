@@ -2,7 +2,9 @@
 struct MergeRandom {
     private var state: UInt64
 
-    init(seed: UInt64) { state = seed }
+    init(seed: UInt64) {
+        state = seed
+    }
 
     mutating func next() -> UInt64 {
         // SplitMix64.
@@ -13,9 +15,13 @@ struct MergeRandom {
         return mixed ^ (mixed >> 31)
     }
 
-    mutating func below(_ bound: Int) -> Int { bound <= 0 ? 0 : Int(next() % UInt64(bound)) }
+    mutating func below(_ bound: Int) -> Int {
+        bound <= 0 ? 0 : Int(next() % UInt64(bound))
+    }
 
-    mutating func pick<Element>(_ elements: [Element]) -> Element { elements[below(elements.count)] }
+    mutating func pick<Element>(_ elements: [Element]) -> Element {
+        elements[below(elements.count)]
+    }
 
     /// What a Markdown parser can be made to trip on, in any order: fences left open, lists, indented lines, quotes, heads,
     /// rules, tables, references, lines with no ending, other line endings, characters of two UTF-16 units.

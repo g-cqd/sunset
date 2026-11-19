@@ -27,7 +27,9 @@ final class SignInWatch: NSObject, WKScriptMessageHandler {
     /// The page's profile: the site is kept for it (roadmap 0050 E).
     private let profile: UUID?
 
-    private init(profile: UUID?) { self.profile = profile }
+    private init(profile: UUID?) {
+        self.profile = profile
+    }
 
     /// Adds the script and its handler to the configuration's controller, unless the page is private.
     static func install(on configuration: WKWebViewConfiguration, privately: Bool, profile: UUID?) {

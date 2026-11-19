@@ -35,5 +35,7 @@ struct SelectionMenu: View {
         .count
     }
 
-    private func nodes(_ rows: [RowTarget]) -> Int { rows.filter { if case .node = $0 { true } else { false } }.count }
+    private func nodes(_ rows: [RowTarget]) -> Int {
+        rows.filter { if case .node = $0 { true } else { false } }.count
+    }
 }

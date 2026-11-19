@@ -6,7 +6,9 @@ package import SunsetPane
 /// closed as they are (the owner, 2026-11-15). The document stays in the store when its tab closes.
 extension TabsModel {
     /// The stored document the pane shows, when it shows one.
-    package func document(in pane: PaneID) -> UUID? { content(pane)?.descriptor.storedDocument }
+    package func document(in pane: PaneID) -> UUID? {
+        content(pane)?.descriptor.storedDocument
+    }
 
     /// A click on `document` in a list: shown where it already is in this window's tabs, with the keyboard; else opened as a
     /// new tab, where a new tab goes.

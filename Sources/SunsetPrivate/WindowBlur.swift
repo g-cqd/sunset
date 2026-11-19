@@ -31,7 +31,9 @@ public enum WindowBlur {
     }()
 
     /// Whether the window server's calls were found on this system.
-    public static var isAvailable: Bool { calls != nil }
+    public static var isAvailable: Bool {
+        calls != nil
+    }
 
     /// The radius as the system takes it: whole points from 0 to 100.
     public static func clampedRadius(_ radius: Double) -> Int {

@@ -92,12 +92,18 @@ struct WebPaneView: View {
     /// lies over the page, which reaches the top as a docked card does: pushed below it, the page left a band of its colour
     /// (the owner, 2026-11-18: "an odd blank space at the top", roadmap 0045 D). A row of the page's own address is kept
     /// below it, out of the strip.
-    static func contentTop(topInset: Double, addressRow: Bool) -> Double { 0 }
+    static func contentTop(topInset: Double, addressRow: Bool) -> Double {
+        0
+    }
 
     /// Where the page's floating address row is: below the strip.
-    static func addressRowTop(topInset: Double) -> Double { topInset }
+    static func addressRowTop(topInset: Double) -> Double {
+        topInset
+    }
 
-    private var isEmpty: Bool { content.url == nil && content.webView?.url == nil }
+    private var isEmpty: Bool {
+        content.url == nil && content.webView?.url == nil
+    }
 
     /// Behind a page, its own colour; behind no page or one that failed, the terminal's background, as every pane (the owner,
     /// 2026-11-15).

@@ -18,5 +18,7 @@ public struct HelpEntry: Sendable, Equatable {
     }
 
     /// Every word of it, lower-cased, for search.
-    var words: String { ([title, summary] + text + expert).joined(separator: " ").lowercased() }
+    var words: String {
+        ([title, summary] + text + expert).joined(separator: " ").lowercased()
+    }
 }

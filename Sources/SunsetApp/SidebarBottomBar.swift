@@ -63,7 +63,9 @@ struct SidebarBottomBar: View {
     }
 
     /// The window's bottom corner the bar ends at: the button there is concentric with it (the owner, 2026-11-15).
-    private var corner: SidebarButtonCorner { side == .left ? .bottomLeading : .bottomTrailing }
+    private var corner: SidebarButtonCorner {
+        side == .left ? .bottomLeading : .bottomTrailing
+    }
 
     @ViewBuilder private var downloadsButton: some View {
         // Without the Library's glyph the downloads are at the window's corner.

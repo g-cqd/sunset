@@ -68,11 +68,17 @@ public struct StoragePlaces: Sendable, Equatable {
     )
 
     /// The small records: page history, site zoom, site permissions, downloads (ST-3).
-    public var state: String { directory + "/state.sqlite" }
+    public var state: String {
+        directory + "/state.sqlite"
+    }
     /// The documents, one file each (ST-4).
-    public var documents: String { directory + "/Documents" }
+    public var documents: String {
+        directory + "/Documents"
+    }
     /// What the library shows of the documents; rebuilt from them (ST-4).
-    public var library: String { directory + "/library.sqlite" }
+    public var library: String {
+        directory + "/library.sqlite"
+    }
 
     /// Where the key that seals all this is kept: the login Keychain for the person's own setup; a file beside the others for
     /// a named one, which must not touch the Keychain.
@@ -81,21 +87,35 @@ public struct StoragePlaces: Sendable, Equatable {
     }
 
     /// The Keychain item of the key that seals the store: a development build has its own.
-    public var keyService: String { serviceRoot + ".storage-key" }
+    public var keyService: String {
+        serviceRoot + ".storage-key"
+    }
     /// The Keychain item of the key that seals the commands of kept terminals (t145): a development build has its own.
-    public var commandSealService: String { serviceRoot + ".command-seal" }
+    public var commandSealService: String {
+        serviceRoot + ".command-seal"
+    }
     /// Where that key is for a named setup, which must not touch the Keychain.
-    public var commandSealFile: String { directory + "/command-seal.key" }
+    public var commandSealFile: String {
+        directory + "/command-seal.key"
+    }
 
     private var serviceRoot: String {
         variant.map { "studio.aemi.sunset." + $0 } ?? (isDevelopment ? "studio.aemi.sunset.dev" : "studio.aemi.sunset")
     }
 
     // The files of before the database, imported once by ST-3.
-    public var legacyZoom: String { directory + "/site-zoom.json" }
-    public var legacyHistory: String { directory + "/history.sqlite" }
-    public var legacyDownloads: String { directory + "/downloads.json" }
-    public var legacyPermissions: String { directory + "/site-permissions.json" }
+    public var legacyZoom: String {
+        directory + "/site-zoom.json"
+    }
+    public var legacyHistory: String {
+        directory + "/history.sqlite"
+    }
+    public var legacyDownloads: String {
+        directory + "/downloads.json"
+    }
+    public var legacyPermissions: String {
+        directory + "/site-permissions.json"
+    }
 
     private static func folder(of path: String) -> String {
         path.lastIndex(of: "/").map { String(path[..<$0]) } ?? "."

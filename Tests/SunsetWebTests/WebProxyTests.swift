@@ -20,7 +20,9 @@ struct WebProxyTests {
     final class Loaded: NSObject, WKNavigationDelegate {
         var done: CheckedContinuation<Bool, Never>?
 
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation?) { finish(true) }
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation?) {
+            finish(true)
+        }
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation?, withError error: any Error) {
             finish(false)
         }

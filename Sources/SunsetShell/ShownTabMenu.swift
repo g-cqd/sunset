@@ -6,7 +6,9 @@ package import SwiftUI
 package struct ShownTabMenu: View {
     let tabs: TabsModel
 
-    package init(tabs: TabsModel) { self.tabs = tabs }
+    package init(tabs: TabsModel) {
+        self.tabs = tabs
+    }
 
     package var body: some View {
         if let entry = tabs.shownEntry {

@@ -26,5 +26,7 @@ extension Screen {
     }
 
     /// The stable number of the line the cursor is on.
-    var cursorStableLine: Int { scrollback.evicted + scrollback.count + row }
+    var cursorStableLine: Int {
+        scrollback.evicted + scrollback.count + row
+    }
 }

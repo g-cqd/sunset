@@ -22,9 +22,13 @@ package final class SiteZoom {
     }
 
     /// How many sites have a level of their own.
-    package var count: Int { levels.count }
+    package var count: Int {
+        levels.count
+    }
     /// The sites with a level of their own, and it.
-    package var sites: [(host: String, level: Double)] { sites(profile: nil) }
+    package var sites: [(host: String, level: Double)] {
+        sites(profile: nil)
+    }
 
     /// A profile's own levels (roadmap 0050 E), kept as `<profile>|<host>`; nil: all profiles'.
     package func sites(profile: UUID?) -> [(host: String, level: Double)] {
@@ -38,7 +42,9 @@ package final class SiteZoom {
     }
 
     /// The levels are kept from one run to the next.
-    package var remembers: Bool { table != nil }
+    package var remembers: Bool {
+        table != nil
+    }
 
     package func level(for host: String?, profile: UUID? = nil) -> Double {
         guard let host = host.map(Self.key) else { return 1 }

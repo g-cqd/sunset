@@ -9,7 +9,9 @@ import Testing
 /// deleted one closes.
 @MainActor @Suite("Documents as tabs") struct TabsDocumentsTests {
     let harness = TabsHarness()
-    var tabs: TabsModel { harness.tabs }
+    var tabs: TabsModel {
+        harness.tabs
+    }
     let notes = UUID()
     let plan = UUID()
 

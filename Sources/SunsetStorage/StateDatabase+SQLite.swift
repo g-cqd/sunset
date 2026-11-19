@@ -11,7 +11,9 @@ extension StateDatabase {
     }
 
     @discardableResult
-    func run(_ sql: String) -> Bool { unsafe sqlite3_exec(handle, sql, nil, nil, nil) == SQLITE_OK }
+    func run(_ sql: String) -> Bool {
+        unsafe sqlite3_exec(handle, sql, nil, nil, nil) == SQLITE_OK
+    }
 
     @discardableResult
     func execute(_ sql: String, _ values: [Value] = []) -> Bool {

@@ -12,5 +12,7 @@ public final class StorageProblems {
         if !items.contains(problem) { items.append(problem) }
     }
 
-    public func dismiss(_ problem: StorageProblem) { items.removeAll { $0 == problem } }
+    public func dismiss(_ problem: StorageProblem) {
+        items.removeAll { $0 == problem }
+    }
 }

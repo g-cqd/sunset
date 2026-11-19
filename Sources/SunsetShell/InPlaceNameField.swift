@@ -36,13 +36,17 @@ struct InPlaceNameField: NSViewRepresentable {
         if field.stringValue != text { field.stringValue = text }
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator(self) }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
 
     @MainActor final class Coordinator: NSObject, NSTextFieldDelegate {
         var parent: InPlaceNameField
         private var finished = false
 
-        init(_ parent: InPlaceNameField) { self.parent = parent }
+        init(_ parent: InPlaceNameField) {
+            self.parent = parent
+        }
 
         func controlTextDidChange(_ note: Notification) {
             if let field = note.object as? NSTextField { parent.text = field.stringValue }
@@ -60,7 +64,9 @@ struct InPlaceNameField: NSViewRepresentable {
             return false
         }
 
-        func controlTextDidEndEditing(_ note: Notification) { finish(parent.commit) }
+        func controlTextDidEndEditing(_ note: Notification) {
+            finish(parent.commit)
+        }
 
         private func finish(_ action: () -> Void) {
             guard !finished else { return }

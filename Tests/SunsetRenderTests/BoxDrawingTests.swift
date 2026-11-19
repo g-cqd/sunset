@@ -88,9 +88,15 @@ private func glyph(_ scalar: UInt32, _ width: Int = 8, _ height: Int = 16) -> (
             func bitmap(_ scalar: UInt32) -> [UInt8] {
                 BuiltInGlyphs.bitmap(for: scalar, metrics: metrics, columns: 1)?.coverage ?? []
             }
-            func column(_ scalar: UInt32, _ x: Int) -> [UInt8] { (0 ..< height).map { bitmap(scalar)[$0 * width + x] } }
-            func row(_ scalar: UInt32, _ y: Int) -> [UInt8] { (0 ..< width).map { bitmap(scalar)[y * width + $0] } }
-            func weight(_ scalar: UInt32, _ index: Int) -> Int { armWeights(scalar)[index] }
+            func column(_ scalar: UInt32, _ x: Int) -> [UInt8] {
+                (0 ..< height).map { bitmap(scalar)[$0 * width + x] }
+            }
+            func row(_ scalar: UInt32, _ y: Int) -> [UInt8] {
+                (0 ..< width).map { bitmap(scalar)[y * width + $0] }
+            }
+            func weight(_ scalar: UInt32, _ index: Int) -> Int {
+                armWeights(scalar)[index]
+            }
             for a in scalars {
                 if weight(a, 1) == 0 {
                     #expect(

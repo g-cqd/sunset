@@ -12,7 +12,9 @@ package final class KeptSites {
     /// The mark that the list was filled once with the sites holding cookies then (ADR-0081, 3), kept with the list: a test
     /// copy shares WebKit's stores and the defaults with the person's Sunset, never its sealed store.
     package var marks: SealedTable? {
-        didSet { seeded = marks.map { !$0.all().rows.isEmpty } ?? false }
+        didSet {
+            seeded = marks.map { !$0.all().rows.isEmpty } ?? false
+        }
     }
     private var seeded = false
     private static let seededMark = "seeded"
@@ -27,12 +29,18 @@ package final class KeptSites {
     package var applies: (UUID?) -> Bool = { _ in false }
 
     package var table: SealedTable? {
-        get { store.table }
-        set { store.table = newValue }
+        get {
+            store.table
+        }
+        set {
+            store.table = newValue
+        }
     }
 
     /// The sites kept, by host.
-    package var hosts: [String] { store.rules.map(\.host) }
+    package var hosts: [String] {
+        store.rules.map(\.host)
+    }
 
     /// Whether `host`'s data is kept: it, or a site it is under, is on the list.
     package func keeps(_ host: String?, profile: UUID? = nil) -> Bool {

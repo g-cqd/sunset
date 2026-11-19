@@ -5,10 +5,14 @@ package import SwiftUI
 
 /// The terminal as the content of a pane.
 extension TerminalModel: PaneContent {
-    package var detail: String? { directory }
+    package var detail: String? {
+        directory
+    }
 
     /// The program in front of the shell, so that a tab is found by what runs in it.
-    package var searchTerms: [String] { foregroundCommand.map { [$0] } ?? [] }
+    package var searchTerms: [String] {
+        foregroundCommand.map { [$0] } ?? []
+    }
 
     /// The folder the program is in (with its first letter), or the command in front.
     package var glyph: PaneGlyph {
@@ -16,7 +20,9 @@ extension TerminalModel: PaneContent {
     }
 
     /// A command is in front of the shell, as last looked at (debounced after the screen changes; roadmap 0035 E).
-    package var runsCommand: Bool { isRunning && foregroundCommand != nil }
+    package var runsCommand: Bool {
+        isRunning && foregroundCommand != nil
+    }
 
     /// A command in front of the shell would be killed. Asked now: the debounced look at the foreground would be late.
     package var closeWarning: String? {
@@ -25,9 +31,13 @@ extension TerminalModel: PaneContent {
     }
 
     /// The directory the shell reported, or the one it was (or is to be) started in: a tab restored and never shown has reported nothing yet.
-    package var descriptor: PaneDescriptor { .terminal(directory: directory ?? startDirectory) }
+    package var descriptor: PaneDescriptor {
+        .terminal(directory: directory ?? startDirectory)
+    }
 
-    package func setState(focused: Bool, visible: Bool) { paneStateChanged(focused: focused, visible: visible) }
+    package func setState(focused: Bool, visible: Bool) {
+        paneStateChanged(focused: focused, visible: visible)
+    }
 
     package func makeView(_ context: PaneViewContext) -> AnyView {
         AnyView(

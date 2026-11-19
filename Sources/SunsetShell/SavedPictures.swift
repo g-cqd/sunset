@@ -12,7 +12,11 @@ package struct SavedPictures: Equatable {
     }
 
     // @dw:accept -- called as `savedPicture(saved)` (TabIcon), which is how a `callAsFunction` is used
-    @MainActor package func callAsFunction(_ saved: PaneDescriptor) -> PaneGlyph? { find(saved) }
+    @MainActor package func callAsFunction(_ saved: PaneDescriptor) -> PaneGlyph? {
+        find(saved)
+    }
 
-    package static func == (one: Self, other: Self) -> Bool { one.source == other.source }
+    package static func == (one: Self, other: Self) -> Bool {
+        one.source == other.source
+    }
 }

@@ -112,7 +112,9 @@ extension Screen {
         moveTo(row: 1, column: 1)
     }
 
-    mutating func setTabStop() { tabStops[column] = true }
+    mutating func setTabStop() {
+        tabStops[column] = true
+    }
 
     mutating func clearTabStops(all: Bool) {
         if all {

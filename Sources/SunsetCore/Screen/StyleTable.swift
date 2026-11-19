@@ -6,9 +6,13 @@ struct StyleTable: Sendable {
     private(set) var styles: ContiguousArray<CellStyle> = [CellStyle()]
     private var ids: [CellStyle: UInt16] = [CellStyle(): 0]
 
-    var count: Int { styles.count }
+    var count: Int {
+        styles.count
+    }
 
-    subscript(id: UInt16) -> CellStyle { styles[Int(id)] }
+    subscript(id: UInt16) -> CellStyle {
+        styles[Int(id)]
+    }
 
     /// The id of `style`, adding it if new; nil when the table is full.
     mutating func intern(_ style: CellStyle) -> UInt16? {

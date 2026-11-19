@@ -60,7 +60,9 @@ public final class HeadlessSession {
         return isClosed
     }
 
-    public func send(_ text: String) throws { try process.write(Array(text.utf8)) }
+    public func send(_ text: String) throws {
+        try process.write(Array(text.utf8))
+    }
 
     public func resize(columns: Int, rows: Int) {
         terminal.resize(columns: columns, rows: rows)
@@ -68,8 +70,12 @@ public final class HeadlessSession {
     }
 
     /// Marks every row of the screen drawn (a renderer has taken what it needed).
-    public func clearDirty() { terminal.clearDirty() }
+    public func clearDirty() {
+        terminal.clearDirty()
+    }
 
     /// The screen as lines of text (trailing spaces trimmed).
-    public var lines: [String] { (0 ..< terminal.screen.rows).map { terminal.screen.text(row: $0) } }
+    public var lines: [String] {
+        (0 ..< terminal.screen.rows).map { terminal.screen.text(row: $0) }
+    }
 }

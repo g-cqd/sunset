@@ -13,7 +13,9 @@ final class SettingsContent: PaneContent {
 
     /// The topic shown ("terminal.cursor").
     var topic: String {
-        didSet { if topic != oldValue { onChange() } }
+        didSet {
+            if topic != oldValue { onChange() }
+        }
     }
     /// What is searched for; while it is not blank the page shows what it finds, under each option's section and topic.
     var query = ""
@@ -21,7 +23,9 @@ final class SettingsContent: PaneContent {
     var scope: UUID?
     /// The topic's More is open (roadmap 0047 G).
     var showsMore = false {
-        didSet { if showsMore != oldValue { onChange() } }
+        didSet {
+            if showsMore != oldValue { onChange() }
+        }
     }
     @ObservationIgnored var onExit: () -> Void = {}
     @ObservationIgnored var onFocusRequest: () -> Void = {}
@@ -36,7 +40,9 @@ final class SettingsContent: PaneContent {
         showsMore = descriptor.state["more"] == "true"
     }
 
-    var isSearching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
+    var isSearching: Bool {
+        !query.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     /// A row of a list of sections and topics was chosen: its page is shown, and the search ends.
     func show(_ selection: String) {
@@ -47,12 +53,24 @@ final class SettingsContent: PaneContent {
 
     // MARK: PaneContent
 
-    var title: String { "Settings" }
-    var detail: String? { isSearching ? "Search" : SettingsSection.heading(of: topic) }
-    var glyph: PaneGlyph { .symbol(PaneDescriptor.settingsSymbol) }
-    var progress: Double? { nil }
-    var closeWarning: String? { nil }
-    var searchTerms: [String] { ["preferences", "options", "configuration"] }
+    var title: String {
+        "Settings"
+    }
+    var detail: String? {
+        isSearching ? "Search" : SettingsSection.heading(of: topic)
+    }
+    var glyph: PaneGlyph {
+        .symbol(PaneDescriptor.settingsSymbol)
+    }
+    var progress: Double? {
+        nil
+    }
+    var closeWarning: String? {
+        nil
+    }
+    var searchTerms: [String] {
+        ["preferences", "options", "configuration"]
+    }
     var descriptor: PaneDescriptor {
         var descriptor = PaneDescriptor.settings(topic: topic)
         if showsMore { descriptor.state["more"] = "true" }
@@ -61,5 +79,7 @@ final class SettingsContent: PaneContent {
 
     func setState(focused: Bool, visible: Bool) {}
     func stop() {}
-    func makeView(_ context: PaneViewContext) -> AnyView { AnyView(SettingsPage(content: self, context: context)) }
+    func makeView(_ context: PaneViewContext) -> AnyView {
+        AnyView(SettingsPage(content: self, context: context))
+    }
 }

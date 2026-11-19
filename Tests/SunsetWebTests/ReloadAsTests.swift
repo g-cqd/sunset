@@ -23,7 +23,9 @@ import Testing
     }
 
     private static let thirdID = UUID()
-    private var profiles: [(id: UUID?, name: String)] { [(nil, "Personal"), (work, "Work"), (Self.thirdID, "Third")] }
+    private var profiles: [(id: UUID?, name: String)] {
+        [(nil, "Personal"), (work, "Work"), (Self.thirdID, "Third")]
+    }
 
     /// The owner, 2026-11-19: the menu said "(its Space's)" beside a profile that was not the Space's. A page never reloaded
     /// has no home kept, and the first profile's id (nil) matched that absence.

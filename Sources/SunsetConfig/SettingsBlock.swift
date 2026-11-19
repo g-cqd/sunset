@@ -8,7 +8,9 @@ public struct SettingsBlock: Sendable, Identifiable {
     /// under it.
     public let isList: Bool
 
-    public var id: String { options.first?.id ?? title ?? "" }
+    public var id: String {
+        options.first?.id ?? title ?? ""
+    }
 
     /// The options in order, as the page shows them.
     public static func blocks(_ options: [SettingsOption]) -> [Self] {

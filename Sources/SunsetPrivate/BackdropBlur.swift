@@ -14,7 +14,9 @@ public enum BackdropBlur {
         return (layer, filter)
     }()
 
-    public static var isAvailable: Bool { classes != nil }
+    public static var isAvailable: Bool {
+        classes != nil
+    }
 
     /// A backdrop layer blurring by `radius` points (0 to 100), or nil for a radius of 0 or less, or when the classes are missing.
     @MainActor

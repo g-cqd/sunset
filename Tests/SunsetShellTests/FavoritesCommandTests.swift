@@ -20,7 +20,9 @@ import Testing
         return (harness, entry)
     }
 
-    private func shown(_ harness: TabsHarness) -> FakeContent? { harness.tabs.shownPane.flatMap(harness.content) }
+    private func shown(_ harness: TabsHarness) -> FakeContent? {
+        harness.tabs.shownPane.flatMap(harness.content)
+    }
 
     @Test func `a saved command is typed into the new shell each time the entry opens from its home`() throws {
         let (harness, entry) = try kept()

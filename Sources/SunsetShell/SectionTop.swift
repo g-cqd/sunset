@@ -17,13 +17,19 @@ package struct SectionTop {
         self.searchable = searchable
     }
 
-    private var layout: LayoutMetrics { buttons.layout }
+    private var layout: LayoutMetrics {
+        buttons.layout
+    }
 
     /// The room left above the title for the window buttons' row.
-    package var lightsRow: Double { underLights ? buttons.header.height : 0 }
+    package var lightsRow: Double {
+        underLights ? buttons.header.height : 0
+    }
 
     /// From the top of the title's row to its buttons: on the window buttons' row they start where the pin does.
-    package var buttonTop: Double { underLights ? 0 : buttons.top }
+    package var buttonTop: Double {
+        underLights ? 0 : buttons.top
+    }
 
     /// The title's row: on the window buttons' row it is that row; under it, its buttons and the tabs' spacing.
     package var titleRow: Double {
@@ -32,11 +38,17 @@ package struct SectionTop {
     }
 
     /// The field and the tabs' spacing under it; nothing with no field.
-    package var fieldRow: Double { searchable ? Design.Size.field + layout.tabSpacing : 0 }
+    package var fieldRow: Double {
+        searchable ? Design.Size.field + layout.tabSpacing : 0
+    }
 
     /// The height of the whole top.
-    package var height: Double { lightsRow + titleRow + fieldRow }
+    package var height: Double {
+        lightsRow + titleRow + fieldRow
+    }
 
     /// Where the list starts: under the top and a breath, as the sidebar's rows start under its accessory.
-    package var listTop: Double { height + Design.Space.xs }
+    package var listTop: Double {
+        height + Design.Space.xs
+    }
 }

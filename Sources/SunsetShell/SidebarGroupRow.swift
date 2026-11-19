@@ -55,7 +55,9 @@ struct SidebarGroupRow: View {
 
     /// The same space between the container's edge and the small tabs on all four sides, and between the small tabs: small, so that the
     /// small tabs have the room (owner, 2026-11-12); their corner nests in the row's at it.
-    private var inset: Double { Design.Space.hair }
+    private var inset: Double {
+        Design.Space.hair
+    }
 
     private func part(_ pane: PaneID) -> some View {
         SidebarGroupPart(

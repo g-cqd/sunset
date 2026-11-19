@@ -17,7 +17,9 @@ public enum HelpTree {
         }
     }
 
-    public static var sections: [Section] { sections() }
+    public static var sections: [Section] {
+        sections()
+    }
 
     /// The topic Help opens on from the settings' page `settingsTopic`: its own, else its section's first; nil, none.
     public static func topic(about settingsTopic: String?) -> HelpTopic? {

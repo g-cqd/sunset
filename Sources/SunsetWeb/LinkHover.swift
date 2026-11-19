@@ -19,7 +19,9 @@ final class LinkHover: NSObject, WKScriptMessageHandler {
 
     private weak var content: WebContent?
 
-    private init(content: WebContent) { self.content = content }
+    private init(content: WebContent) {
+        self.content = content
+    }
 
     /// Gives the configuration a controller of its own with the script and its handler. Its own, also for a page WebKit makes for
     /// another: that one's configuration comes with its opener's controller, whose handler tells the opener.

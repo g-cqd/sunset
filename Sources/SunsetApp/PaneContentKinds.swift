@@ -52,7 +52,9 @@ import SunsetWeb
     }
 
     /// What pages are made with, from `web.*`.
-    static var webSettings: WebSettings { webSettings(from: AppConfiguration.shared.configuration.web) }
+    static var webSettings: WebSettings {
+        webSettings(from: AppConfiguration.shared.configuration.web)
+    }
 
     /// A page's settings from a configuration's (all profiles', or one profile's with its own values, roadmap 0050).
     static func webSettings(from web: Configuration.Web) -> WebSettings {

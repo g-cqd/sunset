@@ -10,9 +10,13 @@ struct DocumentPaneView: View {
     /// The merge whose blocks are tinted just now.
     @State private var flash: DocumentMergeNotice?
 
-    private var document: OpenDocument { content.document }
+    private var document: OpenDocument {
+        content.document
+    }
     /// A file that was not read as text has nothing to show or to edit.
-    private var hasText: Bool { document.problem != .notText && document.problem != .unreadable }
+    private var hasText: Bool {
+        document.problem != .notText && document.problem != .unreadable
+    }
 
     var body: some View {
         VStack(spacing: 0) {

@@ -20,8 +20,12 @@ extension DesignCatalogTests {
             }
         }
 
-        var stripWidth: Double { self == .tiles ? 76 : 30 }
-        var contentWidth: Double { self == .railInside ? 221 - 30 - 5 : 221 }
+        var stripWidth: Double {
+            self == .tiles ? 76 : 30
+        }
+        var contentWidth: Double {
+            self == .railInside ? 221 - 30 - 5 : 221
+        }
     }
 
     static let librarySections: [(String, String)] = [

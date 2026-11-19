@@ -50,7 +50,9 @@ extension Favorites {
         public internal(set) var command: String?
         public internal(set) var commandSeal: String?
 
-        public var isOpen: Bool { open != nil }
+        public var isOpen: Bool {
+            open != nil
+        }
 
         init(
             id: NodeID = NodeID(),

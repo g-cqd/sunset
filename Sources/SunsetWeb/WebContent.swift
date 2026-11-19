@@ -33,7 +33,9 @@ package final class WebContent: PaneContent {
     package internal(set) var zoom = 1.0  // 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
     /// The site's icon, once fetched (`WebContent+Favicon`).
     package internal(set) var favicon: NSImage? {
-        didSet { if favicon !== oldValue { iconColor = favicon.flatMap(Self.colour) } }
+        didSet {
+            if favicon !== oldValue { iconColor = favicon.flatMap(Self.colour) }
+        }
     }
     package internal(set) var pageBackground: NSColor?
     /// The colours the site declares (`<meta name="theme-color">`) and its icon has, as sRGB bytes (roadmap 0047 H).
@@ -172,7 +174,9 @@ package final class WebContent: PaneContent {
     }
 
     /// Its row is pointed at (note n1): a page not made yet is made and starts loading, drawn by the time it is shown.
-    package func prepare() { if webView == nil { makeWebView(configuration: nil) } }
+    package func prepare() {
+        if webView == nil { makeWebView(configuration: nil) }
+    }
 
     /// A snapshot of the page as it is drawn now (roadmap 0035 C, J): kept as its `picture` when it arrives.
     package func takePicture() {

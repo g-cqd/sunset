@@ -17,7 +17,9 @@ public struct SettingsChoice: Sendable {
         _ items: [(Value, String)]
     ) where Value.RawValue == String {
         self.items = items.map { Item(value: $0.0.rawValue, label: $0.1) }
-        get = { $0[keyPath: path].rawValue }
+        get = {
+            $0[keyPath: path].rawValue
+        }
         set = { configuration, raw in
             if let value = Value(rawValue: raw) { configuration[keyPath: path] = value }
         }

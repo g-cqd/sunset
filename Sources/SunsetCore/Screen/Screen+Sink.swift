@@ -7,7 +7,9 @@ extension Screen: VTSink {
         }
     }
 
-    public mutating func print(_ scalar: Unicode.Scalar) { putScalar(scalar) }
+    public mutating func print(_ scalar: Unicode.Scalar) {
+        putScalar(scalar)
+    }
 
     /// A carriage return, the control every line has, is done where it is met; the others go through `executeOther` (a call that saves a dozen
     /// registers cost five times what the return itself does).
@@ -179,7 +181,9 @@ extension Screen: VTSink {
         joinable = false
         oscStart(kind)
     }
-    public mutating func stringBytes(_ bytes: Span<UInt8>) { oscAppend(bytes) }
+    public mutating func stringBytes(_ bytes: Span<UInt8>) {
+        oscAppend(bytes)
+    }
     public mutating func stringEnd(completed: Bool, terminator: StringTerminator) {
         oscEnd(completed: completed, terminator: terminator)
     }

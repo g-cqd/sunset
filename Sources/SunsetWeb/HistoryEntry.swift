@@ -7,7 +7,9 @@ package struct HistoryEntry: Sendable, Equatable, Identifiable {
     package var visits: Int
     package var lastVisit: Date
 
-    package var id: String { url }
+    package var id: String {
+        url
+    }
 
     package init(url: String, title: String, visits: Int, lastVisit: Date) {
         self.url = url

@@ -21,7 +21,9 @@ struct SymbolPickerBenchTests {
 
     static func percentiles(_ samples: [Double]) -> String {
         let sorted = samples.sorted()
-        func at(_ share: Double) -> Double { sorted[min(Int(Double(sorted.count) * share), sorted.count - 1)] }
+        func at(_ share: Double) -> Double {
+            sorted[min(Int(Double(sorted.count) * share), sorted.count - 1)]
+        }
         return String(format: "p50 %.2f ms, p90 %.2f ms, max %.2f ms", at(0.5), at(0.9), sorted[sorted.count - 1])
     }
 

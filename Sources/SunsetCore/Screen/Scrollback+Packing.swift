@@ -1,9 +1,13 @@
 extension Scrollback {
     /// Chunks held in packed form.
-    var packedChunks: Int { chunks.reduce(0) { $0 + ($1.packed == nil ? 0 : 1) } }
+    var packedChunks: Int {
+        chunks.reduce(0) { $0 + ($1.packed == nil ? 0 : 1) }
+    }
 
     /// Bytes the packed chunks take.
-    var packedBytes: Int { chunks.reduce(0) { $0 + ($1.packed?.bytes.count ?? 0) } }
+    var packedBytes: Int {
+        chunks.reduce(0) { $0 + ($1.packed?.bytes.count ?? 0) }
+    }
 
     /// Packs the old full chunks, all but the newest `keepingRecent` full ones (the chunk still being filled is never packed, so a line is never added to a packed
     /// chunk), at most `limit` of them (the caller packs in small steps so that the terminal is never locked for long). A chunk the codec cannot make smaller stays as it is. Returns how many chunks were packed. Reading a packed line decodes its chunk on demand.

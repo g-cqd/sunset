@@ -41,18 +41,26 @@ package final class TerminalNSView: NSView {
         if let latest = model.lastSurface { show(latest) }
     }
 
-    package required init?(coder: NSCoder) { nil }
+    package required init?(coder: NSCoder) {
+        nil
+    }
 
-    package override var acceptsFirstResponder: Bool { true }
+    package override var acceptsFirstResponder: Bool {
+        true
+    }
     /// The terminal handles pointer presses itself (selection, mouse reporting), except in the top drag strip (`TerminalNSView+Mouse`).
-    package override var mouseDownCanMoveWindow: Bool { false }
+    package override var mouseDownCanMoveWindow: Bool {
+        false
+    }
 
     /// A click (or the window) gave this terminal the keyboard: the tabs make it the focused pane of its split.
     package override func becomeFirstResponder() -> Bool {
         model.onFocusRequest()
         return super.becomeFirstResponder()
     }
-    package override var isFlipped: Bool { true }
+    package override var isFlipped: Bool {
+        true
+    }
 
     // MARK: Display
 
@@ -101,7 +109,9 @@ package final class TerminalNSView: NSView {
         model.windowStateChanged(focused: window.isKeyWindow, visible: visible)
     }
 
-    @objc private func displayLinkFired() { model.tick() }
+    @objc private func displayLinkFired() {
+        model.tick()
+    }
 
     private func reportSize() {
         let scale = window?.backingScaleFactor ?? 2

@@ -15,7 +15,9 @@ struct Scrollback: Sendable {
         /// The cells in packed form (`cells` is then empty): see `Scrollback+Packing`.
         var packed: PackedCells?
 
-        func cell(at index: Int) -> Cell { packed?.cell(at: index) ?? cells[index] }
+        func cell(at index: Int) -> Cell {
+            packed?.cell(at: index) ?? cells[index]
+        }
 
         /// Adds a line: its cells (without the trailing blanks) and where it ends. One access to the chunk for both; a short line is appended cell by cell
         /// (the bulk append's set-up, a `memmove` call included, cost more than the copy for a line of a few cells).
@@ -51,10 +53,14 @@ struct Scrollback: Sendable {
     }
 
     /// Cells held in memory: a line is kept without its trailing blank cells.
-    var storedCells: Int { chunks.reduce(0) { $0 + $1.cells.count } }
+    var storedCells: Int {
+        chunks.reduce(0) { $0 + $1.cells.count }
+    }
 
     /// Lines held in memory, the ones past the limit that are not yet released included.
-    var storedLines: Int { chunks.reduce(0) { $0 + $1.ends.count } }
+    var storedLines: Int {
+        chunks.reduce(0) { $0 + $1.ends.count }
+    }
 
     subscript(line: Int, column: Int) -> Cell {
         let (chunk, index) = locate(line)

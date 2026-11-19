@@ -46,7 +46,9 @@ extension DesignCatalogTests {
         )
     }
 
-    private var builtButtons: SidebarButtons { SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil) }
+    private var builtButtons: SidebarButtons {
+        SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil)
+    }
 
     private func builtSwitch(_ section: SidebarSection) -> AnyView {
         AnyView(

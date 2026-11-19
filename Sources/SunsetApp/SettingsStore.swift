@@ -12,7 +12,9 @@ import SwiftUI
 }
 
 extension AppConfiguration: SettingsStore {
-    var profileID: UUID? { nil }
+    var profileID: UUID? {
+        nil
+    }
 }
 
 extension SettingsStore {

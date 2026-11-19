@@ -15,12 +15,18 @@ package final class SiteAgents {
 
     /// Where the rules are kept; nil: in memory only (tests, a run with no key).
     package var table: SealedTable? {
-        get { store.table }
-        set { store.table = newValue }
+        get {
+            store.table
+        }
+        set {
+            store.table = newValue
+        }
     }
 
     /// The rules, by host.
-    package var rules: [(host: String, agent: BrowserAgent)] { store.rules.map { ($0.host, $0.value) } }
+    package var rules: [(host: String, agent: BrowserAgent)] {
+        store.rules.map { ($0.host, $0.value) }
+    }
 
     /// What `host` is shown: its own rule, else the rule of the nearest site it is a subdomain of, else `fallback`. A
     /// rule is never for a bare last label ("com").
@@ -54,5 +60,7 @@ package final class SiteAgents {
         store.rules(profile: profile).map { ($0.host, $0.value) }
     }
 
-    package func clearAll() { store.clearAll() }
+    package func clearAll() {
+        store.clearAll()
+    }
 }

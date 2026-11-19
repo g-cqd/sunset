@@ -13,7 +13,9 @@ import Testing
     }
 
     @Test func `256-colour and truecolour, semicolon and colon forms`() {
-        func fg(_ sgr: String) -> Color { make("\(esc)[\(sgr)mx").screen.style(row: 0, column: 0).foreground }
+        func fg(_ sgr: String) -> Color {
+            make("\(esc)[\(sgr)mx").screen.style(row: 0, column: 0).foreground
+        }
         #expect(fg("38;5;200") == .indexed(200))
         #expect(fg("38:5:200") == .indexed(200))
         #expect(fg("38;2;1;2;3") == .rgb(1, 2, 3))

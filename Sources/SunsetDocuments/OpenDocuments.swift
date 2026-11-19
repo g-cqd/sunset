@@ -16,10 +16,14 @@ public final class OpenDocuments {
         self.store = store
     }
 
-    public var all: [OpenDocument] { Array(open.values) }
+    public var all: [OpenDocument] {
+        Array(open.values)
+    }
 
     /// The open document at `place`, without holding it.
-    public func document(at place: DocumentPlace) -> OpenDocument? { open[place.canonical] }
+    public func document(at place: DocumentPlace) -> OpenDocument? {
+        open[place.canonical]
+    }
 
     /// The document at `place`, read if it is not open yet, and held: `close` it when the pane goes.
     /// - Complexity: O(the file's bytes) the first time (read and parsed on the caller's actor), O(1) after.

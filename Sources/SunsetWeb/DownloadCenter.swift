@@ -14,7 +14,9 @@ package final class DownloadCenter: NSObject {
     @ObservationIgnored package var settings = DownloadSettings()
     /// Where the list is kept; nil: not kept (tests).
     @ObservationIgnored package var table: SealedTable? {
-        didSet { load() }
+        didSet {
+            load()
+        }
     }
     /// Asked before a risky kind is saved: its name and the page it comes from.
     @ObservationIgnored package var approve: (String, URL?) async -> Bool = { _, _ in true }
@@ -24,8 +26,12 @@ package final class DownloadCenter: NSObject {
     /// A page that is never shown, for resuming (WebKit resumes through a web view).
     @ObservationIgnored private lazy var resumer = WKWebView(frame: .zero)
 
-    package var running: [DownloadItem] { items.filter { $0.state == .running } }
-    package var latest: DownloadItem? { items.first }
+    package var running: [DownloadItem] {
+        items.filter { $0.state == .running }
+    }
+    package var latest: DownloadItem? {
+        items.first
+    }
 
     /// The whole progress of what runs, from 0 to 1 (nil when nothing runs or no size is known).
     package var progress: Double? {
@@ -69,7 +75,9 @@ package final class DownloadCenter: NSObject {
         }
     }
 
-    func item(for download: WKDownload) -> DownloadItem? { items.first { $0.download === download } }
+    func item(for download: WKDownload) -> DownloadItem? {
+        items.first { $0.download === download }
+    }
 
     // MARK: Acting
 

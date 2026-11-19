@@ -9,7 +9,11 @@ import SwiftUI
 struct SidebarBackdrop: NSViewRepresentable {
     var look: SidebarLook
 
-    func makeNSView(context: Context) -> SidebarBackdropView { SidebarBackdropView() }
+    func makeNSView(context: Context) -> SidebarBackdropView {
+        SidebarBackdropView()
+    }
 
-    func updateNSView(_ view: SidebarBackdropView, context: Context) { view.look = look }
+    func updateNSView(_ view: SidebarBackdropView, context: Context) {
+        view.look = look
+    }
 }

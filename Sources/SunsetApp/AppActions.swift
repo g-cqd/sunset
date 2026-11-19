@@ -42,7 +42,9 @@ final class AppActions {
     /// a plain window with none. Of the kind the focused pane is (the owner's answer in web step a): a page makes a new empty page, a terminal a terminal;
     /// `kind` asks for one.
     /// Asks which kind of tab to make (Shift-Cmd-T).
-    func chooseKind() { TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.choosingKind = true }
+    func chooseKind() {
+        TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.choosingKind = true
+    }
 
     func newTab(kind: PaneDescriptor? = nil) {
         let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
@@ -78,10 +80,14 @@ final class AppActions {
         ChromeView.syncTabBar(of: window, presentation: AppConfiguration.shared.presentation)
     }
 
-    private var keyTabs: TabsModel? { TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) }
+    private var keyTabs: TabsModel? {
+        TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
+    }
 
     /// The window that acts, when it shows one of the app's Spaces (not a private window, not a window that is one tab).
-    var spaceTabs: TabsModel? { keyTabs.flatMap { AppSpaces.all.contains($0.space) ? $0 : nil } }
+    var spaceTabs: TabsModel? {
+        keyTabs.flatMap { AppSpaces.all.contains($0.space) ? $0 : nil }
+    }
 
     /// Closes the current tab: the tab of the built-in bar, or the window (which is the tab) with system tabs.
     func closeTab() {
@@ -92,7 +98,9 @@ final class AppActions {
         }
     }
 
-    func closeWindow() { TabRegistry.shared.actingWindow?.performClose(nil) }
+    func closeWindow() {
+        TabRegistry.shared.actingWindow?.performClose(nil)
+    }
 
     /// Renames what the key window shows: in place when the sidebar is docked (R3 step c), with the dialog otherwise (the built-in bar's rows are small).
     func renameTab() {
@@ -109,7 +117,9 @@ final class AppActions {
     }
 
     /// ⌘L: the command bar of the key window (searching its tabs).
-    func toggleCommandBar() { keyTabs?.toggleBar() }
+    func toggleCommandBar() {
+        keyTabs?.toggleBar()
+    }
 
     /// ⌘+ and ⌘−: the font of the key window one point bigger or smaller, ⌘0 back to the configured size. Not written to the file.
     /// Cmd-+ and Cmd--: the focused page's zoom, else the terminal's font.
@@ -129,10 +139,16 @@ final class AppActions {
     // MARK: Splits (the panes of the key window's selected tab)
 
     /// A new terminal beside the focused one, on `edge`.
-    func split(_ edge: PaneEdge) { keyTabs?.newSplit(edge) }
+    func split(_ edge: PaneEdge) {
+        keyTabs?.newSplit(edge)
+    }
 
-    func focusNextPane() { keyTabs?.focusNextPane() }
-    func focusPreviousPane() { keyTabs?.focusPreviousPane() }
+    func focusNextPane() {
+        keyTabs?.focusNextPane()
+    }
+    func focusPreviousPane() {
+        keyTabs?.focusPreviousPane()
+    }
 
     /// The focused pane of a split leaves it, to a tab of its own.
     func moveFocusedPaneToTab() {

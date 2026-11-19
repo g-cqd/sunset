@@ -13,11 +13,17 @@ package struct PaneCapture: Equatable, Sendable {
     }
 
     package subscript(_ device: Device) -> State? {
-        get { device == .microphone ? microphone : camera }
-        set { if device == .microphone { microphone = newValue } else { camera = newValue } }
+        get {
+            device == .microphone ? microphone : camera
+        }
+        set {
+            if device == .microphone { microphone = newValue } else { camera = newValue }
+        }
     }
 
-    package var isEmpty: Bool { microphone == nil && camera == nil }
+    package var isEmpty: Bool {
+        microphone == nil && camera == nil
+    }
 
     /// Its symbol in a tab: struck through while muted.
     package static func symbol(_ device: Device, _ state: State) -> String {

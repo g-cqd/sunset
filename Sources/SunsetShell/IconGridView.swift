@@ -7,7 +7,11 @@ import AppKit
 /// release).
 final class IconGridView: NSView {
     private(set) var items: [IconChoice] = []
-    var chosen: String? { didSet { if chosen != oldValue { needsDisplay = true } } }
+    var chosen: String? {
+        didSet {
+            if chosen != oldValue { needsDisplay = true }
+        }
+    }
     var accent = NSColor.controlAccentColor
     var onPick: (IconChoice) -> Void = { _ in }
     var onHover: (IconChoice?) -> Void = { _ in }
@@ -17,11 +21,19 @@ final class IconGridView: NSView {
     private var tracking: NSTrackingArea?
     private var cells: [IconGridCellElement] = []
 
-    override var isFlipped: Bool { true }
-    override var acceptsFirstResponder: Bool { false }
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    override var isFlipped: Bool {
+        true
+    }
+    override var acceptsFirstResponder: Bool {
+        false
+    }
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
 
-    var layout: IconGridLayout { IconGridLayout(width: bounds.width, count: items.count) }
+    var layout: IconGridLayout {
+        IconGridLayout(width: bounds.width, count: items.count)
+    }
 
     /// Shows other icons, from the top.
     func show(_ new: [IconChoice]) {
@@ -79,7 +91,9 @@ final class IconGridView: NSView {
     }
 
     /// Whether every icon in sight is rendered (for measuring).
-    var isComplete: Bool { pictures.missing(layout.indices(in: visibleRect).map { items[$0].id }).isEmpty }
+    var isComplete: Bool {
+        pictures.missing(layout.indices(in: visibleRect).map { items[$0].id }).isEmpty
+    }
 
     override func viewDidChangeBackingProperties() {
         super.viewDidChangeBackingProperties()
@@ -117,7 +131,9 @@ final class IconGridView: NSView {
         tracking = area
     }
 
-    private func index(of event: NSEvent) -> Int? { layout.index(at: convert(event.locationInWindow, from: nil)) }
+    private func index(of event: NSEvent) -> Int? {
+        layout.index(at: convert(event.locationInWindow, from: nil))
+    }
 
     private func hover(_ index: Int?) {
         guard index != hovered else { return }
@@ -127,9 +143,15 @@ final class IconGridView: NSView {
         onHover(index.map { items[$0] })
     }
 
-    override func mouseMoved(with event: NSEvent) { hover(index(of: event)) }
-    override func mouseExited(with event: NSEvent) { hover(nil) }
-    override func mouseDown(with event: NSEvent) { pressed = index(of: event) }
+    override func mouseMoved(with event: NSEvent) {
+        hover(index(of: event))
+    }
+    override func mouseExited(with event: NSEvent) {
+        hover(nil)
+    }
+    override func mouseDown(with event: NSEvent) {
+        pressed = index(of: event)
+    }
 
     override func mouseUp(with event: NSEvent) {
         defer { pressed = nil }
@@ -148,9 +170,15 @@ final class IconGridView: NSView {
 
     // MARK: Accessibility
 
-    override func isAccessibilityElement() -> Bool { true }
-    override func accessibilityRole() -> NSAccessibility.Role? { .list }
-    override func accessibilityLabel() -> String? { "Icons" }
+    override func isAccessibilityElement() -> Bool {
+        true
+    }
+    override func accessibilityRole() -> NSAccessibility.Role? {
+        .list
+    }
+    override func accessibilityLabel() -> String? {
+        "Icons"
+    }
 
     /// The cells in sight. Kept until asked again: who asks reads them after this returns.
     override func accessibilityChildren() -> [Any]? {

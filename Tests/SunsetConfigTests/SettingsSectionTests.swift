@@ -6,7 +6,9 @@ import Testing
 @Suite("The sections and topics of Settings") struct SettingsSectionTests {
     let sections = SettingsSection.all
 
-    func options(_ topic: String) -> [String] { SettingsSection.topic(topic)?.topic.options.map(\.id) ?? [] }
+    func options(_ topic: String) -> [String] {
+        SettingsSection.topic(topic)?.topic.options.map(\.id) ?? []
+    }
 
     @Test func `seven sections, each with its topics, and no Layout among them`() {
         #expect(

@@ -8,7 +8,9 @@ public enum WebTextZoom {
     private static let setterName = #Interned("_setTextZoomFactor:")
 
     @MainActor
-    public static func isAvailable(on view: NSObject) -> Bool { view.responds(to: NSSelectorFromString(setterName)) }
+    public static func isAvailable(on view: NSObject) -> Bool {
+        view.responds(to: NSSelectorFromString(setterName))
+    }
 
     /// Sets the text zoom of `view` (a `WKWebView`); 1 is none. Returns whether it could.
     @MainActor @discardableResult

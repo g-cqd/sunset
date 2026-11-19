@@ -88,5 +88,7 @@ public enum ConfigurationPatcher {
         return String(decoding: bytes[start ..< end], as: UTF8.self)
     }
 
-    private static func quoted(_ name: String) -> String { "\"" + name + "\"" }
+    private static func quoted(_ name: String) -> String {
+        "\"" + name + "\""
+    }
 }

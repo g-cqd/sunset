@@ -19,13 +19,19 @@ package struct SidebarHeader {
         self.floating = floating
     }
 
-    private var extra: Double { floating ? layout.floatingLightsExtra : 0 }
+    private var extra: Double {
+        floating ? layout.floatingLightsExtra : 0
+    }
 
     /// From the window's top left corner to the lights, the same in both directions.
-    package var lightsOrigin: Double { margin + layout.lightsInset + extra }
+    package var lightsOrigin: Double {
+        margin + layout.lightsInset + extra
+    }
 
     /// The slot at the top of the sidebar's content: the lights' inset, the lights, and the gap.
-    package var height: Double { layout.lightsInset + Self.lightsSize + layout.lightsGap + extra }
+    package var height: Double {
+        layout.lightsInset + Self.lightsSize + layout.lightsGap + extra
+    }
 
     /// The docked pin button's container: its top is the terminal card's top (the sidebar's top margin) and its middle the lights', so it is as tall as twice
     /// the distance between the two, and square.
@@ -35,12 +41,18 @@ package struct SidebarHeader {
 
     /// Its height: from the card's top to `tabSpacing` above the first tab, the space the tabs have between them. Not square: the width keeps the tabs' edge, the
     /// height keeps the tabs' rhythm.
-    package var dockedButtonHeight: Double { height - layout.tabSpacing - layout.hairlineWidth }
+    package var dockedButtonHeight: Double {
+        height - layout.tabSpacing - layout.hairlineWidth
+    }
 
     /// A filled container flush with a hairline looks larger than the line: it is drawn one stroke width inside on every side (the hairline is drawn inside its
     /// shape, so its edge is the card's edge).
-    package var dockedButtonInset: Double { Design.Optical.insideHairline(layout.hairlineWidth) }
+    package var dockedButtonInset: Double {
+        Design.Optical.insideHairline(layout.hairlineWidth)
+    }
 
     /// From the top of the slot to the top of the pin button's container, so that it is centred on the lights.
-    package var buttonTop: Double { layout.lightsInset + (Self.lightsSize - layout.sidebarButtonSize) / 2 + extra }
+    package var buttonTop: Double {
+        layout.lightsInset + (Self.lightsSize - layout.sidebarButtonSize) / 2 + extra
+    }
 }

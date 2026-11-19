@@ -44,6 +44,8 @@ final class WindowCloseGuard: NSObject, NSWindowDelegate {
         super.responds(to: selector) || (inner?.responds(to: selector) ?? false)
     }
 
-    override func forwardingTarget(for selector: Selector!) -> Any? { inner }
+    override func forwardingTarget(for selector: Selector!) -> Any? {
+        inner
+    }
     // swiftlint:enable implicitly_unwrapped_optional
 }

@@ -1,9 +1,13 @@
 import TerminalKitText
 
 extension Screen {
-    var activeCharset: Charset { shifted ? charsets.g1 : charsets.g0 }
+    var activeCharset: Charset {
+        shifted ? charsets.g1 : charsets.g0
+    }
 
-    mutating func putASCII(_ byte: UInt8) { put(activeCharset.translate(byte), width: 1) }
+    mutating func putASCII(_ byte: UInt8) {
+        put(activeCharset.translate(byte), width: 1)
+    }
 
     /// A run of printable ASCII written a row at a time: one dirty mark, one pass over the cells, the wide-character edges checked at the two ends only.
     @inline(__always) mutating func putASCIIRun(_ run: Span<UInt8>) {

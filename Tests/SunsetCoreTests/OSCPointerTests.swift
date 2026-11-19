@@ -10,7 +10,9 @@ import Testing
         return t
     }
 
-    private func replies(_ t: inout Terminal) -> String { String(decoding: t.takeReplies(), as: UTF8.self) }
+    private func replies(_ t: inout Terminal) -> String {
+        String(decoding: t.takeReplies(), as: UTF8.self)
+    }
 
     @Test func `a name sets the shape, with or without the equals sign, and an empty one gives the default back`() {
         #expect(feed("").screen.pointerShape == nil)

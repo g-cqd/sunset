@@ -32,5 +32,7 @@ struct FileContent: Sendable {
 
     /// The same, off the caller's actor: a long file read again after a change does not hold the main actor.
     @concurrent
-    static func readConcurrently(_ path: String) async -> FileContent { read(path) }
+    static func readConcurrently(_ path: String) async -> FileContent {
+        read(path)
+    }
 }

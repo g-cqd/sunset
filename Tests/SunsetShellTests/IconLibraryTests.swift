@@ -12,8 +12,12 @@ struct IconLibraryTests {
     final class Reads: @unchecked Sendable {
         private let lock = NSLock()
         private var value = 0
-        func count() { lock.withLock { value += 1 } }
-        var total: Int { lock.withLock { value } }
+        func count() {
+            lock.withLock { value += 1 }
+        }
+        var total: Int {
+            lock.withLock { value }
+        }
     }
 
     private func library(_ reads: Reads, idle: Duration = .seconds(60)) -> IconLibrary {

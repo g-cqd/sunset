@@ -8,7 +8,9 @@ struct LinkTable: Sendable {
     private(set) var addresses: ContiguousArray<String> = [""]
     private var ids: [String: UInt16] = [:]
 
-    subscript(id: UInt16) -> String? { id == 0 ? nil : addresses[Int(id)] }
+    subscript(id: UInt16) -> String? {
+        id == 0 ? nil : addresses[Int(id)]
+    }
 
     mutating func intern(_ address: String) -> UInt16? {
         if let id = ids[address] { return id }

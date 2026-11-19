@@ -6,7 +6,9 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
     case sitePermissions, webNotifications, popUps, pageDialogs, downloads, profiles, privateBrowsing, plainHTTP
     case browserIdentity, blocking
 
-    public var id: String { rawValue }
+    public var id: String {
+        rawValue
+    }
 
     /// The settings' topic it is about (`SettingsTopic.id`, "web.downloads"): Help is listed under the settings' sections, in
     /// their order (the owner's note n16), and its page opens those settings.
@@ -29,5 +31,7 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
     }
 
     /// The settings' section it is listed under: its topic's.
-    public var settingsSection: String { String(settingsTopic.prefix { $0 != "." }) }
+    public var settingsSection: String {
+        String(settingsTopic.prefix { $0 != "." })
+    }
 }

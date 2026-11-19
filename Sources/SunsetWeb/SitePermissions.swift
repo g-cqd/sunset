@@ -11,7 +11,9 @@ package final class SitePermissions {
     package private(set) var answers: [String: [SitePermission: PermissionAnswer]] = [:]
     package var defaults: [SitePermission: PermissionAnswer] = [:]
     @ObservationIgnored package var table: SealedTable? {
-        didSet { load() }
+        didSet {
+            load()
+        }
     }
 
     /// The answers it shares (a profile's pages, roadmap 0050), its defaults its own.
@@ -35,7 +37,9 @@ package final class SitePermissions {
     /// The profile whose answers it gives and keeps first (a profile's pages).
     @ObservationIgnored package private(set) var profile: UUID?
 
-    private func profileKey(_ host: String) -> String? { profile.map { $0.uuidString + "|" + Self.key(host) } }
+    private func profileKey(_ host: String) -> String? {
+        profile.map { $0.uuidString + "|" + Self.key(host) }
+    }
 
     package init(table: SealedTable? = nil) {
         self.table = table
@@ -90,7 +94,9 @@ package final class SitePermissions {
         answers(of: profile).map { ($0.key, $0.value.count) }.sorted { $0.host < $1.host }
     }
 
-    package var answeredSites: [(host: String, count: Int)] { answeredSites() }
+    package var answeredSites: [(host: String, count: Int)] {
+        answeredSites()
+    }
 
     /// The sites answered for `permission`, by name; `profile`: its own (nil: all profiles').
     package func sites(for permission: SitePermission, profile: UUID? = nil) -> [(

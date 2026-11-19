@@ -19,5 +19,7 @@ package enum RowEmphasis: Equatable, Sendable {
     }
 
     /// Drawn in the selection's accent.
-    package var isAccent: Bool { self == .marked || self == .markedShown }
+    package var isAccent: Bool {
+        self == .marked || self == .markedShown
+    }
 }

@@ -11,7 +11,9 @@ import WebKit
 struct LinkMenuTests {
     final class WebKitItem: NSObject {
         var hits: [NSMenuItem] = []
-        @objc func open(_ sender: NSMenuItem) { hits.append(sender) }
+        @objc func open(_ sender: NSMenuItem) {
+            hits.append(sender)
+        }
     }
 
     @Test func `each item sets its placement, then runs WebKit's own action with its represented object`() throws {

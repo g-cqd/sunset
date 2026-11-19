@@ -7,7 +7,9 @@ public struct Cell: Sendable, Equatable {
     /// A blank cell in the default style: what an empty place of the screen holds.
     public static let empty = Cell(raw: 0)
 
-    init(raw: UInt64) { self.raw = raw }
+    init(raw: UInt64) {
+        self.raw = raw
+    }
 
     init(scalar: UInt32, width: CellWidth, style: UInt16) {
         raw = UInt64(scalar) | UInt64(width.rawValue) << 21 | UInt64(style) << 24
@@ -21,11 +23,21 @@ public struct Cell: Sendable, Equatable {
     }
 
     /// The scalar, or for a cluster cell (`isCluster`) the id of its cluster.
-    @inlinable public var scalar: UInt32 { UInt32(truncatingIfNeeded: raw & 0x1F_FFFF) }
+    @inlinable public var scalar: UInt32 {
+        UInt32(truncatingIfNeeded: raw & 0x1F_FFFF)
+    }
     /// `clusterFlag`, written out: a static constant of another module is read through an accessor call.
-    @inlinable public var isCluster: Bool { raw & (1 << 23) != 0 }
-    @inlinable public var width: CellWidth { CellWidth(rawValue: UInt8(truncatingIfNeeded: raw >> 21) & 3) ?? .narrow }
-    @inlinable public var styleID: UInt16 { UInt16(truncatingIfNeeded: raw >> 24) }
+    @inlinable public var isCluster: Bool {
+        raw & (1 << 23) != 0
+    }
+    @inlinable public var width: CellWidth {
+        CellWidth(rawValue: UInt8(truncatingIfNeeded: raw >> 21) & 3) ?? .narrow
+    }
+    @inlinable public var styleID: UInt16 {
+        UInt16(truncatingIfNeeded: raw >> 24)
+    }
 
-    func withStyle(_ style: UInt16) -> Cell { Cell(raw: raw & ~(0xFFFF << 24) | UInt64(style) << 24) }
+    func withStyle(_ style: UInt16) -> Cell {
+        Cell(raw: raw & ~(0xFFFF << 24) | UInt64(style) << 24)
+    }
 }

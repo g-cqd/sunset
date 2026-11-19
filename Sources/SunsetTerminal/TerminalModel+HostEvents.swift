@@ -30,7 +30,9 @@ extension TerminalModel {
     }
 
     /// Read for each event: a setting changed while the shell runs applies to what it asks next.
-    private var policy: HostPolicy { hostPolicy() }
+    private var policy: HostPolicy {
+        hostPolicy()
+    }
 
     /// Posts a program's notification to the notification centre: only for a bundled app (the centre stops a bare
     /// executable), once Sunset may notify.

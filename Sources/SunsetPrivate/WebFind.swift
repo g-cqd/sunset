@@ -9,7 +9,9 @@ internal import ObjectiveC
 public final class WebFind: NSObject {
     public struct Options: OptionSet, Sendable {
         public let rawValue: UInt
-        public init(rawValue: UInt) { self.rawValue = rawValue }
+        public init(rawValue: UInt) {
+            self.rawValue = rawValue
+        }
         public static let caseInsensitive = Options(rawValue: 1 << 0)
         public static let atWordStarts = Options(rawValue: 1 << 1)
         public static let backwards = Options(rawValue: 1 << 3)
@@ -70,7 +72,9 @@ public final class WebFind: NSObject {
 
     // MARK: The answers
 
-    fileprivate func answered(count: Int, index: Int?) { onResult(count, index) }
+    fileprivate func answered(count: Int, index: Int?) {
+        onResult(count, index)
+    }
 
     private static var installed = false
 

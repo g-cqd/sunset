@@ -10,7 +10,9 @@ extension WebContent {
     }
 
     /// The browser this page's site sees now.
-    package var agent: BrowserAgent { agent(for: url ?? webView?.url) }
+    package var agent: BrowserAgent {
+        agent(for: url ?? webView?.url)
+    }
 
     /// Shows the site of `url` its browser, when the view is about to go there. Nil is WebKit's own again.
     func appear(for url: URL?) {

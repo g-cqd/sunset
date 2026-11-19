@@ -4,7 +4,9 @@ package import Foundation
 package enum DocumentSort: String, Sendable, CaseIterable {
     case changed, made, name, kind
 
-    package init() { self = .changed }
+    package init() {
+        self = .changed
+    }
 
     /// As the sort menu names it.
     package var title: String {

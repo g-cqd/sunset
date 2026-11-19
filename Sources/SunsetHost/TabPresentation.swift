@@ -19,12 +19,22 @@ public enum TabPresentation: Sendable, Equatable {
         }
     }
 
-    public var showsNativeTabBar: Bool { self == .nativeTabs }
-    public var showsSidebar: Bool { self == .sidebar }
-    public var showsBuiltInBar: Bool { self == .builtInBar }
+    public var showsNativeTabBar: Bool {
+        self == .nativeTabs
+    }
+    public var showsSidebar: Bool {
+        self == .sidebar
+    }
+    public var showsBuiltInBar: Bool {
+        self == .builtInBar
+    }
     /// Windows are grouped by the system (`NSWindow.tabbingMode`).
-    public var usesSystemTabbing: Bool { self == .nativeTabs }
+    public var usesSystemTabbing: Bool {
+        self == .nativeTabs
+    }
 
     /// All the tabs of a window are terminals of that one window (the sidebar and the built-in bar list them); with `false` each tab is a window of its own.
-    public var hostsTabsInWindow: Bool { self == .sidebar || self == .builtInBar }
+    public var hostsTabsInWindow: Bool {
+        self == .sidebar || self == .builtInBar
+    }
 }

@@ -3,7 +3,9 @@ import SwiftUI
 extension TabSidebar {
     /// The scrolled rows fade out at the top as soon as they move, over at most `Design.Space.xl`: rows at rest are untouched. At
     /// the bottom they fade out above the app's bar.
-    var fade: some View { fade(scrolled: scrolledBy) }
+    var fade: some View {
+        fade(scrolled: scrolledBy)
+    }
 
     /// The same for a list scrolled by `scrolled` (the neighbour's while sliding between Spaces: at its top).
     func fade(scrolled: Double) -> some View {

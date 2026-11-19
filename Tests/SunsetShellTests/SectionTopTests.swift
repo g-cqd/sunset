@@ -9,8 +9,12 @@ import Testing
 /// search makes no sense with no documents existing". The title's row is as tall as its buttons, and the search field is there
 /// only when the section has something to search.
 @MainActor @Suite("The top of a section: its title, its buttons, its search") struct SectionTopTests {
-    var docked: SidebarButtons { SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil) }
-    var floating: SidebarButtons { SidebarButtons(layout: LayoutMetrics().floatingTabs, margin: 4, panelRadius: 12) }
+    var docked: SidebarButtons {
+        SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil)
+    }
+    var floating: SidebarButtons {
+        SidebarButtons(layout: LayoutMetrics().floatingTabs, margin: 4, panelRadius: 12)
+    }
 
     /// The heading drawn 240 pt wide: the buttons red, the field white, on black.
     func drawn(_ top: SectionTop) throws -> NSBitmapImageRep {

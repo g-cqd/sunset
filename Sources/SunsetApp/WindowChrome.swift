@@ -14,7 +14,9 @@ struct WindowChrome: NSViewRepresentable {
     var attached: (NSWindow) -> Void
     var obscuredTop: (Double) -> Void
 
-    func makeNSView(context: Context) -> ChromeView { ChromeView() }
+    func makeNSView(context: Context) -> ChromeView {
+        ChromeView()
+    }
 
     func updateNSView(_ view: ChromeView, context: Context) {
         view.settings = settings

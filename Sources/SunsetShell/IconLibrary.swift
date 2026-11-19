@@ -33,7 +33,9 @@ package final class IconLibrary {
     }
 
     @concurrent
-    private static func reading(_ read: @Sendable () -> IconCatalogs) async -> IconCatalogs { read() }
+    private static func reading(_ read: @Sendable () -> IconCatalogs) async -> IconCatalogs {
+        read()
+    }
 
     /// A picker opened: the catalogs stay.
     package func opened() {

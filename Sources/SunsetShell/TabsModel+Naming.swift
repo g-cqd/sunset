@@ -3,7 +3,9 @@ package import SunsetPane
 /// The name and icon a person gives a tab, over what its program says (`n41`).
 extension TabsModel {
     /// Opens the rename dialog for `item` (`RenameTabAlert`).
-    package func beginRename(item: Workspace.ItemID) { renaming = item }
+    package func beginRename(item: Workspace.ItemID) {
+        renaming = item
+    }
 
     package func rename(item: Workspace.ItemID, to name: String, icon: PaneIcon?) {
         change {

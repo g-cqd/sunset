@@ -7,7 +7,9 @@ struct KeyboardState: Sendable {
     var base: UInt8 = 0
     var stack = ContiguousArray<UInt8>()
 
-    var flags: UInt8 { stack.last ?? base }
+    var flags: UInt8 {
+        stack.last ?? base
+    }
 
     mutating func push(_ flags: UInt8) {
         if stack.count == Self.depth { stack.removeFirst() }

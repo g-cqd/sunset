@@ -36,7 +36,9 @@ package final class PageDialog: Identifiable {
     }
 
     /// "news.com says"; a page without a host (a file, about:blank) is "This page".
-    package var title: String { host.isEmpty ? "This page says" : "\(host) says" }
+    package var title: String {
+        host.isEmpty ? "This page says" : "\(host) says"
+    }
 
     /// Answers once; later answers do nothing.
     package func answer(_ value: Reply) {

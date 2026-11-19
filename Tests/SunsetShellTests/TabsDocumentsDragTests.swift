@@ -8,7 +8,9 @@ import Testing
 /// the Favorites it is kept there. The document stays in Documents in each case.
 @MainActor @Suite("A document dragged") struct TabsDocumentsDragTests {
     let harness = TabsHarness()
-    var tabs: TabsModel { harness.tabs }
+    var tabs: TabsModel {
+        harness.tabs
+    }
     let notes = UUID()
 
     @Test func `onto the tab list it opens as a tab at that place, among the tabs`() throws {

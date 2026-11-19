@@ -5,7 +5,9 @@ import Testing
 
 /// The draw list is what a GPU renderer replays: replaying it on the CPU must give exactly the pixels the CPU renderer draws itself.
 @Suite("Draw list (recorded frames)") struct DrawFrameTests {
-    private func rig() -> CPURendererRig { CPURendererRig(20, 6) }
+    private func rig() -> CPURendererRig {
+        CPURendererRig(20, 6)
+    }
 
     private func recorded(_ rig: CPURendererRig, view: FrameView = FrameView(), cursorVisible: Bool = true) -> DrawFrame
     {

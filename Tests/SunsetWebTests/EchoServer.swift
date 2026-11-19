@@ -46,10 +46,14 @@ final class EchoServer: @unchecked Sendable {
         thread.start()
     }
 
-    deinit { close(listening) }
+    deinit {
+        close(listening)
+    }
 
     /// The requests received so far, each as its head (the request line and the headers).
-    var received: [String] { lock.withLock { requests } }
+    var received: [String] {
+        lock.withLock { requests }
+    }
 
     /// The value of `header` in the last request for `path`.
     func header(_ header: String, for path: String) -> String? {

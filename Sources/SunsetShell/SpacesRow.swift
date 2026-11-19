@@ -14,7 +14,9 @@ package struct SpacesRow: View {
     /// The Space whose icon is being dragged (note n14).
     @State private var dragged: Space.ID?
 
-    package init(tabs: TabsModel) { self.tabs = tabs }
+    package init(tabs: TabsModel) {
+        self.tabs = tabs
+    }
 
     package var body: some View {
         if let spaces = tabs.spaces, spaces.spaces.count > 1 {
@@ -81,7 +83,9 @@ package struct SpacesRow: View {
         )
     }
 
-    private var animation: Animation? { surface.layout.smooth }
+    private var animation: Animation? {
+        surface.layout.smooth
+    }
 
     @ViewBuilder
     private func menu(_ space: SpaceModel, at index: Int, in spaces: SpacesModel) -> some View {

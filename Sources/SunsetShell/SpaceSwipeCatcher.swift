@@ -22,7 +22,9 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
         view.animation = animation
     }
 
-    static func dismantleNSView(_ view: CatcherView, coordinator: ()) { view.stop() }
+    static func dismantleNSView(_ view: CatcherView, coordinator: ()) {
+        view.stop()
+    }
 
     final class CatcherView: NSView {
         weak var tabs: TabsModel?

@@ -116,7 +116,9 @@ extension DesignCatalogTests {
     }
 
     var rowDetails: CatalogSheet {
-        func row(_ view: some View) -> AnyView { AnyView(view.padding(4).background(Color(white: 0.09))) }
+        func row(_ view: some View) -> AnyView {
+            AnyView(view.padding(4).background(Color(white: 0.09)))
+        }
         return CatalogSheet(
             title: "Row details (mock-up)",
             note:

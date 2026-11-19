@@ -51,7 +51,9 @@ package final class SiteRules<Value: Sendable> {
     }
 
     /// The value for an address: the most specific rule that matches it (`SitePattern`; the owner's note n40).
-    package func value(for url: URL) -> Value? { best(in: values, for: url) }
+    package func value(for url: URL) -> Value? {
+        best(in: values, for: url)
+    }
 
     private func best(in values: [String: Value], for url: URL) -> Value? {
         var best: (score: Int, value: Value)?
@@ -84,7 +86,9 @@ package final class SiteRules<Value: Sendable> {
     }
 
     /// The rule of exactly this site.
-    package func rule(for host: String?) -> Value? { host.flatMap { values[SiteHost.key($0)] } }
+    package func rule(for host: String?) -> Value? {
+        host.flatMap { values[SiteHost.key($0)] }
+    }
 
     /// Gives a site a rule, or takes it away (nil).
     package func set(_ value: Value?, for host: String?) {

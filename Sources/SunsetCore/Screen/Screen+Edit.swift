@@ -1,5 +1,7 @@
 extension Screen {
-    private mutating func blankCell() -> Cell { Cell(scalar: 0, width: .narrow, style: currentEraseID()) }
+    private mutating func blankCell() -> Cell {
+        Cell(scalar: 0, width: .narrow, style: currentEraseID())
+    }
 
     /// Erases columns `from...to` of a row (inclusive), cutting no double-width character in half.
     mutating func eraseCells(row: Int, from: Int, to: Int) {

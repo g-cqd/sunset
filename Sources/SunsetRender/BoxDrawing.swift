@@ -33,7 +33,9 @@ enum BoxDrawing {
     }()
 
     /// The arm weights of a glyph in the table (for tests), or zeros.
-    static func testingArms(_ scalar: UInt32) -> [Int] { arms[scalar] ?? [0, 0, 0, 0] }
+    static func testingArms(_ scalar: UInt32) -> [Int] {
+        arms[scalar] ?? [0, 0, 0, 0]
+    }
 
     /// Draws the glyph; false when `scalar` is not one of this block's.
     static func draw(_ scalar: UInt32, into canvas: inout Canvas, metrics: RenderMetrics) -> Bool {
@@ -53,5 +55,7 @@ enum BoxDrawing {
         return true
     }
 
-    static func thickness(_ weight: Int, _ light: Int) -> Int { weight == heavy ? 2 * light : light }
+    static func thickness(_ weight: Int, _ light: Int) -> Int {
+        weight == heavy ? 2 * light : light
+    }
 }

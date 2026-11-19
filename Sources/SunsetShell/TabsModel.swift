@@ -12,7 +12,11 @@ package final class TabsModel {
     /// The Space this window shows.
     package internal(set) var space: SpaceModel
     /// The tab this window selected among the Space's, and the kept entry it shows instead (`workspace`).
-    var selectedID: Workspace.ItemID? { didSet { remember(selectedID, was: oldValue) } }
+    var selectedID: Workspace.ItemID? {
+        didSet {
+            remember(selectedID, was: oldValue)
+        }
+    }
     /// The tabs this window showed, the last last (n4): closing the shown one goes back to the one before it.
     @ObservationIgnored var shownBefore: [Workspace.ItemID] = []
     var selectedEntry: Favorites.NodeID?
@@ -29,9 +33,17 @@ package final class TabsModel {
     }
     @ObservationIgnored var canMake = false
     /// The scopes of the app that are on (roadmap 0033): nothing of one that is off is made or listed here.
-    package var scopes = Scopes() { didSet { if scopes != oldValue { scopesChanged() } } }
+    package var scopes = Scopes() {
+        didSet {
+            if scopes != oldValue { scopesChanged() }
+        }
+    }
     /// The Pinned grid this window shows (the app's); nil for a window that has none (a private one).
-    package var pinned: FavoritesModel? { didSet { pinned?.register(self) } }
+    package var pinned: FavoritesModel? {
+        didSet {
+            pinned?.register(self)
+        }
+    }
     /// The Spaces this window can change to (the app's); nil for one whose Space is its own. Observed: drawn before set.
     package weak var spaces: SpacesModel?
     /// Where the sidebar's field is, in the window, while it shows one: the command bar opens there (roadmap 0035 G).
@@ -59,7 +71,11 @@ package final class TabsModel {
     /// The tabs changed (added, closed, moved, split, selected): the session is to be saved.
     @ObservationIgnored package var onChange: () -> Void = {}
     /// What a drag in this window carries, from its start (`beginDrag`) until it is dropped.
-    @ObservationIgnored package var dragged: PaneDragPayload? { didSet { draggedChanged() } }
+    @ObservationIgnored package var dragged: PaneDragPayload? {
+        didSet {
+            draggedChanged()
+        }
+    }
     /// Where what is dragged could go, while a drag is under way: what the views outline (`DragTargets`).
     package internal(set) var dragTargets: DragTargets?
     /// Whether a mouse button is down: a drag let go where nothing takes it ends when none is (watched by `dragWatch`).
@@ -99,7 +115,9 @@ package final class TabsModel {
     /// A private window (web step h): the group its pages share by default, and whether they do (the window's selector).
     package var privateGroup: UUID?
     package var privateShares = true
-    package var isPrivateWindow: Bool { privateGroup != nil }
+    package var isPrivateWindow: Bool {
+        privateGroup != nil
+    }
     package var clearingHistory = false
     /// The row whose name is being edited in place, and the row whose icon popover is open.
     package var renamingRow: RowTarget?
@@ -113,10 +131,12 @@ package final class TabsModel {
     package var unsavedQuestion: UnsavedQuestion?
     /// Whether closing a busy tab requires a second click or ⌘W (`tabs.confirmClose`).
     package var confirmClose = true
-    @ObservationIgnored private var expiryTask: Task<Void, Never>?
+    @ObservationIgnored var expiryTask: Task<Void, Never>?
 
     /// The Favorites of the Space.
-    package var favorites: FavoritesModel { space.favorites }
+    package var favorites: FavoritesModel {
+        space.favorites
+    }
 
     /// A window on `space`, with nothing selected.
     package init(space: SpaceModel) {
@@ -137,7 +157,9 @@ package final class TabsModel {
         self.init(space: SpaceModel(favorites: favorites))
     }
 
-    package var selectedContent: (any PaneContent)? { shownPane.flatMap(content) }
+    package var selectedContent: (any PaneContent)? {
+        shownPane.flatMap(content)
+    }
 
     // MARK: Adding
 
@@ -183,56 +205,5 @@ package final class TabsModel {
         // a view that is going away, and must not select its tab again: `SpaceModel.focusRequested`.)
         space.wire(model, as: pane)
         syncStates()
-    }
-
-    // MARK: Removing
-
-    /// Takes a pane out without stopping its program: the terminal goes to another window. The window is not told it is empty (the caller decides).
-    package func detach(pane: PaneID) -> (any PaneContent)? {
-        guard let model = contents[pane] else { return nil }
-        workspace.close(pane: pane)
-        contents[pane] = nil
-        syncStates()
-        onChange()
-        return model
-    }
-
-    /// Whether `item` is currently armed for close confirmation (tinted red).
-    package func isCloseArmed(_ item: Workspace.ItemID) -> Bool {
-        closeConfirmation.isArmed(item: item, now: .now)
-    }
-
-    func confirmed(_ target: CloseConfirmation.Target, isBusy: Bool) -> Bool {
-        let allowed = closeConfirmation.shouldClose(target, isBusy: isBusy, enabled: confirmClose, now: .now)
-        if !allowed, let deadline = closeConfirmation.expiration {
-            expiryTask?.cancel()
-            expiryTask = Task { [weak self] in
-                try? await Task.sleep(until: deadline, clock: .continuous)
-                guard !Task.isCancelled else { return }
-                self?.closeConfirmation.expire(at: .now)
-            }
-        }
-        return allowed
-    }
-
-    /// The window closed: it no longer shows its Space. While another window does, nothing stops; the last window of a Space
-    /// that keeps its tabs stops them and they stay; any other Space ends with its window.
-    package func windowClosed(at date: Date = Date()) {
-        space.leave(self, at: date)
-        spaces?.windowClosed(at: date)
-    }
-
-    func stop(_ panes: [PaneID]) {
-        for pane in panes {
-            if hoveredPane == pane { hoveredPane = nil }
-            contents[pane]?.stop()
-            contents[pane] = nil
-        }
-    }
-
-    /// The window goes with its last tab, unless it shows a kept entry or there are Favorites to show (it stays, with a hint: R3).
-    func finishClosing() {
-        onChange()
-        if workspace.isEmpty, workspace.selectedEntry == nil, favorites.isEmpty { emptied() } else { syncStates() }
     }
 }

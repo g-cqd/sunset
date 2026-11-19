@@ -33,7 +33,9 @@ struct SettingsRow: View {
         }
     }
 
-    private var help: HelpTopic? { HelpTopic.explaining(setting: option.id) }
+    private var help: HelpTopic? {
+        HelpTopic.explaining(setting: option.id)
+    }
 
     /// The title on the leading edge with its "?" beside it, the control on the trailing edge (the owner, 2026-11-18): every
     /// control of a page lines up on one edge, every title on the other.

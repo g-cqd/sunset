@@ -4,5 +4,7 @@ import Observation
 @MainActor @Observable final class HistoryChanges {
     static let shared = HistoryChanges()
     private(set) var generation = 0
-    func bump() { generation += 1 }
+    func bump() {
+        generation += 1
+    }
 }

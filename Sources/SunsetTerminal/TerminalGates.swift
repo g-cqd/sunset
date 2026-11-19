@@ -6,6 +6,10 @@ package struct TerminalGates {
     package var paneFocused = true
     package var paneVisible = true
 
-    package var hasFocus: Bool { windowFocused && paneFocused }
-    package var isVisible: Bool { windowVisible && paneVisible }
+    package var hasFocus: Bool {
+        windowFocused && paneFocused
+    }
+    package var isVisible: Bool {
+        windowVisible && paneVisible
+    }
 }

@@ -80,7 +80,9 @@ extension TerminalModel {
         if viewport.scrolledBack != before { requestFrame() }
     }
 
-    package func scroll(byPages pages: Int) { scroll(byLines: pages * max(1, (currentGrid()?.rows ?? 24) - 1)) }
+    package func scroll(byPages pages: Int) {
+        scroll(byLines: pages * max(1, (currentGrid()?.rows ?? 24) - 1))
+    }
 
     /// Puts the previous or the next shell prompt (OSC 133) at the top of the window; past the last one is the live screen.
     package func jumpToPrompt(_ direction: PromptMark.Direction) {

@@ -12,9 +12,15 @@ struct ConflictCard: View {
     /// What is here, to draw above the disk's (the page); nil in the source, where the text itself shows it.
     var mine: String?
 
-    private var kind: DocumentKind { content.document.kind }
-    private var settings: ViewerSettings { content.document.source.settings }
-    private var isCurrent: Bool { content.document.conflicts.count > 1 && content.shownConflict == conflict.id }
+    private var kind: DocumentKind {
+        content.document.kind
+    }
+    private var settings: ViewerSettings {
+        content.document.source.settings
+    }
+    private var isCurrent: Bool {
+        content.document.conflicts.count > 1 && content.shownConflict == conflict.id
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

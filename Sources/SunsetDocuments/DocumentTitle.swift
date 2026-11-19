@@ -37,5 +37,7 @@ public enum DocumentTitle {
         return line
     }
 
-    private static func cut(_ title: String) -> String { title.count > limit ? String(title.prefix(limit)) : title }
+    private static func cut(_ title: String) -> String {
+        title.count > limit ? String(title.prefix(limit)) : title
+    }
 }

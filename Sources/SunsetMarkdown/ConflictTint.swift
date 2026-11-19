@@ -8,6 +8,10 @@ enum ConflictTint {
     /// A block the merge just put in: shown for a moment.
     static let merged = NSColor.systemGreen.withAlphaComponent(0.22)
 
-    static var mineColor: Color { Color(nsColor: mine) }
-    static var theirsColor: Color { Color(nsColor: theirs) }
+    static var mineColor: Color {
+        Color(nsColor: mine)
+    }
+    static var theirsColor: Color {
+        Color(nsColor: theirs)
+    }
 }

@@ -17,7 +17,9 @@ struct RecentFilesTests {
         return try #require(StateDatabase.open(at: path, key: key).database).table("recent-files")
     }
 
-    private func date(_ seconds: Double) -> Date { Date(timeIntervalSince1970: seconds) }
+    private func date(_ seconds: Double) -> Date {
+        Date(timeIntervalSince1970: seconds)
+    }
 
     @Test func `the latest first, each file once, twenty at most`() {
         let recent = RecentFiles(table: nil)

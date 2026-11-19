@@ -12,7 +12,9 @@ public final class RecentFiles {
         public let path: String
         public let opened: Date
 
-        public var id: String { path }
+        public var id: String {
+            path
+        }
     }
 
     private struct Kept: Codable {

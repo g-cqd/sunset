@@ -24,17 +24,27 @@ struct Grid: Sendable {
     }
 
     /// The physical row of a screen row.
-    @inline(__always) func physical(_ row: Int) -> Int { Int(meta[row]) }
+    @inline(__always) func physical(_ row: Int) -> Int {
+        Int(meta[row])
+    }
 
-    @inline(__always) func base(_ row: Int) -> Int { physical(row) * columns }
+    @inline(__always) func base(_ row: Int) -> Int {
+        physical(row) * columns
+    }
 
     /// How many leading cells of a physical row can be other than empty.
-    @inline(__always) func used(physical: Int) -> Int { Int(meta[rows + physical]) }
+    @inline(__always) func used(physical: Int) -> Int {
+        Int(meta[rows + physical])
+    }
 
     /// How many leading cells of `row` can be other than empty (the cells past them are).
-    @inline(__always) func usedCount(row: Int) -> Int { used(physical: physical(row)) }
+    @inline(__always) func usedCount(row: Int) -> Int {
+        used(physical: physical(row))
+    }
 
-    @inline(__always) func isWrapped(row: Int) -> Bool { meta[2 * rows + physical(row)] != 0 }
+    @inline(__always) func isWrapped(row: Int) -> Bool {
+        meta[2 * rows + physical(row)] != 0
+    }
 
     /// Written only when it changes: most rows are not wrapped and stay so.
     @inline(__always) mutating func setWrapped(row: Int, _ wrapped: Bool) {
@@ -44,7 +54,9 @@ struct Grid: Sendable {
     }
 
     @inline(__always) subscript(row: Int, column: Int) -> Cell {
-        get { cells[base(row) + column] }
+        get {
+            cells[base(row) + column]
+        }
         set {
             let physical = physical(row)
             cells[physical * columns + column] = newValue

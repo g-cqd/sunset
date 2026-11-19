@@ -15,7 +15,9 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
 
     struct WeakContent {
         weak var content: (any PaneContent)?
-        var page: WebContent? { content as? WebContent }
+        var page: WebContent? {
+            content as? WebContent
+        }
     }
 
     /// Becomes the notification centre's delegate. Only for an app with a bundle: without one the centre stops the process.

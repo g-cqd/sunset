@@ -14,5 +14,7 @@ package enum BarTint: String, Sendable, Equatable {
     }
 
     /// The fill inside the glass: black for dark controls, white for light ones.
-    package static func fill(for scheme: ColorScheme) -> Color { scheme == .dark ? .black : .white }
+    package static func fill(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? .black : .white
+    }
 }

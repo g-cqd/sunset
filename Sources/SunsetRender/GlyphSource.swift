@@ -19,8 +19,12 @@ public protocol GlyphSource: Sendable {
 }
 
 extension GlyphSource {
-    public var shapesRuns: Bool { false }
+    public var shapesRuns: Bool {
+        false
+    }
     public func glyph(forRun text: String, bold: Bool, italic: Bool, cells: Int, metrics: RenderMetrics) -> GlyphBitmap?
     { nil }
-    public func runIsPlain(_ text: String, bold: Bool, italic: Bool, metrics: RenderMetrics) -> Bool { false }
+    public func runIsPlain(_ text: String, bold: Bool, italic: Bool, metrics: RenderMetrics) -> Bool {
+        false
+    }
 }

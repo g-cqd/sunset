@@ -73,10 +73,14 @@ public final class PTYProcess: Sendable {
     }
 
     /// How many times the thread that waits for output has woken up: a program that prints nothing must not wake it (an idle terminal costs wakeups).
-    public var readWakeups: Int { counters.readWakeups.withLock { $0 } }
+    public var readWakeups: Int {
+        counters.readWakeups.withLock { $0 }
+    }
 
     /// The master side of the pseudo-terminal, for a host that waits for output with its own event source (read it only through `read`).
-    public var fileDescriptor: Int32 { master }
+    public var fileDescriptor: Int32 {
+        master
+    }
 
     // MARK: Control
 
@@ -90,10 +94,14 @@ public final class PTYProcess: Sendable {
         _ = unsafe ioctl(master, TIOCSWINSZ, &size)
     }
 
-    public func signal(_ number: Int32) { kill(processID, number) }
+    public func signal(_ number: Int32) {
+        kill(processID, number)
+    }
 
     /// Asks the child to end, as closing a terminal window does (SIGHUP).
-    public func hangUp() { kill(processID, SIGHUP) }
+    public func hangUp() {
+        kill(processID, SIGHUP)
+    }
 
     /// The exit status, waiting up to `milliseconds` for the child to have ended (blocking: for tools and tests; sessions use `exitStatus(waitingUpTo:)`
     /// from async code).

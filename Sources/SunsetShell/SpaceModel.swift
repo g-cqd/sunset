@@ -24,7 +24,9 @@ package final class SpaceModel {
     /// Whether its tabs stay, stopped, when its last window closes (the app's Space, unless `tabs.closeWithLastWindow`).
     package var keepsTabs: Bool
     /// Its tabs were stopped with its last window and wait for the next; since when.
-    package var isStopped: Bool { stopped != nil }
+    package var isStopped: Bool {
+        stopped != nil
+    }
     package internal(set) var stopped: Date?
     /// Something in it asked for attention while no window showed it (S-e): its icon is marked until one does.
     package internal(set) var needsAttention = false
@@ -44,16 +46,26 @@ package final class SpaceModel {
         self.keepsTabs = keepsTabs
     }
 
-    package var viewerCount: Int { viewers.count { $0.tabs != nil } }
+    package var viewerCount: Int {
+        viewers.count { $0.tabs != nil }
+    }
     /// The windows that show it.
-    var currentViewers: [TabsModel] { viewers.compactMap(\.tabs) }
+    var currentViewers: [TabsModel] {
+        viewers.compactMap(\.tabs)
+    }
     /// A window that shows it, if any.
-    package var currentViewer: TabsModel? { currentViewers.first }
+    package var currentViewer: TabsModel? {
+        currentViewers.first
+    }
     /// It has a tab: deleting it asks first. (The Favorites are its profile's, and stay.)
-    package var holdsSomething: Bool { !tabs.isEmpty || (ownsFavorites && !favorites.isEmpty) }
+    package var holdsSomething: Bool {
+        !tabs.isEmpty || (ownsFavorites && !favorites.isEmpty)
+    }
     /// The tab a window last went to: what a window that comes to this Space for the first time shows.
     package private(set) var lastShown: Workspace.ItemID?
-    private func others(than viewer: TabsModel?) -> [TabsModel] { viewers.compactMap(\.tabs).filter { $0 !== viewer } }
+    private func others(than viewer: TabsModel?) -> [TabsModel] {
+        viewers.compactMap(\.tabs).filter { $0 !== viewer }
+    }
 
     // MARK: Windows
 
@@ -129,9 +141,13 @@ package final class SpaceModel {
         }
     }
 
-    func isLive(_ id: Workspace.ItemID, in viewer: TabsModel) -> Bool { live[id]?.tabs === viewer }
+    func isLive(_ id: Workspace.ItemID, in viewer: TabsModel) -> Bool {
+        live[id]?.tabs === viewer
+    }
     /// No window draws the tab.
-    func isFree(_ id: Workspace.ItemID) -> Bool { live[id]?.tabs == nil }
+    func isFree(_ id: Workspace.ItemID) -> Bool {
+        live[id]?.tabs == nil
+    }
 
     /// `viewer`, its only window, leaves for another Space and takes the tabs along: they are given, still running.
     func give(to viewer: TabsModel) -> (items: [Workspace.Item], contents: [PaneID: any PaneContent]) {
@@ -200,42 +216,5 @@ package final class SpaceModel {
             let shown = live[item.id]?.tabs?.shownTab == item.id
             for pane in item.panes { contents[pane]?.setState(focused: shown && pane == item.focused, visible: shown) }
         }
-    }
-
-    // MARK: Stopping and starting
-
-    /// The last window went: what runs is stopped, and the tabs stay with what brings each pane back. What is private
-    /// keeps nothing: its tabs go.
-    private func stopKeeping(at date: Date) {
-        for (pane, content) in contents {
-            if content.isPrivate { tabs.close(pane: pane) } else { pending[pane] = content.descriptor }
-            // Its end is not a pane closing: the tab stays.
-            content.onExit = {}
-            content.stop()
-        }
-        contents = [:]
-        live = [:]
-        stopped = tabs.isEmpty ? nil : date
-    }
-
-    /// Stops the contents of the kind `kind` and has them made again from where each is (a Space given another
-    /// profile: its pages load again with that profile's website data): by a window that shows the Space, or, with
-    /// none, by the next that does.
-    package func restart(kind: String, panes only: Set<PaneID>? = nil, by viewer: TabsModel?) {
-        for (pane, content) in contents
-        where content.descriptor.kind == kind && !content.isPrivate && only.map({ $0.contains(pane) }) ?? true {
-            pending[pane] = content.descriptor
-            content.onExit = {}
-            content.stop()
-            contents[pane] = nil
-        }
-        viewer?.revive()
-        syncStates()
-    }
-
-    /// What brings back the content of `pane`, which has none; taken, since the content is about to be made.
-    func takePending(_ pane: PaneID) -> PaneDescriptor? {
-        stopped = nil
-        return pending.removeValue(forKey: pane)
     }
 }

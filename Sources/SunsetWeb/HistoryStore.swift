@@ -41,7 +41,9 @@ package final class HistoryStore {
     }
 
     /// Returns once the kept history is all in memory.
-    package func ready() async { await loading?.value }
+    package func ready() async {
+        await loading?.value
+    }
 
     /// Takes in the kept pages (the latest first), joined to what happened since the reading began.
     private func install(_ read: (values: [Kept], unreadable: Int)) {
@@ -73,7 +75,9 @@ package final class HistoryStore {
         }
     }
 
-    package var count: Int { byAddress.count }
+    package var count: Int {
+        byAddress.count
+    }
 
     /// A visit to `url` at `time`: counted, its title kept when it has one.
     package func visit(_ url: String, title: String, at time: Date = Date()) {

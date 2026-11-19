@@ -15,7 +15,9 @@ package enum HiddenElements {
 
 extension SiteRules where Value == [String] {
     /// The selectors hidden on `host`: its own, or its nearest parent site's.
-    package func selectors(for host: String?) -> [String] { value(for: host) ?? [] }
+    package func selectors(for host: String?) -> [String] {
+        value(for: host) ?? []
+    }
 
     /// Hides one more element on the site; once.
     package func add(_ selector: String, for host: String?) {

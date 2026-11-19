@@ -12,7 +12,9 @@ import SunsetWeb
 @MainActor @Observable
 final class AppConfiguration {
     /// The sidebar's pin button: it stays beside the content, or hides and floats (`sidebar.autoHide`).
-    static func togglePin() { shared.update { $0.sidebar.autoHide.toggle() } }
+    static func togglePin() {
+        shared.update { $0.sidebar.autoHide.toggle() }
+    }
 
     static let shared = AppConfiguration()
 
@@ -46,13 +48,6 @@ final class AppConfiguration {
         refreshShown()
     }
 
-    /// `appearance.icon` on the Dock tile and in the app switcher (roadmap 0084 F): an alternate from the asset catalog, or the
-    /// bundle's own (`nil`) for Sunset, so that the system's light, dark and tinted forms of it stay.
-    func applyIcon() {
-        let icon = configuration.appearance.icon
-        NSApp?.applicationIconImage = icon == .sunset ? nil : NSImage(named: icon.assetName)
-    }
-
     /// A colour is dark (by its luma); none counts as dark (the terminal's default is black).
     private static func isDark(_ colour: [UInt8]?) -> Bool {
         guard let colour, colour.count == 3 else { return true }
@@ -77,7 +72,9 @@ final class AppConfiguration {
         if next != shown { shown = next }
     }
     /// How the tabs are shown now.
-    var presentation: TabPresentation { configuration.presentation }
+    var presentation: TabPresentation {
+        configuration.presentation
+    }
     /// Whether a file was found (the settings of the app's own Settings window apply when there is none).
     private(set) var hasFile = false
     private(set) var issues: [ConfigurationIssue] = []

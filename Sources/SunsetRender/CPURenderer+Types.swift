@@ -48,10 +48,14 @@ extension CPURenderer {
             firstLine = screen.scrollbackCount - scrolledBack
         }
 
-        func style(of cell: Cell) -> CellStyle { styles[Int(cell.styleID)] }
+        func style(of cell: Cell) -> CellStyle {
+            styles[Int(cell.styleID)]
+        }
 
         /// The cells of a row of the window.
-        func row(_ row: Int) -> RowCells { RowCells(cells: screen.viewportRow(row, scrolledBack: scrolledBack)) }
+        func row(_ row: Int) -> RowCells {
+            RowCells(cells: screen.viewportRow(row, scrolledBack: scrolledBack))
+        }
 
         func isSelected(row: Int, column: Int) -> Bool {
             selection?.contains(line: firstLine + row, column: column) ?? false

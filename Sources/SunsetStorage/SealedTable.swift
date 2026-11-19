@@ -18,7 +18,9 @@ public struct SealedTable {
     let kind: String
 
     /// Runs `body` as one transaction of the database: many records written at the cost of one.
-    public func transaction(_ body: () -> Void) { database.transaction(body) }
+    public func transaction(_ body: () -> Void) {
+        database.transaction(body)
+    }
 
     /// What names the record in the file: a keyed hash of its kind and name, cut to 16 bytes.
     private func index(_ name: String) -> Data {
@@ -28,7 +30,9 @@ public struct SealedTable {
     }
 
     /// What is bound into a record's seal: its kind and what names it in the file, so that a record cannot stand for another.
-    private var binding: Data { database.seal.binding(kind) + [0] }
+    private var binding: Data {
+        database.seal.binding(kind) + [0]
+    }
 
     /// Keeps `payload` under `name`, in place of what was there.
     public func put(_ name: String, payload: Data, sort: Double = 0, count: Int = 0) {
@@ -66,7 +70,9 @@ public struct SealedTable {
         return SealedRows(records: records, seal: database.seal, binding: binding)
     }
 
-    public func count() -> Int { database.number("SELECT COUNT(*) FROM records WHERE kind = ?1", [.text(kind)]) ?? 0 }
+    public func count() -> Int {
+        database.number("SELECT COUNT(*) FROM records WHERE kind = ?1", [.text(kind)]) ?? 0
+    }
 
     public func remove(_ name: String) {
         database.execute("DELETE FROM records WHERE kind = ?1 AND key = ?2", [.text(kind), .blob(index(name))])

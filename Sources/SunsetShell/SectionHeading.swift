@@ -21,7 +21,9 @@ package struct SectionHeading<Actions: View, Field: View>: View {
         self.field = field()
     }
 
-    private var layout: LayoutMetrics { top.buttons.layout }
+    private var layout: LayoutMetrics {
+        top.buttons.layout
+    }
 
     package var body: some View {
         VStack(spacing: 0) {

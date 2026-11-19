@@ -30,7 +30,9 @@ final class ScreenPicker: NSObject, SCContentSharingPickerObserver, @unchecked S
     }
 
     /// The picker no longer stands for a share running (its menu bar item goes).
-    @MainActor static func done() { SCContentSharingPicker.shared.isActive = false }
+    @MainActor static func done() {
+        SCContentSharingPicker.shared.isActive = false
+    }
 
     func contentSharingPicker(
         _ picker: SCContentSharingPicker,
@@ -40,9 +42,13 @@ final class ScreenPicker: NSObject, SCContentSharingPickerObserver, @unchecked S
         finish(filter)
     }
 
-    func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) { finish(nil) }
+    func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
+        finish(nil)
+    }
 
-    func contentSharingPickerStartDidFailWithError(_ error: any Error) { finish(nil) }
+    func contentSharingPickerStartDidFailWithError(_ error: any Error) {
+        finish(nil)
+    }
 
     private func finish(_ filter: SCContentFilter?) {
         let continuation = lock.withLock {

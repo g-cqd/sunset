@@ -23,5 +23,7 @@ struct RunShapingRig {
         terminal.clearDirty()
     }
 
-    func pixel(_ column: Int, _ x: Int, _ y: Int, row: Int = 0) -> RGB { surface[column * 8 + x, row * 16 + y] }
+    func pixel(_ column: Int, _ x: Int, _ y: Int, row: Int = 0) -> RGB {
+        surface[column * 8 + x, row * 16 + y]
+    }
 }

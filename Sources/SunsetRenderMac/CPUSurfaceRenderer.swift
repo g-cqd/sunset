@@ -11,10 +11,18 @@ public final class CPUSurfaceRenderer: IOSurfaceRenderer {
         renderer = FrameRenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures)
     }
 
-    public var cellMetrics: RenderMetrics { renderer.cellMetrics }
-    public var latest: IOSurface? { presenter.latest }
-    public var backend: RendererBackend { .cpu }
-    public var hasFailed: Bool { false }
+    public var cellMetrics: RenderMetrics {
+        renderer.cellMetrics
+    }
+    public var latest: IOSurface? {
+        presenter.latest
+    }
+    public var backend: RendererBackend {
+        .cpu
+    }
+    public var hasFailed: Bool {
+        false
+    }
 
     public func present(_ screen: Screen, cursorVisible: Bool, textBlinkVisible: Bool, view: FrameView) async -> Bool {
         await renderer.present(

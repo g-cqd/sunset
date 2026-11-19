@@ -22,7 +22,9 @@ public struct SealedRows: Sendable {
     /// What is bound into every record's seal before what names it.
     let binding: Data
 
-    public var count: Int { records.count }
+    public var count: Int {
+        records.count
+    }
 
     /// Opens every record now, on this thread, and makes each into what its owner holds; the highest `sort` first. `decode`
     /// gives nil for a record it cannot use, which is counted with those that did not open (altered or damaged: not given).

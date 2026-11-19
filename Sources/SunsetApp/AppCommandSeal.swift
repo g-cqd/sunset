@@ -6,8 +6,14 @@ import SunsetShell
 struct AppCommandSeal: CommandSealing {
     let seal: CommandSeal
 
-    init(key: SymmetricKey) { seal = CommandSeal(key: key) }
+    init(key: SymmetricKey) {
+        seal = CommandSeal(key: key)
+    }
 
-    func seal(_ command: String) -> String { seal.seal(command) }
-    func verifies(_ command: String, seal mark: String?) -> Bool { seal.verifies(command, seal: mark) }
+    func seal(_ command: String) -> String {
+        seal.seal(command)
+    }
+    func verifies(_ command: String, seal mark: String?) -> Bool {
+        seal.verifies(command, seal: mark)
+    }
 }

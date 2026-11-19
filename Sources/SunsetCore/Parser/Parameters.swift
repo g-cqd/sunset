@@ -18,9 +18,13 @@ public struct Parameters: Sendable, Equatable {
     }
 
     /// The parameter at `index` exactly as sent (0 when absent).
-    public subscript(index: Int) -> Int { index < count ? Int(storage[index]) : 0 }
+    public subscript(index: Int) -> Int {
+        index < count ? Int(storage[index]) : 0
+    }
 
-    public func isSubParameter(_ index: Int) -> Bool { index < count && subParameterMask & (1 << UInt32(index)) != 0 }
+    public func isSubParameter(_ index: Int) -> Bool {
+        index < count && subParameterMask & (1 << UInt32(index)) != 0
+    }
 
     /// Starts a new parameter (value 0). False when full.
     mutating func begin(subParameter: Bool) -> Bool {

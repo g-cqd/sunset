@@ -40,8 +40,12 @@ package enum SitePermission: String, CaseIterable, Codable, Sendable {
     }
 
     /// The owner's defaults: asked, except pop-ups and sound, blocked.
-    package var defaultAnswer: PermissionAnswer { self == .popups || self == .autoplay ? .deny : .ask }
+    package var defaultAnswer: PermissionAnswer {
+        self == .popups || self == .autoplay ? .deny : .ask
+    }
 
     /// What macOS itself must also allow Sunset (its identity, Sunset.app, and usage strings).
-    package var needsAppIdentity: Bool { self == .camera || self == .microphone || self == .location }
+    package var needsAppIdentity: Bool {
+        self == .camera || self == .microphone || self == .location
+    }
 }

@@ -20,5 +20,7 @@ import SunsetPane
         tabs.onEmpty = { [weak self] in self?.emptied = true }
     }
 
-    func content(_ pane: PaneID) -> FakeContent? { tabs.content(pane) as? FakeContent }
+    func content(_ pane: PaneID) -> FakeContent? {
+        tabs.content(pane) as? FakeContent
+    }
 }

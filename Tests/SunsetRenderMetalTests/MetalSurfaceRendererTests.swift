@@ -95,7 +95,9 @@ import Testing
     @Test func `presents that arrive while a frame is drawn wait their turn`() async throws {
         let (cpu, gpu, _) = try renderers()
         var terminal = Terminal(columns: 30, rows: 16)
-        func row(_ row: Int) -> String { "\(esc)[\(row + 1);1Hrow \(row) \(esc)[3\(row % 7 + 1)mcolour\(esc)[0m ┌─┐" }
+        func row(_ row: Int) -> String {
+            "\(esc)[\(row + 1);1Hrow \(row) \(esc)[3\(row % 7 + 1)mcolour\(esc)[0m ┌─┐"
+        }
         for index in 0 ..< 16 { terminal.feed(row(index)) }
         _ = await cpu.present(terminal.screen, cursorVisible: false, textBlinkVisible: true, view: FrameView())
         _ = await gpu.present(terminal.screen, cursorVisible: false, textBlinkVisible: true, view: FrameView())

@@ -24,7 +24,9 @@ struct JSONSpans {
         let bytes: [UInt8]
         var index = 0
 
-        init(bytes: [UInt8]) { self.bytes = bytes }
+        init(bytes: [UInt8]) {
+            self.bytes = bytes
+        }
 
         mutating func skipSpace() {
             while index < bytes.count {

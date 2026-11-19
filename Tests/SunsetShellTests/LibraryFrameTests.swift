@@ -8,7 +8,9 @@ import Testing
 /// The sidebar with the Library open (the owner, 2026-11-15): the sidebar widens in place by a rail of glyphs at the window's
 /// edge, with a gutter between the rail and the list; the list is as wide as the tabs were and is not made again.
 @MainActor @Suite("The sidebar widening for the Library") struct LibraryFrameTests {
-    var buttons: SidebarButtons { SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil) }
+    var buttons: SidebarButtons {
+        SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil)
+    }
 
     /// The frame drawn 200 pt high: the list white, the rail red, on black; `open` shows the rail.
     func drawn(open: Bool, railLeading: Bool, list: Double = 220) throws -> NSBitmapImageRep {
@@ -24,7 +26,9 @@ import Testing
     }
 
     /// Within a pixel: the gaps are in half points.
-    func near(_ pixels: Int, _ points: Double) -> Bool { abs(Double(pixels) - points) <= 1 }
+    func near(_ pixels: Int, _ points: Double) -> Bool {
+        abs(Double(pixels) - points) <= 1
+    }
 
     /// The columns of the middle row that are white (the list) and red (the rail).
     func columns(_ image: NSBitmapImageRep) -> (list: [Int], rail: [Int]) {

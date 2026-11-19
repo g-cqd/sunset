@@ -18,9 +18,13 @@ public struct Workspace: Sendable, Equatable {
         /// A custom icon (SF Symbol or emoji) overriding the content's default glyph (`n41`).
         public internal(set) var customIcon: PaneIcon?
 
-        public var panes: [PaneID] { layout.panes }
+        public var panes: [PaneID] {
+            layout.panes
+        }
         /// More than one pane.
-        public var isSplit: Bool { panes.count > 1 }
+        public var isSplit: Bool {
+            panes.count > 1
+        }
 
         init(
             id: ItemID = ItemID(),
@@ -47,16 +51,30 @@ public struct Workspace: Sendable, Equatable {
 
     public init() {}
 
-    public var count: Int { items.count }
-    public var isEmpty: Bool { items.isEmpty }
-    public var selectedIndex: Int? { selectedID.flatMap { id in items.firstIndex { $0.id == id } } }
-    public var selectedItem: Item? { selectedIndex.map { items[$0] } }
+    public var count: Int {
+        items.count
+    }
+    public var isEmpty: Bool {
+        items.isEmpty
+    }
+    public var selectedIndex: Int? {
+        selectedID.flatMap { id in items.firstIndex { $0.id == id } }
+    }
+    public var selectedItem: Item? {
+        selectedIndex.map { items[$0] }
+    }
     /// The pane that has the keyboard: the focused pane of the selected tab.
-    public var selectedPane: PaneID? { selectedItem?.focused }
+    public var selectedPane: PaneID? {
+        selectedItem?.focused
+    }
     /// Every pane of every tab, in tab order.
-    public var allPanes: [PaneID] { items.flatMap(\.panes) }
+    public var allPanes: [PaneID] {
+        items.flatMap(\.panes)
+    }
 
-    public func item(containing pane: PaneID) -> Item? { items.first { $0.layout.contains(pane) } }
+    public func item(containing pane: PaneID) -> Item? {
+        items.first { $0.layout.contains(pane) }
+    }
 
     /// Adds a tab with one new pane, selected, after the selected tab or at the end.
     @discardableResult
@@ -82,7 +100,9 @@ public struct Workspace: Sendable, Equatable {
     }
 
     /// Shows a kept entry in this window, or (nil) the window's own selected tab again.
-    public mutating func select(entry id: Favorites.NodeID?) { selectedEntry = id }
+    public mutating func select(entry id: Favorites.NodeID?) {
+        selectedEntry = id
+    }
 
     /// Selects one of the window's own tabs, which leaves a kept entry.
     mutating func show(_ id: ItemID) {
@@ -104,7 +124,9 @@ public struct Workspace: Sendable, Equatable {
 
     /// Closes a tab with all its panes and returns them. When it was the selected one, its right neighbour is selected, or the left one when it was the last.
     @discardableResult
-    public mutating func close(item id: ItemID) -> [PaneID] { take(item: id)?.panes ?? [] }
+    public mutating func close(item id: ItemID) -> [PaneID] {
+        take(item: id)?.panes ?? []
+    }
 
     /// Takes a tab out whole, its panes still running (to be kept in the Favorites, or put in another window). The selection moves as when it is closed.
     public mutating func take(item id: ItemID) -> Item? {
@@ -178,5 +200,7 @@ extension Workspace {
     }
 
     /// The same tabs with no selection: what a Space holds.
-    public var withoutSelection: Workspace { selecting(nil, entry: nil) }
+    public var withoutSelection: Workspace {
+        selecting(nil, entry: nil)
+    }
 }

@@ -38,7 +38,9 @@ struct GlyphTable {
     private var direct: [ContiguousArray<UInt32>] = []
     private var hashed: [Key: UInt32] = [:]
 
-    init(generation: UInt32) { self.generation = generation }
+    init(generation: UInt32) {
+        self.generation = generation
+    }
 
     static func variant(bold: Bool, italic: Bool, wide: Bool) -> Int {
         (bold ? 1 : 0) | (italic ? 2 : 0) | (wide ? 4 : 0)
@@ -58,12 +60,18 @@ struct GlyphTable {
     }
 
     subscript(key: Key) -> UInt32? {
-        get { hashed[key] }
-        set { hashed[key] = newValue }
+        get {
+            hashed[key]
+        }
+        set {
+            hashed[key] = newValue
+        }
     }
 
     /// The bitmap of glyph `number` (1 or more).
-    subscript(number: UInt32) -> GlyphBitmap { bitmaps[Int(number) - 1] }
+    subscript(number: UInt32) -> GlyphBitmap {
+        bitmaps[Int(number) - 1]
+    }
 
     /// Puts `bitmap` in the table; its number, 0 for none.
     mutating func number(_ bitmap: GlyphBitmap?) -> UInt32 {

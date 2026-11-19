@@ -79,7 +79,9 @@ extension Screen {
 
     /// 0 not recognised, 1 set, 2 reset, 4 permanently reset.
     func modeState(_ mode: Int, private isPrivate: Bool) -> Int {
-        func flag(_ value: Bool) -> Int { value ? 1 : 2 }
+        func flag(_ value: Bool) -> Int {
+            value ? 1 : 2
+        }
         if !isPrivate {
             switch mode {
                 case 4: return flag(modes.insert)

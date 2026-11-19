@@ -22,7 +22,9 @@ public struct RenderMetrics: Sendable, Equatable {
     }
 
     /// Where the first row of the grid starts, in pixels from the top of the surface.
-    public var originY: Int { paddingY + topInset }
+    public var originY: Int {
+        paddingY + topInset
+    }
 
     /// The surface size for a grid of `columns` x `rows`.
     public func surfaceSize(columns: Int, rows: Int) -> (width: Int, height: Int) {

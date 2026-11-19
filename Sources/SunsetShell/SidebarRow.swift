@@ -39,7 +39,9 @@ struct SidebarRow: View {
     enum Button {
         case close, unload, delete
 
-        var symbol: String { self == .unload ? "minus" : "xmark" }
+        var symbol: String {
+            self == .unload ? "minus" : "xmark"
+        }
         var help: String {
             switch self {
                 case .close: "Close Tab"
@@ -170,7 +172,9 @@ struct SidebarRow: View {
     }
 
     /// Two lines when the directory (or a page's address) is shown and there is one.
-    private var lines: Int { showDirectory && (model?.detail ?? saved?.directory) != nil ? 2 : 1 }
+    private var lines: Int {
+        showDirectory && (model?.detail ?? saved?.directory) != nil ? 2 : 1
+    }
 
     /// Over the row's end, so that the title has the whole width while it is hidden (owner note n65); shown, the title fades out under it.
     private var closeButton: some View {
@@ -196,27 +200,9 @@ struct SidebarRow: View {
         .help(armed ? "Click again to close running command" : button.help)
     }
 
-    var showsClose: Bool { hovering || armed || keepCloseVisible }
-
-    /// A document with edits that are not saved: the row says so at its end, and the title stops before it.
-    private var edited: Bool { model?.isEdited == true && renaming == nil }
-
-    /// The row's end with the close button shown or not.
-    private func rowEnd(closeShown: Bool) -> RowEnd {
-        RowEnd(
-            size: layout.closeButtonSize,
-            gap: Design.Space.xs,
-            closeShown: closeShown,
-            controls: endControls.count,
-            edited: edited,
-            markWidth: Design.Size.editedMark,
-            leading: layout.tabPaddingLeading,
-            trailing: layout.tabPaddingTrailing
-        )
+    var showsClose: Bool {
+        hovering || armed || keepCloseVisible
     }
-
-    /// What the title leaves free at the row's end: the shown button's place, the controls', the mark's, or nothing.
-    private var titleEnd: Double { rowEnd(closeShown: showsClose && renaming == nil).titleEnd }
 
     /// The title runs to the row's end; before a shown close button and before the mark it fades out over a few points.
     private var titleMask: some View {

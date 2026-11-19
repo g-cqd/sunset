@@ -20,7 +20,9 @@ package enum DownloadNaming {
         return ext.isEmpty ? false : suspicious.contains(ext)
     }
 
-    package static func isSafe(_ name: String) -> Bool { safe.contains((name as NSString).pathExtension.lowercased()) }
+    package static func isSafe(_ name: String) -> Bool {
+        safe.contains((name as NSString).pathExtension.lowercased())
+    }
 
     /// A file name with nothing that could leave the folder or hide (no slash, no leading dot), "download" when nothing is left.
     package static func cleaned(_ suggested: String) -> String {
@@ -48,5 +50,7 @@ package enum DownloadNaming {
     }
 
     /// The name of the file while it is being written.
-    package static func partial(_ name: String) -> String { name + ".download" }
+    package static func partial(_ name: String) -> String {
+        name + ".download"
+    }
 }

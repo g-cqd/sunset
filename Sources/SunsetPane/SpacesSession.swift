@@ -19,7 +19,9 @@ public struct SpacesSession: Sendable, Equatable {
     /// any Space does.
     public private(set) var profiles: [SavedProfile]
     /// The first profile's Pinned grid: all there was before profiles.
-    public var pinned: SavedFavorites { profiles.first { $0.profile.isFirst }?.pinned ?? SavedFavorites() }
+    public var pinned: SavedFavorites {
+        profiles.first { $0.profile.isFirst }?.pinned ?? SavedFavorites()
+    }
 
     /// - Parameters:
     ///   - spaces: the Spaces, in their order.
@@ -67,7 +69,9 @@ public struct SpacesSession: Sendable, Equatable {
         }
         if kept.isEmpty { kept = [SavedSpace(space: Space())] }
         self.spaces = kept
-        func entry(of view: SavedView) -> Favorites.NodeID { view.entry ?? Favorites.NodeID() }
+        func entry(of view: SavedView) -> Favorites.NodeID {
+            view.entry ?? Favorites.NodeID()
+        }
         self.views = views.compactMap { view in
             guard let space = kept.first(where: { $0.space.id == view.space }) else { return nil }
             var view = view
@@ -179,8 +183,14 @@ public struct SpacesSession: Sendable, Equatable {
     /// A part that fails to read is nil instead of failing the whole file.
     private struct Lossy<Value: Codable>: Codable {
         let value: Value?
-        init(_ value: Value) { self.value = value }
-        init(from decoder: any Decoder) throws { value = try? Value(from: decoder) }
-        func encode(to encoder: any Encoder) throws { try value?.encode(to: encoder) }
+        init(_ value: Value) {
+            self.value = value
+        }
+        init(from decoder: any Decoder) throws {
+            value = try? Value(from: decoder)
+        }
+        func encode(to encoder: any Encoder) throws {
+            try value?.encode(to: encoder)
+        }
     }
 }

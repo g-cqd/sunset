@@ -32,7 +32,9 @@ extension WebContent {
     }
 
     /// Reload As: every profile but the one it is loaded as; none with one profile, or for a private page.
-    package var reloadAsAction: PaneMenuAction? { reloadAsAction(among: WebProfiles.all()) }
+    package var reloadAsAction: PaneMenuAction? {
+        reloadAsAction(among: WebProfiles.all())
+    }
 
     /// Reload As among `profiles` (every profile, by id and name, in their order).
     func reloadAsAction(among profiles: [(id: UUID?, name: String)]) -> PaneMenuAction? {

@@ -17,7 +17,9 @@ extension WebContent {
         webView?.goForward()
     }
 
-    package func stopLoading() { webView?.stopLoading() }
+    package func stopLoading() {
+        webView?.stopLoading()
+    }
 
     /// The page is over plain http to a host that is not this machine or the local network: the field says Not Secure.
     package var isNotSecure: Bool {

@@ -39,7 +39,9 @@ package final class ContentBlocker {
     package private(set) var states: [ListState] = []
     /// Blocking is on (`web.blocking`): every page has the lists, but those of paused sites.
     @ObservationIgnored package var enabled = true {
-        didSet { if enabled != oldValue { reapplyAll() } }
+        didSet {
+            if enabled != oldValue { reapplyAll() }
+        }
     }
     @ObservationIgnored package let pauses: BlockingPauses
     /// The elements hidden for good, per site (W-e): on their sites whatever blocking says.

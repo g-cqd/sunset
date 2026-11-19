@@ -6,7 +6,9 @@ public struct HoverReveal: Sendable, Equatable {
     private var leftAt: ContinuousClock.Instant?
     private var everEntered = false
 
-    public init(hideDelay: Duration) { self.hideDelay = hideDelay }
+    public init(hideDelay: Duration) {
+        self.hideDelay = hideDelay
+    }
 
     /// The pointer is over the strip or the revealed panel, or is not.
     public mutating func pointer(inside now: Bool, at time: ContinuousClock.Instant) {
@@ -27,5 +29,7 @@ public struct HoverReveal: Sendable, Equatable {
     }
 
     /// When to look again: the moment it hides, or nil when it is not waiting to hide.
-    public var hidesAt: ContinuousClock.Instant? { leftAt.map { $0 + hideDelay } }
+    public var hidesAt: ContinuousClock.Instant? {
+        leftAt.map { $0 + hideDelay }
+    }
 }

@@ -52,7 +52,9 @@ package final class PageFind {
 
     /// What is looked for changed: the current match stays where it is when it still matches (WebKit's "no index change"), so that typing does not
     /// move on by one match per letter.
-    package func restart() { search(keepingIndex: true) }
+    package func restart() {
+        search(keepingIndex: true)
+    }
 
     /// The next match (or the previous): from the current one; with new text, the first from the top of what is shown.
     package func search(backwards: Bool = false, keepingIndex: Bool = false) {

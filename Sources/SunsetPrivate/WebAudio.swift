@@ -31,7 +31,9 @@ public enum WebAudio {
         unsafeBitCast(view.method(for: setter), to: Setter.self)(view, setter, muted ? audio : 0)
     }
 
-    private static var playingKey: String { #Interned("_isPlayingAudio") }
+    private static var playingKey: String {
+        #Interned("_isPlayingAudio")
+    }
     /// WebKit's muted state for sound (its other bits are the capture devices).
     private static let audio: UInt = 1
 }

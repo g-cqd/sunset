@@ -5,7 +5,9 @@ import Testing
 
 /// n40 and the owner's answer: patterns of hosts and addresses, the most specific wins.
 @Suite("What a site's rule is for") struct SitePatternTests {
-    private func url(_ text: String) -> URL { URL(string: text) ?? URL(filePath: "/") }
+    private func url(_ text: String) -> URL {
+        URL(string: text) ?? URL(filePath: "/")
+    }
 
     @Test func `read as a site, its subdomains, or an address prefix`() {
         #expect(SitePattern("Example.org") == .site("example.org"))

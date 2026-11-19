@@ -15,7 +15,9 @@ import SunsetShell
         self.profiles = profiles
     }
 
-    var profileID: UUID? { profile.profile.isFirst ? nil : profile.profile.id }
+    var profileID: UUID? {
+        profile.profile.isFirst ? nil : profile.profile.id
+    }
 
     var configuration: Configuration {
         ProfileOverrides.apply(profile.profile.overrides, to: AppConfiguration.shared.configuration)
@@ -31,7 +33,9 @@ import SunsetShell
     }
 
     /// Whether `option` is set otherwise in this profile: every key it writes that a profile may set differs.
-    func isOwn(_ option: SettingsOption) -> Bool { option.keys.contains { profile.profile.overrides[$0] != nil } }
+    func isOwn(_ option: SettingsOption) -> Bool {
+        option.keys.contains { profile.profile.overrides[$0] != nil }
+    }
 
     /// `option` follows all profiles again.
     func reset(_ option: SettingsOption) {

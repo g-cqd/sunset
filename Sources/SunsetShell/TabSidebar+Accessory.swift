@@ -5,13 +5,19 @@ import SwiftUI
 /// where a search, an address or a command is typed (web step b; roadmap 0035 G).
 extension TabSidebar {
     /// A tab's row: the field is as tall as one (the owner, 2026-11-17, roadmap 0035 G).
-    var accessoryHeight: Double { Design.oneLineHeight(layout, height: Design.Size.tabRow) }
+    var accessoryHeight: Double {
+        Design.oneLineHeight(layout, height: Design.Size.tabRow)
+    }
 
     /// How much further down the rows start for it: its height and the gap between two rows; nothing without one.
-    var accessoryInset: Double { accessory == nil ? 0 : accessoryHeight + layout.tabSpacing }
+    var accessoryInset: Double {
+        accessory == nil ? 0 : accessoryHeight + layout.tabSpacing
+    }
 
     /// How much further down the rows start for the calls to action: their height and a row's gap; nothing without any.
-    var noticesInset: Double { notices == nil || noticesHeight == 0 ? 0 : noticesHeight + layout.tabSpacing }
+    var noticesInset: Double {
+        notices == nil || noticesHeight == 0 ? 0 : noticesHeight + layout.tabSpacing
+    }
 
     /// The calls to action, under the accessory (roadmap 0035 I).
     @ViewBuilder var noticesView: some View {

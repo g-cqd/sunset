@@ -3,7 +3,9 @@
 /// `__default__` and `__grabbed__`. A name that is not known changes nothing. Each of the two screens has its stack.
 extension Screen {
     /// The shape the program asked for, nil for the terminal's own.
-    public var pointerShape: PointerShape? { pointer.current }
+    public var pointerShape: PointerShape? {
+        pointer.current
+    }
 
     mutating func pointerShape(from start: Int, _ terminator: StringTerminator) {
         guard start < oscBuffer.count else {

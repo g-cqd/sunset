@@ -44,10 +44,14 @@ package struct WebProxy: Equatable, Sendable {
     }
 
     /// Gives the store this proxy; every page of it goes through it.
-    package func apply(to store: WKWebsiteDataStore) { store.proxyConfigurations = [configuration] }
+    package func apply(to store: WKWebsiteDataStore) {
+        store.proxyConfigurations = [configuration]
+    }
 
     /// Takes the proxy away from a store.
-    package static func clear(_ store: WKWebsiteDataStore) { store.proxyConfigurations = [] }
+    package static func clear(_ store: WKWebsiteDataStore) {
+        store.proxyConfigurations = []
+    }
 
     /// The app's (`web.proxy`): every store a page is made with is given it.
     @MainActor package static var current: WebProxy?

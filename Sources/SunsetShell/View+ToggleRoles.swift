@@ -6,8 +6,12 @@ package import SwiftUI
 /// toggle is the menu's checkmark.
 extension View {
     /// On or off: a switch, small, its label on the leading edge and the switch on the trailing one (note n45).
-    package func settingSwitch() -> some View { toggleStyle(SpreadSwitchStyle()).controlSize(.small) }
+    package func settingSwitch() -> some View {
+        toggleStyle(SpreadSwitchStyle()).controlSize(.small)
+    }
 
     /// One of the things an action applies to: a checkbox.
-    package func choiceBox() -> some View { toggleStyle(.checkbox) }
+    package func choiceBox() -> some View {
+        toggleStyle(.checkbox)
+    }
 }

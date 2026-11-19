@@ -56,7 +56,9 @@ import Testing
                 var below = (0 ..< length + offset)
                     .map { _ -> UInt32 in
                         let alpha = UInt32(random.next() % 4 == 0 ? 255 : random.next() % 256)
-                        func channel() -> UInt32 { UInt32(random.next() % 256) * alpha / 255 }
+                        func channel() -> UInt32 {
+                            UInt32(random.next() % 256) * alpha / 255
+                        }
                         return alpha << 24 | channel() << 16 | channel() << 8 | channel()
                     }
                 let coverage = (0 ..< length)

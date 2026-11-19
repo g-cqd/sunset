@@ -6,12 +6,18 @@ package struct EdgeReveal: Equatable, Sendable {
     package private(set) var over = false
     package var typing = false
 
-    package init(hides: Bool) { self.hides = hides }
+    package init(hides: Bool) {
+        self.hides = hides
+    }
 
-    package var isOut: Bool { !hides || reached || over || typing }
+    package var isOut: Bool {
+        !hides || reached || over || typing
+    }
 
     /// The pointer reached the edge's strip.
-    package mutating func reachedEdge() { reached = true }
+    package mutating func reachedEdge() {
+        reached = true
+    }
 
     /// The pointer came over the bar, or left it.
     package mutating func pointer(over: Bool) {

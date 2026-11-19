@@ -9,7 +9,9 @@ extension TerminalNSView: NSMenuItemValidation {
         NSPasteboard.general.setString(text, forType: .string)
     }
 
-    package override func selectAll(_ sender: Any?) { model.selectAll() }
+    package override func selectAll(_ sender: Any?) {
+        model.selectAll()
+    }
 
     package func validateMenuItem(_ item: NSMenuItem) -> Bool {
         switch item.action {

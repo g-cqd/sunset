@@ -15,9 +15,13 @@ struct IconGrid: NSViewRepresentable {
         var generation: Int?
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
 
-    func makeNSView(context: Context) -> IconGridScrollView { IconGridScrollView(frame: .zero) }
+    func makeNSView(context: Context) -> IconGridScrollView {
+        IconGridScrollView(frame: .zero)
+    }
 
     func updateNSView(_ scroll: IconGridScrollView, context: Context) {
         let grid = scroll.grid

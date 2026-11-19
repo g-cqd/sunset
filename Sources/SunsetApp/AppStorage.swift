@@ -74,9 +74,13 @@ final class AppStorage {
     private(set) lazy var recentFiles = RecentFiles(table: table("recent-files"))
 
     /// The records of one kind; nil when nothing can be kept in this run (they are then in memory only).
-    func table(_ kind: String) -> SealedTable? { database?.table(kind) }
+    func table(_ kind: String) -> SealedTable? {
+        database?.table(kind)
+    }
 
-    func seal(_ purpose: Seal.Purpose) -> Seal? { key.map { Seal(key: $0, purpose: purpose) } }
+    func seal(_ purpose: Seal.Purpose) -> Seal? {
+        key.map { Seal(key: $0, purpose: purpose) }
+    }
 
     /// Puts away a file of before the database once what it held is kept (`kept`: the store took it in, and the table holds
     /// what the store holds). A plain copy left in the folder would defeat the sealing. The person's own files go to the Mac's

@@ -73,7 +73,9 @@ public final class OpenDocument {
         return !source.storage.mutableString.isEqual(to: base)
     }
     /// How many panes hold it.
-    public var paneCount: Int { holders }
+    public var paneCount: Int {
+        holders
+    }
 
     /// A file's name; a stored document's first heading or line (it follows the text).
     public var title: String {

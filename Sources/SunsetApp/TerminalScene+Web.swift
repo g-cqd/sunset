@@ -10,7 +10,9 @@ import SwiftUI
 /// Where the address of the focused page is typed (web step b): the field at the top of the docked sidebar, the window bar (also while the sidebar is
 /// not docked), or a row in each page. Nothing while a terminal has the keyboard.
 extension TerminalScene {
-    var focusedPage: WebContent? { tabs.selectedContent as? WebContent }
+    var focusedPage: WebContent? {
+        tabs.selectedContent as? WebContent
+    }
 
     /// The placement the settings ask for; the sidebar's field needs a sidebar beside the content, else the window bar stands in.
     var addressPlace: Configuration.Web.AddressPlace {
@@ -20,9 +22,13 @@ extension TerminalScene {
 
     /// The built-in tab bar holds the address (t223): the selected tab is the field, back and forward after the window's buttons;
     /// the window bar does not come out.
-    var addressInTabBar: Bool { presentation.showsBuiltInBar && addressPlace == .window }
+    var addressInTabBar: Bool {
+        presentation.showsBuiltInBar && addressPlace == .window
+    }
 
-    private var tabBarAtTop: Bool { configuration.tabs.bar.position == .top }
+    private var tabBarAtTop: Bool {
+        configuration.tabs.bar.position == .top
+    }
 
     var tabBarNavigation: AnyView? {
         guard addressInTabBar, let page = focusedPage else { return nil }
@@ -88,10 +94,14 @@ extension TerminalScene {
     }
 
     /// The margin it opens while it is out: the bar and the split's gap under it (the same gap is above it, where the panes' tops were).
-    var splitBarInset: Double { barInMargin && barOut ? Design.Size.bar + splitGap : 0 }
+    var splitBarInset: Double {
+        barInMargin && barOut ? Design.Size.bar + splitGap : 0
+    }
 
     /// The space between a split's cards, and between them and the window's edge (as `PaneArea` lays them out).
-    var splitGap: Double { configuration.sidebarDocked ? configuration.sidebar.padding : configuration.layout.paneGap }
+    var splitGap: Double {
+        configuration.sidebarDocked ? configuration.sidebar.padding : configuration.layout.paneGap
+    }
 
     /// The window bar shows the focused page's find bar in its row: at the top, over the focused pane (in the split's margin the
     /// panes have moved down and the find bar stays in its own).

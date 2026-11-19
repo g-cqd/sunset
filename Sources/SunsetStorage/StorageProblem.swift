@@ -13,7 +13,9 @@ public struct StorageProblem: Identifiable, Sendable, Equatable {
         case notRemoved
     }
 
-    public var id: String { path + (movedTo ?? "") + "\(kind)" }
+    public var id: String {
+        path + (movedTo ?? "") + "\(kind)"
+    }
     /// What it is, as said to the person: "The saved session".
     public let what: String
     public let path: String

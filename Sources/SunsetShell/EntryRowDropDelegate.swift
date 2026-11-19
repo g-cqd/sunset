@@ -8,9 +8,13 @@ struct EntryRowDropDelegate: DropDelegate {
     let height: Double
     @Binding var active: (entry: Favorites.NodeID, after: Bool)?
 
-    func validateDrop(info: DropInfo) -> Bool { tabs.canDrop(onEntry: entry) }
+    func validateDrop(info: DropInfo) -> Bool {
+        tabs.canDrop(onEntry: entry)
+    }
 
-    func dropEntered(info: DropInfo) { update(info) }
+    func dropEntered(info: DropInfo) {
+        update(info)
+    }
 
     func dropUpdated(info: DropInfo) -> DropProposal? {
         update(info)

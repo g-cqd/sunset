@@ -7,7 +7,9 @@ import SunsetStorage
 /// The secret that seals kept terminals' commands (t145), in the login Keychain as a generic password, made on first use. Nil when the Keychain cannot
 /// be used: then no command is ever run (they are shown, and saving cannot trust them).
 enum CommandSealKey {
-    private static var service: String { StoragePlaces.current.commandSealService }
+    private static var service: String {
+        StoragePlaces.current.commandSealService
+    }
 
     static func load() -> SymmetricKey? {
         // A named setup (a test, a second setup) never touches the Keychain: its key is a file beside its other files.

@@ -13,21 +13,33 @@ extension TerminalNSView: @preconcurrency NSTextInputClient {
         markedText = (string as? NSAttributedString) ?? NSAttributedString(string: (string as? String) ?? "")
     }
 
-    package func unmarkText() { markedText = NSAttributedString() }
-    package func hasMarkedText() -> Bool { markedText.length > 0 }
+    package func unmarkText() {
+        markedText = NSAttributedString()
+    }
+    package func hasMarkedText() -> Bool {
+        markedText.length > 0
+    }
     package func markedRange() -> NSRange {
         markedText.length > 0
             ? NSRange(location: 0, length: markedText.length) : NSRange(location: NSNotFound, length: 0)
     }
-    package func selectedRange() -> NSRange { NSRange(location: NSNotFound, length: 0) }
-    package func validAttributedString(for string: NSAttributedString) -> NSAttributedString { string }
-    package func validAttributesForMarkedText() -> [NSAttributedString.Key] { [] }
+    package func selectedRange() -> NSRange {
+        NSRange(location: NSNotFound, length: 0)
+    }
+    package func validAttributedString(for string: NSAttributedString) -> NSAttributedString {
+        string
+    }
+    package func validAttributesForMarkedText() -> [NSAttributedString.Key] {
+        []
+    }
     package func attributedSubstring(forProposedRange range: NSRange, actualRange: NSRangePointer?)
         -> NSAttributedString?
     {
         nil
     }
-    package func characterIndex(for point: NSPoint) -> Int { 0 }
+    package func characterIndex(for point: NSPoint) -> Int {
+        0
+    }
 
     /// Where the input method puts its candidate window: near the top left of the view (the cursor's cell is not tracked yet).
     package func firstRect(forCharacterRange range: NSRange, actualRange: NSRangePointer?) -> NSRect {

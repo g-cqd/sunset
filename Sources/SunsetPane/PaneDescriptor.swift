@@ -51,7 +51,9 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     }
 
     /// The file this brings back; nil for a document of the store and for any other kind.
-    public var documentFile: String? { kind == Self.documentKind ? state["file"] : nil }
+    public var documentFile: String? {
+        kind == Self.documentKind ? state["file"] : nil
+    }
 
     /// The stored document this brings back; nil for a file's document and for any other kind.
     public var storedDocument: UUID? {
@@ -59,5 +61,7 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     }
 
     /// The directory of a terminal; nil for any other kind.
-    public var directory: String? { kind == Self.terminalKind ? state["directory"] : nil }
+    public var directory: String? {
+        kind == Self.terminalKind ? state["directory"] : nil
+    }
 }

@@ -13,7 +13,9 @@ package struct ShareSource: Identifiable, Sendable {
     package let isAsking: Bool
 
     /// What the list says of it: its title, "(this tab)" after the asking tab's.
-    package var label: String { isAsking ? title + " (this tab)" : title }
+    package var label: String {
+        isAsking ? title + " (this tab)" : title
+    }
 
     package init(id: UUID, title: String, space: String, profile: UUID?, host: String?, isAsking: Bool = false) {
         self.id = id

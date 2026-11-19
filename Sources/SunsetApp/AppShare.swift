@@ -87,7 +87,9 @@ import WebKit
         return nil
     }
 
-    private static func content(_ id: UUID) -> WebContent? { anyContent(id) as? WebContent }
+    private static func content(_ id: UUID) -> WebContent? {
+        anyContent(id) as? WebContent
+    }
 
     static func feed(_ id: UUID) -> ShareFeed? {
         switch anyContent(id) {

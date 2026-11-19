@@ -5,7 +5,9 @@ import Testing
 
 @Suite("The history of pages") @MainActor struct HistoryStoreTests {
     let now = Date(timeIntervalSince1970: 1_800_000_000)
-    func day(_ days: Double) -> Date { now.addingTimeInterval(-days * 86_400) }
+    func day(_ days: Double) -> Date {
+        now.addingTimeInterval(-days * 86_400)
+    }
 
     @Test func `a visit is counted once per address, keeping the last title and time`() throws {
         let store = HistoryStore()

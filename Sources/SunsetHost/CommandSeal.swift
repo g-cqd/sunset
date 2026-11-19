@@ -6,10 +6,14 @@ import Foundation
 public struct CommandSeal: Sendable {
     private let key: SymmetricKey
 
-    public init(key: SymmetricKey) { self.key = key }
+    public init(key: SymmetricKey) {
+        self.key = key
+    }
 
     /// A new random key.
-    public static func newKey() -> SymmetricKey { SymmetricKey(size: .bits256) }
+    public static func newKey() -> SymmetricKey {
+        SymmetricKey(size: .bits256)
+    }
 
     public func seal(_ command: String) -> String {
         Data(HMAC<SHA256>.authenticationCode(for: Data(command.utf8), using: key)).base64EncodedString()

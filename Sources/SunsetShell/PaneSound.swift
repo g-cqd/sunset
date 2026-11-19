@@ -2,6 +2,10 @@
 package enum PaneSound: Equatable, Sendable {
     case playing, muted
 
-    package var symbol: String { self == .muted ? "speaker.slash.fill" : "speaker.wave.2.fill" }
-    package var help: String { self == .muted ? "Unmute This Tab" : "Mute This Tab" }
+    package var symbol: String {
+        self == .muted ? "speaker.slash.fill" : "speaker.wave.2.fill"
+    }
+    package var help: String {
+        self == .muted ? "Unmute This Tab" : "Mute This Tab"
+    }
 }

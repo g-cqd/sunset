@@ -25,7 +25,9 @@ extension WebContent {
     }
 
     /// The site of the page, for its answers.
-    var siteHost: String? { url?.host() ?? webView?.url?.host() }
+    var siteHost: String? {
+        url?.host() ?? webView?.url?.host()
+    }
 
     func captureChanged(_ view: WKWebView) {
         let active = view.cameraCaptureState != .none || view.microphoneCaptureState != .none

@@ -30,7 +30,9 @@ final class PackedCells: Sendable {
         }
     }
 
-    func releaseDecoded() { decoded.withLock { $0 = nil } }
+    func releaseDecoded() {
+        decoded.withLock { $0 = nil }
+    }
 
     /// Blank cells when the codec cannot unpack: a damaged line is a blank line, not a crash.
     private func decode() -> ContiguousArray<Cell> {

@@ -11,5 +11,7 @@ package struct ShareRequest: Identifiable {
         self.reply = reply
     }
 
-    package func answer(_ choice: ShareChoice) { reply(choice) }
+    package func answer(_ choice: ShareChoice) {
+        reply(choice)
+    }
 }

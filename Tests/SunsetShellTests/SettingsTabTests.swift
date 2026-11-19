@@ -8,7 +8,9 @@ import Testing
 /// while the Library is on its Settings section.
 @MainActor @Suite("The settings as a tab") struct SettingsTabTests {
     let harness = TabsHarness()
-    var tabs: TabsModel { harness.tabs }
+    var tabs: TabsModel {
+        harness.tabs
+    }
 
     @Test func `asking for the settings opens their tab, and asking again shows the one that is there`() throws {
         tabs.newTab()

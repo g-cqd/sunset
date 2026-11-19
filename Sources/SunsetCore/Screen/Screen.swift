@@ -100,7 +100,9 @@ public struct Screen: Sendable {
     // MARK: Reading
 
     /// The kitty keyboard protocol flags in force on the screen shown.
-    public var keyboardFlags: UInt8 { keyboard.flags }
+    public var keyboardFlags: UInt8 {
+        keyboard.flags
+    }
     public internal(set) var droppedReplies = 0
     /// Answers waiting for the host (`Terminal.takeReplies`), bounded by `replyLimit`.
     var replies = ContiguousArray<UInt8>()
@@ -109,12 +111,22 @@ public struct Screen: Sendable {
     var pointer = PointerState()
     var otherPointer = PointerState()
 
-    public var title: String { String(decoding: titleBytes, as: UTF8.self) }
-    public var iconName: String { String(decoding: iconBytes, as: UTF8.self) }
+    public var title: String {
+        String(decoding: titleBytes, as: UTF8.self)
+    }
+    public var iconName: String {
+        String(decoding: iconBytes, as: UTF8.self)
+    }
 
-    public var scrollbackCount: Int { scrollback.count }
-    public func scrollbackCell(line: Int, column: Int) -> Cell { scrollback[line, column] }
-    public func isScrollbackWrapped(line: Int) -> Bool { scrollback.isWrapped(line) }
+    public var scrollbackCount: Int {
+        scrollback.count
+    }
+    public func scrollbackCell(line: Int, column: Int) -> Cell {
+        scrollback[line, column]
+    }
+    public func isScrollbackWrapped(line: Int) -> Bool {
+        scrollback.isWrapped(line)
+    }
     public func scrollbackText(line: Int) -> String {
         var scalars = String.UnicodeScalarView()
         for column in 0 ..< columns {
@@ -126,20 +138,40 @@ public struct Screen: Sendable {
     }
 
     /// The directory the shell reported (OSC 7), the progress the program reported (OSC 9;4) and the prompt marks (OSC 133), oldest first.
-    public var workingDirectory: WorkingDirectory? { host.workingDirectory }
-    public var progress: ProgressState { host.progress }
-    public var promptMarks: [PromptMark] { host.marks }
+    public var workingDirectory: WorkingDirectory? {
+        host.workingDirectory
+    }
+    public var progress: ProgressState {
+        host.progress
+    }
+    public var promptMarks: [PromptMark] {
+        host.marks
+    }
 
-    public var cursorRow: Int { row }
-    public var cursorColumn: Int { column }
+    public var cursorRow: Int {
+        row
+    }
+    public var cursorColumn: Int {
+        column
+    }
 
-    public func cell(row: Int, column: Int) -> Cell { grid[row, column] }
-    public func style(of cell: Cell) -> CellStyle { styles[cell.styleID] }
+    public func cell(row: Int, column: Int) -> Cell {
+        grid[row, column]
+    }
+    public func style(of cell: Cell) -> CellStyle {
+        styles[cell.styleID]
+    }
     /// Every style, by id (`Cell.styleID`): for a renderer that reads many cells, so that it does not go through the screen for each (shared, not copied).
-    public var cellStyles: ContiguousArray<CellStyle> { styles.styles }
-    public func style(row: Int, column: Int) -> CellStyle { styles[grid[row, column].styleID] }
+    public var cellStyles: ContiguousArray<CellStyle> {
+        styles.styles
+    }
+    public func style(row: Int, column: Int) -> CellStyle {
+        styles[grid[row, column].styleID]
+    }
     /// Whether the line at `row` continues on the next one (it wrapped).
-    public func isWrapped(row: Int) -> Bool { grid.isWrapped(row: row) }
+    public func isWrapped(row: Int) -> Bool {
+        grid.isWrapped(row: row)
+    }
 
     /// The row as text: empty cells are spaces, the second half of a wide character is skipped, trailing spaces are dropped.
     public func text(row: Int) -> String {
@@ -176,7 +208,9 @@ public struct Screen: Sendable {
         return writtenRows[physical] || rowOrigins[physical] != Int32(row)
     }
 
-    public var hasDirtyRows: Bool { (0 ..< rows).contains { isDirty(row: $0) } }
+    public var hasDirtyRows: Bool {
+        (0 ..< rows).contains { isDirty(row: $0) }
+    }
 
     /// Marks every row clean: the renderer has taken what it needed.
     public mutating func clearDirty() {

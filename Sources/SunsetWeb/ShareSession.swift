@@ -27,7 +27,9 @@ package final class ShareSession {
     }
 
     /// Whether `page` is the tab this session shares.
-    package func shares(_ page: WebContent) -> Bool { feed.page() === page }
+    package func shares(_ page: WebContent) -> Bool {
+        feed.page() === page
+    }
 
     func start() {
         WebShare.sessions.append(self)

@@ -4,7 +4,9 @@ extension Screen {
     public static let defaultWordCharacters = "_-./~:@%+=#?&"
 
     /// The lines of the history and the screen as one sequence: how many there are.
-    public var absoluteLineCount: Int { scrollback.count + rows }
+    public var absoluteLineCount: Int {
+        scrollback.count + rows
+    }
 
     /// The text of a selection. Lines are joined with line feeds, except where the screen wrapped a long line (that was one line); trailing spaces are
     /// dropped from each line; a wide character is taken whole whichever of its two cells was selected.

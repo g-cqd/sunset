@@ -6,10 +6,14 @@ import WebKit
 /// A page's zoom (web step d): by site (remembered, or until quit) or by page, as `web.zoomScope` says; everything, or the text only.
 extension WebContent {
     /// Cmd-+ (1), Cmd-- (-1).
-    package func zoom(by steps: Int) { setZoom(ZoomLevels.step(from: zoom, by: steps)) }
+    package func zoom(by steps: Int) {
+        setZoom(ZoomLevels.step(from: zoom, by: steps))
+    }
 
     /// Cmd-0, or a click on the level in the address field.
-    package func resetZoom() { setZoom(1) }
+    package func resetZoom() {
+        setZoom(1)
+    }
 
     package func setZoom(_ level: Double) {
         zoom = level

@@ -3,7 +3,9 @@ extension Favorites {
     /// the children of both; an entry that looks like one here (the same name, icon, command and what it starts from)
     /// is that entry, and of the two the open one is kept. What the Favorites of several Spaces become when they are
     /// the profile's (ADR-0055): a Space made from another had a copy of its Favorites.
-    public mutating func merge(_ other: Favorites) { nodes = Self.merged(nodes, other.nodes) }
+    public mutating func merge(_ other: Favorites) {
+        nodes = Self.merged(nodes, other.nodes)
+    }
 
     private static func merged(_ mine: [Node], _ theirs: [Node]) -> [Node] {
         var result = mine

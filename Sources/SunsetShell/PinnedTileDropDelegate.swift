@@ -10,11 +10,17 @@ struct PinnedTileDropDelegate: DropDelegate {
     let width: Double
     @Binding var active: (index: Int, after: Bool)?
 
-    private func place(_ info: DropInfo) -> (index: Int, after: Bool) { (index, info.location.x > width / 2) }
+    private func place(_ info: DropInfo) -> (index: Int, after: Bool) {
+        (index, info.location.x > width / 2)
+    }
 
-    func validateDrop(info: DropInfo) -> Bool { tabs.canPinDragged }
+    func validateDrop(info: DropInfo) -> Bool {
+        tabs.canPinDragged
+    }
 
-    func dropEntered(info: DropInfo) { update(info) }
+    func dropEntered(info: DropInfo) {
+        update(info)
+    }
 
     func dropUpdated(info: DropInfo) -> DropProposal? {
         update(info)

@@ -10,9 +10,13 @@ struct PaneDropDelegate: DropDelegate {
     let frames: [PaneID: CGRect]
     @Binding var target: DropZone.Target?
 
-    func validateDrop(info: DropInfo) -> Bool { tabs.hasDrag || info.hasItemsConforming(to: [.fileURL]) }
+    func validateDrop(info: DropInfo) -> Bool {
+        tabs.hasDrag || info.hasItemsConforming(to: [.fileURL])
+    }
 
-    func dropEntered(info: DropInfo) { update(info) }
+    func dropEntered(info: DropInfo) {
+        update(info)
+    }
 
     func dropUpdated(info: DropInfo) -> DropProposal? {
         // Files from outside: no half of a pane is shown, they are typed or opened where they fall.
@@ -21,7 +25,9 @@ struct PaneDropDelegate: DropDelegate {
         return DropProposal(operation: target == nil ? .cancel : .move)
     }
 
-    func dropExited(info: DropInfo) { target = nil }
+    func dropExited(info: DropInfo) {
+        target = nil
+    }
 
     func performDrop(info: DropInfo) -> Bool {
         defer { target = nil }

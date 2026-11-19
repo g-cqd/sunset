@@ -14,7 +14,9 @@ final class WebViewHostView: NSView {
     }
 
     @available(*, unavailable)
-    required init?(coder: NSCoder) { nil }
+    required init?(coder: NSCoder) {
+        nil
+    }
 
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
@@ -41,5 +43,7 @@ final class WebViewHostView: NSView {
 
     /// Whether the host may hold the page's view: not while WebKit has it for full screen, going in, in, or coming out
     /// (taken back then, WebKit's full-screen window was left empty: the owner's note n53).
-    static func takesBack(_ state: WKWebView.FullscreenState) -> Bool { state == .notInFullscreen }
+    static func takesBack(_ state: WKWebView.FullscreenState) -> Bool {
+        state == .notInFullscreen
+    }
 }

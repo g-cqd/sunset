@@ -45,7 +45,9 @@ public final class StateDatabase {
     }
 
     /// Writes the log into the database and empties it (after a removal of many records: history cleared).
-    public func compact() { run("PRAGMA wal_checkpoint(TRUNCATE)") }
+    public func compact() {
+        run("PRAGMA wal_checkpoint(TRUNCATE)")
+    }
 
     /// Opens the database at `path`, making it when there is none (":memory:" for one that is never written).
     public static func open(at path: String, key: StorageKey, now: Date = Date()) -> Opened {
@@ -129,7 +131,9 @@ public final class StateDatabase {
     }
 
     /// The records of one kind ("history", "zoom").
-    public func table(_ kind: String) -> SealedTable { SealedTable(database: self, kind: kind) }
+    public func table(_ kind: String) -> SealedTable {
+        SealedTable(database: self, kind: kind)
+    }
 
     /// Runs `body` as one transaction: many records written at the cost of one.
     public func transaction(_ body: () -> Void) {
@@ -150,7 +154,9 @@ public final class StateDatabase {
         )
     }
 
-    func setVersionForTesting(_ version: Int) { run("PRAGMA user_version = \(version)") }
+    func setVersionForTesting(_ version: Int) {
+        run("PRAGMA user_version = \(version)")
+    }
 
     func corruptForTesting(kind: String) {
         execute("UPDATE records SET sealed = zeroblob(40) WHERE kind = ?1", [.text(kind)])

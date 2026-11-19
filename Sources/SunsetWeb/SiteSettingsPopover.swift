@@ -7,7 +7,9 @@ struct SiteSettingsPopover: View {
     @Environment(\.barTint) private var tint
     @Environment(\.colorScheme) private var outer
     let content: WebContent
-    private var store: SitePermissions { content.permissions }
+    private var store: SitePermissions {
+        content.permissions
+    }
 
     @State private var showsPermissions = false
     @State private var showsMore = false

@@ -6,7 +6,9 @@ import SunsetWeb
 
 /// The History menu's and panel's actions (web step e).
 extension AppActions {
-    private var keyWindowTabs: TabsModel? { TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) }
+    private var keyWindowTabs: TabsModel? {
+        TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
+    }
 
     /// Cmd-Y: the history panel on the side opposite the tabs, shown or hidden (`show`: shown).
     func toggleHistoryPanel(show: Bool? = nil) {
@@ -14,7 +16,9 @@ extension AppActions {
         tabs.toggleOpposite(.history, show: show)
     }
 
-    func clearHistory() { keyWindowTabs?.clearingHistory = true }
+    func clearHistory() {
+        keyWindowTabs?.clearingHistory = true
+    }
 
     /// A page of the history: in the focused page, or a new page tab (asked for, or when a terminal has the keyboard).
     func openFromHistory(_ address: String, newTab: Bool) {

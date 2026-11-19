@@ -73,7 +73,9 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
         metrics = made
     }
 
-    public var shapesRuns: Bool { true }
+    public var shapesRuns: Bool {
+        true
+    }
 
     public func glyph(for text: String, bold isBold: Bool, italic isItalic: Bool, columns: Int, metrics: RenderMetrics)
         -> GlyphBitmap?

@@ -18,8 +18,12 @@ struct FloatingSidebar: View {
     var accessory: AnyView?
     @State private var reveal = HoverReveal(hideDelay: .milliseconds(350))
 
-    private var side: Configuration.Side { settings.sidebar.side }
-    private var margin: Double { settings.sidebar.padding }
+    private var side: Configuration.Side {
+        settings.sidebar.side
+    }
+    private var margin: Double {
+        settings.sidebar.padding
+    }
     private var radius: Double {
         settings.layout.panelRadius ?? ConcentricRadius.inner(outer: windowRadius, inset: margin)
     }
@@ -81,7 +85,9 @@ struct FloatingSidebar: View {
     }
 
     /// The panel is drawn as every floating surface is (`window.material`, design 0003 §6), with the window's blur, glass style and tint.
-    private var panelLook: SidebarLook { SidebarLook(settings) }
+    private var panelLook: SidebarLook {
+        SidebarLook(settings)
+    }
 
     private func pointer(_ inside: Bool) {
         let now = ContinuousClock.now

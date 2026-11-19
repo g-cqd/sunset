@@ -34,7 +34,9 @@ import SunsetShell
     }
 
     /// The first Space: the one there was before there were several.
-    static var shared: SpaceModel { all.spaces[0] }
+    static var shared: SpaceModel {
+        all.spaces[0]
+    }
 
     private static var cleaner: Task<Void, Never>?
 

@@ -12,9 +12,15 @@ struct KeptEntryMenu: View {
     var editsInPlace = true
     var animation: Animation?
 
-    private var isPinned: Bool { tabs.isPinned(entry.id) }
-    private var runsTerminal: Bool { tabs.runsTerminal(entry) }
-    private var keeper: FavoritesModel { tabs.keeper(of: entry.id) }
+    private var isPinned: Bool {
+        tabs.isPinned(entry.id)
+    }
+    private var runsTerminal: Bool {
+        tabs.runsTerminal(entry)
+    }
+    private var keeper: FavoritesModel {
+        tabs.keeper(of: entry.id)
+    }
 
     var body: some View {
         Button(entry.isOpen ? "Show" : "Open") { tabs.select(entry: entry.id) }

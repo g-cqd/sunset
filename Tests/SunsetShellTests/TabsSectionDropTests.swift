@@ -28,11 +28,15 @@ struct TabsSectionDropTests {
         return harness
     }
 
-    private func grid(_ harness: TabsHarness) -> [Favorites.NodeID] { harness.tabs.pinnedEntries.map(\.id) }
+    private func grid(_ harness: TabsHarness) -> [Favorites.NodeID] {
+        harness.tabs.pinnedEntries.map(\.id)
+    }
     private func kept(_ harness: TabsHarness) -> [Favorites.NodeID] {
         harness.tabs.favorites.favorites.entries.map(\.id)
     }
-    private func today(_ harness: TabsHarness) -> [Workspace.ItemID] { harness.tabs.workspace.items.map(\.id) }
+    private func today(_ harness: TabsHarness) -> [Workspace.ItemID] {
+        harness.tabs.workspace.items.map(\.id)
+    }
 
     // MARK: The Pinned grid
 

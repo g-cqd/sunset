@@ -10,5 +10,7 @@ package enum ZoomLevels {
     }
 
     /// "125%".
-    package static func label(_ level: Double) -> String { "\(Int((level * 100).rounded()))%" }
+    package static func label(_ level: Double) -> String {
+        "\(Int((level * 100).rounded()))%"
+    }
 }

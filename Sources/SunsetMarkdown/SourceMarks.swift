@@ -35,11 +35,17 @@ final class SourceMarks {
     /// Between the text and a card, above and below.
     private static let gap: CGFloat = 4
 
-    init(content: DocumentContent) { self.content = content }
+    init(content: DocumentContent) {
+        self.content = content
+    }
 
     /// The cards, in the order of the text.
-    var cards: [NSView] { order.compactMap { hosts[$0]?.view } }
-    var isAttached: Bool { view != nil }
+    var cards: [NSView] {
+        order.compactMap { hosts[$0]?.view }
+    }
+    var isAttached: Bool {
+        view != nil
+    }
 
     /// Takes `view` as the editor to mark; nil (the editor is going) takes every mark off the one it had.
     func attach(to view: NSTextView?) {

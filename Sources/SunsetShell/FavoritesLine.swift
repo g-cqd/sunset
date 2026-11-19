@@ -13,7 +13,9 @@ struct FavoritesLine: View {
     @Environment(\.accent) private var accent
 
     /// A drag under way would be kept in the Favorites: the line opens into a place to drop it, said in words.
-    private var takesDrag: Bool { tabs.dragTargets?.favorites == true }
+    private var takesDrag: Bool {
+        tabs.dragTargets?.favorites == true
+    }
 
     var body: some View {
         Group {
@@ -41,10 +43,18 @@ struct FavoritesLine: View {
         let tabs: TabsModel
         @Binding var targeted: Bool
 
-        func validateDrop(info: DropInfo) -> Bool { tabs.canDropOnFavoritesLine }
-        func dropEntered(info: DropInfo) { targeted = tabs.canDropOnFavoritesLine }
-        func dropExited(info: DropInfo) { targeted = false }
-        func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: targeted ? .move : .cancel) }
+        func validateDrop(info: DropInfo) -> Bool {
+            tabs.canDropOnFavoritesLine
+        }
+        func dropEntered(info: DropInfo) {
+            targeted = tabs.canDropOnFavoritesLine
+        }
+        func dropExited(info: DropInfo) {
+            targeted = false
+        }
+        func dropUpdated(info: DropInfo) -> DropProposal? {
+            DropProposal(operation: targeted ? .move : .cancel)
+        }
         func performDrop(info: DropInfo) -> Bool {
             targeted = false
             return Feedback.dropped(tabs.dropDraggedOnFavoritesLine())

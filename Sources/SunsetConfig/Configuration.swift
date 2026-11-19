@@ -120,12 +120,6 @@ public struct Configuration: Sendable, Equatable {
         /// The bars' fill and controls (`BarTint`); `scheme` follows the colour scheme (owner, 2026-11-13).
         public var barTint = BarTint.scheme
         public init() {}
-
-        public enum Accent: String, Sendable, Equatable, CaseIterable {
-            case system, sunset, neutral
-            /// The site shown: its theme colour or its icon's, else the system's (roadmap 0047 H).
-            case site
-        }
     }
 
     public struct Tabs: Sendable, Equatable {
@@ -242,7 +236,11 @@ public struct Configuration: Sendable, Equatable {
 extension Configuration {
     /// The cursor's blink timeout as a number for a control: 15 while it blinks for ever (the value a control shows when it is switched back on).
     public var cursorBlinkTimeoutSeconds: Double {
-        get { cursorBlinkTimeout ?? 15 }
-        set { cursorBlinkTimeout = newValue }
+        get {
+            cursorBlinkTimeout ?? 15
+        }
+        set {
+            cursorBlinkTimeout = newValue
+        }
     }
 }

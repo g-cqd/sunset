@@ -12,7 +12,9 @@ struct HistoryBenchTests {
 
     static func percentiles(_ samples: [Double]) -> String {
         let sorted = samples.sorted()
-        func at(_ share: Double) -> Double { sorted[min(Int(Double(sorted.count) * share), sorted.count - 1)] }
+        func at(_ share: Double) -> Double {
+            sorted[min(Int(Double(sorted.count) * share), sorted.count - 1)]
+        }
         return String(format: "p50 %.3f ms, p90 %.3f ms, p99 %.3f ms", at(0.5), at(0.9), at(0.99))
     }
 

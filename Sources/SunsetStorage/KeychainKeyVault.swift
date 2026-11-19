@@ -7,7 +7,9 @@ import Security
 public struct KeychainKeyVault: KeyVault {
     let service: String
 
-    public init(service: String = "studio.aemi.sunset.storage-key") { self.service = service }
+    public init(service: String = "studio.aemi.sunset.storage-key") {
+        self.service = service
+    }
 
     private var item: [CFString: Any] {
         [kSecClass: kSecClassGenericPassword, kSecAttrService: service, kSecAttrAccount: "key"]

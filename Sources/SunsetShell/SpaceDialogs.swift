@@ -6,9 +6,13 @@ package import SwiftUI
 package struct SpaceDialogs: ViewModifier {
     let tabs: TabsModel
 
-    package init(tabs: TabsModel) { self.tabs = tabs }
+    package init(tabs: TabsModel) {
+        self.tabs = tabs
+    }
 
-    private var target: SpaceModel? { tabs.deletingSpace.flatMap { tabs.spaces?.space($0) } }
+    private var target: SpaceModel? {
+        tabs.deletingSpace.flatMap { tabs.spaces?.space($0) }
+    }
 
     package func body(content: Content) -> some View {
         let target = target

@@ -45,10 +45,14 @@ package struct SearchEngine: Sendable, Equatable, Hashable {
     ]
 
     /// The address that searches `words`.
-    package func searchURL(_ words: String) -> URL? { Self.fill(search, words) }
+    package func searchURL(_ words: String) -> URL? {
+        Self.fill(search, words)
+    }
 
     /// The address that asks for suggestions for `words`.
-    package func suggestURL(_ words: String) -> URL? { suggest.flatMap { Self.fill($0, words) } }
+    package func suggestURL(_ words: String) -> URL? {
+        suggest.flatMap { Self.fill($0, words) }
+    }
 
     static func fill(_ template: String, _ words: String) -> URL? {
         var allowed = CharacterSet.urlQueryAllowed

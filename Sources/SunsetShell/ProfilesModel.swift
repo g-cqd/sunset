@@ -33,9 +33,15 @@ package final class ProfilesModel {
         profiles = [first]
     }
 
-    package var first: ProfileModel { profiles[0] }
-    package func profile(_ id: Profile.ID?) -> ProfileModel { profiles.first { $0.profile.id == id } ?? first }
-    package func profile(of space: Space) -> ProfileModel { profile(space.profile) }
+    package var first: ProfileModel {
+        profiles[0]
+    }
+    package func profile(_ id: Profile.ID?) -> ProfileModel {
+        profiles.first { $0.profile.id == id } ?? first
+    }
+    package func profile(of space: Space) -> ProfileModel {
+        profile(space.profile)
+    }
 
     /// A new profile after the others: "Profile N".
     @discardableResult
@@ -108,5 +114,7 @@ package final class ProfilesModel {
     }
 
     /// The grid of a profile made now: its own, or the first's when one is shared.
-    private func newPinned() -> FavoritesModel { sharesPinned ? first.pinned : makeFavorites() }
+    private func newPinned() -> FavoritesModel {
+        sharesPinned ? first.pinned : makeFavorites()
+    }
 }

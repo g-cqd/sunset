@@ -41,9 +41,15 @@ package final class SpacesModel {
         spaces = [space]
     }
 
-    package func index(of space: SpaceModel) -> Int? { spaces.firstIndex { $0 === space } }
-    package func space(_ id: Space.ID) -> SpaceModel? { spaces.first { $0.space.id == id } }
-    package func contains(_ space: SpaceModel) -> Bool { index(of: space) != nil }
+    package func index(of space: SpaceModel) -> Int? {
+        spaces.firstIndex { $0 === space }
+    }
+    package func space(_ id: Space.ID) -> SpaceModel? {
+        spaces.first { $0.space.id == id }
+    }
+    package func contains(_ space: SpaceModel) -> Bool {
+        index(of: space) != nil
+    }
 
     // MARK: Making, naming, deleting
 
@@ -187,11 +193,15 @@ package final class SpacesModel {
     }
 
     /// Whether the tabs of each Space stay when its last window closes (`tabs.closeWithLastWindow`).
-    package func keepTabs(_ keeps: Bool) { for space in spaces { space.keepsTabs = keeps } }
+    package func keepTabs(_ keeps: Bool) {
+        for space in spaces { space.keepsTabs = keeps }
+    }
 
     // MARK: Session
 
-    package func saved() -> [SavedSpace] { spaces.map { $0.saved() } }
+    package func saved() -> [SavedSpace] {
+        spaces.map { $0.saved() }
+    }
 
     /// Takes the saved Spaces, in their order, before any window shows one, and after the profiles (a Space has its
     /// profile's Favorites, or its own: `ownership`): the first is the one there was.

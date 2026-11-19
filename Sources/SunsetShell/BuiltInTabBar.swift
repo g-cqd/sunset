@@ -121,7 +121,9 @@ package struct BuiltInTabBar: View {
     }
 
     /// The selected page's field: twice a tab, as wide as the command bar at most.
-    static func fieldWidth(tab: Double) -> Double { min(2 * tab, Design.Width.commandBar) }
+    static func fieldWidth(tab: Double) -> Double {
+        min(2 * tab, Design.Width.commandBar)
+    }
 
     /// Each tab's width: the bar shared equally, between `tabWidths`.
     static func width(for count: Int, in available: Double, gap: Double) -> Double {

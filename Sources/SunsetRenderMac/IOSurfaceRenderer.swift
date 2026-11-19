@@ -28,5 +28,7 @@ public protocol IOSurfaceRenderer: AnyObject, Sendable {
 }
 
 extension IOSurfaceRenderer {
-    @discardableResult public func rest() async -> Bool { true }
+    @discardableResult public func rest() async -> Bool {
+        true
+    }
 }

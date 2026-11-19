@@ -69,22 +69,48 @@ package import SwiftUI
 }
 
 extension PaneContent {
-    package var searchTerms: [String] { [] }
+    package var searchTerms: [String] {
+        []
+    }
     package func type(command: String) {}
-    package var captureDot: Color? { nil }
-    package var sound: PaneSound? { nil }
+    package var captureDot: Color? {
+        nil
+    }
+    package var sound: PaneSound? {
+        nil
+    }
     package func toggleMuted() {}
-    package var devices: PaneCapture { PaneCapture() }
-    package var profileMark: String? { nil }
+    package var devices: PaneCapture {
+        PaneCapture()
+    }
+    package var profileMark: String? {
+        nil
+    }
     package func toggle(_ device: PaneCapture.Device) {}
-    package var isPrivate: Bool { false }
-    package var isEdited: Bool { false }
-    package var unsaved: UnsavedEdits? { nil }
-    package var picture: CGImage? { nil }
-    package var runsCommand: Bool { false }
+    package var isPrivate: Bool {
+        false
+    }
+    package var isEdited: Bool {
+        false
+    }
+    package var unsaved: UnsavedEdits? {
+        nil
+    }
+    package var picture: CGImage? {
+        nil
+    }
+    package var runsCommand: Bool {
+        false
+    }
     package func takePicture() {}
     package func prepare() {}
-    package var isUnloaded: Bool { false }
-    package var menuActions: [PaneMenuAction] { [] }
-    package var isBlankPage: Bool { false }
+    package var isUnloaded: Bool {
+        false
+    }
+    package var menuActions: [PaneMenuAction] {
+        []
+    }
+    package var isBlankPage: Bool {
+        false
+    }
 }

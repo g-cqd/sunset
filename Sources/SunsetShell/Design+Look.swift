@@ -64,7 +64,9 @@ extension Design {
     /// An opaque surface over the window: the window's colour, a little lighter, so that it reads as raised.
     package enum Raised {
         package static let lighten = 0.06
-        package static var color: Color { Color(nsColor: .windowBackgroundColor).mix(with: .white, by: lighten) }
+        package static var color: Color {
+            Color(nsColor: .windowBackgroundColor).mix(with: .white, by: lighten)
+        }
     }
 
     /// A shadow: black at an opacity, a blur radius, a drop.
@@ -146,7 +148,9 @@ extension Design {
         /// sidebar row; n63). With the glyph's 15 pt ink in an 18 pt frame, 7.
         package static let glyphToText = 7.0
         /// A filled container flush with a hairline looks larger than the line: it is drawn one stroke inside (`SidebarHeader`).
-        package static func insideHairline(_ hairlineWidth: Double) -> Double { hairlineWidth }
+        package static func insideHairline(_ hairlineWidth: Double) -> Double {
+            hairlineWidth
+        }
         /// The address field's leading mark (the lock, the private eye) to its text: the mark's ink as far from the text as from the field's
         /// edge (10 pt, measured on the field; the row rule).
         package static let fieldGlyphToText = 6.5

@@ -10,9 +10,13 @@ struct SlashedSymbol: View {
     let slashed: Bool
 
     /// The slash's thickness, at least a point.
-    private var line: Double { max(1, size * Self.strokeShare) }
+    private var line: Double {
+        max(1, size * Self.strokeShare)
+    }
     /// Its length: a little past the symbol's square, as the symbols' slashes are.
-    private var length: Double { size * Self.lengthShare }
+    private var length: Double {
+        size * Self.lengthShare
+    }
 
     var body: some View {
         Image(systemName: name)

@@ -22,7 +22,9 @@ struct SectionList: View {
         self.query = query
     }
 
-    private var searching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
+    private var searching: Bool {
+        !query.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     var body: some View {
         switch section {

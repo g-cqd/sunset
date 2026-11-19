@@ -25,7 +25,9 @@ final class IconWatch: NSObject, WKScriptMessageHandler {
 
     private weak var content: WebContent?
 
-    private init(content: WebContent) { self.content = content }
+    private init(content: WebContent) {
+        self.content = content
+    }
 
     /// Adds the script and its handler to the configuration's controller (after `LinkHover` gave it its own).
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {

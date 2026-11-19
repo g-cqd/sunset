@@ -6,11 +6,17 @@ struct ClusterTable: Sendable {
     private var scalars = ContiguousArray<UInt32>()
     private var ids: [ContiguousArray<UInt32>: UInt32] = [:]
 
-    init(limit: Int) { self.limit = limit }
+    init(limit: Int) {
+        self.limit = limit
+    }
 
-    var count: Int { starts.count - 2 }
+    var count: Int {
+        starts.count - 2
+    }
 
-    func scalars(of id: UInt32) -> ArraySlice<UInt32> { scalars[Int(starts[Int(id)]) ..< Int(starts[Int(id) + 1])] }
+    func scalars(of id: UInt32) -> ArraySlice<UInt32> {
+        scalars[Int(starts[Int(id)]) ..< Int(starts[Int(id) + 1])]
+    }
 
     /// The id of the cluster of these scalars, adding it if new; nil when the table is full.
     mutating func intern(_ cluster: ContiguousArray<UInt32>) -> UInt32? {

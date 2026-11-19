@@ -40,7 +40,9 @@ package struct IconPicker: View {
         self.clearTitle = clearTitle
     }
 
-    private var searching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
+    private var searching: Bool {
+        !query.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     private var chosen: String? {
         switch icon {

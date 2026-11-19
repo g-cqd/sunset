@@ -14,9 +14,13 @@ final class PreviewNSView: NSView {
         layer?.minificationFilter = .trilinear
     }
 
-    required init?(coder: NSCoder) { nil }
+    required init?(coder: NSCoder) {
+        nil
+    }
 
-    override var isFlipped: Bool { true }
+    override var isFlipped: Bool {
+        true
+    }
 
     func update(surface: IOSurface, background: CGColor) {
         layer?.backgroundColor = background

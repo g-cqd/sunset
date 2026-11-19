@@ -5,7 +5,9 @@ package import SwiftUI
 package struct PointerShieldView: NSViewRepresentable {
     let onClick: () -> Void
 
-    package init(onClick: @escaping () -> Void) { self.onClick = onClick }
+    package init(onClick: @escaping () -> Void) {
+        self.onClick = onClick
+    }
 
     package func makeNSView(context: Context) -> NSView {
         let view = PointerShieldNSView()

@@ -37,7 +37,9 @@ package final class WindowLights {
 
     /// Nil: AppKit's own layout, which is then left alone.
     package var placement: Placement? {
-        didSet { if placement != oldValue { place() } }
+        didSet {
+            if placement != oldValue { place() }
+        }
     }
     /// From one button's left edge to the next's: AppKit's own, read once from its first layout. Read at each pass it could be
     /// caught while AppKit was half way through moving them.
@@ -85,7 +87,9 @@ package final class WindowLights {
         (observers + viewObservers).forEach { NotificationCenter.default.removeObserver($0) }
     }
 
-    private var buttons: [NSButton] { Self.types.compactMap { window?.standardWindowButton($0) } }
+    private var buttons: [NSButton] {
+        Self.types.compactMap { window?.standardWindowButton($0) }
+    }
 
     /// The buttons, their bar and its container are watched for any move: the surest sign that AppKit has just laid them out
     /// again. Watched anew when they are not the views watched before (AppKit makes its title bar again at times).
@@ -166,7 +170,9 @@ package final class WindowLights {
     }
 
     /// Nothing of it shows: faded out, or with no layer to fade.
-    private static func isFaded(_ button: NSButton) -> Bool { button.layer.map { $0.opacity == 0 } ?? true }
+    private static func isFaded(_ button: NSButton) -> Bool {
+        button.layer.map { $0.opacity == 0 } ?? true
+    }
 
     /// The buttons are AppKit's to lay out again (`placement` is nil): shown, and counted as never moved.
     package func released() {

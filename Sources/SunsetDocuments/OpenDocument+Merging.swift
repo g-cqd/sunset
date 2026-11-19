@@ -121,7 +121,9 @@ extension OpenDocument {
     }
 
     /// The notice of the last merge was read, or is no longer true.
-    public func dismissMerge() { lastMerge = nil }
+    public func dismissMerge() {
+        lastMerge = nil
+    }
 
     /// Takes the last merge back, while nothing was done after it: the text is as it was before the disk's blocks came, and
     /// saving then writes it over them. The questions stay.

@@ -9,7 +9,9 @@ import Testing
 @MainActor
 @Suite("Editing a Space, and its last tab")
 struct SpaceEditingTests {
-    private func spaces() -> SpacesModel { SpacesModel(makeFavorites: { FavoritesModel() }) }
+    private func spaces() -> SpacesModel {
+        SpacesModel(makeFavorites: { FavoritesModel() })
+    }
 
     private func window(on spaces: SpacesModel, made: MadeContents) -> TabsModel {
         let tabs = TabsModel()

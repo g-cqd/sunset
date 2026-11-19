@@ -4,6 +4,8 @@ extension Configuration.Appearance {
         case sunset, twilight, dawn, dusk
 
         /// The icon's name in the asset catalog (the bundle's own for `sunset`, an alternate for the others).
-        public var assetName: String { rawValue.prefix(1).uppercased() + rawValue.dropFirst() }
+        public var assetName: String {
+            rawValue.prefix(1).uppercased() + rawValue.dropFirst()
+        }
     }
 }

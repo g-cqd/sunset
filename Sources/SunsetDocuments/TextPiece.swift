@@ -22,5 +22,7 @@ struct TextPiece: Hashable, Sendable {
         first.digest == second.digest && first.text.utf8.elementsEqual(second.text.utf8)
     }
 
-    func hash(into hasher: inout Hasher) { hasher.combine(digest) }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(digest)
+    }
 }

@@ -11,10 +11,16 @@ final class ShareWrapper: NSObject, WKScriptMessageHandlerWithReply {
     private weak var content: WebContent?
     let token = UUID().uuidString.replacingOccurrences(of: "-", with: "")
 
-    var frameFunction: String { "__sunsetShareFrame_" + token }
-    var endFunction: String { "__sunsetShareEnd_" + token }
+    var frameFunction: String {
+        "__sunsetShareFrame_" + token
+    }
+    var endFunction: String {
+        "__sunsetShareEnd_" + token
+    }
 
-    private init(content: WebContent) { self.content = content }
+    private init(content: WebContent) {
+        self.content = content
+    }
 
     var script: String {
         """

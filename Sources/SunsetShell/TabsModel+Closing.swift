@@ -61,7 +61,9 @@ extension TabsModel {
     }
 
     /// Closes the focused pane (the tab with its last pane; a kept entry is unloaded with its last pane).
-    package func closeSelected() { if let pane = shownPane { requestClose(pane: pane) } }
+    package func closeSelected() {
+        if let pane = shownPane { requestClose(pane: pane) }
+    }
 
     /// The tab this window showed last before `item`, still among the Space's (n4).
     func previouslyShown(before item: Workspace.ItemID) -> Workspace.ItemID? {

@@ -68,13 +68,25 @@ extension TerminalNSView {
     package override func mouseDragged(with event: NSEvent) {
         if !ignoringActivatingClick { report(.motion, .left, event) }
     }
-    package override func rightMouseDown(with event: NSEvent) { report(.press, .right, event) }
-    package override func rightMouseUp(with event: NSEvent) { report(.release, .right, event) }
-    package override func rightMouseDragged(with event: NSEvent) { report(.motion, .right, event) }
+    package override func rightMouseDown(with event: NSEvent) {
+        report(.press, .right, event)
+    }
+    package override func rightMouseUp(with event: NSEvent) {
+        report(.release, .right, event)
+    }
+    package override func rightMouseDragged(with event: NSEvent) {
+        report(.motion, .right, event)
+    }
 
-    package override func otherMouseDown(with event: NSEvent) { report(.press, .middle, event) }
-    package override func otherMouseUp(with event: NSEvent) { report(.release, .middle, event) }
-    package override func otherMouseDragged(with event: NSEvent) { report(.motion, .middle, event) }
+    package override func otherMouseDown(with event: NSEvent) {
+        report(.press, .middle, event)
+    }
+    package override func otherMouseUp(with event: NSEvent) {
+        report(.release, .middle, event)
+    }
+    package override func otherMouseDragged(with event: NSEvent) {
+        report(.motion, .middle, event)
+    }
 
     package override func mouseMoved(with event: NSEvent) {
         // Covered by the command bar's backdrop (t232).
@@ -97,7 +109,9 @@ extension TerminalNSView {
         shownPointer = shape
         window?.invalidateCursorRects(for: self)
     }
-    package override func mouseExited(with event: NSEvent) { model.hover(pixelX: nil, pixelY: nil) }
+    package override func mouseExited(with event: NSEvent) {
+        model.hover(pixelX: nil, pixelY: nil)
+    }
 
     package override func updateTrackingAreas() {
         super.updateTrackingAreas()

@@ -31,8 +31,12 @@ import SunsetPane
         return tabs
     }
 
-    func content(_ pane: PaneID) -> FakeContent? { space.contents[pane] as? FakeContent }
+    func content(_ pane: PaneID) -> FakeContent? {
+        space.contents[pane] as? FakeContent
+    }
 
     /// The content of the one pane of tab `index`.
-    func content(tab index: Int) -> FakeContent? { content(space.tabs.items[index].focused) }
+    func content(tab index: Int) -> FakeContent? {
+        content(space.tabs.items[index].focused)
+    }
 }

@@ -6,7 +6,9 @@ import AppKit
 final class AddressNSField: NSTextField {
     /// What is shown when not typed in, and what typing starts from.
     var host = "" {
-        didSet { if !isEditing { stringValue = host } }
+        didSet {
+            if !isEditing { stringValue = host }
+        }
     }
     var address = ""
     var onSubmit: (String) -> Void = { _ in }
@@ -14,9 +16,13 @@ final class AddressNSField: NSTextField {
     var onEditing: (Bool) -> Void = { _ in }
     private var typing = false
 
-    var isEditing: Bool { currentEditor() != nil }
+    var isEditing: Bool {
+        currentEditor() != nil
+    }
 
-    override var acceptsFirstResponder: Bool { typing }
+    override var acceptsFirstResponder: Bool {
+        typing
+    }
 
     /// The first click selects the whole address instead of placing the caret (AppKit's field editor would track the click).
     override func mouseDown(with event: NSEvent) {

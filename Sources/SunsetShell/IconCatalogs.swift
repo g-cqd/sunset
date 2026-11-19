@@ -9,5 +9,7 @@ package struct IconCatalogs: Sendable {
     }
 
     /// Read from the system's files.
-    package static func load() -> IconCatalogs { IconCatalogs(symbols: .load(), emoji: .load()) }
+    package static func load() -> IconCatalogs {
+        IconCatalogs(symbols: .load(), emoji: .load())
+    }
 }

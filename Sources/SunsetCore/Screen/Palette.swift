@@ -82,11 +82,21 @@ public struct Palette: Sendable, Equatable {
         }
     }
 
-    mutating func resetColor(_ index: Int) { colors[index] = seed[index] }
-    mutating func resetColors() { colors = seed }
-    mutating func resetForeground() { foreground = seedForeground }
-    mutating func resetBackground() { background = seedBackground }
-    mutating func resetCursor() { cursor = seedCursor }
+    mutating func resetColor(_ index: Int) {
+        colors[index] = seed[index]
+    }
+    mutating func resetColors() {
+        colors = seed
+    }
+    mutating func resetForeground() {
+        foreground = seedForeground
+    }
+    mutating func resetBackground() {
+        background = seedBackground
+    }
+    mutating func resetCursor() {
+        cursor = seedCursor
+    }
 
     /// Parses an X colour specification: `rgb:R/G/B` with one to four hex digits per component, or `#RGB`, `#RRGGBB`, `#RRRGGGBBB`, `#RRRRGGGGBBBB`.
     /// No allocation.

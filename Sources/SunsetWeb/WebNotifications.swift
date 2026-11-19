@@ -56,8 +56,12 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
               bridge.postMessage({ kind: "close", id: this.__id });
               this.__fire("close");
             }
-            static get permission() { return permission; }
-            static get maxActions() { return 0; }
+            static get permission() {
+                return permission;
+            }
+            static get maxActions() {
+                return 0;
+            }
             static requestPermission(callback) {
               // As Safari: only from what the person did (a click, a key) is anybody asked.
               const activated = !!(navigator.userActivation && navigator.userActivation.isActive);
@@ -104,7 +108,9 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
 
     private weak var content: WebContent?
 
-    private init(content: WebContent) { self.content = content }
+    private init(content: WebContent) {
+        self.content = content
+    }
 
     /// Adds the script and its handler to the configuration's controller (after `LinkHover` gave it its own).
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {

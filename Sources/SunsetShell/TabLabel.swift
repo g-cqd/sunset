@@ -48,7 +48,9 @@ package struct TabLabel: View {
     }
 
     /// What a pane that is not running would start from: a kept entry with nothing saved is a new terminal.
-    private var notRunning: PaneDescriptor { saved ?? PaneDescriptor(kind: PaneDescriptor.terminalKind) }
+    private var notRunning: PaneDescriptor {
+        saved ?? PaneDescriptor(kind: PaneDescriptor.terminalKind)
+    }
 
     package var body: some View {
         HStack(spacing: GlyphSpacing.toText) {

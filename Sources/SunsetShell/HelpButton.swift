@@ -7,7 +7,9 @@ package struct HelpButton: View {
     let topic: HelpTopic
     @State private var shown = false
 
-    package init(_ topic: HelpTopic) { self.topic = topic }
+    package init(_ topic: HelpTopic) {
+        self.topic = topic
+    }
 
     package var body: some View {
         Button {

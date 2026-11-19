@@ -41,7 +41,9 @@ final class QuitGate {
         asking = ObjectIdentifier(tabs)
     }
 
-    func isAsking(_ tabs: TabsModel) -> Bool { asking == ObjectIdentifier(tabs) }
+    func isAsking(_ tabs: TabsModel) -> Bool {
+        asking == ObjectIdentifier(tabs)
+    }
 
     /// Whether the setting is why it asks (something else than unsaved edits would be lost, or it always asks).
     var asksBySetting: Bool {
@@ -50,7 +52,9 @@ final class QuitGate {
     }
 
     /// Whether what would be lost includes edits that can be saved first.
-    var hasUnsavedDocuments: Bool { losses.contains { $0.kind == .document } }
+    var hasUnsavedDocuments: Bool {
+        losses.contains { $0.kind == .document }
+    }
 
     /// The sheet's answer; `dontAskAgain` sets the setting to never.
     func answer(quit: Bool, dontAskAgain: Bool = false) {

@@ -79,5 +79,7 @@ package enum BlockingRules {
 
 extension StringProtocol {
     /// Only ASCII: what WebKit's rules take.
-    var isASCII: Bool { utf8.allSatisfy { $0 < 0x80 } }
+    var isASCII: Bool {
+        utf8.allSatisfy { $0 < 0x80 }
+    }
 }

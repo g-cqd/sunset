@@ -10,7 +10,9 @@ import Testing
         calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
         return calendar
     }()
-    var now: Date { date(15, 12) }
+    var now: Date {
+        date(15, 12)
+    }
 
     func date(_ day: Int, _ hour: Int) -> Date {
         calendar.date(from: DateComponents(year: 2026, month: 11, day: day, hour: hour)) ?? .distantPast

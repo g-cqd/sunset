@@ -10,7 +10,9 @@ import Testing
 @MainActor
 @Suite("Profiles")
 struct ProfilesModelTests {
-    private func spaces() -> SpacesModel { SpacesModel(makeFavorites: { FavoritesModel() }) }
+    private func spaces() -> SpacesModel {
+        SpacesModel(makeFavorites: { FavoritesModel() })
+    }
 
     private func window(on spaces: SpacesModel, made: MadeContents) -> TabsModel {
         let tabs = TabsModel()

@@ -4,7 +4,11 @@ import AppKit
 /// app's name) sets another. The Window menu, Mission Control, the system's tabs and accessibility read the title from the
 /// window.
 final class WindowTitleView: NSView {
-    var title = "Sunset" { didSet { if title != oldValue { keep() } } }
+    var title = "Sunset" {
+        didSet {
+            if title != oldValue { keep() }
+        }
+    }
     private var observation: NSKeyValueObservation?
 
     override func viewDidMoveToWindow() {

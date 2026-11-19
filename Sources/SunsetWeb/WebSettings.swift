@@ -44,7 +44,9 @@ package struct WebSettings: Sendable, Equatable {
     package var askWhereToSave: Bool?
 
     /// Whether what is typed is sent for suggestions: `suggestions`, or for a private page `privateSuggestions`.
-    package var suggestsWhileTyping: Bool { privacy == nil ? suggestions : privateSuggestions }
+    package var suggestsWhileTyping: Bool {
+        privacy == nil ? suggestions : privateSuggestions
+    }
     /// Sunset runs as Sunset.app, with the usage strings macOS needs before a page may use the camera, the microphone or location.
     package var hasAppIdentity = Bundle.main.object(forInfoDictionaryKey: "NSCameraUsageDescription") != nil
 
@@ -89,7 +91,9 @@ package struct WebSettings: Sendable, Equatable {
     }
 
     /// What `typed` means with these engines.
-    package func input(_ typed: String) -> WebInput? { WebInput.parse(typed, engine: engine, engines: engines) }
+    package func input(_ typed: String) -> WebInput? {
+        WebInput.parse(typed, engine: engine, engines: engines)
+    }
 
     /// The built-in engines with the added ones: one with a built-in name replaces it, the others follow.
     package static func engines(adding added: [SearchEngine]) -> [SearchEngine] {

@@ -12,7 +12,11 @@ public struct SettingsValue<Value: Sendable>: Sendable {
     }
 
     public init(_ path: any WritableKeyPath<Configuration, Value> & Sendable) {
-        get = { $0[keyPath: path] }
-        set = { $0[keyPath: path] = $1 }
+        get = {
+            $0[keyPath: path]
+        }
+        set = {
+            $0[keyPath: path] = $1
+        }
     }
 }

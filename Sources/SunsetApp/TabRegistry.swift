@@ -54,7 +54,9 @@ final class TabRegistry {
         MacAwake.shared.update()
     }
 
-    func touch() { revision &+= 1 }
+    func touch() {
+        revision &+= 1
+    }
 
     /// The tabs `window` shows: the windows of its group in the group's order (just itself when it has none).
     func rows(for window: NSWindow?) -> [Row] {
@@ -73,7 +75,9 @@ final class TabRegistry {
     }
 
     /// The tabs of a window (nil for a window that is not a terminal's, such as Settings).
-    func tabs(for window: NSWindow?) -> TabsModel? { window.flatMap { entries[ObjectIdentifier($0)]?.tabs } }
+    func tabs(for window: NSWindow?) -> TabsModel? {
+        window.flatMap { entries[ObjectIdentifier($0)]?.tabs }
+    }
 
     /// The window the menus act on: the key window; while Sunset is not active (driven through accessibility, or by a script), its main window,
     /// else the frontmost of its windows.
@@ -108,5 +112,7 @@ final class TabRegistry {
         touch()
     }
 
-    func close(_ window: NSWindow) { window.performClose(nil) }
+    func close(_ window: NSWindow) {
+        window.performClose(nil)
+    }
 }

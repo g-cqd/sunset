@@ -4,8 +4,12 @@ enum BlockElements {
         let width = canvas.width
         let height = canvas.height
         // Eighths are rounded to whole pixels, so the 8/8 block is the whole cell.
-        func rows(_ eighths: Int) -> Int { (height * eighths + 4) / 8 }
-        func columns(_ eighths: Int) -> Int { (width * eighths + 4) / 8 }
+        func rows(_ eighths: Int) -> Int {
+            (height * eighths + 4) / 8
+        }
+        func columns(_ eighths: Int) -> Int {
+            (width * eighths + 4) / 8
+        }
         let halfWidth = width / 2
         let halfHeight = height / 2
         func quadrants(_ upperLeft: Bool, _ upperRight: Bool, _ lowerLeft: Bool, _ lowerRight: Bool) {

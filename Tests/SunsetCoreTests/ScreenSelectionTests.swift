@@ -3,7 +3,9 @@ import Testing
 @testable import SunsetCore
 
 @Suite("Selection") struct ScreenSelectionTests {
-    private func point(_ line: Int, _ column: Int) -> SelectionPoint { SelectionPoint(line: line, column: column) }
+    private func point(_ line: Int, _ column: Int) -> SelectionPoint {
+        SelectionPoint(line: line, column: column)
+    }
 
     private func text(
         _ t: Terminal,

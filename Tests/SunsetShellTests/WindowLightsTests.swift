@@ -27,7 +27,9 @@ struct WindowLightsTests {
         return window
     }
 
-    func buttons(_ window: NSWindow) -> [NSButton] { Self.types.compactMap { window.standardWindowButton($0) } }
+    func buttons(_ window: NSWindow) -> [NSButton] {
+        Self.types.compactMap { window.standardWindowButton($0) }
+    }
 
     /// Each button's top left corner, from the window's.
     func corners(_ window: NSWindow) -> [CGPoint] {
@@ -38,7 +40,9 @@ struct WindowLightsTests {
             }
     }
 
-    func settle() async { try? await Task.sleep(for: .milliseconds(60)) }
+    func settle() async {
+        try? await Task.sleep(for: .milliseconds(60))
+    }
 
     func place(_ inset: Double, _ top: Double, fromRight: Bool = false, visible: Bool = true) -> WindowLights.Placement
     {

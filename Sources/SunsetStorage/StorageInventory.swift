@@ -9,7 +9,9 @@ public struct StorageInventory: Sendable, Equatable {
         public let path: String
         public let bytes: Int
 
-        public var id: String { path }
+        public var id: String {
+            path
+        }
     }
 
     /// The marker `StoredFile.moveAside` puts in a name, before the date.
@@ -93,5 +95,7 @@ public struct StorageInventory: Sendable, Equatable {
 extension StoragePlaces {
     /// Whether a plain file of before, once imported, goes to the Mac's Trash (`setting`: `storage.importedFiles` says the
     /// Trash) or is removed. A named setup's (a test's) are always removed, so that tests do not fill the Trash.
-    public func trashesImported(setting: Bool) -> Bool { isDefault && setting }
+    public func trashesImported(setting: Bool) -> Bool {
+        isDefault && setting
+    }
 }

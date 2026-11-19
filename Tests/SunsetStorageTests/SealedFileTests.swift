@@ -7,11 +7,17 @@ import Testing
 struct SealedFileTests {
     private let key = StorageKey(bytes: Data((0 ..< 32).map { UInt8($0) }))
     private let noon = Date(timeIntervalSince1970: 1_794_571_200)
-    private var seal: Seal { Seal(key: key, purpose: .session) }
+    private var seal: Seal {
+        Seal(key: key, purpose: .session)
+    }
 
-    private func path() -> String { NSTemporaryDirectory() + "sealed-\(UUID().uuidString)/session.sealed" }
+    private func path() -> String {
+        NSTemporaryDirectory() + "sealed-\(UUID().uuidString)/session.sealed"
+    }
 
-    private func text(_ data: Data) -> String? { String(data: data, encoding: .utf8) }
+    private func text(_ data: Data) -> String? {
+        String(data: data, encoding: .utf8)
+    }
 
     @Test func `written sealed, read back; the file holds nothing in the clear`() throws {
         let path = path()

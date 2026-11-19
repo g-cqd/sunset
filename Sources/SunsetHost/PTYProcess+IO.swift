@@ -88,10 +88,14 @@ extension PTYProcess {
     }
 
     /// How many `send` calls were dropped because the child was not reading.
-    public var droppedSendCount: Int { counters.dropped.withLock { $0 } }
+    public var droppedSendCount: Int {
+        counters.dropped.withLock { $0 }
+    }
 
     /// Writes all of `bytes` to the child's input, waiting as long as it takes (for a caller that has nothing better to do: tests and tools).
-    public func write(_ bytes: [UInt8]) throws { try PTYProcess.write(bytes, to: master) }
+    public func write(_ bytes: [UInt8]) throws {
+        try PTYProcess.write(bytes, to: master)
+    }
 
     static func write(_ bytes: [UInt8], to fileDescriptor: Int32) throws {
         var offset = 0

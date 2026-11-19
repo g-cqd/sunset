@@ -21,5 +21,7 @@ struct IconChoice: Equatable, Identifiable, Sendable {
     }
 
     /// The icon it makes; a symbol keeps the colour the icon had.
-    func icon(keeping color: IconColor?) -> PaneIcon { isEmoji ? .emoji(id) : .symbol(id, color: color) }
+    func icon(keeping color: IconColor?) -> PaneIcon {
+        isEmoji ? .emoji(id) : .symbol(id, color: color)
+    }
 }

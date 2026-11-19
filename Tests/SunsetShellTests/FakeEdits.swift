@@ -9,7 +9,9 @@
     private(set) var saved = 0
     private(set) var discarded = 0
 
-    init(_ title: String) { self.title = title }
+    init(_ title: String) {
+        self.title = title
+    }
 
     var unsaved: UnsavedEdits? {
         guard isEdited else { return nil }

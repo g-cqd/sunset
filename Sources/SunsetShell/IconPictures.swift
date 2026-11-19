@@ -39,10 +39,14 @@ final class IconPictures {
     }
 
     /// The picture of the symbol called `name`, or of the emoji `name`, when it is kept. Nothing is rendered by asking: drawing never waits.
-    func kept(_ name: String) -> Picture? { pictures[name] }
+    func kept(_ name: String) -> Picture? {
+        pictures[name]
+    }
 
     /// Those of `names` still to render: not kept, and not known to be no symbol of the system.
-    func missing(_ names: [String]) -> [String] { names.filter { pictures[$0] == nil && !absent.contains($0) } }
+    func missing(_ names: [String]) -> [String] {
+        names.filter { pictures[$0] == nil && !absent.contains($0) }
+    }
 
     private func keep(_ picture: Picture, as name: String) {
         guard pictures[name] == nil else { return }
@@ -90,7 +94,9 @@ final class IconPictures {
     }
 
     /// An emoji is not a symbol's name: those are letters, digits and dots.
-    nonisolated static func isEmoji(_ name: String) -> Bool { name.unicodeScalars.first.map { !$0.isASCII } ?? false }
+    nonisolated static func isEmoji(_ name: String) -> Bool {
+        name.unicodeScalars.first.map { !$0.isASCII } ?? false
+    }
 
     /// An emoji drawn by Core Text into a bitmap of its own, centred in a square. On any thread.
     private nonisolated static func renderEmoji(_ text: String, scale: CGFloat) -> Picture? {

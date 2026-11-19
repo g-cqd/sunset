@@ -76,7 +76,9 @@ import Testing
     }
 
     @Test func `only web, mail and ssh links, and local files, may be opened`() {
-        func opens(_ address: String) -> Bool { HyperlinkPolicy.opens(address, localHost: "mac.local") }
+        func opens(_ address: String) -> Bool {
+            HyperlinkPolicy.opens(address, localHost: "mac.local")
+        }
         #expect(opens("http://example.com") && opens("https://example.com/a?b=c") && opens("HTTPS://EXAMPLE.COM"))
         #expect(opens("mailto:me@example.com") && opens("ssh://host/path"))
         #expect(opens("file:///Users/me/a.txt") && opens("file://mac.local/Users/me") && opens("file://localhost/tmp"))

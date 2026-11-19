@@ -14,7 +14,9 @@ package struct SymbolCatalog: Sendable {
         let parts: [String]
         let terms: [String]
         let fields: [String]
-        package var id: String { name }
+        package var id: String {
+            name
+        }
 
         package init(name: String, keywords: [String], categories: [String]) {
             self.name = name
@@ -25,7 +27,9 @@ package struct SymbolCatalog: Sendable {
             fields = [parts.joined(separator: " ")] + keywords
         }
 
-        package static func == (first: Symbol, second: Symbol) -> Bool { first.name == second.name }
+        package static func == (first: Symbol, second: Symbol) -> Bool {
+            first.name == second.name
+        }
     }
 
     package static let systemResources = URL(

@@ -25,5 +25,7 @@ package struct PreviewKinds: Sendable, Equatable {
     }
 
     /// Whether a folder of the Favorites shows its card.
-    package var showsFolders: Bool { enabled && folders }
+    package var showsFolders: Bool {
+        enabled && folders
+    }
 }

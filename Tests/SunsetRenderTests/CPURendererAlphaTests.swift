@@ -7,7 +7,9 @@ import Testing
 /// contents must be.
 @Suite("CPU renderer: translucent background") struct CPURendererAlphaTests {
     private func premultiplied(_ red: UInt8, _ green: UInt8, _ blue: UInt8, alpha: UInt8) -> UInt32 {
-        func scale(_ value: UInt8) -> UInt32 { (UInt32(value) * UInt32(alpha) + 127) / 255 }
+        func scale(_ value: UInt8) -> UInt32 {
+            (UInt32(value) * UInt32(alpha) + 127) / 255
+        }
         return UInt32(alpha) << 24 | scale(blue) << 16 | scale(green) << 8 | scale(red)
     }
 

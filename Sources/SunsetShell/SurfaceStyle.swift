@@ -25,14 +25,24 @@ package struct SurfaceStyle: Sendable, Equatable {
     }
 
     /// The corner of a floating surface holding leaves at the container inset.
-    package var radius: Double { Design.Radius.surface(layout) }
+    package var radius: Double {
+        Design.Radius.surface(layout)
+    }
     /// The corner of a leaf inside it (a row, a field).
-    package var leafRadius: Double { Design.Radius.leaf(layout) }
+    package var leafRadius: Double {
+        Design.Radius.leaf(layout)
+    }
     /// A panel: what it holds is `Design.Space.xl` from its edge, so its corner is the leaf's plus that (the buttons in its corner nest).
-    package var panelRadius: Double { Design.Radius.container(holding: leafRadius, inset: Design.Space.xl) }
-    package var panelShape: RoundedRectangle { RoundedRectangle(cornerRadius: panelRadius, style: .continuous) }
+    package var panelRadius: Double {
+        Design.Radius.container(holding: leafRadius, inset: Design.Space.xl)
+    }
+    package var panelShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: panelRadius, style: .continuous)
+    }
     /// The surface's shape.
-    package var shape: RoundedRectangle { RoundedRectangle(cornerRadius: radius, style: .continuous) }
+    package var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: radius, style: .continuous)
+    }
 
     /// The colour of a floating surface's fill: the tint's (black without one), at least `Design.Fill.floatingMinimum` opaque.
     package var fillColor: Color {

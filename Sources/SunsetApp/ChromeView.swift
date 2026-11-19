@@ -6,11 +6,27 @@ import SunsetShell
 
 /// The view behind the terminal that acts on its window (see `WindowChrome`).
 final class ChromeView: NSView {
-    var settings = Configuration.Window() { didSet { if settings != oldValue { apply() } } }
-    var look = WindowLook() { didSet { if look != oldValue { apply() } } }
+    var settings = Configuration.Window() {
+        didSet {
+            if settings != oldValue { apply() }
+        }
+    }
+    var look = WindowLook() {
+        didSet {
+            if look != oldValue { apply() }
+        }
+    }
     /// Where the traffic lights are, from the window's top left corner, and whether they show; nil: where `settings` says, shown.
-    var lights: LightsPlacement? { didSet { if lights != oldValue { placeButtons() } } }
-    var presentation = TabPresentation.windows { didSet { if presentation != oldValue { apply() } } }
+    var lights: LightsPlacement? {
+        didSet {
+            if lights != oldValue { placeButtons() }
+        }
+    }
+    var presentation = TabPresentation.windows {
+        didSet {
+            if presentation != oldValue { apply() }
+        }
+    }
     /// Told the window as soon as the view has one (the scene needs it for the sidebar and the tab registry).
     var attached: (NSWindow) -> Void = { _ in }
     /// Told how much of the window's top the title bar and the system tab bar cover (`contentLayoutRect`, KVO compliant), in points.

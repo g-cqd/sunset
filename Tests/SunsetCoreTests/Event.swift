@@ -34,4 +34,6 @@ func parse(_ text: String, pieces: [Int] = [], maxStringLength: Int = 1 << 20) -
     parse(Array(text.utf8), pieces: pieces, maxStringLength: maxStringLength)
 }
 
-func text(_ string: String) -> [Event] { string.unicodeScalars.map { .text($0) } }
+func text(_ string: String) -> [Event] {
+    string.unicodeScalars.map { .text($0) }
+}

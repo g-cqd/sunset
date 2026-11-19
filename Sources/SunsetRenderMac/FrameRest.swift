@@ -16,7 +16,9 @@ public final class FrameRest {
     private var waiting: Task<Void, Never>?
     private var stopped = false
 
-    public init(after: Duration = FrameRest.usual) { self.after = after }
+    public init(after: Duration = FrameRest.usual) {
+        self.after = after
+    }
 
     /// A frame was drawn: `rest` runs once none has followed for the delay, and again while it says there is more to let go.
     public func frameDrawn(rest: @escaping @MainActor () async -> Bool) {
@@ -48,5 +50,7 @@ public final class FrameRest {
     }
 
     /// How long until the delay is over.
-    private var left: Duration { after - (ContinuousClock.now - since) }
+    private var left: Duration {
+        after - (ContinuousClock.now - since)
+    }
 }

@@ -10,7 +10,9 @@ import Testing
 @MainActor
 @Suite("Site icons kept")
 struct FaviconStoreTests {
-    static func pngData(_ colour: NSColor) -> Data { png(colour) }
+    static func pngData(_ colour: NSColor) -> Data {
+        png(colour)
+    }
 
     private static func png(_ colour: NSColor, side: Int = 16) -> Data {
         let image = NSImage(size: NSSize(width: side, height: side), flipped: false) { rect in

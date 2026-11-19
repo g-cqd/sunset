@@ -10,5 +10,7 @@ public enum CSV {
     }
 
     /// One line, ended as the format asks.
-    public static func line(_ cells: [String]) -> String { cells.map(cell).joined(separator: ",") + "\r\n" }
+    public static func line(_ cells: [String]) -> String {
+        cells.map(cell).joined(separator: ",") + "\r\n"
+    }
 }

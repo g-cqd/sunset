@@ -32,7 +32,9 @@ struct LateralFade: View {
             self.open = open
         }
 
-        init(sliding: Bool) { self.init(cut: sliding ? 1 : 0, open: sliding ? 0 : 1) }
+        init(sliding: Bool) {
+            self.init(cut: sliding ? 1 : 0, open: sliding ? 0 : 1)
+        }
     }
 
     var body: some View {

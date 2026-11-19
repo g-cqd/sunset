@@ -15,8 +15,12 @@ struct EntryGroupRow: View {
     @State private var hovering = false
     @Environment(\.accent) private var accent
 
-    private var inset: Double { Design.Space.hair }
-    private var panes: [PaneID] { entry.open?.panes ?? entry.home.layout.panes }
+    private var inset: Double {
+        Design.Space.hair
+    }
+    private var panes: [PaneID] {
+        entry.open?.panes ?? entry.home.layout.panes
+    }
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)

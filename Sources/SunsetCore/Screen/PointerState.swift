@@ -5,7 +5,9 @@ struct PointerState: Sendable, Equatable {
 
     private(set) var stack: [PointerShape] = []
 
-    var current: PointerShape? { stack.last }
+    var current: PointerShape? {
+        stack.last
+    }
 
     /// Replaces the shape shown; nil shows the terminal's own again.
     mutating func set(_ shape: PointerShape?) {

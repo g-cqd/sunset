@@ -6,12 +6,18 @@ import SunsetPane
 extension TabsModel {
     /// The window the drag under way started in (observed: every window's drop places show while it is set).
     package internal(set) static var dragOrigin: TabsModel? {
-        get { DragUnderWay.shared.origin }
-        set { DragUnderWay.shared.origin = newValue }
+        get {
+            DragUnderWay.shared.origin
+        }
+        set {
+            DragUnderWay.shared.origin = newValue
+        }
     }
 
     /// Whether a drag of tabs is under way over this window, started here or in another window (taken up then).
-    package var hasDrag: Bool { adoptDrag() }
+    package var hasDrag: Bool {
+        adoptDrag()
+    }
 
     /// Takes up a drag that started in another window, to be asked about and dropped here; true when there is one here now.
     @discardableResult

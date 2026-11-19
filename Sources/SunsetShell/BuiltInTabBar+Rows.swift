@@ -96,7 +96,9 @@ extension BuiltInTabBar {
         }
     }
 
-    private var lines: Int { settings.showDirectory ? 2 : 1 }
+    private var lines: Int {
+        settings.showDirectory ? 2 : 1
+    }
 
     /// The title and the second line, without the icon (the bar's tab draws it in the slot it shares with the close button).
     private func label(model: (any PaneContent)?, name: String?) -> some View {

@@ -23,10 +23,14 @@ public final class FileWatcher: Sendable {
         (changes, continuation) = AsyncStream.makeStream(of: Void.self, bufferingPolicy: .bufferingNewest(1))
     }
 
-    deinit { stopWake.close() }
+    deinit {
+        stopWake.close()
+    }
 
     /// How many times the thread woke up (for a file nobody touches it does not).
-    public var wakeupCount: Int { wakeups.withLock { $0 } }
+    public var wakeupCount: Int {
+        wakeups.withLock { $0 }
+    }
 
     /// Starts watching: the file and its directory are watched when it returns (a change made at once after is told; it was
     /// missed when they were opened on the thread, 2026-11-17), and waited on by a thread of its own.
@@ -42,7 +46,9 @@ public final class FileWatcher: Sendable {
         Thread.detachNewThread { watcher.run(queue: queue, opened: opened) }
     }
 
-    public func stop() { stopWake.poke() }
+    public func stop() {
+        stopWake.poke()
+    }
 
     // MARK: Thread
 

@@ -6,7 +6,9 @@ struct HistoryMenuItems: View {
     let page: WebContent?
     private var changes = HistoryChanges.shared
 
-    init(page: WebContent?) { self.page = page }
+    init(page: WebContent?) {
+        self.page = page
+    }
 
     var body: some View {
         let _ = changes.generation

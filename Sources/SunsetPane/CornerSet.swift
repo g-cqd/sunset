@@ -3,7 +3,9 @@ public import CoreGraphics
 /// A set of the four corners of a rectangle (top-left origin, `leading` is the left).
 public struct CornerSet: OptionSet, Sendable, Equatable {
     public let rawValue: Int
-    public init(rawValue: Int) { self.rawValue = rawValue }
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
 
     public static let topLeading = CornerSet(rawValue: 1)
     public static let topTrailing = CornerSet(rawValue: 2)

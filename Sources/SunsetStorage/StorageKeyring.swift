@@ -2,7 +2,9 @@
 public struct StorageKeyring: Sendable {
     private let vault: any KeyVault
 
-    public init(vault: any KeyVault = KeychainKeyVault()) { self.vault = vault }
+    public init(vault: any KeyVault = KeychainKeyVault()) {
+        self.vault = vault
+    }
 
     /// The key that is kept, without making one.
     public func existing() throws(StorageKeyFailure) -> StorageKey? {

@@ -11,7 +11,9 @@ final class SessionCore: Sendable {
     /// wake-up of the consumer.
     let announced = Atomic<Bool>(false)
 
-    init(_ terminal: Terminal) { self.terminal = Mutex(terminal) }
+    init(_ terminal: Terminal) {
+        self.terminal = Mutex(terminal)
+    }
 
     /// Parses a piece of the program's output; returns what the terminal wants written back and what it asks of the host.
     func ingest(_ bytes: UnsafeBufferPointer<UInt8>) -> (replies: [UInt8], events: [HostEvent]) {

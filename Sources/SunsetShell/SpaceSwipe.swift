@@ -97,5 +97,7 @@ package struct SpaceSwipe: Equatable {
     }
 
     /// 1 at 0, towards 0 as `part` grows: 1 / (1 + 3x).
-    private static func decay(_ part: Double) -> Double { 1 / (1 + 3 * max(part, 0)) }
+    private static func decay(_ part: Double) -> Double {
+        1 / (1 + 3 * max(part, 0))
+    }
 }

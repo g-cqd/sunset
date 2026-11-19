@@ -122,5 +122,7 @@ import WebKit
         return opened.webView
     }
 
-    func webViewDidClose(_ webView: WKWebView) { content?.onExit() }
+    func webViewDidClose(_ webView: WKWebView) {
+        content?.onExit()
+    }
 }

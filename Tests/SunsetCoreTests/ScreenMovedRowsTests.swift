@@ -5,7 +5,9 @@ import Testing
 /// What a renderer needs to move pixels instead of drawing again: for each row, where its cells were at the last `clearDirty`, when a scroll brought them
 /// there unchanged.
 @Suite("Screen: rows moved by scrolling") struct ScreenMovedRowsTests {
-    private func moved(_ h: Harness) -> [Int?] { (0 ..< h.screen.rows).map { h.screen.movedFrom(row: $0) } }
+    private func moved(_ h: Harness) -> [Int?] {
+        (0 ..< h.screen.rows).map { h.screen.movedFrom(row: $0) }
+    }
 
     private func cleared(_ text: String = "a\r\nb\r\nc\r\nd") -> Harness {
         var h = Harness()

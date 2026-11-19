@@ -13,7 +13,9 @@ package struct EmojiCatalog: Sendable {
         package let name: String
         /// The words of its name in lower case, made once (a search is made at each key typed).
         let words: [String]
-        package var id: String { text }
+        package var id: String {
+            text
+        }
 
         package init(text: String, name: String) {
             self.text = text
@@ -28,7 +30,9 @@ package struct EmojiCatalog: Sendable {
 
     package let emoji: [Emoji]
 
-    package init(emoji: [Emoji]) { self.emoji = emoji }
+    package init(emoji: [Emoji]) {
+        self.emoji = emoji
+    }
 
     /// Reads the catalog from `resources` (the system's by default).
     package static func load(from resources: URL = systemResources) -> EmojiCatalog {

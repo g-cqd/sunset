@@ -24,7 +24,9 @@ import SunsetShell
     }
 
     /// Everything that keeps entries: each profile's Pinned grid and Favorites, each Space's own Favorites.
-    private static var kept: [FavoritesModel] { AppSpaces.kept }
+    private static var kept: [FavoritesModel] {
+        AppSpaces.kept
+    }
 
     /// How many tabs and open kept entries have a pane of the scope.
     static func openCount(of scope: Scopes.Scope) -> Int {

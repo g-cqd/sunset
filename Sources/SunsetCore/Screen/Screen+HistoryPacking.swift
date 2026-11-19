@@ -6,7 +6,9 @@ extension Screen {
     }
 
     /// Drops the cells that reading packed lines decoded.
-    public func releaseDecodedHistory() { scrollback.releaseDecoded() }
+    public func releaseDecodedHistory() {
+        scrollback.releaseDecoded()
+    }
 
     public var historyFootprint: HistoryFootprint {
         HistoryFootprint(

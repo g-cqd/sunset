@@ -42,7 +42,9 @@ struct RecoveryCodeSheet: View {
         .frame(width: 440)
     }
 
-    private var done: Bool { result == .kept || result == .same }
+    private var done: Bool {
+        result == .kept || result == .same
+    }
 
     private var sentence: String? {
         switch result {

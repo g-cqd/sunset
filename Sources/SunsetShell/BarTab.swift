@@ -68,7 +68,9 @@ struct BarTab<Icon: View, Label: View>: View {
         Design.overhang(of: surface.layout.closeButtonSize, over: Design.Size.glyphFrame)
     }
 
-    private var showsClose: Bool { close != nil && (hovering || armed) }
+    private var showsClose: Bool {
+        close != nil && (hovering || armed)
+    }
 
     private var fill: Color {
         if armed { return .red.opacity(hovering ? Design.Fill.armedHover : Design.Fill.armed) }

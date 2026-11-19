@@ -6,13 +6,21 @@ final class PointerShieldNSView: NSView {
     var onClick: () -> Void = {}
     private weak var shieldedWindow: NSWindow?
 
-    override func hitTest(_ point: NSPoint) -> NSView? { frame.contains(point) ? self : nil }
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-    override func mouseDown(with event: NSEvent) { onClick() }
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        frame.contains(point) ? self : nil
+    }
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+    override func mouseDown(with event: NSEvent) {
+        onClick()
+    }
     override func rightMouseDown(with event: NSEvent) {}
     override func otherMouseDown(with event: NSEvent) {}
     override func scrollWheel(with event: NSEvent) {}
-    override func resetCursorRects() { addCursorRect(bounds, cursor: .arrow) }
+    override func resetCursorRects() {
+        addCursorRect(bounds, cursor: .arrow)
+    }
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()

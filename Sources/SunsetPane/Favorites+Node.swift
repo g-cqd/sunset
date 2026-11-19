@@ -6,7 +6,9 @@ extension Favorites.Node: Codable {
     /// A node that fails to read is nil instead of failing the tree.
     struct Lossy: Decodable {
         let value: Favorites.Node?
-        init(from decoder: any Decoder) throws { value = try? Favorites.Node(from: decoder) }
+        init(from decoder: any Decoder) throws {
+            value = try? Favorites.Node(from: decoder)
+        }
     }
 
     public init(from decoder: any Decoder) throws {

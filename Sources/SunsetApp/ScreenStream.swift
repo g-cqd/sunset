@@ -36,7 +36,9 @@ final class ScreenStream: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked
     }
 
     /// Whether it still captures.
-    var isRunning: Bool { lock.withLock { !ended } }
+    var isRunning: Bool {
+        lock.withLock { !ended }
+    }
 
     /// The newest frame not given yet; nil when nothing changed since the last one.
     func nextImage() -> CGImage? {
@@ -67,7 +69,9 @@ final class ScreenStream: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked
         }
     }
 
-    func stream(_ stream: SCStream, didStopWithError error: any Error) { lock.withLock { ended = true } }
+    func stream(_ stream: SCStream, didStopWithError error: any Error) {
+        lock.withLock { ended = true }
+    }
 
     /// A frame with new pixels (an idle or a blank one carries none).
     private static func isComplete(_ buffer: CMSampleBuffer) -> Bool {

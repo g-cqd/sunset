@@ -37,7 +37,9 @@ struct BarGroup: ViewModifier {
     }
 
     /// A capsule, as the system's toolbar groups (owner, 2026-11-13).
-    static var shape: Capsule { Capsule() }
+    static var shape: Capsule {
+        Capsule()
+    }
 
     /// How far a group's blur reaches past it on each side: `margin` to the container's edge, its fall away from it, its reach at
     /// both ends.

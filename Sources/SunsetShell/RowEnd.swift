@@ -14,9 +14,15 @@ struct RowEnd: Equatable {
     let leading: Double
     let trailing: Double
 
-    private var step: Double { size + gap }
-    private var controlsRoom: Double { Double(controls) * step }
-    private var markRoom: Double { markWidth + 2 * gap }
+    private var step: Double {
+        size + gap
+    }
+    private var controlsRoom: Double {
+        Double(controls) * step
+    }
+    private var markRoom: Double {
+        markWidth + 2 * gap
+    }
 
     /// How far control `index`'s centre is from the row's end, `middle` being half the row's height.
     func inset(of index: Int, middle: Double) -> Double {

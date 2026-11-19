@@ -9,7 +9,9 @@ extension TabsModel {
             + workspace.items.map { .tab($0.id) }
     }
 
-    package func isMarked(_ row: RowTarget) -> Bool { marked.contains(row) }
+    package func isMarked(_ row: RowTarget) -> Bool {
+        marked.contains(row)
+    }
 
     /// A click on a row, with the modifiers held: Cmd toggles it in the selection, Shift takes the range; a plain click clears the selection (the
     /// caller then shows the row). Returns whether the click was a selection click (nothing is to be shown).
@@ -40,15 +42,21 @@ extension TabsModel {
     }
 
     /// The row of what is shown: the kept entry, or the window's tab.
-    var shownRow: RowTarget? { workspace.selectedEntry.map(RowTarget.node) ?? workspace.selectedID.map(RowTarget.tab) }
+    var shownRow: RowTarget? {
+        workspace.selectedEntry.map(RowTarget.node) ?? workspace.selectedID.map(RowTarget.tab)
+    }
 
     /// What a drag of `row` carries: the whole selection when `row` is in it, else `row` alone.
-    package func dragRows(for row: RowTarget) -> [RowTarget] { marked.contains(row) ? marked : [row] }
+    package func dragRows(for row: RowTarget) -> [RowTarget] {
+        marked.contains(row) ? marked : [row]
+    }
 
     // MARK: Acting on the selection
 
     /// The selection, or `row` alone when it is not in the selection (a menu opened on a row that is not selected acts on that row).
-    package func rows(actingOn row: RowTarget) -> [RowTarget] { dragRows(for: row) }
+    package func rows(actingOn row: RowTarget) -> [RowTarget] {
+        dragRows(for: row)
+    }
 
     /// Puts the rows in a new folder at the end of the Favorites, in their order: tabs are kept there, entries and folders move there. Its name is edited.
     package func group(_ rows: [RowTarget]) {

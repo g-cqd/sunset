@@ -28,8 +28,12 @@ struct PinnedLayout: Equatable {
         tile = CGSize(width: min(max(share, Self.widths.lowerBound), Self.widths.upperBound), height: Self.height)
     }
 
-    var rows: Int { (count + columns - 1) / columns }
-    var height: CGFloat { rows == 0 ? 0 : CGFloat(rows) * Self.height + CGFloat(rows - 1) * gap }
+    var rows: Int {
+        (count + columns - 1) / columns
+    }
+    var height: CGFloat {
+        rows == 0 ? 0 : CGFloat(rows) * Self.height + CGFloat(rows - 1) * gap
+    }
 
     func frame(of index: Int) -> CGRect {
         CGRect(

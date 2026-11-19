@@ -42,10 +42,14 @@ package struct PaneBackdrop: Sendable, Equatable {
     }
 
     /// By its luminance (Rec. 709), as the window's light tint is decided.
-    package var isDark: Bool { 0.2126 * Double(red) + 0.7152 * Double(green) + 0.0722 * Double(blue) < 128 }
+    package var isDark: Bool {
+        0.2126 * Double(red) + 0.7152 * Double(green) + 0.0722 * Double(blue) < 128
+    }
 
     /// The scheme text is read in over it: the window may be light around a dark terminal, and its labels would be dark on dark.
-    package var scheme: ColorScheme { isDark ? .dark : .light }
+    package var scheme: ColorScheme {
+        isDark ? .dark : .light
+    }
 }
 
 extension View {

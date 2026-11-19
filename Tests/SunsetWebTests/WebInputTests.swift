@@ -7,7 +7,9 @@ import Testing
     let google = SearchEngine.builtIn[0]
     let all = SearchEngine.builtIn
 
-    func parse(_ text: String) -> WebInput? { WebInput.parse(text, engine: google, engines: all) }
+    func parse(_ text: String) -> WebInput? {
+        WebInput.parse(text, engine: google, engines: all)
+    }
 
     func address(_ text: String) -> String? {
         if case .address(let url, _) = parse(text) { return url.absoluteString }

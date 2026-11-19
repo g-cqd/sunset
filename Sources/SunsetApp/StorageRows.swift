@@ -45,7 +45,9 @@ struct StorageRows: View {
         }
     }
 
-    func size(_ bytes: Int) -> String { Int64(bytes).formatted(.byteCount(style: .file)) }
+    func size(_ bytes: Int) -> String {
+        Int64(bytes).formatted(.byteCount(style: .file))
+    }
 
     func reveal(_ path: String) {
         NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])

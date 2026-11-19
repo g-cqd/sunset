@@ -35,35 +35,55 @@ public struct Scopes: Sendable, Equatable {
 
     /// Whether a scope is on. Turning the last one off is refused.
     public subscript(scope: Scope) -> Bool {
-        get { on.contains(scope) }
+        get {
+            on.contains(scope)
+        }
         set {
             if newValue { on.insert(scope) } else if canTurnOff(scope) { on.remove(scope) }
         }
     }
 
     public var terminal: Bool {
-        get { self[.terminal] }
-        set { self[.terminal] = newValue }
+        get {
+            self[.terminal]
+        }
+        set {
+            self[.terminal] = newValue
+        }
     }
 
     public var web: Bool {
-        get { self[.web] }
-        set { self[.web] = newValue }
+        get {
+            self[.web]
+        }
+        set {
+            self[.web] = newValue
+        }
     }
 
     public var documents: Bool {
-        get { self[.documents] }
-        set { self[.documents] = newValue }
+        get {
+            self[.documents]
+        }
+        set {
+            self[.documents] = newValue
+        }
     }
 
     /// It is on, and is not the only one.
-    public func canTurnOff(_ scope: Scope) -> Bool { on.contains(scope) && on.count > 1 }
+    public func canTurnOff(_ scope: Scope) -> Bool {
+        on.contains(scope) && on.count > 1
+    }
 
     /// The scopes that are off.
-    public var off: [Scope] { Scope.allCases.filter { !on.contains($0) } }
+    public var off: [Scope] {
+        Scope.allCases.filter { !on.contains($0) }
+    }
 
     /// Whether a pane of this kind can be: a kind that is none of the three (the settings) always can.
-    public func allows(kind: String) -> Bool { Scope.allCases.first { $0.kind == kind }.map(on.contains) ?? true }
+    public func allows(kind: String) -> Bool {
+        Scope.allCases.first { $0.kind == kind }.map(on.contains) ?? true
+    }
 
     /// Whether what `descriptor` says can be made; no descriptor is a terminal.
     public func allows(_ descriptor: PaneDescriptor?) -> Bool {
@@ -71,5 +91,7 @@ public struct Scopes: Sendable, Equatable {
     }
 
     /// Whether a kept entry can be shown and opened: each kind it starts from is on.
-    public func allows(_ entry: Favorites.Entry) -> Bool { entry.kinds.allSatisfy(allows(kind:)) }
+    public func allows(_ entry: Favorites.Entry) -> Bool {
+        entry.kinds.allSatisfy(allows(kind:))
+    }
 }

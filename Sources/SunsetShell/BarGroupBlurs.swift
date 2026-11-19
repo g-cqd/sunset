@@ -14,7 +14,9 @@ struct BarGroupBlurs: ViewModifier {
 
     struct Key: PreferenceKey {
         static let defaultValue: [Entry] = []
-        static func reduce(value: inout [Entry], nextValue: () -> [Entry]) { value += nextValue() }
+        static func reduce(value: inout [Entry], nextValue: () -> [Entry]) {
+            value += nextValue()
+        }
     }
 
     func body(content: Content) -> some View {

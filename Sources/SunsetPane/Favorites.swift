@@ -18,7 +18,9 @@ public struct Favorites: Sendable, Equatable {
 
     public init() {}
 
-    public var isEmpty: Bool { nodes.isEmpty }
+    public var isEmpty: Bool {
+        nodes.isEmpty
+    }
 
     /// Every node, folders included.
     public var count: Int {
@@ -35,7 +37,9 @@ public struct Favorites: Sendable, Equatable {
     }
 
     /// The panes of the entries that are open, in the order of the tree.
-    public var livePanes: [PaneID] { entries.flatMap { $0.open?.panes ?? [] } }
+    public var livePanes: [PaneID] {
+        entries.flatMap { $0.open?.panes ?? [] }
+    }
 
     public func node(_ id: NodeID) -> Node? {
         var found: Node?
@@ -64,7 +68,9 @@ public struct Favorites: Sendable, Equatable {
     }
 
     /// Visits every node, a folder before what it holds.
-    func walk(_ visit: (Node, Location) -> Void) { Self.walk(nodes, parent: nil, level: 0, visit) }
+    func walk(_ visit: (Node, Location) -> Void) {
+        Self.walk(nodes, parent: nil, level: 0, visit)
+    }
 
     private static func walk(_ nodes: [Node], parent: NodeID?, level: Int, _ visit: (Node, Location) -> Void) {
         for (index, node) in nodes.enumerated() {

@@ -20,7 +20,9 @@ struct TabIconSavedTests {
         return try #require(NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]))
     }
 
-    private var star: SavedPictures { SavedPictures(source: 1) { _ in .symbol("star.fill") } }
+    private var star: SavedPictures {
+        SavedPictures(source: 1) { _ in .symbol("star.fill") }
+    }
 
     @Test func `the app's picture for what it would start from is drawn instead of the kind's mark`() throws {
         #expect(try drawn(pictures: star) != drawn(pictures: SavedPictures()))

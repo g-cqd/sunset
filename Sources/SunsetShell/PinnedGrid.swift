@@ -19,7 +19,9 @@ struct PinnedGrid: View {
     @Environment(\.accent) private var accent
 
     /// A drag under way would be pinned here: the grid is there, even empty, and outlined (the owner, 2026-11-17).
-    private var takesDrag: Bool { tabs.dragTargets?.pinned == true }
+    private var takesDrag: Bool {
+        tabs.dragTargets?.pinned == true
+    }
 
     var body: some View {
         let entries = tabs.pinnedEntries

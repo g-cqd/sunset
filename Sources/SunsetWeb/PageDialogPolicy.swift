@@ -16,8 +16,12 @@ struct PageDialogPolicy: Equatable, Sendable {
         return .show(offersSilence: asked > 1)
     }
 
-    mutating func silence() { silenced = true }
+    mutating func silence() {
+        silenced = true
+    }
 
     /// The page was left for another: the next page starts afresh.
-    mutating func pageLeft() { self = PageDialogPolicy() }
+    mutating func pageLeft() {
+        self = PageDialogPolicy()
+    }
 }

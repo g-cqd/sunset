@@ -49,7 +49,9 @@ extension OpenDocument {
     }
 
     /// The person chose the edits made here over the file: nothing is read, and saving writes this text over it.
-    public func keepEdits() { changedOnDisk = false }
+    public func keepEdits() {
+        changedOnDisk = false
+    }
 
     /// The file settled after a change, and was read again.
     func fileChanged(_ read: FileContent) {

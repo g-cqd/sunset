@@ -10,7 +10,9 @@ package struct TerminalRepresentable: NSViewRepresentable {
     /// The pane has the keyboard: the view takes it (a split has several terminals, and only one is the first responder).
     package var focused = true
 
-    package func makeNSView(context: Context) -> TerminalNSView { TerminalNSView(model: model) }
+    package func makeNSView(context: Context) -> TerminalNSView {
+        TerminalNSView(model: model)
+    }
 
     package func updateNSView(_ view: TerminalNSView, context: Context) {
         view.optionAsMeta = optionAsMeta

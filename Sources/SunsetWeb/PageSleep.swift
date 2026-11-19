@@ -47,5 +47,7 @@ package enum PageSleep {
 
     /// Whether macOS's memory pressure level (`kern.memorystatus_vm_pressure_level`: 1 normal, 2 warning, 4 critical) says
     /// memory is short: critical only (ADR-0076). The warning level held for minutes with half the memory free.
-    package static func memoryIsShort(level: Int32) -> Bool { level >= 4 }
+    package static func memoryIsShort(level: Int32) -> Bool {
+        level >= 4
+    }
 }

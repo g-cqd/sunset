@@ -6,7 +6,9 @@ import Testing
 /// What Settings say is kept (R12, roadmap 0030 step ST-6): each thing with its size, and the files that were set aside.
 @Suite("What is kept, for Settings") struct StorageInventoryTests {
     let root = NSTemporaryDirectory() + "inventory-\(UUID().uuidString)"
-    var places: StoragePlaces { StoragePlaces(environment: ["SUNSET_CONFIG": root + "/config.json"], home: "/nowhere") }
+    var places: StoragePlaces {
+        StoragePlaces(environment: ["SUNSET_CONFIG": root + "/config.json"], home: "/nowhere")
+    }
 
     func write(_ name: String, bytes: Int) throws {
         let path = root + "/" + name

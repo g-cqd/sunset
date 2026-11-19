@@ -5,7 +5,9 @@ package import SunsetPane
 package struct SidebarSections: Sendable, Equatable {
     /// The section of the panel opposite the tabs: one of its own (never the tabs, nor the settings).
     package var opposite = SidebarSection.history {
-        didSet { if !SidebarSection.panel.contains(opposite) { opposite = oldValue } }
+        didSet {
+            if !SidebarSection.panel.contains(opposite) { opposite = oldValue }
+        }
     }
     /// The section of the tab sidebar: the tabs while the Library is closed.
     package private(set) var library = SidebarSection.tabs
@@ -14,7 +16,9 @@ package struct SidebarSections: Sendable, Equatable {
 
     package init() {}
 
-    package var isLibraryOpen: Bool { library != .tabs }
+    package var isLibraryOpen: Bool {
+        library != .tabs
+    }
 
     /// Shows `section` in the tab sidebar; the tabs close the Library.
     package mutating func show(library section: SidebarSection) {
@@ -23,9 +27,13 @@ package struct SidebarSections: Sendable, Equatable {
     }
 
     /// The Library's glyph: opens it where it was, or closes it.
-    package mutating func toggleLibrary() { show(library: isLibraryOpen ? .tabs : lastLibrary) }
+    package mutating func toggleLibrary() {
+        show(library: isLibraryOpen ? .tabs : lastLibrary)
+    }
 
-    package mutating func closeLibrary() { show(library: .tabs) }
+    package mutating func closeLibrary() {
+        show(library: .tabs)
+    }
 
     /// A scope of the app went off, or came back (roadmap 0033): a sidebar on a section that is not shown goes to one
     /// that is, and the Library's glyph opens one that is; with none, it opens nothing.

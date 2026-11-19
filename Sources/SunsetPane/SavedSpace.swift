@@ -11,8 +11,12 @@ public struct SavedSpace: Sendable, Equatable, Codable {
     /// When its tabs were stopped with its last window and have waited since (`tabs.closeStoppedAfter`); nil while a
     /// window shows them, and for a Space with no tab.
     public var stopped: Date? {
-        get { tabs.isEmpty ? nil : stoppedAt }
-        set { stoppedAt = newValue }
+        get {
+            tabs.isEmpty ? nil : stoppedAt
+        }
+        set {
+            stoppedAt = newValue
+        }
     }
     private var stoppedAt: Date?
 

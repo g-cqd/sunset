@@ -129,7 +129,9 @@ extension Screen {
         return value
     }
 
-    private func isQuery(_ range: Range<Int>) -> Bool { range.count == 1 && oscBuffer[range.lowerBound] == 0x3F }
+    private func isQuery(_ range: Range<Int>) -> Bool {
+        range.count == 1 && oscBuffer[range.lowerBound] == 0x3F
+    }
 
     /// OSC 4: `index ; spec` pairs; `?` asks for the colour.
     private mutating func paletteEntries(from start: Int, _ terminator: StringTerminator) {

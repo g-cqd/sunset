@@ -5,7 +5,9 @@ extension TabsModel {
     /// The Space's tabs, with this window's selection. Changing it changes the Space's tabs for every window that shows
     /// them, and this window's selection only.
     package internal(set) var workspace: Workspace {
-        get { space.tabs.selecting(selectedID, entry: selectedEntry) }
+        get {
+            space.tabs.selecting(selectedID, entry: selectedEntry)
+        }
         set {
             let was = shownTab
             selectedID = newValue.selectedID
@@ -21,12 +23,18 @@ extension TabsModel {
 
     /// The content of every pane of the Space's tabs.
     package internal(set) var contents: [PaneID: any PaneContent] {
-        get { space.contents }
-        set { space.contents = newValue }
+        get {
+            space.contents
+        }
+        set {
+            space.contents = newValue
+        }
     }
 
     /// The tab this window shows: its selected one, unless it shows a kept entry instead.
-    var shownTab: Workspace.ItemID? { selectedEntry == nil ? selectedID : nil }
+    var shownTab: Workspace.ItemID? {
+        selectedEntry == nil ? selectedID : nil
+    }
 
     /// Another window changed the Space's tabs, which were `old`: a selection that went moves to the neighbour (without
     /// taking it from a window that draws it), and the window goes with the last tab as when it closes it itself.

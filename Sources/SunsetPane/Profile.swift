@@ -55,6 +55,10 @@ public struct Profile: Sendable, Equatable, Identifiable, Codable {
     }
 
     /// The first profile as it is before anyone names it.
-    public static var first: Profile { Profile(id: firstID, name: "Personal") }
-    public var isFirst: Bool { id == Self.firstID }
+    public static var first: Profile {
+        Profile(id: firstID, name: "Personal")
+    }
+    public var isFirst: Bool {
+        id == Self.firstID
+    }
 }

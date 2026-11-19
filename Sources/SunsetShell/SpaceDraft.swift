@@ -13,9 +13,13 @@ package struct SpaceDraft: Equatable, Identifiable {
     /// The profile the Space belongs to; nil: the first.
     package var profile: Profile.ID?
 
-    package var id: String { space?.uuidString ?? "new" }
+    package var id: String {
+        space?.uuidString ?? "new"
+    }
     /// A Space has a name.
-    package var canSave: Bool { !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    package var canSave: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     package init(
         space: Space.ID?,

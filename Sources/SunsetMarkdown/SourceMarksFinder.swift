@@ -24,9 +24,13 @@ struct SourceMarksFinder: NSViewRepresentable {
         }
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator(marks: SourceMarks(content: content), revealed: reveal) }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(marks: SourceMarks(content: content), revealed: reveal)
+    }
 
-    func makeNSView(context: Context) -> NSView { NSView() }
+    func makeNSView(context: Context) -> NSView {
+        NSView()
+    }
 
     func updateNSView(_ view: NSView, context: Context) {
         let coordinator = context.coordinator

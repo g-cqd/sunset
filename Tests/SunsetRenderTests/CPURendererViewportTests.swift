@@ -7,7 +7,9 @@ import Testing
     /// Six lines, each with its own background (palette colour 1 to 6), on a screen of 4 rows: lines 1 and 2 are in the history.
     private static let lines = (1 ... 6).map { "\u{1B}[48;5;\($0)m \u{1B}[K" }.joined(separator: "\r\n")
 
-    private func background(_ line: Int) -> RGB { Palette().colors[line] }
+    private func background(_ line: Int) -> RGB {
+        Palette().colors[line]
+    }
 
     @Test func `scrolled back, the top rows show the history and the rest the screen`() {
         var rig = CPURendererRig()

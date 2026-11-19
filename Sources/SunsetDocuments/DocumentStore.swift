@@ -35,7 +35,9 @@ public final class DocumentStore {
         reconcile()
     }
 
-    func path(_ id: UUID) -> String { folder + "/" + id.uuidString + ".sealed" }
+    func path(_ id: UUID) -> String {
+        folder + "/" + id.uuidString + ".sealed"
+    }
 
     /// A new document, kept at once.
     @discardableResult
@@ -45,7 +47,9 @@ public final class DocumentStore {
         return try write(SealedDocument(kind: kind, created: Date(), text: text), id: id)
     }
 
-    public func text(of id: UUID) throws(DocumentStoreFailure) -> String { try file(id).text }
+    public func text(of id: UUID) throws(DocumentStoreFailure) -> String {
+        try file(id).text
+    }
 
     /// Keeps the document's text: sealed, forced to the disk, in place of the old file or not at all.
     public func save(_ text: String, to id: UUID) throws(DocumentStoreFailure) {

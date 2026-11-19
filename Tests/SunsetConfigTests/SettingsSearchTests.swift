@@ -17,7 +17,9 @@ import Testing
         SettingsEntry(id: "keyboard.meta", pane: "keyboard", title: "Option sends Escape", keywords: ["meta", "alt"])
     ]
 
-    private func ids(_ query: String) -> [String] { SettingsSearch.matches(query, in: entries).map(\.id) }
+    private func ids(_ query: String) -> [String] {
+        SettingsSearch.matches(query, in: entries).map(\.id)
+    }
 
     @Test func `an empty or blank query matches nothing`() {
         #expect(ids("").isEmpty)

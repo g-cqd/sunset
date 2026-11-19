@@ -9,7 +9,9 @@ import Testing
     /// The most options a page shows together without a heading.
     static let mostUngrouped = 6
 
-    static var topics: [SettingsTopic] { SettingsSection.all.flatMap(\.topics) }
+    static var topics: [SettingsTopic] {
+        SettingsSection.all.flatMap(\.topics)
+    }
 
     @Test func `a list is a block of its own, headed by its title`() {
         for topic in Self.topics {

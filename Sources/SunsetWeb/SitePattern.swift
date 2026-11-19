@@ -49,7 +49,9 @@ package enum SitePattern: Equatable, Sendable {
         }
     }
 
-    private func labels(_ host: String) -> Int { host.split(separator: ".").count }
+    private func labels(_ host: String) -> Int {
+        host.split(separator: ".").count
+    }
 
     /// Whether a host is of this site (itself or under it): for a site; false for the others.
     package func matches(host: String) -> Bool {

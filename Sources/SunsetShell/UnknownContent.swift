@@ -12,11 +12,21 @@ package import SwiftUI
         self.descriptor = descriptor
     }
 
-    package var title: String { descriptor.kind }
-    package var detail: String? { nil }
-    package var glyph: PaneGlyph { .symbol("questionmark.square.dashed") }
-    package var progress: Double? { nil }
-    package var closeWarning: String? { nil }
+    package var title: String {
+        descriptor.kind
+    }
+    package var detail: String? {
+        nil
+    }
+    package var glyph: PaneGlyph {
+        .symbol("questionmark.square.dashed")
+    }
+    package var progress: Double? {
+        nil
+    }
+    package var closeWarning: String? {
+        nil
+    }
 
     package func setState(focused: Bool, visible: Bool) {}
     package func stop() {}

@@ -41,10 +41,16 @@ extension TabsModel {
     }
 
     /// The entries of the grid this window shows: those of a scope that is off are hidden (roadmap 0033).
-    package var pinnedEntries: [Favorites.Entry] { (pinned?.favorites.entries ?? []).filter(scopes.allows) }
-    package func isPinned(_ id: Favorites.NodeID) -> Bool { pinned?.favorites.entry(id) != nil }
+    package var pinnedEntries: [Favorites.Entry] {
+        (pinned?.favorites.entries ?? []).filter(scopes.allows)
+    }
+    package func isPinned(_ id: Favorites.NodeID) -> Bool {
+        pinned?.favorites.entry(id) != nil
+    }
     /// There is a grid, and room in it.
-    package var canPin: Bool { pinned.map { $0.favorites.entries.count < Self.pinnedLimit } ?? false }
+    package var canPin: Bool {
+        pinned.map { $0.favorites.entries.count < Self.pinnedLimit } ?? false
+    }
 
     /// Pins the tab `item`: it leaves the Tabs for the grid, where its content keeps running, and this window shows it
     /// there. Nil when there is no grid or no room.

@@ -15,10 +15,14 @@ final class SessionStore {
     static let shared = SessionStore()
 
     /// Where the app keeps its own files (the saved session, the shell's start files).
-    static var directory: String { StoragePlaces.current.directory }
+    static var directory: String {
+        StoragePlaces.current.directory
+    }
 
     private let storage = AppStorage.shared
-    private var path: String { storage.places.session }
+    private var path: String {
+        storage.places.session
+    }
     /// What seals the session; nil when there is no key in this run (nothing is then written).
     private lazy var seal = storage.seal(.session)
     /// The file is sealed with a key this Mac does not have: it is never written over.
@@ -60,7 +64,9 @@ final class SessionStore {
         pendingViews = session.views.isEmpty ? fallback : session.views
     }
 
-    private var hostsTabs: Bool { AppConfiguration.shared.presentation.hostsTabsInWindow }
+    private var hostsTabs: Bool {
+        AppConfiguration.shared.presentation.hostsTabsInWindow
+    }
 
     /// Each tab of a saved Space as a window of its own.
     private static func windows(of space: SavedSpace) -> [SavedWindow] {
@@ -102,10 +108,14 @@ final class SessionStore {
         return read.value
     }
 
-    var hasPending: Bool { !pending.isEmpty || !pendingViews.isEmpty }
+    var hasPending: Bool {
+        !pending.isEmpty || !pendingViews.isEmpty
+    }
 
     /// The next saved tab, for a window that is one tab.
-    func take() -> SavedWindow? { pending.isEmpty ? nil : pending.removeFirst() }
+    func take() -> SavedWindow? {
+        pending.isEmpty ? nil : pending.removeFirst()
+    }
 
     /// The next saved view of the Space; with none waiting, what its last window showed when it closed.
     func takeView() -> SavedView? {
@@ -205,9 +215,13 @@ final class SessionStore {
     }
 
     /// The session as JSON a person can read, for Export All (R12 step ST-6): the open windows whatever the restoring setting.
-    func readable() -> Data? { try? current(windows: true).encoded() }
+    func readable() -> Data? {
+        try? current(windows: true).encoded()
+    }
 
-    private var restoresWindows: Bool { AppConfiguration.shared.configuration.tabs.restore }
+    private var restoresWindows: Bool {
+        AppConfiguration.shared.configuration.tabs.restore
+    }
 
     /// There is something to write: the windows when restoring is on, and the Favorites whenever there are any.
     private var writes: Bool {

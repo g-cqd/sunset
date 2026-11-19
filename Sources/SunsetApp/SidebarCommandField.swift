@@ -12,7 +12,9 @@ struct SidebarCommandField: View {
 
     /// What it says, and the command bar's field opened in its place: with the web off there is no address to enter, only tabs
     /// and commands (roadmap 0033).
-    static var prompt: String { AppScopes.current.web ? "Search or Enter Address" : "Go to a Tab" }
+    static var prompt: String {
+        AppScopes.current.web ? "Search or Enter Address" : "Go to a Tab"
+    }
 
     var body: some View {
         Button {

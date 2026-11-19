@@ -23,7 +23,9 @@ package struct CommandBar: Equatable {
     /// Opened on a new empty page (note n12): it asks where to go, not which tab.
     package var forNewPage = false
 
-    package init(purpose: Purpose) { self.purpose = purpose }
+    package init(purpose: Purpose) {
+        self.purpose = purpose
+    }
 
     package var prompt: String {
         switch purpose {

@@ -29,7 +29,9 @@ package final class CredentialRequest: Identifiable {
         self.reply = reply
     }
 
-    package var title: String { "Sign in to \(host)" }
+    package var title: String {
+        "Sign in to \(host)"
+    }
 
     /// Answers once (nil cancels); later answers do nothing.
     package func answer(_ value: Answer?) {

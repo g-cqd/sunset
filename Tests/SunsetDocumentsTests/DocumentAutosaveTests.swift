@@ -27,7 +27,9 @@ struct DocumentAutosaveTests {
         return root + "/" + name
     }
 
-    private func read(_ path: String) -> String { (try? String(contentsOfFile: path, encoding: .utf8)) ?? "<none>" }
+    private func read(_ path: String) -> String {
+        (try? String(contentsOfFile: path, encoding: .utf8)) ?? "<none>"
+    }
 
     private func type(_ text: String, into document: OpenDocument) {
         document.source.storage.replaceCharacters(

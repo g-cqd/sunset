@@ -11,7 +11,9 @@ import Testing
 @MainActor @Suite("A sidebar row, clicked", .serialized)
 struct SidebarClickTests {
     let harness = TabsHarness()
-    var tabs: TabsModel { harness.tabs }
+    var tabs: TabsModel {
+        harness.tabs
+    }
 
     /// The sidebar in a window behind the others, 229 pt wide: its rows start under the header.
     func hosted() async -> NSWindow {

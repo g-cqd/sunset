@@ -7,7 +7,9 @@ import Testing
 final class RunShapingSource: GlyphSource, @unchecked Sendable {
     nonisolated(unsafe) var runs: [String] = []
     nonisolated(unsafe) var singles: [String] = []
-    var shapesRuns: Bool { true }
+    var shapesRuns: Bool {
+        true
+    }
     /// Says of a run without "->" that shaping changes nothing in it; the runs it was asked about are in `asked`.
     nonisolated(unsafe) var saysPlain = false
     nonisolated(unsafe) var asked: [String] = []

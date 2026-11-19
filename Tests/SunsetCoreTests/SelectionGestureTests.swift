@@ -3,7 +3,9 @@ import Testing
 @testable import SunsetCore
 
 @Suite("Selection gesture") struct SelectionGestureTests {
-    private func point(_ line: Int, _ column: Int) -> SelectionPoint { SelectionPoint(line: line, column: column) }
+    private func point(_ line: Int, _ column: Int) -> SelectionPoint {
+        SelectionPoint(line: line, column: column)
+    }
 
     private func gesture(_ granularity: SelectionGesture.Granularity, at start: SelectionPoint, _ t: Terminal)
         -> SelectionGesture

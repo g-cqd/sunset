@@ -4,7 +4,9 @@ import Testing
 @testable import SunsetRender
 
 @Suite("CPU renderer: selection") struct CPURendererSelectionTests {
-    private func point(_ line: Int, _ column: Int) -> SelectionPoint { SelectionPoint(line: line, column: column) }
+    private func point(_ line: Int, _ column: Int) -> SelectionPoint {
+        SelectionPoint(line: line, column: column)
+    }
 
     @Test func `selected cells are drawn with their colours swapped`() {
         var rig = CPURendererRig()

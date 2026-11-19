@@ -57,7 +57,9 @@ struct IconPicturesTests {
         #expect(!pictures.paint("folder", centredOn: CGPoint(x: 20, y: 20), in: context), "not rendered: not drawn")
         #expect(pictures.paint("arrow.up.to.line", centredOn: CGPoint(x: 20, y: 20), in: context))
         let pixels = try #require(context.data).assumingMemoryBound(to: UInt8.self)
-        func covered(_ row: Int) -> Int { (0 ..< width).count { unsafe pixels[(row * width + $0) * 4 + 3] > 200 } }
+        func covered(_ row: Int) -> Int {
+            (0 ..< width).count { unsafe pixels[(row * width + $0) * 4 + 3] > 200 }
+        }
         let inked = (0 ..< height).filter { covered($0) > 0 }
         let (top, bottom) = (try #require(inked.first), try #require(inked.last))
         #expect(

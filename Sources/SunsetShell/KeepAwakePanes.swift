@@ -13,10 +13,14 @@ package final class KeepAwakePanes {
     init() {}
 
     /// What the panes were asked: the first of them that was asked anything.
-    func until(_ panes: [PaneID]) -> KeepAwake? { panes.lazy.compactMap { self.until[$0] }.first }
+    func until(_ panes: [PaneID]) -> KeepAwake? {
+        panes.lazy.compactMap { self.until[$0] }.first
+    }
 
     /// Whether the pane is kept awake: a page there is never unloaded (S-f).
-    package func keepsAwake(_ pane: PaneID) -> Bool { until[pane] != nil }
+    package func keepsAwake(_ pane: PaneID) -> Bool {
+        until[pane] != nil
+    }
 
     /// Asks it of every one of the panes (a split's: all of them, so that any one of them carries it if it leaves).
     func set(_ value: KeepAwake?, for panes: [PaneID]) {

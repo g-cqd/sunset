@@ -31,7 +31,9 @@ package final class FavoritesModel {
             loadedSealer = .some(made)
             return made
         }
-        set { loadedSealer = .some(newValue) }
+        set {
+            loadedSealer = .some(newValue)
+        }
     }
     /// Entries whose command failed its check (something other than Sunset wrote it): shown, never run, until confirmed in the dialog.
     package internal(set) var unconfirmed: Set<Favorites.NodeID> = []
@@ -42,9 +44,13 @@ package final class FavoritesModel {
         weak var tabs: TabsModel?
     }
 
-    package var isEmpty: Bool { favorites.isEmpty }
+    package var isEmpty: Bool {
+        favorites.isEmpty
+    }
     /// Whether an entry is open: something of the user's would run with no window if the app stayed.
-    package var hasOpenEntry: Bool { favorites.entries.contains(where: \.isOpen) }
+    package var hasOpenEntry: Bool {
+        favorites.entries.contains(where: \.isOpen)
+    }
 
     // MARK: Session
 
@@ -85,7 +91,9 @@ package final class FavoritesModel {
 
     /// Whether the entry is live in `tabs`. An entry live nowhere (its window went) is live in no window until one takes it: two windows never
     /// draw the same content.
-    func isLive(_ id: Favorites.NodeID, in tabs: TabsModel) -> Bool { live[id]?.tabs === tabs }
+    func isLive(_ id: Favorites.NodeID, in tabs: TabsModel) -> Bool {
+        live[id]?.tabs === tabs
+    }
 
     /// `tabs` no longer shows the entry: when it was live there, it goes live in another window that shows it, if there is one.
     func unclaim(_ id: Favorites.NodeID, by tabs: TabsModel) {
@@ -218,7 +226,9 @@ package final class FavoritesModel {
     }
 
     /// A program in an entry's pane ended by itself.
-    func paneEnded(_ pane: PaneID) { close(pane: pane) }
+    func paneEnded(_ pane: PaneID) {
+        close(pane: pane)
+    }
 
     private func stop(_ panes: [PaneID]) {
         for pane in panes {

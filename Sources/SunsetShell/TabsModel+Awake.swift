@@ -3,7 +3,9 @@ package import SunsetPane
 /// Tabs and windows that keep the Mac awake (roadmap 0035 E). The model says whether this window wants the Mac awake; the
 /// app holds the system's assertion while one does.
 extension TabsModel {
-    private var awake: KeepAwakePanes { KeepAwakePanes.shared }
+    private var awake: KeepAwakePanes {
+        KeepAwakePanes.shared
+    }
 
     /// Until when the tab `item` keeps the Mac awake; nil when it does not (or is not in this window any more).
     package func keepsAwake(item: Workspace.ItemID) -> KeepAwake? {
@@ -17,7 +19,9 @@ extension TabsModel {
     }
 
     /// Keeps this window awake until `until`, or no longer (nil).
-    package func keepWindowAwake(until: KeepAwake?) { windowAwake = until }
+    package func keepWindowAwake(until: KeepAwake?) {
+        windowAwake = until
+    }
 
     /// Until when the kept entry `id` keeps the Mac awake, while it is open; nil when it does not.
     package func keepsAwake(entry id: Favorites.NodeID) -> KeepAwake? {
@@ -41,7 +45,9 @@ extension TabsModel {
     }
 
     /// Whether a command runs in one of the window's tabs now.
-    package var canKeepWindowAwakeUntilDone: Bool { workspace.items.contains(where: runsCommand) }
+    package var canKeepWindowAwakeUntilDone: Bool {
+        workspace.items.contains(where: runsCommand)
+    }
 
     /// What this window shows that is running: its tabs, and the open entries of its Favorites and grid.
     private var runningItems: [Workspace.Item] {
@@ -100,7 +106,9 @@ extension TabsModel {
     }
 
     /// Forgets what no longer applies, for this window alone (`settleAwake(in:)`).
-    package func settleAwake() { Self.settleAwake(in: [self]) }
+    package func settleAwake() {
+        Self.settleAwake(in: [self])
+    }
 
     /// Forgets what no longer applies, the app's windows given: a window kept awake until its commands ended, now that they
     /// have; what is kept awake of a pane that runs in none of them any more (closed, unloaded), or until a command that has

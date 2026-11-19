@@ -20,9 +20,13 @@ final class StorageSettings {
     private(set) var codeProblem: String?
     @ObservationIgnored private var reading: Task<Void, Never>?
 
-    var places: StoragePlaces { AppStorage.shared.places }
+    var places: StoragePlaces {
+        AppStorage.shared.places
+    }
     /// The key is here: its code can be shown. False when the Keychain refused, or what is kept is sealed with another key.
-    var hasKey: Bool { AppStorage.shared.key != nil }
+    var hasKey: Bool {
+        AppStorage.shared.key != nil
+    }
 
     /// Reads the folder, the website data's size and FileVault's state again, off the main thread.
     func refresh() {
@@ -69,7 +73,9 @@ final class StorageSettings {
         code = key.recoveryCode
     }
 
-    func hideCode() { code = nil }
+    func hideCode() {
+        code = nil
+    }
 
     /// Puts the shown code on the clipboard, marked as a secret so that clipboard managers that follow the convention leave it.
     @discardableResult

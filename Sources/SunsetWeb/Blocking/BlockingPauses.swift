@@ -20,7 +20,9 @@ package final class BlockingPauses {
         load()
     }
 
-    package var paused: [String] { paused(profile: nil) }
+    package var paused: [String] {
+        paused(profile: nil)
+    }
 
     /// A profile's own pauses (roadmap 0050 E), kept as `<profile>|<host>`; nil: all profiles'.
     package func paused(profile: UUID?) -> [String] {

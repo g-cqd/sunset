@@ -14,7 +14,9 @@ struct AddressTextField: NSViewRepresentable {
     /// Up (-1) or Down (1) while typing.
     var onMove: (Int) -> Void = { _ in }
 
-    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
 
     func makeNSView(context: Context) -> AddressNSField {
         let field = AddressNSField()
@@ -54,7 +56,9 @@ struct AddressTextField: NSViewRepresentable {
         var onText: (String) -> Void = { _ in }
         var onMove: (Int) -> Void = { _ in }
 
-        func controlTextDidChange(_ notification: Notification) { onText(field?.stringValue ?? "") }
+        func controlTextDidChange(_ notification: Notification) {
+            onText(field?.stringValue ?? "")
+        }
 
         func control(_ control: NSControl, textView: NSTextView, doCommandBy selector: Selector) -> Bool {
             guard let field else { return false }
@@ -79,6 +83,8 @@ struct AddressTextField: NSViewRepresentable {
             }
         }
 
-        func controlTextDidEndEditing(_ notification: Notification) { field?.endTyping() }
+        func controlTextDidEndEditing(_ notification: Notification) {
+            field?.endTyping()
+        }
     }
 }

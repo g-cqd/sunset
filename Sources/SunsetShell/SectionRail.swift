@@ -45,11 +45,15 @@ package struct SectionRail: View {
     package enum Foot: Sendable { case help, settings, back }
 
     /// The foot's glyphs, from the top: Help above the gear (the owner's note n27), the way back last, at the corner.
-    static func foot(hasHelp: Bool) -> [Foot] { (hasHelp ? [.help] : []) + [.settings, .back] }
+    static func foot(hasHelp: Bool) -> [Foot] {
+        (hasHelp ? [.help] : []) + [.settings, .back]
+    }
 
     /// The way back points at the edge the sidebar closes to, at a bar (the owner, 2026-11-17): left for a sidebar on the
     /// left, right for one on the right.
-    static func closeSymbol(leading: Bool) -> String { leading ? "arrow.left.to.line" : "arrow.right.to.line" }
+    static func closeSymbol(leading: Bool) -> String {
+        leading ? "arrow.left.to.line" : "arrow.right.to.line"
+    }
 
     package var body: some View {
         VStack(spacing: buttons.layout.tabSpacing) {

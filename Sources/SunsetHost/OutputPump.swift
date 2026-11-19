@@ -35,7 +35,9 @@ final class OutputPump: Sendable {
     }
 
     /// How many times the pump has gone to wait: an idle terminal must not make it wake.
-    var wakeups: Int { polls.withLock { $0 } }
+    var wakeups: Int {
+        polls.withLock { $0 }
+    }
 
     /// Ends `run` (a `stop` before the run began ends it as soon as it starts).
     func stop() {

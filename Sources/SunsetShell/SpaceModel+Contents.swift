@@ -5,10 +5,18 @@ package import SunsetPane
 extension SpaceModel {
     // MARK: What names it, and what comes to it
 
-    func rename(to name: String) { space.name = name }
-    func setIcon(_ icon: PaneIcon?) { space.icon = icon }
-    func setTint(_ tint: IconColor?) { space.tint = tint }
-    func setProfile(_ id: Profile.ID?) { space.profile = id }
+    func rename(to name: String) {
+        space.name = name
+    }
+    func setIcon(_ icon: PaneIcon?) {
+        space.icon = icon
+    }
+    func setTint(_ tint: IconColor?) {
+        space.tint = tint
+    }
+    func setProfile(_ id: Profile.ID?) {
+        space.profile = id
+    }
 
     /// What a content of this Space's tabs asks is asked here: the Space knows the window that draws it.
     func wire(_ content: any PaneContent, as pane: PaneID) {
@@ -78,7 +86,9 @@ extension SpaceModel {
     }
 
     /// Whether the session keeps the tab: one with a pane that is not private.
-    func keeps(_ item: Workspace.Item) -> Bool { item.panes.contains { contents[$0]?.isPrivate != true } }
+    func keeps(_ item: Workspace.Item) -> Bool {
+        item.panes.contains { contents[$0]?.isPrivate != true }
+    }
 
     /// Takes a saved Space, before any window shows it: what names it, its Favorites, and (when `reopening`) its tabs,
     /// whose contents are made by the first window. With `reopening` off no entry comes back open and no tab comes back.

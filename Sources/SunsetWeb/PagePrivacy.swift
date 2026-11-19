@@ -5,5 +5,7 @@ package import Foundation
 package struct PagePrivacy: Sendable, Equatable, Hashable {
     package let group: UUID
 
-    package init(group: UUID = UUID()) { self.group = group }
+    package init(group: UUID = UUID()) {
+        self.group = group
+    }
 }

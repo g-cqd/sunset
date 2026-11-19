@@ -21,7 +21,9 @@ struct OpenDocumentMergingTests {
         try text.write(toFile: path, atomically: true, encoding: .utf8)
     }
 
-    private func read(_ path: String) -> String { (try? String(contentsOfFile: path, encoding: .utf8)) ?? "<none>" }
+    private func read(_ path: String) -> String {
+        (try? String(contentsOfFile: path, encoding: .utf8)) ?? "<none>"
+    }
 
     private func opened(_ name: String = "a.md") throws -> (document: OpenDocument, path: String) {
         let path = root + "/" + name

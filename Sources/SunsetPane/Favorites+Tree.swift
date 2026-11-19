@@ -27,7 +27,9 @@ extension Favorites {
     }
 
     /// Takes the node `id` out, with what it holds.
-    mutating func take(_ id: NodeID) -> Node? { Self.take(id, from: &nodes) }
+    mutating func take(_ id: NodeID) -> Node? {
+        Self.take(id, from: &nodes)
+    }
 
     /// Puts `new` among what `parent` holds (the top for nil) at `index`, brought inside, or at the end; folders that would be deeper than the limit
     /// dissolve. False when `parent` is not a folder.

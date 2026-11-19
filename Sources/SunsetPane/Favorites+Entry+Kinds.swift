@@ -10,5 +10,7 @@ extension Favorites.Entry {
     }
 
     /// Whether one of its panes is of `kind`: what it starts from, or what it holds now.
-    public func has(kind: String) -> Bool { kinds.contains(kind) }
+    public func has(kind: String) -> Bool {
+        kinds.contains(kind)
+    }
 }

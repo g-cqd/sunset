@@ -68,7 +68,9 @@ struct Reader {
         issues.append(ConfigurationIssue(path: path, message: message))
     }
 
-    mutating func unknown(_ path: String) { issue(path, "unknown key") }
+    mutating func unknown(_ path: String) {
+        issue(path, "unknown key")
+    }
 
     mutating func string(_ path: String, _ value: JSONValue) -> String? {
         guard case .string(let text) = value else {
@@ -102,7 +104,9 @@ struct Reader {
         return number
     }
 
-    func format(_ value: Double) -> String { value == value.rounded() ? String(Int(value)) : String(value) }
+    func format(_ value: Double) -> String {
+        value == value.rounded() ? String(Int(value)) : String(value)
+    }
 
     /// `#rrggbb`.
     mutating func color(_ path: String, _ value: JSONValue) -> [UInt8]? {

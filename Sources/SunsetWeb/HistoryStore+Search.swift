@@ -35,7 +35,9 @@ extension HistoryStore {
     }
 
     /// The last `limit` pages visited.
-    package func recent(limit: Int = 10) -> [HistoryEntry] { entries(limit: limit) }
+    package func recent(limit: Int = 10) -> [HistoryEntry] {
+        entries(limit: limit)
+    }
 
     /// The bytes of `text`, plain capital letters made small: what SQLite's `LIKE` did for the history before.
     nonisolated static func folded(_ text: [UInt8]) -> [UInt8] {

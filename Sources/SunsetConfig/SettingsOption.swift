@@ -23,7 +23,9 @@ public struct SettingsOption: Sendable, Identifiable {
     public var shownWhen: (@Sendable (Configuration) -> Bool)?
 
     /// Whether it is shown under `configuration`.
-    public func isShown(in configuration: Configuration) -> Bool { shownWhen?(configuration) ?? true }
+    public func isShown(in configuration: Configuration) -> Bool {
+        shownWhen?(configuration) ?? true
+    }
 
     /// The same, shown only while `condition` holds.
     public func shown(when condition: @escaping @Sendable (Configuration) -> Bool) -> Self {
@@ -123,5 +125,7 @@ public struct SettingsOption: Sendable, Identifiable {
     public static let all: [Self] = SettingsSection.all.flatMap(\.topics).flatMap(\.options)
 
     /// The option named `id`.
-    public static func named(_ id: String) -> Self? { all.first { $0.id == id } }
+    public static func named(_ id: String) -> Self? {
+        all.first { $0.id == id }
+    }
 }

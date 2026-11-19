@@ -35,10 +35,18 @@ struct TerminalScene: View {
     let config = AppConfiguration.shared
 
     /// As shown: its tint is the light scheme's while the app is light.
-    var configuration: Configuration { config.shown }
-    var presentation: TabPresentation { configuration.presentation }
-    private var noDecorations: Bool { configuration.window.decorations == .none }
-    private var barAtTop: Bool { presentation.showsBuiltInBar && configuration.tabs.bar.position == .top }
+    var configuration: Configuration {
+        config.shown
+    }
+    var presentation: TabPresentation {
+        configuration.presentation
+    }
+    private var noDecorations: Bool {
+        configuration.window.decorations == .none
+    }
+    private var barAtTop: Bool {
+        presentation.showsBuiltInBar && configuration.tabs.bar.position == .top
+    }
 
     /// The launch options win, then the configuration (the file, or the defaults).
     var font: FontSettings {
@@ -64,7 +72,9 @@ struct TerminalScene: View {
         return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
     /// The window's look, tinted by the colour of the Space it shows (the owner, 2026-11-17).
-    private var look: WindowLook { WindowLook(configuration, light: config.isLight).tinted(by: tabs.space.space.tint) }
+    private var look: WindowLook {
+        WindowLook(configuration, light: config.isLight).tinted(by: tabs.space.space.tint)
+    }
     var colors: DefaultColors {
         DefaultColors(configuration.colors, cursorShape: configuration.cursorShape, blinks: configuration.cursorBlinks)
     }
@@ -232,19 +242,5 @@ struct TerminalScene: View {
     /// A transparent surface that drags the window from any non-interactive area above it.
     var windowDragSurface: some View {
         Color.clear.contentShape(.rect).gesture(WindowDragGesture())
-    }
-
-    func configure(_ model: TerminalModel) {
-        model.blinkSchedule = blinkSchedule
-        model.defaultColors = colors
-        model.paddingPoints = configuration.terminalPadding
-        model.backgroundAlpha = configuration.backgroundAlpha
-        model.scroll = configuration.scroll
-        model.rendererChoice = configuration.renderer
-        model.applyLayout()
-    }
-
-    private func forEachModel(_ body: (TerminalModel) -> Void) {
-        for model in tabs.allTerminals { body(model) }
     }
 }

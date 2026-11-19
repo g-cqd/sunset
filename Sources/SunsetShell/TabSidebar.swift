@@ -41,12 +41,20 @@ package struct TabSidebar: View {
     @State var noticesHeight = 0.0
     @Environment(\.accent) var accentStyle
 
-    var margin: Double { settings.sidebar.padding }
+    var margin: Double {
+        settings.sidebar.padding
+    }
     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
-    var layout: ShellSettings.Layout { floating ? settings.layout.floatingTabs : settings.layout }
-    var header: SidebarHeader { SidebarHeader(layout: layout, margin: margin, floating: floating) }
+    var layout: ShellSettings.Layout {
+        floating ? settings.layout.floatingTabs : settings.layout
+    }
+    var header: SidebarHeader {
+        SidebarHeader(layout: layout, margin: margin, floating: floating)
+    }
     /// Where the rows start: below the window's buttons, and the accessory with a gap.
-    private var topInset: Double { header.height + accessoryInset + noticesInset }
+    private var topInset: Double {
+        header.height + accessoryInset + noticesInset
+    }
 
     package init(
         tabs: TabsModel,

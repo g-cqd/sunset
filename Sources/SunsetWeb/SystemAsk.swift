@@ -14,7 +14,9 @@ package struct SystemAsk: Equatable, Sendable, Identifiable {
             }
         }
 
-        package var symbol: String { permission.symbol }
+        package var symbol: String {
+            permission.symbol
+        }
     }
 
     /// What macOS says of it now.
@@ -30,9 +32,13 @@ package struct SystemAsk: Equatable, Sendable, Identifiable {
     package let need: Need
     package let status: Status
 
-    package var id: String { need.rawValue }
+    package var id: String {
+        need.rawValue
+    }
 
-    package var action: Action { status == .notAsked && need == .notifications ? .ask : .openSettings }
+    package var action: Action {
+        status == .notAsked && need == .notifications ? .ask : .openSettings
+    }
 
     /// What it says.
     package var sentence: String {
@@ -48,7 +54,9 @@ package struct SystemAsk: Equatable, Sendable, Identifiable {
             : "Let Sunset \(what), as a site you allowed asks."
     }
 
-    package var button: String { action == .ask ? "Allow\u{2026}" : "Open System Settings" }
+    package var button: String {
+        action == .ask ? "Allow\u{2026}" : "Open System Settings"
+    }
 
     /// What to ask, in the order of `Need`: what a site may use and macOS has not allowed. The camera, the microphone and the
     /// location are asked by macOS itself when a page first needs them: only a refusal is shown for them.

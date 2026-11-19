@@ -21,7 +21,9 @@ struct MetalRig {
     /// The pixel move of the last frame, if it had one.
     var lastMove: PixelMove?
 
-    static var device: (any MTLDevice)? { MTLCreateSystemDefaultDevice() }
+    static var device: (any MTLDevice)? {
+        MTLCreateSystemDefaultDevice()
+    }
 
     init?(columns: Int = 24, rows: Int = 6, font: String? = nil, ligatures: Bool = false) {
         guard let compositor = MetalCompositor() else { return nil }
@@ -71,7 +73,9 @@ struct MetalRig {
     }
 
     /// The pixels the Metal renderer holds.
-    func gpuSurface() -> Surface { metal.readback(target) }
+    func gpuSurface() -> Surface {
+        metal.readback(target)
+    }
 
     /// How many pixels differ and by how much at most.
     func differences() -> (count: Int, largest: Int) {

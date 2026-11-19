@@ -17,6 +17,10 @@ package struct UnsavedQuestion {
         return "Do you want to save the changes made to \(documents.count) documents?"
     }
 
-    package var detail: String { "Your changes will be lost if you don\u{2019}t save them." }
-    package var saveLabel: String { documents.count > 1 ? "Save All" : "Save" }
+    package var detail: String {
+        "Your changes will be lost if you don\u{2019}t save them."
+    }
+    package var saveLabel: String {
+        documents.count > 1 ? "Save All" : "Save"
+    }
 }

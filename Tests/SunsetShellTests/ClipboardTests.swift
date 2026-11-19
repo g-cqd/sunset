@@ -6,7 +6,9 @@ import Testing
 /// The owner's note n11: a copy goes through, or is blocked, and says which.
 @MainActor
 @Suite("Copying, and saying so") struct ClipboardTests {
-    private func board() -> NSPasteboard { NSPasteboard(name: NSPasteboard.Name("sunset.tests.\(UUID().uuidString)")) }
+    private func board() -> NSPasteboard {
+        NSPasteboard(name: NSPasteboard.Name("sunset.tests.\(UUID().uuidString)"))
+    }
 
     @Test func `a copy puts the text, and a link as a link, and says it is done`() {
         let board = board()

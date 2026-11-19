@@ -24,7 +24,9 @@ extension AppActions {
     }
 
     /// A tab on the file at `path`.
-    func openDocument(at path: String) { open(files: [path]) }
+    func openDocument(at path: String) {
+        open(files: [path])
+    }
 
     /// Opens files (the Open panel, a drop, Finder, the command bar) in the window that acts: each in a tab of its own, one
     /// that window already shows is shown. With no window (Sunset was started by opening them, or its last window is closed)

@@ -23,7 +23,9 @@ package enum Design {
         package static let scale = [hair, xs, s, m, l, xl, xxl]
 
         /// The step a measure belongs to: the smallest step not below it (more space, never less).
-        package static func step(atLeast value: Double) -> Double { scale.first { $0 >= value } ?? xxl }
+        package static func step(atLeast value: Double) -> Double {
+            scale.first { $0 >= value } ?? xxl
+        }
     }
 
     /// Two radii are chosen (the leaf, the small one); a container's is derived from what it holds, so that corners share a centre.
@@ -31,11 +33,17 @@ package enum Design {
         /// The system window's corner (`ConcentricRadius.standardWindow`, measured).
         package static let window = ConcentricRadius.standardWindow
         /// A row, a field, a control inside a container: `layout.tabRadius`.
-        package static func leaf(_ layout: LayoutMetrics) -> Double { layout.tabRadius }
+        package static func leaf(_ layout: LayoutMetrics) -> Double {
+            layout.tabRadius
+        }
         /// A close button, a thumbnail, a badge: `layout.closeButtonRadius`.
-        package static func small(_ layout: LayoutMetrics) -> Double { layout.closeButtonRadius }
+        package static func small(_ layout: LayoutMetrics) -> Double {
+            layout.closeButtonRadius
+        }
         /// A container holding leaves of `leaf` radius at `inset` from its edge: the radius whose curve is concentric with theirs.
-        package static func container(holding leaf: Double, inset: Double) -> Double { max(leaf, 0) + max(inset, 0) }
+        package static func container(holding leaf: Double, inset: Double) -> Double {
+            max(leaf, 0) + max(inset, 0)
+        }
         /// A floating surface (a bar, a panel, a list of choices): leaves at the container inset.
         package static func surface(_ layout: LayoutMetrics) -> Double {
             container(holding: leaf(layout), inset: Space.s)
@@ -89,7 +97,9 @@ package enum Design {
     /// The vertical padding of a sidebar row: a one-line row is `height` tall (the close button's square centred in it), a two-line row
     /// keeps the layout's padding.
     /// How far a frame of `outer` overhangs a centred `inner` on each side.
-    package static func overhang(of outer: Double, over inner: Double) -> Double { (outer - inner) / 2 }
+    package static func overhang(of outer: Double, over inner: Double) -> Double {
+        (outer - inner) / 2
+    }
 
     /// The height of every one-line row: `height`, or what its close button and padding need when that is more. Set as the row's
     /// height (`View.rowHeight`), not left to its content: an emoji or a taller glyph made some rows taller (owner note n69).

@@ -12,8 +12,12 @@ extension TerminalScene {
     var windowRadius: Double {
         window.flatMap { WindowCornerRadius.of($0) } ?? ConcentricRadius.standardWindow
     }
-    var sidebarSide: Configuration.Side { configuration.sidebar.side }
-    var floatsSidebar: Bool { presentation.showsSidebar && configuration.sidebar.autoHide }
+    var sidebarSide: Configuration.Side {
+        configuration.sidebar.side
+    }
+    var floatsSidebar: Bool {
+        presentation.showsSidebar && configuration.sidebar.autoHide
+    }
 
     /// With the sidebar the traffic lights are part of it, in the slot at its top (`SidebarHeader`), away from the window's edge: docked they are always
     /// there; floating they come and go with the panel, which is inset by the margin.
@@ -88,7 +92,9 @@ extension TerminalScene {
     }
 
     /// How much wider the docked sidebar is while the Library is open: its rail (roadmap 0031).
-    var libraryWidth: Double { LibrarySidebar.extraWidth(tabs, ShellSettings(configuration), floating: false) }
+    var libraryWidth: Double {
+        LibrarySidebar.extraWidth(tabs, ShellSettings(configuration), floating: false)
+    }
 
     /// The sidebar beside the terminal, on the side `sidebar.side` says: the margin is on the window's edge. Any empty area in it drags the window.
     var dockedSidebar: some View {

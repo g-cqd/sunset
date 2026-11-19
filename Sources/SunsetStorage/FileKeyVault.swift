@@ -5,7 +5,9 @@ public import Foundation
 public struct FileKeyVault: KeyVault {
     public let path: String
 
-    public init(path: String) { self.path = path }
+    public init(path: String) {
+        self.path = path
+    }
 
     public func read() throws(StorageKeyFailure) -> Data? {
         guard FileManager.default.fileExists(atPath: path) else { return nil }

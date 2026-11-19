@@ -15,7 +15,9 @@ final class HelpContent: PaneContent {
 
     /// The topic shown.
     var topic: HelpTopic {
-        didSet { if topic != oldValue { onChange() } }
+        didSet {
+            if topic != oldValue { onChange() }
+        }
     }
     /// What the list is narrowed to.
     var query = ""
@@ -30,19 +32,37 @@ final class HelpContent: PaneContent {
     }
 
     /// The topics the list shows: those the search finds.
-    var listed: [HelpTopic] { HelpCatalog.search(query) }
+    var listed: [HelpTopic] {
+        HelpCatalog.search(query)
+    }
 
     // MARK: PaneContent
 
-    var title: String { "Help" }
-    var detail: String? { HelpTopicView.heading(topic) }
-    var glyph: PaneGlyph { .symbol(PaneDescriptor.helpSymbol) }
-    var progress: Double? { nil }
-    var closeWarning: String? { nil }
-    var searchTerms: [String] { ["help", "manual", "guide"] }
-    var descriptor: PaneDescriptor { .help(topic: topic.rawValue) }
+    var title: String {
+        "Help"
+    }
+    var detail: String? {
+        HelpTopicView.heading(topic)
+    }
+    var glyph: PaneGlyph {
+        .symbol(PaneDescriptor.helpSymbol)
+    }
+    var progress: Double? {
+        nil
+    }
+    var closeWarning: String? {
+        nil
+    }
+    var searchTerms: [String] {
+        ["help", "manual", "guide"]
+    }
+    var descriptor: PaneDescriptor {
+        .help(topic: topic.rawValue)
+    }
 
     func setState(focused: Bool, visible: Bool) {}
     func stop() {}
-    func makeView(_ context: PaneViewContext) -> AnyView { AnyView(HelpPage(content: self, context: context)) }
+    func makeView(_ context: PaneViewContext) -> AnyView {
+        AnyView(HelpPage(content: self, context: context))
+    }
 }

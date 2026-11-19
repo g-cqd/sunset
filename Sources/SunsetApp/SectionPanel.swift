@@ -33,7 +33,9 @@ struct SectionPanel: View {
     /// How far the rows are scrolled down: the fade under the field grows with it.
     @State var scrolledBy = 0.0
 
-    var layout: LayoutMetrics { buttons.layout }
+    var layout: LayoutMetrics {
+        buttons.layout
+    }
     /// How many things the section lists, whatever is searched: with none there is no search field.
     var count: Int {
         switch section {
@@ -50,9 +52,13 @@ struct SectionPanel: View {
         SectionTop(buttons: buttons, underLights: place == .library, searchable: section.isSearched(count: count))
     }
     /// Where the list starts: under the title and the field, as the sidebar's rows start under its accessory.
-    var listTop: Double { topMeasures.listTop }
+    var listTop: Double {
+        topMeasures.listTop
+    }
     /// The room the switch takes at the foot.
-    var footInset: Double { place == .opposite ? buttons.barRoom : 0 }
+    var footInset: Double {
+        place == .opposite ? buttons.barRoom : 0
+    }
 
     var body: some View {
         ScrollView {

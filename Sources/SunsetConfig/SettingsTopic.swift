@@ -6,8 +6,12 @@ public struct SettingsTopic: Sendable, Identifiable {
     public let options: [SettingsOption]
 
     /// What its page shows first, and what a level down, under More (roadmap 0047 G).
-    public var first: [SettingsOption] { options.filter { !$0.advanced } }
-    public var further: [SettingsOption] { options.filter(\.advanced) }
+    public var first: [SettingsOption] {
+        options.filter { !$0.advanced }
+    }
+    public var further: [SettingsOption] {
+        options.filter(\.advanced)
+    }
 
     init(_ id: String, _ title: String, _ options: [SettingsOption]) {
         self.id = id

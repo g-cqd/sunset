@@ -14,7 +14,9 @@ public actor FrameRenderer {
     }
 
     /// The cell size and padding this renderer draws with.
-    public nonisolated var cellMetrics: RenderMetrics { metrics }
+    public nonisolated var cellMetrics: RenderMetrics {
+        metrics
+    }
 
     /// Draws `screen` (a snapshot: its dirty rows are what changed since the frame before) and returns the whole surface.
     public func frame(

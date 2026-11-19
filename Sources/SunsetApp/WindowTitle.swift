@@ -8,5 +8,7 @@ import SwiftUI
 struct WindowTitle: View {
     let tabs: TabsModel
 
-    var body: some View { WindowTitleKeeper(title: tabs.selectedContent?.title ?? "Sunset") }
+    var body: some View {
+        WindowTitleKeeper(title: tabs.selectedContent?.title ?? "Sunset")
+    }
 }

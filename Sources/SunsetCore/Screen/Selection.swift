@@ -15,8 +15,12 @@ public struct Selection: Sendable, Equatable {
     }
 
     /// The earlier and the later end, whichever way it was dragged.
-    public var start: SelectionPoint { min(anchor, head) }
-    public var end: SelectionPoint { max(anchor, head) }
+    public var start: SelectionPoint {
+        min(anchor, head)
+    }
+    public var end: SelectionPoint {
+        max(anchor, head)
+    }
 
     /// Whether the cell at (`line`, `column`) is inside the selection (both ends included).
     public func contains(line: Int, column: Int) -> Bool {

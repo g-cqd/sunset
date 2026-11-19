@@ -11,11 +11,17 @@ extension SidebarSection {
         }
     }
 
-    package func isShown(for scopes: Scopes) -> Bool { scope.map { scopes[$0] } ?? true }
+    package func isShown(for scopes: Scopes) -> Bool {
+        scope.map { scopes[$0] } ?? true
+    }
 
     /// The Library's rail with these scopes on: the tabs alone is no Library.
-    package static func rail(for scopes: Scopes) -> [Self] { rail.filter { $0.isShown(for: scopes) } }
+    package static func rail(for scopes: Scopes) -> [Self] {
+        rail.filter { $0.isShown(for: scopes) }
+    }
 
     /// The sections of the panel opposite the tabs with these scopes on.
-    package static func panel(for scopes: Scopes) -> [Self] { panel.filter { $0.isShown(for: scopes) } }
+    package static func panel(for scopes: Scopes) -> [Self] {
+        panel.filter { $0.isShown(for: scopes) }
+    }
 }

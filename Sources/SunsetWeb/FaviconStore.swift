@@ -28,7 +28,9 @@ package final class FaviconStore {
     private var kept: [String: Kept] = [:]
     @ObservationIgnored private var images: [String: NSImage] = [:]
     @ObservationIgnored package var table: SealedTable? {
-        didSet { load() }
+        didSet {
+            load()
+        }
     }
 
     package init() {}

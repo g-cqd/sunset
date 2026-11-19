@@ -3,7 +3,9 @@ package import SunsetPane
 /// A window and the Favorites (R3, R4): it shows a kept entry instead of one of its tabs, keeps a tab, takes one back out.
 extension TabsModel {
     /// The kept entry this window shows, when it shows one.
-    package var shownEntry: Favorites.Entry? { workspace.selectedEntry.flatMap { keeper(of: $0).favorites.entry($0) } }
+    package var shownEntry: Favorites.Entry? {
+        workspace.selectedEntry.flatMap { keeper(of: $0).favorites.entry($0) }
+    }
     /// Whether this window draws what it shows; false while the tab or the kept entry it shows is live in another window (it
     /// shows the last picture then).
     package var showsLive: Bool {
@@ -33,7 +35,9 @@ extension TabsModel {
         workspace.selectedEntry == nil ? workspace.selectedItem : shownEntry?.open
     }
     /// The pane that has the keyboard.
-    package var shownPane: PaneID? { shownItem?.focused }
+    package var shownPane: PaneID? {
+        shownItem?.focused
+    }
 
     /// The content of a pane of this window or of a kept entry.
     package func content(_ pane: PaneID) -> (any PaneContent)? {

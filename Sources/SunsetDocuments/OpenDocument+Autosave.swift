@@ -14,10 +14,14 @@ extension OpenDocument {
     }
 
     /// Sunset keeps it without being asked, and nothing says it cannot: its edits need no question.
-    public var keepsItself: Bool { isStored && saveFailure == nil && problem == nil && !changedOnDisk }
+    public var keepsItself: Bool {
+        isStored && saveFailure == nil && problem == nil && !changedOnDisk
+    }
 
     /// The edits can be written without anyone being asked: not while a block changed here and on disk waits for an answer.
-    var canSaveItself: Bool { isEdited && !changedOnDisk && problem == nil && !givenUp && conflicts.isEmpty }
+    var canSaveItself: Bool {
+        isEdited && !changedOnDisk && problem == nil && !givenUp && conflicts.isEmpty
+    }
 
     /// Watches the text: each edit is told to `textChanged`. Observation tells once, so it is asked again each time. The
     /// setting is read as the edit is made, on the main actor where edits are made; the rest follows once the edit is in

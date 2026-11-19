@@ -20,8 +20,12 @@ struct IconGridLayout: Equatable {
         inset = max((width - CGFloat(columns) * Self.pitch.width) / 2, 0)
     }
 
-    var rows: Int { (count + columns - 1) / columns }
-    var height: CGFloat { CGFloat(rows) * Self.pitch.height }
+    var rows: Int {
+        (count + columns - 1) / columns
+    }
+    var height: CGFloat {
+        CGFloat(rows) * Self.pitch.height
+    }
 
     /// The cell's pitch: its place, gap included.
     func rect(of index: Int) -> CGRect {

@@ -31,7 +31,9 @@ public struct CloseConfirmation: Sendable, Equatable {
     }
 
     /// When what is armed stops being so, if anything is.
-    public var expiration: ContinuousClock.Instant? { expiresAt }
+    public var expiration: ContinuousClock.Instant? {
+        expiresAt
+    }
 
     /// Forgets what is armed once its time has passed.
     public mutating func expire(at now: ContinuousClock.Instant) {

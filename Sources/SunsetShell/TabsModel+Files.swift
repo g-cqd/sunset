@@ -24,7 +24,9 @@ extension TabsModel {
 
     /// The documents this window lists (the Library, the panel opposite the tabs, the command bar): the store's, then the
     /// files opened lately. None in a private window (the owner, 2026-11-16): their names are the person's.
-    package var listedDocuments: [ShelfDocument] { isPrivateWindow ? [] : shelf.list() + shelf.files() }
+    package var listedDocuments: [ShelfDocument] {
+        isPrivateWindow ? [] : shelf.list() + shelf.files()
+    }
 
     /// The documents the bar offers for what is typed: the listed ones whose title holds every word, but for the ones a tab
     /// of this window shows (the tab is listed). None for nothing typed, and none when the bar picks a tab to split.

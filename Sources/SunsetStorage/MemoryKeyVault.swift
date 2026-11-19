@@ -6,9 +6,13 @@ public final class MemoryKeyVault: KeyVault {
     private let bytes = Mutex<Data?>(nil)
     private let failing: Bool
 
-    public init(failing: Bool = false) { self.failing = failing }
+    public init(failing: Bool = false) {
+        self.failing = failing
+    }
 
-    public var stored: Data? { bytes.withLock { $0 } }
+    public var stored: Data? {
+        bytes.withLock { $0 }
+    }
 
     public func read() throws(StorageKeyFailure) -> Data? {
         if failing { throw .vault }

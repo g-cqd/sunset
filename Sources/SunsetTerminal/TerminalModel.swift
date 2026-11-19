@@ -79,7 +79,9 @@ package import SunsetRenderMac
         .makeStream(of: Void.self, bufferingPolicy: .bufferingNewest(1))
     @ObservationIgnored package var hoveredLink: UInt16 = 0
     /// Whether the program asked for the mouse (as of the last frame): its events go to it, not to the selection.
-    package var programHasMouse: Bool { (lastScreen?.modes.mouseTracking ?? .none) != .none }
+    package var programHasMouse: Bool {
+        (lastScreen?.modes.mouseTracking ?? .none) != .none
+    }
     @ObservationIgnored package var lastMotionCell: (column: Int, row: Int)?
     @ObservationIgnored package let input = AsyncStream.makeStream(of: InputEvent.self)
     @ObservationIgnored private let sizes = AsyncStream.makeStream(
@@ -96,7 +98,9 @@ package import SunsetRenderMac
     /// How opaque the default background is, 0 to 255 (255 with an opaque window).
     @ObservationIgnored package var backgroundAlpha: UInt8 = 255
 
-    package var paddingPixels: Int { Int((paddingPoints * scale).rounded()) }
+    package var paddingPixels: Int {
+        Int((paddingPoints * scale).rounded())
+    }
 
     package init() {}
 
@@ -151,7 +155,9 @@ package import SunsetRenderMac
     }
 
     /// The height of a cell in points (a trackpad scrolls in points).
-    package var cellHeightInPoints: Double { Double(renderer?.cellMetrics.cellHeight ?? 16) / scale }
+    package var cellHeightInPoints: Double {
+        Double(renderer?.cellMetrics.cellHeight ?? 16) / scale
+    }
 
     package func stop() {
         for task in tasks + [commandDelivery].compactMap(\.self) { task.cancel() }

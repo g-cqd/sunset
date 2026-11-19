@@ -14,7 +14,9 @@ struct TerminalCommands: Commands {
     @FocusedValue(\.webPage) private var focusedPage
     @FocusedValue(\.documentPane) private var focusedDocument
     /// The document Save and the view items act on: the focused one, else the acting window's.
-    private var document: DocumentContent? { focusedDocument ?? AppActions.shared.frontDocument }
+    private var document: DocumentContent? {
+        focusedDocument ?? AppActions.shared.frontDocument
+    }
     /// The page the History and Find items act on: the focused one, else (Sunset not active) the acting window's.
     private var page: WebContent? {
         focusedPage ?? (TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.selectedContent as? WebContent)

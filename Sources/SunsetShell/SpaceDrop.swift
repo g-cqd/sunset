@@ -14,7 +14,9 @@ struct SpaceDrop: DropDelegate {
         withAnimation(animation) { spaces.drag(dragged, over: target) }
     }
 
-    func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: .move) }
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
 
     func performDrop(info: DropInfo) -> Bool {
         dragged = nil

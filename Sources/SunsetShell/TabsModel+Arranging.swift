@@ -10,13 +10,19 @@ extension TabsModel {
         change { $0.select(item: item) }
         if shownTab == item, !space.isLive(item, in: self) { takeShown() }
     }
-    package func selectNext() { step(by: 1) }
-    package func selectPrevious() { step(by: -1) }
+    package func selectNext() {
+        step(by: 1)
+    }
+    package func selectPrevious() {
+        step(by: -1)
+    }
     package func select(index: Int) {
         let stops = self.stops
         if stops.indices.contains(index) { go(to: stops[index]) }
     }
-    package func move(item: Workspace.ItemID, to index: Int) { change { $0.move(item: item, to: index) } }
+    package func move(item: Workspace.ItemID, to index: Int) {
+        change { $0.move(item: item, to: index) }
+    }
     package func focus(_ pane: PaneID) {
         if let entry = favorites.favorites.entry(containing: pane) {
             favorites.edit { $0.focus(pane: pane) }
@@ -25,15 +31,21 @@ extension TabsModel {
             change { $0.focus(pane: pane) }
         }
     }
-    package func focusNextPane() { change { $0.focusNext() } }
-    package func focusPreviousPane() { change { $0.focusPrevious() } }
+    package func focusNextPane() {
+        change { $0.focusNext() }
+    }
+    package func focusPreviousPane() {
+        change { $0.focusPrevious() }
+    }
     package func drop(item: Workspace.ItemID, onto pane: PaneID, edge: PaneEdge) {
         change { $0.drop(item: item, onto: pane, edge: edge) }
     }
     package func movePane(_ pane: PaneID, beside target: PaneID, edge: PaneEdge) {
         change { $0.movePane(pane, beside: target, edge: edge) }
     }
-    package func detachIntoTab(_ pane: PaneID) { change { $0.detach(pane: pane) } }
+    package func detachIntoTab(_ pane: PaneID) {
+        change { $0.detach(pane: pane) }
+    }
     package func setRatio(_ ratio: Double, at path: [SplitBranch], in item: Workspace.ItemID) {
         if let entry = shownEntry, entry.open?.id == item {
             favorites.edit { $0.setRatio(ratio, at: path, in: entry.id) }

@@ -77,7 +77,9 @@ package final class DocumentContent: PaneContent {
 
     // MARK: PaneContent
 
-    package var title: String { document.title }
+    package var title: String {
+        document.title
+    }
     package var detail: String? {
         guard case .file(let path) = document.place else { return nil }
         return (path as NSString).deletingLastPathComponent
@@ -86,10 +88,16 @@ package final class DocumentContent: PaneContent {
     package var glyph: PaneGlyph {
         .symbol(mode == .rendered ? PaneDescriptor.renderedDocumentSymbol : PaneDescriptor.documentSymbol)
     }
-    package var progress: Double? { nil }
-    package var isEdited: Bool { document.isEdited }
+    package var progress: Double? {
+        nil
+    }
+    package var isEdited: Bool {
+        document.isEdited
+    }
     /// Nothing runs in a document: its edits are asked about in a sheet (`unsaved`), not by the red tab of a busy terminal.
-    package var closeWarning: String? { nil }
+    package var closeWarning: String? {
+        nil
+    }
     package var descriptor: PaneDescriptor {
         var state = document.place.state
         state["view"] = mode.rawValue
@@ -123,7 +131,9 @@ package final class DocumentContent: PaneContent {
     // MARK: The view
 
     /// Whether the document has a page at all: a text file is source only.
-    package var canRender: Bool { document.kind != .text }
+    package var canRender: Bool {
+        document.kind != .text
+    }
 
     /// From the page to the source and back (Cmd-Shift-E).
     package func toggleMode() {
