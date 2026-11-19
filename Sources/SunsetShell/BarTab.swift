@@ -73,15 +73,12 @@ struct BarTab<Icon: View, Label: View>: View {
     }
 
     private var fill: Color {
-        if armed { return .red.opacity(hovering ? Design.Fill.armedHover : Design.Fill.armed) }
-        let inactive = activeState == .inactive
-        return switch (selected, hovering) {
-            case (true, true):
-                .primary.opacity(inactive ? Design.Fill.selectedInactiveHover : Design.Fill.selectedHover)
-            case (true, false): .primary.opacity(inactive ? Design.Fill.selectedInactive : Design.Fill.selected)
-            case (false, true): .primary.opacity(Design.Fill.openHover)
-            case (false, false): .primary.opacity(capsules ? Design.Fill.field : Design.Fill.open)
-        }
+        if armed { return .red.opacity(RowFill.armed(hovering: hovering)) }
+        // A bar's tab is always open in its window; in capsules, at rest, a field's fill.
+        if !selected, !hovering, capsules { return .primary.opacity(Design.Fill.field) }
+        return .primary.opacity(
+            RowFill.opacity(selected: selected, hovering: hovering, inactive: activeState == .inactive, open: true)
+        )
     }
 
     private var closeButton: some View {
@@ -95,9 +92,8 @@ struct BarTab<Icon: View, Label: View>: View {
                 .background(
                     RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout), style: .continuous)
                         .fill(
-                            armed
-                                ? Color.red.opacity(overClose ? Design.Fill.armedButtonHover : Design.Fill.armedButton)
-                                : Color.primary.opacity(overClose ? Design.Fill.selected : 0)
+                            (armed ? Color.red : Color.primary)
+                                .opacity(RowFill.closeButton(armed: armed, over: overClose))
                         )
                 )
                 .contentShape(.rect)

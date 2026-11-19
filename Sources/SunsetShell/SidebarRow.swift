@@ -154,21 +154,20 @@ struct SidebarRow: View {
 
     /// Hover and selection variants of the highlight.
     private var highlight: Color {
-        if armed { return .red.opacity(hovering || keepCloseVisible ? Design.Fill.armedHover : Design.Fill.armed) }
+        if armed { return .red.opacity(RowFill.armed(hovering: hovering || keepCloseVisible)) }
         switch RowEmphasis.of(shown: selected, marked: marked) {
             case .marked: return accent.color.opacity(hovering ? Design.Fill.markedHover : Design.Fill.marked)
             case .markedShown:
                 return accent.color.opacity(hovering ? Design.Fill.markedShownHover : Design.Fill.markedShown)
             case .shown, .none: break
         }
-        let inactive = activeState == .inactive
-        return switch (selected, hovering || keepCloseVisible) {
-            case (true, true):
-                .primary.opacity(inactive ? Design.Fill.selectedInactiveHover : Design.Fill.selectedHover)
-            case (true, false): .primary.opacity(inactive ? Design.Fill.selectedInactive : Design.Fill.selected)
-            case (false, true): .primary.opacity(open ? Design.Fill.openHover : Design.Fill.hover)
-            case (false, false): open ? .primary.opacity(Design.Fill.open) : .clear
-        }
+        let fill = RowFill.opacity(
+            selected: selected,
+            hovering: hovering || keepCloseVisible,
+            inactive: activeState == .inactive,
+            open: open
+        )
+        return fill == 0 ? .clear : .primary.opacity(fill)
     }
 
     /// Two lines when the directory (or a page's address) is shown and there is one.
@@ -186,9 +185,8 @@ struct SidebarRow: View {
                 .background(
                     RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
                         .fill(
-                            armed
-                                ? Color.red.opacity(overClose ? Design.Fill.armedButtonHover : Design.Fill.armedButton)
-                                : Color.primary.opacity(overClose ? Design.Fill.selected : 0)
+                            (armed ? Color.red : Color.primary)
+                                .opacity(RowFill.closeButton(armed: armed, over: overClose))
                         )
                 )
                 .contentShape(.rect)
