@@ -16,7 +16,7 @@ struct SharePanel: View {
                 Text.sentence("\(host) wants to see a tab or your screen", code: [host])
                     .font(Design.Text.body.weight(.semibold))
                 if request.sources.isEmpty {
-                    Text("No other tab can be shared now.").foregroundStyle(.secondary)
+                    Text("No tab can be shared now.").foregroundStyle(.secondary)
                 } else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: Design.Space.m) {
@@ -70,7 +70,7 @@ struct SharePanel: View {
             HStack(spacing: Design.Space.s) {
                 Image(systemName: chosen == source.id ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(chosen == source.id ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
-                Text(source.title).lineLimit(1)
+                Text(source.label).lineLimit(1)
                 if let host = source.host {
                     Text(host).code().font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
                 }
@@ -79,6 +79,6 @@ struct SharePanel: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Share \(source.title)")
+        .accessibilityLabel("Share \(source.label)")
     }
 }

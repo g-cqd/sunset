@@ -87,7 +87,7 @@ struct BarTab<Icon: View, Label: View>: View {
             close?()
         } label: {
             Image(systemName: button.symbol)
-                .font(.system(size: Design.Symbol.badge, weight: .semibold))
+                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                 .foregroundStyle(armed ? Color.white : Color.primary)
                 .frame(width: surface.layout.closeButtonSize, height: surface.layout.closeButtonSize)
                 .background(

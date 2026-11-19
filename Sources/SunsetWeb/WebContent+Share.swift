@@ -20,9 +20,15 @@ extension WebContent {
     }
 
     func startShare(from id: UUID) {
-        guard let feed = WebShare.feed(id), let wrapper = shareWrapper else { return }
+        guard let feed = WebShare.feed(id) else { return }
+        startShare(feed, source: id)
+    }
+
+    /// Shares `feed` into this page: a tab's, or what was picked in macOS's picker (a source of its own then).
+    func startShare(_ feed: ShareFeed, source: UUID) {
+        guard let wrapper = shareWrapper else { return }
         let session = ShareSession(
-            source: id,
+            source: source,
             feed: feed,
             page: self,
             frameFunction: wrapper.frameFunction,

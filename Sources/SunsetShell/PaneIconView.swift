@@ -19,11 +19,14 @@ struct PaneIconView: View {
         switch icon {
             case .symbol(let name, let color):
                 Image(systemName: name)
-                    .font(.system(size: Design.Symbol.row))
+                    .font(.system(size: Self.symbolSize))
                     .foregroundStyle(color.map { AnyShapeStyle(Color($0)) } ?? AnyShapeStyle(.secondary))
                     .frame(width: Design.Size.glyphFrame)
             case .emoji(let emoji):
-                Text(emoji).font(.system(size: Design.Symbol.row)).frame(width: Design.Size.glyphFrame)
+                Text(emoji).font(.system(size: Self.symbolSize)).frame(width: Design.Size.glyphFrame)
         }
     }
+
+    /// A tab symbol's size, as a terminal's folder is drawn.
+    static let symbolSize = Design.Symbol.row
 }

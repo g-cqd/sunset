@@ -55,7 +55,7 @@ struct FolderRow: View {
                         name = ""
                     } label: {
                         Image(systemName: "delete.left")
-                            .font(.system(size: Design.Symbol.badge, weight: .semibold))
+                            .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                             .foregroundStyle(.secondary)
                             .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
                             .contentShape(.rect)
@@ -100,7 +100,7 @@ struct FolderRow: View {
     private var disclosure: some View {
         Button(action: toggle) {
             Image(systemName: folder.isCollapsed ? "chevron.right" : "chevron.down")
-                .font(.system(size: Design.Symbol.badge, weight: .semibold))
+                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                 .foregroundStyle(.secondary)
                 .frame(width: Design.Size.glyphFrame, height: layout.closeButtonSize)
                 .contentShape(.rect)

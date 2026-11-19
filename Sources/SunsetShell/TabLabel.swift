@@ -10,6 +10,8 @@ package struct TabLabel: View {
     var showProgress = true
     /// Whether the label says its document has edits that are not saved; a sidebar row says it itself, at its end (owner note n76).
     var showEdited = true
+    /// Whether the label shows the sound, the microphone and the camera; a sidebar row has them as buttons at its end.
+    var showControls = true
     /// The name and the icon a person gave the tab: shown instead of the program's title and of the tab's own picture.
     var name: String?
     var icon: PaneIcon?
@@ -26,6 +28,7 @@ package struct TabLabel: View {
         showDirectory: Bool = false,
         showProgress: Bool = true,
         showEdited: Bool = true,
+        showControls: Bool = true,
         name: String? = nil,
         icon: PaneIcon? = nil,
         saved: PaneDescriptor? = nil,
@@ -37,6 +40,7 @@ package struct TabLabel: View {
         self.showDirectory = showDirectory
         self.showProgress = showProgress
         self.showEdited = showEdited
+        self.showControls = showControls
         self.name = name
         self.icon = icon
         self.saved = saved
@@ -53,11 +57,13 @@ package struct TabLabel: View {
             }
             lines
             if showEdited, model?.isEdited == true { EditedMark() }
-            if let sound = model?.sound {
+            if showControls, let sound = model?.sound {
                 Button {
                     model?.toggleMuted()
                 } label: {
-                    Image(systemName: sound.symbol).font(Design.Text.detail).foregroundStyle(.secondary)
+                    Image(systemName: sound.symbol)
+                        .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
                 .help(sound.help)
@@ -73,14 +79,14 @@ package struct TabLabel: View {
                     .accessibilityLabel("Loaded as \(mark)")
             }
             // The microphone and the camera it uses, each muted from here (the owner's note n47); the screen's dot stays.
-            if let model {
+            if showControls, let model {
                 ForEach(PaneCapture.Device.allCases, id: \.self) { device in
                     if let state = model.devices[device] {
                         Button {
                             model.toggle(device)
                         } label: {
                             Image(systemName: PaneCapture.symbol(device, state))
-                                .font(Design.Text.detail)
+                                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                                 .foregroundStyle(state == .live ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
                         }
                         .buttonStyle(.plain)

@@ -11,13 +11,13 @@ struct TabGlyphView: View {
         switch glyph.kind {
             case .folder:
                 Image(systemName: outlined ? "folder" : "folder.fill")
-                    .font(.system(size: Design.Symbol.bar))
+                    .font(.system(size: Self.symbolSize))
                     .foregroundStyle(.secondary)
                     .overlay {
                         if let letter = glyph.letter {
                             Text(String(letter))
-                                .font(.system(size: Design.Optical.folderInitialSize, weight: .heavy, design: .rounded))
-                                .offset(y: Design.Optical.folderInitialDrop)
+                                .font(.system(size: Self.initialSize, weight: .heavy, design: .rounded))
+                                .offset(y: Self.initialDrop)
                                 .foregroundStyle(outlined ? AnyShapeStyle(.secondary) : AnyShapeStyle(.primary))
                                 .blendMode(outlined ? .normal : .destinationOut)
                         }
@@ -26,9 +26,17 @@ struct TabGlyphView: View {
                     .frame(width: Design.Size.glyphFrame)
             case .command:
                 Image(systemName: outlined ? "terminal" : "terminal.fill")
-                    .font(.system(size: Design.Symbol.row))
+                    .font(.system(size: Self.symbolSize))
                     .foregroundStyle(.secondary)
                     .frame(width: Design.Size.glyphFrame)
         }
     }
+
+    /// The folder's and the command mark's size: any tab symbol's (the owner, 2026-11-19: the folder was drawn at the bar's
+    /// size, bigger than the folder symbol on other tabs).
+    static let symbolSize = PaneIconView.symbolSize
+    /// The letter in the folder, and how far below the middle it sits (into the folder's body, under its tab): the sizes
+    /// tuned at the bar's size, scaled to this one.
+    static let initialSize = Design.Optical.folderInitialSize * symbolSize / Design.Symbol.bar
+    static let initialDrop = Design.Optical.folderInitialDrop * symbolSize / Design.Symbol.bar
 }

@@ -86,6 +86,8 @@ extension Design {
         package static let large = 22.0
         /// A tiny mark beside a title (the built-in bar's star).
         package static let mark = 7.0
+        /// The weight of a row's and a bar's control symbols (close, cup, sound, microphone, camera): one for all.
+        package static let weight = Font.Weight.semibold
     }
 
     /// Text, by macOS's built-in text styles only (Apple's HIG, Typography: macOS has no Dynamic Type; its styles, measured on

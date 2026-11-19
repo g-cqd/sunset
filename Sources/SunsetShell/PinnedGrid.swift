@@ -117,7 +117,7 @@ struct PinnedGrid: View {
                 // Kept awake (roadmap 0036 C): a cup in its corner.
                 if entry.isOpen, tabs.keepsAwake(entry: entry.id) != nil {
                     Image(systemName: "cup.and.saucer.fill")
-                        .font(.system(size: Design.Symbol.badge))
+                        .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                         .foregroundStyle(.secondary)
                         .padding(Design.Space.xs)
                         .helpTopic(.keepAwake)

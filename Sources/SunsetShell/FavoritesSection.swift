@@ -67,7 +67,7 @@ struct FavoritesSection: View {
                 // Its command was not run: something other than Sunset wrote it (t145).
                 if tabs.favorites.unconfirmed.contains(entry.id) {
                     Image(systemName: "exclamationmark.shield.fill")
-                        .font(.system(size: Design.Symbol.badge))
+                        .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                         .foregroundStyle(.orange)
                         .help("Its command was not written by Sunset and was not run. Edit Command\u{2026} to see it.")
                         .offset(x: 2, y: 1)

@@ -2,8 +2,8 @@ import Foundation
 import WebKit
 
 /// A page asking to share its screen (ADR-0082): `getDisplayMedia` wrapped in the page's world so that Sunset's sheet is
-/// asked first. The sheet's answer: macOS's own picker (the page's own `getDisplayMedia`), a Sunset tab (a canvas's stream
-/// the page is given, its frames drawn by Sunset), or nothing. The functions Sunset draws and ends through are named with
+/// asked first. The sheet's answer: a Sunset tab, or what is picked in macOS's own picker (ADR-0085), each a canvas's stream
+/// the page is given, its frames drawn by Sunset; or nothing. The functions Sunset draws and ends through are named with
 /// a token of this page's, which its own scripts cannot guess.
 @MainActor
 final class ShareWrapper: NSObject, WKScriptMessageHandlerWithReply {
@@ -21,7 +21,6 @@ final class ShareWrapper: NSObject, WKScriptMessageHandlerWithReply {
         (() => {
           const md = navigator.mediaDevices;
           if (!md || !md.getDisplayMedia) return;
-          const original = md.getDisplayMedia.bind(md);
           const post = (m) => webkit.messageHandlers.\(Self.name).postMessage(m);
           let canvas = null, ctx = null, stream = null;
           window["\(frameFunction)"] = async (b) => {
@@ -42,7 +41,6 @@ final class ShareWrapper: NSObject, WKScriptMessageHandlerWithReply {
           };
           md.getDisplayMedia = async function (options) {
             const choice = await post({ kind: "ask" });
-            if (choice === "system") return original(options);
             if (choice !== "tab") throw new DOMException("Permission denied by the person", "NotAllowedError");
             canvas = document.createElement("canvas");
             canvas.width = 1280; canvas.height = 720;
@@ -79,7 +77,12 @@ final class ShareWrapper: NSObject, WKScriptMessageHandlerWithReply {
         switch kind {
             case "ask":
                 switch await content.askShare() {
-                    case .system: return ("system", nil)
+                    // macOS's picker, and Sunset's capture of what is picked (ADR-0085): WebKit's own takes a
+                    // screen or a window of its choosing, shows no picker, and needs the click Sunset's sheet used up.
+                    case .system:
+                        guard let feed = await WebShare.pickSystem() else { return ("cancel", nil) }
+                        content.startShare(feed, source: UUID())
+                        return ("tab", nil)
                     case .tab(let id):
                         content.startShare(from: id)
                         return ("tab", nil)

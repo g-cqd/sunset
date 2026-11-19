@@ -15,6 +15,7 @@ import WebKit
     static func start() {
         WebShare.sources = { asking in sources(except: asking) }
         WebShare.feed = { id in feed(id) }
+        WebShare.pickSystem = { await pickSystem() }
         WebShare.otherProfiles = AppConfiguration.shared.configuration.web.shareOtherProfiles
         // Reload As (roadmap 0050 D): every profile, and a profile's page settings.
         WebProfiles.all = {
@@ -28,8 +29,8 @@ import WebKit
         }
     }
 
-    /// Every open tab of every kind, by Space (ADR-0082, step D): pages, terminals, documents; not the asking page itself,
-    /// nor a private page.
+    /// Every open tab of every kind, by Space (ADR-0082, step D): pages, terminals, documents, the asking page itself among its
+    /// Space's, marked (the owner, 2026-11-19); not a private page.
     static func sources(except asking: WebContent) -> [ShareSource] {
         AppSpaces.all.spaces.flatMap { space in
             space.tabs.items.flatMap(\.panes)
@@ -39,7 +40,7 @@ import WebKit
                     switch content {
                         // A page not made yet (never shown) is offered too: it is made when chosen.
                         case let page as WebContent:
-                            guard page !== asking, !page.isPrivate else { return nil }
+                            guard !page.isPrivate else { return nil }
                             host = page.url?.host()
                         // A terminal never shown has no shell yet (it starts when first sized): nothing to send.
                         case let terminal as TerminalModel:
@@ -53,10 +54,33 @@ import WebKit
                         title: content.title,
                         space: space.space.name,
                         profile: space.space.profile,
-                        host: host
+                        host: host,
+                        isAsking: content === asking
                     )
                 }
         }
+    }
+
+    private static let picker = ScreenPicker()
+
+    /// macOS's picker, then what is picked captured (ADR-0085); stopped with the share.
+    static func pickSystem() async -> ShareFeed? {
+        guard let filter = await picker.pick() else { return nil }
+        let stream = ScreenStream()
+        guard await stream.start(filter) else {
+            ScreenPicker.done()
+            return nil
+        }
+        return ShareFeed(
+            frame: { await Task.detached(priority: .userInitiated) { stream.nextImage() }.value },
+            isOpen: { stream.isRunning },
+            host: { nil },
+            shared: { on in
+                guard !on else { return }
+                stream.stop()
+                ScreenPicker.done()
+            }
+        )
     }
 
     private static func anyContent(_ id: UUID) -> (any PaneContent)? {

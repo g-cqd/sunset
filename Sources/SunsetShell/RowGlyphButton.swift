@@ -37,7 +37,7 @@ package struct RowGlyphButton<Glyph: View>: View {
 
         var body: some View {
             label
-                .font(.system(size: Design.Symbol.badge, weight: .semibold))
+                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                 .foregroundStyle(hovering || pressed ? .primary : .secondary)
                 .frame(minWidth: layout.closeButtonSize, minHeight: layout.closeButtonSize)
                 .background(

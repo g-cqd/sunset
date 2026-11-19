@@ -33,9 +33,9 @@ extension WebCoordinator {
     static func installPrivateQuestions() {
         WebPermissionHooks.install(
             on: WebCoordinator.self,
-            screen: { delegate, _, origin, decide in
-                answer(delegate, origin, [.screen], decide)
-            },
+            // WebKit's own screen capture is never allowed (ADR-0085): in an app it shows no picker and takes the main screen
+            // or a window of its choosing. A page shares through Sunset's sheet and macOS's picker, which the wrapper asks.
+            screen: { _, _, _, decide in decide(false) },
             notifications: { delegate, _, origin, decide in
                 answer(delegate, origin, [.notifications], decide)
             }

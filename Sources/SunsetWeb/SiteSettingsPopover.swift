@@ -19,12 +19,10 @@ struct SiteSettingsPopover: View {
         VStack(alignment: .leading, spacing: Design.Space.m) {
             Text(host.isEmpty ? "This page" : host).font(Design.Text.title).fontDesign(host.isEmpty ? nil : .monospaced)
                 .foregroundStyle(.primary)
-            if content.capture != nil {
-                Button("Stop Camera, Microphone and Screen") { content.stopCapture() }
-            }
-            // This page is shared into a call (ADR-0082): stopped from here too.
-            if content.sharedInto > 0 {
-                Button("Stop Sharing This Tab") { content.stopBeingShared() }
+            // What the page uses now, apart from the site's settings (the owner, 2026-11-19): live, for this tab only.
+            if SitePageNow.shows(content) {
+                SitePageNow(content: content)
+                Divider()
             }
             // Blocking, paused for this site and its subdomains (W-c); off for every site in Settings.
             Toggle(isOn: Binding(get: { content.blocksOnSite }, set: { content.setBlocking($0) })) {
@@ -44,24 +42,6 @@ struct SiteSettingsPopover: View {
                 }
                 .settingSwitch()
                 .disabled(host.isEmpty)
-            }
-            // What the page uses now, each muted from here (the owner's note n47).
-            if let sound = content.sound {
-                Toggle(isOn: Binding(get: { sound != .muted }, set: { _ in content.toggleMuted() })) {
-                    Label("Sound", systemImage: sound.symbol)
-                }
-                .settingSwitch()
-            }
-            ForEach(PaneCapture.Device.allCases, id: \.self) { device in
-                if let state = content.devices[device] {
-                    Toggle(isOn: Binding(get: { state == .live }, set: { _ in content.toggle(device) })) {
-                        Label(
-                            device == .microphone ? "Microphone" : "Camera",
-                            systemImage: PaneCapture.symbol(device, state)
-                        )
-                    }
-                    .settingSwitch()
-                }
             }
             SiteZoomRow(content: content)
             appearsAs.disabled(host.isEmpty)

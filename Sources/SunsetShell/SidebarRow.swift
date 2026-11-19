@@ -100,6 +100,7 @@ struct SidebarRow: View {
                     showDirectory: showDirectory,
                     showProgress: showProgress,
                     showEdited: false,
+                    showControls: false,
                     name: name,
                     icon: icon,
                     saved: saved,
@@ -122,8 +123,11 @@ struct SidebarRow: View {
                     // Renaming: no close button; in its place, one that clears the name (the owner, 2026-11-17).
                     clearButton.position(x: proxy.size.width - middle, y: middle)
                 }
-                if edited { EditedMark().position(x: proxy.size.width - markInset(middle: middle), y: middle) }
-                if awake { awakeMark.position(x: proxy.size.width - awakeInset(middle: middle), y: middle) }
+                let end = rowEnd(closeShown: showsClose)
+                if edited { EditedMark().position(x: proxy.size.width - end.markInset(middle: middle), y: middle) }
+                ForEach(Array(endControls.enumerated()), id: \.element) { index, control in
+                    endControl(control).position(x: proxy.size.width - end.inset(of: index, middle: middle), y: middle)
+                }
             }
         }
         .background(shape.fill(highlight))
@@ -172,7 +176,7 @@ struct SidebarRow: View {
     private var closeButton: some View {
         SwiftUI.Button(action: close) {
             Image(systemName: button.symbol)
-                .font(.system(size: Design.Symbol.badge, weight: .semibold))
+                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                 .foregroundStyle(armed ? Color.white : Color.primary)
                 .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
                 .background(
@@ -194,42 +198,25 @@ struct SidebarRow: View {
 
     var showsClose: Bool { hovering || armed || keepCloseVisible }
 
-    /// How far the cup's centre is from the row's end: the close button's place, before it while it shows.
-    private func awakeInset(middle: Double) -> Double {
-        showsClose ? middle + layout.closeButtonSize + Design.Space.xs : middle
-    }
-
-    /// The cup's room at the row's end, beside the close button's.
-    private var awakeRoom: Double { awake ? layout.closeButtonSize + Design.Space.xs : 0 }
-
     /// A document with edits that are not saved: the row says so at its end, and the title stops before it.
     private var edited: Bool { model?.isEdited == true && renaming == nil }
 
-    /// The mark's width with the gap on each side of it.
-    private var markRoom: Double { Design.Size.editedMark + 2 * Design.Space.xs }
-
-    /// How far the mark's centre is from the row's end (owner note n76): just before the close button while it shows; else at the
-    /// end, as far from it as the icon is from the row's start, the button keeping no place.
-    private func markInset(middle: Double) -> Double {
-        if showsClose { return middle + layout.closeButtonSize / 2 + markRoom / 2 + awakeRoom }
-        // Before the cup, which is in the close button's place.
-        if awake { return middle + layout.closeButtonSize / 2 + markRoom / 2 }
-        return layout.tabPaddingLeading + Design.Size.editedMark / 2
+    /// The row's end with the close button shown or not.
+    private func rowEnd(closeShown: Bool) -> RowEnd {
+        RowEnd(
+            size: layout.closeButtonSize,
+            gap: Design.Space.xs,
+            closeShown: closeShown,
+            controls: endControls.count,
+            edited: edited,
+            markWidth: Design.Size.editedMark,
+            leading: layout.tabPaddingLeading,
+            trailing: layout.tabPaddingTrailing
+        )
     }
 
-    /// What the title leaves free at the row's end: the shown button's place, the mark's, both or nothing.
-    private var titleEnd: Double {
-        let shown = showsClose && renaming == nil
-        if shown { return layout.closeButtonSize + Design.Space.xs + (edited ? markRoom : 0) + awakeRoom }
-        if awake {
-            // The cup in the close button's place, and the mark before it.
-            return max(0, layout.tabPaddingLeading - layout.tabPaddingTrailing) + layout.closeButtonSize
-                + Design.Space.xs
-                + (edited ? markRoom : 0)
-        }
-        guard edited else { return 0 }
-        return max(0, layout.tabPaddingLeading - layout.tabPaddingTrailing) + Design.Size.editedMark + Design.Space.xs
-    }
+    /// What the title leaves free at the row's end: the shown button's place, the controls', the mark's, or nothing.
+    private var titleEnd: Double { rowEnd(closeShown: showsClose && renaming == nil).titleEnd }
 
     /// The title runs to the row's end; before a shown close button and before the mark it fades out over a few points.
     private var titleMask: some View {
