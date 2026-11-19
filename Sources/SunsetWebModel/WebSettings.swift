@@ -18,6 +18,9 @@ package struct WebSettings: Sendable, Equatable {
     package var engine: SearchEngine
     package var suggestions: Bool
     package var httpFallback: Bool
+    package var httpsUpgrade = HTTPSUpgrade.fallback
+    package var hardening = Hardening.off
+    package var globalPrivacyControl = GlobalPrivacyControl.privateWindows
     package var zoomScope: ZoomScope
     package var textOnlyZoom: Bool
     /// A private page's store (web step h); nil for a page of the persistent store. Pages it opens inherit it.
@@ -49,6 +52,10 @@ package struct WebSettings: Sendable, Equatable {
     }
     /// Sunset runs as Sunset.app, with the usage strings macOS needs before a page may use the camera, the microphone or location.
     package var hasAppIdentity = Bundle.main.object(forInfoDictionaryKey: "NSCameraUsageDescription") != nil
+    /// Pages have `navigator.mediaDevices`. WebKit turns it on for an app that says why it asks for the camera, and for
+    /// another only while that app holds an answer (observed 2026-11-19: a test run lost it when Sunset's signature changed
+    /// and its answers were not yet given again); tests ask for it plainly.
+    package var mediaDevices = Bundle.main.object(forInfoDictionaryKey: "NSCameraUsageDescription") != nil
 
     /// What a page's zoom applies to (`web.zoomScope`).
     package enum ZoomScope: Sendable, Equatable { case site, session, page }

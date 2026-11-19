@@ -95,6 +95,7 @@ extension SettingsSection {
         topics: [
             SettingsTopic("privacy.programs", "Programs in a terminal", SettingsOption.programs),
             SettingsTopic("privacy.browsing", "Browsing", SettingsOption.browsing),
+            SettingsTopic("privacy.protection", "Protection on the web", SettingsOption.webProtection),
             SettingsTopic("privacy.kept", "What is kept", SettingsOption.kept),
             SettingsTopic("privacy.key", "Key and recovery", SettingsOption.keyAndRecovery),
             SettingsTopic("privacy.export", "Export", SettingsOption.export)

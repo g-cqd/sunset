@@ -132,6 +132,9 @@ extension Configuration {
         public var suggestions = true
         /// A host typed without a scheme that fails over https is tried over http (marked Not Secure).
         public var httpFallback = false
+        public var httpsUpgrade = HTTPSUpgrade.fallback
+        public var hardening = Hardening.off
+        public var globalPrivacyControl = PrivacyControl.privateWindows
         public var zoomScope = ZoomScope.site
         public var agent = Agent.safari
         /// What a page's scripts read to tell a browser is set to what `agent` (or the site's rule) names: the second

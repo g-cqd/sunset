@@ -62,7 +62,7 @@ import Testing
 
     @Test func `the sentences under the controls are kept when options move`() {
         let noted = options.filter { $0.note != nil }.map(\.id)
-        #expect(noted.count == 62, "a sentence was added or lost: \(noted)")
+        #expect(noted.count == 65, "a sentence was added or lost: \(noted)")
         #expect(SettingsOption.named("sidebar.enabled")?.note?.contains("lists the tabs") == true)
         #expect(SettingsOption.named("scrollback.lines")?.note?.contains("opened after the change") == true)
     }

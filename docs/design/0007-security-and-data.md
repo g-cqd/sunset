@@ -55,7 +55,7 @@ Each row's "at rest" and "deleted by" gets a test that reads the files, as 0051 
 
 | Stage | What | Why first |
 |---|---|---|
-| S1 — cheap and high | HTTPS upgrade with a warning page; secure keyboard entry; paste warning; exports 0600 with a warning; caches out of backups; the cookie jar 0600 check (0058 1.6) | Hours each; close real gaps (A1, A3, A4, A6) |
+| S1 — cheap and high | HTTPS upgrade (done: ADR-0102, also the hardened mode and GPC as settings); secure keyboard entry; paste warning; exports 0600 with a warning; caches out of backups; the cookie jar 0600 check (0058 1.6) | Hours each; close real gaps (A1, A3, A4, A6) |
 | S2 — storage format 2 | t48 C (metadata sealed, HMAC row keys, reseal migration); the Secure Enclave wrap; the sealed backup format (shared with the vault) | The foundation the vault reuses |
 | S3 — the vault, first release | 0091, 0092 (model, editor, notes, files, history), 0093 | The owner's main request; no t49 needed |
 | S4 — the vault in pages and across Macs | 0094 (filling, saving), 0095 (imports, KDBX), 0096 (sync through a folder, anti-rollback) | Highest risk (A1 fills, A7): after the model is stable |

@@ -19,7 +19,7 @@ struct PageFootprintTests {
     ]
 
     private func page() async throws -> (WebContent, WKWebView) {
-        let page = WebContent(url: nil, settings: WebSettings(applicationName: "Version/26.0 Safari/605.1.15"))
+        let page = WebContent(url: nil, settings: Self.settings)
         page.permissions.set(.allow, .notifications, for: "chat.example")
         page.setState(focused: false, visible: true)
         let view = try #require(page.webView)
@@ -94,5 +94,12 @@ struct PageFootprintTests {
         #expect(found["length"] as? Int == 1)
         #expect(found["tag"] as? String == "[object Notification]")
         page.stop()
+    }
+
+    /// As the app's pages: `navigator.mediaDevices` there whatever this run's own answers are.
+    private static var settings: WebSettings {
+        var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
+        settings.mediaDevices = true
+        return settings
     }
 }

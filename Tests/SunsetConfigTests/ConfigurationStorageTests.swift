@@ -20,7 +20,8 @@ import Testing
         #expect(back.issues.isEmpty && back.configuration.storage == configuration.storage)
         #expect(
             SettingsSection.all.last?.topics.map(\.title) == [
-                "Programs in a terminal", "Browsing", "What is kept", "Key and recovery", "Export"
+                "Programs in a terminal", "Browsing", "Protection on the web", "What is kept", "Key and recovery",
+                "Export"
             ]
         )
         #expect(

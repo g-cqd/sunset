@@ -50,6 +50,10 @@ package struct PageSettingsMaker: Sendable {
         settings.notificationAskWithoutClick = web.notificationsWithoutClick
         settings.workerNotifications = web.workerNotifications
         settings.blocking = web.blocking
+        settings.httpsUpgrade = HTTPSUpgrade(rawValue: web.httpsUpgrade.rawValue) ?? .fallback
+        settings.hardening = Hardening(rawValue: web.hardening.rawValue) ?? .off
+        settings.globalPrivacyControl =
+            GlobalPrivacyControl(rawValue: web.globalPrivacyControl.rawValue) ?? .privateWindows
         return settings
     }
 

@@ -42,7 +42,7 @@ struct ShareFramesTests {
         let image = try #require(Self.red())
         WebShare.pickSystem = { ShareFeed(frame: { image }, isOpen: { true }, host: { "picked" }) }
         defer { WebShare.pickSystem = { nil } }
-        let page = WebContent(url: nil, settings: WebSettings(applicationName: "Version/26.0 Safari/605.1.15"))
+        let page = WebContent(url: nil, settings: Self.settings)
         page.setState(focused: false, visible: true)
         let view = try #require(page.webView)
         view.loadHTMLString("<p>call</p>", baseURL: URL(string: "https://call.example/"))
@@ -98,5 +98,12 @@ struct ShareFramesTests {
         context?.setFillColor(red: 1, green: 0, blue: 0, alpha: 1)
         context?.fill(CGRect(x: 0, y: 0, width: 64, height: 64))
         return context?.makeImage()
+    }
+
+    /// As the app's pages: `navigator.mediaDevices` there whatever this run's own answers are.
+    private static var settings: WebSettings {
+        var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
+        settings.mediaDevices = true
+        return settings
     }
 }
