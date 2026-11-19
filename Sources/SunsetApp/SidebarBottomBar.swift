@@ -5,8 +5,9 @@ import SunsetWeb
 import SwiftUI
 
 /// The bottom of the sidebar (R2's + button, t137, web step f, roadmap 0031), mirroring the pin at the top: the + on the corner nearest the panes
-/// (the owner's sketch E); at the window's edge the Library's glyph, which widens the sidebar by its rail, then downloads while there are any; all
-/// the sidebar's buttons (`SidebarIconButton`). The Spaces are in the middle (`SpacesRow`), once there are two. A click on + makes a tab of the focused kind; its menu
+/// (the owner's sketch E); at the window's edge the Library's glyph, which widens the sidebar by its rail, and above it the
+/// downloads while there are any (the owner's notes n60, n61: where they stay when the Library opens, above the way back);
+/// all the sidebar's buttons (`SidebarIconButton`). The Spaces are in the middle (`SpacesRow`), once there are two. A click on + makes a tab of the focused kind; its menu
 /// (right-click or long press) has every kind.
 struct SidebarBottomBar: View {
     let side: Configuration.Side
@@ -26,12 +27,9 @@ struct SidebarBottomBar: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .bottom, spacing: 0) {
             if side == .left {
-                HStack(spacing: spacing) {
-                    libraryButton
-                    downloadsButton
-                }
+                edge
             } else {
                 plus
             }
@@ -43,11 +41,21 @@ struct SidebarBottomBar: View {
             if side == .left {
                 plus
             } else {
-                HStack(spacing: spacing) {
-                    downloadsButton
-                    libraryButton
-                }
+                edge
             }
+        }
+    }
+
+    /// How many buttons high the bar is: two while the downloads' button is above the Library's glyph.
+    static func rows(library: Bool, downloads: Bool) -> Int {
+        library && downloads ? 2 : 1
+    }
+
+    /// The window's edge: the downloads above the Library's glyph, which is at the corner.
+    private var edge: some View {
+        VStack(spacing: spacing) {
+            downloadsButton
+            libraryButton
         }
     }
 

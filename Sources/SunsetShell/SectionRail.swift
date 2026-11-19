@@ -12,6 +12,9 @@ package struct SectionRail: View {
     let buttons: SidebarButtons
     /// Opens Help (the owner's note n27): its glyph above the gear; nil, none.
     var help: (() -> Void)?
+    /// The downloads' button (the app's), between the gear and the way back while there are downloads: where it is above
+    /// the Library's glyph when the Library is closed (the owner's notes n60, n61); nil, none.
+    var downloads: AnyView?
     /// The rail is at the window's leading edge: its foot is at that bottom corner, whose button is concentric with it.
     var leading = false
     let choose: (SidebarSection) -> Void
@@ -22,9 +25,11 @@ package struct SectionRail: View {
         buttons: SidebarButtons,
         leading: Bool = false,
         help: (() -> Void)? = nil,
+        downloads: AnyView? = nil,
         choose: @escaping (SidebarSection) -> Void
     ) {
         self.help = help
+        self.downloads = downloads
         self.selection = selection
         self.sections = sections
         self.buttons = buttons
@@ -42,11 +47,12 @@ package struct SectionRail: View {
     }
 
     /// What the rail's foot holds, from the top.
-    package enum Foot: Sendable { case help, settings, back }
+    package enum Foot: Sendable { case help, settings, downloads, back }
 
-    /// The foot's glyphs, from the top: Help above the gear (the owner's note n27), the way back last, at the corner.
-    static func foot(hasHelp: Bool) -> [Foot] {
-        (hasHelp ? [.help] : []) + [.settings, .back]
+    /// The foot's glyphs, from the top: Help above the gear (the owner's note n27), the downloads under it (n60, n61), the
+    /// way back last, at the corner.
+    static func foot(hasHelp: Bool, hasDownloads: Bool = false) -> [Foot] {
+        (hasHelp ? [.help] : []) + [.settings] + (hasDownloads ? [.downloads] : []) + [.back]
     }
 
     /// The way back points at the edge the sidebar closes to, at a bar (the owner, 2026-11-17): left for a sidebar on the
@@ -60,7 +66,7 @@ package struct SectionRail: View {
             ForEach(sections, id: \.self) { section in glyph(section) }
             Spacer(minLength: 0)
             // Help and the settings (roadmap 0032), above the way back.
-            ForEach(Self.foot(hasHelp: help != nil), id: \.self) { part in
+            ForEach(Self.foot(hasHelp: help != nil, hasDownloads: downloads != nil), id: \.self) { part in
                 switch part {
                     case .help:
                         SidebarIconButton(help: "Help") {
@@ -70,6 +76,7 @@ package struct SectionRail: View {
                         }
                         .accessibilityLabel("Help")
                     case .settings: glyph(.settings)
+                    case .downloads: downloads
                     case .back:
                         SidebarIconButton(symbol: Self.closeSymbol(leading: leading), help: "Back to the Tabs (Escape)")
                         {

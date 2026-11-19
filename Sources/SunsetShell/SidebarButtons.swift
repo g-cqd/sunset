@@ -81,6 +81,17 @@ package struct SidebarButtons {
 
     /// The room the rows leave the bar at the bottom: a button's height and the tabs' spacing, and what the bar is lifted by.
     package var barRoom: Double {
-        metrics.size.height + layout.tabSpacing + lift
+        barRoom(rows: 1)
+    }
+
+    /// The room for a bar `rows` buttons high (the downloads' button above the Library's glyph: notes n60, n61).
+    package func barRoom(rows: Int) -> Double {
+        barHeight(rows: rows) + layout.tabSpacing + lift
+    }
+
+    /// A bar `rows` buttons high, the tabs' spacing between them.
+    package func barHeight(rows: Int) -> Double {
+        let rows = max(rows, 1)
+        return Double(rows) * metrics.size.height + Double(rows - 1) * layout.tabSpacing
     }
 }

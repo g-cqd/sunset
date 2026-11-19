@@ -13,7 +13,7 @@ extension TabSidebar {
 
     /// How much room the rows leave at the bottom for the app's bar.
     var bottomInset: Double {
-        bottomBar == nil ? 0 : buttons.barRoom
+        bottomBar == nil ? 0 : buttons.barRoom(rows: bottomBarRows)
     }
 
     /// The app's bar at the bottom, as the pin is at the top: the same gap to the side edges, and to the bottom (the card's bottom when docked).
@@ -21,7 +21,7 @@ extension TabSidebar {
         if let bottomBar {
             bottomBar
                 .environment(\.sidebarButtonMetrics, buttons.metrics)
-                .frame(height: buttons.metrics.size.height)
+                .frame(height: buttons.barHeight(rows: bottomBarRows))
                 .padding(.horizontal, buttons.gap)
                 .padding(.bottom, buttons.bottom)
         }

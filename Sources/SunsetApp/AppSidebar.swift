@@ -3,6 +3,7 @@ import SunsetHelp
 import SunsetMetrics
 import SunsetShell
 import SunsetShellBridge
+import SunsetWeb
 import SwiftUI
 
 /// What the tab sidebar shows, docked or floating: the tabs, or the Library on one of its sections (roadmap 0031). Opening the
@@ -50,7 +51,9 @@ struct AppSidebar: View {
                     // On the settings' page shown, its topic; elsewhere, where Help was.
                     let page = section == .settings ? AppSettings.content(in: tabs)?.topic : nil
                     AppHelp.show(HelpTree.topic(about: page), in: tabs)
-                }
+                },
+                // Where it is above the Library's glyph with the Library closed (the owner's notes n60, n61).
+                downloads: DownloadCenter.shared.items.isEmpty ? nil : AnyView(DownloadsButton())
             ) { chosen in
                 if chosen == .settings { AppSettings.show(in: tabs) } else { tabs.sections.show(library: chosen) }
             }
@@ -73,6 +76,10 @@ struct AppSidebar: View {
                     library: configuration.sidebar.library,
                     spacing: settings.layout.tabSpacing
                 )
+            ),
+            bottomBarRows: SidebarBottomBar.rows(
+                library: configuration.sidebar.library && SidebarSection.rail(for: tabs.scopes).count > 1,
+                downloads: !DownloadCenter.shared.items.isEmpty
             ),
             togglePin: AppConfiguration.togglePin
         )

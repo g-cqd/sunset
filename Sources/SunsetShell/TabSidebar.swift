@@ -28,6 +28,8 @@ package struct TabSidebar: View {
     var notices: AnyView?
     /// What the app puts at the bottom, against the window's edge (the + button and downloads, R2 and web step f).
     var bottomBar: AnyView?
+    /// How many buttons high the bar is: two while the downloads' button is above the Library's glyph (notes n60, n61).
+    var bottomBarRows = 1
     /// The row a drag is over, and what a drop there would do.
     @State private var rowDrop: (owner: Workspace.ItemID, place: TabDropAction)?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
@@ -66,8 +68,10 @@ package struct TabSidebar: View {
         accessory: AnyView? = nil,
         notices: AnyView? = nil,
         bottomBar: AnyView? = nil,
+        bottomBarRows: Int = 1,
         togglePin: @escaping () -> Void
     ) {
+        self.bottomBarRows = bottomBarRows
         self.accessory = accessory
         self.notices = notices
         self.bottomBar = bottomBar

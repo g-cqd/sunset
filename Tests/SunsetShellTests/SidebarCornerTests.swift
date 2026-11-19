@@ -45,6 +45,16 @@ import Testing
         #expect(buttons.barRoom == buttons.metrics.size.height + buttons.layout.tabSpacing + 2)
     }
 
+    /// Notes n60, n61: the downloads' button stacked above the Library's glyph makes the bar two rows high: the rows leave it
+    /// one more button and its spacing, and the bar is that high.
+    @Test func `a bar two buttons high: the rows leave it a button and a spacing more`() {
+        let buttons = docked()
+        let row = buttons.metrics.size.height + buttons.layout.tabSpacing
+        #expect(buttons.barRoom(rows: 1) == buttons.barRoom)
+        #expect(buttons.barRoom(rows: 2) == buttons.barRoom + row)
+        #expect(buttons.barHeight(rows: 2) == 2 * buttons.metrics.size.height + buttons.layout.tabSpacing)
+    }
+
     /// How far in along the diagonal the first drawn pixel is from each corner of a pressed button drawn at 8 px a point:
     /// top left, top right, bottom left, bottom right.
     func cuts(_ corner: SidebarButtonCorner?) throws -> [Int] {
