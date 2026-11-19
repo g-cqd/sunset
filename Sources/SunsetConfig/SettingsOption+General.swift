@@ -107,7 +107,25 @@ extension SettingsOption {
                 \.terminal.clipboardWrite,
                 label: "Programs may copy to the clipboard"
             )
-            .noted("What a program asks to copy (OSC 52), over SSH too. No program can read the clipboard.")
+            .noted("What a program asks to copy (OSC 52), over SSH too. No program can read the clipboard."),
+            choice(
+                "terminal.secureKeyboard",
+                "Secure keyboard entry",
+                "secure keyboard keylogger password sudo event tap",
+                \.terminal.secureKeyboard,
+                [(.whenPassword, "While a password is asked"), (.always, "Always"), (.off, "Never")]
+            )
+            .noted(
+                "Other apps cannot read what you type in the terminal. A password asked on another computer through SSH is "
+                    + "not seen: choose Always for those."
+            ),
+            toggle(
+                "terminal.pasteWarning",
+                "Ask before a risky paste",
+                "paste warning newline commands control hidden characters",
+                \.terminal.pasteWarning,
+                label: "Ask before pasting text that runs commands or hides characters"
+            )
         ]
 
     /// What is kept, and what protects it (R12 step ST-6).

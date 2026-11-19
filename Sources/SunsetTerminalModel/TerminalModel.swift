@@ -40,6 +40,8 @@ package import SunsetRuntime
     @ObservationIgnored package var writeClipboard: (String) -> Void = { _ in }
     /// Whether Sunset is the app in front (the app's: `NSApp.isActive`); until it says, it is.
     @ObservationIgnored package var appIsActive: () -> Bool = { true }
+    /// Pastes asked about and secure keyboard entry (task t116): the app's settings, the view's sheet and holder.
+    @ObservationIgnored package var safety = TerminalSafety()
     /// Shows a notification the program asked for and the policy admitted: the app's (it names the Space, and a click goes
     /// to the tab: S-e); nil, the notification centre's as it is.
     @ObservationIgnored package var post: ((_ title: String, _ body: String) -> Void)?
@@ -205,8 +207,10 @@ package import SunsetRuntime
                     noteActivity()
                     // A terminal that is not shown draws nothing, so its tab's label is read from the session here (n48).
                     if !isVisible { apply(session.status()) }
+                    noteSecret(session.asksSecret())
                     requestFrame()
                 case .closed:
+                    noteSecret(false)
                     isRunning = false
                     onExit()
             }

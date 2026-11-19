@@ -165,6 +165,11 @@ public actor TerminalSession {
         process.send(PasteEncoder.encode(text, bracketed: core.terminal.withLock { $0.screen.modes.bracketedPaste }))
     }
 
+    /// What pasting `text` now would do that the person may not see, by the program's bracketed-paste mode (task t116).
+    public func pasteRisks(_ text: String) -> [PasteRisk] {
+        PasteRisk.of(text, bracketed: core.terminal.withLock { $0.screen.modes.bracketedPaste })
+    }
+
     /// The theme's default colours (nil leaves one as it is); the screen is drawn again.
     public func setDefaultColors(foreground: RGB?, background: RGB?, cursor: RGB?) {
         core.terminal.withLock { $0.setDefaultColors(foreground: foreground, background: background, cursor: cursor) }

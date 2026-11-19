@@ -35,7 +35,11 @@ import Testing
     }
 
     @Test func `what a program may copy is under Privacy and security, with what the web keeps (the owner)`() {
-        #expect(options("privacy.programs") == ["terminal.clipboardWrite"])
+        #expect(
+            options("privacy.programs") == [
+                "terminal.clipboardWrite", "terminal.secureKeyboard", "terminal.pasteWarning"
+            ]
+        )
         #expect(
             options("privacy.browsing") == [
                 "web.historyKeep", "web.clearHistoryOnQuit", "web.keep.siteData", "web.keep.cache", "web.keep.traces",

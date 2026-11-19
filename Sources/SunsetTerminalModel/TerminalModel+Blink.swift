@@ -30,6 +30,7 @@ extension TerminalModel {
         let visible = gates.isVisible
         hasFocus = gates.hasFocus
         isVisible = visible
+        updateSecureInput()
         blinkWake.continuation.yield()
         if visible, !wasVisible { requestFrame() }
         if !visible { setDisplayLinkPaused(true) }

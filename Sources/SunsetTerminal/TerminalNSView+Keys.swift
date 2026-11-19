@@ -27,7 +27,7 @@ extension TerminalNSView {
 
     @objc package func paste(_ sender: Any?) {
         guard let text = NSPasteboard.general.string(forType: .string) else { return }
-        model.send(.paste(text))
+        model.paste(text)
     }
 
     /// Shift with Page Up, Page Down, Home or End moves through the history instead of reaching the program (as in other terminals).

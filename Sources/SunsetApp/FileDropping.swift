@@ -23,7 +23,7 @@ import SunsetTerminal
         switch FileDrop.outcome(of: dragged, onTerminal: terminal != nil, isFolder: isFolder) {
             case .type(let text):
                 if let pane { tabs.focus(pane) }
-                terminal?.send(.paste(text))
+                terminal?.paste(text)
             case .open(let files): AppActions.shared.open(files: files)
             case .nothing: return false
         }

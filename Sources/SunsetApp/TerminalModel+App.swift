@@ -18,6 +18,10 @@ extension TerminalModel {
             NSPasteboard.general.setString(text, forType: .string)
         }
         appIsActive = { NSApp.isActive }
+        safety.settings = {
+            let terminal = AppConfiguration.shared.configuration.terminal
+            return (terminal.secureKeyboard, terminal.pasteWarning)
+        }
         openURL = { [weak self, weak tabs] url in
             // With the web off a link goes to the system's browser (roadmap 0033).
             guard AppConfiguration.shared.configuration.web.openLinksInSunset, AppScopes.current.web, let self, let tabs

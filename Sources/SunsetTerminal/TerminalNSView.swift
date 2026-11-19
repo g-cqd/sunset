@@ -36,6 +36,15 @@ package final class TerminalNSView: NSView {
         layer?.isOpaque = true
         model.presentFrame = { [weak self] surface in self?.show(surface) }
         model.setDisplayLinkPaused = { [weak self] paused in self?.displayLink?.isPaused = paused }
+        model.safety.askBeforePasting = { [weak self] risks, text, paste in
+            PasteWarning.ask(risks, text, in: self?.window, paste: paste)
+        }
+        // Secure input is this view's to hold for its model: it starts released, and is held again if it should be.
+        let holder = ObjectIdentifier(model)
+        model.safety.holdSecureInput = { SecureInput.set($0, for: holder) }
+        SecureInput.set(false, for: holder)
+        model.safety.secureInputHeld = false
+        model.updateSecureInput()
         // A tab selected again gets a new view (SwiftUI makes one for the selected terminal): show the last frame at once instead of nothing until the
         // program next changes the screen or the cursor blinks (measured: 565 ms of blank).
         if let latest = model.lastSurface { show(latest) }
@@ -128,6 +137,9 @@ package final class TerminalNSView: NSView {
     }
 
     isolated deinit {
+        // Never left on for the whole Mac by a view that is gone (a tab closed while a password was asked).
+        SecureInput.set(false, for: ObjectIdentifier(model))
+        model.safety.secureInputHeld = false
         displayLink?.invalidate()
         windowObservers.forEach { NotificationCenter.default.removeObserver($0) }
     }
