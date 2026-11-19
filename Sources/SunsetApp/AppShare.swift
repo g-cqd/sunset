@@ -3,6 +3,7 @@ import CoreImage
 import SunsetConfig
 import SunsetMarkdown
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetTerminal
 import SunsetWeb
@@ -12,6 +13,9 @@ import WebKit
 /// a window (its tab not shown) is drawn in a window off screen while it is shared, as the probe measured; a terminal sends
 /// its renderer's last frame, a document is drawn again from its rows.
 @MainActor enum AppShare {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    static var runtime = Runtime.live
+
     static func start() {
         WebShare.sources = { asking in sources(except: asking) }
         WebShare.feed = { id in feed(id) }
@@ -71,7 +75,7 @@ import WebKit
             return nil
         }
         return ShareFeed(
-            frame: { await Task.detached(priority: .userInitiated) { stream.nextImage() }.value },
+            frame: { await runtime.detached(priority: .userInitiated) { stream.nextImage() }.value },
             isOpen: { stream.isRunning },
             host: { nil },
             shared: { on in

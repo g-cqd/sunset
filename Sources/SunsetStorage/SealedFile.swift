@@ -1,4 +1,5 @@
 public import Foundation
+public import SunsetRuntime
 
 /// A file kept sealed and whole (R12, step ST-3: the session): `StoredFile` with a `Seal`.
 public enum SealedFile {
@@ -26,7 +27,7 @@ public enum SealedFile {
         as what: String,
         seal: Seal,
         identity: String,
-        now: Date = Date(),
+        now: Date = Runtime.live.now(),
         decode: (Data) -> Value?
     ) -> StoredRead<Value> {
         guard let bytes = FileManager.default.contents(atPath: path) else { return .absent }

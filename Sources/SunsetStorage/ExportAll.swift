@@ -1,4 +1,5 @@
 public import Foundation
+public import SunsetRuntime
 
 /// Export All (R12, roadmap 0030 step ST-6): a dated folder in the folder the person chose, each part written in it, and one
 /// sentence that says what was exported and what could not be. The app gives the parts: this target does not know documents
@@ -34,7 +35,7 @@ public enum ExportAll {
     /// Makes the export's folder in `parent` and runs `steps` on it; a step that is nil had nothing to export.
     public static func run(
         into parent: URL,
-        now: Date = Date(),
+        now: Date = Runtime.live.now(),
         calendar: Calendar = .current,
         steps: (URL) -> [Step?]
     ) -> Outcome {

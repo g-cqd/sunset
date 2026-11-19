@@ -1,6 +1,7 @@
 import AppKit
 package import Foundation
 package import SunsetPane
+import SunsetRuntime
 
 /// Removing panes and tabs: what a close asks first, and what it stops.
 extension TabsModel {
@@ -18,17 +19,22 @@ extension TabsModel {
 
     /// Whether `item` is currently armed for close confirmation (tinted red).
     package func isCloseArmed(_ item: Workspace.ItemID) -> Bool {
-        closeConfirmation.isArmed(item: item, now: .now)
+        closeConfirmation.isArmed(item: item, now: runtime.uptime())
     }
 
     func confirmed(_ target: CloseConfirmation.Target, isBusy: Bool) -> Bool {
-        let allowed = closeConfirmation.shouldClose(target, isBusy: isBusy, enabled: confirmClose, now: .now)
+        let allowed = closeConfirmation.shouldClose(
+            target,
+            isBusy: isBusy,
+            enabled: confirmClose,
+            now: runtime.uptime()
+        )
         if !allowed, let deadline = closeConfirmation.expiration {
             expiryTask?.cancel()
-            expiryTask = Task { [weak self] in
-                try? await Task.sleep(until: deadline, clock: .continuous)
+            expiryTask = runtime.task { [weak self, runtime] in
+                await runtime.sleep(until: deadline)
                 guard !Task.isCancelled else { return }
-                self?.closeConfirmation.expire(at: .now)
+                self?.closeConfirmation.expire(at: runtime.uptime())
             }
         }
         return allowed
@@ -36,7 +42,7 @@ extension TabsModel {
 
     /// The window closed: it no longer shows its Space. While another window does, nothing stops; the last window of a Space
     /// that keeps its tabs stops them and they stay; any other Space ends with its window.
-    package func windowClosed(at date: Date = Date()) {
+    package func windowClosed(at date: Date = Runtime.live.now()) {
         space.leave(self, at: date)
         spaces?.windowClosed(at: date)
     }

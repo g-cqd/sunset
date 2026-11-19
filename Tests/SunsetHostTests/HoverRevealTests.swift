@@ -3,7 +3,7 @@ import Testing
 @testable import SunsetHost
 
 @Suite("Hover reveal") struct HoverRevealTests {
-    private let start = ContinuousClock.now
+    private let start = Duration.seconds(1000)
 
     @Test func `it is hidden until the pointer is on the strip, then shown at once`() {
         var reveal = HoverReveal(hideDelay: .milliseconds(300))

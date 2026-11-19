@@ -1,12 +1,13 @@
 import SunsetCore
 import SunsetHost
+import SunsetRuntime
 
 extension TerminalModel {
     package func apply(colors: DefaultColors) {
         guard colors != defaultColors else { return }
         defaultColors = colors
         guard let session else { return }
-        Task {
+        runtime.task {
             await colors.apply(to: session)
         }
     }
@@ -46,7 +47,7 @@ extension TerminalModel {
         }
         if let session {
             let colors = defaultColors
-            Task {
+            runtime.task {
                 await colors.apply(to: session)
             }
         }

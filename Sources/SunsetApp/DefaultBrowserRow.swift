@@ -1,10 +1,13 @@
 import AppKit
+import SunsetRuntime
 import SunsetShell
 import SwiftUI
 
 /// Settings > Web > Pages: whether Sunset is the Mac's browser, and a button to make it so (the owner's note n18). macOS asks
 /// the person to confirm; the answer is read again when Sunset comes back to the front.
 struct DefaultBrowserRow: View {
+    @Environment(\.runtime) var runtime
+
     @State private var isDefault = DefaultBrowserRow.sunsetIsDefault()
     @State private var failed = false
 
@@ -36,7 +39,7 @@ struct DefaultBrowserRow: View {
 
     private func makeDefault() {
         let app = Bundle.main.bundleURL
-        Task { @MainActor in
+        runtime.task { @MainActor in
             var refused = false
             for scheme in ["http", "https"] {
                 do {

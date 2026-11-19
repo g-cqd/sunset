@@ -1,4 +1,5 @@
 public import SunsetCore
+public import SunsetRuntime
 internal import Synchronization
 
 /// A program running in a terminal, owned by an actor: the output is read as it arrives (the reader pulls, so the child is slowed by the kernel's buffer
@@ -8,6 +9,9 @@ internal import Synchronization
 /// once per display frame sees exactly what changed since the frame before, however many reads there were between (a fast flood costs one frame, not
 /// many; nothing is lost; nothing is drawn that was overwritten). The copy is cheap (the grid is shared until the next write).
 public actor TerminalSession {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    public var runtime = Runtime.live
+
     public enum Update: Sendable, Equatable {
         /// The screen (or the title, or the modes) changed since the last snapshot.
         case changed
@@ -55,7 +59,7 @@ public actor TerminalSession {
         guard reading == nil else { return }
         let (process, core, updates, events) = (process, core, continuation, hostContinuation)
         // On the reader thread, not on this actor: the thread that reads also parses (see `OutputPump`), and tells the consumer once per snapshot.
-        reading = Task.detached(executorPreference: process.readThread) { [self] in
+        reading = runtime.detached(executorPreference: process.readThread) { [self] in
             process.pump.run { piece in
                 let (replies, hostEvents) = core.ingest(piece)
                 if !replies.isEmpty { process.send(replies) }

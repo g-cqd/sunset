@@ -4,6 +4,7 @@ internal import Metal
 public import SunsetCore
 public import SunsetRender
 public import SunsetRenderMac
+public import SunsetRuntime
 internal import Synchronization
 
 /// The Metal renderer behind `IOSurfaceRenderer`: the CPU renderer works out the frame's operations (`CPURenderer.record`) and `MetalCompositor` draws them
@@ -11,6 +12,9 @@ internal import Synchronization
 /// is first brought up to the one shown last, on the GPU: the rows it missed are copied from it, and a scroll's rows moved from it. No other texture keeps
 /// the picture (renderer plan, item 5: a frame-sized canvas less per window).
 public actor MetalSurfaceRenderer: IOSurfaceRenderer {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    public var runtime = Runtime.live
+
     public nonisolated let cellMetrics: RenderMetrics
     private let recorder: CPURenderer
     private let compositor: MetalCompositor
@@ -102,7 +106,7 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
             textBlinkVisible: textBlinkVisible,
             view: view
         )
-        let now = ContinuousClock.now
+        let now = runtime.uptime()
         guard let changed = frame.changedPixelRows, let target = ring.next(now: now, quiet: quietAfter) else {
             self.ring = ring
             return false

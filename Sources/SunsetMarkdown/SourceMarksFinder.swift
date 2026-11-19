@@ -1,12 +1,16 @@
 internal import AppKit
 internal import MarkdownLookKit
 internal import SunsetDocuments
-internal import SwiftUI
+import SunsetRuntime
+internal import SunsetShell
+import SwiftUI
 
 /// Finds the text view of the source editor it is put behind, and keeps its marks (`SourceMarks`) as the document's
 /// conflicts are. The editor is the kit's and gives no handle on its text view; the one searched for is the nearest text view
 /// on this document's text, which is this pane's (another pane on the same document has its own).
 struct SourceMarksFinder: NSViewRepresentable {
+    @Environment(\.runtime) var runtime
+
     let content: DocumentContent
     /// What the marks depend on: when one changes, they are placed again.
     let conflicts: [DocumentConflict]
@@ -41,7 +45,7 @@ struct SourceMarksFinder: NSViewRepresentable {
         let storage = content.document.source.storage
         let wanted = reveal
         // After this pass: the editor beside this view may not be in the window yet.
-        Task { @MainActor [weak view] in
+        runtime.task { @MainActor [weak view] in
             guard let view else { return }
             marks.attach(to: Self.editor(near: view, on: storage))
             marks.update()

@@ -2,6 +2,7 @@ import AVFoundation
 import AppKit
 import CoreLocation
 import Observation
+import SunsetRuntime
 import SunsetWeb
 import UserNotifications
 
@@ -9,6 +10,9 @@ import UserNotifications
 /// app starts and each time it comes to the front (a change in System Settings is seen on coming back), and after asking.
 @MainActor @Observable
 final class SystemAuthorizations {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored var runtime = Runtime.live
+
     static let shared = SystemAuthorizations()
 
     private(set) var statuses: [SystemAsk.Need: SystemAsk.Status] = [:]
@@ -42,7 +46,7 @@ final class SystemAuthorizations {
                 case .denied, .restricted: .denied
                 default: .allowed
             }
-        Task {
+        runtime.task {
             let settings = await UNUserNotificationCenter.current().notificationSettings()
             statuses[.notifications] =
                 switch settings.authorizationStatus {
@@ -57,7 +61,7 @@ final class SystemAuthorizations {
     func act(on ask: SystemAsk) {
         switch ask.action {
             case .ask:
-                Task {
+                runtime.task {
                     _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
                     refresh()
                 }

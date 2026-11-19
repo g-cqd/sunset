@@ -1,4 +1,5 @@
 import AppKit
+import SunsetRuntime
 
 /// The icons of the picker's grid as small pictures, each rendered once, off the main actor: the system's symbols in
 /// one colour, and emoji. Drawing a symbol's `NSImage` costs some 0.35 ms every time, kept or not (measured, release: 22
@@ -10,6 +11,9 @@ import AppKit
 /// symbol in it, then one that drew nothing at all).
 @MainActor
 final class IconPictures {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    var runtime = Runtime.live
+
     struct Picture: @unchecked Sendable {
         let image: CGImage
         /// In points.
@@ -68,7 +72,7 @@ final class IconPictures {
         let wanted = Array(missing(names).prefix(limit * 3 / 4))
         guard !wanted.isEmpty else { return }
         let (scale, ink) = (scale, ink)
-        rendering = Task { [weak self] in
+        rendering = runtime.task { [weak self] in
             let made = await Self.rendered(wanted, scale: scale, ink: ink)
             guard let self, !Task.isCancelled, self.scale == scale, self.ink == ink else { return }
             for (name, picture) in made {

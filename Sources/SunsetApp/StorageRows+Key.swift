@@ -1,3 +1,4 @@
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 import SwiftUI
@@ -35,7 +36,7 @@ extension StorageRows {
                         : "There is no key here to show: enter the code of the key that sealed what is kept."),
                 warn: storage.codeProblem != nil || !storage.hasKey
             ) {
-                Button("Show\u{2026}") { Task { await storage.showCode() } }.disabled(!storage.hasKey)
+                Button("Show\u{2026}") { runtime.task { await storage.showCode() } }.disabled(!storage.hasKey)
             }
         }
     }

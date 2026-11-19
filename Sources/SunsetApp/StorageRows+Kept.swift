@@ -1,4 +1,5 @@
 import AppKit
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 import SwiftUI
@@ -40,8 +41,8 @@ extension StorageRows {
         .confirmationDialog("Clear all website data?", isPresented: $confirmsClearing) {
             Button("Clear Website Data", role: .destructive) {
                 WebClearing.clear(since: .distantPast, history: false, websiteData: true, siteZoom: false)
-                Task {
-                    try? await Task.sleep(for: .seconds(2))
+                runtime.task {
+                    await runtime.sleep(for: .seconds(2))
                     storage.refresh()
                 }
             }

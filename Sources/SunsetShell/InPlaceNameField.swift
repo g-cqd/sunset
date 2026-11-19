@@ -1,15 +1,19 @@
 import AppKit
+import SunsetRuntime
 import SwiftUI
 
 /// A text field that takes the keyboard when it appears, from whatever had it (a terminal view keeps it otherwise: SwiftUI's focus does not reach past
 /// AppKit's first responder). Return commits, Escape cancels, losing the keyboard commits.
 struct InPlaceNameField: NSViewRepresentable {
+    @Environment(\.runtime) var runtime
+
     @Binding var text: String
     let commit: () -> Void
     let cancel: () -> Void
 
     func makeNSView(context: Context) -> NSTextField {
         let field = TakingField(string: text)
+        field.runtime = runtime
         field.isBordered = false
         field.drawsBackground = false
         field.focusRingType = .none
@@ -20,10 +24,13 @@ struct InPlaceNameField: NSViewRepresentable {
 
     /// Takes the keyboard as soon as it is in a window, with its text selected.
     final class TakingField: NSTextField {
+        /// The representable's, from its environment.
+        var runtime = Runtime.live
+
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
             guard let window else { return }
-            Task { @MainActor in
+            runtime.task { @MainActor in
                 window.makeFirstResponder(self)
                 self.currentEditor()?.selectAll(nil)
             }

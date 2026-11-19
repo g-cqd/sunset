@@ -21,6 +21,16 @@ let workSettings: [SwiftSetting] =
     strictSettings + (optimized ? [.unsafeFlags(["-O"], .when(configuration: .debug))] : [])
 let workCSettings: [CSetting] = optimized ? [.unsafeFlags(["-O2"], .when(configuration: .debug))] : []
 
+/// A module of Sunset's, at `Sources/<name>`.
+func module(_ name: String, _ dependencies: [Target.Dependency], settings: [SwiftSetting] = strictSettings) -> Target {
+    .target(name: name, dependencies: dependencies, path: "Sources/\(name)", swiftSettings: settings)
+}
+
+/// A module's tests, at `Tests/<name>`.
+func tests(_ name: String, _ dependencies: [Target.Dependency], settings: [SwiftSetting] = strictSettings) -> Target {
+    .testTarget(name: name, dependencies: dependencies, path: "Tests/\(name)", swiftSettings: settings)
+}
+
 let package = Package(
     name: "Sunset",
     platforms: [.macOS(.v26)],
@@ -96,43 +106,19 @@ let package = Package(
             path: "Sources/CSunsetKernels",
             cSettings: workCSettings
         ),
-        .target(
-            name: "SunsetRender",
-            dependencies: ["SunsetCore", "CSunsetKernels"],
-            path: "Sources/SunsetRender",
-            swiftSettings: workSettings
+        module("SunsetRender", ["SunsetCore", "CSunsetKernels"], settings: workSettings),
+        tests("SunsetRuntimeTests", ["SunsetRuntime", .product(name: "AemiTestKit", package: "aemi")]),
+        tests(
+            "SunsetRenderTests",
+            [.product(name: "AemiTestKit", package: "aemi"), "SunsetRender", "SunsetCore"],
+            settings: workSettings
         ),
-        .testTarget(
-            name: "SunsetRenderTests",
-            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetRender", "SunsetCore"],
-            path: "Tests/SunsetRenderTests",
-            swiftSettings: workSettings
-        ),
-        .target(
-            name: "SunsetRenderMac",
-            dependencies: ["SunsetRender"],
-            path: "Sources/SunsetRenderMac",
-            swiftSettings: workSettings
-        ),
-        .target(
-            name: "SunsetRenderMetal",
-            dependencies: ["SunsetRender", "SunsetRenderMac"],
-            path: "Sources/SunsetRenderMetal",
-            swiftSettings: strictSettings
-        ),
-        .testTarget(
-            name: "SunsetRenderMetalTests",
-            dependencies: ["SunsetRenderMetal", "SunsetRenderMac", "SunsetRender", "SunsetCore"],
-            path: "Tests/SunsetRenderMetalTests",
-            swiftSettings: strictSettings
-        ),
-        .testTarget(
-            name: "SunsetRenderMacTests",
-            dependencies: [
-                .product(name: "AemiTestKit", package: "aemi"), "SunsetRenderMac", "SunsetRender", "SunsetCore"
-            ],
-            path: "Tests/SunsetRenderMacTests",
-            swiftSettings: strictSettings
+        module("SunsetRenderMac", ["SunsetRuntime", "SunsetRender"], settings: workSettings),
+        module("SunsetRenderMetal", ["SunsetRuntime", "SunsetRender", "SunsetRenderMac"]),
+        tests("SunsetRenderMetalTests", ["SunsetRenderMetal", "SunsetRenderMac", "SunsetRender", "SunsetCore"]),
+        tests(
+            "SunsetRenderMacTests",
+            [.product(name: "AemiTestKit", package: "aemi"), "SunsetRenderMac", "SunsetRender", "SunsetCore"]
         ),
         .executableTarget(
             name: "SunsetAppMain",
@@ -140,17 +126,15 @@ let package = Package(
             path: "Sources/SunsetAppMain",
             swiftSettings: strictSettings
         ),
-        .target(
-            name: "SunsetApp",
-            dependencies: [
-                "SunsetHelp", "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetPrivate", "SunsetRender",
-                "SunsetStorage", "SunsetDocuments",
-                "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal",
-                "SunsetWeb", "SunsetMarkdown", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR"),
+        module(
+            "SunsetApp",
+            [
+                "SunsetRuntime", "SunsetHelp", "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane",
+                "SunsetPrivate", "SunsetRender", "SunsetStorage", "SunsetDocuments", "SunsetRenderMac",
+                "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal", "SunsetWeb",
+                "SunsetMarkdown", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR"),
                 .product(name: "MarkdownLookKit", package: "AemiMarkdown")
-            ],
-            path: "Sources/SunsetApp",
-            swiftSettings: strictSettings
+            ]
         ),
         .executableTarget(
             name: "SunsetRenderTool",
@@ -158,17 +142,18 @@ let package = Package(
             path: "Sources/SunsetRenderTool",
             swiftSettings: strictSettings
         ),
+        // Tasks and time through seams (ADR-0087): the `TaskProvider`, the `Clock` and the "now" every module is given, live
+        // by default, a spy and a test clock in tests (AemiRuntime, AemiTestKit).
+        module("SunsetRuntime", [.product(name: "AemiRuntime", package: "aemi")]),
         // The interface's measures (`layout.*`): one list, read by the configuration and drawn by the shell (design 0003).
-        .target(
-            name: "SunsetMetrics",
-            path: "Sources/SunsetMetrics",
-            swiftSettings: strictSettings
-        ),
+        module("SunsetMetrics", []),
         // Documents (R6, R12): the store of those that live in Sunset (one sealed file each, an index rebuilt from them), and
         // the one document behind every pane on a file or a stored document (its text, saving, watching the file).
         .target(
             name: "SunsetDocuments",
             dependencies: [
+                "SunsetRuntime",
+                "SunsetRuntime",
                 "SunsetStorage", "SunsetHost", .product(name: "MarkdownLookKit", package: "AemiMarkdown"),
                 // The parser itself: a text cut at its top-level blocks, for merging a change on disk (step M-e).
                 .product(name: "AemiMarkdown", package: "AemiMarkdown"),
@@ -177,160 +162,81 @@ let package = Package(
             path: "Sources/SunsetDocuments",
             swiftSettings: strictSettings
         ),
-        .testTarget(
-            name: "SunsetDocumentsTests",
-            dependencies: [
-                "SunsetDocuments", "SunsetStorage", .product(name: "MarkdownLookKit", package: "AemiMarkdown")
-            ],
-            path: "Tests/SunsetDocumentsTests",
-            swiftSettings: strictSettings
+        tests(
+            "SunsetDocumentsTests",
+            ["SunsetDocuments", "SunsetStorage", .product(name: "MarkdownLookKit", package: "AemiMarkdown")]
         ),
-        .target(
-            name: "SunsetStorage",
-            dependencies: [.product(name: "AemiIO", package: "aemi")],
-            path: "Sources/SunsetStorage",
-            swiftSettings: strictSettings
-        ),
-        .testTarget(
-            name: "SunsetStorageTests",
-            dependencies: ["SunsetStorage"],
-            path: "Tests/SunsetStorageTests",
-            swiftSettings: strictSettings
-        ),
-        .target(
-            name: "SunsetConfig",
-            dependencies: [.product(name: "AemiJSONCore", package: "AemiJSON"), "SunsetMetrics"],
-            path: "Sources/SunsetConfig",
-            swiftSettings: strictSettings
-        ),
-        .testTarget(
-            name: "SunsetConfigTests",
-            dependencies: ["SunsetConfig", "SunsetMetrics"],
-            path: "Tests/SunsetConfigTests",
-            swiftSettings: strictSettings
-        ),
+        module("SunsetStorage", ["SunsetRuntime", .product(name: "AemiIO", package: "aemi")]),
+        tests("SunsetStorageTests", ["SunsetStorage"]),
+        module("SunsetConfig", [.product(name: "AemiJSONCore", package: "AemiJSON"), "SunsetMetrics"]),
+        tests("SunsetConfigTests", ["SunsetConfig", "SunsetMetrics"]),
         .target(
             name: "SunsetPrivate",
             // The names of the private symbols are not written in the binary as plain strings: InternedStrings (Aemi) stores them obfuscated.
-            dependencies: [.product(name: "InternedStrings", package: "aemi")],
+            dependencies: ["SunsetRuntime", .product(name: "InternedStrings", package: "aemi")],
             path: "Sources/SunsetPrivate",
             swiftSettings: strictSettings
         ),
-        .testTarget(
-            name: "SunsetPrivateTests",
-            dependencies: ["SunsetPrivate"],
-            path: "Tests/SunsetPrivateTests",
-            swiftSettings: strictSettings
-        ),
-        .target(
-            name: "SunsetPane",
-            path: "Sources/SunsetPane",
-            swiftSettings: strictSettings
-        ),
-        .testTarget(
-            name: "SunsetPaneTests",
-            dependencies: ["SunsetPane"],
-            path: "Tests/SunsetPaneTests",
-            swiftSettings: strictSettings
-        ),
+        tests("SunsetPrivateTests", ["SunsetPrivate"]),
+        module("SunsetPane", []),
+        tests("SunsetPaneTests", ["SunsetPane"]),
         // Help (roadmap 0041): its topics and their texts, one source for a control's tooltip and its explanation. No UI.
-        .target(name: "SunsetHelp", path: "Sources/SunsetHelp", swiftSettings: strictSettings),
-        .target(
-            name: "SunsetShell",
-            dependencies: ["SunsetPane", "SunsetMetrics", "SunsetHelp", .product(name: "AemiSDR", package: "AemiSDR")],
-            path: "Sources/SunsetShell",
-            swiftSettings: strictSettings
+        module("SunsetHelp", []),
+        module(
+            "SunsetShell",
+            [
+                "SunsetRuntime", "SunsetPane", "SunsetMetrics", "SunsetHelp",
+                .product(name: "AemiSDR", package: "AemiSDR")
+            ]
         ),
-        .testTarget(
-            name: "SunsetShellTests",
-            dependencies: ["SunsetShell", "SunsetPane", "SunsetMetrics", "SunsetHelp", "SunsetConfig"],
-            path: "Tests/SunsetShellTests",
-            swiftSettings: strictSettings
-        ),
+        tests("SunsetShellTests", ["SunsetShell", "SunsetPane", "SunsetMetrics", "SunsetHelp", "SunsetConfig"]),
         // The terminal as a kind of pane content (R8: a target per kind): its model, its AppKit view, input, selection, the renderer's wiring.
-        .target(
-            name: "SunsetTerminal",
-            dependencies: [
-                "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetRender", "SunsetRenderMac",
-                "SunsetRenderMetal", "SunsetShell", "SunsetMetrics"
-            ],
-            path: "Sources/SunsetTerminal",
-            swiftSettings: strictSettings
+        module(
+            "SunsetTerminal",
+            [
+                "SunsetRuntime", "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane", "SunsetRender",
+                "SunsetRenderMac", "SunsetRenderMetal", "SunsetShell", "SunsetMetrics"
+            ]
         ),
         // A document as a kind of pane content (R6, roadmap 0023 step M-c): Markdown and Mermaid drawn natively or as source,
         // any other text as source, on the one document `SunsetDocuments` holds for the app.
-        .target(
-            name: "SunsetMarkdown",
-            dependencies: [
-                "SunsetPane", "SunsetShell", "SunsetDocuments", "SunsetMetrics",
+        module(
+            "SunsetMarkdown",
+            [
+                "SunsetRuntime", "SunsetPane", "SunsetShell", "SunsetDocuments", "SunsetMetrics",
                 .product(name: "MarkdownLookKit", package: "AemiMarkdown")
-            ],
-            path: "Sources/SunsetMarkdown",
-            swiftSettings: strictSettings
+            ]
         ),
-        .testTarget(
-            name: "SunsetMarkdownTests",
-            dependencies: [
+        tests(
+            "SunsetMarkdownTests",
+            [
                 "SunsetMarkdown", "SunsetPane", "SunsetShell", "SunsetDocuments",
                 .product(name: "MarkdownLookKit", package: "AemiMarkdown")
-            ],
-            path: "Tests/SunsetMarkdownTests",
-            swiftSettings: strictSettings
+            ]
         ),
         // A web page as a kind of pane content (R1, roadmap 0019), on the system's WebKit.
-        .target(
-            name: "SunsetWeb",
-            dependencies: [
-                "SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics", "SunsetStorage",
+        module(
+            "SunsetWeb",
+            [
+                "SunsetRuntime", "SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics", "SunsetStorage",
                 .product(name: "AemiSDR", package: "AemiSDR")
-            ],
-            path: "Sources/SunsetWeb",
-            swiftSettings: strictSettings
+            ]
         ),
-        .testTarget(
-            name: "SunsetWebTests",
-            dependencies: ["SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics", "SunsetStorage"],
-            path: "Tests/SunsetWebTests",
-            swiftSettings: strictSettings
-        ),
+        tests("SunsetWebTests", ["SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics", "SunsetStorage"]),
         // What joins the configuration file to the shell's settings: a library so that the mapping is tested (the app target cannot be).
-        .target(
-            name: "SunsetShellBridge",
-            dependencies: ["SunsetShell", "SunsetConfig", "SunsetMetrics"],
-            path: "Sources/SunsetShellBridge",
-            swiftSettings: strictSettings
-        ),
-        .testTarget(
-            name: "SunsetShellBridgeTests",
-            dependencies: ["SunsetShellBridge", "SunsetShell", "SunsetConfig", "SunsetMetrics"],
-            path: "Tests/SunsetShellBridgeTests",
-            swiftSettings: strictSettings
-        ),
-        .target(
-            name: "SunsetHost",
-            dependencies: ["SunsetCore", "SunsetConfig", "SunsetMetrics"],
-            path: "Sources/SunsetHost",
-            swiftSettings: strictSettings
-        ),
+        module("SunsetShellBridge", ["SunsetShell", "SunsetConfig", "SunsetMetrics"]),
+        tests("SunsetShellBridgeTests", ["SunsetShellBridge", "SunsetShell", "SunsetConfig", "SunsetMetrics"]),
+        module("SunsetHost", ["SunsetRuntime", "SunsetCore", "SunsetConfig", "SunsetMetrics"]),
         .executableTarget(
             name: "SunsetRun",
             dependencies: ["SunsetCore", "SunsetHost"],
             path: "Sources/SunsetRun",
             swiftSettings: strictSettings
         ),
-        .testTarget(
-            name: "SunsetHostTests",
-            dependencies: [
-                .product(name: "AemiTestKit", package: "aemi"), "SunsetHost", "SunsetConfig", "SunsetMetrics"
-            ],
-            path: "Tests/SunsetHostTests",
-            swiftSettings: strictSettings
+        tests(
+            "SunsetHostTests",
+            [.product(name: "AemiTestKit", package: "aemi"), "SunsetHost", "SunsetConfig", "SunsetMetrics"]
         ),
-        .testTarget(
-            name: "SunsetCoreTests",
-            dependencies: [.product(name: "AemiTestKit", package: "aemi"), "SunsetCore"],
-            path: "Tests/SunsetCoreTests",
-            swiftSettings: strictSettings
-        )
+        tests("SunsetCoreTests", [.product(name: "AemiTestKit", package: "aemi"), "SunsetCore"])
     ]
 )

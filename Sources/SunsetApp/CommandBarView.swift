@@ -1,6 +1,7 @@
 import SunsetConfig
 import SunsetMetrics
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetShellBridge
 import SunsetWeb
@@ -11,6 +12,8 @@ import SwiftUI
 /// Cmd-Return its second, Option-Return its third, Cmd-K lists them all (`CommandBarActionsPanel`); Up in the empty field recalls earlier entries; an
 /// engine's keyword and a space become a chip; Escape or a click outside closes it.
 struct CommandBarView: View {
+    @Environment(\.runtime) var runtime
+
     let tabs: TabsModel
     let layout: Configuration.Layout
     /// The sidebar's field it opens in (roadmap 0035 G): its field is that size, its rows as wide; nil over the panes.
@@ -38,7 +41,7 @@ struct CommandBarView: View {
                 .onAppear { typing = true }
                 .task {
                     for wait in [16, 50, 120] {
-                        try? await Task.sleep(for: .milliseconds(wait))
+                        await runtime.sleep(for: .milliseconds(wait))
                         if !typing { typing = true }
                     }
                 }

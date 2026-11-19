@@ -1,5 +1,6 @@
 import AppKit
 import SunsetPane
+package import SunsetRuntime
 package import SwiftUI
 import UniformTypeIdentifiers
 
@@ -7,6 +8,8 @@ import UniformTypeIdentifiers
 /// Space in this window; the one shown is marked. Not there while there is one Space. A Space's menu opens its editor,
 /// moves it in the order and deletes it.
 package struct SpacesRow: View {
+    @Environment(\.runtime) var runtime
+
     let tabs: TabsModel
     @Environment(\.accent) private var accent
     @Environment(\.sidebarButtonMetrics) private var metrics
@@ -71,8 +74,8 @@ package struct SpacesRow: View {
         .onDrag {
             dragged = space.space.id
             // Let go anywhere (outside the row, or cancelled): the drag ends when no button is down.
-            Task { @MainActor in
-                while NSEvent.pressedMouseButtons != 0 { try? await Task.sleep(for: .milliseconds(100)) }
+            runtime.task { @MainActor in
+                while NSEvent.pressedMouseButtons != 0 { await runtime.sleep(for: .milliseconds(100)) }
                 dragged = nil
             }
             return NSItemProvider(object: space.space.id.uuidString as NSString)

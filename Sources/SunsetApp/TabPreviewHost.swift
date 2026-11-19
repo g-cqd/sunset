@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetShellBridge
 import SunsetTerminal
@@ -9,6 +10,8 @@ import SwiftUI
 /// the pointer goes to while its content changes, and goes a moment after the pointer left the rows. For the selected tab too.
 /// Beside a sidebar's row, level with it; for a row of the built-in bar, above or below it (`PreviewPlacement`).
 struct TabPreviewHost: View {
+    @Environment(\.runtime) var runtime
+
     let tabs: TabsModel
     let layout: Configuration.Layout
     /// The pane area, in the window.
@@ -113,8 +116,8 @@ struct TabPreviewHost: View {
             shown = Shown(folder: folder, row: tabs.hoveredRowFrame)
         } else {
             leaving?.cancel()
-            leaving = Task {
-                try? await Task.sleep(for: Design.Preview.linger)
+            leaving = runtime.task {
+                await runtime.sleep(for: Design.Preview.linger)
                 if !Task.isCancelled { shown = nil }
             }
         }

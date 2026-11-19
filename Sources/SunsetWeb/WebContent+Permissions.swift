@@ -1,4 +1,5 @@
 import Foundation
+import SunsetRuntime
 package import SunsetShell
 package import SwiftUI
 import WebKit
@@ -14,7 +15,7 @@ extension WebContent {
         let unavailable = !settings.hasAppIdentity && permissions.contains(where: \.needsAppIdentity)
         if answers.allSatisfy({ $0 == .allow }), !unavailable { return true }
         // One question at a time: a newer one waits for the one shown.
-        while permissionRequest != nil { try? await Task.sleep(for: .milliseconds(200)) }
+        while permissionRequest != nil { await runtime.sleep(for: .milliseconds(200)) }
         return await withCheckedContinuation { continuation in
             permissionRequest = PermissionRequest(permissions: permissions, host: host, unavailable: unavailable) {
                 [weak self] granted in

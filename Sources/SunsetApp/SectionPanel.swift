@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetMetrics
+import SunsetRuntime
 import SunsetShell
 import SunsetWeb
 import SwiftUI
@@ -9,6 +10,8 @@ import SwiftUI
 /// sidebar's address field is, the rows as sidebar rows under their headings; the list scrolls under the top, fading and
 /// blurring there as the sidebar's.
 struct SectionPanel: View {
+    @Environment(\.runtime) var runtime
+
     /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
     @Environment(\.fadesEnds) var fadesEnds
     /// Where it is shown.
@@ -114,6 +117,6 @@ struct SectionPanel: View {
         }
         // In the next turn: a field that comes with this very change (from a section with nothing to search) is not there
         // to take the keyboard yet (seen 2026-11-16: Escape did nothing after Downloads, then Documents).
-        Task { @MainActor in searching = true }
+        runtime.task { @MainActor in searching = true }
     }
 }

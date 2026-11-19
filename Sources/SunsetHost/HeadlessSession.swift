@@ -1,8 +1,12 @@
 public import SunsetCore
+public import SunsetRuntime
 
 /// A terminal with a program running in it, no window: the program's output goes through the parser into the screen, the terminal's replies go back to
 /// the program, and keys, pastes and resizes go in. The headless API of the white paper (section 9) and the harness other tests and probes drive.
 public final class HeadlessSession {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    public var runtime = Runtime.live
+
     public private(set) var terminal: Terminal
     public let process: PTYProcess
     public private(set) var isClosed = false
@@ -45,18 +49,18 @@ public final class HeadlessSession {
 
     /// Pumps until `condition` holds on the terminal or `timeoutMilliseconds` have passed; true if the condition held.
     public func wait(timeoutMilliseconds: Int = 5000, until condition: (Terminal) -> Bool) -> Bool {
-        let deadline = ContinuousClock.now + .milliseconds(timeoutMilliseconds)
+        let deadline = runtime.uptime() + .milliseconds(timeoutMilliseconds)
         while true {
             if condition(terminal) { return true }
-            if ContinuousClock.now >= deadline || isClosed { return condition(terminal) }
+            if runtime.uptime() >= deadline || isClosed { return condition(terminal) }
             pump(timeoutMilliseconds: 20)
         }
     }
 
     /// Pumps until the program has closed its output (it exited) or the time is up.
     public func waitForExit(timeoutMilliseconds: Int = 5000) -> Bool {
-        let deadline = ContinuousClock.now + .milliseconds(timeoutMilliseconds)
-        while !isClosed, ContinuousClock.now < deadline { pump(timeoutMilliseconds: 20) }
+        let deadline = runtime.uptime() + .milliseconds(timeoutMilliseconds)
+        while !isClosed, runtime.uptime() < deadline { pump(timeoutMilliseconds: 20) }
         return isClosed
     }
 

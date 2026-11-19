@@ -1,4 +1,5 @@
 package import AppKit
+package import SunsetRuntime
 
 /// Keeps a window's three buttons (close, minimise, zoom) where Sunset wants them.
 ///
@@ -15,6 +16,9 @@ package import AppKit
 /// it is the title that changed (the window's title is watched), else on the run loop's next turn, before anything is drawn.
 @MainActor
 package final class WindowLights {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    package var runtime = Runtime.live
+
     /// Where the buttons go and whether they show.
     package struct Placement: Equatable, Sendable {
         /// From the window's edge to the near edge of the close button, in points.
@@ -200,8 +204,8 @@ package final class WindowLights {
         layer.add(animation, forKey: "fade")
         layer.opacity = target
         if !visible {
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(200))
+            runtime.task { @MainActor [weak self, runtime] in
+                await runtime.sleep(for: .milliseconds(200))
                 self?.place()
             }
         }

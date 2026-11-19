@@ -1,4 +1,5 @@
 package import Foundation
+package import SunsetRuntime
 package import SunsetStorage
 
 /// The history of pages visited (web step e): an address, its title, its visit count and its last visit. Kept as sealed
@@ -6,6 +7,9 @@ package import SunsetStorage
 /// in memory, latest first, and searched there. Without a table it is in memory only (a private window, tests).
 @MainActor
 package final class HistoryStore {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    package var runtime = Runtime.live
+
     var byAddress: [String: Page] = [:]
     /// By last visit, the oldest first: a visit now is added at the end, and the lists read from the end. A page visited again
     /// leaves its old place marked `gone` (finding it would mean walking the list); the marks are swept when there are many.
@@ -33,7 +37,7 @@ package final class HistoryStore {
             install(sealed.open { Kept($0) })
         } else {
             isLoaded = false
-            loading = Task { [weak self] in
+            loading = runtime.task { [weak self] in
                 let read = await sealed.openConcurrently { Kept($0) }
                 self?.install(read)
             }
@@ -80,7 +84,7 @@ package final class HistoryStore {
     }
 
     /// A visit to `url` at `time`: counted, its title kept when it has one.
-    package func visit(_ url: String, title: String, at time: Date = Date()) {
+    package func visit(_ url: String, title: String, at time: Date = Runtime.live.now()) {
         var entry = HistoryEntry(url: url, title: title, visits: 1, lastVisit: time)
         if let page = byAddress[url] {
             entry.visits = page.entry.visits + 1

@@ -1,4 +1,5 @@
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetWeb
 import SwiftUI
@@ -6,6 +7,8 @@ import SwiftUI
 /// Settings > Web > Profiles (R4; ADR-0053): the profiles, each named in place; a new one; and a profile removed, after
 /// a question: its Spaces become the first profile's, what it kept (pinned, favourites) is removed, and its website data is erased.
 struct ProfilesSettings: View {
+    @Environment(\.runtime) var runtime
+
     /// The page's heading over the first section, when it is the page's first block.
     var heading: String?
     var title = "Your profiles"
@@ -88,7 +91,7 @@ struct ProfilesSettings: View {
         let its = spaces.spaces(of: profile)
         guard let id = spaces.remove(profile: profile) else { return }
         for space in its { space.restart(kind: WebContent.kind, by: space.currentViewer) }
-        Task { await ProfileData.erase(id) }
+        runtime.task { await ProfileData.erase(id) }
     }
 
     static func sentence(spaces count: Int) -> String {

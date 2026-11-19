@@ -1,5 +1,6 @@
 import Foundation
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 
 /// A harness for the cost of switching tabs (t205, owner notes n56 and n59), off unless `SUNSET_PROBE_SWITCH` names a file: a few
@@ -8,26 +9,29 @@ import SunsetShell
 /// update and the commit that the switch caused), in milliseconds.
 @MainActor
 enum SwitchProbe {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    static var runtime = Runtime.live
+
     private static var started = false
 
     static func startIfAsked(_ tabs: TabsModel) {
         guard !started, let path = ProcessInfo.processInfo.environment["SUNSET_PROBE_SWITCH"] else { return }
         started = true
-        Task {
-            try? await Task.sleep(
+        runtime.task {
+            await runtime.sleep(
                 for: .seconds(Double(ProcessInfo.processInfo.environment["SUNSET_PROBE_WAIT"] ?? "") ?? 8)
             )
             var lines: [String] = []
             for round in 0 ..< 3 {
                 for (index, item) in tabs.workspace.items.enumerated() {
-                    let begin = ContinuousClock.now
+                    let begin = runtime.uptime()
                     tabs.select(item: item.id)
-                    let selected = ContinuousClock.now
+                    let selected = runtime.uptime()
                     await idle()
-                    let settled = ContinuousClock.now
+                    let settled = runtime.uptime()
                     lines.append("\(round) \(index) \(milliseconds(selected - begin)) \(milliseconds(settled - begin))")
                     // `SUNSET_PROBE_GAP` (ms): longer than a second, each switch is followed by its session save.
-                    try? await Task.sleep(
+                    await runtime.sleep(
                         for: .milliseconds(Int(ProcessInfo.processInfo.environment["SUNSET_PROBE_GAP"] ?? "") ?? 250)
                     )
                 }

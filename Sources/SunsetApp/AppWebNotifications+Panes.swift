@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetTerminal
 
@@ -27,7 +28,7 @@ extension AppWebNotifications {
         let identifier = UUID().uuidString
         remember(identifier, from: terminal, id: 0)
         let subtitle = [terminal.title, spaceName(of: terminal)].compactMap { $0 }.joined(separator: " \u{00B7} ")
-        Task { await TerminalModel.show(title: title, subtitle: subtitle, body: body, identifier: identifier) }
+        runtime.task { await TerminalModel.show(title: title, subtitle: subtitle, body: body, identifier: identifier) }
     }
 
     /// Shows the tab that holds `content` in front: in a window that holds it, else in a window of the app's Spaces that

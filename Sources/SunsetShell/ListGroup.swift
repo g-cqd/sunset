@@ -1,4 +1,5 @@
 package import Foundation
+import SunsetRuntime
 
 /// Rows under a heading in a sidebar list: a day (Today, Yesterday, then each day by its date), a kind, or no heading.
 package struct ListGroup<Element> {
@@ -15,7 +16,7 @@ package struct ListGroup<Element> {
     package static func days(
         _ elements: [Element],
         by date: (Element) -> Date,
-        now: Date = Date(),
+        now: Date = Runtime.live.now(),
         calendar: Calendar = .current
     ) -> [Self] {
         var order: [Date] = []

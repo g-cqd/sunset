@@ -1,8 +1,11 @@
+import SunsetRuntime
 import SunsetShell
 import SwiftUI
 
 /// What one site was allowed (web step g), changed in place; and Stop while the page captures.
 struct SiteSettingsPopover: View {
+    @Environment(\.runtime) var runtime
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.barTint) private var tint
     @Environment(\.colorScheme) private var outer
@@ -136,13 +139,13 @@ struct SiteSettingsPopover: View {
         HStack {
             Button("Hide an Element…") {
                 dismiss()
-                Task { await content.pickElementToHide() }
+                runtime.task { await content.pickElementToHide() }
             }
             Spacer()
             let count = content.hiddenOnSite.count
             if count > 0 {
                 Button(count == 1 ? "Show 1 Hidden" : "Show \(count) Hidden") {
-                    Task { await content.showHiddenElements() }
+                    runtime.task { await content.showHiddenElements() }
                 }
             }
         }

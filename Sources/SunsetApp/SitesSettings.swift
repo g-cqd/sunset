@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetWeb
 import SwiftUI
@@ -9,6 +10,8 @@ import SwiftUI
 /// site forgotten at once; and a rule added for a host, its subdomains (`*.host`) or an address prefix, the most specific
 /// winning. Everything a site's panel can set is listed here.
 struct SitesSettings: View {
+    @Environment(\.runtime) var runtime
+
     var heading: String?
     let config: any SettingsStore
     @State private var open: Set<String> = []
@@ -202,6 +205,6 @@ struct SitesSettings: View {
 
     /// The hidden elements' rules changed: the pages' blocker is compiled again.
     private func changed() {
-        Task { await ContentBlocker.shared.compileHidden() }
+        runtime.task { await ContentBlocker.shared.compileHidden() }
     }
 }

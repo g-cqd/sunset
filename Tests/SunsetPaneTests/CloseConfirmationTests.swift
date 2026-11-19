@@ -7,7 +7,7 @@ import Testing
         var guardState = CloseConfirmation()
         let idle = Workspace.ItemID()
         let busy = Workspace.ItemID()
-        let start = ContinuousClock.now
+        let start = Duration.seconds(1000)
 
         // Idle tab closes right away.
         var ok = guardState.shouldClose(.item(idle), isBusy: false, enabled: true, now: start)
@@ -31,7 +31,7 @@ import Testing
         var guardState = CloseConfirmation()
         let first = Workspace.ItemID()
         let second = Workspace.ItemID()
-        let start = ContinuousClock.now
+        let start = Duration.seconds(1000)
 
         var ok = guardState.shouldClose(.item(first), isBusy: true, enabled: true, now: start)
         #expect(!ok)
@@ -49,7 +49,7 @@ import Testing
     @Test func `confirming one pane does not confirm closing its whole tab, another pane of it, or the other tabs`() {
         var state = CloseConfirmation()
         let tab = Workspace.ItemID()
-        let start = ContinuousClock.now
+        let start = Duration.seconds(1000)
         var closes = state.shouldClose(.pane(PaneID(), in: tab), isBusy: true, enabled: true, now: start)
         #expect(!closes)
         #expect(state.isArmed(item: tab, now: start), "the tab of the pane is the one tinted")
@@ -67,7 +67,7 @@ import Testing
     @Test func `an idle close of something else leaves what is armed armed`() {
         var state = CloseConfirmation()
         let busy = Workspace.ItemID()
-        let start = ContinuousClock.now
+        let start = Duration.seconds(1000)
         var closes = state.shouldClose(.item(busy), isBusy: true, enabled: true, now: start)
         #expect(!closes)
         closes = state.shouldClose(.item(Workspace.ItemID()), isBusy: false, enabled: true, now: start)

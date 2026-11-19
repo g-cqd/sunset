@@ -1,3 +1,4 @@
+import SunsetRuntime
 import WebKit
 
 extension WebContent {
@@ -20,8 +21,8 @@ extension WebContent {
                     continuation.resume(returning: value as? Bool ?? false)
                 }
             }
-            Task { @MainActor in
-                try? await Task.sleep(for: .milliseconds(500))
+            runtime.task { @MainActor in
+                await runtime.sleep(for: .milliseconds(500))
                 guard !answered else { return }
                 answered = true
                 continuation.resume(returning: false)

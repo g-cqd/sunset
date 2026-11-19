@@ -1,6 +1,7 @@
 internal import Foundation
 public import MarkdownLookKit
 public import Observation
+public import SunsetRuntime
 
 /// The rendered page of a document (roadmap 0023 step M-c), one for every pane that shows it. Measured at step M-b: a page
 /// costs 3.5 ms at 20 KB and 330 ms at 2 MB, so it is made only while a pane has it on screen; at once on the main actor for
@@ -8,6 +9,9 @@ public import Observation
 /// one more page after it and not one for each key.
 @MainActor @Observable
 public final class DocumentPage {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    public var runtime = Runtime.live
+
     /// The longest text (UTF-16 units) whose page is made at once on the main actor: about 5 ms.
     public static let inlineLimit = 32_768
 
@@ -101,7 +105,7 @@ public final class DocumentPage {
 
     private func changed() {
         guard hop == nil else { return }
-        hop = Task { [weak self] in
+        hop = runtime.task { [weak self] in
             self?.hop = nil
             self?.follow()
             self?.refresh()
@@ -124,7 +128,7 @@ public final class DocumentPage {
             again = true
             return
         }
-        running = Task { [weak self, maker] in
+        running = runtime.task { [weak self, maker] in
             let page = await maker(snapshot)
             guard !Task.isCancelled, let self else { return }
             self.running = nil

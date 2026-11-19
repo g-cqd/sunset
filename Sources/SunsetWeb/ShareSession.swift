@@ -1,6 +1,7 @@
 import AppKit
 package import Foundation
 import ImageIO
+package import SunsetRuntime
 import UniformTypeIdentifiers
 import WebKit
 
@@ -8,6 +9,9 @@ import WebKit
 /// `TabShare.stop`.
 @MainActor
 package final class ShareSession {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    package var runtime = Runtime.live
+
     package let source: UUID
     private weak var page: WebContent?
     private let feed: ShareFeed
@@ -34,7 +38,7 @@ package final class ShareSession {
     func start() {
         WebShare.sessions.append(self)
         feed.shared(true)
-        task = Task { @MainActor [weak self] in await self?.run() }
+        task = runtime.task { @MainActor [weak self] in await self?.run() }
     }
 
     /// Stops the share; the page's track ends unless it ended it itself.
@@ -56,7 +60,7 @@ package final class ShareSession {
     private func run() async {
         var delivery: Task<Void, Never>?
         while !Task.isCancelled {
-            let start = ContinuousClock.now
+            let start = runtime.uptime()
             if let why = TabShare.stop(
                 sourceOpen: feed.isOpen(),
                 requesterOpen: page?.webView != nil,
@@ -68,22 +72,22 @@ package final class ShareSession {
                 return
             }
             guard let image = await feed.frame() else {
-                try? await Task.sleep(for: Self.interval)
+                await runtime.sleep(for: Self.interval)
                 continue
             }
-            let encoded = await Task.detached(priority: .userInitiated) { Self.jpeg(image) }.value
+            let encoded = await runtime.detached(priority: .userInitiated) { Self.jpeg(image) }.value
             await delivery?.value
             guard let view = page?.webView, !Task.isCancelled else { return }
             let function = frameFunction
-            delivery = Task { @MainActor in
+            delivery = runtime.task { @MainActor in
                 _ = try? await view.callAsyncJavaScript(
                     "return await window[f](b)",
                     arguments: ["f": function, "b": encoded.base64EncodedString()],
                     contentWorld: .page
                 )
             }
-            let spent = ContinuousClock.now - start
-            if spent < Self.interval { try? await Task.sleep(for: Self.interval - spent) }
+            let spent = runtime.uptime() - start
+            if spent < Self.interval { await runtime.sleep(for: Self.interval - spent) }
         }
     }
 

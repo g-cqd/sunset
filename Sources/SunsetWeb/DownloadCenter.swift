@@ -1,5 +1,6 @@
 package import Foundation
 package import Observation
+package import SunsetRuntime
 package import SunsetStorage
 package import WebKit
 
@@ -7,6 +8,9 @@ package import WebKit
 /// a free name, the partial file), its progress followed, the file renamed, marked as downloaded (quarantine) and announced when it finishes.
 @MainActor @Observable
 package final class DownloadCenter: NSObject {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored package var runtime = Runtime.live
+
     package static let shared = DownloadCenter()
 
     /// Latest first.
@@ -65,10 +69,11 @@ package final class DownloadCenter: NSObject {
     }
 
     private func follow(_ item: DownloadItem, _ download: WKDownload) {
-        item.observation = download.progress.observe(\.completedUnitCount, options: [.new]) { [weak item] progress, _ in
+        item.observation = download.progress.observe(\.completedUnitCount, options: [.new]) {
+            [weak item, runtime] progress, _ in
             let done = progress.completedUnitCount
             let total = progress.totalUnitCount
-            Task { @MainActor in
+            runtime.task { @MainActor in
                 item?.received = done
                 item?.expected = total > 0 ? total : nil
             }
@@ -84,8 +89,8 @@ package final class DownloadCenter: NSObject {
     /// Stop: the download is cut, with what resumes it.
     package func stop(_ item: DownloadItem) {
         guard item.state == .running, let download = item.download else { return }
-        download.cancel { [weak self] data in
-            Task { @MainActor in
+        download.cancel { [weak self, runtime] data in
+            runtime.task { @MainActor in
                 item.resumeData = data
                 item.state = data == nil ? .failed : .paused
                 // The server cannot resume: the partial file is of no use.
@@ -139,8 +144,8 @@ package final class DownloadCenter: NSObject {
                     }
                 }
         }
-        let limit = Date().addingTimeInterval(2)
-        while left > 0, Date() < limit { RunLoop.main.run(until: Date().addingTimeInterval(0.05)) }
+        let limit = runtime.now().addingTimeInterval(2)
+        while left > 0, runtime.now() < limit { RunLoop.main.run(until: runtime.now().addingTimeInterval(0.05)) }
         if settings.keep == .untilQuit { items.removeAll { $0.state == .finished } }
         save()
     }
@@ -172,7 +177,7 @@ package final class DownloadCenter: NSObject {
 
     /// Lists what was kept, without the finished downloads the setting no longer keeps.
     private func adopt(_ records: [DownloadItem.Record]) {
-        let now = Date()
+        let now = runtime.now()
         items = records.map(DownloadItem.init)
             .filter { item in
                 guard item.state == .finished, let finished = item.finished else { return true }

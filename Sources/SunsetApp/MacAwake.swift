@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import SunsetConfig
+import SunsetRuntime
 import SunsetShell
 
 /// Holds the system's "do not sleep" while a tab or a window wants the Mac awake (roadmap 0035 E): one activity for the app,
@@ -8,6 +9,9 @@ import SunsetShell
 /// Follows the windows' models by observation: a command that ends, a tab closed, a setting changed, a window gone.
 @MainActor
 final class MacAwake {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    var runtime = Runtime.live
+
     static let shared = MacAwake()
 
     private var activity: (any NSObjectProtocol)?
@@ -20,8 +24,10 @@ final class MacAwake {
         TabsModel.settleAwake(in: windows)
         let (wanted, keepsDisplay) = withObservationTracking {
             (windows.contains { $0.keepsMacAwake }, AppConfiguration.shared.configuration.tabs.keepAwakeDisplay)
-        } onChange: {
-            Task { @MainActor in MacAwake.shared.update() }
+        } onChange: { [runtime] in
+            runtime.task { @MainActor in
+                MacAwake.shared.update()
+            }
         }
         hold(wanted, display: keepsDisplay)
     }

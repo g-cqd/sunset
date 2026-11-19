@@ -1,5 +1,6 @@
 package import Foundation
 package import Observation
+import SunsetRuntime
 import WebKit
 
 /// One download (web step f): where it comes from, where it goes, how far it is, and what resumes it once stopped or cut.
@@ -30,7 +31,7 @@ package final class DownloadItem: Identifiable {
     @ObservationIgnored weak var download: WKDownload?
     @ObservationIgnored var observation: NSKeyValueObservation?
 
-    init(id: UUID = UUID(), source: URL?, origin: URL?, name: String, started: Date = Date()) {
+    init(id: UUID = UUID(), source: URL?, origin: URL?, name: String, started: Date = Runtime.live.now()) {
         self.id = id
         self.source = source
         self.origin = origin

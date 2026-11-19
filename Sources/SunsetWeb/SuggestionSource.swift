@@ -1,11 +1,15 @@
 import Foundation
 package import Observation
+package import SunsetRuntime
 
 /// The engine's suggestions for what is being typed (web step c): asked after a short pause, the earlier question dropped when more is typed; never
 /// for an address typed with its scheme or one of this machine or the local network; nothing when the setting is off or the engine has no suggestion
 /// address. Asked without cookies or a cache (an ephemeral session), so the engine cannot tie them to the pages' store.
 @MainActor @Observable
 package final class SuggestionSource {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored package var runtime = Runtime.live
+
     /// The suggestions, and what was typed they answer.
     package private(set) var suggestions: [String] = []
     package private(set) var answering = ""
@@ -34,8 +38,8 @@ package final class SuggestionSource {
             answering = typed
             return
         }
-        task = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(120))
+        task = runtime.task { [weak self, runtime] in
+            await runtime.sleep(for: .milliseconds(120))
             var request = URLRequest(url: url)
             request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
             guard !Task.isCancelled, let (data, _) = try? await Self.session.data(for: request), !Task.isCancelled

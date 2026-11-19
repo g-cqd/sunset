@@ -1,5 +1,6 @@
 import AppKit
 import SunsetConfig
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 import SwiftUI
@@ -7,6 +8,8 @@ import SwiftUI
 /// The rows of Settings, Storage (R12, roadmap 0030 step ST-6; the owner: topics of Privacy and security): what is sealed, the
 /// website data, the files set aside; the key and its recovery code; exporting.
 struct StorageRows: View {
+    @Environment(\.runtime) var runtime
+
     let custom: SettingsControl.Custom
     let storage = StorageSettings.shared
     @State var confirmsClearing = false

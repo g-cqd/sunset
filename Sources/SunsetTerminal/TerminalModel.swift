@@ -5,11 +5,15 @@ package import SunsetCore
 package import SunsetHost
 package import SunsetRender
 package import SunsetRenderMac
+package import SunsetRuntime
 
 /// The state of one terminal window: the program (a `TerminalSession` actor), the renderer (a `FrameRenderer` actor) and what the window shows. It lives on
 /// the main actor; the reading, parsing and drawing happen on the two actors, and only values cross: snapshots of the screen one way, finished frames
 /// the other. Frames are pulled at the display's pace (the display link asks, `tick()` answers) and only while something changed.
 @MainActor @Observable package final class TerminalModel {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored package var runtime = Runtime.live
+
     package internal(set) var title = "Sunset"
     /// The working directory the program reported (OSC 7) and its progress (OSC 9;4), 0 to 1: what a tab can show next to its title.
     package internal(set) var directory: String?
@@ -63,7 +67,7 @@ package import SunsetRenderMac
     @ObservationIgnored package var scroll = Configuration.Scroll()
     @ObservationIgnored package var holdsResize = false
     /// When something last happened (a key, or output): the cursor stops blinking a while after.
-    @ObservationIgnored package var lastActivity = ContinuousClock.now
+    @ObservationIgnored package var lastActivity: Duration = .zero
     /// A kept entry's command, typed at the prompt (`TerminalModel+Command`).
     @ObservationIgnored var pendingCommand: String?
     @ObservationIgnored var commandDelivery: Task<Void, Never>?
@@ -134,19 +138,19 @@ package import SunsetRenderMac
             deliverPendingCommand()
             packer = HistoryPacker(session) { [weak self] screen in self?.lastScreen?.adoptHistory(from: screen) }
             tasks = [
-                Task { [colors = defaultColors] in
+                runtime.task { [colors = defaultColors] in
                     await colors.apply(to: session)
                     await session.start()
                 },
-                Task { [weak self] in await self?.watch(session) },
-                Task { [weak self] in await self?.watchHostEvents(session) },
-                Task { [weak self, events = input.stream] in
+                runtime.task { [weak self] in await self?.watch(session) },
+                runtime.task { [weak self] in await self?.watchHostEvents(session) },
+                runtime.task { [weak self, events = input.stream] in
                     await Self.forward(events, to: session) { self?.unclaimed($0) }
                 },
-                Task { [sizes = sizes.stream] in
+                runtime.task { [sizes = sizes.stream] in
                     for await size in sizes { await session.resize(columns: size.columns, rows: size.rows) }
                 },
-                Task { [weak self] in await self?.blink() }
+                runtime.task { [weak self] in await self?.blink() }
             ]
         } catch {
             title = "Sunset: cannot start \(command.first ?? "the program")"
@@ -166,7 +170,7 @@ package import SunsetRenderMac
         tasks = []
         input.continuation.finish()
         sizes.continuation.finish()
-        if let session { Task { await session.stop() } }
+        if let session { runtime.task { await session.stop() } }
     }
 
     // MARK: Size and font
@@ -224,6 +228,6 @@ package import SunsetRenderMac
         frameWanted = false
         // Claimed here, before the task starts: a tick in between draws nothing.
         renderInFlight = true
-        Task { [weak self] in await self?.drawClaimed() }
+        runtime.task { [weak self] in await self?.drawClaimed() }
     }
 }

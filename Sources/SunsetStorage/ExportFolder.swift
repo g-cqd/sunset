@@ -1,10 +1,12 @@
 public import Foundation
+public import SunsetRuntime
 
 /// Where Export All writes (R12 step ST-6): a dated folder of its own in the folder the person chose, so that an export never
 /// mixes with what is there, and file names that never write over one another.
 public enum ExportFolder {
     /// Makes "Sunset Export 2026-11-15" in `parent` (with a number when there is one already), and says where it is.
-    public static func make(in parent: URL, now: Date = Date(), calendar: Calendar = .current) throws -> URL {
+    public static func make(in parent: URL, now: Date = Runtime.live.now(), calendar: Calendar = .current) throws -> URL
+    {
         let day = calendar.dateComponents([.year, .month, .day], from: now)
         let name = String(format: "Sunset Export %04d-%02d-%02d", day.year ?? 0, day.month ?? 0, day.day ?? 0)
         try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)

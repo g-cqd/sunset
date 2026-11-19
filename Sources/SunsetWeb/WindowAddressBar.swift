@@ -1,10 +1,13 @@
 import AemiSDR
+package import SunsetRuntime
 package import SunsetShell
 package import SwiftUI
 
 /// The address bar of a window (web step b): back, forward, reload (Stop while loading) and the address of the focused page. Hidden; it comes out
 /// when the pointer reaches its edge of the pane area (or the page asks for an address), and goes after the pointer leaves it, unless it is typed in.
 package struct WindowAddressBar: View {
+    @Environment(\.runtime) var runtime
+
     let content: WebContent
     let atTop: Bool
     /// The focused pane's card: the blur under the bar is cut to it.
@@ -112,8 +115,8 @@ package struct WindowAddressBar: View {
 
     /// Goes a moment after the pointer left, if it has not come back and nothing is being typed.
     private func hideSoon() {
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(300))
+        runtime.task { @MainActor in
+            await runtime.sleep(for: .milliseconds(300))
             if !hovering, !editing { shown = false }
         }
     }

@@ -1,12 +1,16 @@
 import Foundation
 import SunsetConfig
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 
 /// The Spaces of the app (R4; ADR-0045, ADR-0047). Every window that lists tabs (the sidebar, the built-in bar) shows one
 /// of them; a Space keeps its tabs when its last window closes, unless the settings say otherwise. A private window, and a
 /// window that is one tab (the system's tab bar, a window each), has a Space of its own instead.
 @MainActor enum AppSpaces {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    static var runtime = Runtime.live
+
     static let all: SpacesModel = {
         let spaces = SpacesModel(
             first: SpaceModel(favorites: AppFavorites.shared, keepsTabs: true),
@@ -50,9 +54,9 @@ import SunsetShell
         for space in all.spaces where space.closeStopped(after: seconds) { closed = true }
         if closed { SessionStore.shared.scheduleSave() }
         guard let soonest = all.spaces.compactMap(\.stopped).min() else { return }
-        let left = max(seconds - Date().timeIntervalSince(soonest), 1)
-        cleaner = Task {
-            try? await Task.sleep(for: .seconds(left))
+        let left = max(seconds - runtime.now().timeIntervalSince(soonest), 1)
+        cleaner = runtime.task {
+            await runtime.sleep(for: .seconds(left))
             guard !Task.isCancelled else { return }
             cleanStopped()
         }

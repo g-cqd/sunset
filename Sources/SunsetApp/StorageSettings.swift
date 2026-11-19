@@ -1,6 +1,7 @@
 import AppKit
 import LocalAuthentication
 import Observation
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 
@@ -8,6 +9,9 @@ import SunsetStorage
 /// FileVault's state, and the recovery code while it is shown.
 @MainActor @Observable
 final class StorageSettings {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored var runtime = Runtime.live
+
     static let shared = StorageSettings()
 
     private(set) var inventory = StorageInventory()
@@ -36,9 +40,9 @@ final class StorageSettings {
             home: NSHomeDirectory(),
             bundle: Bundle.main.bundleIdentifier ?? ProcessInfo.processInfo.processName
         )
-        reading = Task {
+        reading = runtime.task {
             let read =
-                await Task.detached(priority: .utility) {
+                await runtime.detached(priority: .utility) {
                     (inventory: StorageInventory(places), web: StorageInventory.size(of: web))
                 }
                 .value

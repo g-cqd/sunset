@@ -1,8 +1,12 @@
 import AppKit
+import SunsetRuntime
+import SunsetShell
 import SwiftUI
 
 /// `AddressNSField` in SwiftUI. `focusNow` set to true gives it the keyboard (and is set back to false).
 struct AddressTextField: NSViewRepresentable {
+    @Environment(\.runtime) var runtime
+
     let host: String
     let address: String
     @Binding var focusNow: Bool
@@ -44,7 +48,7 @@ struct AddressTextField: NSViewRepresentable {
         context.coordinator.onText = onText
         context.coordinator.onMove = onMove
         if focusNow {
-            Task { @MainActor in
+            runtime.task { @MainActor in
                 focusNow = false
                 field.beginTyping()
             }

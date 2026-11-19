@@ -1,9 +1,12 @@
+package import SunsetRuntime
 import SunsetShell
 package import SwiftUI
 
 /// The downloads button at the bottom of the sidebar (web step f): a ring while something downloads; the pointer on it shows the latest download as a
 /// card; a click opens the list, which stays until dismissed. One popover shows either.
 package struct DownloadsButton: View {
+    @Environment(\.runtime) var runtime
+
     private enum Shown { case card, list }
 
     @State private var shown: Shown?
@@ -23,8 +26,8 @@ package struct DownloadsButton: View {
             resting?.cancel()
             if inside {
                 // The card comes after the pointer rests a moment, so that a click opens the list at once.
-                resting = Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(600))
+                resting = runtime.task { @MainActor in
+                    await runtime.sleep(for: .milliseconds(600))
                     if !Task.isCancelled, shown == nil, center.latest != nil { shown = .card }
                 }
             } else if shown == .card {

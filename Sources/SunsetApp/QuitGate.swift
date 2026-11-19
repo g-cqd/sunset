@@ -4,6 +4,7 @@ import SunsetConfig
 import SunsetDocuments
 import SunsetMarkdown
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetTerminal
 import SunsetWeb
@@ -13,6 +14,9 @@ import SunsetWeb
 /// about at every level, with Save All (roadmap 0023 step M-d).
 @MainActor @Observable
 final class QuitGate {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored var runtime = Runtime.live
+
     static let shared = QuitGate()
 
     /// The question shown, and the window it is shown on.
@@ -27,7 +31,7 @@ final class QuitGate {
         // The documents Sunset keeps are kept now; what is left edited is a file's, and is asked about whatever the level.
         AppStorage.shared.openDocuments.keepStored()
         guard level != .never || !AppStorage.shared.openDocuments.edited.isEmpty else { return finish() }
-        Task { await decide(level) }
+        runtime.task { await decide(level) }
         return .terminateLater
     }
 

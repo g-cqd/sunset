@@ -1,5 +1,6 @@
 public import Foundation
 public import Observation
+public import SunsetRuntime
 public import SunsetStorage
 
 /// The files opened lately (roadmap 0031; the owner, 2026-11-16: listed with the documents in the Library): the last twenty,
@@ -44,7 +45,7 @@ public final class RecentFiles {
     }
 
     /// `path` was opened at `date`: it is the first, and what is past the twentieth is forgotten.
-    public func note(_ path: String, at date: Date = Date()) {
+    public func note(_ path: String, at date: Date = Runtime.live.now()) {
         entries.removeAll { $0.path == path }
         entries.insert(Entry(path: path, opened: date), at: 0)
         let kept = Kept(path: path, opened: date.timeIntervalSince1970)

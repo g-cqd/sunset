@@ -3,6 +3,7 @@ import Foundation
 import Observation
 import SunsetConfig
 import SunsetHost
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 import SunsetWeb
@@ -11,6 +12,9 @@ import SunsetWeb
 /// themselves; a file that cannot be read leaves the last good configuration in force and says why.
 @MainActor @Observable
 final class AppConfiguration {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored var runtime = Runtime.live
+
     /// The sidebar's pin button: it stays beside the content, or hides and floats (`sidebar.autoHide`).
     static func togglePin() {
         shared.update { $0.sidebar.autoHide.toggle() }
@@ -41,8 +45,10 @@ final class AppConfiguration {
     func applyScheme() {
         NSApp?.appearance = configuration.appearance.scheme.nsAppearance
         if appearanceWatch == nil, let app = NSApp {
-            appearanceWatch = app.observe(\.effectiveAppearance) { _, _ in
-                Task { @MainActor in AppConfiguration.shared.refreshShown() }
+            appearanceWatch = app.observe(\.effectiveAppearance) { [runtime] _, _ in
+                runtime.task { @MainActor in
+                    AppConfiguration.shared.refreshShown()
+                }
             }
         }
         refreshShown()
@@ -86,13 +92,13 @@ final class AppConfiguration {
     @ObservationIgnored private var watching: Task<Void, Never>?
     @ObservationIgnored private var saving: Task<Void, Never>?
     /// The text this process last wrote: a change of the file that is just that is not a change.
-    @ObservationIgnored private var lastWritten: String?
+    @ObservationIgnored var lastWritten: String?
     @ObservationIgnored private var madeBackup = false
     /// What was in force at the last load or save: an edit is written relative to it (so what a theme brought is not copied into the file).
     @ObservationIgnored private var baseline = Configuration()
-    @ObservationIgnored private var themeWatcher: FileWatcher?
-    @ObservationIgnored private var themeWatching: Task<Void, Never>?
-    @ObservationIgnored private var watchedTheme: String?
+    @ObservationIgnored var themeWatcher: FileWatcher?
+    @ObservationIgnored var themeWatching: Task<Void, Never>?
+    @ObservationIgnored var watchedTheme: String?
 
     private init() {
         path = ConfigurationLocation.path(
@@ -104,7 +110,7 @@ final class AppConfiguration {
         let watcher = FileWatcher(path: path)
         self.watcher = watcher
         watcher.start()
-        watching = Task { [weak self] in
+        watching = runtime.task { [weak self] in
             for await _ in watcher.changes { self?.reload() }
         }
     }
@@ -130,8 +136,8 @@ final class AppConfiguration {
 
     private func scheduleSave() {
         saving?.cancel()
-        saving = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(250))
+        saving = runtime.task { [weak self, runtime] in
+            await runtime.sleep(for: .milliseconds(250))
             guard !Task.isCancelled else { return }
             self?.save()
         }
@@ -174,7 +180,7 @@ final class AppConfiguration {
         // After SwiftUI has applied the change that set it (a Settings toggle): closing windows inside that update trips SwiftUI's
         // bar appearance bridge (crash report 2026-11-13, t242).
         if before != after, (NSApp as NSApplication?) != nil {
-            Task { @MainActor in AppActions.shared.reshape(from: before, to: after) }
+            runtime.task { @MainActor in AppActions.shared.reshape(from: before, to: after) }
         }
     }
 
@@ -208,28 +214,6 @@ final class AppConfiguration {
             lastError = Self.describe(error)
             Self.say("\(path): \(lastError ?? "unreadable"); the previous configuration stays in force")
         }
-    }
-
-    /// Watches the file of the theme in force too: editing a theme changes the windows as editing the configuration does.
-    private func watchTheme(_ name: String?) {
-        guard name != watchedTheme else { return }
-        watchedTheme = name
-        themeWatcher?.stop()
-        themeWatching?.cancel()
-        themeWatcher = nil
-        guard let name, ConfigurationLoader.isSafeThemeName(name) else { return }
-        let watcher = FileWatcher(path: ConfigurationLocation.themePath(named: name, besideConfig: path))
-        themeWatcher = watcher
-        watcher.start()
-        themeWatching = Task { [weak self] in
-            for await _ in watcher.changes { self?.reloadForTheme() }
-        }
-    }
-
-    /// The theme's file changed: read the configuration again (it is the same text, so the guard against our own writes is bypassed).
-    private func reloadForTheme() {
-        lastWritten = nil
-        reload()
     }
 
     private static func describe(_ error: ConfigurationError) -> String {

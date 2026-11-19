@@ -1,4 +1,5 @@
 import SunsetPrivate
+import SunsetRuntime
 import WebKit
 
 /// The permission questions WebKit asks of a page (web step g): the camera and microphone, location (public API), screen sharing and notifications
@@ -51,7 +52,7 @@ extension WebCoordinator {
         guard let coordinator = delegate as? WebCoordinator, let content = coordinator.content,
             let host = (origin as? WKSecurityOrigin)?.host
         else { return decide(false) }
-        Task { @MainActor in
+        content.runtime.task { @MainActor in
             let granted = await content.ask(wanted, host: host)
             if granted, wanted == [.screen] { content.capture = .screen }
             decide(granted)
@@ -67,7 +68,7 @@ extension WebCoordinator {
             case .deny: return false
             case .ask:
                 let address = action.request.url
-                Task { @MainActor in
+                content.runtime.task { @MainActor in
                     if await content.ask([.popups], host: host), let address {
                         content.onOpen(WebContent(url: address, settings: content.settings), .tabAfter)
                     }

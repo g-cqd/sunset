@@ -1,7 +1,11 @@
 import Foundation
+import SunsetRuntime
 
 /// Watches one key of an object and runs a closure on the main actor when it changes; stops when released.
 final class KeyWatch: NSObject {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    var runtime = Runtime.live
+
     private weak var object: NSObject?
     private let key: String
     private let changed: @MainActor () -> Void
@@ -27,6 +31,6 @@ final class KeyWatch: NSObject {
         context: UnsafeMutableRawPointer?
     ) {
         let changed = changed
-        Task { @MainActor in changed() }
+        runtime.task { @MainActor in changed() }
     }
 }

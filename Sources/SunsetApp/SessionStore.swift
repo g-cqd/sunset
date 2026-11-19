@@ -2,6 +2,7 @@ import AppKit
 import SunsetConfig
 import SunsetHost
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 
@@ -12,6 +13,9 @@ import SunsetStorage
 /// tabs are not written and no entry comes back open.
 @MainActor
 final class SessionStore {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    var runtime = Runtime.live
+
     static let shared = SessionStore()
 
     /// Where the app keeps its own files (the saved session, the shell's start files).
@@ -135,8 +139,8 @@ final class SessionStore {
     func scheduleSave() {
         guard writes else { return }
         writer?.cancel()
-        writer = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(1))
+        writer = runtime.task { [weak self, runtime] in
+            await runtime.sleep(for: .seconds(1))
             guard !Task.isCancelled else { return }
             self?.saveNow(inBackground: true)
         }
@@ -151,8 +155,8 @@ final class SessionStore {
     ///   under way first (a quit, the app going to the background).
     func saveNow(inBackground: Bool = false) {
         guard writes else { return }
-        let started = ContinuousClock.now
-        defer { SaveProbe.record(ContinuousClock.now - started, inBackground: inBackground) }
+        let started = runtime.uptime()
+        defer { SaveProbe.record(runtime.uptime() - started, inBackground: inBackground) }
         guard let data = try? current(windows: restoresWindows).encoded(), let seal else { return }
         let path = path
         // Sealed, written whole beside the file, synced and moved over it: a crash mid-write leaves the old session, not half
@@ -164,7 +168,7 @@ final class SessionStore {
         let disk = Self.disk
         let turn = disk.next()
         if inBackground, legacy == nil, !SaveProbe.writesHere {
-            Task.detached(priority: .utility) { _ = disk.write(turn, write) }
+            runtime.detached(priority: .utility) { _ = disk.write(turn, write) }
             return
         }
         guard disk.write(turn, write) else { return }

@@ -1,6 +1,7 @@
 package import AppKit
 import Foundation
 package import Observation
+import SunsetRuntime
 package import SunsetStorage
 
 /// The sites' icons, kept (roadmap 0035 H): a tab that is not loaded, or was not yet this run, shows its site's icon. Kept
@@ -53,7 +54,7 @@ package final class FaviconStore {
     }
 
     /// Whether the icon kept for the site is the one the page names (when it names one) and has not expired.
-    package func isFresh(host: String, profile: UUID? = nil, source: URL?, at now: Date = Date()) -> Bool {
+    package func isFresh(host: String, profile: UUID? = nil, source: URL?, at now: Date = Runtime.live.now()) -> Bool {
         guard let entry = kept[Self.key(host: host, profile: profile)], entry.expires > now.timeIntervalSince1970 else {
             return false
         }

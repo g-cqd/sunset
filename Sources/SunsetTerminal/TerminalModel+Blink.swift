@@ -1,10 +1,11 @@
 import SunsetRender
+import SunsetRuntime
 
 /// The cursor's blink and what stops it.
 extension TerminalModel {
     /// Something happened (a key, output): the cursor blinks again for a while, and the blink task is woken if it was waiting without a timer.
     package func noteActivity() {
-        lastActivity = .now
+        lastActivity = runtime.uptime()
         packer?.noteActivity()
         blinkWake.continuation.yield()
     }
@@ -37,7 +38,7 @@ extension TerminalModel {
     package func blink() async {
         var wakes = blinkWake.stream.makeAsyncIterator()
         while !Task.isCancelled {
-            let idle = ContinuousClock.now - lastActivity
+            let idle = runtime.uptime() - lastActivity
             guard let wait = blinkSchedule.wait(afterIdle: idle, focused: hasFocus && isVisible), cursorBlinks else {
                 // Solid: the program turned blinking off, the window is not the key window or is hidden, or nothing has happened for a long time. No timer:
                 // wait for activity or for the focus to come back.
@@ -48,9 +49,9 @@ extension TerminalModel {
                 if await wakes.next() == nil { return }
                 continue
             }
-            try? await Task.sleep(for: wait)
+            await runtime.sleep(for: wait)
             // Looked at again after the sleep: the focus or the activity may have changed meanwhile.
-            guard hasFocus, isVisible, cursorBlinks, blinkSchedule.blinks(afterIdle: ContinuousClock.now - lastActivity)
+            guard hasFocus, isVisible, cursorBlinks, blinkSchedule.blinks(afterIdle: runtime.uptime() - lastActivity)
             else { continue }
             cursorPhase.toggle()
             requestFrame()

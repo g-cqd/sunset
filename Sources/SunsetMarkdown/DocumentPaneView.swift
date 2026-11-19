@@ -1,10 +1,13 @@
 internal import MarkdownLookKit
 internal import SunsetDocuments
+import SunsetRuntime
 internal import SunsetShell
 internal import SwiftUI
 
 /// What a document pane draws: what is to be said about the file, then the page or the source.
 struct DocumentPaneView: View {
+    @Environment(\.runtime) var runtime
+
     let content: DocumentContent
     let context: PaneViewContext
     /// The merge whose blocks are tinted just now.
@@ -86,9 +89,9 @@ struct DocumentPaneView: View {
     private func show(_ merge: DocumentMergeNotice?) async {
         guard let merge else { return }
         flash = merge
-        try? await Task.sleep(for: .milliseconds(1800))
+        await runtime.sleep(for: .milliseconds(1800))
         flash = nil
-        try? await Task.sleep(for: .seconds(5))
+        await runtime.sleep(for: .seconds(5))
         if !Task.isCancelled, document.lastMerge?.id == merge.id { document.dismissMerge() }
     }
 }

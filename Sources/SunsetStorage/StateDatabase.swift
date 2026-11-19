@@ -1,6 +1,7 @@
 import CryptoKit
 public import Foundation
 import SQLite3
+public import SunsetRuntime
 
 /// The database of Sunset's small records (R12, roadmap 0030 step ST-3): page history, site zoom, site permissions and
 /// downloads, in one SQLite file with a version. Every record is sealed (`SealedTable`); the file holds no address or title in
@@ -50,7 +51,7 @@ public final class StateDatabase {
     }
 
     /// Opens the database at `path`, making it when there is none (":memory:" for one that is never written).
-    public static func open(at path: String, key: StorageKey, now: Date = Date()) -> Opened {
+    public static func open(at path: String, key: StorageKey, now: Date = Runtime.live.now()) -> Opened {
         switch attempt(path, key) {
             case .opened(let database): return Opened(database: database, problem: nil)
             case .locked:

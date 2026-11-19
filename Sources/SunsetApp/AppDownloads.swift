@@ -1,5 +1,6 @@
 import AppKit
 import SunsetConfig
+import SunsetRuntime
 import SunsetStorage
 import SunsetWeb
 import UserNotifications
@@ -7,6 +8,9 @@ import UserNotifications
 /// The app's side of downloads (web step f) and of site permissions (step g): the settings from `web.*`, the approval of risky kinds and the save panel, and what is done when one
 /// finishes: the Dock bounces while Sunset is in the background, a notification (`web.notifyDownloads`), safe kinds opened (`web.openSafeDownloads`).
 @MainActor enum AppDownloads {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    static var runtime = Runtime.live
+
     static func start() {
         let center = DownloadCenter.shared
         apply(AppConfiguration.shared.configuration.web)
@@ -118,7 +122,7 @@ import UserNotifications
     private static func notify(_ item: DownloadItem) {
         guard Bundle.main.bundleIdentifier != nil else { return }
         let name = item.name
-        Task {
+        runtime.task {
             let center = UNUserNotificationCenter.current()
             guard (try? await center.requestAuthorization(options: [.alert])) == true else { return }
             let content = UNMutableNotificationContent()

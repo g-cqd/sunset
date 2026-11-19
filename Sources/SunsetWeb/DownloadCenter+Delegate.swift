@@ -1,4 +1,5 @@
 package import Foundation
+import SunsetRuntime
 package import WebKit
 
 /// WebKit's questions about a download: where it goes (approval, the folder or a place asked for, a free name, written as .download first), and
@@ -53,7 +54,7 @@ extension DownloadCenter: WKDownloadDelegate {
         item.name = free
         item.destination = final
         item.state = .finished
-        item.finished = Date()
+        item.finished = runtime.now()
         if let expected = item.expected { item.received = expected }
         item.observation = nil
         onFinished(item)

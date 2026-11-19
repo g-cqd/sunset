@@ -1,3 +1,4 @@
+import SunsetRuntime
 import SunsetShell
 import SunsetWeb
 import SwiftUI
@@ -5,6 +6,8 @@ import SwiftUI
 /// Whether pages go through the proxy (the owner's note n37): checked by itself a moment after the proxy changes, and again
 /// on demand (`ProxyCheck`: Apple's captive-network page, through the proxy as pages are; nothing else is asked).
 struct ProxyCheckRow: View {
+    @Environment(\.runtime) var runtime
+
     let address: String
     let title: String
     @State private var outcome: ProxyCheck.Outcome?
@@ -14,7 +17,7 @@ struct ProxyCheckRow: View {
         LabeledContent {
             HStack(spacing: Design.Space.m) {
                 if checking { ProgressView().controlSize(.small) }
-                Button("Check Again") { Task { await check() } }
+                Button("Check Again") { runtime.task { await check() } }
                     .disabled(checking || WebProxy(address) == nil)
             }
         } label: {
@@ -24,7 +27,7 @@ struct ProxyCheckRow: View {
         }
         // A moment after it is typed: not at each keystroke.
         .task(id: address) {
-            try? await Task.sleep(for: .milliseconds(800))
+            await runtime.sleep(for: .milliseconds(800))
             guard !Task.isCancelled else { return }
             await check()
         }

@@ -1,8 +1,11 @@
+package import SunsetRuntime
 package import SwiftUI
 
 /// A button with words that says what its click did (the owner's note n11): for a moment its title becomes what was done
 /// ("Copied", with a check) or why not (with a cross), with the trackpad's tap and VoiceOver's announcement (`Feedback`).
 package struct FeedbackButton: View {
+    @Environment(\.runtime) var runtime
+
     let title: String
     let perform: () -> ActionFeedback
     @State private var cue: ActionFeedback?
@@ -17,8 +20,8 @@ package struct FeedbackButton: View {
             let outcome = perform()
             Feedback.give(outcome)
             cue = outcome
-            Task {
-                try? await Task.sleep(for: ActionFeedback.shown)
+            runtime.task {
+                await runtime.sleep(for: ActionFeedback.shown)
                 if cue == outcome { cue = nil }
             }
         } label: {

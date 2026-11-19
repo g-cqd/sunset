@@ -1,5 +1,6 @@
 internal import AemiIO
 public import Foundation
+public import SunsetRuntime
 
 /// A file Sunset keeps (R12, roadmap 0030 step ST-1): written whole or not at all, and never dropped silently when it does not
 /// read.
@@ -44,7 +45,7 @@ public enum StoredFile {
     public static func read<Value>(
         _ path: String,
         as what: String,
-        now: Date = Date(),
+        now: Date = Runtime.live.now(),
         decode: (Data) -> Value?
     ) -> StoredRead<Value> {
         guard let data = FileManager.default.contents(atPath: path) else { return .absent }
@@ -54,7 +55,7 @@ public enum StoredFile {
 
     /// Renames the file to `name.damaged-<date>` beside itself (a number is added when that name is taken), and says the new
     /// path; nil when it could not be renamed. Nothing of the file is lost: the person, or a later version, can still read it.
-    public static func moveAside(_ path: String, now: Date = Date()) -> String? {
+    public static func moveAside(_ path: String, now: Date = Runtime.live.now()) -> String? {
         // The person's own date and time, as they would look for it.
         let stamp = now.formatted(
             Date.ISO8601FormatStyle(timeZone: .current).year().month().day().dateSeparator(.dash)

@@ -1,8 +1,11 @@
+package import SunsetRuntime
 package import SwiftUI
 
 /// A row's glyph button that says what its click did (the owner's note n11): for a moment its symbol becomes a check, or a
 /// cross that shakes, with the trackpad's tap and VoiceOver's announcement (`Feedback`); its tooltip then says it too.
 package struct FeedbackGlyphButton: View {
+    @Environment(\.runtime) var runtime
+
     let symbol: String
     let help: String
     let perform: () -> ActionFeedback
@@ -21,8 +24,8 @@ package struct FeedbackGlyphButton: View {
             Feedback.give(outcome)
             cue = outcome
             if !outcome.isDone { shakes += 1 }
-            Task {
-                try? await Task.sleep(for: ActionFeedback.shown)
+            runtime.task {
+                await runtime.sleep(for: ActionFeedback.shown)
                 if cue == outcome { cue = nil }
             }
         } glyph: {

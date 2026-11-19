@@ -1,4 +1,5 @@
 import Foundation
+import SunsetRuntime
 
 /// How far back Clear History goes.
 enum ClearSpan: CaseIterable {
@@ -13,7 +14,7 @@ enum ClearSpan: CaseIterable {
         }
     }
 
-    func start(now: Date = Date(), calendar: Calendar = .current) -> Date {
+    func start(now: Date = Runtime.live.now(), calendar: Calendar = .current) -> Date {
         switch self {
             case .lastHour: now.addingTimeInterval(-3_600)
             case .today: calendar.startOfDay(for: now)

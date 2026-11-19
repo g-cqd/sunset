@@ -2,6 +2,7 @@ import AppKit
 package import Foundation
 package import Observation
 package import SunsetPane
+package import SunsetRuntime
 
 /// One window's view of a Space (`SpaceModel`; ADR-0045): the Space's tabs with this window's selection (`workspace`), and
 /// what is only the window's (the command bar, a rename in progress, the pointer). The tabs and the content of each pane
@@ -9,6 +10,9 @@ package import SunsetPane
 /// not shown is told it has no focus and is not visible (it neither blinks nor draws); of those shown, the focused blinks.
 @MainActor @Observable
 package final class TabsModel {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored package var runtime = Runtime.live
+
     /// The Space this window shows.
     package internal(set) var space: SpaceModel
     /// The tab this window selected among the Space's, and the kept entry it shows instead (`workspace`).

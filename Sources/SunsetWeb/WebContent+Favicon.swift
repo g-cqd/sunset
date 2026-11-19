@@ -1,4 +1,5 @@
 import AppKit
+import SunsetRuntime
 import WebKit
 
 /// The site's icon for its tab (owner, 2026-11-13): the page's `<link rel="icon">`, else `/favicon.ico`, fetched once the page has
@@ -60,10 +61,10 @@ extension WebContent {
     private func fetchFavicon(_ address: URL?, host: String, agent: String?) {
         // Not asked for at all when the page did not say what it is: better no icon than a request that names Sunset.
         guard let address, let agent, !agent.isEmpty else { return }
-        Task { @MainActor [weak self] in
+        runtime.task { @MainActor [weak self, runtime] in
             let fetched = await WebFetch.data(address, agent: agent, limit: Self.faviconLimit)
             guard let self else { return }
-            let expires = FaviconStore.expiry(of: fetched?.response as? HTTPURLResponse, at: Date())
+            let expires = FaviconStore.expiry(of: fetched?.response as? HTTPURLResponse, at: runtime.now())
             if let data = fetched?.data,
                 icons.keep(
                     host: host,

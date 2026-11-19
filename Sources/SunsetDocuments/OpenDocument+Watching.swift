@@ -1,6 +1,7 @@
 internal import Foundation
 internal import MarkdownLookKit
 internal import SunsetHost
+import SunsetRuntime
 
 /// The file behind a document, watched (R6: "reloaded silently if unedited; merged if edited", `OpenDocument+Merging`).
 extension OpenDocument {
@@ -9,7 +10,7 @@ extension OpenDocument {
         let watcher = FileWatcher(path: path)
         self.watcher = watcher
         watcher.start()
-        watching = Task { [weak self] in
+        watching = runtime.task { [weak self] in
             for await _ in watcher.changes {
                 let read = await FileContent.readConcurrently(path)
                 await self?.fileSettled(read)

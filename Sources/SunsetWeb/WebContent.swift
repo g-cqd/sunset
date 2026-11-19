@@ -2,6 +2,7 @@ package import Foundation
 package import Observation
 package import SunsetPane
 import SunsetPrivate
+package import SunsetRuntime
 package import SunsetShell
 package import SwiftUI
 package import WebKit
@@ -11,6 +12,9 @@ package import WebKit
 /// places them.
 @MainActor @Observable
 package final class WebContent: PaneContent {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    @ObservationIgnored package var runtime = Runtime.live
+
     package static let kind = "web"
 
     package internal(set) var url: URL?
@@ -169,7 +173,7 @@ package final class WebContent: PaneContent {
         if visible { isUnloaded = false }
         // Hidden: its last picture is taken while it is still drawn, for its tab's preview (roadmap 0035 C).
         if !visible, shown { takePicture() }
-        if visible { hiddenSince = nil } else if hiddenSince == nil, webView != nil { hiddenSince = Date() }
+        if visible { hiddenSince = nil } else if hiddenSince == nil, webView != nil { hiddenSince = runtime.now() }
         shown = visible
     }
 
@@ -202,47 +206,5 @@ package final class WebContent: PaneContent {
         return AnyView(
             WebPaneView(content: self, focused: context.focused, topInset: context.topInset, backdrop: context.backdrop)
         )
-    }
-
-    // MARK: Navigating
-
-    /// Opens what was typed: an address, or a search with the engine it names or the chosen one.
-    package func open(typed: String) {
-        guard let input = settings.input(typed) else { return }
-        open(input)
-    }
-
-    package func open(_ input: WebInput) {
-        guard let address = input.url else { return }
-        if case .address(_, let guessed) = input, guessed, settings.httpFallback { fallbackHost = address.host() }
-        load(address)
-    }
-
-    package func load(_ address: URL) {
-        url = address
-        asked.asked(address)
-        failure = nil
-        if webView == nil { makeWebView(configuration: nil) }
-        webView?.load(URLRequest(url: address))
-        onChange()
-    }
-
-    /// Loads the page again; `fromOrigin`: without what the cache holds (Shift-Cmd-R).
-    package func reload(fromOrigin: Bool = false) {
-        failure = nil
-        if let url, webView?.url == nil {
-            webView?.load(URLRequest(url: url))
-        } else if fromOrigin {
-            webView?.reloadFromOrigin()
-        } else {
-            webView?.reload()
-        }
-    }
-
-    /// Visit Anyway: the certificate of this host is accepted for this page, and the page is loaded again.
-    package func acceptCertificate() {
-        guard let host = failure?.url?.host() else { return }
-        acceptedHosts.insert(host)
-        if let address = failure?.url { load(address) }
     }
 }

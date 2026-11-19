@@ -3,6 +3,7 @@ internal import Foundation
 public import MarkdownLookKit
 public import Observation
 internal import SunsetHost
+public import SunsetRuntime
 
 /// The document behind the panes that show it (R6; roadmap 0023 step M-b): one per file, or per stored document, for the
 /// whole app, with one text, one undo history and one edited state (the kit's `MarkdownSource`), so that two panes can never
@@ -11,6 +12,9 @@ internal import SunsetHost
 /// was (step M-e): what only the disk changed is put in, what both changed is a conflict that waits for an answer.
 @MainActor @Observable
 public final class OpenDocument {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    public var runtime = Runtime.live
+
     public let place: DocumentPlace
     public let kind: DocumentKind
     /// The text, its undo history, and the page made from it.

@@ -1,5 +1,6 @@
 import AppKit
 import SunsetPane
+import SunsetRuntime
 
 /// What shows while something is dragged (`DragTargets`).
 extension TabsModel {
@@ -19,14 +20,14 @@ extension TabsModel {
             favorites: canDropOnFavoritesLine,
             panes: workspace.allPanes.contains { canDrop(onto: $0) }
         )
-        dragWatch = Task { [weak self] in
+        dragWatch = runtime.task { [weak self, runtime] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(100))
+                await runtime.sleep(for: .milliseconds(100))
                 guard let self, !Task.isCancelled else { return }
                 if !mouseIsDown() {
                     // Dropped where nothing took it; a drop that did take it has cleared it already. A moment more, so
                     // that a drop being done now is not cut short.
-                    try? await Task.sleep(for: .milliseconds(100))
+                    await runtime.sleep(for: .milliseconds(100))
                     if !Task.isCancelled { endDrag() }
                     return
                 }

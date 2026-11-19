@@ -1,6 +1,7 @@
 package import Foundation
 package import Observation
 package import SunsetPane
+import SunsetRuntime
 
 /// A Space while the app runs (R4; ADR-0045): its tabs and the content of their panes. A window is a view of
 /// one (`TabsModel`): every window on a Space lists the same tabs, each with its own selection, and a tab is drawn and typed
@@ -82,7 +83,7 @@ package final class SpaceModel {
 
     /// `viewer`'s window closed. What it drew goes to a window that still shows it; with no window left, the tabs stop and
     /// stay (a Space that keeps them) or end.
-    func leave(_ viewer: TabsModel, at date: Date = Date()) {
+    func leave(_ viewer: TabsModel, at date: Date = Runtime.live.now()) {
         park(viewer)
         stopIfUnshown(at: date)
     }
@@ -97,7 +98,7 @@ package final class SpaceModel {
 
     /// With no window on it: its tabs stop and stay (a Space that keeps them), or end. What a window closing does to its
     /// Space, and what the app's last window closing does to every Space.
-    func stopIfUnshown(at date: Date = Date()) {
+    func stopIfUnshown(at date: Date = Runtime.live.now()) {
         guard viewerCount == 0, !contents.isEmpty || !keepsTabs else { return }
         if keepsTabs { stopKeeping(at: date) } else { closeAll() }
     }
@@ -118,7 +119,7 @@ package final class SpaceModel {
     /// Closes the tabs that were stopped with the last window once they have waited `interval` seconds (0 is never).
     /// - Returns: whether they were closed.
     @discardableResult
-    package func closeStopped(after interval: TimeInterval, now: Date = Date()) -> Bool {
+    package func closeStopped(after interval: TimeInterval, now: Date = Runtime.live.now()) -> Bool {
         guard interval > 0, let stopped, viewerCount == 0, now.timeIntervalSince(stopped) >= interval else {
             return false
         }

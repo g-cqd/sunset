@@ -1,5 +1,6 @@
 public import Foundation
 public import Observation
+public import SunsetRuntime
 public import SunsetStorage
 
 /// The documents that live in Sunset (R12, roadmap 0030 step ST-4): one sealed file each in a folder, written whole or not at
@@ -8,6 +9,9 @@ public import SunsetStorage
 /// said. Other tools cannot read these files; a document leaves the store as plain text (`delete`, `move`).
 @MainActor @Observable
 public final class DocumentStore {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    public var runtime = Runtime.live
+
     /// The latest changed first.
     public internal(set) var documents: [StoredDocument] = []
 
@@ -44,7 +48,7 @@ public final class DocumentStore {
     public func create(kind: DocumentKind = .markdown, text: String = "") throws(DocumentStoreFailure) -> StoredDocument
     {
         let id = UUID()
-        return try write(SealedDocument(kind: kind, created: Date(), text: text), id: id)
+        return try write(SealedDocument(kind: kind, created: runtime.now(), text: text), id: id)
     }
 
     public func text(of id: UUID) throws(DocumentStoreFailure) -> String {
@@ -117,7 +121,7 @@ public final class DocumentStore {
     /// What the index holds of a document whose file was just written or read.
     func entry(for file: SealedDocument, id: UUID) -> StoredDocument {
         let attributes = try? FileManager.default.attributesOfItem(atPath: path(id))
-        let changed = (attributes?[.modificationDate] as? Date) ?? Date()
+        let changed = (attributes?[.modificationDate] as? Date) ?? runtime.now()
         return StoredDocument(
             id: id,
             title: DocumentTitle.of(file.text, kind: file.kind),

@@ -14,14 +14,14 @@ public struct CloseConfirmation: Sendable, Equatable {
 
     public var timeout = Duration.seconds(3)
     private var armed: Target?
-    private var expiresAt: ContinuousClock.Instant?
+    private var expiresAt: Duration?
 
     public init(timeout: Duration = .seconds(3)) {
         self.timeout = timeout
     }
 
     /// Whether the tab `item` is among what the armed close would take (it is shown in red).
-    public func isArmed(item: Workspace.ItemID, now: ContinuousClock.Instant) -> Bool {
+    public func isArmed(item: Workspace.ItemID, now: Duration) -> Bool {
         guard let armed, let expiresAt, now < expiresAt else { return false }
         switch armed {
             case .pane(_, let owner): return owner == item
@@ -31,12 +31,12 @@ public struct CloseConfirmation: Sendable, Equatable {
     }
 
     /// When what is armed stops being so, if anything is.
-    public var expiration: ContinuousClock.Instant? {
+    public var expiration: Duration? {
         expiresAt
     }
 
     /// Forgets what is armed once its time has passed.
-    public mutating func expire(at now: ContinuousClock.Instant) {
+    public mutating func expire(at now: Duration) {
         if let expiresAt, now >= expiresAt { disarm() }
     }
 
@@ -55,7 +55,7 @@ public struct CloseConfirmation: Sendable, Equatable {
         _ target: Target,
         isBusy: Bool,
         enabled: Bool,
-        now: ContinuousClock.Instant
+        now: Duration
     ) -> Bool {
         if !enabled || !isBusy || (armed == target && (expiresAt.map { now < $0 } ?? false)) {
             disarm(target)

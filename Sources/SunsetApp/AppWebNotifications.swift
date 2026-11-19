@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SunsetRuntime
 import SunsetShell
 import SunsetWeb
 import UserNotifications
@@ -8,6 +9,9 @@ import UserNotifications
 /// front; a click shows the page's tab in its window and tells the page. The system asks once whether Sunset may notify.
 @MainActor
 final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    var runtime = Runtime.live
+
     static let shared = AppWebNotifications()
 
     /// The pane each posted notification came from (a page, a terminal), by its request's identifier; a page's own id.
@@ -33,7 +37,7 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
         let identifier = note.tag.isEmpty ? UUID().uuidString : "web|\(note.host)|\(note.tag)"
         remember(identifier, from: page, id: note.id)
         let space = spaceName(of: page)
-        Task {
+        runtime.task {
             let center = UNUserNotificationCenter.current()
             guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
             let content = UNMutableNotificationContent()

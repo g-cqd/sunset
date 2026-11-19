@@ -5,6 +5,7 @@ import SunsetMarkdown
 import SunsetPane
 import SunsetPrivate
 import SunsetRender
+import SunsetRuntime
 import SunsetShell
 import SunsetShellBridge
 import SunsetTerminal
@@ -14,6 +15,8 @@ import SwiftUI
 /// The content of a terminal window: the tabs of the window (one, unless the built-in bar is on), the sidebar and the tab bar when the configuration shows
 /// them, and the settings that reach every terminal.
 struct TerminalScene: View {
+    @Environment(\.runtime) var runtime
+
     let launch: LaunchOptions
     @State var tabs = TabsModel(favorites: AppFavorites.shared)
     @State var window: NSWindow?

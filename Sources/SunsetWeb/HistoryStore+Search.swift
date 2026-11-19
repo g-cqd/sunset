@@ -1,4 +1,5 @@
 package import Foundation
+import SunsetRuntime
 
 /// Looking through the history in memory: its pages hold their address and title as bytes with plain letters in lower case.
 extension HistoryStore {
@@ -16,7 +17,7 @@ extension HistoryStore {
     }
 
     /// The best matches for what is typed in an address field: by frecency, those whose host or title starts with it first.
-    package func suggestions(for text: String, limit: Int = 4, now: Date = Date()) -> [HistoryEntry] {
+    package func suggestions(for text: String, limit: Int = 4, now: Date = Runtime.live.now()) -> [HistoryEntry] {
         let typed = text.trimmingCharacters(in: .whitespaces).lowercased()
         guard !typed.isEmpty else { return [] }
         let found = entries(matching: typed, limit: 200)

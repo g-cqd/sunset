@@ -26,7 +26,7 @@ struct SurfaceRing {
     private(set) var slots: [Slot] = []
     /// The slot drawn into last, which the layer shows.
     private(set) var shown: Int?
-    private var lastFrame: ContinuousClock.Instant?
+    private var lastFrame: Duration?
 
     init?(device: any MTLDevice, width: Int, height: Int) {
         self.device = device
@@ -39,7 +39,7 @@ struct SurfaceRing {
     }
 
     /// The slot to draw the next frame into; nil when a surface could not be made. `quiet`: how long without frames lets the third surface go.
-    mutating func next(now: ContinuousClock.Instant, quiet: Duration) -> Int? {
+    mutating func next(now: Duration, quiet: Duration) -> Int? {
         if slots.count > Self.fewest, let lastFrame, now - lastFrame > quiet { letGoOfOne() }
         let free = slots.indices.filter { $0 != shown && !slots[$0].surface.isInUse }
         // The free surface that misses the fewest rows: the least to bring up to date.
@@ -55,7 +55,7 @@ struct SurfaceRing {
     }
 
     /// The frame was drawn into slot `index`, changing the pixel rows `changed`: it is shown now, and the others miss those rows.
-    mutating func drawn(_ index: Int, changed: ClosedRange<Int>, at now: ContinuousClock.Instant) {
+    mutating func drawn(_ index: Int, changed: ClosedRange<Int>, at now: Duration) {
         for other in slots.indices where other != index {
             slots[other].missing =
                 slots[other].missing

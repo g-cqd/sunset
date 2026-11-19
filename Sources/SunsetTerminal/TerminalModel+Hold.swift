@@ -1,12 +1,13 @@
 package import CoreGraphics
 import SunsetCore
+import SunsetRuntime
 
 extension TerminalModel {
     /// Keeps the grid as it is while a layout change animates, then sizes it once to what the view became.
     package func holdResize(for duration: Duration) {
         holdsResize = true
-        Task { [weak self] in
-            try? await Task.sleep(for: duration)
+        runtime.task { [weak self, runtime] in
+            await runtime.sleep(for: duration)
             guard let self else { return }
             holdsResize = false
             viewResized(pixelWidth: viewPixels.width, pixelHeight: viewPixels.height, scale: scale)

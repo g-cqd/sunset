@@ -1,6 +1,7 @@
 import Foundation
 import SunsetConfig
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 import SunsetWeb
@@ -10,6 +11,9 @@ import WebKit
 /// fetched again when older than four days (EasyList's own "Expires"), checked every six hours. These are the only
 /// requests Sunset makes on its own: https only, at most 20 MB a list, no cookies (`WebFetch`).
 @MainActor enum AppBlocking {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    static var runtime = Runtime.live
+
     private static var loop: Task<Void, Never>?
     private static let maxAge: TimeInterval = 4 * 24 * 3600
     private static let limit = 20 * 1024 * 1024
@@ -26,10 +30,10 @@ import WebKit
             )
         apply(AppConfiguration.shared.configuration.web)
         guard loop == nil else { return }
-        loop = Task {
+        loop = runtime.task {
             while !Task.isCancelled {
                 await refresh()
-                try? await Task.sleep(for: .seconds(6 * 3600))
+                await runtime.sleep(for: .seconds(6 * 3600))
             }
         }
     }
@@ -49,7 +53,7 @@ import WebKit
         ContentBlocker.shared.enabled = web.blocking
         if web.blockingLists != addresses, loop != nil {
             addresses = web.blockingLists
-            Task { await refresh() }
+            runtime.task { await refresh() }
         }
     }
 
@@ -68,7 +72,7 @@ import WebKit
             guard let url = URL(string: address), url.scheme?.lowercased() == "https" else { continue }
             let file = folder.appending(path: fileName(for: address))
             let kept = try? FileManager.default.attributesOfItem(atPath: file.path)[.modificationDate] as? Date
-            if kept == nil || Date().timeIntervalSince(kept ?? .distantPast) > maxAge,
+            if kept == nil || runtime.now().timeIntervalSince(kept ?? .distantPast) > maxAge,
                 let fetched = await WebFetch.data(url, agent: PaneContentKinds.webSettings.userAgent, limit: limit),
                 (fetched.response as? HTTPURLResponse)?.statusCode == 200
             {
@@ -78,7 +82,7 @@ import WebKit
                 continue
             }
             let updated = (try? FileManager.default.attributesOfItem(atPath: file.path)[.modificationDate] as? Date)
-            sources.append(ContentBlocker.Source(address: address, text: text, updated: updated ?? Date()))
+            sources.append(ContentBlocker.Source(address: address, text: text, updated: updated ?? runtime.now()))
         }
         await ContentBlocker.shared.load(sources)
     }

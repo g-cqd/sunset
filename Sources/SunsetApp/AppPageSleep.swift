@@ -1,6 +1,7 @@
 import Foundation
 import SunsetConfig
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetWeb
 
@@ -8,20 +9,23 @@ import SunsetWeb
 /// `web.unloadAfter`; while macOS says memory is short (`web.unloadUnderPressure`), the one hidden the longest. Never a page
 /// on screen, one that plays, captures or asks something, one kept awake, one in a Pinned grid, nor one holding unsent text.
 @MainActor enum AppPageSleep {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    static var runtime = Runtime.live
+
     private static var loop: Task<Void, Never>?
 
     static func start() {
         guard loop == nil else { return }
-        loop = Task {
+        loop = runtime.task {
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(60))
+                await runtime.sleep(for: .seconds(60))
                 await tick()
             }
         }
     }
 
     /// One look at the pages.
-    static func tick(now: Date = Date()) async {
+    static func tick(now: Date = Runtime.live.now()) async {
         let web = AppConfiguration.shared.configuration.web
         let pages = candidates()
         let chosen = PageSleep.choose(

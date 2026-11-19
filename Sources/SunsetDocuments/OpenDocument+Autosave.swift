@@ -1,5 +1,6 @@
 internal import MarkdownLookKit
 internal import Observation
+import SunsetRuntime
 
 /// A document saving itself (`DocumentAutosave`). It never writes over what it has not read: a file that changed on disk
 /// under these edits is the person's to choose, a file that is gone is not made again, a file that was not read is not
@@ -31,8 +32,8 @@ extension OpenDocument {
         withObservationTracking {
             _ = source.revision
         } onChange: { [weak self] in
-            let delay = MainActor.assumeIsolated { self?.saveDelay }
-            Task { @MainActor in
+            let (delay, runtime) = MainActor.assumeIsolated { (self?.saveDelay, self?.runtime ?? .live) }
+            runtime.task { @MainActor in
                 self?.textChanged(delay: delay)
                 self?.watchEdits()
             }
@@ -55,8 +56,8 @@ extension OpenDocument {
     /// first unsaved edit.
     func textChanged(delay: Duration?) {
         guard isEdited, pendingSave == nil, let delay else { return }
-        pendingSave = Task { [weak self] in
-            try? await Task.sleep(for: delay)
+        pendingSave = runtime.task { [weak self, runtime] in
+            await runtime.sleep(for: delay)
             guard !Task.isCancelled, let self else { return }
             self.pendingSave = nil
             self.saveItself()

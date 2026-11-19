@@ -1,6 +1,7 @@
 import SunsetConfig
 import SunsetHost
 import SunsetMetrics
+import SunsetRuntime
 import SunsetShell
 import SunsetShellBridge
 import SwiftUI
@@ -9,6 +10,8 @@ import SwiftUI
 /// floating glass panel over the terminal that holds the tabs and the traffic lights (the window puts the lights at the panel's top left while it shows,
 /// and hides them when it does not). The panel goes 350 ms after the pointer leaves it (`HoverReveal`).
 struct FloatingSidebar: View {
+    @Environment(\.runtime) var runtime
+
     let tabs: TabsModel
     let settings: Configuration
     let windowRadius: Double
@@ -41,7 +44,7 @@ struct FloatingSidebar: View {
             guard opensAtOnce else { return }
             opensAtOnce = false
             // Out until the pointer is seen on the panel: it leaves after its delay when it is not.
-            reveal.pointer(inside: true, at: .now)
+            reveal.pointer(inside: true, at: runtime.uptime())
             pointer(false)
         }
     }
@@ -90,19 +93,19 @@ struct FloatingSidebar: View {
     }
 
     private func pointer(_ inside: Bool) {
-        let now = ContinuousClock.now
+        let now = runtime.uptime()
         reveal.hideDelay = .seconds(settings.layout.hideDelay)
         reveal.pointer(inside: inside, at: now)
         update(at: now)
         if let at = reveal.hidesAt {
-            Task {
-                try? await Task.sleep(until: at, clock: .continuous)
-                update(at: .now)
+            runtime.task {
+                await runtime.sleep(until: at)
+                update(at: runtime.uptime())
             }
         }
     }
 
-    private func update(at time: ContinuousClock.Instant) {
+    private func update(at time: Duration) {
         let visible = reveal.isShown(at: time)
         if visible != shown { withAnimation(settings.layout.smooth) { shown = visible } }
     }

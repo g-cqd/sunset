@@ -1,6 +1,7 @@
 import Foundation
 import SunsetConfig
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 import SunsetWeb
@@ -9,6 +10,9 @@ import WebKit
 /// The app's side of what WebKit keeps between runs (ADR-0081): each profile's store with what it keeps (the app's
 /// `web.keep`, or the profile's own), and what is cleared before Sunset ends.
 @MainActor enum AppKeeping {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    static var runtime = Runtime.live
+
     /// What `profile` keeps: its own choices over the app's.
     static func keep(for profile: Profile) -> Configuration.Web.Keep {
         ProfileOverrides.apply(profile.overrides, to: AppConfiguration.shared.configuration).web.keep
@@ -64,7 +68,7 @@ import WebKit
         let all = stores().filter { $0.keep != WebKeep() }
         guard !all.isEmpty else { return }
         var done = false
-        Task {
+        runtime.task {
             // The first quit that keeps the chosen sites keeps every site holding cookies then, in every profile: the
             // change signs no one out (ADR-0081, 3). Done here, when every profile's store is known.
             let choosing = all.filter { $0.keep.siteData == .keepChosen }.map(\.store)
@@ -72,7 +76,7 @@ import WebKit
             for (store, keep, profile) in all { await WebKeeping.clear(store, keep: keep, profile: profile) }
             done = true
         }
-        let end = Date().addingTimeInterval(limit)
-        while !done, Date() < end { RunLoop.main.run(until: Date().addingTimeInterval(0.05)) }
+        let end = runtime.now().addingTimeInterval(limit)
+        while !done, runtime.now() < end { RunLoop.main.run(until: runtime.now().addingTimeInterval(0.05)) }
     }
 }

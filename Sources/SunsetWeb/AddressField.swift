@@ -1,9 +1,12 @@
+package import SunsetRuntime
 import SunsetShell
 package import SwiftUI
 
 /// Where the address of a page is typed (web step b): the field, showing the host until clicked, and a thin line along its bottom edge while the page
 /// loads. Used by the sidebar, the window bar and the row of a page. Return opens what was typed and gives the page the keyboard; Escape gives it back.
 package struct AddressField: View {
+    @Environment(\.runtime) var runtime
+
     /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
     @Environment(\.fadesEnds) var fadesEnds
     let content: WebContent
@@ -164,8 +167,8 @@ package struct AddressField: View {
 
     /// The field stopped being typed in (a click elsewhere): the list goes a moment later, so that a click on one of its rows is taken first.
     private func endSoon() {
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(250))
+        runtime.task { @MainActor in
+            await runtime.sleep(for: .milliseconds(250))
             if typing?.page === content, !(content.webView?.window?.firstResponder is NSTextView) { typing?.end() }
         }
     }

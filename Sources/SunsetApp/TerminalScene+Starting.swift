@@ -2,6 +2,7 @@ import AppKit
 import SunsetHost
 import SunsetMarkdown
 import SunsetPane
+import SunsetRuntime
 import SunsetShell
 import SunsetTerminal
 import SunsetWeb
@@ -115,7 +116,7 @@ extension TerminalScene {
         // size, 229 by 32 (seen 2026-11-16, three runs in three: SwiftUI's `updateAnimatedWindowSize` at the new window's first
         // layout; none in eight once it waits a turn).
         guard SessionStore.shared.hasPending else { return }
-        Task { @MainActor in
+        runtime.task { @MainActor in
             await Task.yield()
             if SessionStore.shared.hasPending { AppActions.shared.openTerminalWindow() }
         }

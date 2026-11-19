@@ -1,4 +1,5 @@
 import SunsetHost
+import SunsetRuntime
 
 extension TerminalModel {
     /// Looks at which program is in front soon after the screen changed (a program starts or ends with output, but the terminal's foreground group changes a
@@ -14,8 +15,8 @@ extension TerminalModel {
 
     package func checkForeground() {
         guard foregroundCheck == nil, let session else { return }
-        foregroundCheck = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(400))
+        foregroundCheck = runtime.task { [weak self, runtime] in
+            await runtime.sleep(for: .milliseconds(400))
             let name = session.foregroundCommand()
             guard let self else { return }
             foregroundCheck = nil

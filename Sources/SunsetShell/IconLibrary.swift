@@ -1,8 +1,13 @@
+package import SunsetRuntime
+
 /// The icon picker's catalogs, read once and kept while a picker may want them (the owner, 2026-11-17: the picker was slow
 /// "at loading all symbols"). They were read at each opening, with a spinner meanwhile; kept, a picker that opens has its
 /// grid at once. They are dropped a while after the last picker closed: what they weigh is measured in the diary.
 @MainActor
 package final class IconLibrary {
+    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    package var runtime = Runtime.live
+
     package static let shared = IconLibrary(idle: .seconds(120)) { IconCatalogs.load() }
 
     /// The catalogs, while they are kept.
@@ -24,7 +29,7 @@ package final class IconLibrary {
     /// The catalogs: read off the main actor when they are not kept, the same for everyone who asks meanwhile.
     package func catalogs() async -> IconCatalogs {
         if let ready { return ready }
-        let task = reading ?? Task { [read] in await Self.reading(read) }
+        let task = reading ?? runtime.task { [read] in await Self.reading(read) }
         reading = task
         let catalogs = await task.value
         ready = catalogs
@@ -49,8 +54,8 @@ package final class IconLibrary {
         pickers = max(pickers - 1, 0)
         guard pickers == 0 else { return }
         dropping?.cancel()
-        dropping = Task { [idle] in
-            try? await Task.sleep(for: idle)
+        dropping = runtime.task { [idle] in
+            await runtime.sleep(for: idle)
             guard !Task.isCancelled, pickers == 0 else { return }
             ready = nil
         }
