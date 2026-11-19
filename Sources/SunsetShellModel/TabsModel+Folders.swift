@@ -20,14 +20,8 @@ extension TabsModel {
 
     /// Deletes a folder and every entry in it; open ones stop, asking first when something runs in one of them.
     package func delete(folder id: Favorites.NodeID) {
-        guard case .folder(let folder)? = favorites.favorites.node(id) else { return }
-        let open = Self.entries(in: folder.children).compactMap(\.open)
-        let busy = open.flatMap(\.panes).contains { favorites.contents[$0]?.closeWarning != nil }
-        if let first = open.first { guard confirmed(.item(first.id), isBusy: busy) else { return } }
-        losingNothing(closing: open.flatMap(\.panes)) { [self] in
-            favorites.delete(id)
-            finishClosing()
-        }
+        guard case .folder? = favorites.favorites.node(id) else { return }
+        delete([.node(id)])
     }
 
     /// Drops what is dragged into a folder, at its end: a tab is kept there, an entry or a folder moves there.

@@ -56,18 +56,8 @@ extension TabsModel {
     /// there. Nil when there is no grid or no room.
     @discardableResult
     package func pin(item: Workspace.ItemID, show: Bool = true, at index: Int? = nil) -> Favorites.NodeID? {
-        guard canPin, let pinned, let taken = workspace.take(item: item) else { return nil }
-        var moved: [PaneID: any PaneContent] = [:]
-        for pane in taken.panes { moved[pane] = contents.removeValue(forKey: pane) }
-        guard let id = pinned.keep(taken, contents: moved, in: nil, at: index) else { return nil }
-        for (pane, content) in moved { content.onExit = { [weak pinned] in pinned?.close(pane: pane) } }
-        if show {
-            showEntry(id)
-        } else {
-            syncStates()
-            onChange()
-        }
-        return id
+        guard canPin, let pinned else { return nil }
+        return hand(item: item, to: pinned, in: nil, at: index, show: show)
     }
 
     /// Whether the row could be pinned: a tab, or an entry of the Favorites (a folder is not pinned), with room in the grid.

@@ -111,9 +111,9 @@ package final class SitePermissions {
         table?.removeAll()
     }
 
+    /// One entry for a site with or without "www." (`SiteHost`).
     static func key(_ host: String) -> String {
-        let lower = host.lowercased()
-        return lower.hasPrefix("www.") ? String(lower.dropFirst(4)) : lower
+        SiteHost.key(host)
     }
 
     /// One site's answers as they are kept.

@@ -60,11 +60,23 @@ extension TabsModel {
     )
         -> Favorites.NodeID?
     {
+        hand(item: item, to: favorites, in: parent, at: index, show: show)
+    }
+
+    /// The tab `item` leaves the Tabs for `keeper` (the Favorites, or the Pinned grid), its contents running on there: kept
+    /// in `parent` at `index`, and shown in this window when `show`. Nil when the keeper does not take it.
+    func hand(
+        item: Workspace.ItemID,
+        to keeper: FavoritesModel,
+        in parent: Favorites.NodeID?,
+        at index: Int?,
+        show: Bool
+    ) -> Favorites.NodeID? {
         guard let taken = workspace.take(item: item) else { return nil }
         var moved: [PaneID: any PaneContent] = [:]
         for pane in taken.panes { moved[pane] = contents.removeValue(forKey: pane) }
-        guard let id = favorites.keep(taken, contents: moved, in: parent, at: index) else { return nil }
-        for (pane, content) in moved { content.onExit = { [weak self] in self?.favorites.close(pane: pane) } }
+        guard let id = keeper.keep(taken, contents: moved, in: parent, at: index) else { return nil }
+        for (pane, content) in moved { content.onExit = { [weak keeper] in keeper?.close(pane: pane) } }
         if show {
             showEntry(id)
         } else {

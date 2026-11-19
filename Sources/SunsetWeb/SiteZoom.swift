@@ -65,10 +65,9 @@ package final class SiteZoom {
         table?.removeAll()
     }
 
-    /// One entry for a site with or without "www.".
+    /// One entry for a site with or without "www." (`SiteHost`).
     static func key(_ host: String) -> String {
-        let lower = host.lowercased()
-        return lower.hasPrefix("www.") ? String(lower.dropFirst(4)) : lower
+        SiteHost.key(host)
     }
 
     /// Takes in the levels of the file of before the database (`site-zoom.json`); says how many, or nil when there is none.
