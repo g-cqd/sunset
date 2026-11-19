@@ -30,7 +30,10 @@ public enum ConfigurationLoader {
                 themeIssues += theme.issues.map { ConfigurationIssue(path: "theme:" + $0.path, message: $0.message) }
             } catch {
                 themeIssues.append(
-                    ConfigurationIssue(path: "theme", message: "the theme \"\(name)\" is not valid: \(describe(error))")
+                    ConfigurationIssue(
+                        path: "theme",
+                        message: "the theme \"\(name)\" is not valid: \(error.description)"
+                    )
                 )
             }
         } else {
@@ -47,13 +50,6 @@ public enum ConfigurationLoader {
             ("a" ... "z").contains(scalar) || ("A" ... "Z").contains(scalar) || ("0" ... "9").contains(scalar)
                 || scalar == "-"
                 || scalar == "_"
-        }
-    }
-
-    private static func describe(_ error: ConfigurationError) -> String {
-        switch error {
-            case .syntax(let message, let offset): offset.map { "\(message) (byte \($0))" } ?? message
-            case .notAnObject: "the file must contain an object"
         }
     }
 }

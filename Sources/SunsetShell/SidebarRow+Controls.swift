@@ -6,19 +6,9 @@ import SwiftUI
 extension SidebarRow {
     /// Empties the name being typed; left empty, the row takes back its own title.
     var clearButton: some View {
-        SwiftUI.Button {
+        ClearNameButton(layout: layout) {
             typed = ""
-        } label: {
-            Image(systemName: "delete.left")
-                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
-                .foregroundStyle(.secondary)
-                .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-                .contentShape(.rect)
         }
-        .buttonStyle(.plain)
-        .focusable(false)
-        .help("Clear the Name")
-        .accessibilityLabel("Clear the Name")
     }
 
     /// Kept awake (roadmap 0038 C): the close button's size, its symbol's size and weight, in its place while it is hidden.

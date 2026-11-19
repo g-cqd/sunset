@@ -212,15 +212,8 @@ final class AppConfiguration {
             lastError = nil
             for issue in result.issues { Self.say("\(path): \(issue.path): \(issue.message)") }
         } catch {
-            lastError = Self.describe(error)
+            lastError = error.description
             Self.say("\(path): \(lastError ?? "unreadable"); the previous configuration stays in force")
-        }
-    }
-
-    private static func describe(_ error: ConfigurationError) -> String {
-        switch error {
-            case .syntax(let message, let offset): offset.map { "\(message) (byte \($0))" } ?? message
-            case .notAnObject: "the file must contain an object ({ ... })"
         }
     }
 

@@ -178,18 +178,13 @@ struct SidebarRow: View {
     /// Over the row's end, so that the title has the whole width while it is hidden (owner note n65); shown, the title fades out under it.
     private var closeButton: some View {
         SwiftUI.Button(action: close) {
-            Image(systemName: button.symbol)
-                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
-                .foregroundStyle(armed ? Color.white : Color.primary)
-                .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-                .background(
-                    RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
-                        .fill(
-                            (armed ? Color.red : Color.primary)
-                                .opacity(RowFill.closeButton(armed: armed, over: overClose))
-                        )
-                )
-                .contentShape(.rect)
+            RowButtonFace(
+                symbol: button.symbol,
+                side: layout.closeButtonSize,
+                radius: layout.closeButtonRadius,
+                armed: armed,
+                over: overClose
+            )
         }
         .buttonStyle(.plain)
         .opacity(showsClose ? 1 : 0)

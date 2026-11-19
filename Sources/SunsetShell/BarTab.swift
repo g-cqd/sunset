@@ -85,18 +85,13 @@ struct BarTab<Icon: View, Label: View>: View {
         Button {
             close?()
         } label: {
-            Image(systemName: button.symbol)
-                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
-                .foregroundStyle(armed ? Color.white : Color.primary)
-                .frame(width: surface.layout.closeButtonSize, height: surface.layout.closeButtonSize)
-                .background(
-                    RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout), style: .continuous)
-                        .fill(
-                            (armed ? Color.red : Color.primary)
-                                .opacity(RowFill.closeButton(armed: armed, over: overClose))
-                        )
-                )
-                .contentShape(.rect)
+            RowButtonFace(
+                symbol: button.symbol,
+                side: surface.layout.closeButtonSize,
+                radius: Design.Radius.small(surface.layout),
+                armed: armed,
+                over: overClose
+            )
         }
         .buttonStyle(.plain)
         .keptHover($overClose)

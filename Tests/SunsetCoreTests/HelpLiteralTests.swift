@@ -11,8 +11,9 @@ import Testing
         "SiteRuleRow.swift": 1,
         "SidebarNotices.swift": 1, "StorageProblemsBanner.swift": 1, "PrivateMark.swift": 1, "AddressField.swift": 1,
         "NotSecureMark.swift": 1, "DocumentNotices.swift": 2, "EditedMark.swift": 1,
-        "SidebarRow+Controls.swift": 2, "SpacesMenuButton.swift": 1, "TabLabel.swift": 1, "IconPicker.swift": 1,
-        "FolderRow.swift": 1, "FavoritesSection.swift": 1
+        "SidebarRow+Controls.swift": 1, "ClearNameButton.swift": 1, "SpacesMenuButton.swift": 1, "TabLabel.swift": 1,
+        "IconPicker.swift": 1,
+        "FavoritesSection.swift": 1
     ]
 
     @Test func `no tooltip is written in place but those of before; the list only shrinks`() {

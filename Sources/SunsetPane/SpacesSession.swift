@@ -179,18 +179,4 @@ public struct SpacesSession: Sendable, Equatable {
             profiles = try? container.decodeIfPresent([Lossy<SavedProfile>].self, forKey: .profiles)
         }
     }
-
-    /// A part that fails to read is nil instead of failing the whole file.
-    private struct Lossy<Value: Codable>: Codable {
-        let value: Value?
-        init(_ value: Value) {
-            self.value = value
-        }
-        init(from decoder: any Decoder) throws {
-            value = try? Value(from: decoder)
-        }
-        func encode(to encoder: any Encoder) throws {
-            try value?.encode(to: encoder)
-        }
-    }
 }

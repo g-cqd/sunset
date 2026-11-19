@@ -51,19 +51,9 @@ struct FolderRow: View {
             GeometryReader { proxy in
                 if tabs.renamingRow == .node(folder.id) {
                     // Renaming: a button that clears the name in the chevron's place (the owner, 2026-11-17).
-                    Button {
+                    ClearNameButton(layout: layout) {
                         name = ""
-                    } label: {
-                        Image(systemName: "delete.left")
-                            .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
-                            .foregroundStyle(.secondary)
-                            .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-                            .contentShape(.rect)
                     }
-                    .buttonStyle(.plain)
-                    .focusable(false)
-                    .help("Clear the Name")
-                    .accessibilityLabel("Clear the Name")
                     .position(x: proxy.size.width - proxy.size.height / 2, y: proxy.size.height / 2)
                 }
             }
