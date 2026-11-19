@@ -35,3 +35,13 @@ struct RowFillTests {
         #expect(RowFill.closeButton(armed: false, over: false) == 0)
     }
 }
+
+extension RowFillTests {
+    @Test func `a marked row: the accent, stronger while shown, deeper under the pointer; else none`() {
+        #expect(RowFill.marked(.marked, hovering: false) == Design.Fill.marked)
+        #expect(RowFill.marked(.marked, hovering: true) == Design.Fill.markedHover)
+        #expect(RowFill.marked(.markedShown, hovering: false) == Design.Fill.markedShown)
+        #expect(RowFill.marked(.markedShown, hovering: true) == Design.Fill.markedShownHover)
+        #expect(RowFill.marked(.shown, hovering: true) == nil && RowFill.marked(.none, hovering: false) == nil)
+    }
+}

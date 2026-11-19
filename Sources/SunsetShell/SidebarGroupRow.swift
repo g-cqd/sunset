@@ -71,11 +71,8 @@ struct SidebarGroupRow: View {
 
     private var containerHighlight: Color {
         if armed { return .red.opacity(hovering ? Design.Fill.armedHover : Design.Fill.armed) }
-        switch RowEmphasis.of(shown: selected, marked: marked) {
-            case .marked: return accent.color.opacity(hovering ? Design.Fill.markedHover : Design.Fill.marked)
-            case .markedShown:
-                return accent.color.opacity(hovering ? Design.Fill.markedShownHover : Design.Fill.markedShown)
-            case .shown, .none: break
+        if let fill = RowFill.marked(RowEmphasis.of(shown: selected, marked: marked), hovering: hovering) {
+            return accent.color.opacity(fill)
         }
         return switch (selected, hovering) {
             case (true, _): .primary.opacity(activeState == .inactive ? Design.Fill.open : Design.Fill.openHover)

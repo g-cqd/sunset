@@ -14,8 +14,7 @@ struct HistoryRow: View {
 
     var body: some View {
         // A sidebar row of a page that is not open: its glyph and two lines, no fill at rest (owner note n67).
-        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-        return HStack(spacing: GlyphSpacing.toText) {
+        HStack(spacing: GlyphSpacing.toText) {
             PaneGlyphView(glyph: .symbol("globe"))
             VStack(alignment: .leading, spacing: Design.Space.hair) {
                 Text(entry.title.isEmpty ? AddressChoice.shortAddress(entry.url) : entry.title).lineLimit(1)
@@ -27,14 +26,9 @@ struct HistoryRow: View {
                     .truncationMode(.middle)
             }
         }
-        .padding(.leading, layout.tabPaddingLeading)
-        .padding(.trailing, layout.tabPaddingTrailing)
-        .padding(.vertical, Design.rowPadding(layout, lines: Self.lines, height: Design.Size.tabRow))
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(shape.fill(Color.primary.opacity(hovered ? Design.Fill.hover : 0)))
-        .contentShape(shape)
-        .animation(layout.smooth, value: hovered)
-        .keptHover($hovered)
+        .modifier(
+            LibraryRowFrame(layout: layout, lines: Self.lines, fill: hovered ? Design.Fill.hover : 0, hovered: $hovered)
+        )
         .onTapGesture { AppActions.shared.openFromHistory(entry.url, newTab: NSEvent.modifierFlags.contains(.command)) }
         // One element that can be pressed through accessibility: a tap gesture alone is not reached by VoiceOver's press.
         .accessibilityElement(children: .combine)

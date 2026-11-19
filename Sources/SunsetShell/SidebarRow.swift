@@ -156,11 +156,8 @@ struct SidebarRow: View {
     /// Hover and selection variants of the highlight.
     private var highlight: Color {
         if armed { return .red.opacity(RowFill.armed(hovering: hovering || keepCloseVisible)) }
-        switch RowEmphasis.of(shown: selected, marked: marked) {
-            case .marked: return accent.color.opacity(hovering ? Design.Fill.markedHover : Design.Fill.marked)
-            case .markedShown:
-                return accent.color.opacity(hovering ? Design.Fill.markedShownHover : Design.Fill.markedShown)
-            case .shown, .none: break
+        if let fill = RowFill.marked(RowEmphasis.of(shown: selected, marked: marked), hovering: hovering) {
+            return accent.color.opacity(fill)
         }
         if let tint = RowFill.siteTint(
             siteTint,

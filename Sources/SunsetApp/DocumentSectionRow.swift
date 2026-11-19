@@ -36,24 +36,21 @@ struct DocumentSectionRow: View {
     }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
-        return HStack(spacing: GlyphSpacing.toText) {
+        HStack(spacing: GlyphSpacing.toText) {
             PaneGlyphView(glyph: .symbol(document.kind.symbol))
             VStack(alignment: .leading, spacing: Design.Space.hair) {
                 Text(document.title).lineLimit(1)
                 Text(changed).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
             }
         }
-        .padding(.leading, layout.tabPaddingLeading)
-        .padding(.trailing, layout.tabPaddingTrailing)
-        .padding(.vertical, Design.rowPadding(layout, lines: Self.lines, height: Design.Size.tabRow))
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            shape.fill(Color.primary.opacity(hovered ? Design.Fill.openHover : (isOpen ? Design.Fill.open : 0)))
+        .modifier(
+            LibraryRowFrame(
+                layout: layout,
+                lines: Self.lines,
+                fill: hovered ? Design.Fill.openHover : (isOpen ? Design.Fill.open : 0),
+                hovered: $hovered
+            )
         )
-        .contentShape(shape)
-        .animation(layout.smooth, value: hovered)
-        .keptHover($hovered)
         .onTapGesture {
             if NSEvent.modifierFlags.contains(.command), document.file == nil { openInNewTab() } else { open() }
         }

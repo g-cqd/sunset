@@ -26,6 +26,18 @@ package enum RowFill {
 }
 
 extension RowFill {
+    /// A row among several selected, in the accent: stronger while its tab is shown, deeper under the pointer; nil for a
+    /// row that is not marked (its own fill then).
+    package static func marked(_ emphasis: RowEmphasis, hovering: Bool) -> Double? {
+        switch emphasis {
+            case .marked: hovering ? Design.Fill.markedHover : Design.Fill.marked
+            case .markedShown: hovering ? Design.Fill.markedShownHover : Design.Fill.markedShown
+            case .shown, .none: nil
+        }
+    }
+}
+
+extension RowFill {
     /// Which tabs take their site's colour (the owner's note n56; `tabs.siteColor`).
     package enum SiteTintMode: Hashable, Sendable {
         case off, selected, every
