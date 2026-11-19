@@ -131,7 +131,7 @@ package struct TabSidebar: View {
             tabs.runSlide = SpaceSlide.animated
             tabs.withoutAnimation = SpaceSlide.plain
         }
-        .background { SpaceSwipeCatcher(tabs: tabs, animation: layout.smooth) }
+        .background { SpaceSwipeCatcher(tabs: tabs, animation: layout.smooth, library: swipeLibrary) }
         .gesture(WindowDragGesture())
         // On the sidebar's empty area (a row's own menu wins over it).
         .contextMenu {

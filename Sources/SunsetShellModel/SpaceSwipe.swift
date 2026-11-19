@@ -13,8 +13,30 @@ package struct SpaceSwipe: Equatable {
         case follow
         /// Enough was swiped: the Space is the next (1) or the previous (-1) now.
         case snap(Int)
+        /// Enough was swiped past the last Space on the sidebar's side: the Library opens (the owner's note n61).
+        case library
         /// Of a gesture that already changed Space: nothing.
         case consumed
+    }
+
+    /// What a side holds: another Space, the Library (past the last Space on the sidebar's side), or nothing.
+    package enum Way: Equatable, Sendable { case space, library, nothing }
+
+    /// Where the Library is to swipe to: past the first Space (`previous`, a sidebar on the left) or the last (`next`).
+    package enum LibrarySide: Equatable, Sendable { case previous, next }
+
+    /// What each side of the Space at `index` of `count` holds.
+    package static func ways(index: Int, count: Int, library: LibrarySide?) -> (previous: Way, next: Way) {
+        (
+            index > 0 ? .space : (library == .previous ? .library : .nothing),
+            index < count - 1 ? .space : (library == .next ? .library : .nothing)
+        )
+    }
+
+    /// Whether the swipe is listened to: only while the tabs show (the Library's lists, the settings and Help fill the
+    /// sidebar otherwise: note n61), and only if there is somewhere to go.
+    package static func listens(libraryOpen: Bool, spaces: Int, library: LibrarySide?) -> Bool {
+        !libraryOpen && (spaces > 1 || library != nil)
     }
 
     /// How far the fingers go, as a part of the sidebar's width, before the Space changes.
@@ -45,9 +67,9 @@ package struct SpaceSwipe: Equatable {
     ///   - dx: the move sideways.
     ///   - dy: the move up or down.
     ///   - width: the sidebar's width.
-    ///   - canGo: whether there is a Space before, and one after.
+    ///   - ways: what is before, and after.
     /// - Returns: what the list does.
-    package mutating func move(dx: Double, dy: Double, width: Double, canGo: (previous: Bool, next: Bool)) -> Step {
+    package mutating func move(dx: Double, dy: Double, width: Double, ways: (previous: Way, next: Way)) -> Step {
         switch phase {
             case .idle, .scrolling: return .scroll
             case .done: return .consumed
@@ -65,16 +87,17 @@ package struct SpaceSwipe: Equatable {
         }
         let distance = abs(travelled.x)
         let towardsNext = travelled.x < 0
-        guard towardsNext ? canGo.next : canGo.previous else {
-            // No Space that way: the list gives a little and no more.
-            let give = width * 0.12 * (1 - Self.decay(distance / max(width, 1)))
-            offset = towardsNext ? -give : give
-            return .follow
+        let way = towardsNext ? ways.next : ways.previous
+        guard way != .nothing else {
+            // Nothing that way (note n61): the gesture is the list's, as one up or down is.
+            phase = .scrolling
+            offset = 0
+            return .scroll
         }
         if distance >= width * Self.threshold {
             // The list is left where the fingers had it: the slide to the other Space goes on from there.
             phase = .done
-            return .snap(towardsNext ? 1 : -1)
+            return way == .library ? .library : .snap(towardsNext ? 1 : -1)
         }
         // Slow at first, then with the fingers: a part of the width, raised.
         let eased = width * Self.raised(distance / max(width, 1))
@@ -94,10 +117,5 @@ package struct SpaceSwipe: Equatable {
     private static func raised(_ part: Double) -> Double {
         let clamped = min(max(part, 0), 1)
         return clamped * (0.3 + 0.7 * clamped)
-    }
-
-    /// 1 at 0, towards 0 as `part` grows: 1 / (1 + 3x).
-    private static func decay(_ part: Double) -> Double {
-        1 / (1 + 3 * max(part, 0))
     }
 }

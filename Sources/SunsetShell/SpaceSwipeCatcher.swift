@@ -9,17 +9,19 @@ import SwiftUI
 struct SpaceSwipeCatcher: NSViewRepresentable {
     let tabs: TabsModel
     let animation: Animation
+    /// Where the Library is to swipe to, past the last Space on the sidebar's side (note n61); nil while it is not offered.
+    let library: SpaceSwipe.LibrarySide?
 
     func makeNSView(context: Context) -> CatcherView {
         let view = CatcherView()
-        view.tabs = tabs
-        view.animation = animation
+        updateNSView(view, context: context)
         return view
     }
 
     func updateNSView(_ view: CatcherView, context: Context) {
         view.tabs = tabs
         view.animation = animation
+        view.library = library
     }
 
     static func dismantleNSView(_ view: CatcherView, coordinator: ()) {
@@ -29,6 +31,7 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
     final class CatcherView: NSView {
         weak var tabs: TabsModel?
         var animation = Animation.default
+        var library: SpaceSwipe.LibrarySide?
         private var monitor: Any?
 
         override func viewDidMoveToWindow() {
@@ -49,9 +52,14 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
 
         /// Whether the event was this one's (the list does not get it then).
         private func take(_ event: NSEvent) -> Bool {
-            guard let tabs, let spaces = tabs.spaces, spaces.spaces.count > 1, event.window === window,
-                bounds.contains(convert(event.locationInWindow, from: nil))
+            guard let tabs, event.window === window, bounds.contains(convert(event.locationInWindow, from: nil)),
+                SpaceSwipe.listens(
+                    libraryOpen: tabs.sections.isLibraryOpen,
+                    spaces: tabs.spaces?.spaces.count ?? 1,
+                    library: library
+                )
             else { return false }
+            let ways = tabs.spaceWays(library: library)
             if event.phase.contains(.began) || event.phase.contains(.mayBegin) { tabs.spaceSwipe.begin() }
             // What the trackpad sends after the fingers left is not a swipe.
             let fingers = event.momentumPhase.isEmpty
@@ -61,9 +69,9 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
                     dx: event.scrollingDeltaX,
                     dy: event.scrollingDeltaY,
                     width: bounds.width,
-                    canGo: tabs.spaceNeighbours
+                    ways: ways
                 )
-                : tabs.spaceSwipe.move(dx: 0, dy: 0, width: bounds.width, canGo: tabs.spaceNeighbours)
+                : tabs.spaceSwipe.move(dx: 0, dy: 0, width: bounds.width, ways: ways)
             defer {
                 // Fingers up before enough was swiped: the list goes back to its place.
                 if event.phase.contains(.ended) || event.phase.contains(.cancelled) {
@@ -80,6 +88,11 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
                 case .snap(let direction):
                     NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
                     tabs.stepSpace(by: direction)
+                    return true
+                case .library:
+                    NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+                    tabs.settleSpaceList()
+                    tabs.sections.toggleLibrary()
                     return true
             }
         }

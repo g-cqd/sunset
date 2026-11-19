@@ -26,4 +26,11 @@ extension TabSidebar {
                 .padding(.bottom, buttons.bottom)
         }
     }
+
+    /// Where the Library is to swipe to (the owner's note n61): past the first Space for a sidebar on the left, the last
+    /// for one on the right, while the Library is offered.
+    var swipeLibrary: SpaceSwipe.LibrarySide? {
+        guard settings.sidebar.library, SidebarSection.rail(for: tabs.scopes).count > 1 else { return nil }
+        return settings.sidebar.side == .left ? .previous : .next
+    }
 }
