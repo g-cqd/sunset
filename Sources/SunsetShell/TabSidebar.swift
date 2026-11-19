@@ -85,23 +85,23 @@ package struct TabSidebar: View {
 
     private var whole: some View {
         VStack(spacing: layout.tabSpacing) {
-            // The Pinned grid and the Favorites stay where they are; only Today's tabs scroll (the owner, 2026-11-17, roadmap
-            // 0035 F). The swipe between Spaces moves both, with the neighbour's beside them.
-            VStack(spacing: layout.tabSpacing) {
-                // Still while the swipe is to a Space that shows the same (roadmap 0044 A, E).
-                pinnedPart
-                    .onGeometryChange(for: Double.self, of: { Double($0.size.height) }) { keptHeights.pinned = $0 }
-                    .offset(x: tabs.slide.beside?.shares(.pinned) == true ? 0 : tabs.slide.shift)
-                favoritesPart
-                    .onGeometryChange(for: Double.self, of: { Double($0.size.height) }) { keptHeights.favorites = $0 }
-                    .offset(x: tabs.slide.beside?.shares(.favorites) == true ? 0 : tabs.slide.shift)
-            }
-            // Its rows keep their height; Today's scroll view takes what is left (seen 2026-11-17: six favourites in a
-            // short window were squeezed).
-            .layoutPriority(1)
+            // One scroll view for the Pinned grid, the Favorites and Today's tabs (the owner's note n56, ADR-0088): in a short
+            // window it takes what the header and the bottom bar leave, and never pushes them out. The swipe between Spaces
+            // moves each part, with the neighbour's beside them.
             ScrollView {
-                today
-                    .offset(x: tabs.slide.shift)
+                VStack(spacing: layout.tabSpacing) {
+                    // Still while the swipe is to a Space that shows the same (roadmap 0044 A, E).
+                    pinnedPart
+                        .onGeometryChange(for: Double.self, of: { Double($0.size.height) }) { keptHeights.pinned = $0 }
+                        .offset(x: tabs.slide.beside?.shares(.pinned) == true ? 0 : tabs.slide.shift)
+                    favoritesPart
+                        .onGeometryChange(for: Double.self, of: { Double($0.size.height) }) {
+                            keptHeights.favorites = $0
+                        }
+                        .offset(x: tabs.slide.beside?.shares(.favorites) == true ? 0 : tabs.slide.shift)
+                    today
+                        .offset(x: tabs.slide.shift)
+                }
             }
             .bouncesOnlyWhenScrolling()
             .scrollIndicators(.never)
