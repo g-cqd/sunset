@@ -2,6 +2,7 @@ import AppKit
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner's note n41 (2026-11-18): "focusing on the address bar to edit the text now completely changes the dimensions
 /// and layout of the input". Typing in it leaves the editor where AppKit puts it; only a later change of the field's width

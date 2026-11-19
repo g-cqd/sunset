@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// n37: the check of the proxy says what it found.
 @Suite("Checking the proxy") struct ProxyCheckTests {

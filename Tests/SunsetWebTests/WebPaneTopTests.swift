@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0045 D (the owner, 2026-11-18: "setting the sidebar to floating when on a webpage creates an odd blank space at
 /// the top of the content pane"): with the sidebar floating, a window with no title bar keeps a strip at its top to drag

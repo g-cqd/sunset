@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("What sites were allowed") @MainActor struct SitePermissionsTests {
     @Test func `the owner's defaults: asked, pop-ups and sound blocked; a setting changes a default`() {

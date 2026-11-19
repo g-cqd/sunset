@@ -3,6 +3,7 @@ import Observation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// A page asks for notifications only from what the person did (white paper §9; the review of 2026-11-17): as Safari, a
 /// `requestPermission()` without a user gesture is answered by the site's standing answer and asks nobody; and one question at

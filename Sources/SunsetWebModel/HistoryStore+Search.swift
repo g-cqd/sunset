@@ -41,13 +41,13 @@ extension HistoryStore {
     }
 
     /// The bytes of `text`, plain capital letters made small: what SQLite's `LIKE` did for the history before.
-    nonisolated static func folded(_ text: [UInt8]) -> [UInt8] {
+    package nonisolated static func folded(_ text: [UInt8]) -> [UInt8] {
         var bytes = text
         for index in bytes.indices where bytes[index] >= 65 && bytes[index] <= 90 { bytes[index] += 32 }
         return bytes
     }
 
-    static func holds(_ hay: [UInt8], _ needle: [UInt8]) -> Bool {
+    package static func holds(_ hay: [UInt8], _ needle: [UInt8]) -> Bool {
         guard !needle.isEmpty else { return true }
         return hay.withUnsafeBytes { hay in
             needle.withUnsafeBytes { needle in

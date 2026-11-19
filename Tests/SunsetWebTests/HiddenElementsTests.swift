@@ -4,6 +4,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0022 W-e: an element picked on a page is hidden for good on its site (and its subdomains), whatever blocking
 /// says; the selector names that element and no other.

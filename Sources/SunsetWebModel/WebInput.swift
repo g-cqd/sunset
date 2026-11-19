@@ -22,7 +22,7 @@ package enum WebInput: Equatable, Sendable {
         return .search(engine, words: text)
     }
 
-    static func address(_ text: String) -> WebInput? {
+    package static func address(_ text: String) -> WebInput? {
         if let url = URL(string: text), let scheme = url.scheme?.lowercased(),
             ["http", "https", "file", "about"].contains(scheme), text.contains(":/") || scheme == "about"
         {

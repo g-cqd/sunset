@@ -4,6 +4,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0042 D: a page whose text changes while its title does not (a document edited, a list that grows) is pictured
 /// again for its tab's card, as one whose title changes is (0037 A).

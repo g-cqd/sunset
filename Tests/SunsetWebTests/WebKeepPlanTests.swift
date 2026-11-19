@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// ADR-0081 (roadmap 0051 H): what Sunset clears at quit from WebKit's stores.
 @Suite("What is cleared at quit") struct WebKeepPlanTests {

@@ -1,5 +1,5 @@
 import Foundation
-package import SunsetShell
+package import SunsetShellModel
 
 /// A row of the lists where an address is typed (web step e): what was typed (Go to, Search), a page of the history, an engine's suggestion.
 package enum AddressChoice {
@@ -65,12 +65,12 @@ package enum AddressChoice {
 
 extension WebInput {
     /// The words of a search.
-    var words: String? {
+    package var words: String? {
         if case .search(_, let words) = self { return words }
         return nil
     }
 
-    var engineName: String? {
+    package var engineName: String? {
         if case .search(let engine, _) = self { return engine.name }
         return nil
     }

@@ -7,9 +7,17 @@ package final class CredentialRequest: Identifiable {
     package struct Answer: Equatable, Sendable {
         package var user: String
         package var password: String
+
+        package init(
+            user: String,
+            password: String
+        ) {
+            self.user = user
+            self.password = password
+        }
     }
 
-    static let realmLimit = 80
+    package static let realmLimit = 80
 
     package let id = UUID()
     package let host: String
@@ -18,7 +26,7 @@ package final class CredentialRequest: Identifiable {
     package let warning: String?
     private var reply: ((Answer?) -> Void)?
 
-    init(host: String, realm: String, failed: Bool, secure: Bool, reply: @escaping (Answer?) -> Void) {
+    package init(host: String, realm: String, failed: Bool, secure: Bool, reply: @escaping (Answer?) -> Void) {
         self.host = host
         let clean = UntrustedText.oneLine(realm)
         self.realm = clean.count > Self.realmLimit ? String(clean.prefix(Self.realmLimit)) + "\u{2026}" : clean

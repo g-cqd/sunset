@@ -3,6 +3,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0047 A (the owner, 2026-11-18: Slack conversations "find their scroll state set to the topmost position when
 /// coming back to them often after a space switch"). A page shown again was put in a new host of no size first: for a turn

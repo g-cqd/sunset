@@ -3,6 +3,7 @@ import SunsetStorage
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("Page zoom") @MainActor struct ZoomTests {
     @Test func `levels step up and down and stop at the ends`() {

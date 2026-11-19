@@ -24,3 +24,23 @@ struct ModelLayerTests {
         }
     }
 }
+
+extension ModelLayerTests {
+    /// The web's policy (site rules, permissions, history, the browser a site is shown, search, downloads, what is typed in
+    /// the address field) apart from the page and its views: no WebKit, no UI.
+    @Test func `the web's model imports no WebKit nor UI, and holds the web's policy`() {
+        let files = RepositoryFiles.swiftFiles(in: ["Sources/SunsetWebModel"])
+        #expect(files.count > 40, "the scan must see the module: \(files.count) files")
+        let banned = ["SwiftUI", "AppKit", "WebKit", "AemiSDR", "QuartzCore"]
+        let found = files.filter { file in
+            banned.contains { file.text.contains("import \($0)\n") }
+        }
+        #expect(found.isEmpty, "\(found.map(\.name))")
+        let names = Set(files.map(\.name))
+        for file in [
+            "SiteRules.swift", "SitePermissions.swift", "HistoryStore.swift", "BrowserAgent.swift", "SearchEngine.swift"
+        ] {
+            #expect(names.contains(file), "\(file)")
+        }
+    }
+}

@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// 0035's "not done" (roadmap 0036 E): a notification's `tag` (a later one with the same tag replaces it), its `close()`
 /// (it is taken away), its `icon` (shown, from an http, https or data address only).

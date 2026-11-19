@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import Observation
 package import SunsetRuntime
 
@@ -16,7 +16,7 @@ package final class SuggestionSource {
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private var asked = ""
 
-    nonisolated static let session = URLSession(configuration: .ephemeral)
+    package nonisolated static let session = URLSession(configuration: .ephemeral)
 
     package init() {}
 

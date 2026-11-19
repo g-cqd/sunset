@@ -3,6 +3,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner's note n51: "open in split and other open options on link in web tabs don't work". WebKit runs a menu item's
 /// action, and asks for the new page, before the view hears that the menu closed (probed: `/tmp/linkmenu`), so a placement

@@ -242,16 +242,23 @@ let package = Package(
             ]
         ),
         // A web page as a kind of pane content (R1, roadmap 0019), on the system's WebKit.
+        // The web's policy (roadmap 0086 D): site rules, permissions, history, how sites see Sunset, search, downloads, what is
+        // typed in the address field. No WebKit, no UI.
+        module("SunsetWebModel", ["SunsetRuntime", "SunsetPane", "SunsetShellModel", "SunsetStorage"]),
+        // The pages (WebKit) and what shows them; re-exports the web's model.
         module(
             "SunsetWeb",
             [
-                "SunsetRuntime", "SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics", "SunsetStorage",
-                .product(name: "AemiSDR", package: "AemiSDR")
+                "SunsetWebModel", "SunsetRuntime", "SunsetPane", "SunsetShell", "SunsetPrivate", "SunsetMetrics",
+                "SunsetStorage", .product(name: "AemiSDR", package: "AemiSDR")
             ]
         ),
         tests(
             "SunsetWebTests",
-            ["SunsetTestSupport", "SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics", "SunsetStorage"]
+            [
+                "SunsetTestSupport", "SunsetWeb", "SunsetWebModel", "SunsetPane", "SunsetShell", "SunsetShellModel",
+                "SunsetMetrics", "SunsetStorage"
+            ]
         ),
         // What joins the configuration file to the shell's settings: a library so that the mapping is tested (the app target cannot be).
         // What the app decides, apart from what it shows (roadmap 0086 D): the command line, Clear History's span, a page's

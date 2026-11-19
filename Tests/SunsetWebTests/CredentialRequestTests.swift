@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("A server that asks for a name and a password") @MainActor struct CredentialRequestTests {
     @Test func `the request names the host; the server's realm is plain text, cut; a clear connection is said`() {

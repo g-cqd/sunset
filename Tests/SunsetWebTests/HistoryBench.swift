@@ -1,6 +1,7 @@
 import Foundation
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// How the bench opens and fills the store: the one part that differs before and after ST-3.
 @MainActor

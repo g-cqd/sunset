@@ -4,6 +4,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// A probe (roadmap 0046 B, 2026-11-18): WebKit's private `-[WKWebsiteDataStore _setProxyConfiguration:]` takes a CFNetwork
 /// proxy dictionary. Does it take a proxy auto-configuration script, so that a page's requests go where a script decides

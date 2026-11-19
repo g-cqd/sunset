@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("Names and kinds of downloaded files") struct DownloadNamingTests {
     @Test func `a taken name gets -2, then -3, before its extension; a partial file counts as taken`() {

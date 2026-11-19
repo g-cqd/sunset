@@ -4,6 +4,7 @@ import SunsetShell
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0050 D: Reload as another profile.
 @MainActor @Suite("Reload as another profile") struct ReloadAsTests {

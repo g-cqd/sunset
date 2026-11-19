@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// A page's icon, kept and followed (roadmap 0035 H), in a real page: the icon the page names is kept for its site; one the page
 /// puts in its place while it runs replaces it.

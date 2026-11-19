@@ -54,7 +54,7 @@ package struct SearchEngine: Sendable, Equatable, Hashable {
         suggest.flatMap { Self.fill($0, words) }
     }
 
-    static func fill(_ template: String, _ words: String) -> URL? {
+    package static func fill(_ template: String, _ words: String) -> URL? {
         var allowed = CharacterSet.urlQueryAllowed
         allowed.remove(charactersIn: "&+=?#")
         guard let encoded = words.addingPercentEncoding(withAllowedCharacters: allowed) else { return nil }

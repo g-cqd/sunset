@@ -1,6 +1,7 @@
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0050: a profile's pages share the answers kept, with defaults of their own.
 @MainActor @Suite("A profile's own defaults") struct SitePermissionsSharingTests {

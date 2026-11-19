@@ -112,14 +112,14 @@ package final class SitePermissions {
     }
 
     /// One entry for a site with or without "www." (`SiteHost`).
-    static func key(_ host: String) -> String {
+    package static func key(_ host: String) -> String {
         SiteHost.key(host)
     }
 
     /// One site's answers as they are kept.
     private struct Kept: Codable {
-        var host: String
-        var answers: [String: PermissionAnswer]
+        package var host: String
+        package var answers: [String: PermissionAnswer]
     }
 
     /// Takes in the answers of the file of before the database (`site-permissions.json`); says how many sites, or nil when

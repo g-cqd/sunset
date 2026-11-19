@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner's note n18 (2026-11-18): "sunset still does not act as a browser for macos and cannot be set as default browser".
 /// What the system hands Sunset to open: links to pages, and files.

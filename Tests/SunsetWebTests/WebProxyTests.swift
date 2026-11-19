@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0022 W-f, first form (the owner's note n75): a proxy set in Sunset carries the pages of every store. Probed with a
 /// proxy on this Mac that answers every request itself: a page of a name that does not exist loads through it.

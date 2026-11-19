@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// ADR-0081: the sites whose data is kept, chosen or signed in to; filled once with the sites holding cookies.
 @MainActor

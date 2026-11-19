@@ -3,6 +3,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// ADR-0085 (the owner, 2026-11-19: "clicking on screen and windows i'd expect to get the native experience"): WebKit in an
 /// app shows no picker and takes the main screen or a window of its choosing (probed), so a page never reaches it; "Screen,

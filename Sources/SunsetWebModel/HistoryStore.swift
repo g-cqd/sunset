@@ -10,17 +10,17 @@ package final class HistoryStore {
     /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
     package var runtime = Runtime.live
 
-    var byAddress: [String: Page] = [:]
+    package var byAddress: [String: Page] = [:]
     /// By last visit, the oldest first: a visit now is added at the end, and the lists read from the end. A page visited again
     /// leaves its old place marked `gone` (finding it would mean walking the list); the marks are swept when there are many.
-    var ordered: [Page] = []
-    var goneCount = 0
-    let table: SealedTable?
+    package var ordered: [Page] = []
+    package var goneCount = 0
+    package let table: SealedTable?
     /// The kept history is all in memory. False for a moment after a large history is opened: its records are opened off the
     /// main actor, and what is visited or removed meanwhile is joined to them when they arrive.
     package private(set) var isLoaded = true
     private var loading: Task<Void, Never>?
-    var removed = Removed()
+    package var removed = Removed()
     /// Records that did not open when the history was read (altered or damaged): they are not shown.
     package private(set) var unreadable = 0
     /// Something was written (a visit, a title, a deletion): lists that show the history read it again.
@@ -177,7 +177,7 @@ package final class HistoryStore {
     }
 
     /// Adds pages read from elsewhere (the history of before the database), as one transaction; a page already known is left.
-    func adopt(_ entries: [HistoryEntry]) {
+    package func adopt(_ entries: [HistoryEntry]) {
         let add = {
             for entry in entries where self.byAddress[entry.url] == nil {
                 let page = Page(entry)

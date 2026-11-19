@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner, 2026-11-17 (roadmap 0035 C): "there is still no preview for regular web tabs". A page hidden keeps a picture of
 /// itself, taken while it is still drawn, for its tab's preview.

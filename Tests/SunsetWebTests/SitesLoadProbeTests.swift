@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Many sites in a row (`SUNSET_SITES_PROBE`, comma-separated), each in its own page of Sunset's, blocking on with the lists
 /// of `SUNSET_BLOCKING_LISTS`: how long until the page says it has loaded, what its indicator says then, whether it failed,

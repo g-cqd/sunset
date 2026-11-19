@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("What a page may ask in a dialog") @MainActor struct PageDialogTests {
     @Test func `the first dialog of a page is shown plainly; from the second the panel offers to silence the page`() {

@@ -1,13 +1,13 @@
 /// The brands a Chromium browser names in `navigator.userAgentData` (roadmap 0045 F): Chromium, the browser, and a
 /// made-up brand, ordered and spelt by the major version, as Chromium's `GenerateBrandVersionList` does
 /// (components/embedder_support/user_agent_utils.cc, read 2026-11-18). Chrome 160 gave the same on this Mac.
-enum ChromiumBrands {
-    struct Brand: Equatable {
-        let brand: String
-        let version: String
+package enum ChromiumBrands {
+    package struct Brand: Equatable {
+        package let brand: String
+        package let version: String
     }
 
-    static func list(major: Int, brand: String) -> [Brand] {
+    package static func list(major: Int, brand: String) -> [Brand] {
         let characters = [" ", "(", ":", "-", ".", "/", ")", ";", "=", "?", "_"]
         let greased = Brand(
             brand: "Not" + characters[major % characters.count] + "A" + characters[(major + 1) % characters.count]

@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0022 W-d: a site can name its Space; a link to it opens there, from a page of any other Space.
 @MainActor @Suite("The Space a site opens in")

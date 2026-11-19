@@ -4,6 +4,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// A probe, run when `SUNSET_BLOCKING_LISTS` names list files (colon-separated; fetched by hand, never by the tests):
 /// each converted and compiled by WebKit, with the time each took and the size compiled (roadmap 0022 W-c).

@@ -2,6 +2,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner's note n53: "playing a video full screen does not show the video at all". WebKit moves the page's view into its
 /// full-screen window; the host took it back at its next layout (probed: `/tmp/fsprobe`), leaving that window empty.

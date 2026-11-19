@@ -4,13 +4,13 @@ import Foundation
 /// the kinds that need an approval (apps, installers, scripts; not disk images, the owner's answer) and those that may open after download.
 package enum DownloadNaming {
     /// The kinds that run code when opened.
-    static let suspicious: Set<String> = [
+    package static let suspicious: Set<String> = [
         "app", "pkg", "mpkg", "command", "tool", "sh", "bash", "zsh", "terminal", "workflow", "scpt", "applescript",
         "jar",
         "dylib", "bundle", "plugin", "action", "prefpane", "kext", "osax", "py", "pl", "rb"
     ]
     /// The kinds Safari calls safe: pictures, PDF, plain text, sound and film.
-    static let safe: Set<String> = [
+    package static let safe: Set<String> = [
         "png", "jpg", "jpeg", "gif", "heic", "webp", "tiff", "bmp", "pdf", "txt", "mp3", "m4a", "wav", "mp4", "mov",
         "m4v"
     ]

@@ -3,6 +3,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// What Sunset fetches for a page (a site's icon, a notification's picture) is a page's input (white paper §9; the review of
 /// 2026-11-17): only from the web or a `data:` address, never a file of the Mac, and never more than its limit is read.

@@ -10,14 +10,14 @@ package struct WebFailure: Sendable, Equatable {
     package let heading: String
 
     /// The errors that are a certificate the system refuses.
-    static let certificateCodes: Set<Int> = [
+    package static let certificateCodes: Set<Int> = [
         NSURLErrorServerCertificateHasBadDate, NSURLErrorServerCertificateUntrusted,
         NSURLErrorServerCertificateHasUnknownRoot,
         NSURLErrorServerCertificateNotYetValid, NSURLErrorSecureConnectionFailed
     ]
 
     /// A page whose process ended (roadmap 0029 step 5).
-    static func processEnded(url: URL?) -> WebFailure {
+    package static func processEnded(url: URL?) -> WebFailure {
         WebFailure(url: url, heading: "This page stopped", reason: "Its process ended. Try Again loads it afresh.")
     }
 

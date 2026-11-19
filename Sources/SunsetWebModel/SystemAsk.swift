@@ -5,7 +5,7 @@ package struct SystemAsk: Equatable, Sendable, Identifiable {
         case notifications, camera, microphone, location
 
         /// The site permission that needs it.
-        var permission: SitePermission {
+        package var permission: SitePermission {
             switch self {
                 case .notifications: .notifications
                 case .camera: .camera

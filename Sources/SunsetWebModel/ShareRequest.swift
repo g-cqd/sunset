@@ -6,7 +6,7 @@ package struct ShareRequest: Identifiable {
     package let sources: [ShareSource]
     private let reply: (ShareChoice) -> Void
 
-    init(sources: [ShareSource], reply: @escaping (ShareChoice) -> Void) {
+    package init(sources: [ShareSource], reply: @escaping (ShareChoice) -> Void) {
         self.sources = sources
         self.reply = reply
     }

@@ -1,7 +1,13 @@
 /// The script itself (ADR-0052, ADR-0074). Chrome's values were read from Chrome Canary 160 on 2026-11-18.
 extension AgentScript {
     // swiftlint:disable function_body_length - one script, read as one
-    static func make(chrome: String, edge: String, platformVersion: String, architecture: String, memory: Double)
+    package static func make(
+        chrome: String,
+        edge: String,
+        platformVersion: String,
+        architecture: String,
+        memory: Double
+    )
         -> String
     {
         #"""

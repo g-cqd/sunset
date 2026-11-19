@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("What is typed where an address goes") struct WebInputTests {
     let google = SearchEngine.builtIn[0]

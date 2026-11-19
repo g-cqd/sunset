@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The picture of a page's notification (roadmap 0036 E), in a real page: fetched as the page, made small, in a file.
 @MainActor

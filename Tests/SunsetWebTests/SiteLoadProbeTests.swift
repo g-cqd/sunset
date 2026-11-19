@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// A probe, run when `SUNSET_SITE_PROBE` names an address (roadmap 0045 F; never in the suite: it needs the network): the site
 /// loaded by Sunset's own page, shown as `SUNSET_SITE_AGENT` (chrome by default), with the blocking lists of

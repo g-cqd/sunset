@@ -65,12 +65,15 @@ package enum ProxyCheck {
     private final class MetricsWatcher: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
         private let lock = NSLock()
         private var proxied = false
-        var viaProxy: Bool {
+        package var viaProxy: Bool {
             lock.withLock { proxied }
         }
 
-        func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics)
-        {
+        package func urlSession(
+            _ session: URLSession,
+            task: URLSessionTask,
+            didFinishCollecting metrics: URLSessionTaskMetrics
+        ) {
             let any = metrics.transactionMetrics.contains { $0.isProxyConnection }
             lock.withLock { proxied = proxied || any }
         }

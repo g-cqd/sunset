@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner, 2026-11-17 (roadmap 0035 D): "Web notifications don't work with system notifications". A page's `Notification`
 /// is Sunset's (a script at the document's start); what it asks reaches the page's content, which answers by the site's

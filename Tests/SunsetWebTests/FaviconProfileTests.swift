@@ -3,6 +3,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner's note n17 (2026-11-18): two Spaces of two profiles with the same site pinned shared one icon, though a site can
 /// say something of the page shown through its icon (an unread count).

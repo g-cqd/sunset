@@ -12,7 +12,12 @@ package final class PermissionRequest: Identifiable {
     package let unavailable: Bool
     private var answer: ((Bool) -> Void)?
 
-    init(permissions: [SitePermission], host: String, unavailable: Bool = false, answer: @escaping (Bool) -> Void) {
+    package init(
+        permissions: [SitePermission],
+        host: String,
+        unavailable: Bool = false,
+        answer: @escaping (Bool) -> Void
+    ) {
         self.permissions = permissions
         self.host = host
         self.unavailable = unavailable

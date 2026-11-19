@@ -1,6 +1,6 @@
 import Foundation
 import SunsetPrivate
-package import SunsetShell
+package import SunsetShellModel
 
 /// What a page's tab shows (its title, its picture) and what finds it.
 extension WebContent {

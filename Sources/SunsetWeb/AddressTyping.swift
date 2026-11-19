@@ -1,6 +1,6 @@
 import Foundation
 package import Observation
-package import SunsetShell
+package import SunsetShellModel
 
 /// What is being typed in an address field of a window, for the list under it (web step c): the typed row (Go to, or Search), then the engine's
 /// suggestions, in the rows of the command bar (`ChoiceList`). One per window; the field that is typed in owns it while it is.
@@ -21,14 +21,14 @@ package final class AddressTyping {
         page != nil && !text.isEmpty
     }
 
-    func begin(_ page: WebContent, place: Place) {
+    package func begin(_ page: WebContent, place: Place) {
         self.page = page
         self.place = place
         text = ""
         selection = 0
     }
 
-    func typed(_ text: String) {
+    package func typed(_ text: String) {
         self.text = text
         selection = 0
         guard let settings = page?.settings else { return }
@@ -42,14 +42,14 @@ package final class AddressTyping {
         )
     }
 
-    func end() {
+    package func end() {
         page = nil
         text = ""
         suggestions.clear()
     }
 
     /// What the rows stand for: what was typed, the history's best matches, then the engine's suggestions.
-    var choices: [AddressChoice] {
+    package var choices: [AddressChoice] {
         guard let settings = page?.settings, let typed = settings.input(text) else { return [] }
         let engine: SearchEngine = if case .search(let chosen, _) = typed { chosen } else { settings.engine }
         let shown = suggestions.answering == text ? suggestions.suggestions : []
@@ -61,7 +61,7 @@ package final class AddressTyping {
         choices.map(\.row)
     }
 
-    func move(_ steps: Int) {
+    package func move(_ steps: Int) {
         let count = choices.count
         guard count > 0 else { return }
         selection = (selection + steps + count) % count

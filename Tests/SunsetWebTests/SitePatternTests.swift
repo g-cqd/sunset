@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// n40 and the owner's answer: patterns of hosts and addresses, the most specific wins.
 @Suite("What a site's rule is for") struct SitePatternTests {

@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("A page sees Safari") struct SafariNameTests {
     private func plist(_ value: [String: Any]) throws -> URL {

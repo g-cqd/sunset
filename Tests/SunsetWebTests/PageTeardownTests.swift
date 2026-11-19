@@ -4,6 +4,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner's note n54: "closing a tab that had a video playing don't kill the video instantly". The cause: a page that
 /// stopped only let go of its view, which played on while anything else held it (a host, the off-screen window). Probed

@@ -4,6 +4,7 @@ import SunsetStorage
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// A state database for a test: at a path (kept between opens), or in memory.
 @MainActor

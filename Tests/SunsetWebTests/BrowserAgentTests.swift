@@ -4,6 +4,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Appearing as another browser (roadmap 0022, W-a; the owner's answers of 2026-11-17): Chrome, Edge, Firefox or Safari on
 /// macOS, for a site and its subdomains or for every site. The first rung only: what the User-Agent says.

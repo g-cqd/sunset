@@ -4,6 +4,7 @@ import SunsetShell
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0047 F (the owner, 2026-11-18): the address bar offers Copy on hover, and its menu the page's actions.
 @MainActor @Suite("What the address bar does with the page's address", .serialized)

@@ -66,7 +66,7 @@ package final class SiteZoom {
     }
 
     /// One entry for a site with or without "www." (`SiteHost`).
-    static func key(_ host: String) -> String {
+    package static func key(_ host: String) -> String {
         SiteHost.key(host)
     }
 

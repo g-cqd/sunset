@@ -5,6 +5,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// A picture of the sidebar's field typed in, at the sidebar's width (`SUNSET_ADDRESS_PICTURE`: a probe, never in the suite).
 @MainActor @Suite("The address field typed in (probe)")

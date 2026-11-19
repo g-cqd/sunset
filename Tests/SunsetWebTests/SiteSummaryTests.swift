@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0022 W-d: Settings list every site that has something of its own (answers, the browser it is shown, blocking
 /// paused, a zoom, its Space), and forget all of it at once.

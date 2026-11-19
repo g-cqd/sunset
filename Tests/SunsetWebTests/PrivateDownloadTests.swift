@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("A private page's downloads") @MainActor struct PrivateDownloadTests {
     @Test func `listed, but never kept`() throws {

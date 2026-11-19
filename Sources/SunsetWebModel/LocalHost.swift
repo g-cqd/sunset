@@ -3,7 +3,7 @@ import Foundation
 /// This machine and the local network (R1): reached over http at once, never sent for suggestions, not marked Not Secure.
 package enum LocalHost {
     /// The host part of something typed without a scheme ("nas:8080/a" is "nas").
-    static func host(of text: String) -> String {
+    package static func host(of text: String) -> String {
         if text.hasPrefix("[") { return text.split(separator: "]").first.map { String($0) + "]" } ?? text }
         return String(text.prefix { $0 != "/" && $0 != ":" && $0 != "?" && $0 != "#" }).lowercased()
     }

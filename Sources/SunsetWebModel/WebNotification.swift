@@ -19,7 +19,7 @@ package struct WebNotification: Sendable, Equatable {
     /// The page asked for no sound (roadmap 0037 C).
     package let silent: Bool
 
-    init(
+    package init(
         id: Int,
         title: String,
         body: String,

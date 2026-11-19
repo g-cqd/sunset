@@ -4,6 +4,7 @@ import SwiftUI
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner's note n10 (2026-11-18): the sidebar's address field "does not show the full length" of its text and the caret
 /// does not appear at its end. An `NSTextField` asks for its text's width; given a long address it was laid out wider than

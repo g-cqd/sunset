@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0050 E (the owner's answer, 2026-11-18: "that profile only"): a profile's own site rules; with none for a site, all
 /// profiles' apply. No profile (the first) is all profiles'.

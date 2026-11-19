@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// A probe, not a test of the suite: run with SUNSET_PROXY_PROBE=1 and a CONNECT proxy on 127.0.0.1:18080 (n37).
 @Suite("Checking a real proxy", .enabled(if: ProcessInfo.processInfo.environment["SUNSET_PROXY_PROBE"] == "1"))

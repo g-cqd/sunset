@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @MainActor @Suite("A web page as a pane's content") struct WebContentTests {
     private let settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")

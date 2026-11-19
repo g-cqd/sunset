@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0021 S-f (R4; ADR-0071): pages not on screen are unloaded after `web.unloadAfter` hours, and under memory
 /// pressure the longest idle first; never one that plays, captures, is kept awake or is in the Pinned grid.

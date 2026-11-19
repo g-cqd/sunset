@@ -3,6 +3,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0045 F, the second rung made deeper (ADR-0074): what a page's scripts read to tell a browser, read as that
 /// browser gives it. The oracle is Chrome Canary 160 headless on this Mac, 2026-11-18 (diary 2026-11-18-03): its values

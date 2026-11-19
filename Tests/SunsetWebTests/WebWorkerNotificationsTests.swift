@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0046 S2 (the owner, 2026-11-18: "this could also be a setting"): a page's `registration.showNotification(…)`, the
 /// form sites with a service worker use, is posted as its other notifications are, unless set off.

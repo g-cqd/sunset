@@ -4,6 +4,7 @@ import SunsetShell
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner, 2026-11-19: "a tab reloaded as another profile and then moved to favorites, loses its profile attribution and
 /// loads then as the current profile"; and its mark should show even while it is not loaded.

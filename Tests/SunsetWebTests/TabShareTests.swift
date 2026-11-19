@@ -3,6 +3,7 @@ import SunsetPane
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// ADR-0082: what a page is offered, and when a share stops.
 @Suite("Sharing a tab") struct TabShareTests {

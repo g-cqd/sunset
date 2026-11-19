@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0045 B (the owner, 2026-11-18: "No notifications at all are requested even though some tabs might be emitting
 /// some"): a site that asks the Permissions API before it asks or notifies was answered by WebKit, which has no notifications

@@ -2,6 +2,7 @@ import Foundation
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The owner, 2026-11-19: the asking tab itself is offered, in its Space, marked.
 @Suite("Share: the asking tab")

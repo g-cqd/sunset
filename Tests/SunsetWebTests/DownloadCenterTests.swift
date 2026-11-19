@@ -3,6 +3,7 @@ import SunsetTestSupport
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("The list of downloads") @MainActor struct DownloadCenterTests {
     /// The wall time of these tests, and of the lists they make (ADR-0087).

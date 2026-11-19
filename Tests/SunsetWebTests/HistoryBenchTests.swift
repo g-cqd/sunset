@@ -3,6 +3,7 @@ import SunsetTestSupport
 import Testing
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// The cost of the history store with many pages (R12 step ST-3: measured before and after it moved to sealed records searched
 /// in memory). Off unless `SUNSET_BENCH=1`; run in release: `SUNSET_BENCH=1 swift test -c release --filter HistoryBench`.

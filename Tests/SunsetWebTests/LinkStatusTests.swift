@@ -3,6 +3,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 @Suite("The address of the link under the pointer") @MainActor struct LinkStatusTests {
     @Test func `nothing for no link; a page's text is shown without control characters, cut in the middle`() {

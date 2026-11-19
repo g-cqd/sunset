@@ -5,6 +5,7 @@ import Testing
 import WebKit
 
 @testable import SunsetWeb
+@testable import SunsetWebModel
 
 /// Roadmap 0037 C: what the standard asks of `new Notification` beyond the text (notifications.spec.whatwg.org, read
 /// 2026-11-17): `actions` are for a service worker's notifications only, and the constructor throws a TypeError for them;

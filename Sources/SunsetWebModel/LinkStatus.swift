@@ -1,11 +1,11 @@
 /// The address of the link under the pointer, as shown at the bottom of its page (roadmap 0029 step 6). It comes from the page, an
 /// untrusted program (white paper §9): only a string is taken, without characters that do not show or that turn the text around,
 /// and cut in the middle to a length.
-enum LinkStatus {
+package enum LinkStatus {
     /// Characters shown at most.
-    static let limit = 120
+    package static let limit = 120
 
-    static func text(_ raw: Any?) -> String? {
+    package static func text(_ raw: Any?) -> String? {
         guard let raw = raw as? String else { return nil }
         let clean = UntrustedText.oneLine(raw)
         guard !clean.isEmpty else { return nil }

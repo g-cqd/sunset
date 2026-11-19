@@ -26,7 +26,7 @@ package final class PageDialog: Identifiable {
     package let offersSilence: Bool
     private var reply: ((Reply) -> Void)?
 
-    init(kind: Kind, host: String, message: String, offersSilence: Bool, reply: @escaping (Reply) -> Void) {
+    package init(kind: Kind, host: String, message: String, offersSilence: Bool, reply: @escaping (Reply) -> Void) {
         self.kind = kind
         self.host = host
         self.message =
