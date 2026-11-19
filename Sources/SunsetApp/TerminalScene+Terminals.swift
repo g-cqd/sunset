@@ -1,4 +1,5 @@
 import AppKit
+import SunsetAppCore
 import SunsetConfig
 import SunsetHost
 import SunsetMarkdown

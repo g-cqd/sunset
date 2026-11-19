@@ -1,11 +1,11 @@
-import Foundation
+package import Foundation
 import SunsetRuntime
 
 /// How far back Clear History goes.
-enum ClearSpan: CaseIterable {
+package enum ClearSpan: CaseIterable {
     case lastHour, today, todayAndYesterday, all
 
-    var title: String {
+    package var title: String {
         switch self {
             case .lastHour: "The last hour"
             case .today: "Today"
@@ -14,7 +14,7 @@ enum ClearSpan: CaseIterable {
         }
     }
 
-    func start(now: Date = Runtime.live.now(), calendar: Calendar = .current) -> Date {
+    package func start(now: Date = Runtime.live.now(), calendar: Calendar = .current) -> Date {
         switch self {
             case .lastHour: now.addingTimeInterval(-3_600)
             case .today: calendar.startOfDay(for: now)

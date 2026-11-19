@@ -1,4 +1,5 @@
 import AppKit
+import SunsetAppCore
 import SunsetConfig
 import SunsetRuntime
 import SunsetStorage
@@ -68,9 +69,7 @@ import UserNotifications
 
     /// Where downloads go: the folder set, or ~/Downloads.
     static func folder(_ web: Configuration.Web) -> URL {
-        web.downloadFolder.isEmpty
-            ? FileManager.default.homeDirectoryForCurrentUser.appending(path: "Downloads")
-            : URL(fileURLWithPath: (web.downloadFolder as NSString).expandingTildeInPath)
+        PageSettingsMaker.folder(web)
     }
 
     /// The defaults of `web.permissions.*` (web step g).
@@ -79,14 +78,7 @@ import UserNotifications
     }
 
     static func permissionDefaults(_ web: Configuration.Web) -> [SitePermission: PermissionAnswer] {
-        var defaults: [SitePermission: PermissionAnswer] = [:]
-        for (name, answer) in web.permissions {
-            if let permission = SitePermission(rawValue: name), let value = PermissionAnswer(rawValue: answer.rawValue)
-            {
-                defaults[permission] = value
-            }
-        }
-        return defaults
+        PageSettingsMaker.permissionDefaults(web)
     }
 
     private static func approve(_ name: String, origin: URL?) -> Bool {

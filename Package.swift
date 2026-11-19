@@ -135,7 +135,8 @@ let package = Package(
         module(
             "SunsetApp",
             [
-                "SunsetRuntime", "SunsetHelp", "SunsetConfig", "SunsetCore", "SunsetHost", "SunsetPane",
+                "SunsetRuntime", "SunsetAppCore", "SunsetHelp", "SunsetConfig", "SunsetCore", "SunsetHost",
+                "SunsetPane",
                 "SunsetPrivate", "SunsetRender", "SunsetStorage", "SunsetDocuments", "SunsetRenderMac",
                 "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal", "SunsetWeb",
                 "SunsetMarkdown", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR"),
@@ -253,6 +254,13 @@ let package = Package(
             ["SunsetTestSupport", "SunsetWeb", "SunsetPane", "SunsetShell", "SunsetMetrics", "SunsetStorage"]
         ),
         // What joins the configuration file to the shell's settings: a library so that the mapping is tested (the app target cannot be).
+        // What the app decides, apart from what it shows (roadmap 0086 D): the command line, Clear History's span, a page's
+        // settings from the configuration and its profile. No UI framework.
+        module("SunsetAppCore", ["SunsetRuntime", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost"]),
+        tests(
+            "SunsetAppCoreTests",
+            ["SunsetTestSupport", "SunsetAppCore", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost"]
+        ),
         module("SunsetShellBridge", ["SunsetShell", "SunsetConfig", "SunsetMetrics"]),
         tests(
             "SunsetShellBridgeTests",

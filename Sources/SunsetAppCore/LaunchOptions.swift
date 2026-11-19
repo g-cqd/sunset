@@ -1,17 +1,17 @@
 import Foundation
 
 /// What the command line asked for: the program to run in the window, and settings that override the stored ones for this launch.
-struct LaunchOptions: Sendable {
-    var command: [String]
-    var fontName: String?
-    var fontSize: Double?
-    var ligatures: Bool?
-    var scrollback: Int?
+package struct LaunchOptions: Sendable {
+    package var command: [String]
+    package var fontName: String?
+    package var fontSize: Double?
+    package var ligatures: Bool?
+    package var scrollback: Int?
     /// A program was named on the command line: this launch is for that program, not for the saved tabs.
-    var namedCommand = false
+    package var namedCommand = false
 
     /// `sunset-app [--font NAME] [--size PT] [--ligatures] [--scrollback LINES] [-- command [args...]]`; the user's shell (as a login shell) when no command is given.
-    static func parse(_ arguments: [String], environment: [String: String]) -> LaunchOptions {
+    package static func parse(_ arguments: [String], environment: [String: String]) -> LaunchOptions {
         var options = LaunchOptions(command: [])
         var rest = arguments.dropFirst()
         while let argument = rest.first {

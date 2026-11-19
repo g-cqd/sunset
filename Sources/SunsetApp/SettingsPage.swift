@@ -1,3 +1,4 @@
+import SunsetAppCore
 import SunsetConfig
 import SunsetPane
 import SunsetShell

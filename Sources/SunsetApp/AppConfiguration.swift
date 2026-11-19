@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import Observation
+import SunsetAppCore
 import SunsetConfig
 import SunsetHost
 import SunsetRuntime

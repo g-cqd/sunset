@@ -1,4 +1,5 @@
 import Foundation
+import SunsetAppCore
 import SunsetConfig
 import SunsetMarkdown
 import SunsetPane
@@ -58,30 +59,11 @@ import SunsetWeb
 
     /// A page's settings from a configuration's (all profiles', or one profile's with its own values, roadmap 0050).
     static func webSettings(from web: Configuration.Web) -> WebSettings {
-        let added = web.engines.map {
-            SearchEngine(name: $0.name, keyword: $0.keyword, search: $0.search, suggest: $0.suggest)
-        }
-        var settings = WebSettings(
-            applicationName: safariName,
-            developer: web.developer,
-            initialIcon: web.tabIcon != .globe,
-            favicons: web.tabIcon == .favicon,
-            fullFrameRate: web.fullFrameRate,
-            engines: WebSettings.engines(adding: added),
-            engine: web.engine,
-            suggestions: web.suggestions,
-            httpFallback: web.httpFallback,
-            privateSuggestions: web.privateSuggestions,
-            zoomScope: web.zoomScope == .site ? .site : (web.zoomScope == .session ? .session : .page),
-            textOnlyZoom: web.textOnlyZoom
-        )
-        settings.agent = BrowserAgent(rawValue: web.agent.rawValue) ?? .safari
-        settings.agentScripts = web.agentScripts
-        settings.notificationAskWithoutClick = web.notificationsWithoutClick
-        settings.workerNotifications = web.workerNotifications
-        settings.blocking = web.blocking
-        return settings
+        maker.settings(from: web)
     }
+
+    /// The pages' settings, made outside the app target (`SunsetAppCore`).
+    static let maker = PageSettingsMaker(applicationName: safariName)
 
     /// The settings for what the command bar opens or suggests in `tabs`: private in a private window, or when its shown page is private.
     static func webSettings(for tabs: TabsModel) -> WebSettings {
@@ -107,17 +89,7 @@ import SunsetWeb
 
     /// A profile's page settings: its own values over all profiles' (ADR-0083); nil: all profiles'.
     private static func webSettings(of own: Profile?) -> WebSettings {
-        var settings = webSettings
-        if let own, !own.overrides.isEmpty {
-            // Its profile's own values over all profiles' (roadmap 0050).
-            let web = ProfileOverrides.apply(own.overrides, to: AppConfiguration.shared.configuration).web
-            settings = webSettings(from: web)
-            settings.proxy = WebProxy(web.proxy)
-            settings.permissionDefaults = AppDownloads.permissionDefaults(web)
-            settings.downloadFolder = AppDownloads.folder(web)
-            settings.askWhereToSave = web.askWhereToSave
-        }
-        return settings
+        maker.settings(app: AppConfiguration.shared.configuration, own: own)
     }
 
     /// An empty private page (File > New Private Tab).

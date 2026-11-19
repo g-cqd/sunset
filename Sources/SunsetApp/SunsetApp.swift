@@ -1,4 +1,5 @@
 import Foundation
+import SunsetAppCore
 import SunsetConfig
 import SunsetShell
 public import SwiftUI

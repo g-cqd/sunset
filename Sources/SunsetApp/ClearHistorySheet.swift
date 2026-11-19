@@ -1,3 +1,4 @@
+import SunsetAppCore
 import SunsetShell
 import SunsetWeb
 import SwiftUI
