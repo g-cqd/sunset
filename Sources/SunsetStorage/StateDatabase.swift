@@ -9,7 +9,8 @@ public import SunsetRuntime
 /// sealed with another key is left as it is.
 @MainActor
 public final class StateDatabase {
-    public static let currentVersion = 1
+    /// 2: kinds, times and counts sealed (task t48 C); 1 is resealed at its first opening.
+    public static let currentVersion = 2
     static let what = "Sunset's database of history and site settings"
 
     public struct Opened {
@@ -105,16 +106,24 @@ public final class StateDatabase {
         guard database.run("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;"),
             let found = database.number("PRAGMA user_version"), database.text("PRAGMA quick_check") == "ok"
         else { return .unreadable }
+        return database.settle(version: found, key: key)
+    }
+
+    /// A database just opened, by its version: made when new, refused when a later Sunset's or another key's, brought to
+    /// this version when an earlier one's.
+    private func settle(version found: Int, key: StorageKey) -> Attempt {
         if found == 0 {
-            guard database.create(keyIdentifier: key.identifier) else { return .unreadable }
-        } else if found != currentVersion {
-            // A later Sunset's: not read as this version's. (Earlier versions are migrated here when there are any.)
+            guard create(keyIdentifier: key.identifier) else { return .unreadable }
+        } else if found > Self.currentVersion {
+            // A later Sunset's: not read as this version's.
             return .unreadable
-        } else if let kept = database.blob("SELECT value FROM meta WHERE name = 'key'"), kept != key.identifier {
+        } else if let kept = blob("SELECT value FROM meta WHERE name = 'key'"), kept != key.identifier {
             return .locked
+        } else if found == 1 {
+            guard migrateFromOne() else { return .unreadable }
         }
-        database.version = currentVersion
-        return .opened(database)
+        version = Self.currentVersion
+        return .opened(self)
     }
 
     private func create(keyIdentifier: Data) -> Bool {
@@ -160,6 +169,6 @@ public final class StateDatabase {
     }
 
     func corruptForTesting(kind: String) {
-        execute("UPDATE records SET sealed = zeroblob(40) WHERE kind = ?1", [.text(kind)])
+        execute("UPDATE records SET sealed = zeroblob(40) WHERE kind = ?1", [.text(tag(kind))])
     }
 }

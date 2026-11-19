@@ -1,4 +1,5 @@
 import Foundation
+import SunsetStorage
 import Testing
 
 @testable import SunsetWeb
@@ -106,7 +107,8 @@ import Testing
             }
         }
         // Every history is "long" for this store: it reads in the background, as one of thousands would.
-        let store = HistoryStore(table: try TestState.table("history", at: path), atOnceBelow: 0)
+        let table = try TestState.table("history", at: path)
+        let store = HistoryStore(table: table, atOnceBelow: 0)
         var changes = 0
         store.onChange = { changes += 1 }
         #expect(!store.isLoaded && store.entries().isEmpty)
@@ -115,6 +117,11 @@ import Testing
         store.delete("https://gone.com/")
         store.expire(before: day(9.5))
         store.clear(since: day(0.45))
+        // Format 2 seals the times (task t48 C): what was removed by time is removed by name once read, never by opening
+        // every record on the main actor before then.
+        // Five kept and one visited meanwhile, less the two removed by name ("gone" deleted, "new" cleared from memory):
+        // the kept pages that the expiry and the clearing cover are not removed until they are read.
+        #expect(table.count() == 4, "nothing removed yet but by name: \(table.count())")
         await store.ready()
         #expect(store.isLoaded && changes > 0)
         #expect(store.entries().map(\.url) == ["https://seen.com/", "https://kept.com/", "https://recent.com/"])

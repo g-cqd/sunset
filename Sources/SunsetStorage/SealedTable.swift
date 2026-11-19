@@ -4,8 +4,8 @@ import SQLite3
 
 /// The records of one kind in the state database (R12, step ST-3), each sealed on its own. A record is named by what its
 /// owner calls it (an address, a host); the file holds only a keyed hash of that name, so that a record can be found and
-/// replaced without the name being written. Beside each record are two plain numbers its owner chooses (`sort`: a time, an
-/// order; `count`), for removing by time without opening anything. Searching is its owner's, in memory.
+/// replaced without the name being written. Each record carries two numbers its owner chooses (`sort`: a time, an order;
+/// `count`), sealed with it (format 2, task t48 C); the kind is a keyed tag in the file. Searching is its owner's, in memory.
 @MainActor
 public struct SealedTable {
     public struct Row: Sendable {
@@ -16,6 +16,11 @@ public struct SealedTable {
 
     let database: StateDatabase
     let kind: String
+
+    /// What stands for the kind in the file.
+    private var tag: String {
+        database.tag(kind)
+    }
 
     /// Runs `body` as one transaction of the database: many records written at the cost of one.
     public func transaction(_ body: () -> Void) {
@@ -37,11 +42,12 @@ public struct SealedTable {
     /// Keeps `payload` under `name`, in place of what was there.
     public func put(_ name: String, payload: Data, sort: Double = 0, count: Int = 0) {
         let index = index(name)
-        guard let sealed = try? database.seal.seal(payload, binding: binding + index) else { return }
+        let envelope = StateDatabase.envelope(sort: sort, count: count, payload: payload)
+        guard let sealed = try? database.seal.seal(envelope, binding: binding + index) else { return }
         database.execute(
-            "INSERT INTO records (kind, key, sealed, sort, count) VALUES (?1, ?2, ?3, ?4, ?5) "
-                + "ON CONFLICT(kind, key) DO UPDATE SET sealed = ?3, sort = ?4, count = ?5",
-            [.text(kind), .blob(index), .blob(sealed), .real(sort), .integer(count)]
+            "INSERT INTO records (kind, key, sealed, sort, count) VALUES (?1, ?2, ?3, 0, 0) "
+                + "ON CONFLICT(kind, key) DO UPDATE SET sealed = ?3",
+            [.text(tag), .blob(index), .blob(sealed)]
         )
     }
 
@@ -57,13 +63,11 @@ public struct SealedTable {
     ///   which would look each record up again).
     public func sealed() -> SealedRows {
         var records: [SealedRows.Record] = []
-        database.rows("SELECT key, sealed, sort, count FROM records WHERE kind = ?1", [.text(kind)]) { statement in
+        database.rows("SELECT key, sealed FROM records WHERE kind = ?1", [.text(tag)]) { statement in
             records.append(
                 SealedRows.Record(
                     index: unsafe StateDatabase.data(statement, 0),
-                    bytes: unsafe StateDatabase.data(statement, 1),
-                    sort: unsafe sqlite3_column_double(statement, 2),
-                    count: Int(unsafe sqlite3_column_int64(statement, 3))
+                    bytes: unsafe StateDatabase.data(statement, 1)
                 )
             )
         }
@@ -71,24 +75,34 @@ public struct SealedTable {
     }
 
     public func count() -> Int {
-        database.number("SELECT COUNT(*) FROM records WHERE kind = ?1", [.text(kind)]) ?? 0
+        database.number("SELECT COUNT(*) FROM records WHERE kind = ?1", [.text(tag)]) ?? 0
     }
 
     public func remove(_ name: String) {
-        database.execute("DELETE FROM records WHERE kind = ?1 AND key = ?2", [.text(kind), .blob(index(name))])
+        database.execute("DELETE FROM records WHERE kind = ?1 AND key = ?2", [.text(tag), .blob(index(name))])
     }
 
+    /// The records whose `sort` is below `limit`: each opened to read it (format 2). For a large table its owner removes by
+    /// name what it holds in memory.
     public func remove(sortBelow limit: Double) {
-        database.execute("DELETE FROM records WHERE kind = ?1 AND sort < ?2", [.text(kind), .real(limit)])
+        remove(sealed().indexes { $0 < limit })
     }
 
     public func remove(sortAtLeast limit: Double) {
-        database.execute("DELETE FROM records WHERE kind = ?1 AND sort >= ?2", [.text(kind), .real(limit)])
+        remove(sealed().indexes { $0 >= limit })
+    }
+
+    private func remove(_ indexes: [Data]) {
+        transaction {
+            for index in indexes {
+                database.execute("DELETE FROM records WHERE kind = ?1 AND key = ?2", [.text(tag), .blob(index)])
+            }
+        }
     }
 
     /// Every record of the kind, and the log emptied after (history cleared: roadmap 0051 B).
     public func removeAll() {
-        database.execute("DELETE FROM records WHERE kind = ?1", [.text(kind)])
+        database.execute("DELETE FROM records WHERE kind = ?1", [.text(tag)])
         database.compact()
     }
 }

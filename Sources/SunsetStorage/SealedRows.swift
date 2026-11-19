@@ -7,8 +7,6 @@ public struct SealedRows: Sendable {
     struct Record: Sendable {
         let index: Data
         let bytes: Data
-        let sort: Double
-        let count: Int
     }
 
     /// What one piece of the work gives: the records it opened, and the number each is ordered by.
@@ -62,11 +60,12 @@ public struct SealedRows: Sendable {
         for record in records[range] {
             bound.removeSubrange(binding.count...)
             bound.append(record.index)
-            guard let payload = try? seal.open(record.bytes, binding: bound),
-                let value = decode(SealedTable.Row(payload: payload, sort: record.sort, count: record.count))
+            guard let envelope = try? seal.open(record.bytes, binding: bound),
+                let opened = StateDatabase.unwrap(envelope),
+                let value = decode(SealedTable.Row(payload: opened.payload, sort: opened.sort, count: opened.count))
             else { continue }
             piece.values.append(value)
-            piece.sorts.append(record.sort)
+            piece.sorts.append(opened.sort)
         }
         return piece
     }
@@ -85,5 +84,19 @@ public struct SealedRows: Sendable {
         }
         keys.sort { $0.sort != $1.sort ? $0.sort > $1.sort : $0.position < $1.position }
         return (keys.map { values[$0.position] }, records.count - values.count)
+    }
+
+    /// What names each record whose `sort` meets `matches`: every record opened to read it.
+    func indexes(where matches: (Double) -> Bool) -> [Data] {
+        var bound = binding
+        return records.compactMap { record in
+            bound.removeSubrange(binding.count...)
+            bound.append(record.index)
+            guard let envelope = try? seal.open(record.bytes, binding: bound),
+                let opened = StateDatabase.unwrap(envelope),
+                matches(opened.sort)
+            else { return nil }
+            return record.index
+        }
     }
 }

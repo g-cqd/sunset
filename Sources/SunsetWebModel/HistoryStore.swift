@@ -55,6 +55,8 @@ package final class HistoryStore {
         let untouched = ordered.isEmpty
         ordered.reserveCapacity(ordered.count + read.values.count)
         byAddress.reserveCapacity(read.values.count)
+        // What was removed while the history was being read goes from the table by name now.
+        removeKept(read.values.filter { removed.covers($0.entry) }.map(\.entry.url))
         for kept in read.values.reversed() where !removed.covers(kept.entry) {
             if let page = byAddress[kept.entry.url] {
                 // Visited while the history was being read: that visit is added to the kept ones.
@@ -115,7 +117,6 @@ package final class HistoryStore {
     package func clear(since date: Date) {
         if !isLoaded { removed.since = min(removed.since ?? date, date) }
         forget { $0.entry.lastVisit >= date }
-        table?.remove(sortAtLeast: date.timeIntervalSince1970)
         onChange()
     }
 
@@ -123,19 +124,30 @@ package final class HistoryStore {
     package func expire(before date: Date) {
         if !isLoaded { removed.before = max(removed.before ?? date, date) }
         forget { $0.entry.lastVisit < date }
-        table?.remove(sortBelow: date.timeIntervalSince1970)
     }
 
     // MARK: In memory
 
+    /// Forgets the pages `forgotten` names, in memory and in the table by name (format 2 seals the times: task t48 C).
     private func forget(_ forgotten: (Page) -> Bool) {
+        var gone: [String] = []
         ordered.removeAll { page in
             if page.gone { return true }
             guard forgotten(page) else { return false }
             byAddress[page.entry.url] = nil
+            gone.append(page.entry.url)
             return true
         }
         goneCount = 0
+        removeKept(gone)
+    }
+
+    /// Takes these pages out of the table, as one transaction.
+    private func removeKept(_ urls: [String]) {
+        guard let table, !urls.isEmpty else { return }
+        table.transaction {
+            for url in urls { table.remove(url) }
+        }
     }
 
     /// Marks a page's place in the list as empty; sweeps the marks when a quarter of the list is marked.
