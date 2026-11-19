@@ -2,6 +2,7 @@ import AppKit
 import SunsetAppCore
 import SunsetConfig
 import SunsetDocuments
+import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 import SunsetWeb
@@ -16,6 +17,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Started for a test driven through accessibility (`Tools/axdrive`): it stays behind what the person is doing.
         if ProcessInfo.processInfo.environment["SUNSET_BACKGROUND"] != "1" { NSApp.activate() }
         WebKitFolders.tightenOwn()
+        // Sites' caches out of backups (task t114): a walk of WebKit's folder, kept off the launch's way.
+        Runtime.live.detached(priority: .utility) { WebKitFolders.excludeOwnCaches() }
         MainActor.assumeIsolated {
             SystemRestoration.excludeEveryWindow()
             AppDownloads.start()
