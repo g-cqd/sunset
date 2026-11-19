@@ -9,7 +9,8 @@ struct FavoritesSection: View {
     let tabs: TabsModel
     let settings: ShellSettings
     let layout: ShellSettings.Layout
-    @State private var drop: (entry: Favorites.NodeID, after: Bool)?
+    /// The row a drag is over, and whether it would land after it.
+    @State private var drop: (owner: Favorites.NodeID, place: Bool)?
     @State private var heights: [Favorites.NodeID: Double] = [:]
     @Environment(\.accent) private var accent
 
@@ -49,12 +50,12 @@ struct FavoritesSection: View {
 
     /// An insertion line at the top or the bottom of the row a drag is over.
     @ViewBuilder private func dropMark(_ id: Favorites.NodeID) -> some View {
-        if let drop, drop.entry == id {
+        if let drop, drop.owner == id {
             // In the gap beside the row, where a drop there would land (roadmap 0038 F), not on the row's edge.
             VStack {
-                if drop.after { Spacer(minLength: 0) }
+                if drop.place { Spacer(minLength: 0) }
                 Capsule().fill(accent.color).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
-                if !drop.after { Spacer(minLength: 0) }
+                if !drop.place { Spacer(minLength: 0) }
             }
             .padding(.vertical, -layout.gapMarkOutset)
             .allowsHitTesting(false)
@@ -82,7 +83,7 @@ struct FavoritesSection: View {
             .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
             .onDrop(
                 of: [.plainText, .utf8PlainText],
-                delegate: EntryRowDropDelegate(
+                delegate: EntryRowDropDelegate.make(
                     tabs: tabs,
                     entry: entry.id,
                     height: heights[entry.id] ?? 32,

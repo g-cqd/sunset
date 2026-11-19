@@ -28,7 +28,8 @@ package struct TabSidebar: View {
     var notices: AnyView?
     /// What the app puts at the bottom, against the window's edge (the + button and downloads, R2 and web step f).
     var bottomBar: AnyView?
-    @State private var rowDrop: (item: Workspace.ItemID, action: TabDropAction)?
+    /// The row a drag is over, and what a drop there would do.
+    @State private var rowDrop: (owner: Workspace.ItemID, place: TabDropAction)?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
     @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
     /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
@@ -189,7 +190,7 @@ package struct TabSidebar: View {
             .onGeometryChange(for: CGSize.self, of: \.size) { rowSizes[item.id] = $0 }
             .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { rowFrames[item.id] = $0 }
             .overlay {
-                if rowDrop?.item == item.id, let action = rowDrop?.action {
+                if rowDrop?.owner == item.id, let action = rowDrop?.place {
                     rowDropOverlay(action)
                 }
             }
@@ -209,7 +210,7 @@ package struct TabSidebar: View {
             .onDrag { tabs.itemProvider(for: .item(item.id)) }
             .onDrop(
                 of: [.plainText, .utf8PlainText],
-                delegate: TabRowDropDelegate(
+                delegate: TabRowDropDelegate.make(
                     tabs: tabs,
                     item: item.id,
                     size: rowSizes[item.id] ?? CGSize(width: 180, height: 32),

@@ -31,11 +31,8 @@ final class IconWatch: NSObject, WKScriptMessageHandler {
 
     /// Adds the script and its handler to the configuration's controller (after `LinkHover` gave it its own).
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {
-        let controller = configuration.userContentController
-        controller.addUserScript(
-            WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .defaultClient)
-        )
-        controller.add(IconWatch(content: content), contentWorld: .defaultClient, name: name)
+        PageBridge(name: name, script: script, injection: .atDocumentStart, mainFrameOnly: true, world: .defaultClient)
+            .install(on: configuration, handler: IconWatch(content: content))
     }
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {

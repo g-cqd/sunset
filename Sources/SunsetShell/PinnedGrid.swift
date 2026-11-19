@@ -14,7 +14,8 @@ struct PinnedGrid: View {
     let layout: ShellSettings.Layout
     @State private var targeted = false
     /// The tile a drag is over, and on which side of it it would land (roadmap 0035 A).
-    @State private var tileDrop: (index: Int, after: Bool)?
+    /// The tile a drag is over, and whether it would land after it.
+    @State private var tileDrop: (owner: Int, place: Bool)?
     @State private var tileWidths: [Favorites.NodeID: Double] = [:]
     @Environment(\.accent) private var accent
 
@@ -30,12 +31,12 @@ struct PinnedGrid: View {
                 ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                     tile(entry)
                         .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { tileWidths[entry.id] = $0 }
-                        .overlay(alignment: tileDrop?.after == true ? .trailing : .leading) {
-                            if tileDrop?.index == index { dropMark }
+                        .overlay(alignment: tileDrop?.place == true ? .trailing : .leading) {
+                            if tileDrop?.owner == index { dropMark }
                         }
                         .onDrop(
                             of: [.plainText, .utf8PlainText],
-                            delegate: PinnedTileDropDelegate(
+                            delegate: PinnedTileDropDelegate.make(
                                 tabs: tabs,
                                 index: index,
                                 width: tileWidths[entry.id] ?? PinnedLayout.widths.lowerBound,
@@ -84,7 +85,7 @@ struct PinnedGrid: View {
             .fill(accent.color)
             .frame(width: Design.Space.hair)
             .padding(.vertical, Design.Space.xs)
-            .offset(x: (tileDrop?.after == true ? 1 : -1) * layout.tabSpacing / 2)
+            .offset(x: (tileDrop?.place == true ? 1 : -1) * layout.tabSpacing / 2)
             .allowsHitTesting(false)
     }
 

@@ -26,12 +26,9 @@ final class LinkHover: NSObject, WKScriptMessageHandler {
     /// Gives the configuration a controller of its own with the script and its handler. Its own, also for a page WebKit makes for
     /// another: that one's configuration comes with its opener's controller, whose handler tells the opener.
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {
-        let controller = WKUserContentController()
-        controller.addUserScript(
-            WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: false, in: .defaultClient)
-        )
-        controller.add(LinkHover(content: content), contentWorld: .defaultClient, name: name)
-        configuration.userContentController = controller
+        configuration.userContentController = WKUserContentController()
+        PageBridge(name: name, script: script, injection: .atDocumentStart, mainFrameOnly: false, world: .defaultClient)
+            .install(on: configuration, handler: LinkHover(content: content))
     }
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {

@@ -65,11 +65,8 @@ final class ShareWrapper: NSObject, WKScriptMessageHandlerWithReply {
     /// Adds the wrapper and its handler, unless the page is private (its window shares nothing of others').
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) -> ShareWrapper {
         let wrapper = ShareWrapper(content: content)
-        let controller = configuration.userContentController
-        controller.addUserScript(
-            WKUserScript(source: wrapper.script, injectionTime: .atDocumentStart, forMainFrameOnly: false, in: .page)
-        )
-        controller.addScriptMessageHandler(wrapper, contentWorld: .page, name: name)
+        PageBridge(name: name, script: wrapper.script, injection: .atDocumentStart, mainFrameOnly: false, world: .page)
+            .install(on: configuration, replying: wrapper)
         return wrapper
     }
 

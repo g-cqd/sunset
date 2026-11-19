@@ -29,11 +29,8 @@ final class TextWatch: NSObject, WKScriptMessageHandler {
 
     /// Adds the script and its handler to the configuration's controller.
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {
-        let controller = configuration.userContentController
-        controller.addUserScript(
-            WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .defaultClient)
-        )
-        controller.add(TextWatch(content: content), contentWorld: .defaultClient, name: name)
+        PageBridge(name: name, script: script, injection: .atDocumentEnd, mainFrameOnly: true, world: .defaultClient)
+            .install(on: configuration, handler: TextWatch(content: content))
     }
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {

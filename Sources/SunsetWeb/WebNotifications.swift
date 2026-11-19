@@ -115,11 +115,8 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
 
     /// Adds the script and its handler to the configuration's controller (after `LinkHover` gave it its own).
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {
-        let controller = configuration.userContentController
-        controller.addUserScript(
-            WKUserScript(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page)
-        )
-        controller.addScriptMessageHandler(WebNotifications(content: content), contentWorld: .page, name: name)
+        PageBridge(name: name, script: script, injection: .atDocumentStart, mainFrameOnly: true, world: .page)
+            .install(on: configuration, replying: WebNotifications(content: content))
     }
 
     func userContentController(

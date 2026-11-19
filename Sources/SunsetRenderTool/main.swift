@@ -50,30 +50,11 @@ guard !command.isEmpty else {
     exit(2)
 }
 
-func unescape(_ text: String) -> String {
-    var result = ""
-    var iterator = text.makeIterator()
-    while let character = iterator.next() {
-        guard character == "\\", let next = iterator.next() else {
-            result.append(character)
-            continue
-        }
-        switch next {
-            case "e": result.append("\u{1B}")
-            case "n": result.append("\n")
-            case "r": result.append("\r")
-            case "t": result.append("\t")
-            default: result.append(next)
-        }
-    }
-    return result
-}
-
 do {
     let session = try HeadlessSession(command, columns: columns, rows: rows)
     _ = session.wait(timeoutMilliseconds: waitMilliseconds) { _ in false }
     if !keys.isEmpty {
-        try session.send(unescape(keys))
+        try session.send(KeyText.unescape(keys))
         _ = session.wait(timeoutMilliseconds: 500) { _ in false }
     }
     let glyphs = CoreTextGlyphSource(
