@@ -59,7 +59,7 @@ import Testing
         #expect(
             options("tabs.placement") == [
                 "tabs.mode", "tabs.bar.position", "tabs.bar.autoHide", "tabs.bar.backing", "sidebar.enabled",
-                "sidebar.side", "sidebar.autoHide", "sidebar.width"
+                "sidebar.side", "sidebar.autoHide", "sidebar.width", "sidebar.separators"
             ]
         )
         #expect(SettingsSection.topic("tabs.placement")?.section.title == "Tabs and sidebar")

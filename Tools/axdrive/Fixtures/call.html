@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Call tester</title>
+<style>
+  :root { color-scheme: light dark; font: 13px -apple-system, system-ui, sans-serif; }
+  body { margin: 0; display: grid; grid-template-columns: minmax(300px, 380px) 1fr; height: 100vh; }
+  aside { padding: 12px; overflow: auto; border-right: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+  main { display: grid; grid-template-rows: 1fr 180px; min-height: 0; }
+  h1 { font-size: 15px; margin: 0 0 4px; }
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; opacity: .6; margin: 16px 0 6px; }
+  p.note { margin: 0 0 8px; opacity: .7; }
+  button, select, input[type=number] { font: inherit; }
+  button { margin: 2px 4px 2px 0; padding: 4px 8px; border-radius: 6px; border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+           background: color-mix(in srgb, currentColor 6%, transparent); cursor: pointer; }
+  button:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+  button.stop { color: #d33; }
+  label { display: block; margin: 4px 0; }
+  select { width: 100%; }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  #stage { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; padding: 8px; overflow: auto; align-content: start; }
+  figure { margin: 0; position: relative; background: #000; border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 10; }
+  figure video { width: 100%; height: 100%; object-fit: contain; display: block; }
+  figcaption { position: absolute; left: 6px; bottom: 6px; right: 6px; color: #fff; font-size: 11px;
+               background: rgba(0,0,0,.55); padding: 3px 6px; border-radius: 4px; display: flex; justify-content: space-between; gap: 6px; }
+  figcaption button { color: #fff; background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); padding: 1px 6px; }
+  meter { width: 100%; }
+  #log { margin: 0; padding: 8px; overflow: auto; font: 11px ui-monospace, Menlo, monospace; border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent); white-space: pre-wrap; }
+  .ok { color: #2a2; } .err { color: #d33; } .ev { color: #38c; }
+  #perms span { display: inline-block; margin-right: 10px; }
+</style>
+</head>
+<body>
+<aside>
+  <h1>Call tester</h1>
+  <p class="note">Every API a call site uses, on one page. Each answer is written below, with what the browser said.</p>
+
+  <h2>Permissions</h2>
+  <div id="perms"></div>
+  <button id="refreshPerms">Ask again</button>
+
+  <h2>Camera and microphone</h2>
+  <div class="row">
+    <button id="getBoth">Camera + microphone</button>
+    <button id="getCam">Camera only</button>
+    <button id="getMic">Microphone only</button>
+  </div>
+  <label>Camera <select id="camSel"></select></label>
+  <label>Microphone <select id="micSel"></select></label>
+  <label>Speaker <select id="spkSel"></select></label>
+  <div class="row">
+    <button id="useChosen">Use the chosen devices</button>
+    <button id="listDevices">List devices</button>
+  </div>
+  <label class="row"><input type="checkbox" id="echo" checked> Echo cancellation
+    <input type="checkbox" id="noise" checked> Noise suppression</label>
+  <label class="row">Size <select id="res"><option value="">Any</option><option value="640x480">640×480</option>
+    <option value="1280x720" selected>1280×720</option><option value="1920x1080">1920×1080</option></select>
+    Rate <select id="fps"><option value="">Any</option><option>15</option><option selected>30</option><option>60</option></select></label>
+  <label>Microphone level <meter id="level" min="0" max="1" value="0"></meter></label>
+
+  <h2>Sharing</h2>
+  <div class="row">
+    <button id="share">Share screen, window or tab</button>
+    <button id="shareAudio">Share with audio</button>
+    <button id="shareTab">Prefer a tab (Chrome hints)</button>
+  </div>
+
+  <h2>Stopping</h2>
+  <div class="row">
+    <button id="muteMic">Mute microphone</button>
+    <button id="hideCam">Turn camera off</button>
+    <button class="stop" id="stopAll">Stop everything</button>
+  </div>
+
+  <h2>Loopback</h2>
+  <p class="note">Sends what is captured through a real peer connection to a second one in this page, as a call does.</p>
+  <div class="row">
+    <button id="loop">Start loopback</button>
+    <button class="stop" id="unloop">End loopback</button>
+  </div>
+  <label>Statistics <span id="stats">—</span></label>
+
+  <h2>Other</h2>
+  <div class="row">
+    <button id="notify">Notification</button>
+    <button id="fullscreen">Full screen</button>
+    <button id="pip">Picture in picture</button>
+    <button id="wake">Keep the screen on</button>
+    <button id="clear">Clear the log</button>
+  </div>
+</aside>
+<main>
+  <div id="stage"></div>
+  <pre id="log"></pre>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const md = navigator.mediaDevices;
+const tracks = new Set();
+let audioMeter = null, loopback = null, wakeLock = null;
+
+function log(text, kind = "") {
+  const line = document.createElement("div");
+  line.className = kind;
+  line.textContent = `${new Date().toLocaleTimeString()}  ${text}`;
+  $("log").prepend(line);
+}
+function describe(error) { return `${error.name}: ${error.message}`; }
+function trackLine(t) {
+  const s = t.getSettings ? t.getSettings() : {};
+  const dims = s.width ? ` ${s.width}×${s.height}` : "";
+  const rate = s.frameRate ? ` @${Math.round(s.frameRate)}` : "";
+  const surface = s.displaySurface ? ` (${s.displaySurface})` : "";
+  return `${t.kind} "${t.label}"${dims}${rate}${surface}`;
+}
+
+// Every track, and what happens to it.
+function watch(stream, origin) {
+  for (const t of stream.getTracks()) {
+    tracks.add(t);
+    log(`${origin}: ${trackLine(t)}`, "ok");
+    t.addEventListener("ended", () => { log(`${origin}: ended ${t.kind} "${t.label}" (stopped by the browser or the system)`, "ev"); tracks.delete(t); render(); });
+    t.addEventListener("mute", () => log(`${origin}: muted ${t.kind} "${t.label}"`, "ev"));
+    t.addEventListener("unmute", () => log(`${origin}: unmuted ${t.kind} "${t.label}"`, "ev"));
+  }
+  render();
+  const audio = stream.getAudioTracks()[0];
+  if (audio && origin !== "loopback in") meter(audio);
+}
+
+function render() {
+  const stage = $("stage");
+  stage.replaceChildren();
+  for (const t of tracks) {
+    if (t.kind !== "video") continue;
+    const fig = document.createElement("figure");
+    const video = document.createElement("video");
+    video.autoplay = true; video.muted = true; video.playsInline = true;
+    video.srcObject = new MediaStream([t]);
+    const cap = document.createElement("figcaption");
+    const name = document.createElement("span");
+    name.textContent = trackLine(t);
+    const stop = document.createElement("button");
+    stop.textContent = "Stop";
+    stop.onclick = () => { t.stop(); tracks.delete(t); log(`stopped ${t.kind} "${t.label}"`); render(); };
+    cap.append(name, stop);
+    fig.append(video, cap);
+    stage.append(fig);
+  }
+}
+
+function meter(track) {
+  try {
+    audioMeter?.close();
+    const context = new AudioContext();
+    const source = context.createMediaStreamSource(new MediaStream([track]));
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    const data = new Float32Array(analyser.fftSize);
+    const tick = () => {
+      if (context.state === "closed") return;
+      analyser.getFloatTimeDomainData(data);
+      let peak = 0;
+      for (const v of data) peak = Math.max(peak, Math.abs(v));
+      $("level").value = peak;
+      requestAnimationFrame(tick);
+    };
+    tick();
+    audioMeter = context;
+  } catch (e) { log(`level meter: ${describe(e)}`, "err"); }
+}
+
+function videoConstraints() {
+  const c = {};
+  const cam = $("camSel").value;
+  if (cam) c.deviceId = { exact: cam };
+  const [w, h] = ($("res").value || "x").split("x").map(Number);
+  if (w) { c.width = { ideal: w }; c.height = { ideal: h }; }
+  if ($("fps").value) c.frameRate = { ideal: Number($("fps").value) };
+  return Object.keys(c).length ? c : true;
+}
+function audioConstraints() {
+  const c = { echoCancellation: $("echo").checked, noiseSuppression: $("noise").checked };
+  const mic = $("micSel").value;
+  if (mic) c.deviceId = { exact: mic };
+  return c;
+}
+
+async function capture(constraints, origin) {
+  log(`${origin}: asking getUserMedia(${JSON.stringify(constraints)})`);
+  try {
+    const stream = await md.getUserMedia(constraints);
+    watch(stream, origin);
+    await listDevices();
+    return stream;
+  } catch (e) { log(`${origin}: ${describe(e)}`, "err"); }
+}
+
+async function share(options, origin) {
+  log(`${origin}: asking getDisplayMedia(${JSON.stringify(options)})`);
+  if (!md.getDisplayMedia) { log(`${origin}: getDisplayMedia is not available here`, "err"); return; }
+  try {
+    const stream = await md.getDisplayMedia(options);
+    watch(stream, origin);
+  } catch (e) { log(`${origin}: ${describe(e)}`, "err"); }
+}
+
+async function listDevices() {
+  try {
+    const devices = await md.enumerateDevices();
+    const fill = (select, kind, keep) => {
+      const before = select.value;
+      select.replaceChildren(new Option("Default", ""));
+      for (const d of devices.filter((d) => d.kind === kind)) select.add(new Option(d.label || `(no name: ${kind})`, d.deviceId));
+      select.value = [...select.options].some((o) => o.value === before) ? before : "";
+    };
+    fill($("camSel"), "videoinput"); fill($("micSel"), "audioinput"); fill($("spkSel"), "audiooutput");
+    const counts = ["videoinput", "audioinput", "audiooutput"].map((k) => `${devices.filter((d) => d.kind === k).length} ${k}`);
+    log(`devices: ${counts.join(", ")}${devices.some((d) => d.label) ? "" : " (no names until a capture is allowed)"}`);
+  } catch (e) { log(`enumerateDevices: ${describe(e)}`, "err"); }
+}
+
+async function permissions() {
+  const out = [];
+  for (const name of ["camera", "microphone", "notifications", "display-capture"]) {
+    try {
+      const status = await navigator.permissions.query({ name });
+      out.push(`<span>${name}: <b>${status.state}</b></span>`);
+      status.onchange = () => { log(`permission ${name} is now ${status.state}`, "ev"); permissions(); };
+    } catch (e) { out.push(`<span>${name}: <i>not asked here</i></span>`); }
+  }
+  $("perms").innerHTML = out.join("");
+}
+
+function stopKind(kind) {
+  for (const t of [...tracks]) if (t.kind === kind && !t.getSettings().displaySurface) { t.stop(); tracks.delete(t); log(`stopped ${kind} "${t.label}"`); }
+  render();
+}
+
+async function startLoopback() {
+  const sending = [...tracks].filter((t) => t.readyState === "live");
+  if (!sending.length) { log("loopback: capture something first", "err"); return; }
+  const a = new RTCPeerConnection(), b = new RTCPeerConnection();
+  a.onicecandidate = (e) => e.candidate && b.addIceCandidate(e.candidate);
+  b.onicecandidate = (e) => e.candidate && a.addIceCandidate(e.candidate);
+  b.ontrack = (e) => watch(new MediaStream([e.track]), "loopback in");
+  for (const t of sending) a.addTrack(t);
+  const offer = await a.createOffer(); await a.setLocalDescription(offer); await b.setRemoteDescription(offer);
+  const answer = await b.createAnswer(); await b.setLocalDescription(answer); await a.setRemoteDescription(answer);
+  a.onconnectionstatechange = () => log(`loopback: ${a.connectionState}`, "ev");
+  loopback = { a, b, timer: setInterval(async () => {
+    let sent = 0, frames = 0;
+    (await a.getStats()).forEach((r) => { if (r.type === "outbound-rtp") { sent += r.bytesSent || 0; frames += r.framesEncoded || 0; } });
+    $("stats").textContent = `${(sent / 1024).toFixed(0)} KB sent, ${frames} frames encoded`;
+  }, 1000) };
+  log(`loopback: sending ${sending.length} tracks`, "ok");
+}
+function endLoopback() {
+  if (!loopback) return;
+  clearInterval(loopback.timer);
+  loopback.a.close(); loopback.b.close(); loopback = null;
+  for (const t of [...tracks]) if (t.label === "" || t.id && t.readyState === "ended") tracks.delete(t);
+  $("stats").textContent = "—";
+  log("loopback: ended");
+  render();
+}
+
+$("getBoth").onclick = () => capture({ video: videoConstraints(), audio: audioConstraints() }, "camera + microphone");
+$("getCam").onclick = () => capture({ video: videoConstraints() }, "camera");
+$("getMic").onclick = () => capture({ audio: audioConstraints() }, "microphone");
+$("useChosen").onclick = () => { stopKind("video"); stopKind("audio"); capture({ video: videoConstraints(), audio: audioConstraints() }, "chosen devices"); };
+$("listDevices").onclick = listDevices;
+$("share").onclick = () => share({ video: true }, "share");
+$("shareAudio").onclick = () => share({ video: true, audio: true }, "share with audio");
+$("shareTab").onclick = () => share({ video: { displaySurface: "browser" }, audio: true, preferCurrentTab: false, selfBrowserSurface: "include", surfaceSwitching: "include", systemAudio: "include" }, "share, a tab preferred");
+$("muteMic").onclick = () => { for (const t of tracks) if (t.kind === "audio") { t.enabled = !t.enabled; log(`microphone ${t.enabled ? "unmuted" : "muted"} by the page (enabled = ${t.enabled})`); } };
+$("hideCam").onclick = () => stopKind("video");
+$("stopAll").onclick = () => { endLoopback(); for (const t of tracks) t.stop(); tracks.clear(); audioMeter?.close(); $("level").value = 0; log("stopped everything"); render(); };
+$("loop").onclick = () => startLoopback().catch((e) => log(`loopback: ${describe(e)}`, "err"));
+$("unloop").onclick = endLoopback;
+$("refreshPerms").onclick = permissions;
+$("clear").onclick = () => $("log").replaceChildren();
+$("spkSel").onchange = async () => {
+  const id = $("spkSel").value;
+  for (const v of document.querySelectorAll("video")) {
+    if (!v.setSinkId) { log("speaker: setSinkId is not available here", "err"); return; }
+    try { await v.setSinkId(id); } catch (e) { log(`speaker: ${describe(e)}`, "err"); return; }
+  }
+  log(`speaker: ${id ? $("spkSel").selectedOptions[0].text : "default"}`, "ok");
+};
+$("notify").onclick = async () => {
+  if (!("Notification" in window)) { log("Notification is not available here", "err"); return; }
+  const answer = await Notification.requestPermission();
+  log(`Notification.requestPermission: ${answer}`, answer === "granted" ? "ok" : "err");
+  if (answer === "granted") {
+    const n = new Notification("Call tester", { body: "Someone joined the call", tag: "call" });
+    n.onclick = () => log("notification clicked", "ev");
+    n.onclose = () => log("notification closed", "ev");
+  }
+};
+$("fullscreen").onclick = async () => {
+  const target = document.querySelector("figure") || $("stage");
+  try { await target.requestFullscreen(); log("full screen", "ok"); } catch (e) { log(`full screen: ${describe(e)}`, "err"); }
+};
+$("pip").onclick = async () => {
+  const video = document.querySelector("video");
+  if (!video) { log("picture in picture: show a video first", "err"); return; }
+  try { await video.requestPictureInPicture(); log("picture in picture", "ok"); } catch (e) { log(`picture in picture: ${describe(e)}`, "err"); }
+};
+$("wake").onclick = async () => {
+  if (!("wakeLock" in navigator)) { log("wake lock is not available here", "err"); return; }
+  try {
+    if (wakeLock) { await wakeLock.release(); wakeLock = null; log("screen may sleep"); return; }
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.onrelease = () => log("wake lock released", "ev");
+    log("keeping the screen on", "ok");
+  } catch (e) { log(`wake lock: ${describe(e)}`, "err"); }
+};
+md?.addEventListener("devicechange", () => { log("a device came or went", "ev"); listDevices(); });
+document.addEventListener("visibilitychange", () => log(`page ${document.visibilityState}`, "ev"));
+
+log(`secure context: ${window.isSecureContext}; mediaDevices: ${!!md}; getDisplayMedia: ${!!md?.getDisplayMedia}`);
+log(navigator.userAgent);
+permissions();
+listDevices();
+</script>
+</body>
+</html>

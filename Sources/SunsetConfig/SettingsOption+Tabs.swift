@@ -67,7 +67,16 @@ extension SettingsOption {
             .noted("The same as the pin at the top of the sidebar.")
             .grouped("Sidebar"),
             number("sidebar.width", "Width", "size wide", \.sidebar.width, 120 ... 480, step: 5)
-                .grouped("Sidebar")
+                .grouped("Sidebar"),
+            toggle(
+                "sidebar.separators",
+                "Section separators",
+                "line divider pinned favorites tabs separator",
+                \.sidebar.separators,
+                label: "Show lines between Pinned, Favorites and tabs"
+            )
+            .grouped("Sidebar")
+            .noted("Off, the sections keep their space without a line.")
         ]
 
     static let labels: [Self] =
@@ -110,14 +119,6 @@ extension SettingsOption {
     /// The Library and the documents.
     static let library: [Self] =
         [
-            toggle(
-                "sidebar.separators",
-                "Section separators",
-                "line divider pinned favorites tabs separator",
-                \.sidebar.separators,
-                label: "Show lines between Pinned, Favorites and tabs"
-            )
-            .noted("Off, the sections keep their space without a line."),
             toggle(
                 "sidebar.previews",
                 "Previews",
