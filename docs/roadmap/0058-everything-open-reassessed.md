@@ -66,8 +66,8 @@ again. Supersedes the staging of roadmap 0056. Stages in order; within a stage, 
 |---|---|---|
 | 6.1 | WebKit's private network interfaces (resolver, proxy per store already probed) | 0048 A, t27 |
 | 6.2 | DNS over HTTPS/TLS/QUIC | 0046 A, t13 |
-| 6.3 | Impersonation beyond identity (APIs, error messages, codecs, workers, client hints) | 0046 D, t15, 0045 F, 0022 |
-| 6.4 | Extensions, the proxy APIs first | 0046 B, C, t14 |
+| 6.3 | Impersonation beyond identity (APIs, error messages, codecs, workers, client hints). Measured 2026-11-19 (web tester, diary 2026-11-19-04): Sunset's own globals and Notification shim give it away; Safari's Payment Request, Apple Pay, Push, IdleDeadline, DigitalCredential, MediaSessionCoordinator are missing; Private Click Measurement attributes are extra | 0046 D, t15, 0045 F, 0022 |
+| 6.4 | Extensions, the proxy APIs first. WebKit's own host (`WKWebExtensionController`, macOS 15.4) measured: Safari's extension surface but notifications and commands, which the app gives | 0046 B, C, t14 |
 | 6.5 | Notifications without a click asked (Chrome) and service-worker notifications as settings (ADR-0077: decided) | 0046 S1, S2 |
 | 6.6 | The own WebKit: spike, two builds, our patch series, run-time download (ADR-0078: only if shown better) | 0048 B–E, t28 |
 

@@ -101,39 +101,56 @@ def main():
             return 1
         print(f"session {session}")
 
-        request("POST", f"/session/{session}/url", {"url": f"{BASE}/index.html?browser={LABEL}&auto=1"})
-        for _ in range(120):
-            if script(session, "return document.body.dataset.done") == "yes":
-                break
-            time.sleep(0.5)
-        print("automatic tests and the inventory: saved")
+        if "--extension-only" not in sys.argv:
+            request("POST", f"/session/{session}/url", {"url": f"{BASE}/index.html?browser={LABEL}&auto=1"})
+            for _ in range(120):
+                if script(session, "return document.body.dataset.done") == "yes":
+                    break
+                time.sleep(0.5)
+            print("automatic tests and the inventory: saved")
 
+        home = request("GET", f"/session/{session}/window")
+        if "--extension-only" in sys.argv:
+            asks_wanted = False
+        else:
+            asks_wanted = True
         asks = script(session, "return [...document.querySelectorAll('[data-try]')].map((b) => b.dataset.try)")
         plain = [a for a in asks if a not in FOR_A_PERSON and a not in PROMPTING]
-        for test in plain + [a for a in asks if a in PROMPTING]:
-            state = click_and_wait(session, test, 20 if test in PROMPTING else 15)
-            print(f"  {test:28} {state}")
-            # Whatever a test opened (full screen, a window), the page comes back to the front.
-            answer_dialog(session)
+        for test in (plain + [a for a in asks if a in PROMPTING]) if asks_wanted else []:
             try:
-                handles = request("GET", f"/session/{session}/window/handles")
-                for handle in handles[1:]:
-                    request("POST", f"/session/{session}/window", {"handle": handle})
-                    request("DELETE", f"/session/{session}/window")
-                request("POST", f"/session/{session}/window", {"handle": handles[0]})
-            except RuntimeError:
-                pass
-        for test in sorted(set(asks) & FOR_A_PERSON):
+                state = click_and_wait(session, test, 20 if test in PROMPTING else 15)
+            except RuntimeError as error:
+                state = f"not driven: {error}"
+            print(f"  {test:28} {state}")
+            # Whatever a test opened (a window, a dialog), the tester's window comes back to the front.
+            try:
+                answer_dialog(session)
+                for handle in request("GET", f"/session/{session}/window/handles"):
+                    if handle != home:
+                        request("POST", f"/session/{session}/window", {"handle": handle})
+                        request("DELETE", f"/session/{session}/window")
+                request("POST", f"/session/{session}/window", {"handle": home})
+            except RuntimeError as error:
+                print(f"    back to the tester: {error}")
+        for test in sorted(set(asks) & FOR_A_PERSON) if asks_wanted else []:
             print(f"  {test:28} left for a person (a system picker or sheet)")
-        script(session, "document.getElementById('save').click()")
-        time.sleep(2)
-        print("asks: saved")
+        if asks_wanted:
+            script(session, "document.getElementById('save').click()")
+            time.sleep(2)
+            print("asks: saved")
 
         # The test extension, by WebDriver's Load Web Extension (W3C WebExtensions community group), where Safari has it.
         try:
             loaded = request("POST", f"/session/{session}/webextension", {"type": "path", "path": EXTENSION}, timeout=30)
             print(f"extension loaded: {loaded}")
-            time.sleep(12)
+            # Its content script, on the tester's page, hands its probes to the page, which saves them.
+            request("POST", f"/session/{session}/url", {"url": f"{BASE}/index.html?browser={LABEL}"})
+            for _ in range(60):
+                state = script(session, "return document.body.dataset.extension")
+                if state:
+                    break
+                time.sleep(0.5)
+            print(f"extension results: {state or 'none (its content script did not run: no permission on this site?)'}")
         except RuntimeError as error:
             print(f"extension not loaded through the driver: {error}")
         return 0

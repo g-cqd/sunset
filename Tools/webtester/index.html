@@ -125,6 +125,15 @@ if (params.has("auto")) {
   await saveInventory(browserLabel());
 }
 document.body.dataset.done = "yes";
+
+// The test extension, when it is installed: its content script hands over its probes, saved here as the page's own.
+addEventListener("message", async (event) => {
+  if (event.origin !== location.origin || event.data?.source !== "web-tester-extension") return;
+  const report = event.data.report;
+  const label = `${browserLabel().replace(/-driven$/, "")}-extension`;
+  const answer = await fetch(`/results/${label}`, { method: "POST", body: JSON.stringify({ ...report, label }), headers: { "content-type": "application/json" } });
+  document.body.dataset.extension = answer.ok ? "saved" : "failed";
+});
 </script>
 </body>
 </html>
