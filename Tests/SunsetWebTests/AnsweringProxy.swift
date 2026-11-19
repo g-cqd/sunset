@@ -1,5 +1,6 @@
 import Foundation
 import Network
+import SunsetTestSupport
 
 /// An HTTP proxy on this Mac that answers every request with one page, and keeps the first line of each.
 @MainActor
@@ -23,7 +24,7 @@ final class AnsweringProxy {
         }
         proxy.listener.start(queue: .main)
         while proxy.listener.port == nil || proxy.listener.port?.rawValue == 0 {
-            try await Task.sleep(for: .milliseconds(10))
+            await RealWait.pass(.milliseconds(10))
         }
         return proxy
     }

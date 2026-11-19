@@ -1,17 +1,15 @@
 import SunsetCore
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetHost
 
 @Suite("History packing in a session", .serialized) struct HistoryPackingSessionTests {
     private func waitForLines(_ session: TerminalSession, last: String) async -> Bool {
-        let deadline = ContinuousClock.now + .seconds(15)
-        while ContinuousClock.now < deadline {
+        await RealWait.until(within: .seconds(15)) {
             let screen = await session.takeSnapshot()
-            if (0 ..< screen.rows).contains(where: { screen.text(row: $0) == last }) { return true }
-            try? await Task.sleep(for: .milliseconds(20))
+            return (0 ..< screen.rows).contains { screen.text(row: $0) == last }
         }
-        return false
     }
 
     private func history(_ screen: Screen) -> [String] {

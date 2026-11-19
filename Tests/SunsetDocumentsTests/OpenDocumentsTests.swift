@@ -1,6 +1,7 @@
 import Foundation
 import MarkdownLookKit
 import SunsetStorage
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetDocuments
@@ -34,9 +35,8 @@ struct OpenDocumentsTests {
     }
 
     /// Waits until `condition` holds (a change on disk is told by a thread of its own).
-    private func eventually(_ condition: () -> Bool) async -> Bool {
-        for _ in 0 ..< 200 where !condition() { try? await Task.sleep(for: .milliseconds(10)) }
-        return condition()
+    private func eventually(_ condition: @MainActor () -> Bool) async -> Bool {
+        await RealWait.until { condition() }
     }
 
     @Test func `a file is one document however it is named: its path, a link to it, a path with dots`() throws {

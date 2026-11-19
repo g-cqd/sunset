@@ -2,6 +2,7 @@ import AppKit
 import Foundation
 import SunsetMetrics
 import SunsetPane
+import SunsetTestSupport
 import SwiftUI
 import Testing
 
@@ -37,7 +38,7 @@ struct SidebarNoticesTests {
         window.contentView = host
         // Twice: the calls to action's height is measured in the first pass and moves the rows in the next.
         host.layoutSubtreeIfNeeded()
-        RunLoop.main.run(until: Date())
+        RealWait.runLoop(for: .zero)
         host.layoutSubtreeIfNeeded()
         var tops: [Double] = []
         func walk(_ view: NSView) {

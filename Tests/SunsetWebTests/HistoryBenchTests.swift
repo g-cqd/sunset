@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetWeb
@@ -19,9 +20,9 @@ struct HistoryBenchTests {
     }
 
     static func milliseconds(_ body: () -> Void) -> Double {
-        let start = ContinuousClock.now
+        let start = Stopwatch()
         body()
-        let took = ContinuousClock.now - start
+        let took = start.elapsed
         return Double(took.components.seconds) * 1000 + Double(took.components.attoseconds) / 1e15
     }
 
@@ -47,10 +48,10 @@ struct HistoryBenchTests {
         var stalls: [Double] = []
         var opens: [Double] = []
         for _ in 0 ..< 5 {
-            let start = ContinuousClock.now
+            let start = Stopwatch()
             stalls.append(Self.milliseconds { store = HistoryBench.open(path) })
             await store?.ready()
-            let took = ContinuousClock.now - start
+            let took = start.elapsed
             opens.append(Double(took.components.seconds) * 1000 + Double(took.components.attoseconds) / 1e15)
         }
         print("BENCH open, the main actor held:", Self.percentiles(stalls))

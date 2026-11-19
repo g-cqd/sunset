@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetHost
@@ -26,7 +27,7 @@ struct FileWatcherStartTests {
                     return await changes.next() != nil
                 }
                 group.addTask {
-                    try? await Task.sleep(for: .seconds(1))
+                    await RealWait.pass(.seconds(1))
                     watcher.stop()
                     return false
                 }

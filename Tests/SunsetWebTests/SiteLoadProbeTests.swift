@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SunsetTestSupport
 import Testing
 import WebKit
 
@@ -69,13 +70,13 @@ struct SiteLoadProbeTests {
         )
         page.load(address)
         let seconds = Double(environment["SUNSET_SITE_WAIT"] ?? "") ?? 15
-        try await Task.sleep(for: .seconds(seconds))
+        await RealWait.pass(.seconds(seconds))
         // Then shown another browser from the site's panel, as the person would.
         if let then = environment["SUNSET_SITE_THEN_AGENT"].flatMap(BrowserAgent.init(rawValue:)) {
             print("probe: first at", page.url?.absoluteString ?? "-")
             page.agents = SiteAgents()
             page.appear(as: then)
-            try await Task.sleep(for: .seconds(seconds))
+            await RealWait.pass(.seconds(seconds))
         }
         let state = try await view.evaluateJavaScript(
             "JSON.stringify({href: location.href, title: document.title, ua: navigator.userAgent, text: (document.body ? document.body.innerText : '').slice(0, 300)})"

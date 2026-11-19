@@ -53,8 +53,9 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
             close() {
               if (!shown.has(this.__id)) return;
               shown.delete(this.__id);
-              bridge.postMessage({ kind: "close", id: this.__id });
-              this.__fire("close");
+              // The page hears of the close once Sunset has it, as it hears of the show (a race otherwise, seen once under load).
+              const done = () => this.__fire("close");
+              bridge.postMessage({ kind: "close", id: this.__id }).then(done, done);
             }
             static get permission() {
                 return permission;

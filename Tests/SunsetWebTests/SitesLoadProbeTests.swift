@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SunsetTestSupport
 import Testing
 import WebKit
 
@@ -27,7 +28,6 @@ struct SitesLoadProbeTests {
                 }
             )
         }
-        let clock = ContinuousClock()
         for address in addresses {
             var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
             settings.privacy = PagePrivacy()
@@ -46,13 +46,13 @@ struct SitesLoadProbeTests {
             window.contentView = view
             window.orderBack(nil)
             if plain { view.load(URLRequest(url: address)) }
-            let start = clock.now
+            let start = Stopwatch()
             if !plain { page.load(address) }
             var loadedAt: Duration?
             for _ in 0 ..< 300 {
-                try await Task.sleep(for: .milliseconds(100))
+                await RealWait.pass(.milliseconds(100))
                 if !view.isLoading, view.url != nil {
-                    loadedAt = clock.now - start
+                    loadedAt = start.elapsed
                     break
                 }
             }

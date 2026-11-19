@@ -1,4 +1,5 @@
 import AppKit
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
@@ -55,7 +56,7 @@ struct IconGridViewTests {
         #expect(grid.frame.size == CGSize(width: 308, height: 2 * IconGridLayout.pitch.height))
         let first = try inked(grid)
         #expect(first.count == 12 && first.allSatisfy { $0 == 0 }, "drawing does not wait for the icons")
-        for _ in 0 ..< 400 where !grid.isComplete { try await Task.sleep(for: .milliseconds(5)) }
+        await RealWait.until { (grid.isComplete) }
         let then = try inked(grid)
         #expect(then.allSatisfy { $0 >= 8 } && then[11] > 40, "every icon in its cell, the emoji a full face: \(then)")
         window.contentView = nil
@@ -64,7 +65,7 @@ struct IconGridViewTests {
     @Test func `the chosen cell is marked, and a click on a cell picks it`() async throws {
         let (scroll, window) = grid(symbols(["folder", "trash", "house"]))
         let grid = scroll.grid
-        for _ in 0 ..< 400 where !grid.isComplete { try await Task.sleep(for: .milliseconds(5)) }
+        await RealWait.until { (grid.isComplete) }
         let plain = try inked(grid, over: 0.1)
         grid.chosen = "trash"
         let marked = try inked(grid, over: 0.1)

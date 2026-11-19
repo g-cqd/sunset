@@ -4,6 +4,7 @@ import MarkdownLookKit
 import SunsetDocuments
 import SunsetPane
 import SunsetShell
+import SunsetTestSupport
 import SwiftUI
 import Testing
 import UniformTypeIdentifiers
@@ -89,10 +90,10 @@ struct DocumentPaneCatalogTests {
         window.contentView = host
         window.orderBack(nil)
         for _ in 0 ..< 40 {
-            try await Task.sleep(for: .milliseconds(50))
+            await RealWait.pass(.milliseconds(50))
             if ready() { break }
         }
-        try await Task.sleep(for: .milliseconds(300))
+        await RealWait.pass(.milliseconds(300))
         host.layoutSubtreeIfNeeded()
         let bitmap = try #require(host.bitmapImageRepForCachingDisplay(in: host.bounds))
         host.cacheDisplay(in: host.bounds, to: bitmap)

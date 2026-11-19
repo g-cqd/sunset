@@ -1,4 +1,5 @@
 import Darwin
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetHost
@@ -53,13 +54,13 @@ import Testing
         let process = try spawn("sleep 5")
         let pump = process.pump
         let running = Task(executorPreference: process.readThread) { pump.run { _ in } }
-        try await Task.sleep(for: .milliseconds(500))
+        await RealWait.pass(.milliseconds(500))
         #expect(pump.wakeups <= 2, "woke \(pump.wakeups) times")
-        let start = ContinuousClock.now
+        let watch = Stopwatch()
         pump.stop()
         await running.value
         // Stopping is prompt, not a poll's timeout later: no count says that.
-        #expect(ContinuousClock.now - start < .milliseconds(100))  // lint:allow
+        #expect(watch.elapsed < .milliseconds(100))
         process.hangUp()
     }
 }

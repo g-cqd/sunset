@@ -1,4 +1,5 @@
 import SunsetCore
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetHost
@@ -18,7 +19,7 @@ private func waitFor(_ session: TerminalSession, seconds: Int = 10, _ condition:
             return false
         }
         group.addTask {
-            try? await Task.sleep(for: .seconds(seconds))
+            await RealWait.pass(.seconds(seconds))
             return false
         }
         let first = await group.next() ?? false

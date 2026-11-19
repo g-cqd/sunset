@@ -13,7 +13,10 @@ public final class TestTime: Sendable {
     /// How long a test waits, in real time, before it says a task never ended: a guard, not a timing.
     public static let guardTime = Duration.seconds(5)
 
-    public init(now: Date = Date(timeIntervalSince1970: 1_800_000_000)) {
+    /// The wall time a test runs at unless it says another: fixed, so that ages and expiries are the same on every run.
+    public static let epoch = Date(timeIntervalSince1970: 1_800_000_000)
+
+    public init(now: Date = TestTime.epoch) {
         let clock = clock
         runtime = Runtime(tasks: spy, clock: clock, uptime: { clock.now.offset }, now: { now })
     }
@@ -78,6 +81,13 @@ public final class TestTime: Sendable {
         let mark = mark()
         clock.advance(by: duration)
         try await waited(since: mark)
+    }
+
+    /// `duration` passes, and the long-lived loops (`.observation`) that end with it have ended.
+    public func passToEnd(_ duration: Duration) async throws {
+        clock.advance(by: duration)
+        try await spy.waitForObservationsToFinish(timeout: Self.guardTime)
+        try await settle()
     }
 
     /// `duration` passes; what waited for less wakes, and every task settles.

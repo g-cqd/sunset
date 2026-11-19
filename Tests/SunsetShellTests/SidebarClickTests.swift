@@ -1,6 +1,7 @@
 import AppKit
 import SunsetMetrics
 import SunsetPane
+import SunsetTestSupport
 import SwiftUI
 import Testing
 
@@ -30,7 +31,7 @@ struct SidebarClickTests {
             rootView: TabSidebar(tabs: tabs, settings: settings) {}.frame(width: 229, height: 400)
         )
         window.orderBack(nil)
-        for _ in 0 ..< 20 { try? await Task.sleep(for: .milliseconds(25)) }
+        for _ in 0 ..< 20 { await RealWait.pass(.milliseconds(25)) }
         return window
     }
 
@@ -53,7 +54,7 @@ struct SidebarClickTests {
                     window.sendEvent(event)
                 }
                 // Between a press and its release, and between two clicks; nothing after the last release.
-                if type == .leftMouseDown || number < count { try? await Task.sleep(for: .milliseconds(20)) }
+                if type == .leftMouseDown || number < count { await RealWait.pass(.milliseconds(20)) }
             }
         }
     }
@@ -66,7 +67,7 @@ struct SidebarClickTests {
     func looks(until condition: () -> Bool) async -> Int? {
         for look in 0 ..< 200 {
             if condition() { return look }
-            try? await Task.sleep(for: .milliseconds(5))
+            await RealWait.pass(.milliseconds(5))
         }
         return nil
     }

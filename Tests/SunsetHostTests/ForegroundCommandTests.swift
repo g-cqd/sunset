@@ -1,16 +1,12 @@
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetHost
 
 @Suite("Foreground command", .serialized) struct ForegroundCommandTests {
     /// Polls for at most `seconds` (a bound on a failing test, not a wait a passing one depends on).
-    private func eventually(seconds: Int = 10, _ condition: () -> Bool) async -> Bool {
-        let deadline = ContinuousClock.now + .seconds(seconds)
-        while ContinuousClock.now < deadline {
-            if condition() { return true }
-            try? await Task.sleep(for: .milliseconds(25))
-        }
-        return condition()
+    private func eventually(seconds: Int = 10, _ condition: @MainActor () -> Bool) async -> Bool {
+        await RealWait.until(within: .seconds(seconds)) { condition() }
     }
 
     @Test

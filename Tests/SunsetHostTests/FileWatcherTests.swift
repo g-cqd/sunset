@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetHost
@@ -18,7 +19,7 @@ import Testing
                 return await iterator.next() != nil
             }
             group.addTask {
-                try? await Task.sleep(for: .seconds(seconds))
+                await RealWait.pass(.seconds(seconds))
                 return false
             }
             let first = await group.next() ?? false
@@ -83,7 +84,7 @@ import Testing
         watcher.start()
         for index in 0 ..< 10 {
             try "{ \"n\": \(index) }".write(toFile: file, atomically: false, encoding: .utf8)
-            try await Task.sleep(for: .milliseconds(10))
+            await RealWait.pass(.milliseconds(10))
         }
         #expect(await next(watcher))
         #expect(await next(watcher, seconds: 0.5) == false, "no second event for the same burst")
@@ -96,12 +97,12 @@ import Testing
         try "{}".write(toFile: file, atomically: false, encoding: .utf8)
         let watcher = FileWatcher(path: file)
         watcher.start()
-        try await Task.sleep(for: .milliseconds(600))
+        await RealWait.pass(.milliseconds(600))
         #expect(watcher.wakeupCount <= 2, "woke \(watcher.wakeupCount) times")
-        let start = ContinuousClock.now
+        let watch = Stopwatch()
         watcher.stop()
         for await _ in watcher.changes {}
         // Stopping is prompt, not a poll's timeout later: no count says that.
-        #expect(ContinuousClock.now - start < .milliseconds(200))  // lint:allow
+        #expect(watch.elapsed < .milliseconds(200))
     }
 }

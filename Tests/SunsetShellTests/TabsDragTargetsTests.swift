@@ -1,5 +1,6 @@
 import Foundation
 import SunsetPane
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
@@ -35,15 +36,23 @@ struct TabsDragTargetsTests {
 
     @Test func `a drag let go where nothing takes it ends when the mouse button is up`() async throws {
         let tabs = window(MadeContents())
+        let time = TestTime()
+        tabs.runtime = time.runtime
         let button = Button()
         tabs.mouseIsDown = { button.down }
         tabs.newTab()
         let first = try #require(tabs.workspace.items.first?.id)
+        let watching = time.mark()
         _ = tabs.itemProvider(for: .item(first))
-        try await Task.sleep(for: .milliseconds(150))
+        try await time.waited(since: watching)
+        // The button is looked at every 100 ms: held, the drag goes on.
+        try await time.passStillWaiting(.milliseconds(100))
         #expect(tabs.dragTargets != nil, "still held")
         button.down = false
-        for _ in 0 ..< 40 where tabs.dragTargets != nil { try await Task.sleep(for: .milliseconds(25)) }
+        // Seen up at the next look, then a moment more for a drop being done, then over.
+        try await time.passStillWaiting(.milliseconds(100))
+        #expect(tabs.dragTargets != nil, "a moment more")
+        try await time.passToEnd(.milliseconds(100))
         #expect(tabs.dragTargets == nil && tabs.dragged == nil)
     }
 

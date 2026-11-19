@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import SunsetPane
+import SunsetTestSupport
 import SwiftUI
 import Testing
 
@@ -13,9 +14,9 @@ import Testing
 @Suite("The symbol picker's cost", .enabled(if: ProcessInfo.processInfo.environment["SUNSET_BENCH"] == "1"))
 struct SymbolPickerBenchTests {
     static func milliseconds(_ body: () -> Void) -> Double {
-        let start = ContinuousClock.now
+        let start = Stopwatch()
         body()
-        let took = ContinuousClock.now - start
+        let took = start.elapsed
         return Double(took.components.seconds) * 1000 + Double(took.components.attoseconds) / 1e15
     }
 
@@ -78,25 +79,25 @@ struct SymbolPickerBenchTests {
             grid.chosen = "folder"
             first.append(Self.milliseconds { Self.show(all, in: scroll) })
             // Drawing does not wait for the symbols: how long until those in sight are all there.
-            let asked = ContinuousClock.now
-            while !grid.isComplete { try? await Task.sleep(for: .microseconds(500)) }
-            let took = ContinuousClock.now - asked
+            let asked = Stopwatch()
+            while !grid.isComplete { await RealWait.pass(.microseconds(500)) }
+            let took = asked.elapsed
             arrived.append(Double(took.components.attoseconds) / 1e15)
             for list in [some, all, some, all] { changes.append(Self.milliseconds { Self.show(list, in: scroll) }) }
             let steps = stride(from: 64.0, through: 64.0 * 60, by: 64.0).map { NSPoint(x: 0, y: $0) }
             // A frame apart at 120 Hz: two rows a frame is a fast fling (7,700 points a second).
             for point in steps {
                 fresh.append(Self.milliseconds { Self.scroll(grid, to: point) })
-                try? await Task.sleep(for: .milliseconds(8))
+                await RealWait.pass(.milliseconds(8))
             }
             for point in steps.reversed().prefix(30) {
                 again.append(Self.milliseconds { Self.scroll(grid, to: point) })
-                try? await Task.sleep(for: .milliseconds(8))
+                await RealWait.pass(.milliseconds(8))
             }
             faces.append(Self.milliseconds { Self.show(emoji, in: scroll) })
             for point in steps.prefix(40) {
                 faces.append(Self.milliseconds { Self.scroll(grid, to: point) })
-                try? await Task.sleep(for: .milliseconds(8))
+                await RealWait.pass(.milliseconds(8))
             }
             window.contentView = nil
         }

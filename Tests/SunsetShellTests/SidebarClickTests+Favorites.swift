@@ -1,5 +1,6 @@
 import AppKit
 import SunsetPane
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
@@ -35,7 +36,7 @@ extension SidebarClickTests {
         let took = try #require(await looks { isCollapsed(folder) }, "the click did nothing")
         #expect(took <= Self.atOnce, "the folder folded \(took * 5) ms after the click")
 
-        try? await Task.sleep(for: .milliseconds(700))
+        await RealWait.pass(.milliseconds(700))
         await click(window, at: row(0), count: 2)
         #expect(await looks { tabs.renamingRow == .node(folder) } != nil, "the double click did not rename")
         #expect(isCollapsed(folder), "folded before the double click, folded after it")

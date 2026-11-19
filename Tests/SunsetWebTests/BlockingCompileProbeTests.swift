@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 import WebKit
 
@@ -17,13 +18,12 @@ struct BlockingCompileProbeTests {
         let store = try #require(WKContentRuleListStore(url: folder))
         for path in paths {
             let text = try String(contentsOfFile: String(path), encoding: .utf8)
-            let clock = ContinuousClock()
             var converted = BlockingRules.Converted()
-            let converting = clock.measure { converted = BlockingRules.convert(text) }
+            let converting = Stopwatch.time { converted = BlockingRules.convert(text) }
             let json = String(decoding: try BlockingRules.json(converted.rules), as: UTF8.self)
-            let start = clock.now
+            let start = Stopwatch()
             let list = try await store.compileContentRuleList(forIdentifier: "probe", encodedContentRuleList: json)
-            let compiling = clock.now - start
+            let compiling = start.elapsed
             let size = try FileManager.default
                 .contentsOfDirectory(at: folder, includingPropertiesForKeys: [.fileSizeKey])
                 .compactMap { try $0.resourceValues(forKeys: [.fileSizeKey]).fileSize }.reduce(0, +)

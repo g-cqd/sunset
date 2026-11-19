@@ -8,6 +8,16 @@ struct UnseamedTimeTests {
     /// What is left to move onto `Runtime`.
     static let remaining = 0
 
+    @Test func `no test sleeps or reads the time but through SunsetTestSupport`() {
+        let files = RepositoryFiles.swiftFiles(in: ["Tests"])
+            .filter { !$0.name.hasPrefix("UnseamedTime") && !Self.support.contains($0.name) }
+        let uses = UnseamedTime.uses(in: files).filter { !$0.hasSuffix(": Task {") }
+        #expect(uses.isEmpty, "\(uses.count): \(uses.prefix(8).joined(separator: "\n"))")
+    }
+
+    /// The test support's own files: the one place a test's real time and test clock are made.
+    static let support: Set<String> = ["TestTime.swift", "RealWait.swift", "Stopwatch.swift"]
+
     @Test func `raw tasks, sleeps and reads of the time in Sources are exactly what is left to move`() {
         let files = RepositoryFiles.swiftFiles(in: ["Sources"])
         #expect(files.count > 50, "the scan must see the repository: \(files.count) files")

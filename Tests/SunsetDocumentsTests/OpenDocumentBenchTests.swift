@@ -2,6 +2,7 @@ import AppKit
 import Darwin
 import Foundation
 import MarkdownLookKit
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetDocuments
@@ -20,9 +21,9 @@ struct OpenDocumentBenchTests {
     }
 
     static func milliseconds(_ body: () -> Void) -> Double {
-        let start = ContinuousClock.now
+        let start = Stopwatch()
         body()
-        let took = ContinuousClock.now - start
+        let took = start.elapsed
         return Double(took.components.seconds) * 1000 + Double(took.components.attoseconds) / 1e15
     }
 

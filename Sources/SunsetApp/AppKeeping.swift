@@ -76,7 +76,10 @@ import WebKit
             for (store, keep, profile) in all { await WebKeeping.clear(store, keep: keep, profile: profile) }
             done = true
         }
-        let end = runtime.now().addingTimeInterval(limit)
-        while !done, runtime.now() < end { RunLoop.main.run(until: runtime.now().addingTimeInterval(0.05)) }
+        // A deadline on the monotonic clock, not the wall clock (which may jump).
+        let end = runtime.uptime() + .seconds(limit)
+        while !done, runtime.uptime() < end {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+        }
     }
 }

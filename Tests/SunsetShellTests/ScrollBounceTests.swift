@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SunsetTestSupport
 import SwiftUI
 import Testing
 
@@ -30,7 +31,7 @@ struct ScrollBounceTests {
         window.contentView = host
         host.layoutSubtreeIfNeeded()
         for _ in 0 ..< 5 {
-            RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+            RealWait.runLoop(for: .milliseconds(20))
             host.layoutSubtreeIfNeeded()
         }
         var found: NSScrollView?

@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 import WebKit
 
@@ -63,9 +64,7 @@ struct BrowserAgentTests {
         #expect(server.header("Sec-CH-UA", for: "/first") == nil, "no client hint is sent: WebKit has none")
         // The tab's icon is asked for by Sunset, not by the page: it says the same (seen 2026-11-17: it said
         // "Sunset/7e95475 CFNetwork/… Darwin/…" to a site shown Chrome).
-        for _ in 0 ..< 200 where server.header("User-Agent", for: "/favicon.ico") == nil {
-            try await Task.sleep(for: .milliseconds(25))
-        }
+        await RealWait.until { !(server.header("User-Agent", for: "/favicon.ico") == nil) }
         #expect(server.header("User-Agent", for: "/favicon.ico") == BrowserAgent.firefox.userAgent)
         // The same view goes to a site with a rule.
         view.load(URLRequest(url: try #require(URL(string: "http://localhost:\(server.port)/second"))))
@@ -154,23 +153,19 @@ struct BrowserAgentTests {
         )
         let source = SuggestionSource()
         source.update("tide", engine: engine, words: "tide", enabled: true, userAgent: settings.userAgent)
-        for _ in 0 ..< 200 where server.header("User-Agent", for: "/suggest?q=tide") == nil {
-            try await Task.sleep(for: .milliseconds(25))
-        }
+        await RealWait.until { !(server.header("User-Agent", for: "/suggest?q=tide") == nil) }
         #expect(server.header("User-Agent", for: "/suggest?q=tide") == settings.userAgent)
         settings.agent = .chrome
         #expect(settings.userAgent == BrowserAgent.chrome.userAgent)
         source.update("tides", engine: engine, words: "tides", enabled: true, userAgent: settings.userAgent)
-        for _ in 0 ..< 200 where server.header("User-Agent", for: "/suggest?q=tides") == nil {
-            try await Task.sleep(for: .milliseconds(25))
-        }
+        await RealWait.until { !(server.header("User-Agent", for: "/suggest?q=tides") == nil) }
         #expect(server.header("User-Agent", for: "/suggest?q=tides") == BrowserAgent.chrome.userAgent)
         #expect(!server.received.contains { $0.contains("CFNetwork") })
     }
 
     private func loaded(_ view: WKWebView) async throws {
         for _ in 0 ..< 400 {
-            try await Task.sleep(for: .milliseconds(25))
+            await RealWait.pass(.milliseconds(25))
             if !view.isLoading, view.estimatedProgress >= 1 { return }
         }
         Issue.record("the page did not load")

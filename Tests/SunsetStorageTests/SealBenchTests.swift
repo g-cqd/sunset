@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetStorage
@@ -8,9 +9,9 @@ import Testing
 @Suite("Reading 50,000 sealed records", .enabled(if: ProcessInfo.processInfo.environment["SUNSET_BENCH"] == "1"))
 struct SealBenchTests {
     static func milliseconds(_ body: () -> Void) -> Double {
-        let start = ContinuousClock.now
+        let start = Stopwatch()
         body()
-        let took = ContinuousClock.now - start
+        let took = start.elapsed
         return Double(took.components.seconds) * 1000 + Double(took.components.attoseconds) / 1e15
     }
 

@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetConfig
@@ -16,11 +17,11 @@ struct SettingsSearchSpeedProbe {
         var times: [Double] = []
         for _ in 0 ..< 20 {
             for query in queries {
-                let start = ContinuousClock.now
+                let start = Stopwatch()
                 let found = SettingsSearch.matches(query, in: entries)
                     .compactMap { SettingsOption.named($0.id) }
                     .filter { SettingsSection.showsTopic($0.topic, features) }
-                let spent = ContinuousClock.now - start
+                let spent = start.elapsed
                 times.append(Double(spent.components.attoseconds) / 1e15 + Double(spent.components.seconds) * 1000)
                 _ = found.count
             }

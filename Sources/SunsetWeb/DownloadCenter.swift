@@ -144,8 +144,12 @@ package final class DownloadCenter: NSObject {
                     }
                 }
         }
-        let limit = runtime.now().addingTimeInterval(2)
-        while left > 0, runtime.now() < limit { RunLoop.main.run(until: runtime.now().addingTimeInterval(0.05)) }
+        // At most two seconds of the run loop for the downloads to give their resume data: a deadline on the monotonic
+        // clock, not the wall clock (which may jump).
+        let limit = runtime.uptime() + .seconds(2)
+        while left > 0, runtime.uptime() < limit {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+        }
         if settings.keep == .untilQuit { items.removeAll { $0.state == .finished } }
         save()
     }

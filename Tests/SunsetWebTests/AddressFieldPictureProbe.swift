@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SunsetTestSupport
 import SwiftUI
 import Testing
 
@@ -25,9 +26,9 @@ struct AddressFieldPictureProbe {
         )
         window.contentView = host
         window.makeKeyAndOrderFront(nil)
-        try await Task.sleep(for: .milliseconds(300))
+        await RealWait.pass(.milliseconds(300))
         page.wantsAddress = true
-        try await Task.sleep(for: .milliseconds(500))
+        await RealWait.pass(.milliseconds(500))
         let field = try #require(Self.field(in: host))
         let editor = try #require(field.currentEditor() as? NSTextView)
         editor.setSelectedRange(NSRange(location: (field.stringValue as NSString).length, length: 0))
@@ -35,7 +36,7 @@ struct AddressFieldPictureProbe {
         // As the field is laid out again (its row's buttons go while it is typed in).
         field.needsLayout = true
         host.layoutSubtreeIfNeeded()
-        try await Task.sleep(for: .milliseconds(300))
+        await RealWait.pass(.milliseconds(300))
         let frame = field.convert(field.bounds, to: host)
         let length = (field.stringValue as NSString).length
         var last = CGRect.zero
