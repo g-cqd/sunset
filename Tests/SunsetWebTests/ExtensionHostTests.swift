@@ -161,7 +161,7 @@ struct ExtensionHostTests {
         #expect(answer.contains("/shown") && answer.contains("normal"), "\(answer)")
     }
 
-    /// Seen 2026-11-20 (the owner: uBlock Origin from Firefox Add-ons draws nothing; probed, diary 2026-11-20-15): a Firefox
+    /// Seen 2026-11-20 (the owner: uBlock Origin from Firefox Add-ons draws nothing; probed, diaries 2026-11-20-15, -21): a Firefox
     /// extension's pages meet WebKit's differences from Firefox: a method called apart from its namespace gives undefined, an
     /// empty message name throws, an event WebKit lacks is undefined, `requestIdleCallback` is off. Sunset's script in
     /// extension pages evens them out until our own WebKit fixes them (roadmap 0048 D).
@@ -186,6 +186,7 @@ struct ExtensionHostTests {
             look("empty", () => browser.i18n.getMessage(""));
             look("event", () => typeof browser.webNavigation.onCreatedNavigationTarget);
             look("changed", () => typeof browser.webRequest.handlerBehaviorChanged);
+            look("update", () => typeof browser.runtime.onUpdateAvailable.addListener);
             look("idle", () => typeof requestIdleCallback);
             browser.runtime.onMessage.addListener(() => Promise.resolve(seen));
             """
@@ -204,7 +205,7 @@ struct ExtensionHostTests {
         let answer = try #require(found["worker"] as? String)
         for part in [
             #""detached":"string""#, #""empty":"""#, #""event":"object""#, #""changed":"function""#,
-            #""idle":"function""#
+            #""idle":"function""#, #""update":"function""#
         ] {
             #expect(answer.contains(part), "\(part) in \(answer)")
         }

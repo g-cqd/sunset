@@ -8,49 +8,88 @@ import WebKit
 /// Each part is a stopgap for a defect of WebKit's, listed with its repro in roadmap 0048 D ("WebKit patch candidates"):
 /// when our own WebKit fixes one, its part here goes (each part names its candidate, `W1`…).
 enum ExtensionPageShim {
-    static let script = """
-        (() => {
-          const roots = [globalThis.browser, globalThis.chrome].filter((r, i, all) => r && all.indexOf(r) === i);
-          // W3: WebKit's wrappers of the namespaces are collected and made again without what was added to them; kept.
-          const kept = [];
-          Object.defineProperty(globalThis, "__sunsetKeptNamespaces", { value: kept });
-          const put = (space, key, value) => {
-            if (space && !(key in space)) {
-              Object.defineProperty(space, key, { value, configurable: true, writable: true });
-            }
-          };
-          const event = () => ({ addListener() {}, removeListener() {}, hasListener() { return false; } });
-          for (const root of roots) {
-            kept.push(root);
-            for (const name in root) {
-              let space;
-              try { space = root[name]; } catch { continue; }
-              if (!space || typeof space !== "object") continue;
-              kept.push(space);
-              // W1: a method called apart from its namespace (`const f = browser.runtime.getURL; f("")`) gives undefined.
-              for (const key in space) {
-                let value;
-                try { value = space[key]; } catch { continue; }
-                if (typeof value !== "function") continue;
-                try {
-                  Object.defineProperty(space, key, { value: value.bind(space), configurable: true, writable: true });
-                } catch {}
+    /// One stopgap, named by the WebKit defect it covers; it runs once for each namespace root (`browser`, `chrome`) with
+    /// the helpers `root`, `kept`, `put` and `event`.
+    struct Part {
+        let defect: String
+        let source: String
+    }
+
+    /// The parts, in the order they run. When our WebKit fixes a defect (`Engine/WebKit/patches`), its part goes.
+    static let parts = [
+        // W3 first: the namespaces kept before anything is added to them.
+        Part(
+            defect:
+                "W3: WebKit's wrappers of the namespaces are collected and made again without what was added to them",
+            source: """
+                kept.push(root);
+                for (const name in root) {
+                  let space;
+                  try { space = root[name]; } catch { continue; }
+                  if (space && typeof space === "object") kept.push(space);
+                }
+                """
+        ),
+        Part(
+            defect:
+                "W1: a method called apart from its namespace (`const f = browser.runtime.getURL; f(\"\")`) gives undefined",
+            source: """
+                for (const space of kept.filter((object) => object !== root)) {
+                  for (const key in space) {
+                    let value;
+                    try { value = space[key]; } catch { continue; }
+                    if (typeof value !== "function") continue;
+                    try {
+                      Object.defineProperty(space, key, { value: value.bind(space), configurable: true, writable: true });
+                    } catch {}
+                  }
+                }
+                """
+        ),
+        Part(
+            defect: "W2: an empty message name throws; Firefox and Chrome give \"\"",
+            source: """
+                if (root.i18n && typeof root.i18n.getMessage === "function") {
+                  const get = root.i18n.getMessage;
+                  Object.defineProperty(root.i18n, "getMessage", {
+                    value: (name, ...rest) => (name ? get(name, ...rest) : ""), configurable: true, writable: true
+                  });
+                }
+                """
+        ),
+        Part(
+            defect: "W4: what WebKit lacks that a Firefox extension calls at its start: there, doing nothing",
+            source: """
+                put(root.webNavigation, "onCreatedNavigationTarget", event());
+                put(root.webRequest, "handlerBehaviorChanged", async () => {});
+                """
+        ),
+        Part(
+            defect: "W8: no update is ever announced to an extension here (Sunset installs updates itself)",
+            source: """
+                put(root.runtime, "onUpdateAvailable", event());
+                """
+        )
+    ]
+
+    /// The parts in one script, each under its defect, run for each namespace root.
+    static let script: String = {
+        let body = parts.map { "// \($0.defect)\n\($0.source)" }.joined(separator: "\n")
+        return """
+            (() => {
+              const roots = [globalThis.browser, globalThis.chrome].filter((r, i, all) => r && all.indexOf(r) === i);
+              const kept = [];
+              Object.defineProperty(globalThis, "__sunsetKeptNamespaces", { value: kept });
+              const put = (space, key, value) => {
+                if (space && !(key in space)) Object.defineProperty(space, key, { value, configurable: true, writable: true });
+              };
+              const event = () => ({ addListener() {}, removeListener() {}, hasListener() { return false; } });
+              for (const root of roots) {
+            \(body)
               }
-            }
-            // W2: an empty message name throws; Firefox and Chrome give "".
-            const i18n = root.i18n;
-            if (i18n && typeof i18n.getMessage === "function") {
-              const get = i18n.getMessage;
-              Object.defineProperty(i18n, "getMessage", {
-                value: (name, ...rest) => (name ? get(name, ...rest) : ""), configurable: true, writable: true
-              });
-            }
-            // W4: what WebKit lacks that a Firefox extension calls at its start: there, doing nothing.
-            put(root.webNavigation, "onCreatedNavigationTarget", event());
-            put(root.webRequest, "handlerBehaviorChanged", async () => {});
-          }
-        })();
-        """
+            })();
+            """
+    }()
 
     /// The script in every extension page of `configuration`'s controller, and Safari's features on there as in pages
     /// (W5: `requestIdleCallback`, off in an app's views).

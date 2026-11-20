@@ -46,7 +46,7 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W7 | `webRequest.addListener` refuses `ws://` and `wss://` match patterns | accepted | uBO on our WebKit (diary 2026-11-20-18) | none |
 | W6 | Blocking `webRequest` (MV2) not supported: `{cancel: true}` ignored, uBlock Origin's network filtering does nothing | supported | probed: diary 2026-11-20-16 | none (uBO Lite filters through `declarativeNetRequest`) |
 
-| W8 | `runtime.onUpdateAvailable` missing | present | uBO on our WebKit (diary 2026-11-20-19) | none |
+| W8 | `runtime.onUpdateAvailable` missing | present | uBO on our WebKit (diary 2026-11-20-19) | `ExtensionPageShim`: an inert event (diary 2026-11-20-21) |
 | W9 | A custom scheme (`abp:*`) refused in `menus.create`'s `targetUrlPatterns` | accepted | the same | none |
 | W10 | `webRequest` events missing for loads answered from the HTTP cache | fired | diary 2026-11-20-21 | none (the blocking path is held before the cache: 0012) |
 | W6d | An extension's redirect to its own file or to `data:` (a surrogate) fails as a block | internal redirect, loads | the same | none |
