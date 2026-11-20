@@ -160,4 +160,53 @@ struct ExtensionHostTests {
         }
         #expect(answer.contains("/shown") && answer.contains("normal"), "\(answer)")
     }
+
+    /// Seen 2026-11-20 (the owner: uBlock Origin from Firefox Add-ons draws nothing; probed, diary 2026-11-20-15): a Firefox
+    /// extension's pages meet WebKit's differences from Firefox: a method called apart from its namespace gives undefined, an
+    /// empty message name throws, an event WebKit lacks is undefined, `requestIdleCallback` is off. Sunset's script in
+    /// extension pages evens them out until our own WebKit fixes them (roadmap 0048 D).
+    @Test func `a Firefox extension's background page meets what Firefox gives`() async throws {
+        let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let folder = root.appending(path: "src")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let manifest = #"""
+            {"manifest_version": 2, "name": "Fox", "version": "1.0", "description": "A test.",
+             "permissions": ["webNavigation", "webRequest", "http://127.0.0.1/*"], "background": {"page": "b.html"},
+             "content_scripts": [{"matches": ["http://127.0.0.1/*"], "js": ["c.js"], "run_at": "document_end"}]}
+            """#
+        try Data(manifest.utf8).write(to: folder.appending(path: "manifest.json"))
+        try Data(#"<!doctype html><script src="b.js"></script>"#.utf8).write(to: folder.appending(path: "b.html"))
+        try Data(
+            """
+            const getURL = browser.runtime.getURL;
+            const seen = {};
+            const look = (name, f) => { try { seen[name] = f(); } catch (e) { seen[name] = "throws"; } };
+            look("detached", () => typeof getURL(""));
+            look("empty", () => browser.i18n.getMessage(""));
+            look("event", () => typeof browser.webNavigation.onCreatedNavigationTarget);
+            look("changed", () => typeof browser.webRequest.handlerBehaviorChanged);
+            look("idle", () => typeof requestIdleCallback);
+            browser.runtime.onMessage.addListener(() => Promise.resolve(seen));
+            """
+            .utf8
+        )
+        .write(to: folder.appending(path: "b.js"))
+        try Data(Self.content.utf8).write(to: folder.appending(path: "c.js"))
+        let profile = UUID()
+        ExtensionHosts.shared.root = root.appending(path: "Extensions")
+        defer { ExtensionHosts.shared.reset() }
+        let host = try #require(ExtensionHosts.shared.host(for: profile))
+        await host.ready()
+        try await host.install(ExtensionHost.read(folder))
+        let server = try EchoServer()
+        let found = try await dataset(of: "/fox", private: false, profile: profile, port: server.port)
+        let answer = try #require(found["worker"] as? String)
+        for part in [
+            #""detached":"string""#, #""empty":"""#, #""event":"object""#, #""changed":"function""#,
+            #""idle":"function""#
+        ] {
+            #expect(answer.contains(part), "\(part) in \(answer)")
+        }
+    }
 }

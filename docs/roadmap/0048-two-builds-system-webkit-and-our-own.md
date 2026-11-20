@@ -30,3 +30,17 @@ its form decided after the spike reassesses reliability, safety, convenience and
 
 Not done: nothing built of WebKit; the cost of keeping a fork current (security fixes between our builds) is R5's first
 risk and is the owner's to weigh after B.
+
+## WebKit patch candidates (step D)
+
+The owner, 2026-11-20: "we might want to keep some of those fixes for the patches on webkit later". Each defect found in
+WebKit is listed here with its repro; Sunset's stopgap names it, and goes when our WebKit fixes it.
+
+| Id | Defect (WebKit, Web Extensions) | Firefox / Chrome | Repro | Stopgap |
+|---|---|---|---|---|
+| W1 | A namespace's method called apart from it (`const f = browser.runtime.getURL; f("")`) gives `undefined` | the URL | `ExtensionHostTests` "a Firefox extension's background page…" (`detached`) | `ExtensionPageShim`: methods bound |
+| W2 | `i18n.getMessage("")` throws | `""` | same test (`empty`) | `ExtensionPageShim`: wrapped |
+| W3 | Properties added to a namespace object are lost when its wrapper is collected and made again | kept | diary 2026-11-20-15 | `ExtensionPageShim`: wrappers kept alive |
+| W4 | `webNavigation.onCreatedNavigationTarget`, `webRequest.handlerBehaviorChanged` missing | present | same test (`event`, `changed`) | `ExtensionPageShim`: inert stand-ins (no target navigation events, so uBO cannot block pop-ups that way) |
+| W5 | `requestIdleCallback` off in an app's views (extension pages included) | on | same test (`idle`) | `SafariParity` on the extension pages' configuration |
+| W6 | Blocking `webRequest` (MV2) not supported: uBlock Origin's network filtering does nothing | supported in Firefox | not probed yet | none |

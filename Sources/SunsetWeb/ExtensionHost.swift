@@ -47,9 +47,9 @@ package import WebKit
         store = ExtensionStore(root: root, profile: profile)
         self.runtime = runtime
         // A profile's own storage for its extensions; the default profile's is WebKit's default.
-        controller = WKWebExtensionController(
-            configuration: profile.map { WKWebExtensionController.Configuration(identifier: $0) } ?? .default()
-        )
+        let configuration = profile.map { WKWebExtensionController.Configuration(identifier: $0) } ?? .default()
+        ExtensionPageShim.install(on: configuration)
+        controller = WKWebExtensionController(configuration: configuration)
         delegate.host = self
         controller.delegate = delegate
         presentPopup = { [weak self] item, action in self?.showPopover(of: action, anchoredTo: item.id) }
