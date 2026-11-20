@@ -73,7 +73,7 @@ struct MediaAddressTests {
         return page
     }
 
-    @Test func `a picture's address shows the picture, no failure`() async throws {
+    @Test(.macOS27) func `a picture's address shows the picture, no failure`() async throws {
         let server = try EchoServer(files: ["/red.png": ("image/png", Self.png)])
         let page = try await open("/red.png", on: server)
         defer { page.stop() }
@@ -83,7 +83,7 @@ struct MediaAddressTests {
         #expect(width as? Int == 4, "WebKit's image document holds the picture")
     }
 
-    @Test func `a sound's or a film's address plays it in WebKit's media page, no failure`() async throws {
+    @Test(.macOS27) func `a sound's or a film's address plays it in WebKit's media page, no failure`() async throws {
         let server = try EchoServer(files: ["/silence.wav": ("audio/wav", Self.wav)])
         let page = try await open("/silence.wav", on: server)
         defer { page.stop() }

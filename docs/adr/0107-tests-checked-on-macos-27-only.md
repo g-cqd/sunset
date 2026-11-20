@@ -17,6 +17,8 @@ The window's corner radius, the eighth failure, was a fact about each system and
 
 The owner chose (2026-11-20) to run those seven on macOS 27 or later only: `@Test(.macOS27)`, a `ConditionTrait` in
 SunsetTestSupport whose skip says why and names task t129. Nothing else gets it without a failure on macOS 26 seen first.
+The two of `MediaAddressTests` got it so (2026-11-20, run 44718440660: a page from the test's server never done loading,
+as the user-agent tests').
 
 ## Consequences
 
