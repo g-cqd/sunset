@@ -28,11 +28,14 @@ ADR-0106 says why it is shaped this way.
   under `/tmp` (no user name in the app), signed with the Developer ID the owner confirmed as his,
   notarised and stapled; downloaded back, unzipped, quarantined: Gatekeeper accepts it ("Notarized Developer
   ID"). The tag's Release run was cancelled by hand (no secrets yet).
+- **v0.1.0-alpha.2 published** (2026-11-20), a pre-release, signed tag at 216a01d (the note on top of the build's f4ecffb):
+  the same way; 40 MB app, 20 MB zip (SHA-256 5167eeae…); downloaded back, checksum OK, quarantined: "Notarized Developer
+  ID", ticket stapled. The tag's Release run cancelled by hand again.
 
 ## Not done
 
 - The workflow has **not run on GitHub**: it needs the seven secrets at its top, which the owner adds.
 - Sunset's CI pins swift-ci by revision; the analyzers' versions are swift-ci's.
-- The app is arm64 only; no universal build.
+- The app is arm64 only; no universal build (both alphas say so).
 - swift-ci's `family repin` wrote `"kind" : "localSourceControl"` beside remote URLs into Sunset's three `Package.resolved`,
   which SwiftPM then refuses ("invalid absolute path"); fixed by hand here, not in swift-ci.
