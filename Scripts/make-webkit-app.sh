@@ -11,9 +11,10 @@
 # - WebKit's frameworks in Contents/Frameworks, its processes (XPC services) in Contents/XPCServices, where an app's own
 #   services are looked up (in the build folder they are links beside the frameworks: copied as links, nothing was found
 #   and WebKit fell back to the system's, which do not speak ours; seen 2026-11-20).
-# - A launcher (Engine/WebKit/launcher.c) is its executable: it points the loader at those frameworks, for Sunset and
-#   WebKit's processes, then runs Sunset. Not links rewritten: system frameworks AppKit loads link the system's WebKit, and
-#   with links rewritten both WebKits were in the process (seen 2026-11-20). ADR-0111.
+# - Sunset is its executable and, seeing the Info.plist key SunsetWebKitBase, runs itself again once with the loader
+#   pointed at those frameworks, for itself and WebKit's processes (BundledWebKit). Not a launcher: macOS honours the
+#   team's entitlements only for the main executable (a launcher's Sunset was killed, 2026-11-20). Not links rewritten:
+#   system frameworks AppKit loads link the system's WebKit, and both were in the process (2026-11-20). ADR-0111.
 # - Signed inside out like the native build (Signing.local.xcconfig's identity, else ad hoc), hardened, with timestamps;
 #   Sunset and WebKit's services with one exception, reading the loader's variables (notarization accepts it); library
 #   validation stays on. Then Scripts/notarize-app.sh as the native one.
@@ -57,12 +58,8 @@ for service in "$products"/*.xpc; do
     ditto "$service" "$services/$(basename "$service")"
 done
 
-# The launcher as the executable; Sunset beside it.
-clang -O2 -Wall -o "$app/Contents/MacOS/Sunset WebKit" "$here/Engine/WebKit/launcher.c"
-
 plist="$app/Contents/Info.plist"
 buddy=/usr/libexec/PlistBuddy
-$buddy -c "Set :CFBundleExecutable Sunset WebKit" "$plist"
 $buddy -c "Set :CFBundleIdentifier studio.aemi.sunset.webkit" "$plist"
 $buddy -c "Set :CFBundleName Sunset WebKit" "$plist"
 $buddy -c "Delete :CFBundleDisplayName" "$plist" 2>/dev/null || true
@@ -117,8 +114,7 @@ entitlements="$(mktemp -t sunset-webkit).plist"
 cp "$appEntitlements" "$entitlements"
 $buddy -c "Add :com.apple.security.cs.allow-dyld-environment-variables bool true" "$entitlements"
 sign "$entitlements" "$app/Contents/MacOS/Sunset"
-sign "$appEntitlements" "$app/Contents/MacOS/Sunset WebKit"
-sign "$appEntitlements" "$app"
+sign "$entitlements" "$app"
 rm -f "$entitlements" ${teamEntitlements:+"$teamEntitlements"}
 codesign --verify --deep --strict "$app" || { echo "make-webkit-app: the signature does not verify" >&2; exit 1; }
 

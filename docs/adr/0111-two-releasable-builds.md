@@ -25,8 +25,10 @@ Probed (diary 2026-11-20-23):
 2. **Sunset WebKit** (`Scripts/make-webkit-app.sh` on that build and a WebKit build of `Engine/WebKit`): its own
    identifier (`studio.aemi.sunset.webkit`), so its settings, profiles and website data are its own (a newer WebKit may
    change stores so the system's cannot read them). WebKit's frameworks in `Contents/Frameworks`, its processes in
-   `Contents/XPCServices`; a launcher (`Engine/WebKit/launcher.c`) as the executable sets the loader's variables to the
-   app's frameworks only (it removes any library insertion) and runs Sunset.
+   `Contents/XPCServices`. Sunset stays the executable and, seeing `SunsetWebKitBase` in its Info.plist, runs itself again
+   once with the loader's variables set to the app's frameworks only, any library insertion removed (`BundledWebKit`).
+   Not a launcher: macOS honours the team's entitlements (application identifier, keychain group) only for the main
+   executable; a launcher's Sunset was killed at start (the owner: "the webkit version does not start", 2026-11-20).
 3. Both signed with the team's Developer ID, hardened, timestamped, notarized and stapled by the same script. Sunset WebKit's
    binaries carry one more exception than Sunset's: reading the loader's variables; the web content process also JIT
    (as WebKit's own build). Library validation stays on: every framework carries the team's signature.
