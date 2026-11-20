@@ -58,4 +58,12 @@ struct AppBundleTests {
         #expect(project.contains("SUNSET_DISPLAY_NAME: Sunset Dev"))
         #expect(try plist()["CFBundleDisplayName"] as? String == "$(SUNSET_DISPLAY_NAME)")
     }
+
+    /// Seen on screen 2026-11-20: Load over HTTP failed, "the App Transport Security policy requires the use of a secure
+    /// connection". A browser's web views load plain http; the app's own requests keep the rule.
+    @Test func `the web views may load plain http, the app's own requests may not`() throws {
+        let project = try String(contentsOf: RepositoryFiles.root.appending(path: "project.yml"), encoding: .utf8)
+        #expect(project.contains("NSAllowsArbitraryLoadsInWebContent: true"))
+        #expect(!project.contains("NSAllowsArbitraryLoads: true"))
+    }
 }

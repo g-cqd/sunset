@@ -71,6 +71,10 @@ targets:
             CFBundleTypeRole: Viewer
             CFBundleURLSchemes: [http, https]
         # What Sunset can be chosen to open (Open With); it never makes itself the app that opens them (ADR-0040).
+        # Pages over plain http load in the web views (a browser's: Load over HTTP, a site with no HTTPS); the app's own
+        # requests keep App Transport Security's rule (diary 2026-11-20-10).
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoadsInWebContent: true
         CFBundleDocumentTypes:
           - CFBundleTypeName: Markdown document
             CFBundleTypeRole: Editor

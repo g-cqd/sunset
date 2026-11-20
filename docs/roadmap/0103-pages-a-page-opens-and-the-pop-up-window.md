@@ -32,8 +32,9 @@ a window of its own for pop-ups (below, part B).
 Not done in A:
 - A **picture's** address opened in a tab shows the picture here (a PNG from a local server): the owner's failing picture is
   not reproduced; an address that fails is needed.
-- Look Up, Translate, Copy Link with Highlight, Share, Speech, Copy Image, Inspect Element: WebKit's own, not tried.
-- Open Link in New Window and Private Tab: run (their tag kept), not pictured.
+- WebKit's own items (Look Up, Translate, Copy, Copy Link with Highlight, Share, Speech, Copy Image, Inspect Element),
+  Open Link in New Window and in Private Tab, Load over HTTP: all seen working (diary 2026-11-20-10); Speech's sound not
+  checked.
 
 ## B — the pop-up window (not started)
 
