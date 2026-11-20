@@ -1,0 +1,321 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 22:48:33 +0100
+Subject: [PATCH 13/14] Web Extensions: blocking webRequest.onBeforeRequest can
+ redirect a request (Sunset W6b)
+
+A blocking listener's { redirectUrl } now redirects the request, as in Firefox and Chrome (Manifest V2); uBlock Origin
+replaces scripts with neutered ones this way. A cancel from any listener wins; otherwise the first redirect given.
+
+The network process turns it into a synthetic redirect (ResourceResponse::syntheticRedirectResponse), as WebKit's own
+checker does, so the web process checks it as any other redirect (CORS, CSP, mixed content) before the load goes on.
+The replies along the way (extension's process, UI process, network process) carry the URL beside the cancel.
+
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+index 30f6e6a10..4f84c01d8 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+@@ -325,7 +325,7 @@ void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, b
+     // the network (as in Firefox and Chrome). Held only for pages whose extensions have one; never a synchronous load.
+     if (m_parameters.pageHasBlockingWebRequestListeners && !m_didAskWebRequestListeners && !isSynchronous()) {
+         m_didAskWebRequestListeners = true;
+-        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(webPageProxyID(), resourceLoadInfo(), request), [weakThis = WeakPtr { *this }, request = WTF::move(request), useCache](bool cancel) mutable {
++        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(webPageProxyID(), resourceLoadInfo(), request), [weakThis = WeakPtr { *this }, request = WTF::move(request), useCache](bool cancel, URL&& redirectURL) mutable {
+             RefPtr protectedThis = weakThis.get();
+             if (!protectedThis)
+                 return;
+@@ -335,6 +335,17 @@ void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, b
+                 return;
+             }
+ 
++            if (redirectURL.isValid() && redirectURL != request.url()) {
++                // A redirect the web process checks as any other (CORS, CSP, mixed content), as WebKit's own synthetic
++                // redirects are: the load goes on with the new request once the web process agrees.
++                auto redirectResponse = ResourceResponse::syntheticRedirectResponse(request.url(), redirectURL);
++                ResourceRequest redirectRequest { request };
++                redirectRequest.setURL(WTF::move(redirectURL));
++                protectedThis->m_isWaitingContinueWillSendRequestForCachedRedirect = true;
++                protectedThis->willSendRedirectedRequest(WTF::move(request), WTF::move(redirectRequest), WTF::move(redirectResponse), [](auto) { });
++                return;
++            }
++
+             protectedThis->startCacheOrNetworkLoad(WTF::move(request), useCache);
+         }, 0);
+         return;
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+index ca36c1a61..206a7f418 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+@@ -1969,8 +1969,8 @@ void WebExtensionContext::resourceLoadWillSendRequest(WebPageProxyIdentifier pag
+ 
+     for (auto& process : blockingProcesses) {
+         decision.expect();
+-        process->sendWithAsyncReply(Messages::WebExtensionContextProxy::ResourceLoadWillSendRequest(tabIdentifier, windowIdentifier, request, loadInfo), [decision = Ref { decision }](bool cancel) {
+-            decision->add(cancel);
++        process->sendWithAsyncReply(Messages::WebExtensionContextProxy::ResourceLoadWillSendRequest(tabIdentifier, windowIdentifier, request, loadInfo), [decision = Ref { decision }](bool cancel, URL&& redirectURL) {
++            decision->add(cancel, WTF::move(redirectURL));
+         }, identifier());
+     }
+ }
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
+index ee33f8b54..dcbe6d79d 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
+@@ -360,7 +360,7 @@ void WebExtensionController::resourceLoadDidSendRequest(WebPageProxyIdentifier p
+         context->resourceLoadDidSendRequest(pageID, loadInfo, request);
+ }
+ 
+-void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceRequest& request, CompletionHandler<void(bool cancel)>&& completionHandler)
++void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceRequest& request, CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
+ {
+     // The answers of every extension with blocking listeners; a load is not held longer than this, whatever an extension does.
+     static constexpr Seconds maximumWait { 2_s };
+@@ -373,7 +373,7 @@ void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier
+         if (context->hasBlockingWebRequestListeners())
+             context->resourceLoadWillSendRequest(pageID, loadInfo, request, decision);
+     }
+-    decision->add(false);
++    decision->add(false, { });
+ 
+     if (decision->isFinished())
+         return;
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+index dc9831867..fd82c5b1b 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+@@ -182,11 +182,12 @@ struct WebExtensionMessageTargetParameters;
+ struct ContentRuleListMatchedRule;
+ #endif
+ 
+-// The answers of blocking webRequest listeners to one request: the load is cancelled when any of them says so. Answered
+-// once: when the last expected answer is in, or at finish() (the time limit), whichever is first.
++// The answers of blocking webRequest listeners to one request: the load is cancelled when any of them says so, else
++// redirected to the first redirect given. Answered once: when the last expected answer is in, or at finish() (the time
++// limit), whichever is first.
+ class WebExtensionWebRequestDecision : public RefCounted<WebExtensionWebRequestDecision> {
+ public:
+-    static Ref<WebExtensionWebRequestDecision> create(CompletionHandler<void(bool cancel)>&& completionHandler)
++    static Ref<WebExtensionWebRequestDecision> create(CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
+     {
+         return adoptRef(*new WebExtensionWebRequestDecision(WTF::move(completionHandler)));
+     }
+@@ -195,9 +196,11 @@ public:
+ 
+     void expect() { ++m_expected; }
+ 
+-    void add(bool cancel)
++    void add(bool cancel, URL&& redirectURL)
+     {
+         m_cancel = m_cancel || cancel;
++        if (!m_redirectURL.isValid() && redirectURL.isValid())
++            m_redirectURL = WTF::move(redirectURL);
+         if (m_expected && !--m_expected)
+             finish();
+     }
+@@ -205,18 +208,19 @@ public:
+     void finish()
+     {
+         if (m_completionHandler)
+-            m_completionHandler(m_cancel);
++            m_completionHandler(m_cancel, m_cancel ? URL { } : URL { m_redirectURL });
+     }
+ 
+     bool isFinished() const { return !m_completionHandler; }
+ 
+ private:
+-    explicit WebExtensionWebRequestDecision(CompletionHandler<void(bool cancel)>&& completionHandler)
++    explicit WebExtensionWebRequestDecision(CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
+         : m_completionHandler(WTF::move(completionHandler))
+     {
+     }
+ 
+-    CompletionHandler<void(bool cancel)> m_completionHandler;
++    CompletionHandler<void(bool cancel, URL&& redirectURL)> m_completionHandler;
++    URL m_redirectURL;
+     unsigned m_expected { 0 };
+     bool m_cancel { false };
+ };
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionController.h b/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
+index 0d4790193..5b4220a3a 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
+@@ -188,7 +188,7 @@ public:
+     void updateWebsitePoliciesForNavigation(API::WebsitePolicies&, API::NavigationAction&);
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&);
+-    void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, CompletionHandler<void(bool cancel)>&&);
++    void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, CompletionHandler<void(bool cancel, URL&& redirectURL)>&&);
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&, const WebCore::ResourceRequest&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::AuthenticationChallenge&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&);
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
+index ae9fdec96..d99e1df94 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
+@@ -739,11 +739,11 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
+         page->logDiagnosticMessageWithValue(message, description, value, significantFigures, shouldSample);
+ }
+ 
+-void NetworkProcessProxy::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel)>&& completionHandler)
++void NetworkProcessProxy::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
+ {
+     RefPtr page = WebProcessProxy::webPage(pageID);
+     if (!page) {
+-        completionHandler(false);
++        completionHandler(false, { });
+         return;
+     }
+ 
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
+index 76118c514..4d4fa5582 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
+@@ -308,7 +308,7 @@ public:
+     void handOverTransferredImageBuffers(Vector<WebCore::ImageBufferTransferIdentifier>&&, WebCore::ProcessIdentifier destinationProcess);
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, std::optional<IPC::FormDataReference>&&);
+-    void resourceLoadWillSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel)>&&);
++    void resourceLoadWillSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL)>&&);
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&, WebCore::ResourceRequest&&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&);
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
+index 5fb2fd5b9..e3fcce76f 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
+@@ -71,7 +71,7 @@ messages -> NetworkProcessProxy WantsDispatchMessage {
+     IncreaseQuota(PAL::SessionID sessionID, struct WebCore::ClientOrigin origin, WebKit::QuotaIncreaseRequestIdentifier identifier, uint64_t quota, uint64_t currentSize, uint64_t spaceRequested)
+ 
+     ResourceLoadDidSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request, std::optional<IPC::FormDataReference> httpBody)
+-    ResourceLoadWillSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request) -> (bool cancel)
++    ResourceLoadWillSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request) -> (bool cancel, URL redirectURL)
+     ResourceLoadDidPerformHTTPRedirection(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse resourceResponse, WebCore::ResourceRequest request)
+     ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
+     ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
+diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
+index 3de201f18..0fc96efb5 100644
+--- a/Source/WebKit/UIProcess/WebPageProxy.cpp
++++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
+@@ -14826,7 +14826,7 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
+ }
+ #endif
+ 
+-void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel)>&& completionHandler)
++void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
+ {
+ #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
+     if (RefPtr webExtensionController = this->webExtensionController()) {
+@@ -14837,7 +14837,7 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
+ #endif
+     UNUSED_PARAM(loadInfo);
+     UNUSED_PARAM(request);
+-    completionHandler(false);
++    completionHandler(false, { });
+ }
+ 
+ void WebPageProxy::resourceLoadDidSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request)
+diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
+index 9b39d14ed..45c224c4c 100644
+--- a/Source/WebKit/UIProcess/WebPageProxy.h
++++ b/Source/WebKit/UIProcess/WebPageProxy.h
+@@ -933,7 +933,7 @@ public:
+     NODELETE GeolocationPermissionRequestManagerProxy& geolocationPermissionRequestManager() LIFETIME_BOUND;
+ 
+     void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);
+-    void resourceLoadWillSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel)>&&);
++    void resourceLoadWillSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL)>&&);
+     void resourceLoadDidPerformHTTPRedirection(ResourceLoadInfo&&, WebCore::ResourceResponse&&, WebCore::ResourceRequest&&);
+     void resourceLoadDidReceiveChallenge(ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&);
+     void resourceLoadDidReceiveResponse(ResourceLoadInfo&&, WebCore::ResourceResponse&&);
+diff --git a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+index 80451ec1b..e675ffaad 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
++++ b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+@@ -307,15 +307,17 @@ static NSMutableDictionary *headersReceivedDetails(const ResourceLoadInfo& resou
+     return details;
+ }
+ 
+-void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceRequest&, const ResourceLoadInfo& resourceLoad, CompletionHandler<void(bool cancel)>&& completionHandler)
++void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceRequest&, const ResourceLoadInfo& resourceLoad, CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
+ {
+     // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRequest
+-    // A blocking listener's answer: { cancel: true } fails the load.
++    // A blocking listener's answer: { cancel: true } fails the load; { redirectUrl } redirects it (the first one given).
+ 
+     static NeverDestroyed<RefPtr<OpaqueJSString>> cancelName = OpaqueJSString::tryCreate("cancel"_s);
++    static NeverDestroyed<RefPtr<OpaqueJSString>> redirectURLName = OpaqueJSString::tryCreate("redirectUrl"_s);
+ 
+     RetainPtr<NSDictionary> details;
+     bool cancel = false;
++    URL redirectURL;
+ 
+     enumerateNamespaceObjects([&](auto& namespaceObject) {
+         protect(protect(namespaceObject.webRequest())->onBeforeRequest())->enumerateListeners(tabID, windowID, resourceLoad, [&](auto& listener, auto& extraInfo) {
+@@ -330,13 +332,23 @@ void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdenti
+             if (!result || !JSValueIsObject(context, result))
+                 return;
+ 
+-            auto cancelValue = JSObjectGetProperty(context, JSValueToObject(context, result, nullptr), cancelName.get().get(), nullptr);
++            auto resultObject = JSValueToObject(context, result, nullptr);
++            auto cancelValue = JSObjectGetProperty(context, resultObject, cancelName.get().get(), nullptr);
+             if (cancelValue && JSValueToBoolean(context, cancelValue))
+                 cancel = true;
++
++            if (redirectURL.isValid())
++                return;
++            auto redirectValue = JSObjectGetProperty(context, resultObject, redirectURLName.get().get(), nullptr);
++            if (!redirectValue || !JSValueIsString(context, redirectValue))
++                return;
++            auto redirectString = adopt(JSValueToStringCopy(context, redirectValue, nullptr));
++            if (URL candidate { redirectString->string() }; candidate.isValid())
++                redirectURL = WTF::move(candidate);
+         });
+     });
+ 
+-    completionHandler(cancel);
++    completionHandler(cancel, WTF::move(redirectURL));
+ }
+ 
+ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceRequest& request, const ResourceLoadInfo& resourceLoad, const std::optional<IPC::FormDataReference>& formDataOptional)
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
+index ddc85289d..47780cdc2 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
+@@ -281,7 +281,7 @@ private:
+     // Web Navigation
+     void dispatchWebNavigationEvent(WebExtensionEventListenerType, WebExtensionTabIdentifier, const WebExtensionFrameParameters&, WallTime);
+ 
+-    void resourceLoadWillSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, CompletionHandler<void(bool cancel)>&&);
++    void resourceLoadWillSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, CompletionHandler<void(bool cancel, URL&& redirectURL)>&&);
+     void dispatchWebNavigationCreatedNavigationTargetEvent(WebExtensionTabIdentifier sourceTabID, WebExtensionFrameIdentifier sourceFrameID, WebExtensionTabIdentifier tabID, const URL&, WallTime);
+ 
+     // Web Request
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
+index 5b967ecb4..9c9696866 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
+@@ -118,7 +118,7 @@ messages -> WebExtensionContextProxy {
+ 
+     // Web Request
+     SetHasBlockingWebRequestListeners(bool hasListeners)
+-    ResourceLoadWillSendRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceRequest request, struct WebKit::ResourceLoadInfo resourceLoadInfo) -> (bool cancel)
++    ResourceLoadWillSendRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceRequest request, struct WebKit::ResourceLoadInfo resourceLoadInfo) -> (bool cancel, URL redirectURL)
+     ResourceLoadDidSendRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceRequest request, struct WebKit::ResourceLoadInfo resourceLoadInfo, std::optional<IPC::FormDataReference> formData)
+     ResourceLoadDidBlockBeforeRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo)
+     ResourceLoadDidPerformHTTPRedirection(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceResponse response, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest newRequest)
+diff --git a/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp b/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
+index 8c291bd10..d1d3d88fc 100644
+--- a/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
++++ b/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
+@@ -128,9 +128,9 @@ void WebExtensionContextProxy::dispatchWebNavigationCreatedNavigationTargetEvent
+     notImplemented();
+ }
+ 
+-void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, CompletionHandler<void(bool)>&& completionHandler)
++void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, CompletionHandler<void(bool, URL&&)>&& completionHandler)
+ {
+-    completionHandler(false);
++    completionHandler(false, { });
+ }
+ 
+ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, const std::optional<IPC::FormDataReference>&)

@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 21:27:36 +0100
-Subject: [PATCH 09/11] Web Extensions: test
+Subject: [PATCH 09/14] Web Extensions: test
  webNavigation.onCreatedNavigationTarget (Sunset W4)
 
 WKWebExtensionAPIWebNavigationTests.createdNavigationTargetEvent: a page opens a window; the event comes with the opener

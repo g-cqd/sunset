@@ -1,0 +1,113 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 22:48:22 +0100
+Subject: [PATCH 12/14] Web Extensions: blocking webRequest decides before the
+ HTTP cache too (Sunset W6a)
+
+The load was held in continueStartNetworkLoad, which a load answered from the HTTP cache never reaches: a cached
+script was never shown to a blocking listener (seen with uBlock Origin: its ads page, loaded before, blocked nothing).
+Firefox and Chrome call onBeforeRequest before the cache is consulted.
+
+The hold moves to startCacheOrNetworkLoad, the one step both of startRequest's paths now take before choosing the cache
+or the network (the choice made by the caller as before, kept across the hold).
+
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+index 8ca5bb5ef..30f6e6a10 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+@@ -306,24 +306,47 @@ void NetworkResourceLoader::startRequest(const ResourceRequest& newRequest)
+                 },
+                 [protectedThis] (ResourceRequest& request) {
+                     LOADER_RELEASE_LOG_WITH_THIS(protectedThis, "start: NetworkLoadChecker::check is done");
+-                    if (protectedThis->canUseCache(request)) {
+-                        protectedThis->retrieveCacheEntry(request);
+-                        return;
+-                    }
+-
+-                    protectedThis->startNetworkLoad(WTF::move(request), FirstLoad::Yes);
++                    bool useCache = protectedThis->canUseCache(request);
++                    protectedThis->startCacheOrNetworkLoad(WTF::move(request), useCache);
+                 }
+             );
+         });
+         return;
+     }
+     // FIXME: Remove that code path once m_networkLoadChecker is used for all network loads.
+-    if (canUseCache(newRequest)) {
+-        retrieveCacheEntry(originalRequest());
++    bool useCache = canUseCache(newRequest);
++    startCacheOrNetworkLoad(useCache ? ResourceRequest { originalRequest() } : ResourceRequest { newRequest }, useCache);
++}
++
++void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, bool useCache)
++{
++#if ENABLE(WK_WEB_EXTENSIONS)
++    // An extension's blocking webRequest listener decides before the request is answered, from the cache as well as from
++    // the network (as in Firefox and Chrome). Held only for pages whose extensions have one; never a synchronous load.
++    if (m_parameters.pageHasBlockingWebRequestListeners && !m_didAskWebRequestListeners && !isSynchronous()) {
++        m_didAskWebRequestListeners = true;
++        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(webPageProxyID(), resourceLoadInfo(), request), [weakThis = WeakPtr { *this }, request = WTF::move(request), useCache](bool cancel) mutable {
++            RefPtr protectedThis = weakThis.get();
++            if (!protectedThis)
++                return;
++
++            if (cancel) {
++                protectedThis->didFailLoading(blockedByContentBlockerError(request));
++                return;
++            }
++
++            protectedThis->startCacheOrNetworkLoad(WTF::move(request), useCache);
++        }, 0);
+         return;
+     }
++#endif
+ 
+-    startNetworkLoad(ResourceRequest { newRequest }, FirstLoad::Yes);
++    if (useCache) {
++        retrieveCacheEntry(request);
++        return;
++    }
++
++    startNetworkLoad(WTF::move(request), FirstLoad::Yes);
+ }
+ 
+ #if ENABLE(CONTENT_FILTERING)
+@@ -563,26 +586,6 @@ void NetworkResourceLoader::continueStartNetworkLoad(ResourceRequest&& request,
+         return;
+     }
+ 
+-#if ENABLE(WK_WEB_EXTENSIONS)
+-    // An extension's blocking webRequest listener decides before the request is sent (held; never a synchronous load).
+-    if (m_parameters.pageHasBlockingWebRequestListeners && !m_didAskWebRequestListeners && !isSynchronous()) {
+-        m_didAskWebRequestListeners = true;
+-        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(webPageProxyID(), resourceLoadInfo(), request), [weakThis = WeakPtr { *this }, request = WTF::move(request), parameters = WTF::move(parameters)](bool cancel) mutable {
+-            RefPtr protectedThis = weakThis.get();
+-            if (!protectedThis)
+-                return;
+-
+-            if (cancel) {
+-                protectedThis->didFailLoading(blockedByContentBlockerError(request));
+-                return;
+-            }
+-
+-            protectedThis->continueStartNetworkLoad(WTF::move(request), WTF::move(parameters));
+-        }, 0);
+-        return;
+-    }
+-#endif
+-
+     if (shouldSendResourceLoadMessages()) {
+         std::optional<IPC::FormDataReference> httpBody;
+         if (RefPtr formData = request.httpBody()) {
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+index 5bf129eaa..f51c95635 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+@@ -340,6 +340,7 @@ private:
+     std::optional<WebCore::NetworkLoadMetrics> computeResponseMetrics(const WebCore::ResourceResponse&) const;
+ 
+     void startRequest(const WebCore::ResourceRequest&);
++    void startCacheOrNetworkLoad(WebCore::ResourceRequest&&, bool useCache);
+     bool abortIfServiceWorkersOnly();
+ 
+     NODELETE bool shouldSendResourceLoadMessages() const;

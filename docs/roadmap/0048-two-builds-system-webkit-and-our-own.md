@@ -48,10 +48,12 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 
 | W8 | `runtime.onUpdateAvailable` missing | present | uBO on our WebKit (diary 2026-11-20-19) | none |
 | W9 | A custom scheme (`abp:*`) refused in `menus.create`'s `targetUrlPatterns` | accepted | the same | none |
+| W10 | `webRequest` events missing for loads answered from the HTTP cache | fired | diary 2026-11-20-21 | none (the blocking path is held before the cache: 0012) |
+| W6d | An extension's redirect to its own file or to `data:` (a surrogate) fails as a block | internal redirect, loads | the same | none |
 
 Patched in our WebKit (`Engine/WebKit/patches`): W2 (0001), W3 (0002, its test 0003), W1 (0004, its test 0005), W7 (0006,
-0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011; redirect and headers not
-yet); W1 and W3 redone after the owner's audit, measured against the base (diary 2026-11-20-20); the
+0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011, before the cache 0012) and redirect (0013, 0014; to http(s) only, W6d), headers not yet;
+uBlock Origin filters on our WebKit with Sunset's shim; W1 and W3 redone after the owner's audit, measured against the base (diary 2026-11-20-20); the
 stopgaps in `ExtensionPageShim` stay for the system's WebKit.
 
 Where each lives in WebKit and the patch for it: `docs/research/webkit-extension-patches-2026-11-20.md`. W1–W3 are small and

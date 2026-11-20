@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 22:48:34 +0100
+Subject: [PATCH 14/14] Web Extensions: test that a blocking webRequest
+ listener redirects a request (Sunset W6b)
+
+WKWebExtensionAPIWebRequestTests.blockingListenerRedirectsRequest: a listener redirects /old.txt to /new.txt; a fetch
+of /old.txt gives the new text.
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index 8e5f17a80..65b5fc393 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -167,6 +167,59 @@ struct WKWebExtensionAPIWebRequestTests {
+         }
+     }
+ 
++    // A blocking onBeforeRequest listener's { redirectUrl } redirects the request, as in Firefox and Chrome (Manifest V2);
++    // uBlock Origin replaces scripts with its own neutered ones this way.
++    @Test
++    func blockingListenerRedirectsRequest() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                ""
++            }
++            Route("/old.txt", headerFields: ["Content-Type": "text/plain"]) {
++                "old"
++            }
++            Route("/new.txt", headerFields: ["Content-Type": "text/plain"]) {
++                "new"
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            browser.webRequest.onBeforeRequest.addListener((details) => {
++                if (details.url.endsWith('/old.txt'))
++                    return { redirectUrl: details.url.replace('/old.txt', '/new.txt') }
++            }, { urls: ['<all_urls>'] }, ['blocking'])
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++
++            let text = try await webView.callAsyncJavaScript("return await fetch('/old.txt').then((response) => response.text(), () => 'failed')", contentWorld: .page) as? String
++
++            #expect(text == "new")
++        }
++    }
++
+     @Test
+     func manifestV2Persistent() async throws {
+         let backgroundScript = """

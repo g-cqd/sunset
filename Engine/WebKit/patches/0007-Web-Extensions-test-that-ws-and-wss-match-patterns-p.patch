@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 20:54:29 +0100
-Subject: [PATCH 07/11] Web Extensions: test that ws and wss match patterns
+Subject: [PATCH 07/14] Web Extensions: test that ws and wss match patterns
  parse (Sunset W7)
 
 WKWebExtensionMatchPatternTests.webSocketSchemes and WKWebExtensionAPIWebRequestTests.webSocketMatchPatternsInFilter;

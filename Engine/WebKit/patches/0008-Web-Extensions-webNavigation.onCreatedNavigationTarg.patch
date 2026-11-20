@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 21:27:34 +0100
-Subject: [PATCH 08/11] Web Extensions: webNavigation.onCreatedNavigationTarget
+Subject: [PATCH 08/14] Web Extensions: webNavigation.onCreatedNavigationTarget
  (Sunset W4)
 
 A page that opens a window (window.open, a link with a target) now gives webNavigation.onCreatedNavigationTarget, with

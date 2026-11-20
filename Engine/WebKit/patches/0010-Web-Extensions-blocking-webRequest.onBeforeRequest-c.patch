@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 22:18:52 +0100
-Subject: [PATCH 10/11] Web Extensions: blocking webRequest.onBeforeRequest can
+Subject: [PATCH 10/14] Web Extensions: blocking webRequest.onBeforeRequest can
  cancel a request (Sunset W6a)
 
 A Manifest V2 extension's onBeforeRequest listener added with ["blocking"] now decides before the request is sent:
