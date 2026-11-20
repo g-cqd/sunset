@@ -12,7 +12,8 @@ struct ForceReloadTests {
     @Test func `a page offers Reload and Force Reload in its tab's menu, loading or not`() {
         let page = WebContent(url: URL(string: "https://example.org/"), settings: WebSettings())
         let titles = page.menuActions.map(\.title)
-        #expect(titles.contains("Reload Page") && titles.contains("Force Reload Page"))
+        #expect(titles.contains("Reload Page"))
+        #expect(page.menuActions.first { $0.title == "Reload Page" }?.alternate?.title == "Force Reload Page")
     }
 
     @Test func `a force reload clears a crashed page's failure and makes its view again`() {

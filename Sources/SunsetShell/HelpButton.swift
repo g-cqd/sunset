@@ -21,6 +21,6 @@ package struct HelpButton: View {
         .buttonStyle(.plain)
         .helpTopic(topic)
         .accessibilityLabel("Help: \(HelpCatalog.entry(topic).title)")
-        .popover(isPresented: $shown, arrowEdge: .trailing) { HelpPopover(topic: topic) }
+        .popover(isPresented: $shown, arrowEdge: .trailing) { HelpPopover(topic: topic).solidPopoverBackground() }
     }
 }

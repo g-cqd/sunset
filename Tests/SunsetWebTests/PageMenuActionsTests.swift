@@ -13,7 +13,7 @@ struct PageMenuActionsTests {
         let page = WebContent(url: URL(string: "https://example.org/"), settings: WebSettings(applicationName: "x"))
         #expect(
             page.menuActions.map(\.title) == [
-                "Reload Page", "Force Reload Page", "Copy Address", "Site Settings\u{2026}"
+                "Reload Page", "Copy Address", "Site Settings\u{2026}"
             ]
         )
         let empty = WebContent(url: nil, settings: WebSettings(applicationName: "x"))

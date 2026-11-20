@@ -35,11 +35,14 @@ package struct DownloadsButton: View {
             }
         }
         .popover(isPresented: Binding(get: { shown != nil }, set: { if !$0 { shown = nil } }), arrowEdge: .top) {
-            if shown == .list {
-                DownloadsList(center: center)
-            } else if let latest = center.latest {
-                DownloadCard(item: latest)
+            Group {
+                if shown == .list {
+                    DownloadsList(center: center)
+                } else if let latest = center.latest {
+                    DownloadCard(item: latest)
+                }
             }
+            .solidPopoverBackground()
         }
     }
 }

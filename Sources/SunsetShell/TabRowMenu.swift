@@ -30,8 +30,10 @@ struct TabRowMenu: View {
         TabKeepMenu(tabs: tabs, item: item, animation: animation)
         KeepAwakeMenu(tabs: tabs, item: item)
         Divider()
+        // Close Other Tabs with Option, as macOS's own menus keep their less used items (the owner, 2026-11-20, task t135).
         Button("Close Tab") { tabs.close(item: item) }
-        Button("Close Other Tabs") { tabs.closeOthers(than: item) }
-            .disabled(tabs.workspace.count < 2)
+            .modifierKeyAlternate(.option) {
+                Button("Close Other Tabs") { tabs.closeOthers(than: item) }.disabled(tabs.workspace.count < 2)
+            }
     }
 }

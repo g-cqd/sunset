@@ -155,7 +155,7 @@ struct PinnedGrid: View {
                 set: { if !$0, tabs.renamingRow == .node(entry.id) { tabs.renamingRow = nil } }
             ),
             arrowEdge: .trailing
-        ) { PinnedRename(tabs: tabs, entry: entry) }
+        ) { PinnedRename(tabs: tabs, entry: entry).solidPopoverBackground() }
     }
 
     /// What a tile is called: the name it was given, else its content's title, else what it starts from.

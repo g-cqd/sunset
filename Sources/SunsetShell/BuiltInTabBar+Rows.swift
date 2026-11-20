@@ -94,7 +94,9 @@ extension BuiltInTabBar {
             KeepAwakeMenu(tabs: tabs, item: item.id)
             Divider()
             Button("Close Tab") { tabs.close(item: item.id) }
-            Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }.disabled(tabs.workspace.count < 2)
+                .modifierKeyAlternate(.option) {
+                    Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }.disabled(tabs.workspace.count < 2)
+                }
         }
     }
 

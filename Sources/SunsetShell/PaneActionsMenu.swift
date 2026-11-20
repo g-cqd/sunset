@@ -38,6 +38,13 @@ struct PaneActionsMenu: View {
     }
 
     private func button(_ action: PaneMenuAction, of pane: PaneID) -> some View {
+        plain(action, of: pane)
+            .modifierKeyAlternate(.option) {
+                if let alternate = action.alternate { plain(alternate, of: pane) }
+            }
+    }
+
+    private func plain(_ action: PaneMenuAction, of pane: PaneID) -> some View {
         Button(action.title) {
             show()
             tabs.focus(pane)

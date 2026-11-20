@@ -38,16 +38,29 @@ struct KeptEntryMenu: View {
             Button("Rename") { tabs.renamingRow = .node(entry.id) }
             Button("Change Icon\u{2026}") { tabs.iconRow = .node(entry.id) }
         }
-        if runsTerminal { Button("Edit Command\u{2026}") { tabs.editingCommand = entry.id } }
-        if runsTerminal, entry.isOpen, entry.command != nil {
-            Button("Run Command Now") { keeper.runCommandNow(entry.id) }.disabled(!keeper.isTrusted(entry.id))
+        // Run Command Now with Option (task t135).
+        if runsTerminal {
+            Button("Edit Command\u{2026}") { tabs.editingCommand = entry.id }
+                .modifierKeyAlternate(.option) {
+                    if entry.isOpen, entry.command != nil {
+                        Button("Run Command Now") { keeper.runCommandNow(entry.id) }
+                            .disabled(!keeper.isTrusted(entry.id))
+                    }
+                }
         }
         PaneActionsMenu(tabs: tabs, panes: entry.open?.panes ?? []) { tabs.select(entry: entry.id) }
         Divider()
         // Where it starts from: gone back to, or set to where it is now.
+        // Set it to where it is now with Option, open (task t135).
         Button(isPinned ? "Reset to Where It Was Pinned" : "Reset to Home") { tabs.reset(entry: entry.id) }
+            .modifierKeyAlternate(.option) {
+                if entry.isOpen {
+                    Button(isPinned ? "Pin Where It Is Now" : "Set Home to Current") {
+                        keeper.setHomeToCurrent(entry.id)
+                    }
+                }
+            }
         if entry.isOpen {
-            Button(isPinned ? "Pin Where It Is Now" : "Set Home to Current") { keeper.setHomeToCurrent(entry.id) }
             Button("Unload") { tabs.unload(entry: entry.id) }
             if let open = entry.open, open.isSplit {
                 // Any pane out of a kept split, into a tab of its own (the owner, 2026-11-17).

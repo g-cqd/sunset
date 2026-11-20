@@ -99,6 +99,12 @@ final class AppActions {
         }
     }
 
+    /// Every tab of the key window's Space but the one it shows (⌥⌘W, as Safari's).
+    func closeOtherTabs() {
+        guard let tabs = keyTabs, let shown = tabs.shownItem else { return }
+        tabs.closeOthers(than: shown.id)
+    }
+
     func closeWindow() {
         TabRegistry.shared.actingWindow?.performClose(nil)
     }

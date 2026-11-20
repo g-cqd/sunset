@@ -15,12 +15,13 @@ extension WebContent {
         url == nil && webView?.url == nil
     }
 
-    /// What a page adds to its tab's menu: Reload, Copy Address, and its site's settings, shown beside its address.
+    /// What a page adds to its tab's menu: Reload (Force Reload with Option), Copy Address, and its site's settings, shown
+    /// beside its address.
     package var menuActions: [PaneMenuAction] {
         guard url != nil else { return [] }
         return [
-            PaneMenuAction("Reload Page") { [weak self] in self?.reload() },
-            PaneMenuAction("Force Reload Page") { [weak self] in self?.forceReload() },
+            PaneMenuAction("Reload Page") { [weak self] in self?.reload() }
+                .withOption(PaneMenuAction("Force Reload Page") { [weak self] in self?.forceReload() }),
             reloadAsAction,
             PaneMenuAction("Copy Address") { [weak self] in if let self { Feedback.give(copyAddress()) } },
             PaneMenuAction("Site Settings\u{2026}") { [weak self] in self?.showsSiteSettings = true }

@@ -137,7 +137,9 @@ package struct AddressField: View {
         // Stuck loading, or its process hung (n50): Reload and Force Reload are there while it loads too.
         if content.isLoading { Button("Stop") { content.stopLoading() } }
         Button("Reload") { content.reload() }.disabled(content.url == nil)
-        Button("Force Reload") { content.forceReload() }.disabled(content.url == nil)
+            .modifierKeyAlternate(.option) {
+                Button("Force Reload") { content.forceReload() }.disabled(content.url == nil)
+            }
         // The same page, loaded again with another profile's data (roadmap 0050 D).
         if let reloadAs = content.reloadAsAction {
             Menu(reloadAs.title) {

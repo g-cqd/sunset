@@ -22,7 +22,7 @@ struct SiteButton: View {
             .padding(.horizontal, Design.Space.xs)
         }
         .popover(isPresented: Bindable(content).showsSiteSettings, arrowEdge: .bottom) {
-            SiteSettingsPopover(content: content)
+            SiteSettingsPopover(content: content).solidPopoverBackground()
         }
     }
 }

@@ -18,5 +18,6 @@ package struct IconPopover: View {
         )
         .padding(Design.Space.xl)
         .frame(width: 340)
+        .solidPopoverBackground()
     }
 }

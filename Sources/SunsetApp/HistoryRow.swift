@@ -36,8 +36,11 @@ struct HistoryRow: View {
         .accessibilityAction { AppActions.shared.openFromHistory(entry.url, newTab: false) }
         .help(entry.url)
         .contextMenu {
+            // In a new tab with Option, as ⌘-click does (task t135).
             Button("Open") { AppActions.shared.openFromHistory(entry.url, newTab: false) }
-            Button("Open in New Tab") { AppActions.shared.openFromHistory(entry.url, newTab: true) }
+                .modifierKeyAlternate(.option) {
+                    Button("Open in New Tab") { AppActions.shared.openFromHistory(entry.url, newTab: true) }
+                }
             Button("Copy Address") { Clipboard.copyAndSay(entry.url, isLink: true, what: "Copied the address") }
             Divider()
             Button("Delete from History", role: .destructive) { AppHistory.shared?.delete(entry.url) }

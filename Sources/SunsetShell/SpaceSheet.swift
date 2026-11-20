@@ -48,6 +48,7 @@ struct SpaceSheet: View {
                                 .foregroundStyle(.secondary)
                         }
                         .padding(Design.Space.xl)
+                        .solidPopoverBackground()
                     }
                 }
                 GridRow {
@@ -63,6 +64,7 @@ struct SpaceSheet: View {
                     .popover(isPresented: $pickingIcon, arrowEdge: .trailing) {
                         // Its colour is the symbol's own; the Space's colour is the field above.
                         IconPicker(icon: $draft.icon).padding(Design.Space.xl).frame(width: 340)
+                            .solidPopoverBackground()
                     }
                 }
             }

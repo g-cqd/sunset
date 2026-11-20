@@ -17,7 +17,7 @@ struct PrivateMark: View {
         }
         .buttonStyle(.plain)
         .help("A private page")
-        .popover(isPresented: $open, arrowEdge: .bottom) { details }
+        .popover(isPresented: $open, arrowEdge: .bottom) { details.solidPopoverBackground() }
     }
 
     private var details: some View {
