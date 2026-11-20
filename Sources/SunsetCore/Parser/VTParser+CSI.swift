@@ -1,10 +1,8 @@
 extension VTParser {
     /// Control sequence introducer states (entry, parameters, intermediates) share one routine: the position is `state`, the rules are small.
     mutating func csi<Sink: VTSink>(_ byte: UInt8, into sink: inout Sink) -> Bool {
+        if byte < 0x20 { return anywhere(byte, into: &sink) }
         switch byte {
-            case 0x18, 0x1A: state = .ground
-            case 0x1B: enterEscape()
-            case 0x00 ... 0x1F: sink.execute(byte)
             case 0x20 ... 0x2F: collectIntermediate(byte, next: .csiIntermediate)
             case 0x30 ... 0x3F: collectParameterByte(byte, intermediate: .csiIntermediate, next: .csiParameter)
             case 0x40 ... 0x7E:
