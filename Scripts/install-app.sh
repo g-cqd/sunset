@@ -1,5 +1,6 @@
 #!/bin/sh
-# Puts a built Sunset.app in ~/Applications, and says whether a Sunset that is running is still the build before.
+# Puts a built Sunset.app (or Sunset WebKit.app, ADR-0111) in ~/Applications under its own name, and says whether one that
+# is running is still the build before.
 #
 #   Scripts/install-app.sh [BUILT.app]        default: .build/app-release/Sunset.app (Scripts/make-app.sh release .build/app-release)
 #
@@ -12,19 +13,21 @@ set -eu
 cd "$(dirname "$0")/.."
 
 built="${1:-.build/app-release/Sunset.app}"
-target="$HOME/Applications/Sunset.app"
+name="$(basename "$built")"
+target="$HOME/Applications/$name"
 kept="$PWD/.build/replaced"
 
 [ -x "$built/Contents/MacOS/Sunset" ] || { echo "install-app: no app at $built" >&2; exit 1; }
 
 version() { /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$1/Contents/Info.plist" 2>/dev/null || echo "?"; }
+identifier="$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$built/Contents/Info.plist")"
 
 # The executables that processes named Sunset run from, one path a line, as they are now.
 running="$(lsof -a -c Sunset -d txt -Fn 2>/dev/null | sed -n 's/^n//p' | grep '/Contents/MacOS/Sunset$' || true)"
 runs_from() { printf '%s\n' "$running" | grep -qxF "$1/Contents/MacOS/Sunset"; }
 
 mkdir -p "$kept"
-for old in "$kept"/*/Sunset.app; do
+for old in "$kept"/*/"$name"; do
     [ -d "$old" ] || continue
     if runs_from "$old"; then
         echo "kept: $old ($(version "$old")): a running Sunset was started from it"
@@ -40,7 +43,7 @@ if [ -d "$target" ]; then
     if runs_from "$target"; then stale="$(version "$target")"; fi
     aside="$kept/$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$aside"
-    mv "$target" "$aside/Sunset.app"
+    mv "$target" "$aside/$name"
 fi
 mkdir -p "$(dirname "$target")"
 mv "$target.new" "$target"
@@ -52,7 +55,7 @@ lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchSe
 if [ -x "$lsregister" ]; then
     "$lsregister" -dump 2>/dev/null \
         | awk '/^path:/ { sub(/^path: +/, ""); sub(/ \(0x[0-9a-f]+\)$/, ""); path = $0 }
-               /^identifier:/ && $2 == "studio.aemi.sunset" { print path }' \
+               /^identifier:/ && $2 == id { print path }' id="$identifier" \
         | sort -u | while IFS= read -r copy; do
             [ "$copy" = "$target" ] || "$lsregister" -u "$copy" 2>/dev/null || true
         done
@@ -61,11 +64,11 @@ fi
 echo "installed: $(version "$target") at $target"
 
 if [ -z "$stale" ]; then
-    for old in "$kept"/*/Sunset.app; do
+    for old in "$kept"/*/"$name"; do
         [ -d "$old" ] || continue
         if runs_from "$old"; then stale="$(version "$old")"; fi
     done
 fi
 if [ -n "$stale" ]; then
-    echo "NOT IN USE YET: a Sunset that is running is still build $stale. Quit and reopen it to run $(version "$target")."
+    echo "NOT IN USE YET: a ${name%.app} that is running is still build $stale. Quit and reopen it to run $(version "$target")."
 fi

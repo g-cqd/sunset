@@ -17,6 +17,10 @@
 # - Signed inside out like the native build (Signing.local.xcconfig's identity, else ad hoc), hardened, with timestamps;
 #   Sunset and WebKit's services with one exception, reading the loader's variables (notarization accepts it); library
 #   validation stays on. Then Scripts/notarize-app.sh as the native one.
+# - Its provisioning profile (an App ID studio.aemi.sunset.webkit), when there is one: $SUNSET_WEBKIT_PROFILE, else
+#   ~/.config/sunset-signing/webkit.provisionprofile (beside the notary's credentials, never in the repository). With it,
+#   the team entitlements of the native build (App/Sunset.team.entitlements) for this identifier, the team read from the
+#   profile; without it, an ad hoc build's (no team keychain group: Sunset keeps its keys in its vault).
 # $SUNSET_WEBKIT: the WebKit tree (default ~/Developer/g-cqd/webkit-spike/WebKit).
 set -eu
 cd "$(dirname "$0")/.."
@@ -66,9 +70,27 @@ $buddy -c "Add :CFBundleDisplayName string Sunset WebKit" "$plist"
 base="$(cat "$here/Engine/WebKit/base")"
 $buddy -c "Delete :SunsetWebKitBase" "$plist" 2>/dev/null || true
 $buddy -c "Add :SunsetWebKitBase string $base" "$plist"
-# The native build's profile names its identifier: not this one's. Without a profile of its own (an App ID
-# studio.aemi.sunset.webkit), no team keychain group: Sunset says so and keeps its keys in its vault.
+# The native build's profile names its identifier, not this one's: this one's own, when there is one.
 rm -f "$app/Contents/embedded.provisionprofile"
+profile="${SUNSET_WEBKIT_PROFILE:-$HOME/.config/sunset-signing/webkit.provisionprofile}"
+appEntitlements="$here/App/Sunset.entitlements"
+teamEntitlements=""
+if [ -f "$profile" ] && [ "$identity" != "-" ]; then
+    decoded="$(mktemp -t sunset-profile).plist"
+    security cms -D -i "$profile" > "$decoded"
+    team="$($buddy -c "Print :TeamIdentifier:0" "$decoded")"
+    identifier="$($buddy -c "Print :Entitlements:com.apple.application-identifier" "$decoded")"
+    rm -f "$decoded"
+    [ "$identifier" = "$team.studio.aemi.sunset.webkit" ] || {
+        echo "make-webkit-app: $profile is for $identifier, not studio.aemi.sunset.webkit" >&2
+        exit 1
+    }
+    cp "$profile" "$app/Contents/embedded.provisionprofile"
+    teamEntitlements="$(mktemp -t sunset-team).plist"
+    sed -e "s/\$(TeamIdentifierPrefix)studio\.aemi\.sunset/$team.studio.aemi.sunset.webkit/g" \
+        -e "s/\$(DEVELOPMENT_TEAM)/$team/g" "$here/App/Sunset.team.entitlements" > "$teamEntitlements"
+    appEntitlements="$teamEntitlements"
+fi
 
 # Signed inside out: libraries, frameworks, services, then Sunset and the app.
 sign() { # ENTITLEMENTS PATH
@@ -90,14 +112,14 @@ for service in "$services"/*.xpc; do
         *) sign "$here/Engine/WebKit/Loader.entitlements" "$service" ;;
     esac
 done
-# Sunset's: the app's own (App/Sunset.entitlements, no team keychain group) and the loader's exception.
+# Sunset's: the app's own (the team's with a profile, else an ad hoc build's) and the loader's exception.
 entitlements="$(mktemp -t sunset-webkit).plist"
-cp "$here/App/Sunset.entitlements" "$entitlements"
+cp "$appEntitlements" "$entitlements"
 $buddy -c "Add :com.apple.security.cs.allow-dyld-environment-variables bool true" "$entitlements"
 sign "$entitlements" "$app/Contents/MacOS/Sunset"
-sign "$here/App/Sunset.entitlements" "$app/Contents/MacOS/Sunset WebKit"
-sign "$here/App/Sunset.entitlements" "$app"
-rm -f "$entitlements"
+sign "$appEntitlements" "$app/Contents/MacOS/Sunset WebKit"
+sign "$appEntitlements" "$app"
+rm -f "$entitlements" ${teamEntitlements:+"$teamEntitlements"}
 codesign --verify --deep --strict "$app" || { echo "make-webkit-app: the signature does not verify" >&2; exit 1; }
 
 lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister

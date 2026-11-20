@@ -30,8 +30,11 @@ Probed (diary 2026-11-20-23):
 3. Both signed with the team's Developer ID, hardened, timestamped, notarized and stapled by the same script. Sunset WebKit's
    binaries carry one more exception than Sunset's: reading the loader's variables; the web content process also JIT
    (as WebKit's own build). Library validation stays on: every framework carries the team's signature.
-4. Sunset WebKit has no provisioning profile until an App ID `studio.aemi.sunset.webkit` exists: without it, no team
-   keychain group, and Sunset keeps its keys in its vault (as an ad hoc build does).
+4. Sunset WebKit has its own App ID and Developer ID provisioning profile (the owner, 2026-11-20), kept beside the
+   notary's credentials (`~/.config/sunset-signing/webkit.provisionprofile`), never in the repository; the script embeds
+   it and signs with the native build's team entitlements for this identifier (its keychain group), the team read from
+   the profile. Without one it falls back to an ad hoc build's entitlements (Sunset keeps its keys in its vault).
+5. `Scripts/install-app.sh` installs either build in `~/Applications` under its own name.
 
 ## Consequences
 
