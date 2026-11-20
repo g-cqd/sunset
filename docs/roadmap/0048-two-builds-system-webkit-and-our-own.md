@@ -17,7 +17,7 @@ engine, t119) on, with patching added.
 | A | WebKit's private interfaces for the network, through the `SunsetPrivate` seam | t27 | first probe done: a PAC script and fixed proxies work in a store made from the private configuration (docs/research/network-dns-proxy-extensions-2026-11-18.md); not wired |
 | B | The spike: WebKit from the tip of main built on this Mac, bundled, loaded by a signed Sunset; its time, size, and what is lost (DRM especially, as R5 asked) | t28 | in-progress: WebKit main built here in 1 h (36 GB); an app runs on it; an incremental build after a patch 3 min (diary 2026-11-20-17). Not yet: Sunset itself on it, signed, bundled; DRM |
 | C | The two builds: one target set, the engine chosen at build time; the system one stays the default and the light one | t28 | not-started |
-| D | Our patches on the own engine, kept as a series rebased on WebKit's main, on a cadence (ADR-0110: `Engine/WebKit/base`, `Engine/WebKit/patches`, `Scripts/webkit.sh`). The owner's order, 2026-11-20: W1–W3, W6, the resolver (0046 A, t13) | t28 | in-progress: 0001 (W2) built and checked (fixes W2; WebKit's own tests unchanged); a move refused safely where it did not apply; W1, W3 next |
+| D | Our patches on the own engine, kept as a series rebased on WebKit's main, on a cadence (ADR-0110: `Engine/WebKit/base`, `Engine/WebKit/patches`, `Scripts/webkit.sh`). The owner's order, 2026-11-20: W1–W3, W6, the resolver (0046 A, t13) | t28 | in-progress: W2 (0001), W3 (0002, test 0003) and W1 (0004, test 0005) built and checked: WebKit's 677 extension tests as on the base plus the two new ones, no cost seen (diary 2026-11-20-18). Next: W7, W4, W6, the resolver |
 
 The owner, later the same day: "consider webkit as a built component we could download at runtime and decide to have the
 user download it to make that happen"; "this computer can completely build webkit … patching webkit is also possible and
@@ -43,7 +43,11 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W3 | Properties added to a namespace object are lost when its wrapper is collected and made again | kept | diary 2026-11-20-15 | `ExtensionPageShim`: wrappers kept alive |
 | W4 | `webNavigation.onCreatedNavigationTarget`, `webRequest.handlerBehaviorChanged` missing | present | same test (`event`, `changed`) | `ExtensionPageShim`: inert stand-ins (no target navigation events, so uBO cannot block pop-ups that way) |
 | W5 | `requestIdleCallback` off in an app's views (extension pages included) | on | same test (`idle`) | `SafariParity` on the extension pages' configuration |
+| W7 | `webRequest.addListener` refuses `ws://` and `wss://` match patterns | accepted | uBO on our WebKit (diary 2026-11-20-18) | none |
 | W6 | Blocking `webRequest` (MV2) not supported: `{cancel: true}` ignored, uBlock Origin's network filtering does nothing | supported | probed: diary 2026-11-20-16 | none (uBO Lite filters through `declarativeNetRequest`) |
+
+Patched in our WebKit (`Engine/WebKit/patches`): W2 (0001), W3 (0002, its test 0003), W1 (0004, its test 0005); the
+stopgaps in `ExtensionPageShim` stay for the system's WebKit.
 
 Where each lives in WebKit and the patch for it: `docs/research/webkit-extension-patches-2026-11-20.md`. W1–W3 are small and
 generic (every extension at once), W2 one line; W6 is large and costs on every load.

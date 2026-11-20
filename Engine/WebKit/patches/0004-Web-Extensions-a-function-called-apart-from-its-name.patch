@@ -1,0 +1,120 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 20:15:08 +0100
+Subject: [PATCH 4/5] Web Extensions: a function called apart from its
+ namespace finds it (Sunset W1)
+
+`const getURL = browser.runtime.getURL; getURL(path)` gave undefined: each generated function finds its object from
+`this`, and a detached call has none. Firefox and Chrome give the URL; uBlock Origin's background page does this at its
+start and stopped there.
+
+Each generated class registers its own functions (JSWebExtensionWrapper::registerBoundFunctions); when an object of the
+class is wrapped, each of them is bound to it (Function.prototype.bind) and set as its own property. The same function is
+read each time (identity kept), and .call/.apply/.bind still work. A Dynamic function (shown or not by the extension's
+permissions, which change) is left unbound, so a bound copy cannot outlive a permission; a MainWorldOnly one is bound only
+where it is shown.
+
+diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
+index 04886dea1..57b868189 100644
+--- a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
++++ b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
+@@ -533,6 +533,56 @@ static inline JSValueRef getCachedWrapper(JSContextRef context, JSWeakObjectMapR
+     return nullptr;
+ }
+ 
++NODELETE static HashMap<JSClassRef, Vector<String>>& boundFunctions()
++{
++    static NeverDestroyed<HashMap<JSClassRef, Vector<String>>> functions;
++    return functions;
++}
++
++void JSWebExtensionWrapper::registerBoundFunctions(JSClassRef jsClass, const JSStaticFunction* functions, std::initializer_list<ASCIILiteral> unbound)
++{
++    ASSERT(jsClass);
++    Vector<String> names;
++    for (auto* entry = functions; entry && entry->name; ++entry) {
++        auto name = String::fromLatin1(entry->name);
++        if (std::ranges::none_of(unbound, [&](auto& literal) { return name == literal; }))
++            names.append(WTF::move(name));
++    }
++    if (!names.isEmpty())
++        boundFunctions().set(jsClass, WTF::move(names));
++}
++
++static void bindFunctions(JSContextRef context, JSObjectRef wrapper, JSClassRef jsClass)
++{
++    auto iterator = boundFunctions().find(jsClass);
++    if (iterator == boundFunctions().end())
++        return;
++
++    auto bindName = OpaqueJSString::tryCreate("bind"_s);
++    for (auto& functionName : iterator->value) {
++        auto name = OpaqueJSString::tryCreate(functionName);
++        JSValueRef exception = nullptr;
++        auto function = JSObjectGetProperty(context, wrapper, name.get(), &exception);
++        if (exception || !function || !JSValueIsObject(context, function))
++            continue;
++
++        auto functionObject = JSValueToObject(context, function, nullptr);
++        if (!functionObject || !JSObjectIsFunction(context, functionObject))
++            continue;
++
++        auto bind = JSObjectGetProperty(context, functionObject, bindName.get(), &exception);
++        if (exception || !bind || !JSValueIsObject(context, bind))
++            continue;
++
++        JSValueRef arguments[] = { wrapper };
++        auto bound = JSObjectCallAsFunction(context, JSValueToObject(context, bind, nullptr), functionObject, 1, arguments, &exception);
++        if (exception || !bound)
++            continue;
++
++        JSObjectSetProperty(context, wrapper, name.get(), bound, kJSPropertyAttributeNone, &exception);
++    }
++}
++
+ JSValueRef JSWebExtensionWrapper::wrap(JSContextRef context, JSWebExtensionWrappable* object)
+ {
+     ASSERT(context);
+@@ -553,6 +603,8 @@ JSValueRef JSWebExtensionWrapper::wrap(JSContextRef context, JSWebExtensionWrapp
+ 
+     JSWeakObjectMapSet(context, wrappers, object, wrapper);
+ 
++    bindFunctions(context, wrapper, objectClass.get());
++
+     return wrapper;
+ }
+ 
+diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
+index b5be9cbc6..27ff23b34 100644
+--- a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
++++ b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
+@@ -63,6 +63,10 @@ public:
+ 
+     static void initialize(JSContextRef, JSObjectRef);
+     static void finalize(JSObjectRef);
++
++    // A class's own functions, bound to each of its objects when wrapped: a function read from an object and called apart
++    // from it (`const getURL = browser.runtime.getURL; getURL(path)`) still finds its object, as in Firefox and Chrome.
++    static void registerBoundFunctions(JSClassRef, const JSStaticFunction*, std::initializer_list<ASCIILiteral> unbound);
+ };
+ 
+ class WebExtensionCallbackHandler : public RefCounted<WebExtensionCallbackHandler> {
+diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
+index 2fd6abf1e..906e33cda 100644
+--- a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
++++ b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
+@@ -391,6 +391,14 @@ EOF
+ 
+     push(@contents, <<EOF);
+         jsClass = JSClassCreate(&definition);
++EOF
++
++    # A function read from an object keeps it (bound when the object is wrapped). A Dynamic one (shown or not by the
++    # extension's permissions, which change) is left as it was, so a bound copy cannot outlive a permission.
++    my @dynamicFunctionNames = map { "\"" . $_->name . "\"_s" } grep { $_->extendedAttributes->{"Dynamic"} } @{$interface->operations};
++    push(@contents, "        JSWebExtensionWrapper::registerBoundFunctions(jsClass, staticFunctions(), { " . join(", ", @dynamicFunctionNames) . " });\n");
++
++    push(@contents, <<EOF);
+     }
+ 
+     return jsClass;

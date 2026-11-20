@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 20:11:09 +0100
+Subject: [PATCH 2/5] Web Extensions: what a script adds to a namespace object
+ is kept (Sunset W3)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A namespace (browser.runtime, browser.webRequest…) is wrapped again when its wrapper has been collected: the wrappers are
+cached weakly. What a script added to it (a property, a stand-in) was lost at some later read. Firefox and Chrome keep
+them; uBlock Origin relies on it at its start.
+
+The generated getter of an attribute whose type is an extension API object now pins the wrapper it returns to the object
+it is read from (JSObjectSetPrivateProperty): the namespace lives as long as browser does. The private property is not
+visible to scripts; a permission-dependent (Dynamic) attribute is still read through its getter each time.
+
+diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
+index ff03274c9..2fd6abf1e 100644
+--- a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
++++ b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
+@@ -945,7 +945,7 @@ JSValueRef ${className}::${getterName}(JSContextRef context, JSObjectRef object,
+ {
+ EOF
+ 
+-            push(@contents, "    UNUSED_PARAM(propertyName);\n\n");
++            push(@contents, "    UNUSED_PARAM(propertyName);\n\n") unless $attribute->type->name =~ /^WebExtensionAPI/;
+ 
+             push(@contents, <<EOF);
+     RefPtr impl = to${implementationClassName}(context, object);
+@@ -973,11 +973,24 @@ EOF
+                 push(@contents, "    }\n");
+             }
+ 
+-            push(@contents, <<EOF);
++            if ($attribute->type->name =~ /^WebExtensionAPI/) {
++                $contentsIncludes{"<JavaScriptCore/JSObjectRefPrivate.h>"} = 1;
++                push(@contents, <<EOF);
++
++    // Kept as long as the object it is read from: what a script adds to it is not lost when its wrapper would be collected.
++    SUPPRESS_UNCOUNTED_ARG JSValueRef result = @{[$self->_returnExpression($attribute, $getterExpression, $interface)]};
++    if (result && JSValueIsObject(context, result))
++        JSObjectSetPrivateProperty(context, object, propertyName, result);
++    return result;
++}
++EOF
++            } else {
++                push(@contents, <<EOF);
+ 
+     SUPPRESS_UNCOUNTED_ARG return @{[$self->_returnExpression($attribute, $getterExpression, $interface)]};
+ }
+ EOF
++            }
+ 
+             unless ($attribute->isReadOnly) {
+                 my $setterEarlyReturnCondition = $earlyReturnCondition;

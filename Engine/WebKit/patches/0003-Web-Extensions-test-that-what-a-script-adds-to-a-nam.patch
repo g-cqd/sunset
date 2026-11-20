@@ -1,0 +1,55 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 20:11:11 +0100
+Subject: [PATCH 3/5] Web Extensions: test that what a script adds to a
+ namespace object is kept (Sunset W3)
+
+WKWebExtensionAPINamespaceTests.propertiesAddedToANamespaceAreKept: a property set and one defined on browser.runtime,
+then garbage made over three rounds; both are still there. Fails without the previous patch (7 expected, undefined).
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPINamespace.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPINamespace.swift
+index 9badc6b69..63b3bd61d 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPINamespace.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPINamespace.swift
+@@ -255,6 +255,41 @@ struct WKWebExtensionAPINamespaceTests {
+             try await manager.loadAndRun()
+         }
+     }
++
++    // What a script adds to a namespace object is kept: the namespace's wrapper is not collected and made again bare
++    // (uBlock Origin adds to `browser.webNavigation` and `browser.webRequest` at its start; Firefox and Chrome keep them).
++    @Test
++    func propertiesAddedToANamespaceAreKept() async throws {
++        let manifest: [String: Any] = [
++            "manifest_version": 3,
++            "background": [
++                "scripts": ["background.js"],
++                "type": "module",
++                "persistent": false,
++            ],
++        ]
++
++        let backgroundScript = """
++            browser.runtime.addedByTheExtension = 7
++            Object.defineProperty(browser.runtime, 'definedByTheExtension', { value: 42, configurable: true })
++
++            // Garbage, so that a wrapper not kept would be collected.
++            let garbage = []
++            for (let round = 0; round < 3; ++round) {
++                garbage = []
++                for (let i = 0; i < 400; ++i)
++                    garbage.push(new Array(50000).fill(i))
++                await new Promise((resolve) => setTimeout(resolve, 200))
++            }
++
++            browser.test.assertEq(browser.runtime.addedByTheExtension, 7)
++            browser.test.assertEq(browser.runtime.definedByTheExtension, 42)
++            browser.test.notifyPass()
++            """
++
++        let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++        try await manager.run()
++    }
+ }
+ 
+ #endif // ENABLE_WK_WEB_EXTENSIONS

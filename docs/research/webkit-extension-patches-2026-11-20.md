@@ -14,6 +14,14 @@ Claims until a patched WebKit is built and probed (roadmap 0048 B, D). Sources: 
 | W5 | `requestIdleCallback` off in extension pages | a feature flag, off in an app's views | none: Sunset turns it on (`SafariParity`) | — |
 | W6 | Blocking `webRequest` (MV2): `{cancel: true}` ignored, uBlock Origin filters nothing | `API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm`: `addListener` keeps only `requestBody`, `requestHeaders`, `responseHeaders` of `extraInfo` (`"blocking"` dropped); `invokeListenersWithArgument` calls each listener and ignores what it returns; the events are sent after the fact from the UI process | A load held until the extension's background page answers: a synchronous round trip network process → UI process → extension's process, on every request it filters; cancel and redirect first | large: the deepest change, the one with a cost on every load |
 
+## Done (diary 2026-11-20-17, -18)
+
+- W2: the IDL line, as planned.
+- W3: as planned, through the generated getter (`JSObjectSetPrivateProperty` on the object read from).
+- W1: not through a getter: each class registers its own functions, and `JSWebExtensionWrapper::wrap` binds them to the new
+  object (`Function.prototype.bind`), Dynamic ones left out. No cost seen on calls.
+- W7 found on the way: `ws://` and `wss://` match patterns refused by `webRequest.addListener`.
+
 ## Probed on the system's WebKit
 
 - W6: a minimal MV2 extension with a blocking `onBeforeRequest` listener: the listener is added without an error and sees

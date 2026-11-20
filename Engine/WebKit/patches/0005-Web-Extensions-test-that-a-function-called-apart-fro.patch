@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 20:15:09 +0100
+Subject: [PATCH 5/5] Web Extensions: test that a function called apart from
+ its namespace finds it (Sunset W1)
+
+WKWebExtensionAPINamespaceTests.functionCalledApartFromItsNamespace: runtime.getURL read into a variable and called,
+called with a null this, read twice (the same function), and getManifest destructured. Fails without the previous patch
+("string" expected, "undefined").
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPINamespace.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPINamespace.swift
+index 63b3bd61d..fcf277606 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPINamespace.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPINamespace.swift
+@@ -290,6 +290,36 @@ struct WKWebExtensionAPINamespaceTests {
+         let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
+         try await manager.run()
+     }
++
++    // A namespace's function called apart from it finds its namespace, as in Firefox and Chrome
++    // (`const getURL = browser.runtime.getURL; getURL(path)`: uBlock Origin's background page does this at its start).
++    @Test
++    func functionCalledApartFromItsNamespace() async throws {
++        let manifest: [String: Any] = [
++            "manifest_version": 3,
++            "background": [
++                "scripts": ["background.js"],
++                "type": "module",
++                "persistent": false,
++            ],
++        ]
++
++        let backgroundScript = """
++            const getURL = browser.runtime.getURL
++            browser.test.assertEq(typeof getURL('page.html'), 'string')
++            browser.test.assertEq(getURL('page.html'), browser.runtime.getURL('page.html'))
++            browser.test.assertEq(browser.runtime.getURL.call(null, 'page.html'), browser.runtime.getURL('page.html'))
++            browser.test.assertEq(browser.runtime.getURL, browser.runtime.getURL, 'The same function on each read')
++
++            const { getManifest } = browser.runtime
++            browser.test.assertEq(getManifest().manifest_version, 3)
++
++            browser.test.notifyPass()
++            """
++
++        let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++        try await manager.run()
++    }
+ }
+ 
+ #endif // ENABLE_WK_WEB_EXTENSIONS
