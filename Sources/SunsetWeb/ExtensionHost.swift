@@ -33,6 +33,8 @@ package import WebKit
     /// Bumped when an action changes (its badge, its title): the buttons are drawn again.
     var revision = 0
     @ObservationIgnored var anchors: [String: NSView] = [:]
+    /// The puzzle piece, while an extension chosen from its list opens its popup.
+    @ObservationIgnored var popupAnchor: NSView?
     @ObservationIgnored private let delegate = ExtensionControllerDelegate()
     /// Shows an action's popup; by default WebKit's popover under its button. Tests watch it.
     @ObservationIgnored package var presentPopup: (ExtensionActionItem, WKWebExtension.Action) -> Void = { _, _ in }
@@ -102,6 +104,15 @@ package import WebKit
     package func set(_ id: UUID, inPrivate: Bool) {
         store.set(id, inPrivate: inPrivate)
         contexts[id]?.hasAccessToPrivateData = inPrivate
+    }
+
+    /// Moves an extension in the order (Settings' list, a button's menu).
+    package func moveEntry(_ id: UUID, by offset: Int) {
+        store.move(id, by: offset)
+    }
+
+    package func moveEntry(_ id: UUID, to index: Int) {
+        store.move(id, to: index)
     }
 
     package func remove(_ id: UUID) {

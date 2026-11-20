@@ -55,6 +55,8 @@ package enum Design {
         package static let edgeStrip = 6.0
         /// An extension's icon in its button (roadmap 0109 D): the size of a toolbar's.
         package static let extensionIcon = 16.0
+        /// An extension's popup's corner: smaller than the system popover's (the owner, 2026-11-20).
+        package static let extensionPopupRadius = 10.0
         /// A row's glyph: its frame, and the symbol in it.
         package static let glyphFrame = 18.0
         package static let glyphSymbol = 15.0

@@ -17,7 +17,15 @@ struct ExtensionsSettings: View {
                     if host.installed.isEmpty {
                         Text("No extension").foregroundStyle(.secondary)
                     }
-                    ForEach(host.installed) { entry in row(entry, in: host) }
+                    ForEach(Array(host.installed.enumerated()), id: \.element.id) { index, entry in
+                        row(entry, in: host)
+                            // The buttons' order (the owner, 2026-11-20).
+                            .contextMenu {
+                                Button("Move Up") { host.moveEntry(entry.id, by: -1) }.disabled(index == 0)
+                                Button("Move Down") { host.moveEntry(entry.id, by: 1) }
+                                    .disabled(index == host.installed.count - 1)
+                            }
+                    }
                 } header: {
                     HStack {
                         Text(spaces.profiles.profiles.count > 1 ? profile.profile.name : "Extensions")

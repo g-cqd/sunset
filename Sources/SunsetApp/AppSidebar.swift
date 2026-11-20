@@ -87,13 +87,26 @@ struct AppSidebar: View {
         )
     }
 
+    /// What the header leaves between the pin and the traffic lights: the sidebar's width, less its side gaps, the pin and the
+    /// lights' room.
+    private var extensionsWidth: Double {
+        let settings = ShellSettings(configuration)
+        let buttons = SidebarButtons(
+            layout: settings.layout,
+            margin: configuration.sidebar.padding,
+            panelRadius: panelRadius
+        )
+        return configuration.sidebar.width - 2 * buttons.gap - buttons.metrics.size.width - Design.Space.xs
+            - Design.TabCapsules.lightsClearance
+    }
+
     /// The window's profile's extensions, beside the pin (roadmap 0109 D): with the web on and one installed and on.
     private var extensionButtons: AnyView? {
         guard tabs.scopes.web, let host = ExtensionHosts.shared.host(for: PaneContentKinds.profile(of: tabs)),
             host.installed.contains(where: \.enabled)
         else { return nil }
         return AnyView(
-            ExtensionActionsBar(host: host, page: tabs.selectedContent as? WebContent) {
+            ExtensionActionsBar(host: host, page: tabs.selectedContent as? WebContent, width: extensionsWidth) {
                 AppSettings.show("web.extensions", in: tabs)
             }
         )

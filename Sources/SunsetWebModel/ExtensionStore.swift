@@ -1,4 +1,5 @@
 package import Foundation
+import SunsetPane
 
 /// The extensions installed in one profile (roadmap 0109 A, ADR-0109): each a copy in the profile's folder (a zip WebKit loads,
 /// or an unpacked folder copied as it is), listed in that folder's `index.json`: its name, on or off, in private windows or not
@@ -59,6 +60,20 @@ package struct ExtensionStore {
 
     package mutating func set(_ id: UUID, inPrivate: Bool) {
         update(id) { $0.inPrivate = inPrivate }
+    }
+
+    /// To `index` in the order (the order of their buttons).
+    package mutating func move(_ id: UUID, to index: Int) {
+        guard installed.move(id: id, to: index) else { return }
+        save()
+    }
+
+    /// `offset` places later (earlier when negative); past either end, it stays.
+    package mutating func move(_ id: UUID, by offset: Int) {
+        guard let from = installed.firstIndex(where: { $0.id == id }) else { return }
+        let to = from + offset
+        guard installed.indices.contains(to) else { return }
+        move(id, to: to)
     }
 
     /// Its copy and its entry gone.

@@ -179,9 +179,7 @@ public struct Workspace: Sendable, Equatable {
 
     /// Moves a tab to `index` (brought inside the list); the selection stays on the same tab.
     public mutating func move(item id: ItemID, to index: Int) {
-        guard let from = items.firstIndex(where: { $0.id == id }) else { return }
-        let item = items.remove(at: from)
-        items.insert(item, at: min(max(index, 0), items.count))
+        items.move(id: id, to: index)
     }
 }
 

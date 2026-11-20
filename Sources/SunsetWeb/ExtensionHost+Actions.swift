@@ -41,9 +41,22 @@ extension ExtensionHost {
         presentPopup(item, action)
     }
 
-    /// Shows WebKit's popover under the button that was clicked.
+    /// Shows the popup under the button that was clicked: its own, or the puzzle piece's when it was chosen from its list.
     func showPopover(of action: WKWebExtension.Action, anchoredTo id: String) {
-        guard let popover = action.popupPopover, let anchor = anchors[id], anchor.window != nil else { return }
-        popover.show(relativeTo: anchor.bounds, of: anchor, preferredEdge: .maxY)
+        guard let anchor = popupAnchor ?? anchors[id] else { return }
+        popupAnchor = nil
+        ExtensionPopupPanel.show(action, under: anchor)
+    }
+
+    /// Performed from the puzzle piece's list: its popup under the puzzle piece.
+    package func perform(_ id: String, for tab: ExtensionTab?, under anchor: NSView?) {
+        popupAnchor = anchor
+        perform(id, for: tab)
+    }
+
+    /// The order of the buttons (the owner, 2026-11-20).
+    package func move(_ id: String, by offset: Int) {
+        guard let entry = installed.first(where: { context(of: $0.id)?.uniqueIdentifier == id }) else { return }
+        moveEntry(entry.id, by: offset)
     }
 }
