@@ -24,11 +24,16 @@ a window of its own for pop-ups (below, part B).
 - Download Image, Download Video and Download Linked File: WebKit hands their download over by a private method of the
   navigation delegate (`_webView:contextMenuDidCreateDownload:`, probed); Sunset's takes it into its downloads.
 
+- Driven on screen (diary 2026-11-20-10): http addresses under "ask" load (this machine and the local network never
+  upgraded; elsewhere a failure page with Load over HTTP); Open Image / Video in New Tab open; Download Video saves (WebKit's
+  bytes, `saveDataToFile`); the link's Split / New Tab / New Window / Private Tab items run (WebKit's tag kept); Search the
+  Web searches with Sunset's engine in Sunset.
+
 Not done in A:
 - A **picture's** address opened in a tab shows the picture here (a PNG from a local server): the owner's failing picture is
   not reproduced; an address that fails is needed.
-- Each item of WebKit's page menus on links, pictures, films, text, run one by one in the app: not done (it needs the screen).
-- Open Link in New Window and a sized pop-up's window: not looked at in the app.
+- Look Up, Translate, Copy Link with Highlight, Share, Speech, Copy Image, Inspect Element: WebKit's own, not tried.
+- Open Link in New Window and Private Tab: run (their tag kept), not pictured.
 
 ## B — the pop-up window (not started)
 

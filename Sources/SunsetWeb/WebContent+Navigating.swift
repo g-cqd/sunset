@@ -39,6 +39,25 @@ extension WebContent {
         }
     }
 
+    /// A page that failed at HTTPS, under "ask", is offered http: the address that failed is an https one of a host not let
+    /// through yet. (Under "ask" a typed or linked http address is upgraded first, so the failure's address is https.)
+    package func offersHTTP(after failure: WebFailure) -> Bool {
+        guard settings.httpsUpgrade.offersHTTP, !failure.isCertificate, let failed = failure.url,
+            failed.scheme == "https", let host = failed.host()
+        else { return false }
+        return !httpHosts.contains(host)
+    }
+
+    /// Load over HTTP: HTTPS failed for this host ("ask"); it is kept as asked on this page, and the address loaded over http.
+    package func loadOverHTTP() {
+        guard let failed = failure?.url, let host = failed.host(),
+            var parts = URLComponents(url: failed, resolvingAgainstBaseURL: false)
+        else { return }
+        httpHosts.insert(host)
+        parts.scheme = "http"
+        if let plain = parts.url { load(plain) }
+    }
+
     /// Visit Anyway: the certificate of this host is accepted for this page, and the page is loaded again.
     package func acceptCertificate() {
         guard let host = failure?.url?.host() else { return }

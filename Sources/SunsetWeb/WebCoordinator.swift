@@ -13,8 +13,26 @@ import WebKit
         Self.installMenuDownloads()
     }
 
+    /// Each navigation's HTTPS policy by its host (this machine and the local network never upgraded; a host let over http
+    /// kept), then what is done with it.
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor action: WKNavigationAction,
+        preferences: WKWebpagePreferences
+    ) async -> (WKNavigationActionPolicy, WKWebpagePreferences) {
+        if action.targetFrame?.isMainFrame == true, let content {
+            let wanted = WebProtection.preferences(
+                for: content.settings,
+                host: action.request.url?.host(),
+                allowedOverHTTP: content.httpHosts
+            )
+            preferences.preferredHTTPSNavigationPolicy = wanted.preferredHTTPSNavigationPolicy
+        }
+        return (await decide(action, in: webView), preferences)
+    }
+
     /// Cmd-click on a link opens it in a tab right after, not shown (as a link asking for a new tab does).
-    func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction) async -> WKNavigationActionPolicy {
+    private func decide(_ action: WKNavigationAction, in webView: WKWebView) async -> WKNavigationActionPolicy {
         // The page the view goes to is shown the browser its site is to see (W-a): set before the request leaves.
         if action.targetFrame?.isMainFrame == true {
             content?.asked.navigation(to: action.request.url, type: action.navigationType)
@@ -107,11 +125,11 @@ import WebKit
         for action: WKNavigationAction,
         windowFeatures: WKWindowFeatures
     ) -> WKWebView? {
-        guard let content, popupAllowed(action, from: webView) else { return nil }
-        let placement = Self.placement(
-            chosen: (webView as? SunsetWebView)?.pendingPlacement,
-            sized: windowFeatures.width != nil
-        )
+        let chosen = (webView as? SunsetWebView)?.pendingPlacement
+        guard let content, Self.skipsPopupRule(chosen: chosen) || popupAllowed(action, from: webView) else {
+            return nil
+        }
+        let placement = Self.placement(chosen: chosen, sized: windowFeatures.width != nil)
         (webView as? SunsetWebView)?.pendingPlacement = nil
         if placement == .privateTab {
             // Not WebKit's page: its configuration would tie it to this page's store.
@@ -123,6 +141,12 @@ import WebKit
         let opened = WebContent(configuration: configuration, settings: content.settings)
         content.onOpen(opened, placement)
         return opened.webView
+    }
+
+    /// A page asked for by one of the menu's items the person chose (Sunset's link items, WebKit's Open Image or Video) is
+    /// theirs: WebKit marks it as not opened by the person, and the pop-up rule would stop it (note n64).
+    nonisolated static func skipsPopupRule(chosen: WebPlacement?) -> Bool {
+        chosen != nil
     }
 
     /// Where a page WebKit asks for goes: where Sunset's own menu item said; else a window for a pop-up the page sized (R1: "a

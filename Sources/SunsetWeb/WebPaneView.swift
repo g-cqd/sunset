@@ -134,6 +134,13 @@ struct WebPaneView: View {
             HStack {
                 Button("Try Again") { content.reload() }.keyboardShortcut(.defaultAction)
                 if failure.isCertificate { Button("Visit Anyway\u{2026}") { warning = true } }
+                // HTTPS failed and the settings ask (`web.httpsUpgrade` "ask"): the same address over http, for this page.
+                if content.offersHTTP(after: failure) {
+                    Button("Load over HTTP") { content.loadOverHTTP() }
+                        .help(
+                            "This site did not answer over HTTPS. Over HTTP what you send and see can be read on the way."
+                        )
+                }
             }
         }
         .padding(Design.Space.xxl)

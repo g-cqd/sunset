@@ -9,13 +9,14 @@ import WebKit
 /// where the running WebKit has it, so that one source builds with either SDK.
 @MainActor
 enum WebProtection {
-    static func preferences(for settings: WebSettings) -> WKWebpagePreferences {
+    static func preferences(for settings: WebSettings, host: String? = nil, allowedOverHTTP: Set<String> = [])
+        -> WKWebpagePreferences
+    {
         let preferences = WKWebpagePreferences()
-        switch settings.httpsUpgrade {
-            case .off: preferences.preferredHTTPSNavigationPolicy = .keepAsRequested
-            case .fallback: preferences.preferredHTTPSNavigationPolicy = .automaticFallbackToHTTP
-            case .ask: preferences.preferredHTTPSNavigationPolicy = .userMediatedFallbackToHTTP
-            case .only: preferences.preferredHTTPSNavigationPolicy = .errorOnFailure
+        switch settings.httpsUpgrade.policy(host: host, allowedOverHTTP: allowedOverHTTP) {
+            case .keepAsRequested: preferences.preferredHTTPSNavigationPolicy = .keepAsRequested
+            case .fallBackQuietly: preferences.preferredHTTPSNavigationPolicy = .automaticFallbackToHTTP
+            case .failVisibly: preferences.preferredHTTPSNavigationPolicy = .errorOnFailure
         }
         if #available(macOS 26.5, *) {
             preferences.securityRestrictionMode = settings.hardening == .noJIT ? .maximizeCompatibility : .none

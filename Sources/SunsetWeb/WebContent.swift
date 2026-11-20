@@ -122,6 +122,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var coordinator: WebCoordinator?
     /// Hosts whose untrusted certificate the person chose to accept, for this page (Visit Anyway).
     @ObservationIgnored var acceptedHosts: Set<String> = []
+    /// Hosts the person chose to load over http on this page, HTTPS having failed ("ask", `web.httpsUpgrade`).
+    @ObservationIgnored var httpHosts: Set<String> = []
     /// A private page's answers, in memory for its life (web step h).
     @ObservationIgnored var ownPermissions: SitePermissions?
     /// The host last typed without a scheme while the http setting is on: if https fails for it, http is tried (`WebCoordinator`).

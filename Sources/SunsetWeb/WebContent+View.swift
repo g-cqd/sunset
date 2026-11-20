@@ -53,6 +53,7 @@ extension WebContent {
         view.allowsMagnification = true
         view.offersPrivateTab = !isPrivate
         view.onFocus = { [weak self] in self?.onFocusRequest() }
+        wireSearch(view)
         let coordinator = WebCoordinator(content: self)
         view.navigationDelegate = coordinator
         view.uiDelegate = coordinator
@@ -140,5 +141,18 @@ extension WebContent {
         url = new
         if otherSite { siteChanged() }
         onChange()
+    }
+
+    /// The text menu's Search the Web: Sunset's engine, the page's selection, a page the page opened.
+    private func wireSearch(_ view: SunsetWebView) {
+        view.runtime = runtime
+        view.searchEngine = { [weak self] in self?.settings.engine }
+        view.onSearch = { [weak self] address in
+            guard let self else { return }
+            onOpen(WebContent(url: address, settings: settings), .opened)
+        }
+        view.searchWords = { [weak view] in
+            try? await view?.evaluateJavaScript("String(getSelection())") as? String
+        }
     }
 }

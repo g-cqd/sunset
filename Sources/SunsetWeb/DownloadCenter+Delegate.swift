@@ -72,3 +72,58 @@ extension DownloadCenter: WKDownloadDelegate {
         save()
     }
 }
+
+extension DownloadCenter {
+    /// Bytes WebKit already has, and where they come from.
+    package struct Saved: Sendable {
+        package let data: Data
+        package let name: String
+        package let source: URL?
+        package let origin: URL?
+        package let isPrivate: Bool
+
+        package init(data: Data, name: String, source: URL?, origin: URL?, isPrivate: Bool) {
+            self.data = data
+            self.name = name
+            self.source = source
+            self.origin = origin
+            self.isPrivate = isPrivate
+        }
+    }
+
+    /// Bytes WebKit already has, to be saved as a download is (a film's Download Video: WebKit hands them over instead of
+    /// making a download; the owner's note n64): approved if risky, the place asked for or the folder, a free name,
+    /// quarantined, listed as finished. Nil when it is given up.
+    package func save(_ saved: Saved, folder: URL?, asks: Bool?) async -> DownloadItem? {
+        let name = DownloadNaming.cleaned(saved.name)
+        if settings.approveRisky, DownloadNaming.isSuspicious(name), await !approve(name, saved.origin) { return nil }
+        let place: URL
+        var wanted = name
+        if asks ?? settings.askWhereToSave {
+            guard let chosen = await choose(name) else { return nil }
+            place = chosen.deletingLastPathComponent()
+            wanted = chosen.lastPathComponent
+        } else {
+            place = folder ?? settings.folder
+        }
+        try? FileManager.default.createDirectory(at: place, withIntermediateDirectories: true)
+        let free = DownloadNaming.free(wanted) {
+            FileManager.default.fileExists(atPath: place.appending(path: $0).path)
+        }
+        let final = place.appending(path: free)
+        guard (try? saved.data.write(to: final, options: .withoutOverwriting)) != nil else { return nil }
+        Quarantine.mark(final, source: saved.source, origin: saved.origin)
+        let item = DownloadItem(source: saved.source, origin: saved.origin, name: free)
+        item.isPrivate = saved.isPrivate
+        item.destination = final
+        item.expected = Int64(saved.data.count)
+        item.received = Int64(saved.data.count)
+        item.state = .finished
+        item.finished = runtime.now()
+        insert(item)
+        onFinished(item)
+        if settings.keep == .whenFinished { items.removeAll { $0 === item } }
+        save()
+        return item
+    }
+}

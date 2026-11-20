@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import Testing
 import WebKit
@@ -27,6 +28,9 @@ struct LinkMenuTests {
         )
         original.target = webKit
         original.representedObject = "the link"
+        // WebKit tells its actions apart by the item's tag (`forwardContextMenuAction:`; seen 2026-11-20: 1 for Open Link
+        // in New Window): an item that sends it another tag runs another action, or none.
+        original.tag = 1
         let items = view.linkItems(replacing: original)
         #expect(
             items.map(\.title) == [
@@ -40,26 +44,64 @@ struct LinkMenuTests {
         _ = view.perform(action, with: down)
         #expect(view.pendingPlacement == .splitDown)
         #expect(webKit.hits.count == 1 && webKit.hits.first?.representedObject as? String == "the link")
+        #expect(items.allSatisfy { $0.tag == 1 }, "each item keeps WebKit's tag")
     }
 
-    /// Notes n64 and n65: WebKit's Open Image in New Window opens the picture in a tab, shown; its title says where.
-    @Test func `WebKit's image and video items say they open a tab; the link's and others are left`() {
+    /// Notes n64 and n65: WebKit's Open Image in New Window opens the picture in a tab, shown; its title says where. WebKit
+    /// marks the page it asks for as not opened by the person (probed 2026-11-20, `/tmp/n64probe/menu.swift`): the item says
+    /// it was chosen, so that the pop-up rule does not stop it.
+    @Test func `WebKit's image and video items say they open a tab, and that they were chosen; others are left`() throws
+    {
+        let view = SunsetWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        let webKit = WebKitItem()
         let menu = NSMenu()
         for (identifier, title) in [
             ("WKMenuItemIdentifierOpenImageInNewWindow", "Open Image in New Window"),
             ("WKMenuItemIdentifierOpenMediaInNewWindow", "Open Video in New Window"),
-            ("WKMenuItemIdentifierOpenLinkInNewWindow", "Open Link in New Window"),
             ("WKMenuItemIdentifierDownloadImage", "Download Image")
         ] {
-            let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+            let item = NSMenuItem(title: title, action: #selector(WebKitItem.open(_:)), keyEquivalent: "")
+            item.target = webKit
             item.identifier = NSUserInterfaceItemIdentifier(identifier)
             menu.addItem(item)
         }
-        SunsetWebView.retitleOpenedItems(in: menu)
-        #expect(
-            menu.items.map(\.title) == [
-                "Open Image in New Tab", "Open Video in New Tab", "Open Link in New Window", "Download Image"
-            ]
-        )
+        view.retitleOpenedItems(in: menu)
+        #expect(menu.items.map(\.title) == ["Open Image in New Tab", "Open Video in New Tab", "Download Image"])
+        let image = menu.items[0]
+        _ = view.perform(image.action, with: image)
+        #expect(view.pendingPlacement == .opened, "chosen: WebKit's request is let through")
+        #expect(webKit.hits.count == 1, "then WebKit's own action")
+        #expect(menu.items[2].target === webKit, "Download Image left as it is")
+    }
+
+    /// A page WebKit asks for after a menu item was chosen is let through; one asked without is the pop-up rule's.
+    @Test func `a chosen item's page skips the pop-up rule`() {
+        #expect(WebCoordinator.skipsPopupRule(chosen: .opened))
+        #expect(WebCoordinator.skipsPopupRule(chosen: .splitRight))
+        #expect(!WebCoordinator.skipsPopupRule(chosen: nil))
+    }
+
+    /// Seen on screen 2026-11-20: the text menu's Search with Google opened Safari (WebKit gives the words to the system's
+    /// default browser). In Sunset it searches with Sunset's engine, in a tab after the page, shown, titled with its name.
+    @Test func `WebKit's Search the web searches with Sunset's engine in a tab`() async throws {
+        var settings = WebSettings(applicationName: "x")
+        settings.engine = SearchEngine.builtIn.first { $0.name == "DuckDuckGo" } ?? settings.engine
+        let page = WebContent(url: nil, settings: settings)
+        var opened: [(WebContent, WebPlacement)] = []
+        page.onOpen = { opened.append(($0, $1)) }
+        page.setState(focused: true, visible: true)
+        defer { page.stop() }
+        let menu = NSMenu()
+        let item = NSMenuItem(title: "Search with Google", action: #selector(WebKitItem.open(_:)), keyEquivalent: "")
+        item.identifier = NSUserInterfaceItemIdentifier("WKMenuItemIdentifierSearchWeb")
+        menu.addItem(item)
+        let view = try #require(page.webView as? SunsetWebView)
+        view.searchWords = { "a few words" }
+        view.retitleSearchItem(in: menu)
+        #expect(item.title == "Search with \(settings.engine.name)")
+        _ = view.perform(item.action, with: item)
+        try await waitUntil(timeout: .seconds(5), label: "the search opened") { opened.count == 1 }
+        #expect(opened[0].1 == .opened)
+        #expect(opened[0].0.url == settings.engine.searchURL("a few words"))
     }
 }

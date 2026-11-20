@@ -1,4 +1,5 @@
 import SunsetPrivate
+import SunsetRuntime
 import WebKit
 
 /// What becomes a download (web step f): an attachment, and what WebKit cannot show; what it can show (a PDF, a picture) opens in the page.
@@ -24,12 +25,39 @@ extension WebCoordinator {
     /// Download Image, Download Video and Download Linked File: WebKit makes the download itself and hands it over by a private
     /// method (the owner's note n64: nothing took it, and nothing happened).
     static func installMenuDownloads() {
-        WebDownloadHooks.install(on: WebCoordinator.self) { delegate, webView, download in
-            guard let coordinator = delegate as? WebCoordinator, let webView = webView as? WKWebView,
-                let download = download as? WKDownload
-            else { return }
-            coordinator.adopt(download, from: webView)
-        }
+        WebDownloadHooks.install(
+            on: WebCoordinator.self,
+            contextMenuDownload: { delegate, webView, download in
+                guard let coordinator = delegate as? WebCoordinator, let webView = webView as? WKWebView,
+                    let download = download as? WKDownload
+                else { return }
+                coordinator.adopt(download, from: webView)
+            },
+            saveData: { delegate, webView, file in
+                guard let coordinator = delegate as? WebCoordinator, let webView = webView as? WKWebView else { return }
+                coordinator.save(file, in: webView)
+            }
+        )
+    }
+
+    /// Download Video's bytes, saved as the page's downloads are.
+    func save(_ file: WebDownloadHooks.SavedBytes, in webView: WKWebView) {
+        let content = content
+        let saved = DownloadCenter.Saved(
+            data: file.data,
+            name: file.name,
+            source: file.source,
+            origin: webView.url,
+            isPrivate: content?.isPrivate ?? false
+        )
+        content?.runtime
+            .task { @MainActor in
+                _ = await DownloadCenter.shared.save(
+                    saved,
+                    folder: content?.settings.downloadFolder,
+                    asks: content?.settings.askWhereToSave
+                )
+            }
     }
 
     /// The download is the page's: in Sunset's list, in the page's folder, private with a private page.

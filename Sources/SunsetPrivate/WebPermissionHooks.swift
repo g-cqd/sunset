@@ -12,15 +12,13 @@ public enum WebPermissionHooks {
         _ delegate: AnyObject, _ webView: AnyObject, _ origin: AnyObject, _ decide: @escaping (Bool) -> Void
     ) -> Void
 
-    private static var installed: Set<ObjectIdentifier> = []
-
     /// Adds the screen and notification questions to `delegateClass` (a `WKUIDelegate`'s class), once.
     public static func install(
         on delegateClass: AnyClass,
         screen: @escaping Question,
         notifications: @escaping Question
     ) {
-        guard installed.insert(ObjectIdentifier(delegateClass)).inserted else { return }
+        guard ClassHooks.first("permissions", on: delegateClass) else { return }
         let display:
             @convention(block) (
                 AnyObject, AnyObject, AnyObject, AnyObject?, Bool, @escaping @convention(block) (Int) -> Void
@@ -42,7 +40,7 @@ public enum WebPermissionHooks {
                     handler in
                     MainActor.assumeIsolated { notifications(delegate, webView, origin) { handler($0) } }
                 }
-        add(
+        ClassHooks.add(
             #Interned(
                 "_webView:requestDisplayCapturePermissionForOrigin:initiatedByFrame:withSystemAudio:decisionHandler:"
             ),
@@ -50,7 +48,7 @@ public enum WebPermissionHooks {
             "v@:@@@B@?",
             to: delegateClass
         )
-        add(
+        ClassHooks.add(
             #Interned("_webView:requestNotificationPermissionForSecurityOrigin:decisionHandler:"),
             notify,
             "v@:@@@?",
@@ -78,9 +76,5 @@ public enum WebPermissionHooks {
         guard action.responds(to: selector) else { return nil }
         let getter = unsafe unsafeBitCast(action.method(for: selector), to: GetFlag.self)
         return getter(action, selector)
-    }
-
-    private static func add(_ name: String, _ block: Any, _ types: String, to cls: AnyClass) {
-        _ = unsafe class_addMethod(cls, NSSelectorFromString(name), imp_implementationWithBlock(block), types)
     }
 }
