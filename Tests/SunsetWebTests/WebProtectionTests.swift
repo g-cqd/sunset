@@ -18,7 +18,7 @@ struct WebProtectionTests {
         page.setState(focused: false, visible: true)
         let preferences = try #require(page.webView?.configuration.defaultWebpagePreferences)
         #expect(preferences.preferredHTTPSNavigationPolicy == .errorOnFailure)
-        if #available(macOS 26.4, *) { #expect(preferences.securityRestrictionMode == .maximizeCompatibility) }
+        if #available(macOS 26.5, *) { #expect(preferences.securityRestrictionMode == .maximizeCompatibility) }
         page.stop()
     }
 
@@ -27,7 +27,7 @@ struct WebProtectionTests {
         page.setState(focused: false, visible: true)
         let preferences = try #require(page.webView?.configuration.defaultWebpagePreferences)
         #expect(preferences.preferredHTTPSNavigationPolicy == .automaticFallbackToHTTP)
-        if #available(macOS 26.4, *) { #expect(preferences.securityRestrictionMode == WKSecurityRestrictionMode.none) }
+        if #available(macOS 26.5, *) { #expect(preferences.securityRestrictionMode == WKSecurityRestrictionMode.none) }
         page.stop()
     }
 
