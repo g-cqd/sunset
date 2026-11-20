@@ -19,7 +19,7 @@ In his order. Each step starts with its questions and probes; nothing below is a
 | Step | What | Task | Status |
 |---|---|---|---|
 | A | DNS over HTTPS, TLS and QUIC for the pages (0022's note n75): study g-cqd/http for what it already implements, and whether it, or parts, belong in an Aemi package or Aemi itself; how a web view's name resolution can be reached at all (the open question of 0022) | t13 | not-started |
-| B | Extensions, Chrome's and Firefox's, the proxy interfaces first (with 0022 W-f's `web.proxy`) | t14 | not-started |
+| B | Extensions, Chrome's and Firefox's (the owner, 2026-11-20: without the proxy, which waits on t13): probed on WebKit's engine (diary 2026-11-20-13), ADR-0109 proposed | t14 | in-progress |
 | C | Extensions, the rest (0022's study t161) | t14 | not-started |
 | D | Impersonation beyond identity: the missing APIs, error messages and codecs of the browser shown, studied from driceroland/Search; each one put in only where a page would not break for it (ADR-0074's rule 2 to be revisited with the owner) | t15 | not-started |
 | S1 | A setting: a page's request to notify without a click asks the person (Chrome) or not (Safari, now; ADR-0067) | t16 | not-started |
