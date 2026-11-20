@@ -17,7 +17,6 @@ extension HelpTopic {
         "web.askWhereToSave": .downloads,
         "profiles.list": .profiles,
         "web.privateWindowShares": .privateBrowsing,
-        "web.httpFallback": .plainHTTP,
         "spaces.favorites": .spaces,
         "spaces.pinned": .spaces,
         "features": .features,

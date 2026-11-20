@@ -12,7 +12,9 @@ extension SettingsOption {
                     (.only, "HTTPS only"), (.off, "As the address says")
                 ]
             )
-            .noted("A page over HTTP shows Not Secure in its address."),
+            .noted(
+                "It decides for addresses typed without a scheme too. A page over HTTP shows Not Secure in its address."
+            ),
             choice(
                 "web.hardening",
                 "Hardened pages",

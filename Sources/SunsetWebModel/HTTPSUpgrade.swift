@@ -27,6 +27,12 @@ extension HTTPSUpgrade {
         }
     }
 
+    /// An address typed without a scheme, failing over HTTPS, is tried over HTTP without a word (the owner, 2026-11-20: one
+    /// setting for both): where HTTPS comes first and http follows, or where nothing is upgraded.
+    package var retriesTypedOverHTTP: Bool {
+        self == .fallback || self == .off
+    }
+
     /// Whether a page that failed at HTTPS is offered http.
     package var offersHTTP: Bool {
         self == .ask

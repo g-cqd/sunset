@@ -143,7 +143,8 @@ extension Configuration {
         public var engines: [Engine] = []
         /// What is typed is sent to the engine for suggestions (never an address of this machine or the local network).
         public var suggestions = true
-        /// A host typed without a scheme that fails over https is tried over http (marked Not Secure).
+        /// Retired (the owner, 2026-11-20): `web.httpsUpgrade` decides for a typed address too. Still read, so that a file
+        /// that sets it reads cleanly; nothing uses it.
         public var httpFallback = false
         public var httpsUpgrade = HTTPSUpgrade.fallback
         public var hardening = Hardening.off

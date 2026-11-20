@@ -14,7 +14,9 @@ extension WebContent {
 
     package func open(_ input: WebInput) {
         guard let address = input.url else { return }
-        if case .address(_, let guessed) = input, guessed, settings.httpFallback { fallbackHost = address.host() }
+        if case .address(_, let guessed) = input, guessed, settings.httpsUpgrade.retriesTypedOverHTTP {
+            fallbackHost = address.host()
+        }
         load(address)
     }
 

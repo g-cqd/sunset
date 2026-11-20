@@ -106,13 +106,6 @@ extension SettingsOption {
                 "A pop-up window has no sidebar; Open in moves its page to a Space as a tab. A link to a new tab stays a tab."
             )
             .grouped("New pages"),
-            toggle(
-                "web.httpFallback",
-                "Fall back to HTTP",
-                "http https insecure",
-                \.web.httpFallback,
-                label: "Try HTTP when HTTPS fails for a host typed without a scheme"
-            ),
             choice(
                 "web.zoomScope",
                 "Page zoom",

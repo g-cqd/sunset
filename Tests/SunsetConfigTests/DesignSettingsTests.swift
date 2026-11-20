@@ -43,6 +43,13 @@ import Testing
         #expect(!read.configuration.web.showOpenedPages && read.issues.isEmpty)
     }
 
+    /// The owner, 2026-11-20: Fall back to HTTP is Secure connections' to decide; a file that still sets it reads cleanly.
+    @Test func `Fall back to HTTP is gone from Settings; a file that sets it still reads`() throws {
+        #expect(!SettingsOption.all.contains { $0.id == "web.httpFallback" })
+        let read = try ConfigurationParser.parse(#"{ "web": { "httpFallback": true } }"#)
+        #expect(read.issues.isEmpty)
+    }
+
     /// The owner's note n66: links from other apps open in a peek window, by default.
     @Test func `links from other apps peek by default; the file can say not`() throws {
         #expect(Configuration().web.peekLinks)

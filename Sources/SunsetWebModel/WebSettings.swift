@@ -17,7 +17,6 @@ package struct WebSettings: Sendable, Equatable {
     /// The one words are searched with.
     package var engine: SearchEngine
     package var suggestions: Bool
-    package var httpFallback: Bool
     package var httpsUpgrade = HTTPSUpgrade.fallback
     /// Which pop-ups open in a pop-up window (`web.popupWindows`).
     package var popupWindows = PopupWindows.sized
@@ -71,7 +70,6 @@ package struct WebSettings: Sendable, Equatable {
         engines: [SearchEngine] = SearchEngine.builtIn,
         engine: String = "Google",
         suggestions: Bool = true,
-        httpFallback: Bool = false,
         privateSuggestions: Bool = false,
         zoomScope: ZoomScope = .site,
         textOnlyZoom: Bool = false
@@ -88,7 +86,6 @@ package struct WebSettings: Sendable, Equatable {
         self.engine =
             engines.first { $0.name.lowercased() == engine.lowercased() } ?? engines.first ?? SearchEngine.builtIn[0]
         self.suggestions = suggestions
-        self.httpFallback = httpFallback
     }
 
     /// What Sunset says it is in the requests it makes without a page (search suggestions): the default browser's

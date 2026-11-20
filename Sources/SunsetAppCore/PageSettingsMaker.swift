@@ -40,7 +40,6 @@ package struct PageSettingsMaker: Sendable {
             engines: WebSettings.engines(adding: added),
             engine: web.engine,
             suggestions: web.suggestions,
-            httpFallback: web.httpFallback,
             privateSuggestions: web.privateSuggestions,
             zoomScope: web.zoomScope == .site ? .site : (web.zoomScope == .session ? .session : .page),
             textOnlyZoom: web.textOnlyZoom
