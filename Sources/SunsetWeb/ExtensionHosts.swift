@@ -15,6 +15,14 @@ package import SunsetWebModel
     package var focused: () -> ExtensionWindow? = { nil }
     /// Installs the package at an address a page offered, into a profile: fetched, then the prompt (roadmap 0109 E).
     package var installPackage: (URL, UUID?) -> Void = { _, _ in }
+    /// Opens a page for an extension (`tabs.create`, a link in its popup, its options page; the owner's note n67): at an
+    /// address or blank, in a window of the profile (the one named, else the one in front), shown or not. Given by the app.
+    package var openTab: (_ url: URL?, _ window: ExtensionWindow?, _ profile: UUID?, _ active: Bool) -> WebContent? = {
+        _,
+        _,
+        _,
+        _ in nil
+    }
 
     package func host(for profile: UUID?) -> ExtensionHost? {
         guard let root else { return nil }
@@ -38,5 +46,6 @@ package import SunsetWebModel
         hosts = [:]
         windows = { [] }
         focused = { nil }
+        openTab = { _, _, _, _ in nil }
     }
 }

@@ -13,6 +13,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Each profile's extensions, from its folder (roadmap 0109), before any page is made.
         ExtensionHosts.shared.root = URL(filePath: StoragePlaces.current.extensions)
         AppExtensionWindows.start()
+        AppExtensionTabs.start()
         ExtensionHosts.shared.installFromStore = { link, profile in
             AppActions.shared.install(from: link, profile: profile)
         }

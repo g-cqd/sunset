@@ -37,4 +37,44 @@ import WebKit
         guard let host, let window = ExtensionHosts.shared.focused(), window.profile == host.profile else { return nil }
         return window
     }
+
+    /// A tab an extension opens (`tabs.create`, a link in its popup; the owner's note n67): the app opens the page in the
+    /// window named, else the one in front, of the extension's profile.
+    func webExtensionController(
+        _ controller: WKWebExtensionController,
+        openNewTabUsing configuration: WKWebExtension.TabConfiguration,
+        for context: WKWebExtensionContext
+    ) async throws -> (any WKWebExtensionTab)? {
+        guard let host else { return nil }
+        let window = configuration.window as? ExtensionWindow
+        let page = ExtensionHosts.shared.openTab(configuration.url, window, host.profile, configuration.shouldBeActive)
+        return page?.extensionTab
+    }
+
+    /// A window an extension opens (`windows.create`): its first address as a tab of the window in front, as Sunset's own
+    /// opened pages go (a window per extension call would pile up).
+    func webExtensionController(
+        _ controller: WKWebExtensionController,
+        openNewWindowUsing configuration: WKWebExtension.WindowConfiguration,
+        for context: WKWebExtensionContext
+    ) async throws -> (any WKWebExtensionWindow)? {
+        guard let host else { return nil }
+        let page = ExtensionHosts.shared.openTab(
+            configuration.tabURLs.first,
+            nil,
+            host.profile,
+            configuration.shouldBeFocused
+        )
+        guard let page else { return nil }
+        return ExtensionHosts.shared.windows().first { $0.holds(page) }
+    }
+
+    /// The extension's options page (`runtime.openOptionsPage`, its menu's Options), as a tab of the window in front.
+    func webExtensionController(
+        _ controller: WKWebExtensionController,
+        openOptionsPageFor context: WKWebExtensionContext
+    ) async throws {
+        guard let host, let url = context.optionsPageURL else { return }
+        _ = ExtensionHosts.shared.openTab(url, nil, host.profile, true)
+    }
 }
