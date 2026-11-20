@@ -10,6 +10,10 @@ extension WebContent {
     /// `keepingHistory`, its place in its history kept to be made again.
     func endView(keepingHistory: Bool) {
         guard let view = webView else { return }
+        if let tab = extensionTab {
+            view.configuration.webExtensionController?.didCloseTab(tab, windowIsClosing: false)
+            extensionTab = nil
+        }
         if keepingHistory { savedHistory = view.interactionState as? Data }
         soundWatch = nil
         notificationClicks.end()

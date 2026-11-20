@@ -12,11 +12,11 @@ header row.
 
 | Step | What | Status |
 |---|---|---|
-| A | Packages: `.crx` (CRX3's header off), `.xpi` and `.zip` as WebKit's zip, unpacked folders; each install a copy in the profile's folder | not-started |
-| B | The engine wired: a persistent controller per profile; WebContent as `WKWebExtensionTab`, windows as `WKWebExtensionWindow`, opened, closed, activated | not-started |
+| A | Packages: `.crx` (CRX3's header off), `.xpi` and `.zip` as WebKit's zip, unpacked folders; each install a copy in the profile's folder | done (diary 2026-11-20-13) |
+| B | The engine wired: a persistent controller per profile; WebContent as `WKWebExtensionTab`, windows as `WKWebExtensionWindow`, opened, closed, activated | in-progress: controllers per profile, pages as tabs (opened, closed), private by each context's access: done; windows and activation not |
 | C | Install: the prompt listing what it asks, granted at install; Settings ▸ Extensions (on, off, private windows, remove, what it may do) | not-started |
 | D | Actions: icons, badges and popups in the sidebar's header row between the sidebar button and the lights | not-started |
 | E | The stores' pages: "Add to Chrome" and "Add to Firefox" install in Sunset | not-started |
 | F | Private windows per extension; Sunset's own pages and views never reached | not-started |
 
-Not done: everything above.
+Not done: B's windows and activation; C–F.

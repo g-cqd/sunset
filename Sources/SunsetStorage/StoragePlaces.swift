@@ -75,6 +75,10 @@ public struct StoragePlaces: Sendable, Equatable {
     public var documents: String {
         directory + "/Documents"
     }
+    /// The extensions installed, a folder per profile (roadmap 0109).
+    public var extensions: String {
+        directory + "/Extensions"
+    }
     /// What the library shows of the documents; rebuilt from them (ST-4).
     public var library: String {
         directory + "/library.sqlite"

@@ -126,6 +126,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var httpHosts: Set<String> = []
     /// The size the page that opened it asked for, as a pop-up (`window.open` with a width): its window's (task t132).
     @ObservationIgnored package var popupSize: CGSize?
+    /// It, as its profile's extensions see a tab (roadmap 0109 B).
+    @ObservationIgnored var extensionTab: ExtensionTab?
     /// A private page's answers, in memory for its life (web step h).
     @ObservationIgnored var ownPermissions: SitePermissions?
     /// The host last typed without a scheme while the http setting is on: if https fails for it, http is tried (`WebCoordinator`).

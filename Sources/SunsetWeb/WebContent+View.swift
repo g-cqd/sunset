@@ -21,10 +21,10 @@ extension WebContent {
             WebProxy.applyCurrent(to: configuration.websiteDataStore)
         }
         configuration.applicationNameForUserAgent = settings.applicationName
-        LinkHover.install(on: configuration, for: self)
-        WebNotifications.install(on: configuration, for: self)
-        IconWatch.install(on: configuration, for: self)
-        TextWatch.install(on: configuration, for: self)
+        if given == nil {
+            configuration.webExtensionController = ExtensionHosts.shared.host(for: settings.profile)?.controller
+        }
+        installWatches(on: configuration)
         SignInWatch.install(on: configuration, privately: isPrivate, profile: settings.profile)
         if !isPrivate { shareWrapper = ShareWrapper.install(on: configuration, for: self) }
         if settings.agentScripts { AgentScript.install(on: configuration) }
@@ -45,6 +45,7 @@ extension WebContent {
                 permissions.answer(.autoplay, for: host) == .allow ? [] : .audio
         }
         let view = SunsetWebView(frame: .zero, configuration: configuration)
+        openAsExtensionTab(in: configuration.webExtensionController)
         // Ads and trackers blocked (W-c), unless paused for the site.
         ContentBlocker.shared.attach(view, host: url?.host(), blocks: settings.blocking, profile: settings.profile)
         view.customUserAgent = agent(for: url).userAgent
@@ -154,5 +155,22 @@ extension WebContent {
         view.searchWords = { [weak view] in
             try? await view?.evaluateJavaScript("String(getSelection())") as? String
         }
+    }
+
+    /// Its profile's extensions see it as a tab (roadmap 0109 B; a private page only those allowed there: each context's own
+    /// access to private data).
+    private func openAsExtensionTab(in controller: WKWebExtensionController?) {
+        guard let controller else { return }
+        let tab = ExtensionTab(self)
+        extensionTab = tab
+        controller.didOpenTab(tab)
+    }
+
+    /// What reads the page for Sunset: the link under the pointer, its notifications, its icon, its text.
+    private func installWatches(on configuration: WKWebViewConfiguration) {
+        LinkHover.install(on: configuration, for: self)
+        WebNotifications.install(on: configuration, for: self)
+        IconWatch.install(on: configuration, for: self)
+        TextWatch.install(on: configuration, for: self)
     }
 }
