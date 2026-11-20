@@ -14,9 +14,14 @@ import Testing
         )
     }
 
-    @Test func `a standard window has 16 points, as AppKit reports it on this system`() {
-        #expect(WindowCornerRadius.of(window([.titled, .closable, .resizable])) == 16)
-        #expect(WindowCornerRadius.of(window([.titled, .closable, .resizable, .fullSizeContentView])) == 16)
+    /// What AppKit reports: 16 points on macOS 27.0.1 (measured here), 12 on macOS 26 (CI's macos-26-arm64 runner, 2026-11-20).
+    private var standardRadius: Double {
+        if #available(macOS 27, *) { 16 } else { 12 }
+    }
+
+    @Test func `a standard window has its system's radius, as AppKit reports it`() {
+        #expect(WindowCornerRadius.of(window([.titled, .closable, .resizable])) == standardRadius)
+        #expect(WindowCornerRadius.of(window([.titled, .closable, .resizable, .fullSizeContentView])) == standardRadius)
     }
 
     @Test func `a borderless window has square corners`() {
