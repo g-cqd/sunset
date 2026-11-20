@@ -11,21 +11,21 @@ public enum WebProcessControl {
 
     /// Ends `webView`'s process; WebKit says the process ended (`webViewWebContentProcessDidTerminate`) before this returns.
     public static func end(_ webView: NSObject) -> Bool {
-        let selector = NSSelectorFromString(#Interned("_killWebContentProcessAndResetState"))
-        guard webView.responds(to: selector) else { return false }
-        let call = unsafe unsafeBitCast(webView.method(for: selector), to: Call.self)
-        call(webView, selector)
-        return true
+        call(NSSelectorFromString(#Interned("_killWebContentProcessAndResetState")), on: webView)
     }
 
     /// Closes `webView`'s page now, as when it is deallocated, whatever still holds the view (`_close`). False where WebKit
     /// no longer has it: the media suspended by the caller stays the guarantee.
     @discardableResult
     public static func close(_ webView: NSObject) -> Bool {
-        let selector = NSSelectorFromString(#Interned("_close"))
-        guard webView.responds(to: selector) else { return false }
-        let call = unsafe unsafeBitCast(webView.method(for: selector), to: Call.self)
-        call(webView, selector)
+        call(NSSelectorFromString(#Interned("_close")), on: webView)
+    }
+
+    /// Calls `selector`, which takes nothing and returns nothing, on `object`; false where it no longer answers it.
+    private static func call(_ selector: Selector, on object: NSObject) -> Bool {
+        guard object.responds(to: selector) else { return false }
+        let call = unsafe unsafeBitCast(object.method(for: selector), to: Call.self)
+        call(object, selector)
         return true
     }
 
