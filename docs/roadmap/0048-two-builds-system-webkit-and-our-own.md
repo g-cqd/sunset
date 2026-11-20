@@ -15,9 +15,9 @@ engine, t119) on, with patching added.
 | Step | What | Task | Status |
 |---|---|---|---|
 | A | WebKit's private interfaces for the network, through the `SunsetPrivate` seam | t27 | first probe done: a PAC script and fixed proxies work in a store made from the private configuration (docs/research/network-dns-proxy-extensions-2026-11-18.md); not wired |
-| B | The spike: WebKit from the tip of main built on this Mac, bundled, loaded by a signed Sunset; its time, size, and what is lost (DRM especially, as R5 asked) | t28 | in-progress: space freed (the owner, 2026-11-20); `Scripts/webkit.sh fetch` (2 min 33 s, 1.9 GB, sparse) and a release build running (diary 2026-11-20-17) |
+| B | The spike: WebKit from the tip of main built on this Mac, bundled, loaded by a signed Sunset; its time, size, and what is lost (DRM especially, as R5 asked) | t28 | in-progress: WebKit main built here in 1 h (36 GB); an app runs on it; an incremental build after a patch 3 min (diary 2026-11-20-17). Not yet: Sunset itself on it, signed, bundled; DRM |
 | C | The two builds: one target set, the engine chosen at build time; the system one stays the default and the light one | t28 | not-started |
-| D | Our patches on the own engine, kept as a series rebased on WebKit's main, on a cadence (ADR-0110: `Engine/WebKit/base`, `Engine/WebKit/patches`, `Scripts/webkit.sh`). The owner's order, 2026-11-20: W1–W3, W6, the resolver (0046 A, t13) | t28 | in-progress: 0001 (W2) written, applies on its base; a move refused safely where it did not apply; not built |
+| D | Our patches on the own engine, kept as a series rebased on WebKit's main, on a cadence (ADR-0110: `Engine/WebKit/base`, `Engine/WebKit/patches`, `Scripts/webkit.sh`). The owner's order, 2026-11-20: W1–W3, W6, the resolver (0046 A, t13) | t28 | in-progress: 0001 (W2) built and checked (fixes W2; WebKit's own tests unchanged); a move refused safely where it did not apply; W1, W3 next |
 
 The owner, later the same day: "consider webkit as a built component we could download at runtime and decide to have the
 user download it to make that happen"; "this computer can completely build webkit … patching webkit is also possible and
