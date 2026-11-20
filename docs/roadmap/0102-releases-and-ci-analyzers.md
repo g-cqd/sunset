@@ -31,6 +31,12 @@ ADR-0106 says why it is shaped this way.
 - **v0.1.0-alpha.2 published** (2026-11-20), a pre-release, signed tag at 216a01d (the note on top of the build's f4ecffb):
   the same way; 40 MB app, 20 MB zip (SHA-256 5167eeae…); downloaded back, checksum OK, quarantined: "Notarized Developer
   ID", ticket stapled. The tag's Release run cancelled by hand again.
+- **Every release says its build** (the owner, 2026-11-20): the count of commits, which `make-app.sh` already wrote as
+  `CFBundleVersion`, read back from the app by `package-release.sh`: in the zip's name
+  (`Sunset-v0.1.0-alpha.3-build620-macos-arm64.zip`), in `<folder>.build`, and from there in the release's title ("Sunset
+  0.1.0-alpha.3 (build 620)") and atop its note. Dry run here (618, the clone's count). The two alphas published before were
+  given it in their title and note (606, 609, read from their apps); their files keep their names (a new name breaks their
+  links and checksum files).
 
 ## Not done
 

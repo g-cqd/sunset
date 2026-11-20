@@ -4,6 +4,10 @@
 #
 #   Scripts/package-release.sh TAG [output folder]     TAG: v0.1.0 or v0.1.0-alpha.1; default folder: .build/dist
 #
+# Every release says its build: the count of commits make-app.sh writes as CFBundleVersion, read back from the app, in the
+# zip's name (Sunset-v0.1.0-alpha.3-build620-macos-arm64.zip) and in BUILD beside the zip's folder (the workflow puts it in
+# the release's title and note).
+#
 # Signing needs Signing.local.xcconfig (see its .example) and the Developer ID in a keychain; notarising, the credentials
 # Scripts/notarize-app.sh reads. SUNSET_SKIP_NOTARY=1 stops after the build (a dry run: the zip is not for people).
 set -euo pipefail
@@ -27,10 +31,16 @@ else
 fi
 
 arch="$(lipo -archs "$app/Contents/MacOS/Sunset" | tr ' ' '-')"
-name="Sunset-$tag-macos-$arch.zip"
+build="$(plutil -extract CFBundleVersion raw "$app/Contents/Info.plist")"
+case "$build" in
+    '' | *[!0-9]*) echo "package-release: the app's build number is '$build', not a count" >&2; exit 1 ;;
+esac
+name="Sunset-$tag-build$build-macos-$arch.zip"
 mkdir -p "$output"
+echo "$build" > "$output.build"
 rm -f "$output/$name" "$output/$name.sha256"
 ditto -c -k --keepParent "$app" "$output/$name"
 (cd "$output" && shasum -a 256 "$name" > "$name.sha256")
 cat "$output/$name.sha256"
+echo "build: $build"
 echo "$output/$name"
