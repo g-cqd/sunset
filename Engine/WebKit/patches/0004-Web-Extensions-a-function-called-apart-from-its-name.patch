@@ -1,120 +1,113 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
-Date: Fri, 20 Nov 2026 20:15:08 +0100
-Subject: [PATCH 4/9] Web Extensions: a function called apart from its
+Date: Fri, 20 Nov 2026 22:18:23 +0100
+Subject: [PATCH 04/11] Web Extensions: a function called apart from its
  namespace finds it (Sunset W1)
 
 `const getURL = browser.runtime.getURL; getURL(path)` gave undefined: each generated function finds its object from
 `this`, and a detached call has none. Firefox and Chrome give the URL; uBlock Origin's background page does this at its
 start and stopped there.
 
-Each generated class registers its own functions (JSWebExtensionWrapper::registerBoundFunctions); when an object of the
-class is wrapped, each of them is bound to it (Function.prototype.bind) and set as its own property. The same function is
-read each time (identity kept), and .call/.apply/.bind still work. A Dynamic function (shown or not by the extension's
-permissions, which change) is left unbound, so a bound copy cannot outlive a permission; a MainWorldOnly one is bound only
-where it is shown.
+A namespace is the one object of its class in its context (browser and chrome are the same object). When a wrapper is
+made, JSWebExtensionWrapper records it as its class's sole wrapper in the context (a weak map; a class with two objects
+alive at once, such as events or ports, is marked as having none). A generated function whose `this` is not an object of
+its class falls back to that sole wrapper; calls through the object take no new step, and nothing is bound or allocated
+per function.
+
+Measured (release, 10 runs, against the base): 200 000 getURL calls 485 ms against 491; 100 fresh extension frames 81 ms
+against 79; web content memory unchanged.
 
 diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
-index 04886dea1..57b868189 100644
+index e327ce3d5..0bc57a704 100644
 --- a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
 +++ b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
-@@ -533,6 +533,56 @@ static inline JSValueRef getCachedWrapper(JSContextRef context, JSWeakObjectMapR
+@@ -534,6 +534,49 @@ static inline JSValueRef getCachedWrapper(JSContextRef context, JSWeakObjectMapR
      return nullptr;
  }
  
-+NODELETE static HashMap<JSClassRef, Vector<String>>& boundFunctions()
++NODELETE static HashMap<JSGlobalContextRef, JSWeakObjectMapRef>& soleWrapperCache()
 +{
-+    static NeverDestroyed<HashMap<JSClassRef, Vector<String>>> functions;
-+    return functions;
++    static NeverDestroyed<HashMap<JSGlobalContextRef, JSWeakObjectMapRef>> wrappers;
++    return wrappers;
 +}
 +
-+void JSWebExtensionWrapper::registerBoundFunctions(JSClassRef jsClass, const JSStaticFunction* functions, std::initializer_list<ASCIILiteral> unbound)
++static void soleWrapperMapDestroyed(JSWeakObjectMapRef, void* context)
 +{
-+    ASSERT(jsClass);
-+    Vector<String> names;
-+    for (auto* entry = functions; entry && entry->name; ++entry) {
-+        auto name = String::fromLatin1(entry->name);
-+        if (std::ranges::none_of(unbound, [&](auto& literal) { return name == literal; }))
-+            names.append(WTF::move(name));
-+    }
-+    if (!names.isEmpty())
-+        boundFunctions().set(jsClass, WTF::move(names));
++    soleWrapperCache().remove(static_cast<JSGlobalContextRef>(context));
 +}
 +
-+static void bindFunctions(JSContextRef context, JSObjectRef wrapper, JSClassRef jsClass)
++static inline JSWeakObjectMapRef soleWrapperMap(JSContextRef context)
 +{
-+    auto iterator = boundFunctions().find(jsClass);
-+    if (iterator == boundFunctions().end())
++    auto globalContext = JSContextGetGlobalContext(context);
++    return soleWrapperCache().ensure(globalContext, [&] {
++        return JSWeakObjectMapCreate(globalContext, globalContext, soleWrapperMapDestroyed);
++    }).iterator->value;
++}
++
++// The context's global object marks a class with more than one object alive at once: no sole wrapper.
++static void recordSoleWrapper(JSContextRef context, JSClassRef jsClass, JSObjectRef wrapper)
++{
++    SUPPRESS_UNCOUNTED_LOCAL auto map = soleWrapperMap(context);
++    auto ambiguous = JSContextGetGlobalObject(context);
++    auto existing = JSWeakObjectMapGet(context, map, jsClass);
++    if (existing == ambiguous || existing == wrapper)
 +        return;
 +
-+    auto bindName = OpaqueJSString::tryCreate("bind"_s);
-+    for (auto& functionName : iterator->value) {
-+        auto name = OpaqueJSString::tryCreate(functionName);
-+        JSValueRef exception = nullptr;
-+        auto function = JSObjectGetProperty(context, wrapper, name.get(), &exception);
-+        if (exception || !function || !JSValueIsObject(context, function))
-+            continue;
-+
-+        auto functionObject = JSValueToObject(context, function, nullptr);
-+        if (!functionObject || !JSObjectIsFunction(context, functionObject))
-+            continue;
-+
-+        auto bind = JSObjectGetProperty(context, functionObject, bindName.get(), &exception);
-+        if (exception || !bind || !JSValueIsObject(context, bind))
-+            continue;
-+
-+        JSValueRef arguments[] = { wrapper };
-+        auto bound = JSObjectCallAsFunction(context, JSValueToObject(context, bind, nullptr), functionObject, 1, arguments, &exception);
-+        if (exception || !bound)
-+            continue;
-+
-+        JSObjectSetProperty(context, wrapper, name.get(), bound, kJSPropertyAttributeNone, &exception);
-+    }
++    JSWeakObjectMapSet(context, map, jsClass, existing && JSObjectGetPrivate(existing) ? ambiguous : wrapper);
 +}
 +
- JSValueRef JSWebExtensionWrapper::wrap(JSContextRef context, JSWebExtensionWrappable* object)
++JSObjectRef JSWebExtensionWrapper::soleWrapper(JSContextRef context, JSClassRef jsClass)
++{
++    if (!context || !jsClass)
++        return nullptr;
++
++    auto existing = JSWeakObjectMapGet(context, soleWrapperMap(context), jsClass);
++    if (!existing || existing == JSContextGetGlobalObject(context) || !JSObjectGetPrivate(existing))
++        return nullptr;
++
++    return existing;
++}
++
+ JSValueRef JSWebExtensionWrapper::wrap(JSContextRef context, JSWebExtensionWrappable* object, JSObjectRef holder, JSStringRef propertyName)
  {
      ASSERT(context);
-@@ -553,6 +603,8 @@ JSValueRef JSWebExtensionWrapper::wrap(JSContextRef context, JSWebExtensionWrapp
+@@ -570,6 +613,7 @@ JSValueRef JSWebExtensionWrapper::wrap(JSContextRef context, JSWebExtensionWrapp
+     ASSERT(wrapper);
  
      JSWeakObjectMapSet(context, wrappers, object, wrapper);
++    recordSoleWrapper(context, objectClass.get(), wrapper);
  
-+    bindFunctions(context, wrapper, objectClass.get());
-+
      return wrapper;
  }
- 
 diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
-index b5be9cbc6..27ff23b34 100644
+index 68425189f..827702fa6 100644
 --- a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
 +++ b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
-@@ -63,6 +63,10 @@ public:
+@@ -63,6 +63,11 @@ public:
+     // Wrapped for an attribute of `holder`: a new wrapper is kept as long as `holder` (what a script adds to a namespace
+     // object is not lost when the wrapper would be collected). A wrapper found in the cache costs nothing more.
+     static JSValueRef wrap(JSContextRef, JSWebExtensionWrappable*, JSObjectRef holder, JSStringRef propertyName);
++
++    // The one object of `jsClass` in this context (a namespace), or null when there is none or more than one: a function
++    // called apart from its object (`const getURL = browser.runtime.getURL; getURL(path)`) runs on it, as in Firefox and
++    // Chrome.
++    static JSObjectRef soleWrapper(JSContextRef, JSClassRef);
+     static JSWebExtensionWrappable* unwrap(JSContextRef, JSValueRef);
  
      static void initialize(JSContextRef, JSObjectRef);
-     static void finalize(JSObjectRef);
-+
-+    // A class's own functions, bound to each of its objects when wrapped: a function read from an object and called apart
-+    // from it (`const getURL = browser.runtime.getURL; getURL(path)`) still finds its object, as in Firefox and Chrome.
-+    static void registerBoundFunctions(JSClassRef, const JSStaticFunction*, std::initializer_list<ASCIILiteral> unbound);
- };
- 
- class WebExtensionCallbackHandler : public RefCounted<WebExtensionCallbackHandler> {
 diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
-index 2fd6abf1e..906e33cda 100644
+index 325c1ba05..0d9f49017 100644
 --- a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
 +++ b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
-@@ -391,6 +391,14 @@ EOF
+@@ -498,6 +498,11 @@ EOF
  
-     push(@contents, <<EOF);
-         jsClass = JSClassCreate(&definition);
-+EOF
-+
-+    # A function read from an object keeps it (bound when the object is wrapped). A Dynamic one (shown or not by the
-+    # extension's permissions, which change) is left as it was, so a bound copy cannot outlive a permission.
-+    my @dynamicFunctionNames = map { "\"" . $_->name . "\"_s" } grep { $_->extendedAttributes->{"Dynamic"} } @{$interface->operations};
-+    push(@contents, "        JSWebExtensionWrapper::registerBoundFunctions(jsClass, staticFunctions(), { " . join(", ", @dynamicFunctionNames) . " });\n");
-+
-+    push(@contents, <<EOF);
-     }
+ {
+     RefPtr impl = to${implementationClassName}(context, thisObject);
++    if (!impl) [[unlikely]] {
++        // Called apart from its object (`const getURL = browser.runtime.getURL; getURL(path)`): the one object of its class
++        // in this context, as in Firefox and Chrome. Nothing is bound and nothing is spent on calls through the object.
++        impl = to${implementationClassName}(context, JSWebExtensionWrapper::soleWrapper(context, ${className}::${classRefGetter}()));
++    }
+     if (${functionEarlyReturnCondition}) [[unlikely]]
+         return ${defaultEarlyReturnValue};
  
-     return jsClass;

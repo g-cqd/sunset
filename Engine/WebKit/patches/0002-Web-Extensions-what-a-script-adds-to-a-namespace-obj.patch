@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
-Date: Fri, 20 Nov 2026 20:11:09 +0100
-Subject: [PATCH 2/9] Web Extensions: what a script adds to a namespace object
- is kept (Sunset W3)
+Date: Fri, 20 Nov 2026 22:18:21 +0100
+Subject: [PATCH 02/11] Web Extensions: what a script adds to a namespace
+ object is kept (Sunset W3)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -11,12 +11,71 @@ A namespace (browser.runtime, browser.webRequest…) is wrapped again when its w
 cached weakly. What a script added to it (a property, a stand-in) was lost at some later read. Firefox and Chrome keep
 them; uBlock Origin relies on it at its start.
 
-The generated getter of an attribute whose type is an extension API object now pins the wrapper it returns to the object
-it is read from (JSObjectSetPrivateProperty): the namespace lives as long as browser does. The private property is not
-visible to scripts; a permission-dependent (Dynamic) attribute is still read through its getter each time.
+The generated getter of an attribute whose type is an extension API object wraps through
+JSWebExtensionWrapper::wrap(context, object, holder, propertyName): a wrapper made anew is pinned to the object it is read
+from (JSObjectSetPrivateProperty, invisible to scripts); one found in the cache costs nothing more than before.
 
+Measured (release, 10 runs, against the base): 200 000 reads of browser.runtime 269 ms against 276; web content memory
+188.4 MB against 188.5.
+
+diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
+index 04886dea1..e327ce3d5 100644
+--- a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
++++ b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
+@@ -39,6 +39,7 @@
+ #include <JavaScriptCore/JSClassRef.h>
+ #include <JavaScriptCore/JSLock.h>
+ #include <JavaScriptCore/JSObjectRef.h>
++#include <JavaScriptCore/JSObjectRefPrivate.h>
+ #include <JavaScriptCore/JSStringRefCPP.h>
+ #include <JavaScriptCore/JSWeakObjectMapRefPrivate.h>
+ #include <WebCore/JSDOMExceptionHandling.h>
+@@ -533,6 +534,23 @@ static inline JSValueRef getCachedWrapper(JSContextRef context, JSWeakObjectMapR
+     return nullptr;
+ }
+ 
++JSValueRef JSWebExtensionWrapper::wrap(JSContextRef context, JSWebExtensionWrappable* object, JSObjectRef holder, JSStringRef propertyName)
++{
++    ASSERT(context);
++
++    if (!object)
++        return JSValueMakeNull(context);
++
++    SUPPRESS_UNCOUNTED_LOCAL auto wrappers = wrapperCacheMap(context);
++    if (auto result = getCachedWrapper(context, wrappers, object))
++        return result;
++
++    auto wrapper = wrap(context, object);
++    if (holder && propertyName && JSValueIsObject(context, wrapper))
++        JSObjectSetPrivateProperty(context, holder, propertyName, wrapper);
++    return wrapper;
++}
++
+ JSValueRef JSWebExtensionWrapper::wrap(JSContextRef context, JSWebExtensionWrappable* object)
+ {
+     ASSERT(context);
+diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
+index b5be9cbc6..68425189f 100644
+--- a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
++++ b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
+@@ -59,10 +59,15 @@ class WebExtensionCallbackHandler;
+ class JSWebExtensionWrapper {
+ public:
+     static JSValueRef wrap(JSContextRef, JSWebExtensionWrappable*);
++
++    // Wrapped for an attribute of `holder`: a new wrapper is kept as long as `holder` (what a script adds to a namespace
++    // object is not lost when the wrapper would be collected). A wrapper found in the cache costs nothing more.
++    static JSValueRef wrap(JSContextRef, JSWebExtensionWrappable*, JSObjectRef holder, JSStringRef propertyName);
+     static JSWebExtensionWrappable* unwrap(JSContextRef, JSValueRef);
+ 
+     static void initialize(JSContextRef, JSObjectRef);
+     static void finalize(JSObjectRef);
++
+ };
+ 
+ class WebExtensionCallbackHandler : public RefCounted<WebExtensionCallbackHandler> {
 diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
-index ff03274c9..2fd6abf1e 100644
+index ff03274c9..325c1ba05 100644
 --- a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
 +++ b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
 @@ -945,7 +945,7 @@ JSValueRef ${className}::${getterName}(JSContextRef context, JSObjectRef object,
@@ -28,20 +87,16 @@ index ff03274c9..2fd6abf1e 100644
  
              push(@contents, <<EOF);
      RefPtr impl = to${implementationClassName}(context, object);
-@@ -973,11 +973,24 @@ EOF
+@@ -973,11 +973,20 @@ EOF
                  push(@contents, "    }\n");
              }
  
 -            push(@contents, <<EOF);
 +            if ($attribute->type->name =~ /^WebExtensionAPI/) {
-+                $contentsIncludes{"<JavaScriptCore/JSObjectRefPrivate.h>"} = 1;
 +                push(@contents, <<EOF);
 +
-+    // Kept as long as the object it is read from: what a script adds to it is not lost when its wrapper would be collected.
-+    SUPPRESS_UNCOUNTED_ARG JSValueRef result = @{[$self->_returnExpression($attribute, $getterExpression, $interface)]};
-+    if (result && JSValueIsObject(context, result))
-+        JSObjectSetPrivateProperty(context, object, propertyName, result);
-+    return result;
++    // A new wrapper is kept as long as the object it is read from (JSWebExtensionWrapper::wrap); a cached one costs nothing.
++    SUPPRESS_UNCOUNTED_ARG return JSWebExtensionWrapper::wrap(context, getPtr(${getterExpression}), object, propertyName);
 +}
 +EOF
 +            } else {

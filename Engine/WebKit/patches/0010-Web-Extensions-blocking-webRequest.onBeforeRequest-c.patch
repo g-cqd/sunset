@@ -1,0 +1,715 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 22:18:52 +0100
+Subject: [PATCH 10/11] Web Extensions: blocking webRequest.onBeforeRequest can
+ cancel a request (Sunset W6a)
+
+A Manifest V2 extension's onBeforeRequest listener added with ["blocking"] now decides before the request is sent:
+{ cancel: true } fails the load (as a content blocker's block). Firefox and Chrome (Manifest V2) do this; uBlock Origin
+filters with it. WebKit dropped "blocking" and ignored what a listener returned.
+
+- The extension's process registers a blocking listener also as WebRequestOnBeforeRequestBlocking; the UI process tells
+  every web process of the controller whether a context has one (SetHasBlockingWebRequestListeners, and in the context
+  parameters for processes started later).
+- A page whose extensions have blocking listeners marks its loads (pageHasBlockingWebRequestListeners); the network
+  process holds such a load before it starts and asks the UI process (ResourceLoadWillSendRequest), which asks each
+  context's processes with blocking listeners. A synchronous load is never held.
+- The answers are gathered by a WebExtensionWebRequestDecision: answered at the last expected answer, or after two
+  seconds whatever an extension does, under one shared timer (not one per request). The request's details are built
+  only when a blocking listener matches.
+- A blocking listener is not called again by the after-the-fact event.
+
+Measured (release, 300 sequential requests, 10 runs): with a blocking listener that cancels nothing 297 ms, with an
+observing one 267 ms: about 0.1 ms a request, only on pages whose extensions have blocking listeners. Pages without
+them take no new step.
+
+Not yet: redirectUrl, requestHeaders and responseHeaders changes (W6b, W6c).
+
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoadParameters.h b/Source/WebKit/NetworkProcess/NetworkResourceLoadParameters.h
+index 709856c92..1d9f3fb0a 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoadParameters.h
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoadParameters.h
+@@ -127,6 +127,7 @@ struct NetworkResourceLoadParameters {
+ 
+ #if ENABLE(WK_WEB_EXTENSIONS)
+     bool pageHasLoadedWebExtensions { false };
++    bool pageHasBlockingWebRequestListeners { false };
+ #endif
+ 
+     bool linkPreconnectEarlyHintsEnabled { false };
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoadParameters.serialization.in b/Source/WebKit/NetworkProcess/NetworkResourceLoadParameters.serialization.in
+index 8a50b9ac5..49708b54e 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoadParameters.serialization.in
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoadParameters.serialization.in
+@@ -103,6 +103,7 @@ enum class WebKit::NavigatingToAppBoundDomain : bool;
+ 
+ #if ENABLE(WK_WEB_EXTENSIONS)
+     bool pageHasLoadedWebExtensions;
++    bool pageHasBlockingWebRequestListeners;
+ #endif
+ 
+     bool linkPreconnectEarlyHintsEnabled;
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+index 91e708627..8ca5bb5ef 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+@@ -563,6 +563,26 @@ void NetworkResourceLoader::continueStartNetworkLoad(ResourceRequest&& request,
+         return;
+     }
+ 
++#if ENABLE(WK_WEB_EXTENSIONS)
++    // An extension's blocking webRequest listener decides before the request is sent (held; never a synchronous load).
++    if (m_parameters.pageHasBlockingWebRequestListeners && !m_didAskWebRequestListeners && !isSynchronous()) {
++        m_didAskWebRequestListeners = true;
++        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(webPageProxyID(), resourceLoadInfo(), request), [weakThis = WeakPtr { *this }, request = WTF::move(request), parameters = WTF::move(parameters)](bool cancel) mutable {
++            RefPtr protectedThis = weakThis.get();
++            if (!protectedThis)
++                return;
++
++            if (cancel) {
++                protectedThis->didFailLoading(blockedByContentBlockerError(request));
++                return;
++            }
++
++            protectedThis->continueStartNetworkLoad(WTF::move(request), WTF::move(parameters));
++        }, 0);
++        return;
++    }
++#endif
++
+     if (shouldSendResourceLoadMessages()) {
+         std::optional<IPC::FormDataReference> httpBody;
+         if (RefPtr formData = request.httpBody()) {
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+index 9359299d7..5bf129eaa 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+@@ -392,6 +392,9 @@ private:
+     std::unique_ptr<NetworkCache::Entry> m_cacheEntryForValidation;
+     std::unique_ptr<NetworkCache::Entry> m_cacheEntryForMaxAgeCapValidation;
+     bool m_isWaitingContinueWillSendRequestForCachedRedirect { false };
++#if ENABLE(WK_WEB_EXTENSIONS)
++    bool m_didAskWebRequestListeners { false };
++#endif
+     std::unique_ptr<NetworkCache::Entry> m_cacheEntryWaitingForContinueDidReceiveResponse;
+     const RefPtr<NetworkLoadChecker> m_networkLoadChecker;
+     bool m_shouldRestartLoad { false };
+diff --git a/Source/WebKit/Shared/Extensions/WebExtensionContextParameters.h b/Source/WebKit/Shared/Extensions/WebExtensionContextParameters.h
+index 57e66b12b..cb91a542a 100644
+--- a/Source/WebKit/Shared/Extensions/WebExtensionContextParameters.h
++++ b/Source/WebKit/Shared/Extensions/WebExtensionContextParameters.h
+@@ -84,6 +84,8 @@ struct WebExtensionContextParameters {
+ #endif
+     Vector<WebExtensionPageIdentifierTuple> popupPageIdentifiers;
+     Vector<WebExtensionPageIdentifierTuple> tabPageIdentifiers;
++
++    bool hasBlockingWebRequestListeners { false };
+ };
+ 
+ } // namespace WebKit
+diff --git a/Source/WebKit/Shared/Extensions/WebExtensionContextParameters.serialization.in b/Source/WebKit/Shared/Extensions/WebExtensionContextParameters.serialization.in
+index b8c575cb9..c8cb45f59 100644
+--- a/Source/WebKit/Shared/Extensions/WebExtensionContextParameters.serialization.in
++++ b/Source/WebKit/Shared/Extensions/WebExtensionContextParameters.serialization.in
+@@ -49,6 +49,8 @@ struct WebKit::WebExtensionContextParameters {
+ #endif
+     Vector<WebKit::WebExtensionPageIdentifierTuple> popupPageIdentifiers;
+     Vector<WebKit::WebExtensionPageIdentifierTuple> tabPageIdentifiers;
++
++    bool hasBlockingWebRequestListeners;
+ }
+ 
+ using WebKit::WebExtensionError = String;
+diff --git a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
+index b98fbdfd4..c72638572 100644
+--- a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
++++ b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
+@@ -91,6 +91,7 @@ enum class WebExtensionEventListenerType : uint8_t {
+     WebRequestOnAuthRequired,
+     WebRequestOnBeforeRedirect,
+     WebRequestOnBeforeRequest,
++    WebRequestOnBeforeRequestBlocking,
+     WebRequestOnBeforeSendHeaders,
+     WebRequestOnCompleted,
+     WebRequestOnErrorOccurred,
+@@ -215,6 +216,7 @@ inline String toAPIString(WebExtensionEventListenerType eventType)
+         return "onAuthRequired"_s;
+     case WebExtensionEventListenerType::WebRequestOnBeforeRedirect:
+         return "onBeforeRedirect"_s;
++    case WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking:
+     case WebExtensionEventListenerType::WebRequestOnBeforeRequest:
+         return "onBeforeRequest"_s;
+     case WebExtensionEventListenerType::WebRequestOnBeforeSendHeaders:
+diff --git a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
+index 79c8cab23..41ac3b096 100644
+--- a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
++++ b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
+@@ -82,6 +82,7 @@ enum class WebKit::WebExtensionEventListenerType : uint8_t {
+     WebRequestOnAuthRequired,
+     WebRequestOnBeforeRedirect,
+     WebRequestOnBeforeRequest,
++    WebRequestOnBeforeRequestBlocking,
+     WebRequestOnBeforeSendHeaders,
+     WebRequestOnCompleted,
+     WebRequestOnErrorOccurred,
+diff --git a/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp b/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
+index bf19b5252..bd52ef85f 100644
+--- a/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
++++ b/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
+@@ -55,6 +55,9 @@ void WebExtensionContext::addListener(WebCore::FrameIdentifier frameIdentifier,
+     auto result = m_eventListenerFrames.add({ listenerType, contentWorldType }, WeakFrameCountedSet { });
+     result.iterator->value.add(*frame);
+ 
++    if (listenerType == WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking)
++        blockingWebRequestListenersChanged();
++
+     if (!isTestEventListener(listenerType))
+         return;
+ 
+@@ -106,6 +109,9 @@ void WebExtensionContext::removeListener(WebCore::FrameIdentifier frameIdentifie
+ 
+     m_eventListenerFrames.remove(iterator);
+ 
++    if (listenerType == WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking)
++        blockingWebRequestListenersChanged();
++
+     if (!isTestEventListener(listenerType) || !hasTestEventListeners(listenerType))
+         return;
+ 
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+index 0096dacd0..ca36c1a61 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+@@ -1941,6 +1941,40 @@ void WebExtensionContext::resourceLoadDidSendRequest(WebPageProxyIdentifier page
+     });
+ }
+ 
++bool WebExtensionContext::hasBlockingWebRequestListeners() const
++{
++    return m_eventListenerFrames.contains({ WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, WebExtensionContentWorldType::Main });
++}
++
++void WebExtensionContext::blockingWebRequestListenersChanged()
++{
++    // Every web process of the controller is told, so its pages hold their loads for the decision (or no longer do).
++    if (RefPtr controller = extensionController())
++        controller->sendToAllProcesses(Messages::WebExtensionContextProxy::SetHasBlockingWebRequestListeners(hasBlockingWebRequestListeners()), identifier());
++}
++
++void WebExtensionContext::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceRequest& request, WebExtensionWebRequestDecision& decision)
++{
++    // A blocking webRequest.onBeforeRequest listener decides before the request is sent: { cancel: true } fails the load.
++    constexpr auto eventType = WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking;
++    auto blockingProcesses = processes(eventType, WebExtensionContentWorldType::Main);
++    if (blockingProcesses.isEmpty())
++        return;
++
++    auto identifiers = webRequestEventTabAndWindowIdentifiers(pageID, request.url(), loadInfo);
++    if (!identifiers)
++        return;
++
++    auto [tabIdentifier, windowIdentifier] = *identifiers;
++
++    for (auto& process : blockingProcesses) {
++        decision.expect();
++        process->sendWithAsyncReply(Messages::WebExtensionContextProxy::ResourceLoadWillSendRequest(tabIdentifier, windowIdentifier, request, loadInfo), [decision = Ref { decision }](bool cancel) {
++            decision->add(cancel);
++        }, identifier());
++    }
++}
++
+ void WebExtensionContext::resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceResponse& response, const WebCore::ResourceRequest& request)
+ {
+     auto identifiers = webRequestEventTabAndWindowIdentifiers(pageID, request.url(), loadInfo);
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
+index 9f6282f0b..ee33f8b54 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
+@@ -360,6 +360,50 @@ void WebExtensionController::resourceLoadDidSendRequest(WebPageProxyIdentifier p
+         context->resourceLoadDidSendRequest(pageID, loadInfo, request);
+ }
+ 
++void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceRequest& request, CompletionHandler<void(bool cancel)>&& completionHandler)
++{
++    // The answers of every extension with blocking listeners; a load is not held longer than this, whatever an extension does.
++    static constexpr Seconds maximumWait { 2_s };
++
++    Ref decision = WebExtensionWebRequestDecision::create(WTF::move(completionHandler));
++
++    // Expected until every context has sent its question, so an early answer does not finish it.
++    decision->expect();
++    for (Ref context : m_extensionContexts) {
++        if (context->hasBlockingWebRequestListeners())
++            context->resourceLoadWillSendRequest(pageID, loadInfo, request, decision);
++    }
++    decision->add(false);
++
++    if (decision->isFinished())
++        return;
++
++    m_heldWebRequestDecisions.append({ MonotonicTime::now() + maximumWait, decision });
++    if (!m_webRequestDecisionTimer) {
++        m_webRequestDecisionTimer = makeUnique<RunLoop::Timer>(RunLoop::mainSingleton(), "WebExtensionController::WebRequestDecisionTimer"_s, [weakThis = WeakPtr { *this }] {
++            if (RefPtr protectedThis = weakThis.get())
++                protectedThis->webRequestDecisionTimerFired();
++        });
++    }
++    if (!m_webRequestDecisionTimer->isActive())
++        m_webRequestDecisionTimer->startOneShot(maximumWait);
++}
++
++void WebExtensionController::webRequestDecisionTimerFired()
++{
++    // Answered decisions are dropped; the ones past their time are answered as they stand.
++    auto now = MonotonicTime::now();
++    while (!m_heldWebRequestDecisions.isEmpty()) {
++        auto& [deadline, decision] = m_heldWebRequestDecisions.first();
++        if (!decision->isFinished() && deadline > now) {
++            m_webRequestDecisionTimer->startOneShot(deadline - now);
++            return;
++        }
++        Ref finished = m_heldWebRequestDecisions.takeFirst().second;
++        finished->finish();
++    }
++}
++
+ void WebExtensionController::resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceResponse& response, const WebCore::ResourceRequest& request)
+ {
+     for (Ref context : m_extensionContexts)
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
+index f34258efe..113d86500 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
+@@ -1814,7 +1814,8 @@ WebExtensionContextParameters WebExtensionContext::parameters(IncludePrivilegedI
+         inspectorBackgroundPageIdentifiers(),
+ #endif
+         popupPageIdentifiers(destinationProcess),
+-        tabPageIdentifiers(destinationProcess)
++        tabPageIdentifiers(destinationProcess),
++        hasBlockingWebRequestListeners()
+     };
+ }
+ 
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+index e532b3063..dc9831867 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+@@ -182,6 +182,45 @@ struct WebExtensionMessageTargetParameters;
+ struct ContentRuleListMatchedRule;
+ #endif
+ 
++// The answers of blocking webRequest listeners to one request: the load is cancelled when any of them says so. Answered
++// once: when the last expected answer is in, or at finish() (the time limit), whichever is first.
++class WebExtensionWebRequestDecision : public RefCounted<WebExtensionWebRequestDecision> {
++public:
++    static Ref<WebExtensionWebRequestDecision> create(CompletionHandler<void(bool cancel)>&& completionHandler)
++    {
++        return adoptRef(*new WebExtensionWebRequestDecision(WTF::move(completionHandler)));
++    }
++
++    ~WebExtensionWebRequestDecision() { finish(); }
++
++    void expect() { ++m_expected; }
++
++    void add(bool cancel)
++    {
++        m_cancel = m_cancel || cancel;
++        if (m_expected && !--m_expected)
++            finish();
++    }
++
++    void finish()
++    {
++        if (m_completionHandler)
++            m_completionHandler(m_cancel);
++    }
++
++    bool isFinished() const { return !m_completionHandler; }
++
++private:
++    explicit WebExtensionWebRequestDecision(CompletionHandler<void(bool cancel)>&& completionHandler)
++        : m_completionHandler(WTF::move(completionHandler))
++    {
++    }
++
++    CompletionHandler<void(bool cancel)> m_completionHandler;
++    unsigned m_expected { 0 };
++    bool m_cancel { false };
++};
++
+ class WebExtensionContext : public API::ObjectImpl<API::Object::Type::WebExtensionContext>, public IPC::MessageReceiver, public Identified<WebExtensionContextIdentifier> {
+     WTF_MAKE_NONCOPYABLE(WebExtensionContext);
+ 
+@@ -561,6 +600,9 @@ public:
+     void didFailLoadForFrame(WebPageProxyIdentifier, const WebExtensionFrameParameters&, WallTime);
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&);
++    void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, WebExtensionWebRequestDecision&);
++    bool hasBlockingWebRequestListeners() const;
++    void blockingWebRequestListenersChanged();
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&, const WebCore::ResourceRequest&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::AuthenticationChallenge&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&);
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionController.h b/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
+index 47c00c580..0d4790193 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
+@@ -44,6 +44,7 @@
+ #include "WebUserContentControllerProxy.h"
+ #include <WebCore/ContentRuleListResults.h>
+ #include <WebCore/Timer.h>
++#include <wtf/Deque.h>
+ #include <wtf/Forward.h>
+ #include <wtf/Identified.h>
+ #include <wtf/RunLoop.h>
+@@ -69,6 +70,7 @@ namespace WebKit {
+ class ContextMenuContextData;
+ class WebExtensionContext;
+ class WebExtensionDataRecord;
++class WebExtensionWebRequestDecision;
+ class WebPageProxy;
+ class WebProcessPool;
+ class WebsiteDataStore;
+@@ -186,6 +188,7 @@ public:
+     void updateWebsitePoliciesForNavigation(API::WebsitePolicies&, API::NavigationAction&);
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&);
++    void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, CompletionHandler<void(bool cancel)>&&);
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&, const WebCore::ResourceRequest&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::AuthenticationChallenge&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&);
+@@ -280,6 +283,11 @@ private:
+     const RetainPtr<_WKWebExtensionControllerHelper> m_webExtensionControllerHelper;
+ #endif
+     WebExtensionContextSet m_extensionContexts;
++
++    // Blocking webRequest decisions waiting for their extensions, oldest first, under one timer (not one per request).
++    void webRequestDecisionTimerFired();
++    Deque<std::pair<MonotonicTime, Ref<WebExtensionWebRequestDecision>>> m_heldWebRequestDecisions;
++    std::unique_ptr<RunLoop::Timer> m_webRequestDecisionTimer;
+     WebExtensionContextBaseURLMap m_extensionContextBaseURLMap;
+     WebPageProxySet m_pages;
+     WebProcessPoolSet m_processPools;
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
+index 6af1f422d..ae9fdec96 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
+@@ -739,6 +739,17 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
+         page->logDiagnosticMessageWithValue(message, description, value, significantFigures, shouldSample);
+ }
+ 
++void NetworkProcessProxy::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel)>&& completionHandler)
++{
++    RefPtr page = WebProcessProxy::webPage(pageID);
++    if (!page) {
++        completionHandler(false);
++        return;
++    }
++
++    page->resourceLoadWillSendRequest(WTF::move(loadInfo), WTF::move(request), WTF::move(completionHandler));
++}
++
+ void NetworkProcessProxy::resourceLoadDidSendRequest(WebPageProxyIdentifier pageID, ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, std::optional<IPC::FormDataReference>&& httpBody)
+ {
+     RefPtr page = WebProcessProxy::webPage(pageID);
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
+index 688ebb204..76118c514 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
+@@ -308,6 +308,7 @@ public:
+     void handOverTransferredImageBuffers(Vector<WebCore::ImageBufferTransferIdentifier>&&, WebCore::ProcessIdentifier destinationProcess);
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, std::optional<IPC::FormDataReference>&&);
++    void resourceLoadWillSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel)>&&);
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&, WebCore::ResourceRequest&&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&);
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
+index b84b85dc8..5fb2fd5b9 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
+@@ -71,6 +71,7 @@ messages -> NetworkProcessProxy WantsDispatchMessage {
+     IncreaseQuota(PAL::SessionID sessionID, struct WebCore::ClientOrigin origin, WebKit::QuotaIncreaseRequestIdentifier identifier, uint64_t quota, uint64_t currentSize, uint64_t spaceRequested)
+ 
+     ResourceLoadDidSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request, std::optional<IPC::FormDataReference> httpBody)
++    ResourceLoadWillSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request) -> (bool cancel)
+     ResourceLoadDidPerformHTTPRedirection(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse resourceResponse, WebCore::ResourceRequest request)
+     ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
+     ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
+diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
+index 8ab48ab41..3de201f18 100644
+--- a/Source/WebKit/UIProcess/WebPageProxy.cpp
++++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
+@@ -14826,6 +14826,20 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
+ }
+ #endif
+ 
++void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel)>&& completionHandler)
++{
++#if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
++    if (RefPtr webExtensionController = this->webExtensionController()) {
++        loadInfo.parentFrameIsMainFrame = isParentFrameMainFrame(loadInfo, mainFrame());
++        webExtensionController->resourceLoadWillSendRequest(identifier(), loadInfo, request, WTF::move(completionHandler));
++        return;
++    }
++#endif
++    UNUSED_PARAM(loadInfo);
++    UNUSED_PARAM(request);
++    completionHandler(false);
++}
++
+ void WebPageProxy::resourceLoadDidSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request)
+ {
+ #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
+diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
+index 0e6d8425d..9b39d14ed 100644
+--- a/Source/WebKit/UIProcess/WebPageProxy.h
++++ b/Source/WebKit/UIProcess/WebPageProxy.h
+@@ -933,6 +933,7 @@ public:
+     NODELETE GeolocationPermissionRequestManagerProxy& geolocationPermissionRequestManager() LIFETIME_BOUND;
+ 
+     void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);
++    void resourceLoadWillSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel)>&&);
+     void resourceLoadDidPerformHTTPRedirection(ResourceLoadInfo&&, WebCore::ResourceResponse&&, WebCore::ResourceRequest&&);
+     void resourceLoadDidReceiveChallenge(ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&);
+     void resourceLoadDidReceiveResponse(ResourceLoadInfo&&, WebCore::ResourceResponse&&);
+diff --git a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+index 39459c795..80451ec1b 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
++++ b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+@@ -33,6 +33,7 @@
+ #import "WebExtensionAPIKeys.h"
+ #import "WebExtensionAPINamespace.h"
+ #import "WebExtensionAPIWebRequest.h"
++#import <JavaScriptCore/JSStringRefCPP.h>
+ #import <WebCore/AuthenticationChallenge.h>
+ #import <WebCore/HTTPStatusCodes.h>
+ #import <WebCore/ResourceRequest.h>
+@@ -306,6 +307,38 @@ static NSMutableDictionary *headersReceivedDetails(const ResourceLoadInfo& resou
+     return details;
+ }
+ 
++void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceRequest&, const ResourceLoadInfo& resourceLoad, CompletionHandler<void(bool cancel)>&& completionHandler)
++{
++    // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRequest
++    // A blocking listener's answer: { cancel: true } fails the load.
++
++    static NeverDestroyed<RefPtr<OpaqueJSString>> cancelName = OpaqueJSString::tryCreate("cancel"_s);
++
++    RetainPtr<NSDictionary> details;
++    bool cancel = false;
++
++    enumerateNamespaceObjects([&](auto& namespaceObject) {
++        protect(protect(namespaceObject.webRequest())->onBeforeRequest())->enumerateListeners(tabID, windowID, resourceLoad, [&](auto& listener, auto& extraInfo) {
++            if (!extraInfo.contains("blocking"_s))
++                return;
++
++            if (!details)
++                details = webRequestDetailsForResourceLoad(resourceLoad, tabID);
++
++            auto context = listener.globalContext();
++            auto result = listener.call(toJSValueRef(context, details.get()));
++            if (!result || !JSValueIsObject(context, result))
++                return;
++
++            auto cancelValue = JSObjectGetProperty(context, JSValueToObject(context, result, nullptr), cancelName.get().get(), nullptr);
++            if (cancelValue && JSValueToBoolean(context, cancelValue))
++                cancel = true;
++        });
++    });
++
++    completionHandler(cancel);
++}
++
+ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceRequest& request, const ResourceLoadInfo& resourceLoad, const std::optional<IPC::FormDataReference>& formDataOptional)
+ {
+     auto *details = webRequestDetailsForResourceLoad(resourceLoad, tabID);
+@@ -315,6 +348,10 @@ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentif
+ 
+     enumerateNamespaceObjects([&](auto& namespaceObject) {
+         protect(protect(namespaceObject.webRequest())->onBeforeRequest())->enumerateListeners(tabID, windowID, resourceLoad, [&](auto& listener, auto& extraInfo) {
++            // A blocking listener was called before the request was sent (resourceLoadWillSendRequest).
++            if (extraInfo.contains("blocking"_s))
++                return;
++
+             if (formData && extraInfo.contains(String(requestBodyKey))) {
+                 if (auto *requestBody = toWebAPI(*formData, contentType, listener.globalContext()))
+                     [details setObject:requestBody forKey:requestBodyKey];
+diff --git a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm
+index 6dddc926d..047fb188b 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm
++++ b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm
+@@ -82,20 +82,30 @@ void WebExtensionAPIWebRequestEvent::addListener(WebCore::FrameIdentifier frameI
+ 
+     auto extraInfo = makeVector<String>(extraInfoArray);
+     extraInfo.removeAllMatching([&](auto& item) {
+-        return item != "requestBody"_s && item != "requestHeaders"_s && item != "responseHeaders"_s;
++        return item != "requestBody"_s && item != "requestHeaders"_s && item != "responseHeaders"_s && item != "blocking"_s;
+     });
+     extraInfo.shrinkToFit();
+ 
++    // A blocking onBeforeRequest listener is also registered as such: the UI process asks it before a request is sent.
++    bool isBlocking = m_type == WebExtensionEventListenerType::WebRequestOnBeforeRequest && extraInfo.contains("blocking"_s);
++
+     m_frameIdentifier = frameIdentifier;
+     m_listeners.append({ listener, parsedFilter, WTF::move(extraInfo) });
+ 
+     WebProcess::singleton().send(Messages::WebExtensionContext::AddListener(*m_frameIdentifier, m_type, contentWorldType()), extensionContext().identifier());
++    if (isBlocking)
++        WebProcess::singleton().send(Messages::WebExtensionContext::AddListener(*m_frameIdentifier, WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, contentWorldType()), extensionContext().identifier());
+ }
+ 
+ void WebExtensionAPIWebRequestEvent::removeListener(WebCore::FrameIdentifier frameIdentifier, RefPtr<WebExtensionCallbackHandler> listener)
+ {
++    size_t removedBlockingCount = 0;
+     auto removedCount = m_listeners.removeAllMatching([&](auto& entry) {
+-        return entry.callback->callbackFunction() == listener->callbackFunction();
++        if (entry.callback->callbackFunction() != listener->callbackFunction())
++            return false;
++        if (entry.extraInfo.contains("blocking"_s))
++            ++removedBlockingCount;
++        return true;
+     });
+ 
+     if (!removedCount)
+@@ -104,6 +114,8 @@ void WebExtensionAPIWebRequestEvent::removeListener(WebCore::FrameIdentifier fra
+     ASSERT(frameIdentifier == m_frameIdentifier);
+ 
+     WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, m_type, contentWorldType(), removedCount), extensionContext().identifier());
++    if (removedBlockingCount && m_type == WebExtensionEventListenerType::WebRequestOnBeforeRequest)
++        WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, contentWorldType(), removedBlockingCount), extensionContext().identifier());
+ }
+ 
+ bool WebExtensionAPIWebRequestEvent::hasListener(RefPtr<WebExtensionCallbackHandler> listener)
+@@ -120,6 +132,10 @@ void WebExtensionAPIWebRequestEvent::removeAllListeners()
+ 
+     WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, m_type, contentWorldType(), m_listeners.size()), extensionContext().identifier());
+ 
++    auto blockingCount = std::ranges::count_if(m_listeners, [](auto& entry) { return entry.extraInfo.contains("blocking"_s); });
++    if (blockingCount && m_type == WebExtensionEventListenerType::WebRequestOnBeforeRequest)
++        WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, contentWorldType(), static_cast<uint64_t>(blockingCount)), extensionContext().identifier());
++
+     m_listeners.clear();
+ }
+ 
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.cpp b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.cpp
+index 9dc7af075..368cdd47d 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.cpp
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.cpp
+@@ -88,6 +88,7 @@ Ref<WebExtensionContextProxy> WebExtensionContextProxy::getOrCreate(const WebExt
+         context.m_uniqueIdentifier = parameters.uniqueIdentifier;
+         context.m_unsupportedAPIs = parameters.unsupportedAPIs;
+         context.m_grantedPermissions = parameters.grantedPermissions;
++        context.m_hasBlockingWebRequestListeners = parameters.hasBlockingWebRequestListeners;
+         context.m_localization = parseLocalization(parameters.localizationJSON, parameters.baseURL);
+         Ref manifestJSON = *parameters.manifestJSON;
+         context.m_manifest = JSON::Value::parseJSON(String::fromUTF8(manifestJSON->span()));
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
+index ec89ee321..ddc85289d 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
+@@ -89,6 +89,10 @@ class WebExtensionContextProxy final : public RefCounted<WebExtensionContextProx
+     WTF_MAKE_NONCOPYABLE(WebExtensionContextProxy);
+ 
+ public:
++    // Blocking webRequest listeners: a page of this process holds its loads for their decision.
++    bool hasBlockingWebRequestListeners() const { return m_hasBlockingWebRequestListeners; }
++    void setHasBlockingWebRequestListeners(bool hasListeners) { m_hasBlockingWebRequestListeners = hasListeners; }
++
+     NODELETE static RefPtr<WebExtensionContextProxy> get(WebExtensionContextIdentifier);
+     static Ref<WebExtensionContextProxy> getOrCreate(const WebExtensionContextParameters&, WebExtensionControllerProxy&, WebPage* = nullptr);
+ 
+@@ -276,6 +280,8 @@ private:
+ 
+     // Web Navigation
+     void dispatchWebNavigationEvent(WebExtensionEventListenerType, WebExtensionTabIdentifier, const WebExtensionFrameParameters&, WallTime);
++
++    void resourceLoadWillSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, CompletionHandler<void(bool cancel)>&&);
+     void dispatchWebNavigationCreatedNavigationTargetEvent(WebExtensionTabIdentifier sourceTabID, WebExtensionFrameIdentifier sourceFrameID, WebExtensionTabIdentifier tabID, const URL&, WallTime);
+ 
+     // Web Request
+@@ -319,6 +325,7 @@ private:
+ #endif
+     WeakPageTabWindowMap m_popupPageMap;
+     WeakPageTabWindowMap m_tabPageMap;
++    bool m_hasBlockingWebRequestListeners { false };
+ 
+ #if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/WebExtensionContextProxyAdditions.h>)
+ #include <WebKitAdditions/WebExtensionContextProxyAdditions.h>
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
+index 0fcc609ad..5b967ecb4 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
+@@ -117,6 +117,8 @@ messages -> WebExtensionContextProxy {
+     DispatchWebNavigationCreatedNavigationTargetEvent(WebKit::WebExtensionTabIdentifier sourceTabID, WebKit::WebExtensionFrameIdentifier sourceFrameID, WebKit::WebExtensionTabIdentifier tabID, URL url, WallTime timestamp)
+ 
+     // Web Request
++    SetHasBlockingWebRequestListeners(bool hasListeners)
++    ResourceLoadWillSendRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceRequest request, struct WebKit::ResourceLoadInfo resourceLoadInfo) -> (bool cancel)
+     ResourceLoadDidSendRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceRequest request, struct WebKit::ResourceLoadInfo resourceLoadInfo, std::optional<IPC::FormDataReference> formData)
+     ResourceLoadDidBlockBeforeRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo)
+     ResourceLoadDidPerformHTTPRedirection(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceResponse response, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest newRequest)
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionControllerProxy.cpp b/Source/WebKit/WebProcess/Extensions/WebExtensionControllerProxy.cpp
+index 99d432b50..da700bc09 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionControllerProxy.cpp
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionControllerProxy.cpp
+@@ -149,6 +149,15 @@ RefPtr<WebExtensionContextProxy> WebExtensionControllerProxy::extensionContext(W
+     return extensionContext(frame.url());
+ }
+ 
++bool WebExtensionControllerProxy::hasBlockingWebRequestListeners() const
++{
++    for (Ref context : m_extensionContexts) {
++        if (context->hasBlockingWebRequestListeners())
++            return true;
++    }
++    return false;
++}
++
+ } // namespace WebKit
+ 
+ #endif // ENABLE(WK_WEB_EXTENSIONS)
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionControllerProxy.h b/Source/WebKit/WebProcess/Extensions/WebExtensionControllerProxy.h
+index edb19e7d8..f9fb2351b 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionControllerProxy.h
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionControllerProxy.h
+@@ -83,6 +83,7 @@ public:
+     RefPtr<WebExtensionContextProxy> extensionContext(WebFrame&, WebCore::DOMWrapperWorld&) const;
+ 
+     bool hasLoadedContexts() const { return !m_extensionContexts.isEmpty(); }
++    bool hasBlockingWebRequestListeners() const;
+     const WebExtensionContextProxySet& extensionContexts() const LIFETIME_BOUND { return m_extensionContexts; }
+ 
+ private:
+diff --git a/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp b/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
+index 63ef5c2e9..8c291bd10 100644
+--- a/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
++++ b/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
+@@ -128,6 +128,11 @@ void WebExtensionContextProxy::dispatchWebNavigationCreatedNavigationTargetEvent
+     notImplemented();
+ }
+ 
++void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, CompletionHandler<void(bool)>&& completionHandler)
++{
++    completionHandler(false);
++}
++
+ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, const std::optional<IPC::FormDataReference>&)
+ {
+     notImplemented();
+diff --git a/Source/WebKit/WebProcess/Network/WebLoaderStrategy.cpp b/Source/WebKit/WebProcess/Network/WebLoaderStrategy.cpp
+index 4238e48c0..60f7701ba 100644
+--- a/Source/WebKit/WebProcess/Network/WebLoaderStrategy.cpp
++++ b/Source/WebKit/WebProcess/Network/WebLoaderStrategy.cpp
+@@ -415,8 +415,10 @@ static void addParametersShared(const LocalFrame* frame, NetworkResourceLoadPara
+ 
+         if (RefPtr webPage = WebPage::fromCorePage(*page)) {
+ #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
+-            if (auto* extensionControllerProxy = webPage->webExtensionControllerProxy())
++            if (auto* extensionControllerProxy = webPage->webExtensionControllerProxy()) {
+                 parameters.pageHasLoadedWebExtensions = extensionControllerProxy->hasLoadedContexts();
++                parameters.pageHasBlockingWebRequestListeners = extensionControllerProxy->hasBlockingWebRequestListeners();
++            }
+ #endif
+         }
+     }

@@ -18,8 +18,11 @@ Claims until a patched WebKit is built and probed (roadmap 0048 B, D). Sources: 
 
 - W2: the IDL line, as planned.
 - W3: as planned, through the generated getter (`JSObjectSetPrivateProperty` on the object read from).
-- W1: not through a getter: each class registers its own functions, and `JSWebExtensionWrapper::wrap` binds them to the new
-  object (`Function.prototype.bind`), Dynamic ones left out. No cost seen on calls.
+- W1: first by binding every function of every new wrapper (v1: +6 % on new frames, +2 MB, diary -20); now by the sole
+  object of a class in its context, looked up only on a detached call (v2: no cost seen against the base).
+- W3: pinned only when a wrapper is made (v2), not at every read.
+- W6a: cancel, held in the network process only for pages whose extensions have blocking listeners (about 0.1 ms a request
+  there).
 - W7 found on the way: `ws://` and `wss://` match patterns refused by `webRequest.addListener`.
 
 ## Probed on the system's WebKit

@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 20:54:27 +0100
-Subject: [PATCH 6/9] Web Extensions: ws and wss match patterns parse, as in
+Subject: [PATCH 06/11] Web Extensions: ws and wss match patterns parse, as in
  Firefox and Chrome (Sunset W7)
 
 webRequest.onBeforeRequest.addListener(listener, { urls: [..., 'ws://*/*', 'wss://*/*'] }) was refused whole: 'ws' was

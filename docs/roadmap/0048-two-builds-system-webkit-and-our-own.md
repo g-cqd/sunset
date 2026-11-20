@@ -17,7 +17,7 @@ engine, t119) on, with patching added.
 | A | WebKit's private interfaces for the network, through the `SunsetPrivate` seam | t27 | first probe done: a PAC script and fixed proxies work in a store made from the private configuration (docs/research/network-dns-proxy-extensions-2026-11-18.md); not wired |
 | B | The spike: WebKit from the tip of main built on this Mac, bundled, loaded by a signed Sunset; its time, size, and what is lost (DRM especially, as R5 asked) | t28 | in-progress: WebKit main built here in 1 h (36 GB); an app runs on it; an incremental build after a patch 3 min (diary 2026-11-20-17). Not yet: Sunset itself on it, signed, bundled; DRM |
 | C | The two builds: one target set, the engine chosen at build time; the system one stays the default and the light one | t28 | not-started |
-| D | Our patches on the own engine, kept as a series rebased on WebKit's main, on a cadence (ADR-0110: `Engine/WebKit/base`, `Engine/WebKit/patches`, `Scripts/webkit.sh`). The owner's order, 2026-11-20: W1–W3, W6, the resolver (0046 A, t13) | t28 | in-progress: W2 (0001), W3 (0002, test 0003) and W1 (0004, test 0005), W7 (0006, 0007), W4's event (0008, 0009) built and checked, red then green, the suites near each passing (diaries 2026-11-20-18, -19). Next: W6, the resolver |
+| D | Our patches on the own engine, kept as a series rebased on WebKit's main, on a cadence (ADR-0110: `Engine/WebKit/base`, `Engine/WebKit/patches`, `Scripts/webkit.sh`). The owner's order, 2026-11-20: W1–W3, W6, the resolver (0046 A, t13) | t28 | in-progress: W2 (0001), W3 (0002, test 0003) and W1 (0004, test 0005), W7 (0006, 0007), W4's event (0008, 0009) , W6a (0010, 0011) built and checked; W1 and W3 redone after the audit, no cost seen against the base (diaries 2026-11-20-18 to -20). Next: W6b, W6c, the resolver |
 
 The owner, later the same day: "consider webkit as a built component we could download at runtime and decide to have the
 user download it to make that happen"; "this computer can completely build webkit … patching webkit is also possible and
@@ -50,7 +50,8 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W9 | A custom scheme (`abp:*`) refused in `menus.create`'s `targetUrlPatterns` | accepted | the same | none |
 
 Patched in our WebKit (`Engine/WebKit/patches`): W2 (0001), W3 (0002, its test 0003), W1 (0004, its test 0005), W7 (0006,
-0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b); the
+0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011; redirect and headers not
+yet); W1 and W3 redone after the owner's audit, measured against the base (diary 2026-11-20-20); the
 stopgaps in `ExtensionPageShim` stay for the system's WebKit.
 
 Where each lives in WebKit and the patch for it: `docs/research/webkit-extension-patches-2026-11-20.md`. W1–W3 are small and
