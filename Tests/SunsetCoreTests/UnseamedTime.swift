@@ -4,7 +4,7 @@ import Foundation
 /// `TaskProvider`, its `Clock`, its `now` — so that a test can run the tasks it starts and move the time itself.
 enum UnseamedTime {
     static let needles = [
-        "Task {", "Task(priority", "Task.detached", "Task.sleep", "ContinuousClock", "Date()"
+        "Task {", "Task(priority", "Task.detached", "Task.sleep", "Task.yield", "ContinuousClock", "Date()"
     ]
 
     /// The one file that holds the live forms.

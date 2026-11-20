@@ -4,28 +4,19 @@ import Testing
 
 @testable import SunsetHost
 
-/// Waits for `condition` to hold on a fresh snapshot after each update, for at most `seconds` (a bound on how long a failing test takes, not a wait that
-/// a passing one depends on).
+/// Waits for `condition` to hold on a fresh snapshot after each update, for at most `seconds` (a bound on how long a failing
+/// test takes, not a wait that a passing one depends on).
 private func waitFor(_ session: TerminalSession, seconds: Int = 10, _ condition: @escaping @Sendable (Screen) -> Bool)
     async -> Bool
 {
-    await withTaskGroup(of: Bool.self) { group in
-        group.addTask {
+    await Deadline.first(within: .seconds(seconds)) {
+        if condition(await session.takeSnapshot()) { return true }
+        for await update in session.updates {
+            if case .closed = update { return condition(await session.takeSnapshot()) }
             if condition(await session.takeSnapshot()) { return true }
-            for await update in session.updates {
-                if case .closed = update { return condition(await session.takeSnapshot()) }
-                if condition(await session.takeSnapshot()) { return true }
-            }
-            return false
         }
-        group.addTask {
-            await RealWait.pass(.seconds(seconds))
-            return false
-        }
-        let first = await group.next() ?? false
-        group.cancelAll()
-        return first
-    }
+        return false
+    } ?? false
 }
 
 private func started(_ script: String, columns: Int = 80, rows: Int = 24) async throws -> TerminalSession {

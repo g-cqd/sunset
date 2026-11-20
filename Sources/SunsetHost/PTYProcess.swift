@@ -24,6 +24,7 @@ public final class PTYProcess: Sendable {
         let queued = Mutex(0)
         let dropped = Mutex(0)
         let readWakeups = Mutex(0)
+        let readWaits = Mutex(0)
     }
 
     /// The most input kept waiting for a child that is not reading it (a paste into a stuck program must not grow memory without bound).
@@ -62,6 +63,11 @@ public final class PTYProcess: Sendable {
     }
 
     /// How many times the thread that waits for output has woken up: a program that prints nothing must not wake it (an idle terminal costs wakeups).
+    /// How many times a reader has gone into its wait: a test knows a read is waiting, not a guess of how long it takes.
+    public var readWaits: Int {
+        counters.readWaits.withLock { $0 }
+    }
+
     public var readWakeups: Int {
         counters.readWakeups.withLock { $0 }
     }

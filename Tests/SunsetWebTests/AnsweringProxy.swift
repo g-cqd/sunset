@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import Network
 import SunsetTestSupport
@@ -22,10 +23,12 @@ final class AnsweringProxy {
         proxy.listener.newConnectionHandler = { connection in
             Task { @MainActor in proxy.serve(connection) }
         }
-        proxy.listener.start(queue: .main)
-        while proxy.listener.port == nil || proxy.listener.port?.rawValue == 0 {
-            await RealWait.pass(.milliseconds(10))
+        let ready = AsyncLatch()
+        proxy.listener.stateUpdateHandler = { state in
+            if case .ready = state { ready.open() }
         }
+        proxy.listener.start(queue: .main)
+        try await ready.wait()
         return proxy
     }
 

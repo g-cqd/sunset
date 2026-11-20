@@ -164,11 +164,9 @@ struct BrowserAgentTests {
         #expect(!server.received.contains { $0.contains("CFNetwork") })
     }
 
+    /// Loaded, as WebKit says it by key-value observing: its progress whole, then no longer loading.
     private func loaded(_ view: WKWebView) async throws {
-        for _ in 0 ..< 400 {
-            await RealWait.pass(.milliseconds(25))
-            if !view.isLoading, view.estimatedProgress >= 1 { return }
-        }
-        Issue.record("the page did not load")
+        try await KeyValueProbe(view, \.estimatedProgress).wait(until: { $0 >= 1 }, within: .seconds(10))
+        try await KeyValueProbe(view, \.isLoading).wait(until: { !$0 }, within: .seconds(10))
     }
 }

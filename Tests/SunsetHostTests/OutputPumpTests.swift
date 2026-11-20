@@ -54,6 +54,7 @@ import Testing
         let process = try spawn("sleep 5")
         let pump = process.pump
         let running = Task(executorPreference: process.readThread) { pump.run { _ in } }
+        // Nothing is to happen for a while: only time passing says so.
         await RealWait.pass(.milliseconds(500))
         #expect(pump.wakeups <= 2, "woke \(pump.wakeups) times")
         let watch = Stopwatch()

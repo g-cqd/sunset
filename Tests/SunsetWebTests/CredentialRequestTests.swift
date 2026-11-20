@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import Testing
 
@@ -20,17 +21,17 @@ import Testing
         #expect(CredentialRequest(host: "a.com", realm: "x", failed: false, secure: true) { _ in }.warning == nil)
     }
 
-    @Test func `it answers once; a page asks one at a time, and closing the page cancels`() async {
+    @Test func `it answers once; a page asks one at a time, and closing the page cancels`() async throws {
         let page = WebContent(url: nil, settings: WebSettings())
         async let first = page.askCredential(host: "a.com", realm: "r", failed: false, secure: true)
-        while page.credentialRequest == nil { await Task.yield() }
+        try await waitForObservedState { page.credentialRequest != nil }
         #expect(await page.askCredential(host: "b.com", realm: "", failed: false, secure: true) == nil)
         page.credentialRequest?.answer(.init(user: "tide", password: "low"))
         page.credentialRequest?.answer(nil)
         #expect(await first == .init(user: "tide", password: "low") && page.credentialRequest == nil)
 
         async let second = page.askCredential(host: "a.com", realm: "r", failed: true, secure: true)
-        while page.credentialRequest == nil { await Task.yield() }
+        try await waitForObservedState { page.credentialRequest != nil }
         page.stop()
         #expect(await second == nil)
     }

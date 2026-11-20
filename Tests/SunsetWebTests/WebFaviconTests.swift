@@ -1,6 +1,8 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import Observation
+import SunsetTestSupport
 import Testing
 import WebKit
 
@@ -37,7 +39,7 @@ struct WebFaviconTests {
             "<html><head><link rel='icon' href='\(red)'></head><body>icons</body></html>",
             baseURL: URL(string: "https://icons.example/")
         )
-        await Waiting.until { page.favicon != nil }
+        try await waitForObservedState { page.favicon != nil }
         try #require(page.favicon != nil)
         #expect(store.isFresh(host: "icons.example", source: URL(string: red)))
         let blue = Self.address(.blue)
@@ -46,7 +48,7 @@ struct WebFaviconTests {
             arguments: ["icon": blue],
             contentWorld: .page
         )
-        await Waiting.until { store.isFresh(host: "icons.example", source: URL(string: blue)) }
+        try await Poll.until { store.isFresh(host: "icons.example", source: URL(string: blue)) }
         #expect(store.isFresh(host: "icons.example", source: URL(string: blue)), "the new one replaced it")
         page.stop()
     }

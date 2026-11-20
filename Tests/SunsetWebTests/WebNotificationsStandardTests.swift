@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import Observation
@@ -27,7 +28,7 @@ struct WebNotificationsStandardTests {
         page.setState(focused: false, visible: true)
         let view = try #require(page.webView)
         view.loadHTMLString("<p>chat</p>", baseURL: URL(string: "https://chat.example/"))
-        await Waiting.until { !page.isLoading && page.webView?.url?.host() == "chat.example" }
+        try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "chat.example" }
         let result = try await view.callAsyncJavaScript(
             """
             await Notification.requestPermission();

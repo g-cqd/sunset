@@ -1,3 +1,4 @@
+import AemiTestKit
 import CoreGraphics
 import Foundation
 import SunsetPane
@@ -46,7 +47,7 @@ struct ShareFramesTests {
         page.setState(focused: false, visible: true)
         let view = try #require(page.webView)
         view.loadHTMLString("<p>call</p>", baseURL: URL(string: "https://call.example/"))
-        await Waiting.until { !page.isLoading && page.webView?.url?.host() == "call.example" }
+        try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "call.example" }
         var drawn: Result<Any, any Error>?
         var resume: (() -> Void)?
         view.callAsyncJavaScript(
@@ -73,7 +74,7 @@ struct ShareFramesTests {
             drawn = $0
             resume?()
         }
-        await Waiting.until { page.shareRequest != nil }
+        try await waitForObservedState { page.shareRequest != nil }
         page.shareRequest?.answer(.system)
         if drawn == nil { await withCheckedContinuation { done in resume = { done.resume() } } }
         let found = try #require(try drawn?.get() as? [String: Any])

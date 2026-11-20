@@ -49,14 +49,10 @@ struct SitesLoadProbeTests {
             if plain { view.load(URLRequest(url: address)) }
             let start = Stopwatch()
             if !plain { page.load(address) }
-            var loadedAt: Duration?
-            for _ in 0 ..< 300 {
-                await RealWait.pass(.milliseconds(100))
-                if !view.isLoading, view.url != nil {
-                    loadedAt = start.elapsed
-                    break
-                }
+            let loaded: Void? = try? await Poll.until(within: .seconds(30), every: .milliseconds(20)) {
+                !view.isLoading && view.url != nil
             }
+            let loadedAt = loaded.map { start.elapsed }
             await report(address, page: page, view: view, loadedAt: loadedAt)
             page.stop()
             window.close()

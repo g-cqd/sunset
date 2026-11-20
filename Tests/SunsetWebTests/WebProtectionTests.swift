@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import Testing
 import WebKit
@@ -47,7 +48,7 @@ struct WebProtectionTests {
         page.setState(focused: false, visible: true)
         let view = try #require(page.webView)
         view.loadHTMLString("<p>x</p>", baseURL: URL(string: "https://shop.example/"))
-        await Waiting.until { !page.isLoading && page.webView?.url?.host() == "shop.example" }
+        try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "shop.example" }
         // Off, the property is not there at all, as in Safari (the inventory against a driven Safari, 2026-11-20): a page
         // reading `false` where Safari has nothing tells Sunset from it.
         let read = try await view.callAsyncJavaScript(

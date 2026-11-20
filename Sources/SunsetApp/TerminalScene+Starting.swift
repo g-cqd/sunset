@@ -119,7 +119,7 @@ extension TerminalScene {
         // layout; none in eight once it waits a turn).
         guard SessionStore.shared.hasPending else { return }
         runtime.task { @MainActor in
-            await Task.yield()
+            await runtime.yieldTurn()
             if SessionStore.shared.hasPending { AppActions.shared.openTerminalWindow() }
         }
     }

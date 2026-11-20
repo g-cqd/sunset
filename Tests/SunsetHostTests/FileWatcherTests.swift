@@ -13,19 +13,10 @@ import Testing
 
     /// Waits for the next event for at most `seconds`.
     private func next(_ watcher: FileWatcher, seconds: Double = 2) async -> Bool {
-        await withTaskGroup(of: Bool.self) { group in
-            group.addTask {
-                var iterator = watcher.changes.makeAsyncIterator()
-                return await iterator.next() != nil
-            }
-            group.addTask {
-                await RealWait.pass(.seconds(seconds))
-                return false
-            }
-            let first = await group.next() ?? false
-            group.cancelAll()
-            return first
-        }
+        await Deadline.first(within: .seconds(seconds)) {
+            var iterator = watcher.changes.makeAsyncIterator()
+            return await iterator.next() != nil
+        } ?? false
     }
 
     @Test func `a file written in place is reported`() async throws {
@@ -84,6 +75,7 @@ import Testing
         watcher.start()
         for index in 0 ..< 10 {
             try "{ \"n\": \(index) }".write(toFile: file, atomically: false, encoding: .utf8)
+            // The burst is spread over time, inside one settle: the pacing is the test's input, not a wait.
             await RealWait.pass(.milliseconds(10))
         }
         #expect(await next(watcher))
@@ -97,6 +89,7 @@ import Testing
         try "{}".write(toFile: file, atomically: false, encoding: .utf8)
         let watcher = FileWatcher(path: file)
         watcher.start()
+        // Nothing is to happen for a while: only time passing says so.
         await RealWait.pass(.milliseconds(600))
         #expect(watcher.wakeupCount <= 2, "woke \(watcher.wakeupCount) times")
         let watch = Stopwatch()

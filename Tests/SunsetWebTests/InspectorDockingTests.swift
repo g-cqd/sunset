@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import SunsetPrivate
 import SunsetTestSupport
@@ -32,7 +33,7 @@ struct InspectorDockingTests {
         host.place()
         window.makeKeyAndOrderFront(nil)
         view.loadHTMLString("<p>inspect me</p>", baseURL: URL(string: "https://inspect.example/"))
-        await Waiting.until { !page.isLoading && page.webView?.url?.host() == "inspect.example" }
+        try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "inspect.example" }
         return (window, host, page)
     }
 

@@ -1,5 +1,7 @@
+import AemiTestKit
 import Foundation
 import Observation
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetWeb
@@ -29,13 +31,13 @@ struct WebNotificationsAskTests {
     }
 
     /// Whichever comes first: `work` ends (false), or the page shows a question (true, then refused so that `work` ends).
-    private func asks(_ page: WebContent, while work: @escaping @MainActor () async -> Void) async -> Bool {
+    private func asks(_ page: WebContent, while work: @escaping @MainActor () async -> Void) async throws -> Bool {
         let flag = Flag()
         let running = Task { @MainActor in
             await work()
             flag.done = true
         }
-        await Waiting.until { flag.done || page.permissionRequest != nil }
+        try await Poll.until { flag.done || page.permissionRequest != nil }
         let asked = !flag.done
         page.permissionRequest?.choose(.deny, keepIn: SitePermissions(table: nil))
         await running.value
@@ -43,10 +45,10 @@ struct WebNotificationsAskTests {
     }
 
     @Test(.timeLimit(.minutes(1)))
-    func `without a gesture the page is answered by the site's answer and nobody is asked`() async {
+    func `without a gesture the page is answered by the site's answer and nobody is asked`() async throws {
         let page = page()
         var answer: String?
-        let asked = await asks(page) { answer = await self.request(page, activated: false) }
+        let asked = try await asks(page) { answer = await self.request(page, activated: false) }
         #expect(!asked, "nobody is asked without a gesture")
         #expect(asked || answer == "default")
     }
@@ -55,14 +57,14 @@ struct WebNotificationsAskTests {
     func `with a gesture the person is asked once; a second request meanwhile is answered at once`() async throws {
         let page = page()
         let first = Task { await request(page, activated: true) }
-        await Waiting.until { page.permissionRequest != nil }
+        try await waitForObservedState { page.permissionRequest != nil }
         let shown = try #require(page.permissionRequest)
         var second: String?
         let asking = Task { second = await request(page, activated: true) }
         // Answered at once, or else asked again once the first question is answered.
         let started = Task { shown.choose(.allowOnce, keepIn: SitePermissions(table: nil)) }
         await started.value
-        let askedAgain = await asks(page) { await asking.value }
+        let askedAgain = try await asks(page) { await asking.value }
         #expect(!askedAgain, "not queued behind the question shown, nor asked again")
         #expect(await first.value == "granted")
         #expect(askedAgain || second == "default" || second == "granted")
@@ -70,9 +72,9 @@ struct WebNotificationsAskTests {
 
     /// Roadmap 0046 S1 (the owner, 2026-11-18: "this could be a setting"): as Chrome, a request without a click asks.
     @Test(.timeLimit(.minutes(1)))
-    func `set to ask without a click, a request without a gesture asks the person`() async {
+    func `set to ask without a click, a request without a gesture asks the person`() async throws {
         let page = page(withoutClick: true)
-        let asked = await asks(page) { _ = await self.request(page, activated: false) }
+        let asked = try await asks(page) { _ = await self.request(page, activated: false) }
         #expect(asked)
     }
 }

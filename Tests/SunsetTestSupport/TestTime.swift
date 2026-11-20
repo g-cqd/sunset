@@ -49,20 +49,8 @@ public final class TestTime: Sendable {
 
     /// `operation`, or `Stalled` once `guardTime` of real time has passed.
     static func guarded(_ what: String, _ operation: @escaping @Sendable () async throws -> Void) async throws {
-        try await withThrowingTaskGroup(of: Bool.self) { group in
-            group.addTask {
-                try await operation()
-                return true
-            }
-            group.addTask {
-                await RealWait.pass(guardTime)
-                return false
-            }
-            let finished = try await group.next() ?? false
-            group.cancelAll()
-            if !finished {
-                throw Stalled(description: what)
-            }
+        guard try await Deadline.first(within: guardTime, operation) != nil else {
+            throw Stalled(description: what)
         }
     }
 

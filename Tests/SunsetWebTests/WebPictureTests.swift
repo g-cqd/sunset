@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import Observation
@@ -14,9 +15,8 @@ struct WebPictureTests {
     private let settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
 
     /// The page's picture once it has one: waited for as a change of `picture`, never on a clock.
-    private func picture(of page: WebContent) async -> CGImage? {
-        // Given up when the test's time limit cancels it, so that a regression fails instead of hanging.
-        await Waiting.until { page.picture != nil }
+    private func picture(of page: WebContent) async throws -> CGImage? {
+        try await waitForObservedState { page.picture != nil }
         return page.picture
     }
 
@@ -36,7 +36,7 @@ struct WebPictureTests {
         #expect(page.picture == nil)
         page.setState(focused: false, visible: false)
         try #require(page.takingPicture, "asked for as it is hidden")
-        let image = try #require(await picture(of: page))
+        let image = try #require(try await picture(of: page))
         #expect(image.width > 0 && image.height > 0)
         window.close()
         page.stop()
@@ -66,9 +66,9 @@ struct WebPictureTests {
         window.contentView = view
         view.loadHTMLString("<body style='background: rgb(255, 0, 0)'></body>", baseURL: nil)
         page.takePicture()
-        let first = try #require(await picture(of: page))
+        let first = try #require(try await picture(of: page))
         view.loadHTMLString("<body style='background: rgb(0, 0, 255)'></body>", baseURL: nil)
-        await Waiting.until { page.picture !== first }
+        try await waitForObservedState { page.picture !== first }
         #expect(page.picture !== first, "a new picture once the new page loaded")
         window.close()
         page.stop()
@@ -89,11 +89,11 @@ struct WebPictureTests {
         window.isReleasedWhenClosed = false
         window.contentView = view
         view.loadHTMLString("<title>a</title><body>a</body>", baseURL: nil)
-        await Waiting.until { page.pageTitle == "a" && !page.isLoading }
+        try await waitForObservedState { page.pageTitle == "a" && !page.isLoading }
         page.takePicture()
-        let first = try #require(await picture(of: page))
+        let first = try #require(try await picture(of: page))
         _ = try await view.evaluateJavaScript("document.title = 'b (1)'; document.body.textContent = 'b'; 1")
-        await Waiting.until { page.picture !== first }
+        try await waitForObservedState { page.picture !== first }
         #expect(page.picture !== first, "pictured again as its title changed")
         window.close()
         page.stop()

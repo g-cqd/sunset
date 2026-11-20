@@ -39,6 +39,12 @@ public struct Runtime: Sendable {
         }
     }
 
+    /// Lets the other work of this actor and of the pool run before going on: a long job's turn given up between steps, or
+    /// "once what is queued now has run". Not a wait for anything: what has to have happened is waited for as itself.
+    public func yieldTurn() async {
+        await Task.yield()
+    }
+
     /// Waits until `deadline` (an `uptime()`); false when the task was cancelled meanwhile.
     @discardableResult
     public func sleep(until deadline: Duration) async -> Bool {

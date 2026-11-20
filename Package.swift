@@ -107,7 +107,10 @@ let package = Package(
             cSettings: workCSettings
         ),
         module("SunsetRender", ["SunsetCore", "CSunsetKernels"], settings: workSettings),
-        tests("SunsetRuntimeTests", ["SunsetRuntime", .product(name: "AemiTestKit", package: "aemi")]),
+        tests(
+            "SunsetRuntimeTests",
+            ["SunsetRuntime", "SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi")]
+        ),
         tests(
             "SunsetRenderTests",
             ["SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi"), "SunsetRender", "SunsetCore"],
@@ -180,7 +183,8 @@ let package = Package(
             "SunsetDocumentsTests",
             [
                 "SunsetDocuments", "SunsetStorage", "SunsetTestSupport",
-                .product(name: "MarkdownLookKit", package: "AemiMarkdown")
+                .product(name: "MarkdownLookKit", package: "AemiMarkdown"),
+                .product(name: "AemiTestKit", package: "aemi")
             ]
         ),
         module("SunsetStorage", ["SunsetRuntime", .product(name: "AemiIO", package: "aemi")]),
@@ -274,7 +278,7 @@ let package = Package(
             "SunsetWebTests",
             [
                 "SunsetTestSupport", "SunsetWeb", "SunsetWebModel", "SunsetPane", "SunsetShell", "SunsetShellModel",
-                "SunsetMetrics", "SunsetStorage"
+                "SunsetMetrics", "SunsetStorage", .product(name: "AemiTestKit", package: "aemi")
             ]
         ),
         // What joins the configuration file to the shell's settings: a library so that the mapping is tested (the app target cannot be).

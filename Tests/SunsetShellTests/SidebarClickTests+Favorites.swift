@@ -37,7 +37,8 @@ extension SidebarClickTests {
         let took = try #require(await looks { isCollapsed(folder) }, "the click did nothing")
         #expect(took <= Self.atOnce, "the folder folded \(took * 5) ms after the click")
 
-        await RealWait.pass(.milliseconds(700))
+        // Past the double-click interval: the next click is not part of the first.
+        await RealWait.pass(.seconds(NSEvent.doubleClickInterval) + .milliseconds(100))
         await click(window, at: row(0), count: 2)
         #expect(await looks { tabs.renamingRow == .node(folder) } != nil, "the double click did not rename")
         #expect(isCollapsed(folder), "folded before the double click, folded after it")

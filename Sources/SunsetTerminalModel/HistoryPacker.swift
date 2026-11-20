@@ -57,7 +57,7 @@ package final class HistoryPacker {
             while !Task.isCancelled, last == quietSince {
                 if session.packHistory(keepingRecent: Self.keptRecent, limit: Self.step) == 0 { break }
                 didPack = true
-                await Task.yield()
+                await runtime.yieldTurn()
             }
             // What reading decoded goes too, and the owner's copy of the screen lets go of the cells that are packed now; then sleep until something happens.
             if last == quietSince {

@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import Testing
@@ -23,12 +24,12 @@ struct WebPictureTextTests {
         window.isReleasedWhenClosed = false
         window.contentView = view
         view.loadHTMLString("<title>same</title><body><p id='p'>a</p></body>", baseURL: nil)
-        await Waiting.until { page.pageTitle == "same" && !page.isLoading }
+        try await waitForObservedState { page.pageTitle == "same" && !page.isLoading }
         page.takePicture()
-        await Waiting.until { page.picture != nil }
+        try await waitForObservedState { page.picture != nil }
         let first = try #require(page.picture)
         _ = try await view.evaluateJavaScript("document.getElementById('p').textContent = 'b, and more'; 1")
-        await Waiting.until { page.picture !== first }
+        try await waitForObservedState { page.picture !== first }
         #expect(page.picture !== first, "pictured again as its text changed")
         #expect(page.pageTitle == "same")
         window.close()

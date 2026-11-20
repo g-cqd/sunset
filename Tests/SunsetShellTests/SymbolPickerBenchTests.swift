@@ -56,7 +56,7 @@ struct SymbolPickerBenchTests {
     /// The grid in a window that is never on screen, with the catalogs already read: every symbol shown and drawn; what a
     /// key typed costs it (the list changed, laid out, drawn); and scrolling, two rows a step, drawn at each step, through
     /// symbols never drawn before and back over the same.
-    @Test func `the grid: a change of the list, and scrolling, each laid out and drawn`() async {
+    @Test func `the grid: a change of the list, and scrolling, each laid out and drawn`() async throws {
         let catalogs = IconCatalogs.load()
         let all = catalogs.symbols.search("").map(IconChoice.init)
         let some = catalogs.symbols.search("fo").map(IconChoice.init)
@@ -81,7 +81,7 @@ struct SymbolPickerBenchTests {
             first.append(Self.milliseconds { Self.show(all, in: scroll) })
             // Drawing does not wait for the symbols: how long until those in sight are all there.
             let asked = Stopwatch()
-            while !grid.isComplete { await RealWait.pass(.microseconds(500)) }
+            try await Poll.until("the symbols in sight", every: .microseconds(500)) { grid.isComplete }
             let took = asked.elapsed
             arrived.append(Double(took.components.attoseconds) / 1e15)
             for list in [some, all, some, all] { changes.append(Self.milliseconds { Self.show(list, in: scroll) }) }

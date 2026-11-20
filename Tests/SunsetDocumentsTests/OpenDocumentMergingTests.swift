@@ -1,5 +1,7 @@
+import AemiTestKit
 import Foundation
 import MarkdownLookKit
+import Synchronization
 import Testing
 
 @testable import SunsetDocuments
@@ -213,10 +215,23 @@ struct OpenDocumentMergingTests {
         replace("Paragraph number 3 of", with: "Paragraph three, mine, of", in: document)
         let disk = long.replacing("Paragraph number 8000 of", with: "Paragraph 8000, theirs, of")
         try write(disk, to: path)
+        // The first comparison is held until the test has typed; the next ones run.
+        let (comparing, typed) = (AsyncLatch(), AsyncLatch())
+        let held = Mutex(true)
+        document.merging = { base, mine, theirs, kind in
+            if held.withLock({ first in
+                defer { first = false }
+                return first
+            }) {
+                comparing.open()
+                try? await typed.wait()
+            }
+            return await DocumentMerge.made(base: base, mine: mine, theirs: theirs, kind: kind)
+        }
         let settling = Task { await document.fileSettled(.read(path)) }
-        // Typed while the three texts are being compared.
-        await Task.yield()
+        try await comparing.wait()
         replace("Paragraph number 5 of", with: "Paragraph five, typed meanwhile, of", in: document)
+        typed.open()
         await settling.value
         let text = document.source.text
         #expect(text.contains("Paragraph three, mine, of") && text.contains("Paragraph five, typed meanwhile, of"))

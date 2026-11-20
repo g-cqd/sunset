@@ -24,7 +24,7 @@ extension OpenDocument {
                 source.storage.length > Self.inlineMergeLimit
             else { break }
             let (revision, mark) = (source.revision, known)
-            let plan = await DocumentMerge.made(base: base, mine: source.text, theirs: read.text, kind: kind)
+            let plan = await merging(base, source.text, read.text, kind)
             guard source.revision == revision, known == mark else { continue }
             known = read.mark
             take(plan, theirs: read.text)

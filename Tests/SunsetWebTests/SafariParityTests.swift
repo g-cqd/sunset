@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import Testing
 import WebKit
@@ -17,7 +18,7 @@ struct SafariParityTests {
         page.setState(focused: false, visible: true)
         let view = try #require(page.webView)
         view.loadHTMLString("<p>idle</p>", baseURL: URL(string: "https://idle.example/"))
-        await Waiting.until { !page.isLoading && page.webView?.url?.host() == "idle.example" }
+        try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "idle.example" }
         let found = try await view.callAsyncJavaScript(
             """
             const has = ["IdleDeadline", "MediaSessionCoordinator"].filter(name => name in window);

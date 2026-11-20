@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import Testing
 import WebKit
@@ -35,7 +36,7 @@ struct NotificationClicksTests {
         page.setState(focused: false, visible: true)
         let view = try #require(page.webView)
         view.loadHTMLString("<p>chat</p>", baseURL: URL(string: "https://chat.example/"))
-        await Waiting.until { !page.isLoading && page.webView?.url?.host() == "chat.example" }
+        try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "chat.example" }
         var heard: Result<Any, any Error>?
         var resume: (() -> Void)?
         view.callAsyncJavaScript(

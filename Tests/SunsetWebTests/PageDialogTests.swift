@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import Testing
 
@@ -36,26 +37,27 @@ import Testing
         #expect(named.title == "news.com says" && named.message == "hi")
     }
 
-    @Test func `a page's dialog waits in the page; silenced, confirm is refused and prompt gives nothing`() async {
+    @Test func `a page's dialog waits in the page; silenced, confirm is refused and prompt gives nothing`() async throws
+    {
         let page = WebContent(url: nil, settings: WebSettings())
         async let first = page.ask(.confirm, message: "sure?", host: "a.com")
-        while page.dialog == nil { await Task.yield() }
+        try await waitForObservedState { page.dialog != nil }
         #expect(page.dialog?.kind == .confirm && page.dialog?.offersSilence == false)
         page.dialog?.answer(.ok(nil))
         #expect(await first == .ok(nil) && page.dialog == nil)
 
         async let second = page.ask(.alert, message: "again", host: "a.com")
-        while page.dialog == nil { await Task.yield() }
+        try await waitForObservedState { page.dialog != nil }
         #expect(page.dialog?.offersSilence == true)
         page.silenceDialogs()
         #expect(await second == .cancel && page.dialog == nil)
         #expect(await page.ask(.prompt(defaultText: ""), message: "more", host: "a.com") == .cancel)
     }
 
-    @Test func `a page that is closed answers its waiting dialog`() async {
+    @Test func `a page that is closed answers its waiting dialog`() async throws {
         let page = WebContent(url: nil, settings: WebSettings())
         async let waiting = page.ask(.alert, message: "x", host: "a.com")
-        while page.dialog == nil { await Task.yield() }
+        try await waitForObservedState { page.dialog != nil }
         page.stop()
         #expect(await waiting == .cancel)
     }

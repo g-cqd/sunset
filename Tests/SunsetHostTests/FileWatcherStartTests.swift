@@ -21,20 +21,11 @@ struct FileWatcherStartTests {
             let watcher = FileWatcher(path: file, settle: .milliseconds(20))
             watcher.start()
             try "theirs".write(toFile: file, atomically: true, encoding: .utf8)
-            let told = await withTaskGroup(of: Bool.self) { group in
-                group.addTask {
+            let told =
+                await Deadline.first(within: .seconds(1)) {
                     var changes = watcher.changes.makeAsyncIterator()
                     return await changes.next() != nil
-                }
-                group.addTask {
-                    await RealWait.pass(.seconds(1))
-                    watcher.stop()
-                    return false
-                }
-                let first = await group.next() ?? false
-                group.cancelAll()
-                return first
-            }
+                } ?? false
             if !told { missed += 1 }
             watcher.stop()
         }

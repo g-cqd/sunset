@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import Testing
 import WebKit
@@ -32,7 +33,7 @@ struct AgentIdentityTests {
         page.agents = SiteAgents()
         page.setState(focused: true, visible: true)
         page.load(try #require(URL(string: "http://127.0.0.1:\(server.port)/\(agent.rawValue)")))
-        await Waiting.until { !page.isLoading && page.pageTitle == "echo" }
+        try await waitForObservedState { !page.isLoading && page.pageTitle == "echo" }
         let view = try #require(page.webView)
         let value = try await view.callAsyncJavaScript(script, contentWorld: .page)
         page.stop()

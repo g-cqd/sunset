@@ -31,6 +31,7 @@ extension PTYProcess {
                 pollfd(fd: fileDescriptor, events: Int16(POLLIN), revents: 0),
                 pollfd(fd: wake, events: Int16(POLLIN), revents: 0)
             ]
+            counters.readWaits.withLock { $0 += 1 }
             let ready = unsafe poll(&waits, wake >= 0 ? 2 : 1, wake >= 0 ? -1 : 50)
             counters.readWakeups.withLock { $0 += 1 }
             if ready < 0 {

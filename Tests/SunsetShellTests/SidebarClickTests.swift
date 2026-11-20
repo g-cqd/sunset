@@ -32,7 +32,10 @@ struct SidebarClickTests {
             rootView: TabSidebar(tabs: tabs, settings: settings) {}.frame(width: 229, height: 400)
         )
         window.orderBack(nil)
-        for _ in 0 ..< 20 { await RealWait.pass(.milliseconds(25)) }
+        window.contentView?.layoutSubtreeIfNeeded()
+        // SwiftUI puts the rows' gestures in place on later turns of the run loop and says nothing when it has: laid out
+        // at once was not enough under the whole suite's load (2026-11-20).
+        await RealWait.pass(.milliseconds(500))
         return window
     }
 

@@ -35,6 +35,10 @@ public final class OpenDocument {
     /// Why a save nobody watched failed (by itself, or with every other at quit), until a save does or it is dismissed.
     public var saveFailure: String?
 
+    /// How a long text is compared with the file, off the main actor; a test holds it to type meanwhile.
+    @ObservationIgnored var merging:
+        @Sendable (_ base: String, _ mine: String, _ theirs: String, _ kind: DocumentKind) async
+            -> DocumentMerge = { await DocumentMerge.made(base: $0, mine: $1, theirs: $2, kind: $3) }
     @ObservationIgnored let store: DocumentStore?
     /// What the file held when it was last read or written here: a change on disk that says the same is not a change.
     @ObservationIgnored var known: FileContent.Mark?

@@ -17,7 +17,9 @@ struct UnseamedTimeTests {
     }
 
     /// The test support's own files: the one place a test's real time and test clock are made.
-    static let support: Set<String> = ["TestTime.swift", "RealWait.swift", "Stopwatch.swift"]
+    static let support: Set<String> = [
+        "TestTime.swift", "RealWait.swift", "Stopwatch.swift", "Poll.swift", "Deadline.swift", "KeyValueProbe.swift"
+    ]
 
     @Test func `raw tasks, sleeps and reads of the time in Sources are exactly what is left to move`() {
         let files = RepositoryFiles.swiftFiles(in: ["Sources"])

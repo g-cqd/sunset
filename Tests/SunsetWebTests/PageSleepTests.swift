@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import SunsetPane
@@ -50,7 +51,7 @@ struct PageSleepTests {
         window.isReleasedWhenClosed = false
         window.contentView = view
         view.loadHTMLString("<title>Kept</title><body>kept</body>", baseURL: URL(string: "https://example.org/a"))
-        await Waiting.until { page.title == "Kept" }
+        try await waitForObservedState { page.title == "Kept" }
         page.setState(focused: false, visible: false)
         #expect(page.unload())
         #expect(page.webView == nil && page.isUnloaded && page.descriptor.state["history"] != nil)
@@ -90,7 +91,7 @@ struct PageSleepTests {
         page.setState(focused: true, visible: true)
         // An address nothing answers: it loads until it is stopped.
         page.load(try #require(URL(string: "http://10.255.255.1/")))
-        await Waiting.until { page.isLoading }
+        try await waitForObservedState { page.isLoading }
         page.setState(focused: false, visible: false)
         #expect(page.unload())
         #expect(!page.isLoading && page.progress == nil)
