@@ -62,7 +62,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Aemi-Studio/AemiSDR.git",
       "state" : {
-        "revision" : "0d3c966319c2563612ecd671be8b1f9bbfbe94de"
+        "revision" : "b92abdba82ad8cda62bc325ff32011d2125773d5"
       }
     },
     {

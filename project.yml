@@ -95,6 +95,15 @@ targets:
             UTTypeConformsTo: [public.plain-text]
             UTTypeTagSpecification:
               public.filename-extension: [mmd, mermaid]
+    # AemiSDR's bundle holds its shaders compiled for iOS, the iOS simulator and macOS: a build-tool plugin is not told which
+    # platform it builds for (AemiSDR diary 2026-11-20-01). The app keeps the macOS ones; Xcode signs it after this phase.
+    postBuildScripts:
+      - name: Keep Only the macOS Shaders
+        basedOnDependencyAnalysis: false
+        script: |
+          set -eu
+          find "$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH" -path "*.bundle/*" \
+            \( -name "*.iOS.metallib" -o -name "*.iOSSimulator.metallib" \) -print -delete
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset
