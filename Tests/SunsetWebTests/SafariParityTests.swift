@@ -37,4 +37,29 @@ struct SafariParityTests {
         #expect(result["ran"] as? String == "ran")
         page.stop()
     }
+
+    /// The two last of the inventory a switch away (2026-11-20, `_features`): the video's playback quality counts the frames
+    /// composited for display, as Safari's; and picture in picture is on, as in Safari (`document.pictureInPictureEnabled`, off in
+    /// an app's views: a page saw false, and a video had no picture in picture).
+    @Test func `a video's quality counts composited frames, and picture in picture is on`() async throws {
+        let page = WebContent(url: nil, settings: WebSettings(applicationName: "Version/26.0 Safari/605.1.15"))
+        page.setState(focused: false, visible: true)
+        let view = try #require(page.webView)
+        view.loadHTMLString("<video></video>", baseURL: URL(string: "https://video.example/"))
+        try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "video.example" }
+        let found = try await view.callAsyncJavaScript(
+            """
+            return {
+              composited: "displayCompositedVideoFrames" in VideoPlaybackQuality.prototype,
+              pip: document.pictureInPictureEnabled === true
+                && typeof HTMLVideoElement.prototype.requestPictureInPicture === "function"
+            };
+            """,
+            contentWorld: .page
+        )
+        let result = try #require(found as? [String: Any])
+        #expect(result["composited"] as? Bool == true)
+        #expect(result["pip"] as? Bool == true)
+        page.stop()
+    }
 }

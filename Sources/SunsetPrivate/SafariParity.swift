@@ -9,7 +9,9 @@ public enum SafariParity {
     public static func turnOn(on preferences: NSObject) {
         for key in [
             #Interned("RequestIdleCallbackEnabled"), #Interned("MediaSessionCoordinatorEnabled"),
-            #Interned("MediaSessionPlaylistEnabled")
+            #Interned("MediaSessionPlaylistEnabled"),
+            // `VideoPlaybackQuality.displayCompositedVideoFrames` (2026-11-20).
+            #Interned("VideoQualityIncludesDisplayCompositingEnabled")
         ] {
             WebFeature.set(key, enabled: true, on: preferences)
         }
