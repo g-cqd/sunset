@@ -6,7 +6,10 @@ extension WebContent {
     /// The browser the site of `url` is to see: its rule, else the default.
     func agent(for url: URL?) -> BrowserAgent {
         guard let url else { return settings.agent }
-        return agents.agent(for: url, default: settings.agent, profile: settings.profile)
+        // Firefox Add-ons is shown Firefox unless the person said otherwise: its own "Add to Firefox" then links to the
+        // package, which Sunset installs (roadmap 0109 E; probed 2026-11-20).
+        let fallback = url.host() == "addons.mozilla.org" ? BrowserAgent.firefox : settings.agent
+        return agents.agent(for: url, default: fallback, profile: settings.profile)
     }
 
     /// The browser this page's site sees now.

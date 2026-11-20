@@ -10,34 +10,63 @@ final class StoreInstallButton: PageScriptHandler, WKScriptMessageHandler {
     private static let name = "sunsetStoreInstall"
     static let script = """
         (() => {
-          const store = /^(chromewebstore\\.google\\.com|chrome\\.google\\.com|addons\\.mozilla\\.org)$/;
-          if (location.protocol !== "https:" || !store.test(location.hostname)) return;
-          if (!/\\/detail\\/|\\/addon\\//.test(location.pathname)) return;
-          // The store's own button, disabled for a browser it does not know ("Add to Chrome", "Add to Firefox", "Download
-          // Firefox and get the extension"): replaced by Sunset's, in its place; else Sunset's after the title.
-          const theirs = () => [...document.querySelectorAll("button, a")].find(el =>
-            /^(Add to Chrome|Add to Firefox|Download Firefox and get the extension|Download Firefox)$/i
-              .test((el.textContent || "").trim()) && !el.hasAttribute("data-sunset-install"));
-          const place = () => {
-            if (document.querySelector("[data-sunset-install]")) return;
-            const button = document.createElement("button");
+          // The Chrome Web Store only: Firefox Add-ons is shown Firefox, and its own button links to the package, which
+          // Sunset installs (roadmap 0109 E).
+          if (location.protocol !== "https:") return;
+          if (!/^(chromewebstore\\.google\\.com|chrome\\.google\\.com)$/.test(location.hostname)) return;
+          const press = event => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            webkit.messageHandlers.\(name).postMessage(location.href);
+          };
+          // The store's own button, in any language (its text names Chrome: "Add to Chrome", "Zu Chrome hinzufügen"…),
+          // disabled for a browser it does not know: enabled, "Chrome" said "Sunset", its look kept; pressed, Sunset installs.
+          const take = button => {
             button.setAttribute("data-sunset-install", "");
+            button.addEventListener("click", press, true);
+          };
+          const place = () => {
+            // The store is one page that changes its address (seen 2026-11-20: a search result under the button): only an
+            // extension's page has it; elsewhere the button of Sunset's goes, and the store's is left as it is.
+            if (!/\\/detail\\//.test(location.pathname)) {
+              for (const ours of document.querySelectorAll("[data-sunset-own]")) ours.remove();
+              return;
+            }
+            for (const taken of document.querySelectorAll("[data-sunset-install]")) {
+              if (taken.disabled) taken.disabled = false;
+              taken.removeAttribute("aria-disabled");
+            }
+            if (document.querySelector("[data-sunset-install]")) return;
+            const theirs = [...document.querySelectorAll("button")].find(b => /Chrome/.test(b.textContent || ""));
+            if (theirs) {
+              const walker = document.createTreeWalker(theirs, NodeFilter.SHOW_TEXT);
+              for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+                node.textContent = node.textContent.replace(/Chrome/g, "Sunset");
+              }
+              theirs.disabled = false;
+              theirs.removeAttribute("aria-disabled");
+              take(theirs);
+              return;
+            }
+            const title = document.querySelector("h1");
+            if (!title) return;
+            const button = document.createElement("button");
+            button.setAttribute("data-sunset-own", "");
             button.type = "button";
             button.textContent = "Add to Sunset";
             button.style.cssText = "all:initial;display:inline-flex;align-items:center;justify-content:center;" +
               "box-sizing:border-box;height:36px;padding:0 20px;border-radius:18px;white-space:nowrap;" +
               "background:#0a84ff;color:#fff;font:600 14px -apple-system,system-ui;cursor:pointer";
-            button.addEventListener("click", event => {
-              event.preventDefault();
-              webkit.messageHandlers.\(name).postMessage(location.href);
-            });
-            const old = theirs();
-            if (old) { old.replaceWith(button); return; }
-            const title = document.querySelector("h1");
-            if (title) title.after(button);
+            take(button);
+            title.after(button);
           };
-          // The stores draw their pages late, and again when another extension is opened in the same page.
-        \(PageBridge.watching("place", root: "document.documentElement", options: "{ subtree: true, childList: true }", first: true))
+          // The store draws its page late, and again (its button too) when another item is opened in the same page.
+        \(PageBridge.watching(
+            "place",
+            root: "document.documentElement",
+            options: #"{ subtree: true, childList: true, attributes: true, attributeFilter: ["disabled"] }"#,
+            first: true
+        ))
         })();
         """
 

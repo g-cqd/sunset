@@ -20,4 +20,21 @@ import WebKit
     ) async throws {
         host?.showPopup(action, for: context)
     }
+
+    /// The profile's windows, the one in front first (WebKit asks: without them an extension sees no tab).
+    func webExtensionController(
+        _ controller: WKWebExtensionController,
+        openWindowsFor context: WKWebExtensionContext
+    ) -> [any WKWebExtensionWindow] {
+        guard let host else { return [] }
+        return ExtensionHosts.shared.windows().filter { $0.profile == host.profile }
+    }
+
+    func webExtensionController(
+        _ controller: WKWebExtensionController,
+        focusedWindowFor context: WKWebExtensionContext
+    ) -> (any WKWebExtensionWindow)? {
+        guard let host, let window = ExtensionHosts.shared.focused(), window.profile == host.profile else { return nil }
+        return window
+    }
 }

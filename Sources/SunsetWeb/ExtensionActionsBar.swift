@@ -1,6 +1,7 @@
 import AppKit
 import SunsetShell
 package import SwiftUI
+import WebKit
 
 /// The extensions' buttons in the sidebar's header row, between the sidebar's button and the traffic lights (the owner,
 /// ADR-0109, roadmap 0109 D): each the sidebar's button with the extension's icon, its badge on a corner; clicked, the
@@ -30,6 +31,10 @@ package struct ExtensionActionsBar: View {
                 button(item, first: index == 0, last: index == items.count - 1)
             }
             if shown < items.count { more(items) }
+        }
+        // The page shown is the window's active tab: extensions told when it changes (`tabs.onActivated`).
+        .onChange(of: page.map(ObjectIdentifier.init), initial: true) {
+            if let tab = page?.extensionTab { host.controller.didActivateTab(tab, previousActiveTab: nil) }
         }
     }
 

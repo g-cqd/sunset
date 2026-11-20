@@ -20,4 +20,23 @@ package import WebKit
     package func url(for context: WKWebExtensionContext) -> URL? {
         page?.url
     }
+
+    /// The window it is a tab of.
+    package func window(for context: WKWebExtensionContext) -> (any WKWebExtensionWindow)? {
+        guard let page else { return nil }
+        return ExtensionHosts.shared.windows().first { $0.holds(page) }
+    }
+
+    package func isSelected(for context: WKWebExtensionContext) -> Bool {
+        guard let page else { return false }
+        return ExtensionHosts.shared.windows().contains { $0.shown() === page }
+    }
+
+    package func activate(for context: WKWebExtensionContext) async throws {
+        page?.onFocusRequest()
+    }
+
+    package func close(for context: WKWebExtensionContext) async throws {
+        page?.onExit()
+    }
 }

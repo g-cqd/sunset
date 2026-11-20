@@ -39,7 +39,11 @@ package import WebKit
     /// Shows an action's popup; by default WebKit's popover under its button. Tests watch it.
     @ObservationIgnored package var presentPopup: (ExtensionActionItem, WKWebExtension.Action) -> Void = { _, _ in }
 
+    /// Its profile: the windows it sees are that profile's.
+    @ObservationIgnored let profile: UUID?
+
     init(root: URL, profile: UUID?, runtime: Runtime = .live) {
+        self.profile = profile
         store = ExtensionStore(root: root, profile: profile)
         self.runtime = runtime
         // A profile's own storage for its extensions; the default profile's is WebKit's default.
@@ -104,6 +108,22 @@ package import WebKit
     package func set(_ id: UUID, inPrivate: Bool) {
         store.set(id, inPrivate: inPrivate)
         contexts[id]?.hasAccessToPrivateData = inPrivate
+    }
+
+    /// The windows WebKit was told of, and the one in front.
+    @ObservationIgnored private var known: [ObjectIdentifier: ExtensionWindow] = [:]
+    @ObservationIgnored private weak var front: ExtensionWindow?
+
+    func sync(_ windows: [ExtensionWindow], focused: ExtensionWindow?) {
+        let now = Dictionary(windows.map { (ObjectIdentifier($0), $0) }, uniquingKeysWith: { first, _ in first })
+        for (id, window) in known where now[id] == nil { controller.didCloseWindow(window) }
+        for (id, window) in now where known[id] == nil { controller.didOpenWindow(window) }
+        known = now
+        let focus = focused.flatMap { now[ObjectIdentifier($0)] }
+        if focus !== front {
+            controller.didFocusWindow(focus)
+            front = focus
+        }
     }
 
     /// Moves an extension in the order (Settings' list, a button's menu).

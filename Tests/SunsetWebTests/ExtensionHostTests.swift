@@ -106,4 +106,58 @@ struct ExtensionHostTests {
         host.remove(installed.id)
         #expect(host.installed.isEmpty)
     }
+
+    /// Seen 2026-11-20 (the owner's screenshot: uBO Lite's popup empty): an extension saw no window and no tab; WebKit asks the
+    /// controller's delegate for the windows (probed: answered, uBO Lite's popup draws). The page shown is the active tab of a
+    /// window the extension sees.
+    @Test func `an extension sees the window and the page shown as its active tab`() async throws {
+        let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let folder = root.appending(path: "src")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let manifest = #"""
+            {"manifest_version": 3, "name": "Tabs", "version": "1.0", "description": "A test.", "permissions": ["tabs"],
+             "host_permissions": ["http://127.0.0.1/*"], "background": {"service_worker": "w.js"},
+             "content_scripts": [{"matches": ["http://127.0.0.1/*"], "js": ["c.js"], "run_at": "document_end"}]}
+            """#
+        try Data(manifest.utf8).write(to: folder.appending(path: "manifest.json"))
+        try Data(
+            """
+            chrome.runtime.onMessage.addListener((m, s, reply) => {
+              Promise.all([chrome.tabs.query({ active: true, currentWindow: true }), chrome.windows.getCurrent()])
+                .then(([tabs, win]) => reply({ urls: tabs.map(t => t.url), window: win.type }))
+                .catch(e => reply({ error: String(e) }));
+              return true;
+            });
+            """
+            .utf8
+        )
+        .write(to: folder.appending(path: "w.js"))
+        try Data(Self.content.utf8).write(to: folder.appending(path: "c.js"))
+        let profile = UUID()
+        ExtensionHosts.shared.root = root.appending(path: "Extensions")
+        defer { ExtensionHosts.shared.reset() }
+        let host = try #require(ExtensionHosts.shared.host(for: profile))
+        await host.ready()
+        try await host.install(ExtensionHost.read(folder))
+        let server = try EchoServer()
+        var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
+        settings.profile = profile
+        let page = WebContent(url: URL(string: "http://127.0.0.1:\(server.port)/shown"), settings: settings)
+        let window = ExtensionWindow(profile: profile, isPrivate: false, pages: { [page] }, shown: { page })
+        ExtensionHosts.shared.windows = { [window] }
+        ExtensionHosts.shared.focused = { window }
+        page.setState(focused: true, visible: true)
+        ExtensionHosts.shared.sync()
+        defer { page.stop() }
+        let view = try #require(page.webView)
+        var answer = "none"
+        for _ in 0 ..< 60 where answer == "none" || answer == "pending" {
+            await RealWait.pass(.milliseconds(100))
+            answer =
+                (try? await view.evaluateJavaScript("document.documentElement.dataset.worker ?? 'none'")) as? String
+                ?? "none"
+        }
+        #expect(answer.contains("/shown") && answer.contains("normal"), "\(answer)")
+    }
 }

@@ -56,21 +56,57 @@ struct StoreInstallButtonTests {
         }
     }
 
-    /// The store's own button, disabled for a browser it does not know, is replaced in its place (seen on the Chrome Web Store,
-    /// 2026-11-20: Sunset's under the title looked lost, the store's greyed beside it).
-    @Test func `the store's own "Add to Chrome" is replaced in place`() async throws {
+    /// The owner, 2026-11-20: "I can't install from the official buttons" (a German page: "Zu Chrome hinzufügen" was not
+    /// matched). The store's own button, in any language, is taken: enabled, "Chrome" said "Sunset", its look kept; pressed,
+    /// Sunset installs.
+    @Test func `the store's own button is taken in any language`() async throws {
+        var asked: [ExtensionStoreLink] = []
+        ExtensionHosts.shared.installFromStore = { link, _ in asked.append(link) }
+        defer { ExtensionHosts.shared.installFromStore = { _, _ in } }
         let (page, view) = try await load(
-            "https://chromewebstore.google.com/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh",
+            "https://chromewebstore.google.com/detail/ublock-origin-lite/ddkjiahejlhfcafbddmgiahcphecmpfh",
             html:
-                "<main><h1>Dark Reader</h1><div id=bar><button disabled><span>Add to Chrome</span></button></div></main>"
+                "<main><h1>uBlock Origin Lite</h1><div id=bar><button disabled class=theirs><span>Zu Chrome hinzufügen</span></button></div></main>"
+        )
+        defer { page.stop() }
+        #expect(try await button(in: view) == "Zu Sunset hinzufügen")
+        let state = try await view.evaluateJavaScript(
+            "(() => { const b = document.querySelector('#bar button'); return [b.disabled, b.className, document.querySelectorAll('button').length]; })()"
+        )
+        let values = try #require(state as? [Any])
+        #expect(values[0] as? Bool == false && values[1] as? String == "theirs" && values[2] as? Int == 1)
+        _ = try await view.evaluateJavaScript("document.querySelector('#bar button').click(); 1")
+        try await waitUntil(timeout: .seconds(5), label: "asked") {
+            asked == [.chrome(id: "ddkjiahejlhfcafbddmgiahcphecmpfh")]
+        }
+    }
+
+    /// Firefox Add-ons is shown Firefox (its own "Add to Firefox" is a link to the `.xpi`, which Sunset installs: probed); no
+    /// button of Sunset's there.
+    @Test func `Firefox Add-ons sees Firefox and keeps its own button`() async throws {
+        let page = WebContent(url: nil, settings: WebSettings(applicationName: "Version/26.0 Safari/605.1.15"))
+        let firefox = try #require(URL(string: "https://addons.mozilla.org/de/firefox/addon/ublock-origin/"))
+        #expect(page.agent(for: firefox) == .firefox)
+        let (other, view) = try await load(
+            "https://addons.mozilla.org/de/firefox/addon/ublock-origin/",
+            html: "<main><h1>uBlock Origin</h1><a href='/x.xpi'>Zu Firefox hinzufügen</a></main>"
+        )
+        defer { other.stop() }
+        #expect(try await button(in: view) == "none")
+    }
+
+    /// The store changes its address without loading (seen 2026-11-20: Sunset's button under a search's results).
+    @Test func `gone when the store goes to another page without loading`() async throws {
+        let (page, view) = try await load(
+            "https://chromewebstore.google.com/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh"
         )
         defer { page.stop() }
         #expect(try await button(in: view) == "Add to Sunset")
-        let inPlace = try await view.evaluateJavaScript(
-            "[document.querySelector('#bar > [data-sunset-install]') !== null, document.querySelectorAll('#bar button').length]"
+        _ = try await view.evaluateJavaScript(
+            "history.pushState({}, '', '/search/x'); document.querySelector('h1').textContent = 'No search results'; 1"
         )
-        #expect((inPlace as? [Any])?.first as? Bool == true)
-        #expect((inPlace as? [Any])?.last as? Int == 1, "theirs gone")
+        await RealWait.pass(.milliseconds(300))
+        #expect(try await view.evaluateJavaScript(Self.read) as? String == "none")
     }
 
     @Test func `not on another page`() async throws {
