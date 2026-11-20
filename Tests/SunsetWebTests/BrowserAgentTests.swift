@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import SunsetTestSupport
 import Testing
@@ -166,7 +167,7 @@ struct BrowserAgentTests {
 
     /// Loaded, as WebKit says it by key-value observing: its progress whole, then no longer loading.
     private func loaded(_ view: WKWebView) async throws {
-        try await KeyValueProbe(view, \.estimatedProgress).wait(until: { $0 >= 1 }, within: .seconds(10))
-        try await KeyValueProbe(view, \.isLoading).wait(until: { !$0 }, within: .seconds(10))
+        try await KeyValueProbe(view, \.estimatedProgress).wait(until: { $0 >= 1 }, timeout: .seconds(10))
+        try await KeyValueProbe(view, \.isLoading).wait(until: { !$0 }, timeout: .seconds(10))
     }
 }

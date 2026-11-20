@@ -50,7 +50,7 @@ struct AppearAgainTests {
         try await waitForObservedState { page.url?.path() == "/unsupported" && !page.isLoading }
         page.appear(as: .chrome)
         // Loaded again: a request with Chrome's name, then the end of its load (what is observed is read first).
-        try await Poll.until { !page.isLoading && server.received.contains { $0.contains("Chrome/") } }
+        try await waitUntil { !page.isLoading && server.received.contains { $0.contains("Chrome/") } }
         #expect(page.url?.path() == "/start")
         #expect(server.header("User-Agent", for: "/start") == BrowserAgent.chrome.userAgent)
         page.stop()
@@ -64,7 +64,7 @@ struct AppearAgainTests {
         page.load(try #require(URL(string: "http://127.0.0.1:\(server.port)/app")))
         try await waitForObservedState { page.url?.path() == "/app/inner" && !page.isLoading }
         page.appear(as: .firefox)
-        try await Poll.until { !page.isLoading && server.header("User-Agent", for: "/app/inner") != nil }
+        try await waitUntil { !page.isLoading && server.header("User-Agent", for: "/app/inner") != nil }
         #expect(server.header("User-Agent", for: "/app/inner") == BrowserAgent.firefox.userAgent)
         page.stop()
     }

@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import SunsetTestSupport
 import Testing
@@ -22,7 +23,7 @@ struct FileWatcherStartTests {
             watcher.start()
             try "theirs".write(toFile: file, atomically: true, encoding: .utf8)
             let told =
-                await Deadline.first(within: .seconds(1)) {
+                await withDeadline(within: .seconds(1)) {
                     var changes = watcher.changes.makeAsyncIterator()
                     return await changes.next() != nil
                 } ?? false

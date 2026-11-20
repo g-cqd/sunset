@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import SunsetTestSupport
 import Testing
@@ -13,7 +14,7 @@ import Testing
 
     /// Waits for the next event for at most `seconds`.
     private func next(_ watcher: FileWatcher, seconds: Double = 2) async -> Bool {
-        await Deadline.first(within: .seconds(seconds)) {
+        await withDeadline(within: .seconds(seconds)) {
             var iterator = watcher.changes.makeAsyncIterator()
             return await iterator.next() != nil
         } ?? false

@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import SunsetPane
@@ -81,7 +82,7 @@ struct SymbolPickerBenchTests {
             first.append(Self.milliseconds { Self.show(all, in: scroll) })
             // Drawing does not wait for the symbols: how long until those in sight are all there.
             let asked = Stopwatch()
-            try await Poll.until("the symbols in sight", every: .microseconds(500)) { grid.isComplete }
+            try await waitUntil(every: .microseconds(500), label: "the symbols in sight") { grid.isComplete }
             let took = asked.elapsed
             arrived.append(Double(took.components.attoseconds) / 1e15)
             for list in [some, all, some, all] { changes.append(Self.milliseconds { Self.show(list, in: scroll) }) }

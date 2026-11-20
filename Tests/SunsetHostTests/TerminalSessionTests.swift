@@ -1,3 +1,4 @@
+import AemiTestKit
 import SunsetCore
 import SunsetTestSupport
 import Testing
@@ -9,7 +10,7 @@ import Testing
 private func waitFor(_ session: TerminalSession, seconds: Int = 10, _ condition: @escaping @Sendable (Screen) -> Bool)
     async -> Bool
 {
-    await Deadline.first(within: .seconds(seconds)) {
+    await withDeadline(within: .seconds(seconds)) {
         if condition(await session.takeSnapshot()) { return true }
         for await update in session.updates {
             if case .closed = update { return condition(await session.takeSnapshot()) }

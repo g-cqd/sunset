@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import Testing
 
@@ -8,12 +9,12 @@ public enum RealWait {
     public static let step = Duration.milliseconds(10)
     public static let limit = Duration.seconds(5)
 
-    /// Looks at `condition` until it holds or `limit` has passed; whether it holds. `Poll.until` says what and where
+    /// Looks at `condition` until it holds or `limit` has passed; whether it holds. `waitUntil` says what and where
     /// when it does not: prefer it where a test can throw.
     @MainActor
     @discardableResult
     public static func until(within limit: Duration = limit, _ condition: @MainActor () async -> Bool) async -> Bool {
-        (try? await Poll.until(within: limit, every: step) { await condition() }) != nil
+        (try? await waitUntil(timeout: limit, every: step) { await condition() }) != nil
     }
 
     /// The main run loop runs for `duration`: AppKit lays out, draws and delivers what it queued.

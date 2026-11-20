@@ -1,3 +1,4 @@
+import AemiTestKit
 import SunsetTestSupport
 import Testing
 
@@ -19,7 +20,7 @@ import Testing
     @Test func `a read that is cancelled ends at once, not at the next timeout`() async throws {
         let process = try PTYProcess.spawn(["/bin/sleep", "5"], environment: [:], columns: 80, rows: 24, directory: nil)
         let reading = Task { await process.read() }
-        try await Poll.until("the read waiting") { process.readWaits >= 1 }
+        try await waitUntil(label: "the read waiting") { process.readWaits >= 1 }
         let watch = Stopwatch()
         reading.cancel()
         _ = await reading.value
@@ -37,7 +38,7 @@ import Testing
             directory: nil
         )
         let first = Task { await process.read() }
-        try await Poll.until("the read waiting") { process.readWaits >= 1 }
+        try await waitUntil(label: "the read waiting") { process.readWaits >= 1 }
         first.cancel()
         #expect(await first.value == nil)
         var text = ""

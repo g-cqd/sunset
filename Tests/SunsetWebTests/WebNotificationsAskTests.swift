@@ -37,7 +37,7 @@ struct WebNotificationsAskTests {
             await work()
             flag.done = true
         }
-        try await Poll.until { flag.done || page.permissionRequest != nil }
+        try await waitUntil { flag.done || page.permissionRequest != nil }
         let asked = !flag.done
         page.permissionRequest?.choose(.deny, keepIn: SitePermissions(table: nil))
         await running.value

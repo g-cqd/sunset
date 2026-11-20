@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import SunsetTestSupport
@@ -49,7 +50,7 @@ struct SitesLoadProbeTests {
             if plain { view.load(URLRequest(url: address)) }
             let start = Stopwatch()
             if !plain { page.load(address) }
-            let loaded: Void? = try? await Poll.until(within: .seconds(30), every: .milliseconds(20)) {
+            let loaded: Void? = try? await waitUntil(timeout: .seconds(30), every: .milliseconds(20)) {
                 !view.isLoading && view.url != nil
             }
             let loadedAt = loaded.map { start.elapsed }

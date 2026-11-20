@@ -1,3 +1,4 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import MarkdownLookKit
@@ -89,7 +90,7 @@ struct DocumentPaneCatalogTests {
         )
         window.contentView = host
         window.orderBack(nil)
-        try? await Poll.until(within: .seconds(2), every: .milliseconds(50)) { ready() }
+        try? await waitUntil(timeout: .seconds(2), every: .milliseconds(50)) { ready() }
         // The window server draws what was laid out: nothing says when.
         await RealWait.pass(.milliseconds(300))
         host.layoutSubtreeIfNeeded()

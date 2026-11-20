@@ -48,7 +48,7 @@ struct WebFaviconTests {
             arguments: ["icon": blue],
             contentWorld: .page
         )
-        try await Poll.until { store.isFresh(host: "icons.example", source: URL(string: blue)) }
+        try await waitUntil { store.isFresh(host: "icons.example", source: URL(string: blue)) }
         #expect(store.isFresh(host: "icons.example", source: URL(string: blue)), "the new one replaced it")
         page.stop()
     }

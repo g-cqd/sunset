@@ -72,20 +72,20 @@ let package = Package(
     ],
     dependencies: [
         // Tests: the family's seeded generator, allocation counting and fuzz helpers (AemiTestKit). Pinned like TerminalKit's, which resolves the same revision.
-        .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "8db567405295d7d8aa4852a66af1cd46bf46a617"),
+        .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "f438182da40a731d5d75a7e22c4f684547401b13"),
         // Our own tooling (ADR-0002): terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
-        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "91b628b5ce1581452fdbfc3ca4bb7f942ab57abd"),
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "9d4ed2d3524e98ca60df66a65c0b76295d0d2ed9"),
         // Markdown, Mermaid and text documents (roadmap 0023): the native view, the source editor, the one text behind them.
         .package(
             url: "https://github.com/g-cqd/AemiMarkdown.git",
-            revision: "5ea4aeb23e9fa4f48066cf8f6e494c1c5573e28a"
+            revision: "55d66c75826c333b6b3accea118f08fb9b330685"
         ),
         // The configuration file (roadmap 0017): JSON read by AemiJSON's engine. Pinned by revision, as the family does.
-        .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "5114554d1cbb16625556fec05669a00eaf4ada89"),
+        .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "21689968b814e01b16e49b5b1899bc5baefa38a5"),
         // Blur under the bars and panels (Sunset research/blur, AemiSDR roadmap 0020). Pinned by revision, as the family does.
         .package(
             url: "https://github.com/Aemi-Studio/AemiSDR.git",
-            revision: "2e0991d7215557ba400a5ed0457ca2a600b03e36"
+            revision: "0d3c966319c2563612ecd671be8b1f9bbfbe94de"
         )
     ],
     targets: [
@@ -109,7 +109,7 @@ let package = Package(
         module("SunsetRender", ["SunsetCore", "CSunsetKernels"], settings: workSettings),
         tests(
             "SunsetRuntimeTests",
-            ["SunsetRuntime", "SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi")]
+            ["SunsetRuntime", .product(name: "AemiTestKit", package: "aemi")]
         ),
         tests(
             "SunsetRenderTests",
@@ -217,7 +217,7 @@ let package = Package(
             "SunsetShellTests",
             [
                 "SunsetTestSupport", "SunsetShell", "SunsetShellModel", "SunsetPane", "SunsetMetrics", "SunsetHelp",
-                "SunsetConfig"
+                "SunsetConfig", .product(name: "AemiTestKit", package: "aemi")
             ]
         ),
         // The terminal's model (roadmap 0086 D): its session, screen, renderer's wiring, selection, links; no AppKit nor SwiftUI.
@@ -250,7 +250,8 @@ let package = Package(
             [
                 "SunsetTestSupport",
                 "SunsetMarkdown", "SunsetPane", "SunsetShell", "SunsetDocuments",
-                .product(name: "MarkdownLookKit", package: "AemiMarkdown")
+                .product(name: "MarkdownLookKit", package: "AemiMarkdown"),
+                .product(name: "AemiTestKit", package: "aemi")
             ]
         ),
         // A web page as a kind of pane content (R1, roadmap 0019), on the system's WebKit.

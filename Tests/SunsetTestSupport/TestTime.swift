@@ -49,7 +49,7 @@ public final class TestTime: Sendable {
 
     /// `operation`, or `Stalled` once `guardTime` of real time has passed.
     static func guarded(_ what: String, _ operation: @escaping @Sendable () async throws -> Void) async throws {
-        guard try await Deadline.first(within: guardTime, operation) != nil else {
+        guard try await withDeadline(within: guardTime, operation) != nil else {
             throw Stalled(description: what)
         }
     }
