@@ -45,9 +45,4 @@ extension WebContent {
     package func stopBeingShared() {
         for session in WebShare.sessions where session.shares(self) { session.stop(.stopped) }
     }
-
-    /// The person stops it, from the page's tab or the shared one.
-    package func stopShare() {
-        share?.stop(.stopped)
-    }
 }

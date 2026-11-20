@@ -1,0 +1,138 @@
+name: Release
+
+# A tag v* publishes Sunset.app: built by Scripts/package-release.sh (the script the owner runs on his Mac), signed with the
+# team's Developer ID, notarised, zipped, and attached to a GitHub release with its SHA-256 (a pre-release when the tag has a
+# suffix, as v0.1.0-alpha.1). By hand (workflow_dispatch) it builds without the secrets, ad hoc and not notarised, and keeps the
+# zip as the run's artifact: a check that the app still builds on the runner, nothing to give people.
+#
+# Repository secrets, added by the owner (Settings › Secrets and variables › Actions); none of them is in the repository:
+#   DEVELOPER_ID_P12            the Developer ID Application certificate and its private key, as a .p12, base64
+#   DEVELOPER_ID_P12_PASSWORD   that file's password
+#   DEVELOPER_ID_PROFILE        the "Sunset" Developer ID provisioning profile (.provisionprofile), base64
+#   DEVELOPMENT_TEAM            the team identifier
+#   NOTARY_KEY                  an App Store Connect API key (.p8), base64
+#   NOTARY_KEY_ID               that key's identifier
+#   NOTARY_ISSUER               its issuer
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release · Sunset.app · macOS
+    runs-on: macos-26
+    timeout-minutes: 90
+    permissions:
+      contents: write # the release and its assets
+    env:
+      SIGNED: ${{ github.event_name == 'push' }}
+    steps:
+      - name: Setup · Check Out Sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The build number is the count of commits.
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup · Read .swift-version
+        run: echo "SWIFT_VERSION=$(cat .swift-version)" >> "$GITHUB_ENV"
+      - name: Setup · Install Swift
+        uses: swift-actions/setup-swift@364295d9c23900ce04d4e5cc708387921b4e50f9 # v3.0.0-beta.1
+        with:
+          swift-version: ${{ env.SWIFT_VERSION }}
+      # xcodebuild runs Xcode's own Swift (6.3 on macos-26, which cannot read a 6.4 manifest) unless TOOLCHAINS names another.
+      - name: Setup · Select the Installed Swift for Xcode
+        run: |
+          plist=$(find "$HOME/Library/Developer/Toolchains" -maxdepth 2 -path "*/swift-$SWIFT_VERSION*.xctoolchain/Info.plist" | head -1)
+          echo "TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw "$plist")" >> "$GITHUB_ENV"
+      - name: Setup · Install XcodeGen
+        run: brew install xcodegen
+      - name: Signing · Keychain, Profile and Notary Key
+        if: ${{ env.SIGNED == 'true' }}
+        env:
+          P12: ${{ secrets.DEVELOPER_ID_P12 }}
+          P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
+          PROFILE: ${{ secrets.DEVELOPER_ID_PROFILE }}
+          TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+          NOTARY_KEY: ${{ secrets.NOTARY_KEY }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER: ${{ secrets.NOTARY_ISSUER }}
+        run: |
+          for name in P12 P12_PASSWORD PROFILE TEAM NOTARY_KEY NOTARY_KEY_ID NOTARY_ISSUER; do
+            [ -n "${!name}" ] || { echo "::error::the secret behind $name is missing (see the top of release.yml)"; exit 1; }
+          done
+          secrets="$RUNNER_TEMP/signing"
+          mkdir -m 700 "$secrets"
+          keychain="$secrets/release.keychain-db"
+          password="$(uuidgen)"
+          printf '%s' "$P12" | base64 --decode > "$secrets/id.p12"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 3600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$secrets/id.p12" -k "$keychain" -P "$P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$password" "$keychain" > /dev/null
+          others=()
+          while IFS= read -r line; do others+=("$(printf '%s' "$line" | tr -d ' "')"); done < <(security list-keychains -d user)
+          security list-keychains -d user -s "$keychain" "${others[@]}"
+          rm "$secrets/id.p12"
+          printf '%s' "$PROFILE" | base64 --decode > "$secrets/Sunset.provisionprofile"
+          uuid=$(security cms -D -i "$secrets/Sunset.provisionprofile" | plutil -extract UUID raw -)
+          for folder in "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"; do
+            mkdir -p "$folder"
+            cp "$secrets/Sunset.provisionprofile" "$folder/$uuid.provisionprofile"
+          done
+          {
+            echo "CODE_SIGN_IDENTITY = Developer ID Application"
+            echo "DEVELOPMENT_TEAM = $TEAM"
+            echo "OTHER_CODE_SIGN_FLAGS = --timestamp"
+            echo "PROVISIONING_PROFILE_SPECIFIER[config=Release] = Sunset"
+            echo "CODE_SIGN_ENTITLEMENTS[config=Release] = App/Sunset.team.entitlements"
+          } > Signing.local.xcconfig
+          mkdir -p "$HOME/.config/sunset-signing"
+          chmod 700 "$HOME/.config/sunset-signing"
+          printf '%s' "$NOTARY_KEY" | base64 --decode > "$secrets/notary.p8"
+          chmod 600 "$secrets/notary.p8"
+          printf 'key=%s\nkey_id=%s\nissuer=%s\n' "$secrets/notary.p8" "$NOTARY_KEY_ID" "$NOTARY_ISSUER" > "$HOME/.config/sunset-signing/notary"
+          chmod 600 "$HOME/.config/sunset-signing/notary"
+          echo "KEYCHAIN=$keychain" >> "$GITHUB_ENV"
+      - name: Package · Build, Sign, Notarise, Zip
+        env:
+          TAG: ${{ github.event_name == 'push' && github.ref_name || 'v0.0.0-check' }}
+          SUNSET_SKIP_NOTARY: ${{ env.SIGNED == 'true' && '0' || '1' }}
+        run: Scripts/package-release.sh "$TAG" .build/dist
+      - name: Package · Launch the Built App
+        run: |
+          app=.build/app-package/Sunset.app
+          [ "$SIGNED" != true ] || spctl --assess --type execute --verbose=2 "$app"
+          Scripts/smoke-launch.sh "$app" | tee "$RUNNER_TEMP/smoke.txt"
+          grep -q "alive after 10 s" "$RUNNER_TEMP/smoke.txt"
+      - name: Release · Publish
+        if: ${{ env.SIGNED == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          prerelease=()
+          case "$TAG" in *-*) prerelease=(--prerelease) ;; esac
+          notes="docs/releases/$TAG.md"
+          [ -f "$notes" ] || { echo "::error::no release note at $notes"; exit 1; }
+          gh release create "$TAG" .build/dist/* --repo "$GITHUB_REPOSITORY" --title "Sunset ${TAG#v}" --notes-file "$notes" \
+            --verify-tag "${prerelease[@]}"
+      - name: Artifacts · Upload the Unsigned Check
+        if: ${{ env.SIGNED != 'true' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sunset-unsigned-check
+          path: .build/dist
+      - name: Signing · Remove the Keychain
+        if: ${{ always() && env.KEYCHAIN != '' }}
+        run: |
+          security delete-keychain "$KEYCHAIN" || true
+          rm -rf "$RUNNER_TEMP/signing" "$HOME/.config/sunset-signing" Signing.local.xcconfig

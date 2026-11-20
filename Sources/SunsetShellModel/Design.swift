@@ -58,8 +58,7 @@ package enum Design {
         package static let glyphSymbol = 15.0
         /// A help popover's width: a short paragraph per line group, as VMRunner's (roadmap 0041 A).
         package static let helpPopoverWidth = 320.0
-        /// Help's list of topics, and the width its text reads best at.
-        package static let helpListWidth = 220.0
+        /// The width Help's text reads best at.
         package static let helpTextWidth = 560.0
         /// A layout's shape drawn as a menu's image (t287): as an SF Symbol's at the menu's size.
         package static let presetShapeWidth = 22.0

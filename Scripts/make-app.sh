@@ -3,7 +3,8 @@
 #
 #   Scripts/make-app.sh [debug|release] [output folder]     (default: debug, .build/app)
 #
-# Prints where the app is. Signing: Signing.xcconfig (ad hoc), overridden by Signing.local.xcconfig (see there).
+# The build number is the count of commits (CFBundleVersion must be numbers, and it grows); SUNSET_VERSION, when set, is the
+# version people see (CFBundleShortVersionString, as 0.1.0), else project.yml's. Prints where the app is. Signing: Signing.xcconfig (ad hoc), overridden by Signing.local.xcconfig (see there).
 set -euo pipefail
 
 configuration="${1:-debug}"
@@ -14,7 +15,9 @@ case "$configuration" in
     release) scheme_configuration=Release ;;
     *) scheme_configuration=Debug ;;
 esac
-version="$(git describe --tags --always 2>/dev/null || echo 0)"
+build="$(git rev-list --count HEAD 2>/dev/null || echo 0)"
+marketing=()
+[ -z "${SUNSET_VERSION:-}" ] || marketing=(MARKETING_VERSION="$SUNSET_VERSION")
 
 xcodegen generate --quiet
 # The packages' build plug-in (AemiSDR's Metal shaders) and macros (InternedStrings) are ours: Xcode would ask to trust them in
@@ -22,7 +25,7 @@ xcodegen generate --quiet
 log="$(mktemp)"
 if ! xcodebuild -project Sunset.xcodeproj -scheme Sunset -configuration "$scheme_configuration" \
     -derivedDataPath .build/xcode -skipPackagePluginValidation -skipMacroValidation \
-    CURRENT_PROJECT_VERSION="$version" build >"$log" 2>&1; then
+    CURRENT_PROJECT_VERSION="$build" "${marketing[@]}" build >"$log" 2>&1; then
     grep -E "error:|BUILD FAILED" "$log" >&2 || tail -20 "$log" >&2
     exit 1
 fi

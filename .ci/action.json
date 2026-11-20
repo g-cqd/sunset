@@ -1,6 +1,31 @@
 {
-  "project": { "linux": false },
-  "swift": { "versions": ["6.4.2"] },
-  "checks": { "macos-release": ["push", "pull-request", "merge-queue", "tag", "dispatch", "nightly"] },
-  "quality": { "discipline": {} }
+  "project": {
+    "linux": false
+  },
+  "swift": {
+    "versions": [
+      "6.4.2"
+    ]
+  },
+  "checks": {
+    "macos-release": [
+      "push",
+      "pull-request",
+      "merge-queue",
+      "tag",
+      "dispatch",
+      "nightly"
+    ]
+  },
+  "quality": {
+    "paths": [
+      "Sources"
+    ],
+    "analyzers": [
+      "deadwood",
+      "dolly",
+      "arcleak"
+    ],
+    "discipline": {}
+  }
 }

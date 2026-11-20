@@ -57,14 +57,6 @@ extension Reader {
         }
     }
 
-    /// The preview switches of `sidebar.*`, by their key.
-    static var previewFlags: [String: WritableKeyPath<Configuration.Sidebar, Bool>] {
-        [
-            "previews": \.previews, "previewPages": \.previewPages, "previewTerminals": \.previewTerminals,
-            "previewDocuments": \.previewDocuments, "previewFolders": \.previewFolders
-        ]
-    }
-
     /// The switches of `tabs.*`, by their key.
     static var tabFlags: [String: WritableKeyPath<Configuration.Tabs, Bool>] {
         [

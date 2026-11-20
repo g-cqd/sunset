@@ -5,9 +5,6 @@ import SwiftUI
 /// The sidebar's list, and the list of the Space the window is sliding to (`SpaceSlide`; the owner's note n79). The Pinned
 /// grid slides only to a Space of another profile (roadmap 0044 A).
 extension TabSidebar {
-    /// The parts of the list: the Pinned grid and the Favorites, which stay, and Today's tabs, which scroll (roadmap 0035 F).
-    typealias Part = SidebarPart
-
     /// The rows: the Pinned grid, the Favorites, the tabs.
     var list: some View {
         VStack(spacing: layout.tabSpacing) {
