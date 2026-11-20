@@ -129,7 +129,12 @@ import WebKit
         guard let content, Self.skipsPopupRule(chosen: chosen) || popupAllowed(action, from: webView) else {
             return nil
         }
-        let placement = Self.placement(chosen: chosen, sized: windowFeatures.width != nil)
+        let placement = Self.placement(
+            chosen: chosen,
+            sized: windowFeatures.width != nil || windowFeatures.height != nil,
+            fromLink: action.navigationType == .linkActivated,
+            popups: content.settings.popupWindows
+        )
         (webView as? SunsetWebView)?.pendingPlacement = nil
         if placement == .privateTab {
             // Not WebKit's page: its configuration would tie it to this page's store.
@@ -139,6 +144,11 @@ import WebKit
             return nil
         }
         let opened = WebContent(configuration: configuration, settings: content.settings)
+        if placement == .popup {
+            opened.popupSize = windowFeatures.width.map { width in
+                CGSize(width: width.doubleValue, height: windowFeatures.height?.doubleValue ?? width.doubleValue * 0.75)
+            }
+        }
         content.onOpen(opened, placement)
         return opened.webView
     }
@@ -149,10 +159,15 @@ import WebKit
         chosen != nil
     }
 
-    /// Where a page WebKit asks for goes: where Sunset's own menu item said; else a window for a pop-up the page sized (R1: "a
-    /// sized popup is a small window"); else an opened page.
-    nonisolated static func placement(chosen: WebPlacement?, sized: Bool) -> WebPlacement {
-        chosen ?? (sized ? .window : .opened)
+    /// Where a page WebKit asks for goes: where Sunset's own menu item said; else a pop-up window, as `web.popupWindows` says
+    /// (never for a link with a target); else an opened page (a tab after its opener).
+    nonisolated static func placement(
+        chosen: WebPlacement?,
+        sized: Bool,
+        fromLink: Bool,
+        popups: PopupWindows
+    ) -> WebPlacement {
+        chosen ?? (popups.takes(sized: sized, fromLink: fromLink) ? .popup : .opened)
     }
 
     func webViewDidClose(_ webView: WKWebView) {

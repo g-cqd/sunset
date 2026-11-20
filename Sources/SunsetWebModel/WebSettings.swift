@@ -19,6 +19,8 @@ package struct WebSettings: Sendable, Equatable {
     package var suggestions: Bool
     package var httpFallback: Bool
     package var httpsUpgrade = HTTPSUpgrade.fallback
+    /// Which pop-ups open in a pop-up window (`web.popupWindows`).
+    package var popupWindows = PopupWindows.sized
     package var hardening = Hardening.off
     package var globalPrivacyControl = GlobalPrivacyControl.privateWindows
     package var zoomScope: ZoomScope

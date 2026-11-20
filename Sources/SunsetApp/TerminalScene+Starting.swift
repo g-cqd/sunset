@@ -12,6 +12,7 @@ import SwiftUI
 extension TerminalScene {
     func start() {
         AppActions.shared.openTerminalWindow = { openWindow(id: "terminal") }
+        PopupWindowStore.shared.openWindow = { openWindow(id: "popup", value: $0) }
         tabs.onEmpty = { dismiss() }
         // The mouse button, from the system: the model knows nothing of AppKit (roadmap 0086 D).
         tabs.mouseIsDown = { NSEvent.pressedMouseButtons != 0 }

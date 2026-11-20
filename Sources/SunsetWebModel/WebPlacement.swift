@@ -11,4 +11,6 @@ package enum WebPlacement: Sendable, Equatable {
     /// What the page asked for itself (a link with a target, a pop-up after a click, WebKit's Open Image or Video in New
     /// Window): a tab right after the opener's, shown as `web.showOpenedPages` says (notes n64, n65).
     case opened
+    /// A pop-up window (task t132): the page alone in a window with no sidebar, in no Space's tabs until moved to one.
+    case popup
 }

@@ -124,6 +124,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var acceptedHosts: Set<String> = []
     /// Hosts the person chose to load over http on this page, HTTPS having failed ("ask", `web.httpsUpgrade`).
     @ObservationIgnored var httpHosts: Set<String> = []
+    /// The size the page that opened it asked for, as a pop-up (`window.open` with a width): its window's (task t132).
+    @ObservationIgnored package var popupSize: CGSize?
     /// A private page's answers, in memory for its life (web step h).
     @ObservationIgnored var ownPermissions: SitePermissions?
     /// The host last typed without a scheme while the http setting is on: if https fails for it, http is tried (`WebCoordinator`).

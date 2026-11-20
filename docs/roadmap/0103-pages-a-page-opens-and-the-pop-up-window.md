@@ -36,7 +36,7 @@ Not done in A:
   Open Link in New Window and in Private Tab, Load over HTTP: all seen working (diary 2026-11-20-10); Speech's sound not
   checked.
 
-## B — the pop-up window (not started)
+## B — the pop-up window (in progress, diary 2026-11-20-11)
 
 The owner's words: "a different variant of window chrome for popups that would just be enclosed in the slight margin window,
 corner radii on all corner and just a little space above the content to have the traffic lights (on the side the sidebar is)
@@ -49,4 +49,11 @@ tab there. it should not exist as a standard tab until then, and it should not s
 - The page is in no Space's tabs until moved; moving makes it a tab there and closes the window.
 - No sidebar, no tab bar.
 
-Needs: the window's look seen on screen; what happens to it when its opener closes; whether a session keeps it.
+Decided (the owner, 2026-11-20): pop-ups the page sizes, by default (`web.popupWindows`: sized, scripted, never); a link with a
+target stays a tab; the pop-up outlives its opener; no session keeps it.
+
+Done: the window (`PopupScene`, `PopupWindowStore`, `PopupWindowLayout`): the window of tabs' card margin, radius and material;
+the lights on the sidebar's side; Open in ‹Space› ∣ ⌄ as a capsule; moved, the page is a tab of the Space and the window closes;
+`window.close()` closes it.
+
+Not done: the owner's approval of the spacing; moving to another Space and from a private page, not tried.

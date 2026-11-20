@@ -43,6 +43,15 @@ import Testing
         #expect(!read.configuration.web.showOpenedPages && read.issues.isEmpty)
     }
 
+    /// Task t132: which pop-ups open in a pop-up window: those the page sizes, by default.
+    @Test func `pop-up windows are for sized pop-ups by default; each choice read`() throws {
+        #expect(Configuration().web.popupWindows == .sized)
+        for rule in Configuration.Web.PopupWindows.allCases {
+            let read = try ConfigurationParser.parse(#"{ "web": { "popupWindows": ""# + rule.rawValue + #"" } }"#)
+            #expect(read.configuration.web.popupWindows == rule && read.issues.isEmpty)
+        }
+    }
+
     @Test func `the bars' tint follows the scheme by default; each tint read`() throws {
         #expect(Configuration().appearance.barTint == .scheme)
         for tint in Configuration.Appearance.BarTint.allCases {

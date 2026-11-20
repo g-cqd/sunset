@@ -85,7 +85,19 @@ extension SettingsOption {
                 \.web.showOpenedPages,
                 label: "Show the pages a page opens, its pop-ups, pictures and films included"
             )
-            .noted("Off, it waits in a tab after the page. Cmd-click and Open Link in New Tab always leave it there."),
+            .noted("Off, it waits in a tab after the page. Cmd-click and Open Link in New Tab always leave it there.")
+            .grouped("New pages"),
+            choice(
+                "web.popupWindows",
+                "Pop-up windows",
+                "popup pop-up window sign in login sized",
+                \.web.popupWindows,
+                [(.sized, "Pop-ups a page sizes"), (.scripted, "Every pop-up a script opens"), (.never, "None")]
+            )
+            .noted(
+                "A pop-up window has no sidebar; Open in moves its page to a Space as a tab. A link to a new tab stays a tab."
+            )
+            .grouped("New pages"),
             toggle(
                 "web.httpFallback",
                 "Fall back to HTTP",

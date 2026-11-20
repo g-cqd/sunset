@@ -36,5 +36,11 @@ public struct SunsetApp: App {
             TerminalCommands()
             SpaceCommands()
         }
+        // A page's pop-up (task t132): a window of its own, not kept by the session.
+        WindowGroup(id: "popup", for: UUID.self) { $id in
+            if let id { PopupScene(id: id) }
+        }
+        .defaultSize(width: 520, height: 640)
+        .handlesExternalEvents(matching: [])
     }
 }

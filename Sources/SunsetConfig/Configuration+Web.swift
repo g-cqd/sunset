@@ -16,6 +16,11 @@ extension Configuration {
             case margin, pane
         }
 
+        /// Which pop-ups open in a pop-up window (task t132): those the page sizes, every one a script opens, or none (tabs).
+        public enum PopupWindows: String, Sendable, Equatable, CaseIterable {
+            case sized, scripted, never
+        }
+
         /// The edge of the window bar (also used for the sidebar's field while the sidebar is not shown).
         public enum BarEdge: String, Sendable, Equatable, CaseIterable {
             case top, bottom
@@ -125,6 +130,8 @@ extension Configuration {
         /// A page a page opens (a link with a target, a pop-up after a click, Open Image in New Window) is shown, as Safari
         /// does; off, it waits in a tab after its opener (the owner, 2026-11-20, notes n64 and n65).
         public var showOpenedPages = true
+        /// Which pop-ups open in a window of their own with no sidebar, a page that is no tab until moved to a Space (t132).
+        public var popupWindows = PopupWindows.sized
         /// Pages animate and redraw at the screen's rate (120 fps on a ProMotion screen), not near 60 (owner, 2026-11-13).
         public var fullFrameRate = true
         /// The name of the engine words are searched with (a built-in one or one of `engines`).

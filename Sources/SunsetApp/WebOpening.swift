@@ -40,6 +40,8 @@ import SunsetWeb
                 case .window:
                     AppActions.shared.handoff.append(opened)
                     AppActions.shared.openTerminalWindow()
+                case .popup:
+                    PopupWindowStore.shared.open(opened, openerSpace: page.currentSpace())
             }
         }
     }
