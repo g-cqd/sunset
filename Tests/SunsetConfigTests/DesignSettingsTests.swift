@@ -43,6 +43,13 @@ import Testing
         #expect(!read.configuration.web.showOpenedPages && read.issues.isEmpty)
     }
 
+    /// The owner's note n66: links from other apps open in a peek window, by default.
+    @Test func `links from other apps peek by default; the file can say not`() throws {
+        #expect(Configuration().web.peekLinks)
+        let read = try ConfigurationParser.parse(#"{ "web": { "peekLinks": false } }"#)
+        #expect(!read.configuration.web.peekLinks && read.issues.isEmpty)
+    }
+
     /// Task t132: which pop-ups open in a pop-up window: those the page sizes, by default.
     @Test func `pop-up windows are for sized pop-ups by default; each choice read`() throws {
         #expect(Configuration().web.popupWindows == .sized)

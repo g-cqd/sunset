@@ -33,6 +33,8 @@ struct PopupWindowLayout {
     /// capsule seems too far from the edge").
     static let capsuleHeight = 22.0
     static let capsuleGap = 6.0
+    /// A peek's page when it opens (a link from another app asks for no size).
+    static let peekPage = CGSize(width: 960, height: 720)
     /// The room at the capsule's ends: its radius, so the text is as far from the curve as from the straight edges.
     static let capsuleEnd = capsuleHeight / 2
 

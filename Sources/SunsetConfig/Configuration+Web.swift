@@ -132,6 +132,9 @@ extension Configuration {
         public var showOpenedPages = true
         /// Which pop-ups open in a window of their own with no sidebar, a page that is no tab until moved to a Space (t132).
         public var popupWindows = PopupWindows.sized
+        /// A link from another app (Sunset the Mac's browser) opens in a peek window: back, forward, an address field, moved to a
+        /// Space by the person (the owner's note n66). Off, a tab of the window in front.
+        public var peekLinks = true
         /// Pages animate and redraw at the screen's rate (120 fps on a ProMotion screen), not near 60 (owner, 2026-11-13).
         public var fullFrameRate = true
         /// The name of the engine words are searched with (a built-in one or one of `engines`).

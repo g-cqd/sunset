@@ -57,3 +57,10 @@ the lights on the sidebar's side; Open in ‹Space› ∣ ⌄ as a capsule; move
 `window.close()` closes it.
 
 Not done: the owner's approval of the spacing; moving to another Space and from a private page, not tried.
+
+## C — peek windows (the owner's note n66; done, diary 2026-11-20-11)
+
+A link from another app (Sunset the Mac's browser) opens in a peek: the pop-up's window with back, forward and an address
+field (a pop-up has none), Open in ‹Space› to make it a tab (`web.peekLinks`, on by default; off, a tab). Seen working.
+
+Not done: suggestions under the peek's address field; what a peek's own new pages do (another peek, for now).

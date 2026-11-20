@@ -77,12 +77,21 @@ struct PopupScene: View {
         return settings
     }
 
-    /// The lights on one side, Open in ‹Space› on the other; the rest drags the window.
+    /// The lights on one side, Open in ‹Space› on the other; a peek's back, forward and address between (note n66); the rest
+    /// drags the window.
     private var strip: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: PopupWindowLayout.capsuleGap) {
             if lightsSide == .right { openIn }
-            Spacer(minLength: Design.TabCapsules.lightsClearance)
+            if let popup, popup.kind.navigates {
+                PeekNavigation(page: popup.page, height: PopupWindowLayout.capsuleHeight)
+                AddressField(content: popup.page)
+                    .environment(\.controlHeight, PopupWindowLayout.capsuleHeight)
+                    .environment(\.controlRadius, PopupWindowLayout.capsuleEnd)
+                    .frame(maxWidth: .infinity)
+            }
+            Spacer(minLength: Design.TabCapsules.lightsClearance - PopupWindowLayout.capsuleGap)
                 .frame(height: layout.strip)
+                .frame(maxWidth: popup?.kind.navigates == true ? Design.TabCapsules.lightsClearance : .infinity)
             if lightsSide == .left { openIn }
         }
         // The capsule as far from its side edge as from the window's top (the strip is inside the side margin already).

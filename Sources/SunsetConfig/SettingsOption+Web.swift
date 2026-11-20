@@ -72,6 +72,14 @@ extension SettingsOption {
             )
             .setting([]),
             toggle(
+                "web.peekLinks",
+                "Links from other apps",
+                "peek link other app default browser window open",
+                \.web.peekLinks,
+                label: "Open links from other apps in a peek window"
+            )
+            .noted("A peek has back, forward and an address; Open in moves its page to a Space as a tab. Off, a tab."),
+            toggle(
                 "web.openLinksInSunset",
                 "Open terminal links in Sunset",
                 "link browser cmd-click",

@@ -2,6 +2,7 @@ import AppKit
 import SunsetRuntime
 import SunsetShell
 import SunsetWeb
+import SunsetWebModel
 
 /// The pop-up windows (task t132, the owner's design of 2026-11-20): a page a page opened as a pop-up, alone in a window of
 /// its own with no sidebar, in no Space's tabs until it is moved to one. It outlives its opener; it is not kept by the session.
@@ -12,13 +13,16 @@ import SunsetWeb
     final class Popup {
         let page: WebContent
         let openerSpace: UUID?
+        /// A page's pop-up, or a peek at a link from another app (back, forward, an address field).
+        let kind: DetachedWindowKind
         weak var window: NSWindow?
         /// Moved to a Space as a tab: its window closes without stopping the page.
         var moved = false
 
-        init(page: WebContent, openerSpace: UUID?) {
+        init(page: WebContent, openerSpace: UUID?, kind: DetachedWindowKind) {
             self.page = page
             self.openerSpace = openerSpace
+            self.kind = kind
         }
     }
 
@@ -29,11 +33,16 @@ import SunsetWeb
     var openWindow: (UUID) -> Void = { _ in }
 
     /// Gives `page` a pop-up window.
-    func open(_ page: WebContent, openerSpace: UUID?) {
+    func open(_ page: WebContent, openerSpace: UUID?, kind: DetachedWindowKind = .popup) {
         let id = UUID()
-        popups[id] = Popup(page: page, openerSpace: openerSpace)
+        if kind == .peek, page.popupSize == nil { page.popupSize = PopupWindowLayout.peekPage }
+        popups[id] = Popup(page: page, openerSpace: openerSpace, kind: kind)
         // The page closes itself (`window.close()`): its window goes.
         page.onExit = { [weak self] in self?.popups[id]?.window?.close() }
+        // What it opens in turn: a pop-up as a pop-up, anything else in a peek of its own (it has no tabs to go to).
+        page.onOpen = { [weak self] opened, placement in
+            self?.open(opened, openerSpace: openerSpace, kind: placement == .popup ? .popup : .peek)
+        }
         openWindow(id)
     }
 

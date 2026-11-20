@@ -16,4 +16,20 @@ package enum IncomingLinks {
         }
         return (pages, files)
     }
+
+    /// Where a link from another app opens.
+    package enum Place: Sendable, Equatable {
+        /// A peek window (the owner's note n66), moved to a Space by the person.
+        case peek
+        /// A tab of the window in front.
+        case tab
+        /// The system's browser: the web is off.
+        case systemBrowser
+    }
+
+    /// As `web.peekLinks` says, the web being on.
+    package static func place(peek: Bool, webOn: Bool) -> Place {
+        guard webOn else { return .systemBrowser }
+        return peek ? .peek : .tab
+    }
 }

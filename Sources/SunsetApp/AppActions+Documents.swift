@@ -28,6 +28,20 @@ extension AppActions {
         open(files: [path])
     }
 
+    /// The tabs what comes from outside opens in: the window that acts, else any window (one not on screen yet, Sunset
+    /// starting or behind, is not the one that acts). None while no window is ready: then one is opened, once for all that
+    /// come before it is there (`alreadyAsked`).
+    func incomingTabs(alreadyAsked: Bool) -> TabsModel? {
+        let acting = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
+        if let tabs = acting ?? TabRegistry.shared.allWindows().first?.tabs, !tabs.workspace.isEmpty { return tabs }
+        if !alreadyAsked, TabRegistry.shared.allWindows().isEmpty {
+            tabParent = nil
+            joinsRemaining = 0
+            openTerminalWindow()
+        }
+        return nil
+    }
+
     /// Opens files (the Open panel, a drop, Finder, the command bar) in the window that acts: each in a tab of its own, one
     /// that window already shows is shown. With no window (Sunset was started by opening them, or its last window is closed)
     /// one is opened for them: SwiftUI makes none for a file (`handlesExternalEvents(matching: [])`, ADR-0040), and AppKit
@@ -35,17 +49,8 @@ extension AppActions {
     func open(files paths: [String]) {
         // With documents off Sunset shows no file: each goes to the app that opens it by default (roadmap 0033).
         guard AppScopes.current.documents else { return AppScopes.openElsewhere(paths) }
-        // A window that is not on screen yet (Sunset is starting, or is behind) is not the one that acts: any window will do.
-        let acting = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
-        guard let tabs = acting ?? TabRegistry.shared.allWindows().first?.tabs, !tabs.workspace.isEmpty else {
-            let asked = !pendingFiles.isEmpty
+        guard let tabs = incomingTabs(alreadyAsked: !pendingFiles.isEmpty) else {
             pendingFiles += paths
-            // One window for all of them, however many times the system says "open these" before it is there.
-            if !asked, TabRegistry.shared.allWindows().isEmpty {
-                tabParent = nil
-                joinsRemaining = 0
-                openTerminalWindow()
-            }
             return
         }
         guard AppConfiguration.shared.presentation.hostsTabsInWindow else {

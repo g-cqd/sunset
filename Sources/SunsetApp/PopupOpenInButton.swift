@@ -40,14 +40,8 @@ struct PopupOpenInButton: View {
             .menuStyle(.button)
             .menuIndicator(.hidden)
         }
-        .buttonStyle(.plain)
         .font(Design.Text.secondary)
-        .frame(height: height)
-        // A capsule with the fields' fill and hairline, as the bars' groups are capsules.
-        .background { Capsule().fill(Color.primary.opacity(Design.Fill.field)) }
-        .overlay { Capsule().hairline(surface.layout) }
-        .contentShape(Capsule())
-        .fixedSize()
+        .detachedCapsule(height: height, surface: surface)
         .helpTopic(.popUps)
     }
 

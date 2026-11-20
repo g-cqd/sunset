@@ -1,26 +1,33 @@
 import AppKit
+import SunsetConfig
 import SunsetHost
 import SunsetPane
 import SunsetShell
 import SunsetWeb
+import SunsetWebModel
 
 extension AppActions {
     /// Links to pages handed over by the system (note n18): each a page in a new tab of the window in front, or of the first
     /// window once there is one. With the web off, they go to the next app that opens them.
     func open(pages: [URL]) {
-        guard AppScopes.current.web else {
-            for page in pages { NSWorkspace.shared.open(page) }
-            return
+        let configuration = AppConfiguration.shared.configuration
+        switch IncomingLinks.place(peek: configuration.web.peekLinks, webOn: AppScopes.current.web) {
+            case .systemBrowser:
+                for page in pages { NSWorkspace.shared.open(page) }
+                return
+            case .peek:
+                // A peek window each (the owner's note n66), titled with the Space of the window in front.
+                let space = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.space.space.id
+                for page in pages {
+                    let content = WebContent(url: page, settings: PaneContentKinds.webSettings(from: configuration.web))
+                    PopupWindowStore.shared.open(content, openerSpace: space, kind: .peek)
+                }
+                NSApp.activate()
+                return
+            case .tab: break
         }
-        let acting = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
-        guard let tabs = acting ?? TabRegistry.shared.allWindows().first?.tabs, !tabs.workspace.isEmpty else {
-            let asked = !pendingPages.isEmpty || !pendingFiles.isEmpty
+        guard let tabs = incomingTabs(alreadyAsked: !pendingPages.isEmpty || !pendingFiles.isEmpty) else {
             pendingPages += pages
-            if !asked, TabRegistry.shared.allWindows().isEmpty {
-                tabParent = nil
-                joinsRemaining = 0
-                openTerminalWindow()
-            }
             return
         }
         for page in pages {
