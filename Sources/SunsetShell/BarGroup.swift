@@ -5,6 +5,8 @@ import SwiftUI
 struct BarGroup: ViewModifier {
     let margin: Double
     let top: Bool
+    /// Its controls' height: the bar's, or a compact strip's.
+    var control = Design.BarGroup.control
     @Environment(\.barBlur) private var choice
     @Environment(\.barGroupBlursBelow) private var blursBelow
     @Environment(\.barTint) private var tint
@@ -18,9 +20,9 @@ struct BarGroup: ViewModifier {
             // Tinted to the controls' scheme, so that they read over any page (owner, 2026-11-13: contrast).
             .background { Self.shape.fill(BarTint.fill(for: scheme).opacity(Design.Fill.barShade)) }
             .glassEffect(.regular, in: Self.shape)
-            .environment(\.controlRadius, Design.BarGroup.control / 2)
-            .environment(\.controlHeight, Design.BarGroup.control)
-            .environment(\.controlPadding, Design.BarGroup.fieldPadding)
+            .environment(\.controlRadius, control / 2)
+            .environment(\.controlHeight, control)
+            .environment(\.controlPadding, Design.BarGroup.fieldPadding(control: control))
             .environment(\.inBarGroup, true)
             .background {
                 if choice == .variable, !blursBelow {

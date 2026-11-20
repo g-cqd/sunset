@@ -9,12 +9,16 @@ package struct PageNavigation: View {
     var atTop = true
     /// In the tab bar's row of capsules: the field's flat look, not glass (it floats over nothing).
     var flat = false
+    /// The group's height: the bar's, or a compact strip's (a peek window's).
+    var control = Design.BarGroup.control
     @Environment(\.surfaceStyle) private var surface
 
-    package init(content: WebContent, atTop: Bool = true, flat: Bool = false) {
+    package init(content: WebContent, atTop: Bool = true, flat: Bool = false, control: Double = Design.BarGroup.control)
+    {
         self.content = content
         self.atTop = atTop
         self.flat = flat
+        self.control = control
     }
 
     package var body: some View {
@@ -37,14 +41,14 @@ package struct PageNavigation: View {
             button("chevron.right", "Forward", enabled: content.canGoForward) { content.goForward() }
         }
         .padding(.horizontal, Design.BarGroup.buttonInset)
-        .frame(height: Design.Size.bar)
-        .barGroup(margin: Design.Space.m, top: atTop)
+        .frame(height: control)
+        .barGroup(margin: Design.Space.m, top: atTop, control: control)
     }
 
     /// The sidebar's icon button, as tall as the group: a capsule of the same shape.
     private func button(_ symbol: String, _ help: String, enabled: Bool, action: @escaping () -> Void) -> some View {
         SidebarIconButton(symbol: symbol, help: help, action: action)
-            .environment(\.sidebarButtonMetrics, BarButton.group(surface))
+            .environment(\.sidebarButtonMetrics, BarButton.group(surface, control: control))
             .disabled(!enabled)
     }
 }

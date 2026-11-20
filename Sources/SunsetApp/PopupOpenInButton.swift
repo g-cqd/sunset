@@ -5,13 +5,11 @@ import SunsetShellBridge
 import SwiftUI
 
 /// "Open in ‹Space›" and, beside it, the menu of the other Spaces (the owner's "^ with selector"); with no Space to name (a
-/// private window opened it), Open as Tab.
+/// private window opened it), Open as Tab. One glass group, as the window bar's.
 struct PopupOpenInButton: View {
     let current: SpaceModel?
     let spaces: [SpaceModel]
-    let height: Double
     let move: (UUID?) -> Void
-    @Environment(\.surfaceStyle) private var surface
 
     var body: some View {
         HStack(spacing: 0) {
@@ -19,6 +17,7 @@ struct PopupOpenInButton: View {
                 move(current?.space.id)
             } label: {
                 Text(current.map { "Open in \(Self.name(of: $0))" } ?? "Open as Tab")
+                    .font(Design.Text.secondary)
                     .padding(.leading, PopupWindowLayout.capsuleEnd)
                     .padding(.trailing, Design.Space.s)
                     .frame(maxHeight: .infinity)
@@ -40,8 +39,10 @@ struct PopupOpenInButton: View {
             .menuStyle(.button)
             .menuIndicator(.hidden)
         }
-        .font(Design.Text.secondary)
-        .detachedCapsule(height: height, surface: surface)
+        .buttonStyle(.plain)
+        .frame(height: PopupWindowLayout.capsuleHeight)
+        .barGroup(margin: PopupWindowLayout.capsuleGap, top: true, control: PopupWindowLayout.capsuleHeight)
+        .fixedSize()
         .helpTopic(.popUps)
     }
 

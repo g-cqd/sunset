@@ -77,26 +77,34 @@ struct PopupScene: View {
         return settings
     }
 
-    /// The lights on one side, Open in ‹Space› on the other; a peek's back, forward and address between (note n66); the rest
-    /// drags the window.
+    /// The lights on one side, Open in ‹Space› on the other; a peek's back, forward and address between (note n66), in the
+    /// window bar's glass groups; the rest drags the window.
     private var strip: some View {
-        HStack(spacing: PopupWindowLayout.capsuleGap) {
-            if lightsSide == .right { openIn }
-            if let popup, popup.kind.navigates {
-                PeekNavigation(page: popup.page, height: PopupWindowLayout.capsuleHeight)
-                AddressField(content: popup.page)
-                    .environment(\.controlHeight, PopupWindowLayout.capsuleHeight)
-                    .environment(\.controlRadius, PopupWindowLayout.capsuleEnd)
-                    .frame(maxWidth: .infinity)
+        GlassEffectContainer(spacing: PopupWindowLayout.capsuleGap) {
+            HStack(spacing: PopupWindowLayout.capsuleGap) {
+                if lightsSide == .left { Color.clear.frame(width: layout.lightsRoom) }
+                if lightsSide == .right { openIn }
+                if let popup, popup.kind.navigates {
+                    PageNavigation(content: popup.page, control: PopupWindowLayout.capsuleHeight)
+                    AddressField(content: popup.page, reload: true)
+                        .frame(height: PopupWindowLayout.capsuleHeight)
+                        .barGroup(
+                            margin: PopupWindowLayout.capsuleGap,
+                            top: true,
+                            control: PopupWindowLayout.capsuleHeight
+                        )
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Spacer(minLength: 0)
+                }
+                if lightsSide == .left { openIn }
+                if lightsSide == .right { Color.clear.frame(width: layout.lightsRoom) }
             }
-            Spacer(minLength: Design.TabCapsules.lightsClearance - PopupWindowLayout.capsuleGap)
-                .frame(height: layout.strip)
-                .frame(maxWidth: popup?.kind.navigates == true ? Design.TabCapsules.lightsClearance : .infinity)
-            if lightsSide == .left { openIn }
         }
-        // The capsule as far from its side edge as from the window's top (the strip is inside the side margin already).
+        // The controls as far from the side edge as from the window's top (the strip is inside the side margin already).
         .padding(.horizontal, PopupWindowLayout.capsuleGap - layout.margin)
         .frame(height: layout.strip)
+        .environment(\.barBlur, .none)
         .background { Color.clear.contentShape(.rect).gesture(WindowDragGesture()) }
     }
 
@@ -104,8 +112,7 @@ struct PopupScene: View {
         if let popup {
             PopupOpenInButton(
                 current: popup.openerSpace.flatMap { AppSpaces.all.space($0) },
-                spaces: AppSpaces.all.spaces,
-                height: PopupWindowLayout.capsuleHeight
+                spaces: AppSpaces.all.spaces
             ) { space in
                 PopupWindowStore.shared.move(id, to: space)
             }

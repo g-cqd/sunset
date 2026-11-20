@@ -4,10 +4,13 @@ import SwiftUI
 /// corner, so that buttons and field line up and nest in the bar's corner at its inset.
 package enum BarButton {
     /// In a bar group: as tall as its fields, capsules.
-    package static func group(_ surface: SurfaceStyle) -> SidebarButtonMetrics {
-        SidebarButtonMetrics(
-            size: CGSize(width: Design.BarGroup.button, height: Design.BarGroup.button),
-            radius: Design.BarGroup.button / 2,
+    package static func group(_ surface: SurfaceStyle, control: Double = Design.BarGroup.control)
+        -> SidebarButtonMetrics
+    {
+        let side = Design.BarGroup.button(control: control)
+        return SidebarButtonMetrics(
+            size: CGSize(width: side, height: side),
+            radius: side / 2,
             smooth: surface.layout.smooth
         )
     }

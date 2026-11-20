@@ -33,6 +33,13 @@ built=".build/xcode/Build/Products/$scheme_configuration/Sunset.app"
 mkdir -p "$output"
 rm -rf "$output/Sunset.app"
 ditto "$built" "$output/Sunset.app"
+# A build is not the Mac's browser: macOS sent a link from another app to a copy in .build once (2026-11-20, a test copy
+# then ran with the person's settings). Only the installed app stays known to Launch Services.
+lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+case "$output" in
+    */Applications | */Applications/) ;;
+    *) "$lsregister" -u "$built" "$output/Sunset.app" 2>/dev/null || true ;;
+esac
 details="$(codesign -dvv "$output/Sunset.app" 2>&1 || true)"
 signed="$(printf '%s\n' "$details" | sed -n 's/^Authority=//p' | sed -n 1p)"
 echo "signed: ${signed:-ad hoc (macOS will ask for its permissions again)}" >&2

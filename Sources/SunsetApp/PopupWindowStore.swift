@@ -53,6 +53,9 @@ import SunsetWebModel
     /// Its window is in place: sized as the page asked, centred on the window that acts.
     func attach(_ id: UUID, window: NSWindow) {
         guard let popup = popups[id], popup.window !== window else { return }
+        // Each pop-up its own size: SwiftUI's saved frame for the scene came back over it (seen 2026-11-20).
+        window.setFrameAutosaveName("")
+        window.isRestorable = false
         popup.window = window
         let parent = TabRegistry.shared.actingWindow
         // A turn later: SwiftUI sizes a new window to its scene's default once it is attached (seen 2026-11-20: 520 by 640

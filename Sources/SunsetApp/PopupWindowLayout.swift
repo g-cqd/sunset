@@ -29,28 +29,36 @@ struct PopupWindowLayout {
         cardRadius = geometry.outerRadius
     }
 
-    /// Open in ‹Space›'s capsule, and its gap to the window's top and to its side edge (the same: the owner, 2026-11-20, "the
-    /// capsule seems too far from the edge").
+    /// The strip's controls: the window bar's glass groups, as the system toolbar's (owner, 2026-11-20: "your buttons don't
+    /// look really native"), compact ("it's really big": "the compact version but with the paradigms of the native ones"),
+    /// `capsuleGap` from the window's top and the card.
     static let capsuleHeight = 22.0
-    static let capsuleGap = 6.0
+    static let capsuleGap = Design.Space.s
+    /// The room at a capsule's ends: its radius, so the text is as far from the curve as from the straight edges.
+    static let capsuleEnd = capsuleHeight / 2
     /// A peek's page when it opens (a link from another app asks for no size).
     static let peekPage = CGSize(width: 960, height: 720)
-    /// The room at the capsule's ends: its radius, so the text is as far from the curve as from the straight edges.
-    static let capsuleEnd = capsuleHeight / 2
 
-    /// The strip above the card: the capsule and its gap above and below.
+    /// The strip above the card: the controls and their gap above and below.
     var strip: Double {
         Self.capsuleHeight + 2 * Self.capsuleGap
     }
 
-    /// The lights' middle, from the window's top: the strip's (the owner: "traffic lights seem to not be vertically centered").
+    /// The lights' middle, from the window's top: the strip's.
     var lightsMiddle: Double {
         strip / 2
     }
 
     /// From the window's side edge to the lights: as far as their top is from the window's top.
     var lightsX: Double {
-        strip / 2 - SidebarHeader.lightsSize / 2
+        strip / 2 - Design.TabCapsules.lightWidth / 2
+    }
+
+    /// The room the lights take from the strip's controls' edge (`capsuleGap` in from the window's): from where they are, not
+    /// the tab bar's (the owner: "a weird spacing between the address bar and the traffic lights"). The strip's spacing then
+    /// leaves `capsuleGap` between them and the next control, as between two controls (seen 2026-11-20: 13 pt, now 6).
+    var lightsRoom: Double {
+        lightsX + 2 * Design.System.lightsPitch + Design.TabCapsules.lightWidth - Self.capsuleGap
     }
 
     /// The window that shows a page of `page`'s size.

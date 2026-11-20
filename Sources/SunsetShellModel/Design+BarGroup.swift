@@ -11,5 +11,15 @@ extension Design {
         package static let buttonInset = Space.xs
         /// A button's side in a group.
         package static let button = control - 2 * buttonInset
+
+        /// A compact group's (a pop-up or peek window's strip, the owner, 2026-11-20: "the compact version but with the paradigms
+        /// of the native ones"): `control` tall, its field's text and its buttons as the bar's are in theirs.
+        package static func fieldPadding(control: Double) -> Double {
+            max(Space.s, Space.m + (control - Size.field) / 2)
+        }
+
+        package static func button(control: Double) -> Double {
+            control - 2 * buttonInset
+        }
     }
 }

@@ -41,6 +41,7 @@ public struct SunsetApp: App {
             if let id { PopupScene(id: id) }
         }
         .defaultSize(width: 520, height: 640)
+        .restorationBehavior(.disabled)
         .handlesExternalEvents(matching: [])
     }
 }
