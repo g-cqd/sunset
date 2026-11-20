@@ -14,9 +14,11 @@ package struct SpreadSwitchStyle: ToggleStyle {
                 configuration.label
                 Spacer(minLength: 0)
             }
+            // Only the switch is small: its label is in the row's font, as the other rows' (the owner's note n62).
             Toggle(isOn: configuration.$isOn) { configuration.label }
                 .toggleStyle(.switch)
                 .labelsHidden()
+                .controlSize(.small)
         }
     }
 }

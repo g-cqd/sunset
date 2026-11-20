@@ -52,13 +52,11 @@ struct SiteSettingsPopover: View {
             appearsAs.disabled(host.isEmpty)
             opensIn.disabled(host.isEmpty)
             Divider()
-            DisclosureGroup(isExpanded: $showsPermissions) {
-                permissions(host).padding(.top, Design.Space.s)
-            } label: {
-                Text(permissionsTitle(host))
+            Fold(permissionsTitle(host), isExpanded: $showsPermissions) {
+                permissions(host)
             }
             .disabled(host.isEmpty)
-            DisclosureGroup(isExpanded: $showsMore) {
+            Fold("More", isExpanded: $showsMore) {
                 VStack(alignment: .leading, spacing: Design.Space.s) {
                     hiding
                     Text(
@@ -68,12 +66,12 @@ struct SiteSettingsPopover: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.top, Design.Space.s)
-            } label: {
-                Text("More")
             }
             .disabled(host.isEmpty)
         }
+        // One font and one box for every row's symbol, so the titles start at one place (the owner's note n62).
+        .font(Design.Text.body)
+        .labelStyle(.row)
         .frame(width: 320, alignment: .leading)
         .padding(Design.Space.xl)
         // Read on any page: the popover's glass took the page's white under it while its text was the window's (light on
@@ -92,11 +90,13 @@ struct SiteSettingsPopover: View {
     }
 
     private func permissions(_ host: String) -> some View {
-        Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+        // As wide as the popover, each answer at its trailing edge, as the rows above (the owner's note n62).
+        VStack(alignment: .leading, spacing: Design.Space.s) {
             ForEach(SitePermission.allCases, id: \.self) { permission in
-                GridRow {
+                HStack {
                     Label(permission.title, systemImage: permission.symbol)
-                    Picker("", selection: binding(permission, host)) {
+                    Spacer(minLength: Design.Space.m)
+                    Picker(permission.title, selection: binding(permission, host)) {
                         ForEach(PermissionAnswer.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
                     .labelsHidden()
