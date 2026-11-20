@@ -48,7 +48,7 @@ struct BrowserAgentTests {
 
     /// What a site receives, read from a server on this machine: by the default, by the site's rule, and again at each
     /// page the view goes to.
-    @Test func `a server is sent the User-Agent of its site's preset, and the page's script sees the same`()
+    @Test(.macOS27) func `a server is sent the User-Agent of its site's preset, and the page's script sees the same`()
         async throws
     {
         let server = try EchoServer()
@@ -91,7 +91,7 @@ struct BrowserAgentTests {
 
     /// The second rung (R5; decided by the builder while the owner was away, ADR-0052): what a page's scripts read first
     /// to tell a browser, set to what that browser says. A page that says Chrome with Apple's vendor is told apart at once.
-    @Test
+    @Test(.macOS27)
     func
         `to its scripts a page shown Chrome or Edge has Google's vendor, client hints and window.chrome; Firefox its own`()
         async throws
@@ -138,7 +138,9 @@ struct BrowserAgentTests {
     }
 
     /// Found 2026-11-17: at each key typed the search engine was told "Sunset/<build> CFNetwork/… Darwin/…".
-    @Test func `the request for search suggestions says what a page would, not that it is Sunset`() async throws {
+    @Test(.macOS27) func `the request for search suggestions says what a page would, not that it is Sunset`()
+        async throws
+    {
         let server = try EchoServer()
         let engine = SearchEngine(
             name: "Echo",
@@ -155,12 +157,16 @@ struct BrowserAgentTests {
         )
         let source = SuggestionSource()
         source.update("tide", engine: engine, words: "tide", enabled: true, userAgent: settings.userAgent)
-        await RealWait.until { !(server.header("User-Agent", for: "/suggest?q=tide") == nil) }
+        try await waitUntil(timeout: .seconds(20), label: "the server asked for suggestions on \"tide\"") {
+            server.header("User-Agent", for: "/suggest?q=tide") != nil
+        }
         #expect(server.header("User-Agent", for: "/suggest?q=tide") == settings.userAgent)
         settings.agent = .chrome
         #expect(settings.userAgent == BrowserAgent.chrome.userAgent)
         source.update("tides", engine: engine, words: "tides", enabled: true, userAgent: settings.userAgent)
-        await RealWait.until { !(server.header("User-Agent", for: "/suggest?q=tides") == nil) }
+        try await waitUntil(timeout: .seconds(20), label: "the server asked for suggestions on \"tides\"") {
+            server.header("User-Agent", for: "/suggest?q=tides") != nil
+        }
         #expect(server.header("User-Agent", for: "/suggest?q=tides") == BrowserAgent.chrome.userAgent)
         #expect(!server.received.contains { $0.contains("CFNetwork") })
     }

@@ -48,7 +48,9 @@ struct IconGridViewTests {
         names.map { IconChoice(SymbolCatalog.Symbol(name: $0, keywords: [], categories: [])) }
     }
 
-    @Test func `symbols and emoji are drawn once rendered, each in its cell; drawing waits for none`() async throws {
+    @Test(.macOS27) func `symbols and emoji are drawn once rendered, each in its cell; drawing waits for none`()
+        async throws
+    {
         let names = ["folder", "trash", "house", "arrow.up", "star", "bolt", "gear", "doc", "book", "tray", "flag"]
         let (scroll, window) = grid(
             symbols(names) + [IconChoice(EmojiCatalog.Emoji(text: "\u{1F680}", name: "rocket"))]

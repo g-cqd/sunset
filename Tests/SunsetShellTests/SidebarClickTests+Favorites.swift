@@ -13,7 +13,7 @@ extension SidebarClickTests {
         return false
     }
 
-    @Test func `a click on a favourite shows it at once`() async throws {
+    @Test(.macOS27) func `a click on a favourite shows it at once`() async throws {
         tabs.newTab()
         tabs.newTab()
         let kept = try #require(tabs.keep(item: tabs.workspace.items[0].id, show: false))

@@ -1,6 +1,7 @@
 import AppKit
 import SunsetMetrics
 import SunsetShell
+import SunsetTestSupport
 import SwiftUI
 import Testing
 
@@ -84,8 +85,8 @@ struct AddressFieldShownTests {
         field.endTyping()
     }
 
-    @Test func `typing starts with the whole address selected and its start shown, after a change of width too`() throws
-    {
+    @Test(.macOS27)
+    func `typing starts with the whole address selected and its start shown, after a change of width too`() throws {
         let (window, host, _) = shown(hovering: false)
         defer { window.close() }
         let field = try #require(Self.field(in: host))

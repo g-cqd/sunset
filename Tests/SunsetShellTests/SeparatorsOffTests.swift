@@ -1,5 +1,6 @@
 import AppKit
 import SunsetPane
+import SunsetTestSupport
 import SwiftUI
 import Testing
 
@@ -67,7 +68,7 @@ struct SeparatorsOffTests {
         return count
     }
 
-    @Test func `the two section lines drawn when on, gone when off`() throws {
+    @Test(.macOS27) func `the two section lines drawn when on, gone when off`() throws {
         let onPicture = try picture(separators: true)
         let offPicture = try picture(separators: false)
         let on = lines(onPicture)
