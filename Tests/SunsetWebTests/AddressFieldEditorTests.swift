@@ -80,4 +80,19 @@ struct AddressFieldEditorTests {
         #expect(abs(clip.frame.maxX - (150 - margin)) < 0.5, "\(clip.frame) in 150, margin \(margin)")
         #expect(clip.frame.minX == (try appKitFrame(width: 200)).minX)
     }
+
+    /// The owner's note n63: Open Address with the sidebar floating brings the panel in, and its field is asked to take the
+    /// keyboard before it is in a window (the panel's transition). It takes it as soon as it is in one; the ask is not lost.
+    @Test func `asked to take the keyboard before it is in a window, it takes it as it goes in one`() {
+        let (window, field) = field(width: 200)
+        field.removeFromSuperview()
+        var editing: [Bool] = []
+        field.onEditing = { editing.append($0) }
+        field.beginTyping()
+        #expect(field.currentEditor() == nil && editing.isEmpty, "no window: nothing yet")
+        window.contentView?.addSubview(field)
+        #expect(field.currentEditor() != nil, "in the window, it has the keyboard")
+        #expect(editing == [true])
+        #expect(field.stringValue == field.address, "the whole address, as when it begins in a window")
+    }
 }

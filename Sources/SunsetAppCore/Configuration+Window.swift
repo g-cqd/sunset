@@ -13,6 +13,12 @@ extension Configuration {
         sidebarShown && !sidebar.autoHide
     }
 
+    /// Where the focused page's address is typed: as `web.address` asks, the sidebar's field docked or floating (note n63); with no
+    /// sidebar the window bar stands in for it.
+    package var addressPlace: Configuration.Web.AddressPlace {
+        web.address == .sidebar && !sidebarShown ? .window : web.address
+    }
+
     /// Space between the grid and the terminal's own edge in points: the terminal's background fills it, with or without the sidebar (the sidebar's
     /// `padding` is outside the terminal, in the window's colour: `TerminalCard`). In the card at least 6 pt, so that text is not cut by its rounded corners.
     package var terminalPadding: Double {

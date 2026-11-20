@@ -36,4 +36,25 @@ import Testing
         reveal.pointer(inside: false, at: start + .seconds(1))
         #expect(!reveal.isShown(at: start + .seconds(1)))
     }
+
+    /// The floating sidebar while its field is typed in (note n63): out whatever the pointer does, and when let go, gone after the
+    /// delay unless the pointer is on it.
+    @Test
+    func `held, it is shown wherever the pointer is; let go, it hides after the delay unless the pointer is inside`() {
+        var reveal = HoverReveal(hideDelay: .milliseconds(300))
+        reveal.hold(true, at: start)
+        #expect(reveal.isShown(at: start + .seconds(5)), "held, never entered")
+        reveal.pointer(inside: true, at: start + .seconds(1))
+        reveal.pointer(inside: false, at: start + .seconds(2))
+        #expect(reveal.isShown(at: start + .seconds(10)), "held after the pointer left")
+        #expect(reveal.hidesAt == nil, "nothing to look at again while held")
+        reveal.hold(false, at: start + .seconds(10))
+        #expect(reveal.isShown(at: start + .seconds(10) + .milliseconds(250)))
+        #expect(!reveal.isShown(at: start + .seconds(10) + .milliseconds(350)))
+        #expect(reveal.hidesAt == start + .seconds(10) + .milliseconds(300))
+        reveal.hold(true, at: start + .seconds(20))
+        reveal.pointer(inside: true, at: start + .seconds(21))
+        reveal.hold(false, at: start + .seconds(22))
+        #expect(reveal.isShown(at: start + .seconds(30)), "let go with the pointer on it")
+    }
 }

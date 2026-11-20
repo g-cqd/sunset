@@ -15,10 +15,9 @@ extension TerminalScene {
         tabs.selectedContent as? WebContent
     }
 
-    /// The placement the settings ask for; the sidebar's field needs a sidebar beside the content, else the window bar stands in.
+    /// The placement the settings ask for (`Configuration.addressPlace`).
     var addressPlace: Configuration.Web.AddressPlace {
-        let wanted = configuration.web.address
-        return wanted == .sidebar && !configuration.sidebarDocked ? .window : wanted
+        configuration.addressPlace
     }
 
     /// The built-in tab bar holds the address (t223): the selected tab is the field, back and forward after the window's buttons;
@@ -83,9 +82,19 @@ extension TerminalScene {
                         atTop ? .top : .bottom,
                         addressPlace == .window && !addressInTabBar ? Design.Space.m + Design.Size.bar : 0
                     )
+                    // Beside the floating sidebar whose field is typed in, not under it (note n63).
+                    .padding(sidebarSide.edge, floatingFieldInset)
                     .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
             }
         }
+    }
+
+    /// How far the floating sidebar reaches over the panes, from the window's edge, while its field holds the address: the panel's
+    /// width and its margin (as `FloatingSidebar` lays it out).
+    var floatingFieldInset: Double {
+        guard floatsSidebar, addressPlace == .sidebar else { return 0 }
+        return configuration.sidebar.width
+            + LibrarySidebar.extraWidth(tabs, ShellSettings(configuration), floating: true)
     }
 
     /// The split's window bar goes in a margin above the panes (`web.splitBar`; at the top edge only).

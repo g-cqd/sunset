@@ -5,6 +5,7 @@ import SunsetMetrics
 import SunsetPrivate
 import SunsetShell
 import SunsetShellBridge
+import SunsetWeb
 import SwiftUI
 
 /// The parts of the terminal window that belong to the sidebar: the window's corner radius, the traffic lights' place, the resize strip, the floating panel.
@@ -81,10 +82,19 @@ extension TerminalScene {
                 windowRadius: windowRadius,
                 shown: $floatingShown,
                 opensAtOnce: $opensAtOnce,
-                accessory: sidebarAddress
+                accessory: sidebarAddress,
+                held: holdsFloatingSidebar
             )
             .transition(.opacity)
         }
+    }
+
+    /// The floating sidebar's field is typed in as the docked one's is (note n63): out while the command bar is open in it, or while
+    /// it holds the page's address and that is asked for (Open Address, a new page) or typed in.
+    var holdsFloatingSidebar: Bool {
+        if tabs.bar?.inSidebar == true { return true }
+        guard addressPlace == .sidebar, let page = focusedPage else { return false }
+        return page.wantsAddress || addressTyping.page === page
     }
 
     /// The docked sidebar's place in the row: it is drawn under the row (`body`), this keeps its width.

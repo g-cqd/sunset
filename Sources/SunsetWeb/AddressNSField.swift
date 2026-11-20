@@ -31,8 +31,14 @@ final class AddressNSField: NSTextField {
 
     /// Makes the field the one that has the keyboard, with the whole address selected.
     func beginTyping() {
+        guard let window else {
+            // Not in a window yet (a floating sidebar coming in, note n63): it begins as it goes in one.
+            typesInWindow = true
+            return
+        }
+        typesInWindow = false
         typing = true
-        guard let window, window.makeFirstResponder(self) else {
+        guard window.makeFirstResponder(self) else {
             typing = false
             return
         }
@@ -44,6 +50,14 @@ final class AddressNSField: NSTextField {
         editorMargin = currentEditor()?.superview.map { bounds.width - $0.frame.maxX }
         currentEditor()?.selectAll(nil)
         onEditing(true)
+    }
+
+    /// Asked to take the keyboard while in no window: it does as soon as it is in one.
+    private var typesInWindow = false
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if typesInWindow, window != nil { beginTyping() }
     }
 
     /// Confirm through accessibility (VoiceOver, or a test driving Sunset in the background): what the field holds is opened, as Return does.

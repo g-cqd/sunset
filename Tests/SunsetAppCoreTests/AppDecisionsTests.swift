@@ -142,3 +142,25 @@ extension AppDecisionsTests {
         #expect(Configuration.Web.Keep.of(Profile(name: "Plain"), app: app) == app.web.keep, "nothing of its own")
     }
 }
+
+extension AppDecisionsTests {
+    /// The owner's note n63: a floating sidebar's field is the page's address, as the docked one's is; only with no sidebar at all
+    /// does the window bar hold it.
+    @Test
+    func
+        `the address asked in the sidebar stays in it while the sidebar floats, and goes to the window bar without one`()
+    {
+        var configuration = Configuration()
+        configuration.sidebar.enabled = true
+        configuration.web.address = .sidebar
+        configuration.sidebar.autoHide = false
+        #expect(configuration.addressPlace == .sidebar, "docked")
+        configuration.sidebar.autoHide = true
+        #expect(configuration.addressPlace == .sidebar, "floating")
+        configuration.sidebar.enabled = false
+        #expect(!configuration.sidebarShown)
+        #expect(configuration.addressPlace == .window, "no sidebar")
+        configuration.web.address = .pane
+        #expect(configuration.addressPlace == .pane)
+    }
+}

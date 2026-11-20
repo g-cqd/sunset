@@ -19,6 +19,8 @@ struct FloatingSidebar: View {
     @Binding var opensAtOnce: Bool
     /// The field at the top, as the docked sidebar has it (roadmap 0035 G).
     var accessory: AnyView?
+    /// Out whatever the pointer does: its field is typed in, or the page's address was asked for (note n63).
+    var held = false
     @State private var reveal = HoverReveal(hideDelay: .milliseconds(350))
 
     private var side: Configuration.Side {
@@ -40,6 +42,11 @@ struct FloatingSidebar: View {
             if shown { panel.transition(.move(edge: side.moveEdge).combined(with: .opacity)) }
         }
         .frame(maxHeight: .infinity, alignment: side.alignment)
+        .onChange(of: held, initial: true) { _, now in
+            let time = runtime.uptime()
+            reveal.hold(now, at: time)
+            look(at: time)
+        }
         .onAppear {
             guard opensAtOnce else { return }
             opensAtOnce = false
@@ -96,6 +103,11 @@ struct FloatingSidebar: View {
         let now = runtime.uptime()
         reveal.hideDelay = .seconds(settings.layout.hideDelay)
         reveal.pointer(inside: inside, at: now)
+        look(at: now)
+    }
+
+    /// Shown or not as of `now`, and looked at again when it is due to hide.
+    private func look(at now: Duration) {
         update(at: now)
         if let at = reveal.hidesAt {
             runtime.task {

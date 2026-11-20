@@ -5,6 +5,7 @@ public struct HoverReveal: Sendable, Equatable {
     private var inside = false
     private var leftAt: Duration?
     private var everEntered = false
+    private var held = false
 
     public init(hideDelay: Duration) {
         self.hideDelay = hideDelay
@@ -22,14 +23,24 @@ public struct HoverReveal: Sendable, Equatable {
         }
     }
 
+    /// Held out whatever the pointer does (a field in it is typed in); let go, it goes after the delay unless the pointer is inside.
+    public mutating func hold(_ now: Bool, at time: Duration) {
+        guard now != held else { return }
+        held = now
+        if !now, !inside {
+            leftAt = time
+            everEntered = true
+        }
+    }
+
     public func isShown(at time: Duration) -> Bool {
-        if inside { return true }
+        if inside || held { return true }
         guard everEntered, let leftAt else { return false }
         return time < leftAt + hideDelay
     }
 
     /// When to look again: the moment it hides, or nil when it is not waiting to hide.
     public var hidesAt: Duration? {
-        leftAt.map { $0 + hideDelay }
+        held ? nil : leftAt.map { $0 + hideDelay }
     }
 }
