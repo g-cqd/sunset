@@ -30,8 +30,10 @@ import Testing
             // `profiles.list`: the profiles are kept with the session, not in the file (ADR-0053).
             // `features`: three keys under one control (ADR-0056).
             // `web.defaultBrowser`: the system's choice, not the file's (note n18).
+            // `web.extensions`: kept in each profile's folder (roadmap 0109).
             others == ["features", "file.location", "profiles.list"] + pages + [
-                "storage.websiteData", "web.defaultBrowser", "web.permissions", "web.proxyCheck", "web.sites"
+                "storage.websiteData", "web.defaultBrowser", "web.extensions", "web.permissions", "web.proxyCheck",
+                "web.sites"
             ],
             "only these are not one key of the file: \(others)"
         )
@@ -62,7 +64,7 @@ import Testing
 
     @Test func `the sentences under the controls are kept when options move`() {
         let noted = options.filter { $0.note != nil }.map(\.id)
-        #expect(noted.count == 69, "a sentence was added or lost: \(noted)")
+        #expect(noted.count == 70, "a sentence was added or lost: \(noted)")
         #expect(SettingsOption.named("sidebar.enabled")?.note?.contains("lists the tabs") == true)
         #expect(SettingsOption.named("scrollback.lines")?.note?.contains("opened after the change") == true)
     }

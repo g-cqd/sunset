@@ -83,6 +83,7 @@ extension SettingsSection {
             SettingsTopic("web.profiles", "Profiles", SettingsOption.profiles),
             SettingsTopic("web.memory", "Memory", SettingsOption.memory),
             SettingsTopic("web.blocking", "Blocking", SettingsOption.blocking),
+            SettingsTopic("web.extensions", "Extensions", SettingsOption.extensions),
             SettingsTopic("web.proxy", "Proxy", SettingsOption.proxy),
             SettingsTopic("web.advanced", "Advanced", SettingsOption.webAdvanced)
         ]

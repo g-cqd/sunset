@@ -45,6 +45,7 @@ struct SettingsCustomRow: View {
             case .proxyCheck: ProxyCheckRow(address: config.configuration.web.proxy, title: option.title)
             case .blockingLists: BlockingListsSettings()
             case .sites: SitesSettings(config: config)
+            case .extensions: ExtensionsSettings()
             case .features: FeaturesSettings(features: config.binding(\.features))
             case .fileLocation: fileInfo
             case .storageSealed, .storageWebsiteData, .storageSetAside, .storageKey, .storageEnterCode, .storageExport:

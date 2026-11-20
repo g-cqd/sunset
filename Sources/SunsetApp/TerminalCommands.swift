@@ -54,6 +54,11 @@ struct TerminalCommands: Commands {
                 Button("New Document") { AppActions.shared.newDocument() }
                 Button("Open File\u{2026}") { AppActions.shared.openFile() }.keyboardShortcut("o")
             }
+            // Extensions (roadmap 0109): into the window's profile.
+            if scopes.web {
+                Divider()
+                Button("Install Extension\u{2026}") { AppActions.shared.installExtension() }
+            }
         }
         CommandGroup(replacing: .saveItem) {
             // Close Other Tabs with Option, as Safari's File menu (task t135).

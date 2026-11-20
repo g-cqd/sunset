@@ -20,6 +20,13 @@ struct ExtensionHostTests {
         """
 
     private func installHello(in root: URL, profile: UUID) throws {
+        let folder = try writeHello(in: root)
+        var store = ExtensionStore(root: root.appending(path: "Extensions"), profile: profile)
+        try store.install(from: folder, name: "Hello", granted: ["http://127.0.0.1/*"])
+    }
+
+    /// The probe's extension, unpacked in `root/src`.
+    private func writeHello(in root: URL) throws -> URL {
         let folder = root.appending(path: "src")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let manifest = #"""
@@ -30,8 +37,7 @@ struct ExtensionHostTests {
         try Data(manifest.utf8).write(to: folder.appending(path: "manifest.json"))
         try Data(Self.content.utf8).write(to: folder.appending(path: "c.js"))
         try Data(Self.worker.utf8).write(to: folder.appending(path: "w.js"))
-        var store = ExtensionStore(root: root.appending(path: "Extensions"), profile: profile)
-        try store.install(from: folder, name: "Hello", granted: ["http://127.0.0.1/*"])
+        return folder
     }
 
     private func dataset(of path: String, private isPrivate: Bool, profile: UUID, port: UInt16) async throws -> [String:
@@ -70,5 +76,34 @@ struct ExtensionHostTests {
         #expect((shown["worker"] as? String)?.contains("worker") == true, "\(shown)")
         let hidden = try await dataset(of: "/b", private: true, profile: profile, port: server.port)
         #expect(hidden["ext"] as? String == "none", "private, not allowed there")
+    }
+
+    /// Roadmap 0109 C: installed, turned off and removed while Sunset runs; read first, for the prompt, then installed.
+    @Test func `read for the prompt, installed while running; off, a new page runs it no more; removed, gone`()
+        async throws
+    {
+        let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let profile = UUID()
+        ExtensionHosts.shared.root = root.appending(path: "Extensions")
+        defer { ExtensionHosts.shared.reset() }
+        let host = try #require(ExtensionHosts.shared.host(for: profile))
+        await host.ready()
+        let source = try writeHello(in: root)
+        let read = try await ExtensionHost.read(source)
+        #expect(read.name == "Hello" && read.version == "1.0")
+        #expect(read.lines == ["Read and change pages on 127.0.0.1"])
+        let installed = try await host.install(read)
+        #expect(host.installed.map(\.name) == ["Hello"])
+        let server = try EchoServer()
+        #expect(
+            try await dataset(of: "/a", private: false, profile: profile, port: server.port)["ext"] as? String == "ran"
+        )
+        host.set(installed.id, enabled: false)
+        #expect(
+            try await dataset(of: "/b", private: false, profile: profile, port: server.port)["ext"] as? String == "none"
+        )
+        host.remove(installed.id)
+        #expect(host.installed.isEmpty)
     }
 }
