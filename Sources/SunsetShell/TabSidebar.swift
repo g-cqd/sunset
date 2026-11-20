@@ -16,6 +16,8 @@ package struct TabSidebar: View {
     var isPreview = false
     /// The pin button was pressed: the sidebar is to stay beside the content, or to hide and float (`sidebar.autoHide`, which the app owns).
     let togglePin: () -> Void
+    /// Beside the pin, toward the traffic lights: the extensions' buttons (roadmap 0109 D).
+    let headerExtras: AnyView?
     /// The floating panel: its traffic lights are a little further from the corner.
     var floating = false
     /// The floating panel's corner radius: the pin button's corner towards the panel's is concentric with it (same gap to both edges).
@@ -69,8 +71,10 @@ package struct TabSidebar: View {
         notices: AnyView? = nil,
         bottomBar: AnyView? = nil,
         bottomBarRows: Int = 1,
+        headerExtras: AnyView? = nil,
         togglePin: @escaping () -> Void
     ) {
+        self.headerExtras = headerExtras
         self.bottomBarRows = bottomBarRows
         self.accessory = accessory
         self.notices = notices

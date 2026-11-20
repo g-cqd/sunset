@@ -1,6 +1,7 @@
 import SunsetConfig
 import SunsetHelp
 import SunsetMetrics
+import SunsetPane
 import SunsetShell
 import SunsetShellBridge
 import SunsetWeb
@@ -81,7 +82,20 @@ struct AppSidebar: View {
                 library: configuration.sidebar.library && SidebarSection.rail(for: tabs.scopes).count > 1,
                 downloads: !DownloadCenter.shared.items.isEmpty
             ),
+            headerExtras: extensionButtons,
             togglePin: AppConfiguration.togglePin
+        )
+    }
+
+    /// The window's profile's extensions, beside the pin (roadmap 0109 D): with the web on and one installed and on.
+    private var extensionButtons: AnyView? {
+        guard tabs.scopes.web, let host = ExtensionHosts.shared.host(for: PaneContentKinds.profile(of: tabs)),
+            host.installed.contains(where: \.enabled)
+        else { return nil }
+        return AnyView(
+            ExtensionActionsBar(host: host, page: tabs.selectedContent as? WebContent) {
+                AppSettings.show("web.extensions", in: tabs)
+            }
         )
     }
 }

@@ -7,8 +7,21 @@ extension TabSidebar {
         SidebarButtons(layout: layout, margin: margin, panelRadius: panelRadius, windowRadius: windowRadius)
     }
 
+    /// The pin, and beside it, toward the traffic lights, what the app puts there (the extensions' buttons).
     var pinButton: some View {
-        SidebarPinButton(sidebar: settings.sidebar, buttons: buttons, toggle: togglePin)
+        HStack(alignment: .top, spacing: Design.Space.xs) {
+            if settings.sidebar.side == .left { extras }
+            SidebarPinButton(sidebar: settings.sidebar, buttons: buttons, toggle: togglePin)
+            if settings.sidebar.side == .right { extras }
+        }
+    }
+
+    @ViewBuilder private var extras: some View {
+        if let headerExtras {
+            headerExtras
+                .environment(\.sidebarButtonMetrics, buttons.metrics)
+                .padding(.top, buttons.top)
+        }
     }
 
     /// How much room the rows leave at the bottom for the app's bar.

@@ -1,3 +1,4 @@
+package import AppKit
 import Foundation
 import Observation
 import SunsetRuntime
@@ -29,6 +30,12 @@ package import WebKit
     @ObservationIgnored private var contexts: [UUID: WKWebExtensionContext] = [:]
     @ObservationIgnored private var loading: Task<Void, Never>?
     @ObservationIgnored private let runtime: Runtime
+    /// Bumped when an action changes (its badge, its title): the buttons are drawn again.
+    var revision = 0
+    @ObservationIgnored var anchors: [String: NSView] = [:]
+    @ObservationIgnored private let delegate = ExtensionControllerDelegate()
+    /// Shows an action's popup; by default WebKit's popover under its button. Tests watch it.
+    @ObservationIgnored package var presentPopup: (ExtensionActionItem, WKWebExtension.Action) -> Void = { _, _ in }
 
     init(root: URL, profile: UUID?, runtime: Runtime = .live) {
         store = ExtensionStore(root: root, profile: profile)
@@ -37,6 +44,9 @@ package import WebKit
         controller = WKWebExtensionController(
             configuration: profile.map { WKWebExtensionController.Configuration(identifier: $0) } ?? .default()
         )
+        delegate.host = self
+        controller.delegate = delegate
+        presentPopup = { [weak self] item, action in self?.showPopover(of: action, anchoredTo: item.id) }
         loading = runtime.task { @MainActor [weak self] in
             guard let self else { return }
             for entry in store.installed where entry.enabled { await load(entry) }
@@ -108,6 +118,14 @@ package import WebKit
         context.hasAccessToPrivateData = entry.inPrivate
         guard (try? controller.load(context)) != nil else { return }
         contexts[entry.id] = context
+    }
+
+    func context(of id: UUID) -> WKWebExtensionContext? {
+        contexts[id]
+    }
+
+    func contextWith(identifier: String) -> WKWebExtensionContext? {
+        contexts.values.first { $0.uniqueIdentifier == identifier }
     }
 
     private func unload(_ id: UUID) {

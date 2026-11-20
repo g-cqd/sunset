@@ -1,0 +1,49 @@
+package import AppKit
+import WebKit
+
+/// Each extension's action for the shown page, performed when its button is clicked; its popup shown by Sunset, anchored to
+/// the button (WebKit's controller delegate asks).
+extension ExtensionHost {
+    /// The actions of the extensions running, for `tab` (nil: the window's default), in the order they were installed.
+    package func actions(for tab: ExtensionTab?) -> [ExtensionActionItem] {
+        _ = revision
+        return installed.compactMap { entry in
+            guard let context = context(of: entry.id), let action = context.action(for: tab) else { return nil }
+            return ExtensionActionItem(
+                id: context.uniqueIdentifier,
+                label: action.label.isEmpty ? entry.name : action.label,
+                icon: action.icon(for: CGSize(width: 16, height: 16)),
+                badge: action.badgeText,
+                enabled: action.isEnabled
+            )
+        }
+    }
+
+    /// The button was clicked: the extension's own (a popup asked for, or its click event).
+    package func perform(_ id: String, for tab: ExtensionTab?) {
+        contextWith(identifier: id)?.performAction(for: tab)
+    }
+
+    /// Where a button is, for its popup.
+    package func anchor(_ id: String, _ view: NSView) {
+        anchors[id] = view
+    }
+
+    /// WebKit asks for an action's popup: shown under its button, else not at all.
+    func showPopup(_ action: WKWebExtension.Action, for context: WKWebExtensionContext) {
+        let item = ExtensionActionItem(
+            id: context.uniqueIdentifier,
+            label: action.label,
+            icon: nil,
+            badge: action.badgeText,
+            enabled: action.isEnabled
+        )
+        presentPopup(item, action)
+    }
+
+    /// Shows WebKit's popover under the button that was clicked.
+    func showPopover(of action: WKWebExtension.Action, anchoredTo id: String) {
+        guard let popover = action.popupPopover, let anchor = anchors[id], anchor.window != nil else { return }
+        popover.show(relativeTo: anchor.bounds, of: anchor, preferredEdge: .maxY)
+    }
+}

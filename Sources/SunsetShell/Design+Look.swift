@@ -45,6 +45,8 @@ extension Design {
         package static let small = Font.subheadline
         /// A row's second line, a subtitle, a hint.
         package static let detail = Font.caption
+        /// A count on a corner of a button (an extension's badge).
+        package static let badge = Font.system(size: 8, weight: .bold)
         /// The command bar's input.
         package static let input = Font.title2
         /// A heading on an empty page (title3).
