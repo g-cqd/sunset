@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 18:21:25 +0100
+Subject: [PATCH] Web Extensions: i18n.getMessage('') gives an empty string, as
+ in Firefox and Chrome (Sunset W2)
+
+An extension that reads a message by an empty name (uBlock Origin's i18n.js does, for elements without one) stopped on the
+exception: its popup never left its loading state. Firefox and Chrome return ''.
+
+Test: WKWebExtensionAPILocalization.errors now expects '' for an empty name.
+
+diff --git a/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPILocalization.idl b/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPILocalization.idl
+index cb3ae0278..aad44843e 100644
+--- a/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPILocalization.idl
++++ b/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPILocalization.idl
+@@ -34,7 +34,7 @@ dictionary WebExtensionLanguageDetectionResult {
+ ] interface WebExtensionAPILocalization {
+ 
+     // Get the localized string for the given message in the current locale, optionally providing up 9 substitutions.
+-    DOMString getMessage([CannotBeEmpty] DOMString name, [Optional, ValuesAllowed] any substitutions);
++    DOMString getMessage(DOMString name, [Optional, ValuesAllowed] any substitutions);
+ 
+     // Get the UI language of the browser.
+     DOMString getUILanguage();
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPILocalization.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPILocalization.swift
+index 422ad356a..14251f1b7 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPILocalization.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPILocalization.swift
+@@ -135,7 +135,7 @@ struct WKWebExtensionAPILocalizationTests {
+     @Test
+     func errors() async throws {
+         let backgroundScript = """
+-            browser.test.assertThrows(() => browser.i18n.getMessage(''), /'name' value is invalid, because it cannot be empty/i)
++            browser.test.assertEq(browser.i18n.getMessage(''), '', 'An empty name gives an empty string, as in Firefox and Chrome')
+             browser.test.assertThrows(() => browser.i18n.getMessage(), /a required argument is missing/i)
+             browser.test.assertThrows(() => browser.i18n.getMessage(123), /'name' value is invalid, because a string is expected/i)
+             browser.test.assertThrows(() => browser.i18n.getMessage(null), /'name' value is invalid, because a string is expected/i)
