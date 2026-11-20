@@ -33,6 +33,8 @@ import SunsetWeb
             wire(opened, in: tabs)
             switch placement {
                 case .tabAfter, .privateTab: tabs.insertTab(opened, after: page, show: false)
+                case .opened:
+                    tabs.insertTab(opened, after: page, show: AppConfiguration.shared.showsOpenedPages)
                 case .splitRight: tabs.split(.right, with: opened, beside: page)
                 case .splitDown: tabs.split(.bottom, with: opened, beside: page)
                 case .window:

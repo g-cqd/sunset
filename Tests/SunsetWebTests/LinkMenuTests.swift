@@ -41,4 +41,25 @@ struct LinkMenuTests {
         #expect(view.pendingPlacement == .splitDown)
         #expect(webKit.hits.count == 1 && webKit.hits.first?.representedObject as? String == "the link")
     }
+
+    /// Notes n64 and n65: WebKit's Open Image in New Window opens the picture in a tab, shown; its title says where.
+    @Test func `WebKit's image and video items say they open a tab; the link's and others are left`() {
+        let menu = NSMenu()
+        for (identifier, title) in [
+            ("WKMenuItemIdentifierOpenImageInNewWindow", "Open Image in New Window"),
+            ("WKMenuItemIdentifierOpenMediaInNewWindow", "Open Video in New Window"),
+            ("WKMenuItemIdentifierOpenLinkInNewWindow", "Open Link in New Window"),
+            ("WKMenuItemIdentifierDownloadImage", "Download Image")
+        ] {
+            let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+            item.identifier = NSUserInterfaceItemIdentifier(identifier)
+            menu.addItem(item)
+        }
+        SunsetWebView.retitleOpenedItems(in: menu)
+        #expect(
+            menu.items.map(\.title) == [
+                "Open Image in New Tab", "Open Video in New Tab", "Open Link in New Window", "Download Image"
+            ]
+        )
+    }
 }

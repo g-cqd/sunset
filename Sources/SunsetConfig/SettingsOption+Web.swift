@@ -79,6 +79,14 @@ extension SettingsOption {
                 label: "Cmd-click on a link in a terminal opens it in a page beside it"
             ),
             toggle(
+                "web.showOpenedPages",
+                "Pages a page opens",
+                "popup pop-up new tab window target blank open image",
+                \.web.showOpenedPages,
+                label: "Show the pages a page opens, its pop-ups, pictures and films included"
+            )
+            .noted("Off, it waits in a tab after the page. Cmd-click and Open Link in New Tab always leave it there."),
+            toggle(
                 "web.httpFallback",
                 "Fall back to HTTP",
                 "http https insecure",

@@ -122,6 +122,9 @@ extension Configuration {
         /// In a split, where the window bar goes while it is out: in a margin that opens above the panes (they keep their size,
         /// only less of them shows), or over the focused pane (owner, 2026-11-13).
         public var splitBar = SplitBar.margin
+        /// A page a page opens (a link with a target, a pop-up after a click, Open Image in New Window) is shown, as Safari
+        /// does; off, it waits in a tab after its opener (the owner, 2026-11-20, notes n64 and n65).
+        public var showOpenedPages = true
         /// Pages animate and redraw at the screen's rate (120 fps on a ProMotion screen), not near 60 (owner, 2026-11-13).
         public var fullFrameRate = true
         /// The name of the engine words are searched with (a built-in one or one of `engines`).

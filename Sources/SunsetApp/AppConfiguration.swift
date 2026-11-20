@@ -221,3 +221,10 @@ final class AppConfiguration {
         FileHandle.standardError.write(Data("sunset: \(message)\n".utf8))
     }
 }
+
+extension AppConfiguration {
+    /// `web.showOpenedPages`: a page a page opens is shown (notes n64, n65).
+    var showsOpenedPages: Bool {
+        configuration.web.showOpenedPages
+    }
+}

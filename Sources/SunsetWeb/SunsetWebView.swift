@@ -34,6 +34,7 @@ final class SunsetWebView: WKWebView {
 
     override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
         super.willOpenMenu(menu, with: event)
+        Self.retitleOpenedItems(in: menu)
         guard
             let index = menu.items.firstIndex(where: {
                 $0.identifier?.rawValue == "WKMenuItemIdentifierOpenLinkInNewWindow"
@@ -42,6 +43,19 @@ final class SunsetWebView: WKWebView {
         let original = menu.items[index]
         menu.removeItem(at: index)
         for (offset, item) in linkItems(replacing: original).enumerated() { menu.insertItem(item, at: index + offset) }
+    }
+
+    /// WebKit's Open Image, Video or Frame in New Window: the page opens shown in a tab after this one (`WebPlacement.opened`,
+    /// the owner, 2026-11-20), and the item says so. Matched by WebKit's identifiers' shape, `…InNewWindow`; the link's has
+    /// Sunset's own items.
+    static func retitleOpenedItems(in menu: NSMenu) {
+        for item in menu.items {
+            guard let identifier = item.identifier?.rawValue, identifier.hasPrefix("WKMenuItemIdentifier"),
+                identifier.hasSuffix("InNewWindow"), identifier != "WKMenuItemIdentifierOpenLinkInNewWindow",
+                item.title.hasSuffix("New Window")
+            else { continue }
+            item.title = String(item.title.dropLast("New Window".count)) + "New Tab"
+        }
     }
 
     /// WebKit's item to open the link, as Sunset's items: each WebKit's own retitled, which says where the page goes as it is

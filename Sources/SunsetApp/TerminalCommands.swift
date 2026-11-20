@@ -93,10 +93,7 @@ struct TerminalCommands: Commands {
             }
         }
         CommandMenu("Panes") {
-            if scopes.terminal {
-                Button("New Terminal Tab") { AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil)) }
-            }
-            if scopes.web { Button("New Web Page") { AppActions.shared.newTab(kind: PaneContentKinds.newPage) } }
+            NewKindButtons(scopes: scopes)
             Divider()
             Button("Split Right") { AppActions.shared.split(.right) }.keyboardShortcut("d")
             Button("Split Down") { AppActions.shared.split(.bottom) }

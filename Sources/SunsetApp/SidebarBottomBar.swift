@@ -91,11 +91,8 @@ struct SidebarBottomBar: View {
 
     @ViewBuilder private var kinds: some View {
         let scopes = tabs.scopes
-        if scopes.terminal {
-            Button("New Terminal Tab") { AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil)) }
-        }
+        NewKindButtons(scopes: scopes)
         if scopes.web {
-            Button("New Web Page") { AppActions.shared.newTab(kind: PaneContentKinds.newPage) }
             Button("New Private Tab") { AppActions.shared.newTab(kind: PaneContentKinds.newPrivatePage) }
         }
         if scopes.documents {

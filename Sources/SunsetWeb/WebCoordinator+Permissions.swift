@@ -59,7 +59,7 @@ extension WebCoordinator {
         }
     }
 
-    /// A pop-up opened without a click: by the site's answer; asked, it opens (as a tab after the page) only once allowed.
+    /// A pop-up opened without a click: by the site's answer; asked, it opens (as a page the page opened) only once allowed.
     func popupAllowed(_ action: WKNavigationAction, from webView: WKWebView) -> Bool {
         if WebPermissionHooks.isUserInitiated(action) ?? true { return true }
         guard let content, let host = webView.url?.host() else { return false }
@@ -70,7 +70,7 @@ extension WebCoordinator {
                 let address = action.request.url
                 content.runtime.task { @MainActor in
                     if await content.ask([.popups], host: host), let address {
-                        content.onOpen(WebContent(url: address, settings: content.settings), .tabAfter)
+                        content.onOpen(WebContent(url: address, settings: content.settings), .opened)
                     }
                 }
                 return false

@@ -34,6 +34,9 @@ package struct WebFailure: Sendable, Equatable {
         if error.domain == NSURLErrorDomain, error.code == NSURLErrorCancelled { return nil }
         // WebKit's "frame load interrupted" (a navigation turned into a download or cancelled by a policy).
         if error.domain == "WebKitErrorDomain", error.code == 102 { return nil }
+        // WebKit's "plug-in handled load": its media page took a film's or a sound's address over and plays it (the owner's
+        // note n64: a failure page was put over it).
+        if error.domain == "WebKitErrorDomain", error.code == 204 { return nil }
         self.url = (error.userInfo[NSURLErrorFailingURLErrorKey] as? URL) ?? url
         reason = error.localizedDescription
         heading = "Sunset could not open this page"

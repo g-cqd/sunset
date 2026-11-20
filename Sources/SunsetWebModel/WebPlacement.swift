@@ -8,4 +8,7 @@ package enum WebPlacement: Sendable, Equatable {
     case window
     /// A private tab right after, with a store of its own (web step h).
     case privateTab
+    /// What the page asked for itself (a link with a target, a pop-up after a click, WebKit's Open Image or Video in New
+    /// Window): a tab right after the opener's, shown as `web.showOpenedPages` says (notes n64, n65).
+    case opened
 }

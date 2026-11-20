@@ -10,9 +10,12 @@ final class EchoServer: @unchecked Sendable {
     let port: UInt16
     /// What some paths add to their page, after the User-Agent (a script that sends a browser it does not like away).
     private let pages: [String: String]
+    /// What some paths answer instead of a page: a file of its type (a picture, a film, a sound).
+    private let files: [String: (type: String, body: Data)]
 
-    init(pages: [String: String] = [:]) throws {
+    init(pages: [String: String] = [:], files: [String: (type: String, body: Data)] = [:]) throws {
         self.pages = pages
+        self.files = files
         let listening = socket(AF_INET, SOCK_STREAM, 0)
         self.listening = listening
         var yes: Int32 = 1
@@ -77,12 +80,28 @@ final class EchoServer: @unchecked Sendable {
             .map { String($0.dropFirst("user-agent:".count)).trimmingCharacters(in: .whitespaces) } ?? ""
         let path =
             head.split(separator: " ", maxSplits: 2).dropFirst().first.map { String($0.split(separator: "?")[0]) } ?? ""
+        if let file = files[path] {
+            let head =
+                "HTTP/1.1 200 OK\r\nContent-Type: \(file.type)\r\nContent-Length: \(file.body.count)\r\n"
+                + "Cache-Control: no-store\r\nConnection: close\r\n\r\n"
+            send(Array(head.utf8) + Array(file.body), to: client)
+            return
+        }
         let body =
             "<html><head><title>echo</title></head><body><p id=\"agent\">\(agent)</p>\(pages[path] ?? "")</body></html>"
         let response =
             "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: \(body.utf8.count)\r\n"
             + "Cache-Control: no-store\r\nConnection: close\r\n\r\n" + body
-        let bytes = Array(response.utf8)
-        _ = unsafe write(client, bytes, bytes.count)
+        send(Array(response.utf8), to: client)
+    }
+
+    /// Writes all of `bytes`, however many writes it takes.
+    private func send(_ bytes: [UInt8], to client: Int32) {
+        var sent = 0
+        while sent < bytes.count {
+            let count = bytes[sent...].withUnsafeBytes { unsafe write(client, $0.baseAddress, $0.count) }
+            guard count > 0 else { return }
+            sent += count
+        }
     }
 }

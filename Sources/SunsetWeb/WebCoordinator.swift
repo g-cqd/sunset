@@ -10,6 +10,7 @@ import WebKit
         self.content = content
         super.init()
         Self.installPrivateQuestions()
+        Self.installMenuDownloads()
     }
 
     /// Cmd-click on a link opens it in a tab right after, not shown (as a link asking for a new tab does).
@@ -107,8 +108,10 @@ import WebKit
         windowFeatures: WKWindowFeatures
     ) -> WKWebView? {
         guard let content, popupAllowed(action, from: webView) else { return nil }
-        let placement =
-            (webView as? SunsetWebView)?.pendingPlacement ?? (windowFeatures.width != nil ? .window : .tabAfter)
+        let placement = Self.placement(
+            chosen: (webView as? SunsetWebView)?.pendingPlacement,
+            sized: windowFeatures.width != nil
+        )
         (webView as? SunsetWebView)?.pendingPlacement = nil
         if placement == .privateTab {
             // Not WebKit's page: its configuration would tie it to this page's store.
@@ -120,6 +123,12 @@ import WebKit
         let opened = WebContent(configuration: configuration, settings: content.settings)
         content.onOpen(opened, placement)
         return opened.webView
+    }
+
+    /// Where a page WebKit asks for goes: where Sunset's own menu item said; else a window for a pop-up the page sized (R1: "a
+    /// sized popup is a small window"); else an opened page.
+    nonisolated static func placement(chosen: WebPlacement?, sized: Bool) -> WebPlacement {
+        chosen ?? (sized ? .window : .opened)
     }
 
     func webViewDidClose(_ webView: WKWebView) {

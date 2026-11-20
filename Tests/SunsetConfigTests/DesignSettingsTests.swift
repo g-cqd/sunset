@@ -36,6 +36,13 @@ import Testing
         }
     }
 
+    /// The owner, 2026-11-20 (notes n64, n65): pages a page opens are shown, and a setting says so.
+    @Test func `pages a page opens are shown by default; the file can say not`() throws {
+        #expect(Configuration().web.showOpenedPages)
+        let read = try ConfigurationParser.parse(#"{ "web": { "showOpenedPages": false } }"#)
+        #expect(!read.configuration.web.showOpenedPages && read.issues.isEmpty)
+    }
+
     @Test func `the bars' tint follows the scheme by default; each tint read`() throws {
         #expect(Configuration().appearance.barTint == .scheme)
         for tint in Configuration.Appearance.BarTint.allCases {
