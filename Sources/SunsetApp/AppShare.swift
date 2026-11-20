@@ -1,5 +1,6 @@
 import AppKit
 import CoreImage
+import SunsetAppCore
 import SunsetConfig
 import SunsetMarkdown
 import SunsetPane
@@ -35,33 +36,30 @@ import WebKit
     /// Every open tab of every kind, by Space (ADR-0082, step D): pages, terminals, documents, the asking page itself among its
     /// Space's, marked (the owner, 2026-11-19); not a private page.
     static func sources(except asking: WebContent) -> [ShareSource] {
-        AppSpaces.all.spaces.flatMap { space in
+        var askingID: UUID?
+        let tabs = AppSpaces.all.spaces.flatMap { space in
             space.tabs.items.flatMap(\.panes)
-                .compactMap { pane -> ShareSource? in
+                .compactMap { pane -> ShareOffer.Tab? in
                     guard let content = space.contents[pane] else { return nil }
-                    var host: String?
+                    if content === asking { askingID = pane }
+                    let kind: ShareOffer.Tab.Kind
                     switch content {
                         // A page not made yet (never shown) is offered too: it is made when chosen.
-                        case let page as WebContent:
-                            guard !page.isPrivate else { return nil }
-                            host = page.url?.host()
-                        // A terminal never shown has no shell yet (it starts when first sized): nothing to send.
-                        case let terminal as TerminalModel:
-                            guard terminal.lastSurface != nil else { return nil }
-                            host = nil
-                        case is DocumentContent: host = nil
+                        case let page as WebContent: kind = .page(host: page.url?.host(), isPrivate: page.isPrivate)
+                        case let terminal as TerminalModel: kind = .terminal(started: terminal.lastSurface != nil)
+                        case is DocumentContent: kind = .document
                         default: return nil
                     }
-                    return ShareSource(
+                    return ShareOffer.Tab(
                         id: pane,
+                        kind: kind,
                         title: shownTitle(content),
                         space: space.space.name,
-                        profile: space.space.profile,
-                        host: host,
-                        isAsking: content === asking
+                        profile: space.space.profile
                     )
                 }
         }
+        return ShareOffer.sources(tabs, asking: askingID)
     }
 
     /// A page with no title of its own in this run (never loaded) is named by the title its address was last seen with,

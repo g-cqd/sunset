@@ -1,4 +1,5 @@
 import AppKit
+import SunsetAppCore
 import SunsetConfig
 import SunsetPane
 import SunsetShell
@@ -35,11 +36,7 @@ import SunsetShell
 
     /// What the question says before a scope is turned off with things open.
     static func sentence(closing scope: Scopes.Scope) -> String {
-        let count = openCount(of: scope)
-        let what = count == 1 ? "1 tab of it is open and closes" : "\(count) tabs of it are open and close"
-        let running = scope == .terminal ? " What runs in them is stopped." : ""
-        let edits = scope == .documents ? " Edits that are not saved are kept, and asked about when Sunset quits." : ""
-        return what + "." + running + edits + " What is kept of it (pinned, favorites) is hidden until it is on again."
+        ScopeClosing.sentence(scope, open: openCount(of: scope))
     }
 
     /// Closes and unloads everything of the scopes that are off, and tells every window. Called when the configuration

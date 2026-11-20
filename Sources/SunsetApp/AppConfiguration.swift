@@ -55,12 +55,6 @@ final class AppConfiguration {
         refreshShown()
     }
 
-    /// A colour is dark (by its luma); none counts as dark (the terminal's default is black).
-    private static func isDark(_ colour: [UInt8]?) -> Bool {
-        guard let colour, colour.count == 3 else { return true }
-        return 0.2126 * Double(colour[0]) + 0.7152 * Double(colour[1]) + 0.0722 * Double(colour[2]) < 128
-    }
-
     private func refreshShown() {
         let light: Bool =
             switch configuration.appearance.scheme {
@@ -68,13 +62,7 @@ final class AppConfiguration {
                 case .dark: false
                 case .system: NSApp?.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .aqua
             }
-        var next = configuration
-        if light {
-            next.appearance.tintColor = configuration.appearance.lightTintColor
-            next.appearance.tintAlpha = configuration.appearance.lightTintAlpha
-            // A dark terminal theme keeps its own background over the light tint: translucent, it washed out to grey under light text.
-            if Self.isDark(configuration.colors.background) { next.terminal.opacity = 1 }
-        }
+        let next = ShownConfiguration.make(configuration, light: light)
         if light != isLight { isLight = light }
         if next != shown { shown = next }
     }

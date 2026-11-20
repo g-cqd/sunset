@@ -47,24 +47,7 @@ import UserNotifications
 
     static func apply(_ web: Configuration.Web) {
         applyPermissions(web)
-        let folder = folder(web)
-        let keep: DownloadSettings.Keep =
-            switch web.keepDownloads {
-                case .byHand: .byHand
-                case .day: .day
-                case .week: .week
-                case .month: .month
-                case .untilQuit: .untilQuit
-                case .whenFinished: .whenFinished
-            }
-        DownloadCenter.shared.settings = DownloadSettings(
-            folder: folder,
-            askWhereToSave: web.askWhereToSave,
-            openSafe: web.openSafeDownloads,
-            notify: web.notifyDownloads,
-            approveRisky: web.approveRiskyDownloads,
-            keep: keep
-        )
+        DownloadCenter.shared.settings = DownloadSettingsMaker.make(web, folder: folder(web))
     }
 
     /// Where downloads go: the folder set, or ~/Downloads.
