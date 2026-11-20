@@ -30,4 +30,14 @@ struct ExtensionPackageTests {
             try ExtensionPackage.zip(from: Self.crx3(header: Data(count: 4), zip: Data()).prefix(14))
         }
     }
+
+    /// Roadmap 0109 E: a package a page offers (a store's "Download file", a link to a `.crx`) is installed, not downloaded.
+    @Test func `an extension's package is told by its type or its name`() {
+        #expect(ExtensionPackage.isPackage(mime: "application/x-chrome-extension", path: "/x"))
+        #expect(ExtensionPackage.isPackage(mime: "application/x-xpinstall", path: "/x"))
+        #expect(ExtensionPackage.isPackage(mime: "application/octet-stream", path: "/files/ublock_origin-1.76.4.xpi"))
+        #expect(ExtensionPackage.isPackage(mime: nil, path: "/a.CRX"))
+        #expect(!ExtensionPackage.isPackage(mime: "application/zip", path: "/a.zip"), "a zip is a download")
+        #expect(!ExtensionPackage.isPackage(mime: "text/html", path: "/addon/x/"))
+    }
 }

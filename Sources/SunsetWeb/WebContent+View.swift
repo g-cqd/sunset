@@ -172,5 +172,6 @@ extension WebContent {
         WebNotifications.install(on: configuration, for: self)
         IconWatch.install(on: configuration, for: self)
         TextWatch.install(on: configuration, for: self)
+        if !isPrivate { StoreInstallButton.install(on: configuration, for: self) }
     }
 }

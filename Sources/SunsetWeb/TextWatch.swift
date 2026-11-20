@@ -15,15 +15,18 @@ final class TextWatch: PageScriptHandler, WKScriptMessageHandler {
             if (pending !== null) return;
             pending = setTimeout(post, Math.max(0, \(interval) - (Date.now() - last)));
           };
-          const start = () => new MutationObserver(changed).observe(document.body || document.documentElement,
-            { subtree: true, childList: true, characterData: true });
-          if (document.readyState === "loading") addEventListener("DOMContentLoaded", start); else start();
+        \(PageBridge.watching(
+            "changed",
+            root: "document.body || document.documentElement",
+            options: "{ subtree: true, childList: true, characterData: true }",
+            first: false
+        ))
         })();
         """
 
     /// Adds the script and its handler to the configuration's controller.
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {
-        PageBridge(name: name, script: script, injection: .atDocumentEnd, mainFrameOnly: true, world: .defaultClient)
+        PageBridge.ownWorld(name, script, at: .atDocumentEnd)
             .install(on: configuration, handler: TextWatch(page: content))
     }
 

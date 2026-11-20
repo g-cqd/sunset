@@ -24,6 +24,15 @@ package enum ExtensionPackage {
         return Data(data.dropFirst(start))
     }
 
+    /// An extension's package a page offers (roadmap 0109 E): by its type (Chrome's, Firefox's), or its name ending `.crx` or
+    /// `.xpi` (stores serve them as plain bytes too). A `.zip` is a download like any other.
+    package static func isPackage(mime: String?, path: String) -> Bool {
+        let types: Set = ["application/x-chrome-extension", "application/x-xpinstall"]
+        if let mime, types.contains(mime.lowercased()) { return true }
+        let name = path.lowercased()
+        return name.hasSuffix(".crx") || name.hasSuffix(".xpi")
+    }
+
     /// A little-endian 32-bit number at `offset`, counted from the start of `data`.
     private static func uint32(_ data: Data, at offset: Int) -> UInt32 {
         let start = data.startIndex + offset

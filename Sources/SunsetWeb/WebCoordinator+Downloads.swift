@@ -1,5 +1,6 @@
 import SunsetPrivate
 import SunsetRuntime
+import SunsetWebModel
 import WebKit
 
 /// What becomes a download (web step f): an attachment, and what WebKit cannot show; what it can show (a PDF, a picture) opens in the page.
@@ -8,6 +9,14 @@ extension WebCoordinator {
         -> WKNavigationResponsePolicy
     {
         guard response.isForMainFrame else { return .allow }
+        // An extension's package (a store's "Download file", a link to a `.crx`): installed after its prompt, not downloaded
+        // (roadmap 0109 E). A private page's go to Downloads.
+        if let address = response.response.url, let content, !content.isPrivate,
+            ExtensionPackage.isPackage(mime: response.response.mimeType, path: address.path())
+        {
+            ExtensionHosts.shared.installPackage(address, content.settings.profile)
+            return .cancel
+        }
         let disposition =
             (response.response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Disposition") ?? ""
         if disposition.lowercased().hasPrefix("attachment") || !response.canShowMIMEType { return .download }

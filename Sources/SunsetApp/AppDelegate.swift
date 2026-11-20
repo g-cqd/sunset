@@ -12,6 +12,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
         // Each profile's extensions, from its folder (roadmap 0109), before any page is made.
         ExtensionHosts.shared.root = URL(filePath: StoragePlaces.current.extensions)
+        ExtensionHosts.shared.installFromStore = { link, profile in
+            AppActions.shared.install(from: link, profile: profile)
+        }
+        ExtensionHosts.shared.installPackage = { address, profile in
+            AppActions.shared.installPackage(at: address, profile: profile)
+        }
         NSApp.setActivationPolicy(.regular)
     }
 

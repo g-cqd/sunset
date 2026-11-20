@@ -14,18 +14,18 @@ final class IconWatch: PageScriptHandler, WKScriptMessageHandler {
             if (last === null) { last = href; return; }
             if (href && href !== last) { last = href; webkit.messageHandlers.\(name).postMessage(href); }
           };
-          const start = () => {
-            look();
-            new MutationObserver(look).observe(document.head || document.documentElement,
-              { subtree: true, childList: true, attributes: true, attributeFilter: ["href", "rel"] });
-          };
-          if (document.readyState === "loading") addEventListener("DOMContentLoaded", start); else start();
+        \(PageBridge.watching(
+            "look",
+            root: "document.head || document.documentElement",
+            options: #"{ subtree: true, childList: true, attributes: true, attributeFilter: ["href", "rel"] }"#,
+            first: true
+        ))
         })();
         """
 
     /// Adds the script and its handler to the configuration's controller (after `LinkHover` gave it its own).
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {
-        PageBridge(name: name, script: script, injection: .atDocumentStart, mainFrameOnly: true, world: .defaultClient)
+        PageBridge.ownWorld(name, script, at: .atDocumentStart)
             .install(on: configuration, handler: IconWatch(page: content))
     }
 
