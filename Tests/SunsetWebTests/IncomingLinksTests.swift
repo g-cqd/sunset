@@ -34,4 +34,18 @@ struct IncomingLinksTests {
         #expect(DetachedWindowKind.peek.navigates)
         #expect(!DetachedWindowKind.popup.navigates)
     }
+
+    /// Seen 2026-11-20 (task t132): a private page's pop-up offered every Space and went to the window in front. A private
+    /// page goes only to a private window; the Spaces' menu is not offered.
+    @Test func `a private page's pop-up goes only to a private window; it is offered no Space`() {
+        #expect(DetachedWindowKind.offersSpaces(private: false))
+        #expect(!DetachedWindowKind.offersSpaces(private: true))
+        #expect(DetachedWindowKind.fits(window: .init(isPrivate: true), private: true))
+        #expect(!DetachedWindowKind.fits(window: .init(isPrivate: false), private: true))
+        #expect(
+            !DetachedWindowKind.fits(window: .init(isPrivate: true), private: false),
+            "nor a normal page a private window"
+        )
+        #expect(DetachedWindowKind.fits(window: .init(isPrivate: false), private: false))
+    }
 }

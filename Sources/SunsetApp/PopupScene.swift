@@ -110,9 +110,10 @@ struct PopupScene: View {
 
     @ViewBuilder private var openIn: some View {
         if let popup {
+            let offers = DetachedWindowKind.offersSpaces(private: popup.page.isPrivate)
             PopupOpenInButton(
-                current: popup.openerSpace.flatMap { AppSpaces.all.space($0) },
-                spaces: AppSpaces.all.spaces
+                current: offers ? popup.openerSpace.flatMap { AppSpaces.all.space($0) } : nil,
+                spaces: offers ? AppSpaces.all.spaces : []
             ) { space in
                 PopupWindowStore.shared.move(id, to: space)
             }

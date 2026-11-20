@@ -19,25 +19,28 @@ struct PopupOpenInButton: View {
                 Text(current.map { "Open in \(Self.name(of: $0))" } ?? "Open as Tab")
                     .font(Design.Text.secondary)
                     .padding(.leading, PopupWindowLayout.capsuleEnd)
-                    .padding(.trailing, Design.Space.s)
+                    .padding(.trailing, spaces.isEmpty ? PopupWindowLayout.capsuleEnd : Design.Space.s)
                     .frame(maxHeight: .infinity)
                     .contentShape(.rect)
             }
-            Divider().padding(.vertical, Design.Space.s)
-            Menu {
-                ForEach(spaces, id: \.space.id) { space in
-                    Button(Self.name(of: space)) { move(space.space.id) }
+            // No Space to choose from (a private page: it goes to a private window): no menu.
+            if !spaces.isEmpty {
+                Divider().padding(.vertical, Design.Space.s)
+                Menu {
+                    ForEach(spaces, id: \.space.id) { space in
+                        Button(Self.name(of: space)) { move(space.space.id) }
+                    }
+                } label: {
+                    Image(systemName: "chevron.down")
+                        .font(Design.Text.detail.weight(.semibold))
+                        .padding(.leading, Design.Space.s)
+                        .padding(.trailing, PopupWindowLayout.capsuleEnd)
+                        .frame(maxHeight: .infinity)
+                        .contentShape(.rect)
                 }
-            } label: {
-                Image(systemName: "chevron.down")
-                    .font(Design.Text.detail.weight(.semibold))
-                    .padding(.leading, Design.Space.s)
-                    .padding(.trailing, PopupWindowLayout.capsuleEnd)
-                    .frame(maxHeight: .infinity)
-                    .contentShape(.rect)
+                .menuStyle(.button)
+                .menuIndicator(.hidden)
             }
-            .menuStyle(.button)
-            .menuIndicator(.hidden)
         }
         .buttonStyle(.plain)
         .frame(height: PopupWindowLayout.capsuleHeight)

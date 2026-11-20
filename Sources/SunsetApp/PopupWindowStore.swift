@@ -86,19 +86,26 @@ import SunsetWebModel
     /// window closes. The page keeps its own website data (its opener's, which a sign-in needs).
     func move(_ id: UUID, to space: UUID?) {
         guard let popup = popups[id] else { return }
-        let target = space.flatMap { AppSpaces.all.space($0) }
-        let windows = TabRegistry.shared.allWindows()
-        let showing = target.flatMap { target in windows.first { $0.tabs.space === target } }
-        let acting = TabRegistry.shared.actingWindow.flatMap { window in
-            TabRegistry.shared.tabs(for: window).map { (window: window, tabs: $0) }
-        }
+        let isPrivate = popup.page.isPrivate
+        // A private page to a private window only, a normal page to a normal one (seen 2026-11-20: a private page's went to a
+        // Space).
+        let fitting = TabRegistry.shared.allWindows()
+            .filter {
+                DetachedWindowKind.fits(window: .init(isPrivate: $0.tabs.isPrivateWindow), private: isPrivate)
+            }
+        let target = isPrivate ? nil : space.flatMap { AppSpaces.all.space($0) }
+        let showing = target.flatMap { target in fitting.first { $0.tabs.space === target } }
+        let acting = TabRegistry.shared.actingWindow.flatMap { window in fitting.first { $0.window === window } }
         popup.moved = true
         popup.page.onExit = {}
-        if let (window, tabs) = showing ?? acting ?? windows.first {
+        if let (window, tabs) = showing ?? acting ?? fitting.first {
             if let target, tabs.space !== target { tabs.show(space: target, in: AppSpaces.all) }
             WebOpening.wire(popup.page, in: tabs)
             tabs.adopt(popup.page)
             window.makeKeyAndOrderFront(nil)
+        } else if isPrivate {
+            AppActions.shared.handoff.append(popup.page)
+            AppActions.shared.newPrivateWindow()
         } else {
             AppActions.shared.handoff.append(popup.page)
             AppActions.shared.openTerminalWindow()

@@ -56,7 +56,8 @@ Done: the window (`PopupScene`, `PopupWindowStore`, `PopupWindowLayout`): the wi
 the lights on the sidebar's side; Open in ‹Space› ∣ ⌄ as a capsule; moved, the page is a tab of the Space and the window closes;
 `window.close()` closes it.
 
-Not done: the owner's approval of the spacing; moving to another Space and from a private page, not tried.
+Moving to another Space, and a private page's pop-up (private windows only, no Spaces offered): done, seen (diary
+2026-11-20-11). Not done: the owner's approval of the strip (task t134).
 
 ## C — peek windows (the owner's note n66; done, diary 2026-11-20-11)
 
