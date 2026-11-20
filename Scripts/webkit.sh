@@ -11,11 +11,11 @@
 #   Scripts/webkit.sh export           the tree's commits above the base written back as the series (after a patch is
 #                                      rewritten by hand)
 #
-# $SUNSET_WEBKIT: where the tree is; default ~/Developer/g-cqd/webkit-spike/series.
+# $SUNSET_WEBKIT: where the tree is; default ~/Developer/g-cqd/webkit-spike/WebKit.
 set -eu
 cd "$(dirname "$0")/.."
 here="$PWD"
-tree="${SUNSET_WEBKIT:-$HOME/Developer/g-cqd/webkit-spike/series}"
+tree="${SUNSET_WEBKIT:-$HOME/Developer/g-cqd/webkit-spike/WebKit}"
 base="$(cat Engine/WebKit/base)"
 patches="$here/Engine/WebKit/patches"
 git_wk() { git -C "$tree" -c core.hooksPath=/dev/null -c rerere.enabled=true -c user.name=Gigi \
