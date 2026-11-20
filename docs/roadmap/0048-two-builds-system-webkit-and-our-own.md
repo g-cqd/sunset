@@ -43,4 +43,7 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W3 | Properties added to a namespace object are lost when its wrapper is collected and made again | kept | diary 2026-11-20-15 | `ExtensionPageShim`: wrappers kept alive |
 | W4 | `webNavigation.onCreatedNavigationTarget`, `webRequest.handlerBehaviorChanged` missing | present | same test (`event`, `changed`) | `ExtensionPageShim`: inert stand-ins (no target navigation events, so uBO cannot block pop-ups that way) |
 | W5 | `requestIdleCallback` off in an app's views (extension pages included) | on | same test (`idle`) | `SafariParity` on the extension pages' configuration |
-| W6 | Blocking `webRequest` (MV2) not supported: uBlock Origin's network filtering does nothing | supported in Firefox | not probed yet | none |
+| W6 | Blocking `webRequest` (MV2) not supported: `{cancel: true}` ignored, uBlock Origin's network filtering does nothing | supported | probed: diary 2026-11-20-16 | none (uBO Lite filters through `declarativeNetRequest`) |
+
+Where each lives in WebKit and the patch for it: `docs/research/webkit-extension-patches-2026-11-20.md`. W1–W3 are small and
+generic (every extension at once), W2 one line; W6 is large and costs on every load.
