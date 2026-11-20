@@ -1,7 +1,8 @@
 import AppKit
 import SunsetWeb
 
-/// "Add “Name”?" with what it may do, as Safari asks (ADR-0109: all or nothing).
+/// "Add “Name”?" with what it may do, as Safari asks (ADR-0109: all or nothing). Cancel first: Return does not install, a click
+/// on "Add Extension" does.
 enum ExtensionPrompt {
     @MainActor static func ask(_ candidate: ExtensionHost.Candidate) -> Bool {
         let alert = NSAlert()
@@ -13,8 +14,8 @@ enum ExtensionPrompt {
             : "It will be able to:\n" + lines.map { "• " + $0 }.joined(separator: "\n")
         alert.informativeText = [candidate.summary, what].filter { !$0.isEmpty }.joined(separator: "\n\n")
         if let icon = candidate.icon { alert.icon = icon }
-        alert.addButton(withTitle: "Add Extension")
         alert.addButton(withTitle: "Cancel")
-        return alert.runModal() == .alertFirstButtonReturn
+        alert.addButton(withTitle: "Add Extension")
+        return alert.runModal() == .alertSecondButtonReturn
     }
 }

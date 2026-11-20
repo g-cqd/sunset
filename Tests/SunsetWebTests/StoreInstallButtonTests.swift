@@ -14,11 +14,14 @@ import WebKit
 struct StoreInstallButtonTests {
     private static let read = "document.querySelector('[data-sunset-install]')?.textContent ?? 'none'"
 
-    private func load(_ address: String) async throws -> (WebContent, WKWebView) {
+    private func load(
+        _ address: String,
+        html: String = "<main><h1>Dark Reader</h1><p>Text</p></main>"
+    ) async throws -> (WebContent, WKWebView) {
         let page = WebContent(url: nil, settings: WebSettings(applicationName: "Version/26.0 Safari/605.1.15"))
         page.setState(focused: true, visible: true)
         let view = try #require(page.webView)
-        view.loadHTMLString("<main><h1>Dark Reader</h1><p>Text</p></main>", baseURL: URL(string: address))
+        view.loadHTMLString(html, baseURL: URL(string: address))
         try await waitUntil(timeout: .seconds(10), label: "loaded") { !view.isLoading && view.url != nil }
         return (page, view)
     }
@@ -51,6 +54,23 @@ struct StoreInstallButtonTests {
         try await waitUntil(timeout: .seconds(5), label: "asked") {
             asked == [.chrome(id: "eimadpbcbfnmbkopoojfekhnkhdbieeh")]
         }
+    }
+
+    /// The store's own button, disabled for a browser it does not know, is replaced in its place (seen on the Chrome Web Store,
+    /// 2026-11-20: Sunset's under the title looked lost, the store's greyed beside it).
+    @Test func `the store's own "Add to Chrome" is replaced in place`() async throws {
+        let (page, view) = try await load(
+            "https://chromewebstore.google.com/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh",
+            html:
+                "<main><h1>Dark Reader</h1><div id=bar><button disabled><span>Add to Chrome</span></button></div></main>"
+        )
+        defer { page.stop() }
+        #expect(try await button(in: view) == "Add to Sunset")
+        let inPlace = try await view.evaluateJavaScript(
+            "[document.querySelector('#bar > [data-sunset-install]') !== null, document.querySelectorAll('#bar button').length]"
+        )
+        #expect((inPlace as? [Any])?.first as? Bool == true)
+        #expect((inPlace as? [Any])?.last as? Int == 1, "theirs gone")
     }
 
     @Test func `not on another page`() async throws {
