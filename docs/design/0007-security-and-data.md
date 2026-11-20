@@ -68,6 +68,11 @@ runs); t59's further runs.
 
 ## Open for the owner
 
+Answered 2026-11-20 (roadmap 0100 C): 1, allowed with a setting to turn it off; 2, no (the owner has not seen a Keychain prompt
+after an install); 3, bundled and refreshed (ADR-0108); 4, yes, covered beyond the cookie jar. The drops below are confirmed.
+The threat model is to be hardened and refined with the state of the art before it is accepted.
+
+
 1. OSC 52 write allowed by default (ADR-0010's open question)?
 2. Does macOS ask for the Keychain after each install of an ad hoc build?
 3. The Public Suffix List and Apple's password-manager-resources as data dependencies (§8)?

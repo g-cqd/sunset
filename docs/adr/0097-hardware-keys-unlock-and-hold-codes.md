@@ -1,6 +1,6 @@
 ---
-status: proposed
-date: 2026-11-19
+status: accepted
+date: 2026-11-20
 ---
 
 # Hardware keys unlock a vault and hold codes; the web's security keys come with the system's path

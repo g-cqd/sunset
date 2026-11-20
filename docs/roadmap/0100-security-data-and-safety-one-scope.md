@@ -15,7 +15,7 @@ and its stages: docs/design/0007.
 |---|---|---|
 | A | The open points studied again, probed where it was cheap (FileVault, the image's cost, WebKit's store paths and protections) | done |
 | B | Threat model and scope drafted; staging S1–S6 proposed | done |
-| C | The owner decides: the drafts, the staging, what is dropped (t48 D, t51's image, t59's further runs), the four open questions in 0007 | not-started |
+| C | The owner decides: the drafts, the staging, what is dropped (t48 D, t51's image, t59's further runs), the four open questions in 0007 | in-progress: decided 2026-11-20, the drops (all three); OSC 52 write allowed with a setting (ADR-0010); macOS does not ask for the Keychain after an install (the owner's experience); the data sets bundled and refreshed (ADR-0108); A4 covered for WebKit's data beyond the cookie jar (task t137). Not decided: the threat model itself: the owner wants it hardened and refined with the state of the art in each field involved first (task t136) |
 | D | Once decided: roadmap 0051, 0058 and 0090 brought in line with 0007's stages | not-started |
 
-Not done: C, D; nothing is built.
+Not done: the threat model refined (t136), then its acceptance; D; nothing is built.

@@ -33,4 +33,4 @@ The core never touches the system. The screen turns these sequences into **event
 
 ## Not established
 
-The limits are my choices, not measured against any program's real use (OSC 52 of 1 MiB is what kitty documents as a typical maximum). What kitty, ghostty and iTerm2 do with malformed forms is not compared yet. Whether write-allowed is the right default for a first release is the owner's call (kitty and ghostty allow write and ask for read; xterm denies both by default).
+The limits are my choices, not measured against any program's real use (OSC 52 of 1 MiB is what kitty documents as a typical maximum). What kitty, ghostty and iTerm2 do with malformed forms is not compared yet. Whether write-allowed is the right default for a first release is the owner's call (kitty and ghostty allow write and ask for read; xterm denies both by default). The owner, 2026-11-20: allowed by default, with a setting to turn it off (`terminal.clipboardWrite`, "Let programs copy", already there).

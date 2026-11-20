@@ -37,6 +37,9 @@ ADR-0106 says why it is shaped this way.
   0.1.0-alpha.3 (build 620)") and atop its note. Dry run here (618, the clone's count). The two alphas published before were
   given it in their title and note (606, 609, read from their apps); their files keep their names (a new name breaks their
   links and checksum files).
+- **v0.1.0-alpha.3 published** (2026-11-20), build 631, a pre-release, signed tag on the note's commit (the build's code at
+  7fc57c3): the first with the build in the zip's name (`Sunset-v0.1.0-alpha.3-build631-macos-arm64.zip`, 20 MB, SHA-256
+  a8df9197…) and the title. The owner: releases stay local for now (the CI job unused, no secrets).
 
 ## Not done
 

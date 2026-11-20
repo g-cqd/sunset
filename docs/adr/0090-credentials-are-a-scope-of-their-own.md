@@ -1,6 +1,6 @@
 ---
-status: proposed
-date: 2026-11-19
+status: accepted
+date: 2026-11-20
 ---
 
 # Credentials are a feature scope of their own, off until turned on

@@ -1,6 +1,6 @@
 ---
 status: in-progress
-blocked-by: the owner's word on ADR-0090 to ADR-0099 (all proposed)
+blocked-by: nothing (the owner decided 2026-11-20)
 date: 2026-11-19
 ---
 
@@ -14,7 +14,7 @@ docs/research/credentials/; probes: diary 2026-11-19-06.
 |---|---|---|
 | A | Probe what an ad hoc signed Sunset gets (keychains, Secure Enclave, Touch ID, smart cards, WebAuthn, Apple Pay, Apple's helper), read Apple's documentation, the standards | done |
 | B | Research files, ADR-0090 to ADR-0099 proposed, roadmap 0091–0099, one task each | done |
-| C | The owner decides: the ADRs, the order below, the data dependencies (Public Suffix List; Apple's password-manager-resources) | not-started |
+| C | The owner decides: the ADRs, the order below, the data dependencies (Public Suffix List; Apple's password-manager-resources) | done 2026-11-20: ADR-0090–0099 accepted; the order kept; the data sets bundled and refreshed (ADR-0108) |
 
 The order proposed (the owner reorders):
 
@@ -32,4 +32,4 @@ The order proposed (the owner reorders):
 
 Since: the whole security scope is staged in docs/design/0007 (roadmap 0100), credentials as its S3–S6.
 
-Not done: C; nothing is built.
+Not done: nothing is built. The owner put polish and bugs first after alpha.3 (2026-11-20).

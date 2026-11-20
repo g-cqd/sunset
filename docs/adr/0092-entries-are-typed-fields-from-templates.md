@@ -1,6 +1,6 @@
 ---
-status: proposed
-date: 2026-11-19
+status: accepted
+date: 2026-11-20
 ---
 
 # Entries are typed fields from templates, free to differ
