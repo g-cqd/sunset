@@ -1,0 +1,174 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 21:27:36 +0100
+Subject: [PATCH 9/9] Web Extensions: test
+ webNavigation.onCreatedNavigationTarget (Sunset W4)
+
+WKWebExtensionAPIWebNavigationTests.createdNavigationTargetEvent: a page opens a window; the event comes with the opener
+tab, the main frame (0) and a new tab. The test harness's tabs now answer createWebView by opening a tab in their window
+(as a browser does), its web view made from WebKit's configuration; without the previous patch the listener cannot be
+added (onCreatedNavigationTarget undefined).
+
+diff --git a/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.h b/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.h
+index c7de43c9c..052c07bd7 100644
+--- a/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.h
++++ b/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.h
+@@ -110,7 +110,8 @@ NS_SWIFT_UI_ACTOR
+ NS_SWIFT_UI_ACTOR
+ @interface TestWebExtensionTab : NSObject <WKWebExtensionTab>
+ 
+-- (instancetype)initWithWindow:(nullable TestWebExtensionWindow *)window extensionController:(nullable WKWebExtensionController *)extensionController NS_DESIGNATED_INITIALIZER;
++- (instancetype)initWithWindow:(nullable TestWebExtensionWindow *)window extensionController:(nullable WKWebExtensionController *)extensionController;
++- (instancetype)initWithWindow:(nullable TestWebExtensionWindow *)window extensionController:(nullable WKWebExtensionController *)extensionController webViewConfiguration:(nullable WKWebViewConfiguration *)webViewConfiguration NS_DESIGNATED_INITIALIZER;
+ 
+ - (void)assignWindow:(nullable TestWebExtensionWindow *)window;
+ 
+diff --git a/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.mm b/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.mm
+index 31033eebb..f7a289c13 100644
+--- a/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.mm
++++ b/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.mm
+@@ -646,7 +646,11 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+     return usingPrivateBrowsing ? privateController : normalController;
+ }
+ 
+-@interface TestWebExtensionTab () <WKNavigationDelegate>
++@interface TestWebExtensionTab () <WKNavigationDelegate, WKUIDelegate>
++@end
++
++@interface TestWebExtensionWindow ()
++- (TestWebExtensionTab *)openNewTabAtIndex:(NSUInteger)index webViewConfiguration:(WKWebViewConfiguration *)webViewConfiguration;
+ @end
+ 
+ @implementation TestWebExtensionTab {
+@@ -659,13 +663,24 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+ }
+ 
+ - (instancetype)initWithWindow:(TestWebExtensionWindow *)window extensionController:(WKWebExtensionController *)extensionController
++{
++    return [self initWithWindow:window extensionController:extensionController webViewConfiguration:nil];
++}
++
++- (instancetype)initWithWindow:(TestWebExtensionWindow *)window extensionController:(WKWebExtensionController *)extensionController webViewConfiguration:(WKWebViewConfiguration *)webViewConfiguration
+ {
+     if (!(self = [super init]))
+         return nil;
+ 
+     _window = window;
+ 
+-    if (extensionController) {
++    if (extensionController && webViewConfiguration) {
++        // A page opened this tab: its web view is made from the configuration WebKit gave.
++        _webView = [[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:webViewConfiguration];
++        _webView.navigationDelegate = self;
++        _webView.UIDelegate = self;
++        _extensionController = extensionController;
++    } else if (extensionController) {
+         BOOL usingPrivateBrowsing = _window.usingPrivateBrowsing;
+ 
+         auto *configuration = [[WKWebViewConfiguration alloc] init];
+@@ -686,6 +701,7 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+ 
+         _webView = [[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration];
+         _webView.navigationDelegate = self;
++        _webView.UIDelegate = self;
+ 
+         _extensionController = extensionController;
+     }
+@@ -693,6 +709,12 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+     return self;
+ }
+ 
++- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
++{
++    // A page opens a window (window.open, a link with a target): a new tab in this tab's window, as a browser does.
++    return [_window openNewTabAtIndex:_window.tabs.count webViewConfiguration:configuration].webView;
++}
++
+ - (void)assignWindow:(TestWebExtensionWindow *)window
+ {
+     _window = window;
+@@ -1063,11 +1085,16 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+ }
+ 
+ - (TestWebExtensionTab *)openNewTabAtIndex:(NSUInteger)index
++{
++    return [self openNewTabAtIndex:index webViewConfiguration:nil];
++}
++
++- (TestWebExtensionTab *)openNewTabAtIndex:(NSUInteger)index webViewConfiguration:(WKWebViewConfiguration *)webViewConfiguration
+ {
+     index = MIN(index, _tabs.count);
+ 
+ 
+-    auto *newTab = [[TestWebExtensionTab alloc] initWithWindow:self extensionController:_extensionController];
++    auto *newTab = [[TestWebExtensionTab alloc] initWithWindow:self extensionController:_extensionController webViewConfiguration:webViewConfiguration];
+ 
+     __weak TestWebExtensionTab *weakTab = newTab;
+ 
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebNavigation.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebNavigation.swift
+index 0bc083f16..d62d98e86 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebNavigation.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebNavigation.swift
+@@ -107,6 +107,62 @@ struct WKWebExtensionAPIWebNavigationTests {
+         }
+     }
+ 
++    // A page opening a window gives onCreatedNavigationTarget with the tab and frame that opened it, as in Firefox and
++    // Chrome (uBlock Origin blocks pop-ups with it).
++    @Test
++    func createdNavigationTargetEvent() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                ""
++            }
++            Route("/target", headerFields: ["Content-Type": "text/html"]) {
++                ""
++            }
++        }
++
++        let backgroundScript = """
++            let sourceTabId
++
++            browser.webNavigation.onCompleted.addListener((details) => {
++                if (sourceTabId !== undefined)
++                    return
++                sourceTabId = details.tabId
++                browser.test.sendMessage('Open Target')
++            })
++
++            browser.webNavigation.onCreatedNavigationTarget.addListener((details) => {
++                browser.test.assertEq(details?.sourceTabId, sourceTabId, 'details.sourceTabId should be the opener')
++                browser.test.assertEq(details?.sourceFrameId, 0, 'details.sourceFrameId should be the main frame')
++                browser.test.assertEq(typeof details?.tabId, 'number', 'details.tabId should be')
++                browser.test.assertTrue(details?.tabId !== sourceTabId, 'details.tabId should be a new tab')
++                browser.test.assertEq(typeof details?.url, 'string', 'details.url should be')
++                browser.test.assertEq(typeof details?.timeStamp, 'number', 'details.timeStamp should be')
++
++                browser.test.notifyPass()
++            })
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: webNavigationManifest, resources: ["background.js": backgroundScript])
++            let context = try requireNonNil(manager.context)
++
++            context.setPermissionStatus(.grantedExplicitly, for: WKWebExtension.Permission.webNavigation)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++
++            try await manager.waitForTestMessage("Open Target")
++            _ = try await webView.evaluateJavaScript("window.open('/target', '_blank'); true")
++
++            try await manager.run()
++        }
++    }
++
+     @Test
+     func committedEvent() async throws {
+         var server = try HTTPServer(protocol: .http) {

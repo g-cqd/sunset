@@ -1,0 +1,248 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 21:27:34 +0100
+Subject: [PATCH 8/9] Web Extensions: webNavigation.onCreatedNavigationTarget
+ (Sunset W4)
+
+A page that opens a window (window.open, a link with a target) now gives webNavigation.onCreatedNavigationTarget, with
+sourceTabId, sourceFrameId, tabId, url and timeStamp, as in Firefox and Chrome. uBlock Origin blocks pop-ups with it; its
+background page stopped at its start when the event was missing.
+
+Fired when the app reports the new tab (didOpenTab) and the tab's page has an opener frame whose page is a tab the
+extension knows, with the webNavigation permission on the source tab and access to the new tab's URL (when it has one
+yet). A new message, DispatchWebNavigationCreatedNavigationTargetEvent, carries the two tabs.
+
+diff --git a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
+index c6ffb3e89..b98fbdfd4 100644
+--- a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
++++ b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
+@@ -85,6 +85,7 @@ enum class WebExtensionEventListenerType : uint8_t {
+     WebNavigationOnBeforeNavigate,
+     WebNavigationOnCommitted,
+     WebNavigationOnCompleted,
++    WebNavigationOnCreatedNavigationTarget,
+     WebNavigationOnDOMContentLoaded,
+     WebNavigationOnErrorOccurred,
+     WebRequestOnAuthRequired,
+@@ -204,6 +205,8 @@ inline String toAPIString(WebExtensionEventListenerType eventType)
+         return "onCommitted"_s;
+     case WebExtensionEventListenerType::WebNavigationOnCompleted:
+         return "onCompleted"_s;
++    case WebExtensionEventListenerType::WebNavigationOnCreatedNavigationTarget:
++        return "onCreatedNavigationTarget"_s;
+     case WebExtensionEventListenerType::WebNavigationOnDOMContentLoaded:
+         return "onDOMContentLoaded"_s;
+     case WebExtensionEventListenerType::WebNavigationOnErrorOccurred:
+diff --git a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
+index 662718096..79c8cab23 100644
+--- a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
++++ b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
+@@ -76,6 +76,7 @@ enum class WebKit::WebExtensionEventListenerType : uint8_t {
+     WebNavigationOnBeforeNavigate,
+     WebNavigationOnCommitted,
+     WebNavigationOnCompleted,
++    WebNavigationOnCreatedNavigationTarget,
+     WebNavigationOnDOMContentLoaded,
+     WebNavigationOnErrorOccurred,
+     WebRequestOnAuthRequired,
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+index 883d89c37..0096dacd0 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+@@ -61,6 +61,7 @@
+ #import "WKWebExtensionWindow.h"
+ #import "WKWebViewConfigurationInternal.h"
+ #import "WKWebViewInternal.h"
++#import "WebFrameProxy.h"
+ #import "WKWebpagePreferencesPrivate.h"
+ #import "WKWebsiteDataRecordInternal.h"
+ #import "WKWebsiteDataStoreInternal.h"
+@@ -1487,6 +1488,48 @@ void WebExtensionContext::didOpenTab(WebExtensionTab& tab, SuppressEvents suppre
+         return;
+ 
+     fireTabsCreatedEventIfNeeded(tab.parameters());
++    fireWebNavigationCreatedNavigationTargetEventIfNeeded(tab);
++}
++
++void WebExtensionContext::fireWebNavigationCreatedNavigationTargetEventIfNeeded(WebExtensionTab& tab)
++{
++    // A tab opened by a page (window.open, a link with a target): webNavigation.onCreatedNavigationTarget, with the tab
++    // and frame that opened it, as in Firefox and Chrome.
++    RetainPtr webView = tab.webView();
++    if (!webView)
++        return;
++
++    RefPtr page = [webView _page].get();
++    if (!page)
++        return;
++
++    auto openerFrameIdentifier = page->openerFrameIdentifier();
++    if (!openerFrameIdentifier)
++        return;
++
++    RefPtr openerFrame = WebFrameProxy::webFrame(openerFrameIdentifier);
++    if (!openerFrame)
++        return;
++
++    RefPtr openerPage = openerFrame->page();
++    if (!openerPage)
++        return;
++
++    RefPtr sourceTab = getTab(openerPage->identifier());
++    if (!sourceTab || !hasPermission(WebExtensionPermission::webNavigation(), sourceTab.get()))
++        return;
++
++    auto url = URL { tab.url() };
++    if (!url.isEmpty() && !hasPermission(url, &tab))
++        return;
++
++    auto sourceFrameID = openerFrame->isMainFrame() ? WebExtensionFrameConstants::MainFrameIdentifier : toWebExtensionFrameIdentifier(openerFrameIdentifier);
++    auto timestamp = WallTime::now();
++
++    constexpr auto eventType = WebExtensionEventListenerType::WebNavigationOnCreatedNavigationTarget;
++    wakeUpBackgroundContentIfNecessaryToFireEvents({ eventType }, [=, this, protectedThis = Ref { *this }, sourceTab = WTF::move(sourceTab), tab = Ref { tab }] {
++        sendToProcessesForEvent(eventType, Messages::WebExtensionContextProxy::DispatchWebNavigationCreatedNavigationTargetEvent(sourceTab->identifier(), sourceFrameID, tab->identifier(), url, timestamp));
++    });
+ }
+ 
+ void WebExtensionContext::didCloseTab(WebExtensionTab& tab, WindowIsClosing windowIsClosing, SuppressEvents suppressEvents)
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+index 26f13a767..e532b3063 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+@@ -555,6 +555,7 @@ public:
+     void firePendingTabsUpdatedEvent(WebExtensionTab&, WebExtensionTab::ValueSource);
+ 
+     void didStartProvisionalLoadForFrame(WebPageProxyIdentifier, const WebExtensionFrameParameters&, WallTime);
++    void fireWebNavigationCreatedNavigationTargetEventIfNeeded(WebExtensionTab&);
+     void didCommitLoadForFrame(WebPageProxyIdentifier, const WebExtensionFrameParameters&, WallTime);
+     void didFinishLoadForFrame(WebPageProxyIdentifier, const WebExtensionFrameParameters&, WallTime);
+     void didFailLoadForFrame(WebPageProxyIdentifier, const WebExtensionFrameParameters&, WallTime);
+diff --git a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebNavigationCocoa.mm b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebNavigationCocoa.mm
+index c944361b3..93bd8556d 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebNavigationCocoa.mm
++++ b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebNavigationCocoa.mm
+@@ -47,6 +47,8 @@ static NSString *documentIdKey = @"documentId";
+ static NSString *errorOccurredKey = @"errorOccurred";
+ static NSString *frameIdKey = @"frameId";
+ static NSString *parentFrameIdKey = @"parentFrameId";
++static NSString *sourceFrameIdKey = @"sourceFrameId";
++static NSString *sourceTabIdKey = @"sourceTabId";
+ static NSString *tabIdKey = @"tabId";
+ static NSString *timeStampKey = @"timeStamp";
+ static NSString *urlKey = @"url";
+@@ -188,6 +190,34 @@ WebExtensionAPIWebNavigationEvent& WebExtensionAPIWebNavigation::onErrorOccurred
+     return *m_onErrorOccurredEvent;
+ }
+ 
++WebExtensionAPIWebNavigationEvent& WebExtensionAPIWebNavigation::onCreatedNavigationTarget()
++{
++    // Documentation: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webNavigation/onCreatedNavigationTarget
++
++    if (!m_onCreatedNavigationTargetEvent)
++        lazyInitialize(m_onCreatedNavigationTargetEvent, WebExtensionAPIWebNavigationEvent::create(*this, WebExtensionEventListenerType::WebNavigationOnCreatedNavigationTarget));
++
++    return *m_onCreatedNavigationTargetEvent;
++}
++
++void WebExtensionContextProxy::dispatchWebNavigationCreatedNavigationTargetEvent(WebExtensionTabIdentifier sourceTabID, WebExtensionFrameIdentifier sourceFrameID, WebExtensionTabIdentifier tabID, const URL& url, WallTime timestamp)
++{
++    // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/webNavigation/onCreatedNavigationTarget
++
++    NSDictionary *details = @{
++        sourceTabIdKey: @(toWebAPI(sourceTabID)),
++        sourceFrameIdKey: @(toWebAPI(sourceFrameID)),
++        tabIdKey: @(toWebAPI(tabID)),
++        urlKey: url.string().createNSString().get(),
++        timeStampKey: @(floor(timestamp.approximate<WallTime>().secondsSinceEpoch().milliseconds()))
++    };
++
++    enumerateNamespaceObjects([&](auto& namespaceObject) {
++        Ref webNavigationObject = namespaceObject.webNavigation();
++        protect(webNavigationObject->onCreatedNavigationTarget())->invokeListenersWithArgument(details, url.createNSURL().get());
++    });
++}
++
+ void WebExtensionContextProxy::dispatchWebNavigationEvent(WebExtensionEventListenerType type, WebExtensionTabIdentifier tabID, const WebExtensionFrameParameters& frameParameters, WallTime timestamp)
+ {
+     ASSERT(frameParameters.url);
+diff --git a/Source/WebKit/WebProcess/Extensions/API/WebExtensionAPIWebNavigation.h b/Source/WebKit/WebProcess/Extensions/API/WebExtensionAPIWebNavigation.h
+index 62f36e4a0..c95b5afc6 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/WebExtensionAPIWebNavigation.h
++++ b/Source/WebKit/WebProcess/Extensions/API/WebExtensionAPIWebNavigation.h
+@@ -45,6 +45,7 @@ public:
+     WebExtensionAPIWebNavigationEvent& onDOMContentLoaded();
+     WebExtensionAPIWebNavigationEvent& onCompleted();
+     WebExtensionAPIWebNavigationEvent& onErrorOccurred();
++    WebExtensionAPIWebNavigationEvent& onCreatedNavigationTarget();
+ 
+     void getAllFrames(NSDictionary *details, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+     void getFrame(NSDictionary *details, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+@@ -55,6 +56,7 @@ private:
+     const RefPtr<WebExtensionAPIWebNavigationEvent> m_onDOMContentLoadedEvent;
+     const RefPtr<WebExtensionAPIWebNavigationEvent> m_onCompletedEvent;
+     const RefPtr<WebExtensionAPIWebNavigationEvent> m_onErrorOccurredEvent;
++    const RefPtr<WebExtensionAPIWebNavigationEvent> m_onCreatedNavigationTargetEvent;
+ #endif
+ };
+ 
+diff --git a/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPIWebNavigation.idl b/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPIWebNavigation.idl
+index d33b51730..1e55dd9fe 100644
+--- a/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPIWebNavigation.idl
++++ b/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPIWebNavigation.idl
+@@ -44,6 +44,7 @@ dictionary WebExtensionWebNavigationGetAllFramesDetails {
+     readonly attribute WebExtensionAPIWebNavigationEvent onDOMContentLoaded;
+     readonly attribute WebExtensionAPIWebNavigationEvent onCompleted;
+     readonly attribute WebExtensionAPIWebNavigationEvent onErrorOccurred;
++    readonly attribute WebExtensionAPIWebNavigationEvent onCreatedNavigationTarget;
+ 
+     [RaisesException] void getFrame([NSDictionary] any details, [Optional, CallbackHandler] function callback);
+     [RaisesException] void getAllFrames([NSDictionary] any details, [Optional, CallbackHandler] function callback);
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
+index c7f655050..ec89ee321 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
+@@ -30,6 +30,7 @@
+ #include "MessageReceiver.h"
+ #include "WebExtensionContentWorldType.h"
+ #include "WebExtensionContextParameters.h"
++#include "WebExtensionFrameIdentifier.h"
+ #include "WebExtensionLocalization.h"
+ #include "WebExtensionMessage.h"
+ #include "WebExtensionPortChannelIdentifier.h"
+@@ -275,6 +276,7 @@ private:
+ 
+     // Web Navigation
+     void dispatchWebNavigationEvent(WebExtensionEventListenerType, WebExtensionTabIdentifier, const WebExtensionFrameParameters&, WallTime);
++    void dispatchWebNavigationCreatedNavigationTargetEvent(WebExtensionTabIdentifier sourceTabID, WebExtensionFrameIdentifier sourceFrameID, WebExtensionTabIdentifier tabID, const URL&, WallTime);
+ 
+     // Web Request
+     void resourceLoadDidSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, const std::optional<IPC::FormDataReference>&);
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
+index ad99d13ee..0fcc609ad 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
+@@ -114,6 +114,7 @@ messages -> WebExtensionContextProxy {
+ 
+     // Web Navigation
+     DispatchWebNavigationEvent(WebKit::WebExtensionEventListenerType type, WebKit::WebExtensionTabIdentifier tabID, struct WebKit::WebExtensionFrameParameters frameParamaters, WallTime timestamp)
++    DispatchWebNavigationCreatedNavigationTargetEvent(WebKit::WebExtensionTabIdentifier sourceTabID, WebKit::WebExtensionFrameIdentifier sourceFrameID, WebKit::WebExtensionTabIdentifier tabID, URL url, WallTime timestamp)
+ 
+     // Web Request
+     ResourceLoadDidSendRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceRequest request, struct WebKit::ResourceLoadInfo resourceLoadInfo, std::optional<IPC::FormDataReference> formData)
+diff --git a/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp b/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
+index 23d7607af..63ef5c2e9 100644
+--- a/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
++++ b/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
+@@ -123,6 +123,11 @@ void WebExtensionContextProxy::dispatchWebNavigationEvent(WebExtensionEventListe
+     notImplemented();
+ }
+ 
++void WebExtensionContextProxy::dispatchWebNavigationCreatedNavigationTargetEvent(WebExtensionTabIdentifier, WebExtensionFrameIdentifier, WebExtensionTabIdentifier, const URL&, WallTime)
++{
++    notImplemented();
++}
++
+ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, const std::optional<IPC::FormDataReference>&)
+ {
+     notImplemented();

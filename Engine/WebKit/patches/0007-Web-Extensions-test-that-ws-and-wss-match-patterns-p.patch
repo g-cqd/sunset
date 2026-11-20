@@ -1,0 +1,58 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 20:54:29 +0100
+Subject: [PATCH 7/9] Web Extensions: test that ws and wss match patterns parse
+ (Sunset W7)
+
+WKWebExtensionMatchPatternTests.webSocketSchemes and WKWebExtensionAPIWebRequestTests.webSocketMatchPatternsInFilter;
+both fail without the previous patch (the scheme "ws" is invalid).
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index 7a1dea195..3b5f95371 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -92,6 +92,25 @@ struct WKWebExtensionAPIWebRequestTests {
+         try await manager.run()
+     }
+ 
++    // WebSocket match patterns are accepted in a filter, as in Firefox and Chrome: uBlock Origin listens on
++    // ["http://*/*", "https://*/*", "ws://*/*", "wss://*/*"], and the whole addListener() call was refused for the ws one.
++    @Test
++    func webSocketMatchPatternsInFilter() async throws {
++        let backgroundScript = """
++            const listener = () => { }
++            try {
++                browser.webRequest.onBeforeRequest.addListener(listener, { urls: ['http://*/*', 'https://*/*', 'ws://*/*', 'wss://*/*'] })
++                browser.test.assertTrue(browser.webRequest.onBeforeRequest.hasListener(listener), 'The listener should be added')
++                browser.test.notifyPass()
++            } catch (error) {
++                browser.test.notifyFail(String(error))
++            }
++            """
++
++        let manager = try loadWebExtension(manifest: webRequestManifest, resources: ["background.js": backgroundScript])
++        try await manager.run()
++    }
++
+     @Test
+     func manifestV2Persistent() async throws {
+         let backgroundScript = """
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionMatchPattern.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionMatchPattern.swift
+index 700c3988f..0cf2f6c5a 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionMatchPattern.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionMatchPattern.swift
+@@ -158,6 +158,14 @@ struct WKWebExtensionMatchPatternTests {
+         }
+     }
+ 
++    // WebSocket schemes parse, as in Firefox and Chrome (webRequest filters use them).
++    @Test
++    func webSocketSchemes() throws {
++        #expect(try toPattern("ws://*/*").string == "ws://*/*")
++        #expect(try toPattern("wss://example.com/*").matches(URL(string: "wss://example.com/socket")))
++        #expect(try !toPattern("wss://example.com/*").matches(URL(string: "https://example.com/socket")))
++    }
++
+     @Test
+     func matchPatternMatchesPattern() throws {
+         // Matches any URL that uses the http scheme.

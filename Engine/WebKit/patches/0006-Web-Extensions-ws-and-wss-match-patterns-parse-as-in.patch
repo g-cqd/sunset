@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Fri, 20 Nov 2026 20:54:27 +0100
+Subject: [PATCH 6/9] Web Extensions: ws and wss match patterns parse, as in
+ Firefox and Chrome (Sunset W7)
+
+webRequest.onBeforeRequest.addListener(listener, { urls: [..., 'ws://*/*', 'wss://*/*'] }) was refused whole: 'ws' was
+not a valid scheme. Firefox and Chrome accept WebSocket patterns in filters; uBlock Origin listens on them at its start.
+
+ws and wss join the valid schemes only: the supported ones (what a host permission can grant) are unchanged.
+
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionMatchPattern.cpp b/Source/WebKit/UIProcess/Extensions/WebExtensionMatchPattern.cpp
+index cac7e4ffa..cd4f3ad4e 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionMatchPattern.cpp
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionMatchPattern.cpp
+@@ -56,7 +56,7 @@ WebExtensionMatchPattern::URLSchemeSet& WebExtensionMatchPattern::extensionSchem
+ 
+ WebExtensionMatchPattern::URLSchemeSet& WebExtensionMatchPattern::validSchemes()
+ {
+-    static MainRunLoopNeverDestroyed<URLSchemeSet> schemes = std::initializer_list<String> { "*"_s, "http"_s, "https"_s, "file"_s, "ftp"_s, "webkit-extension"_s };
++    static MainRunLoopNeverDestroyed<URLSchemeSet> schemes = std::initializer_list<String> { "*"_s, "http"_s, "https"_s, "ws"_s, "wss"_s, "file"_s, "ftp"_s, "webkit-extension"_s };
+     return schemes;
+ }
+ 
