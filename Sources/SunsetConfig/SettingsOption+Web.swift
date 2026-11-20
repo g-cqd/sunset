@@ -84,16 +84,16 @@ extension SettingsOption {
                 "Open terminal links in Sunset",
                 "link browser cmd-click",
                 \.web.openLinksInSunset,
-                label: "Cmd-click on a link in a terminal opens it in a page beside it"
+                label: "⌘-click on a link in a terminal opens it in a page beside it"
             ),
             toggle(
                 "web.showOpenedPages",
                 "Pages a page opens",
                 "popup pop-up new tab window target blank open image",
                 \.web.showOpenedPages,
-                label: "Show the pages a page opens, its pop-ups, pictures and films included"
+                label: "Show the pages a page opens, its pop-ups, pictures and videos included"
             )
-            .noted("Off, it waits in a tab after the page. Cmd-click and Open Link in New Tab always leave it there.")
+            .noted("Off, it waits in a tab after the page. ⌘-click and Open Link in New Tab always leave it there.")
             .grouped("New pages"),
             choice(
                 "web.popupWindows",

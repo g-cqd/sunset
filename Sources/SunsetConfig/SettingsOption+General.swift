@@ -82,7 +82,7 @@ extension SettingsOption {
             .grouped("Quitting"),
             toggle(
                 "tabs.keepAwakeDisplay",
-                "Keep the display on with the Mac",
+                "Keep the display awake too",
                 "awake sleep caffeinate display screen power keep",
                 \.tabs.keepAwakeDisplay
             )
@@ -102,7 +102,7 @@ extension SettingsOption {
         [
             toggle(
                 "terminal.clipboardWrite",
-                "Programs may copy",
+                "Let programs copy",
                 "clipboard osc 52 pasteboard ssh",
                 \.terminal.clipboardWrite,
                 label: "Programs may copy to the clipboard"

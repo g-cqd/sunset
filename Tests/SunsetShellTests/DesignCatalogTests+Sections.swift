@@ -72,7 +72,7 @@ extension DesignCatalogTests {
 
     /// The menu a sort button opens.
     var sectionSortMenu: AnyView {
-        let names = ["Latest Changed", "Latest Made", "Name", "Kind", "Open First"]
+        let names = ["Last changed", "Last created", "Name", "Kind", "Open First"]
         return AnyView(
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(names.enumerated()), id: \.offset) { index, name in

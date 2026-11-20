@@ -81,7 +81,7 @@ struct SitesSettings: View {
             SettingsLabel("Browser shown")
         }
         LabeledContent {
-            Picker("Sites' data", selection: config.binding(\.web.keep.siteData)) {
+            Picker("Website data", selection: config.binding(\.web.keep.siteData)) {
                 Text("Kept").tag(Configuration.Web.Keep.SiteData.keep)
                 Text("Kept if chosen").tag(Configuration.Web.Keep.SiteData.keepChosen)
                 Text("Cleared on quit").tag(Configuration.Web.Keep.SiteData.clearOnQuit)
@@ -89,7 +89,7 @@ struct SitesSettings: View {
             .labelsHidden()
             .fixedSize()
         } label: {
-            SettingsLabel("Sites' data")
+            SettingsLabel("Website data")
         }
         LabeledContent {
             Text("100 %").foregroundStyle(.secondary)

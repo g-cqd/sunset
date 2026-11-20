@@ -13,7 +13,7 @@ extension SettingsOption {
                 [(.none, "None"), (.native, "System")]
             )
             .noted("With none, the content reaches under the title bar."),
-            number("window.dragStrip", "Drag strip", "move drag top", \.window.dragStrip, 0 ... 64, step: 1),
+            number("window.dragStrip", "Drag strip height", "move drag top", \.window.dragStrip, 0 ... 64, step: 1),
             choice(
                 "window.trafficLights.side",
                 "Traffic light side",
@@ -23,7 +23,7 @@ extension SettingsOption {
             ),
             number(
                 "window.trafficLights.x",
-                "Traffic lights, from their edge",
+                "Traffic light inset from the side",
                 "close minimize zoom buttons position",
                 \.window.trafficLightsX,
                 0 ... 400,
@@ -31,7 +31,7 @@ extension SettingsOption {
             ),
             number(
                 "window.trafficLights.y",
-                "Traffic lights, from the top",
+                "Traffic light inset from the top",
                 "close minimize zoom buttons position",
                 \.window.trafficLightsY,
                 0 ... 400,

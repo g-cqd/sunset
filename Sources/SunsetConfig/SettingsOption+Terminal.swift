@@ -5,7 +5,7 @@ extension SettingsOption {
         [
             Self(
                 "font.family",
-                "Family",
+                "Font",
                 "font typeface name menlo jetbrains",
                 .optionalText(SettingsValue(\.font.family), prompt: "Menlo, SF Mono, JetBrains Mono\u{2026}")
             ),
@@ -21,7 +21,7 @@ extension SettingsOption {
             toggle("font.ligatures", "Ligatures", "font calt liga arrows", \.font.ligatures),
             text(
                 "font.features",
-                "Features",
+                "Font features",
                 "font opentype zero ss01 stylistic",
                 \.font.features,
                 prompt: "zero, ss01, cv02=3"
@@ -82,7 +82,7 @@ extension SettingsOption {
                 unit: "s"
             )
             .noted("How long a wheel notch glides (0: none). A trackpad uses the system's own momentum."),
-            custom("scrollback.lines", "History", "scrollback lines buffer memory", .scrollback)
+            custom("scrollback.lines", "Scrollback", "scrollback lines buffer memory history", .scrollback)
                 .noted("The history length applies to windows opened after the change.")
         ]
 
@@ -99,7 +99,7 @@ extension SettingsOption {
             .folder(),
             toggle(
                 "terminal.shellIntegration",
-                "Shell marks its prompts",
+                "Mark prompts in zsh",
                 "integration osc 133 zsh",
                 \.terminal.shellIntegration
             )

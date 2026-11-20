@@ -12,8 +12,8 @@ package enum DocumentSort: String, Sendable, CaseIterable {
     /// As the sort menu names it.
     package var title: String {
         switch self {
-            case .changed: "Latest Changed"
-            case .made: "Latest Made"
+            case .changed: "Last changed"
+            case .made: "Last created"
             case .name: "Name"
             case .kind: "Kind"
         }

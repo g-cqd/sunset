@@ -10,7 +10,7 @@ extension SettingsOption {
                         + "through it; Sunset's own requests do not yet."
                 ),
             // Whether pages go through it (the owner's note n37).
-            custom("web.proxyCheck", "Pages go through it", "proxy check test verify works", .proxyCheck)
+            custom("web.proxyCheck", "Use the proxy for pages", "proxy check test verify works", .proxyCheck)
                 .setting([])
         ]
 }

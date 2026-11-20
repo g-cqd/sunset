@@ -5,7 +5,7 @@ extension SettingsOption {
         [
             number(
                 "documents.saveAfter",
-                "Save a file by itself after",
+                "Save files automatically after",
                 "autosave document markdown timer seconds write edits",
                 \.documents.saveAfter,
                 0 ... 3600,

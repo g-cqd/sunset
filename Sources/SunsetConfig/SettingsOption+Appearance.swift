@@ -76,7 +76,7 @@ extension SettingsOption {
             ),
             choice(
                 "appearance.barTint",
-                "Bars",
+                "Bar appearance",
                 "tint dark light bar address find",
                 \.appearance.barTint,
                 [(.scheme, "Follow the color scheme"), (.dark, "Dark"), (.light, "Light")]
@@ -149,6 +149,6 @@ extension SettingsOption {
                 \.appearance.barBlur,
                 [(.variable, "Fading blur"), (.surface, "Bar surface"), (.none, "Nothing")]
             )
-            .grouped("Bars")
+            .grouped("Bar appearance")
         ]
 }

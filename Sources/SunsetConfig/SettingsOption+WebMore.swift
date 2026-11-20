@@ -35,7 +35,7 @@ extension SettingsOption {
                 "download open picture pdf text sound film",
                 \.web.openSafeDownloads
             )
-            .noted("Pictures, PDF, text, sound and film. Never an app, an installer or a script.")
+            .noted("Pictures, PDF, text, audio and video. Never an app, an installer or a script.")
             .grouped("Once downloaded"),
             toggle(
                 "web.notifyDownloads",
@@ -46,13 +46,13 @@ extension SettingsOption {
             .grouped("Once downloaded"),
             choice(
                 "web.keepDownloads",
-                "Remove download list items",
+                "Remove downloads from the list",
                 "download list remove clear keep",
                 \.web.keepDownloads,
                 [
                     (.byHand, "Manually"), (.day, "After one day"), (.week, "After one week"),
                     (.month, "After one month"), (.untilQuit, "When Sunset quits"),
-                    (.whenFinished, "Upon successful download")
+                    (.whenFinished, "When the download finishes")
                 ]
             )
             .grouped("Once downloaded")
@@ -85,7 +85,7 @@ extension SettingsOption {
             ),
             toggle(
                 "web.notificationsWithoutClick",
-                "Ask about notifications without a click",
+                "Let sites ask to notify without a click",
                 "notification permission request gesture click chrome safari ask",
                 \.web.notificationsWithoutClick
             )
@@ -95,7 +95,7 @@ extension SettingsOption {
             .further,
             toggle(
                 "web.workerNotifications",
-                "Notifications from a site's background script",
+                "Allow notifications from background scripts",
                 "notification service worker push registration background",
                 \.web.workerNotifications
             )
@@ -115,7 +115,7 @@ extension SettingsOption {
             ),
             toggle(
                 "web.agentScripts",
-                "Tell a page's scripts the same",
+                "Show the same browser to page scripts",
                 "user agent scripts navigator vendor client hints chrome detect",
                 \.web.agentScripts
             )

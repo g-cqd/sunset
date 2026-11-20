@@ -158,14 +158,14 @@ extension SettingsOption {
             )
             .noted(
                 "Its glyph widens the sidebar by a rail: Tabs, Documents, History, Downloads. The panel on the other side has "
-                    + "the same lists (Cmd-Y)."
+                    + "the same lists (⌘Y)."
             ),
             choice(
                 "sidebar.documentSort",
                 "Order of documents",
                 "sort latest name kind changed",
                 \.sidebar.documentSort,
-                [(.changed, "Latest Changed"), (.made, "Latest Made"), (.name, "Name"), (.kind, "Kind")]
+                [(.changed, "Last changed"), (.made, "Last created"), (.name, "Name"), (.kind, "Kind")]
             )
         ]
 }

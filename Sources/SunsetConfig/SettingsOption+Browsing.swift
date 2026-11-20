@@ -24,7 +24,7 @@ extension SettingsOption {
             .grouped("History"),
             choice(
                 "web.keep.siteData",
-                "Sites' data",
+                "Website data",
                 "cookies sign in website data local storage indexeddb service workers quit keep clear",
                 \.web.keep.siteData,
                 [(.keep, "Kept"), (.keepChosen, "Kept for the sites chosen"), (.clearOnQuit, "Cleared on quit")]

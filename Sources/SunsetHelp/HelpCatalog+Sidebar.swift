@@ -96,7 +96,7 @@ extension HelpCatalog {
                 "Point at the row and click the cup to stop. A tab keeps it when it moves to the Favorites or the grid."
             ],
             expert: [
-                "\"Keep the display on with the Mac\" in Settings keeps the screen lit too; off, only the Mac stays awake."
+                "\"Keep the display awake too\" in Settings keeps the screen lit too; off, only the Mac stays awake."
             ],
             related: [.tabs, .pinned]
         ),
