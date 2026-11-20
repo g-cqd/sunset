@@ -152,6 +152,12 @@ struct TerminalCommands: Commands {
         Button("Stop") { page?.stopLoading() }.keyboardShortcut(".").disabled(page?.isLoading != true)
         // The page's address field, wherever `web.address` puts it (the window's bar comes out for it), ready to type in.
         Button("Open Address") { page?.wantsAddress = true }.disabled(page == nil)
+        // WebKit's inspector, docked beside the page in its pane (the owner, 2026-11-20); Inspect Element opens it too.
+        Button(page?.isInspectorVisible == true ? "Hide Web Inspector" : "Show Web Inspector") {
+            page?.toggleInspector()
+        }
+        .keyboardShortcut("i", modifiers: [.command, .option])
+        .disabled(page?.settings.developer != true)
         HistoryMenuItems(page: page)
     }
 }

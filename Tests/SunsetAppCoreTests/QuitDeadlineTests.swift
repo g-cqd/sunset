@@ -1,3 +1,4 @@
+import AemiTestKit
 import Foundation
 import SunsetRuntime
 import SunsetTestSupport
@@ -14,9 +15,12 @@ import Testing
 struct QuitDeadlineTests {
     @Test func `from inside a main-actor task, the work runs and is awaited`() async throws {
         let time = TestTime()
+        let latch = AsyncLatch()
         var ran = false
+        // The work suspends until the test lets it go: it runs as a main-actor task that has to wait its turn.
+        time.runtime.task { latch.open() }
         let finished = await QuitDeadline.wait(limit: .seconds(5), runtime: time.runtime) { @MainActor in
-            await Task.yield()
+            try? await latch.wait()
             ran = true
         }
         #expect(ran && finished)

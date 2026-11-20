@@ -291,7 +291,7 @@ let package = Package(
             "SunsetAppCoreTests",
             [
                 "SunsetTestSupport", "SunsetAppCore", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost",
-                "SunsetShellModel", "SunsetStorage", "SunsetWebModel"
+                "SunsetShellModel", "SunsetStorage", "SunsetWebModel", .product(name: "AemiTestKit", package: "aemi")
             ]
         ),
         module("SunsetShellBridge", ["SunsetShell", "SunsetConfig", "SunsetMetrics"]),
