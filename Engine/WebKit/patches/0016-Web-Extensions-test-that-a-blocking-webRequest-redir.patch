@@ -1,0 +1,89 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 00:38:02 +0100
+Subject: [PATCH 16/16] Web Extensions: test that a blocking webRequest
+ redirect to a surrogate answers the request (Sunset W6d)
+
+WKWebExtensionAPIWebRequestTests.blockingListenerRedirectsToSurrogate: /analytics.js redirected to the extension's web
+accessible noop.js, /jquery.js to a data: script; both load as their stand-ins (the originals never run). Fails without
+the previous patch (both fail to load).
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index 65b5fc393..dc5e8b725 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -220,6 +220,74 @@ struct WKWebExtensionAPIWebRequestTests {
+         }
+     }
+ 
++    // A blocking listener's redirect to one of the extension's web accessible files, or to a data: URL, answers the request
++    // with it (a surrogate), as in Firefox and Chrome; WebKit's loaders refused both. uBlock Origin neuters scripts so.
++    @Test
++    func blockingListenerRedirectsToSurrogate() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                ""
++            }
++            Route("/analytics.js", headerFields: ["Content-Type": "text/javascript"]) {
++                "window.loaded = 'analytics'"
++            }
++            Route("/jquery.js", headerFields: ["Content-Type": "text/javascript"]) {
++                "window.loaded = 'jquery'"
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "web_accessible_resources": ["noop.js"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            browser.webRequest.onBeforeRequest.addListener((details) => {
++                if (details.url.endsWith('/analytics.js'))
++                    return { redirectUrl: browser.runtime.getURL('noop.js') }
++                if (details.url.endsWith('/jquery.js'))
++                    return { redirectUrl: 'data:text/javascript,window.fromData%20=%20true' }
++            }, { urls: ['<all_urls>'] }, ['blocking'])
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript, "noop.js": "window.fromExtension = true"])
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++
++            let script = """
++                const load = (path) => new Promise((resolve) => {
++                    const element = document.createElement('script')
++                    element.src = path
++                    element.onload = () => resolve('loaded')
++                    element.onerror = () => resolve('failed')
++                    document.head.append(element)
++                })
++                const analytics = await load('/analytics.js')
++                const jquery = await load('/jquery.js')
++                return [analytics, jquery, String(window.fromExtension), String(window.fromData), String(window.loaded)].join(' ')
++                """
++            let result = try await webView.callAsyncJavaScript(script, contentWorld: .page) as? String
++
++            #expect(result == "loaded loaded true true undefined")
++        }
++    }
++
+     @Test
+     func manifestV2Persistent() async throws {
+         let backgroundScript = """

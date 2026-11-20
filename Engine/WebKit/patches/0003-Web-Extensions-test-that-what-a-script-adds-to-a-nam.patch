@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 20:11:11 +0100
-Subject: [PATCH 03/14] Web Extensions: test that what a script adds to a
+Subject: [PATCH 03/16] Web Extensions: test that what a script adds to a
  namespace object is kept (Sunset W3)
 
 WKWebExtensionAPINamespaceTests.propertiesAddedToANamespaceAreKept: a property set and one defined on browser.runtime,

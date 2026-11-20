@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 22:18:53 +0100
-Subject: [PATCH 11/14] Web Extensions: test that a blocking webRequest
+Subject: [PATCH 11/16] Web Extensions: test that a blocking webRequest
  listener cancels a request (Sunset W6a)
 
 WKWebExtensionAPIWebRequestTests.blockingListenerCancelsRequest: a Manifest V2 persistent background page's blocking

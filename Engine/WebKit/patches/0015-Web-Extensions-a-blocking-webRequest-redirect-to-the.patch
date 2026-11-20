@@ -1,0 +1,360 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 00:38:00 +0100
+Subject: [PATCH 15/16] Web Extensions: a blocking webRequest redirect to the
+ extension's own file or to data: answers the request (Sunset W6d)
+
+uBlock Origin answers some requests with a neutered script of its own (a surrogate): { redirectUrl } to one of its web
+accessible files, or to a data: URL. Firefox and Chrome make such redirects internal; WebKit refused both (a subresource
+redirected to data:, or to a scheme the network process cannot load), so the page lost the script instead of getting the
+stand-in.
+
+The UI process, gathering the answers, reads the extension's file (when web accessible to the page) or decodes the data:
+URL, and hands its MIME type and bytes to the network process, which answers the load with them (status 200, the
+original URL, Access-Control-Allow-Origin: * as the extension chose to answer it), after the response checks a cached
+answer gets. A main resource is never substituted (blocked instead). The bytes go from the UI process to the network
+process only: listed as NotSentFromWebContent.
+
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+index 4f84c01d8..b9e02ce13 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+@@ -318,6 +318,43 @@ void NetworkResourceLoader::startRequest(const ResourceRequest& newRequest)
+     startCacheOrNetworkLoad(useCache ? ResourceRequest { originalRequest() } : ResourceRequest { newRequest }, useCache);
+ }
+ 
++#if ENABLE(WK_WEB_EXTENSIONS)
++void NetworkResourceLoader::answerWithWebRequestSubstitute(const ResourceRequest& request, String&& mimeType, Vector<uint8_t>&& data)
++{
++    // A main resource is not replaced (a page is redirected, not substituted): it is blocked instead, as before.
++    if (isMainResource() || isSynchronous()) {
++        didFailLoading(blockedByContentBlockerError(request));
++        return;
++    }
++
++    ResourceResponse response { URL { request.url() }, WTF::move(mimeType), static_cast<long long>(data.size()), { } };
++    response.setHTTPStatusCode(200);
++    response.setHTTPStatusText("OK"_s);
++    response.setHTTPHeaderField(HTTPHeaderName::ContentType, response.mimeType());
++    // The extension chose to answer this request: as Firefox and Chrome, the page may read it from any origin.
++    response.setHTTPHeaderField(HTTPHeaderName::AccessControlAllowOrigin, "*"_s);
++    response.setSource(ResourceResponse::Source::Network);
++
++    if (m_networkLoadChecker) {
++        auto error = m_networkLoadChecker->validateResponse(originalRequest(), response);
++        if (!error.isNull()) {
++            didFailLoading(error);
++            return;
++        }
++    }
++
++    if (!m_firstResponseURL.isValid())
++        m_firstResponseURL = response.url();
++    sendDidReceiveResponseWithPotentialProcessSwap(response, PrivateRelayed::No, false);
++    sendBuffer(SharedBuffer::create(WTF::move(data)));
++
++    NetworkLoadMetrics metrics;
++    metrics.markComplete();
++    send(Messages::WebResourceLoader::DidFinishResourceLoad(WTF::move(metrics)));
++    cleanup(LoadResult::Success);
++}
++#endif
++
+ void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, bool useCache)
+ {
+ #if ENABLE(WK_WEB_EXTENSIONS)
+@@ -325,7 +362,7 @@ void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, b
+     // the network (as in Firefox and Chrome). Held only for pages whose extensions have one; never a synchronous load.
+     if (m_parameters.pageHasBlockingWebRequestListeners && !m_didAskWebRequestListeners && !isSynchronous()) {
+         m_didAskWebRequestListeners = true;
+-        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(webPageProxyID(), resourceLoadInfo(), request), [weakThis = WeakPtr { *this }, request = WTF::move(request), useCache](bool cancel, URL&& redirectURL) mutable {
++        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(webPageProxyID(), resourceLoadInfo(), request), [weakThis = WeakPtr { *this }, request = WTF::move(request), useCache](bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData) mutable {
+             RefPtr protectedThis = weakThis.get();
+             if (!protectedThis)
+                 return;
+@@ -335,6 +372,12 @@ void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, b
+                 return;
+             }
+ 
++            if (!substituteMIMEType.isNull()) {
++                // The extension's own file or a data: URL (a surrogate): the load is answered with it.
++                protectedThis->answerWithWebRequestSubstitute(request, WTF::move(substituteMIMEType), WTF::move(substituteData));
++                return;
++            }
++
+             if (redirectURL.isValid() && redirectURL != request.url()) {
+                 // A redirect the web process checks as any other (CORS, CSP, mixed content), as WebKit's own synthetic
+                 // redirects are: the load goes on with the new request once the web process agrees.
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+index f51c95635..0c14e3418 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+@@ -341,6 +341,9 @@ private:
+ 
+     void startRequest(const WebCore::ResourceRequest&);
+     void startCacheOrNetworkLoad(WebCore::ResourceRequest&&, bool useCache);
++#if ENABLE(WK_WEB_EXTENSIONS)
++    void answerWithWebRequestSubstitute(const WebCore::ResourceRequest&, String&& mimeType, Vector<uint8_t>&& data);
++#endif
+     bool abortIfServiceWorkersOnly();
+ 
+     NODELETE bool shouldSendResourceLoadMessages() const;
+diff --git a/Source/WebKit/Scripts/webkit/opaque_ipc_types.tracking.in b/Source/WebKit/Scripts/webkit/opaque_ipc_types.tracking.in
+index 4a83bf813..936df89f1 100644
+--- a/Source/WebKit/Scripts/webkit/opaque_ipc_types.tracking.in
++++ b/Source/WebKit/Scripts/webkit/opaque_ipc_types.tracking.in
+@@ -573,6 +573,7 @@
+     [NotSentFromWebContent] StructureParam WebKit::SecItemRequestData.m_queryDictionary
+ }
+ [NotSentFromWebContent] AliasParam WebKit::PlistValue Variant<WebKit::CoreIPCPlistArray, WebKit::CoreIPCPlistDictionary, WebKit::CoreIPCString, WebKit::CoreIPCNumber, WebKit::CoreIPCDate, WebKit::CoreIPCData>
++[NotSentFromWebContent] MessageParamReply NetworkProcessProxy.ResourceLoadWillSendRequest substituteData Vector<uint8_t>
+ 
+ # GTK Specific
+ [Legacy] StructureParam sk_sp<SkColorSpace>.dataReference() std::span<const uint8_t>
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+index 206a7f418..3ce0dbeee 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+@@ -62,6 +62,7 @@
+ #import "WKWebViewConfigurationInternal.h"
+ #import "WKWebViewInternal.h"
+ #import "WebFrameProxy.h"
++#import <WebCore/DataURLDecoder.h>
+ #import "WKWebpagePreferencesPrivate.h"
+ #import "WKWebsiteDataRecordInternal.h"
+ #import "WKWebsiteDataStoreInternal.h"
+@@ -1953,6 +1954,35 @@ void WebExtensionContext::blockingWebRequestListenersChanged()
+         controller->sendToAllProcesses(Messages::WebExtensionContextProxy::SetHasBlockingWebRequestListeners(hasBlockingWebRequestListeners()), identifier());
+ }
+ 
++void WebExtensionContext::webRequestSubstitute(const URL& redirectURL, const URL& pageURL, String& mimeType, Vector<uint8_t>& data)
++{
++    // A redirect to a data: URL, or to one of this extension's files the page may load (web accessible): the body the
++    // load is answered with. Firefox and Chrome make such redirects internal; WebKit's loaders would refuse them (a
++    // subresource redirected to data:, or to a scheme the network process cannot load).
++    if (redirectURL.protocolIsData()) {
++        if (auto decoded = WebCore::DataURLDecoder::decode(redirectURL)) {
++            mimeType = decoded->mimeType;
++            data = WTF::move(decoded->data);
++        }
++        return;
++    }
++
++    if (!isURLForThisExtension(redirectURL))
++        return;
++
++    Ref extension = this->extension();
++    if (!extension->isWebAccessibleResource(redirectURL, pageURL))
++        return;
++
++    auto path = redirectURL.path().toString();
++    auto resource = extension->resourceDataForPath(path);
++    if (!resource)
++        return;
++
++    mimeType = extension->resourceMIMETypeForPath(path);
++    data = (*resource)->span();
++}
++
+ void WebExtensionContext::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceRequest& request, WebExtensionWebRequestDecision& decision)
+ {
+     // A blocking webRequest.onBeforeRequest listener decides before the request is sent: { cancel: true } fails the load.
+@@ -1969,8 +1999,12 @@ void WebExtensionContext::resourceLoadWillSendRequest(WebPageProxyIdentifier pag
+ 
+     for (auto& process : blockingProcesses) {
+         decision.expect();
+-        process->sendWithAsyncReply(Messages::WebExtensionContextProxy::ResourceLoadWillSendRequest(tabIdentifier, windowIdentifier, request, loadInfo), [decision = Ref { decision }](bool cancel, URL&& redirectURL) {
+-            decision->add(cancel, WTF::move(redirectURL));
++        process->sendWithAsyncReply(Messages::WebExtensionContextProxy::ResourceLoadWillSendRequest(tabIdentifier, windowIdentifier, request, loadInfo), [decision = Ref { decision }, weakThis = WeakPtr { *this }, pageURL = request.firstPartyForCookies()](bool cancel, URL&& redirectURL) mutable {
++            String substituteMIMEType;
++            Vector<uint8_t> substituteData;
++            if (RefPtr protectedThis = weakThis.get(); protectedThis && !cancel && redirectURL.isValid())
++                protectedThis->webRequestSubstitute(redirectURL, pageURL, substituteMIMEType, substituteData);
++            decision->add(cancel, WTF::move(redirectURL), WTF::move(substituteMIMEType), WTF::move(substituteData));
+         }, identifier());
+     }
+ }
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
+index dcbe6d79d..dc055a9af 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
+@@ -360,7 +360,7 @@ void WebExtensionController::resourceLoadDidSendRequest(WebPageProxyIdentifier p
+         context->resourceLoadDidSendRequest(pageID, loadInfo, request);
+ }
+ 
+-void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceRequest& request, CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
++void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceRequest& request, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&& completionHandler)
+ {
+     // The answers of every extension with blocking listeners; a load is not held longer than this, whatever an extension does.
+     static constexpr Seconds maximumWait { 2_s };
+@@ -373,7 +373,7 @@ void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier
+         if (context->hasBlockingWebRequestListeners())
+             context->resourceLoadWillSendRequest(pageID, loadInfo, request, decision);
+     }
+-    decision->add(false, { });
++    decision->add(false, { }, { }, { });
+ 
+     if (decision->isFinished())
+         return;
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+index fd82c5b1b..9833fa023 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+@@ -187,7 +187,7 @@ struct ContentRuleListMatchedRule;
+ // limit), whichever is first.
+ class WebExtensionWebRequestDecision : public RefCounted<WebExtensionWebRequestDecision> {
+ public:
+-    static Ref<WebExtensionWebRequestDecision> create(CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
++    static Ref<WebExtensionWebRequestDecision> create(CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&& completionHandler)
+     {
+         return adoptRef(*new WebExtensionWebRequestDecision(WTF::move(completionHandler)));
+     }
+@@ -196,31 +196,42 @@ public:
+ 
+     void expect() { ++m_expected; }
+ 
+-    void add(bool cancel, URL&& redirectURL)
++    // A substitute (MIME type and body) comes with a redirect to the extension's own file or to a data: URL: the load is
++    // answered with it, as Firefox and Chrome do for such redirects.
++    void add(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)
+     {
+         m_cancel = m_cancel || cancel;
+-        if (!m_redirectURL.isValid() && redirectURL.isValid())
++        if (!m_redirectURL.isValid() && redirectURL.isValid()) {
+             m_redirectURL = WTF::move(redirectURL);
++            m_substituteMIMEType = WTF::move(substituteMIMEType);
++            m_substituteData = WTF::move(substituteData);
++        }
+         if (m_expected && !--m_expected)
+             finish();
+     }
+ 
+     void finish()
+     {
+-        if (m_completionHandler)
+-            m_completionHandler(m_cancel, m_cancel ? URL { } : URL { m_redirectURL });
++        if (!m_completionHandler)
++            return;
++        if (m_cancel)
++            m_completionHandler(true, { }, { }, { });
++        else
++            m_completionHandler(false, URL { m_redirectURL }, String { m_substituteMIMEType }, Vector<uint8_t> { m_substituteData });
+     }
+ 
+     bool isFinished() const { return !m_completionHandler; }
+ 
+ private:
+-    explicit WebExtensionWebRequestDecision(CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
++    explicit WebExtensionWebRequestDecision(CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&& completionHandler)
+         : m_completionHandler(WTF::move(completionHandler))
+     {
+     }
+ 
+-    CompletionHandler<void(bool cancel, URL&& redirectURL)> m_completionHandler;
++    CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)> m_completionHandler;
+     URL m_redirectURL;
++    String m_substituteMIMEType;
++    Vector<uint8_t> m_substituteData;
+     unsigned m_expected { 0 };
+     bool m_cancel { false };
+ };
+@@ -606,6 +617,7 @@ public:
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&);
+     void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, WebExtensionWebRequestDecision&);
+     bool hasBlockingWebRequestListeners() const;
++    void webRequestSubstitute(const URL& redirectURL, const URL& pageURL, String& mimeType, Vector<uint8_t>& data);
+     void blockingWebRequestListenersChanged();
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&, const WebCore::ResourceRequest&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::AuthenticationChallenge&);
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionController.h b/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
+index 5b4220a3a..ac99db510 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
+@@ -188,7 +188,7 @@ public:
+     void updateWebsitePoliciesForNavigation(API::WebsitePolicies&, API::NavigationAction&);
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&);
+-    void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, CompletionHandler<void(bool cancel, URL&& redirectURL)>&&);
++    void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&&);
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&, const WebCore::ResourceRequest&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::AuthenticationChallenge&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&);
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
+index d99e1df94..990e6e0cd 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
+@@ -739,11 +739,11 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
+         page->logDiagnosticMessageWithValue(message, description, value, significantFigures, shouldSample);
+ }
+ 
+-void NetworkProcessProxy::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
++void NetworkProcessProxy::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&& completionHandler)
+ {
+     RefPtr page = WebProcessProxy::webPage(pageID);
+     if (!page) {
+-        completionHandler(false, { });
++        completionHandler(false, { }, { }, { });
+         return;
+     }
+ 
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
+index 4d4fa5582..bf9fdae0d 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
+@@ -308,7 +308,7 @@ public:
+     void handOverTransferredImageBuffers(Vector<WebCore::ImageBufferTransferIdentifier>&&, WebCore::ProcessIdentifier destinationProcess);
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, std::optional<IPC::FormDataReference>&&);
+-    void resourceLoadWillSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL)>&&);
++    void resourceLoadWillSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&&);
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&, WebCore::ResourceRequest&&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&);
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
+index e3fcce76f..33f2e690d 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
+@@ -71,7 +71,7 @@ messages -> NetworkProcessProxy WantsDispatchMessage {
+     IncreaseQuota(PAL::SessionID sessionID, struct WebCore::ClientOrigin origin, WebKit::QuotaIncreaseRequestIdentifier identifier, uint64_t quota, uint64_t currentSize, uint64_t spaceRequested)
+ 
+     ResourceLoadDidSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request, std::optional<IPC::FormDataReference> httpBody)
+-    ResourceLoadWillSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request) -> (bool cancel, URL redirectURL)
++    ResourceLoadWillSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request) -> (bool cancel, URL redirectURL, String substituteMIMEType, Vector<uint8_t> substituteData)
+     ResourceLoadDidPerformHTTPRedirection(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse resourceResponse, WebCore::ResourceRequest request)
+     ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
+     ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
+diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
+index 0fc96efb5..93067aa13 100644
+--- a/Source/WebKit/UIProcess/WebPageProxy.cpp
++++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
+@@ -14826,7 +14826,7 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
+ }
+ #endif
+ 
+-void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
++void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&& completionHandler)
+ {
+ #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
+     if (RefPtr webExtensionController = this->webExtensionController()) {
+@@ -14837,7 +14837,7 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
+ #endif
+     UNUSED_PARAM(loadInfo);
+     UNUSED_PARAM(request);
+-    completionHandler(false, { });
++    completionHandler(false, { }, { }, { });
+ }
+ 
+ void WebPageProxy::resourceLoadDidSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request)
+diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
+index 45c224c4c..e86ff5c78 100644
+--- a/Source/WebKit/UIProcess/WebPageProxy.h
++++ b/Source/WebKit/UIProcess/WebPageProxy.h
+@@ -933,7 +933,7 @@ public:
+     NODELETE GeolocationPermissionRequestManagerProxy& geolocationPermissionRequestManager() LIFETIME_BOUND;
+ 
+     void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);
+-    void resourceLoadWillSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL)>&&);
++    void resourceLoadWillSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&&);
+     void resourceLoadDidPerformHTTPRedirection(ResourceLoadInfo&&, WebCore::ResourceResponse&&, WebCore::ResourceRequest&&);
+     void resourceLoadDidReceiveChallenge(ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&);
+     void resourceLoadDidReceiveResponse(ResourceLoadInfo&&, WebCore::ResourceResponse&&);

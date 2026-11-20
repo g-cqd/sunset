@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 18:21:25 +0100
-Subject: [PATCH 01/14] Web Extensions: i18n.getMessage('') gives an empty
+Subject: [PATCH 01/16] Web Extensions: i18n.getMessage('') gives an empty
  string, as in Firefox and Chrome (Sunset W2)
 
 An extension that reads a message by an empty name (uBlock Origin's i18n.js does, for elements without one) stopped on the
