@@ -24,6 +24,11 @@ ADR-0106 says why it is shaped this way.
 - **`.github/workflows/release.yml`**: a tag `v*` signs (temporary keychain), notarises, launches the app, and publishes the
   zip with `docs/releases/<tag>.md` as the note; by hand it builds ad hoc as a check. actionlint and zizmor are clean.
 
+- **v0.1.0-alpha.1 published** (2026-11-20), a pre-release at 3543ae6 (signed tag): built on the owner's Mac from a clone
+  under `/tmp` (no user name in the app), signed with the Developer ID the owner confirmed as his,
+  notarised and stapled; downloaded back, unzipped, quarantined: Gatekeeper accepts it ("Notarized Developer
+  ID"). The tag's Release run was cancelled by hand (no secrets yet).
+
 ## Not done
 
 - The workflow has **not run on GitHub**: it needs the seven secrets at its top, which the owner adds.
