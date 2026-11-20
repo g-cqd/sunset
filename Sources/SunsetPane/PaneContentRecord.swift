@@ -23,3 +23,19 @@ struct PaneContentRecord: Codable {
         return contents
     }
 }
+
+/// A file's `contents`, `[{"pane", "kind", "state"}]`, read and written in one place (roadmap 0086 E: a Favorite's home, the
+/// saved Favorites and a saved Space each did it the same way).
+extension KeyedDecodingContainer {
+    /// What each pane holds, from the records under `key`; none when there are none.
+    func paneContents(forKey key: Key) throws -> [PaneID: PaneDescriptor] {
+        PaneContentRecord.contents(of: try decodeIfPresent([PaneContentRecord].self, forKey: key) ?? [])
+    }
+}
+
+extension KeyedEncodingContainer {
+    /// What each of `panes` holds, in their order, as records under `key`.
+    mutating func encode(paneContents contents: [PaneID: PaneDescriptor], of panes: [PaneID], forKey key: Key) throws {
+        try encode(PaneContentRecord.records(of: contents, in: panes), forKey: key)
+    }
+}

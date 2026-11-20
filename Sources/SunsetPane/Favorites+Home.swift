@@ -5,11 +5,10 @@ extension Favorites.Home: Codable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: Key.self)
-        let records = try container.decodeIfPresent([PaneContentRecord].self, forKey: .contents) ?? []
         self.init(
             layout: try container.decode(SplitLayout.self, forKey: .layout),
             focused: try container.decode(PaneID.self, forKey: .focused),
-            contents: PaneContentRecord.contents(of: records)
+            contents: try container.paneContents(forKey: .contents)
         )
         guard holdsTogether else {
             throw DecodingError.dataCorruptedError(
@@ -24,6 +23,6 @@ extension Favorites.Home: Codable {
         var container = encoder.container(keyedBy: Key.self)
         try container.encode(layout, forKey: .layout)
         try container.encode(focused, forKey: .focused)
-        try container.encode(PaneContentRecord.records(of: contents, in: layout.panes), forKey: .contents)
+        try container.encode(paneContents: contents, of: layout.panes, forKey: .contents)
     }
 }

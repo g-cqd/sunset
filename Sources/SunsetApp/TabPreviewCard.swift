@@ -50,10 +50,7 @@ struct TabPreviewCard: View {
         VStack(alignment: .leading, spacing: Design.Space.s) {
             TabLabel(
                 model: tabs.content(item.focused),
-                showIcon: true,
-                showTitle: true,
-                showDirectory: true,
-                showProgress: false,
+                parts: TabParts(icon: true, title: true, directory: true, progress: false),
                 name: custom.name,
                 icon: custom.icon,
                 // Not made yet (back from the session): what it is saved as, not a terminal (roadmap 0047 I).

@@ -6,14 +6,8 @@ import WebKit
 /// the page is given; or nothing. The page pulls each frame through this handler (`frame`), an empty answer ending its
 /// track (task t97: nothing of Sunset's on the page's window, and what is replaced reads as WebKit's own).
 @MainActor
-final class ShareWrapper: NSObject, WKScriptMessageHandlerWithReply {
+final class ShareWrapper: PageScriptHandler, WKScriptMessageHandlerWithReply {
     static let name = "sunsetShare"
-    private weak var content: WebContent?
-
-    private init(content: WebContent) {
-        self.content = content
-    }
-
     static let script = """
         (() => {
           const md = navigator.mediaDevices;
@@ -69,7 +63,7 @@ final class ShareWrapper: NSObject, WKScriptMessageHandlerWithReply {
 
     /// Adds the wrapper and its handler, unless the page is private (its window shares nothing of others').
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) -> ShareWrapper {
-        let wrapper = ShareWrapper(content: content)
+        let wrapper = ShareWrapper(page: content)
         PageBridge(name: name, script: script, injection: .atDocumentStart, mainFrameOnly: false, world: .page)
             .install(on: configuration, replying: wrapper)
         return wrapper

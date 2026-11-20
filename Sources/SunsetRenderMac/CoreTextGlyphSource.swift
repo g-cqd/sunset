@@ -159,10 +159,7 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
         for run in runs {
             let count = CTRunGetGlyphCount(run)
             guard count > 0 else { continue }
-            var glyphs = [CGGlyph](repeating: 0, count: count)
-            var indices = [CFIndex](repeating: 0, count: count)
-            unsafe CTRunGetGlyphs(run, CFRange(location: 0, length: 0), &glyphs)
-            unsafe CTRunGetStringIndices(run, CFRange(location: 0, length: 0), &indices)
+            var (glyphs, indices) = Self.glyphs(of: run, count: count)
             // The run's own font (a fallback font for a character the main one lacks), read from the run's attributes.
             guard let font = Self.font(of: run) else { continue }
             let fallback = !CFEqual(font, asked)

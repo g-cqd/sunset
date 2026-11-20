@@ -34,30 +34,15 @@ struct FavoritesLine: View {
             }
         }
         .contentShape(.rect)
-        .onDrop(of: [.plainText, .utf8PlainText], delegate: LineDrop(tabs: tabs, targeted: $targeted))
+        .onDrop(
+            of: [.plainText, .utf8PlainText],
+            delegate: TargetDrop(
+                targeted: $targeted,
+                allows: { tabs.canDropOnFavoritesLine },
+                drop: { tabs.dropDraggedOnFavoritesLine() }
+            )
+        )
         .animation(layout.smooth, value: targeted)
         .animation(layout.smooth, value: takesDrag)
-    }
-
-    private struct LineDrop: DropDelegate {
-        let tabs: TabsModel
-        @Binding var targeted: Bool
-
-        func validateDrop(info: DropInfo) -> Bool {
-            tabs.canDropOnFavoritesLine
-        }
-        func dropEntered(info: DropInfo) {
-            targeted = tabs.canDropOnFavoritesLine
-        }
-        func dropExited(info: DropInfo) {
-            targeted = false
-        }
-        func dropUpdated(info: DropInfo) -> DropProposal? {
-            DropProposal(operation: targeted ? .move : .cancel)
-        }
-        func performDrop(info: DropInfo) -> Bool {
-            targeted = false
-            return Feedback.dropped(tabs.dropDraggedOnFavoritesLine())
-        }
     }
 }

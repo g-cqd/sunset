@@ -5,7 +5,7 @@ import WebKit
 /// at the document's start puts Sunset's in its place, in the page's world, where its scripts look for it. It asks Sunset
 /// for the site's answer, to ask the person, and to show; Sunset answers by the site WebKit names, never by what the page says.
 @MainActor
-final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
+final class WebNotifications: PageScriptHandler, WKScriptMessageHandlerWithReply {
     static let name = "sunsetNotifications"
     static let script = """
         (() => {
@@ -164,16 +164,10 @@ final class WebNotifications: NSObject, WKScriptMessageHandlerWithReply {
         })();
         """
 
-    private weak var content: WebContent?
-
-    private init(content: WebContent) {
-        self.content = content
-    }
-
     /// Adds the script and its handler to the configuration's controller (after `LinkHover` gave it its own).
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {
         PageBridge(name: name, script: script, injection: .atDocumentStart, mainFrameOnly: true, world: .page)
-            .install(on: configuration, replying: WebNotifications(content: content))
+            .install(on: configuration, replying: WebNotifications(page: content))
     }
 
     func userContentController(

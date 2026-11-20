@@ -28,10 +28,7 @@ struct SidebarGroupPart: View {
         let iconOnly = width < Design.Size.iconOnlyBelow
         TabLabel(
             model: model,
-            showIcon: true,
-            showTitle: !iconOnly,
-            showDirectory: false,
-            showProgress: false,
+            parts: TabParts(icon: true, title: !iconOnly, directory: false, progress: false),
             saved: saved
         )
         .padding(.horizontal, iconOnly ? 0 : Design.Space.xs)

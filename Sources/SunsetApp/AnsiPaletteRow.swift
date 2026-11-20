@@ -31,19 +31,9 @@ struct AnsiPaletteRow: View {
 
     private func binding(_ index: Int) -> Binding<Color> {
         Binding(
-            get: {
-                let bytes = config.configuration.colors.ansi[index]
-                return Color(
-                    .sRGB,
-                    red: Double(bytes[0]) / 255,
-                    green: Double(bytes[1]) / 255,
-                    blue: Double(bytes[2]) / 255
-                )
-            },
+            get: { Color(sRGBBytes: config.configuration.colors.ansi[index]) },
             set: { color in
-                guard let converted = NSColor(color).usingColorSpace(.sRGB) else { return }
-                let bytes = [converted.redComponent, converted.greenComponent, converted.blueComponent]
-                    .map { UInt8(max(0, min(255, ($0 * 255).rounded()))) }
+                guard let bytes = color.sRGBBytes else { return }
                 config.update { $0.colors.ansi[index] = bytes }
             }
         )

@@ -52,22 +52,9 @@ extension SettingsStore {
     /// A colour setting (`#rrggbb` in the file, sRGB): the picker's colour in, three bytes out.
     func colorBinding(_ value: SettingsValue<[UInt8]?>, fallback: [UInt8]) -> Binding<Color> {
         Binding(
-            get: {
-                let bytes = value.get(self.configuration) ?? fallback
-                return Color(
-                    .sRGB,
-                    red: Double(bytes[0]) / 255,
-                    green: Double(bytes[1]) / 255,
-                    blue: Double(bytes[2]) / 255,
-                    opacity: 1
-                )
-            },
+            get: { Color(sRGBBytes: value.get(self.configuration) ?? fallback) },
             set: { color in
-                guard let converted = NSColor(color).usingColorSpace(.sRGB) else { return }
-                let bytes = [converted.redComponent, converted.greenComponent, converted.blueComponent]
-                    .map {
-                        UInt8(max(0, min(255, ($0 * 255).rounded())))
-                    }
+                guard let bytes = color.sRGBBytes else { return }
                 self.update { value.set(&$0, bytes) }
             }
         )

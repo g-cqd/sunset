@@ -21,10 +21,7 @@ extension CoreTextGlyphSource {
         for run in (CTLineGetGlyphRuns(line) as? [CTRun]) ?? [] {
             let count = CTRunGetGlyphCount(run)
             guard count > 0, Self.font(of: run).map({ CFEqual($0, font) }) == true else { return false }
-            var glyphs = [CGGlyph](repeating: 0, count: count)
-            var indices = [CFIndex](repeating: 0, count: count)
-            unsafe CTRunGetGlyphs(run, CFRange(location: 0, length: 0), &glyphs)
-            unsafe CTRunGetStringIndices(run, CFRange(location: 0, length: 0), &indices)
+            let (glyphs, indices) = Self.glyphs(of: run, count: count)
             for index in 0 ..< count {
                 // One glyph for each character, in the text's order.
                 guard indices[index] == next, next < units.count else { return false }
@@ -34,6 +31,16 @@ extension CoreTextGlyphSource {
             }
         }
         return next == units.count
+    }
+
+    /// A shaped run's `count` glyphs, and the index in the text of the character each comes from (roadmap 0086 E: read the
+    /// same way to draw a run and to tell whether it is plain).
+    static func glyphs(of run: CTRun, count: Int) -> (glyphs: [CGGlyph], indices: [CFIndex]) {
+        var glyphs = [CGGlyph](repeating: 0, count: count)
+        var indices = [CFIndex](repeating: 0, count: count)
+        unsafe CTRunGetGlyphs(run, CFRange(location: 0, length: 0), &glyphs)
+        unsafe CTRunGetStringIndices(run, CFRange(location: 0, length: 0), &indices)
+        return (glyphs, indices)
     }
 
     /// The font a shaped run is in, read from the run's attributes.

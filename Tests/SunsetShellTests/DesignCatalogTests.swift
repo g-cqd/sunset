@@ -44,10 +44,7 @@ import Testing
                         selected: selected,
                         armed: armed,
                         keepCloseVisible: hover,
-                        showIcon: true,
-                        showTitle: true,
-                        showDirectory: directory,
-                        showProgress: true,
+                        parts: TabParts(icon: true, title: true, directory: directory, progress: true),
                         layout: layout,
                         button: button,
                         open: !dimmed,
@@ -91,10 +88,7 @@ import Testing
                 SidebarRow(
                     model: row.0,
                     selected: row.1,
-                    showIcon: true,
-                    showTitle: true,
-                    showDirectory: row.2,
-                    showProgress: true,
+                    parts: TabParts(icon: true, title: true, directory: row.2, progress: true),
                     layout: row.2 ? two : one
                 ) {}
             }

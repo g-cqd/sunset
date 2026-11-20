@@ -83,10 +83,8 @@ package final class SiteZoom {
     }
 
     private func load() {
-        for row in table?.all().rows ?? [] {
-            guard let text = String(data: row.payload, encoding: .utf8) else { continue }
-            let parts = text.split(separator: "\n", maxSplits: 1)
-            if parts.count == 2, let level = Double(parts[1]) { levels[String(parts[0])] = level }
+        for (host, text) in table?.pairs() ?? [] {
+            if let level = Double(text) { levels[host] = level }
         }
     }
 
@@ -95,6 +93,6 @@ package final class SiteZoom {
             table?.remove(host)
             return
         }
-        table?.put(host, payload: Data("\(host)\n\(level)".utf8))
+        table?.put(host, value: "\(level)")
     }
 }

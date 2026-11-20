@@ -17,16 +17,15 @@ public struct SavedFavorites: Sendable, Equatable, Codable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: Key.self)
-        let records = try container.decodeIfPresent([PaneContentRecord].self, forKey: .contents) ?? []
         self.init(
             favorites: try container.decode(Favorites.self, forKey: .favorites),
-            contents: PaneContentRecord.contents(of: records)
+            contents: try container.paneContents(forKey: .contents)
         )
     }
 
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: Key.self)
         try container.encode(favorites, forKey: .favorites)
-        try container.encode(PaneContentRecord.records(of: contents, in: favorites.livePanes), forKey: .contents)
+        try container.encode(paneContents: contents, of: favorites.livePanes, forKey: .contents)
     }
 }

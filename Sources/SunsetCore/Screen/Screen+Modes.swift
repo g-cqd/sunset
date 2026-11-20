@@ -82,16 +82,7 @@ extension Screen {
         swap(&keyboard, &otherKeyboard)
         swap(&pointer, &otherPointer)
         isAlternate = false
-        if restore, let state = savedBeforeAlternate {
-            column = min(state.column, columns - 1)
-            row = min(state.row, rows - 1)
-            pendingWrap = state.pendingWrap
-            pen = state.pen
-            modes.origin = state.originMode
-            charsets = state.charsets
-            shifted = state.shifted
-            penChanged()
-        }
+        if restore, let state = savedBeforeAlternate { apply(state) }
         markDirty(0 ... rows - 1)
     }
 

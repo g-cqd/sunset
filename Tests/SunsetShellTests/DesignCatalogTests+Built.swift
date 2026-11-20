@@ -35,10 +35,7 @@ extension DesignCatalogTests {
                     SidebarRow(
                         model: harness.tabs.contents[item.focused],
                         selected: harness.tabs.isSelected(item.id),
-                        showIcon: true,
-                        showTitle: true,
-                        showDirectory: false,
-                        showProgress: false,
+                        parts: TabParts(icon: true, title: true, directory: false, progress: false),
                         layout: settings.layout
                     ) {}
                 }

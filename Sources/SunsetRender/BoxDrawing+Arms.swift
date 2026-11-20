@@ -46,96 +46,112 @@ extension BoxDrawing {
 
     static func drawArms(_ arms: Arms, into canvas: inout Canvas, light: Int) {
         let geometry = Geometry(arms: arms, width: canvas.width, height: canvas.height, light: light)
-        horizontal(arms.left, rightSide: false, opposite: arms.right, arms: arms, geometry, &canvas)
-        horizontal(arms.right, rightSide: true, opposite: arms.left, arms: arms, geometry, &canvas)
-        vertical(arms.up, downSide: false, opposite: arms.down, arms: arms, geometry, &canvas)
-        vertical(arms.down, downSide: true, opposite: arms.up, arms: arms, geometry, &canvas)
+        let across = Axis.horizontal(geometry, arms)
+        let along = Axis.vertical(geometry, arms)
+        arm(arms.left, far: false, opposite: arms.right, across, &canvas)
+        arm(arms.right, far: true, opposite: arms.left, across, &canvas)
+        arm(arms.up, far: false, opposite: arms.down, along, &canvas)
+        arm(arms.down, far: true, opposite: arms.up, along, &canvas)
     }
 
-    static func horizontal(
-        _ weight: Int,
-        rightSide: Bool,
-        opposite: Int,
-        arms: Arms,
-        _ g: Geometry,
-        _ canvas: inout Canvas
-    ) {
+    /// One direction the arms are drawn in, its measures named along it and across it: the horizontal arms' are the cell's,
+    /// the vertical arms' the same transposed (roadmap 0086 E: the two were one algorithm written twice).
+    struct Axis {
+        /// The cell along the arm, and across it.
+        var length: Int
+        var breadth: Int
+        var light: Int
+        /// How thick the strokes that cross this one are, and whether they are doubled.
+        var crossMax: Int
+        var crossDoubled: Bool
+        /// Where a doubled arm's two lines are, across it; where a doubled crossing stroke's two lines are, along it.
+        var firstAcross: Int
+        var secondAcross: Int
+        var firstAlong: Int
+        var secondAlong: Int
+        /// The crossing arms on the first and the second line's side.
+        var firstPerpendicular: Int
+        var secondPerpendicular: Int
+        var transposed: Bool
+
+        static func horizontal(_ g: Geometry, _ arms: Arms) -> Axis {
+            Axis(
+                length: g.width,
+                breadth: g.height,
+                light: g.light,
+                crossMax: g.verticalMax,
+                crossDoubled: g.verticalDoubled,
+                firstAcross: g.firstY,
+                secondAcross: g.secondY,
+                firstAlong: g.firstX,
+                secondAlong: g.secondX,
+                firstPerpendicular: arms.up,
+                secondPerpendicular: arms.down,
+                transposed: false
+            )
+        }
+
+        static func vertical(_ g: Geometry, _ arms: Arms) -> Axis {
+            Axis(
+                length: g.height,
+                breadth: g.width,
+                light: g.light,
+                crossMax: g.horizontalMax,
+                crossDoubled: g.horizontalDoubled,
+                firstAcross: g.firstX,
+                secondAcross: g.secondX,
+                firstAlong: g.firstY,
+                secondAlong: g.secondY,
+                firstPerpendicular: arms.left,
+                secondPerpendicular: arms.right,
+                transposed: true
+            )
+        }
+
+        /// Fills a rectangle given along and across the arm.
+        func fill(_ canvas: inout Canvas, along: Int, across: Int, length: Int, breadth: Int) {
+            if transposed {
+                canvas.fill(x: across, y: along, width: breadth, height: length)
+            } else {
+                canvas.fill(x: along, y: across, width: length, height: breadth)
+            }
+        }
+    }
+
+    /// One arm: from the cell's near edge to the centre, or (`far`) from the centre to the far edge.
+    static func arm(_ weight: Int, far: Bool, opposite: Int, _ a: Axis, _ canvas: inout Canvas) {
         guard weight != none else { return }
         if weight != double {
-            let t = thickness(weight, g.light)
-            let y = (g.height - t) / 2
-            let reach = (g.width - g.verticalMax) / 2
-            if rightSide {
-                canvas.fill(x: reach, y: y, width: g.width - reach, height: t)
+            let t = thickness(weight, a.light)
+            let across = (a.breadth - t) / 2
+            let reach = (a.length - a.crossMax) / 2
+            if far {
+                a.fill(&canvas, along: reach, across: across, length: a.length - reach, breadth: t)
             } else {
-                canvas.fill(x: 0, y: y, width: (g.width + g.verticalMax) / 2, height: t)
+                a.fill(&canvas, along: 0, across: across, length: (a.length + a.crossMax) / 2, breadth: t)
             }
             return
         }
-        for upper in [true, false] {
-            let perpendicular = upper ? arms.up : arms.down
+        for first in [true, false] {
+            let perpendicular = first ? a.firstPerpendicular : a.secondPerpendicular
             let edge: Int  // where this line stops at the centre
-            if !g.verticalDoubled {
+            if !a.crossDoubled {
                 edge =
-                    g.verticalMax == 0
-                    ? (rightSide ? g.width / 2 - 1 : g.width / 2 + 1)
-                    : (rightSide ? (g.width - g.verticalMax) / 2 : (g.width + g.verticalMax) / 2)
+                    a.crossMax == 0
+                    ? (far ? a.length / 2 - 1 : a.length / 2 + 1)
+                    : (far ? (a.length - a.crossMax) / 2 : (a.length + a.crossMax) / 2)
             } else if perpendicular == double {
-                edge = rightSide ? g.secondX : g.firstX + g.light
+                edge = far ? a.secondAlong : a.firstAlong + a.light
             } else if opposite != none {
-                edge = rightSide ? g.width / 2 - 1 : g.width / 2 + 1
+                edge = far ? a.length / 2 - 1 : a.length / 2 + 1
             } else {
-                edge = rightSide ? g.firstX : g.secondX + g.light
+                edge = far ? a.firstAlong : a.secondAlong + a.light
             }
-            let y = upper ? g.firstY : g.secondY
-            if rightSide {
-                canvas.fill(x: edge, y: y, width: g.width - edge, height: g.light)
+            let across = first ? a.firstAcross : a.secondAcross
+            if far {
+                a.fill(&canvas, along: edge, across: across, length: a.length - edge, breadth: a.light)
             } else {
-                canvas.fill(x: 0, y: y, width: edge, height: g.light)
-            }
-        }
-    }
-
-    static func vertical(
-        _ weight: Int,
-        downSide: Bool,
-        opposite: Int,
-        arms: Arms,
-        _ g: Geometry,
-        _ canvas: inout Canvas
-    ) {
-        guard weight != none else { return }
-        if weight != double {
-            let t = thickness(weight, g.light)
-            let x = (g.width - t) / 2
-            let reach = (g.height - g.horizontalMax) / 2
-            if downSide {
-                canvas.fill(x: x, y: reach, width: t, height: g.height - reach)
-            } else {
-                canvas.fill(x: x, y: 0, width: t, height: (g.height + g.horizontalMax) / 2)
-            }
-            return
-        }
-        for leftLine in [true, false] {
-            let perpendicular = leftLine ? arms.left : arms.right
-            let edge: Int
-            if !g.horizontalDoubled {
-                edge =
-                    g.horizontalMax == 0
-                    ? (downSide ? g.height / 2 - 1 : g.height / 2 + 1)
-                    : (downSide ? (g.height - g.horizontalMax) / 2 : (g.height + g.horizontalMax) / 2)
-            } else if perpendicular == double {
-                edge = downSide ? g.secondY : g.firstY + g.light
-            } else if opposite != none {
-                edge = downSide ? g.height / 2 - 1 : g.height / 2 + 1
-            } else {
-                edge = downSide ? g.firstY : g.secondY + g.light
-            }
-            let x = leftLine ? g.firstX : g.secondX
-            if downSide {
-                canvas.fill(x: x, y: edge, width: g.light, height: g.height - edge)
-            } else {
-                canvas.fill(x: x, y: 0, width: g.light, height: edge)
+                a.fill(&canvas, along: 0, across: across, length: edge, breadth: a.light)
             }
         }
     }

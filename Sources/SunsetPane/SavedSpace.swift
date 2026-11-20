@@ -62,13 +62,12 @@ public struct SavedSpace: Sendable, Equatable, Codable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: Key.self)
-        let records = try container.decodeIfPresent([PaneContentRecord].self, forKey: .contents) ?? []
         self.init(
             space: try Space(from: decoder),
             // Favorites that cannot be read are none; tabs that cannot be read fail the Space, which is then left out.
             favorites: (try? container.decodeIfPresent(SavedFavorites.self, forKey: .favorites)) ?? SavedFavorites(),
             tabs: try container.decode(Workspace.self, forKey: .tabs),
-            contents: PaneContentRecord.contents(of: records)
+            contents: try container.paneContents(forKey: .contents)
         )
         stoppedAt = (try? container.decodeIfPresent(Double.self, forKey: .stopped))
             .map(Date.init(timeIntervalSince1970:))
@@ -79,7 +78,7 @@ public struct SavedSpace: Sendable, Equatable, Codable {
         var container = encoder.container(keyedBy: Key.self)
         try container.encode(favorites, forKey: .favorites)
         try container.encode(tabs, forKey: .tabs)
-        try container.encode(PaneContentRecord.records(of: contents, in: tabs.allPanes), forKey: .contents)
+        try container.encode(paneContents: contents, of: tabs.allPanes, forKey: .contents)
         try container.encodeIfPresent(stopped?.timeIntervalSince1970, forKey: .stopped)
     }
 }

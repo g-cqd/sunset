@@ -106,11 +106,13 @@ extension BuiltInTabBar {
     private func label(model: (any PaneContent)?, name: String?) -> some View {
         TabLabel(
             model: model,
-            showIcon: false,
-            showTitle: settings.showTitle,
             // One line in the row of capsules.
-            showDirectory: settings.showDirectory && !capsules,
-            showProgress: settings.showProgress,
+            parts: TabParts(
+                icon: false,
+                title: settings.showTitle,
+                directory: settings.showDirectory && !capsules,
+                progress: settings.showProgress
+            ),
             name: name
         )
     }

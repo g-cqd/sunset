@@ -79,7 +79,7 @@ package final class SiteRules<Value: Sendable> {
         let key = pattern.key
         values[key] = value
         if let value {
-            table?.put(key, payload: Data("\(key)\n\(encode(value))".utf8))
+            table?.put(key, value: encode(value))
         } else {
             table?.remove(key)
         }
@@ -96,7 +96,7 @@ package final class SiteRules<Value: Sendable> {
         else { return }
         values[host] = value
         if let value {
-            table?.put(host, payload: Data("\(host)\n\(encode(value))".utf8))
+            table?.put(host, value: encode(value))
         } else {
             table?.remove(host)
         }
@@ -153,7 +153,7 @@ package final class SiteRules<Value: Sendable> {
         own[profile, default: [:]][key] = value
         let stored = profile.uuidString + "|" + key
         if let value {
-            table?.put(stored, payload: Data("\(stored)\n\(encode(value))".utf8))
+            table?.put(stored, value: encode(value))
         } else {
             table?.remove(stored)
         }
@@ -166,11 +166,8 @@ package final class SiteRules<Value: Sendable> {
     }
 
     private func load() {
-        for row in table?.all().rows ?? [] {
-            guard let text = String(data: row.payload, encoding: .utf8) else { continue }
-            let parts = text.split(separator: "\n", maxSplits: 1)
-            guard parts.count == 2, let value = decode(String(parts[1])) else { continue }
-            let key = String(parts[0])
+        for (key, text) in table?.pairs() ?? [] {
+            guard let value = decode(text) else { continue }
             // A profile's own: `<profile>|<key>`.
             if let bar = key.firstIndex(of: "|"), let profile = UUID(uuidString: String(key[..<bar])) {
                 own[profile, default: [:]][String(key[key.index(after: bar)...])] = value

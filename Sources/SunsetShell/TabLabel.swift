@@ -4,10 +4,8 @@ package import SwiftUI
 /// What one tab shows: its title, and, as the configuration says, the working directory and the progress the program reported.
 package struct TabLabel: View {
     let model: (any PaneContent)?
-    var showIcon = false
-    var showTitle = true
-    var showDirectory = false
-    var showProgress = true
+    /// What it shows of the tab: its picture, title, second line and progress.
+    var parts = TabParts()
     /// Whether the label says its document has edits that are not saved; a sidebar row says it itself, at its end (owner note n76).
     var showEdited = true
     /// Whether the label shows the sound, the microphone and the camera; a sidebar row has them as buttons at its end.
@@ -23,10 +21,7 @@ package struct TabLabel: View {
 
     package init(
         model: (any PaneContent)?,
-        showIcon: Bool = false,
-        showTitle: Bool = true,
-        showDirectory: Bool = false,
-        showProgress: Bool = true,
+        parts: TabParts = TabParts(),
         showEdited: Bool = true,
         showControls: Bool = true,
         name: String? = nil,
@@ -35,10 +30,7 @@ package struct TabLabel: View {
         savedCommand: String? = nil
     ) {
         self.model = model
-        self.showIcon = showIcon
-        self.showTitle = showTitle
-        self.showDirectory = showDirectory
-        self.showProgress = showProgress
+        self.parts = parts
         self.showEdited = showEdited
         self.showControls = showControls
         self.name = name
@@ -54,8 +46,14 @@ package struct TabLabel: View {
 
     package var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
-            if showIcon {
-                TabIcon(model: model, icon: icon, saved: saved, savedCommand: savedCommand, showsProgress: showProgress)
+            if parts.icon {
+                TabIcon(
+                    model: model,
+                    icon: icon,
+                    saved: saved,
+                    savedCommand: savedCommand,
+                    showsProgress: parts.progress
+                )
             }
             lines
             if showEdited, model?.isEdited == true { EditedMark() }
@@ -105,10 +103,10 @@ package struct TabLabel: View {
 
     private var lines: some View {
         VStack(alignment: .leading, spacing: Design.Space.hair) {
-            if showTitle {
+            if parts.title {
                 Text(name ?? model?.title ?? Self.title(of: notRunning, command: savedCommand)).lineLimit(1)
             }
-            if showDirectory, let directory = model?.detail ?? saved?.directory {
+            if parts.directory, let directory = model?.detail ?? saved?.directory {
                 Text(Self.shortened(directory))
                     .font(monospacedDetail ? Design.Text.detail.monospaced() : Design.Text.detail)
                     .foregroundStyle(.secondary)

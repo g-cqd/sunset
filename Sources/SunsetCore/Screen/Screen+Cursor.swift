@@ -92,6 +92,11 @@ extension Screen {
                 charsets: (.ascii, .ascii),
                 shifted: false
             )
+        apply(state)
+    }
+
+    /// The cursor as `state` saved it, kept inside the screen: DECRC, and leaving the alternate screen (1049).
+    mutating func apply(_ state: SavedCursor) {
         column = min(state.column, columns - 1)
         row = min(state.row, rows - 1)
         pendingWrap = state.pendingWrap

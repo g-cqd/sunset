@@ -21,10 +21,7 @@ struct SidebarRowEditedTests {
             model: model,
             selected: false,
             keepCloseVisible: closeShown,
-            showIcon: false,
-            showTitle: true,
-            showDirectory: false,
-            showProgress: false,
+            parts: TabParts(icon: false, title: true, directory: false, progress: false),
             layout: LayoutMetrics(),
             open: false
         ) {}

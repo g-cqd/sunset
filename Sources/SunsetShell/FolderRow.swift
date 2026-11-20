@@ -68,7 +68,14 @@ struct FolderRow: View {
         .selectionTaps(tabs, row: .node(folder.id), undo: toggle) { toggle() }
         .onDrag { tabs.itemProvider(for: .entry(folder.id)) }
         .iconPopover(tabs: tabs, row: .node(folder.id))
-        .onDrop(of: [.plainText, .utf8PlainText], delegate: Drop(tabs: tabs, folder: folder.id, targeted: $targeted))
+        .onDrop(
+            of: [.plainText, .utf8PlainText],
+            delegate: TargetDrop(
+                targeted: $targeted,
+                allows: { tabs.canDrop(intoFolder: folder.id) },
+                drop: { tabs.dropDragged(intoFolder: folder.id) }
+            )
+        )
         .contextMenu {
             SelectionMenu(tabs: tabs, row: .node(folder.id))
             Button("Rename") { tabs.renamingRow = .node(folder.id) }
@@ -107,28 +114,5 @@ struct FolderRow: View {
     private func commit() {
         tabs.favorites.edit { $0.rename(folder.id, to: name) }
         if tabs.renamingRow == .node(folder.id) { tabs.renamingRow = nil }
-    }
-
-    private struct Drop: DropDelegate {
-        let tabs: TabsModel
-        let folder: Favorites.NodeID
-        @Binding var targeted: Bool
-
-        func validateDrop(info: DropInfo) -> Bool {
-            tabs.canDrop(intoFolder: folder)
-        }
-        func dropEntered(info: DropInfo) {
-            targeted = tabs.canDrop(intoFolder: folder)
-        }
-        func dropExited(info: DropInfo) {
-            targeted = false
-        }
-        func dropUpdated(info: DropInfo) -> DropProposal? {
-            DropProposal(operation: targeted ? .move : .cancel)
-        }
-        func performDrop(info: DropInfo) -> Bool {
-            targeted = false
-            return Feedback.dropped(tabs.dropDragged(intoFolder: folder))
-        }
     }
 }

@@ -16,10 +16,8 @@ struct SidebarRow: View {
     /// What the row's pane would start from, when it is not running (a kept entry that is not open), and the command it would run.
     var saved: PaneDescriptor?
     var savedCommand: String?
-    let showIcon: Bool
-    let showTitle: Bool
-    let showDirectory: Bool
-    let showProgress: Bool
+    /// What its label shows of the tab.
+    let parts: TabParts
     let layout: ShellSettings.Layout
     /// What the button at the row's end does: close a tab, unload a kept entry, delete one that is not open, close an open document.
     var button = Button.close
@@ -65,7 +63,7 @@ struct SidebarRow: View {
             if let renaming {
                 // The row is the field: its picture stays, the text is where the title was (note n4).
                 HStack(spacing: GlyphSpacing.toText) {
-                    if showIcon {
+                    if parts.icon {
                         TabIcon(
                             model: model,
                             icon: icon,
@@ -98,10 +96,7 @@ struct SidebarRow: View {
             } else {
                 TabLabel(
                     model: model,
-                    showIcon: showIcon,
-                    showTitle: showTitle,
-                    showDirectory: showDirectory,
-                    showProgress: showProgress,
+                    parts: parts,
                     showEdited: false,
                     showControls: false,
                     name: name,
@@ -178,7 +173,7 @@ struct SidebarRow: View {
 
     /// Two lines when the directory (or a page's address) is shown and there is one.
     private var lines: Int {
-        showDirectory && (model?.detail ?? saved?.directory) != nil ? 2 : 1
+        parts.directory && (model?.detail ?? saved?.directory) != nil ? 2 : 1
     }
 
     /// Over the row's end, so that the title has the whole width while it is hidden (owner note n65); shown, the title fades out under it.
