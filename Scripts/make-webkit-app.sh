@@ -67,6 +67,11 @@ $buddy -c "Add :CFBundleDisplayName string Sunset WebKit" "$plist"
 base="$(cat "$here/Engine/WebKit/base")"
 $buddy -c "Delete :SunsetWebKitBase" "$plist" 2>/dev/null || true
 $buddy -c "Add :SunsetWebKitBase string $base" "$plist"
+# The same base in WebKit's own Info.plist, before it is signed: the app refuses a WebKit of another base (an older
+# release's swapped in; BundledWebKit.refuseOtherWebKit).
+webkitPlist="$frameworks/WebKit.framework/Versions/A/Resources/Info.plist"
+$buddy -c "Delete :SunsetWebKitBase" "$webkitPlist" 2>/dev/null || true
+$buddy -c "Add :SunsetWebKitBase string $base" "$webkitPlist"
 # The native build's profile names its identifier, not this one's: this one's own, when there is one.
 rm -f "$app/Contents/embedded.provisionprofile"
 profile="${SUNSET_WEBKIT_PROFILE:-$HOME/.config/sunset-signing/webkit.provisionprofile}"

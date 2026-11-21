@@ -5,5 +5,6 @@ extension SunsetApp {
     /// does nothing here. Called before `main()`.
     public static func pointAtBundledWebKit() {
         BundledWebKit.runAgainIfNeeded()
+        BundledWebKit.refuseOtherWebKit()
     }
 }
