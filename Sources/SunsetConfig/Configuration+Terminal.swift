@@ -11,6 +11,9 @@ extension Configuration {
         public var secureKeyboard = SecureKeyboard.whenPassword
         /// A paste that would run commands, or holds control or hidden characters, is asked about first (task t116).
         public var pasteWarning = true
+        /// C1 controls encoded in UTF-8 (U+0080 to U+009F) act as controls; off, they are dropped (threat model A2: a program
+        /// that escapes ESC before printing untrusted text rarely escapes U+009B, which is CSI).
+        public var c1Controls = false
         /// The shell is taught to mark its prompts (OSC 133), which Previous Prompt and Next Prompt go by. zsh is taught (fish does it itself); the user's files are not changed.
         public var shellIntegration = true
         /// Where a new terminal starts when it has no directory of its own (a new tab, a split): a path, `~` for the home folder

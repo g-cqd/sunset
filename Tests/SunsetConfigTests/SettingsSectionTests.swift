@@ -37,7 +37,7 @@ import Testing
     @Test func `what a program may copy is under Privacy and security, with what the web keeps (the owner)`() {
         #expect(
             options("privacy.programs") == [
-                "terminal.clipboardWrite", "terminal.secureKeyboard", "terminal.pasteWarning"
+                "terminal.clipboardWrite", "terminal.secureKeyboard", "terminal.pasteWarning", "terminal.c1Controls"
             ]
         )
         #expect(

@@ -64,6 +64,8 @@ package import SunsetRuntime
     @ObservationIgnored package var lastScreen: Screen?
     /// The link under the pointer (an id into the last screen's link table), drawn underlined; 0 for none.
     @ObservationIgnored package var scrollbackLimit = 10_000
+    /// `terminal.c1Controls`, read when the session starts.
+    @ObservationIgnored package var acceptsC1 = false
     @ObservationIgnored package var blinkSchedule = BlinkSchedule()
     /// The theme's default colours (the configuration file's), applied to the terminal when it starts and whenever they change.
     @ObservationIgnored package var defaultColors = DefaultColors()
@@ -138,7 +140,8 @@ package import SunsetRuntime
                 rows: size.rows,
                 environment: environment,
                 directory: startDirectory,
-                scrollbackLimit: scrollbackLimit
+                scrollbackLimit: scrollbackLimit,
+                acceptsC1: acceptsC1
             )
             self.session = session
             deliverPendingCommand()

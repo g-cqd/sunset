@@ -61,7 +61,7 @@ docs/research/credentials/; docs/research/threat-model-sota-2026-11-21.md (the s
 | A page phishes a fill, reads secrets from hidden fields | A1 | — (no fill yet) | ADR-0094: the person's act, same origin, shown fields, suggestions drawn outside the page |
 | A page abuses permissions (camera, notifications, pop-ups, sound) | A1 | Answers per site, asked on gesture, limits (0045, ADR-0061, ADR-0077) | One table of every permission's policy and its test |
 | A hostile page exploits WebKit | A1 → A10 | WebKit's sandbox, Apple's updates | Per-navigation hardening (no JIT, `securityRestrictionMode`), HTTPS upgrade (realism study) |
-| Escape sequences act outside the screen | A2 | ADR-0010, ADR-0026, ADR-0027: no title, clipboard or font reports, no DECRQSS, bounded replies, REP capped, OSC 7 never looked up | Fuzz targets (0012) with a known-CVE corpus (vt-houdini); **C1 controls inside UTF-8 act as controls** (U+009B is CSI): to refuse by default, as the 2023 research recommends |
+| Escape sequences act outside the screen | A2 | ADR-0010, ADR-0026, ADR-0027: no title, clipboard or font reports, no DECRQSS, bounded replies, REP capped, OSC 7 never looked up | Fuzz targets (0012) with a known-CVE corpus (vt-houdini); C1 controls inside UTF-8 dropped by default since 2026-11-21 (a setting turns them on) |
 | A paste runs commands the person did not see | A1/A2 | Bracketed paste | A warning for multi-line or control pastes |
 | Keys logged while typing a password in the terminal | A3 | — | Secure keyboard entry |
 | Behaviour read from Sunset's files | A3, A4 | Sealed payloads, 0600/0700, `secure_delete`, the WAL truncated | t48 C (times, counts, kinds, row keys) |

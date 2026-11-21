@@ -61,6 +61,7 @@ extension VTParser {
             sink.print((Unicode.Scalar(value) ?? VTParser.replacement))
             return
         }
+        guard acceptsC1 else { return }
         switch value {
             case 0x90: beginDCS()
             case 0x98: beginString(.sos, into: &sink)

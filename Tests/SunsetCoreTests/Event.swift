@@ -15,8 +15,8 @@ enum Event: Equatable {
 }
 
 /// Parses `input` in pieces of the given sizes (the last piece takes the rest) and returns the events.
-func parse(_ input: [UInt8], pieces: [Int] = [], maxStringLength: Int = 1 << 20) -> [Event] {
-    var parser = VTParser(maxStringLength: maxStringLength)
+func parse(_ input: [UInt8], pieces: [Int] = [], maxStringLength: Int = 1 << 20, acceptsC1: Bool = false) -> [Event] {
+    var parser = VTParser(maxStringLength: maxStringLength, acceptsC1: acceptsC1)
     var sink = Recorder()
     var offset = 0
     for size in pieces + [input.count] where offset < input.count {
@@ -30,8 +30,8 @@ func parse(_ input: [UInt8], pieces: [Int] = [], maxStringLength: Int = 1 << 20)
     return sink.events
 }
 
-func parse(_ text: String, pieces: [Int] = [], maxStringLength: Int = 1 << 20) -> [Event] {
-    parse(Array(text.utf8), pieces: pieces, maxStringLength: maxStringLength)
+func parse(_ text: String, pieces: [Int] = [], maxStringLength: Int = 1 << 20, acceptsC1: Bool = false) -> [Event] {
+    parse(Array(text.utf8), pieces: pieces, maxStringLength: maxStringLength, acceptsC1: acceptsC1)
 }
 
 func text(_ string: String) -> [Event] {

@@ -46,7 +46,7 @@ extension VTParser {
                 state = .stringEscape
             case 0x07 where kind == .osc:
                 endString(completed: true, terminator: .bel, into: &sink)
-            case 0xC2:
+            case 0xC2 where acceptsC1:
                 heldC2 = true
             default:
                 deliverByte(byte, to: &sink)

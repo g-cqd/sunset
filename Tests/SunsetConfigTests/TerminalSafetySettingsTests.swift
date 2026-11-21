@@ -24,4 +24,12 @@ struct TerminalSafetySettingsTests {
         #expect(Mode.always.holds(asking: false, focused: true) && !Mode.always.holds(asking: true, focused: false))
         #expect(!Mode.off.holds(asking: true, focused: true))
     }
+
+    /// Threat model A2: C1 controls inside UTF-8 are refused unless the person turns them on.
+    @Test func `C1 controls inside UTF-8: off by default, read, and written`() throws {
+        #expect(!Configuration().terminal.c1Controls)
+        let read = try ConfigurationParser.parse(#"{ "terminal": { "c1Controls": true } }"#)
+        #expect(read.issues.isEmpty && read.configuration.terminal.c1Controls)
+        #expect(ConfigurationKeys.all.contains("terminal.c1Controls"))
+    }
 }

@@ -11,6 +11,7 @@ import SunsetWeb
 extension TerminalModel {
     func wire(to tabs: TabsModel) {
         hostPolicy = { HostPolicy(clipboardWrite: AppConfiguration.shared.configuration.terminal.clipboardWrite) }
+        acceptsC1 = AppConfiguration.shared.configuration.terminal.c1Controls
         onZoomRequest = { AppActions.shared.zoomFont(by: $0) }
         // The system's pasteboard and whether Sunset is in front: the terminal's model knows no AppKit (roadmap 0086 D).
         writeClipboard = { text in

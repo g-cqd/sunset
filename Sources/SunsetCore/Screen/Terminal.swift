@@ -1,15 +1,17 @@
 /// A headless terminal: bytes in, a screen out. The parser feeds the screen directly (the screen is its sink, in this module, so it is specialised).
 public struct Terminal: Sendable {
     public private(set) var screen: Screen
-    private var parser = VTParser()
+    private var parser: VTParser
 
     public init(
         columns: Int,
         rows: Int,
         scrollbackLimit: Int = 10_000,
         clusterLimit: Int = 1 << 20,
-        palette: Palette = Palette()
+        palette: Palette = Palette(),
+        acceptsC1: Bool = false
     ) {
+        parser = VTParser(acceptsC1: acceptsC1)
         screen = Screen(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit, clusterLimit: clusterLimit)
         screen.palette = palette
     }

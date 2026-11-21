@@ -11,6 +11,10 @@
 public struct VTParser: Sendable {
     /// Longest string content (OSC, DCS, APC, PM, SOS) passed on; the rest of a longer one is dropped and the string ends with `completed: false`.
     public let maxStringLength: Int
+    /// Whether a C1 control encoded in UTF-8 (U+0080 to U+009F: U+009B is CSI) acts as one. Off, it is dropped and does not
+    /// end a string: a program that escapes ESC before printing untrusted text rarely escapes these (threat model A2;
+    /// Leadbeater, 2023). The 7-bit forms (ESC [, ESC ]) are unaffected.
+    public var acceptsC1: Bool
 
     enum State: UInt8, Sendable {
         case ground, escape, escapeIntermediate
@@ -57,8 +61,9 @@ public struct VTParser: Sendable {
     /// What an invalid UTF-8 sequence becomes.
     static let replacement: Unicode.Scalar = "\u{FFFD}"
 
-    public init(maxStringLength: Int = 1 << 20) {
+    public init(maxStringLength: Int = 1 << 20, acceptsC1: Bool = false) {
         self.maxStringLength = maxStringLength
+        self.acceptsC1 = acceptsC1
     }
 
     public mutating func parse<Sink: VTSink>(_ input: Span<UInt8>, into sink: inout Sink) {

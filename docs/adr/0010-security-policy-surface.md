@@ -24,6 +24,7 @@ Owner note n5 asks for the whole OSC set. A terminal reads bytes written by what
 | **OSC 1337** (iTerm2) | `SetMark` (= a prompt mark) and `CurrentDir` only | everything else (file transfer, inline images, user variables, `RequestUpload`) is ignored until graphics have their own policy (file reads, shared memory, quotas) |
 | **OSC 66** text sizing | not yet (needs the renderer) | |
 | Paste | bracketed when the program asked; the end marker is stripped (done) | |
+| **C1 controls in UTF-8** (U+0080–U+009F; U+009B is CSI) | **dropped** (2026-11-21) | `terminal.c1Controls` turns them on for new terminals; the 7-bit forms (ESC [, ESC ]) are unaffected |
 | Query replies | only safe ones (ADR-0026) | |
 | Remote control | peer-credential check on the socket, ADR-0022 | |
 

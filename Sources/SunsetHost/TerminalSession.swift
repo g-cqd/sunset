@@ -37,9 +37,12 @@ public actor TerminalSession {
         rows: Int = 24,
         environment: [String: String] = [:],
         directory: String? = nil,
-        scrollbackLimit: Int = 10_000
+        scrollbackLimit: Int = 10_000,
+        acceptsC1: Bool = false
     ) throws {
-        core = SessionCore(Terminal(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit))
+        core = SessionCore(
+            Terminal(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit, acceptsC1: acceptsC1)
+        )
         process = try PTYProcess.spawn(
             command,
             environment: environment,

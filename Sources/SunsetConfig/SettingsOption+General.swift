@@ -125,6 +125,17 @@ extension SettingsOption {
                 "paste warning newline commands control hidden characters",
                 \.terminal.pasteWarning,
                 label: "Ask before pasting text that runs commands or hides characters"
+            ),
+            toggle(
+                "terminal.c1Controls",
+                "Accept 8-bit controls",
+                "c1 controls csi 0x9b utf-8 escape security",
+                \.terminal.c1Controls,
+                label: "Programs may use 8-bit control characters"
+            )
+            .noted(
+                "Off, controls sent as text (U+0080 to U+009F) are dropped: tools that escape output rarely escape these. "
+                    + "New terminals only."
             )
         ]
 

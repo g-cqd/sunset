@@ -82,18 +82,37 @@ import Testing
         )
     }
 
-    @Test func `C1 controls arriving as UTF-8 scalars act as controls`() {
+    @Test func `C1 controls arriving as UTF-8 scalars act as controls when accepted`() {
         // U+009B is CSI, U+009C is ST, U+009D is OSC.
         #expect(
-            parse("\u{9B}1;2H") == [.csi(marker: 0, parameters: [1, 2], subMask: 0, intermediates: [], final: 0x48)]
+            parse("\u{9B}1;2H", acceptsC1: true) == [
+                .csi(marker: 0, parameters: [1, 2], subMask: 0, intermediates: [], final: 0x48)
+            ]
         )
         #expect(
-            parse("\u{9D}0;t\u{9C}") == [
+            parse("\u{9D}0;t\u{9C}", acceptsC1: true) == [
                 .stringStart(.osc, header: [], marker: 0, intermediates: [], final: 0), .stringBytes(Array("0;t".utf8)),
                 .stringEnd(completed: true)
             ]
         )
-        #expect(parse("\u{85}") == [.execute(0x85)])
+        #expect(parse("\u{85}", acceptsC1: true) == [.execute(0x85)])
+    }
+
+    /// Threat model A2 (Leadbeater, 2023): a program that escapes ESC before printing untrusted text rarely escapes U+009B;
+    /// by default a C1 control inside UTF-8 is dropped, neither acted on nor shown, and does not end a string.
+    @Test func `by default C1 controls inside UTF-8 are dropped, and do not end a string`() {
+        #expect(parse("a\u{9B}1;2Hb") == text("a1;2Hb"))
+        #expect(parse("\u{85}x") == text("x"))
+        #expect(
+            parse("\u{1B}]0;t\u{9C}u\u{07}") == [
+                .stringStart(.osc, header: [], marker: 0, intermediates: [], final: 0),
+                .stringBytes(Array("0;t\u{9C}u".utf8)),
+                .stringEnd(completed: true)
+            ]
+        )
+        #expect(
+            parse("\u{1B}[1;2H") == [.csi(marker: 0, parameters: [1, 2], subMask: 0, intermediates: [], final: 0x48)]
+        )
     }
 
     @Test func `a non-ASCII byte inside a sequence abandons it and is read afresh`() {
@@ -102,7 +121,7 @@ import Testing
 
     @Test func `a string reports how it ended`() {
         func endings(_ text: String) -> [StringTerminator] {
-            var parser = VTParser()
+            var parser = VTParser(acceptsC1: true)
             var sink = Recorder()
             var bytes = text
             bytes.withUTF8 { parser.parse($0.span, into: &sink) }
