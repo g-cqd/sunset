@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 22:48:34 +0100
-Subject: [PATCH 14/16] Web Extensions: test that a blocking webRequest
- listener redirects a request (Sunset W6b)
+Subject: [PATCH] Web Extensions: test that a blocking webRequest listener
+ redirects a request (Sunset W6b)
 
 WKWebExtensionAPIWebRequestTests.blockingListenerRedirectsRequest: a listener redirects /old.txt to /new.txt; a fetch
 of /old.txt gives the new text.

@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 22:48:22 +0100
-Subject: [PATCH 12/16] Web Extensions: blocking webRequest decides before the
- HTTP cache too (Sunset W6a)
+Subject: [PATCH] Web Extensions: blocking webRequest decides before the HTTP
+ cache too (Sunset W6a)
 
 The load was held in continueStartNetworkLoad, which a load answered from the HTTP cache never reaches: a cached
 script was never shown to a blocking listener (seen with uBlock Origin: its ads page, loaded before, blocked nothing).

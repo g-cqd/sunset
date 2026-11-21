@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Sat, 21 Nov 2026 00:38:00 +0100
-Subject: [PATCH 15/16] Web Extensions: a blocking webRequest redirect to the
+Subject: [PATCH] Web Extensions: a blocking webRequest redirect to the
  extension's own file or to data: answers the request (Sunset W6d)
 
 uBlock Origin answers some requests with a neutered script of its own (a surrogate): { redirectUrl } to one of its web

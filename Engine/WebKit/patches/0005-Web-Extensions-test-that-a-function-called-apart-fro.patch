@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 20:15:09 +0100
-Subject: [PATCH 05/16] Web Extensions: test that a function called apart from
- its namespace finds it (Sunset W1)
+Subject: [PATCH] Web Extensions: test that a function called apart from its
+ namespace finds it (Sunset W1)
 
 WKWebExtensionAPINamespaceTests.functionCalledApartFromItsNamespace: runtime.getURL read into a variable and called,
 called with a null this, read twice (the same function), and getManifest destructured. Fails without the previous patch

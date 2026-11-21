@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Sat, 21 Nov 2026 00:38:02 +0100
-Subject: [PATCH 16/16] Web Extensions: test that a blocking webRequest
- redirect to a surrogate answers the request (Sunset W6d)
+Subject: [PATCH] Web Extensions: test that a blocking webRequest redirect to a
+ surrogate answers the request (Sunset W6d)
 
 WKWebExtensionAPIWebRequestTests.blockingListenerRedirectsToSurrogate: /analytics.js redirected to the extension's web
 accessible noop.js, /jquery.js to a data: script; both load as their stand-ins (the originals never run). Fails without

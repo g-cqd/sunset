@@ -1,0 +1,75 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 01:08:21 +0100
+Subject: [PATCH] Web Extensions: test that a blocking webRequest listener may
+ answer with a Promise (Sunset W6e)
+
+WKWebExtensionAPIWebRequestTests.blockingListenerAnswersWithPromise: the listener answers after 50 ms with a Promise;
+/blocked.js is cancelled, /allowed.js loads. Fails without the previous patch (blocked.js loads).
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index dc5e8b725..57cb5ffa1 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -288,6 +288,61 @@ struct WKWebExtensionAPIWebRequestTests {
+         }
+     }
+ 
++    // A blocking listener may answer with a Promise, as Firefox allows (uBlock Origin does, after looking up a host's
++    // name): the request waits for it. WebKit took a Promise for no answer.
++    @Test
++    func blockingListenerAnswersWithPromise() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                ""
++            }
++            Route("/blocked.js", headerFields: ["Content-Type": "text/javascript"]) {
++                ""
++            }
++            Route("/allowed.js", headerFields: ["Content-Type": "text/javascript"]) {
++                ""
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            browser.webRequest.onBeforeRequest.addListener((details) => new Promise((resolve) => {
++                setTimeout(() => resolve(details.url.includes('blocked.js') ? { cancel: true } : { }), 50)
++            }), { urls: ['<all_urls>'] }, ['blocking'])
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++
++            let fetchScript = "return await fetch(path).then(() => 'loaded', () => 'blocked')"
++            let blocked = try await webView.callAsyncJavaScript(fetchScript, arguments: ["path": "/blocked.js"], contentWorld: .page) as? String
++            let allowed = try await webView.callAsyncJavaScript(fetchScript, arguments: ["path": "/allowed.js"], contentWorld: .page) as? String
++
++            #expect(blocked == "blocked")
++            #expect(allowed == "loaded")
++        }
++    }
++
+     @Test
+     func manifestV2Persistent() async throws {
+         let backgroundScript = """

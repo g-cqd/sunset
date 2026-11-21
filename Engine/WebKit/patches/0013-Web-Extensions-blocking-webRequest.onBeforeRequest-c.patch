@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 22:48:33 +0100
-Subject: [PATCH 13/16] Web Extensions: blocking webRequest.onBeforeRequest can
+Subject: [PATCH] Web Extensions: blocking webRequest.onBeforeRequest can
  redirect a request (Sunset W6b)
 
 A blocking listener's { redirectUrl } now redirects the request, as in Firefox and Chrome (Manifest V2); uBlock Origin

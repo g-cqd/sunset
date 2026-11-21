@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 22:18:23 +0100
-Subject: [PATCH 04/16] Web Extensions: a function called apart from its
- namespace finds it (Sunset W1)
+Subject: [PATCH] Web Extensions: a function called apart from its namespace
+ finds it (Sunset W1)
 
 `const getURL = browser.runtime.getURL; getURL(path)` gave undefined: each generated function finds its object from
 `this`, and a detached call has none. Firefox and Chrome give the URL; uBlock Origin's background page does this at its

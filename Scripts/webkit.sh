@@ -74,7 +74,7 @@ move)
     ;;
 export)
     rm -f "$patches"/*.patch
-    git_wk format-patch -q --zero-commit --no-signature --no-stat -o "$patches" "$(cat Engine/WebKit/base)..HEAD"
+    git_wk format-patch -q --no-numbered --zero-commit --no-signature --no-stat -o "$patches" "$(cat Engine/WebKit/base)..HEAD"
     ls "$patches"
     ;;
 *)

@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gigi <42325924+g-cqd@users.noreply.github.com>
 Date: Fri, 20 Nov 2026 22:18:21 +0100
-Subject: [PATCH 02/16] Web Extensions: what a script adds to a namespace
- object is kept (Sunset W3)
+Subject: [PATCH] Web Extensions: what a script adds to a namespace object is
+ kept (Sunset W3)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
