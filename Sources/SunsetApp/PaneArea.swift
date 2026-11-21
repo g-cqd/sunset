@@ -102,7 +102,6 @@ struct PaneArea: View {
                 .overlay(alignment: .topLeading) {
                     dropPreview(item: item, bounds: bounds, space: space, radius: radius, card: card)
                     // While a drag the panes would take is under way, and none is under the pointer: each outlined.
-                    if dropTarget == nil, tabs.dragTargets?.panes == true { dropOutlines(frames, radius: radius) }
                 }
                 // The tabs' previews are drawn by the window, over a floating sidebar too (`PanePreviews`, roadmap 0047 B).
                 .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { tabs.paneAreaFrame = $0 }
@@ -150,27 +149,12 @@ struct PaneArea: View {
                 layout: layout
             )
             let shape = UnevenRoundedRectangle(cornerRadii: radii, style: .continuous)
-            shape.fill(accent.color.opacity(Design.Fill.target))
-                .overlay { shape.strokeBorder(accent.color.opacity(Design.Fill.armedButton), lineWidth: 1.5) }
+            DropVeil(shape: shape)
                 .frame(width: frame.width, height: frame.height)
                 .offset(x: frame.minX, y: frame.minY)
                 .allowsHitTesting(false)
                 .animation(layout.smooth, value: frame)
         }
-    }
-
-    /// The panes a drag could be dropped on, outlined (the owner, 2026-11-17: "the target area show so that we know where
-    /// to drop tabs").
-    private func dropOutlines(_ frames: [PaneID: CGRect], radius: Double) -> some View {
-        ForEach(Array(frames.keys.filter { tabs.canDrop(onto: $0) }), id: \.self) { pane in
-            if let frame = frames[pane] {
-                Color.clear
-                    .frame(width: frame.width, height: frame.height)
-                    .dropTarget(shown: true, targeted: false, radius: radius)
-                    .offset(x: frame.minX, y: frame.minY)
-            }
-        }
-        .allowsHitTesting(false)
     }
 
     /// The view of a pane's content; while the kept entry it belongs to is live in another window, its last picture instead (one view per content).

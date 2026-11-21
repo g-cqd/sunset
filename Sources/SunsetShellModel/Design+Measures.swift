@@ -21,6 +21,10 @@ extension Design {
         /// The shown row among several selected: the selection's accent, stronger (the owner, 2026-11-17).
         package static let markedShown = 0.34
         package static let markedShownHover = 0.42
+        /// Where a drag would land: a white veil and edge, blended with what is under it (note n79: white, blended in the
+        /// chrome).
+        package static let dropVeil = 0.14
+        package static let dropEdge = 0.45
         package static let target = 0.22
         /// A busy tab whose close was clicked once (red), at rest and under the pointer; its outline; its close button.
         package static let armed = 0.2

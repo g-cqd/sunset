@@ -1,27 +1,18 @@
 package import SwiftUI
 
-/// A place a drag could be dropped, outlined while the drag is under way (the owner, 2026-11-17: "the target area show
-/// so that we know where to drop tabs"): a dashed line in the accent's colour, and under the pointer a fill and a full
-/// line. Drawn inside the place's bounds: nothing moves.
+/// The place a drag would land, under the pointer only (the owner, 2026-11-21, note n79: fewer targets, white, blended in
+/// the chrome; it replaced outlining every place that could take the drag): a white veil and edge, blended with what is
+/// under them. Drawn inside the place's bounds.
 package struct DropTargetOutline: ViewModifier {
     let shown: Bool
     let targeted: Bool
     let radius: Double
-    @Environment(\.accent) private var accent
 
     package func body(content: Content) -> some View {
         content.overlay {
-            if shown {
-                let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-                ZStack {
-                    shape.fill(accent.color.opacity(targeted ? Design.Fill.target : Design.Fill.faint))
-                    shape.strokeBorder(
-                        accent.color.opacity(targeted ? 1 : Design.Line.dropOutline),
-                        style: StrokeStyle(lineWidth: 1, dash: targeted ? [] : Design.Line.dropDash)
-                    )
-                }
-                .allowsHitTesting(false)
-                .transition(.opacity)
+            if shown, targeted {
+                DropVeil(shape: RoundedRectangle(cornerRadius: radius, style: .continuous))
+                    .transition(.opacity)
             }
         }
     }

@@ -27,6 +27,7 @@ struct PaneDropDelegate: DropDelegate {
 
     func dropExited(info: DropInfo) {
         target = nil
+        _ = Feedback.sidebarFeel.over(nil)
     }
 
     func performDrop(info: DropInfo) -> Bool {
@@ -42,5 +43,7 @@ struct PaneDropDelegate: DropDelegate {
         guard tabs.hasDrag else { return }
         let found = DropZone.target(at: info.location, among: frames)
         target = found.flatMap { tabs.canDrop(onto: $0.pane) ? $0 : nil }
+        // A tick as it snaps onto another pane's edge (note n79).
+        if Feedback.sidebarFeel.over(target.map { "\($0.pane)|\($0.edge)" }) { Feedback.snapped() }
     }
 }

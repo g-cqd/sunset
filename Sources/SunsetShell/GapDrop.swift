@@ -77,4 +77,9 @@ extension ShellSettings.Layout {
     var gapMarkOutset: Double {
         (tabSpacing + Design.Space.hair) / 2
     }
+
+    /// How much room the rows make where a dragged tab would go (note n79): a third of a row.
+    var rowMakingRoom: Double {
+        Design.Space.xl
+    }
 }

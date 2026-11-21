@@ -26,6 +26,15 @@ package enum Feedback {
         )
     }
 
+    /// A drag snapped onto a new place that takes it (note n79): the alignment tick, the lightest the trackpad has.
+    package static func snapped() {
+        guard taps else { return }
+        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+    }
+
+    /// Where a drag over the sidebar would land, the last time it was asked: a tick when it changes (`DropFeel`).
+    package static var sidebarFeel = DropFeel<String>()
+
     /// A drop's answer: refused, it is said (a firmer tap, VoiceOver); taken, nothing more than what it moved.
     /// - Parameter taken: what the drop returned.
     /// - Returns: `taken`, for `performDrop` to return.

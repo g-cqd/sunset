@@ -38,6 +38,7 @@ struct PlacedDropDelegate<Owner: Equatable, Place>: DropDelegate {
     /// The pointer is at `point` over it: its mark says what a drop would do, or it has none.
     func over(_ point: CGPoint) {
         if let place = place(point) {
+            if Feedback.sidebarFeel.over("\(owner)|\(place)") { Feedback.snapped() }
             active = (owner, place)
         } else {
             clear()
@@ -59,6 +60,7 @@ struct PlacedDropDelegate<Owner: Equatable, Place>: DropDelegate {
     }
 
     private func clear() {
+        _ = Feedback.sidebarFeel.over(nil)
         if active?.owner == owner {
             active = nil
         }

@@ -2,8 +2,8 @@ import SunsetPane
 import SwiftUI
 
 /// A tab or pane dragged over a tab row in the sidebar: the top and bottom quarters reorder before or after the row, and the
-/// middle half splits with the row's tab on the left or right (`TabDropAction`, `n25`). A kept entry cannot be split with a
-/// tab: over a tab's row it goes before or after it, by halves.
+/// middle half splits with the row's tab on the left or right (`TabDropAction`, `n25`). A favorite splits too (the owner,
+/// 2026-11-21); a pinned tab cannot be split with a tab: over a tab's row it goes before or after it, by halves.
 enum TabRowDropDelegate {
     @MainActor
     static func make(
@@ -13,7 +13,7 @@ enum TabRowDropDelegate {
         active: Binding<(owner: Workspace.ItemID, place: TabDropAction)?>
     ) -> PlacedDropDelegate<Workspace.ItemID, TabDropAction> {
         let action: @MainActor (CGPoint) -> TabDropAction = { point in
-            guard case .entry = tabs.dragged else {
+            guard case .entry(let id) = tabs.dragged, tabs.isPinned(id) else {
                 return TabDropAction.resolve(at: point, in: size)
             }
             return point.y > size.height / 2 ? .moveAfter : .moveBefore

@@ -8,33 +8,31 @@ extension TabSidebar {
     /// tab, with its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
     /// Shows what dropping on this row will do: an insertion line at the top or bottom edge for reordering, or a left/right half highlight for splitting.
     @ViewBuilder func rowDropOverlay(_ action: TabDropAction) -> some View {
-        let accent = accentStyle.color
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         switch action {
-            // In the gap beside the row, where a drop there would land (roadmap 0038 F), not on the row's edge.
-            case .moveBefore:
-                VStack {
-                    Capsule().fill(accent).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
-                    Spacer(minLength: 0)
-                }
-                .padding(.vertical, -layout.gapMarkOutset)
-                .allowsHitTesting(false)
-            case .moveAfter:
-                VStack {
-                    Spacer(minLength: 0)
-                    Capsule().fill(accent).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
-                }
-                .padding(.vertical, -layout.gapMarkOutset)
-                .allowsHitTesting(false)
+            // Before or after: the rows make room (`RowMakingRoom`); no line.
+            case .moveBefore, .moveAfter:
+                EmptyView()
             case .split(let edge):
                 GeometryReader { proxy in
                     let half = proxy.size.width / 2
-                    shape.fill(accent.opacity(Design.Fill.target))
-                        .overlay { shape.strokeBorder(accent.opacity(Design.Fill.armedButton), lineWidth: 1.5) }
+                    DropVeil(shape: shape)
                         .frame(width: half, height: proxy.size.height)
                         .offset(x: edge == .right ? half : 0)
                 }
                 .allowsHitTesting(false)
         }
+    }
+
+    /// How far the row moves to make room where the dragged tab would go (note n79, `RowMakingRoom`).
+    func roomOffset(_ id: Workspace.ItemID) -> CGFloat {
+        guard let drop = rowDrop else { return 0 }
+        return RowMakingRoom.offset(
+            of: id,
+            rows: tabs.workspace.items.map(\.id),
+            owner: drop.owner,
+            action: drop.place,
+            room: layout.rowMakingRoom
+        )
     }
 }

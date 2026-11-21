@@ -33,7 +33,7 @@ package struct TabSidebar: View {
     /// How many buttons high the bar is: two while the downloads' button is above the Library's glyph (notes n60, n61).
     var bottomBarRows = 1
     /// The row a drag is over, and what a drop there would do.
-    @State private var rowDrop: (owner: Workspace.ItemID, place: TabDropAction)?
+    @State var rowDrop: (owner: Workspace.ItemID, place: TabDropAction)?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
     @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
     /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
@@ -199,6 +199,8 @@ package struct TabSidebar: View {
                     rowDropOverlay(action)
                 }
             }
+            .offset(y: roomOffset(item.id))
+            .animation(layout.smooth, value: roomOffset(item.id))
             .onHover { inside in
                 if inside {
                     if let slot = tabs.workspace.items.firstIndex(where: { $0.id == item.id }), closingSlot != slot {
