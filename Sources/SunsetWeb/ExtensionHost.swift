@@ -171,6 +171,13 @@ package import WebKit
         return contexts.values.first { $0.baseURL.host()?.lowercased() == host }?.webViewConfiguration
     }
 
+    /// The name of the extension whose pages are at `host` (its base URL's), if one of this profile's.
+    func name(ofPagesAt host: String) -> String? {
+        let host = host.lowercased()
+        guard let (id, _) = contexts.first(where: { $0.value.baseURL.host()?.lowercased() == host }) else { return nil }
+        return store.installed.first { $0.id == id }?.name
+    }
+
     func contextWith(identifier: String) -> WKWebExtensionContext? {
         contexts.values.first { $0.uniqueIdentifier == identifier }
     }

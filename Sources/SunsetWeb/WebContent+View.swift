@@ -67,12 +67,13 @@ extension WebContent {
         observe(view)
         soundWatch = WebAudio.watchPlaying(view) { [weak self] playing in self?.playsSound = playing }
         // A view WebKit made for a pop-up loads itself; one made here loads the page (an extension's included).
-        guard offered == nil else { return }
+        // An extension's page whose extensions have not loaded waits for them, its history kept for the view made then.
+        guard offered == nil, !waitsForExtensions() else { return }
         if let history = savedHistory {
             view.interactionState = history as NSData
             savedHistory = nil
         }
-        if view.url == nil, let url, !waitsForExtensions() { view.load(URLRequest(url: url)) }
+        if view.url == nil, let url { view.load(URLRequest(url: url)) }
     }
 
     func observe(_ view: WKWebView) {

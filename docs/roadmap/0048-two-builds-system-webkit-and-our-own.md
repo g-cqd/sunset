@@ -49,6 +49,7 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W8 | `runtime.onUpdateAvailable` missing | present | uBO on our WebKit (diary 2026-11-20-19) | `ExtensionPageShim`: an inert event (diary 2026-11-20-21) |
 | W9 | A custom scheme (`abp:*`) refused in `menus.create`'s `targetUrlPatterns` | accepted | the same | none |
 | W10 | `webRequest` events missing for loads answered from the HTTP cache | fired | diary 2026-11-20-21 | none (the blocking path is held before the cache: 0012) |
+| W11 | no `privacy` namespace (uBlock Origin from Firefox throws on every request for its settings: its dashboard showed every box off) | read-only settings, a change refused | diary 2026-11-21-03 | Sunset's shim, read-only, for extensions that ask for `privacy`; not fixed in WebKit, and no setting changes |
 | W6d | An extension's redirect to its own file or to `data:` (a surrogate) fails as a block | internal redirect, loads | diary 2026-11-21-01 | patched: 0015, 0016 |
 | W6e | A blocking listener's answer given as a Promise is ignored | awaited (Firefox) | the same (uBO's DNS check) | patched: 0017, 0018 |
 

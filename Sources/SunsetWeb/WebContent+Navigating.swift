@@ -36,7 +36,10 @@ extension WebContent {
     /// Loads the page again; `fromOrigin`: without what the cache holds (Shift-Cmd-R).
     package func reload(fromOrigin: Bool = false) {
         failure = nil
-        if let url, webView?.url == nil {
+        if let url, needsOtherView(for: url) {
+            // A page shown in a view of the wrong kind (an extension's page in a web view): made again, not reloaded there.
+            load(url)
+        } else if let url, webView?.url == nil {
             webView?.load(URLRequest(url: url))
         } else if fromOrigin {
             webView?.reloadFromOrigin()

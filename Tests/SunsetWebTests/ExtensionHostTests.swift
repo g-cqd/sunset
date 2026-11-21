@@ -40,7 +40,7 @@ struct ExtensionHostTests {
         return folder
     }
 
-    private func dataset(of path: String, private isPrivate: Bool, profile: UUID, port: UInt16) async throws -> [String:
+    func dataset(of path: String, private isPrivate: Bool, profile: UUID, port: UInt16) async throws -> [String:
         Any]
     {
         var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")

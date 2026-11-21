@@ -69,6 +69,31 @@ enum ExtensionPageShim {
             source: """
                 put(root.runtime, "onUpdateAvailable", event());
                 """
+        ),
+        Part(
+            defect: """
+                W11: no `privacy` namespace; uBlock Origin from Firefox throws on each request for its settings without it. \
+                Here read-only, for an extension that asks for it: WebKit's own values, "not_controllable", a change \
+                answered `false` (as Firefox answers a setting it does not change)
+                """,
+            source: """
+                const asks = (() => {
+                  try { return (root.runtime.getManifest().permissions || []).includes("privacy"); } catch { return false; }
+                })();
+                if (asks) {
+                  const setting = (value) => ({
+                    get: async () => ({ value, levelOfControl: "not_controllable" }),
+                    set: async () => false,
+                    clear: async () => false,
+                    onChange: event()
+                  });
+                  // WebKit's own: link prefetching on (`LinkPrefetchEnabled`), pings always sent (WebKit has no switch).
+                  put(root, "privacy", {
+                    network: { networkPredictionEnabled: setting(true), webRTCIPHandlingPolicy: setting("default") },
+                    websites: { hyperlinkAuditingEnabled: setting(true) }
+                  });
+                }
+                """
         )
     ]
 

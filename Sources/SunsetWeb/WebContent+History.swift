@@ -1,9 +1,15 @@
 import WebKit
 
 extension WebContent {
-    /// The address as a field shows it when not typed in: the host, without "www." (Safari's way).
+    /// The address as a field shows it when not typed in: the host, without "www." (Safari's way); for an extension's page,
+    /// the extension's name.
     package var shownHost: String {
         guard let host = url?.host() else { return url?.absoluteString ?? "" }
+        if url?.scheme == "webkit-extension", !isPrivate,
+            let name = ExtensionHosts.shared.host(for: settings.profile)?.name(ofPagesAt: host)
+        {
+            return name
+        }
         return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
     }
 
