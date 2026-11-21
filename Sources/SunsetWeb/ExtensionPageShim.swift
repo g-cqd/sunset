@@ -72,6 +72,56 @@ enum ExtensionPageShim {
         ),
         Part(
             defect: """
+                W12: no `contentScripts.register` (Firefox's content scripts from code); uBlock Origin from Firefox \
+                injects a site's scriptlets once by hand, then leaves later visits to it. Here, for an extension that \
+                may read addresses: the scripts run once a matching page commits (not before the page's own scripts, as \
+                in Firefox: that needs WebKit)
+                """,
+            source: """
+                if (typeof root.contentScripts === "undefined" && root.webNavigation && root.tabs &&
+                    typeof root.tabs.executeScript === "function") {
+                  const escape = (text) => text.replace(/[.+?^${}()|[\\]\\\\]/g, "\\\\$&");
+                  const pattern = (match) => {
+                    if (match === "<all_urls>") return /^(https?|wss?|file|ftp):\\/\\//;
+                    const parts = /^(\\*|https?|wss?|file|ftp):\\/\\/([^/]*)(\\/.*)$/.exec(match);
+                    if (!parts) throw new Error(`Invalid match pattern: ${match}`);
+                    const scheme = parts[1] === "*" ? "https?" : parts[1];
+                    const host = parts[2] === "*" ? "[^/]*"
+                      : parts[2].startsWith("*.") ? `(?:[^/]*[.])?${escape(parts[2].slice(2))}` : escape(parts[2]);
+                    const path = escape(parts[3]).replace(/\\*/g, ".*");
+                    return new RegExp(`^${scheme}://${host}(?::[0-9]+)?${path}$`);
+                  };
+                  const registered = new Set();
+                  const run = (details) => {
+                    for (const entry of registered) {
+                      if (details.frameId !== 0 && !entry.allFrames) continue;
+                      if (!entry.matches.some((re) => re.test(details.url))) continue;
+                      if (entry.excludes.some((re) => re.test(details.url))) continue;
+                      const where = { frameId: details.frameId, runAt: entry.runAt, matchAboutBlank: entry.aboutBlank };
+                      for (const css of entry.css) root.tabs.insertCSS(details.tabId, { ...where, ...css }).catch(() => {});
+                      for (const js of entry.js) root.tabs.executeScript(details.tabId, { ...where, ...js }).catch(() => {});
+                    }
+                  };
+                  let listening = false;
+                  put(root, "contentScripts", {
+                    register: async (options) => {
+                      if (options.world === "MAIN") throw new Error("contentScripts.register: the MAIN world is not supported");
+                      const entry = {
+                        matches: (options.matches || []).map(pattern),
+                        excludes: (options.excludeMatches || []).map(pattern),
+                        js: options.js || [], css: options.css || [], allFrames: options.allFrames === true,
+                        runAt: options.runAt || "document_idle", aboutBlank: options.matchAboutBlank === true
+                      };
+                      registered.add(entry);
+                      if (!listening) { listening = true; root.webNavigation.onCommitted.addListener(run); }
+                      return { unregister: async () => { registered.delete(entry); } };
+                    }
+                  });
+                }
+                """
+        ),
+        Part(
+            defect: """
                 W11: no `privacy` namespace; uBlock Origin from Firefox throws on each request for its settings without it. \
                 Here read-only, for an extension that asks for it: WebKit's own values, "not_controllable", a change \
                 answered `false` (as Firefox answers a setting it does not change)
