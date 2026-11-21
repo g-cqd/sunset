@@ -18,8 +18,11 @@ package enum SunsetAlertSheet {
             backing: .buffered,
             defer: false
         )
+        // One panel: the alert's own surface. The sheet only holds it, drawing nothing and casting no shadow of its own (seen:
+        // macOS's sheet frame around Sunset's panel, two windows one in the other).
         sheet.isOpaque = false
         sheet.backgroundColor = .clear
+        sheet.hasShadow = false
         sheet.titlebarAppearsTransparent = true
         sheet.titleVisibility = .hidden
         var answered = false
