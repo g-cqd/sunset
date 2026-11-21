@@ -38,18 +38,23 @@ struct DefaultBrowserRow: View {
     }
 
     private func makeDefault() {
-        let app = Bundle.main.bundleURL
         runtime.task { @MainActor in
-            var refused = false
-            for scheme in ["http", "https"] {
-                do {
-                    try await NSWorkspace.shared.setDefaultApplication(at: app, toOpenURLsWithScheme: scheme)
-                } catch {
-                    refused = true
-                }
-            }
-            failed = refused
+            failed = await !Self.makeSunsetDefault()
             isDefault = Self.sunsetIsDefault()
         }
+    }
+
+    /// Asks macOS to open web links with Sunset (it asks the person to confirm); false when it refused.
+    static func makeSunsetDefault() async -> Bool {
+        let app = Bundle.main.bundleURL
+        var refused = false
+        for scheme in ["http", "https"] {
+            do {
+                try await NSWorkspace.shared.setDefaultApplication(at: app, toOpenURLsWithScheme: scheme)
+            } catch {
+                refused = true
+            }
+        }
+        return !refused
     }
 }

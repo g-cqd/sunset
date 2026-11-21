@@ -35,19 +35,11 @@ struct FeaturesSettings: View {
     }
 
     private func isOn(_ scope: Scopes.Scope) -> Bool {
-        switch scope {
-            case .terminal: features.terminal
-            case .web: features.web
-            case .documents: features.documents
-        }
+        features[scope: scope]
     }
 
     private func set(_ scope: Scopes.Scope, _ value: Bool) {
-        switch scope {
-            case .terminal: features.terminal = value
-            case .web: features.web = value
-            case .documents: features.documents = value
-        }
+        features[scope: scope] = value
     }
 
     /// On at once; off at once when nothing of the scope is open, else after the question.

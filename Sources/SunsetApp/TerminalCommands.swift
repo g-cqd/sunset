@@ -31,6 +31,7 @@ struct TerminalCommands: Commands {
         // Help is a tab of its own window (roadmap 0041 E; the owner, 2026-11-17: a window reusing the shell).
         CommandGroup(replacing: .help) {
             Button("Sunset Help") { AppActions.shared.showHelp() }.keyboardShortcut("?", modifiers: .command)
+            Button("Welcome to Sunset") { WelcomeWindow.shared.open(withOpening: true) }
         }
         CommandGroup(replacing: .appSettings) {
             Button("Settings\u{2026}") { AppActions.shared.showSettings() }.keyboardShortcut(",")

@@ -38,6 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             SystemAuthorizations.shared.start()
             AppConfiguration.shared.applyScheme()
             AppConfiguration.shared.applyIcon()
+            WelcomeWindow.shared.openIfFirstLaunch()
         }
     }
 

@@ -1,0 +1,57 @@
+package import CoreGraphics
+
+/// The welcome's opening at one moment (roadmap 0084 G). The owner, 2026-11-21: the sun and the sky in phases of their
+/// own; "remove the purple shades from the animation and fade the sun into the window"; no drawn stand-in for the window
+/// ("avoid faking stuff"). So: the sun alone fades in, out of focus, slowly, over what is on screen; then the real window
+/// fades in where it stands, its content coming into focus, and the opening's sun fades as the window's own takes over.
+/// Coordinates are SwiftUI's (y down).
+package struct WelcomeOpening: Equatable {
+    /// The opening's sun: how much of it shows, and how far out of focus it is (1: a wide blur, 0: sharp).
+    package var sunOpacity: Double
+    package var sunDefocus: Double
+    /// The real window: its opacity, and the blur of its content.
+    package var windowOpacity: Double
+    package var contentBlur: CGFloat
+    package var sun: CGPoint
+
+    package static let duration = 6.2
+    package static let sunPhase = (start: 0.0, length: 3.3)
+    package static let windowPhase = (start: 3.4, length: 2.8)
+    /// The content's blur as the window starts to show.
+    package static let startBlur: CGFloat = 28
+    /// Where the window's sky keeps the sun, from its top, as a share of its height.
+    package static let sunHeight: CGFloat = 0.9
+
+    /// The opening `time` seconds in, for a window at `frame`.
+    package static func at(_ time: Double, frame: CGRect) -> Self {
+        let rising = smooth(progress(time, sunPhase))
+        let showing = smooth(progress(time, windowPhase))
+        return Self(
+            sunOpacity: rising * (1 - showing),
+            sunDefocus: 1 - (0.55 * rising + 0.45 * showing),
+            windowOpacity: showing,
+            contentBlur: startBlur * (1 - showing),
+            sun: CGPoint(x: frame.midX, y: frame.minY + frame.height * sunHeight)
+        )
+    }
+
+    /// How far through `phase` `time` is, 0 to 1.
+    private static func progress(_ time: Double, _ phase: (start: Double, length: Double)) -> Double {
+        clamp((time - phase.start) / phase.length)
+    }
+
+    /// 0 to 1, eased in and out.
+    private static func smooth(_ value: Double) -> Double {
+        let x = clamp(value)
+        return x * x * (3 - 2 * x)
+    }
+
+    /// The sun's elevation in degrees `time` seconds in: rising from under the haze to where the window keeps it.
+    package static func elevation(at time: Double) -> Double {
+        -4 + 3.4 * (1 - pow(1 - clamp(time / duration), 3))
+    }
+
+    static func clamp(_ value: Double) -> Double {
+        min(max(value, 0), 1)
+    }
+}
