@@ -8,6 +8,7 @@ struct WelcomePage: View {
     let step: WelcomeStep
     let position: Int
     let count: Int
+    let greeting: WelcomeGreeting
     let store: AppConfiguration
     let close: () -> Void
 
@@ -15,8 +16,8 @@ struct WelcomePage: View {
         VStack(alignment: .leading, spacing: Design.Welcome.section) {
             VStack(alignment: .leading, spacing: Design.Space.s) {
                 Text("\(position) of \(count)").font(.subheadline).foregroundStyle(.secondary)
-                Text(Self.text(step).title).font(.largeTitle.bold())
-                Text(Self.text(step).line)
+                Text(text.title).font(.largeTitle.bold())
+                Text(text.line)
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -24,6 +25,11 @@ struct WelcomePage: View {
             controls.frame(maxWidth: Design.Welcome.column, alignment: .leading)
         }
         .foregroundStyle(.primary)
+    }
+
+    /// The page's question and line; the first page's, the easter egg's own.
+    private var text: (title: String, line: String) {
+        step == .hello ? greeting.text : Self.text(step)
     }
 
     @ViewBuilder private var controls: some View {
@@ -47,11 +53,7 @@ struct WelcomePage: View {
     /// Each page's question and the line under it.
     private static func text(_ step: WelcomeStep) -> (title: String, line: String) {
         switch step {
-            case .hello:
-                (
-                    "Welcome to Sunset",
-                    "A terminal, the web and documents, in tabs and Spaces of one window. A few questions follow; every answer can change later in Settings."
-                )
+            case .hello: WelcomeGreeting.first.text
             case .features: ("What will you use?", "Turn on what you need. The rest stays out of the menus.")
             case .security:
                 ("How careful should it be?", "One choice for the settings that weigh safety against pages working.")

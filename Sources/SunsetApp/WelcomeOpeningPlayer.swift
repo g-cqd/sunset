@@ -50,18 +50,20 @@ import SwiftUI
             end()
             return nil
         }
+        let start = Date.now
         Runtime.live.task { @MainActor in
             await Runtime.live.sleep(for: .seconds(WelcomeOpening.windowPhase.start))
             guard window === shown else { return }
             shown.alphaValue = 0
             show(shown)
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = WelcomeOpening.windowPhase.length
-                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                shown.animator().alphaValue = 1
-            } completionHandler: {
+            // The window's opacity from the model each frame, the same curve as its content's focus and the sun's fade (a
+            // Core Animation curve only came near it).
+            while window === shown {
+                let elapsed = Date.now.timeIntervalSince(start)
+                guard elapsed < WelcomeOpening.duration else { break }
+                shown.alphaValue = WelcomeOpening.at(elapsed, frame: .zero).windowOpacity
+                await Runtime.live.sleep(for: .milliseconds(8))
             }
-            await Runtime.live.sleep(for: .seconds(WelcomeOpening.duration - WelcomeOpening.windowPhase.start))
             end()
         }
     }

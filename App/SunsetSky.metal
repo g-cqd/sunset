@@ -146,12 +146,15 @@ static float3 sunLayer(float2 p, constant SkyUniforms &u, thread float &heart) {
     heart = exp(-pow(r / R, 2.2f)) * dim;
     float corona = exp(-pow(r / (R * 2.0f), 1.8f)) * dim;
     float bloom = exp(-pow(r / (R * 3.8f), 1.5f));
+    // A wide, faint warmth around it, reaching across the screen while it is out of focus (the owner, 2026-11-21:
+    // "a wider surface to still cover the screen"); in focus, the window's sky gives the warmth instead.
+    float wash = exp(-r / (u.frameSize.y * 1.1f)) * 0.22f * defocus;
     // Under the horizon the haze takes its lower part, once it is in focus.
     float below = max(p.y - u.sun.y, 0.0f) / u.frameSize.y;
     float hide = mix(1.0f - smoothstep(0.0f, 0.14f, below), 1.0f, defocus);
     heart *= hide;
     return float3(3.0f, 2.05f, 0.85f) * heart * 0.9f + float3(1.8f, 0.60f, 0.18f) * corona * 0.6f * (0.45f + 0.55f * hide)
-        + float3(0.9f, 0.25f, 0.16f) * bloom * 0.45f;
+        + float3(0.9f, 0.25f, 0.16f) * bloom * 0.45f + float3(0.95f, 0.45f, 0.25f) * wash;
 }
 
 static float3 toneMap(float3 lit) {

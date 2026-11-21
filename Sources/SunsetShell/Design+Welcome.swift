@@ -4,6 +4,8 @@ extension Design {
     /// The welcome (roadmap 0111 H; docs/research/welcome-design.md): the sky the whole window, the text in the darker
     /// upper sky over a dimming layer, left-aligned in the system's text styles.
     package enum Welcome {
+        /// How far above the screen's middle the window sits, as a share of the screen's height.
+        package static let opticalLift = 0.07
         /// The window's size.
         package static let size = CGSize(width: 720, height: 470)
         /// Around the content and the buttons.

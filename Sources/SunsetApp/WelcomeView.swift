@@ -9,6 +9,7 @@ import SwiftUI
 struct WelcomeView: View {
     let store: AppConfiguration
     let clock: WelcomeOpeningClock
+    var greeting = WelcomeGreeting.first
     let close: () -> Void
     @State private var index = 0
 
@@ -26,10 +27,17 @@ struct WelcomeView: View {
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 0) {
-            WelcomePage(step: step, position: index + 1, count: steps.count, store: store, close: close)
-                .id(step)
-                .transition(.opacity)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            WelcomePage(
+                step: step,
+                position: index + 1,
+                count: steps.count,
+                greeting: greeting,
+                store: store,
+                close: close
+            )
+            .id(step)
+            .transition(.opacity)
+            .frame(maxWidth: .infinity, alignment: .leading)
             Spacer(minLength: 0)
             buttons
         }

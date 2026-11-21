@@ -1,5 +1,6 @@
 import AppKit
 import SunsetAppCore
+import SunsetRuntime
 import SunsetShell
 import SunsetShellModel
 import SwiftUI
@@ -32,6 +33,24 @@ import SwiftUI
 
     /// Whether the main window is held back until the welcome closes.
     private var holdsMainWindow = false
+    /// What the easter egg cleared, to put back when the welcome closes.
+    private let clearing = ScreenClearing()
+
+    /// The easter egg (Option on the Sunset menu: Watch the Sunset Again): Sunset's windows minimized and the other apps
+    /// hidden, the sun's opening, and a welcome that says what was found; all put back when it closes.
+    func watchAgain() {
+        guard window == nil else { return open() }
+        let mine = NSApp.windows.filter { $0.styleMask.contains(.miniaturizable) && $0.level == .normal }
+        let others = NSWorkspace.shared.runningApplications.filter {
+            $0.activationPolicy == .regular && $0.processIdentifier != ProcessInfo.processInfo.processIdentifier
+        }
+        clearing.clear(mine + others)
+        // After the windows' own minimizing has played.
+        Runtime.live.task { @MainActor in
+            await Runtime.live.sleep(for: .milliseconds(700))
+            self.open(withOpening: true, greeting: .again)
+        }
+    }
 
     /// At launch: opens it when this is the first launch, the main window after it.
     func openIfFirstLaunch() {
@@ -41,7 +60,7 @@ import SwiftUI
     }
 
     /// Shows it; after the sky's opening when `withOpening`.
-    func open(withOpening: Bool = false) {
+    func open(withOpening: Bool = false, greeting: WelcomeGreeting = .first) {
         if let window {
             return window.makeKeyAndOrderFront(nil)
         }
@@ -59,7 +78,7 @@ import SwiftUI
         made.delegate = self
         let clock = WelcomeOpeningClock()
         let hosting = NSHostingView(
-            rootView: WelcomeView(store: .shared, clock: clock) { [weak made] in made?.close() }
+            rootView: WelcomeView(store: .shared, clock: clock, greeting: greeting) { [weak made] in made?.close() }
         )
         // The sky to every edge: no room kept for the title bar (seen as a dark strip at the bottom).
         hosting.safeAreaRegions = []
@@ -74,18 +93,22 @@ import SwiftUI
         WelcomeOpeningPlayer.play(on: screen, for: made, clock: clock)
     }
 
-    /// Where the window goes: its sun on the screen's centre, where the opening's glow appears; within the visible frame.
+    /// Where the window goes: the middle of the screen's visible part, both ways (the owner, 2026-11-21: "more centered
+    /// vertically"; it was placed for its sun to be on the screen's centre, which put it high). The opening's sun is drawn
+    /// where this window keeps it, wherever that is.
     static func origin(on screen: NSScreen) -> CGPoint {
-        let centre = CGPoint(x: screen.frame.midX, y: screen.frame.midY)
-        let top = centre.y + Design.Welcome.size.height * WelcomeOpening.sunHeight
         let visible = screen.visibleFrame
-        let y = min(max(top - Design.Welcome.size.height, visible.minY), visible.maxY - Design.Welcome.size.height)
-        return CGPoint(x: centre.x - Design.Welcome.size.width / 2, y: y)
+        return CGPoint(
+            x: (visible.midX - Design.Welcome.size.width / 2).rounded(),
+            // The optical centre, a little above the middle, as macOS centres a window (the owner: "a bit too low").
+            y: (visible.midY - Design.Welcome.size.height / 2 + visible.height * Design.Welcome.opticalLift).rounded()
+        )
     }
 
     func windowWillClose(_ notification: Notification) {
         // The main window, held back, opens as the welcome goes (before it has: no moment without a window, when Sunset
         // would quit).
+        clearing.restore()
         if holdsMainWindow {
             holdsMainWindow = false
             AppActions.shared.openTerminalWindow()

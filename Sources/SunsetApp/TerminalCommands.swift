@@ -29,6 +29,13 @@ struct TerminalCommands: Commands {
         let scopes = AppScopes.current
         // The settings are a tab of the window (roadmap 0032): there is no Settings scene to give this item.
         // Help is a tab of its own window (roadmap 0041 E; the owner, 2026-11-17: a window reusing the shell).
+        // Option turns About into the easter egg: the sun's opening again.
+        CommandGroup(replacing: .appInfo) {
+            Button("About Sunset") { NSApp.orderFrontStandardAboutPanel(nil) }
+                .modifierKeyAlternate(.option) {
+                    Button("Watch the Sunset Again") { WelcomeWindow.shared.watchAgain() }
+                }
+        }
         CommandGroup(replacing: .help) {
             Button("Sunset Help") { AppActions.shared.showHelp() }.keyboardShortcut("?", modifiers: .command)
             Button("Welcome to Sunset") { WelcomeWindow.shared.open(withOpening: true) }

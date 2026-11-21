@@ -17,9 +17,28 @@ struct WelcomeOpeningTests {
         WelcomeOpening.at(time, frame: frame)
     }
 
-    @Test func `the sun stays where the window's sky keeps it`() {
-        let sun = CGPoint(x: frame.midX, y: frame.minY + frame.height * WelcomeOpening.sunHeight)
-        for time in times { #expect(at(time).sun == sun, "at \(time)") }
+    @Test func `the sun sets: it appears higher, then goes down to where the window keeps it, before the window shows`()
+    {
+        let rest = CGPoint(x: frame.midX, y: frame.minY + frame.height * WelcomeOpening.sunHeight)
+        // Low already (the owner: "should start lower on the screen"): under the window's middle, above its rest.
+        #expect(at(0).sun.y > frame.minY + frame.height * 0.7 && at(0).sun.y < rest.y - frame.height * 0.08)
+        var last = at(0)
+        for time in times {
+            let now = at(time)
+            #expect(now.sun.x == rest.x, "straight down, at \(time)")
+            #expect(now.sun.y >= last.sun.y - 0.001, "only down, at \(time)")
+            last = now
+        }
+        let setting = WelcomeOpening.setPhase
+        #expect(setting.start >= 1, "it is seen before it moves")
+        // The window phases in as the sun settles: what is left of its way is imperceptible (the owner, 2026-11-21:
+        // "almost imperceptible with the phasing in of the window"), and no pause between the two.
+        let left = rest.y - at(WelcomeOpening.windowPhase.start).sun.y
+        #expect(left < frame.height * 0.004, "\(left) points still to go")
+        #expect(WelcomeOpening.windowPhase.start < setting.start + setting.length, "they overlap")
+        for time in times where time >= setting.start + setting.length {
+            #expect(at(time).sun == rest, "at \(time)")
+        }
     }
 
     @Test func `the sun comes first, slowly, out of focus, and the window not before it is there`() {
@@ -49,6 +68,26 @@ struct WelcomeOpeningTests {
             #expect(now.sunOpacity <= last.sunOpacity + 0.0001, "at \(time)")
             last = now
         }
+    }
+
+    @Test func `every phase starts and ends gently: no jump in speed at either end`() {
+        for phase in [WelcomeOpening.sunPhase, WelcomeOpening.setPhase, WelcomeOpening.windowPhase] {
+            let step = 0.02
+            let begin = abs(at(phase.start + step).sun.y - at(phase.start).sun.y)
+            let middle = abs(at(phase.start + phase.length / 2 + step).sun.y - at(phase.start + phase.length / 2).sun.y)
+            if middle > 0 { #expect(begin < middle * 0.1, "\(phase)") }
+            let fadeBegin = at(phase.start + step).windowOpacity - at(phase.start).windowOpacity
+            let fadeMiddle =
+                at(phase.start + phase.length / 2 + step).windowOpacity
+                - at(phase.start + phase.length / 2).windowOpacity
+            if fadeMiddle > 0 { #expect(fadeBegin < fadeMiddle * 0.1, "\(phase)") }
+        }
+    }
+
+    @Test func `the window comes slowly out of nothing: a tenth of its way in, barely there`() {
+        let phase = WelcomeOpening.windowPhase
+        #expect(at(phase.start + phase.length * 0.1).windowOpacity < 0.02)
+        #expect(at(phase.start + phase.length * 0.5).windowOpacity > 0.3)
     }
 
     @Test func `it ends as the window alone`() {
