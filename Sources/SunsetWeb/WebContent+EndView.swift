@@ -27,6 +27,7 @@ extension WebContent {
         view.removeFromSuperview()
         WebProcessControl.close(view)
         webView = nil
+        extensionPageHost = nil
         coordinator = nil
     }
 }

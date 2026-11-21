@@ -22,9 +22,11 @@ package enum WebInput: Equatable, Sendable {
         return .search(engine, words: text)
     }
 
+    /// An extension's page (`webkit-extension:`) is an address too: WebKit decides whether a page may show it.
     package static func address(_ text: String) -> WebInput? {
         if let url = URL(string: text), let scheme = url.scheme?.lowercased(),
-            ["http", "https", "file", "about"].contains(scheme), text.contains(":/") || scheme == "about"
+            ["http", "https", "file", "about", "webkit-extension"].contains(scheme),
+            text.contains(":/") || scheme == "about"
         {
             return .address(url, guessed: false)
         }

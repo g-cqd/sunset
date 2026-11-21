@@ -50,7 +50,7 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W9 | A custom scheme (`abp:*`) refused in `menus.create`'s `targetUrlPatterns` | accepted | the same | none |
 | W10 | `webRequest` events missing for loads answered from the HTTP cache | fired | diary 2026-11-20-21 | none (the blocking path is held before the cache: 0012) |
 | W6d | An extension's redirect to its own file or to `data:` (a surrogate) fails as a block | internal redirect, loads | diary 2026-11-21-01 | patched: 0015, 0016 |
-| W6e | A blocking listener's answer given as a Promise is ignored | awaited (Firefox) | the same (uBO's DNS check) | none |
+| W6e | A blocking listener's answer given as a Promise is ignored | awaited (Firefox) | the same (uBO's DNS check) | patched: 0017, 0018 |
 
 Patched in our WebKit (`Engine/WebKit/patches`): W2 (0001), W3 (0002, its test 0003), W1 (0004, its test 0005), W7 (0006,
 0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011, before the cache 0012) and redirect (0013, 0014; to http(s) only, W6d), headers not yet;

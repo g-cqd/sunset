@@ -24,7 +24,11 @@ extension WebContent {
         url = address
         asked.asked(address)
         failure = nil
-        if webView == nil { makeWebView(configuration: nil) }
+        if needsOtherView(for: address) {
+            remakeView(for: address)
+        } else if webView == nil {
+            makeWebView(configuration: nil)
+        }
         webView?.load(URLRequest(url: address))
         onChange()
     }

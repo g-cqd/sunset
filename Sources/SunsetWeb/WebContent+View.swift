@@ -5,7 +5,8 @@ import WebKit
 /// The page's view: made the first time the page is shown, with what Sunset sets on every page, and watched for what the page says of
 /// itself (its title, address, progress).
 extension WebContent {
-    func makeWebView(configuration given: WKWebViewConfiguration?) {
+    func makeWebView(configuration offered: WKWebViewConfiguration?) {
+        let given = offered ?? configurationForExtensionPage()
         let configuration = given ?? WKWebViewConfiguration()
         if given == nil {
             // A private page's own; else its profile's; else the one there always was (the first profile's).
@@ -65,12 +66,13 @@ extension WebContent {
         applyZoom()
         observe(view)
         soundWatch = WebAudio.watchPlaying(view) { [weak self] playing in self?.playsSound = playing }
-        guard given == nil else { return }
+        // A view WebKit made for a pop-up loads itself; one made here loads the page (an extension's included).
+        guard offered == nil else { return }
         if let history = savedHistory {
             view.interactionState = history as NSData
             savedHistory = nil
         }
-        if view.url == nil, let url { view.load(URLRequest(url: url)) }
+        if view.url == nil, let url, !waitsForExtensions() { view.load(URLRequest(url: url)) }
     }
 
     func observe(_ view: WKWebView) {

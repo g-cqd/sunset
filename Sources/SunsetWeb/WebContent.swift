@@ -69,6 +69,9 @@ package final class WebContent: PaneContent, PaneViewMaking {
     package internal(set) var hoveredLink: String?
     /// The page, once it has been shown.
     @ObservationIgnored package internal(set) var webView: WKWebView?
+    /// The extension whose page the view was made for (its base URL's host), nil for a web page's view
+    /// (`WebContent+ExtensionPages`).
+    @ObservationIgnored var extensionPageHost: String?
     /// The page's last snapshot (`takePicture`).
     package internal(set) var picture: CGImage?
     /// When a title change last asked for a picture (seconds of uptime).

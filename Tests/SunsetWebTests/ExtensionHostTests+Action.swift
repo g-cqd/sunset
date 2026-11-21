@@ -6,10 +6,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0109 D: an extension's action, as its button shows it (its title, its badge) and as it runs: clicked, an action with a
-/// popup asks Sunset to show it (WebKit's controller delegate), anchored to the button.
-@MainActor @Suite("An extension's action", .serialized, .timeLimit(.minutes(1)))
-struct ExtensionActionTests {
+/// In `ExtensionHostTests`' suite: they share `ExtensionHosts.shared`, so they run one after another (run beside it, a reset
+/// here made "an extension opens a tab" fail, 2026-11-21).
+extension ExtensionHostTests {
     private func install(_ manifest: String, files: [String: String], root: URL) async throws -> ExtensionHost {
         let folder = root.appending(path: "src")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

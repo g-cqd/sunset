@@ -14,6 +14,9 @@ final class EchoServer: @unchecked Sendable {
     private let files: [String: (type: String, body: Data)]
 
     init(pages: [String: String] = [:], files: [String: (type: String, body: Data)] = [:]) throws {
+        // A test process that serves pages lets a closed connection be an error, not its end (SIGPIPE ended it,
+        // 2026-11-21, when a page went before its answer was written).
+        signal(SIGPIPE, SIG_IGN)
         self.pages = pages
         self.files = files
         let listening = socket(AF_INET, SOCK_STREAM, 0)
@@ -42,6 +45,10 @@ final class EchoServer: @unchecked Sendable {
             while true {
                 let client = accept(listening, nil, nil)
                 guard client >= 0 else { return }
+                // A page that goes before its answer is written closes the connection: no SIGPIPE for the test process
+                // (it ended it, 2026-11-21, when a tab's view was made again mid-load).
+                var on: Int32 = 1
+                unsafe setsockopt(client, SOL_SOCKET, SO_NOSIGPIPE, &on, socklen_t(MemoryLayout<Int32>.size))
                 self?.serve(client)
                 close(client)
             }

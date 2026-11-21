@@ -27,6 +27,13 @@ import Testing
         #expect(address("about:blank") == "about:blank")
     }
 
+    /// The owner, 2026-11-21: "it seems sunset refuses to open webkit-extension url scheme": an extension's page (a dashboard,
+    /// its options) typed or pasted was searched for. It is an address; WebKit decides whether the page may be shown.
+    @Test func `an extension's page is an address`() throws {
+        let page = "webkit-extension://2c8c85c9-f789-4a7c-99ff-f68b989fa2d9/dashboard.html#settings.html"
+        #expect(try parse(page) == .address(#require(URL(string: page)), guessed: false))
+    }
+
     @Test func `this machine and the local network go over http at once`() {
         for text in [
             "localhost:3000", "127.0.0.1", "10.1.2.3", "192.168.1.1/admin", "172.20.0.1", "nas.local", "nas:8080",

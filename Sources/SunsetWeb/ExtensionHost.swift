@@ -56,6 +56,7 @@ package import WebKit
         loading = runtime.task { @MainActor [weak self] in
             guard let self else { return }
             for entry in store.installed where entry.enabled { await load(entry) }
+            isReady = true
         }
     }
 
@@ -63,6 +64,9 @@ package import WebKit
     package var installed: [ExtensionStore.Installed] {
         store.installed
     }
+
+    /// Whether what is installed has loaded (`ready()` has returned).
+    package private(set) var isReady = false
 
     /// Done loading what is installed.
     package func ready() async {
@@ -145,6 +149,11 @@ package import WebKit
             let loaded = try? await WKWebExtension(resourceBaseURL: store.file(of: entry))
         else { return }
         let context = WKWebExtensionContext(for: loaded)
+        // One identity for as long as it is installed (the owner, 2026-11-21: its pages' address changed at every launch,
+        // and WebKit keeps an extension's storage only for a context with an identifier of its own).
+        let identity = entry.id.uuidString.lowercased()
+        context.uniqueIdentifier = identity
+        if let base = URL(string: "webkit-extension://\(identity)/") { context.baseURL = base }
         Self.grant(entry.granted, in: context, asked: loaded)
         context.hasAccessToPrivateData = entry.inPrivate
         guard (try? controller.load(context)) != nil else { return }
@@ -153,6 +162,13 @@ package import WebKit
 
     func context(of id: UUID) -> WKWebExtensionContext? {
         contexts[id]
+    }
+
+    /// The web view configuration for a page of one of this profile's extensions (WebKit shows an extension's page only in a
+    /// view made from it), or nil when `url` is no page of theirs.
+    func pageConfiguration(for url: URL) -> WKWebViewConfiguration? {
+        guard url.scheme == "webkit-extension", let host = url.host()?.lowercased() else { return nil }
+        return contexts.values.first { $0.baseURL.host()?.lowercased() == host }?.webViewConfiguration
     }
 
     func contextWith(identifier: String) -> WKWebExtensionContext? {
