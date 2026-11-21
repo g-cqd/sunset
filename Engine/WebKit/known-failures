@@ -1,0 +1,5 @@
+# Failures of `Scripts/webkit.sh test` that are not the series', one substring of the test's name per line, with why.
+#
+# The localization tests expect the system's languages to be English only (["en-US", "en"]); a Mac that also prefers
+# others fails them, with or without the series (diary 2026-11-21-07). -AppleLanguages does not reach the web processes.
+WKWebExtensionAPILocalizationTests/
