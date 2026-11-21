@@ -31,7 +31,7 @@ How things map:
 | D | Firefox: `profiles.ini`, `places.sqlite` read from a copy (Firefox locks it), `containers.json` | done as readers (diary 2026-11-21-12); reading the person's own needs macOS's consent (probed: refused from here) |
 | E | Safari: `Bookmarks.plist` behind Full Disk Access (macOS refuses it otherwise; probed: not readable from here), Reading List as a folder | done as a reader; the window explains the access (diary 2026-11-21-14) |
 | F | Extensions: the installed list per profile, matched to their store pages, offered to install | done: listed with Open Store Page; Chrome's own left out (diary 2026-11-21-14) |
-| G | The Import window (File ▸ Import from Another Browser…): browser, profile, an exported file, into a new Space or this one | done, seen (diary 2026-11-21-14); not done: the command bar's row, containers made profiles |
+| G | The Import window (File ▸ Import from Another Browser…): browser, profile, an exported file, into a new Space or this one | done, seen (diary 2026-11-21-14); the command bar's row and containers made profiles: diary 2026-11-21-17 |
 | H | The welcome: the shader's opening, then preferences (feature scope, security model, default browser, search engine, `tabs.start`) and the imports; once, and again from Help; the main window after it | done (diary 2026-11-21-15); not seen: the HDR sun, accent colours in an active window |
 
-Not done: Firefox containers as profiles; the command bar's row; a real import of bookmarks seen on screen (this Mac's browsers hold none Sunset may read without Full Disk Access).
+Not done: a container's colour and icon on its profile; a real import of bookmarks seen on screen (this Mac's browsers hold none Sunset may read without Full Disk Access).

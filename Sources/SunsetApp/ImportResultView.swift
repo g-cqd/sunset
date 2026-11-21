@@ -23,14 +23,7 @@ struct ImportResultView: View {
                 .bouncesOnlyWhenScrolling()
                 .frame(maxHeight: Design.Size.dialogMessage)
             }
-            if !outcome.containers.isEmpty {
-                Text(
-                    "Containers: \(outcome.containers.map(\.name).joined(separator: ", ")). Sunset does not make them profiles yet; Settings \u{25B8} Profiles makes one."
-                )
-                .font(Design.Text.detail)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            }
+            if !outcome.containers.isEmpty { ImportContainers(containers: outcome.containers, tabs: tabs) }
             HStack {
                 Spacer()
                 Button("Done", action: close).keyboardShortcut(.defaultAction)
