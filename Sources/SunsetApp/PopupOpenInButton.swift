@@ -51,6 +51,6 @@ struct PopupOpenInButton: View {
 
     /// A Space's name as the Spaces menu says it: an unnamed one is Home.
     static func name(of space: SpaceModel) -> String {
-        space.space.name.isEmpty ? "Home" : space.space.name
+        space.space.shownName
     }
 }

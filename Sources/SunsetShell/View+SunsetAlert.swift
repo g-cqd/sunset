@@ -15,8 +15,7 @@ extension View {
                 ZStack {
                     Color.black.opacity(Design.Fill.veil).ignoresSafeArea().contentShape(.rect).onTapGesture {}
                     SunsetAlertView(alert: alert()) { index in
-                        isPresented.wrappedValue = false
-                        answer(index)
+                        SunsetAlertPress.press(index, isPresented: isPresented, answer: answer)
                     }
                 }
                 .transition(.opacity)

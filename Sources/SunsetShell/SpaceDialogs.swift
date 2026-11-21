@@ -26,10 +26,10 @@ package struct SpaceDialogs: ViewModifier {
                 isPresented: Binding(get: { tabs.deletingSpace != nil }, set: { if !$0 { tabs.deletingSpace = nil } }),
                 // Cancel (0) is the default: Return deletes nothing.
                 SunsetAlert(
-                    title: "Delete the Space \u{201C}\(target?.space.name ?? "")\u{201D}?",
+                    title: "Delete the Space \u{201C}\(target?.space.shownName ?? "")\u{201D}?",
                     message: Self.sentence(tabs: target?.tabs.count ?? 0),
                     buttons: [.cancel("Cancel"), .destructive("Close Its Tabs")]
-                        + (neighbour.map { [.plain("Move Its Tabs to \($0.space.name)")] } ?? []),
+                        + (neighbour.map { [.plain("Move Its Tabs to \($0.space.shownName)")] } ?? []),
                     defaultButton: 0
                 )
             ) { pressed in

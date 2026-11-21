@@ -27,7 +27,7 @@ struct SpaceCommands: Commands {
                 .disabled(spaces.spaces.count < 2)
             Divider()
             ForEach(Array(spaces.spaces.enumerated()), id: \.element.space.id) { index, space in
-                let name = space.space.name.isEmpty ? "Home" : space.space.name
+                let name = space.space.shownName
                 if index < 9 {
                     Button(name) { AppActions.shared.spaceTabs?.show(spaceInOrder: space) }
                         .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [.command, .option])

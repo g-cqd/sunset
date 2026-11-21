@@ -39,17 +39,31 @@ package struct SunsetAlertView: View {
                 .padding(Design.Space.s)
                 .background(.quaternary, in: RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout)))
             }
-            HStack(spacing: Design.Space.s) {
-                Spacer()
-                ForEach(alert.shownOrder, id: \.self) { index in button(index) }
+            // In a row when they fit, else one under another, the default at the bottom: never a label cut short.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: Design.Space.s) {
+                    Spacer()
+                    ForEach(alert.shownOrder, id: \.self) { index in button(index).fixedSize() }
+                }
+                VStack(spacing: Design.Space.s) {
+                    ForEach(alert.shownOrder, id: \.self) { index in button(index, wide: true) }
+                }
             }
         }
+        .background { escapeKey }
         .padding(Design.Space.xl)
         .frame(width: Design.Width.panel, alignment: .leading)
         .surface(surface.panelShape, shadow: .popover)
     }
 
-    @ViewBuilder private func button(_ index: Int) -> some View {
+    /// Escape, when the button it presses already answers Return.
+    @ViewBuilder private var escapeKey: some View {
+        if let escape = alert.escapeButton, escape == alert.returnButton {
+            Button("") { answer(escape) }.keyboardShortcut(.cancelAction).opacity(0).accessibilityHidden(true)
+        }
+    }
+
+    @ViewBuilder private func button(_ index: Int, wide: Bool = false) -> some View {
         let item = alert.buttons[index]
         let role: ButtonRole? =
             switch item.role {
@@ -57,8 +71,15 @@ package struct SunsetAlertView: View {
                 case .destructive: .destructive
                 case .plain: nil
             }
-        let base = Button(item.title, role: role) { answer(index) }
-        if index == alert.returnButton, item.role != .cancel {
+        let base = Button(role: role) {
+            answer(index)
+        } label: {
+            Text(item.title).foregroundStyle(item.role == .destructive ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
+                .frame(maxWidth: wide ? .infinity : nil)
+        }
+        // The default button is drawn as one (Return); a Cancel that is also the default answers Escape through
+        // `escapeKey` (a button takes one shortcut).
+        if index == alert.returnButton {
             base.keyboardShortcut(.defaultAction)
         } else if index == alert.escapeButton {
             base.keyboardShortcut(.cancelAction)

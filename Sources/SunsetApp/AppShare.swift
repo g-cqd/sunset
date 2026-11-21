@@ -4,6 +4,8 @@ import SunsetAppCore
 import SunsetConfig
 import SunsetMarkdown
 import SunsetPane
+import SunsetRender
+import SunsetRenderMac
 import SunsetRuntime
 import SunsetShell
 import SunsetTerminal
@@ -132,14 +134,30 @@ import WebKit
     static let previewWidth = 320.0
 
     /// A tab as it is now, small, for the share panel (n72): a page as it is drawn (not loaded for it: a page never loaded
-    /// has none), a terminal's last frame, a document's picture.
+    /// has none), a terminal and a document drawn now.
     static func preview(_ id: UUID) async -> CGImage? {
         switch anyContent(id) {
             case let page as WebContent:
                 guard let view = page.webView, view.window != nil else { return nil }
                 return await snapshot(view, width: min(view.bounds.width, previewWidth))
+            // Drawn now: a terminal not on screen has no recent frame (seen blank in the panel); its card shows where
+            // its text is.
             case let terminal as TerminalModel:
-                return terminal.lastSurface.flatMap(image(of:))
+                guard let frame = await otherFrame(id) else { return nil }
+                let crop = TerminalPreviewCrop.rect(
+                    frame: CGSize(width: frame.width, height: frame.height),
+                    cellWidth: terminal.renderer?.cellMetrics.cellWidth,
+                    padding: terminal.paddingPixels,
+                    ratio: Design.Optical.sharePreviewRatio
+                )
+                // CGImage crops from the top left; the crop is Core Image's, from the bottom left.
+                let top = CGRect(
+                    x: crop.minX,
+                    y: CGFloat(frame.height) - crop.maxY,
+                    width: crop.width,
+                    height: crop.height
+                )
+                return frame.cropping(to: top) ?? frame
             case is DocumentContent:
                 return await otherFrame(id)
             default:
@@ -153,7 +171,7 @@ import WebKit
             case let terminal as TerminalModel:
                 // Drawn now, shown or not; a terminal that was never shown has no session or size yet: nothing.
                 await terminal.drawFrame()
-                return terminal.lastSurface.flatMap(image(of:))
+                return terminal.lastSurface.flatMap { image(of: $0, on: terminal.layerBackground) }
             case let document as DocumentContent:
                 document.takePicture()
                 return document.picture
@@ -183,8 +201,12 @@ import WebKit
         return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
     }
 
-    /// A terminal's frame as an image.
-    private static func image(of surface: IOSurface) -> CGImage? {
-        images.createCGImage(CIImage(ioSurface: surface), from: CIImage(ioSurface: surface).extent)
+    /// A terminal's frame as an image, on its background made opaque: the frame leaves the background to the window
+    /// (its material shows through), and alone it was a few glyphs on nothing (seen in the share panel).
+    private static func image(of surface: IOSurface, on background: CGColor) -> CGImage? {
+        let frame = CIImage(ioSurface: surface)
+        let opaque = background.copy(alpha: 1) ?? background
+        let ground = CIImage(color: CIColor(cgColor: opaque)).cropped(to: frame.extent)
+        return images.createCGImage(frame.composited(over: ground), from: frame.extent)
     }
 }
