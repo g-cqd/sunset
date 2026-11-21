@@ -9,13 +9,15 @@ struct TabLayoutMenu: View {
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        let ids = tabs.layoutTabs(for: row)
-        let presets = tabs.workspace.presets(for: ids)
+        // Several rows selected, favorites among them (they leave the Favorites for it); or one split tab.
+        let rows = tabs.layoutRows(tabs.rows(actingOn: row))
+        let split = tabs.layoutTabs(for: row)
+        let presets = rows.count > 1 ? tabs.layoutPresets(for: rows) : tabs.workspace.presets(for: split)
         if !presets.isEmpty {
             ControlGroup {
                 ForEach(presets, id: \.self) { preset in
                     Button {
-                        tabs.apply(preset, to: ids)
+                        if rows.count > 1 { tabs.apply(preset, to: rows) } else { tabs.apply(preset, to: split) }
                     } label: {
                         Label {
                             Text(preset.title)

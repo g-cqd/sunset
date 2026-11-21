@@ -20,7 +20,9 @@ extension TabsModel {
             case .item(let id): workspace.item(containing: pane)?.id != id || workspace.count > 1
             case .pane(let id): id != pane
             case .document: true
-            case .entry, nil: false
+            // A favorite splits with a pane (the owner, 2026-11-21); a pinned tab does not.
+            case .entry(let id): !isPinned(id)
+            case nil: false
         }
     }
 
@@ -30,8 +32,13 @@ extension TabsModel {
         guard canDrop(onto: pane) else { return false }
         bringDraggedHere()
         takeDocumentDrag()
-        guard let drag = dragged else { return false }
+        guard var drag = dragged else { return false }
         dragged = nil
+        // A favorite leaves the Favorites as a tab first, then joins the pane's tab as a tab would.
+        if case .entry(let entry) = drag {
+            guard let released = release(entry: entry) else { return false }
+            drag = .item(released)
+        }
         switch drag {
             case .item(let id) where workspace.item(containing: pane)?.id == id:
                 bar = CommandBar(purpose: .splitWith(SplitChoice(pane: pane, edge: edge)))
@@ -67,7 +74,10 @@ extension TabsModel {
                 return canDropDragged(in: .today(at: action == .moveBefore ? index : index + 1))
             case (.document, _):
                 return true
-            case (.entry, .split), (nil, _):
+            case (.entry(let id), .split):
+                // A favorite splits with a tab (the owner, 2026-11-21); a pinned tab does not.
+                return !isPinned(id)
+            case (nil, _):
                 return false
         }
     }
@@ -81,8 +91,12 @@ extension TabsModel {
         guard canDrop(onto: item, action: action) else { return false }
         bringDraggedHere()
         takeDocumentDrag()
-        guard let drag = dragged else { return false }
-        if case .entry = drag {
+        guard var drag = dragged else { return false }
+        if case .entry(let entry) = drag, case .split = action {
+            // A favorite dropped on a tab's half leaves the Favorites as a tab, then joins that tab as a split.
+            guard let released = release(entry: entry) else { return false }
+            drag = .item(released)
+        } else if case .entry = drag {
             // A kept entry dropped among the tabs leaves the Favorites or the grid, as a tab at that place.
             guard let index = workspace.items.firstIndex(where: { $0.id == item }) else { return false }
             return dropDragged(in: .today(at: action == .moveBefore ? index : index + 1))

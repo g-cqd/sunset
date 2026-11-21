@@ -139,6 +139,7 @@ struct FavoritesSection: View {
     }
 
     @ViewBuilder private func entryMenu(_ entry: Favorites.Entry) -> some View {
+        TabLayoutMenu(tabs: tabs, row: .node(entry.id))
         SelectionMenu(tabs: tabs, row: .node(entry.id))
         KeptEntryMenu(tabs: tabs, entry: entry, animation: layout.smooth)
     }

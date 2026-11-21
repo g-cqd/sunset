@@ -17,6 +17,42 @@ extension TabsModel {
         return [id]
     }
 
+    /// The rows a layout takes: tabs, and favorites (which leave the Favorites for it); not pinned tabs, not folders (the
+    /// owner, 2026-11-21: favorites could not be split).
+    package func layoutRows(_ rows: [RowTarget]) -> [RowTarget] {
+        rows.filter { row in
+            switch row {
+                case .tab: true
+                case .node(let id): favorites.favorites.entry(id) != nil && !isPinned(id)
+            }
+        }
+    }
+
+    /// The layouts for as many panes as `rows` hold together: a favorite counts its home's panes.
+    package func layoutPresets(for rows: [RowTarget]) -> [SplitPreset] {
+        let taken = layoutRows(rows)
+        guard taken.count > 1 else { return [] }
+        let panes = taken.reduce(0) { count, row in
+            switch row {
+                case .tab(let id): count + (workspace.items.first { $0.id == id }?.panes.count ?? 0)
+                case .node(let id): count + (favorites.favorites.entry(id)?.home.contents.count ?? 0)
+            }
+        }
+        return SplitPreset.allCases.filter { $0.paneCount == panes }
+    }
+
+    /// Lays `rows` out together as `preset` says: each favorite among them leaves the Favorites as a tab first.
+    package func apply(_ preset: SplitPreset, to rows: [RowTarget]) {
+        let ids = layoutRows(rows)
+            .compactMap { row -> Workspace.ItemID? in
+                switch row {
+                    case .tab(let id): id
+                    case .node(let id): release(entry: id)
+                }
+            }
+        apply(preset, to: ids)
+    }
+
     /// Lays the tabs `ids` out together as `preset` says, and shows them.
     /// - Parameters:
     ///   - preset: The shape.

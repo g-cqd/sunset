@@ -62,9 +62,10 @@ import Testing
         let (harness, entries) = try window(tabs: 3, kept: 1)
         let tabs = harness.tabs.workspace.items.map(\.id)
         _ = harness.tabs.itemProvider(for: .entry(entries[0]))
+        // A favorite may split with a tab too (the owner, 2026-11-21: n80); `FavoritesSplitTests`.
         #expect(
             harness.tabs.canDrop(onto: tabs[1], action: .moveAfter)
-                && !harness.tabs.canDrop(onto: tabs[1], action: .split(.left))
+                && harness.tabs.canDrop(onto: tabs[1], action: .split(.left))
         )
         harness.tabs.dropDragged(onto: tabs[1], action: .moveAfter)
         #expect(harness.tabs.favorites.isEmpty && harness.tabs.workspace.count == 3)
