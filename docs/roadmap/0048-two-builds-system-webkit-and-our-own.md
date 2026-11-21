@@ -57,7 +57,7 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W4b | `webRequest.handlerBehaviorChanged` missing (a stand-in in Sunset's shim) | drops the memory cache (Firefox) | diary 2026-11-21-06 | patched: 0025, 0026 (at most 20 calls in 10 minutes) |
 
 Patched in our WebKit (`Engine/WebKit/patches`): W2 (0001), W3 (0002, its test 0003), W1 (0004, its test 0005), W7 (0006,
-0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011, before the cache 0012), redirect (0013, 0014), surrogates (W6d: 0015, 0016), Promises (W6e: 0017, 0018) and documents' response headers (W6c: 0019–0024, ADR-0112), `handlerBehaviorChanged` (W4b: 0025, 0026), cache hits' events (W10: 0027, 0028); request headers not done (no consumer);
+0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011, before the cache 0012), redirect (0013, 0014), surrogates (W6d: 0015, 0016), Promises (W6e: 0017, 0018) and documents' response headers (W6c: 0019–0024, ADR-0112), `handlerBehaviorChanged` (W4b: 0025, 0026), cache hits' events (W10: 0027, 0028); request headers not done (no consumer); and P1 (0029, 0030: runs of comments and text in linear time, roadmap 0110);
 uBlock Origin filters on our WebKit with Sunset's shim; W1 and W3 redone after the owner's audit, measured against the base (diary 2026-11-20-20); the
 stopgaps in `ExtensionPageShim` stay for the system's WebKit.
 

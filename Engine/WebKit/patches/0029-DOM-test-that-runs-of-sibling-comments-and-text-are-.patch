@@ -1,0 +1,116 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 14:10:45 +0100
+Subject: [PATCH] DOM: test that runs of sibling comments and text are parsed,
+ appended and removed in linear time (Sunset P1)
+
+Time from n to 4n: about 4 when linear, 16 when quadratic. Each fails
+before the change that follows (16.9, 17.2, 16.2 and 15.5): 40,000
+sibling comments took 1.4 s to parse, 1.1 s to append by script and
+1.4 s to remove one by one.
+
+diff --git a/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj b/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
+index 4632f6d0f..1ed40c457 100644
+--- a/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
++++ b/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
+@@ -610,6 +610,7 @@
+ 				WebKit/WebPage/WebViewInspectorAttachmentTests.swift,
+ 				WebKit/WebPage/WebViewTests.swift,
+ 				WebKit/WKWebView/Challenge.swift,
++				WebKit/WKWebView/HTMLParserSiblingRuns.swift,
+ 				WebKit/WKWebView/CodingTests.swift,
+ 				WebKit/WKWebView/ContentAutoSizing.swift,
+ 				WebKit/WKWebView/CrossOriginOpenerPolicyAboutBlankTests.swift,
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/HTMLParserSiblingRuns.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/HTMLParserSiblingRuns.swift
+new file mode 100644
+index 000000000..3c9fb141b
+--- /dev/null
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/HTMLParserSiblingRuns.swift
+@@ -0,0 +1,87 @@
++// Copyright (C) 2026 Gigi. All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions
++// are met:
++// 1. Redistributions of source code must retain the above copyright
++//    notice, this list of conditions and the following disclaimer.
++// 2. Redistributions in binary form must reproduce the above copyright
++//    notice, this list of conditions and the following disclaimer in the
++//    documentation and/or other materials provided with the distribution.
++//
++// THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
++// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
++// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
++// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
++// BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
++// THE POSSIBILITY OF SUCH DAMAGE.
++
++import Testing
++import WebKit
++
++// Appending or removing a child that is not an element (a comment, a text node) beside a run of such children took time
++// in the run's length, from the parser or from script: each looked for the element siblings, though only element
++// changes need them. Parsing n sibling
++// comments was quadratic (40,000 in 1.4 s; Chrome Canary, 21 ms). Measured by how time grows from n to 4n: about 4 when
++// linear, 16 when quadratic.
++@MainActor
++struct HTMLParserSiblingRunsTests {
++    private func growth(of markup: String, count: Int, removing: Bool = false, appending: Bool = false) async throws -> Double {
++        let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 400, height: 300))
++        let script = """
++            const time = (n) => {
++                const markup = unit.repeat(n)
++                let best = Infinity
++                for (let i = 0; i < 3; i++) {
++                    const host = document.createElement('div')
++                    if (removing)
++                        host.innerHTML = markup
++                    const start = performance.now()
++                    if (removing) {
++                        while (host.lastChild)
++                            host.removeChild(host.lastChild)
++                    } else if (appending) {
++                        for (let i = 0; i < n; i++)
++                            host.appendChild(document.createComment('x'))
++                    } else
++                        host.innerHTML = markup
++                    best = Math.min(best, performance.now() - start)
++                }
++                return best
++            }
++            time(count)
++            return time(4 * count) / Math.max(time(count), 1)
++            """
++        let result = try await webView.callAsyncJavaScript(script, arguments: ["unit": markup, "count": count, "removing": removing, "appending": appending], contentWorld: .page)
++        return try #require(result as? Double)
++    }
++
++    @Test
++    func siblingCommentsParseInLinearTime() async throws {
++        let ratio = try await growth(of: "<!--x-->", count: 20_000)
++        #expect(ratio < 8, "time grew \(ratio) times for 4 times the comments")
++    }
++
++    @Test
++    func alternatingTextAndCommentsParseInLinearTime() async throws {
++        let ratio = try await growth(of: "x<!--y-->", count: 20_000)
++        #expect(ratio < 8, "time grew \(ratio) times for 4 times the text and comments")
++    }
++
++    @Test
++    func siblingCommentsAreAppendedByScriptInLinearTime() async throws {
++        let ratio = try await growth(of: "", count: 10_000, appending: true)
++        #expect(ratio < 8, "time grew \(ratio) times for 4 times the comments appended")
++    }
++
++    @Test
++    func siblingCommentsAreRemovedInLinearTime() async throws {
++        let ratio = try await growth(of: "<!--x-->", count: 10_000, removing: true)
++        #expect(ratio < 8, "time grew \(ratio) times for 4 times the comments removed")
++    }
++}

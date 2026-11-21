@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 14:10:47 +0100
+Subject: [PATCH] DOM: no element-sibling lookup when a text node or a comment
+ is inserted or removed (Sunset P1)
+
+ChildChange looked up the previous and next element siblings for every
+insertion and removal. For a text node or a comment beside a run of
+such children (sibling comments; text and comments alternating, which
+do not merge) the lookup walked the whole run, so parsing, appending or
+removing n of them was quadratic: 40,000 comments 1,431 ms to parse
+(Chrome Canary: 21 ms, its own figure), now 5 ms.
+
+Only element changes need the siblings (positional and sibling
+selectors, :has()); :empty is checked apart. The change records of text
+and non-content children now carry none, and a text or comment removal
+traverses no removed elements. A page of 21 insertions and removals of
+comments, text and elements under :first-child, :last-child,
+:nth-child, :nth-last-child, :empty and :has(+) gives the same computed
+styles as the system's WebKit and Chrome Canary.
+
+diff --git a/Source/WebCore/dom/ContainerNode.cpp b/Source/WebCore/dom/ContainerNode.cpp
+index fa3955cfe..9f2f5c78e 100644
+--- a/Source/WebCore/dom/ContainerNode.cpp
++++ b/Source/WebCore/dom/ContainerNode.cpp
+@@ -219,6 +219,11 @@ static ContainerNode::ChildChange makeChildChangeForRemoval(Node& childToRemove,
+         return ContainerNode::ChildChange::Type::NonContentsChildRemoved;
+     }();
+ 
++    // As for insertion (makeChildChangeForInsertion): no element siblings for a text node or a comment, whose lookup walks
++    // the run of such children around it.
++    if (changeType != ContainerNode::ChildChange::Type::ElementRemoved)
++        return { changeType, nullptr, nullptr, nullptr, nullptr, source, ContainerNode::ChildChange::AffectsElements::No };
++
+     return {
+         changeType,
+         nullptr,
+@@ -226,7 +231,7 @@ static ContainerNode::ChildChange makeChildChangeForRemoval(Node& childToRemove,
+         ElementTraversal::previousSibling(childToRemove),
+         ElementTraversal::nextSibling(childToRemove),
+         source,
+-        changeType == ContainerNode::ChildChange::Type::ElementRemoved ? ContainerNode::ChildChange::AffectsElements::Yes : ContainerNode::ChildChange::AffectsElements::No
++        ContainerNode::ChildChange::AffectsElements::Yes
+     };
+ }
+ 
+@@ -308,6 +313,12 @@ static ContainerNode::ChildChange makeChildChangeForInsertion(ContainerNode& con
+         return ContainerNode::ChildChange::Type::NonContentsChildInserted;
+     }();
+ 
++    // Only an element changes which elements are siblings (positional and sibling selectors, :has()); looking them up for
++    // a text node or a comment walks back over the run of such children before it, which made parsing a long run of
++    // them quadratic.
++    if (changeType != ContainerNode::ChildChange::Type::ElementInserted)
++        return { changeType, nullptr, nullptr, nullptr, nullptr, source, ContainerNode::ChildChange::AffectsElements::No };
++
+     auto* beforeChildElement = dynamicDowncast<Element>(beforeChild);
+     return {
+         changeType,
+@@ -316,7 +327,7 @@ static ContainerNode::ChildChange makeChildChangeForInsertion(ContainerNode& con
+         beforeChild ? ElementTraversal::previousSibling(*beforeChild) : ElementTraversal::lastChild(containerNode),
+         !beforeChild || beforeChildElement ? beforeChildElement : ElementTraversal::nextSibling(*beforeChild),
+         source,
+-        changeType == ContainerNode::ChildChange::Type::ElementInserted ? ContainerNode::ChildChange::AffectsElements::Yes : ContainerNode::ChildChange::AffectsElements::No
++        ContainerNode::ChildChange::AffectsElements::Yes
+     };
+ }
+ 
+@@ -390,6 +401,10 @@ NODELETE static ContainerNode::ChildChange makeChildChangeForInsertion(Container
+         }
+     }
+ 
++    // No element among them: no element siblings to look up (see the single child's makeChildChangeForInsertion).
++    if (changeType == Type::TextInserted || changeType == Type::NonContentsChildInserted)
++        return { changeType, &children, nullptr, nullptr, nullptr, source, AffectsElements::No };
++
+     auto* beforeChildElement = dynamicDowncast<Element>(beforeChild);
+     return {
+         changeType,
+diff --git a/Source/WebCore/style/ChildChangeInvalidation.cpp b/Source/WebCore/style/ChildChangeInvalidation.cpp
+index 0d823c0a3..54027eddc 100644
+--- a/Source/WebCore/style/ChildChangeInvalidation.cpp
++++ b/Source/WebCore/style/ChildChangeInvalidation.cpp
+@@ -284,6 +284,10 @@ void ChildChangeInvalidation::traverseRemovedElements(NOESCAPE const Function& f
+     if (isInsertionForStyle(m_childChange) && m_childChange.type != ContainerNode::ChildChange::Type::AllChildrenReplaced)
+         return;
+ 
++    // A text node or a comment removed takes no element with it (and its change has no element siblings).
++    if (m_childChange.type == ContainerNode::ChildChange::Type::TextRemoved || m_childChange.type == ContainerNode::ChildChange::Type::NonContentsChildRemoved)
++        return;
++
+     Ref resolver = parentElement().styleResolver();
+     auto& features = resolver->ruleSets().features();
+     bool needsDescendantTraversal = Style::needsDescendantTraversal(features);
