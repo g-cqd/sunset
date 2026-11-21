@@ -25,14 +25,13 @@ How things map:
 
 | Step | What | Status |
 |---|---|---|
-| A | The neutral tree (`SunsetImport`: folders and links) and its conversion to `Favorites`, depth and count limits kept, only `http`/`https`/`file` addresses | in-progress |
-| B | Chromium's `Bookmarks` JSON (Chrome, Canary, Chromium, Brave, Edge, Vivaldi, Opera, Arc's bookmarks) and `Local State`'s profile names | in-progress |
-| C | Netscape bookmark HTML: what every browser exports, the "any other browser" path | not-started |
-| D | Firefox: `profiles.ini`, `places.sqlite` read from a copy (Firefox locks it), `containers.json` | not-started |
+| A | The neutral tree (`SunsetImport`: folders and links) and its conversion to `Favorites`, depth and count limits kept, only `http`/`https`/`file` addresses | done (diary 2026-11-21-11) |
+| B | Chromium's `Bookmarks` JSON (Chrome, Canary, Chromium, Brave, Edge, Vivaldi, Opera, Arc's bookmarks) and `Local State`'s profile names | done as readers (diary 2026-11-21-11) |
+| C | Netscape bookmark HTML: what every browser exports, the "any other browser" path | done as a reader (diary 2026-11-21-12) |
+| D | Firefox: `profiles.ini`, `places.sqlite` read from a copy (Firefox locks it), `containers.json` | done as readers (diary 2026-11-21-12); reading the person's own needs macOS's consent (probed: refused from here) |
 | E | Safari: `Bookmarks.plist` behind Full Disk Access (macOS refuses it otherwise; probed: not readable from here), Reading List as a folder | not-started |
 | F | Extensions: the installed list per profile, matched to their store pages, offered to install | not-started |
 | G | The Import window (Settings ▸ General and the command bar): browser, profiles found, what to bring, into which Space | not-started |
 | H | The welcome: the shader's opening, then preferences (feature scope, security model, default browser, `tabs.start`) and the imports; once, and again from Help | not-started |
 
-Not done: everything past A and B's first parsers; nothing read from the person's own browsers yet beyond whether their
-folders exist.
+Not done: E–H; the readers are not reachable from the app until G; nothing imported from the person's own browsers.
