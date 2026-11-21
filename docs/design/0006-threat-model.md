@@ -12,7 +12,7 @@ docs/research/credentials/.
 | D2 | The storage key and the recovery code | Login Keychain (file-based, ad hoc ACL) | Keychain; FileVault |
 | D3 | Behaviour: history, sessions, open tabs, permissions answered, downloads list, recent files, favicons | `state.sqlite`, `session.sealed`, `library.sqlite` | Sealed payloads; times, counts and kinds in the clear until t48 C |
 | D4 | The person's documents in Sunset | `Documents/` sealed files | Sealed |
-| D5 | What WebKit keeps: network cache (full URLs), website data (IndexedDB, storage, service workers), HSTS, statistics | `~/Library/Caches`, `WebKit`, `HTTPStorages` | 0700 / 0600; cleared at quit for sites not kept (ADR-0081); otherwise in the clear |
+| D5 | What WebKit keeps: network cache (full URLs), website data (IndexedDB, storage, service workers), HSTS, statistics | `~/Library/Caches`, `WebKit`, `HTTPStorages` | 0700 / 0600; cleared at quit for sites not kept (ADR-0081); caches out of backups; cookies and sites' storage sealed while Sunset is closed (2026-11-21) |
 | D6 | The terminal's sessions: what programs print, scrollback, the shell's environment | Memory; recording (planned) | The process |
 | D7 | The person's input: keystrokes, pastes, clipboard | Memory, the system pasteboard | Clipboard gate; no secure keyboard entry yet |
 | D8 | The device's capabilities a page can borrow: camera, microphone, screen, location, notifications | The system (TCC) and Sunset's answers per site | Permission policies (roadmap 0045, ADR-0061, ADR-0082) |
@@ -64,7 +64,7 @@ docs/research/credentials/.
 | A paste runs commands the person did not see | A1/A2 | Bracketed paste | A warning for multi-line or control pastes |
 | Keys logged while typing a password in the terminal | A3 | — | Secure keyboard entry |
 | Behaviour read from Sunset's files | A3, A4 | Sealed payloads, 0600/0700, `secure_delete`, the WAL truncated | t48 C (times, counts, kinds, row keys) |
-| Session tokens read from WebKit's cookie jar | A3, A4 | Cleared at quit for sites not kept | The jar sealed at quit, restored at launch; caches out of backups |
+| Session tokens and sites' data read from WebKit's folders | A3, A4 | Cleared at quit for sites not kept; caches marked out of backups; cookie jars and sites' storage (IndexedDB, local storage, service workers, statistics, HSTS) sealed at quit, after the network process has put its storage to rest and ended, and opened at launch | A3 while Sunset runs (all in the clear then); a crash leaves them in the clear until the next quit; extensions' storage (`WebExtensions`) not sealed |
 | The storage key taken | A3, A4 | Keychain ACL; FileVault | Data-protection keychain and Secure Enclave wrap (the wrap now; the class after t49) |
 | A vault opened | A3, A4, A5 | — | ADR-0091 (factors, lock, zeroed buffers, capture exclusion) |
 | Clipboard secrets left behind | A3, A5 | Clipboard gate | Concealed type, clearing (0091 D) |

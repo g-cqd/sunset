@@ -71,7 +71,12 @@ import WebKit
             // them again (diary 2026-11-19-12).
             for (store, _, _) in every { await WebProcessControl.flushCookies(store.httpCookieStore) }
             WebKitFolders.tightenOwn()
-            AppCookieJars.sealAtQuit()
+            AppSealedData.sealJars()
+            // The sites' storage: the network process puts it to rest (nothing written after), then ends (it does not wake
+            // to write again), then each file is sealed (t137).
+            for (store, _, _) in every { await WebProcessControl.quietNetwork(store) }
+            for (store, _, _) in every { WebProcessControl.endNetwork(store) }
+            AppSealedData.sealSiteStorage()
         }
     }
 }

@@ -7,7 +7,7 @@ package import Foundation
 ///
 /// While Sunset runs the jars are in the clear (0600): another program of the same user (A3) is not what this answers.
 package struct CookieJars {
-    package static let sealedExtension = "sealed"
+    package static let sealedExtension = SealedFiles.sealedExtension
     private let library: URL
     private let bundleID: String
 
@@ -16,12 +16,7 @@ package struct CookieJars {
         self.bundleID = bundleID
     }
 
-    /// What `open` did: jars put back, sealed ones dropped for a newer jar in the clear, sealed ones kept that do not open.
-    package struct Opened: Equatable, Sendable {
-        package var opened = 0
-        package var newer = 0
-        package var unreadable = 0
-    }
+    package typealias Opened = SealedFiles.Opened
 
     /// The default store's jar and every profile store's.
     /// - Complexity: O(the profile stores).
@@ -42,56 +37,25 @@ package struct CookieJars {
         places().map(sealedPlace).filter { FileManager.default.fileExists(atPath: $0.path) }
     }
 
-    /// Seals each jar in the clear beside it (0600), checks the seal opens to the same bytes, then removes the clear jar.
-    /// Returns how many were sealed. A jar whose seal cannot be written or checked stays in the clear.
+    /// Seals each jar in the clear beside it (`SealedFiles.seal`); how many were sealed. One whose seal cannot be written or
+    /// checked stays in the clear.
     @discardableResult
     package func seal(with seal: Seal) -> Int {
-        var sealedCount = 0
-        for jar in clear() {
-            guard let plain = try? Data(contentsOf: jar),
-                let sealedData = try? seal.seal(plain, identity: identity(jar))
-            else { continue }
-            let place = sealedPlace(jar)
-            guard (try? sealedData.write(to: place, options: [.atomic])) != nil,
-                (try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: place.path)) != nil,
-                let back = try? Data(contentsOf: place), (try? seal.open(back, identity: identity(jar))) == plain,
-                (try? FileManager.default.removeItem(at: jar)) != nil
-            else { continue }
-            sealedCount += 1
-        }
-        return sealedCount
+        clear()
+            .reduce(0) { count, jar in SealedFiles.seal(jar, identity: identity(jar), with: seal) ? count + 1 : count }
     }
 
-    /// Puts each sealed jar back in the clear (0600) where none is, and removes the sealed one. A jar in the clear already is
-    /// newer (written after the seal): it stays and the sealed one goes. A sealed jar that does not open (another key) is
-    /// kept, never deleted.
+    /// Puts each sealed jar back (`SealedFiles.open`): a jar in the clear already is newer and stays; a seal that does not
+    /// open is kept.
     @discardableResult
     package func open(with seal: Seal) -> Opened {
         var outcome = Opened()
-        for jar in places() {
-            let place = sealedPlace(jar)
-            guard FileManager.default.fileExists(atPath: place.path) else { continue }
-            if FileManager.default.fileExists(atPath: jar.path) {
-                try? FileManager.default.removeItem(at: place)
-                outcome.newer += 1
-                continue
-            }
-            guard let sealedData = try? Data(contentsOf: place),
-                let plain = try? seal.open(sealedData, identity: identity(jar)),
-                (try? plain.write(to: jar, options: [.atomic])) != nil
-            else {
-                outcome.unreadable += 1
-                continue
-            }
-            try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: jar.path)
-            try? FileManager.default.removeItem(at: place)
-            outcome.opened += 1
-        }
+        for place in sealed() { SealedFiles.open(place, identity: identity, with: seal, into: &outcome) }
         return outcome
     }
 
     private func sealedPlace(_ jar: URL) -> URL {
-        jar.appendingPathExtension(Self.sealedExtension)
+        SealedFiles.sealedPlace(jar)
     }
 
     /// The jar's place under the library: what its seal is bound to.

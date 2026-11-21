@@ -41,4 +41,24 @@ public enum WebProcessControl {
             call(cookieStore, selector) { done.resume() }
         }
     }
+
+    /// Has the network process put what it stores to rest (`_sendNetworkProcessPrepareToSuspend:`): local storage written
+    /// out, IndexedDB stopped, its storage queue suspended, so that nothing is written after the completion (t137: the
+    /// sites' storage is sealed then). Returns at once where WebKit no longer has it.
+    public static func quietNetwork(_ dataStore: NSObject) async {
+        let selector = NSSelectorFromString(#Interned("_sendNetworkProcessPrepareToSuspend:"))
+        guard dataStore.responds(to: selector) else { return }
+        typealias Prepare = @convention(c) (AnyObject, Selector, @escaping @convention(block) () -> Void) -> Void
+        let call = unsafe unsafeBitCast(dataStore.method(for: selector), to: Prepare.self)
+        await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
+            call(dataStore, selector) { done.resume() }
+        }
+    }
+
+    /// Ends the network process (`_terminateNetworkProcess`), so that it does not wake to write again. False where WebKit no
+    /// longer has it.
+    @discardableResult
+    public static func endNetwork(_ dataStore: NSObject) -> Bool {
+        call(NSSelectorFromString(#Interned("_terminateNetworkProcess")), on: dataStore)
+    }
 }
