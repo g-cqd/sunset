@@ -29,9 +29,9 @@ How things map:
 | B | Chromium's `Bookmarks` JSON (Chrome, Canary, Chromium, Brave, Edge, Vivaldi, Opera, Arc's bookmarks) and `Local State`'s profile names | done as readers (diary 2026-11-21-11) |
 | C | Netscape bookmark HTML: what every browser exports, the "any other browser" path | done as a reader (diary 2026-11-21-12) |
 | D | Firefox: `profiles.ini`, `places.sqlite` read from a copy (Firefox locks it), `containers.json` | done as readers (diary 2026-11-21-12); reading the person's own needs macOS's consent (probed: refused from here) |
-| E | Safari: `Bookmarks.plist` behind Full Disk Access (macOS refuses it otherwise; probed: not readable from here), Reading List as a folder | not-started |
-| F | Extensions: the installed list per profile, matched to their store pages, offered to install | not-started |
-| G | The Import window (Settings ▸ General and the command bar): browser, profiles found, what to bring, into which Space | not-started |
+| E | Safari: `Bookmarks.plist` behind Full Disk Access (macOS refuses it otherwise; probed: not readable from here), Reading List as a folder | done as a reader; the window explains the access (diary 2026-11-21-14) |
+| F | Extensions: the installed list per profile, matched to their store pages, offered to install | done: listed with Open Store Page; Chrome's own left out (diary 2026-11-21-14) |
+| G | The Import window (File ▸ Import from Another Browser…): browser, profile, an exported file, into a new Space or this one | done, seen (diary 2026-11-21-14); not done: the command bar's row, containers made profiles |
 | H | The welcome: the shader's opening, then preferences (feature scope, security model, default browser, `tabs.start`) and the imports; once, and again from Help | not-started |
 
-Not done: E–H; the readers are not reachable from the app until G; nothing imported from the person's own browsers.
+Not done: H (the welcome); Firefox containers as profiles; the command bar's row; a real import of bookmarks seen on screen (this Mac's browsers hold none Sunset may read without Full Disk Access).

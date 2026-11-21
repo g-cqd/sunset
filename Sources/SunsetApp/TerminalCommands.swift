@@ -55,10 +55,8 @@ struct TerminalCommands: Commands {
                 Button("New Document") { AppActions.shared.newDocument() }
                 Button("Open File\u{2026}") { AppActions.shared.openFile() }.keyboardShortcut("o")
             }
-            // Extensions (roadmap 0109): into the window's profile.
             if scopes.web {
-                Divider()
-                Button("Install Extension\u{2026}") { AppActions.shared.installExtension() }
+                BrowserFileItems()
             }
         }
         CommandGroup(replacing: .saveItem) {

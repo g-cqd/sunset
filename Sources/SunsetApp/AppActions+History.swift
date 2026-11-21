@@ -20,6 +20,11 @@ extension AppActions {
         keyWindowTabs?.clearingHistory = true
     }
 
+    /// File ▸ Import from Another Browser… (roadmap 0111 G).
+    func importFromBrowser() {
+        keyWindowTabs?.importing = true
+    }
+
     /// A page of the history: in the focused page, or a new page tab (asked for, or when a terminal has the keyboard).
     func openFromHistory(_ address: String, newTab: Bool) {
         guard let tabs = keyWindowTabs, let url = URL(string: address) else { return }

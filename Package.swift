@@ -142,7 +142,7 @@ let package = Package(
                 "SunsetPane",
                 "SunsetPrivate", "SunsetRender", "SunsetStorage", "SunsetDocuments", "SunsetRenderMac",
                 "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal", "SunsetWeb",
-                "SunsetMarkdown", "SunsetMetrics", .product(name: "AemiSDR", package: "AemiSDR"),
+                "SunsetMarkdown", "SunsetMetrics", "SunsetImport", .product(name: "AemiSDR", package: "AemiSDR"),
                 .product(name: "MarkdownLookKit", package: "AemiMarkdown")
             ]
         ),

@@ -127,6 +127,8 @@ package final class TabsModel {
         privateGroup != nil
     }
     package var clearingHistory = false
+    /// File ▸ Import from Another Browser… is open (roadmap 0111 G).
+    package var importing = false
     /// The row whose name is being edited in place, and the row whose icon popover is open.
     package var renamingRow: RowTarget?
     package var iconRow: RowTarget?
