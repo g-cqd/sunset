@@ -67,6 +67,10 @@ $buddy -c "Add :CFBundleDisplayName string Sunset WebKit" "$plist"
 base="$(cat "$here/Engine/WebKit/base")"
 $buddy -c "Delete :SunsetWebKitBase" "$plist" 2>/dev/null || true
 $buddy -c "Add :SunsetWebKitBase string $base" "$plist"
+# The base's date: the app tells when its engine is likely behind WebKit's security fixes (EngineFreshness).
+baseDate="$(git -C "$tree" show -s --format=%cI "$base" 2>/dev/null || true)"
+$buddy -c "Delete :SunsetWebKitBaseDate" "$plist" 2>/dev/null || true
+[ -n "$baseDate" ] && $buddy -c "Add :SunsetWebKitBaseDate string $baseDate" "$plist"
 # The same base in WebKit's own Info.plist, before it is signed: the app refuses a WebKit of another base (an older
 # release's swapped in; BundledWebKit.refuseOtherWebKit).
 webkitPlist="$frameworks/WebKit.framework/Versions/A/Resources/Info.plist"

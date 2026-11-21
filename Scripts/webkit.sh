@@ -13,6 +13,8 @@
 #                                      of that passes is Engine/WebKit/base moved and the series exported again
 #   Scripts/webkit.sh export           the tree's commits above the base written back as the series
 #   Scripts/webkit.sh status           the base, the series, the tree
+#   Scripts/webkit.sh behind           whether WebKit published a security advisory after the base's date (exit 1: an
+#                                      update and a Sunset WebKit release are due; threat model D10)
 #
 # $SUNSET_WEBKIT: where the tree is; default ~/Developer/g-cqd/webkit-spike/WebKit.
 set -eu
@@ -145,6 +147,11 @@ test_tree() {
     fi
 }
 
+die() {
+    echo "webkit: $*" >&2
+    exit 2
+}
+
 case "${1:-}" in
 fetch)
     if [ ! -d "$tree/.git" ]; then
@@ -193,6 +200,19 @@ export)
     rm -f "$patches"/*.patch
     git_wk format-patch -q --no-numbered --zero-commit --no-signature --no-stat -o "$patches" "$base..HEAD"
     ls "$patches"
+    ;;
+behind)
+    # The latest advisory is WebKitGTK's (it republishes Apple's WebKit fixes, dated); the base's date is its commit's.
+    latest="$(curl -fsS https://webkitgtk.org/security.html | grep -oE 'WSA-[0-9]{4}-[0-9]{4}' | head -1)"
+    [ -n "$latest" ] || die "the advisories could not be read"
+    reported="$(curl -fsS "https://webkitgtk.org/security/$latest.html" | sed -n 's/.*Date Reported: <strong>\([A-Za-z]* [0-9]*, [0-9]*\).*/\1/p' | head -1)"
+    advisory="$(date -j -f '%B %d, %Y' "$reported" +%Y-%m-%d 2> /dev/null)" || die "$latest has no date"
+    based="$(git_wk show -s --format=%cs "$base" 2> /dev/null)" || die "the base is not in the tree"
+    if [ "$(printf '%s\n%s\n' "$advisory" "$based" | sort | tail -1)" = "$advisory" ] && [ "$advisory" != "$based" ]; then
+        echo "webkit: behind: $latest ($advisory) is after the base ($based); update and release"
+        exit 1
+    fi
+    echo "webkit: up to date: the base ($based) is after $latest ($advisory)"
     ;;
 status)
     echo "webkit: base $base, $(find "$patches" -name '*.patch' | wc -l | tr -d ' ') patches"

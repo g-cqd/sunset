@@ -31,7 +31,7 @@ struct TerminalCommands: Commands {
         // Help is a tab of its own window (roadmap 0041 E; the owner, 2026-11-17: a window reusing the shell).
         // Option turns About into the easter egg: the sun's opening again.
         CommandGroup(replacing: .appInfo) {
-            Button("About Sunset") { NSApp.orderFrontStandardAboutPanel(nil) }
+            Button("About Sunset") { AppActions.shared.showAbout() }
                 .modifierKeyAlternate(.option) {
                     Button("Watch the Sunset Again") { WelcomeWindow.shared.watchAgain() }
                 }

@@ -39,6 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             AppConfiguration.shared.applyScheme()
             AppConfiguration.shared.applyIcon()
             WelcomeWindow.shared.openIfFirstLaunch()
+            if !WelcomeWindow.atLaunch { AppEngineFreshness.tellIfBehind() }
         }
     }
 
