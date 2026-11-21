@@ -1,0 +1,243 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 16:42:21 +0100
+Subject: [PATCH] CSS: :nth-child() in querySelectorAll, matches and closest in
+ linear time (Sunset P5)
+
+A query counted each candidate's previous siblings; the child index
+cache is filled by style resolution only, so a query over a long run of
+siblings was quadratic (32,000: 1,219 ms; Chrome Canary linear). Each
+query (querySelectorAll, querySelector, matches, closest) now opens a
+SelectorChecker::QueryScope that remembers the positions counted past
+16, so the next sibling's is a step away; the scope ends with the query
+and is emptied if the tree changes. Short runs are counted inline by the
+selector JIT as before, so short lists cost the same. 32,000 siblings:
+1 ms. Style resolution is unchanged.
+
+diff --git a/Source/WebCore/css/SelectorChecker.cpp b/Source/WebCore/css/SelectorChecker.cpp
+index 18e39d310..837c3e730 100644
+--- a/Source/WebCore/css/SelectorChecker.cpp
++++ b/Source/WebCore/css/SelectorChecker.cpp
+@@ -183,6 +183,59 @@ NODELETE static inline int countElementsBefore(const Element& element)
+     return count;
+ }
+ 
++static SelectorChecker::QueryScope* currentQueryScope;
++
++SelectorChecker::QueryScope::QueryScope()
++    : m_isOutermost(!currentQueryScope)
++{
++    if (m_isOutermost)
++        currentQueryScope = this;
++}
++
++SelectorChecker::QueryScope::~QueryScope()
++{
++    if (m_isOutermost)
++        currentQueryScope = nullptr;
++}
++
++unsigned SelectorChecker::elementIndexForQuery(const Element& element)
++{
++    auto* scope = currentQueryScope;
++    if (!scope)
++        return countElementsBefore(element) + 1;
++
++    // Tree versions are unique across documents and change with every change of a tree: an unchanged version means no
++    // element remembered has gone or moved.
++    auto treeVersion = element.document().domTreeVersion();
++    if (scope->m_treeVersion != treeVersion) {
++        scope->m_indexes.clear();
++        scope->m_treeVersion = treeVersion;
++    }
++
++    // Short runs are counted, not remembered: the first positions cost less to count than to look up.
++    static constexpr unsigned positionsCountedOnly = 16;
++    bool mayKnowSiblings = !scope->m_indexes.isEmpty();
++
++    unsigned index = 1;
++    for (auto* sibling = ElementTraversal::previousSibling(element); sibling; sibling = ElementTraversal::previousSibling(*sibling)) {
++        if (unsigned cachedIndex = sibling->childIndex()) {
++            index += cachedIndex;
++            break;
++        }
++        if (mayKnowSiblings) {
++            if (auto knownIndex = scope->m_indexes.getOptional(sibling)) {
++                index += *knownIndex;
++                break;
++            }
++        }
++        ++index;
++    }
++
++    if (index > positionsCountedOnly)
++        scope->m_indexes.set(&element, index);
++    return index;
++}
++
+ NODELETE static inline int countElementsOfTypeBefore(const Element& element, const QualifiedName& type)
+ {
+     int count = 0;
+@@ -1130,7 +1183,9 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
+                     if (matchSelectorList(checkingContext, context, *sibling, *selectorList))
+                         ++count;
+                 }
+-            } else {
++            } else if (checkingContext.resolvingMode == Mode::QueryingRules)
++                count = elementIndexForQuery(element);
++            else {
+                 count += countElementsBefore(element);
+                 addStyleRelation(checkingContext, element, Style::Relation::NthChildIndex, count);
+             }
+diff --git a/Source/WebCore/css/SelectorChecker.h b/Source/WebCore/css/SelectorChecker.h
+index 9be32420e..373d61b33 100644
+--- a/Source/WebCore/css/SelectorChecker.h
++++ b/Source/WebCore/css/SelectorChecker.h
+@@ -127,6 +127,25 @@ public:
+     bool matchHostPseudoClass(const CSSSelector&, const Element&, CheckingContext&) const;
+ 
+     static bool isCommonPseudoClassSelector(const CSSSelector*);
++    // The 1-based position of an element among its parent's element children, for querying (querySelectorAll, matches).
++    static unsigned elementIndexForQuery(const Element&);
++
++    // While one is alive, the positions elementIndexForQuery() counts are remembered: a query visits siblings in tree
++    // order, so each is a step from the one before. Counting each one's previous siblings anew made :nth-child()
++    // quadratic over a long run of them (the child index cache is filled by style resolution only).
++    class QueryScope {
++        WTF_MAKE_NONCOPYABLE(QueryScope);
++    public:
++        QueryScope();
++        ~QueryScope();
++
++    private:
++        friend class SelectorChecker;
++        // Pointers only compared, never read; valid while the document's tree is unchanged (treeVersion).
++        HashMap<const Element*, unsigned> m_indexes;
++        uint64_t m_treeVersion { 0 };
++        bool m_isOutermost { false };
++    };
+     static bool attributeSelectorMatches(const Element&, const QualifiedName&, const AtomString& attributeValue, const CSSSelector&);
+     static void clearCompiledHasArgumentSelectors();
+ 
+diff --git a/Source/WebCore/cssjit/SelectorCompiler.cpp b/Source/WebCore/cssjit/SelectorCompiler.cpp
+index c5e1345ad..5fdbf3501 100644
+--- a/Source/WebCore/cssjit/SelectorCompiler.cpp
++++ b/Source/WebCore/cssjit/SelectorCompiler.cpp
+@@ -144,6 +144,7 @@ using PseudoClassesSet = HashSet<CSSSelector::PseudoClass, IntHash<CSSSelector::
+     v(operationMatchesOptimumPseudoClass) \
+     v(operationMatchesSuboptimumPseudoClass) \
+     v(operationAddStyleRelationFunction) \
++    v(operationElementIsNthChildForQuery) \
+     v(operationModuloHelper) \
+     v(operationAttributeValueBeginsWithCaseSensitive) \
+     v(operationAttributeValueBeginsWithCaseInsensitive) \
+@@ -232,6 +233,7 @@ void dumpSelectorOperationStats()
+ extern "C" {
+ 
+ static JSC_DECLARE_NOEXCEPT_JIT_OPERATION_WITHOUT_WTF_INTERNAL(operationAddStyleRelationFunction, void, (SelectorChecker::CheckingContext*, const Element*));
++static JSC_DECLARE_NOEXCEPT_JIT_OPERATION_WITHOUT_WTF_INTERNAL(operationElementIsNthChildForQuery, bool, (const Element*, uint64_t));
+ static JSC_DECLARE_NOEXCEPT_JIT_OPERATION_WITHOUT_WTF_INTERNAL(operationElementIsActive, bool, (const Element*));
+ static JSC_DECLARE_NOEXCEPT_JIT_OPERATION_WITHOUT_WTF_INTERNAL(operationElementIsHovered, bool, (const Element*));
+ static JSC_DECLARE_NOEXCEPT_JIT_OPERATION_WITHOUT_WTF_INTERNAL(operationIsPlaceholderShown, bool, (const Element*));
+@@ -2872,6 +2874,20 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationAddStyleRelationFunction, void, (Sele
+     checkingContext->styleRelations.append({ *element, { }, 1 });
+ }
+ 
++// a and b of an+b packed in one argument: a in the high 32 bits, b in the low.
++JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationElementIsNthChildForQuery, bool, (const Element* element, uint64_t packedFilter))
++{
++    COUNT_SELECTOR_OPERATION(operationElementIsNthChildForQuery);
++    int a = static_cast<int32_t>(static_cast<uint32_t>(packedFilter >> 32));
++    int b = static_cast<int32_t>(static_cast<uint32_t>(packedFilter));
++    int count = SelectorChecker::elementIndexForQuery(*element);
++    if (a > 0)
++        return count >= b && !((count - b) % a);
++    if (a < 0)
++        return count <= b && !((b - count) % -a);
++    return count == b;
++}
++
+ void SelectorCodeGenerator::generateAddStyleRelation(Assembler::RegisterID checkingContext, Assembler::RegisterID element, Style::Relation::Type relationType, std::optional<Assembler::RegisterID> value)
+ {
+     ASSERT(m_selectorContext != SelectorContext::QuerySelector);
+@@ -4275,6 +4291,44 @@ void SelectorCodeGenerator::generateElementIsNthChild(Assembler::JumpList& failu
+     if (validSubsetFilters.isEmpty())
+         return;
+ 
++    // Querying: a short run of previous siblings is counted here; past 16, the position comes from
++    // SelectorChecker::elementIndexForQuery(), which remembers the positions it counted (counting here, each candidate
++    // would walk all its previous siblings: quadratic over a long run of them).
++    if (m_selectorContext == SelectorContext::QuerySelector) {
++        Assembler::JumpList longRunCases;
++        Assembler::JumpList doneCases;
++        {
++            LocalRegisterWithPreference elementCounter(m_registerAllocator, JSC::GPRInfo::argumentGPR1);
++            m_assembler.move(Assembler::TrustedImm32(1), elementCounter);
++            {
++                LocalRegister previousSibling(m_registerAllocator);
++                m_assembler.move(elementAddressRegister, previousSibling);
++                Assembler::JumpList noMoreSiblingsCases;
++                Assembler::Label loopStart = m_assembler.label();
++                generateWalkToPreviousAdjacentElement(noMoreSiblingsCases, previousSibling);
++                m_assembler.add32(Assembler::TrustedImm32(1), elementCounter);
++                longRunCases.append(m_assembler.branch32(Assembler::Above, elementCounter, Assembler::TrustedImm32(16)));
++                m_assembler.jump().linkTo(loopStart, &m_assembler);
++                noMoreSiblingsCases.link(&m_assembler);
++            }
++            for (const auto& slot : validSubsetFilters)
++                generateNthFilterTest(failureCases, elementCounter, slot.first, slot.second);
++            doneCases.append(m_assembler.jump());
++        }
++
++        longRunCases.link(&m_assembler);
++        for (const auto& slot : validSubsetFilters) {
++            LocalRegister packedFilter(m_registerAllocator);
++            m_assembler.move(Assembler::TrustedImm64((static_cast<uint64_t>(static_cast<uint32_t>(slot.first)) << 32) | static_cast<uint32_t>(slot.second)), packedFilter);
++            FunctionCall functionCall(m_assembler, m_registerAllocator, m_stackAllocator, m_functionCalls);
++            functionCall.setFunctionAddress(operationElementIsNthChildForQuery);
++            functionCall.setTwoArguments(elementAddressRegister, packedFilter);
++            failureCases.append(functionCall.callAndBranchOnBooleanReturnValue(Assembler::Zero));
++        }
++        doneCases.link(&m_assembler);
++        return;
++    }
++
+     // Setup the counter at 1.
+     LocalRegisterWithPreference elementCounter(m_registerAllocator, JSC::GPRInfo::argumentGPR1);
+     m_assembler.move(Assembler::TrustedImm32(1), elementCounter);
+diff --git a/Source/WebCore/dom/SelectorQuery.cpp b/Source/WebCore/dom/SelectorQuery.cpp
+index 31ff82977..d861f176a 100644
+--- a/Source/WebCore/dom/SelectorQuery.cpp
++++ b/Source/WebCore/dom/SelectorQuery.cpp
+@@ -184,6 +184,7 @@ inline bool SelectorDataList::selectorMatches(const SelectorData& selectorData,
+ 
+ bool SelectorDataList::matches(Element& targetElement) const
+ {
++    SelectorChecker::QueryScope queryScope;
+     for (auto& selector : m_selectors) {
+         if (selectorMatches(selector, targetElement, targetElement))
+             return true;
+@@ -193,6 +194,7 @@ bool SelectorDataList::matches(Element& targetElement) const
+ 
+ RefPtr<Element> SelectorDataList::closest(Element& targetElement) const
+ {
++    SelectorChecker::QueryScope queryScope;
+     Style::SelectorMatchingState selectorMatchingState;
+ 
+     for (Ref currentElement : lineageOfType<Element>(targetElement)) {
+@@ -206,6 +208,7 @@ RefPtr<Element> SelectorDataList::closest(Element& targetElement) const
+ 
+ Ref<NodeList> SelectorDataList::queryAll(ContainerNode& rootNode) const
+ {
++    SelectorChecker::QueryScope queryScope;
+     Vector<Ref<Element>> result;
+     execute(rootNode, result);
+     return StaticElementList::create(WTF::move(result));
+@@ -213,6 +216,7 @@ Ref<NodeList> SelectorDataList::queryAll(ContainerNode& rootNode) const
+ 
+ Element* SelectorDataList::queryFirst(ContainerNode& rootNode) const
+ {
++    SelectorChecker::QueryScope queryScope;
+     Element* result = nullptr;
+     execute(rootNode, result);
+     return result;

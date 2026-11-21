@@ -1,0 +1,87 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Sammy Gill <sammy.gill@apple.com>
+Date: Fri, 20 Nov 2026 18:16:14 -0800
+Subject: [PATCH] REGRESSION(327401@main): WebContent crash loading atptour.com
+ https://bugs.webkit.org/show_bug.cgi?id=332523 rdar://193289148
+
+Reviewed by Alan Baradlay.
+
+RenderGrid owns a persistent LayoutIntegration::GridLayout object. When an element
+associated with a grid is removed from the DOM, deferred deletion can destroy the
+node before the renderer, so ~RenderGrid running ~GridLayout crashes in BoxTreeUpdater::tearDown,
+whose first read (renderTreeBeingDestroyed() -> document()) hits the dead node.
+
+Drop the GridLayout object in willBeDestroyed(), which runs at removal time while the node
+is still alive.
+
+Test: fast/css-grid-layout/remove-grid-deferred-deletion.html crashed on the
+ASSERTION FAILED: ptr in WeakRef<Node>::get() before this change and passes with it.
+
+Canonical link: https://commits.webkit.org/327494@main
+
+(cherry picked from commit 6f822c92ef637c03caf15ad47ba8efced3d63d77)
+
+diff --git a/LayoutTests/fast/css-grid-layout/remove-grid-deferred-deletion-expected.txt b/LayoutTests/fast/css-grid-layout/remove-grid-deferred-deletion-expected.txt
+new file mode 100644
+index 000000000..7ef22e9a4
+--- /dev/null
++++ b/LayoutTests/fast/css-grid-layout/remove-grid-deferred-deletion-expected.txt
+@@ -0,0 +1 @@
++PASS
+diff --git a/LayoutTests/fast/css-grid-layout/remove-grid-deferred-deletion.html b/LayoutTests/fast/css-grid-layout/remove-grid-deferred-deletion.html
+new file mode 100644
+index 000000000..01b4e23d0
+--- /dev/null
++++ b/LayoutTests/fast/css-grid-layout/remove-grid-deferred-deletion.html
+@@ -0,0 +1,20 @@
++<!DOCTYPE html>
++<script>
++if (window.testRunner) { testRunner.waitUntilDone(); testRunner.dumpAsText(); }
++</script>
++<style>
++  .grid { display: grid; grid-template-columns: 100px 100px; gap: 5px; }
++</style>
++<div class="grid" id="g"><div>hello</div><div>world</div></div>
++<script>
++addEventListener('load', () => {
++    // Force layout first so the grid is laid out by GFC and gets a persistent driver.
++    document.getElementById('g').offsetWidth;
++    // Remove it, collect the node, then force the deferred renderer deletion.
++    document.getElementById('g').remove();
++    if (window.gc) gc();
++    if (window.internals) internals.beginSimulatedMemoryPressure();
++    document.body.textContent = 'PASS';
++    if (window.testRunner) testRunner.notifyDone();
++});
++</script>
+diff --git a/Source/WebCore/rendering/RenderGrid.cpp b/Source/WebCore/rendering/RenderGrid.cpp
+index 4a067e752..3dd7beb4b 100644
+--- a/Source/WebCore/rendering/RenderGrid.cpp
++++ b/Source/WebCore/rendering/RenderGrid.cpp
+@@ -70,6 +70,12 @@ RenderGrid::RenderGrid(Element& element, UniqueRef<Style::ComputedStyle>&& style
+ 
+ RenderGrid::~RenderGrid() = default;
+ 
++void RenderGrid::willBeDestroyed()
++{
++    m_gridLayout = { };
++    RenderBlock::willBeDestroyed();
++}
++
+ bool RenderGrid::isExtrinsicallySized() const
+ {
+     auto& gridStyle = style();
+diff --git a/Source/WebCore/rendering/RenderGrid.h b/Source/WebCore/rendering/RenderGrid.h
+index caf87cfe6..5ba12e535 100644
+--- a/Source/WebCore/rendering/RenderGrid.h
++++ b/Source/WebCore/rendering/RenderGrid.h
+@@ -177,6 +177,9 @@ public:
+ 
+     LayoutRange gridAreaRangeForOutOfFlow(const RenderBox&, Style::GridTrackSizingDirection) const;
+ 
++protected:
++    void willBeDestroyed() override;
++
+ private:
+     friend class GridTrackSizingAlgorithm;
+     friend class GridTrackSizingAlgorithmStrategy;
