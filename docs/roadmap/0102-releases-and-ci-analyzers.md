@@ -40,10 +40,19 @@ ADR-0106 says why it is shaped this way.
 - **v0.1.0-alpha.3 published** (2026-11-20), build 631, a pre-release, signed tag on the note's commit (the build's code at
   7fc57c3): the first with the build in the zip's name (`Sunset-v0.1.0-alpha.3-build631-macos-arm64.zip`, 20 MB, SHA-256
   a8df9197…) and the title. The owner: releases stay local for now (the CI job unused, no secrets).
+- **v0.1.0-alpha.4 published** (2026-11-21), build 660, a pre-release in **two builds** (ADR-0111), signed tag on the build's
+  commit e9e0911, note on 3928394: `Sunset-v0.1.0-alpha.4-build660-macos-arm64.zip` (21 MB, SHA-256 df256eba…) by
+  `package-release.sh`, and `Sunset-WebKit-v0.1.0-alpha.4-build660-…` (100 MB) made by hand from the same app
+  (`make-webkit-app.sh .build/app-package/Sunset.app`, notarised, ditto, shasum). Both downloaded back from GitHub: checksums
+  OK, Gatekeeper "Notarized Developer ID", tickets stapled. Uploading a 100 MB asset over ssh timed out once and left a draft
+  that then vanished (GitHub answered 404, "release not found"); made again as a draft, uploaded detached on mbp23, sizes checked,
+  then published. The tag's CI run failed with no secrets, as expected.
 
 ## Not done
 
 - The workflow has **not run on GitHub**: it needs the seven secrets at its top, which the owner adds.
+- Sunset WebKit is not in `package-release.sh` nor the workflow (its WebKit is built on the owner's Mac, an hour, 24 GB of
+  disk): its zip is made by hand.
 - Sunset's CI pins swift-ci by revision; the analyzers' versions are swift-ci's.
 - The app is arm64 only; no universal build (both alphas say so).
 - swift-ci's `family repin` wrote `"kind" : "localSourceControl"` beside remote URLs into Sunset's three `Package.resolved`,
