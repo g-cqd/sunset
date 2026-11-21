@@ -83,7 +83,10 @@ struct PopupScene: View {
         GlassEffectContainer(spacing: PopupWindowLayout.capsuleGap) {
             HStack(spacing: PopupWindowLayout.capsuleGap) {
                 if lightsSide == .left { Color.clear.frame(width: layout.lightsRoom) }
-                if lightsSide == .right { openIn }
+                if lightsSide == .right {
+                    openIn
+                    extensions
+                }
                 if let popup, popup.kind.navigates {
                     PageNavigation(content: popup.page, control: PopupWindowLayout.capsuleHeight)
                     AddressField(content: popup.page, reload: true)
@@ -97,7 +100,10 @@ struct PopupScene: View {
                 } else {
                     Spacer(minLength: 0)
                 }
-                if lightsSide == .left { openIn }
+                if lightsSide == .left {
+                    extensions
+                    openIn
+                }
                 if lightsSide == .right { Color.clear.frame(width: layout.lightsRoom) }
             }
         }
@@ -118,6 +124,25 @@ struct PopupScene: View {
                 PopupWindowStore.shared.move(id, to: space)
             }
         }
+    }
+
+    /// The extensions of the profile the window's opener is in, by Open in (the owner, 2026-11-20, t138): its page is
+    /// their tab while it is shown; past the room for a few, the puzzle piece lists them.
+    @ViewBuilder private var extensions: some View {
+        if let popup, let host = ExtensionHosts.shared.host(for: profile(of: popup)),
+            host.installed.contains(where: \.enabled)
+        {
+            ExtensionActionsBar(host: host, page: popup.page, width: PopupWindowLayout.extensionsWidth) {
+                if let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) {
+                    AppSettings.show("web.extensions", in: tabs)
+                }
+            }
+        }
+    }
+
+    /// The profile of the Space the window's opener was in (the first profile: nil, as for a window of tabs).
+    private func profile(of popup: PopupWindowStore.Popup) -> UUID? {
+        popup.openerSpace.flatMap { AppSpaces.all.space($0) }.flatMap(PaneContentKinds.profile(ofSpace:))
     }
 
     @ViewBuilder private var card: some View {

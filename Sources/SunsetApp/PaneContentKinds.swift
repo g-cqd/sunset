@@ -109,7 +109,12 @@ import SunsetWeb
     /// The profile of the Space `tabs` shows (nil: the first, and a window not among the app's Spaces).
     static func profile(of tabs: TabsModel) -> UUID? {
         guard AppSpaces.all.contains(tabs.space) else { return nil }
-        let profile = AppSpaces.all.profiles.profile(of: tabs.space.space).profile
+        return profile(ofSpace: tabs.space)
+    }
+
+    /// The profile of `space` (the first profile: nil).
+    static func profile(ofSpace space: SpaceModel) -> UUID? {
+        let profile = AppSpaces.all.profiles.profile(of: space.space).profile
         return profile.isFirst ? nil : profile.id
     }
 }

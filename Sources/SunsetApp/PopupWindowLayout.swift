@@ -34,6 +34,8 @@ struct PopupWindowLayout {
     /// `capsuleGap` from the window's top and the card.
     static let capsuleHeight = 22.0
     static let capsuleGap = Design.Space.s
+    /// The room the extensions' buttons have in the strip: three, or two and the puzzle piece.
+    static let extensionsWidth = 3 * 28.0 + 2 * Design.Space.xs
     /// The room at a capsule's ends: its radius, so the text is as far from the curve as from the straight edges.
     static let capsuleEnd = capsuleHeight / 2
     /// A peek's page when it opens (a link from another app asks for no size).

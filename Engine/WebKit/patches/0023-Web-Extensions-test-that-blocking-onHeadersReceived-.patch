@@ -1,0 +1,189 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 13:24:36 +0100
+Subject: [PATCH] Web Extensions: test that blocking onHeadersReceived holds
+ documents only, with headers checked (Sunset W6c)
+
+A frame's response gets the Content-Security-Policy a listener adds, while
+a header whose name is not a token and one whose value has a line break
+are dropped (kept, they failed the load). A subresource's response is not
+held: the header the listener adds is not there, and the listener was
+called. The cancel test uses frames. Fail before the change that follows.
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index 0b50ec8d6..5eed7b7d6 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -343,15 +343,84 @@ struct WKWebExtensionAPIWebRequestTests {
+         }
+     }
+ 
+-    // A blocking onHeadersReceived listener's { responseHeaders } replaces the response's headers before the page sees
+-    // them, as in Firefox and Chrome (Manifest V2); uBlock Origin adds Content-Security-Policy and removes headers so.
++    // A blocking onHeadersReceived listener's { responseHeaders } replaces a document's headers before the page has them,
++    // as in Firefox and Chrome (Manifest V2); headers that are not headers (a name that is not a token, a line break in a
++    // value) are dropped. Here a frame is given a Content-Security-Policy, and its inline script does not run.
+     @Test
+     func blockingHeadersListenerChangesResponseHeaders() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                "<iframe src='/frame.html'></iframe>"
++            }
++            Route("/frame.html", headerFields: ["Content-Type": "text/html", "X-Removed": "present"]) {
++                "<p>frame body</p><script>window.ranInFrame = true</script>"
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            let seen = ''
++            browser.webRequest.onHeadersReceived.addListener((details) => {
++                if (!details.url.endsWith('/frame.html'))
++                    return
++                seen = details.type + ' ' + details.responseHeaders.some((header) => header.name.toLowerCase() === 'x-removed')
++                const responseHeaders = details.responseHeaders.filter((header) => header.name.toLowerCase() !== 'x-removed')
++                responseHeaders.push({ name: 'Content-Security-Policy', value: "script-src 'none'" })
++                // Not headers: dropped (kept, they would fail the load).
++                responseHeaders.push({ name: 'Bad Name', value: 'x' })
++                responseHeaders.push({ name: 'X-Split', value: 'a\\\\r\\\\nX-Injected: b' })
++                return { responseHeaders }
++            }, { urls: ['<all_urls>'] }, ['blocking', 'responseHeaders'])
++
++            browser.test.onMessage.addListener(() => browser.test.sendMessage('Seen', seen))
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++
++            let script = """
++                const frame = document.querySelector('iframe')
++                return frame.contentDocument.querySelector('p').textContent + ' / ' + String(frame.contentWindow.ranInFrame)
++                """
++            let result = try await webView.callAsyncJavaScript(script, contentWorld: .page) as? String
++
++            #expect(result == "frame body / undefined")
++
++            manager.sendTestMessage("Seen")
++            let seen = try await manager.waitForTestMessage("Seen") as? String
++            #expect(seen == "sub_frame true")
++        }
++    }
++
++    // A subresource's response is not held for blocking onHeadersReceived listeners (each would wait a round trip to the
++    // extension): it goes on as the server sent it, and the listener sees it, without a say.
++    @Test
++    func blockingHeadersListenerSeesSubresourcesWithoutHoldingThem() async throws {
+         var server = try HTTPServer(protocol: .http) {
+             Route("/", headerFields: ["Content-Type": "text/html"]) {
+                 ""
+             }
+-            Route("/data.txt", headerFields: ["Content-Type": "text/plain", "X-Removed": "present"]) {
++            Route("/data.txt", headerFields: ["Content-Type": "text/plain"]) {
+                 "data"
+             }
+         }
+@@ -366,14 +435,16 @@ struct WKWebExtensionAPIWebRequestTests {
+         ]
+ 
+         let backgroundScript = """
++            let seen = 0
+             browser.webRequest.onHeadersReceived.addListener((details) => {
+                 if (!details.url.endsWith('/data.txt'))
+                     return
+-                const responseHeaders = details.responseHeaders.filter((header) => header.name.toLowerCase() !== 'x-removed')
+-                responseHeaders.push({ name: 'X-Added', value: 'by the extension' })
+-                return { responseHeaders }
++                seen++
++                return { responseHeaders: [ ...details.responseHeaders, { name: 'X-Added', value: 'by the extension' } ] }
+             }, { urls: ['<all_urls>'] }, ['blocking', 'responseHeaders'])
+ 
++            browser.test.onMessage.addListener(() => browser.test.sendMessage('Seen', String(seen)))
++
+             browser.test.sendMessage('Load Tab')
+             """
+ 
+@@ -392,11 +463,15 @@ struct WKWebExtensionAPIWebRequestTests {
+ 
+             let script = """
+                 const response = await fetch('/data.txt', { cache: 'no-store' })
+-                return [response.headers.get('Content-Type'), response.headers.get('X-Added'), String(response.headers.get('X-Removed')), await response.text()].join(' / ')
++                return String(response.headers.get('X-Added')) + ' / ' + await response.text()
+                 """
+             let result = try await webView.callAsyncJavaScript(script, contentWorld: .page) as? String
++            #expect(result == "null / data")
+ 
+-            #expect(result == "text/plain / by the extension / null / data")
++            try await Task.sleep(for: .milliseconds(200))
++            manager.sendTestMessage("Seen")
++            let seen = try await manager.waitForTestMessage("Seen") as? String
++            #expect(seen == "1")
+         }
+     }
+ 
+@@ -525,18 +600,18 @@ struct WKWebExtensionAPIWebRequestTests {
+         try? await WKWebsiteDataStore.remove(forIdentifier: storeIdentifier)
+     }
+ 
+-    // A blocking onHeadersReceived listener's { cancel: true } fails the request once its headers are in.
++    // A blocking onHeadersReceived listener's { cancel: true } fails a document once its headers are in.
+     @Test
+     func blockingHeadersListenerCancelsRequest() async throws {
+         var server = try HTTPServer(protocol: .http) {
+             Route("/", headerFields: ["Content-Type": "text/html"]) {
+-                ""
++                "<iframe id='blocked' src='/blocked.html'></iframe><iframe id='allowed' src='/allowed.html'></iframe>"
+             }
+-            Route("/blocked.txt", headerFields: ["Content-Type": "text/plain", "X-Block": "yes"]) {
+-                "blocked"
++            Route("/blocked.html", headerFields: ["Content-Type": "text/html", "X-Block": "yes"]) {
++                "<p>blocked</p>"
+             }
+-            Route("/allowed.txt", headerFields: ["Content-Type": "text/plain"]) {
+-                "allowed"
++            Route("/allowed.html", headerFields: ["Content-Type": "text/html"]) {
++                "<p>allowed</p>"
+             }
+         }
+ 
+@@ -570,13 +645,16 @@ struct WKWebExtensionAPIWebRequestTests {
+             for _ in 0..<100 where webView.isLoading || webView.url == nil {
+                 try await Task.sleep(for: .milliseconds(50))
+             }
++            try await Task.sleep(for: .milliseconds(300))
+ 
+-            let fetchScript = "return await fetch(path, { cache: 'no-store' }).then((response) => response.text(), () => 'failed')"
+-            let blocked = try await webView.callAsyncJavaScript(fetchScript, arguments: ["path": "/blocked.txt"], contentWorld: .page) as? String
+-            let allowed = try await webView.callAsyncJavaScript(fetchScript, arguments: ["path": "/allowed.txt"], contentWorld: .page) as? String
++            let script = """
++                const text = (id) => { try { return document.getElementById(id).contentDocument.body.textContent.trim() || 'empty' } catch { return 'unreadable' } }
++                return text('blocked') + ' / ' + text('allowed')
++                """
++            let result = try await webView.callAsyncJavaScript(script, contentWorld: .page) as? String
+ 
+-            #expect(blocked == "failed")
+-            #expect(allowed == "allowed")
++            #expect(result?.hasPrefix("blocked") == false)
++            #expect(result?.hasSuffix(" / allowed") == true)
+         }
+     }
+ 

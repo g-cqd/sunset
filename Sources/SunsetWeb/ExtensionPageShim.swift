@@ -65,6 +65,38 @@ enum ExtensionPageShim {
                 """
         ),
         Part(
+            defect: """
+                W9: a menu item whose `targetUrlPatterns` name a scheme of its own (uBlock Origin's `abp:*`) is refused \
+                whole. Here the patterns WebKit refuses are dropped; an item left with none is not made (it would show on \
+                every link) and its id is given back
+                """,
+            source: """
+                for (const space of [root.menus, root.contextMenus]) {
+                  if (!space || typeof space.create !== "function" || space.__sunsetPatterns) continue;
+                  const taken = (pattern) => pattern === "<all_urls>" || /^(\\*|https?|wss?|file|ftp):\\/\\//.test(pattern);
+                  const create = space.create.bind(space);
+                  const update = typeof space.update === "function" ? space.update.bind(space) : null;
+                  const trim = (properties) => {
+                    if (!properties || !Array.isArray(properties.targetUrlPatterns)) return properties;
+                    return { ...properties, targetUrlPatterns: properties.targetUrlPatterns.filter(taken) };
+                  };
+                  Object.defineProperty(space, "__sunsetPatterns", { value: true });
+                  Object.defineProperty(space, "create", { configurable: true, writable: true, value: (properties, done) => {
+                    const trimmed = trim(properties);
+                    if (trimmed !== properties && trimmed.targetUrlPatterns.length === 0) {
+                      if (typeof done === "function") setTimeout(done, 0);
+                      return properties.id;
+                    }
+                    return create(trimmed, done);
+                  } });
+                  if (update) {
+                    Object.defineProperty(space, "update", { configurable: true, writable: true,
+                      value: (id, properties) => update(id, trim(properties)) });
+                  }
+                }
+                """
+        ),
+        Part(
             defect: "W8: no update is ever announced to an extension here (Sunset installs updates itself)",
             source: """
                 put(root.runtime, "onUpdateAvailable", event());

@@ -34,4 +34,12 @@ struct ExtensionOrderTests {
         #expect(ExtensionRoom.shown(count: 2, room: 0) == 0)
         #expect(ExtensionRoom.places(width: 100, button: 24, spacing: 4) == 3)
     }
+
+    /// The owner, 2026-11-21 (n68): in a tab that is not a web page (a terminal, a document), the extensions' buttons are
+    /// shown, disabled: an action there would run for no page.
+    @Test func `a button is usable in a web tab and when its extension enables it`() {
+        #expect(ExtensionRoom.isAvailable(enabled: true, inWebTab: true))
+        #expect(!ExtensionRoom.isAvailable(enabled: true, inWebTab: false))
+        #expect(!ExtensionRoom.isAvailable(enabled: false, inWebTab: true))
+    }
 }

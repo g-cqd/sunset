@@ -47,16 +47,17 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W6 | Blocking `webRequest` (MV2) not supported: `{cancel: true}` ignored, uBlock Origin's network filtering does nothing | supported | probed: diary 2026-11-20-16 | none (uBO Lite filters through `declarativeNetRequest`) |
 
 | W8 | `runtime.onUpdateAvailable` missing | present | uBO on our WebKit (diary 2026-11-20-19) | `ExtensionPageShim`: an inert event (diary 2026-11-20-21) |
-| W9 | A custom scheme (`abp:*`) refused in `menus.create`'s `targetUrlPatterns` | accepted | the same | none |
+| W9 | A custom scheme (`abp:*`) refused in `menus.create`'s `targetUrlPatterns` | accepted | the same; diary 2026-11-21-06 | Sunset's shim: the patterns WebKit refuses are dropped (an item left with none is not made); not fixed in WebKit |
 | W10 | `webRequest` events missing for loads answered from the HTTP cache | fired | diary 2026-11-20-21 | none (the blocking path is held before the cache: 0012) |
 | W11 | no `privacy` namespace (uBlock Origin from Firefox throws on every request for its settings: its dashboard showed every box off) | read-only settings, a change refused | diary 2026-11-21-03 | Sunset's shim, read-only, for extensions that ask for `privacy`; not fixed in WebKit, and no setting changes |
 | W12 | no `contentScripts.register` (Firefox): uBlock Origin from Firefox injects a site's scriptlets once by hand and leaves later visits to it, so on a second visit none ran | the scripts run on every matching page | diary 2026-11-21-04 | Sunset's shim, for extensions with `webNavigation` and `tabs`: on commit, not before the page's own scripts as in Firefox; the MAIN world refused. `scripting.registerContentScripts` in WebKit takes files, not code |
 | W6d | An extension's redirect to its own file or to `data:` (a surrogate) fails as a block | internal redirect, loads | diary 2026-11-21-01 | patched: 0015, 0016 |
 | W6e | A blocking listener's answer given as a Promise is ignored | awaited (Firefox) | the same (uBO's DNS check) | patched: 0017, 0018 |
-| W6c | A blocking `onHeadersReceived` listener's `{ responseHeaders }` and `{ cancel }` ignored: uBlock Origin's `$csp` did nothing | applied, from the network and from the HTTP cache | diary 2026-11-21-05 | patched: 0019–0022. Not asked: synchronous loads, multipart responses; a CSP added to a page the web process revalidates from its memory cache does not apply. Request headers (`onBeforeSendHeaders` blocking) not done |
+| W6c | A blocking `onHeadersReceived` listener's `{ responseHeaders }` and `{ cancel }` ignored: uBlock Origin's `$csp` did nothing | applied to documents, from the network and from the HTTP cache | diaries 2026-11-21-05, -06 | patched: 0019–0024; documents only (ADR-0112: each held response costs a round trip, about 0.4 ms with uBO); headers checked. Not asked: subresources (seen without a say), synchronous loads, multipart responses. Request headers (`onBeforeSendHeaders` blocking) not done: no extension of ours uses it |
+| W4b | `webRequest.handlerBehaviorChanged` missing (a stand-in in Sunset's shim) | drops the memory cache (Firefox) | diary 2026-11-21-06 | patched: 0025, 0026 (at most 20 calls in 10 minutes) |
 
 Patched in our WebKit (`Engine/WebKit/patches`): W2 (0001), W3 (0002, its test 0003), W1 (0004, its test 0005), W7 (0006,
-0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011, before the cache 0012), redirect (0013, 0014), surrogates (W6d: 0015, 0016), Promises (W6e: 0017, 0018) and response headers (W6c: 0019–0022); request headers not yet;
+0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011, before the cache 0012), redirect (0013, 0014), surrogates (W6d: 0015, 0016), Promises (W6e: 0017, 0018) and documents' response headers (W6c: 0019–0024, ADR-0112), `handlerBehaviorChanged` (W4b: 0025, 0026); request headers not done (no consumer);
 uBlock Origin filters on our WebKit with Sunset's shim; W1 and W3 redone after the owner's audit, measured against the base (diary 2026-11-20-20); the
 stopgaps in `ExtensionPageShim` stay for the system's WebKit.
 

@@ -1,0 +1,135 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 13:24:39 +0100
+Subject: [PATCH] Web Extensions: webRequest.handlerBehaviorChanged (Sunset
+ W4b)
+
+As in Firefox: the memory caches of the controller's data stores are
+dropped, so listeners that changed apply to what pages load again (a
+Content-Security-Policy added after a page was in the memory cache, for
+one). At most 20 calls in 10 minutes; past that a call does nothing.
+Needs the webRequest permission.
+
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+index e86cfe009..b2a5e629d 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+@@ -1942,6 +1942,36 @@ void WebExtensionContext::resourceLoadDidSendRequest(WebPageProxyIdentifier page
+     });
+ }
+ 
++bool WebExtensionContext::isWebRequestMessageAllowed(IPC::Decoder& message)
++{
++    return isLoadedAndPrivilegedMessage(message) && hasPermission(WebExtensionPermission::webRequest());
++}
++
++void WebExtensionContext::webRequestHandlerBehaviorChanged(CompletionHandler<void()>&& completionHandler)
++{
++    // As in Firefox: the in-memory caches of the controller's pages are dropped (resources, back/forward pages), so
++    // listeners that changed apply to what those pages load again; at most 20 times in 10 minutes, calls past that do
++    // nothing (each drop costs every page its cache).
++    static constexpr size_t maximumCalls = 20;
++    static constexpr Seconds period = 10_min;
++
++    auto now = MonotonicTime::now();
++    while (!m_handlerBehaviorChangedTimes.isEmpty() && now - m_handlerBehaviorChangedTimes.first() > period)
++        m_handlerBehaviorChangedTimes.removeFirst();
++
++    RefPtr controller = extensionController();
++    if (!controller || m_handlerBehaviorChangedTimes.size() >= maximumCalls) {
++        completionHandler();
++        return;
++    }
++
++    m_handlerBehaviorChangedTimes.append(now);
++
++    Ref callbackAggregator = CallbackAggregator::create(WTF::move(completionHandler));
++    for (Ref dataStore : controller->allWebsiteDataStores())
++        dataStore->removeData(WebsiteDataType::MemoryCache, -WallTime::infinity(), [callbackAggregator] { });
++}
++
+ bool WebExtensionContext::hasBlockingWebRequestListeners() const
+ {
+     return m_eventListenerFrames.contains({ WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, WebExtensionContentWorldType::Main });
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+index 8b1bccaf7..8548954f3 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+@@ -1235,6 +1235,10 @@ private:
+     void fireTabsHighlightedEventIfNeeded(Vector<WebExtensionTabIdentifier>, WebExtensionWindowIdentifier);
+     void fireTabsRemovedEventIfNeeded(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, WindowIsClosing);
+ 
++    // WebRequest APIs
++    bool isWebRequestMessageAllowed(IPC::Decoder&);
++    void webRequestHandlerBehaviorChanged(CompletionHandler<void()>&&);
++
+     // WebNavigation APIs
+     bool isWebNavigationMessageAllowed(IPC::Decoder&);
+     void webNavigationGetFrame(WebExtensionTabIdentifier, WebExtensionFrameIdentifier, CompletionHandler<void(std::expected<std::optional<WebExtensionFrameParameters>, WebExtensionError>&&)>&&);
+@@ -1429,6 +1433,7 @@ private:
+     size_t m_testStartedListenersCount { 0 };
+     size_t m_testFinishedListenersCount { 0 };
+ 
++    Deque<MonotonicTime> m_handlerBehaviorChangedTimes;
+     Deque<TestMessage> m_testMessageQueue;
+     Deque<TestMessage> m_testStartedQueue;
+     Deque<TestMessage> m_testFinishedQueue;
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.messages.in b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.messages.in
+index 35301be9d..018042d3d 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.messages.in
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.messages.in
+@@ -212,6 +212,8 @@ messages -> WebExtensionContext {
+ 
+     // WebNavigation APIs
+     [Validator=isWebNavigationMessageAllowed] WebNavigationGetAllFrames(WebKit::WebExtensionTabIdentifier tabIdentifier) -> (std::expected<Vector<WebKit::WebExtensionFrameParameters>, WebKit::WebExtensionError> result)
++    [Validator=isWebRequestMessageAllowed] WebRequestHandlerBehaviorChanged() -> ()
++
+     [Validator=isWebNavigationMessageAllowed] WebNavigationGetFrame(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionFrameIdentifier frameIdentifier) -> (std::expected<std::optional<WebKit::WebExtensionFrameParameters>, WebKit::WebExtensionError> result)
+ 
+     // Windows APIs
+diff --git a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+index a3a08a7dd..bf04ba5b3 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
++++ b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+@@ -72,6 +72,15 @@ SUPPRESS_NODELETE NSDictionary *WebExtensionAPIWebRequest::resourceType()
+     return types;
+ }
+ 
++void WebExtensionAPIWebRequest::handlerBehaviorChanged(Ref<WebExtensionCallbackHandler>&& callback)
++{
++    // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/handlerBehaviorChanged
++    // The in-memory caches are dropped, so listeners that changed apply to resources loaded before.
++    WebProcess::singleton().sendWithAsyncReply(Messages::WebExtensionContext::WebRequestHandlerBehaviorChanged(), [callback = WTF::move(callback)] {
++        callback->call();
++    }, extensionContext().identifier());
++}
++
+ WebExtensionAPIWebRequestEvent& WebExtensionAPIWebRequest::onBeforeRequest()
+ {
+     // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRequest
+diff --git a/Source/WebKit/WebProcess/Extensions/API/WebExtensionAPIWebRequest.h b/Source/WebKit/WebProcess/Extensions/API/WebExtensionAPIWebRequest.h
+index 445519c19..f8b3efb0f 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/WebExtensionAPIWebRequest.h
++++ b/Source/WebKit/WebProcess/Extensions/API/WebExtensionAPIWebRequest.h
+@@ -42,6 +42,8 @@ public:
+ #if PLATFORM(COCOA)
+     NODELETE NSDictionary *resourceType();
+ 
++    void handlerBehaviorChanged(Ref<WebExtensionCallbackHandler>&&);
++
+     WebExtensionAPIWebRequestEvent& onBeforeRequest();
+     WebExtensionAPIWebRequestEvent& onBeforeSendHeaders();
+     WebExtensionAPIWebRequestEvent& onSendHeaders();
+diff --git a/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPIWebRequest.idl b/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPIWebRequest.idl
+index 9660e4862..cc7e94135 100644
+--- a/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPIWebRequest.idl
++++ b/Source/WebKit/WebProcess/Extensions/Interfaces/WebExtensionAPIWebRequest.idl
+@@ -75,6 +75,8 @@ dictionary WebExtensionWebRequestDetails {
+ 
+     [ImplementedAs=resourceType] readonly attribute any ResourceType;
+ 
++    void handlerBehaviorChanged([Optional, CallbackHandler] function callback);
++
+     readonly attribute WebExtensionAPIWebRequestEvent onBeforeRequest;
+     readonly attribute WebExtensionAPIWebRequestEvent onBeforeSendHeaders;
+     readonly attribute WebExtensionAPIWebRequestEvent onSendHeaders;

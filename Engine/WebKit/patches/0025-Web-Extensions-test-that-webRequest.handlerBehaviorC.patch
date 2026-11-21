@@ -1,0 +1,90 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 13:24:38 +0100
+Subject: [PATCH] Web Extensions: test that webRequest.handlerBehaviorChanged
+ drops the memory cache (Sunset W4b)
+
+A script the page loaded, then blocked by a listener after the call, is
+asked about when the page loads it again. Fails before the change that
+follows: the memory cache answers it (loaded 2).
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index 5eed7b7d6..f608bf473 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -343,6 +343,75 @@ struct WKWebExtensionAPIWebRequestTests {
+         }
+     }
+ 
++    // webRequest.handlerBehaviorChanged() drops the in-memory caches, as in Firefox: a listener that now blocks a script
++    // the page loaded before is asked when the page loads it again (without the call, the memory cache answers).
++    @Test
++    func handlerBehaviorChangedDropsMemoryCache() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                "<script src='/counted.js'></script>"
++            }
++            Route("/counted.js", headerFields: ["Content-Type": "text/javascript", "Cache-Control": "max-age=3600"]) {
++                "window.loads = (window.loads || 0) + 1"
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            let blocks = false
++            browser.webRequest.onBeforeRequest.addListener((details) => {
++                if (blocks && details.url.endsWith('/counted.js'))
++                    return { cancel: true }
++            }, { urls: ['<all_urls>'] }, ['blocking'])
++
++            browser.test.onMessage.addListener(async (message) => {
++                blocks = true
++                await browser.webRequest.handlerBehaviorChanged?.()
++                browser.test.sendMessage('Blocks')
++            })
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++
++            manager.sendTestMessage("Block")
++            try await manager.waitForTestMessage("Blocks")
++
++            let script = """
++                return await new Promise((resolve) => {
++                    const element = document.createElement('script')
++                    element.src = '/counted.js'
++                    element.onload = () => resolve('loaded ' + window.loads)
++                    element.onerror = () => resolve('blocked ' + window.loads)
++                    document.body.append(element)
++                })
++                """
++            let result = try await webView.callAsyncJavaScript(script, contentWorld: .page) as? String
++
++            #expect(result == "blocked 1")
++        }
++    }
++
+     // A blocking onHeadersReceived listener's { responseHeaders } replaces a document's headers before the page has them,
+     // as in Firefox and Chrome (Manifest V2); headers that are not headers (a name that is not a token, a line break in a
+     // value) are dropped. Here a frame is given a Content-Security-Policy, and its inline script does not run.

@@ -1,5 +1,6 @@
 import AppKit
 import SunsetShell
+import SunsetWebModel
 package import SwiftUI
 import WebKit
 
@@ -40,12 +41,13 @@ package struct ExtensionActionsBar: View {
 
     private func button(_ item: ExtensionActionItem, first: Bool, last: Bool) -> some View {
         SidebarIconButton(
-            help: item.badge.isEmpty ? item.label : "\(item.label) (\(item.badge))",
+            help: page == nil
+                ? "\(item.label): for web pages" : item.badge.isEmpty ? item.label : "\(item.label) (\(item.badge))",
             menu: AnyView(menu(item, first: first, last: last)),
             action: { host.perform(item.id, for: page?.extensionTab) },
             label: { face(item) }
         )
-        .disabled(!item.enabled)
+        .disabled(!ExtensionRoom.isAvailable(enabled: item.enabled, inWebTab: page != nil))
         .background { PopupAnchor { host.anchor(item.id, $0) } }
         .accessibilityLabel(item.label)
     }
@@ -73,13 +75,15 @@ package struct ExtensionActionsBar: View {
     private func showList(_ items: [ExtensionActionItem]) {
         guard let puzzle else { return }
         let menu = NSMenu()
+        // Each entry's own state: automatic enabling would turn every entry with an action on.
+        menu.autoenablesItems = false
         for item in items {
             let entry = ClosureMenuItem(title: item.badge.isEmpty ? item.label : "\(item.label)  (\(item.badge))") {
                 host.perform(item.id, for: page?.extensionTab, under: puzzle)
             }
             entry.image = item.icon ?? NSImage(systemSymbolName: "puzzlepiece.extension", accessibilityDescription: nil)
             entry.image?.size = CGSize(width: Design.Size.extensionIcon, height: Design.Size.extensionIcon)
-            entry.isEnabled = item.enabled
+            entry.isEnabled = ExtensionRoom.isAvailable(enabled: item.enabled, inWebTab: page != nil)
             menu.addItem(entry)
         }
         menu.addItem(.separator())
