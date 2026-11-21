@@ -1,0 +1,114 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 15:25:02 +0100
+Subject: [PATCH] DOM: a Range boundary's offset recomputed when read, not at
+ each child change (Sunset P3)
+
+RangeBoundaryPoint::invalidateOffset() walked the container's children
+to recompute the boundary's index at every change of them. Taking a
+Range's contents out one child at a time (extractContents,
+deleteContents) changed the container n times: quadratic. The offset is
+now marked stale and recomputed from the child before it on the next
+read, on the main thread (the GC thread reads only the container).
+32,000 children: extractContents 2,905 ms to 12 ms, deleteContents
+2,840 ms to 9 ms.
+
+diff --git a/Source/WebCore/dom/RangeBoundaryPoint.h b/Source/WebCore/dom/RangeBoundaryPoint.h
+index c47b64c3a..31572db5b 100644
+--- a/Source/WebCore/dom/RangeBoundaryPoint.h
++++ b/Source/WebCore/dom/RangeBoundaryPoint.h
+@@ -51,7 +51,11 @@ public:
+ 
+ private:
+     Ref<Node> m_container;
+-    unsigned m_offset { 0 };
++    // After a change of the container's children, recomputed from m_childBefore when next read, not at each change: a
++    // container whose children change n times (a Range's contents taken out one at a time) walked its children n times.
++    // Read and recomputed on the main thread only (the GC thread reads the container).
++    mutable unsigned m_offset { 0 };
++    mutable bool m_offsetIsStale { false };
+     RefPtr<Node> m_childBefore;
+ };
+ 
+@@ -74,6 +78,10 @@ inline Node* RangeBoundaryPoint::childBefore() const
+ 
+ inline unsigned RangeBoundaryPoint::offset() const
+ {
++    if (m_offsetIsStale) [[unlikely]] {
++        m_offset = m_childBefore ? m_childBefore->computeNodeIndex() + 1 : 0;
++        m_offsetIsStale = false;
++    }
+     return m_offset;
+ }
+ 
+@@ -83,6 +91,7 @@ inline void RangeBoundaryPoint::setOffset(unsigned offset)
+     ASSERT(m_offset);
+     ASSERT(!m_childBefore);
+     m_offset = offset;
++    m_offsetIsStale = false;
+ }
+ 
+ inline void RangeBoundaryPoint::setToBeforeNode(Node& child)
+@@ -90,6 +99,7 @@ inline void RangeBoundaryPoint::setToBeforeNode(Node& child)
+     ASSERT(child.parentNode());
+     m_container = *child.parentNode();
+     m_offset = child.computeNodeIndex();
++    m_offsetIsStale = false;
+     m_childBefore = child.previousSibling();
+ }
+ 
+@@ -98,6 +108,7 @@ inline void RangeBoundaryPoint::setToAfterNode(Ref<Node>&& child)
+     ASSERT(child->parentNode());
+     m_container = *child->parentNode();
+     m_offset = child->computeNodeIndex() + 1;
++    m_offsetIsStale = false;
+     m_childBefore = WTF::move(child);
+ }
+ 
+@@ -105,20 +116,23 @@ inline void RangeBoundaryPoint::setToBeforeContents(Ref<Node>&& container)
+ {
+     m_container = WTF::move(container);
+     m_offset = 0;
++    m_offsetIsStale = false;
+     m_childBefore = nullptr;
+ }
+ 
+ inline void RangeBoundaryPoint::childBeforeWillBeRemoved()
+ {
+-    ASSERT(m_offset);
+     ASSERT(m_childBefore);
+-    --m_offset;
++    if (!m_offsetIsStale) {
++        ASSERT(m_offset);
++        --m_offset;
++    }
+     m_childBefore = m_childBefore->previousSibling();
+ }
+ 
+ inline void RangeBoundaryPoint::invalidateOffset()
+ {
+-    m_offset = m_childBefore ? m_childBefore->computeNodeIndex() + 1 : 0;
++    m_offsetIsStale = true;
+ }
+ 
+ inline bool operator==(const RangeBoundaryPoint& a, const RangeBoundaryPoint& b)
+diff --git a/Source/WebCore/dom/RangeBoundaryPointInlines.h b/Source/WebCore/dom/RangeBoundaryPointInlines.h
+index eef3e829c..4ef2ff507 100644
+--- a/Source/WebCore/dom/RangeBoundaryPointInlines.h
++++ b/Source/WebCore/dom/RangeBoundaryPointInlines.h
+@@ -34,6 +34,7 @@ void RangeBoundaryPoint::setToAfterContents(Ref<Node>&& container)
+ {
+     m_container = container;
+     m_offset = container->length();
++    m_offsetIsStale = false;
+     m_childBefore = container->lastChild();
+ }
+ 
+@@ -42,6 +43,7 @@ inline void RangeBoundaryPoint::set(Ref<Node>&& container, unsigned offset, RefP
+     ASSERT(childBefore == (offset ? container->traverseToChildAt(offset - 1) : nullptr));
+     m_container = WTF::move(container);
+     m_offset = offset;
++    m_offsetIsStale = false;
+     m_childBefore = WTF::move(childBefore);
+ }
+ 
