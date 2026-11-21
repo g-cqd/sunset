@@ -1,0 +1,118 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 12:04:02 +0100
+Subject: [PATCH] Web Extensions: ask blocking onHeadersReceived listeners
+ about responses from the HTTP cache (Sunset W6c)
+
+A fresh or revalidated cache entry is asked about before it is handed to
+the page, as a response from the network is: a filter added after a page
+was stored applies to it. The answer changes this load's copy of the entry;
+what the cache stores is the server's response.
+
+Not covered: a 304 to a revalidation the web process makes itself (its
+memory cache) keeps the Content-* headers it has.
+
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+index befc572b5..38df82dce 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+@@ -1481,8 +1481,8 @@ void NetworkResourceLoader::startPreconnectTaskIgnoringContentRuleLists(NetworkL
+ #if ENABLE(WK_WEB_EXTENSIONS)
+ // An extension's blocking webRequest.onHeadersReceived listener decides before the response is handed on (as in Firefox
+ // and Chrome): it may fail the load, or replace the response's headers (a Content-Security-Policy added, say). Held only
+-// for pages whose extensions have one. Not asked: synchronous loads, multipart responses, and revalidated cache entries
+-// (their headers are the cache's). True when the response is held for the answer.
++// for pages whose extensions have one. Not asked: synchronous loads and multipart responses. A 304 is not asked here:
++// the cache entry it revalidates is, in askWebRequestListenersAboutCacheEntry(). True when the response is held.
+ bool NetworkResourceLoader::askWebRequestListenersAboutResponse(ResourceResponse& receivedResponse, PrivateRelayed privateRelayed, ResponseCompletionHandler& completionHandler)
+ {
+     if (std::exchange(m_webRequestListenersAnsweredResponse, false))
+@@ -1519,6 +1519,41 @@ bool NetworkResourceLoader::askWebRequestListenersAboutResponse(ResourceResponse
+     }, 0);
+     return true;
+ }
++
++// A response from the cache (fresh, or revalidated by a 304) is asked about as one from the network: a filter added after
++// a page was stored applies to it. The entry is this load's copy; what the cache stores is not changed.
++bool NetworkResourceLoader::askWebRequestListenersAboutCacheEntry(std::unique_ptr<NetworkCache::Entry>& entry)
++{
++    if (std::exchange(m_webRequestListenersAnsweredResponse, false))
++        return false;
++    if (!m_parameters.pageHasBlockingWebRequestListeners || isSynchronous() || entry->redirectRequest())
++        return false;
++
++    // A message holds references to its arguments, and is encoded after the reply handler has taken the entry.
++    auto pageID = webPageProxyID();
++    auto loadInfo = resourceLoadInfo();
++    auto response = entry->response();
++    protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadDidReceiveResponseHeaders(pageID, loadInfo, response), [weakThis = WeakPtr { *this }, entry = WTF::move(entry)](bool cancel, std::optional<HTTPHeaderMap>&& responseHeaders) mutable {
++        RefPtr protectedThis = weakThis.get();
++        if (!protectedThis)
++            return;
++
++        if (cancel) {
++            protectedThis->didFailLoading(blockedByContentBlockerError(protectedThis->originalRequest()));
++            return;
++        }
++
++        if (responseHeaders) {
++            auto response = entry->response();
++            response.setHTTPHeaderFields(WTF::move(*responseHeaders));
++            entry->setResponse(WTF::move(response));
++        }
++
++        protectedThis->m_webRequestListenersAnsweredResponse = true;
++        protectedThis->didRetrieveCacheEntry(WTF::move(entry));
++    }, 0);
++    return true;
++}
+ #endif
+ 
+ void NetworkResourceLoader::didReceiveResponse(ResourceResponse&& receivedResponse, PrivateRelayed privateRelayed, ResponseCompletionHandler&& completionHandler)
+@@ -2627,8 +2662,8 @@ void NetworkResourceLoader::tryStoreAsCacheEntry()
+         return;
+     }
+ #if ENABLE(WK_WEB_EXTENSIONS)
+-    // A response whose headers an extension changed is not stored: a later load from the cache would not be asked again,
+-    // and would have neither the server's headers nor the extension's.
++    // A response whose headers an extension changed is not stored: the cache keeps the server's headers, and a load from
++    // the cache is asked again.
+     if (m_webRequestListenersChangedResponseHeaders) {
+         LOADER_RELEASE_LOG("tryStoreAsCacheEntry: Not storing cache entry because an extension changed the response headers");
+         return;
+@@ -2711,6 +2746,11 @@ void NetworkResourceLoader::initializeReportingEndpoints(const ResourceResponse&
+ 
+ void NetworkResourceLoader::didRetrieveCacheEntry(std::unique_ptr<NetworkCache::Entry> entry)
+ {
++#if ENABLE(WK_WEB_EXTENSIONS)
++    if (askWebRequestListenersAboutCacheEntry(entry))
++        return;
++#endif
++
+     LOADER_RELEASE_LOG("didRetrieveCacheEntry:");
+     auto response = entry->response();
+ 
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+index 4cc56bca3..8a13d50ef 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+@@ -344,6 +344,7 @@ private:
+ #if ENABLE(WK_WEB_EXTENSIONS)
+     void answerWithWebRequestSubstitute(const WebCore::ResourceRequest&, String&& mimeType, Vector<uint8_t>&& data);
+     bool askWebRequestListenersAboutResponse(WebCore::ResourceResponse&, PrivateRelayed, ResponseCompletionHandler&);
++    bool askWebRequestListenersAboutCacheEntry(std::unique_ptr<NetworkCache::Entry>&);
+ #endif
+     bool abortIfServiceWorkersOnly();
+ 
+diff --git a/Source/WebKit/NetworkProcess/cache/NetworkCacheEntry.h b/Source/WebKit/NetworkProcess/cache/NetworkCacheEntry.h
+index ad71be010..1f2fa2670 100644
+--- a/Source/WebKit/NetworkProcess/cache/NetworkCacheEntry.h
++++ b/Source/WebKit/NetworkProcess/cache/NetworkCacheEntry.h
+@@ -57,6 +57,7 @@ public:
+     const Key& key() const LIFETIME_BOUND { return m_key; }
+     WallTime timeStamp() const { return m_timeStamp; }
+     const WebCore::ResourceResponse& response() const LIFETIME_BOUND { return m_response; }
++    void setResponse(WebCore::ResourceResponse&& response) { m_response = WTF::move(response); }
+     const Vector<std::pair<String, String>>& varyingRequestHeaders() const LIFETIME_BOUND { return m_varyingRequestHeaders; }
+ 
+     WebCore::FragmentedSharedBuffer* buffer() const;

@@ -1,0 +1,912 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 11:16:18 +0100
+Subject: [PATCH] Web Extensions: blocking webRequest.onHeadersReceived
+ listeners (Sunset W6c)
+
+The network process asks the UI process before handing a response on,
+for pages whose extensions have a blocking onHeadersReceived listener
+(registered as WebRequestOnHeadersReceivedBlocking). The UI process asks
+those listeners through WebExtensionWebRequestDecision (now answering
+either a request or response headers) under the same 2 s limit. The web
+process reads { cancel } and { responseHeaders } (value or binaryValue),
+given or promised, and does not call those listeners again for the
+same response.
+
+A cancelled response fails as blocked by a content blocker. A response
+whose headers were changed is not stored in the HTTP cache, since a
+load from the cache is not asked. Not asked: synchronous loads,
+multipart responses, and 304 revalidations.
+
+Also: the onBeforeRequest message was encoded after its reply handler
+had moved the request out (a message holds references to its
+arguments); both messages are now given copies.
+
+ResourceResponseBase::setHTTPHeaderFields is exported for WebKit.
+
+diff --git a/Source/WebCore/platform/network/ResourceResponseBase.h b/Source/WebCore/platform/network/ResourceResponseBase.h
+index d93248a8f..e15e88f7d 100644
+--- a/Source/WebCore/platform/network/ResourceResponseBase.h
++++ b/Source/WebCore/platform/network/ResourceResponseBase.h
+@@ -116,7 +116,7 @@ public:
+     WEBCORE_EXPORT bool isHTTP09() const;
+ 
+     WEBCORE_EXPORT const HTTPHeaderMap& httpHeaderFields() const LIFETIME_BOUND;
+-    void setHTTPHeaderFields(HTTPHeaderMap&&);
++    WEBCORE_EXPORT void setHTTPHeaderFields(HTTPHeaderMap&&);
+ 
+     enum class SanitizationType { Redirection, RemoveCookies, CrossOriginSafe };
+     WEBCORE_EXPORT void sanitizeHTTPHeaderFields(SanitizationType);
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+index b9e02ce13..befc572b5 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+@@ -362,7 +362,11 @@ void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, b
+     // the network (as in Firefox and Chrome). Held only for pages whose extensions have one; never a synchronous load.
+     if (m_parameters.pageHasBlockingWebRequestListeners && !m_didAskWebRequestListeners && !isSynchronous()) {
+         m_didAskWebRequestListeners = true;
+-        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(webPageProxyID(), resourceLoadInfo(), request), [weakThis = WeakPtr { *this }, request = WTF::move(request), useCache](bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData) mutable {
++        // A message holds references to its arguments, and is encoded after the reply handler has taken the request.
++        auto pageID = webPageProxyID();
++        auto loadInfo = resourceLoadInfo();
++        auto requestForMessage = request;
++        protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadWillSendRequest(pageID, loadInfo, requestForMessage), [weakThis = WeakPtr { *this }, request = WTF::move(request), useCache](bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData) mutable {
+             RefPtr protectedThis = weakThis.get();
+             if (!protectedThis)
+                 return;
+@@ -1474,8 +1478,56 @@ void NetworkResourceLoader::startPreconnectTaskIgnoringContentRuleLists(NetworkL
+ #endif // ENABLE(SERVER_PRECONNECT)
+ }
+ 
++#if ENABLE(WK_WEB_EXTENSIONS)
++// An extension's blocking webRequest.onHeadersReceived listener decides before the response is handed on (as in Firefox
++// and Chrome): it may fail the load, or replace the response's headers (a Content-Security-Policy added, say). Held only
++// for pages whose extensions have one. Not asked: synchronous loads, multipart responses, and revalidated cache entries
++// (their headers are the cache's). True when the response is held for the answer.
++bool NetworkResourceLoader::askWebRequestListenersAboutResponse(ResourceResponse& receivedResponse, PrivateRelayed privateRelayed, ResponseCompletionHandler& completionHandler)
++{
++    if (std::exchange(m_webRequestListenersAnsweredResponse, false))
++        return false;
++    if (!m_parameters.pageHasBlockingWebRequestListeners || isSynchronous() || receivedResponse.isMultipart())
++        return false;
++    if (m_cacheEntryForValidation && receivedResponse.httpStatusCode() == httpStatus304NotModified)
++        return false;
++
++    // A message holds references to its arguments, and is encoded after the reply handler has taken the response: it is
++    // given copies that outlive the send.
++    auto pageID = webPageProxyID();
++    auto loadInfo = resourceLoadInfo();
++    auto responseForMessage = receivedResponse;
++    protect(NetworkProcess::singleton())->parentProcessConnection()->sendWithAsyncReply(Messages::NetworkProcessProxy::ResourceLoadDidReceiveResponseHeaders(pageID, loadInfo, responseForMessage), [weakThis = WeakPtr { *this }, response = WTF::move(receivedResponse), privateRelayed, completionHandler = WTF::move(completionHandler)](bool cancel, std::optional<HTTPHeaderMap>&& responseHeaders) mutable {
++        RefPtr protectedThis = weakThis.get();
++        if (!protectedThis)
++            return completionHandler(PolicyAction::Ignore);
++
++        if (cancel) {
++            RunLoop::mainSingleton().dispatch([protectedThis] {
++                if (RefPtr networkLoad = protectedThis->m_networkLoad)
++                    protectedThis->didFailLoading(blockedByContentBlockerError(networkLoad->currentRequest()));
++            });
++            return completionHandler(PolicyAction::Ignore);
++        }
++
++        protectedThis->m_webRequestListenersChangedResponseHeaders = !!responseHeaders;
++        if (responseHeaders)
++            response.setHTTPHeaderFields(WTF::move(*responseHeaders));
++
++        protectedThis->m_webRequestListenersAnsweredResponse = true;
++        protectedThis->didReceiveResponse(WTF::move(response), privateRelayed, WTF::move(completionHandler));
++    }, 0);
++    return true;
++}
++#endif
++
+ void NetworkResourceLoader::didReceiveResponse(ResourceResponse&& receivedResponse, PrivateRelayed privateRelayed, ResponseCompletionHandler&& completionHandler)
+ {
++#if ENABLE(WK_WEB_EXTENSIONS)
++    if (askWebRequestListenersAboutResponse(receivedResponse, privateRelayed, completionHandler))
++        return;
++#endif
++
+ #if HAVE(BROKEN_MULTIPART_RESPONSE_FLOW_CONTROL)
+     if (m_isProcessingResponse) {
+         m_deferredMessages.append(DeferredResponse { WTF::move(receivedResponse), privateRelayed, WTF::move(completionHandler) });
+@@ -2574,6 +2626,14 @@ void NetworkResourceLoader::tryStoreAsCacheEntry()
+         LOADER_RELEASE_LOG("tryStoreAsCacheEntry: Not storing cache entry because m_bufferedDataForCache is null");
+         return;
+     }
++#if ENABLE(WK_WEB_EXTENSIONS)
++    // A response whose headers an extension changed is not stored: a later load from the cache would not be asked again,
++    // and would have neither the server's headers nor the extension's.
++    if (m_webRequestListenersChangedResponseHeaders) {
++        LOADER_RELEASE_LOG("tryStoreAsCacheEntry: Not storing cache entry because an extension changed the response headers");
++        return;
++    }
++#endif
+ 
+     if (isCrossOriginPrefetch()) {
+         if (CheckedPtr session = protect(NetworkProcess::singleton())->networkSession(sessionID())) {
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+index 0c14e3418..4cc56bca3 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
+@@ -343,6 +343,7 @@ private:
+     void startCacheOrNetworkLoad(WebCore::ResourceRequest&&, bool useCache);
+ #if ENABLE(WK_WEB_EXTENSIONS)
+     void answerWithWebRequestSubstitute(const WebCore::ResourceRequest&, String&& mimeType, Vector<uint8_t>&& data);
++    bool askWebRequestListenersAboutResponse(WebCore::ResourceResponse&, PrivateRelayed, ResponseCompletionHandler&);
+ #endif
+     bool abortIfServiceWorkersOnly();
+ 
+@@ -398,6 +399,8 @@ private:
+     bool m_isWaitingContinueWillSendRequestForCachedRedirect { false };
+ #if ENABLE(WK_WEB_EXTENSIONS)
+     bool m_didAskWebRequestListeners { false };
++    bool m_webRequestListenersAnsweredResponse { false };
++    bool m_webRequestListenersChangedResponseHeaders { false };
+ #endif
+     std::unique_ptr<NetworkCache::Entry> m_cacheEntryWaitingForContinueDidReceiveResponse;
+     const RefPtr<NetworkLoadChecker> m_networkLoadChecker;
+diff --git a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
+index c72638572..e6b788637 100644
+--- a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
++++ b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.h
+@@ -96,6 +96,7 @@ enum class WebExtensionEventListenerType : uint8_t {
+     WebRequestOnCompleted,
+     WebRequestOnErrorOccurred,
+     WebRequestOnHeadersReceived,
++    WebRequestOnHeadersReceivedBlocking,
+     WebRequestOnResponseStarted,
+     WebRequestOnSendHeaders,
+     WindowsOnCreated,
+@@ -225,6 +226,7 @@ inline String toAPIString(WebExtensionEventListenerType eventType)
+         return "onCompleted"_s;
+     case WebExtensionEventListenerType::WebRequestOnErrorOccurred:
+         return "onErrorOccurred"_s;
++    case WebExtensionEventListenerType::WebRequestOnHeadersReceivedBlocking:
+     case WebExtensionEventListenerType::WebRequestOnHeadersReceived:
+         return "onHeadersReceived"_s;
+     case WebExtensionEventListenerType::WebRequestOnResponseStarted:
+diff --git a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
+index 41ac3b096..c7666dddd 100644
+--- a/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
++++ b/Source/WebKit/Shared/Extensions/WebExtensionEventListenerType.serialization.in
+@@ -87,6 +87,7 @@ enum class WebKit::WebExtensionEventListenerType : uint8_t {
+     WebRequestOnCompleted,
+     WebRequestOnErrorOccurred,
+     WebRequestOnHeadersReceived,
++    WebRequestOnHeadersReceivedBlocking,
+     WebRequestOnResponseStarted,
+     WebRequestOnSendHeaders,
+     WindowsOnCreated,
+diff --git a/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp b/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
+index bd52ef85f..88e7f0cf1 100644
+--- a/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
++++ b/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
+@@ -55,7 +55,7 @@ void WebExtensionContext::addListener(WebCore::FrameIdentifier frameIdentifier,
+     auto result = m_eventListenerFrames.add({ listenerType, contentWorldType }, WeakFrameCountedSet { });
+     result.iterator->value.add(*frame);
+ 
+-    if (listenerType == WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking)
++    if (listenerType == WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking || listenerType == WebExtensionEventListenerType::WebRequestOnHeadersReceivedBlocking)
+         blockingWebRequestListenersChanged();
+ 
+     if (!isTestEventListener(listenerType))
+@@ -109,7 +109,7 @@ void WebExtensionContext::removeListener(WebCore::FrameIdentifier frameIdentifie
+ 
+     m_eventListenerFrames.remove(iterator);
+ 
+-    if (listenerType == WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking)
++    if (listenerType == WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking || listenerType == WebExtensionEventListenerType::WebRequestOnHeadersReceivedBlocking)
+         blockingWebRequestListenersChanged();
+ 
+     if (!isTestEventListener(listenerType) || !hasTestEventListeners(listenerType))
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+index 3ce0dbeee..b718858e5 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
+@@ -1944,7 +1944,8 @@ void WebExtensionContext::resourceLoadDidSendRequest(WebPageProxyIdentifier page
+ 
+ bool WebExtensionContext::hasBlockingWebRequestListeners() const
+ {
+-    return m_eventListenerFrames.contains({ WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, WebExtensionContentWorldType::Main });
++    return m_eventListenerFrames.contains({ WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, WebExtensionContentWorldType::Main })
++        || m_eventListenerFrames.contains({ WebExtensionEventListenerType::WebRequestOnHeadersReceivedBlocking, WebExtensionContentWorldType::Main });
+ }
+ 
+ void WebExtensionContext::blockingWebRequestListenersChanged()
+@@ -2009,6 +2010,29 @@ void WebExtensionContext::resourceLoadWillSendRequest(WebPageProxyIdentifier pag
+     }
+ }
+ 
++void WebExtensionContext::resourceLoadDidReceiveResponseHeaders(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceResponse& response, WebExtensionWebRequestDecision& decision)
++{
++    // A blocking webRequest.onHeadersReceived listener decides before the response is handed to the page: { cancel: true }
++    // fails the load; { responseHeaders } replaces the response's headers.
++    constexpr auto eventType = WebExtensionEventListenerType::WebRequestOnHeadersReceivedBlocking;
++    auto blockingProcesses = processes(eventType, WebExtensionContentWorldType::Main);
++    if (blockingProcesses.isEmpty())
++        return;
++
++    auto identifiers = webRequestEventTabAndWindowIdentifiers(pageID, response.url(), loadInfo);
++    if (!identifiers)
++        return;
++
++    auto [tabIdentifier, windowIdentifier] = *identifiers;
++
++    for (auto& process : blockingProcesses) {
++        decision.expect();
++        process->sendWithAsyncReply(Messages::WebExtensionContextProxy::ResourceLoadDidReceiveResponseHeaders(tabIdentifier, windowIdentifier, response, loadInfo), [decision = Ref { decision }](bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders) {
++            decision->add(cancel, { }, { }, { }, WTF::move(responseHeaders));
++        }, identifier());
++    }
++}
++
+ void WebExtensionContext::resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceResponse& response, const WebCore::ResourceRequest& request)
+ {
+     auto identifiers = webRequestEventTabAndWindowIdentifiers(pageID, request.url(), loadInfo);
+diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
+index dc055a9af..6c290482b 100644
+--- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
++++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionControllerCocoa.mm
+@@ -362,9 +362,6 @@ void WebExtensionController::resourceLoadDidSendRequest(WebPageProxyIdentifier p
+ 
+ void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceRequest& request, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&& completionHandler)
+ {
+-    // The answers of every extension with blocking listeners; a load is not held longer than this, whatever an extension does.
+-    static constexpr Seconds maximumWait { 2_s };
+-
+     Ref decision = WebExtensionWebRequestDecision::create(WTF::move(completionHandler));
+ 
+     // Expected until every context has sent its question, so an early answer does not finish it.
+@@ -375,10 +372,33 @@ void WebExtensionController::resourceLoadWillSendRequest(WebPageProxyIdentifier
+     }
+     decision->add(false, { }, { }, { });
+ 
+-    if (decision->isFinished())
++    holdWebRequestDecision(decision);
++}
++
++void WebExtensionController::resourceLoadDidReceiveResponseHeaders(WebPageProxyIdentifier pageID, const ResourceLoadInfo& loadInfo, const WebCore::ResourceResponse& response, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&& completionHandler)
++{
++    Ref decision = WebExtensionWebRequestDecision::create(WTF::move(completionHandler));
++
++    // Expected until every context has sent its question, so an early answer does not finish it.
++    decision->expect();
++    for (Ref context : m_extensionContexts) {
++        if (context->hasBlockingWebRequestListeners())
++            context->resourceLoadDidReceiveResponseHeaders(pageID, loadInfo, response, decision);
++    }
++    decision->add(false, { }, { }, { });
++
++    holdWebRequestDecision(decision);
++}
++
++void WebExtensionController::holdWebRequestDecision(WebExtensionWebRequestDecision& decision)
++{
++    // The answers of every extension with blocking listeners; a load is not held longer than this, whatever an extension does.
++    static constexpr Seconds maximumWait { 2_s };
++
++    if (decision.isFinished())
+         return;
+ 
+-    m_heldWebRequestDecisions.append({ MonotonicTime::now() + maximumWait, decision });
++    m_heldWebRequestDecisions.append({ MonotonicTime::now() + maximumWait, Ref { decision } });
+     if (!m_webRequestDecisionTimer) {
+         m_webRequestDecisionTimer = makeUnique<RunLoop::Timer>(RunLoop::mainSingleton(), "WebExtensionController::WebRequestDecisionTimer"_s, [weakThis = WeakPtr { *this }] {
+             if (RefPtr protectedThis = weakThis.get())
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+index 9833fa023..f6d28d213 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
+@@ -70,6 +70,7 @@
+ #include "WebPageProxyIdentifier.h"
+ #include "WebProcessProxy.h"
+ #include <WebCore/ContentRuleListResults.h>
++#include <WebCore/HTTPHeaderMap.h>
+ #include <wtf/CompletionHandler.h>
+ #include <wtf/Deque.h>
+ #include <wtf/Forward.h>
+@@ -183,13 +184,21 @@ struct ContentRuleListMatchedRule;
+ #endif
+ 
+ // The answers of blocking webRequest listeners to one request: the load is cancelled when any of them says so, else
+-// redirected to the first redirect given. Answered once: when the last expected answer is in, or at finish() (the time
+-// limit), whichever is first.
++// redirected to the first redirect given (onBeforeRequest), or given the first response headers given (onHeadersReceived).
++// Answered once: when the last expected answer is in, or at finish() (the time limit), whichever is first.
+ class WebExtensionWebRequestDecision : public RefCounted<WebExtensionWebRequestDecision> {
+ public:
+-    static Ref<WebExtensionWebRequestDecision> create(CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&& completionHandler)
++    using RequestCompletionHandler = CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>;
++    using ResponseHeadersCompletionHandler = CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>;
++
++    static Ref<WebExtensionWebRequestDecision> create(RequestCompletionHandler&& completionHandler)
++    {
++        return adoptRef(*new WebExtensionWebRequestDecision(WTF::move(completionHandler), { }));
++    }
++
++    static Ref<WebExtensionWebRequestDecision> create(ResponseHeadersCompletionHandler&& completionHandler)
+     {
+-        return adoptRef(*new WebExtensionWebRequestDecision(WTF::move(completionHandler)));
++        return adoptRef(*new WebExtensionWebRequestDecision({ }, WTF::move(completionHandler)));
+     }
+ 
+     ~WebExtensionWebRequestDecision() { finish(); }
+@@ -198,7 +207,7 @@ public:
+ 
+     // A substitute (MIME type and body) comes with a redirect to the extension's own file or to a data: URL: the load is
+     // answered with it, as Firefox and Chrome do for such redirects.
+-    void add(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)
++    void add(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders = std::nullopt)
+     {
+         m_cancel = m_cancel || cancel;
+         if (!m_redirectURL.isValid() && redirectURL.isValid()) {
+@@ -206,32 +215,43 @@ public:
+             m_substituteMIMEType = WTF::move(substituteMIMEType);
+             m_substituteData = WTF::move(substituteData);
+         }
++        if (!m_responseHeaders && responseHeaders)
++            m_responseHeaders = WTF::move(responseHeaders);
+         if (m_expected && !--m_expected)
+             finish();
+     }
+ 
+     void finish()
+     {
+-        if (!m_completionHandler)
+-            return;
+-        if (m_cancel)
+-            m_completionHandler(true, { }, { }, { });
+-        else
+-            m_completionHandler(false, URL { m_redirectURL }, String { m_substituteMIMEType }, Vector<uint8_t> { m_substituteData });
++        if (m_requestCompletionHandler) {
++            if (m_cancel)
++                m_requestCompletionHandler(true, { }, { }, { });
++            else
++                m_requestCompletionHandler(false, URL { m_redirectURL }, String { m_substituteMIMEType }, Vector<uint8_t> { m_substituteData });
++        }
++        if (m_responseHeadersCompletionHandler) {
++            if (m_cancel)
++                m_responseHeadersCompletionHandler(true, std::nullopt);
++            else
++                m_responseHeadersCompletionHandler(false, std::optional<WebCore::HTTPHeaderMap> { m_responseHeaders });
++        }
+     }
+ 
+-    bool isFinished() const { return !m_completionHandler; }
++    bool isFinished() const { return !m_requestCompletionHandler && !m_responseHeadersCompletionHandler; }
+ 
+ private:
+-    explicit WebExtensionWebRequestDecision(CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&& completionHandler)
+-        : m_completionHandler(WTF::move(completionHandler))
++    WebExtensionWebRequestDecision(RequestCompletionHandler&& requestCompletionHandler, ResponseHeadersCompletionHandler&& responseHeadersCompletionHandler)
++        : m_requestCompletionHandler(WTF::move(requestCompletionHandler))
++        , m_responseHeadersCompletionHandler(WTF::move(responseHeadersCompletionHandler))
+     {
+     }
+ 
+-    CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)> m_completionHandler;
++    RequestCompletionHandler m_requestCompletionHandler;
++    ResponseHeadersCompletionHandler m_responseHeadersCompletionHandler;
+     URL m_redirectURL;
+     String m_substituteMIMEType;
+     Vector<uint8_t> m_substituteData;
++    std::optional<WebCore::HTTPHeaderMap> m_responseHeaders;
+     unsigned m_expected { 0 };
+     bool m_cancel { false };
+ };
+@@ -616,6 +636,7 @@ public:
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&);
+     void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, WebExtensionWebRequestDecision&);
++    void resourceLoadDidReceiveResponseHeaders(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&, WebExtensionWebRequestDecision&);
+     bool hasBlockingWebRequestListeners() const;
+     void webRequestSubstitute(const URL& redirectURL, const URL& pageURL, String& mimeType, Vector<uint8_t>& data);
+     void blockingWebRequestListenersChanged();
+diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionController.h b/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
+index ac99db510..e687e1397 100644
+--- a/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
++++ b/Source/WebKit/UIProcess/Extensions/WebExtensionController.h
+@@ -189,6 +189,7 @@ public:
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&);
+     void resourceLoadWillSendRequest(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceRequest&, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&&);
++    void resourceLoadDidReceiveResponseHeaders(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&&);
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&, const WebCore::ResourceRequest&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::AuthenticationChallenge&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&);
+@@ -285,6 +286,7 @@ private:
+     WebExtensionContextSet m_extensionContexts;
+ 
+     // Blocking webRequest decisions waiting for their extensions, oldest first, under one timer (not one per request).
++    void holdWebRequestDecision(WebExtensionWebRequestDecision&);
+     void webRequestDecisionTimerFired();
+     Deque<std::pair<MonotonicTime, Ref<WebExtensionWebRequestDecision>>> m_heldWebRequestDecisions;
+     std::unique_ptr<RunLoop::Timer> m_webRequestDecisionTimer;
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
+index 990e6e0cd..986dc9609 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
+@@ -750,6 +750,17 @@ void NetworkProcessProxy::resourceLoadWillSendRequest(WebPageProxyIdentifier pag
+     page->resourceLoadWillSendRequest(WTF::move(loadInfo), WTF::move(request), WTF::move(completionHandler));
+ }
+ 
++void NetworkProcessProxy::resourceLoadDidReceiveResponseHeaders(WebPageProxyIdentifier pageID, ResourceLoadInfo&& loadInfo, WebCore::ResourceResponse&& response, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&& completionHandler)
++{
++    RefPtr page = WebProcessProxy::webPage(pageID);
++    if (!page) {
++        completionHandler(false, std::nullopt);
++        return;
++    }
++
++    page->resourceLoadDidReceiveResponseHeaders(WTF::move(loadInfo), WTF::move(response), WTF::move(completionHandler));
++}
++
+ void NetworkProcessProxy::resourceLoadDidSendRequest(WebPageProxyIdentifier pageID, ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request, std::optional<IPC::FormDataReference>&& httpBody)
+ {
+     RefPtr page = WebProcessProxy::webPage(pageID);
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
+index bf9fdae0d..5b1eacebf 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.h
+@@ -84,6 +84,7 @@ class SessionID;
+ namespace WebCore {
+ class AuthenticationChallenge;
+ class CertificateInfo;
++class HTTPHeaderMap;
+ class SharedBuffer;
+ class ProtectionSpace;
+ class ResourceRequest;
+@@ -309,6 +310,7 @@ public:
+ 
+     void resourceLoadDidSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, std::optional<IPC::FormDataReference>&&);
+     void resourceLoadWillSendRequest(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&&);
++    void resourceLoadDidReceiveResponseHeaders(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&&);
+     void resourceLoadDidPerformHTTPRedirection(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&, WebCore::ResourceRequest&&);
+     void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&);
+     void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, ResourceLoadInfo&&, WebCore::ResourceResponse&&);
+diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
+index 33f2e690d..c98d935a0 100644
+--- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
++++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.messages.in
+@@ -72,6 +72,7 @@ messages -> NetworkProcessProxy WantsDispatchMessage {
+ 
+     ResourceLoadDidSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request, std::optional<IPC::FormDataReference> httpBody)
+     ResourceLoadWillSendRequest(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest request) -> (bool cancel, URL redirectURL, String substituteMIMEType, Vector<uint8_t> substituteData)
++    ResourceLoadDidReceiveResponseHeaders(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response) -> (bool cancel, std::optional<WebCore::HTTPHeaderMap> responseHeaders)
+     ResourceLoadDidPerformHTTPRedirection(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse resourceResponse, WebCore::ResourceRequest request)
+     ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
+     ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
+diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
+index 93067aa13..9b08104ff 100644
+--- a/Source/WebKit/UIProcess/WebPageProxy.cpp
++++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
+@@ -14840,6 +14840,20 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
+     completionHandler(false, { }, { }, { });
+ }
+ 
++void WebPageProxy::resourceLoadDidReceiveResponseHeaders(ResourceLoadInfo&& loadInfo, WebCore::ResourceResponse&& response, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&& completionHandler)
++{
++#if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
++    if (RefPtr webExtensionController = this->webExtensionController()) {
++        loadInfo.parentFrameIsMainFrame = isParentFrameMainFrame(loadInfo, mainFrame());
++        webExtensionController->resourceLoadDidReceiveResponseHeaders(identifier(), loadInfo, response, WTF::move(completionHandler));
++        return;
++    }
++#endif
++    UNUSED_PARAM(loadInfo);
++    UNUSED_PARAM(response);
++    completionHandler(false, std::nullopt);
++}
++
+ void WebPageProxy::resourceLoadDidSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request)
+ {
+ #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
+diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
+index e86ff5c78..3c764e10e 100644
+--- a/Source/WebKit/UIProcess/WebPageProxy.h
++++ b/Source/WebKit/UIProcess/WebPageProxy.h
+@@ -173,6 +173,7 @@ class FontAttributeChanges;
+ class FontChanges;
+ class FrameTreeSyncData;
+ class GraphicsLayer;
++class HTTPHeaderMap;
+ class ImageBufferBackend;
+ class InspectorOverlay;
+ class IntPoint;
+@@ -934,6 +935,7 @@ public:
+ 
+     void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);
+     void resourceLoadWillSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&&);
++    void resourceLoadDidReceiveResponseHeaders(ResourceLoadInfo&&, WebCore::ResourceResponse&&, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&&);
+     void resourceLoadDidPerformHTTPRedirection(ResourceLoadInfo&&, WebCore::ResourceResponse&&, WebCore::ResourceRequest&&);
+     void resourceLoadDidReceiveChallenge(ResourceLoadInfo&&, WebCore::AuthenticationChallenge&&);
+     void resourceLoadDidReceiveResponse(ResourceLoadInfo&&, WebCore::ResourceResponse&&);
+diff --git a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+index d17febcbd..b649a2e00 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
++++ b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+@@ -34,6 +34,7 @@
+ #import "WebExtensionAPINamespace.h"
+ #import "WebExtensionAPIWebRequest.h"
+ #import <JavaScriptCore/JSStringRefCPP.h>
++#import <WebCore/HTTPHeaderMap.h>
+ #import <WebCore/AuthenticationChallenge.h>
+ #import <WebCore/HTTPStatusCodes.h>
+ #import <WebCore/ResourceRequest.h>
+@@ -308,10 +309,13 @@ static NSMutableDictionary *headersReceivedDetails(const ResourceLoadInfo& resou
+ }
+ 
+ // The answers of this process's blocking listeners to one request: replied once, when every answer is in (a Promise's
+-// when it settles), or after two seconds with what is in (the UI process waits no longer either).
++// when it settles), or after two seconds with what is in (the UI process waits no longer either). A redirect, or response
++// headers, is the first one given.
+ class WebRequestBlockingAnswers : public RefCounted<WebRequestBlockingAnswers> {
+ public:
+-    static Ref<WebRequestBlockingAnswers> create(CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
++    using CompletionHandlerType = CompletionHandler<void(bool cancel, URL&& redirectURL, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>;
++
++    static Ref<WebRequestBlockingAnswers> create(CompletionHandlerType&& completionHandler)
+     {
+         return adoptRef(*new WebRequestBlockingAnswers(WTF::move(completionHandler)));
+     }
+@@ -328,13 +332,13 @@ public:
+     void finish()
+     {
+         if (m_completionHandler)
+-            m_completionHandler(m_cancel, URL { m_redirectURL });
++            m_completionHandler(m_cancel, URL { m_redirectURL }, std::optional<WebCore::HTTPHeaderMap> { m_responseHeaders });
+     }
+ 
+     bool isFinished() const { return !m_completionHandler; }
+ 
+ private:
+-    explicit WebRequestBlockingAnswers(CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
++    explicit WebRequestBlockingAnswers(CompletionHandlerType&& completionHandler)
+         : m_completionHandler(WTF::move(completionHandler))
+     {
+     }
+@@ -352,6 +356,9 @@ private:
+         if (cancelValue && JSValueToBoolean(context, cancelValue))
+             m_cancel = true;
+ 
++        if (!m_responseHeaders)
++            m_responseHeaders = readResponseHeaders(context, resultObject);
++
+         if (m_redirectURL.isValid())
+             return;
+         auto redirectValue = JSObjectGetProperty(context, resultObject, redirectURLName.get().get(), nullptr);
+@@ -362,19 +369,89 @@ private:
+             m_redirectURL = WTF::move(candidate);
+     }
+ 
+-    CompletionHandler<void(bool cancel, URL&& redirectURL)> m_completionHandler;
++    // { responseHeaders: [{ name, value }] }, or { name, binaryValue } (bytes) as Firefox also takes.
++    static std::optional<WebCore::HTTPHeaderMap> readResponseHeaders(JSContextRef context, JSObjectRef resultObject)
++    {
++        static NeverDestroyed<RefPtr<OpaqueJSString>> responseHeadersName = OpaqueJSString::tryCreate("responseHeaders"_s);
++
++        auto headersValue = JSObjectGetProperty(context, resultObject, responseHeadersName.get().get(), nullptr);
++        if (!headersValue || !JSValueIsArray(context, headersValue))
++            return std::nullopt;
++
++        JSValue *headers = [JSValue valueWithJSValueRef:headersValue inContext:[JSContext contextWithJSGlobalContextRef:JSContextGetGlobalContext(context)]];
++        WebCore::HTTPHeaderMap headerMap;
++        for (id header in [headers toArray]) {
++            auto *headerDictionary = dynamic_objc_cast<NSDictionary>(header);
++            auto *name = dynamic_objc_cast<NSString>(headerDictionary[@"name"]);
++            if (!name.length)
++                continue;
++            if (auto *value = dynamic_objc_cast<NSString>(headerDictionary[@"value"])) {
++                headerMap.add(name, value);
++                continue;
++            }
++            auto *binaryValue = dynamic_objc_cast<NSArray>(headerDictionary[@"binaryValue"]);
++            if (!binaryValue)
++                continue;
++            Vector<Latin1Character> bytes;
++            for (id byte in binaryValue) {
++                if (auto *number = dynamic_objc_cast<NSNumber>(byte))
++                    bytes.append(static_cast<Latin1Character>(number.unsignedCharValue));
++            }
++            headerMap.add(name, String(bytes.span()));
++        }
++        return headerMap;
++    }
++
++    CompletionHandlerType m_completionHandler;
+     URL m_redirectURL;
++    std::optional<WebCore::HTTPHeaderMap> m_responseHeaders;
+     unsigned m_expected { 0 };
+     bool m_cancel { false };
+ };
+ 
++// Calls a blocking listener; its answer, or the Promise's value once it settles, goes to the answers.
++static void askBlockingListener(WebRequestBlockingAnswers& answers, WebExtensionCallbackHandler& listener, NSDictionary *details)
++{
++    auto context = listener.globalContext();
++    auto result = listener.call(toJSValueRef(context, details));
++    if (!result || !isThenable(context, result)) {
++        answers.expect();
++        answers.add(context, result);
++        return;
++    }
++
++    // A Promise: waited for. Using BlockPtr does not work here (JSValue needs a block with a signature).
++    answers.expect();
++    auto answersWrapper = Ref { answers };
++    JSValue *promise = toJSValue(context, result);
++    auto resolveBlock = ^(JSValue *value) {
++        Ref { answersWrapper }->add(value.context.JSGlobalContextRef, value.JSValueRef);
++    };
++    auto rejectBlock = ^(JSValue *) {
++        Ref { answersWrapper }->add(nullptr, nullptr);
++    };
++    [promise invokeMethod:@"then" withArguments:@[ resolveBlock, rejectBlock ]];
++}
++
++// Only a Promise can leave the answers waiting: then a limit, so one that never settles does not hold the reply.
++static void limitBlockingAnswers(WebRequestBlockingAnswers& answers)
++{
++    if (answers.isFinished())
++        return;
++    RunLoop::mainSingleton().dispatchAfter(2_s, [answers = Ref { answers }] {
++        answers->finish();
++    });
++}
++
+ void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceRequest&, const ResourceLoadInfo& resourceLoad, CompletionHandler<void(bool cancel, URL&& redirectURL)>&& completionHandler)
+ {
+     // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRequest
+     // A blocking listener's answer, given or promised: { cancel: true } fails the load; { redirectUrl } redirects it (the
+     // first one given).
+ 
+-    Ref answers = WebRequestBlockingAnswers::create(WTF::move(completionHandler));
++    Ref answers = WebRequestBlockingAnswers::create([completionHandler = WTF::move(completionHandler)](bool cancel, URL&& redirectURL, std::optional<WebCore::HTTPHeaderMap>&&) mutable {
++        completionHandler(cancel, WTF::move(redirectURL));
++    });
+     RetainPtr<NSDictionary> details;
+ 
+     // Expected until every listener has been called, so an early answer does not reply.
+@@ -388,36 +465,49 @@ void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdenti
+             if (!details)
+                 details = webRequestDetailsForResourceLoad(resourceLoad, tabID);
+ 
+-            auto context = listener.globalContext();
+-            auto result = listener.call(toJSValueRef(context, details.get()));
+-            if (!result || !isThenable(context, result)) {
+-                answers->expect();
+-                answers->add(context, result);
+-                return;
+-            }
+-
+-            // A Promise: waited for. Using BlockPtr does not work here (JSValue needs a block with a signature).
+-            answers->expect();
+-            auto answersWrapper = Ref { answers };
+-            JSValue *promise = toJSValue(context, result);
+-            auto resolveBlock = ^(JSValue *value) {
+-                Ref { answersWrapper }->add(value.context.JSGlobalContextRef, value.JSValueRef);
+-            };
+-            auto rejectBlock = ^(JSValue *) {
+-                Ref { answersWrapper }->add(nullptr, nullptr);
+-            };
+-            [promise invokeMethod:@"then" withArguments:@[ resolveBlock, rejectBlock ]];
++            askBlockingListener(answers, listener, details.get());
+         });
+     });
+ 
+     answers->add(nullptr, nullptr);
++    limitBlockingAnswers(answers);
++}
+ 
+-    // Only a Promise can leave it waiting: then a limit, so one that never settles does not hold the request's reply.
+-    if (!answers->isFinished()) {
+-        RunLoop::mainSingleton().dispatchAfter(2_s, [answers] {
+-            answers->finish();
++void WebExtensionContextProxy::resourceLoadDidReceiveResponseHeaders(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceResponse& response, const ResourceLoadInfo& resourceLoad, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&& completionHandler)
++{
++    // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onHeadersReceived
++    // A blocking listener's answer, given or promised: { cancel: true } fails the load; { responseHeaders } replaces the
++    // response's headers (the first ones given). These listeners are not called again for this response by
++    // resourceLoadDidReceiveResponse().
++
++    Ref answers = WebRequestBlockingAnswers::create([completionHandler = WTF::move(completionHandler)](bool cancel, URL&&, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders) mutable {
++        completionHandler(cancel, WTF::move(responseHeaders));
++    });
++    RetainPtr<NSMutableDictionary> details;
++
++    m_responsesAskedOfBlockingListeners.add(resourceLoad.resourceLoadID);
++
++    // Expected until every listener has been called, so an early answer does not reply.
++    answers->expect();
++
++    enumerateNamespaceObjects([&](auto& namespaceObject) {
++        protect(protect(namespaceObject.webRequest())->onHeadersReceived())->enumerateListeners(tabID, windowID, resourceLoad, [&](auto& listener, auto& extraInfo) {
++            if (!extraInfo.contains("blocking"_s))
++                return;
++
++            if (!details)
++                details = headersReceivedDetails(resourceLoad, tabID, response);
++            if (extraInfo.contains(String(responseHeadersKey)))
++                [details setObject:convertHeaderFieldsToWebExtensionFormat(response.httpHeaderFields()) forKey:responseHeadersKey];
++
++            askBlockingListener(answers, listener, details.get());
++
++            [details removeObjectForKey:responseHeadersKey];
+         });
+-    }
++    });
++
++    answers->add(nullptr, nullptr);
++    limitBlockingAnswers(answers);
+ }
+ 
+ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceRequest& request, const ResourceLoadInfo& resourceLoad, const std::optional<IPC::FormDataReference>& formDataOptional)
+@@ -542,8 +632,15 @@ void WebExtensionContextProxy::resourceLoadDidReceiveResponse(WebExtensionTabIde
+     auto *details = headersReceivedDetails(resourceLoad, tabID, response);
+     NSArray *responseHeaders;
+ 
+-    auto handleListeners = [&](WebExtensionAPIWebRequestEvent& listeners) {
++    // Blocking onHeadersReceived listeners asked about this response already (resourceLoadDidReceiveResponseHeaders()) are
++    // not called again; the ones not asked (a response from the cache, for one) are, without a say.
++    bool blockingListenersWereAsked = m_responsesAskedOfBlockingListeners.remove(resourceLoad.resourceLoadID);
++
++    auto handleListeners = [&](WebExtensionAPIWebRequestEvent& listeners, bool skipsBlockingListeners) {
+         listeners.enumerateListeners(tabID, windowID, resourceLoad, [&](auto& listener, auto& extraInfo) {
++            if (skipsBlockingListeners && extraInfo.contains("blocking"_s))
++                return;
++
+             if (extraInfo.contains(String(responseHeadersKey))) {
+                 if (!responseHeaders)
+                     responseHeaders = convertHeaderFieldsToWebExtensionFormat(response.httpHeaderFields());
+@@ -557,13 +654,15 @@ void WebExtensionContextProxy::resourceLoadDidReceiveResponse(WebExtensionTabIde
+     };
+ 
+     enumerateNamespaceObjects([&](auto& namespaceObject) {
+-        handleListeners(protect(protect(namespaceObject.webRequest())->onHeadersReceived()));
+-        handleListeners(protect(protect(namespaceObject.webRequest())->onResponseStarted()));
++        handleListeners(protect(protect(namespaceObject.webRequest())->onHeadersReceived()), blockingListenersWereAsked);
++        handleListeners(protect(protect(namespaceObject.webRequest())->onResponseStarted()), false);
+     });
+ }
+ 
+ void WebExtensionContextProxy::resourceLoadDidCompleteWithError(WebExtensionTabIdentifier tabID, WebExtensionWindowIdentifier windowID, const WebCore::ResourceResponse& response, const WebCore::ResourceError& error, const ResourceLoadInfo& resourceLoad)
+ {
++    m_responsesAskedOfBlockingListeners.remove(resourceLoad.resourceLoadID);
++
+     auto *details = webRequestDetailsForResourceLoad(resourceLoad, tabID);
+ 
+     if (!error.isNull()) {
+diff --git a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm
+index 047fb188b..0fa54a862 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm
++++ b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm
+@@ -44,6 +44,19 @@
+ 
+ namespace WebKit {
+ 
++// The events whose listeners may block (Manifest V2): their blocking listeners are registered under a type of their own.
++static std::optional<WebExtensionEventListenerType> blockingListenerType(WebExtensionEventListenerType type)
++{
++    switch (type) {
++    case WebExtensionEventListenerType::WebRequestOnBeforeRequest:
++        return WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking;
++    case WebExtensionEventListenerType::WebRequestOnHeadersReceived:
++        return WebExtensionEventListenerType::WebRequestOnHeadersReceivedBlocking;
++    default:
++        return std::nullopt;
++    }
++}
++
+ void WebExtensionAPIWebRequestEvent::enumerateListeners(WebExtensionTabIdentifier tabIdentifier, WebExtensionWindowIdentifier windowIdentifier, const ResourceLoadInfo& resourceLoadInfo, NOESCAPE const Function<void(WebExtensionCallbackHandler&, const Vector<String>&)>& function)
+ {
+     if (m_listeners.isEmpty())
+@@ -86,15 +99,17 @@ void WebExtensionAPIWebRequestEvent::addListener(WebCore::FrameIdentifier frameI
+     });
+     extraInfo.shrinkToFit();
+ 
+-    // A blocking onBeforeRequest listener is also registered as such: the UI process asks it before a request is sent.
+-    bool isBlocking = m_type == WebExtensionEventListenerType::WebRequestOnBeforeRequest && extraInfo.contains("blocking"_s);
++    // A blocking onBeforeRequest (or onHeadersReceived) listener is also registered as such: the UI process asks it before
++    // a request is sent (or before its response is handed to the page).
++    auto blockingType = blockingListenerType(m_type);
++    bool isBlocking = blockingType && extraInfo.contains("blocking"_s);
+ 
+     m_frameIdentifier = frameIdentifier;
+     m_listeners.append({ listener, parsedFilter, WTF::move(extraInfo) });
+ 
+     WebProcess::singleton().send(Messages::WebExtensionContext::AddListener(*m_frameIdentifier, m_type, contentWorldType()), extensionContext().identifier());
+     if (isBlocking)
+-        WebProcess::singleton().send(Messages::WebExtensionContext::AddListener(*m_frameIdentifier, WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, contentWorldType()), extensionContext().identifier());
++        WebProcess::singleton().send(Messages::WebExtensionContext::AddListener(*m_frameIdentifier, *blockingType, contentWorldType()), extensionContext().identifier());
+ }
+ 
+ void WebExtensionAPIWebRequestEvent::removeListener(WebCore::FrameIdentifier frameIdentifier, RefPtr<WebExtensionCallbackHandler> listener)
+@@ -114,8 +129,8 @@ void WebExtensionAPIWebRequestEvent::removeListener(WebCore::FrameIdentifier fra
+     ASSERT(frameIdentifier == m_frameIdentifier);
+ 
+     WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, m_type, contentWorldType(), removedCount), extensionContext().identifier());
+-    if (removedBlockingCount && m_type == WebExtensionEventListenerType::WebRequestOnBeforeRequest)
+-        WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, contentWorldType(), removedBlockingCount), extensionContext().identifier());
++    if (auto blockingType = blockingListenerType(m_type); removedBlockingCount && blockingType)
++        WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, *blockingType, contentWorldType(), removedBlockingCount), extensionContext().identifier());
+ }
+ 
+ bool WebExtensionAPIWebRequestEvent::hasListener(RefPtr<WebExtensionCallbackHandler> listener)
+@@ -133,8 +148,8 @@ void WebExtensionAPIWebRequestEvent::removeAllListeners()
+     WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, m_type, contentWorldType(), m_listeners.size()), extensionContext().identifier());
+ 
+     auto blockingCount = std::ranges::count_if(m_listeners, [](auto& entry) { return entry.extraInfo.contains("blocking"_s); });
+-    if (blockingCount && m_type == WebExtensionEventListenerType::WebRequestOnBeforeRequest)
+-        WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, contentWorldType(), static_cast<uint64_t>(blockingCount)), extensionContext().identifier());
++    if (auto blockingType = blockingListenerType(m_type); blockingCount && blockingType)
++        WebProcess::singleton().send(Messages::WebExtensionContext::RemoveListener(*m_frameIdentifier, *blockingType, contentWorldType(), static_cast<uint64_t>(blockingCount)), extensionContext().identifier());
+ 
+     m_listeners.clear();
+ }
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
+index 47780cdc2..b2792ecb5 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.h
+@@ -28,6 +28,7 @@
+ #if ENABLE(WK_WEB_EXTENSIONS)
+ 
+ #include "MessageReceiver.h"
++#include "NetworkResourceLoadIdentifier.h"
+ #include "WebExtensionContentWorldType.h"
+ #include "WebExtensionContextParameters.h"
+ #include "WebExtensionFrameIdentifier.h"
+@@ -37,6 +38,7 @@
+ #include "WebPageProxyIdentifier.h"
+ #include <WebCore/DOMWrapperWorld.h>
+ #include <WebCore/FrameIdentifier.h>
++#include <WebCore/HTTPHeaderMap.h>
+ #include <WebCore/PageIdentifier.h>
+ #include <wtf/Forward.h>
+ #include <wtf/TZoneMalloc.h>
+@@ -282,6 +284,7 @@ private:
+     void dispatchWebNavigationEvent(WebExtensionEventListenerType, WebExtensionTabIdentifier, const WebExtensionFrameParameters&, WallTime);
+ 
+     void resourceLoadWillSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, CompletionHandler<void(bool cancel, URL&& redirectURL)>&&);
++    void resourceLoadDidReceiveResponseHeaders(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceResponse&, const ResourceLoadInfo&, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&&);
+     void dispatchWebNavigationCreatedNavigationTargetEvent(WebExtensionTabIdentifier sourceTabID, WebExtensionFrameIdentifier sourceFrameID, WebExtensionTabIdentifier tabID, const URL&, WallTime);
+ 
+     // Web Request
+@@ -326,6 +329,8 @@ private:
+     WeakPageTabWindowMap m_popupPageMap;
+     WeakPageTabWindowMap m_tabPageMap;
+     bool m_hasBlockingWebRequestListeners { false };
++    // The loads whose response blocking onHeadersReceived listeners were asked about; they are not called again for it.
++    HashSet<NetworkResourceLoadIdentifier> m_responsesAskedOfBlockingListeners;
+ 
+ #if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/WebExtensionContextProxyAdditions.h>)
+ #include <WebKitAdditions/WebExtensionContextProxyAdditions.h>
+diff --git a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
+index 9c9696866..bf8d0311c 100644
+--- a/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
++++ b/Source/WebKit/WebProcess/Extensions/WebExtensionContextProxy.messages.in
+@@ -119,6 +119,7 @@ messages -> WebExtensionContextProxy {
+     // Web Request
+     SetHasBlockingWebRequestListeners(bool hasListeners)
+     ResourceLoadWillSendRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceRequest request, struct WebKit::ResourceLoadInfo resourceLoadInfo) -> (bool cancel, URL redirectURL)
++    ResourceLoadDidReceiveResponseHeaders(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceResponse response, struct WebKit::ResourceLoadInfo resourceLoadInfo) -> (bool cancel, std::optional<WebCore::HTTPHeaderMap> responseHeaders)
+     ResourceLoadDidSendRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceRequest request, struct WebKit::ResourceLoadInfo resourceLoadInfo, std::optional<IPC::FormDataReference> formData)
+     ResourceLoadDidBlockBeforeRequest(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo)
+     ResourceLoadDidPerformHTTPRedirection(WebKit::WebExtensionTabIdentifier tabIdentifier, WebKit::WebExtensionWindowIdentifier windowIdentifier, WebCore::ResourceResponse response, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceRequest newRequest)
+diff --git a/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp b/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
+index d1d3d88fc..d1d73219d 100644
+--- a/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
++++ b/Source/WebKit/WebProcess/Extensions/glib/WebExtensionContextProxyGLib.cpp
+@@ -133,6 +133,11 @@ void WebExtensionContextProxy::resourceLoadWillSendRequest(WebExtensionTabIdenti
+     completionHandler(false, { });
+ }
+ 
++void WebExtensionContextProxy::resourceLoadDidReceiveResponseHeaders(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceResponse&, const ResourceLoadInfo&, CompletionHandler<void(bool cancel, std::optional<WebCore::HTTPHeaderMap>&& responseHeaders)>&& completionHandler)
++{
++    completionHandler(false, std::nullopt);
++}
++
+ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentifier, WebExtensionWindowIdentifier, const WebCore::ResourceRequest&, const ResourceLoadInfo&, const std::optional<IPC::FormDataReference>&)
+ {
+     notImplemented();

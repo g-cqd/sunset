@@ -1,0 +1,181 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 11:16:17 +0100
+Subject: [PATCH] Web Extensions: test that a blocking
+ webRequest.onHeadersReceived listener changes headers or cancels (Sunset W6c)
+
+A blocking onHeadersReceived listener's { responseHeaders } replaces the
+response's headers (a header removed, one added, the others kept); a
+Content-Security-Policy it adds to a page is enforced; { cancel: true }
+fails the request. All three fail before the change that follows.
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index 57cb5ffa1..c45dce1c5 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -343,6 +343,165 @@ struct WKWebExtensionAPIWebRequestTests {
+         }
+     }
+ 
++    // A blocking onHeadersReceived listener's { responseHeaders } replaces the response's headers before the page sees
++    // them, as in Firefox and Chrome (Manifest V2); uBlock Origin adds Content-Security-Policy and removes headers so.
++    @Test
++    func blockingHeadersListenerChangesResponseHeaders() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                ""
++            }
++            Route("/data.txt", headerFields: ["Content-Type": "text/plain", "X-Removed": "present"]) {
++                "data"
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            browser.webRequest.onHeadersReceived.addListener((details) => {
++                if (!details.url.endsWith('/data.txt'))
++                    return
++                const responseHeaders = details.responseHeaders.filter((header) => header.name.toLowerCase() !== 'x-removed')
++                responseHeaders.push({ name: 'X-Added', value: 'by the extension' })
++                return { responseHeaders }
++            }, { urls: ['<all_urls>'] }, ['blocking', 'responseHeaders'])
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++
++            let script = """
++                const response = await fetch('/data.txt', { cache: 'no-store' })
++                return [response.headers.get('Content-Type'), response.headers.get('X-Added'), String(response.headers.get('X-Removed')), await response.text()].join(' / ')
++                """
++            let result = try await webView.callAsyncJavaScript(script, contentWorld: .page) as? String
++
++            #expect(result == "text/plain / by the extension / null / data")
++        }
++    }
++
++    // A Content-Security-Policy a blocking onHeadersReceived listener adds to a page is enforced (uBlock Origin's $csp).
++    @Test
++    func blockingHeadersListenerAddsContentSecurityPolicy() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                "<script>document.title = 'inline ran'</script>"
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            browser.webRequest.onHeadersReceived.addListener((details) => {
++                if (details.type !== 'main_frame')
++                    return
++                return { responseHeaders: [ ...details.responseHeaders, { name: 'Content-Security-Policy', value: "script-src 'none'" } ] }
++            }, { urls: ['<all_urls>'] }, ['blocking', 'responseHeaders'])
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++
++            let title = try await webView.callAsyncJavaScript("return document.title", contentWorld: .defaultClient) as? String
++
++            #expect(title == "")
++        }
++    }
++
++    // A blocking onHeadersReceived listener's { cancel: true } fails the request once its headers are in.
++    @Test
++    func blockingHeadersListenerCancelsRequest() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                ""
++            }
++            Route("/blocked.txt", headerFields: ["Content-Type": "text/plain", "X-Block": "yes"]) {
++                "blocked"
++            }
++            Route("/allowed.txt", headerFields: ["Content-Type": "text/plain"]) {
++                "allowed"
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            browser.webRequest.onHeadersReceived.addListener((details) => {
++                if (details.responseHeaders.some((header) => header.name.toLowerCase() === 'x-block'))
++                    return { cancel: true }
++            }, { urls: ['<all_urls>'] }, ['blocking', 'responseHeaders'])
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        try await server.run { configuration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript])
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: configuration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: configuration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++
++            let fetchScript = "return await fetch(path, { cache: 'no-store' }).then((response) => response.text(), () => 'failed')"
++            let blocked = try await webView.callAsyncJavaScript(fetchScript, arguments: ["path": "/blocked.txt"], contentWorld: .page) as? String
++            let allowed = try await webView.callAsyncJavaScript(fetchScript, arguments: ["path": "/allowed.txt"], contentWorld: .page) as? String
++
++            #expect(blocked == "failed")
++            #expect(allowed == "allowed")
++        }
++    }
++
+     @Test
+     func manifestV2Persistent() async throws {
+         let backgroundScript = """

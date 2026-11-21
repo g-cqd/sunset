@@ -1,0 +1,100 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 12:04:00 +0100
+Subject: [PATCH] Web Extensions: test that a blocking onHeadersReceived
+ listener is asked about a revalidated cache entry (Sunset W6c)
+
+A Content-Security-Policy a blocking listener adds on the second load of a
+page applies though the page comes from the HTTP cache (revalidated by a
+304). Fails before the change that follows: the stored entry is handed to
+the page without asking.
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index c45dce1c5..0b50ec8d6 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -447,6 +447,84 @@ struct WKWebExtensionAPIWebRequestTests {
+         }
+     }
+ 
++    // A response from the HTTP cache is asked about too (as in Firefox): a filter an extension adds after a page was stored
++    // applies to the next load of it. The first load is not changed, so it is stored; the second is the stored entry,
++    // revalidated by a 304. (The memory cache is cleared in between: a 304 to a revalidation the web process makes itself
++    // keeps the Content-* headers it has, so an added Content-Security-Policy would not apply there.)
++    @Test
++    func blockingHeadersListenerAsksAboutRevalidatedResponse() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html", "Cache-Control": "no-cache", "ETag": "\"page\""]) {
++                "<script>document.title = 'inline ran'</script>"
++            }
++            Route("/other", headerFields: ["Content-Type": "text/html"]) {
++                ""
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "webRequestBlocking", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            let mainFrameResponses = 0
++            browser.webRequest.onHeadersReceived.addListener((details) => {
++                if (details.type !== 'main_frame' || ++mainFrameResponses < 2)
++                    return
++                return { responseHeaders: [ ...details.responseHeaders, { name: 'Content-Security-Policy', value: "script-src 'none'" } ] }
++            }, { urls: ['<all_urls>'] }, ['blocking', 'responseHeaders'])
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        // The HTTP cache needs a persistent data store; this one is removed at the end.
++        let storeIdentifier = UUID()
++        let configuration = WKWebExtensionController.Configuration.nonPersistent()
++        configuration.defaultWebsiteDataStore = WKWebsiteDataStore(forIdentifier: storeIdentifier)
++
++        try await server.run { serverConfiguration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript], configuration: configuration)
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: serverConfiguration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            // The same URL loaded again would be a reload, which does not use the cache: another page comes between.
++            var titles: [String] = []
++            for path in ["", "other", ""] {
++                webView.load(URLRequest(url: serverConfiguration.localhostAddress.appending(path: path)))
++                try await Task.sleep(for: .milliseconds(100))
++                for _ in 0..<100 where webView.isLoading {
++                    try await Task.sleep(for: .milliseconds(50))
++                }
++                guard path.isEmpty else {
++                    continue
++                }
++
++                // The title, and whether the document is the stored one (its script is there, run or not).
++                let script = "return document.title + ' / ' + document.documentElement.innerHTML.includes('inline ran')"
++                titles.append(try await webView.callAsyncJavaScript(script, contentWorld: .defaultClient) as? String ?? "nil")
++
++                // The page is stored by now; from here on the server only says it has not changed.
++                serverConfiguration.replaceResponses {
++                    Route("/", statusCode: 304, headerFields: ["ETag": "\"page\""])
++                }
++                await configuration.defaultWebsiteDataStore.removeData(ofTypes: [WKWebsiteDataTypeMemoryCache], modifiedSince: .distantPast)
++            }
++
++            #expect(titles == ["inline ran / true", " / true"])
++            #expect(serverConfiguration.totalRequests == 3)
++        }
++
++        try? await WKWebsiteDataStore.remove(forIdentifier: storeIdentifier)
++    }
++
+     // A blocking onHeadersReceived listener's { cancel: true } fails the request once its headers are in.
+     @Test
+     func blockingHeadersListenerCancelsRequest() async throws {
