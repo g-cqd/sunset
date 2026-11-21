@@ -1,5 +1,6 @@
 package import AppKit
 import SunsetCore
+import SunsetShellModel
 
 extension TerminalNSView {
     package override func keyDown(with event: NSEvent) {
@@ -25,8 +26,12 @@ extension TerminalNSView {
         return true
     }
 
+    /// A copied file pastes as its path, as a dropped one does (`FileDrop.pasted`); anything else as its text.
     @objc package func paste(_ sender: Any?) {
-        guard let text = NSPasteboard.general.string(forType: .string) else { return }
+        let board = NSPasteboard.general
+        let files =
+            board.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+        guard let text = FileDrop.pasted(files: files.map(\.path), text: board.string(forType: .string)) else { return }
         model.paste(text)
     }
 

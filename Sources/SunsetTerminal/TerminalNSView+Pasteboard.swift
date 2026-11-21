@@ -16,7 +16,7 @@ extension TerminalNSView: NSMenuItemValidation {
     package func validateMenuItem(_ item: NSMenuItem) -> Bool {
         switch item.action {
             case #selector(copy(_:)): model.hasSelection
-            case #selector(paste(_:)): NSPasteboard.general.string(forType: .string) != nil
+            case #selector(paste(_:)): NSPasteboard.general.availableType(from: [.fileURL, .string]) != nil
             default: true
         }
     }

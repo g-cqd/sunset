@@ -32,6 +32,13 @@ package enum FileDrop {
         return paths.map { quoted($0) + " " }.joined()
     }
 
+    /// What a paste types: the copied files' paths as a drop types them, not the name a file manager puts beside them as text
+    /// (the owner, 2026-11-21); the text itself when no file was copied. Nil when there is nothing to paste, or when a copied
+    /// file's name would not be typed for a drop.
+    package static func pasted(files: [String], text: String?) -> String? {
+        files.isEmpty ? text : typed(files)
+    }
+
     /// No control character (C0, DEL, C1) and no line or paragraph separator.
     private static func isSafe(_ path: String) -> Bool {
         path.unicodeScalars.allSatisfy { scalar in
