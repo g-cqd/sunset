@@ -15,7 +15,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
     /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
     @ObservationIgnored package var runtime = Runtime.live
 
-    package static let kind = "web"
+    package static let kind = PaneDescriptor.webKind
 
     package internal(set) var url: URL?
     package internal(set) var pageTitle = ""

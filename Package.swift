@@ -200,6 +200,9 @@ let package = Package(
         tests("SunsetPrivateTests", ["SunsetTestSupport", "SunsetPrivate"]),
         module("SunsetPane", []),
         tests("SunsetPaneTests", ["SunsetTestSupport", "SunsetPane"]),
+        // Another browser's bookmarks, profiles and more, read and turned into Sunset's (roadmap 0111). No UI.
+        module("SunsetImport", ["SunsetPane"]),
+        tests("SunsetImportTests", ["SunsetImport", "SunsetPane"]),
         // Help (roadmap 0041): its topics and their texts, one source for a control's tooltip and its explanation. No UI.
         module("SunsetHelp", []),
         // The window's model (roadmap 0086 D): its tabs, Spaces, Favorites, sidebar sections, commands; no UI framework.

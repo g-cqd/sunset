@@ -15,6 +15,8 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     public static let settingsKind = "settings"
     public static let settingsSymbol = "gearshape"
     public static let helpKind = "help"
+    /// A web page (`SunsetWeb`). Its state's "url" is the address it opens.
+    public static let webKind = "web"
     public static let helpSymbol = "questionmark.circle"
 
     public var kind: String
@@ -33,6 +35,11 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     /// A document that lives in Sunset's store, by its id.
     public static func document(stored id: UUID) -> PaneDescriptor {
         PaneDescriptor(kind: documentKind, state: ["document": id.uuidString])
+    }
+
+    /// A web page at `address`.
+    public static func page(_ address: URL) -> PaneDescriptor {
+        PaneDescriptor(kind: webKind, state: ["url": address.absoluteString])
     }
 
     /// The settings on the topic `topic` ("terminal.cursor").

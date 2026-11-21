@@ -1,0 +1,38 @@
+---
+status: in-progress
+blocked-by: nothing
+date: 2026-11-21
+---
+
+# 0111 — Importing from other browsers, and the welcome (note n75; task t150)
+
+The owner, 2026-11-21: import data, bookmarks, profiles, containers and extensions from Chrome, Firefox, Safari "or almost any
+other browser", turned into Sunset's Spaces, folders and profiles; offered in a welcome at the first start, opened by the
+sunset shader turning into a window that asks for the main preferences (features, security model, default browser, what
+shows at start) and the imports.
+
+How things map:
+
+| Theirs | Sunset's |
+|---|---|
+| A browser profile (Chrome's profile folder, Firefox's profile) | a Space, with a profile of its own when the person asks |
+| Bookmarks bar / toolbar, other bookmarks, mobile | the Space's Favorites: one folder per root, the bar's at the top |
+| A bookmark folder | a folder; deeper than `Favorites.maximumDepth`, its contents go in the deepest folder there may be |
+| A bookmark | an entry that is not open, homed on a web pane at its address |
+| A Firefox container | a profile (website data apart), the Space's (roadmap 0021) |
+| An extension | its store page or its package, through roadmap 0109's install (granted by the person, never silently) |
+| History, cookies, passwords | not now: passwords belong to the vault (0091–0095); cookies are another engine's encrypted store |
+
+| Step | What | Status |
+|---|---|---|
+| A | The neutral tree (`SunsetImport`: folders and links) and its conversion to `Favorites`, depth and count limits kept, only `http`/`https`/`file` addresses | in-progress |
+| B | Chromium's `Bookmarks` JSON (Chrome, Canary, Chromium, Brave, Edge, Vivaldi, Opera, Arc's bookmarks) and `Local State`'s profile names | in-progress |
+| C | Netscape bookmark HTML: what every browser exports, the "any other browser" path | not-started |
+| D | Firefox: `profiles.ini`, `places.sqlite` read from a copy (Firefox locks it), `containers.json` | not-started |
+| E | Safari: `Bookmarks.plist` behind Full Disk Access (macOS refuses it otherwise; probed: not readable from here), Reading List as a folder | not-started |
+| F | Extensions: the installed list per profile, matched to their store pages, offered to install | not-started |
+| G | The Import window (Settings ▸ General and the command bar): browser, profiles found, what to bring, into which Space | not-started |
+| H | The welcome: the shader's opening, then preferences (feature scope, security model, default browser, `tabs.start`) and the imports; once, and again from Help | not-started |
+
+Not done: everything past A and B's first parsers; nothing read from the person's own browsers yet beyond whether their
+folders exist.
