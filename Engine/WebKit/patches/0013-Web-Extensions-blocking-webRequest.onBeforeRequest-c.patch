@@ -193,10 +193,10 @@ index 5fb2fd5b9..e3fcce76f 100644
      ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
      ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
-index 3de201f18..0fc96efb5 100644
+index 4dd493b82..30ddc4248 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.cpp
 +++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
-@@ -14826,7 +14826,7 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
+@@ -14919,7 +14919,7 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
  }
  #endif
  
@@ -205,7 +205,7 @@ index 3de201f18..0fc96efb5 100644
  {
  #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
      if (RefPtr webExtensionController = this->webExtensionController()) {
-@@ -14837,7 +14837,7 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
+@@ -14930,7 +14930,7 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
  #endif
      UNUSED_PARAM(loadInfo);
      UNUSED_PARAM(request);
@@ -215,10 +215,10 @@ index 3de201f18..0fc96efb5 100644
  
  void WebPageProxy::resourceLoadDidSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
-index 9b39d14ed..45c224c4c 100644
+index cc32e93e7..33c309117 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.h
 +++ b/Source/WebKit/UIProcess/WebPageProxy.h
-@@ -933,7 +933,7 @@ public:
+@@ -936,7 +936,7 @@ public:
      NODELETE GeolocationPermissionRequestManagerProxy& geolocationPermissionRequestManager() LIFETIME_BOUND;
  
      void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);

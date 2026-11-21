@@ -10,7 +10,7 @@ positions over 20,000 took 363 ms, normalize() over 20,000 text nodes
 375 ms. A third keeps a Range across an empty and two merged nodes.
 
 diff --git a/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj b/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
-index 1ed40c457..3cf309f82 100644
+index 5d6eb0528..9d7fde4a6 100644
 --- a/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
 +++ b/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
 @@ -610,6 +610,7 @@

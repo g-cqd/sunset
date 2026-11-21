@@ -437,10 +437,10 @@ index b84b85dc8..5fb2fd5b9 100644
      ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
      ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
-index 8ab48ab41..3de201f18 100644
+index 4f355798d..4dd493b82 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.cpp
 +++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
-@@ -14826,6 +14826,20 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
+@@ -14919,6 +14919,20 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
  }
  #endif
  
@@ -462,10 +462,10 @@ index 8ab48ab41..3de201f18 100644
  {
  #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
-index 0e6d8425d..9b39d14ed 100644
+index babeeb036..cc32e93e7 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.h
 +++ b/Source/WebKit/UIProcess/WebPageProxy.h
-@@ -933,6 +933,7 @@ public:
+@@ -936,6 +936,7 @@ public:
      NODELETE GeolocationPermissionRequestManagerProxy& geolocationPermissionRequestManager() LIFETIME_BOUND;
  
      void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);

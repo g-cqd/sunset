@@ -11,8 +11,9 @@ import SunsetShell
 final class WindowCloseGuard: NSObject, NSWindowDelegate {
     private nonisolated(unsafe) static var key = 0
 
-    /// SwiftUI's delegate, which this one stands in front of.
-    private weak var inner: (any NSWindowDelegate)?
+    /// SwiftUI's delegate, which this one stands in front of. Set once, read by AppKit's forwarding (`responds(to:)`,
+    /// `forwardingTarget(for:)`, NSObject's, not isolated), which AppKit calls on the main thread only.
+    private nonisolated(unsafe) weak var inner: (any NSWindowDelegate)?
     private weak var tabs: TabsModel?
 
     private init(inner: (any NSWindowDelegate)?, tabs: TabsModel) {

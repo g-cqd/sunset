@@ -83,7 +83,8 @@ enum Launcher {
             .filter { pid in
                 var path = [CChar](repeating: 0, count: 4096)
                 guard pid > 0, proc_pidpath(pid, &path, UInt32(path.count)) > 0 else { return false }
-                return URL(fileURLWithPath: String(cString: path)).resolvingSymlinksInPath().path == wanted
+                let text = String(decoding: path.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self)
+                return URL(fileURLWithPath: text).resolvingSymlinksInPath().path == wanted
             }
     }
 

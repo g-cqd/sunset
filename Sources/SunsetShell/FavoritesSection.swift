@@ -41,6 +41,8 @@ struct FavoritesSection: View {
                         }
                     }
                     .padding(.leading, Double(row.level) * Design.Space.l)
+                    // A folder's rows slide out from under it as it unfolds, back as it folds (n76).
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
                 GapDrop(tabs: tabs, layout: layout, place: tabs.favoritesGap(shown.count), between: false)
             }

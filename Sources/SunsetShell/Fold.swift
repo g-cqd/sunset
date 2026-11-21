@@ -16,7 +16,7 @@ package struct Fold<Content: View>: View {
     package var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.s) {
             Button {
-                withAnimation(.easeOut(duration: 0.15)) { isExpanded.toggle() }
+                withAnimation(.easeOut(duration: Design.Motion.foldDuration)) { isExpanded.toggle() }
             } label: {
                 Label {
                     Text(title)

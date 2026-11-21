@@ -5,6 +5,7 @@ import Testing
 
 /// The list is as tall as its rows, their spaces and its padding: none cut, none left over.
 @Suite("A list of choices' height")
+@MainActor
 struct ChoiceListHeightTests {
     @Test func `rows, their spaces and the padding add up`() {
         #expect(ChoiceList.height(rows: 1, spacing: 4, inset: 4) == 34 + 8)

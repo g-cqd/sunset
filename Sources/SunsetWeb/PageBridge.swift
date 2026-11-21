@@ -10,23 +10,26 @@ struct PageBridge {
     let world: WKContentWorld
 
     /// A watch of the page in Sunset's own script world, in the page itself (not its frames): what the page watchers are.
-    static func ownWorld(_ name: String, _ script: String, at injection: WKUserScriptInjectionTime) -> Self {
+    @MainActor static func ownWorld(_ name: String, _ script: String, at injection: WKUserScriptInjectionTime) -> Self {
         Self(name: name, script: script, injection: injection, mainFrameOnly: true, world: .defaultClient)
     }
 
     /// Adds the script and `handler`, which posts without a reply.
-    func install(on configuration: WKWebViewConfiguration, handler: some WKScriptMessageHandler) {
+    @MainActor func install(on configuration: WKWebViewConfiguration, handler: some WKScriptMessageHandler) {
         addScript(to: configuration)
         configuration.userContentController.add(handler, contentWorld: world, name: name)
     }
 
     /// Adds the script and `handler`, which answers what is posted.
-    func install(on configuration: WKWebViewConfiguration, replying handler: some WKScriptMessageHandlerWithReply) {
+    @MainActor func install(
+        on configuration: WKWebViewConfiguration,
+        replying handler: some WKScriptMessageHandlerWithReply
+    ) {
         addScript(to: configuration)
         configuration.userContentController.addScriptMessageHandler(handler, contentWorld: world, name: name)
     }
 
-    private func addScript(to configuration: WKWebViewConfiguration) {
+    @MainActor private func addScript(to configuration: WKWebViewConfiguration) {
         configuration.userContentController.addUserScript(
             WKUserScript(source: script, injectionTime: injection, forMainFrameOnly: mainFrameOnly, in: world)
         )

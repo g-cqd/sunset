@@ -16,12 +16,12 @@ extension WebProxy {
     }
 
     /// Gives the store this proxy; every page of it goes through it.
-    package func apply(to store: WKWebsiteDataStore) {
+    @MainActor package func apply(to store: WKWebsiteDataStore) {
         store.proxyConfigurations = [configuration]
     }
 
     /// Takes the proxy away from a store.
-    package static func clear(_ store: WKWebsiteDataStore) {
+    @MainActor package static func clear(_ store: WKWebsiteDataStore) {
         store.proxyConfigurations = []
     }
 

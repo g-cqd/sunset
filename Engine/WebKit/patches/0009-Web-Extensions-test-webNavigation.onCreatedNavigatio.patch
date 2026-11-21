@@ -10,7 +10,7 @@ tab, the main frame (0) and a new tab. The test harness's tabs now answer create
 added (onCreatedNavigationTarget undefined).
 
 diff --git a/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.h b/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.h
-index c7de43c9c..052c07bd7 100644
+index b7ed614c5..f0928b768 100644
 --- a/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.h
 +++ b/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.h
 @@ -110,7 +110,8 @@ NS_SWIFT_UI_ACTOR
@@ -24,10 +24,10 @@ index c7de43c9c..052c07bd7 100644
  - (void)assignWindow:(nullable TestWebExtensionWindow *)window;
  
 diff --git a/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.mm b/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.mm
-index 31033eebb..f7a289c13 100644
+index 52871409b..b86d64f7c 100644
 --- a/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.mm
 +++ b/Tools/TestWebKitAPI/Helpers/cocoa/WebExtensionUtilities.mm
-@@ -646,7 +646,11 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+@@ -645,7 +645,11 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
      return usingPrivateBrowsing ? privateController : normalController;
  }
  
@@ -40,7 +40,7 @@ index 31033eebb..f7a289c13 100644
  @end
  
  @implementation TestWebExtensionTab {
-@@ -659,13 +663,24 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+@@ -658,13 +662,24 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
  }
  
  - (instancetype)initWithWindow:(TestWebExtensionWindow *)window extensionController:(WKWebExtensionController *)extensionController
@@ -66,7 +66,7 @@ index 31033eebb..f7a289c13 100644
          BOOL usingPrivateBrowsing = _window.usingPrivateBrowsing;
  
          auto *configuration = [[WKWebViewConfiguration alloc] init];
-@@ -686,6 +701,7 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+@@ -685,6 +700,7 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
  
          _webView = [[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration];
          _webView.navigationDelegate = self;
@@ -74,7 +74,7 @@ index 31033eebb..f7a289c13 100644
  
          _extensionController = extensionController;
      }
-@@ -693,6 +709,12 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+@@ -692,6 +708,12 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
      return self;
  }
  
@@ -87,7 +87,7 @@ index 31033eebb..f7a289c13 100644
  - (void)assignWindow:(TestWebExtensionWindow *)window
  {
      _window = window;
-@@ -1063,11 +1085,16 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
+@@ -1062,11 +1084,16 @@ static WKUserContentController *userContentController(BOOL usingPrivateBrowsing)
  }
  
  - (TestWebExtensionTab *)openNewTabAtIndex:(NSUInteger)index

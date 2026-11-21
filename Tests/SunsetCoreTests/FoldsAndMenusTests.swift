@@ -28,7 +28,10 @@ import Testing
 
     @Test func `the sidebar's folders fold with the system's chevrons`() {
         let folder = sources.first { $0.name == "FolderRow.swift" }?.text ?? ""
-        #expect(folder.contains("\"chevron.right\"") && folder.contains("\"chevron.down\""))
+        // Right while folded, down while open: the two symbols, or the right one turned a quarter (n76: it turns as it
+        // folds, as `Fold`'s does).
+        let turns = folder.contains(".rotationEffect(.degrees(folder.isCollapsed ? 0 : 90))")
+        #expect(folder.contains("\"chevron.right\"") && (folder.contains("\"chevron.down\"") || turns))
         #expect(!folder.contains("\"chevron.up\""))
     }
 }

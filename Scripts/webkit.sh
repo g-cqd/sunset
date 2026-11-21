@@ -107,8 +107,25 @@ test_tree() {
     done
     set +f
     passed="$(grep -c '^\*\*PASS' "$log" || true)"
-    grep '^\*\*FAIL' "$log" | sed 's/^\*\*FAIL\*\* //' | sort -u > "$log.failed" || true
+    grep '^\*\*FAIL' "$log" | sed 's/^\*\*FAIL\*\* //' | sort -u > "$log.first" || true
+    # As WebKit's own runner (run-api-tests retries what fails): a test that fails among the others of its suite and passes
+    # alone is flaky there (another test's processes still alive, say), named but not failed.
+    : > "$log.failed"
+    : > "$log.flaky"
     grep -v -e '^#' -e '^$' "$known" > "$log.known" 2> /dev/null || true
+    while read -r name; do
+        [ -n "$name" ] || continue
+        if [ -s "$log.known" ] && echo "$name" | grep -q -F -f "$log.known"; then
+            echo "$name" >> "$log.failed"
+        elif DYLD_FRAMEWORK_PATH="$release" DYLD_LIBRARY_PATH="$release" __XPC_DYLD_FRAMEWORK_PATH="$release" \
+            __XPC_DYLD_LIBRARY_PATH="$release" "$release/TestWebKitAPI" --filter "${name#TestWebKitAPI.}" < /dev/null 2>&1 |
+            grep -q '^\*\*PASS'; then
+            echo "$name" >> "$log.flaky"
+        else
+            echo "$name" >> "$log.failed"
+        fi
+    done < "$log.first"
+    [ ! -s "$log.flaky" ] || printf 'webkit: failed among the others, passed alone:\n%s\n' "$(cat "$log.flaky")"
     if [ -s "$log.known" ]; then
         unexpected="$(grep -v -F -f "$log.known" "$log.failed" || true)"
     else

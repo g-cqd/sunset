@@ -41,7 +41,7 @@ enum AgentScript {
         "[" + brands.map { "{brand:'\($0.brand)',version:'\($0.version)'}" }.joined(separator: ",") + "]"
     }
 
-    static func install(on configuration: WKWebViewConfiguration) {
+    @MainActor static func install(on configuration: WKWebViewConfiguration) {
         configuration.userContentController.addUserScript(
             WKUserScript(source: source, injectionTime: .atDocumentStart, forMainFrameOnly: false, in: .page)
         )

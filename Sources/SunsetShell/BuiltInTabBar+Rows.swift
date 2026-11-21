@@ -30,7 +30,11 @@ extension BuiltInTabBar {
                 }
             }
         }
-        .onTapGesture { tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) } }
+        .onTapGesture {
+            withAnimation(.easeOut(duration: Design.Motion.foldDuration)) {
+                tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) }
+            }
+        }
         .help(
             folder.isCollapsed
                 ? "Show what \u{201C}\(folder.name)\u{201D} holds" : "Hide what \u{201C}\(folder.name)\u{201D} holds"

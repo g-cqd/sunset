@@ -7,6 +7,7 @@ import Testing
 /// the top of the content pane"): with the sidebar floating, a window with no title bar keeps a strip at its top to drag
 /// it by, and the page was pushed below it.
 @Suite("Where a page starts in its pane")
+@MainActor
 struct WebPaneTopTests {
     /// Roadmap 0055 D (the owner's note n41, his answer "keep, make it float"): the row of the page's own address floats over
     /// the page's top, below the strip, revealed there; the page itself always reaches the top.

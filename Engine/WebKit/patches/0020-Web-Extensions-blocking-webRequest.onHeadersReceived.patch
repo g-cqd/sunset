@@ -479,10 +479,10 @@ index 33f2e690d..c98d935a0 100644
      ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
      ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
-index 93067aa13..9b08104ff 100644
+index 7c2b27aae..230f1e4c9 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.cpp
 +++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
-@@ -14840,6 +14840,20 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
+@@ -14933,6 +14933,20 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
      completionHandler(false, { }, { }, { });
  }
  
@@ -504,10 +504,10 @@ index 93067aa13..9b08104ff 100644
  {
  #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
-index e86ff5c78..3c764e10e 100644
+index 3317820ee..03530c68e 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.h
 +++ b/Source/WebKit/UIProcess/WebPageProxy.h
-@@ -173,6 +173,7 @@ class FontAttributeChanges;
+@@ -176,6 +176,7 @@ class FontAttributeChanges;
  class FontChanges;
  class FrameTreeSyncData;
  class GraphicsLayer;
@@ -515,7 +515,7 @@ index e86ff5c78..3c764e10e 100644
  class ImageBufferBackend;
  class InspectorOverlay;
  class IntPoint;
-@@ -934,6 +935,7 @@ public:
+@@ -937,6 +938,7 @@ public:
  
      void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);
      void resourceLoadWillSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&&);

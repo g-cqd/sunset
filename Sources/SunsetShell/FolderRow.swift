@@ -91,8 +91,9 @@ struct FolderRow: View {
     /// what a click on the row does.
     private var disclosure: some View {
         Button(action: toggle) {
-            Image(systemName: folder.isCollapsed ? "chevron.right" : "chevron.down")
+            Image(systemName: "chevron.right")
                 .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
+                .rotationEffect(.degrees(folder.isCollapsed ? 0 : 90))
                 .foregroundStyle(.secondary)
                 .frame(width: Design.Size.glyphFrame, height: layout.closeButtonSize)
                 .contentShape(.rect)
@@ -107,8 +108,11 @@ struct FolderRow: View {
         return .primary.opacity(hovering ? Design.Fill.hover : 0)
     }
 
+    /// Folded or unfolded in a stroke (n76): its rows slide in or out, the chevron turns.
     private func toggle() {
-        tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) }
+        withAnimation(.easeOut(duration: Design.Motion.foldDuration)) {
+            tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) }
+        }
     }
 
     private func commit() {
