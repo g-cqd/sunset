@@ -39,20 +39,27 @@ extension AppActions {
         }
     }
 
+    /// The installs being fetched or asked about now.
+    private static var underway = InstallsUnderway()
+
     /// What a store's page names (roadmap 0109 E): its package fetched from the store, then read, asked and installed into the
     /// page's profile.
     func install(from link: ExtensionStoreLink, profile: UUID?) {
-        installFetched(profile: profile) { try await ExtensionDownload.fetch(link) }
+        installFetched(String(describing: link), profile: profile) { try await ExtensionDownload.fetch(link) }
     }
 
     /// A package a page offered (a `.crx` or `.xpi` link): fetched, then read, asked and installed.
     func installPackage(at address: URL, profile: UUID?) {
-        installFetched(profile: profile) { try await ExtensionDownload.fetch(package: address) }
+        installFetched(address.absoluteString, profile: profile) { try await ExtensionDownload.fetch(package: address) }
     }
 
-    private func installFetched(profile: UUID?, fetch: @escaping @MainActor () async throws -> URL) {
-        guard let host = ExtensionHosts.shared.host(for: profile) else { return }
+    /// `package` names it: a second request for it while this one is fetched or asked about is dropped (one prompt).
+    private func installFetched(_ package: String, profile: UUID?, fetch: @escaping @MainActor () async throws -> URL) {
+        guard let host = ExtensionHosts.shared.host(for: profile),
+            Self.underway.begin(package, profile: profile?.uuidString)
+        else { return }
         Runtime.live.task { @MainActor in
+            defer { Self.underway.end(package, profile: profile?.uuidString) }
             do {
                 let file = try await fetch()
                 defer { try? FileManager.default.removeItem(at: file) }

@@ -66,7 +66,7 @@ import WebKit
             configuration.shouldBeFocused
         )
         guard let page else { return nil }
-        return ExtensionHosts.shared.windows().first { $0.holds(page) }
+        return ExtensionHosts.shared.window(of: page)
     }
 
     /// The extension's options page (`runtime.openOptionsPage`, its menu's Options), as a tab of the window in front.

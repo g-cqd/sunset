@@ -45,9 +45,9 @@ package struct ExtensionActionsBar: View {
                 ? "\(item.label): for web pages" : item.badge.isEmpty ? item.label : "\(item.label) (\(item.badge))",
             menu: AnyView(menu(item, first: first, last: last)),
             action: { host.perform(item.id, for: page?.extensionTab) },
-            label: { face(item) }
+            label: { face(item, look: .of(available: available(item))) }
         )
-        .disabled(!ExtensionRoom.isAvailable(enabled: item.enabled, inWebTab: page != nil))
+        .disabled(!available(item))
         .background { PopupAnchor { host.anchor(item.id, $0) } }
         .accessibilityLabel(item.label)
     }
@@ -91,7 +91,11 @@ package struct ExtensionActionsBar: View {
         menu.popUp(positioning: nil, at: CGPoint(x: 0, y: puzzle.bounds.maxY + Design.Space.xs), in: puzzle)
     }
 
-    private func face(_ item: ExtensionActionItem) -> some View {
+    private func available(_ item: ExtensionActionItem) -> Bool {
+        ExtensionRoom.isAvailable(enabled: item.enabled, inWebTab: page != nil)
+    }
+
+    private func face(_ item: ExtensionActionItem, look: ExtensionFaceLook) -> some View {
         Group {
             if let icon = item.icon {
                 Image(nsImage: icon).resizable().interpolation(.high)
@@ -114,5 +118,10 @@ package struct ExtensionActionsBar: View {
                     .offset(x: Design.Space.s, y: Design.Space.xs)
             }
         }
+        // Unavailable here: grey, faded, blending with the chrome under it.
+        .saturation(look.saturation)
+        .opacity(look.opacity)
+        .blendMode(look.blends ? .luminosity : .normal)
+        .animation(.smooth(duration: Design.Motion.foldDuration), value: look)
     }
 }

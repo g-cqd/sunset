@@ -24,7 +24,7 @@ package import WebKit
     /// The window it is a tab of.
     package func window(for context: WKWebExtensionContext) -> (any WKWebExtensionWindow)? {
         guard let page else { return nil }
-        return ExtensionHosts.shared.windows().first { $0.holds(page) }
+        return ExtensionHosts.shared.window(of: page)
     }
 
     package func isSelected(for context: WKWebExtensionContext) -> Bool {

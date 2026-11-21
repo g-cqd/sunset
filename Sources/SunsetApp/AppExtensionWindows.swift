@@ -47,7 +47,8 @@ enum AppExtensionWindows {
                     profile: PaneContentKinds.profile(of: tabs),
                     isPrivate: tabs.isPrivateWindow,
                     window: window,
-                    pages: { [weak tabs] in tabs?.contents.values.compactMap { $0 as? WebContent } ?? [] },
+                    // Its tabs, open favorites and pinned tabs (seen: extensions did nothing in a favorite or pinned one).
+                    pages: { [weak tabs] in tabs?.everyContent.compactMap { $0 as? WebContent } ?? [] },
                     shown: { [weak tabs] in tabs?.selectedContent as? WebContent }
                 )
             now[id] = found

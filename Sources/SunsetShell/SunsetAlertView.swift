@@ -53,7 +53,8 @@ package struct SunsetAlertView: View {
         .background { escapeKey }
         .padding(Design.Space.xl)
         .frame(width: Design.Width.panel, alignment: .leading)
-        .surface(surface.panelShape, shadow: .popover)
+        // No panel of its own: it is always in a sheet, which macOS draws (seen: Sunset's panel, its stroke and shadow,
+        // inside the sheet's: two frames one in the other).
     }
 
     /// Escape, when the button it presses already answers Return.

@@ -170,4 +170,19 @@ import Testing
                 && harness.content(pane)?.descriptor == .terminal(directory: "/k")
         )
     }
+
+    /// Seen by the owner (2026-11-21): extensions did not work in favorite and pinned tabs, which the window's tab list
+    /// left out.
+    @Test func `what a window shows includes its open favorites, its tabs, and the shown one`() throws {
+        let harness = window(2)
+        let kept = harness.tabs.workspace.items[1]
+        let keptContent = try #require(harness.content(kept.focused))
+        let tab = try #require(harness.content(harness.tabs.workspace.items[0].focused))
+        harness.tabs.keep(item: kept.id)
+        let shown = harness.tabs.everyContent
+        #expect(shown.contains { $0 === keptContent }, "the open favorite")
+        #expect(shown.contains { $0 === tab }, "the tab")
+        #expect(shown.contains { $0 === harness.tabs.selectedContent }, "the one shown")
+        #expect(shown.count == 2)
+    }
 }

@@ -14,15 +14,13 @@ package enum SunsetAlertSheet {
     ) {
         let sheet = NSPanel(
             contentRect: .zero,
-            styleMask: window == nil ? [.titled, .fullSizeContentView] : [.borderless],
+            styleMask: [.titled, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
         // One panel: the alert's own surface. The sheet only holds it, drawing nothing and casting no shadow of its own (seen:
         // macOS's sheet frame around Sunset's panel, two windows one in the other).
-        sheet.isOpaque = false
-        sheet.backgroundColor = .clear
-        sheet.hasShadow = false
+        // A sheet as macOS draws one: its frame, background and shadow are the only ones.
         sheet.titlebarAppearsTransparent = true
         sheet.titleVisibility = .hidden
         var answered = false
@@ -36,7 +34,6 @@ package enum SunsetAlertSheet {
         let host = NSHostingView(
             rootView: SunsetAlertView(alert: alert, answer: finish)
                 .environment(\.surfaceStyle, style)
-                .padding(Design.Space.l)
         )
         sheet.contentView = host
         sheet.setContentSize(host.fittingSize)
