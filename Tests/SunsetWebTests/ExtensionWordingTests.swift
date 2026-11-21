@@ -29,4 +29,13 @@ struct ExtensionWordingTests {
             ]
         )
     }
+
+    /// ADR-0113: what blocking `webRequest` lets an extension do is said in words at install, its headers included.
+    @Test func `webRequest is worded as what it lets the extension do`() {
+        #expect(ExtensionWording.permission("webRequest") == "See the requests pages make")
+        #expect(
+            ExtensionWording.permission("webRequestBlocking")
+                == "Block, redirect or change requests, and a page's security headers"
+        )
+    }
 }

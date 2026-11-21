@@ -34,6 +34,8 @@ package enum ExtensionWording {
             case "webNavigation": "See which pages you open"
             case "declarativeNetRequest", "declarativeNetRequestWithHostAccess", "declarativeNetRequestFeedback":
                 "Block or change requests pages make"
+            case "webRequest": "See the requests pages make"
+            case "webRequestBlocking": "Block, redirect or change requests, and a page's security headers"
             case "nativeMessaging": "Talk to an app on this Mac"
             case "geolocation": "Know where you are"
             default: "Use “\(name)”"
