@@ -1,8 +1,8 @@
-# 0006 — Threat model (draft, 2026-11-19)
+# 0006 — Threat model (draft, 2026-11-19; refined 2026-11-21)
 
 Status: **draft for the owner**. It replaces roadmap 0012's missing "threat list". Every security decision (ADRs) names the
 adversaries it answers. The evidence behind it: diary 2026-11-19-04 to -07; docs/research/security-realism-2026-11-19.md;
-docs/research/credentials/.
+docs/research/credentials/; docs/research/threat-model-sota-2026-11-21.md (the state of the art, field by field).
 
 ## What Sunset holds (assets)
 
@@ -16,7 +16,8 @@ docs/research/credentials/.
 | D6 | The terminal's sessions: what programs print, scrollback, the shell's environment | Memory; recording (planned) | The process |
 | D7 | The person's input: keystrokes, pastes, clipboard | Memory, the system pasteboard | Clipboard gate; no secure keyboard entry yet |
 | D8 | The device's capabilities a page can borrow: camera, microphone, screen, location, notifications | The system (TCC) and Sunset's answers per site | Permission policies (roadmap 0045, ADR-0061, ADR-0082) |
-| D9 | Sunset's integrity: its code, its block lists, its settings | The app bundle (ad hoc signed); `Blocking/`; `~/.config/sunset` | macOS; HTTPS for lists |
+| D9 | Sunset's integrity: its code, its block lists, its settings | The app bundle (Developer ID, notarised, hardened runtime); `Blocking/`; `~/.config/sunset` | macOS; HTTPS for lists |
+| D10 | **The engine's freshness** (Sunset WebKit only): its WebKit is at least as new as the last WebKit security advisory | The bundled frameworks, rebuilt by `Scripts/webkit.sh update` | Nothing automatic: macOS updates do not reach it. Advisories come every 5–7 weeks, ≈26 fixes each lately |
 
 ## Who attacks (adversaries)
 
@@ -31,7 +32,7 @@ docs/research/credentials/.
 | A7 | **The sync or backup provider**, honest but curious or malicious | Store, withhold, reorder, roll back, delete Sunset's files | Read or forge sealed records (AEAD, the vault key) |
 | A8 | **The supply chain**: dependencies, the build, updates, block list sources | Change what is built or fetched | Dependencies are the owner's own only (§8); no updater exists yet |
 | A9 | **An extension** the person installs (t14) | What its permissions give, in WebKit's extension host | What Sunset's own policy refuses (to be written before the first runs) |
-| A10 | **A compromised WebContent process** (a WebKit exploit) | Act as the page with WebKit's sandbox's rights; maybe lie in messages to Sunset | Leave WebKit's sandbox without a second exploit |
+| A10 | **A compromised WebContent process** (a WebKit exploit) | Act as the page with WebKit's sandbox's rights; maybe lie in messages to Sunset; **read what every frame of its page holds, cross-site frames included** (WebKit's site isolation is off in both builds: a cross-site frame shares its embedder's process) | Leave WebKit's sandbox without a second exploit |
 
 **Out of scope:**
 - root or the kernel;
@@ -60,7 +61,7 @@ docs/research/credentials/.
 | A page phishes a fill, reads secrets from hidden fields | A1 | — (no fill yet) | ADR-0094: the person's act, same origin, shown fields, suggestions drawn outside the page |
 | A page abuses permissions (camera, notifications, pop-ups, sound) | A1 | Answers per site, asked on gesture, limits (0045, ADR-0061, ADR-0077) | One table of every permission's policy and its test |
 | A hostile page exploits WebKit | A1 → A10 | WebKit's sandbox, Apple's updates | Per-navigation hardening (no JIT, `securityRestrictionMode`), HTTPS upgrade (realism study) |
-| Escape sequences act outside the screen | A2 | ADR-0010, ADR-0026, ADR-0027 | Fuzz targets (0012); OSC 52's write default is the owner's call |
+| Escape sequences act outside the screen | A2 | ADR-0010, ADR-0026, ADR-0027: no title, clipboard or font reports, no DECRQSS, bounded replies, REP capped, OSC 7 never looked up | Fuzz targets (0012) with a known-CVE corpus (vt-houdini); **C1 controls inside UTF-8 act as controls** (U+009B is CSI): to refuse by default, as the 2023 research recommends |
 | A paste runs commands the person did not see | A1/A2 | Bracketed paste | A warning for multi-line or control pastes |
 | Keys logged while typing a password in the terminal | A3 | — | Secure keyboard entry |
 | Behaviour read from Sunset's files | A3, A4 | Sealed payloads, 0600/0700, `secure_delete`, the WAL truncated | t48 C (times, counts, kinds, row keys) |
@@ -74,7 +75,10 @@ docs/research/credentials/.
 | Code injected into Sunset | A3 | — (ad hoc, no hardened runtime) | t49 (hardened runtime, library validation) |
 | Lists or updates altered | A6, A8 | Lists over https | A list's size and rule-count bounds; an updater only with signed updates |
 | A download runs unchecked | A1 | Quarantine (Gatekeeper) | — |
-| An extension oversteps | A9 | — | Its policy table before the first extension (t14) |
+| An extension oversteps | A9 | WebKit's permission model; the person grants sites | **Overdue**: extensions run, their policy table is not written. Our WebKit lets an extension with blocking `webRequest` rewrite a document's headers (remove its CSP or frame protection, change cookies), as Firefox does (ADR-0112): the table must name it |
+| Sunset WebKit runs a WebKit with known bugs | A1 → A10 | `Scripts/webkit.sh update` (< 90 s to apply, ≈61 min to build) | A release on every WebKit advisory; the app saying when its engine is older than the last one |
+| Sunset WebKit started with planted loader variables | A3 | Library validation (only Apple's or our team's code); at launch the variables are replaced by its own frameworks and inserted libraries removed, then it restarts | In the first instant, before the restart, frameworks of the launcher's choosing (an older release's WebKit) load: check that the WebKit loaded is the app's own before anything else, or link the bundled frameworks directly |
+| An extension's fill menu clicked through an invisible overlay (DOM-based clickjacking) | A1 | Sunset's own fill UI is outside the page (ADR-0094) | Extensions the person installs are as exposed as in other browsers; Sunset's fill: exact origin by default, subdomains on the person's choice |
 | Data lost by Sunset itself (safety) | — | Atomic writes, unreadable rows never overwritten, unsaved edits kept (ADR-0038) | A vault's factors all lost → the recovery code; backups tested by restoring |
 
 ## How it is kept
