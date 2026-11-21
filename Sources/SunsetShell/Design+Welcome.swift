@@ -18,8 +18,6 @@ extension Design {
         package static let dimmingReach = 0.55
         /// Where the dimming under the buttons starts, as a share of the height.
         package static let buttonsDimmingStart = 0.8
-        /// The primary button's colour: the sky's warm low tone, deep enough for its white label.
-        package static let accent = Color(red: 0.78, green: 0.30, blue: 0.16)
         /// The page change: a cross-fade.
         package static let change = Animation.smooth(duration: 0.3)
     }

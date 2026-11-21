@@ -71,8 +71,8 @@ struct WelcomeView: View {
             Button(step == .done ? "Start Using Sunset" : "Continue") {
                 if step == .done { close() } else { _ = go(1) }
             }
+            // The person's accent colour, as every primary button on the Mac (seen: a custom warm tint read as red).
             .buttonStyle(.glassProminent)
-            .tint(Design.Welcome.accent)
             .keyboardShortcut(.defaultAction)
         }
         .controlSize(.large)
