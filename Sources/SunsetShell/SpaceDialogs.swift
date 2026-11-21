@@ -1,4 +1,5 @@
 import SunsetPane
+import SunsetShellModel
 package import SwiftUI
 
 /// A window's dialogs about Spaces (roadmap 0021 step S-c): the editor of a Space, as a sheet; and what is asked before a
@@ -21,18 +22,22 @@ package struct SpaceDialogs: ViewModifier {
             .sheet(item: Binding(get: { tabs.spaceDraft }, set: { tabs.spaceDraft = $0 })) { draft in
                 SpaceSheet(tabs: tabs, draft: draft)
             }
-            .confirmationDialog(
-                "Delete the Space \u{201C}\(target?.space.name ?? "")\u{201D}?",
+            .sunsetAlert(
                 isPresented: Binding(get: { tabs.deletingSpace != nil }, set: { if !$0 { tabs.deletingSpace = nil } }),
-                titleVisibility: .visible
-            ) {
-                if let neighbour {
-                    Button("Move Its Tabs to \(neighbour.space.name)") { tabs.answerDelete(moving: true) }
+                // Cancel (0) is the default: Return deletes nothing.
+                SunsetAlert(
+                    title: "Delete the Space \u{201C}\(target?.space.name ?? "")\u{201D}?",
+                    message: Self.sentence(tabs: target?.tabs.count ?? 0),
+                    buttons: [.cancel("Cancel"), .destructive("Close Its Tabs")]
+                        + (neighbour.map { [.plain("Move Its Tabs to \($0.space.name)")] } ?? []),
+                    defaultButton: 0
+                )
+            ) { pressed in
+                switch pressed {
+                    case 1: tabs.answerDelete(moving: false)
+                    case 2: tabs.answerDelete(moving: true)
+                    default: tabs.deletingSpace = nil
                 }
-                Button("Close Its Tabs", role: .destructive) { tabs.answerDelete(moving: false) }
-                Button("Cancel", role: .cancel) { tabs.deletingSpace = nil }
-            } message: {
-                Text(Self.sentence(tabs: target?.tabs.count ?? 0))
             }
     }
 

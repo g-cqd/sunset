@@ -35,6 +35,8 @@ import SunsetWeb
         if let input { rows.append(Self.web(input, id: "typed", tabs: tabs, recall: recall)) }
         // The documents Sunset keeps, by title: after what was typed, so that Return does what it did.
         if documents, chip == nil { rows += documentRows(bar, typed: typed, tabs: tabs) }
+        // A terminal or a document made as a page is (n71): last, so that Return still does what it did.
+        rows += newKindRows(bar, typed: chip == nil ? typed : nil, tabs: tabs)
         guard web else { return rows }
         if chip == nil {
             let visited = (history?.suggestions(for: typed) ?? []).filter { $0.url != input?.url?.absoluteString }
@@ -69,6 +71,39 @@ import SunsetWeb
                 guard let file = document.file else { return DocumentRows.stored(document, tabs: tabs) }
                 return file == typedFile ? nil : DocumentRows.file(file, tabs: tabs)
             }
+    }
+
+    /// The new terminal and document rows for `typed` (none with an engine's chip: nil).
+    private static func newKindRows(_ bar: CommandBar, typed: String?, tabs: TabsModel) -> [ChoiceRow] {
+        guard let typed else { return [] }
+        return NewKindChoices.kinds(typed: typed, forNewPage: bar.forNewPage, scopes: tabs.scopes)
+            .map { newKind($0, bar: bar, tabs: tabs) }
+    }
+
+    /// A new terminal or document. From a new tab's bar it takes the empty page's place, as if that tab had been of its
+    /// kind; from elsewhere it is a tab of its own.
+    private static func newKind(_ kind: NewKindChoices.Kind, bar: CommandBar, tabs: TabsModel) -> ChoiceRow {
+        let (title, glyph) =
+            switch kind {
+                case .terminal: ("New Terminal", "terminal")
+                case .document: ("New Document", "doc.text")
+            }
+        let make: @MainActor () -> Void = {
+            let blank = bar.forNewPage && tabs.selectedContent?.isBlankPage == true ? tabs.workspace.selectedItem : nil
+            tabs.bar = nil
+            if let blank { tabs.close(item: blank.id) }
+            switch kind {
+                case .terminal: AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil))
+                case .document: AppActions.shared.newDocument()
+            }
+        }
+        return ChoiceRow(
+            id: "new \(title)",
+            glyph: .symbol(glyph),
+            title: title,
+            accessory: "Tab",
+            actions: [ChoiceAction(title, symbol: "plus.square", perform: make)]
+        )
     }
 
     private static func tab(_ item: Workspace.Item, bar: CommandBar, tabs: TabsModel) -> ChoiceRow {

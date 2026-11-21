@@ -38,7 +38,8 @@ struct TerminalCommands: Commands {
         CommandGroup(replacing: .newItem) {
             Button("New Window") { AppActions.shared.openTerminalWindow() }.keyboardShortcut("n")
             Button("New Tab") { AppActions.shared.newTab() }.keyboardShortcut("t")
-            if scopes.terminal, scopes.web {
+            // Every kind that is on (n69): asked whenever more than one is.
+            if [scopes.terminal, scopes.web, scopes.documents].filter({ $0 }).count > 1 {
                 Button("New Tab of Kind\u{2026}") { AppActions.shared.chooseKind() }
                     .keyboardShortcut("t", modifiers: [.command, .shift])
             }

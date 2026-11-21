@@ -46,6 +46,7 @@ extension SettingsSection {
         symbol: "sidebar.left",
         topics: [
             SettingsTopic("tabs.placement", "Placement", SettingsOption.placement),
+            SettingsTopic("tabs.new", "New tabs", SettingsOption.newTabs),
             SettingsTopic(
                 "tabs.floating",
                 "Floating sidebar",

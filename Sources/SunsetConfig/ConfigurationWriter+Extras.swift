@@ -6,6 +6,9 @@ extension ConfigurationWriter {
         extra["features.terminal"] = String(configuration.features.terminal)
         extra["features.web"] = String(configuration.features.web)
         extra["features.documents"] = String(configuration.features.documents)
+        extra["tabs.startAddress"] = string(configuration.tabs.startAddress)
+        extra["tabs.startFile"] = string(configuration.tabs.startFile)
+        extra["tabs.startProfile"] = string(configuration.tabs.startProfile)
         return extra
     }
 }

@@ -66,6 +66,11 @@ extension Reader {
         ]
     }
 
+    /// The texts of `tabs` (n74).
+    static var tabTexts: [String: WritableKeyPath<Configuration.Tabs, String>] {
+        ["startAddress": \.startAddress, "startFile": \.startFile, "startProfile": \.startProfile]
+    }
+
     mutating func readTabs(_ object: Object) {
         for (key, value) in object {
             switch key {
@@ -74,6 +79,11 @@ extension Reader {
                         configuration.tabs[keyPath: path] = flag
                     }
                 case "bar": section("tabs.bar", value) { reader, bar in reader.readTabBar(bar) }
+                // What opens with no tab (n74): texts, read as written.
+                case _ where Self.tabTexts[key] != nil:
+                    if let path = Self.tabTexts[key], let text = string("tabs.\(key)", value) {
+                        configuration.tabs[keyPath: path] = text
+                    }
                 default: unknown("tabs.\(key)")
             }
         }

@@ -79,6 +79,10 @@ package enum Design {
         package static let row = 36.0
         /// A one-line tab row: its glyph's ink as far from the top and the bottom as from the leading edge (n66, measured 9 pt). Two-line
         /// rows keep `layout.tabPaddingVertical`.
+        /// An alert's icon (an extension's): as macOS's alerts show an app's.
+        package static let alertIcon = 48.0
+        /// A card of the share panel, at least (n72): three to a row in the panel.
+        package static let shareCard = 160.0
         /// The most of a page's dialog message that shows before it scrolls.
         package static let dialogMessage = 220.0
         package static let tabRow = 32.0
@@ -117,6 +121,8 @@ package enum Design {
     package enum Width {
         package static let popover = 320.0
         package static let panel = 360.0
+        /// The share panel (n72): three cards of open tabs side by side.
+        package static let sharePanel = 560.0
         package static let sheet = 420.0
         package static let commandBar = 520.0
         /// The find bar's text field.

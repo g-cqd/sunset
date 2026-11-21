@@ -1,6 +1,7 @@
 import AppKit
 import SunsetRuntime
 import SunsetShell
+import SunsetShellModel
 import SunsetStorage
 import SwiftUI
 
@@ -38,18 +39,22 @@ extension StorageRows {
             }
             Button("Clear\u{2026}") { confirmsClearing = true }
         }
-        .confirmationDialog("Clear all website data?", isPresented: $confirmsClearing) {
-            Button("Clear Website Data", role: .destructive) {
-                WebClearing.clear(since: .distantPast, history: false, websiteData: true, siteZoom: false)
-                runtime.task {
-                    await runtime.sleep(for: .seconds(2))
-                    storage.refresh()
-                }
-            }
-        } message: {
-            Text(
-                "Cookies and what sites have stored are removed. You are signed out of the sites you were signed in to."
+        .sunsetAlert(
+            isPresented: $confirmsClearing,
+            SunsetAlert(
+                title: "Clear all website data?",
+                message: "Cookies and what sites have stored are removed. You are signed out of the sites you were "
+                    + "signed in to.",
+                buttons: [.cancel("Cancel"), .destructive("Clear Website Data")],
+                defaultButton: 0
             )
+        ) { pressed in
+            guard pressed == 1 else { return }
+            WebClearing.clear(since: .distantPast, history: false, websiteData: true, siteZoom: false)
+            runtime.task {
+                await runtime.sleep(for: .seconds(2))
+                storage.refresh()
+            }
         }
         line("Configuration file", "Yours, plain, to read and edit: it is not sealed.") {
             Button("Show in Finder") { reveal(AppConfiguration.shared.path) }.disabled(!AppConfiguration.shared.hasFile)

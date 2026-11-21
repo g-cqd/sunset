@@ -7,6 +7,7 @@ import SunsetMarkdown
 import SunsetPane
 import SunsetRuntime
 import SunsetShell
+import SunsetShellModel
 import SunsetTerminal
 import SunsetWeb
 
@@ -115,18 +116,20 @@ final class QuitGate {
     private func askWithoutWindow(_ found: [QuitLoss]) {
         let documents = found.filter { $0.kind == .document }
         guard !documents.isEmpty else { return answer(quit: true) }
-        let alert = NSAlert()
-        alert.messageText = "Do you want to save your changes before quitting?"
-        alert.informativeText = documents.map(\.text).joined(separator: "\n")
-        alert.addButton(withTitle: "Save All and Quit")
-        alert.addButton(withTitle: "Cancel")
-        alert.addButton(withTitle: "Quit Without Saving")
-        switch alert.runModal() {
-            case .alertFirstButtonReturn: saveAllAndQuit()
-            case .alertThirdButtonReturn: answer(quit: true)
-            default:
-                answer(quit: false)
-                for file in documents.compactMap(\.file) { AppActions.shared.openDocument(at: file) }
+        let alert = SunsetAlert(
+            title: "Do you want to save your changes before quitting?",
+            message: documents.map(\.text).joined(separator: "\n"),
+            buttons: [.plain("Save All and Quit"), .cancel("Cancel"), .destructive("Quit Without Saving")],
+            defaultButton: 0
+        )
+        SunsetAlerts.show(alert) { [self] pressed in
+            switch pressed {
+                case 0: saveAllAndQuit()
+                case 2: answer(quit: true)
+                default:
+                    answer(quit: false)
+                    for file in documents.compactMap(\.file) { AppActions.shared.openDocument(at: file) }
+            }
         }
     }
 

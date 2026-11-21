@@ -137,6 +137,7 @@ struct TerminalScene: View {
         )
         // Outside the dialogs, so that the command bar and the sheets draw their surfaces the window's way too.
         .environment(\.surfaceStyle, SurfaceStyle(configuration))
+        .onChange(of: SurfaceStyle(configuration), initial: true) { SunsetAlerts.apply() }
         .environment(\.monospacedDetail, configuration.tabs.bar.monospacedDirectory)
         .environment(\.savedPicture, savedPicture)
         .environment(\.barBlur, configuredBarBlur)

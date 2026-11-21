@@ -1,6 +1,7 @@
 import SunsetConfig
 import SunsetPane
 import SunsetShell
+import SunsetShellModel
 import SwiftUI
 
 /// Settings > General > What Sunset does (roadmap 0033; ADR-0056): a switch for each scope. Turning one off closes what
@@ -21,18 +22,15 @@ struct FeaturesSettings: View {
                 }
             }
         }
-        .confirmationDialog(
-            "Turn off \(asking.map(Self.name) ?? "")?",
-            isPresented: Binding(get: { asking != nil }, set: { if !$0 { asking = nil } }),
-            titleVisibility: .visible
-        ) {
-            Button("Turn Off and Close", role: .destructive) {
-                if let scope = asking { set(scope, false) }
-                asking = nil
-            }
-            Button("Cancel", role: .cancel) { asking = nil }
-        } message: {
-            Text(asking.map { AppScopes.sentence(closing: $0) } ?? "")
+        .sunsetAlert(item: $asking) { scope in
+            SunsetAlert(
+                title: "Turn off \(Self.name(scope))?",
+                message: AppScopes.sentence(closing: scope),
+                buttons: [.cancel("Cancel"), .destructive("Turn Off and Close")],
+                defaultButton: 0
+            )
+        } answer: { scope, pressed in
+            if pressed == 1 { set(scope, false) }
         }
     }
 

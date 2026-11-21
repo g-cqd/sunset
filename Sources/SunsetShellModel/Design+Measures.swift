@@ -90,6 +90,8 @@ extension Design {
         package static let folderInitialDrop = 1.75
         /// A file's symbol in a download's thumbnail: half the thumbnail.
         package static let thumbnailSymbol = 0.5
+        /// A tab's picture in the share panel: as tall as a window of 16 by 10 is.
+        package static let sharePreviewRatio = 10.0 / 16.0
         /// The per-site rows in Settings > Websites start under the site's name (to confirm by the owner: not measured).
         package static let siteRowsIndent = 26.0
     }

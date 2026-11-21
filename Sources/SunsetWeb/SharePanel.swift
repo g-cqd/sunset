@@ -1,30 +1,38 @@
 import SunsetShell
 import SwiftUI
 
-/// The sheet a page's request to share its screen shows first (ADR-0082): Sunset's tabs, by Space, then "Screen, Window or
-/// App…", macOS's own picker. Nothing is shared until one is chosen; Escape shares nothing.
+/// The sheet a page's request to share its screen shows first (ADR-0082): Sunset's tabs, by Space, each as it looks now
+/// (the owner's note n72), then "Screen, Window or App…", macOS's own picker (which shows its own previews). Nothing is
+/// shared until one is chosen; Escape shares nothing.
 struct SharePanel: View {
     let request: ShareRequest
     let host: String
     @State private var chosen: UUID?
+    @State private var previews: [UUID: CGImage] = [:]
+    @Environment(\.surfaceStyle) private var surface
+
+    private let columns = [GridItem(.adaptive(minimum: Design.Size.shareCard), spacing: Design.Space.m)]
 
     var body: some View {
-        PagePanel {
+        PagePanel(width: Design.Width.sharePanel) {
             Text.sentence("\(host) wants to see a tab or your screen", code: [host])
                 .font(Design.Text.body.weight(.semibold))
             if request.sources.isEmpty {
                 Text("No tab can be shared now.").foregroundStyle(.secondary)
             } else {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: Design.Space.m) {
+                    VStack(alignment: .leading, spacing: Design.Space.l) {
                         ForEach(spaces, id: \.self) { space in
-                            VStack(alignment: .leading, spacing: Design.Space.xs) {
+                            VStack(alignment: .leading, spacing: Design.Space.s) {
                                 Text(space).font(Design.Text.detail).foregroundStyle(.secondary)
-                                ForEach(request.sources.filter { $0.space == space }) { source in row(source) }
+                                LazyVGrid(columns: columns, alignment: .leading, spacing: Design.Space.m) {
+                                    ForEach(request.sources.filter { $0.space == space }) { source in card(source) }
+                                }
                             }
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(Design.Space.xs)
                 }
                 .bouncesOnlyWhenScrolling()
                 .frame(maxHeight: Design.Size.dialogMessage * 2)
@@ -48,6 +56,7 @@ struct SharePanel: View {
                     .disabled(chosen == nil)
             }
         }
+        .task { await takePreviews() }
     }
 
     private var spaces: [String] {
@@ -55,22 +64,55 @@ struct SharePanel: View {
         return request.sources.map(\.space).filter { seen.insert($0).inserted }
     }
 
-    private func row(_ source: ShareSource) -> some View {
-        Button {
+    /// Each tab's picture, one after another (a page's snapshot waits for its next frame); a tab with none keeps its glyph.
+    private func takePreviews() async {
+        for source in request.sources where previews[source.id] == nil {
+            if let image = await WebShare.preview(source.id) { previews[source.id] = image }
+        }
+    }
+
+    private func card(_ source: ShareSource) -> some View {
+        let isChosen = chosen == source.id
+        return Button {
             chosen = source.id
         } label: {
-            HStack(spacing: Design.Space.s) {
-                Image(systemName: chosen == source.id ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(chosen == source.id ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
-                Text(source.label).lineLimit(1)
-                if let host = source.host {
-                    Text(host).code().font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
-                }
-                Spacer(minLength: 0)
+            VStack(alignment: .leading, spacing: Design.Space.xs) {
+                preview(of: source)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: Design.Size.shareCard * Design.Optical.sharePreviewRatio)
+                    .clipShape(RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout), style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout), style: .continuous)
+                            .strokeBorder(
+                                isChosen ? AnyShapeStyle(.tint) : AnyShapeStyle(.separator),
+                                lineWidth: isChosen ? 2 : 1
+                            )
+                    }
+                Text(source.label).lineLimit(1).font(Design.Text.detail)
+                Text(source.host ?? " ").code().font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(1)
             }
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Share \(source.label)")
+        .accessibilityAddTraits(isChosen ? .isSelected : [])
+    }
+
+    @ViewBuilder private func preview(of source: ShareSource) -> some View {
+        if let image = previews[source.id] {
+            Image(decorative: image, scale: 1).resizable().aspectRatio(contentMode: .fill)
+        } else {
+            ZStack {
+                Rectangle().fill(.quaternary)
+                Image(systemName: source.host == nil ? "rectangle.on.rectangle" : "globe")
+                    .font(
+                        .system(
+                            size: Design.Size.shareCard * Design.Optical.thumbnailSymbol
+                                * Design.Optical.sharePreviewRatio
+                        )
+                    )
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }

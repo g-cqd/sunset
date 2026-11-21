@@ -1,5 +1,6 @@
 import AppKit
 import SunsetShell
+import SunsetShellModel
 import SwiftUI
 import WebKit
 
@@ -146,13 +147,18 @@ struct WebPaneView: View {
         .padding(Design.Space.xxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .paneBackdrop(backdrop)
-        .alert("Visit this page anyway?", isPresented: $warning) {
-            Button("Cancel", role: .cancel) {}
-            Button("Visit Anyway", role: .destructive) { content.acceptCertificate() }
-        } message: {
-            Text(
-                "The system does not trust this site's certificate: someone may be pretending to be it. Continue only if you know the site (your own server, for instance). Sunset accepts it for this page until it closes."
+        .sunsetAlert(
+            isPresented: $warning,
+            SunsetAlert(
+                title: "Visit this page anyway?",
+                message: "The system does not trust this site's certificate: someone may be pretending to be it. "
+                    + "Continue only if you know the site (your own server, for instance). Sunset accepts it for this "
+                    + "page until it closes.",
+                buttons: [.cancel("Cancel"), .destructive("Visit Anyway")],
+                defaultButton: 0
             )
+        ) { pressed in
+            if pressed == 1 { content.acceptCertificate() }
         }
     }
 }

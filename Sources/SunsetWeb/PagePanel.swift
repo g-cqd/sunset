@@ -5,6 +5,8 @@ import SwiftUI
 /// pane; `blocking`, over a veil that keeps the page from being used until it is answered (a dialog, a sign-in, a share).
 struct PagePanel<Content: View>: View {
     var blocking = true
+    /// Its width: one for every panel, but a wider one where it shows pictures (the share panel).
+    var width = Design.Width.panel
     @ViewBuilder let content: () -> Content
     @Environment(\.surfaceStyle) private var surface
 
@@ -24,7 +26,7 @@ struct PagePanel<Content: View>: View {
             content()
         }
         .padding(Design.Space.xl)
-        .frame(width: Design.Width.panel, alignment: .leading)
+        .frame(width: width, alignment: .leading)
         .surface(surface.panelShape, shadow: .popover)
         .padding(Design.Space.l)
     }

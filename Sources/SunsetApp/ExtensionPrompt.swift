@@ -1,21 +1,25 @@
 import AppKit
+import SunsetShellModel
 import SunsetWeb
 
-/// "Add “Name”?" with what it may do, as Safari asks (ADR-0109: all or nothing). Cancel first: Return does not install, a click
-/// on "Add Extension" does.
+/// "Add “Name”?" with what it may do, as Safari asks (ADR-0109: all or nothing). Cancel is the default: Return does not
+/// install, a click on "Add Extension" does. In Sunset's look (n73).
 enum ExtensionPrompt {
-    @MainActor static func ask(_ candidate: ExtensionHost.Candidate) -> Bool {
-        let alert = NSAlert()
-        alert.messageText = "Add \u{201C}\(candidate.name)\u{201D}?"
+    @MainActor static func ask(_ candidate: ExtensionHost.Candidate) async -> Bool {
         let lines = candidate.lines
         let what =
             lines.isEmpty
             ? "It asks for nothing more than its own storage."
-            : "It will be able to:\n" + lines.map { "• " + $0 }.joined(separator: "\n")
-        alert.informativeText = [candidate.summary, what].filter { !$0.isEmpty }.joined(separator: "\n\n")
-        if let icon = candidate.icon { alert.icon = icon }
-        alert.addButton(withTitle: "Cancel")
-        alert.addButton(withTitle: "Add Extension")
-        return alert.runModal() == .alertSecondButtonReturn
+            : "It will be able to:\n" + lines.map { "\u{2022} " + $0 }.joined(separator: "\n")
+        let png = candidate.icon.flatMap { $0.tiffRepresentation }.flatMap { NSBitmapImageRep(data: $0) }
+            .flatMap { $0.representation(using: .png, properties: [:]) }
+        let alert = SunsetAlert(
+            title: "Add \u{201C}\(candidate.name)\u{201D}?",
+            message: [candidate.summary, what].filter { !$0.isEmpty }.joined(separator: "\n\n"),
+            icon: png.map { [UInt8]($0) },
+            buttons: [.cancel("Cancel"), .plain("Add Extension")],
+            defaultButton: 0
+        )
+        return await SunsetAlerts.ask(alert) == 1
     }
 }

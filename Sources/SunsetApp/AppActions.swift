@@ -39,20 +39,32 @@ final class AppActions {
     /// The next window opens showing the settings (Cmd-, with no window open).
     var pendingSettings = false
 
-    /// A new tab in the way the configuration shows tabs: a tab of the window with the built-in bar, a new window that joins the group with system tabs,
-    /// a plain window with none. Of the kind the focused pane is (the owner's answer in web step a): a page makes a new empty page, a terminal a terminal;
-    /// `kind` asks for one.
     /// Asks which kind of tab to make (Shift-Cmd-T).
     func chooseKind() {
         TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.choosingKind = true
     }
 
+    /// A new tab in the way the configuration shows tabs: a tab of the window with the built-in bar, a new window that joins
+    /// the group with system tabs, a plain window with none. `kind` asks for one; else `tabs.newTab` decides (n70): the
+    /// focused tab's kind by default (a page makes a new empty page, private if it is; a document a new document; anything
+    /// else a terminal), or always one kind.
     func newTab(kind: PaneDescriptor? = nil) {
         let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
-        // A private page's new tab is private too.
-        let focusedPage = tabs?.selectedContent as? WebContent
-        let samePage = focusedPage.map { $0.isPrivate ? PaneContentKinds.newPrivatePage : PaneContentKinds.newPage }
-        let wanted = kind ?? samePage
+        var wanted = kind
+        if kind == nil {
+            let setting = AppConfiguration.shared.configuration.tabs.newTab
+            switch NewTabKind.resolve(setting, focused: Self.kind(of: tabs?.selectedContent)) {
+                case .page(let isPrivate):
+                    wanted = isPrivate ? PaneContentKinds.newPrivatePage : PaneContentKinds.newPage
+                case .document:
+                    if let tabs, tabs.scopes.documents {
+                        tabs.newDocument()
+                        return
+                    }
+                case .terminal, .other:
+                    break
+            }
+        }
         if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs {
             tabs.newTab(wanted)
         } else if let wanted, wanted.kind != PaneDescriptor.terminalKind {
@@ -68,6 +80,20 @@ final class AppActions {
             tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? TabRegistry.shared.actingWindow : nil
             joinsRemaining = tabParent == nil ? 0 : 1
             openTerminalWindow()
+        }
+    }
+
+    /// The kind of a tab's content, for what Command-T makes.
+    private static func kind(of content: (any PaneContent)?) -> NewTabKind? {
+        guard let content else { return nil }
+        if let page = content as? WebContent { return .page(isPrivate: page.isPrivate) }
+        switch content.descriptor.kind {
+            case DocumentContent.kind:
+                return .document
+            case PaneDescriptor.terminalKind:
+                return .terminal
+            default:
+                return .other
         }
     }
 

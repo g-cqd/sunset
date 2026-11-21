@@ -2,6 +2,7 @@ import AppKit
 import SunsetAppCore
 import SunsetConfig
 import SunsetRuntime
+import SunsetShellModel
 import SunsetStorage
 import SunsetWeb
 import UserNotifications
@@ -40,7 +41,7 @@ import UserNotifications
                 when: downloads.count() == center.items.filter { !$0.isPrivate }.count
             )
         }
-        center.approve = { name, origin in approve(name, origin: origin) }
+        center.approve = { name, origin in await approve(name, origin: origin) }
         center.choose = { name in choose(name) }
         center.onFinished = { finished($0) }
     }
@@ -64,16 +65,16 @@ import UserNotifications
         PageSettingsMaker.permissionDefaults(web)
     }
 
-    private static func approve(_ name: String, origin: URL?) -> Bool {
-        let alert = NSAlert()
-        alert.alertStyle = .warning
-        alert.messageText = "Download \u{201C}\(name)\u{201D}?"
-        alert.informativeText =
-            "It is an app, an installer or a script: opening it runs code on your Mac. It comes from \(origin?.host() ?? "a page"). "
-            + "Download it only if you trust where it comes from."
-        alert.addButton(withTitle: "Cancel")
-        alert.addButton(withTitle: "Download")
-        return alert.runModal() == .alertSecondButtonReturn
+    /// Cancel is the default: Return does not download (n73: in Sunset's look).
+    private static func approve(_ name: String, origin: URL?) async -> Bool {
+        let alert = SunsetAlert(
+            title: "Download \u{201C}\(name)\u{201D}?",
+            message: "It is an app, an installer or a script: opening it runs code on your Mac. It comes from "
+                + "\(origin?.host() ?? "a page"). Download it only if you trust where it comes from.",
+            buttons: [.cancel("Cancel"), .plain("Download")],
+            defaultButton: 0
+        )
+        return await SunsetAlerts.ask(alert) == 1
     }
 
     private static func choose(_ name: String) -> URL? {

@@ -20,6 +20,7 @@ import WebKit
     static func start() {
         WebShare.sources = { asking in sources(except: asking) }
         WebShare.feed = { id in feed(id) }
+        WebShare.preview = { id in await preview(id) }
         WebShare.pickSystem = { await pickSystem() }
         WebShare.otherProfiles = AppConfiguration.shared.configuration.web.shareOtherProfiles
         // Reload As (roadmap 0050 D): every profile, and a profile's page settings.
@@ -127,14 +128,32 @@ import WebKit
         )
     }
 
+    /// The widest preview, in points: the share panel's cards.
+    static let previewWidth = 320.0
+
+    /// A tab as it is now, small, for the share panel (n72): a page as it is drawn (not loaded for it: a page never loaded
+    /// has none), a terminal's last frame, a document's picture.
+    static func preview(_ id: UUID) async -> CGImage? {
+        switch anyContent(id) {
+            case let page as WebContent:
+                guard let view = page.webView, view.window != nil else { return nil }
+                return await snapshot(view, width: min(view.bounds.width, previewWidth))
+            case let terminal as TerminalModel:
+                return terminal.lastSurface.flatMap(image(of:))
+            case is DocumentContent:
+                return await otherFrame(id)
+            default:
+                return nil
+        }
+    }
+
     /// A terminal's last frame (its renderer's surface), a document drawn again from its rows.
     private static func otherFrame(_ id: UUID) async -> CGImage? {
         switch anyContent(id) {
             case let terminal as TerminalModel:
                 // Drawn now, shown or not; a terminal that was never shown has no session or size yet: nothing.
                 await terminal.drawFrame()
-                guard let surface = terminal.lastSurface else { return nil }
-                return images.createCGImage(CIImage(ioSurface: surface), from: CIImage(ioSurface: surface).extent)
+                return terminal.lastSurface.flatMap(image(of:))
             case let document as DocumentContent:
                 document.takePicture()
                 return document.picture
@@ -150,12 +169,22 @@ import WebKit
     private static func frame(_ id: UUID) async -> CGImage? {
         guard let view = content(id)?.webView else { return nil }
         if view.window == nil { OffscreenHost.shared.hold(view) }
-        let snapshot = WKSnapshotConfiguration()
-        snapshot.afterScreenUpdates = false
         // Points; the snapshot is in the screen's pixels: the width asked is halved on a Retina screen.
         let scale = view.window?.backingScaleFactor ?? 2
-        snapshot.snapshotWidth = NSNumber(value: min(view.bounds.width, widestFrame) / scale)
+        return await snapshot(view, width: min(view.bounds.width, widestFrame) / scale)
+    }
+
+    /// A page as it is drawn now, `width` points wide.
+    private static func snapshot(_ view: WKWebView, width: Double) async -> CGImage? {
+        let snapshot = WKSnapshotConfiguration()
+        snapshot.afterScreenUpdates = false
+        snapshot.snapshotWidth = NSNumber(value: width)
         guard let image = try? await view.takeSnapshot(configuration: snapshot) else { return nil }
         return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+    }
+
+    /// A terminal's frame as an image.
+    private static func image(of surface: IOSurface) -> CGImage? {
+        images.createCGImage(CIImage(ioSurface: surface), from: CIImage(ioSurface: surface).extent)
     }
 }

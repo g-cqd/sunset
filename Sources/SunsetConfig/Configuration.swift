@@ -123,15 +123,6 @@ public struct Configuration: Sendable, Equatable {
     }
 
     public struct Tabs: Sendable, Equatable {
-        public enum Mode: String, Sendable, Equatable, CaseIterable {
-            /// One terminal per window.
-            case none
-            /// The system's tabs (and the sidebar, when on, lists the same tabs).
-            case native
-            /// A tab bar in the terminal window itself; native tabs and the sidebar are off.
-            case `internal`
-        }
-
         public struct Bar: Sendable, Equatable {
             public enum Position: String, Sendable, Equatable, CaseIterable {
                 case top, bottom
@@ -151,6 +142,14 @@ public struct Configuration: Sendable, Equatable {
         }
 
         public var mode = Mode.native
+        /// What Command-T makes (the owner's note n70).
+        public var newTab = NewTab.focused
+        /// What opens with no tab (n74): nothing, a kind of tab, `startAddress`, `startFile`; `startProfile` names the
+        /// profile whose first Space a new window opens on (empty: as before).
+        public var start = Start.nothing
+        public var startAddress = ""
+        public var startFile = ""
+        public var startProfile = ""
         /// A tab coloured by its site (the owner's note n56).
         public var siteColor = SiteColor.off
         public var bar = Bar()

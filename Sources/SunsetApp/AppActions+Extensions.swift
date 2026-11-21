@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import SunsetRuntime
+import SunsetShellModel
 import SunsetWeb
 import SunsetWebModel
 import UniformTypeIdentifiers
@@ -31,12 +32,10 @@ extension AppActions {
     func install(_ source: URL, into host: ExtensionHost) async {
         do {
             let candidate = try await ExtensionHost.read(source)
-            guard ExtensionPrompt.ask(candidate) else { return }
+            guard await ExtensionPrompt.ask(candidate) else { return }
             try await host.install(candidate)
         } catch {
-            let alert = NSAlert(error: error)
-            alert.messageText = "This extension cannot be installed"
-            alert.runModal()
+            await Self.tell("This extension cannot be installed", error)
         }
     }
 
@@ -59,10 +58,19 @@ extension AppActions {
                 defer { try? FileManager.default.removeItem(at: file) }
                 await self.install(file, into: host)
             } catch {
-                let alert = NSAlert(error: error)
-                alert.messageText = "This extension could not be fetched"
-                alert.runModal()
+                await Self.tell("This extension could not be fetched", error)
             }
         }
+    }
+
+    /// What went wrong, in Sunset's look (n73).
+    private static func tell(_ title: String, _ error: any Error) async {
+        let alert = SunsetAlert(
+            title: title,
+            message: error.localizedDescription,
+            buttons: [.plain("OK")],
+            defaultButton: 0
+        )
+        _ = await SunsetAlerts.ask(alert)
     }
 }

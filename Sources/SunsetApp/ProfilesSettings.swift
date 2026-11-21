@@ -1,6 +1,7 @@
 import SunsetPane
 import SunsetRuntime
 import SunsetShell
+import SunsetShellModel
 import SunsetWeb
 import SwiftUI
 
@@ -69,18 +70,16 @@ struct ProfilesSettings: View {
                 }
             }
         }
-        .confirmationDialog(
-            "Remove the profile \u{201C}\(removing?.profile.name ?? "")\u{201D}?",
-            isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
-            titleVisibility: .visible
-        ) {
-            Button("Remove and Erase Its Website Data", role: .destructive) { remove() }
-            Button("Cancel", role: .cancel) { removing = nil }
-        } message: {
-            Text(
-                "Its Spaces become \(spaces.profiles.first.profile.name)\u{2019}s and their pages load again. What is "
-                    + "pinned or kept in its Favorites is removed. Its cookies, logins and storage are erased."
+        .sunsetAlert(item: $removing) { shown in
+            SunsetAlert(
+                title: "Remove the profile \u{201C}\(shown.profile.name)\u{201D}?",
+                message: "Its Spaces become \(spaces.profiles.first.profile.name)\u{2019}s and their pages load again. "
+                    + "What is pinned or kept in its Favorites is removed. Its cookies, logins and storage are erased.",
+                buttons: [.cancel("Cancel"), .destructive("Remove and Erase Its Website Data")],
+                defaultButton: 0
             )
+        } answer: { _, pressed in
+            if pressed == 1 { remove() }
         }
     }
 

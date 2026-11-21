@@ -1,5 +1,6 @@
 import SunsetPane
 import SunsetShell
+import SunsetShellModel
 import SunsetWeb
 import SunsetWebModel
 import SwiftUI
@@ -35,16 +36,15 @@ struct ExtensionsSettings: View {
                 }
             }
         }
-        .confirmationDialog(
-            "Remove \u{201C}\(removing?.entry.name ?? "")\u{201D}?",
-            isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } })
-        ) {
-            Button("Remove", role: .destructive) {
-                if let removing { removing.host.remove(removing.entry.id) }
-                removing = nil
-            }
-        } message: {
-            Text("Its data in this profile is erased.")
+        .sunsetAlert(item: $removing) { shown in
+            SunsetAlert(
+                title: "Remove \u{201C}\(shown.entry.name)\u{201D}?",
+                message: "Its data in this profile is erased.",
+                buttons: [.cancel("Cancel"), .destructive("Remove")],
+                defaultButton: 0
+            )
+        } answer: { shown, pressed in
+            if pressed == 1 { shown.host.remove(shown.entry.id) }
         }
     }
 

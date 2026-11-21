@@ -1,4 +1,6 @@
 import AppKit
+import SunsetAppCore
+import SunsetConfig
 import SunsetHost
 import SunsetMarkdown
 import SunsetPane
@@ -49,9 +51,10 @@ extension TerminalScene {
             tabs.show(view)
             return
         }
-        // A new window shows the Space of the window it was asked from (the one in front), else the first.
+        // A new window shows the Space of the window it was asked from (the one in front), else the first of the profile
+        // `tabs.startProfile` names (n74), else the first.
         let asked = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.space
-        let space = asked.flatMap { all.contains($0) ? $0 : nil } ?? all.spaces[0]
+        let space = asked.flatMap { all.contains($0) ? $0 : nil } ?? Self.startSpace(in: all) ?? all.spaces[0]
         let others = space.viewerCount
         tabs.show(space: space, in: all)
         // The Space's tabs that have no content (read from the session, or stopped with its last window) get theirs.
@@ -63,7 +66,7 @@ extension TerminalScene {
             wire(content)
             tabs.adopt(content)
         } else if space.tabs.isEmpty {
-            if nothingAsked { tabs.newTab() }
+            if nothingAsked { startTab(oneTab: false) }
         } else if others > 0 {
             // New Window: nothing selected, and the command bar open on a new tab (the owner, 2026-11-16).
             if nothingAsked { tabs.toggleBar() }
@@ -85,7 +88,34 @@ extension TerminalScene {
         } else if let saved = SessionStore.shared.take() {
             tabs.restore(saved)
         } else if !AppActions.shared.pendingSettings, AppActions.shared.pendingFiles.isEmpty {
-            tabs.newTab()
+            startTab(oneTab: true)
+        }
+    }
+
+    /// What opens with no tab (the owner's note n74, `tabs.start`): nothing by default; a window that is one tab cannot be
+    /// empty, so there it is the command bar on no tab, as with terminals off.
+    private func startTab(oneTab: Bool) {
+        switch StartTab.resolve(AppConfiguration.shared.configuration.tabs) {
+            case .nothing:
+                if oneTab, tabs.bar == nil { tabs.toggleBar() }
+            case .terminal:
+                tabs.newTab(PaneDescriptor.terminal(directory: nil))
+            case .page(let url):
+                let page = url.map { PaneDescriptor(kind: WebContent.kind, state: ["url": $0.absoluteString]) }
+                tabs.newTab(page ?? PaneContentKinds.newPage)
+            case .newDocument:
+                tabs.newDocument()
+            case .file(let path):
+                tabs.open(files: [path])
+        }
+    }
+
+    /// The first Space of the profile `tabs.startProfile` names (n74), by name, any case; nil when it names none.
+    private static func startSpace(in all: SpacesModel) -> SpaceModel? {
+        let named = AppConfiguration.shared.configuration.tabs.startProfile.trimmingCharacters(in: .whitespaces)
+        guard !named.isEmpty else { return nil }
+        return all.spaces.first { space in
+            all.profiles.profile(of: space.space).profile.name.caseInsensitiveCompare(named) == .orderedSame
         }
     }
 

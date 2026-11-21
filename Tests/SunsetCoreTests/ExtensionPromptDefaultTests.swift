@@ -2,16 +2,16 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// The install prompt's yes is never its first button: Return does not install, a click on "Add Extension" does (ADR-0109).
+/// The install prompt's yes is never its default: Return does not install, a click on "Add Extension" does (ADR-0109);
+/// in Sunset's alert (n73), Cancel is button 0 and the default, and only button 1 installs.
 @Suite("The install prompt's default")
 struct ExtensionPromptDefaultTests {
-    @Test func `Cancel first, Add Extension second, and only the second installs`() throws {
+    @Test func `Cancel first and the default, Add Extension second, and only the second installs`() throws {
         let text = try #require(
             RepositoryFiles.swiftFiles(in: ["Sources"]).first { $0.name.hasSuffix("ExtensionPrompt.swift") }?.text
         )
-        let cancel = try #require(text.range(of: #"addButton(withTitle: "Cancel")"#))
-        let add = try #require(text.range(of: #"addButton(withTitle: "Add Extension")"#))
-        #expect(cancel.lowerBound < add.lowerBound)
-        #expect(text.contains("== .alertSecondButtonReturn") && !text.contains("alertFirstButtonReturn"))
+        #expect(text.contains(#"buttons: [.cancel("Cancel"), .plain("Add Extension")]"#))
+        #expect(text.contains("defaultButton: 0"))
+        #expect(text.contains("await SunsetAlerts.ask(alert) == 1"))
     }
 }
