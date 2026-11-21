@@ -1,0 +1,126 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 14:38:21 +0100
+Subject: [PATCH] DOM: test that scattered collection indexing and normalize()
+ take linear time (Sunset P2)
+
+Time from n to 4n: about 4 when linear, 16 when quadratic. Both fail
+before the change that follows (12.5 and 12.1): children[i] at scattered
+positions over 20,000 took 363 ms, normalize() over 20,000 text nodes
+375 ms. A third keeps a Range across an empty and two merged nodes.
+
+diff --git a/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj b/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
+index 1ed40c457..3cf309f82 100644
+--- a/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
++++ b/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
+@@ -610,6 +610,7 @@
+ 				WebKit/WebPage/WebViewInspectorAttachmentTests.swift,
+ 				WebKit/WebPage/WebViewTests.swift,
+ 				WebKit/WKWebView/Challenge.swift,
++				WebKit/WKWebView/DOMLinearTime.swift,
+ 				WebKit/WKWebView/HTMLParserSiblingRuns.swift,
+ 				WebKit/WKWebView/CodingTests.swift,
+ 				WebKit/WKWebView/ContentAutoSizing.swift,
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/DOMLinearTime.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/DOMLinearTime.swift
+new file mode 100644
+index 000000000..c8823fb51
+--- /dev/null
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/DOMLinearTime.swift
+@@ -0,0 +1,97 @@
++// Copyright (C) 2026 Gigi. All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions
++// are met:
++// 1. Redistributions of source code must retain the above copyright
++//    notice, this list of conditions and the following disclaimer.
++// 2. Redistributions in binary form must reproduce the above copyright
++//    notice, this list of conditions and the following disclaimer in the
++//    documentation and/or other materials provided with the distribution.
++//
++// THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
++// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
++// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
++// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
++// BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
++// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
++// THE POSSIBILITY OF SUCH DAMAGE.
++
++import Testing
++import WebKit
++
++// DOM operations that took time in the square of the size where Chrome Canary takes it linearly (diary 2026-11-21-07):
++// indexing a collection at scattered positions walked from the last position each time (20,000 children: 363 ms; Chrome
++// Canary, 4 ms), and normalize() appended each text node's data to the first one by one (20,000 text nodes: 375 ms;
++// Chrome Canary, 10 ms). Measured by how time grows from n to 4n: about 4 when linear, 16 when quadratic.
++@MainActor
++struct DOMLinearTimeTests {
++    private func growth(_ body: String, count: Int) async throws -> Double {
++        let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 400, height: 300))
++        let script = """
++            const time = (n) => {
++                let best = Infinity
++                for (let i = 0; i < 3; i++) {
++                    const host = document.createElement('div')
++                    const run = new Function('host', 'n', body)
++                    const start = performance.now()
++                    run(host, n)
++                    best = Math.min(best, performance.now() - start)
++                }
++                return best
++            }
++            time(count)
++            return time(4 * count) / Math.max(time(count), 1)
++            """
++        let result = try await webView.callAsyncJavaScript(script, arguments: ["body": body, "count": count], contentWorld: .page)
++        return try #require(result as? Double)
++    }
++
++    @Test
++    func collectionIndexedAtScatteredPositionsInLinearTime() async throws {
++        // The children made before the clock starts would count; made by the parser, they cost little next to the walk.
++        let body = """
++            host.innerHTML = '<b></b>'.repeat(n)
++            const children = host.children
++            let sum = 0
++            for (let i = 0; i < n; i++)
++                sum += children[(i * 7919) % n].nodeType
++            return sum
++            """
++        let ratio = try await growth(body, count: 5_000)
++        #expect(ratio < 8, "time grew \(ratio) times for 4 times the children")
++    }
++
++    @Test
++    func normalizeMergesTextNodesInLinearTime() async throws {
++        let body = """
++            for (let i = 0; i < n; i++)
++                host.appendChild(document.createTextNode('x'))
++            host.normalize()
++            return host.firstChild.length
++            """
++        let ratio = try await growth(body, count: 10_000)
++        #expect(ratio < 8, "time grew \(ratio) times for 4 times the text nodes")
++    }
++
++    @Test
++    func normalizeKeepsRangesOnMergedText() async throws {
++        let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 400, height: 300))
++        let script = """
++            const host = document.createElement('div')
++            for (const text of ['ab', '', 'cd', 'ef'])
++                host.appendChild(document.createTextNode(text))
++            const range = document.createRange()
++            range.setStart(host.childNodes[2], 1)
++            range.setEnd(host.childNodes[3], 2)
++            host.normalize()
++            return [host.childNodes.length, host.firstChild.data, range.startContainer === host.firstChild, range.startOffset, range.endOffset, range.toString()].join(' ')
++            """
++        let result = try await webView.callAsyncJavaScript(script, contentWorld: .page) as? String
++        #expect(result == "1 abcdef true 3 6 def")
++    }
++}

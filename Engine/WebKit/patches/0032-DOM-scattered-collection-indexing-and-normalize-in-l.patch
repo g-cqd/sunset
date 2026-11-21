@@ -1,0 +1,146 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 14:38:23 +0100
+Subject: [PATCH] DOM: scattered collection indexing and normalize() in linear
+ time (Sunset P2)
+
+CollectionIndexCache walked from its last position for each index, and
+kept the whole list only once the count was read: indexing at scattered
+positions was quadratic. After four accesses not next to the one before,
+the list is kept, as reading the count keeps it. Sequential access,
+forward or backward, is as before. 20,000 children: 363 ms, now 3 ms.
+
+Node::normalize() appended each merged text node's data one at a time,
+the text growing by a copy each time. When no script can see the steps
+(no mutation event listeners, no character data observers), the data is
+appended at once (as the DOM spec asks), then each merged node's Ranges
+move onto the text and the node goes; otherwise one at a time as before.
+20,000 text nodes: 375 ms, now 1 ms. Ranges, nesting and mutation
+records checked against the system's WebKit.
+
+diff --git a/Source/WebCore/dom/CollectionIndexCache.h b/Source/WebCore/dom/CollectionIndexCache.h
+index b29df0afe..775c2d51a 100644
+--- a/Source/WebCore/dom/CollectionIndexCache.h
++++ b/Source/WebCore/dom/CollectionIndexCache.h
+@@ -68,6 +68,9 @@ private:
+     bool m_nodeCountValid : 1;
+     bool m_listValid : 1;
+     bool m_hasValidCache : 1;
++    // Accesses that were not next to the one before (index walks from the last position): past a few, the whole list is
++    // kept, as reading the count keeps it, so that scattered indexing is not a walk each time.
++    uint8_t m_scatteredAccessCount { 0 };
+ };
+ 
+ template<class Collection, class Iterator> CollectionIndexCache<Collection, Iterator>::CollectionIndexCache()
+diff --git a/Source/WebCore/dom/CollectionIndexCacheInlines.h b/Source/WebCore/dom/CollectionIndexCacheInlines.h
+index 45ad81ec6..1aae7f51d 100644
+--- a/Source/WebCore/dom/CollectionIndexCacheInlines.h
++++ b/Source/WebCore/dom/CollectionIndexCacheInlines.h
+@@ -137,6 +137,20 @@ inline typename CollectionIndexCache<Collection, Iterator>::NodeType* Collection
+     if (m_listValid)
+         return m_cachedList[index].get();
+ 
++    static constexpr uint8_t scatteredAccessesBeforeKeepingList = 4;
++    if (m_current && index + 1 != m_currentIndex && index != m_currentIndex + 1 && index != m_currentIndex
++        && ++m_scatteredAccessCount >= scatteredAccessesBeforeKeepingList) {
++        if (!hasValidCache()) {
++            collection.willValidateIndexCache();
++            m_hasValidCache = true;
++        }
++        m_current = { };
++        m_cachedList.shrink(0);
++        m_nodeCount = computeNodeCountUpdatingListCache(collection);
++        m_nodeCountValid = true;
++        return index < m_nodeCount ? m_cachedList[index].get() : nullptr;
++    }
++
+     if (m_current) {
+         if (index > m_currentIndex)
+             return traverseForwardTo(collection, index);
+@@ -185,6 +199,7 @@ void CollectionIndexCache<Collection, Iterator>::invalidate()
+     m_hasValidCache = false;
+     m_nodeCountValid = false;
+     m_listValid = false;
++    m_scatteredAccessCount = 0;
+     m_cachedList.shrink(0);
+ }
+ 
+diff --git a/Source/WebCore/dom/Node.cpp b/Source/WebCore/dom/Node.cpp
+index d5ab73b22..1133d2a71 100644
+--- a/Source/WebCore/dom/Node.cpp
++++ b/Source/WebCore/dom/Node.cpp
+@@ -767,32 +767,55 @@ ExceptionOr<void> Node::normalize()
+             continue;
+         }
+ 
+-        // Merge text nodes.
+-        while (RefPtr nextSibling = node->nextSibling()) {
+-            if (nextSibling->nodeType() != NodeType::Text)
+-                break;
+-            Ref nextText = uncheckedDowncast<Text>(nextSibling.releaseNonNull());
+-
+-            // Remove empty text nodes.
+-            if (!nextText->length()) {
++        // Merge text nodes. When script may run while data changes or nodes go (mutation events), or may see each change
++        // (character data observers, which get one record per merged node in other engines too): one at a time, re-reading
++        // the siblings after each, as before.
++        if (document->hasListenerType(Document::ListenerType::DOMCharacterDataModified) || document->hasListenerType(Document::ListenerType::DOMNodeRemoved)
++            || document->hasMutationObserversOfType(MutationObserverOptionType::CharacterData)) {
++            while (RefPtr nextSibling = node->nextSibling()) {
++                if (nextSibling->nodeType() != NodeType::Text)
++                    break;
++                Ref nextText = uncheckedDowncast<Text>(nextSibling.releaseNonNull());
++                if (!nextText->length()) {
++                    nextText->remove();
++                    continue;
++                }
++                unsigned offset = text->length();
++                if (nextText->length() > StringImpl::MaxLength - offset) {
++                    return Exception { ExceptionCode::InvalidModificationError,
++                        "Normalized Node String representation exceeds implementation maximum length."_s };
++                }
++                // Update start/end for any affected Ranges before appendData since modifying contents might trigger mutation events that modify ordering.
++                document->textNodesMerged(nextText, offset);
++                text->appendData(nextText->data());
+                 nextText->remove();
+-                continue;
+             }
++            node = NodeTraversal::nextPostOrder(*node);
++            continue;
++        }
+ 
+-            // Both non-empty text nodes. Merge them.
+-            unsigned offset = text->length();
+-
+-            if (nextText->length() > StringImpl::MaxLength - offset) {
++        // Otherwise, unseen, as the DOM spec asks (https://dom.spec.whatwg.org/#dom-node-normalize): the data appended at once (one
++        // at a time, the text grew by a copy for each, quadratic in their number), then each merged node's Ranges moved
++        // onto the text (its previous sibling once those before it are gone) and the node removed.
++        Vector<Ref<Text>> mergedTexts;
++        StringBuilder mergedData;
++        for (RefPtr nextSibling = node->nextSibling(); nextSibling && nextSibling->nodeType() == NodeType::Text; nextSibling = nextSibling->nextSibling()) {
++            Ref nextText = uncheckedDowncast<Text>(*nextSibling);
++            if (nextText->length() > StringImpl::MaxLength - text->length() - mergedData.length()) {
+                 return Exception { ExceptionCode::InvalidModificationError,
+                     "Normalized Node String representation exceeds implementation maximum length."_s };
+             }
++            mergedData.append(nextText->data());
++            mergedTexts.append(WTF::move(nextText));
++        }
+ 
+-            // Update start/end for any affected Ranges before appendData since modifying contents might trigger mutation events that modify ordering.
+-            document->textNodesMerged(nextText, offset);
+-
+-            // FIXME: DOM spec requires contents to be replaced all at once (see https://dom.spec.whatwg.org/#dom-node-normalize).
+-            // Appending once per sibling may trigger mutation events too many times.
+-            text->appendData(nextText->data());            
++        unsigned offset = text->length();
++        if (!mergedData.isEmpty())
++            text->appendData(mergedData.toString());
++        for (auto& nextText : mergedTexts) {
++            if (nextText->length() && nextText->previousSibling() == text.ptr())
++                document->textNodesMerged(nextText, offset);
++            offset += nextText->length();
+             nextText->remove();
+         }
+ 
