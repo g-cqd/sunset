@@ -1,0 +1,65 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 13:45:43 +0100
+Subject: [PATCH] Web Extensions: loads answered from the HTTP cache fire
+ webRequest events (Sunset W10)
+
+For pages with extensions, a cache hit tells its request (unless a
+revalidation sent one already) and its response, as one from the network
+does, fromCache true, as in Chrome; no request-header events, since no
+request was sent. onCompleted for a cache hit now says fromCache too.
+
+diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+index 19bffe223..704ae041d 100644
+--- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
++++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
+@@ -2827,6 +2827,19 @@ void NetworkResourceLoader::continueDidRetrieveCacheEntryAfterLocalNetworkAccess
+         return;
+     }
+ 
++#if ENABLE(WK_WEB_EXTENSIONS)
++    if (m_parameters.pageHasLoadedWebExtensions) {
++        // A load answered from the cache is told to extensions as one from the network is, `fromCache` (as in Chrome): its
++        // request (unless a revalidation sent one already), then its response. No request headers: none were sent.
++        auto loadInfo = resourceLoadInfo();
++        loadInfo.loadedFromCache = true;
++        Ref connection = *NetworkProcess::singleton().parentProcessConnection();
++        if (!m_networkLoad)
++            connection->send(Messages::NetworkProcessProxy::ResourceLoadDidSendRequest(webPageProxyID(), loadInfo, originalRequest(), std::nullopt), 0);
++        connection->send(Messages::NetworkProcessProxy::ResourceLoadDidReceiveResponse(webPageProxyID(), loadInfo, response), 0);
++    }
++#endif
++
+     bool needsContinueDidReceiveResponseMessage = isMainResource();
+     LOADER_RELEASE_LOG("didRetrieveCacheEntry: Sending WebResourceLoader::DidReceiveResponse IPC (needsContinueDidReceiveResponseMessage=%d)", needsContinueDidReceiveResponseMessage);
+     setIsFromPrevalentDomainIfNeeded(response);
+@@ -2858,8 +2871,12 @@ void NetworkResourceLoader::sendResultForCacheEntry(std::unique_ptr<NetworkCache
+         metrics.responseBodyDecodedSize = 0;
+         send(Messages::WebResourceLoader::DidFinishResourceLoad(WTF::move(metrics)));
+ 
+-        if (shouldSendResourceLoadMessages())
+-            protect(NetworkProcess::singleton())->parentProcessConnection()->send(Messages::NetworkProcessProxy::ResourceLoadDidCompleteWithError(webPageProxyID(), resourceLoadInfo(), m_response, { }), 0);
++        if (shouldSendResourceLoadMessages()) {
++            // Answered from the cache, whatever m_response holds (a subresource's is not kept).
++            auto loadInfo = resourceLoadInfo();
++            loadInfo.loadedFromCache = true;
++            protect(NetworkProcess::singleton())->parentProcessConnection()->send(Messages::NetworkProcessProxy::ResourceLoadDidCompleteWithError(webPageProxyID(), loadInfo, m_response, { }), 0);
++        }
+     };
+ 
+     LOADER_RELEASE_LOG("sendResultForCacheEntry:");
+diff --git a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+index bf04ba5b3..1659ae270 100644
+--- a/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
++++ b/Source/WebKit/WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestCocoa.mm
+@@ -553,6 +553,10 @@ void WebExtensionContextProxy::resourceLoadDidSendRequest(WebExtensionTabIdentif
+         });
+     });
+ 
++    // A load answered from the cache sent no request: no request headers to tell.
++    if (resourceLoad.loadedFromCache)
++        return;
++
+     RetainPtr<NSArray> requestHeaders;
+ 
+     auto handleListeners = [&](WebExtensionAPIWebRequestEvent& listeners) {

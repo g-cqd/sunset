@@ -1,0 +1,105 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Sat, 21 Nov 2026 13:45:41 +0100
+Subject: [PATCH] Web Extensions: test that a load answered from the HTTP cache
+ fires webRequest events (Sunset W10)
+
+A script from the disk cache: onBeforeRequest, onHeadersReceived,
+onResponseStarted and onCompleted, fromCache true; no onSendHeaders.
+Fails before the change that follows: only onCompleted, fromCache false.
+
+diff --git a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+index f608bf473..6915e420a 100644
+--- a/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
++++ b/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/WKWebExtensionAPIWebRequest.swift
+@@ -343,6 +343,90 @@ struct WKWebExtensionAPIWebRequestTests {
+         }
+     }
+ 
++    // A load answered from the HTTP cache is told to webRequest listeners, as in Chrome: onBeforeRequest, onHeadersReceived,
++    // onResponseStarted and onCompleted, `fromCache` true; no onBeforeSendHeaders or onSendHeaders (no request was sent).
++    @Test
++    func cachedLoadFiresEvents() async throws {
++        var server = try HTTPServer(protocol: .http) {
++            Route("/", headerFields: ["Content-Type": "text/html"]) {
++                "<script src='/cached.js'></script>"
++            }
++            Route("/cached.js", headerFields: ["Content-Type": "text/javascript", "Cache-Control": "max-age=3600"]) {
++                "window.loads = (window.loads || 0) + 1"
++            }
++        }
++
++        let manifest: [String: Any] = [
++            "manifest_version": 2,
++            "permissions": ["webRequest", "<all_urls>"],
++            "background": [
++                "scripts": ["background.js"],
++                "persistent": true,
++            ],
++        ]
++
++        let backgroundScript = """
++            const seen = []
++            const filter = { urls: ['<all_urls>'] }
++            const record = (name) => (details) => {
++                if (details.url.endsWith('/cached.js'))
++                    seen.push(name + (details.fromCache === undefined ? '' : ':' + details.fromCache))
++            }
++            browser.webRequest.onBeforeRequest.addListener(record('request'), filter)
++            browser.webRequest.onSendHeaders.addListener(record('sendHeaders'), filter)
++            browser.webRequest.onHeadersReceived.addListener(record('headers'), filter)
++            browser.webRequest.onResponseStarted.addListener(record('started'), filter)
++            browser.webRequest.onCompleted.addListener(record('completed'), filter)
++
++            browser.test.onMessage.addListener(() => browser.test.sendMessage('Seen', seen.join(' ')))
++
++            browser.test.sendMessage('Load Tab')
++            """
++
++        // The HTTP cache needs a persistent data store; this one is removed at the end.
++        let storeIdentifier = UUID()
++        let configuration = WKWebExtensionController.Configuration.nonPersistent()
++        configuration.defaultWebsiteDataStore = WKWebsiteDataStore(forIdentifier: storeIdentifier)
++
++        try await server.run { serverConfiguration in
++            let manager = try loadWebExtension(manifest: manifest, resources: ["background.js": backgroundScript], configuration: configuration)
++            let context = try requireNonNil(manager.context)
++            context.setPermissionStatus(.grantedExplicitly, for: serverConfiguration.localhostAddress)
++
++            try await manager.waitForTestMessage("Load Tab")
++
++            let webView = try requireNonNil(manager.defaultTab?.webView)
++            webView.load(URLRequest(url: serverConfiguration.localhostAddress))
++            for _ in 0..<100 where webView.isLoading || webView.url == nil {
++                try await Task.sleep(for: .milliseconds(50))
++            }
++            try await Task.sleep(for: .milliseconds(500))
++
++            // Not the memory cache: the HTTP cache's.
++            await configuration.defaultWebsiteDataStore.removeData(ofTypes: [WKWebsiteDataTypeMemoryCache], modifiedSince: .distantPast)
++
++            let script = """
++                return await new Promise((resolve) => {
++                    const element = document.createElement('script')
++                    element.src = '/cached.js'
++                    element.onload = () => resolve('loaded ' + window.loads)
++                    element.onerror = () => resolve('failed')
++                    document.body.append(element)
++                })
++                """
++            let result = try await webView.callAsyncJavaScript(script, contentWorld: .page) as? String
++            #expect(result == "loaded 2")
++            #expect(serverConfiguration.totalRequests == 2)
++
++            try await Task.sleep(for: .milliseconds(300))
++            manager.sendTestMessage("Seen")
++            let seen = try await manager.waitForTestMessage("Seen") as? String
++            #expect(seen == "request sendHeaders headers:false started:false completed:false request headers:true started:true completed:true")
++        }
++
++        try? await WKWebsiteDataStore.remove(forIdentifier: storeIdentifier)
++    }
++
+     // webRequest.handlerBehaviorChanged() drops the in-memory caches, as in Firefox: a listener that now blocks a script
+     // the page loaded before is asked when the page loads it again (without the call, the memory cache answers).
+     @Test

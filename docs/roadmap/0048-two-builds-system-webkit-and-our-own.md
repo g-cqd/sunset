@@ -41,14 +41,14 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W1 | A namespace's method called apart from it (`const f = browser.runtime.getURL; f("")`) gives `undefined` | the URL | `ExtensionHostTests` "a Firefox extension's background page…" (`detached`) | `ExtensionPageShim`: methods bound |
 | W2 | `i18n.getMessage("")` throws | `""` | same test (`empty`) | `ExtensionPageShim`: wrapped |
 | W3 | Properties added to a namespace object are lost when its wrapper is collected and made again | kept | diary 2026-11-20-15 | `ExtensionPageShim`: wrappers kept alive |
-| W4 | `webNavigation.onCreatedNavigationTarget`, `webRequest.handlerBehaviorChanged` missing | present | same test (`event`, `changed`) | `ExtensionPageShim`: inert stand-ins (no target navigation events, so uBO cannot block pop-ups that way) |
+| W4 | `webNavigation.onCreatedNavigationTarget`, `webRequest.handlerBehaviorChanged` missing | present | same test (`event`, `changed`) | `ExtensionPageShim`: inert stand-ins on the system's WebKit; ours fires the event (0008) and uBO closes a `$popup` (diary 2026-11-21-06) |
 | W5 | `requestIdleCallback` off in an app's views (extension pages included) | on | same test (`idle`) | `SafariParity` on the extension pages' configuration |
 | W7 | `webRequest.addListener` refuses `ws://` and `wss://` match patterns | accepted | uBO on our WebKit (diary 2026-11-20-18) | none |
 | W6 | Blocking `webRequest` (MV2) not supported: `{cancel: true}` ignored, uBlock Origin's network filtering does nothing | supported | probed: diary 2026-11-20-16 | none (uBO Lite filters through `declarativeNetRequest`) |
 
 | W8 | `runtime.onUpdateAvailable` missing | present | uBO on our WebKit (diary 2026-11-20-19) | `ExtensionPageShim`: an inert event (diary 2026-11-20-21) |
 | W9 | A custom scheme (`abp:*`) refused in `menus.create`'s `targetUrlPatterns` | accepted | the same; diary 2026-11-21-06 | Sunset's shim: the patterns WebKit refuses are dropped (an item left with none is not made); not fixed in WebKit |
-| W10 | `webRequest` events missing for loads answered from the HTTP cache | fired | diary 2026-11-20-21 | none (the blocking path is held before the cache: 0012) |
+| W10 | `webRequest` events missing for loads answered from the HTTP cache | fired | diaries 2026-11-20-21, 2026-11-21-06 | patched: 0027, 0028 (request and response events, `fromCache`, as in Chrome; no request-header events). Loads the web process's memory cache answers reach no listener (as in Chrome) |
 | W11 | no `privacy` namespace (uBlock Origin from Firefox throws on every request for its settings: its dashboard showed every box off) | read-only settings, a change refused | diary 2026-11-21-03 | Sunset's shim, read-only, for extensions that ask for `privacy`; not fixed in WebKit, and no setting changes |
 | W12 | no `contentScripts.register` (Firefox): uBlock Origin from Firefox injects a site's scriptlets once by hand and leaves later visits to it, so on a second visit none ran | the scripts run on every matching page | diary 2026-11-21-04 | Sunset's shim, for extensions with `webNavigation` and `tabs`: on commit, not before the page's own scripts as in Firefox; the MAIN world refused. `scripting.registerContentScripts` in WebKit takes files, not code |
 | W6d | An extension's redirect to its own file or to `data:` (a surrogate) fails as a block | internal redirect, loads | diary 2026-11-21-01 | patched: 0015, 0016 |
@@ -57,7 +57,7 @@ WebKit is listed here with its repro; Sunset's stopgap names it, and goes when o
 | W4b | `webRequest.handlerBehaviorChanged` missing (a stand-in in Sunset's shim) | drops the memory cache (Firefox) | diary 2026-11-21-06 | patched: 0025, 0026 (at most 20 calls in 10 minutes) |
 
 Patched in our WebKit (`Engine/WebKit/patches`): W2 (0001), W3 (0002, its test 0003), W1 (0004, its test 0005), W7 (0006,
-0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011, before the cache 0012), redirect (0013, 0014), surrogates (W6d: 0015, 0016), Promises (W6e: 0017, 0018) and documents' response headers (W6c: 0019–0024, ADR-0112), `handlerBehaviorChanged` (W4b: 0025, 0026); request headers not done (no consumer);
+0007), W4's event (0008, 0009; `handlerBehaviorChanged` not yet, W4b), W6's cancel (0010, 0011, before the cache 0012), redirect (0013, 0014), surrogates (W6d: 0015, 0016), Promises (W6e: 0017, 0018) and documents' response headers (W6c: 0019–0024, ADR-0112), `handlerBehaviorChanged` (W4b: 0025, 0026), cache hits' events (W10: 0027, 0028); request headers not done (no consumer);
 uBlock Origin filters on our WebKit with Sunset's shim; W1 and W3 redone after the owner's audit, measured against the base (diary 2026-11-20-20); the
 stopgaps in `ExtensionPageShim` stay for the system's WebKit.
 
