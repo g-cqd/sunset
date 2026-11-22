@@ -53,6 +53,11 @@ extension AgentScript {
           remove(['standalone'], navigator);
           remove(['GestureEvent', 'WebKitPoint', ...force], window);
           remove(force, HTMLElement.prototype, Document.prototype);
+          // Chrome and Firefox play HLS through Media Source Extensions only: they offer no native HLS (t15).
+          const canPlay = HTMLMediaElement.prototype.canPlayType;
+          const hls = /^\s*application\/(vnd\.apple\.mpegurl|x-mpegurl)\s*(;|$)/i;
+          define(HTMLMediaElement.prototype, 'canPlayType', { writable: true, enumerable: true, configurable: true,
+            value: fn('canPlayType', function (type) { return hls.test(String(type)) ? '' : Reflect.apply(canPlay, this, [type]); }, 1) });
           if (firefox) {
             property(Navigator.prototype, 'vendor', () => '');
             property(Navigator.prototype, 'productSub', () => '20100101');

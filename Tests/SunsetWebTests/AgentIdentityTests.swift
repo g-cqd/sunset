@@ -94,4 +94,20 @@ struct AgentIdentityTests {
         #expect(firefox == ["0", "0", "0", "0", "1"], "Firefox writes it as WebKit")
         #expect(safari == ["1", "1", "1", "1", "1"])
     }
+
+    /// Chrome and Firefox play HLS through Media Source Extensions, not natively: their `canPlayType` says "" for it, where
+    /// WebKit says "maybe" (t15, measured 2026-11-21). Other types answer as the engine does.
+    @Test func `shown another browser, native HLS is not offered; Safari offers it`() async throws {
+        let probe = """
+            const v = document.createElement('video');
+            return [v.canPlayType('application/vnd.apple.mpegurl'), v.canPlayType('application/x-mpegURL'),
+              v.canPlayType('video/mp4; codecs="avc1.42E01E"') !== ''];
+            """
+        let chrome = try await read(probe, as: .chrome)
+        let firefox = try await read(probe, as: .firefox)
+        let safari = try await read(probe, as: .safari)
+        #expect(chrome == ["", "", "1"])
+        #expect(firefox == ["", "", "1"])
+        #expect(safari[0] != "" && safari[2] == "1")
+    }
 }
