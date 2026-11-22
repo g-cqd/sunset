@@ -10,8 +10,10 @@ import SwiftUI
 final class PasswordsContent: PaneContent, PaneViewMaking {
     static let kind = PaneDescriptor.passwordsKind
 
-    /// The entry shown.
+    /// The entry shown; none chosen yet, the first.
     var selected: UUID?
+    /// The entry shown opens to be edited (one just made).
+    @ObservationIgnored var editsOnOpen = false
     @ObservationIgnored var onExit: () -> Void = {}
     @ObservationIgnored var onFocusRequest: () -> Void = {}
     @ObservationIgnored var onChange: () -> Void = {}

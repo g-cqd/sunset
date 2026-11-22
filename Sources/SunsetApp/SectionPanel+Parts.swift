@@ -58,7 +58,7 @@ extension SectionPanel {
                     .font(Design.Text.detail)
                     .disabled(DownloadCenter.shared.items.allSatisfy { $0.state == .running })
             case .passwords:
-                PasswordsActions(model: AppPasswords.model, size: buttons.metrics.size)
+                PasswordsActions(model: AppPasswords.model, tabs: tabs, size: buttons.metrics.size)
             case .history, .tabs, .settings:
                 EmptyView()
         }

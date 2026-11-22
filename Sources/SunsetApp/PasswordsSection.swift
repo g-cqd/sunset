@@ -1,6 +1,7 @@
 import SunsetAppCore
 import SunsetCredentials
 import SunsetMetrics
+import SunsetPane
 import SunsetShell
 import SwiftUI
 
@@ -11,8 +12,6 @@ struct PasswordsSection: View {
     let query: String
     /// The window: where an entry chosen opens.
     let tabs: TabsModel?
-    @State private var password = ""
-    @State private var refused = false
     private let model = AppPasswords.model
 
     var body: some View {
@@ -23,7 +22,6 @@ struct PasswordsSection: View {
                 case .unlocked: list
             }
         }
-        .padding(.horizontal, layout.tabPaddingLeading)
         .background(CaptureExclusion(excluded: model.state == .unlocked))
     }
 
@@ -34,24 +32,17 @@ struct PasswordsSection: View {
                 .fixedSize(horizontal: false, vertical: true)
             Button("Set Up Passwords\u{2026}") { PasswordsSetupWindow.present(model: model) }
         }
+        .padding(.horizontal, layout.tabPaddingLeading)
         .padding(.top, Design.Space.m)
     }
 
+    /// Locked: said, and unlocked on the vault's page, where there is room for it.
     private var unlock: some View {
         VStack(alignment: .leading, spacing: Design.Space.s) {
-            if model.hasTouchID {
-                Button("Unlock with Touch ID") { refused = !model.unlockWithTouchID() }
-            }
-            SecureField("Master Password", text: $password)
-                .textFieldStyle(.roundedBorder)
-                .onSubmit {
-                    refused = !model.unlock(password: password)
-                    password = ""
-                }
-            if refused {
-                Text("That does not unlock this vault.").font(Design.Text.detail).foregroundStyle(.red)
-            }
+            Text("Your passwords are locked.").foregroundStyle(.secondary)
+            Button("Unlock\u{2026}") { tabs?.showSingle(.passwords) }
         }
+        .padding(.horizontal, layout.tabPaddingLeading)
         .padding(.top, Design.Space.m)
     }
 
@@ -60,6 +51,7 @@ struct PasswordsSection: View {
         if found.isEmpty {
             Text(model.entries.isEmpty ? "No entries yet: + makes one" : "No entry matches")
                 .foregroundStyle(.secondary)
+                .padding(.horizontal, layout.tabPaddingLeading)
                 .padding(.top, Design.Space.m)
         }
         ForEach(found) { entry in

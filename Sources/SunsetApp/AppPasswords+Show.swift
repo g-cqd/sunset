@@ -8,8 +8,10 @@ extension AppPasswords {
         tabs.single(kind: PasswordsContent.kind) as? PasswordsContent
     }
 
-    static func show(_ entry: VaultEntry.ID, in tabs: TabsModel) {
+    /// The page on `entry`; `editing`: ready to be filled in (a new one).
+    static func show(_ entry: VaultEntry.ID, in tabs: TabsModel, editing: Bool = false) {
         let shown = tabs.showSingle(.passwords) as? PasswordsContent
+        shown?.editsOnOpen = editing
         shown?.selected = entry
     }
 }

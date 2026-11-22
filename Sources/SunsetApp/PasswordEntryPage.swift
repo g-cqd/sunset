@@ -4,62 +4,107 @@ import SunsetRuntime
 import SunsetShell
 import SwiftUI
 
-/// An entry, edited on its page (roadmap 0092 B): its title, then each section's fields in a native list whose rows are
-/// reordered by dragging; a secret field shows dots only, copied or filled with a generated password from its menu; a
-/// problem said under its field. Saved or put back; a required field left empty keeps it from being saved.
+/// An entry on the vault's page, laid out as a page of Settings (a grouped form, as wide as theirs, centred): a header
+/// with its picture, title and kind, Edit at its end; each section's fields; its notes. Read, a field is its value (a
+/// secret one as dots), copied with a click; empty ones are left out. Edited, each is a field of the form, the rows of a
+/// section reordered by dragging them, removed or filled with a generated password from their menu; Done saves, Cancel
+/// puts it back. A required field left empty keeps it from being saved.
 struct PasswordEntryPage: View {
     let model: PasswordsModel
     @State private var draft: EntryDraft
+    @State private var editing = false
 
-    init(entry: VaultEntry, model: PasswordsModel) {
+    init(entry: VaultEntry, model: PasswordsModel, editing: Bool = false) {
         self.model = model
         _draft = State(initialValue: EntryDraft(entry))
+        _editing = State(initialValue: editing)
     }
 
     /// The generator's recipe: twenty characters of every class.
     static let recipe = PasswordRecipe(length: 20, classes: CharacterClass.allCases)
 
     var body: some View {
-        List {
+        Form {
             Section {
-                TextField("Title", text: $draft.entry.title).font(Design.Text.title).textFieldStyle(.plain)
+                PasswordEntryHeader(
+                    entry: $draft.entry,
+                    editing: editing,
+                    canSave: draft.canSave(now: Runtime.live.now()) || !draft.isChanged,
+                    edit: { editing = true },
+                    cancel: cancel,
+                    done: done
+                )
             }
             ForEach(draft.entry.sections) { section in
-                Section(section.name) {
-                    ForEach(section.fields) { field in
-                        PasswordFieldRow(
-                            field: field,
-                            problem: problem(field),
-                            value: binding(field.id),
-                            generate: { draft.generate(into: field.id, recipe: Self.recipe) },
-                            remove: { draft.entry.remove(field.id) }
-                        )
-                    }
-                    .onMove { draft.move(in: section.id, from: $0, to: $1) }
+                fields(of: section)
+            }
+            if !editing, isBlank {
+                Section {
+                    Text("Nothing filled in yet. Edit to add its details.").foregroundStyle(.secondary)
+                }
+            }
+            notes
+            if editing { addField }
+        }
+        .formStyle(.grouped)
+        .scrollContentBackground(.hidden)
+        .frame(maxWidth: Design.Size.settingsPage)
+        .frame(maxWidth: .infinity)
+        .animation(.smooth, value: editing)
+    }
+
+    @ViewBuilder private func fields(of section: EntrySection) -> some View {
+        let shown = editing ? section.fields : section.fields.filter { !$0.value.isEmpty }
+        if !shown.isEmpty {
+            Section {
+                ForEach(shown) { field in
+                    PasswordFieldRow(
+                        field: field,
+                        editing: editing,
+                        problem: problem(field),
+                        value: binding(field.id),
+                        generate: { draft.generate(into: field.id, recipe: Self.recipe) },
+                        remove: { draft.entry.remove(field.id) }
+                    )
+                }
+                .onMove(perform: editing ? { draft.move(in: section.id, from: $0, to: $1) } : nil)
+            }
+        }
+    }
+
+    @ViewBuilder private var notes: some View {
+        if editing || !draft.entry.note.isEmpty {
+            Section("Notes") {
+                if editing {
+                    TextField("Notes", text: $draft.entry.note, prompt: Text("Optional"), axis: .vertical)
+                        .labelsHidden()
+                        .lineLimit(3 ... 12)
+                } else {
+                    Text(draft.entry.note).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
-        .listStyle(.inset)
-        .scrollContentBackground(.hidden)
-        .safeAreaInset(edge: .bottom) { buttons }
     }
 
-    private var buttons: some View {
-        HStack(spacing: Design.Space.s) {
-            Menu("Add Field") {
+    private var addField: some View {
+        Section {
+            Menu {
                 ForEach(EntryDraft.addable, id: \.name) { item in
                     Button(item.name) { draft.add(item.kind) }
                 }
+            } label: {
+                Label("Add Field", systemImage: "plus")
             }
+            .menuStyle(.button)
+            .buttonStyle(.borderless)
+            .menuIndicator(.hidden)
             .fixedSize()
-            Spacer(minLength: 0)
-            Button("Revert") { draft.revert() }.disabled(!draft.isChanged)
-            Button("Save") { save() }
-                .keyboardShortcut("s")
-                .disabled(!draft.canSave(now: Runtime.live.now()))
         }
-        .padding(Design.Space.m)
-        .background(.bar)
+    }
+
+    /// Nothing to read: no field holds a value, and no note.
+    private var isBlank: Bool {
+        draft.entry.note.isEmpty && draft.entry.sections.allSatisfy { $0.fields.allSatisfy(\.value.isEmpty) }
     }
 
     private func binding(_ field: EntryField.ID) -> Binding<String> {
@@ -74,8 +119,16 @@ struct PasswordEntryPage: View {
             .map { FieldWording.problem($0.constraint) }
     }
 
-    private func save() {
-        guard (try? model.save(draft.entry)) != nil else { return }
-        draft.saved()
+    private func cancel() {
+        draft.revert()
+        editing = false
+    }
+
+    private func done() {
+        if draft.isChanged {
+            guard (try? model.save(draft.entry)) != nil else { return }
+            draft.saved()
+        }
+        editing = false
     }
 }
