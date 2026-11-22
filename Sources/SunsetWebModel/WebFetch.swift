@@ -1,43 +1,49 @@
 package import Foundation
+internal import Network
 
-/// What Sunset fetches for a page (a site's icon, a notification's picture): the page names it, so it is the page's input
-/// (white paper §9). Only from the web or a `data:` address (never a file of the Mac), as the browser the site is shown,
-/// without cookies, and never more than a limit is read.
+/// What Sunset fetches itself for a page (a site's icon, a notification's picture) or for the user (a blocking list): a
+/// page's input (white paper §9). Only the web or a `data:` address, never a file of the Mac; never more than `limit`; through
+/// the proxy pages go through; and, for a page, only public addresses or the page's own host (as Private Network Access
+/// keeps a public page from this Mac and the local network: the outside audit's HIGH-01, 2026-11-22).
 package enum WebFetch {
-    /// Whether a page may have Sunset fetch `address`.
     package static func allows(_ address: URL) -> Bool {
         ["http", "https", "data"].contains(address.scheme?.lowercased() ?? "")
     }
 
-    /// The bytes at `address` and the response; nil when it may not be fetched, failed, or is longer than `limit`.
-    /// - Parameters:
-    ///   - address: What the page named.
-    ///   - agent: The user agent the page's site is shown.
-    ///   - limit: The most bytes read.
-    /// - Returns: The bytes and the response, or nil.
-    package static func data(_ address: URL, agent: String, limit: Int) async -> (data: Data, response: URLResponse)? {
-        guard allows(address) else { return nil }
+    /// Fetches `address` for `page` (nil: an address the user gave, not a page's), through `proxy` when there is one.
+    @concurrent package static func data(
+        _ address: URL,
+        agent: String,
+        limit: Int,
+        for page: URL?,
+        proxy: WebProxy? = nil
+    ) async -> (data: Data, response: URLResponse)? {
+        guard allows(address), reaches(address, for: page, proxied: proxy != nil) else { return nil }
         var request = URLRequest(url: address.absoluteURL)
         request.setValue(agent, forHTTPHeaderField: "User-Agent")
-        let session = URLSession(configuration: .ephemeral)
+        let configuration = URLSessionConfiguration.ephemeral
+        if let proxy { configuration.proxyConfigurations = [proxy.configuration] }
+        let delegate = FetchDelegate(limit: limit, page: page, proxied: proxy != nil)
+        let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
         defer { session.finishTasksAndInvalidate() }
-        guard let (bytes, response) = try? await session.bytes(for: request) else { return nil }
-        if response.expectedContentLength > Int64(limit) {
-            bytes.task.cancel()
-            return nil
+        return await delegate.run(session.dataTask(with: request))
+    }
+
+    /// Whether `address` may be fetched for `page`: a `data:` address, any address the user gave, the page's own host, or a
+    /// host at public addresses only. Through a proxy a name is not looked up here (the proxy does, and the lookup would tell
+    /// the local network what the proxy is there to hide); an address written as one is still checked. Blocks while a name
+    /// is looked up.
+    package static func reaches(_ address: URL, for page: URL?, proxied: Bool) -> Bool {
+        let scheme = address.scheme?.lowercased() ?? ""
+        guard scheme != "data" else { return true }
+        guard ["http", "https"].contains(scheme), let host = address.host()?.lowercased(), !host.isEmpty else {
+            return false
         }
-        var data = Data()
-        do {
-            for try await byte in bytes {
-                guard data.count < limit else {
-                    bytes.task.cancel()
-                    return nil
-                }
-                data.append(byte)
-            }
-        } catch {
-            return nil
-        }
-        return (data, response)
+        guard let page else { return true }
+        if host == page.host()?.lowercased() { return true }
+        if let literal = PublicAddress.literal(host) { return PublicAddress.isPublic(literal) }
+        if proxied { return true }
+        let resolved = PublicAddress.resolve(host)
+        return !resolved.isEmpty && resolved.allSatisfy(PublicAddress.isPublic)
     }
 }

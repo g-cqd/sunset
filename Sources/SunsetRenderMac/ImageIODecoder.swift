@@ -20,6 +20,11 @@ public struct ImageIODecoder: ImageDecoding {
             let source = CGImageSourceCreateWithData(data, nil),
             CGImageSourceGetType(source) as String? == "public.png",
             CGImageSourceGetCount(source) > 0,
+            // Its size from its header, checked before ImageIO makes the image (the outside audit's MED-03).
+            let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+            let declaredWidth = properties[kCGImagePropertyPixelWidth] as? Int,
+            let declaredHeight = properties[kCGImagePropertyPixelHeight] as? Int,
+            declaredWidth > 0, declaredHeight > 0, declaredWidth * declaredHeight <= Self.pixelLimit,
             let image = CGImageSourceCreateImageAtIndex(source, 0, nil),
             image.width > 0, image.height > 0, image.width * image.height <= Self.pixelLimit,
             let space = CGColorSpace(name: CGColorSpace.sRGB)

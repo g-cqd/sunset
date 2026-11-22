@@ -1,20 +1,7 @@
-package import Network
 package import WebKit
 
-/// A proxy given to a store of pages: Network's form of it, and the store's own list.
+/// A proxy given to a store of pages: the store's own list (its Network form: `WebProxy+Network`).
 extension WebProxy {
-    /// The configuration pages are given, and the check (`ProxyCheck`) too.
-    package var configuration: ProxyConfiguration {
-        let endpoint = NWEndpoint.hostPort(
-            host: NWEndpoint.Host(host),
-            port: NWEndpoint.Port(rawValue: UInt16(port)) ?? .any
-        )
-        return switch kind {
-            case .http: ProxyConfiguration(httpCONNECTProxy: endpoint)
-            case .socks: ProxyConfiguration(socksv5Proxy: endpoint)
-        }
-    }
-
     /// Gives the store this proxy; every page of it goes through it.
     @MainActor package func apply(to store: WKWebsiteDataStore) {
         store.proxyConfigurations = [configuration]

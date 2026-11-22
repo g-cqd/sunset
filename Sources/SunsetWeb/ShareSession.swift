@@ -45,6 +45,13 @@ package final class ShareSession {
     }
 
     /// Stops the share; the page's track ends unless it ended it itself.
+    /// The page says its track ended: believed from the origin that asked only (a frame of another site in the page cannot
+    /// end the call's share: the outside audit's HIGH-05).
+    package func ended(by origin: String?) {
+        guard origin != nil, origin == asker else { return }
+        stop(.stopped, tellPage: false)
+    }
+
     package func stop(_ why: TabShare.Stop, tellPage: Bool = true) {
         guard stopped == nil else { return }
         stopped = why

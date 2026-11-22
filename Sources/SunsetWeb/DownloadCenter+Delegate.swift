@@ -49,8 +49,12 @@ extension DownloadCenter: WKDownloadDelegate {
             FileManager.default.fileExists(atPath: folder.appending(path: $0).path)
         }
         let final = folder.appending(path: free)
-        try? FileManager.default.moveItem(at: partial, to: final)
-        Quarantine.mark(final, source: item.source, origin: item.origin)
+        // Quarantined before it has its name, so that it is never in the folder without it (the outside audit's MED-04).
+        Quarantine.mark(partial, source: item.source, origin: item.origin)
+        guard (try? FileManager.default.moveItem(at: partial, to: final)) != nil else {
+            item.state = .failed
+            return
+        }
         item.name = free
         item.destination = final
         item.state = .finished
@@ -111,8 +115,14 @@ extension DownloadCenter {
             FileManager.default.fileExists(atPath: place.appending(path: $0).path)
         }
         let final = place.appending(path: free)
-        guard (try? saved.data.write(to: final, options: .withoutOverwriting)) != nil else { return nil }
-        Quarantine.mark(final, source: saved.source, origin: saved.origin)
+        // Written and quarantined under another name, then given its own: never in the folder unquarantined.
+        let writing = place.appending(path: ".\(free).sunset-\(UUID().uuidString)")
+        guard (try? saved.data.write(to: writing, options: .withoutOverwriting)) != nil else { return nil }
+        Quarantine.mark(writing, source: saved.source, origin: saved.origin)
+        guard (try? FileManager.default.moveItem(at: writing, to: final)) != nil else {
+            try? FileManager.default.removeItem(at: writing)
+            return nil
+        }
         let item = DownloadItem(source: saved.source, origin: saved.origin, name: free)
         item.isPrivate = saved.isPrivate
         item.destination = final

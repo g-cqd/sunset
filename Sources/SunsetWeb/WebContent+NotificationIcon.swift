@@ -12,7 +12,13 @@ extension WebContent {
         guard let address = note.icon, !isPrivate || address.scheme == "data" else { return nil }
         let agent = try? await webView?.evaluateJavaScript("navigator.userAgent") as? String
         guard let agent, !agent.isEmpty,
-            let (data, _) = await WebFetch.data(address, agent: agent, limit: Self.notificationIconLimit),
+            let (data, _) = await WebFetch.data(
+                address,
+                agent: agent,
+                limit: Self.notificationIconLimit,
+                for: url,
+                proxy: settings.proxy ?? WebProxy.current
+            ),
             let png = FaviconStore.small(data, side: 256)
         else { return nil }
         let file = FileManager.default.temporaryDirectory.appendingPathComponent(

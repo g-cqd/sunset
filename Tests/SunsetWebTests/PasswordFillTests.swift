@@ -76,10 +76,12 @@ final class PasswordFillTests {
         }
     }
 
-    private func page(private isPrivate: Bool = false) async throws -> (WebContent, WKWebView, Host) {
+    func page(private isPrivate: Bool = false, site: String = "example.com") async throws -> (
+        WebContent, WKWebView, Host
+    ) {
         var settings = WebSettings(applicationName: "x")
         if isPrivate { settings.privacy = PagePrivacy() }
-        let page = WebContent(url: URL(string: "https://example.com/"), settings: settings)
+        let page = WebContent(url: URL(string: "https://\(site)/"), settings: settings)
         let host = Host()
         host.page = page
         hosts.append(host)
@@ -92,7 +94,7 @@ final class PasswordFillTests {
         window.isReleasedWhenClosed = false
         window.contentView = view
         windows.append(window)
-        view.loadHTMLString(Self.page, baseURL: URL(string: "https://example.com/signin"))
+        view.loadHTMLString(Self.page, baseURL: URL(string: "https://\(site)/signin"))
         await until { !page.isLoading && page.webView?.url != nil }
         _ = try await view.callAsyncJavaScript("await new Promise(r => setTimeout(r, 50))", contentWorld: .page)
         return (page, view, host)
@@ -108,7 +110,7 @@ final class PasswordFillTests {
 
     /// Fills the form, then presses Return in its password field as the person would: a key from AppKit, which the page
     /// sees as real (what a script makes up is not believed).
-    private func signIn(in view: WKWebView) async throws {
+    func signIn(in view: WKWebView) async throws {
         _ = try await view.callAsyncJavaScript(
             "document.getElementById('u').value = 'ada'; document.getElementById('p').value = 'pw1'; document.getElementById('p').focus()",
             contentWorld: .page

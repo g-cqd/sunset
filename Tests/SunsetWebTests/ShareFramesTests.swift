@@ -29,6 +29,17 @@ struct ShareFramesTests {
         share.stop(.stopped)
     }
 
+    @Test func `only the asker ends it: another origin's "ended" is not believed`() async {
+        let share = session()
+        share.ended(by: "https://ads.example:0")
+        share.ended(by: nil)
+        share.deliver("still")
+        #expect(await share.pull(from: "https://call.example:0") == "still")
+        share.ended(by: "https://call.example:0")
+        share.deliver("late")
+        #expect(await share.pull(from: "https://call.example:0") == nil)
+    }
+
     @Test func `nothing once the share stops`() async {
         let share = session()
         share.deliver("kept")

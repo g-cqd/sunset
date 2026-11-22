@@ -33,7 +33,9 @@ public struct DrawFrame: Sendable {
         translucent: Bool,
         changedPixelRows: ClosedRange<Int>?
     ) {
-        precondition(
+        // Checked in debug builds and tests only: a walk over every operation of every frame (the outside audit's PERF-06);
+        // an operation naming nothing would still stop at the table's bounds check.
+        assert(
             ops.allSatisfy { op in op.image.map { Int($0) < images.count } ?? (Int(op.glyph) <= glyphs.count) },
             "every glyph or image operation names one of the frame's"
         )

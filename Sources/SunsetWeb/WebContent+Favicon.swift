@@ -60,8 +60,9 @@ extension WebContent {
     private func fetchFavicon(_ address: URL?, host: String, agent: String?) {
         // Not asked for at all when the page did not say what it is: better no icon than a request that names Sunset.
         guard let address, let agent, !agent.isEmpty else { return }
+        let (page, proxy) = (url, settings.proxy ?? WebProxy.current)
         runtime.task { @MainActor [weak self, runtime] in
-            let fetched = await WebFetch.data(address, agent: agent, limit: Self.faviconLimit)
+            let fetched = await WebFetch.data(address, agent: agent, limit: Self.faviconLimit, for: page, proxy: proxy)
             guard let self else { return }
             let expires = FaviconStore.expiry(of: fetched?.response as? HTTPURLResponse, at: runtime.now())
             if let data = fetched?.data,

@@ -15,9 +15,11 @@ final class SignInWatch: NSObject, WKScriptMessageHandler {
             sent = true;
             webkit.messageHandlers.\(name).postMessage(1);
           };
-          addEventListener('submit', (e) => post(e.target), true);
-          addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.form !== undefined) post(e.target.form || document); }, true);
+          // Only what the person does: an event the page dispatches itself is not believed (it could keep its own site).
+          addEventListener('submit', (e) => { if (e.isTrusted) post(e.target); }, true);
+          addEventListener('keydown', (e) => { if (e.isTrusted && e.key === 'Enter' && e.target && e.target.form !== undefined) post(e.target.form || document); }, true);
           addEventListener('click', (e) => {
+            if (!e.isTrusted) return;
             const button = e.target && e.target.closest && e.target.closest('button, input[type=submit], [role=button]');
             if (button) post(button.form || document);
           }, true);

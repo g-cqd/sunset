@@ -25,4 +25,13 @@ import Testing
         truncated.removeLast(truncated.count / 2)
         #expect(ImageIODecoder().decodePNG(truncated) == nil)
     }
+
+    @Test func `a PNG larger than the renderer draws is refused from its header`() {
+        // A header saying 4,097 × 4,097 pixels (16.8 M, over the 16 M a picture may have): refused. (That the size is read
+        // before ImageIO makes the image is not seen from here: the forged header breaks the file too.)
+        var big = PNG.encode(Surface(width: 1, height: 1))
+        let side: [UInt8] = [0, 0, 0x10, 0x01]
+        big.replaceSubrange(16 ..< 24, with: side + side)
+        #expect(ImageIODecoder().decodePNG(big) == nil)
+    }
 }

@@ -1,3 +1,4 @@
+import CoreServices
 import Foundation
 import SunsetTestSupport
 import Testing
@@ -32,5 +33,10 @@ import Testing
         #expect(written.lastPathComponent == "clip-2.mp4", "the name already there is kept")
         #expect(try Data(contentsOf: written) == Data("film".utf8))
         #expect(item.state == .finished && center.items.first === item)
+        let quarantine = try written.resourceValues(forKeys: [.quarantinePropertiesKey]).quarantineProperties
+        #expect(quarantine?[kLSQuarantineAgentNameKey as String] as? String == "Sunset", "quarantined")
+        let place = written.deletingLastPathComponent()
+        let left = try FileManager.default.contentsOfDirectory(atPath: place.path).filter { $0.hasPrefix(".") }
+        #expect(left.isEmpty, "no file left under its writing name: \(left)")
     }
 }

@@ -16,7 +16,7 @@ struct WebFetchTests {
         try Data("secret".utf8).write(to: file)
         defer { try? FileManager.default.removeItem(at: file) }
         #expect(!WebFetch.allows(file))
-        #expect(await WebFetch.data(file, agent: "Safari", limit: 1 << 20) == nil)
+        #expect(await WebFetch.data(file, agent: "Safari", limit: 1 << 20, for: nil) == nil)
         #expect(WebFetch.allows(try #require(URL(string: "https://example.com/a.png"))))
         #expect(WebFetch.allows(try #require(URL(string: "data:text/plain,a"))))
     }
@@ -24,7 +24,7 @@ struct WebFetchTests {
     @Test func `no more than the limit is read`() async throws {
         let body = String(repeating: "a", count: 2048)
         let address = try #require(URL(string: "data:text/plain," + body))
-        #expect(await WebFetch.data(address, agent: "Safari", limit: 1024) == nil)
-        #expect(await WebFetch.data(address, agent: "Safari", limit: 4096)?.data.count == 2048)
+        #expect(await WebFetch.data(address, agent: "Safari", limit: 1024, for: nil) == nil)
+        #expect(await WebFetch.data(address, agent: "Safari", limit: 4096, for: nil)?.data.count == 2048)
     }
 }

@@ -93,7 +93,7 @@ final class ShareWrapper: PageScriptHandler, WKScriptMessageHandlerWithReply {
             case "frame":
                 return (await content.share?.pull(from: Self.origin(of: message.frameInfo)), nil)
             case "ended":
-                content.share?.stop(.stopped, tellPage: false)
+                content.share?.ended(by: Self.origin(of: message.frameInfo))
                 return (nil, nil)
             default:
                 return (nil, nil)

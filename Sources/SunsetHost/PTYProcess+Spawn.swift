@@ -1,7 +1,8 @@
 internal import Darwin
 
 extension PTYProcess {
-    /// Runs `command` (executable first) with `environment` added to a minimal default (`TERM=xterm-256color`, `COLORTERM=truecolor`). The child is the leader
+    /// Runs `command` (executable first) with `environment` added to a minimal default (`TERM=xterm-256color`, `COLORTERM=truecolor`), but
+    /// for the loader's variables. The child is the leader
     /// of a session of its own with the pseudo-terminal as its controlling terminal (`forkpty`: `posix_spawn` cannot give it one, and a shell that cannot find
     /// its controlling terminal refuses job control: fish says "No TTY for interactive shell"). Everything the child needs is built before the fork; the
     /// child calls nothing but system calls before `execve`. `cell` is a cell's size in pixels, which the window size carries from
@@ -15,7 +16,11 @@ extension PTYProcess {
         cell: (width: Int, height: Int) = (0, 0)
     ) throws -> PTYProcess {
         var merged = ["TERM": "xterm-256color", "COLORTERM": "truecolor"]
-        for (key, value) in environment { merged[key] = value }
+        // What the loader was told for Sunset (Sunset WebKit runs with its frameworks in `DYLD_*` and `__XPC_DYLD_*`) is
+        // Sunset's alone: a program of the terminal is not given it (the outside audit's DYN-SEC-01).
+        for (key, value) in environment where !key.hasPrefix("DYLD_") && !key.hasPrefix("__XPC_DYLD_") {
+            merged[key] = value
+        }
         let envp = merged.map { "\($0.key)=\($0.value)" }
         guard let name = command.first, let program = resolve(name, path: merged["PATH"] ?? "/usr/bin:/bin") else {
             throw PTYError.spawnFailed(errno: ENOENT)

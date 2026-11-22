@@ -76,7 +76,13 @@ import WebKit
             let file = folder.appending(path: BlockingListPlan.fileName(for: address))
             let keptAt = try? FileManager.default.attributesOfItem(atPath: file.path)[.modificationDate] as? Date
             guard BlockingListPlan.isStale(keptAt: keptAt, now: runtime.now()),
-                let fetched = await WebFetch.data(url, agent: PaneContentKinds.webSettings.userAgent, limit: limit),
+                let fetched = await WebFetch.data(
+                    url,
+                    agent: PaneContentKinds.webSettings.userAgent,
+                    limit: limit,
+                    for: nil,
+                    proxy: WebProxy.current
+                ),
                 (fetched.response as? HTTPURLResponse)?.statusCode == 200
             else { continue }
             try? fetched.data.write(to: file, options: .atomic)

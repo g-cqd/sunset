@@ -12,6 +12,13 @@ final class SunsetSkyLayerView: NSView {
     private var queue: (any MTLCommandQueue)?
     private var pipeline: (any MTLRenderPipelineState)?
     private var link: CADisplayLink?
+    private var windowObservers: [any NSObjectProtocol] = []
+
+    /// Whether it draws now: only while its window can be seen (it is a full-window EDR pass at the display's rate; the
+    /// outside audit's ENG-01 found it running behind other windows and in the Dock).
+    var isAnimating: Bool {
+        link.map { !$0.isPaused } ?? false
+    }
 
     init(frameAt: @escaping (Double, CGSize) -> SunsetSkyFrame) {
         self.frameAt = frameAt
@@ -56,10 +63,29 @@ final class SunsetSkyLayerView: NSView {
         super.viewDidMoveToWindow()
         link?.invalidate()
         link = nil
-        guard window != nil else { return }
+        windowObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        windowObservers = []
+        guard let window else { return }
         let made = displayLink(target: self, selector: #selector(step))
         made.add(to: .main, forMode: .common)
         link = made
+        for name in [
+            NSWindow.didChangeOcclusionStateNotification, NSWindow.didMiniaturizeNotification,
+            NSWindow.didDeminiaturizeNotification
+        ] {
+            windowObservers.append(
+                NotificationCenter.default.addObserver(forName: name, object: window, queue: .main) { [weak self] _ in
+                    MainActor.assumeIsolated { self?.followWindow() }
+                }
+            )
+        }
+        followWindow()
+    }
+
+    /// Draws while the window can be seen, pauses otherwise.
+    private func followWindow() {
+        guard let window else { return }
+        link?.isPaused = !(window.occlusionState.contains(.visible) && !window.isMiniaturized)
     }
 
     override func layout() {
