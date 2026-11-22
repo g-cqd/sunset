@@ -1,0 +1,38 @@
+import Foundation
+import Testing
+
+@testable import SunsetCredentials
+
+/// An entry being edited (roadmap 0092 B): what it changed, whether it can be saved, the kinds a field can be added as,
+/// and a password generated into a concealed field.
+@Suite("An entry being edited")
+struct EntryDraftTests {
+    @Test func `changed once it differs from what is kept; saved only without a blocking problem`() throws {
+        let kept = EntryTemplate.login.makeEntry(title: "Bank")
+        var draft = EntryDraft(kept)
+        #expect(!draft.isChanged && draft.canSave(now: .now) == false, "nothing to save")
+        draft.entry.title = "Bank (new)"
+        #expect(draft.isChanged && draft.canSave(now: .now))
+        let user = try #require(draft.entry.field(named: "Username")?.id)
+        draft.entry.constrain(user, [.required])
+        #expect(!draft.canSave(now: .now), "a required field left empty")
+        draft.revert()
+        #expect(draft.entry == kept && !draft.isChanged)
+    }
+
+    @Test func `a field added by kind, named for it; a password generated into a concealed field`() throws {
+        var draft = EntryDraft(VaultEntry(title: "Custom"))
+        let added = draft.add(.concealed)
+        #expect(draft.entry.sections.count == 1, "a section made for it")
+        #expect(draft.entry.sections[0].fields.map(\.name) == ["Password"])
+        draft.generate(into: added, recipe: PasswordRecipe(length: 24, classes: [.lower, .upper, .digit, .symbol]))
+        #expect(draft.entry.sections[0].fields[0].value.count == 24)
+        let text = draft.add(.text)
+        #expect(draft.entry.sections[0].fields.map(\.name) == ["Password", "Text"] && text != added)
+        #expect(
+            EntryDraft.addable.map(\.name) == [
+                "Text", "Password", "One-Time Code", "Website", "Email", "Phone", "Number", "Date", "Note"
+            ]
+        )
+    }
+}
