@@ -1,6 +1,6 @@
 # R13 — Images in the terminal: the design session (roadmap 0010, 0026 T-9, t183)
 
-Status: **proposed 2026-11-22, waiting for the owner.** Nothing is built.
+Status: **answered by the owner 2026-11-22** (below). Nothing is built.
 The owner, 2026-11-21: "it seems the terminal for sunset still can't show images, even though ask can work with showing pictures in ask".
 R9 set the process: images get a design session of their own, then kitty graphics.
 
@@ -57,3 +57,17 @@ iTerm2's OSC 1337 inline images; `a=q` capability details; the deletion kinds ot
   (kitty evicts the oldest).
 - **Q4** File, temporary-file and shared-memory transmission: refused (proposed), or allowed for local programs with a setting?
 - **Q5** Sixel and iTerm2 images: wanted at all, and when?
+
+## The owner's answers (2026-11-22)
+
+| Question | Answer |
+| --- | --- |
+| Q1 the first slice | **The whole kitty graphics protocol first**, not only what ask uses |
+| Q2 its place in the order | not answered separately; asked for now (the owner raised it on 2026-11-21) |
+| Q3 limits | not answered: the proposal (64 MB encoded, 64 megapixels decoded per terminal, oldest evicted) stands as a default to confirm |
+| Q4 file, temporary-file and shared-memory transmission | not answered: refused until answered (ADR-0010's rule: no untrusted action without a policy) |
+| Q5 Sixel and iTerm2 images | not answered |
+
+So "Later slices" above become part of the first build, except Sixel and iTerm2's images. ask's change (`TERM_PROGRAM=sunset`) still
+waits until Sunset answers the query truthfully.
+
