@@ -43,7 +43,10 @@ extension Screen {
             case .failure(let error): return kittyReply(command, error)
         }
         guard action != UInt8(ascii: "q") else { return kittyReply(command, nil) }
+        let shown = graphics.placements.count
         guard graphics.store(image) else { return kittyReply(command, .noSpace) }
+        // Placements of the image it replaced, or of those the quota sent away, went with them: their pixels are drawn over.
+        if graphics.placements.count != shown { markDirty(0 ... rows - 1) }
         if action == UInt8(ascii: "T") { placeImage(image.id, command) }
         kittyReply(command, nil)
     }

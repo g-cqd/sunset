@@ -17,15 +17,18 @@ public final class HeadlessSession {
         columns: Int = 80,
         rows: Int = 24,
         environment: [String: String] = [:],
-        directory: String? = nil
+        directory: String? = nil,
+        cell: (width: Int, height: Int) = (0, 0)
     ) throws {
         terminal = Terminal(columns: columns, rows: rows)
+        if cell.width > 0, cell.height > 0 { terminal.setCellPixelSize(width: cell.width, height: cell.height) }
         process = try PTYProcess.spawn(
             command,
             environment: environment,
             columns: columns,
             rows: rows,
-            directory: directory
+            directory: directory,
+            cell: cell
         )
     }
 

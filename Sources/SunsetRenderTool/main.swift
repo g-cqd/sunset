@@ -51,12 +51,6 @@ guard !command.isEmpty else {
 }
 
 do {
-    let session = try HeadlessSession(command, columns: columns, rows: rows)
-    _ = session.wait(timeoutMilliseconds: waitMilliseconds) { _ in false }
-    if !keys.isEmpty {
-        try session.send(KeyText.unescape(keys))
-        _ = session.wait(timeoutMilliseconds: 500) { _ in false }
-    }
     let glyphs = CoreTextGlyphSource(
         fontName: fontName,
         size: fontSize,
@@ -66,9 +60,21 @@ do {
     var metrics = glyphs.metrics
     metrics.paddingX = 8
     metrics.paddingY = 8
+    // The program is told a cell's size in pixels from the start, as image tools ask it.
+    let session = try HeadlessSession(
+        command,
+        columns: columns,
+        rows: rows,
+        cell: (metrics.cellWidth, metrics.cellHeight)
+    )
+    _ = session.wait(timeoutMilliseconds: waitMilliseconds) { _ in false }
+    if !keys.isEmpty {
+        try session.send(KeyText.unescape(keys))
+        _ = session.wait(timeoutMilliseconds: 500) { _ in false }
+    }
     let size = metrics.surfaceSize(columns: columns, rows: rows)
     var surface = Surface(width: size.width, height: size.height)
-    let renderer = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures)
+    let renderer = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures, images: ImageIODecoder())
     renderer.render(session.terminal.screen, into: &surface)
     let bytes = PNG.encode(surface)
     guard let file = fopen(output, "wb") else {

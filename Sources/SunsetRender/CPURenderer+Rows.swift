@@ -17,6 +17,7 @@ extension CPURenderer {
             height: metrics.cellHeight,
             color: Surface.pack(frame.background, alpha: frame.backgroundAlpha)
         )
+        drawImages(row: row, below: true, frame: frame, surface: &surface)
         let plainRow = frame.cursor?.row != row && frame.selection == nil && frame.hoveredLink == 0
         let cells = frame.row(row)
         var column = 0
@@ -56,6 +57,7 @@ extension CPURenderer {
             )
             column += span
         }
+        drawImages(row: row, below: false, frame: frame, surface: &surface)
         if frame.hoveredLink != 0 { underlineHoveredLink(row: row, frame: frame, surface: &surface) }
     }
 

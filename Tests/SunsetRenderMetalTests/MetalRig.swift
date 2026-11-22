@@ -41,6 +41,7 @@ struct MetalRig {
         metrics.paddingY = 2
         self.metrics = metrics
         terminal = Terminal(columns: columns, rows: rows)
+        terminal.setCellPixelSize(width: metrics.cellWidth, height: metrics.cellHeight)
         cpu = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures)
         gpuSide = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures)
         metal = compositor

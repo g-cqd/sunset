@@ -17,6 +17,11 @@ public final class CPURenderer: CellRenderer {
     var glyphTable = GlyphTable(generation: GlyphGenerations.next())
     var glyphTableLimit = 16_384
     var glyphTableByteLimit = 16 << 20
+    /// The images made ready to draw, and those on the lines of the frame being drawn (`CPURenderer+Images`).
+    var imageTable = ImageTable(generation: GlyphGenerations.next())
+    var imageTableByteLimit = 128 << 20
+    var shownImages: [ShownImage] = []
+    let imageDecoder: (any ImageDecoding)?
     var resolvedStyles = ResolvedStyles()
     var lastCursor: CursorDrawn?
     var lastPalette: Palette?
@@ -38,9 +43,15 @@ public final class CPURenderer: CellRenderer {
     var lastSize: (columns: Int, rows: Int)?
     var lastRecordedCount = 0
 
-    public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool = false) {
+    public init(
+        metrics: RenderMetrics,
+        glyphs: any GlyphSource,
+        ligatures: Bool = false,
+        images: (any ImageDecoding)? = nil
+    ) {
         self.metrics = metrics
         self.glyphs = glyphs
+        imageDecoder = images
         self.ligatures = ligatures && glyphs.shapesRuns
     }
 
@@ -96,11 +107,7 @@ public final class CPURenderer: CellRenderer {
             changedPixelRows = 0 ... surface.height - 1
         }
 
-        let showCursor =
-            scrolledBack == 0 && cursorVisible && screen.modes.cursorVisible && screen.cursorRow < screen.rows
-        let cursor =
-            showCursor
-            ? CursorDrawn(row: screen.cursorRow, column: screen.cursorColumn, shape: screen.cursorShape) : nil
+        let cursor = Self.cursor(of: screen, scrolledBack: scrolledBack, visible: cursorVisible)
         let cursorMoved = cursor != lastCursor
         let frame = Frame(
             screen: screen,
@@ -115,6 +122,7 @@ public final class CPURenderer: CellRenderer {
         // The rows the selection covers now or covered in the last frame are drawn again when it changed.
         let selectionRows = selectionRows(of: selection, in: frame)
         let selectionChanged = selection != lastSelection
+        prepareImages(screen, firstLine: frame.firstLine)
         let placed = full ? nil : moveScrolledRows(screen, frame: frame, surface: &surface)
         for row in 0 ..< screen.rows {
             let touchesCursor = cursorMoved && (cursor?.row == row || lastCursor?.row == row)
@@ -157,73 +165,10 @@ public final class CPURenderer: CellRenderer {
             move: unbacked.recordedMove,
             glyphs: glyphTable.bitmaps,
             glyphGeneration: glyphTable.generation,
+            images: imageTable.images,
+            imageGeneration: imageTable.generation,
             translucent: translucent,
             changedPixelRows: changedPixelRows
         )
-    }
-
-    // MARK: Rows and cells
-
-    func drawCell(_ cell: Cell, at place: Placement, frame: Frame, walk: inout Walk, surface: inout Surface) {
-        let style = walk.styles.style(cell.styleID, in: frame)
-        var (foreground, background) = (style.foreground, style.background)
-        let selected =
-            frame.selection != nil && frame.isSelected(row: place.row, column: place.column, span: place.span)
-        if selected { swap(&foreground, &background) }
-        let cursor = frame.cursor
-        let onCursor =
-            cursor.map { $0.row == place.row && $0.column >= place.column && $0.column < place.column + place.span }
-            ?? false
-        if onCursor, cursor?.shape == .block {
-            let cellBackground = background
-            background = frame.palette.cursor
-            foreground = cellBackground
-        }
-        let box = Box(
-            x: metrics.paddingX + place.column * metrics.cellWidth,
-            y: metrics.originY + place.row * metrics.cellHeight,
-            width: place.span * metrics.cellWidth
-        )
-        // A bar or underline cursor does not cover the cell: its background is only drawn if it differs from the window's (an opaque fill of the default
-        // background would hide a translucent window behind the cell).
-        let coveredByCursor = onCursor && cursor?.shape == .block
-        if background != frame.background || coveredByCursor || selected {
-            fill(
-                &surface,
-                x: box.x,
-                y: box.y,
-                width: box.width,
-                height: metrics.cellHeight,
-                color: Surface.pack(background)
-            )
-        }
-        if style.blinks { blinkRows[place.row] = true }
-        if place.drawGlyph, cell.scalar != 0, !style.hidden,
-            case let glyph = glyph(for: cell, style: style, wide: place.span == 2, frame: frame, table: &walk.glyphs),
-            glyph != 0
-        {
-            blit(glyph, of: walk.glyphs, into: &surface, cell: box, color: foreground)
-        }
-        if style.decorated {
-            drawDecorations(
-                frame.style(of: cell),
-                box: box,
-                surface: &surface,
-                line: style.line ?? foreground,
-                strike: foreground
-            )
-        }
-        if onCursor, let shape = cursor?.shape, shape != .block {
-            drawThinCursor(shape, box: box, color: Surface.pack(frame.palette.cursor), surface: &surface)
-        }
-    }
-
-    /// A bar or underline cursor, over the cell already drawn.
-    private func drawThinCursor(_ shape: CursorShape, box: Box, color: UInt32, surface: inout Surface) {
-        if shape == .underline {
-            fill(&surface, x: box.x, y: box.y + metrics.cellHeight - 2, width: box.width, height: 2, color: color)
-        } else {
-            fill(&surface, x: box.x, y: box.y, width: 2, height: metrics.cellHeight, color: color)
-        }
     }
 }

@@ -12,5 +12,5 @@ public struct TerminalImage: Sendable, Equatable {
     /// The pixels (`rgb`, `rgba`), or the PNG file (`png`).
     public let pixels: [UInt8]
     /// When it was stored, among the terminal's images: the oldest go first when the quota is reached.
-    let order: UInt64
+    public let order: UInt64
 }

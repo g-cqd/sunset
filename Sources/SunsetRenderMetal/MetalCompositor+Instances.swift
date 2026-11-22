@@ -54,7 +54,7 @@ extension MetalCompositor {
                 sourceX: op.sourceX,
                 sourceY: op.sourceY
             )
-            if op.glyph != 0 {
+            if op.glyph != 0, op.image == nil {
                 guard let slot = slot(of: op.glyph, in: frame) else { return false }
                 instance.sourceX &+= slot.x
                 instance.sourceY &+= slot.y

@@ -11,7 +11,8 @@ public struct DrawOp: Sendable, Equatable {
     public var width: Int32
     public var height: Int32
     public var color: UInt32
-    /// 0: the rectangle is set to `color`. Otherwise `color` is blended over it with the coverage of the frame's glyph number `glyph` (`DrawFrame.glyph(of:)`:
+    /// 0: the rectangle is set to `color`. With `imageMark` set: image number `glyph & ~imageMark` of `DrawFrame.images` is
+    /// drawn over it from (`sourceX`, `sourceY`) (`ImageBlend`). Otherwise `color` is blended over it with the coverage of the frame's glyph number `glyph` (`DrawFrame.glyph(of:)`:
     /// 1 is the first of `DrawFrame.glyphs`), starting at (`sourceX`, `sourceY`) in that bitmap. Coverage 0 leaves a pixel alone.
     public var glyph: UInt32
     public var sourceX: Int32
@@ -29,5 +30,13 @@ public struct DrawOp: Sendable, Equatable {
             sourceX: 0,
             sourceY: 0
         )
+    }
+
+    /// The bit of `glyph` that makes the operation an image's (and `UInt32.max`, a GPU backend's copy quad, is not one).
+    public static let imageMark: UInt32 = 0x8000_0000
+
+    /// The number of the image the operation draws, in `DrawFrame.images`; nil for a fill or a glyph.
+    public var image: UInt32? {
+        glyph & Self.imageMark != 0 && glyph != .max ? glyph & ~Self.imageMark : nil
     }
 }

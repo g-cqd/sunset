@@ -33,7 +33,7 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
         guard let compositor = MetalCompositor() else { return nil }
         self.compositor = compositor
         cellMetrics = metrics
-        recorder = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures)
+        recorder = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures, images: ImageIODecoder())
     }
 
     /// How many frame-sized textures the window holds (for tests: memory).

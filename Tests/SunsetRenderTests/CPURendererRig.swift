@@ -14,12 +14,14 @@ struct CPURendererRig {
         _ columns: Int = 10,
         _ rows: Int = 4,
         glyphs: any GlyphSource = BoxGlyphSource(),
-        metrics: RenderMetrics = metrics
+        metrics: RenderMetrics = metrics,
+        images: (any ImageDecoding)? = nil
     ) {
         terminal = Terminal(columns: columns, rows: rows)
+        terminal.setCellPixelSize(width: metrics.cellWidth, height: metrics.cellHeight)
         let size = metrics.surfaceSize(columns: columns, rows: rows)
         surface = Surface(width: size.width, height: size.height)
-        renderer = CPURenderer(metrics: metrics, glyphs: glyphs)
+        renderer = CPURenderer(metrics: metrics, glyphs: glyphs, images: images)
     }
 
     /// Feeds text and draws a frame (and clears the dirty marks, as a host does).

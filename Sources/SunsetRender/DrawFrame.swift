@@ -12,6 +12,9 @@ public struct DrawFrame: Sendable {
     /// Changes when the renderer started its glyph table again: places a backend remembers from an earlier generation mean nothing now. Unique in the process
     /// (no two renderers share one); 0 is never given out, it is for frames made by hand.
     public let glyphGeneration: UInt32
+    /// The renderer's images (`DrawOp.image`), kept by number while `imageGeneration` stays the same, as glyphs are.
+    public let images: ContiguousArray<RenderImage>
+    public let imageGeneration: UInt32
     /// The default background is translucent (`FrameView.backgroundAlpha` below 255): colours are premultiplied and text is blended over a destination of any
     /// alpha.
     public let translucent: Bool
@@ -25,26 +28,28 @@ public struct DrawFrame: Sendable {
         move: PixelMove? = nil,
         glyphs: ContiguousArray<GlyphBitmap> = [],
         glyphGeneration: UInt32 = 0,
+        images: ContiguousArray<RenderImage> = [],
+        imageGeneration: UInt32 = 0,
         translucent: Bool,
         changedPixelRows: ClosedRange<Int>?
     ) {
         precondition(
-            ops.allSatisfy { Int($0.glyph) <= glyphs.count },
-            "every glyph operation names a glyph of the table"
+            ops.allSatisfy { op in op.image.map { Int($0) < images.count } ?? (Int(op.glyph) <= glyphs.count) },
+            "every glyph or image operation names one of the frame's"
         )
         self.width = width
         self.height = height
         self.ops = ops
         self.move = move
-        self.glyphs = glyphs
-        self.glyphGeneration = glyphGeneration
+        (self.glyphs, self.glyphGeneration) = (glyphs, glyphGeneration)
+        (self.images, self.imageGeneration) = (images, imageGeneration)
         self.translucent = translucent
         self.changedPixelRows = changedPixelRows
     }
 
     /// The bitmap a glyph operation blends; nil for a fill.
     public func glyph(of op: DrawOp) -> GlyphBitmap? {
-        op.glyph == 0 ? nil : glyphs[Int(op.glyph) - 1]
+        op.glyph == 0 || op.image != nil ? nil : glyphs[Int(op.glyph) - 1]
     }
 
     /// Applies the operations to `surface` on the CPU with the renderer's own kernels: the reference a GPU backend is compared with, and a check that the list
@@ -53,6 +58,17 @@ public struct DrawFrame: Sendable {
         if let move { surface.apply(move) }
         for op in ops {
             let (x, y, width, height) = (Int(op.x), Int(op.y), Int(op.width), Int(op.height))
+            if let image = op.image {
+                ImageBlend.draw(
+                    images[Int(image)],
+                    from: (Int(op.sourceX), Int(op.sourceY)),
+                    to: (x, y),
+                    size: (width, height),
+                    into: &surface,
+                    translucent: translucent
+                )
+                continue
+            }
             guard let bitmap = glyph(of: op) else {
                 for row in y ..< y + height {
                     let start = row * surface.width + x

@@ -8,9 +8,14 @@ public actor FrameRenderer {
     private var surface: Surface?
     private var size: (columns: Int, rows: Int)?
 
-    public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool = false) {
+    public init(
+        metrics: RenderMetrics,
+        glyphs: any GlyphSource,
+        ligatures: Bool = false,
+        images: (any ImageDecoding)? = nil
+    ) {
         self.metrics = metrics
-        renderer = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures)
+        renderer = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures, images: images)
     }
 
     /// The cell size and padding this renderer draws with.

@@ -10,8 +10,8 @@ enum MetalShaders {
         struct Instance {
             int x, y, w, h;
             uint color;
-            uint glyph;    // 0 fill, 0xFFFFFFFF a copy from the picture before, else a glyph (its number in the frame; the shader only tells them apart)
-            int sx, sy;    // where the glyph's coverage starts in the atlas
+            uint glyph;    // 0 fill, 0xFFFFFFFF a copy from the picture before, the high bit an image (bound as texture 2), else a glyph
+            int sx, sy;    // where the glyph's coverage starts in the atlas, or the image's pixels in it
         };
 
         struct Uniforms {
@@ -38,7 +38,8 @@ enum MetalShaders {
         fragment float4 cell_fragment(Varying in [[stage_in]], float4 below [[color(0)]],
                                       const device Instance *instances [[buffer(0)]], constant Uniforms &uniforms [[buffer(1)]],
                                       texture2d<float, access::read> atlas [[texture(0)]],
-                                      texture2d<float, access::read> previous [[texture(1)]]) {
+                                      texture2d<float, access::read> previous [[texture(1)]],
+                                      texture2d<float, access::read> image [[texture(2)]]) {
             Instance item = instances[in.instance];
             uint4 c = uint4(item.color & 255u, (item.color >> 8) & 255u, (item.color >> 16) & 255u, item.color >> 24);
             if (item.glyph == 0u) {
@@ -48,6 +49,18 @@ enum MetalShaders {
             if (item.glyph == 0xFFFFFFFFu) {
                 // A pixel of the picture before, unchanged: 8-bit values read as n / 255 and written back round to n.
                 return previous.read(uint2(item.sx + (pixel.x - item.x), item.sy + (pixel.y - item.y)));
+            }
+            if ((item.glyph & 0x80000000u) != 0u) {
+                // An image's premultiplied pixel over what is there, with the CPU's integer formula (ImageBlend).
+                uint4 p = uint4(round(image.read(uint2(item.sx + (pixel.x - item.x), item.sy + (pixel.y - item.y))) * 255.0));
+                if (p.a == 0u) {
+                    return below;
+                }
+                uint4 d = uint4(round(below * 255.0));
+                uint inverse = 255u - p.a;
+                uint3 rgb = (p.rgb * 255u + d.rgb * inverse + 127u) / 255u;
+                uint alpha = uniforms.translucent != 0u ? (p.a * 255u + d.a * inverse + 127u) / 255u : 255u;
+                return float4(float3(rgb), float(alpha)) / 255.0;
             }
             uint a = uint(round(atlas.read(uint2(item.sx + (pixel.x - item.x), item.sy + (pixel.y - item.y))).r * 255.0));
             if (a == 0u) {

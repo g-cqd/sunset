@@ -141,4 +141,17 @@ import Testing
         t.feed("\(esc)[14t\(esc)[16t")
         #expect(replies(&t) == "\(esc)[4;120;200t\(esc)[6;20;10t")
     }
+
+    @Test func `its size in pixels: its own, stretched over c and r, or scaled to one of them keeping its proportions`()
+    {
+        var t = terminal()
+        let image = rgba(20, 10)
+        for (options, expected) in [
+            ("", [2, 1, 20, 10]), ("c=4,r=3,", [4, 3, 40, 60]), ("c=4,", [4, 1, 40, 20]), ("r=2,", [8, 2, 80, 40])
+        ] {
+            t.feed("\(esc)_Ga=T,q=2,C=1,f=32,i=1,s=20,v=10,\(options);\(image)\(esc)\\")
+            let placed = t.screen.graphics.placements.last
+            #expect(placed.map { [$0.columns, $0.rows, $0.width, $0.height] } == expected, "\(options)")
+        }
+    }
 }

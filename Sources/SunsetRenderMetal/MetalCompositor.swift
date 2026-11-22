@@ -38,6 +38,9 @@ public final class MetalCompositor {
     /// Where each of the renderer's glyphs is in the atlas, by glyph number - 1 (x -1: not uploaded), for the glyph generation `slotsGeneration`.
     var slots: ContiguousArray<SIMD2<Int32>> = []
     var slotsGeneration: UInt32?
+    /// The frame's images uploaded, by number, for `imagesGeneration` (`MetalCompositor+Images`).
+    var imageTextures: [UInt32: any MTLTexture] = [:]
+    var imagesGeneration: UInt32?
     private var drawing = false
     /// What the GPU took for the last frame (start to end of its execution) and how many instances it drew: for probes.
     var lastGPUSeconds = 0.0
@@ -109,6 +112,7 @@ public final class MetalCompositor {
             for: frame,
             copies: Self.copies(restoring: restore, move: frame.move, width: target.width)
         )
+        try uploadImages(of: frame)
         guard let commands = queue.makeCommandBuffer() else { throw Failure.commandFailed }
         if count > 0 { try encodeDraw(count, frame: frame, target: target, previous: previous, into: commands) }
         if let copy { Self.encodeCopy(rows: copy.rows, of: target, to: copy.destination, into: commands) }
@@ -154,7 +158,9 @@ public final class MetalCompositor {
         encoder.setFragmentTexture(atlas.texture, index: 0)
         // Read only by copy quads, which a frame has only with a picture before; something is bound in any case.
         encoder.setFragmentTexture(previous ?? atlas.texture, index: 1)
-        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: count)
+        // Read only by image quads, which bind their own (`drawInstances`).
+        encoder.setFragmentTexture(atlas.texture, index: 2)
+        drawInstances(count, frame: frame, encoder: encoder)
         encoder.endEncoding()
     }
 

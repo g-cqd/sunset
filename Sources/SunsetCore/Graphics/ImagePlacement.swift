@@ -9,6 +9,10 @@ public struct ImagePlacement: Sendable, Equatable {
     public let column: Int
     public let columns: Int
     public let rows: Int
+    /// The size it is drawn at, in pixels: the image's own, or as the program asked (`c`, `r`: stretched over those cells,
+    /// or, with one of them, scaled keeping its proportions). Drawn from the top left of its cells, clipped to them.
+    public let width: Int
+    public let height: Int
     /// Above the text when 0 or more, below it when negative.
     public let layer: Int
 }

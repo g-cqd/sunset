@@ -4,13 +4,15 @@ extension PTYProcess {
     /// Runs `command` (executable first) with `environment` added to a minimal default (`TERM=xterm-256color`, `COLORTERM=truecolor`). The child is the leader
     /// of a session of its own with the pseudo-terminal as its controlling terminal (`forkpty`: `posix_spawn` cannot give it one, and a shell that cannot find
     /// its controlling terminal refuses job control: fish says "No TTY for interactive shell"). Everything the child needs is built before the fork; the
-    /// child calls nothing but system calls before `execve`.
+    /// child calls nothing but system calls before `execve`. `cell` is a cell's size in pixels, which the window size carries from
+    /// the start (image tools size their images by it, ADR-0117); 0 when unknown.
     public static func spawn(
         _ command: [String],
         environment: [String: String] = [:],
         columns: Int,
         rows: Int,
-        directory: String? = nil
+        directory: String? = nil,
+        cell: (width: Int, height: Int) = (0, 0)
     ) throws -> PTYProcess {
         var merged = ["TERM": "xterm-256color", "COLORTERM": "truecolor"]
         for (key, value) in environment { merged[key] = value }
@@ -21,8 +23,8 @@ extension PTYProcess {
         var size = winsize(
             ws_row: UInt16(clamping: rows),
             ws_col: UInt16(clamping: columns),
-            ws_xpixel: 0,
-            ws_ypixel: 0
+            ws_xpixel: UInt16(clamping: columns * max(cell.width, 0)),
+            ws_ypixel: UInt16(clamping: rows * max(cell.height, 0))
         )
         var master: Int32 = -1
         let pid: Int32 = withCStrings(command) { argv in
