@@ -7,11 +7,12 @@ public import Foundation
 public struct StorageKey: Sendable {
     private let key: SymmetricKey
 
-    init(bytes: Data) {
+    /// A key from its 32 bytes: a vault's key unwrapped (Sunset's own modules only).
+    package init(bytes: Data) {
         key = SymmetricKey(data: bytes)
     }
 
-    static func random() -> StorageKey {
+    package static func random() -> StorageKey {
         StorageKey(bytes: SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) })
     }
 
@@ -21,7 +22,8 @@ public struct StorageKey: Sendable {
         self.init(bytes: bytes)
     }
 
-    var bytes: Data {
+    /// Its 32 bytes: to wrap a vault's key with a factor (Sunset's own modules only).
+    package var bytes: Data {
         key.withUnsafeBytes { Data($0) }
     }
 
