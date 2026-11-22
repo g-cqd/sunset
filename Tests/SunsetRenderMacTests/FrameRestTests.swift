@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetRenderMac
 
-/// When a terminal's renderer is told to rest: once no frame has been drawn for a while, and once only. On the test's clock
-/// (ADR-0087): every step of the time is the test's.
+/// When a terminal's renderer is told to rest: once no frame has been drawn for a while, and once only. On the test's clock:
+/// every step of the time is the test's.
 @MainActor @Suite("Resting after the last frame") struct FrameRestTests {
     final class Counter {
         var rests = 0

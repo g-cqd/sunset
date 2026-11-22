@@ -1,7 +1,7 @@
 import Carbon.HIToolbox
 
-/// The process's secure keyboard entry (task t116): on while any terminal holds it. `EnableSecureEventInput` counts its
-/// calls, so this calls it once when the first holder comes and `DisableSecureEventInput` once when the last goes.
+/// The process's secure keyboard entry: on while any terminal holds it. `EnableSecureEventInput` counts its calls, so
+/// this calls it once when the first holder comes and `DisableSecureEventInput` once when the last goes.
 @MainActor
 package enum SecureInput {
     private static var holders = Set<ObjectIdentifier>()

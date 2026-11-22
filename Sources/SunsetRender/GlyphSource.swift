@@ -1,4 +1,4 @@
-/// Where glyphs come from: a font rasteriser (the platform's, behind a seam; the own font stack later, ADR-0008) or a test double. Asked once per distinct
+/// Where glyphs come from: a font rasteriser (the platform's, behind a seam; the own font stack later) or a test double. Asked once per distinct
 /// glyph; the renderer keeps the answers.
 public protocol GlyphSource: Sendable {
     /// The coverage of `text` (one character or one grapheme cluster) for cells of `metrics`, over `columns` cells (1, or 2 for a double-width character).

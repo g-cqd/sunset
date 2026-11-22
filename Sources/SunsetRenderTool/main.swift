@@ -1,5 +1,5 @@
 // sunset-render: runs a program in a headless Sunset terminal and writes what the CPU renderer draws of its screen as a PNG. A way to look at the renderer
-// without a window (roadmap 0008).
+// without a window.
 //
 //   sunset-render [--cols N] [--rows N] [--font NAME] [--size PT] [--ligatures] [--no-font-ligatures] [--feature TAG[=N]] [--wait MS] [--keys TEXT] [--out FILE] -- command [args...]
 internal import Darwin

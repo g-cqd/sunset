@@ -33,8 +33,8 @@ extension CoreTextGlyphSource {
         return next == units.count
     }
 
-    /// A shaped run's `count` glyphs, and the index in the text of the character each comes from (roadmap 0086 E: read the
-    /// same way to draw a run and to tell whether it is plain).
+    /// A shaped run's `count` glyphs, and the index in the text of the character each comes from (read the same way to
+    /// draw a run and to tell whether it is plain).
     static func glyphs(of run: CTRun, count: Int) -> (glyphs: [CGGlyph], indices: [CFIndex]) {
         var glyphs = [CGGlyph](repeating: 0, count: count)
         var indices = [CFIndex](repeating: 0, count: count)

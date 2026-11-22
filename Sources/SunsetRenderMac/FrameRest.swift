@@ -1,11 +1,10 @@
 public import SunsetRuntime
 
-/// Tells a terminal's renderer to rest once no frame has been drawn for a while (the review of 2026-11-15, 3.2; owner note
-/// n14): a terminal that is quiet, or not shown, then keeps the one surface on screen instead of two or three. One waiting
+/// Tells a terminal's renderer to rest once no frame has been drawn for a while: a terminal that is quiet, or not shown, then keeps the one surface on screen instead of two or three. One waiting
 /// task however many frames are drawn; it looks at the time of the last frame when it wakes.
 @MainActor
 public final class FrameRest {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     public var runtime = Runtime.live
 
     /// How long without a frame. Longer than a blinking cursor's half-second, so that a focused terminal's surfaces are not

@@ -1,5 +1,5 @@
 // sunset-run: runs a program in a headless Sunset terminal and prints the screen. A tool for looking at what a real program does to the emulator, and
-// the way a comparison with another terminal starts (roadmap 0004, 0005).
+// the way a comparison with another terminal starts.
 //
 //   sunset-run [--cols N] [--rows N] [--wait MS] [--keys TEXT] [--then-wait MS] [--plain] [--cells] [--env K=V] [--until-exit MS] [--resize COLSxROWS] -- command [args...]
 //

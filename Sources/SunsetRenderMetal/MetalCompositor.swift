@@ -1,8 +1,8 @@
 public import Metal
 public import SunsetRender
 
-/// Applies a frame's draw list to a texture on the GPU (ADR-0021: the CPU walks the dirty rows and writes the operations, the GPU draws them in one
-/// instanced draw): the replay of what the CPU renderer would have drawn. The target keeps the picture between frames; a frame only brings what changed.
+/// Applies a frame's draw list to a texture on the GPU (the CPU walks the dirty rows and writes the operations, the GPU draws them in one instanced
+/// draw): the replay of what the CPU renderer would have drawn. The target keeps the picture between frames; a frame only brings what changed.
 ///
 /// It is meant to be owned by one actor, whose isolation its async methods run in: one frame at a time (the owner awaits `apply` before the next), so nothing
 /// the GPU still reads (the atlas, the instance buffer) is written.

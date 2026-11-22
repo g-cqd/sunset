@@ -4,8 +4,8 @@ import SunsetShell
 
 extension TerminalNSView {
     /// A click in the strip drags the window even when the window is not the active one, as a title bar does. Elsewhere the click that activates the
-    /// window is taken too, but only to give this pane the keyboard (`n44`: in a split, the pane clicked is the one typed in next); it is remembered
-    /// here, by its number, so that `mouseDown` does not also hand it to the program or start a selection with it.
+    /// window is taken too, but only to give this pane the keyboard (in a split, the pane clicked is the one typed in next); it is remembered here,
+    /// by its number, so that `mouseDown` does not also hand it to the program or start a selection with it.
     package override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         guard let event else { return false }
         if !isInDragStrip(event) { activatingClick = event.eventNumber }
@@ -89,7 +89,7 @@ extension TerminalNSView {
     }
 
     package override func mouseMoved(with event: NSEvent) {
-        // Covered by the command bar's backdrop (t232).
+        // Covered by the command bar's backdrop.
         guard !PointerShield.isShielded(window) else { return }
         refreshPointer()
         report(.motion, .none, event)

@@ -3,7 +3,7 @@ import Foundation
 import SunsetRuntime
 import Testing
 
-/// ADR-0087: a test owns the time and the tasks of what it runs.
+/// A test owns the time and the tasks of what it runs.
 @Suite("The runtime's seams")
 struct RuntimeTests {
     @Test func `a sleep waits for the test's clock, and a task started is waited for`() async throws {

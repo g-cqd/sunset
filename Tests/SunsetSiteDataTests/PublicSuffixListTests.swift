@@ -2,9 +2,9 @@ import Testing
 
 @testable import SunsetSiteData
 
-/// Task t118: the Public Suffix List's own checks (publicsuffix/list tests/test_psl.txt, read 2026-11-20): a host's
-/// registrable domain, in the form it was given (Unicode or punycode, any case); nil for a public suffix itself, a host
-/// with no dot past it, or none.
+/// The Public Suffix List's own checks (publicsuffix/list tests/test_psl.txt, read 2026-11-20): a host's registrable
+/// domain, in the form it was given (Unicode or punycode, any case); nil for a public suffix itself, a host with no dot
+/// past it, or none.
 @Suite("Public Suffix List: the list's own checks")
 struct PublicSuffixListTests {
     static let cases: [(String?, String?)] = [

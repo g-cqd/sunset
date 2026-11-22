@@ -6,8 +6,7 @@ import Testing
 
 @testable import SunsetRenderMetal
 
-/// A window that has gone quiet, or is not shown, keeps the surface it shows and no other (the review of 2026-11-15, 3.2;
-/// owner note n14): a surface is the window's size in pixels, four bytes each.
+/// A window that has gone quiet, or is not shown, keeps the surface it shows and no other: a surface is the window's size in pixels, four bytes each.
 extension MetalSurfaceRendererTests {
     /// Draws `text` with both renderers; the GPU's surface, checked against the CPU's.
     func frame(

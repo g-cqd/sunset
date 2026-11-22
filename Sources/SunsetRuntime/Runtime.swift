@@ -1,10 +1,9 @@
 @_exported public import AemiRuntime
 public import Foundation
 
-/// What a piece of Sunset needs of time and concurrency (ADR-0087, the owner's note n55): where its tasks are spawned, the
-/// clock it sleeps on, the monotonic time it measures with, and the wall time. `.live` in the app; a test gives a
-/// `TaskProviderSpy`, a `TestClock` (and `uptime: { clock.now.offset }`) and a fixed date, waits for the tasks it started and
-/// moves the time itself.
+/// What a piece of Sunset needs of time and concurrency: where its tasks are spawned, the clock it sleeps on, the monotonic
+/// time it measures with, and the wall time. `.live` in the app; a test gives a `TaskProviderSpy`, a `TestClock` (and
+/// `uptime: { clock.now.offset }`) and a fixed date, waits for the tasks it started and moves the time itself.
 public struct Runtime: Sendable {
     public var tasks: any TaskProvider
     public var clock: any Clock<Duration>

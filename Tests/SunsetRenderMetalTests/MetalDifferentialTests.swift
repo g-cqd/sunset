@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetRender
 @testable import SunsetRenderMetal
 
-/// The Metal renderer replays the CPU renderer's draw list; the CPU renderer is the oracle (ADR-0024), so the two must agree pixel for pixel.
+/// The Metal renderer replays the CPU renderer's draw list; the CPU renderer is the oracle, so the two must agree pixel for pixel.
 @Suite("Metal renderer against the CPU oracle", .serialized) struct MetalDifferentialTests {
     private let esc = "\u{1B}"
 

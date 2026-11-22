@@ -3,7 +3,7 @@ public import SunsetCore
 public import SunsetRender
 
 /// What the window needs of a renderer that draws into `IOSurface`s its layer shows: the cell metrics, a frame per call, and the surface that holds the latest
-/// frame. The CPU renderer and the Metal one both are one (ADR-0024: backends are interchangeable at run time).
+/// frame. The CPU renderer and the Metal one both are one (backends are interchangeable at run time).
 public protocol IOSurfaceRenderer: AnyObject, Sendable {
     /// The cell size and padding this renderer draws with.
     var cellMetrics: RenderMetrics { get }

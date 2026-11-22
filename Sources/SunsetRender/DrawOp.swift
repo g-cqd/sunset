@@ -1,6 +1,6 @@
 /// One pixel operation of a frame, in the order the CPU renderer would perform it. A frame is a list of these (`DrawFrame`); the CPU renderer executes them as
-/// it goes, a GPU renderer replays the list (ADR-0024: one description, two backends). Pixels are packed like `Surface` pixels (red, green, blue, alpha from the
-/// lowest byte), premultiplied by the alpha when the frame is translucent.
+/// it goes, a GPU renderer replays the list (one description, two backends). Pixels are packed like `Surface` pixels (red, green, blue, alpha from the lowest
+/// byte), premultiplied by the alpha when the frame is translucent.
 ///
 /// Plain values, 32 bytes, the layout a GPU instance has: recording a frame appends these without reference counting (an enum holding the glyph's bitmap
 /// cost 290 instructions an operation to record, renderer plan 2026-11-08).

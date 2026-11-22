@@ -1,7 +1,7 @@
 public import Foundation
 
-/// Apple's password-manager-resources (github.com/apple/password-manager-resources, MIT; task t118): per-site password
-/// rules, the sites that share logins, change-password pages. Each is looked up from a host, then each parent up to its
+/// Apple's password-manager-resources (github.com/apple/password-manager-resources, MIT): per-site password rules, the
+/// sites that share logins, change-password pages. Each is looked up from a host, then each parent up to its
 /// registrable domain (the Public Suffix List's).
 public struct PasswordManagerResources: Sendable {
     private let rules: [String: String]

@@ -1,6 +1,6 @@
 import Foundation
 
-/// The Public Suffix List (publicsuffix.org, MPL 2.0; task t118): which part of a host name a registry, not a site, owns.
+/// The Public Suffix List (publicsuffix.org, MPL 2.0): which part of a host name a registry, not a site, owns.
 /// `example.co.uk`'s site is `example.co.uk`, not `co.uk`; `foo.github.io`'s is itself. Rules are matched on lowercase
 /// labels, punycode decoded (`xn--…`); an answer keeps the form the host was given in.
 public struct PublicSuffixList: Sendable {

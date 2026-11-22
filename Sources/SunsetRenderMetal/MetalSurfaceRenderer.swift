@@ -12,7 +12,7 @@ internal import Synchronization
 /// is first brought up to the one shown last, on the GPU: the rows it missed are copied from it, and a scroll's rows moved from it. No other texture keeps
 /// the picture (renderer plan, item 5: a frame-sized canvas less per window).
 public actor MetalSurfaceRenderer: IOSurfaceRenderer {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     public var runtime = Runtime.live
 
     public nonisolated let cellMetrics: RenderMetrics
@@ -36,7 +36,7 @@ public actor MetalSurfaceRenderer: IOSurfaceRenderer {
         recorder = CPURenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures)
     }
 
-    /// How many frame-sized textures the window holds (for tests: memory, n11).
+    /// How many frame-sized textures the window holds (for tests: memory).
     var frameBufferCount: Int {
         ring?.slots.count ?? 0
     }

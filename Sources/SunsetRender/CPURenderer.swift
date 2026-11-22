@@ -1,8 +1,8 @@
 public import SunsetCore
 
-/// Draws a `Screen` into a `Surface` on the CPU: backgrounds, glyphs, decorations, the cursor. This is the reference renderer of ADR-0024 (the GPU one is
-/// held to its output) and a product on its own. It redraws only what changed: the rows the screen marks dirty, the rows the cursor left and entered, and
-/// everything when the palette, the size, reverse video or the blink phase changed. The caller clears the screen's dirty marks after a frame.
+/// Draws a `Screen` into a `Surface` on the CPU: backgrounds, glyphs, decorations, the cursor. This is the reference renderer (the GPU one is held to its
+/// output) and a product on its own. It redraws only what changed: the rows the screen marks dirty, the rows the cursor left and entered, and everything
+/// when the palette, the size, reverse video or the blink phase changed. The caller clears the screen's dirty marks after a frame.
 public final class CPURenderer: CellRenderer {
     public let metrics: RenderMetrics
     let glyphs: any GlyphSource

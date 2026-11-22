@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetSiteData
 
-/// Task t118: Apple's password-manager-resources (MIT, read 2026-11-20), as roadmap 0094 will use them: a site's password
-/// rules (for a generated password), the sites whose logins are offered on a site, and its change-password page. Looked up
-/// from any host, up to its registrable domain.
+/// Apple's password-manager-resources (MIT, read 2026-11-20): a site's password rules (for a generated password), the
+/// sites whose logins are offered on a site, and its change-password page. Looked up from any host, up to its registrable
+/// domain.
 @Suite("Password manager resources")
 struct PasswordManagerResourcesTests {
     @Test func `a site's password rules, from any of its hosts`() throws {

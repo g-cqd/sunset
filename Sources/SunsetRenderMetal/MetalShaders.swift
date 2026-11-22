@@ -1,7 +1,7 @@
-/// The shaders, as source compiled when the renderer starts (ADR-0006: handwritten, no shader build step). One pipeline draws a frame's list of operations in
-/// order, one instance each: a fill sets its pixels, a glyph blends its colour over what is there with the coverage in the atlas. The blend is the CPU
-/// renderer's integer formula, `(c * a + d * (255 - a) + 127) / 255` per channel, with the destination read back in the fragment stage (framebuffer fetch,
-/// which Apple GPUs have), so the result is bit for bit the CPU's and not a float approximation of it.
+/// The shaders, as source compiled when the renderer starts (handwritten, no shader build step). One pipeline draws a frame's list of operations in order,
+/// one instance each: a fill sets its pixels, a glyph blends its colour over what is there with the coverage in the atlas. The blend is the CPU renderer's
+/// integer formula, `(c * a + d * (255 - a) + 127) / 255` per channel, with the destination read back in the fragment stage (framebuffer fetch, which
+/// Apple GPUs have), so the result is bit for bit the CPU's and not a float approximation of it.
 enum MetalShaders {
     static let source = """
         #include <metal_stdlib>

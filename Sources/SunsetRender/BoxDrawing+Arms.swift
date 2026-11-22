@@ -55,7 +55,7 @@ extension BoxDrawing {
     }
 
     /// One direction the arms are drawn in, its measures named along it and across it: the horizontal arms' are the cell's,
-    /// the vertical arms' the same transposed (roadmap 0086 E: the two were one algorithm written twice).
+    /// the vertical arms' the same transposed (the two were one algorithm written twice).
     struct Axis {
         /// The cell along the arm, and across it.
         var length: Int
