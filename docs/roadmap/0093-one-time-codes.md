@@ -13,7 +13,7 @@ Research: docs/research/credentials/one-time-codes.md. Probed: RFC 6238's vector
 | A | HOTP (RFC 4226), TOTP (RFC 6238; SHA-1/256/512, 6–10 digits, any period), Steam; red tests from the RFCs' appendices | done 2026-11-22 (`OneTimeCode`) |
 | B | `otpauth://` (Key Uri Format, its variants), `otpauth-migration://` (Google Authenticator's protobuf, batches), `steam://` and maFiles | in-progress: `otpauth://` and Base32 done 2026-11-22 (`OneTimeCodeURI`), Google Authenticator's `otpauth-migration://` too (`AuthenticatorMigration`, not tried on a real export); `steam://` and maFiles not |
 | C | Imports: Aegis (plain, scrypt-sealed), 2FAS, andOTP, FreeOTP+; from Bitwarden / 1Password / KeePassXC / Apple Passwords CSV through 0095 | not-started |
-| D | QR codes: an image, the clipboard, the page's own image (from Sunset's world, on the person's act) | not-started |
+| D | QR codes: an image, the clipboard, the page's own image (from Sunset's world, on the person's act) | in-progress: a picture chosen, read by Vision (2026-11-22, `QRCodeReading`, a field's menu); the clipboard and the page's own image not |
 | E | Showing (countdown, next code), copying (concealed, cleared), filling `one-time-code` fields; HOTP resync | in-progress: shown and copied on the entry's page (2026-11-22, `OneTimeCodeField`, `OneTimeCodeValue`); filling pages and HOTP's counter not |
 | F | Yandex.Key and mOTP, only if the owner wants them (reverse-engineered, legacy) | not-started |
 

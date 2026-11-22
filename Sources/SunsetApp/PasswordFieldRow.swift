@@ -61,6 +61,9 @@ struct PasswordFieldRow: View {
             }
             Menu {
                 if field.kind == .concealed { Button("Generate Password", action: generate) }
+                if field.kind == .oneTimeCode {
+                    Button("Read from QR Code Image\u{2026}") { QRCodeImagePicker.read { value = $0 } }
+                }
                 Button("Remove Field", role: .destructive, action: remove)
             } label: {
                 Image(systemName: "ellipsis.circle")
