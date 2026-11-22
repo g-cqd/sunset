@@ -59,6 +59,41 @@ package struct CookieJars {
     }
 
     /// The jar's place under the library: what its seal is bound to.
+    /// What `read` found: each store's cookies (nil: the default store), and the jars that did not open.
+    package struct Read: Equatable, Sendable {
+        package var stores: [UUID?: [BinaryCookies.Cookie]] = [:]
+        package var unreadable = 0
+    }
+
+    /// Every store's cookies, each jar read in the clear or opened in memory (roadmap 0112 E): nothing written.
+    package func read(with seal: Seal) -> Read {
+        var read = Read()
+        let defaultJar = places().first
+        for place in places() {
+            let bytes: Data?
+            if let clear = try? Data(contentsOf: place) {
+                bytes = clear
+            } else if let sealed = try? Data(contentsOf: sealedPlace(place)) {
+                bytes = try? seal.open(sealed, identity: identity(place))
+                if bytes == nil { read.unreadable += 1 }
+            } else {
+                continue
+            }
+            guard let bytes else { continue }
+            guard let cookies = try? BinaryCookies.read(bytes) else {
+                read.unreadable += 1
+                continue
+            }
+            // A profile's jar is in `WebsiteDataStore/<its id>/Cookies/`.
+            let store =
+                place == defaultJar
+                ? nil
+                : UUID(uuidString: place.deletingLastPathComponent().deletingLastPathComponent().lastPathComponent)
+            read.stores[store, default: []] += cookies
+        }
+        return read
+    }
+
     private func identity(_ jar: URL) -> String {
         "cookie-jar:" + jar.path.replacingOccurrences(of: library.path, with: "")
     }
