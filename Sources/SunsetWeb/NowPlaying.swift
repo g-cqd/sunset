@@ -14,6 +14,8 @@ package final class NowPlaying {
     /// Where previous and next go: the system's media commands, unless a test says otherwise.
     @ObservationIgnored package var sendCommand: @MainActor (WebNowPlaying.Command) -> Bool = { WebNowPlaying.send($0) }
     @ObservationIgnored private var pages: [MediaPage.ID: Weak] = [:]
+    /// Shows a page's tab, in its Space and window (the app's): a card's Go There, and picture in picture's way back.
+    @ObservationIgnored package var goThere: @MainActor (WebContent) -> Void = { _ in }
 
     private struct Weak {
         weak var page: WebContent?

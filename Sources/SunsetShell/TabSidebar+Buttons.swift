@@ -40,6 +40,7 @@ extension TabSidebar {
                     } action: {
                         footerHeight = $0
                     }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 bottomBar
                     .environment(\.sidebarButtonMetrics, buttons.metrics)
@@ -47,6 +48,7 @@ extension TabSidebar {
             }
             .padding(.horizontal, buttons.gap)
             .padding(.bottom, buttons.bottom)
+            .animation(.smooth, value: footer == nil)
         }
     }
 

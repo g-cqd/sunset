@@ -1,4 +1,5 @@
 import AppKit
+import SunsetPrivate
 import WebKit
 
 /// What WebKit asks of a page (`WKNavigationDelegate`, `WKUIDelegate`): new pages go to their place, a failure is shown as ours, an accepted certificate is
@@ -11,6 +12,11 @@ import WebKit
         super.init()
         Self.installPrivateQuestions()
         Self.installMenuDownloads()
+        // Picture in picture's way back to the page shows its tab, as a Now Playing card's Go There does.
+        WebNowPlaying.installReturn(on: WebCoordinator.self) { delegate in
+            guard let content = (delegate as? WebCoordinator)?.content else { return }
+            content.nowPlaying.goThere(content)
+        }
     }
 
     /// Each navigation's HTTPS policy by its host (this machine and the local network never upgraded; a host let over http

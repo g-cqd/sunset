@@ -58,6 +58,17 @@ public enum WebNowPlaying {
         return true
     }
 
+    /// Adds to `delegateClass` (a `WKUIDelegate`'s class) what WebKit asks when picture in picture's window goes back to
+    /// its page (`_webViewFullscreenMayReturnToInline:`, from the window's `pipShouldClose:`), once: `back` gets the
+    /// delegate.
+    public static func installReturn(on delegateClass: AnyClass, back: @escaping @MainActor (AnyObject) -> Void) {
+        guard ClassHooks.first("picture-in-picture-return", on: delegateClass) else { return }
+        let returned: @convention(block) (AnyObject, AnyObject) -> Void = { delegate, _ in
+            MainActor.assumeIsolated { back(delegate) }
+        }
+        ClassHooks.add(#Interned("_webViewFullscreenMayReturnToInline:"), returned, "v@:@", to: delegateClass)
+    }
+
     /// Whether the system's media commands can be sent.
     public static var canSend: Bool {
         send != nil

@@ -92,9 +92,10 @@ struct AppSidebar: View {
     private var nowPlaying: AnyView? {
         guard configuration.web.nowPlaying, !NowPlaying.shared.stack.pages.isEmpty else { return nil }
         return AnyView(
-            NowPlayingStack(pictureInPicture: configuration.web.pictureInPicture) { page in
-                AppWebNotifications.shared.reveal(page)
-            }
+            NowPlayingStack(
+                pictureInPicture: configuration.web.pictureInPicture,
+                surface: AnyView(SidebarBackdrop(look: SidebarLook(configuration)))
+            )
         )
     }
 

@@ -36,16 +36,24 @@ struct MediaStackTests {
         #expect(stack.pages.isEmpty)
     }
 
-    @Test func `the front card and the tops of at most two more behind it`() {
+    @Test func `the front card and the tops of at most two more behind it; scrolling goes round`() {
         var stack = MediaStack()
         for name in ["a", "b", "c", "d"] { stack.update(page(name)) }
         #expect(stack.shown.map(\.title) == ["d", "c", "b"])
         stack.scroll(1)
         #expect(stack.shown.map(\.title) == ["c", "b", "a"])
-        stack.scroll(5)
-        #expect(stack.front?.title == "a" && stack.shown.map(\.title) == ["a"], "the last card has none behind it")
-        stack.scroll(-9)
+        stack.scroll(2)
+        #expect(stack.shown.map(\.title) == ["a", "d", "c"], "after the last, the first again")
+        stack.scroll(-1)
+        #expect(stack.front?.title == "b")
+        stack.scroll(-2)
         #expect(stack.front?.title == "d")
+        stack.scroll(-1)
+        #expect(stack.front?.title == "a", "before the first, the last")
+        var two = MediaStack()
+        for name in ["a", "b"] { two.update(page(name)) }
+        two.scroll(1)
+        #expect(two.shown.map(\.title) == ["a", "b"], "each card once, however few")
     }
 
     @Test func `a card goes when its page does; the front stays on what was shown`() {
@@ -57,7 +65,7 @@ struct MediaStackTests {
         stack.remove(pages[2].id)
         #expect(stack.front?.title == "b", "a card before the front went: the front is still b")
         stack.remove(pages[1].id)
-        #expect(stack.front?.title == "a")
+        #expect(stack.front?.title == "a", "the front went: the one after it")
         stack.remove(pages[0].id)
         #expect(stack.front == nil && stack.shown.isEmpty)
     }
