@@ -23,6 +23,8 @@ enum PasswordFillScript {
               post({ kind: 'blur' });
             }
           }, true);
+          // The page going away (a navigation, a reload, its tab closed): its suggestions go with it.
+          addEventListener('pagehide', () => { if (shown) { shown = null; post({ kind: 'blur' }); } }, true);
           addEventListener('focusout', (e) => {
             if (!e.isTrusted) return;
             if (e.target === shown && !e.relatedTarget) { shown = null; post({ kind: 'blur' }); }
@@ -81,6 +83,20 @@ enum PasswordFillScript {
         // A one-time code's field: its token; a short field named for a code; or a box of a code split one character a
         // box (maxlength 1, among five to eight such boxes in its parent).
         const boxes = (el) => el && el.parentElement ? [...el.parentElement.querySelectorAll('input')].filter(i => i.maxLength === 1 && visible(i)) : [];
+        // A card's field: its `cc-` token, or its name (number, holder, expiry, security code).
+        const cardPart = (el) => {
+          if (!(el instanceof HTMLInputElement || el instanceof HTMLSelectElement) || !visible(el)) return null;
+          const token = (el.autocomplete || '').match(/cc-(number|name|exp-month|exp-year|exp|csc)/);
+          if (token) return token[1];
+          const name = (el.name + ' ' + el.id).toLowerCase();
+          if (/card.?num|cc.?num|cardnumber/.test(name)) return 'number';
+          if (/card.?holder|name.?on.?card|cc.?name/.test(name)) return 'name';
+          if (/exp.*month|cc.?month/.test(name)) return 'exp-month';
+          if (/exp.*year|cc.?year/.test(name)) return 'exp-year';
+          if (/expir|exp.?date|cc.?exp/.test(name)) return 'exp';
+          if (/cvc|cvv|csc|security.?code/.test(name)) return 'csc';
+          return null;
+        };
         const isCode = (el) => {
           if (!(el instanceof HTMLInputElement) || !['text', 'tel', 'number', ''].includes(el.type)) return false;
           if (/one-time-code/.test(el.autocomplete || '')) return true;
@@ -99,6 +115,7 @@ enum PasswordFillScript {
             return all.length >= 2 && all.length <= 3 && !current ? 'newPassword' : 'password';
           }
           if (isCode(el)) return 'oneTimeCode';
+          if (cardPart(el)) return 'card';
           if (isText(el) && passwords(scope(el)).length > 0 && usernameOf(scope(el)) === el) return 'username';
           if (isText(el) && /username/.test(el.autocomplete || '')) return 'username';
           return null;
@@ -141,6 +158,34 @@ enum PasswordFillScript {
           [...code].forEach((c, i) => set(split[i], c));
         } else {
           set(el, code);
+        }
+        return true;
+        """
+
+    /// Fills a card into the form of the field that has the keyboard: each of its card fields with its value; an expiry
+    /// in one field as its length allows ("MM/YY" or "MM/YYYY"); a month or a year in a menu by the option that means it.
+    static let fillCard = """
+        \(fields)
+        const el = document.activeElement;
+        if (!cardPart(el)) return false;
+        const pick = (select, wanted) => {
+          const option = [...select.options].find(o => wanted.some(w => o.value === w || o.text.trim() === w));
+          if (!option) return;
+          select.value = option.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        const put = (field, values) => field instanceof HTMLSelectElement ? pick(field, values) : set(field, values[0]);
+        const yy = year.slice(-2);
+        const month1 = String(Number(month));
+        for (const field of (el.form || document).querySelectorAll('input, select')) {
+          switch (cardPart(field)) {
+            case 'number': put(field, [number]); break;
+            case 'name': put(field, [name]); break;
+            case 'exp': put(field, [field.maxLength >= 7 ? month + '/' + year : month + '/' + yy]); break;
+            case 'exp-month': put(field, [month, month1]); break;
+            case 'exp-year': put(field, field instanceof HTMLSelectElement ? [year, yy] : [field.maxLength === 2 ? yy : year]); break;
+            case 'csc': put(field, [code]); break;
+          }
         }
         return true;
         """

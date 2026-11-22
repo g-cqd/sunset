@@ -8,13 +8,15 @@ struct FillMenuRow: View {
     let detail: String
     /// The detail in a monospaced face (a password shown).
     var monospaced = false
+    /// What it fills: a key for a password, a card for a card.
+    var symbol = "key.fill"
     let choose: () -> Void
     @State private var hovered = false
 
     var body: some View {
         Button(action: choose) {
             HStack(spacing: Design.Space.s) {
-                Image(systemName: "key.fill")
+                Image(systemName: symbol)
                     .foregroundStyle(ink(secondary: true))
                     .frame(width: Design.Size.glyphFrame)
                 VStack(alignment: .leading, spacing: Design.Space.hair) {

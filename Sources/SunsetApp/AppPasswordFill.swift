@@ -1,4 +1,5 @@
 import AppKit
+import LocalAuthentication
 import SunsetAppCore
 import SunsetConfig
 import SunsetCredentials
@@ -40,6 +41,7 @@ final class AppPasswordFill: PasswordFillHost {
             switch field.role {
                 case .newPassword: newPassword(for: field, in: page)
                 case .oneTimeCode: codes(for: field, in: page)
+                case .card: cards(for: field, in: page)
                 // A sign-in form's field: the site's logins; the one clicked fills the form.
                 case .username, .password:
                     shown(LoginMatch.offered(model.entries, for: field.origin, site: Self.site)) { logins in
@@ -94,6 +96,30 @@ final class AppPasswordFill: PasswordFillHost {
                 self?.filling { _ = await page.fillCode(code, for: field.origin) }
             }
         }
+    }
+
+    /// A card's field: the vault's cards; the one clicked is filled once the person has said it is them (Touch ID or the
+    /// Mac's password, as Safari asks for a card), its security code with it (ADR-0094).
+    private func cards(for field: LoginField, in page: WebContent) -> AnyView? {
+        shown(CardOffer.offered(model.entries)) { offers in
+            CardSuggestions(offers: offers) { [weak self] offer in
+                self?
+                    .filling {
+                        guard await Self.isOwner(reason: "fill \(PasswordLook.title(offer.entry))") else { return }
+                        let values = offer.values
+                        let card = [
+                            "number": values.number, "name": values.name, "month": values.month, "year": values.year,
+                            "code": values.code
+                        ]
+                        _ = await page.fillCard(card, for: field.origin)
+                    }
+            }
+        }
+    }
+
+    /// The person at the Mac says it is them: Touch ID, else its password.
+    private static func isOwner(reason: String) async -> Bool {
+        (try? await LAContext().evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)) ?? false
     }
 
     private func fill(_ entry: VaultEntry, in page: WebContent, for origin: URL) {

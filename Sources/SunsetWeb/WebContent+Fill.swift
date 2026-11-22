@@ -21,6 +21,11 @@ extension WebContent {
         await fill(PasswordFillScript.fillCode, ["code": code], for: origin)
     }
 
+    /// A card into the form of the field that has the keyboard (`number`, `name`, `month`, `year`, `code`).
+    package func fillCard(_ card: [String: String], for origin: URL) async -> Bool {
+        await fill(PasswordFillScript.fillCard, card, for: origin)
+    }
+
     private func fill(_ script: String, _ arguments: [String: Any], for origin: URL) async -> Bool {
         guard let view = webView else { return false }
         var arguments = arguments

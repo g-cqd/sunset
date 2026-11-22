@@ -213,4 +213,13 @@ final class PasswordFillTests {
         #expect(await page.fillCode("123456", for: elsewhere) == false)
         #expect(try await value("p", in: view).isEmpty)
     }
+
+    @Test func `a page that goes away while its field had the keyboard says so: its suggestions close`() async throws {
+        let (_, view, host) = try await page()
+        try await focus("p", in: view)
+        await host.wait { $0.events.contains("focus password") }
+        view.loadHTMLString("<p>elsewhere</p>", baseURL: URL(string: "https://example.com/next"))
+        await host.wait { $0.events.last == "blur" }
+        #expect(host.events.last == "blur")
+    }
 }
