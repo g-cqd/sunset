@@ -1,7 +1,7 @@
 import Foundation
 
-/// Sunset WebKit (ADR-0111): the build that bundles our WebKit runs Sunset on it by pointing the dynamic loader at the
-/// app's frameworks, for Sunset and for WebKit's processes (the `__XPC_` variables are handed to the XPC services WebKit
+/// Sunset WebKit: the build that bundles our WebKit runs Sunset on it by pointing the dynamic loader at the app's
+/// frameworks, for Sunset and for WebKit's processes (the `__XPC_` variables are handed to the XPC services WebKit
 /// starts). Sunset is the app's main executable (macOS honours the team's entitlements only there: a launcher running it
 /// as a second executable was killed, 2026-11-20), so it runs itself again, once, with the loader's variables set.
 package enum BundledWebKit {

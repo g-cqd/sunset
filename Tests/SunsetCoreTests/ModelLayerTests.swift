@@ -1,8 +1,8 @@
 import SunsetTestSupport
 import Testing
 
-/// Roadmap 0086 D (ADR-0087, the owner's note n55: "separation of concern"): the window's model is a module of its own that
-/// knows no UI framework, and what every kind of tab content promises is in it.
+/// The window's model is a module of its own that knows no UI framework, and what every kind of tab content promises is
+/// in it.
 @Suite("The window's model knows no UI")
 struct ModelLayerTests {
     @Test func `no file of the model imports SwiftUI, AppKit or a drawing library`() {

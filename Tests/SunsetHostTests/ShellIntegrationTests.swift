@@ -71,7 +71,7 @@ import Testing
                 .isEmpty
         )
         let session = try HeadlessSession([Self.fish ?? "fish", "-i"], columns: 120, rows: 10, environment: environment)
-        // fish starts slowly while the whole suite runs beside it (t219: its first prompt took over 5 s once in three runs); a wait
+        // fish starts slowly while the whole suite runs beside it (its first prompt took over 5 s once in three runs); a wait
         // ends as soon as its condition holds, so a long limit costs nothing when fish is quick.
         let patient = 30000
         #expect(

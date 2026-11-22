@@ -6,8 +6,8 @@ import Testing
 
 @testable import SunsetMarkdown
 
-/// What quitting would lose of the documents (step M-d). Closing a pane loses nothing while another shows the document;
-/// quitting closes them all, and names the edits no pane shows any more as well.
+/// What quitting would lose of the documents. Closing a pane loses nothing while another shows the document; quitting
+/// closes them all, and names the edits no pane shows any more as well.
 extension DocumentContentTests {
     @Test func `quitting names each edited document once, however many panes show it`() throws {
         let shared = try file("shared.md", "one\n")

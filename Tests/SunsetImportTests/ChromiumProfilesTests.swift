@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetImport
 
-/// Chromium's `Local State` (roadmap 0111 B): its profiles, each a folder and the person's name for it.
+/// Chromium's `Local State`: its profiles, each a folder and the person's name for it.
 @Suite("Chromium's profiles")
 struct ChromiumProfilesTests {
     @Test func `the profiles in the order the browser shows them; the guest and system profiles are not the person's`()

@@ -4,10 +4,10 @@ import SunsetRuntime
 package import SunsetStorage
 package import SunsetWebModel
 
-/// Sunset WebKit's store of before, merged once into the shared one (ADR-0114): its documents (under their own ids) and
-/// its history (a page in both keeps the visits of both) are added; its session and settings give way to Sunset's. Its
-/// folder is left as it was, a backup: a copy of it is opened, in `scratch`, and removed after. Done once: a mark in the
-/// shared store says so.
+/// Sunset WebKit's store of before, merged once into the shared one: its documents (under their own ids) and its history
+/// (a page in both keeps the visits of both) are added; its session and settings give way to Sunset's. Its folder is
+/// left as it was, a backup: a copy of it is opened, in `scratch`, and removed after. Done once: a mark in the shared
+/// store says so.
 @MainActor
 package enum FormerStoreMerge {
     package struct Merged: Equatable {

@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetCredentials
 
-/// ADR-0091: "secrets live in locked, zeroed buffers": kept out of swap while held, zeroed when let go.
+/// "secrets live in locked, zeroed buffers": kept out of swap while held, zeroed when let go.
 @Suite("A secret's buffer")
 struct SecretBufferTests {
     @Test func `it holds the bytes, pinned in memory; wiped, it holds nothing and its memory is zero`() {

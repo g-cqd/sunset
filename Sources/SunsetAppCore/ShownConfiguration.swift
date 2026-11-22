@@ -1,7 +1,7 @@
 package import SunsetConfig
 
-/// The configuration the windows are drawn with (roadmap 0086 D: `AppConfiguration` made it in the app target): in the light
-/// scheme the light tint, and a dark terminal theme opaque over it.
+/// The configuration the windows are drawn with (`AppConfiguration` made it in the app target): in the light scheme the
+/// light tint, and a dark terminal theme opaque over it.
 package enum ShownConfiguration {
     package static func make(_ configuration: Configuration, light: Bool) -> Configuration {
         guard light else { return configuration }

@@ -1,6 +1,6 @@
 import Foundation
 
-/// The profiles Firefox lists in its `profiles.ini` (roadmap 0111 D).
+/// The profiles Firefox lists in its `profiles.ini`.
 public enum FirefoxProfiles {
     /// Each `[ProfileN]` section: its folder (`Path`, under Firefox's own when `IsRelative=1`) and its name (the folder's
     /// last part when it has none); the one an `[Install…]` section names as its default first, then the file's order.

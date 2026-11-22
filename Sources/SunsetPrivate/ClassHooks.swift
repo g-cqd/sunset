@@ -1,8 +1,8 @@
 internal import Foundation
 internal import ObjectiveC
 
-/// Methods added to a delegate's class at run time, once a class (roadmap 0086 E: `WebPermissionHooks` and
-/// `WebDownloadHooks` each kept the classes they had done and added the same way).
+/// Methods added to a delegate's class at run time, once a class (`WebPermissionHooks` and `WebDownloadHooks` each kept
+/// the classes they had done and added the same way).
 @MainActor
 enum ClassHooks {
     private static var done: Set<String> = []

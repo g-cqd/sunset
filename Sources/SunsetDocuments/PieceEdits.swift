@@ -1,5 +1,5 @@
-/// What one side did to the pieces of before (roadmap 0023 step M-e): the runs of pieces it replaced, removed or put in,
-/// each between two pieces it left alone, and where every place between two pieces of before falls in its own text.
+/// What one side did to the pieces of before: the runs of pieces it replaced, removed or put in, each between two
+/// pieces it left alone, and where every place between two pieces of before falls in its own text.
 struct PieceEdits: Sendable {
     /// Pieces `base` of before are, on this side, pieces `side`. Either can be empty (put in, removed), not both.
     struct Edit: Equatable, Sendable {

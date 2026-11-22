@@ -2,13 +2,13 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// Roadmap 0086 E (ADR-0087 rule 5): no new duplicated code. dolly runs over Sources; the number of clones it finds may not
-/// rise above `remaining`, which is lowered as they are merged. A count, not a list of fingerprints: dolly's fingerprints change
-/// when the code around a clone moves, so a list failed on clones that were there before (seen 2026-11-19). Where dolly is not
-/// installed the test says so and passes.
+/// No new duplicated code. dolly runs over Sources; the number of clones it finds may not rise above `remaining`, which is
+/// lowered as they are merged. A count, not a list of fingerprints: dolly's fingerprints change when the code around a clone
+/// moves, so a list failed on clones that were there before (seen 2026-11-19). Where dolly is not installed the test says so and
+/// passes.
 @Suite("No new clones")
 struct CloneRatchetTests {
-    /// The clones left (2026-11-19: 215 at the start of roadmap 0086 E).
+    /// The clones left (215 on 2026-11-19).
     static let remaining = 142
 
     private static let dolly = [

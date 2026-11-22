@@ -9,7 +9,7 @@ internal import Synchronization
 /// once per display frame sees exactly what changed since the frame before, however many reads there were between (a fast flood costs one frame, not
 /// many; nothing is lost; nothing is drawn that was overwritten). The copy is cheap (the grid is shared until the next write).
 public actor TerminalSession {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     public var runtime = Runtime.live
 
     public enum Update: Sendable, Equatable {
@@ -23,7 +23,7 @@ public actor TerminalSession {
     /// What happened, newest first when the consumer is slow: only the latest update is kept.
     public nonisolated let updates: AsyncStream<Update>
     private let continuation: AsyncStream<Update>.Continuation
-    /// What the program asked the host to do (clipboard, notifications; ADR-0010), in order. The host applies its policy; a consumer that falls behind loses
+    /// What the program asked the host to do (clipboard, notifications), in order. The host applies its policy; a consumer that falls behind loses
     /// the oldest.
     public nonisolated let hostEvents: AsyncStream<HostEvent>
     private let hostContinuation: AsyncStream<HostEvent>.Continuation
@@ -168,7 +168,7 @@ public actor TerminalSession {
         process.send(PasteEncoder.encode(text, bracketed: core.terminal.withLock { $0.screen.modes.bracketedPaste }))
     }
 
-    /// What pasting `text` now would do that the person may not see, by the program's bracketed-paste mode (task t116).
+    /// What pasting `text` now would do that the person may not see, by the program's bracketed-paste mode.
     public func pasteRisks(_ text: String) -> [PasteRisk] {
         PasteRisk.of(text, bracketed: core.terminal.withLock { $0.screen.modes.bracketedPaste })
     }

@@ -4,7 +4,7 @@ internal import SunsetShell
 internal import SwiftUI
 
 /// What a document pane says above its text: that the file is gone or did not read, that it stopped being text on disk
-/// under edits made here (reload, or keep these), that a change on disk was merged (step M-e: what was put in, which can be
+/// under edits made here (reload, or keep these), that a change on disk was merged (what was put in, which can be
 /// undone, and the blocks that wait for an answer), that a save failed (one asked for here, or one the document made by
 /// itself).
 struct DocumentNotices: View {

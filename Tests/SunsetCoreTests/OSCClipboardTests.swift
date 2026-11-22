@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetCore
 
-@Suite("OSC 52 clipboard (ADR-0010)") struct OSCClipboardTests {
+@Suite("OSC 52 clipboard") struct OSCClipboardTests {
     private func events(_ text: String, columns: Int = 20) -> [HostEvent] {
         var t = Terminal(columns: columns, rows: 4)
         t.feed(text)

@@ -1,5 +1,5 @@
 extension HelpCatalog {
-    /// The sidebar's controls (roadmap 0041 B).
+    /// The sidebar's controls.
     static let sidebar: [HelpTopic: HelpEntry] = [
         .tabs: HelpEntry(
             title: "Tabs",

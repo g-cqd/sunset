@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// What must hold of any merge, tried on texts made from seeds (R6, roadmap 0023 step M-e).
+/// What must hold of any merge, tried on texts made from seeds.
 @Suite("Three texts merged by pieces: what always holds")
 struct ThreeWayMergeLawsTests {
     private static let alphabet = (0 ..< 12).map { "p\($0)" }

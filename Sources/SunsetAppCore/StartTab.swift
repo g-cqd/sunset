@@ -1,7 +1,7 @@
 package import Foundation
 package import SunsetConfig
 
-/// What opens when Sunset, or a window on an empty Space, starts with no tab (the owner's note n74), from `tabs.start`.
+/// What opens when Sunset, or a window on an empty Space, starts with no tab, from `tabs.start`.
 package enum StartTab: Equatable, Sendable {
     case nothing
     case terminal

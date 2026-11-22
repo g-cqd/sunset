@@ -1,6 +1,6 @@
 internal import AemiKernel
 
-/// The OSC sequences that reach outside the screen, under the policy of ADR-0010: the clipboard (52), the working directory (7, 1337), prompt marks (133,
+/// The OSC sequences that reach outside the screen, under the host's policy: the clipboard (52), the working directory (7, 1337), prompt marks (133,
 /// 1337) and, in `Screen+OSCNotify.swift`, notifications and progress.
 extension Screen {
     static let clipboardDecodeOptions: Base64.Options = {

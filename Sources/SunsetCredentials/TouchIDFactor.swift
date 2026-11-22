@@ -4,8 +4,8 @@ public import LocalAuthentication
 package import Security
 package import SunsetStorage
 
-/// This Mac's Secure Enclave as a vault's factor (ADR-0091, ADR-0104): two Secure Enclave keys, P-256 and ML-KEM-1024,
-/// give a wrap key (`EnclaveWrap`) only with Touch ID, and only while the fingers enrolled are those of when it was set
+/// This Mac's Secure Enclave as a vault's factor: two Secure Enclave keys, P-256 and ML-KEM-1024, give a wrap key
+/// (`EnclaveWrap`) only with Touch ID, and only while the fingers enrolled are those of when it was set
 /// (`.biometryCurrentSet`: a finger added later does not open the vault). The key that wraps the vault's key is derived from
 /// it for that vault. What is kept (`bytes`) holds no key: the keys are blobs only this Mac's Secure Enclave opens.
 public struct TouchIDFactor: Equatable, Sendable {

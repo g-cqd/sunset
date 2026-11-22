@@ -1,4 +1,4 @@
-/// Whether the welcome opens by itself (roadmap 0111 H): on the first launch only, never over what someone already set up.
+/// Whether the welcome opens by itself: on the first launch only, never over what someone already set up.
 public enum WelcomeGate {
     /// - Parameters:
     ///   - configurationExisted: a configuration file was there when Sunset started (someone, or a test, set it up).

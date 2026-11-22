@@ -1,9 +1,9 @@
 package import Foundation
 package import SunsetWebModel
 
-/// Which open tabs a page asking to share the screen is offered (ADR-0082; roadmap 0086 D: `AppShare` chose them in the app
-/// target): pages, terminals and documents of every Space, the asking page among them, marked; never a private page, nor a
-/// terminal never shown (it has no shell to draw yet).
+/// Which open tabs a page asking to share the screen is offered (`AppShare` chose them in the app target): pages,
+/// terminals and documents of every Space, the asking page among them, marked; never a private page, nor a terminal never
+/// shown (it has no shell to draw yet).
 package enum ShareOffer {
     /// An open tab, as much of it as the choice needs.
     package struct Tab: Sendable {

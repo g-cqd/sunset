@@ -3,13 +3,13 @@ public import MarkdownLookKit
 public import Observation
 public import SunsetRuntime
 
-/// The rendered page of a document (roadmap 0023 step M-c), one for every pane that shows it. Measured at step M-b: a page
-/// costs 3.5 ms at 20 KB and 330 ms at 2 MB, so it is made only while a pane has it on screen; at once on the main actor for
-/// a short text (no empty frame, no flicker), and off it for a long one, where what is typed while a page is being made makes
-/// one more page after it and not one for each key.
+/// The rendered page of a document, one for every pane that shows it. Measured at step M-b: a page costs 3.5 ms at 20 KB and
+/// 330 ms at 2 MB, so it is made only while a pane has it on screen; at once on the main actor for a short text (no empty
+/// frame, no flicker), and off it for a long one, where what is typed while a page is being made makes one more page after it
+/// and not one for each key.
 @MainActor @Observable
 public final class DocumentPage {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     public var runtime = Runtime.live
 
     /// The longest text (UTF-16 units) whose page is made at once on the main actor: about 5 ms.

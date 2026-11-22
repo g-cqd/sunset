@@ -1,5 +1,5 @@
 /// Parses bytes and counts what came out: a concrete (non-generic) front for the parser, so that benchmarks, fuzzers and diagnostics running in
-/// another module exercise the specialised code (ADR-0020), not the generic entry.
+/// another module exercise the specialised code, not the generic entry.
 public struct ParseCounter: Sendable {
     public private(set) var printable = 0
     public private(set) var controls = 0

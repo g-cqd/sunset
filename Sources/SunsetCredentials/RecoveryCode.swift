@@ -2,9 +2,9 @@ import CryptoKit
 public import Foundation
 import SunsetStorage
 
-/// A vault's recovery code (ADR-0091): 32 random bytes, shown once, in the storage key's form to write down
-/// (`RecoveryCodeText`: Crockford's base 32 with a check, so that a slip is told as one). As much chance to guess as the
-/// vault key, so it is not stretched: HKDF makes the key it wraps the vault's key with, bound to that vault.
+/// A vault's recovery code: 32 random bytes, shown once, in the storage key's form to write down (`RecoveryCodeText`:
+/// Crockford's base 32 with a check, so that a slip is told as one). As much chance to guess as the vault key, so it is
+/// not stretched: HKDF makes the key it wraps the vault's key with, bound to that vault.
 public struct RecoveryCode: Equatable, Sendable {
     /// What was typed is not a recovery code: a character changed, missing or not of the code's alphabet.
     public struct Mistyped: Error, Equatable {}

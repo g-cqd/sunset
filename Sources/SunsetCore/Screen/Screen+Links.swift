@@ -1,4 +1,4 @@
-/// Hyperlinks (OSC 8, ADR-0010): `8 ; params ; address` starts a link, an empty address ends it. The link is part of the style of the cells written
+/// Hyperlinks (OSC 8): `8 ; params ; address` starts a link, an empty address ends it. The link is part of the style of the cells written
 /// while it is open (kept apart from the pen, so that a reset of the colours does not end it). Parameters (`id=`) are ignored.
 extension Screen {
     /// The address of the link a cell belongs to, or nil.

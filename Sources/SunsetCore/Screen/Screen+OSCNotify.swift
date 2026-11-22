@@ -1,6 +1,6 @@
 internal import AemiKernel
 
-/// Notifications (OSC 9, 777, 99) and progress (OSC 9;4), under the policy of ADR-0010: sanitised, bounded, no replies, nothing taken from the sequence but
+/// Notifications (OSC 9, 777, 99) and progress (OSC 9;4), under the host's policy: sanitised, bounded, no replies, nothing taken from the sequence but
 /// plain text.
 extension Screen {
     static let titleLimit = 256

@@ -1,9 +1,9 @@
 public import Foundation
 internal import InternedStrings
 
-/// Whether a page plays sound, and muting it (roadmap 0029 step 7). Not public API: `WKWebView` says it plays sound by a
-/// key-value observable property, and takes a muted state; both are looked up by name, and where WebKit no longer has them a
-/// page is never shown as playing and Mute does nothing.
+/// Whether a page plays sound, and muting it. Not public API: `WKWebView` says it plays sound by a key-value observable
+/// property, and takes a muted state; both are looked up by name, and where WebKit no longer has them a page is never shown
+/// as playing and Mute does nothing.
 @MainActor
 public enum WebAudio {
     /// Tells `changed` each time the page starts or stops playing sound, for as long as the returned object is kept.

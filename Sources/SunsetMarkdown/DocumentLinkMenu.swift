@@ -2,7 +2,7 @@ package import AppKit
 package import SunsetShell
 package import SwiftUI
 
-/// The menu of a link of a rendered document (roadmap 0042 C), as a page's link has one: where it opens, and Copy Link.
+/// The menu of a link of a rendered document, as a page's link has one: where it opens, and Copy Link.
 package enum DocumentLinkMenu {
     /// One place to open the link in.
     package struct Item: Equatable, Sendable {

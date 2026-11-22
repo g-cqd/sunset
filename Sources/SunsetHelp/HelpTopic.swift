@@ -1,4 +1,4 @@
-/// One thing help explains (roadmap 0041 A): a closed list, so that a gate sees a topic without text.
+/// One thing help explains: a closed list, so that a gate sees a topic without text.
 public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
     case tabs, splitTabs, pinned, favorites, folders, sidebarField, bottomBar, library, keepAwake, dragAndDrop, renaming
     case tabLayout, spaces
@@ -11,7 +11,7 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
     }
 
     /// The settings' topic it is about (`SettingsTopic.id`, "web.downloads"): Help is listed under the settings' sections, in
-    /// their order (the owner's note n16), and its page opens those settings.
+    /// their order, and its page opens those settings.
     public var settingsTopic: String {
         switch self {
             case .features: "general.features"

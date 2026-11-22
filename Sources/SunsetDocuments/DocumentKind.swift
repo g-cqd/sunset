@@ -1,4 +1,4 @@
-/// What a document is: Markdown, a Mermaid diagram, or plain text (R6).
+/// What a document is: Markdown, a Mermaid diagram, or plain text.
 public enum DocumentKind: String, Sendable, Codable, CaseIterable {
     case markdown, mermaid, text
 

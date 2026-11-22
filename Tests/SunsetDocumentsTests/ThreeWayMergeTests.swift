@@ -2,9 +2,9 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// The merge of two edits of one text, piece by piece (R6, roadmap 0023 step M-e). A wrong merge is silent damage, so what it
-/// may do by itself is narrow: pieces only one side changed, removed or put in take that side's; pieces both sides touched
-/// are a conflict, unless both made the same of them. Nothing else is decided here.
+/// The merge of two edits of one text, piece by piece. A wrong merge is silent damage, so what it may do by itself is
+/// narrow: pieces only one side changed, removed or put in take that side's; pieces both sides touched are a conflict,
+/// unless both made the same of them. Nothing else is decided here.
 @Suite("Three texts merged by pieces")
 struct ThreeWayMergeTests {
     private typealias Hunk = ThreeWayMerge.Hunk

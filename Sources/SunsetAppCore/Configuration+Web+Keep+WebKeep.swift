@@ -3,8 +3,8 @@ package import SunsetPane
 package import SunsetWebModel
 
 extension Configuration.Web.Keep {
-    /// What a store of pages keeps, as the stores read it (ADR-0081): the cache and the traces cleared at quit or kept, the
-    /// sites' data kept, kept for the chosen sites, or cleared.
+    /// What a store of pages keeps, as the stores read it: the cache and the traces cleared at quit or kept, the sites'
+    /// data kept, kept for the chosen sites, or cleared.
     package var webKeep: WebKeep {
         let siteData: WebKeep.SiteData =
             switch self.siteData {

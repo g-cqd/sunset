@@ -4,7 +4,7 @@ public enum OpenDocumentFailure: Error, Sendable, Equatable {
     case readOnly
     /// The file, or the store, could not be written.
     case write(String)
-    /// Blocks changed here and on disk are not answered yet (step M-e): this many. Nothing is written until they are.
+    /// Blocks changed here and on disk are not answered yet: this many. Nothing is written until they are.
     case conflicts(Int)
 
     /// The sentence a pane shows for it.

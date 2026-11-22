@@ -1,4 +1,4 @@
-/// A Firefox container: a name, and the colour and icon Firefox shows it with (roadmap 0111 D: each becomes a profile).
+/// A Firefox container: a name, and the colour and icon Firefox shows it with (each becomes a profile).
 public struct BrowserContainer: Sendable, Equatable {
     public var name: String
     public var color: String?

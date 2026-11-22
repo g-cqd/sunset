@@ -1,11 +1,11 @@
 /// The terminal's screen: a grid of cells, the cursor, the modes that shape editing, the scroll region and the alternate screen. It is the sink the
-/// parser feeds (`Screen+Sink.swift`). The screen is the truth; whoever draws it reads it and keeps its own caches (ADR-0024).
+/// parser feeds (`Screen+Sink.swift`). The screen is the truth; whoever draws it reads it and keeps its own caches.
 public struct Screen: Sendable {
     public internal(set) var columns: Int
     public internal(set) var rows: Int
 
     var grid: Grid
-    /// Lines that scrolled off the top of the primary screen, oldest first (the cold, compressed form is ADR-0013, later).
+    /// Lines that scrolled off the top of the primary screen, oldest first, as cells (`HistoryPacker` packs older lines).
     var scrollback: Scrollback
     /// The other screen: the alternate one while the primary is shown, and the reverse.
     var other: Grid
@@ -201,7 +201,7 @@ public struct Screen: Sendable {
         }
     }
 
-    // MARK: Dirty rows (what a renderer must redraw, ADR-0024)
+    // MARK: Dirty rows (what a renderer must redraw)
 
     public func isDirty(row: Int) -> Bool {
         let physical = grid.physical(row)

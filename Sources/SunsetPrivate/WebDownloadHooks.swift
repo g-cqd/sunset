@@ -1,7 +1,7 @@
 public import Foundation
 internal import InternedStrings
 
-/// WebKit's private hand-overs from its page menu (the owner's note n64; probed 2026-11-20 on macOS 27.2):
+/// WebKit's private hand-overs from its page menu (probed 2026-11-20 on macOS 27.2):
 /// - Download Image and Download Linked File make a download and give it to the navigation delegate,
 ///   `_webView:contextMenuDidCreateDownload:`;
 /// - Download Video gives the bytes it has to the UI delegate, `_webView:saveDataToFile:suggestedFilename:mimeType:originatingURL:`.

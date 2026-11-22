@@ -1,6 +1,6 @@
 public import Foundation
 
-/// The profiles a Chromium browser lists in its `Local State` file (roadmap 0111 B).
+/// The profiles a Chromium browser lists in its `Local State` file.
 public enum ChromiumProfiles {
     private struct File: Decodable {
         let profile: Profiles?

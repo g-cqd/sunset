@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetImport
 @testable import SunsetPane
 
-/// Another browser's bookmarks as Favorites (roadmap 0111 A): folders kept as far as Favorites nest, links as entries that
-/// are not open, each one web page at its address; what Sunset does not open left out and counted.
+/// Another browser's bookmarks as Favorites: folders kept as far as Favorites nest, links as entries that are not open,
+/// each one web page at its address; what Sunset does not open left out and counted.
 @Suite("Bookmarks as Favorites")
 struct FavoritesImportTests {
     private func link(_ title: String, _ address: String) -> BookmarkNode {

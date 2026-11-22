@@ -4,9 +4,9 @@ import Testing
 
 @testable import SunsetHost
 
-/// Task t116: what the terminal's side of the PTY says about pastes and passwords. A paste's risks follow the program's
+/// What the terminal's side of the PTY says about pastes and passwords. A paste's risks follow the program's
 /// bracketed-paste mode; a program reading a password (echo off in line mode, as `readpassphrase` sets it, then its
-/// prompt) is seen from the master side (probed: diary 2026-11-19-13), and an editor (echo off in raw mode) is not.
+/// prompt) is seen from the master side (probed 2026-11-19), and an editor (echo off in raw mode) is not.
 @Suite("Session: pastes and passwords", .serialized)
 struct SessionSecretsTests {
     private func started(_ script: String) async throws -> TerminalSession {

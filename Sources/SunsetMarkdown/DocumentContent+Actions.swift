@@ -13,7 +13,7 @@ extension DocumentContent {
     }
 
     /// Writes the document where it lives (Cmd-S). A failure is said in the pane and the edits stay. While a block changed
-    /// here and on disk waits for an answer nothing is written: the first of them is shown instead (step M-e).
+    /// here and on disk waits for an answer nothing is written: the first of them is shown instead.
     package func save() {
         do {
             try document.save()
@@ -37,13 +37,12 @@ extension DocumentContent {
         )
     }
 
-    /// A link of the page was followed: where the keys held say, else where `documents.linksOpen` says (the owner,
-    /// 2026-11-17); never in this pane.
+    /// A link of the page was followed: where the keys held say, else where `documents.linksOpen` says; never in this pane.
     package func open(link url: URL, modifiers: NSEvent.ModifierFlags = NSApp?.currentEvent?.modifierFlags ?? []) {
         open(link: url, in: LinkPlace(modifiers: modifiers, besideByDefault: documents.look.linksBeside))
     }
 
-    /// A link of the page opened where its menu said (roadmap 0042 C).
+    /// A link of the page opened where its menu said.
     /// - Parameters:
     ///   - url: where the link leads: a web address, or a file of this Mac.
     ///   - place: where it opens.
@@ -69,8 +68,8 @@ extension DocumentContent {
 }
 
 extension DocumentContent {
-    /// What a document adds to its tab's menu (the owner's note n8): the other view in place, and beside; nothing for a text
-    /// file, which has no page.
+    /// What a document adds to its tab's menu: the other view in place, and beside; nothing for a text file, which has
+    /// no page.
     package var menuActions: [PaneMenuAction] {
         guard canRender else { return [] }
         let rendered = mode == .rendered

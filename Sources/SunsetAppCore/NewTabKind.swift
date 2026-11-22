@@ -1,6 +1,6 @@
 package import SunsetConfig
 
-/// What Command-T makes (the owner's notes n69–n71), from `tabs.newTab` and the kind of the focused tab.
+/// What Command-T makes, from `tabs.newTab` and the kind of the focused tab.
 package enum NewTabKind: Equatable, Sendable {
     case terminal
     case page(isPrivate: Bool)

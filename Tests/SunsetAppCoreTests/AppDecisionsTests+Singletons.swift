@@ -6,8 +6,8 @@ import Testing
 
 @testable import SunsetAppCore
 
-/// Roadmap 0086 D: the decisions the `App*` singletons made in the app target, where nothing tested them, made here from the
-/// state given to them.
+/// The decisions the `App*` singletons made in the app target, where nothing tested them, made here from the state
+/// given to them.
 extension AppDecisionsTests {
     /// `AppConfiguration`: the configuration the windows are drawn with in the light scheme.
     @Test func `light, the light tint is used and a dark terminal theme stays opaque; dark, nothing changes`() {

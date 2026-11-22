@@ -1,4 +1,4 @@
-/// Help's list (the owner's note n16): the settings' sections, in their order, each with the topics about its settings.
+/// Help's list: the settings' sections, in their order, each with the topics about its settings.
 public enum HelpTree {
     /// A section of the settings, by its id, and the topics under it.
     public struct Section: Sendable, Identifiable {

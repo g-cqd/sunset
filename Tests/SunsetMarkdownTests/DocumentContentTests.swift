@@ -7,7 +7,7 @@ import Testing
 
 @testable import SunsetMarkdown
 
-/// A document as the content of a pane (roadmap 0023 step M-c).
+/// A document as the content of a pane.
 @MainActor
 @Suite("A document in a pane")
 struct DocumentContentTests {
@@ -39,7 +39,7 @@ struct DocumentContentTests {
     @Test func `the tab is the file's name with a document picture, and says when the text has edits`() throws {
         let path = try file("notes.md", "# Notes\n")
         let pane = try content(path)
-        // Rendered, its picture is a page of rich text (note n3).
+        // Rendered, its picture is a page of rich text.
         #expect(pane.title == "notes.md" && pane.glyph == .symbol("richtext.page") && pane.detail == root)
         #expect(!pane.isEdited && pane.unsaved == nil)
         type("more\n", into: pane)

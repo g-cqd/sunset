@@ -1,7 +1,7 @@
 import Foundation
 
-/// The structure rules of the family (ask's ADR-0021, AemiFormal's ADR-0004): a Swift file declares one top-level type and is named for it, and no file runs
-/// past 250 lines, tests included, so that the file listing is the map of the types the project owns. Generated files (named `Generated…`) are exempt.
+/// The structure rules shared with the other Aemi projects: a Swift file declares one top-level type and is named for it, and no file runs past 250
+/// lines, tests included, so that the file listing is the map of the types the project owns. Generated files (named `Generated…`) are exempt.
 enum SourceStructure {
     static let maximumLines = 250
 

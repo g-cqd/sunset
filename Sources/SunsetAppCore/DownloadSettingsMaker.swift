@@ -2,7 +2,7 @@ package import Foundation
 package import SunsetConfig
 package import SunsetWebModel
 
-/// The download center's settings from the file's (roadmap 0086 D: `AppDownloads` made them in the app target).
+/// The download center's settings from the file's (`AppDownloads` made them in the app target).
 package enum DownloadSettingsMaker {
     package static func make(_ web: Configuration.Web, folder: URL) -> DownloadSettings {
         let keep: DownloadSettings.Keep =

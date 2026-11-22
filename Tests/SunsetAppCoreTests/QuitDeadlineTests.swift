@@ -6,10 +6,10 @@ import Testing
 
 @testable import SunsetAppCore
 
-/// The quit's last work (clearing and sealing WebKit's stores: ADR-0081, ADR-0103) was waited for by spinning the run loop
-/// from inside a main-actor task (the quit asks first, `QuitGate.decide`): a main-actor task cannot start while one runs
-/// there, so the work never ran and the five seconds always passed (seen 2026-11-19: no jar sealed after the owner's quit).
-/// The quit now awaits the work, at most its limit.
+/// The quit's last work (clearing and sealing WebKit's stores) was waited for by spinning the run loop from inside a
+/// main-actor task (the quit asks first, `QuitGate.decide`): a main-actor task cannot start while one runs there, so the
+/// work never ran and the five seconds always passed (seen 2026-11-19: no jar sealed after a quit). The quit now awaits
+/// the work, at most its limit.
 @MainActor
 @Suite("The quit's work: awaited, at most its limit")
 struct QuitDeadlineTests {

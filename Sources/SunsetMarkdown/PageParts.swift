@@ -1,7 +1,7 @@
 internal import Foundation
 internal import SunsetDocuments
 
-/// A document's text cut where its conflicts are (roadmap 0023 step M-e). The parts joined are the text.
+/// A document's text cut where its conflicts are. The parts joined are the text.
 enum PageParts {
     /// - Parameters:
     ///   - text: the text as it is.

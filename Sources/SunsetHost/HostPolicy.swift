@@ -1,6 +1,6 @@
 public import SunsetCore
 
-/// What the settings let a program ask of the host (ADR-0010), before the host does it.
+/// What the settings let a program ask of the host, before the host does it.
 public struct HostPolicy: Sendable, Equatable {
     /// `terminal.clipboardWrite`: OSC 52 puts text on the clipboard.
     public var clipboardWrite: Bool

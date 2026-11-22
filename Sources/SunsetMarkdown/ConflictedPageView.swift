@@ -3,9 +3,9 @@ internal import SunsetDocuments
 internal import SunsetShell
 internal import SwiftUI
 
-/// The page while conflicts wait (roadmap 0023 step M-e): the document in parts, each conflict on its block, with what is
-/// here and what the disk says one above the other and the answers under them. Once all are answered the page is drawn whole
-/// again, by the kit's own view (which this is not: no selection across parts, and links within the page do not jump).
+/// The page while conflicts wait: the document in parts, each conflict on its block, with what is here and what the disk
+/// says one above the other and the answers under them. Once all are answered the page is drawn whole again, by the kit's
+/// own view (which this is not: no selection across parts, and links within the page do not jump).
 struct ConflictedPageView: View {
     let content: DocumentContent
 

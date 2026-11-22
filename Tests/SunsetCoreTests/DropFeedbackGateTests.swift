@@ -2,8 +2,8 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// The owner's note n11: a click, or a drop, that is blocked says so. Every drop a view performs answers through
-/// `Feedback.dropped(_:)`, which taps the trackpad and tells VoiceOver when the drop was refused.
+/// A click, or a drop, that is blocked says so. Every drop a view performs answers through `Feedback.dropped(_:)`,
+/// which taps the trackpad and tells VoiceOver when the drop was refused.
 @Suite("A refused drop says so") struct DropFeedbackGateTests {
     @Test func `every performDrop answers through Feedback.dropped`() {
         var silent: [String] = []

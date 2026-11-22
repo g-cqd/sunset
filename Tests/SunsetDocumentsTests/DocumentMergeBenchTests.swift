@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// What a merge costs by the size of the document (roadmap 0023 step M-e): it is made on the main actor when a file changes
-/// on disk under edits. Off unless `SUNSET_BENCH=1`; run in release:
-/// `SUNSET_BENCH=1 swift test -c release --filter DocumentMergeBench`.
+/// What a merge costs by the size of the document: it is made on the main actor when a file changes on disk under
+/// edits. Off unless `SUNSET_BENCH=1`; run in release: `SUNSET_BENCH=1 swift test -c release --filter
+/// DocumentMergeBench`.
 @MainActor
 @Suite(
     "A merge's cost by the document's size",

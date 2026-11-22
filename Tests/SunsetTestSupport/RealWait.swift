@@ -2,8 +2,8 @@ import AemiTestKit
 import Foundation
 import Testing
 
-/// Waiting for what is not Sunset's to time (ADR-0087): a page WebKit loads, a server's answer, a file the system watches,
-/// AppKit laying out and drawing. The only place a test waits on the wall clock; Sunset's own timing is `TestTime`'s.
+/// Waiting for what is not Sunset's to time: a page WebKit loads, a server's answer, a file the system watches, AppKit
+/// laying out and drawing. The only place a test waits on the wall clock; Sunset's own timing is `TestTime`'s.
 public enum RealWait {
     /// How often a condition is looked at, and how long at most.
     public static let step = Duration.milliseconds(10)

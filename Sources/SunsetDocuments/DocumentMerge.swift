@@ -1,8 +1,8 @@
 internal import Foundation
 
-/// A change on disk merged into a text edited here (roadmap 0023 step M-e), as what to do in that text: the blocks to take
-/// from the disk, and the blocks both changed, each with what the disk says there. Ranges are UTF-16 units of the text
-/// edited here as it is before any of it is done, as its editors count.
+/// A change on disk merged into a text edited here, as what to do in that text: the blocks to take from the disk, and
+/// the blocks both changed, each with what the disk says there. Ranges are UTF-16 units of the text edited here as it
+/// is before any of it is done, as its editors count.
 ///
 /// Blocks are read from each text by the parser, and a block is what it is because of what stands before it (an indented
 /// line is code after a paragraph, a part of the item after a list item). So what was merged is read again: when it does not

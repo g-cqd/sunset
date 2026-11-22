@@ -10,7 +10,7 @@ import Testing
 
 @testable import SunsetAppCore
 
-/// Roadmap 0086 D (the owner's note n55): what the app decides, out of the app target, under tests. Before, none of it had any.
+/// What the app decides, out of the app target, under tests. Before, none of it had any.
 @MainActor @Suite("The app's decisions, tested")
 struct AppDecisionsTests {
     @Test func `the command line: our flags, a program after -- or as the first word, the login shell otherwise`() {
@@ -144,8 +144,8 @@ extension AppDecisionsTests {
 }
 
 extension AppDecisionsTests {
-    /// The owner's note n63: a floating sidebar's field is the page's address, as the docked one's is; only with no sidebar at all
-    /// does the window bar hold it.
+    /// A floating sidebar's field is the page's address, as the docked one's is; only with no sidebar at all does the
+    /// window bar hold it.
     @Test
     func
         `the address asked in the sidebar stays in it while the sidebar floats, and goes to the window bar without one`()

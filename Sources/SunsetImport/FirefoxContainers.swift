@@ -1,6 +1,6 @@
 public import Foundation
 
-/// The containers of a Firefox profile, from its `containers.json` (roadmap 0111 D).
+/// The containers of a Firefox profile, from its `containers.json`.
 public enum FirefoxContainers {
     private struct File: Decodable {
         let identities: [Identity]

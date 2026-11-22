@@ -2,9 +2,9 @@ import Testing
 
 @testable import SunsetHost
 
-/// Roadmap 0045 B (the owner, 2026-11-18: "No notifications at all … even though some tabs might be emitting some"): a
-/// program's notification was held back whenever Sunset was in front, from a tab nobody was looking at too.
-@Suite("Who sees the pane that notifies (roadmap 0045 B)") struct NotificationSeenTests {
+/// A program's notification is held back only when its pane is seen: Sunset in front used to hold back every one, from a
+/// tab nobody was looking at too, so none was ever shown.
+@Suite("Who sees the pane that notifies") struct NotificationSeenTests {
     @Test func `a pane is seen only shown, in the key window, of the app in front`() {
         #expect(NotificationGate.seen(appActive: true, windowKey: true, windowVisible: true, paneVisible: true))
         #expect(!NotificationGate.seen(appActive: true, windowKey: true, windowVisible: true, paneVisible: false))

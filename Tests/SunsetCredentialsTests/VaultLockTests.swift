@@ -6,8 +6,8 @@ import Testing
 @testable import SunsetCredentials
 @testable import SunsetStorage
 
-/// ADR-0091: locked means the vault key is gone. It locks after an idle time (the Runtime's clock: roadmap 0091 D), at quit,
-/// when the Mac sleeps or the screen locks, when the last window using it closes, and by hand.
+/// Locked means the vault key is gone. It locks after an idle time (on the Runtime's clock), at quit, when the Mac
+/// sleeps or the screen locks, when the last window using it closes, and by hand.
 @MainActor
 @Suite("A vault's lock")
 struct VaultLockTests {

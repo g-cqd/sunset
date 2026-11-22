@@ -1,4 +1,4 @@
-/// Which links may be opened (ADR-0010). Opening is always the user's gesture; this says whether the address is one a terminal opens at all: web, mail and
+/// Which links may be opened. Opening is always the user's gesture; this says whether the address is one a terminal opens at all: web, mail and
 /// ssh addresses, and files on this machine.
 public enum HyperlinkPolicy {
     public static func opens(_ address: String, localHost: String) -> Bool {

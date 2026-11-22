@@ -2,9 +2,8 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// The owner's note n26 (2026-11-18): "addresses, urls, paths, or any code related attributes, arguments, inputs or query
-/// should be input as monospaced font or shown as monospaced fonts" (the address field and the command bar left out, his
-/// answer). A `Text` of a host, an address, a URL or a path is `.code()`; a field for one says so too.
+/// Addresses, URLs, paths and other code are typed and shown in a monospaced font (the address field and the command bar
+/// excepted). A `Text` of a host, an address, a URL or a path is `.code()`; a field for one says so too.
 @Suite("Addresses, paths and code in monospace") struct CodeTextTests {
     /// A `Text` whose only argument is a value of that kind: a name ending in host, address, url, path, absoluteString, or a
     /// short address.

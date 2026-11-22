@@ -22,7 +22,7 @@ public struct Terminal: Sendable {
         screen.packHistory(using: codec, keepingRecent: keepingRecent, limit: limit)
     }
 
-    /// Marks every row clean: the renderer has taken what it needed (ADR-0024).
+    /// Marks every row clean: the renderer has taken what it needed.
     public mutating func clearDirty() {
         screen.clearDirty()
     }
@@ -32,7 +32,7 @@ public struct Terminal: Sendable {
         screen.takeReplies()
     }
 
-    /// What the program asked the host to do (clipboard, notifications), in order; the host applies its policy (ADR-0010).
+    /// What the program asked the host to do (clipboard, notifications), in order; the host applies its policy.
     public mutating func takeEvents() -> [HostEvent] {
         screen.takeEvents()
     }

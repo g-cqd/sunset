@@ -3,9 +3,9 @@ import SunsetCore
 package import SunsetHost
 import UserNotifications
 
-/// What the program asked of the host (ADR-0010), applied under the policy: a clipboard write goes to the pasteboard; a notification is shown only while the
-/// pane is not seen (a tab in the background of Sunset in front notifies: roadmap 0045 B), at most one a second, and only when the process is a bundled
-/// app (the notification centre refuses a bare executable).
+/// What the program asked of the host, applied under the policy: a clipboard write goes to the pasteboard; a notification is shown only while the
+/// pane is not seen (a tab in the background of Sunset in front notifies), at most one a second, and only when the process is a bundled app (the
+/// notification centre refuses a bare executable).
 extension TerminalModel {
     package func watchHostEvents(_ session: TerminalSession) async {
         var gate = NotificationGate()

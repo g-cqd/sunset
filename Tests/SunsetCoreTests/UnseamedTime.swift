@@ -1,7 +1,7 @@
 import Foundation
 
-/// Raw tasks, sleeps and reads of the time (ADR-0087, the owner's note n55): each goes through `Runtime` (SunsetRuntime) — its
-/// `TaskProvider`, its `Clock`, its `now` — so that a test can run the tasks it starts and move the time itself.
+/// Raw tasks, sleeps and reads of the time: each goes through `Runtime` (SunsetRuntime) — its `TaskProvider`, its
+/// `Clock`, its `now` — so that a test can run the tasks it starts and move the time itself.
 enum UnseamedTime {
     static let needles = [
         "Task {", "Task(priority", "Task.detached", "Task.sleep", "Task.yield", "ContinuousClock", "Date()"

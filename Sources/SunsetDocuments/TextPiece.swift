@@ -1,6 +1,6 @@
-/// One piece of a text that a merge works on (roadmap 0023 step M-e): a top-level block of Markdown with the blank lines
-/// after it, or a line. Two pieces are the same when their bytes are: two spellings of one character (composed, decomposed)
-/// are not, since a file that changed from one to the other did change.
+/// One piece of a text that a merge works on: a top-level block of Markdown with the blank lines after it, or a line. Two
+/// pieces are the same when their bytes are: two spellings of one character (composed, decomposed) are not, since a file
+/// that changed from one to the other did change.
 struct TextPiece: Hashable, Sendable {
     let text: Substring
     private let digest: Int

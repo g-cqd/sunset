@@ -1,6 +1,6 @@
 public import Foundation
 
-/// Safari's `Bookmarks.plist` (roadmap 0111 E), which macOS lets an app read only with Full Disk Access.
+/// Safari's `Bookmarks.plist`, which macOS lets an app read only with Full Disk Access.
 public enum SafariBookmarks {
     /// Why it could not be read.
     public enum Failure: Error, Equatable {

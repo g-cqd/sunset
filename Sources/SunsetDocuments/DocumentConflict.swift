@@ -1,5 +1,5 @@
-/// Blocks that were changed here and on disk, differently (roadmap 0023 step M-e). The text keeps what was written here; what
-/// the disk says is kept beside it until the person answers. The file is not written while one waits.
+/// Blocks that were changed here and on disk, differently. The text keeps what was written here; what the disk says is
+/// kept beside it until the person answers. The file is not written while one waits.
 public struct DocumentConflict: Identifiable, Equatable, Sendable {
     public enum Answer: Sendable {
         /// What is here stays.

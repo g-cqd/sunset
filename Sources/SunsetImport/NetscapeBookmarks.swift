@@ -1,5 +1,4 @@
-/// The bookmarks file every browser exports (`NETSCAPE-Bookmark-file-1`, HTML; roadmap 0111 C): the "any other browser"
-/// path.
+/// The bookmarks file every browser exports (`NETSCAPE-Bookmark-file-1`, HTML): the "any other browser" path.
 public enum NetscapeBookmarks {
     /// The tree the file holds. Its markup is loose (tags left open, any case), so this reads only what bookmarks need:
     /// `<H3>` names a folder whose `<DL>` follows, `<A HREF>` is a link, `</DL>` closes a folder. A file cut short keeps

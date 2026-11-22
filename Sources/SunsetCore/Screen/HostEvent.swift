@@ -1,4 +1,4 @@
-/// Something the program asked the host to do, that the core cannot (it never touches the system): the host applies the policy of ADR-0010 and does it.
+/// Something the program asked the host to do, that the core cannot (it never touches the system): the host applies its policy and does it.
 public enum HostEvent: Sendable, Equatable {
     /// OSC 52: put this text on the clipboard.
     case clipboardWrite(String)

@@ -6,8 +6,8 @@ import Testing
 
 @testable import SunsetMarkdown
 
-/// Roadmap 0042 C: a link of a rendered document has a menu, as a page's link has: open it in a new tab, a tab behind,
-/// beside, in a new window; copy it.
+/// A link of a rendered document has a menu, as a page's link has: open it in a new tab, a tab behind, beside, in a new
+/// window; copy it.
 extension DocumentContentTests {
     @Test func `a link's menu opens it where it says, whatever the keys and the setting; Copy Link copies it`() throws {
         let pane = try content(try file("menu.md", "[a](https://example.org/a)\n"))

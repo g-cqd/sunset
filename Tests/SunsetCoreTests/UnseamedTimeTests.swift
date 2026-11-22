@@ -2,8 +2,8 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// Roadmap 0086 B (ADR-0087): raw tasks, sleeps and reads of the time are counted, and the count only goes down. Lower
-/// `remaining` with each migration; it is zero when the stage is done.
+/// Raw tasks, sleeps and reads of the time are counted, and the count only goes down. Lower `remaining` with each
+/// migration; it is zero when the stage is done.
 @Suite("Tasks and time through the runtime's seams")
 struct UnseamedTimeTests {
     /// What is left to move onto `Runtime`.

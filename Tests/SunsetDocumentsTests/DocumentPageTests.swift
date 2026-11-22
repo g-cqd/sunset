@@ -4,8 +4,8 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// The rendered page of a document (roadmap 0023 step M-c): one for every pane that shows it, made only while one does, at
-/// once for a short text and off the main actor for a long one, where keys typed meanwhile make one more page and not one each.
+/// The rendered page of a document: one for every pane that shows it, made only while one does, at once for a short text and
+/// off the main actor for a long one, where keys typed meanwhile make one more page and not one each.
 @MainActor
 @Suite("The page of a document, made for the panes that show it")
 struct DocumentPageTests {

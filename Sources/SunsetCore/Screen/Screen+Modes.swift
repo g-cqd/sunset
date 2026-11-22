@@ -107,7 +107,7 @@ extension Screen {
     }
 
     /// `CSI Ps t`: 18 reports the size in characters, 22 and 23 save and restore the title. Everything else (moving, resizing, iconifying, reports of
-    /// the title or position) is refused, so a program cannot reach the window or read it back (ADR-0026).
+    /// the title or position) is refused, so a program cannot reach the window or read it back.
     mutating func windowOperation(_ parameters: Parameters) {
         switch parameters[0] {
             case 18: reportSize()

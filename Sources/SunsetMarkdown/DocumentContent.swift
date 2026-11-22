@@ -6,9 +6,9 @@ package import SunsetPane
 package import SunsetShell
 package import SwiftUI
 
-/// A document in a pane (R6; roadmap 0023 step M-c): Markdown or a Mermaid diagram drawn natively or shown as source, any
-/// other text as source. The pane holds no text: it is a view of the app's one `OpenDocument` for the file, so a second pane
-/// on the same file shows the same text, edits and undo history.
+/// A document in a pane: Markdown or a Mermaid diagram drawn natively or shown as source, any other text as source. The pane
+/// holds no text: it is a view of the app's one `OpenDocument` for the file, so a second pane on the same file shows the
+/// same text, edits and undo history.
 @MainActor @Observable
 package final class DocumentContent: PaneContent, PaneViewMaking {
     /// The size it was last drawn at, and on what: its picture is made at that size.
@@ -19,7 +19,7 @@ package final class DocumentContent: PaneContent, PaneViewMaking {
 
     /// Pictured as it is: the page drawn again from its rows (rendered), or its first lines (source), at the size it was last
     /// drawn, on its backdrop. Drawn from the document, not from the window, so that nothing over it (the hover card itself)
-    /// is pictured (the owner, 2026-11-17: previews were nested in previews).
+    /// is pictured (previews were nested in previews).
     package func takePicture() {
         guard drawnSize.width > 0, drawnSize.height > 0, document.problem != .notText, document.problem != .unreadable
         else { return }
@@ -84,7 +84,7 @@ package final class DocumentContent: PaneContent, PaneViewMaking {
         guard case .file(let path) = document.place else { return nil }
         return (path as NSString).deletingLastPathComponent
     }
-    /// Rendered, a page of rich text; as source, a document of text (note n3).
+    /// Rendered, a page of rich text; as source, a document of text.
     package var glyph: PaneGlyph {
         .symbol(mode == .rendered ? PaneDescriptor.renderedDocumentSymbol : PaneDescriptor.documentSymbol)
     }
@@ -107,7 +107,7 @@ package final class DocumentContent: PaneContent, PaneViewMaking {
 
     package func setState(focused: Bool, visible: Bool) {
         guard !stopped else { return }
-        // Hidden: pictured while it is still drawn, for its tab's hover card (the owner, 2026-11-17).
+        // Hidden: pictured while it is still drawn, for its tab's hover card.
         if isVisible, !visible { takePicture() }
         isVisible = visible
         // Another pane took the keyboard: the document saves itself when the setting says so.

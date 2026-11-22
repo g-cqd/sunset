@@ -1,10 +1,10 @@
 internal import AppKit
 internal import MarkdownLookKit
 
-/// A change on disk merged into the edits made here (R6, roadmap 0023 step M-e; the owner's answers of 2026-11-16). The
-/// blocks only the disk changed are put in the text as one step of undo, and named for a moment (`lastMerge`). A block both
-/// changed stays as it is here, with the disk's kept beside it (`conflicts`), and the file is not written until each is
-/// answered: `save` refuses, and the document does not save itself.
+/// A change on disk merged into the edits made here. The blocks only the disk changed are put in the text as one step of
+/// undo, and named for a moment (`lastMerge`). A block both changed stays as it is here, with the disk's kept beside it
+/// (`conflicts`), and the file is not written until each is answered: `save` refuses, and the document does not save
+/// itself.
 extension OpenDocument {
     /// The longest text (UTF-16 units) merged at once on the main actor: some 13 ms (measured in release: 10 ms at 200 KB,
     /// 97 ms at 2 MB, 485 ms at 10 MB, most of it the parser reading the three texts and the merged one).

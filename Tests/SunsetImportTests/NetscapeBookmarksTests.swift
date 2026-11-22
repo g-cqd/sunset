@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetImport
 
-/// The exported bookmarks file (roadmap 0111 C), as Safari, Chrome and Firefox write it.
+/// The exported bookmarks file, as Safari, Chrome and Firefox write it.
 @Suite("Exported bookmarks files")
 struct NetscapeBookmarksTests {
     @Test func `folders and links in order, names and addresses unescaped, tags in any case and left open`() {

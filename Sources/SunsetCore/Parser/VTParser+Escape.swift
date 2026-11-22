@@ -46,7 +46,7 @@ extension VTParser {
 
     /// The state diagram's arrows from anywhere (not ground's, not a string's): CAN and SUB to ground, ESC to escape, every other
     /// C0 executed where it is. `byte` is a C0 (below 0x20). Inlined: the parser's hottest branch, kept one function for the
-    /// states that take it (roadmap 0086 E; measured before and after, diary 2026-11-20-12).
+    /// states that take it (measured before and after).
     @inline(__always)
     mutating func anywhere<Sink: VTSink>(_ byte: UInt8, into sink: inout Sink) -> Bool {
         switch byte {

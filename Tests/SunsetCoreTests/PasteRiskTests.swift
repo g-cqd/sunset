@@ -2,9 +2,9 @@ import Testing
 
 @testable import SunsetCore
 
-/// Task t116 (white paper §9, threat model: a page's copied text run as commands). What a paste would do that the person may
-/// not see: lines that run one after another without bracketed paste, control characters, characters that hide or reorder
-/// text. A plain one-line paste, or several lines under bracketed paste, is not a risk.
+/// White paper §9, threat model: a page's copied text run as commands. What a paste would do that the person may not see:
+/// lines that run one after another without bracketed paste, control characters, characters that hide or reorder text. A
+/// plain one-line paste, or several lines under bracketed paste, is not a risk.
 @Suite("Paste: what would be risky")
 struct PasteRiskTests {
     @Test func `plain text is not a risk; several lines under bracketed paste are not either`() {

@@ -1,5 +1,5 @@
-/// What a merge of a change on disk put in the text by itself (roadmap 0023 step M-e), to be shown for a moment: the blocks
-/// that came from the disk are tinted, and the merge can be undone. One step of undo, while nothing was done after it.
+/// What a merge of a change on disk put in the text by itself, to be shown for a moment: the blocks that came from the
+/// disk are tinted, and the merge can be undone. One step of undo, while nothing was done after it.
 public struct DocumentMergeNotice: Identifiable, Equatable, Sendable {
     /// Another for each merge.
     public let id: Int

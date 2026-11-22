@@ -1,4 +1,4 @@
-/// A file's kind, by its name (R6: Markdown, Mermaid, and any other file as text).
+/// A file's kind, by its name (Markdown, Mermaid, and any other file as text).
 extension DocumentKind {
     /// - Parameter path: the file's path or name.
     public init(path: String) {

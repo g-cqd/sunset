@@ -1,6 +1,6 @@
 import Foundation
 
-/// The browsers Sunset knows how to import from (roadmap 0111 G); the "any other browser" path is an exported file.
+/// The browsers Sunset knows how to import from; the "any other browser" path is an exported file.
 public enum BrowserCatalog {
     private static let support = "Library/Application Support/"
 

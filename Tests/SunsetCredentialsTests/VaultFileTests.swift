@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetCredentials
 @testable import SunsetStorage
 
-/// Roadmap 0091 A–B: a vault file holds nothing in the clear but ids and its version; a record opens only with its vault's
-/// key, in its own place.
+/// A vault file holds nothing in the clear but ids and its version; a record opens only with its vault's key, in its
+/// own place.
 @Suite("A vault's file")
 struct VaultFileTests {
     private func folder() throws -> URL {

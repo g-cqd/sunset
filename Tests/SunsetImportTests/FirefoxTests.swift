@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetImport
 
-/// Firefox's profiles, bookmarks and containers (roadmap 0111 D), in the shapes Firefox 145 writes.
+/// Firefox's profiles, bookmarks and containers, in the shapes Firefox 145 writes.
 @Suite("Firefox")
 struct FirefoxTests {
     @Test func `profiles: the install's default first, then the file's order; a path kept as written`() {

@@ -4,8 +4,8 @@ import SunsetRender
 import SunsetRenderMac
 
 extension TerminalModel {
-    /// Draws one frame now, shown or not: the display link's, and a call's this terminal is shared into (ADR-0082), which
-    /// asks for frames while its tab is hidden. One at a time.
+    /// Draws one frame now, shown or not: the display link's, and a call's this terminal is shared into, which asks for
+    /// frames while its tab is hidden. One at a time.
     package func drawFrame() async {
         guard !renderInFlight, session != nil, renderer != nil else { return }
         renderInFlight = true

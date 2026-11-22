@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetImport
 
-/// Chromium's `Bookmarks` file (roadmap 0111 B): the shape Chrome 140 writes, its three roots in their order.
+/// Chromium's `Bookmarks` file: the shape Chrome 140 writes, its three roots in their order.
 @Suite("Chromium's bookmarks")
 struct ChromiumBookmarksTests {
     private let file = Data(

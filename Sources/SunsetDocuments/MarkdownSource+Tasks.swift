@@ -2,7 +2,7 @@ package import MarkdownLookKit
 
 extension MarkdownSource {
     /// Checks a task off, or on again, from its box on the page: its `[ ]` becomes `[x]`, `[x]` or `[X]` becomes `[ ]`, as one
-    /// step of undo (AemiMarkdown ADR-0011).
+    /// step of undo, as AemiMarkdown has it.
     /// - Parameter offset: Where the box's `[` is in the text, in bytes, as the page's marker says.
     /// - Returns: Whether the text changed: not when the bytes there are no longer a box (the text moved under the page).
     @discardableResult

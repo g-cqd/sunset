@@ -1,6 +1,6 @@
 public import Foundation
 
-/// The extensions of a Firefox profile, from its `extensions.json` (roadmap 0111 F).
+/// The extensions of a Firefox profile, from its `extensions.json`.
 public enum FirefoxExtensions {
     private struct File: Decodable {
         let addons: [Addon]

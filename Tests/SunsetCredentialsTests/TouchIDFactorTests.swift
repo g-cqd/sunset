@@ -6,9 +6,9 @@ import Testing
 @testable import SunsetCredentials
 @testable import SunsetStorage
 
-/// ADR-0091, ADR-0104: this Mac's Secure Enclave as a factor, its two keys (P-256 and ML-KEM-1024) usable only with Touch ID
-/// and only while the fingers enrolled are those of when it was set. Here made without Touch ID, so that the tests ask no
-/// one; the factor's own access is checked apart.
+/// This Mac's Secure Enclave as a factor, its two keys (P-256 and ML-KEM-1024) usable only with Touch ID and only while
+/// the fingers enrolled are those of when it was set. Here made without Touch ID, so that the tests ask no one; the
+/// factor's own access is checked apart.
 @Suite("A vault's Touch ID factor", .enabled(if: SecureEnclave.isAvailable))
 struct TouchIDFactorTests {
     private func noPrompt() throws -> SecAccessControl {

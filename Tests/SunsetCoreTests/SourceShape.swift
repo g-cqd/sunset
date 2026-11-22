@@ -1,8 +1,8 @@
 import Foundation
 
-/// The code's shape (ADR-0087, the owner's note n55): no declaration has its body on its own line. A body is that of a
-/// `func`, `init`, `subscript`, `deinit`, a computed `var` or an accessor; a protocol's requirement (`{ get }`) is not one.
-/// The same reading as `Scripts/tools/expand-one-line-bodies.py`, which spans them over lines.
+/// The code's shape: no declaration has its body on its own line. A body is that of a `func`, `init`, `subscript`,
+/// `deinit`, a computed `var` or an accessor; a protocol's requirement (`{ get }`) is not one. The same reading as
+/// `Scripts/tools/expand-one-line-bodies.py`, which spans them over lines.
 enum SourceShape {
     private static let keywords: Set<String> = [
         "func", "init", "init?", "init!", "subscript", "deinit", "var", "get", "set", "didSet", "willSet"

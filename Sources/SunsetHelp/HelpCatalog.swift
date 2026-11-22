@@ -1,4 +1,4 @@
-/// Help's texts, by topic (roadmap 0041 A): one source for a control's tooltip (`summary`) and its explanation.
+/// Help's texts, by topic: one source for a control's tooltip (`summary`) and its explanation.
 public enum HelpCatalog {
     /// Every topic's text.
     public static let entries: [HelpTopic: HelpEntry] = sidebar.merging(web) { first, _ in first }

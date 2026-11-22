@@ -1,5 +1,5 @@
 extension HelpCatalog {
-    /// What **Settings > General** sets that a note under a setting cannot say whole (roadmap 0041 C).
+    /// What **Settings > General** sets that a note under a setting cannot say whole.
     static let general: [HelpTopic: HelpEntry] = [
         .features: HelpEntry(
             title: "Turning features off",

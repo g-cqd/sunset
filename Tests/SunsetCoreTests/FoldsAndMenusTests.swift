@@ -2,8 +2,8 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// docs/design/folds-and-menus.md (the owner's note n45): every fold shows only the system's chevron before a text label, no
-/// glyph button shows a menu indicator, and the sidebar's folders fold as every other fold does.
+/// docs/design/folds-and-menus.md: every fold shows only the system's chevron before a text label, no glyph button
+/// shows a menu indicator, and the sidebar's folders fold as every other fold does.
 @Suite("Folds and menus follow one rule") struct FoldsAndMenusTests {
     private let sources = RepositoryFiles.swiftFiles(in: ["Sources"])
 
@@ -28,7 +28,7 @@ import Testing
 
     @Test func `the sidebar's folders fold with the system's chevrons`() {
         let folder = sources.first { $0.name == "FolderRow.swift" }?.text ?? ""
-        // Right while folded, down while open: the two symbols, or the right one turned a quarter (n76: it turns as it
+        // Right while folded, down while open: the two symbols, or the right one turned a quarter (it turns as it
         // folds, as `Fold`'s does).
         let turns = folder.contains(".rotationEffect(.degrees(folder.isCollapsed ? 0 : 90))")
         #expect(folder.contains("\"chevron.right\"") && (folder.contains("\"chevron.down\"") || turns))

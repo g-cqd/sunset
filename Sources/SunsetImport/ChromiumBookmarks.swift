@@ -1,6 +1,6 @@
 public import Foundation
 
-/// Chromium's `Bookmarks` file (Chrome, Chromium, Brave, Edge, Vivaldi, Opera, Arc), JSON (roadmap 0111 B).
+/// Chromium's `Bookmarks` file (Chrome, Chromium, Brave, Edge, Vivaldi, Opera, Arc), JSON.
 public enum ChromiumBookmarks {
     /// The file's roots, as Chromium names them: the bar, the other bookmarks, the mobile ones.
     private struct File: Decodable {

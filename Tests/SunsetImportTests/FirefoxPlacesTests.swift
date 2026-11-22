@@ -4,8 +4,8 @@ import Testing
 
 @testable import SunsetImport
 
-/// `places.sqlite` read from a copy (roadmap 0111 D): what Firefox has written is read, its log included, while Firefox
-/// still has the file open, and the file is left as it was.
+/// `places.sqlite` read from a copy: what Firefox has written is read, its log included, while Firefox still has the
+/// file open, and the file is left as it was.
 @Suite("Firefox's places database")
 struct FirefoxPlacesTests {
     private static let schema = """

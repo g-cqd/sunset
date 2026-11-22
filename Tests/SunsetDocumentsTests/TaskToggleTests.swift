@@ -4,8 +4,7 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// A task's box on the page is the system's checkbox, and a click on it checks the task off in the text (the owner,
-/// 2026-11-17: "they should render the default macos checkboxes").
+/// A task's box on the page is the system's checkbox, and a click on it checks the task off in the text.
 @MainActor
 @Suite("A task checked off from the page")
 struct TaskToggleTests {

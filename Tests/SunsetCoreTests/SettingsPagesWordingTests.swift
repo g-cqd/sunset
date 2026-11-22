@@ -3,8 +3,8 @@ import SunsetTestSupport
 import Testing
 
 /// The Settings pages built by hand (Websites, Profiles, Storage, the custom rows) follow the wording rules of
-/// docs/design/0005 as the generated options do (roadmap 0040 D): a control's name is not started by an article, not a
-/// fragment its values finish, and spelled as macOS spells.
+/// docs/design/0005 as the generated options do: a control's name is not started by an article, not a fragment its
+/// values finish, and spelled as macOS spells.
 @Suite("Settings' hand-built pages' wording") struct SettingsPagesWordingTests {
     /// The files of the pages Settings draw by hand.
     static let pages = [

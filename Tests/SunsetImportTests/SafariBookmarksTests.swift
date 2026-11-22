@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetImport
 
-/// Safari's `Bookmarks.plist` (roadmap 0111 E), in the shape Safari 26 writes (binary, as on disk).
+/// Safari's `Bookmarks.plist`, in the shape Safari 26 writes (binary, as on disk).
 @Suite("Safari's bookmarks")
 struct SafariBookmarksTests {
     private func leaf(_ title: String, _ url: String) -> [String: Any] {

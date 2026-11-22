@@ -40,8 +40,7 @@ extension DocumentContentTests {
         text.stop()
     }
 
-    /// The owner, 2026-11-17: a link opened in a split; now in a new tab unless `documents.linksOpen` or the keys say
-    /// otherwise.
+    /// A link opened in a split; now in a new tab unless `documents.linksOpen` or the keys say otherwise.
     @Test func `a link opens in a new tab by default, beside when set or with Option: a page, a document, mail`() throws
     {
         let pane = try content(try file("links.md", "[a](other.md)\n"))

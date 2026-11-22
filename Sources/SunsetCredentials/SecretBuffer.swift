@@ -1,8 +1,8 @@
 import Foundation
 
-/// A secret's bytes in memory of their own (ADR-0091: "secrets live in locked, zeroed buffers"): pinned (`mlock`) so that
-/// they are not written to swap, zeroed (`memset_s`, which the compiler may not leave out) before the memory is given back.
-/// Copies made from it (a key handed to CryptoKit) are the caller's, for as long as its closure runs.
+/// A secret's bytes in memory of their own ("secrets live in locked, zeroed buffers"): pinned (`mlock`) so that they are
+/// not written to swap, zeroed (`memset_s`, which the compiler may not leave out) before the memory is given back. Copies
+/// made from it (a key handed to CryptoKit) are the caller's, for as long as its closure runs.
 final class SecretBuffer {
     /// The bytes, and the whole allocation they are in (at least a byte), for zeroing and giving back.
     private var memory: UnsafeMutableRawBufferPointer?

@@ -37,7 +37,7 @@ import Testing
         #expect(!reveal.isShown(at: start + .seconds(1)))
     }
 
-    /// The floating sidebar while its field is typed in (note n63): out whatever the pointer does, and when let go, gone after the
+    /// The floating sidebar while its field is typed in: out whatever the pointer does, and when let go, gone after the
     /// delay unless the pointer is on it.
     @Test
     func `held, it is shown wherever the pointer is; let go, it hides after the delay unless the pointer is inside`() {

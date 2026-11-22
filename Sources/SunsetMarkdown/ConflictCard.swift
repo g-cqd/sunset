@@ -3,9 +3,9 @@ internal import SunsetDocuments
 internal import SunsetShell
 internal import SwiftUI
 
-/// A block changed here and on disk, on the block itself (roadmap 0023 step M-e, the owner's choice of 2026-11-16): what
-/// the disk says, tinted, and the three answers. On the page what is here is drawn above it, tinted too; in the source the
-/// text view tints it where it stands, and this card sits under it.
+/// A block changed here and on disk, on the block itself: what the disk says, tinted, and the three answers. On the page
+/// what is here is drawn above it, tinted too; in the source the text view tints it where it stands, and this card sits
+/// under it.
 struct ConflictCard: View {
     let content: DocumentContent
     let conflict: DocumentConflict

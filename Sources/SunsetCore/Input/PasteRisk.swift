@@ -1,4 +1,4 @@
-/// What a paste would do that the person may not see (task t116, white paper §9): asked about before it reaches the program.
+/// What a paste would do that the person may not see (white paper §9): asked about before it reaches the program.
 public enum PasteRisk: Equatable, Sendable {
     /// Without bracketed paste each line ending is an Enter: `lines` commands would run as the paste lands.
     case runs(lines: Int)

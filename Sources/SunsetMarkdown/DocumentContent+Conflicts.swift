@@ -1,7 +1,7 @@
 package import SunsetDocuments
 
-/// The blocks changed both here and on disk, as this pane goes through them (roadmap 0023 step M-e): one is the one it is
-/// on, shown in the bar ("1 of 2") and brought into view.
+/// The blocks changed both here and on disk, as this pane goes through them: one is the one it is on, shown in the bar
+/// ("1 of 2") and brought into view.
 extension DocumentContent {
     /// Where the conflict this pane is on stands among them, from 0: the one last shown while it waits, else the first. Nil
     /// with none.

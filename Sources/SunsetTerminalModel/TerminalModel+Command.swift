@@ -2,7 +2,7 @@ import Foundation
 import SunsetHost
 import SunsetRuntime
 
-/// A command typed into the shell for a kept entry (t145), as if typed and then Return: once the shell has drawn its prompt. With shell integration the
+/// A command typed into the shell for a kept entry, as if typed and then Return: once the shell has drawn its prompt. With shell integration the
 /// prompt is known from its mark; without it, once the shell has printed something and gone quiet for a moment. At most `deadline` is waited.
 extension TerminalModel {
     private static let quiet = Duration.milliseconds(400)

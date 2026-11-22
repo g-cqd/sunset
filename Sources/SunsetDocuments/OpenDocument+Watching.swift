@@ -3,7 +3,7 @@ internal import MarkdownLookKit
 internal import SunsetHost
 import SunsetRuntime
 
-/// The file behind a document, watched (R6: "reloaded silently if unedited; merged if edited", `OpenDocument+Merging`).
+/// The file behind a document, watched ("reloaded silently if unedited; merged if edited", `OpenDocument+Merging`).
 extension OpenDocument {
     func startWatching() {
         guard case .file(let path) = place, watcher == nil else { return }

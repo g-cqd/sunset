@@ -1,6 +1,6 @@
 extension HelpCatalog {
-    /// What a website may do, and what Sunset keeps of it (roadmap 0041 D; white paper §9: what an untrusted page asks for
-    /// has a policy).
+    /// What a website may do, and what Sunset keeps of it (white paper §9: what an untrusted page asks for has a
+    /// policy).
     static let web: [HelpTopic: HelpEntry] = [
         .sitePermissions: HelpEntry(
             title: "What sites may do",

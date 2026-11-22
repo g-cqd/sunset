@@ -1,7 +1,7 @@
 import Foundation
 public import SunsetPane
 
-/// Another browser's bookmarks as Sunset's Favorites (roadmap 0111 A).
+/// Another browser's bookmarks as Sunset's Favorites.
 public enum FavoritesImport {
     /// The name a folder without one gets.
     public static let unnamedFolder = "Imported"

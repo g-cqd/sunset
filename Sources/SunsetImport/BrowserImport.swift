@@ -1,6 +1,6 @@
 public import Foundation
 
-/// Reads a browser's profiles and what each holds, from its folder (roadmap 0111 G).
+/// Reads a browser's profiles and what each holds, from its folder.
 public enum BrowserImport {
     public enum Failure: Error, Equatable {
         /// macOS refuses the folder or a file in it: Safari's always, another app's data unless the person allows it

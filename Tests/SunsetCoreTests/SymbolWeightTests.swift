@@ -2,9 +2,9 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// The owner, 2026-11-19: "pay attention to all the font weight used by all the sf symbols to ensure they all align". A
-/// control's symbol (the close button's size, `Design.Symbol.badge`) has one weight, `Design.Symbol.weight`; a tab's picture
-/// (`Design.Symbol.row`) has the symbols' regular one; a tab's sound and devices are drawn as its close button is.
+/// "pay attention to all the font weight used by all the sf symbols to ensure they all align". A control's symbol (the close
+/// button's size, `Design.Symbol.badge`) has one weight, `Design.Symbol.weight`; a tab's picture (`Design.Symbol.row`) has
+/// the symbols' regular one; a tab's sound and devices are drawn as its close button is.
 @Suite("SF Symbols: one weight per role")
 struct SymbolWeightTests {
     private func sources() throws -> [(name: String, text: String)] {

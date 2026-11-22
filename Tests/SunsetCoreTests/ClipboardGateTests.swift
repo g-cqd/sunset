@@ -2,9 +2,8 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// The owner's note n11 (2026-11-18): "a visual cue that the link is copied when clicking on the copy link in the address
-/// bar, same goes for all buttons … UX/UI and haptic feedback … as to when a click goes through or is blocked". Every copy
-/// goes through `Clipboard.copy`, which says what it did.
+/// A click shows whether it went through or was blocked, a copy that it copied: every copy goes through `Clipboard.copy`,
+/// which says what it did.
 @Suite("Every copy says it copied") struct ClipboardGateTests {
     /// The clipboard itself; a terminal's copy of its selection (Cmd-C, as every terminal, silent) and a program's write
     /// through OSC 52 (its own policy, white paper §9; the model asks, the app writes: `TerminalModel+App.swift`), which are

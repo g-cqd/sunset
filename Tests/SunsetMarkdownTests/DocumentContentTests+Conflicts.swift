@@ -6,8 +6,8 @@ import Testing
 
 @testable import SunsetMarkdown
 
-/// The blocks changed here and on disk, as a pane shows them (roadmap 0023 step M-e; the owner's answers of 2026-11-16): on
-/// the block, in the document; saving shows the first of them and writes nothing.
+/// The blocks changed here and on disk, as a pane shows them: on the block, in the document; saving shows the first of
+/// them and writes nothing.
 extension DocumentContentTests {
     private static let text = "# Title\n\nFirst.\n\nSecond.\n\nThird.\n"
 

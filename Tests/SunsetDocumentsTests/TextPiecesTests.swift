@@ -2,9 +2,9 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// A text cut into the pieces a merge works on (R6, roadmap 0023 step M-e): the top-level blocks of Markdown, each with the
-/// blank lines after it; the lines of anything else. Whatever the text, the pieces joined are the text, byte for byte:
-/// a merge that puts pieces together can then never lose or invent a character between them.
+/// A text cut into the pieces a merge works on: the top-level blocks of Markdown, each with the blank lines after it;
+/// the lines of anything else. Whatever the text, the pieces joined are the text, byte for byte: a merge that puts
+/// pieces together can then never lose or invent a character between them.
 @Suite("A text in pieces")
 struct TextPiecesTests {
     private func joined(_ pieces: [TextPiece]) -> String {

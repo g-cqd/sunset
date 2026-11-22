@@ -2,9 +2,9 @@ import Foundation
 public import SunsetRuntime
 public import SunsetStorage
 
-/// A vault's lock (ADR-0091, roadmap 0091 D): unlocked, the vault key is held in a `SecretBuffer`; locked, it is zeroed and
-/// gone, and nothing of the vault opens until a factor gives it again. It locks after `idle` without use (measured on the
-/// Runtime's monotonic clock, so that a test moves the time), and at once for the other reasons, which the app reports.
+/// A vault's lock: unlocked, the vault key is held in a `SecretBuffer`; locked, it is zeroed and gone, and nothing of the
+/// vault opens until a factor gives it again. It locks after `idle` without use (measured on the Runtime's monotonic
+/// clock, so that a test moves the time), and at once for the other reasons, which the app reports.
 @MainActor
 public final class VaultLock {
     public enum Reason: Equatable, Sendable { case idle, quit, sleep, screenLocked, lastWindowClosed, byHand }

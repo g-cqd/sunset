@@ -3,7 +3,7 @@ import SunsetCore
 import SunsetRender
 import SunsetRenderMac
 
-/// Opening hyperlinks (OSC 8, ADR-0010): only on the user's Command-click, only the addresses the policy allows.
+/// Opening hyperlinks (OSC 8): only on the user's Command-click, only the addresses the policy allows.
 extension TerminalModel {
     /// Opens the link under a point of the surface, if there is one and it may be opened. Returns whether there was a link there (the click is then used up).
     @discardableResult

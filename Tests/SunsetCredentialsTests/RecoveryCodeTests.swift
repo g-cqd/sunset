@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetCredentials
 @testable import SunsetStorage
 
-/// ADR-0091: a recovery code, 32 random bytes shown once, is a factor of its own. Typed back, a slip is said to be one
-/// before anything is tried; the code opens only its own vault.
+/// A recovery code, 32 random bytes shown once, is a factor of its own. Typed back, a slip is said to be one before
+/// anything is tried; the code opens only its own vault.
 @Suite("A vault's recovery code")
 struct RecoveryCodeTests {
     @Test func `it is 32 random bytes, shown in groups of five that read back to the same code`() throws {

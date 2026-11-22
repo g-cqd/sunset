@@ -1,6 +1,6 @@
 package import Foundation
 
-/// What a document pane asks to have opened beside it (R6: "everything in a new split").
+/// What a document pane asks to have opened beside it ("everything in a new split").
 package enum DocumentOpening {
     /// Another pane on a document: the other view of the same one (Show Beside), or the file a link names.
     case document(DocumentContent)

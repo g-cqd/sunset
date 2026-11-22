@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetCore
 
-@Suite("OSC 7, 9, 99, 133, 777, 1337 (ADR-0010)") struct OSCHostStateTests {
+@Suite("OSC 7, 9, 99, 133, 777, 1337") struct OSCHostStateTests {
     private func feed(_ text: String, columns: Int = 20, rows: Int = 4, limit: Int = 100) -> Terminal {
         var t = Terminal(columns: columns, rows: rows, scrollbackLimit: limit)
         t.feed(text)

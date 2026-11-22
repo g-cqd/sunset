@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetImport
 
-/// A browser's profiles and what each holds, read from its folder (roadmap 0111 G).
+/// A browser's profiles and what each holds, read from its folder.
 @Suite("Importing from a browser's folder")
 struct BrowserImportTests {
     private func home() throws -> URL {

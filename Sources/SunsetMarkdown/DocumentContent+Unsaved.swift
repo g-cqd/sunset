@@ -2,7 +2,7 @@ package import SunsetDocuments
 package import SunsetPane
 package import SunsetShell
 
-/// The edits of a document when something is about to close them (R6, roadmap 0023 step M-d).
+/// The edits of a document when something is about to close them.
 extension DocumentContent {
     /// The edits closing this pane could lose, with how many panes show the document: the tabs ask only when the ones that
     /// close are all of them. A document of Sunset's own store keeps itself, so it is asked about only once that has failed.

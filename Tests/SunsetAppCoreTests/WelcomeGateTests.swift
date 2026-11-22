@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetAppCore
 
-/// The welcome opens by itself once, on a Mac where Sunset was never set up (roadmap 0111 H).
+/// The welcome opens by itself once, on a Mac where Sunset was never set up.
 @Suite("When the welcome opens by itself")
 struct WelcomeGateTests {
     @Test func `the first launch only: not once seen, not over a configuration, not in the background`() {

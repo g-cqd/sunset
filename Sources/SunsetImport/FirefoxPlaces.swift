@@ -1,7 +1,7 @@
 public import Foundation
 import SQLite3
 
-/// Reads `places.sqlite`, the database Firefox keeps its bookmarks in (roadmap 0111 D).
+/// Reads `places.sqlite`, the database Firefox keeps its bookmarks in.
 public enum FirefoxPlaces {
     /// Why it could not be read.
     public enum Failure: Error, Equatable {

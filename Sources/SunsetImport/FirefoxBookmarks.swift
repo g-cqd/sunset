@@ -1,4 +1,4 @@
-/// Firefox's bookmarks, from `places.sqlite` (roadmap 0111 D).
+/// Firefox's bookmarks, from `places.sqlite`.
 public enum FirefoxBookmarks {
     /// The roots after the toolbar, in the order Firefox shows them, with the names it shows (the rows' own are internal).
     static let otherRoots = [

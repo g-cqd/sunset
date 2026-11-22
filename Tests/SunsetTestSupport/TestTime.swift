@@ -3,8 +3,8 @@ public import Foundation
 public import SunsetRuntime
 import Testing
 
-/// The time and the tasks of what a test runs (ADR-0087): a `TestClock` nothing passes on but the test's word, a
-/// `TaskProviderSpy` that knows every task started, and the `Runtime` made of them for the code under test.
+/// The time and the tasks of what a test runs: a `TestClock` nothing passes on but the test's word, a `TaskProviderSpy`
+/// that knows every task started, and the `Runtime` made of them for the code under test.
 public final class TestTime: Sendable {
     public let clock = TestClock()
     public let spy = TaskProviderSpy()

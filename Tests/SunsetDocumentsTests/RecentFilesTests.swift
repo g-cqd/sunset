@@ -4,9 +4,9 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// The files opened lately (roadmap 0031, the owner's answer of 2026-11-16: listed with the documents in the Library). The
-/// last twenty, each once, the latest first; sealed in the state database like every small record, so that the names of
-/// the person's files are not written in plain.
+/// The files opened lately (listed with the documents in the Library). The last twenty, each once, the latest first;
+/// sealed in the state database like every small record, so that the names of the person's files are not written in
+/// plain.
 @MainActor
 @Suite("The files opened lately")
 struct RecentFilesTests {

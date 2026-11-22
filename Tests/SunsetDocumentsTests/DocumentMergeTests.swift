@@ -2,9 +2,9 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// The merge of a change on disk into a text edited here, as the edits to make in that text (R6, roadmap 0023 step M-e):
-/// where the disk's blocks go, and where both changed a block, with what the disk says there. In UTF-16 units of the text
-/// edited here, which is what its editors count in.
+/// The merge of a change on disk into a text edited here, as the edits to make in that text: where the disk's blocks go,
+/// and where both changed a block, with what the disk says there. In UTF-16 units of the text edited here, which is what
+/// its editors count in.
 @Suite("A change on disk merged into edits made here")
 struct DocumentMergeTests {
     private typealias Change = DocumentMerge.Change

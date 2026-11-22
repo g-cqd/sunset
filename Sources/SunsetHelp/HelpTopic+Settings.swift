@@ -1,5 +1,5 @@
 extension HelpTopic {
-    /// The topic that explains the setting `id` of the file, where one does (roadmap 0041 C): its "?" opens it.
+    /// The topic that explains the setting `id` of the file, where one does: its "?" opens it.
     /// - Parameter id: A setting's key ("tabs.keepAwakeDisplay").
     /// - Returns: Its topic, or nil.
     public static func explaining(setting id: String) -> HelpTopic? {

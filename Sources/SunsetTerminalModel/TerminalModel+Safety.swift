@@ -3,7 +3,7 @@ import SunsetCore
 import SunsetHost
 import SunsetRuntime
 
-/// Pastes asked about, secure keyboard entry (task t116, white paper §9).
+/// Pastes asked about, secure keyboard entry (white paper §9).
 extension TerminalModel {
     /// Text pasted (the menu, a drop): what would run or hide is asked about first, by `terminal.pasteWarning`.
     package func paste(_ text: String) {

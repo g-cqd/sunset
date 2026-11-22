@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetCredentials
 @testable import SunsetStorage
 
-/// ADR-0091: "any one opens the vault, or two if the person asks for two". Two factors make one key that needs both.
+/// "any one opens the vault, or two if the person asks for two". Two factors make one key that needs both.
 @Suite("Two factors at once")
 struct FactorPairTests {
     private let password = (kind: "password", key: Data(repeating: 1, count: 32))

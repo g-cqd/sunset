@@ -1,6 +1,6 @@
 public import Foundation
 
-/// Two factors at once (ADR-0091: "any one opens the vault, or two if the person asks for two").
+/// Two factors at once ("any one opens the vault, or two if the person asks for two").
 extension FactorKey {
     /// The key two factors make together: HKDF over both keys, in the order of their kinds so that either order gives the
     /// same, bound to `vault`; its kind names both ("password+touch-id"). Either key alone is not it.

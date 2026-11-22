@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetImport
 
-/// Which browsers there are to import from (roadmap 0111 G), by the folders they keep their data in.
+/// Which browsers there are to import from, by the folders they keep their data in.
 @Suite("The browsers to import from")
 struct BrowserCatalogTests {
     @Test func `the browsers whose folder exists, in the catalogue's order; each read as its kind`() {

@@ -1,7 +1,7 @@
-/// The merge of two edits of one text, by pieces (roadmap 0023 step M-e). A wrong merge is silent damage, so what is done
-/// without a question is narrow: pieces that only the other side replaced, removed or put in. Where both sides touched the
-/// same pieces, put pieces in at the same place, or one put pieces in among those the other replaced, it is a conflict,
-/// unless both made the same of it.
+/// The merge of two edits of one text, by pieces. A wrong merge is silent damage, so what is done without a question is
+/// narrow: pieces that only the other side replaced, removed or put in. Where both sides touched the same pieces, put
+/// pieces in at the same place, or one put pieces in among those the other replaced, it is a conflict, unless both made
+/// the same of it.
 ///
 /// Changes to pieces side by side are both kept: a piece is a block, a unit by itself (lines, which are not, are merged the
 /// same way, and are checked the same way by `DocumentMerge`). Pieces put in exactly where a changed run begins go before

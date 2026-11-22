@@ -4,9 +4,9 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// Edits are never forgotten without a word (roadmap 0023 step M-d): what closes a pane asks first, and a pane that goes by
-/// a way that did not ask (a window closed by the system, a pane closed by code) leaves its document open, held by no pane,
-/// until it is saved, given up, or the app is asked to quit, which names it.
+/// Edits are never forgotten without a word: what closes a pane asks first, and a pane that goes by a way that did not ask
+/// (a window closed by the system, a pane closed by code) leaves its document open, held by no pane, until it is saved,
+/// given up, or the app is asked to quit, which names it.
 @MainActor
 @Suite("Unsaved edits outlive the panes that showed them")
 struct OpenDocumentsKeepingTests {

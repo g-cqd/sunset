@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetCore
 
-@Suite("OSC 8 hyperlinks (ADR-0010)") struct OSCLinkTests {
+@Suite("OSC 8 hyperlinks") struct OSCLinkTests {
     private func feed(_ text: String, columns: Int = 40, rows: Int = 4, limit: Int = 100) -> Terminal {
         var t = Terminal(columns: columns, rows: rows, scrollbackLimit: limit)
         t.feed(text)

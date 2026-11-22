@@ -1,4 +1,4 @@
-/// One screen cell in 8 bytes (ADR-0012): scalar (21 bits; 0 is an empty cell), width class (2 bits), a cluster flag, style id (16 bits).
+/// One screen cell in 8 bytes: scalar (21 bits; 0 is an empty cell), width class (2 bits), a cluster flag, style id (16 bits).
 public struct Cell: Sendable, Equatable {
     /// Visible to inlined code: the accessors below are `@inlinable`, so that a renderer in another module reads a cell's fields in place instead of calling
     /// a function for each (measured: 4 % of a recorded frame, renderer plan 2026-11-08).

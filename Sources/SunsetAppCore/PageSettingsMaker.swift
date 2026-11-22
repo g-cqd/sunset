@@ -3,8 +3,8 @@ package import SunsetConfig
 package import SunsetPane
 package import SunsetWeb
 
-/// A page's settings from the configuration (roadmap 0086 D: out of the app target, under tests): all profiles' `web.*`, or
-/// a profile's own values over them (ADR-0083).
+/// A page's settings from the configuration (out of the app target, under tests): all profiles' `web.*`, or a profile's
+/// own values over them.
 package struct PageSettingsMaker: Sendable {
     /// What the pages say they are (`Version/… Safari/…`): read once by the app.
     package let applicationName: String

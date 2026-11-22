@@ -1,4 +1,4 @@
-/// What the OSC sequences that reach outside the screen leave behind (ADR-0010): a bounded queue of events for the host, and the latest state of the
+/// What the OSC sequences that reach outside the screen leave behind: a bounded queue of events for the host, and the latest state of the
 /// working directory, progress and prompt marks.
 struct HostState: Sendable {
     static let eventLimit = 64

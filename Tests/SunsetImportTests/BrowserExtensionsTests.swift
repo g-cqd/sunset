@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetImport
 
-/// Other browsers' extensions (roadmap 0111 F): named, with the store page Sunset installs them from.
+/// Other browsers' extensions: named, with the store page Sunset installs them from.
 @Suite("Other browsers' extensions")
 struct BrowserExtensionsTests {
     private let blocker = "cjpalhdlnbpafiamejdnhcphjbkeiagm"

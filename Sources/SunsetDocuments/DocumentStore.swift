@@ -3,13 +3,13 @@ public import Observation
 public import SunsetRuntime
 public import SunsetStorage
 
-/// The documents that live in Sunset (R12, roadmap 0030 step ST-4): one sealed file each in a folder, written whole or not at
-/// all, and an index of what the library shows (title, kind, dates), which holds nothing that the files do not: it is rebuilt
-/// from them when it is lost, and follows them when it disagrees. One damaged file loses one document, and is set aside and
-/// said. Other tools cannot read these files; a document leaves the store as plain text (`delete`, `move`).
+/// The documents that live in Sunset: one sealed file each in a folder, written whole or not at all, and an index of what the
+/// library shows (title, kind, dates), which holds nothing that the files do not: it is rebuilt from them when it is lost,
+/// and follows them when it disagrees. One damaged file loses one document, and is set aside and said. Other tools cannot
+/// read these files; a document leaves the store as plain text (`delete`, `move`).
 @MainActor @Observable
 public final class DocumentStore {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     public var runtime = Runtime.live
 
     /// The latest changed first.
@@ -19,7 +19,7 @@ public final class DocumentStore {
     @ObservationIgnored let seal: Seal
     @ObservationIgnored let index: SealedTable?
     @ObservationIgnored let problems: StorageProblems
-    /// Puts a plain file away: the Mac's Trash for the person's own setup (the owner, R12), removal for a named one.
+    /// Puts a plain file away: the Mac's Trash for the person's own setup, removal for a named one.
     @ObservationIgnored let discard: (URL) throws -> Void
 
     /// Opens the store on `folder`. Without a `library` (the index's database) the index is in memory only, and is rebuilt
@@ -51,8 +51,8 @@ public final class DocumentStore {
         return try write(SealedDocument(kind: kind, created: runtime.now(), text: text), id: id)
     }
 
-    /// A document of another store (Sunset WebKit's of before, ADR-0114) kept here under its own id and creation date;
-    /// false when this store has it already.
+    /// A document of another store (Sunset WebKit's of before) kept here under its own id and creation date; false when
+    /// this store has it already.
     @discardableResult
     public func adopt(_ document: StoredDocument, text: String) throws(DocumentStoreFailure) -> Bool {
         guard !documents.contains(where: { $0.id == document.id }) else { return false }

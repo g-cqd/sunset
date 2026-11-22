@@ -1,7 +1,7 @@
 public import Foundation
 
-/// An extension installed in another browser (roadmap 0111 F): offered to the person through its store page, where
-/// Sunset installs it as from any store page (roadmap 0109 E), granted by the person; never installed silently.
+/// An extension installed in another browser: offered to the person through its store page, where Sunset installs it as
+/// from any store page, granted by the person; never installed silently.
 public struct BrowserExtension: Sendable, Equatable {
     public var id: String
     public var name: String

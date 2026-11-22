@@ -6,9 +6,9 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// A document saving itself (R6, roadmap 0023 step M-d): a file only when a setting says so (after a time, on losing focus),
-/// both off by default; a document of Sunset's own store always ("kept by Sunset until saved"). It never writes over what it
-/// has not read: a file changed on disk under these edits, a file that is gone, a file that is not text.
+/// A document saving itself: a file only when a setting says so (after a time, on losing focus), both off by default; a
+/// document of Sunset's own store always ("kept by Sunset until saved"). It never writes over what it has not read: a file
+/// changed on disk under these edits, a file that is gone, a file that is not text.
 @MainActor
 @Suite("A document saves itself only when it is safe and asked for")
 struct DocumentAutosaveTests {
@@ -46,7 +46,7 @@ struct DocumentAutosaveTests {
         }
     }
 
-    /// The time of the documents' saves: nothing waits on the wall clock (ADR-0087).
+    /// The time of the documents' saves: nothing waits on the wall clock.
     let time = TestTime()
 
     func documents(store: DocumentStore? = nil) -> OpenDocuments {

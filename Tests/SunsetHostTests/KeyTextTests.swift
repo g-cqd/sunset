@@ -1,7 +1,7 @@
 import SunsetHost
 import Testing
 
-/// The `--keys` of sunset-run and sunset-render, read in one place (roadmap 0086 E: each tool had its own copy).
+/// The `--keys` of sunset-run and sunset-render, read in one place (each tool had its own copy).
 @Suite("Keys written as text")
 struct KeyTextTests {
     @Test func `escapes become their keys; any other backslash is that thing; a trailing one stays`() {

@@ -3,8 +3,8 @@ internal import MarkdownLookKit
 internal import SunsetDocuments
 internal import SwiftUI
 
-/// What a merge shows in one source editor (roadmap 0023 step M-e): the blocks of a conflict tinted where they stand, a card
-/// under each with what the disk says and the answers, and for a moment the blocks a merge just put in.
+/// What a merge shows in one source editor: the blocks of a conflict tinted where they stand, a card under each with
+/// what the disk says and the answers, and for a moment the blocks a merge just put in.
 ///
 /// The editor is the kit's text view; nothing of it is replaced. The tints are the layout's temporary attributes (they are
 /// not the text's, and are not saved or undone). The text makes room for a card: the text container is given a path to keep

@@ -1,7 +1,7 @@
 public import CryptoKit
 import Foundation
 
-/// The check that a kept terminal's command was written by Sunset, not by another program editing the session file (t145): an HMAC-SHA256 of the command,
+/// The check that a kept terminal's command was written by Sunset, not by another program editing the session file: an HMAC-SHA256 of the command,
 /// keyed by a secret the app keeps in the Keychain. A program that can read that secret can forge it; one that can only write the session file cannot.
 public struct CommandSeal: Sendable {
     private let key: SymmetricKey

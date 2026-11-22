@@ -1,5 +1,5 @@
 extension HelpCatalog {
-    /// Blocking ads and trackers (roadmap 0022 W-c).
+    /// Blocking ads and trackers.
     static let blocking: [HelpTopic: HelpEntry] = [
         .blocking: HelpEntry(
             title: "Blocking ads and trackers",

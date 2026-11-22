@@ -1,6 +1,6 @@
 public import Foundation
 
-/// Where a document is: a file of the person's, or a document that lives in Sunset's store (R6, R12).
+/// Where a document is: a file of the person's, or a document that lives in Sunset's store.
 public enum DocumentPlace: Hashable, Sendable {
     case file(String)
     case stored(UUID)

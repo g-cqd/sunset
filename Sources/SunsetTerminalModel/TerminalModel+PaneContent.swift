@@ -18,7 +18,7 @@ extension TerminalModel: PaneContent {
         .tab(TabGlyph.make(directory: directory, command: foregroundCommand, home: NSHomeDirectory()))
     }
 
-    /// A command is in front of the shell, as last looked at (debounced after the screen changes; roadmap 0035 E).
+    /// A command is in front of the shell, as last looked at (debounced after the screen changes).
     package var runsCommand: Bool {
         isRunning && foregroundCommand != nil
     }

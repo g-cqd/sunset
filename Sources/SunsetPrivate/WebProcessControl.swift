@@ -2,9 +2,8 @@ public import Foundation
 internal import InternedStrings
 internal import ObjectiveC
 
-/// Ends a page's web process for a force reload (the owner's note n50): WebKit's private
-/// `_killWebContentProcessAndResetState`, looked up by name. Where WebKit no longer has it, false: the caller makes the
-/// page's view again instead.
+/// Ends a page's web process for a force reload: WebKit's private `_killWebContentProcessAndResetState`, looked up by
+/// name. Where WebKit no longer has it, false: the caller makes the page's view again instead.
 @MainActor
 public enum WebProcessControl {
     private typealias Call = @convention(c) (AnyObject, Selector) -> Void
@@ -30,8 +29,8 @@ public enum WebProcessControl {
     }
 
     /// Has WebKit write a store's cookies to disk now (`_flushCookiesToDiskWithCompletionHandler:`), so that nothing is left
-    /// to write after Sunset has gone (roadmap 0051 G: the jar was rewritten readable by every account at teardown).
-    /// Returns at once where WebKit no longer has it.
+    /// to write after Sunset has gone (the jar was rewritten readable by every account at teardown). Returns at once where
+    /// WebKit no longer has it.
     public static func flushCookies(_ cookieStore: NSObject) async {
         let selector = NSSelectorFromString(#Interned("_flushCookiesToDiskWithCompletionHandler:"))
         guard cookieStore.responds(to: selector) else { return }
@@ -43,8 +42,8 @@ public enum WebProcessControl {
     }
 
     /// Has the network process put what it stores to rest (`_sendNetworkProcessPrepareToSuspend:`): local storage written
-    /// out, IndexedDB stopped, its storage queue suspended, so that nothing is written after the completion (t137: the
-    /// sites' storage is sealed then). Returns at once where WebKit no longer has it.
+    /// out, IndexedDB stopped, its storage queue suspended, so that nothing is written after the completion (the sites'
+    /// storage is sealed then). Returns at once where WebKit no longer has it.
     public static func quietNetwork(_ dataStore: NSObject) async {
         let selector = NSSelectorFromString(#Interned("_sendNetworkProcessPrepareToSuspend:"))
         guard dataStore.responds(to: selector) else { return }

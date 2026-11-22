@@ -1,5 +1,5 @@
-/// Which pieces of one text are still pieces of another (roadmap 0023 step M-e): the longest run of pieces in the same
-/// order, found without comparing every piece with every other.
+/// Which pieces of one text are still pieces of another: the longest run of pieces in the same order, found without
+/// comparing every piece with every other.
 ///
 /// The common start and end are set aside; then the pieces that occur exactly once on each side and are the same (most
 /// blocks of a document are) are taken as fixed points, in the longest order they agree on; what lies between two fixed

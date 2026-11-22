@@ -2,8 +2,8 @@ import CryptoKit
 public import Foundation
 public import SunsetStorage
 
-/// A vault's key wrapped by one unlock factor (ADR-0091): sealed with the factor's key, bound to the vault. Changing the
-/// factor rewraps this; the vault's records do not change.
+/// A vault's key wrapped by one unlock factor: sealed with the factor's key, bound to the vault. Changing the factor
+/// rewraps this; the vault's records do not change.
 public struct WrappedKey: Sendable, Equatable, Codable {
     public let factor: String
     public let sealed: Data

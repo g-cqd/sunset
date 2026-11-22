@@ -1,9 +1,9 @@
 import AemiArgon2
 public import Foundation
 
-/// The master password factor (ADR-0091): Argon2id stretches the password with the factor's salt into a key that wraps
-/// the vault's key. Its cost was measured on the owner's Mac (M-series, 2026-11-21, release): 1 GiB, 3 passes, 4 lanes,
-/// about 0.64 s (p50), 0.67 s (p90); 512 MiB and 4 passes about 0.40 s.
+/// The master password factor: Argon2id stretches the password with the factor's salt into a key that wraps the vault's
+/// key. Its cost was measured on an M-series Mac (2026-11-21, release): 1 GiB, 3 passes, 4 lanes, about 0.64 s (p50),
+/// 0.67 s (p90); 512 MiB and 4 passes about 0.40 s.
 public enum MasterPassword {
     public struct Cost: Sendable, Equatable, Codable {
         public var memoryKiB: Int

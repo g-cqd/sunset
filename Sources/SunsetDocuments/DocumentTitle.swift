@@ -1,5 +1,5 @@
-/// What a document that lives in Sunset is called (the owner, 2026-11-14: from its content, no name of its own to manage):
-/// its first heading for Markdown, else its first line with something on it, else "Untitled". It changes as the text does.
+/// What a document that lives in Sunset is called (from its content, no name of its own to manage): its first heading for
+/// Markdown, else its first line with something on it, else "Untitled". It changes as the text does.
 public enum DocumentTitle {
     /// Characters kept of a long first line.
     public static let limit = 80

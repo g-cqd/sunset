@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetCore
 
-/// Task t116: what the paste warning says, and how it shows the text: control and hidden characters made visible, so the
-/// person sees what would be sent.
+/// What the paste warning says, and how it shows the text: control and hidden characters made visible, so the person
+/// sees what would be sent.
 @Suite("Paste: the warning's words")
 struct PasteRiskExplanationTests {
     @Test func `the title names the first risk; each risk has its sentence`() {

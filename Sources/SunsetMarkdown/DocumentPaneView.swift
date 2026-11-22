@@ -37,9 +37,9 @@ struct DocumentPaneView: View {
                     base: content.base,
                     onLink: { content.open(link: $0) }
                 )
-                // A task's box checks it off in the text (AemiMarkdown ADR-0011).
+                // A task's box checks it off in the text, as AemiMarkdown has it.
                 .onTaskToggle { document.source.toggleTask(at: $0) }
-                // A link's own menu (roadmap 0042 C).
+                // A link's own menu.
                 .linkMenu { DocumentLinkMenu.Buttons(url: $0, content: content) }
                 .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
             } else {
@@ -64,7 +64,7 @@ struct DocumentPaneView: View {
         .onGeometryChange(for: CGSize.self, of: { $0.size }) { content.drawnSize = $0 }
         .onAppear { content.backdrop = context.backdrop }
         .onChange(of: context.backdrop) { _, new in content.backdrop = new }
-        // On the terminal's background, as every pane (the owner, 2026-11-15).
+        // On the terminal's background, as every pane.
         .paneBackdrop(context.backdrop)
         .task(id: document.lastMerge?.id) { await show(document.lastMerge) }
     }

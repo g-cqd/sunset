@@ -4,7 +4,7 @@ public import SunsetRuntime
 /// A terminal with a program running in it, no window: the program's output goes through the parser into the screen, the terminal's replies go back to
 /// the program, and keys, pastes and resizes go in. The headless API of the white paper (section 9) and the harness other tests and probes drive.
 public final class HeadlessSession {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     public var runtime = Runtime.live
 
     public private(set) var terminal: Terminal

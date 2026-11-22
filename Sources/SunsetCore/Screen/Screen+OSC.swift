@@ -1,7 +1,7 @@
 extension Screen {
     /// The longest OSC payload acted on; a longer one is dropped whole.
     static let oscLimit = 4096
-    /// The most an OSC 52 payload may take (ADR-0010): 1 MiB of base64 and its prefix.
+    /// The most an OSC 52 payload may take: 1 MiB of base64 and its prefix.
     static let clipboardLimit = (1 << 20) + 16
     /// How many saved titles the stack keeps.
     static let titleStackDepth = 10
@@ -42,7 +42,7 @@ extension Screen {
         dispatchOSC(terminator)
     }
 
-    /// `code ; payload`. Codes this terminal does not act on are ignored; the ones that reach outside the screen are in `Screen+OSCHost.swift` (ADR-0010).
+    /// `code ; payload`. Codes this terminal does not act on are ignored; the ones that reach outside the screen are in `Screen+OSCHost.swift`.
     private mutating func dispatchOSC(_ terminator: StringTerminator) {
         var code = 0
         var index = 0

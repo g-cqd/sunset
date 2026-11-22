@@ -6,9 +6,9 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// A file that changes on disk under edits made here (R6, roadmap 0023 step M-e; the owner's answers of 2026-11-16): the
-/// blocks only the disk changed are put in, as one step of undo; a block both changed is a conflict, kept as it is here
-/// with the disk's beside it until it is answered; and the file is not written while one is not.
+/// A file that changes on disk under edits made here: the blocks only the disk changed are put in, as one step of undo;
+/// a block both changed is a conflict, kept as it is here with the disk's beside it until it is answered; and the file
+/// is not written while one is not.
 @MainActor
 @Suite("A change on disk is merged into the edits made here")
 struct OpenDocumentMergingTests {

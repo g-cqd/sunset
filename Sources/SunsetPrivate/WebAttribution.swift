@@ -1,7 +1,7 @@
 public import Foundation
 internal import InternedStrings
 
-/// Private Click Measurement off (task t97): Safari has it off, WebKit's views on, and a page reads it on its links
+/// Private Click Measurement off: Safari has it off, WebKit's views on, and a page reads it on its links
 /// (`HTMLAnchorElement.attributionDestination`, `attributionSourceId`), which tells Sunset from Safari. Off, a link's
 /// attribution attributes are not there; probed 2026-11-19 in a bare WKWebView.
 public enum WebAttribution {

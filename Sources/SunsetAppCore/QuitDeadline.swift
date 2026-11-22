@@ -1,8 +1,8 @@
 package import SunsetRuntime
 
-/// The quit's last work awaited, at most its limit (ADR-0081, ADR-0103). It was waited for by spinning the run loop: from
-/// inside a main-actor task (the quit asks first, `QuitGate.decide`) a main-actor task cannot start, so the work never ran
-/// and the limit always passed (diary 2026-11-19-12). Here the work and a timer race; nothing spins.
+/// The quit's last work awaited, at most its limit. It was waited for by spinning the run loop: from inside a main-actor
+/// task (the quit asks first, `QuitGate.decide`) a main-actor task cannot start, so the work never ran and the limit
+/// always passed. Here the work and a timer race; nothing spins.
 @MainActor
 package enum QuitDeadline {
     /// True when `work` ended before `limit`; false when the limit passed first (the work is left to go on).

@@ -1,6 +1,6 @@
 public import Foundation
 
-/// The extensions of a Chromium profile, from its `Extensions` folder (roadmap 0111 F).
+/// The extensions of a Chromium profile, from its `Extensions` folder.
 public enum ChromiumExtensions {
     private struct Manifest: Decodable {
         private enum CodingKeys: String, CodingKey {

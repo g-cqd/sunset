@@ -4,7 +4,7 @@ import Testing
 
 @testable import SunsetAppCore
 
-/// The owner's note n74: what opens when Sunset (or a window on an empty Space) starts with no tab.
+/// What opens when Sunset (or a window on an empty Space) starts with no tab.
 @Suite("What opens with no tab")
 struct StartTabTests {
     private func tabs(_ start: Configuration.Tabs.Start, address: String = "", file: String = "") -> Configuration.Tabs

@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetCredentials
 @testable import SunsetStorage
 
-/// ADR-0091: the vault's key, wrapped once by each factor; a master password stretched with Argon2id.
+/// The vault's key, wrapped once by each factor; a master password stretched with Argon2id.
 @Suite("A vault's key and its factors")
 struct VaultKeyTests {
     /// Cheap for tests; the real cost is measured, not tested here.

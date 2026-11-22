@@ -2,9 +2,9 @@ import Foundation
 package import SunsetDocuments
 package import SunsetStorage
 
-/// Everything Sunset keeps, opened once (R12, roadmap 0030): the places, the key that seals, and the database of small records.
-/// What goes wrong is said (`StorageProblems`), never passed over: without the key nothing is saved in this run, and what is
-/// sealed with another key is left as it is.
+/// Everything Sunset keeps, opened once: the places, the key that seals, and the database of small records. What goes wrong
+/// is said (`StorageProblems`), never passed over: without the key nothing is saved in this run, and what is sealed with
+/// another key is left as it is.
 @MainActor
 package final class SunsetStore {
     package let places: StoragePlaces
@@ -55,9 +55,8 @@ package final class SunsetStore {
 
     /// The documents that live in Sunset (R12 step ST-4), opened at first use; nil when there is no key in this run. Their index
     /// is a database of its own (`library.sqlite`): it holds nothing the documents' files do not, and is rebuilt from them, so
-    /// one that did not read is not said.
-    /// The documents that are open, one per file or stored document for the whole app (roadmap 0023): every pane on one shows
-    /// the same text.
+    /// one that did not read is not said. The documents that are open, one per file or stored document for the whole app: every
+    /// pane on one shows the same text.
     package private(set) lazy var openDocuments = OpenDocuments(store: documents)
 
     package private(set) lazy var documents: DocumentStore? = {
@@ -74,8 +73,8 @@ package final class SunsetStore {
         }
     }()
 
-    /// The files opened lately, listed with the documents (roadmap 0031): sealed in the state database, or in memory only
-    /// when nothing can be kept in this run.
+    /// The files opened lately, listed with the documents: sealed in the state database, or in memory only when nothing
+    /// can be kept in this run.
     package private(set) lazy var recentFiles = RecentFiles(table: table("recent-files"))
 
     /// The records of one kind; nil when nothing can be kept in this run (they are then in memory only).
@@ -89,8 +88,8 @@ package final class SunsetStore {
 
     /// Puts away a file of before the database once what it held is kept (`kept`: the store took it in, and the table holds
     /// what the store holds). A plain copy left in the folder would defeat the sealing. The person's own files go to the Mac's
-    /// Trash, where nothing is destroyed, or are deleted, by `storage.importedFiles` (the owner, 2026-11-15: a setting, the
-    /// Trash by default); a named setup's (a test's) are removed, so that tests do not fill the Trash.
+    /// Trash, where nothing is destroyed, or are deleted, by `storage.importedFiles` (a setting, the Trash by default); a
+    /// named setup's (a test's) are removed, so that tests do not fill the Trash.
     package func retire(_ legacy: String, when kept: Bool) {
         guard kept else { return }
         let trash = places.trashesImported(setting: trashImported())
@@ -113,7 +112,7 @@ package final class SunsetStore {
         return Seal.isSealed((try? handle.read(upToCount: 4)) ?? Data())
     }
 
-    /// Sunset quits: the databases are closed, their logs emptied (roadmap 0051 B).
+    /// Sunset quits: the databases are closed, their logs emptied.
     package func close() {
         database?.close()
         library?.close()

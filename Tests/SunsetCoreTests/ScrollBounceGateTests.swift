@@ -2,8 +2,8 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// The owner, 2026-11-17: no scroll view bounces when it has nothing to scroll. Every SwiftUI scroll view of the views is
-/// given `bouncesOnlyWhenScrolling()`: a file that makes `ScrollView` names it as many times.
+/// No scroll view bounces when it has nothing to scroll. Every SwiftUI scroll view of the views is given
+/// `bouncesOnlyWhenScrolling()`: a file that makes `ScrollView` names it as many times.
 @Suite("Scroll views bounce only when they scroll: the gate")
 struct ScrollBounceGateTests {
     /// How many times `pattern` is in the code of `text` (comments left out).

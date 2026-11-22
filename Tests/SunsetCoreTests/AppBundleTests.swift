@@ -2,9 +2,8 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// What the app says of itself to the Mac (`App/Info.plist`). R6, roadmap 0023 step M-f: Sunset can be chosen to open
-/// Markdown, Mermaid and text files (Open With, or "Always Open With"), and never makes itself the app that opens them: that
-/// is the person's choice (ADR-0040).
+/// What the app says of itself to the Mac (`App/Info.plist`). Sunset can be chosen to open Markdown, Mermaid and text files
+/// (Open With, or "Always Open With"), and never makes itself the app that opens them: that is the person's choice.
 @Suite("The app's Info.plist")
 struct AppBundleTests {
     private func plist() throws -> [String: Any] {
@@ -30,8 +29,8 @@ struct AppBundleTests {
         #expect(tags["public.filename-extension"] as? [String] == ["mmd", "mermaid"])
     }
 
-    /// Roadmap 0084: the app's icon is the Icon Composer bundle `App/Sunset.icon` (light, dark, tinted), compiled by Xcode
-    /// into the asset catalog and into `Sunset.icns` for `CFBundleIconFile`; Twilight, Dawn and Dusk go in as alternates.
+    /// The app's icon is the Icon Composer bundle `App/Sunset.icon` (light, dark, tinted), compiled by Xcode into the
+    /// asset catalog and into `Sunset.icns` for `CFBundleIconFile`; Twilight, Dawn and Dusk go in as alternates.
     @Test func `the icon is Sunset.icon, with Twilight, Dawn and Dusk as alternates`() throws {
         let project = try String(contentsOf: RepositoryFiles.root.appending(path: "project.yml"), encoding: .utf8)
         #expect(project.contains("ASSETCATALOG_COMPILER_APPICON_NAME: Sunset"))
@@ -50,7 +49,7 @@ struct AppBundleTests {
         #expect(!files.fileExists(atPath: RepositoryFiles.root.appending(path: "App/Sunset.icns").path))
     }
 
-    /// t276: a debug build is another app to the Mac than the installed one (its own defaults, saved state, permissions and
+    /// A debug build is another app to the Mac than the installed one (its own defaults, saved state, permissions and
     /// Open With entry), named so that the two are told apart.
     @Test func `a debug build has an identity and a name of its own`() throws {
         let project = try String(contentsOf: RepositoryFiles.root.appending(path: "project.yml"), encoding: .utf8)

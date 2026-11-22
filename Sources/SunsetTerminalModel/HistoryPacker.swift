@@ -2,12 +2,12 @@ package import SunsetCore
 package import SunsetHost
 package import SunsetRuntime
 
-/// Packs a terminal's old history once the terminal has been quiet for a while (owner note n14): a tab nobody types in and that prints nothing keeps its
-/// history in a tenth of the memory, and reads of it (scrolling back) decode what they touch. Output and keys wake it, and it goes back to sleep: nothing
-/// polls. It packs in small steps so that the terminal is locked for a moment at a time, and does nothing while activity goes on.
+/// Packs a terminal's old history once the terminal has been quiet for a while: a tab nobody types in and that prints nothing keeps its history in a
+/// tenth of the memory, and reads of it (scrolling back) decode what they touch. Output and keys wake it, and it goes back to sleep: nothing polls. It
+/// packs in small steps so that the terminal is locked for a moment at a time, and does nothing while activity goes on.
 @MainActor
 package final class HistoryPacker {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     package var runtime = Runtime.live
 
     /// How long a terminal is quiet before its history is packed.

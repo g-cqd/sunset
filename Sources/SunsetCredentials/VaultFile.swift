@@ -1,9 +1,9 @@
 public import Foundation
 public import SunsetStorage
 
-/// A vault on disk (ADR-0090, roadmap 0091 A): one SQLite file of its own, 0600 in a 0700 folder, `secure_delete` on. In the
-/// clear only its id, its format version and, per record, an opaque id: every record is sealed with the vault's key for its
-/// purpose, bound to the vault and the record, so a record cannot be moved to another vault or slot unseen.
+/// A vault on disk: one SQLite file of its own, 0600 in a 0700 folder, `secure_delete` on. In the clear only its id, its
+/// format version and, per record, an opaque id: every record is sealed with the vault's key for its purpose, bound to the
+/// vault and the record, so a record cannot be moved to another vault or slot unseen.
 public final class VaultFile {
     public enum Failure: Error, Equatable {
         case cannotOpen

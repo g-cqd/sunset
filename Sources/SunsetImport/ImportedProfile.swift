@@ -1,4 +1,4 @@
-/// What one profile of another browser holds that Sunset imports (roadmap 0111).
+/// What one profile of another browser holds that Sunset imports.
 public struct ImportedProfile: Sendable, Equatable {
     public var bookmarks: [BookmarkNode]
     public var extensions: [BrowserExtension]

@@ -7,8 +7,8 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// What a document costs to open and to type in, by its size (roadmap 0023 step M-b; the owner set no size limit, R6 asked for
-/// the costs). Off unless `SUNSET_BENCH=1`; run in release: `SUNSET_BENCH=1 swift test -c release --filter OpenDocumentBench`.
+/// What a document costs to open and to type in, by its size (there is no size limit; these are the costs). Off unless
+/// `SUNSET_BENCH=1`; run in release: `SUNSET_BENCH=1 swift test -c release --filter OpenDocumentBench`.
 @MainActor
 @Suite("A document's cost by its size", .enabled(if: ProcessInfo.processInfo.environment["SUNSET_BENCH"] == "1"))
 struct OpenDocumentBenchTests {

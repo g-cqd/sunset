@@ -1,4 +1,4 @@
-/// What the paste warning says (task t116).
+/// What the paste warning says.
 extension PasteRisk {
     /// The warning's title: the first risk's.
     public static func title(of risks: [Self]) -> String {

@@ -13,7 +13,7 @@ extension Configuration {
         sidebarShown && !sidebar.autoHide
     }
 
-    /// Where the focused page's address is typed: as `web.address` asks, the sidebar's field docked or floating (note n63); with no
+    /// Where the focused page's address is typed: as `web.address` asks, the sidebar's field docked or floating; with no
     /// sidebar the window bar stands in for it.
     package var addressPlace: Configuration.Web.AddressPlace {
         web.address == .sidebar && !sidebarShown ? .window : web.address

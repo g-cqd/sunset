@@ -1,9 +1,9 @@
 internal import AemiMarkdown
 internal import MarkdownLookKit
 
-/// A text cut into the pieces a merge works on (roadmap 0023 step M-e). Markdown is cut where its top-level blocks begin, so
-/// that a piece is a block with the blank lines after it (what comes before the first block is with it); anything else is cut
-/// at its lines. The pieces joined are the text, byte for byte, whatever it holds.
+/// A text cut into the pieces a merge works on. Markdown is cut where its top-level blocks begin, so that a piece is a block
+/// with the blank lines after it (what comes before the first block is with it); anything else is cut at its lines. The
+/// pieces joined are the text, byte for byte, whatever it holds.
 enum TextPieces {
     /// - Complexity: O(the text): read once by the parser (Markdown) or once for its line ends, and once more to be hashed.
     static func of(_ text: String, kind: DocumentKind) -> [TextPiece] {

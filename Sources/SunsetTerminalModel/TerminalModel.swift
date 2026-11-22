@@ -11,7 +11,7 @@ package import SunsetRuntime
 /// the main actor; the reading, parsing and drawing happen on the two actors, and only values cross: snapshots of the screen one way, finished frames
 /// the other. Frames are pulled at the display's pace (the display link asks, `tick()` answers) and only while something changed.
 @MainActor @Observable package final class TerminalModel {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored package var runtime = Runtime.live
 
     package internal(set) var title = "Sunset"
@@ -40,7 +40,7 @@ package import SunsetRuntime
     @ObservationIgnored package var writeClipboard: (String) -> Void = { _ in }
     /// Whether Sunset is the app in front (the app's: `NSApp.isActive`); until it says, it is.
     @ObservationIgnored package var appIsActive: () -> Bool = { true }
-    /// Pastes asked about and secure keyboard entry (task t116): the app's settings, the view's sheet and holder.
+    /// Pastes asked about and secure keyboard entry: the app's settings, the view's sheet and holder.
     @ObservationIgnored package var safety = TerminalSafety()
     /// Shows a notification the program asked for and the policy admitted: the app's (it names the Space, and a click goes
     /// to the tab: S-e); nil, the notification centre's as it is.
@@ -208,7 +208,7 @@ package import SunsetRuntime
             switch update {
                 case .changed:
                     noteActivity()
-                    // A terminal that is not shown draws nothing, so its tab's label is read from the session here (n48).
+                    // A terminal that is not shown draws nothing, so its tab's label is read from the session here.
                     if !isVisible { apply(session.status()) }
                     noteSecret(session.asksSecret())
                     requestFrame()

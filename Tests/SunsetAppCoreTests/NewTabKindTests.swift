@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetAppCore
 
-/// The owner's notes n69–n71: what Command-T makes, from `tabs.newTab` and the focused tab.
+/// What Command-T makes, from `tabs.newTab` and the focused tab.
 @Suite("What Command-T makes")
 struct NewTabKindTests {
     @Test func `following the focused tab: a page makes a page, a private one a private one, a document a document`() {

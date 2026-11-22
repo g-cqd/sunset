@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetHost
 
-@Suite("Notification gate (ADR-0010)") struct NotificationGateTests {
+@Suite("Notification gate") struct NotificationGateTests {
     @Test func `a notification is shown while the window is not focused, at most one a second`() {
         var gate = NotificationGate()
         let shown = [0.0, 0.5, 0.999, 1.0].map { gate.admits(atSecond: $0, windowFocused: false) }

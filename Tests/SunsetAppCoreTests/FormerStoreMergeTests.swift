@@ -6,8 +6,8 @@ import Testing
 
 @testable import SunsetAppCore
 
-/// ADR-0114: Sunset WebKit's store of before is merged once into the shared one: its documents and its history added, its
-/// folder left as it was (a backup). Here with named setups, whose keys are files, never the Keychain.
+/// Sunset WebKit's store of before is merged once into the shared one: its documents and its history added, its folder
+/// left as it was (a backup). Here with named setups, whose keys are files, never the Keychain.
 @MainActor
 @Suite("Sunset WebKit's store of before, merged once")
 struct FormerStoreMergeTests {

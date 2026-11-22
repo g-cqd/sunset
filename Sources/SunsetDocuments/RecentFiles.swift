@@ -3,10 +3,10 @@ public import Observation
 public import SunsetRuntime
 public import SunsetStorage
 
-/// The files opened lately (roadmap 0031; the owner, 2026-11-16: listed with the documents in the Library): the last twenty,
-/// each once, the latest first. Kept in the state database, each record sealed and named there by a keyed hash, so that the
-/// names of the person's files are not written in plain. Nothing of a file is read to list it: a file that is gone is still
-/// listed, and says so when opened.
+/// The files opened lately (listed with the documents in the Library): the last twenty, each once, the latest first. Kept
+/// in the state database, each record sealed and named there by a keyed hash, so that the names of the person's files are
+/// not written in plain. Nothing of a file is read to list it: a file that is gone is still listed, and says so when
+/// opened.
 @MainActor @Observable
 public final class RecentFiles {
     public struct Entry: Equatable, Sendable, Identifiable {
