@@ -163,10 +163,13 @@ extension Screen {
     mutating func fullReset() {
         let style = defaultCursor
         // The images go; what the host said of its cells and of the images' room stays.
-        let (cellWidth, cellHeight, quota) = (graphics.cellWidth, graphics.cellHeight, graphics.quota)
+        let (cellWidth, cellHeight, quota, inflater) = (
+            graphics.cellWidth, graphics.cellHeight, graphics.quota, graphics.inflater
+        )
         self = Screen(columns: columns, rows: rows)
         defaultCursor = style
         (cursorShape, cursorBlinks) = style
         (graphics.cellWidth, graphics.cellHeight, graphics.quota) = (cellWidth, cellHeight, quota)
+        graphics.inflater = inflater
     }
 }

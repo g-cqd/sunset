@@ -40,9 +40,9 @@ public actor TerminalSession {
         scrollbackLimit: Int = 10_000,
         acceptsC1: Bool = false
     ) throws {
-        core = SessionCore(
-            Terminal(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit, acceptsC1: acceptsC1)
-        )
+        var terminal = Terminal(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit, acceptsC1: acceptsC1)
+        terminal.setInflater(ZlibInflater())
+        core = SessionCore(terminal)
         process = try PTYProcess.spawn(
             command,
             environment: environment,

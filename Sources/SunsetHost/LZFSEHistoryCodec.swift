@@ -28,16 +28,9 @@ public struct LZFSEHistoryCodec: HistoryCodec {
 
     public func unpack(_ packed: [UInt8], into output: UnsafeMutableRawBufferPointer) -> Bool {
         guard !packed.isEmpty, output.count > 0, let destination = output.baseAddress else { return false }
-        // The call returns the size of the destination when the data does not fit (it cuts it off), which cannot be told from an exact fit: decode into one
-        // byte more than expected and accept only the exact length.
-        var scratch = [UInt8](repeating: 0, count: output.count + 1)
-        let written = scratch.withUnsafeMutableBufferPointer { target -> Int in
-            packed.withUnsafeBufferPointer { source -> Int in
-                guard let to = target.baseAddress, let from = source.baseAddress else { return 0 }
-                return compression_decode_buffer(to, target.count, from, source.count, nil, COMPRESSION_LZFSE)
-            }
-        }
-        guard written == output.count else { return false }
+        // Decoded into one byte more than expected, and accepted at the exact length only (`CompressionDecode`).
+        let scratch = CompressionDecode.decode(packed[...], capacity: output.count + 1, COMPRESSION_LZFSE)
+        guard scratch.count == output.count else { return false }
         scratch.withUnsafeBytes { source in
             destination.copyMemory(from: source.baseAddress ?? UnsafeRawPointer(destination), byteCount: output.count)
         }

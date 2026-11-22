@@ -12,6 +12,8 @@ public struct TerminalGraphics: Sendable {
     /// A cell's size in pixels, as the host draws it (`Terminal.setCellPixelSize`): an image's cells are counted by it.
     var cellWidth = 8
     var cellHeight = 16
+    /// What reads compressed images; nil: they are refused.
+    var inflater: (any Inflater)?
 
     /// An APC string being collected, and whether it went over its bound.
     var collecting = false

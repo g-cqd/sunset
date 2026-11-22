@@ -82,4 +82,9 @@ extension Terminal {
     public mutating func setGraphicsQuota(bytes: Int) {
         screen.graphics.quota = max(bytes, 0)
     }
+
+    /// What reads compressed images (`o=z`); until it is given, they are refused.
+    public mutating func setInflater(_ inflater: any Inflater) {
+        screen.graphics.inflater = inflater
+    }
 }

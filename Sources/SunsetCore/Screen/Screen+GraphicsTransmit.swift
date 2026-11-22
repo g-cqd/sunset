@@ -1,10 +1,14 @@
 import AemiKernel
 
-/// Images received (ADR-0117): only from data in the escape itself, uncompressed; in one command or in chunks.
+/// Images received (ADR-0117): only from data in the escape itself, as sent or compressed (`o=z`, through the host's
+/// inflater); in one command or in chunks.
 extension Screen {
     mutating func transmit(_ command: KittyCommand) {
         guard command.letter("t", or: "d") == UInt8(ascii: "d") else { return kittyReply(command, .forbidden) }
-        guard command.letter("o", or: " ") == UInt8(ascii: " ") else { return kittyReply(command, .invalid) }
+        let compression = command.letter("o", or: " ")
+        guard compression == UInt8(ascii: " ") || compression == UInt8(ascii: "z") else {
+            return kittyReply(command, .invalid)
+        }
         guard let data = Base64.decode(command.payload) else { return kittyReply(command, .invalid) }
         if command.int("m") == 1 {
             graphics.pending = (command, data)
@@ -33,7 +37,12 @@ extension Screen {
     }
 
     /// The image read and kept (`t`), put at the cursor too (`T`), or only checked (`q`); then answered.
-    private mutating func finish(_ command: KittyCommand, _ data: [UInt8]) {
+    private mutating func finish(_ command: KittyCommand, _ sent: [UInt8]) {
+        let data: [UInt8]
+        switch inflated(command, sent) {
+            case .success(let read): data = read
+            case .failure(let error): return kittyReply(command, error)
+        }
         let action = command.letter("a", or: "t")
         let given = command.int("i")
         let id = given > 0 ? UInt32(clamping: given) : UInt32.max - UInt32(truncatingIfNeeded: graphics.stored)
@@ -84,5 +93,24 @@ extension Screen {
             default:
                 return .failure(.invalid)
         }
+    }
+
+    /// The data as sent, or inflated when it came compressed: never past the size raw pixels must have, nor the quota (a
+    /// PNG); a size past the quota is refused before any work.
+    private func inflated(_ command: KittyCommand, _ sent: [UInt8]) -> Result<[UInt8], KittyError> {
+        guard command.letter("o", or: " ") == UInt8(ascii: "z") else { return .success(sent) }
+        guard let inflater = graphics.inflater else { return .failure(.invalid) }
+        var limit = graphics.quota
+        let format = command.int("f", or: 32)
+        if format == 24 || format == 32 {
+            let sides = 1 ... TerminalGraphics.sideLimit
+            let (width, height) = (command.int("s"), command.int("v"))
+            guard sides.contains(width), sides.contains(height) else { return .failure(.invalid) }
+            let needed = width * height * (format == 24 ? 3 : 4)
+            guard needed <= graphics.quota else { return .failure(.noSpace) }
+            limit = needed
+        }
+        guard let out = inflater.inflate(sent, limit: limit) else { return .failure(.invalid) }
+        return .success(out)
     }
 }

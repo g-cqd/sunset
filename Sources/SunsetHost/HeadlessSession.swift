@@ -21,6 +21,7 @@ public final class HeadlessSession {
         cell: (width: Int, height: Int) = (0, 0)
     ) throws {
         terminal = Terminal(columns: columns, rows: rows)
+        terminal.setInflater(ZlibInflater())
         if cell.width > 0, cell.height > 0 { terminal.setCellPixelSize(width: cell.width, height: cell.height) }
         process = try PTYProcess.spawn(
             command,
