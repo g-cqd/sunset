@@ -97,14 +97,8 @@ extension SectionPanel {
             // As tall as the rows are scrolled, up to its full height: rows at rest are untouched.
             .frame(height: min(scrolledBy, Design.Space.xl))
             Color.black
-            if place == .opposite {
-                LinearGradient(
-                    gradient: .end(from: .black, to: .clear, fading: fadesEnds),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: footInset + buttons.margin)
-            }
+            // As the tabs' sidebar above its bar.
+            if place == .opposite { FootFade(room: footInset) }
         }
     }
 }

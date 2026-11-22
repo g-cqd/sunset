@@ -1,7 +1,8 @@
 package import SwiftUI
 
-/// The switch at the foot of the panel opposite the tabs: a segmented row of glyphs in a trough, the section shown
-/// filled. Each glyph says its name to the pointer and to VoiceOver.
+/// The switch at the foot of the panel opposite the tabs: a glyph button for each section, drawn as the buttons of the
+/// tabs' sidebar's foot (`SidebarIconButton`), centred as its Spaces; the section shown has the selected tab's white fill
+/// and ink.
 package struct SectionSwitch: View {
     let sections: [SidebarSection]
     @Binding var selection: SidebarSection
@@ -16,32 +17,21 @@ package struct SectionSwitch: View {
         HStack(spacing: Design.Space.hair) {
             ForEach(sections, id: \.self) { section in
                 let shown = section == selection
-                Button {
-                    selection = section
-                } label: {
-                    SidebarSymbol(name: section.symbol, filled: false)
-                        .foregroundStyle(shown ? .primary : .secondary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: metrics.size.height - 2 * Design.Space.hair)
-                        .background(
-                            RoundedRectangle(
-                                cornerRadius: max(metrics.radius - Design.Space.hair, 0),
-                                style: .continuous
-                            )
-                            .fill(.primary.opacity(shown ? Design.Fill.selected : 0))
-                        )
-                        .contentShape(.rect)
+                SidebarIconButton(help: section.title, action: { selection = section }) {
+                    // Inside the face, whose own colour is the bar's: the shown one white.
+                    SidebarSymbol(name: section.symbol)
+                        .foregroundStyle(shown ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary))
                 }
-                .buttonStyle(.plain)
-                .help(section.title)
+                .background(
+                    Color.primary.opacity(shown ? Design.Fill.selected : 0),
+                    in: .rect(cornerRadius: metrics.radius, style: .continuous)
+                )
                 .accessibilityLabel(section.title)
                 .accessibilityAddTraits(shown ? .isSelected : [])
             }
         }
-        .padding(Design.Space.hair)
-        .background(
-            RoundedRectangle(cornerRadius: metrics.radius, style: .continuous).fill(.primary.opacity(Design.Fill.open))
-        )
+        .frame(maxWidth: .infinity)
+        .frame(height: metrics.size.height)
         .animation(metrics.smooth, value: selection)
     }
 }

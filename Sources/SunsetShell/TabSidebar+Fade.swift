@@ -17,17 +17,7 @@ extension TabSidebar {
             )
             .frame(height: min(scrolled, Design.Space.xl))
             Color.black
-            if bottomBar != nil {
-                // Gone by the bar's top: under its buttons nothing is drawn (seen 2026-11-17: a row showed through them
-                // when the fade ran over the bar's whole height).
-                LinearGradient(
-                    gradient: .end(from: .black, to: .clear, fading: fadesEnds),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: Design.Space.xl)
-                Color.clear.frame(height: bottomInset)
-            }
+            if bottomBar != nil { FootFade(room: bottomInset) }
         }
     }
 }
