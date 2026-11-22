@@ -1,9 +1,9 @@
 import AppKit
 @preconcurrency import ScreenCaptureKit
 
-/// macOS's own picker of a screen, a window or an app (the owner, 2026-11-19: "clicking on screen and windows i'd expect to
-/// get the native experience"; ADR-0085). WebKit, in an app, shows none: answered yes it takes the main screen or a window
-/// of its choosing (probed). The picker needs no screen recording permission: what the person picks is what is shared.
+/// macOS's own picker of a screen, a window or an app ("clicking on screen and windows i'd expect to get the native
+/// experience"). WebKit, in an app, shows none: answered yes it takes the main screen or a window of its choosing
+/// (probed). The picker needs no screen recording permission: what the person picks is what is shared.
 final class ScreenPicker: NSObject, SCContentSharingPickerObserver, @unchecked Sendable {
     private let lock = NSLock()
     private var waiting: CheckedContinuation<Picked?, Never>?

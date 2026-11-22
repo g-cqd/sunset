@@ -3,10 +3,10 @@ import SunsetRuntime
 import SunsetShellModel
 import SwiftUI
 
-/// Plays the welcome's opening (roadmap 0084 G; `WelcomeOpening`): the sun alone in a borderless panel over the screen,
-/// where the window will keep it; then the real window, transparent at first, fades in where it stands while its content
-/// comes into focus and the panel's sun fades. A click or a key ends it at once (HIG Motion: let people cancel motion);
-/// with Reduce Motion on, the window shows at once.
+/// Plays the welcome's opening (`WelcomeOpening`): the sun alone in a borderless panel over the screen, where the window
+/// will keep it; then the real window, transparent at first, fades in where it stands while its content comes into focus
+/// and the panel's sun fades. A click or a key ends it at once (HIG Motion: let people cancel motion); with Reduce
+/// Motion on, the window shows at once.
 @MainActor enum WelcomeOpeningPlayer {
     private static var panel: NSPanel?
     private static var window: NSWindow?

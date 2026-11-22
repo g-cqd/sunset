@@ -5,8 +5,8 @@ import SunsetShellModel
 import SunsetWeb
 import SwiftUI
 
-/// Settings > Web > Profiles (R4; ADR-0053): the profiles, each named in place; a new one; and a profile removed, after
-/// a question: its Spaces become the first profile's, what it kept (pinned, favourites) is removed, and its website data is erased.
+/// Settings > Web > Profiles: the profiles, each named in place; a new one; and a profile removed, after a question: its Spaces
+/// become the first profile's, what it kept (pinned, favourites) is removed, and its website data is erased.
 struct ProfilesSettings: View {
     @Environment(\.runtime) var runtime
 
@@ -19,7 +19,7 @@ struct ProfilesSettings: View {
 
     var body: some View {
         Group {
-            // New Profile in the list's heading, on its own: nothing of one profile is next to it (the owner's note n39).
+            // New Profile in the list's heading, on its own: nothing of one profile is next to it.
             Section {
                 EmptyView()
             } header: {
@@ -35,7 +35,7 @@ struct ProfilesSettings: View {
             } footer: {
                 if let note { Text(RichText.attributed(note)).font(Design.Text.detail).foregroundStyle(.secondary) }
             }
-            // Each profile a section of its own: what is under it is its (note n38).
+            // Each profile a section of its own: what is under it is its.
             ForEach(spaces.profiles.profiles, id: \.profile.id) { profile in
                 Section {
                     LabeledContent {

@@ -4,17 +4,15 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// The bottom of the sidebar (R2's + button, t137, web step f, roadmap 0031), mirroring the pin at the top: the + on the corner nearest the panes
-/// (the owner's sketch E); at the window's edge the Library's glyph, which widens the sidebar by its rail, and above it the
-/// downloads while there are any (the owner's notes n60, n61: where they stay when the Library opens, above the way back);
-/// all the sidebar's buttons (`SidebarIconButton`). The Spaces are in the middle (`SpacesRow`), once there are two. A click on + makes a tab of the focused kind; its menu
-/// (right-click or long press) has every kind.
+/// The bottom of the sidebar, mirroring the pin at the top: the + on the corner nearest the panes; at the window's edge the Library's glyph, which widens the sidebar by
+/// its rail, and above it the downloads while there are any (where they stay when the Library opens, above the way back); all the sidebar's buttons (`SidebarIconButton`).
+/// The Spaces are in the middle (`SpacesRow`), once there are two. A click on + makes a tab of the focused kind; its menu (right-click or long press) has every kind.
 struct SidebarBottomBar: View {
     let side: Configuration.Side
     let tabs: TabsModel
     /// `sidebar.library`: the Library's glyph is there.
     let library: Bool
-    /// Between two buttons side by side: the rows' spacing, as between the Library rail's buttons (the owner, 2026-11-17:
+    /// Between two buttons side by side: the rows' spacing, as between the Library rail's buttons (2026-11-17:
     /// the downloads' button was flush against the Library's).
     let spacing: Double
     private let downloads = DownloadCenter.shared
@@ -33,7 +31,7 @@ struct SidebarBottomBar: View {
             } else {
                 plus
             }
-            // The Spaces, centred between the two ends (R4; the owner, 2026-11-17): there once a second exists. The row
+            // The Spaces, centred between the two ends: there once a second exists. The row
             // takes the width between the buttons; with one Space it is not there and the width is left empty.
             Spacer(minLength: 0)
             SpacesRow(tabs: tabs)
@@ -70,7 +68,7 @@ struct SidebarBottomBar: View {
         }
     }
 
-    /// The window's bottom corner the bar ends at: the button there is concentric with it (the owner, 2026-11-15).
+    /// The window's bottom corner the bar ends at: the button there is concentric with it.
     private var corner: SidebarButtonCorner {
         side == .left ? .bottomLeading : .bottomTrailing
     }

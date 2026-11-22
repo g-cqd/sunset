@@ -4,14 +4,13 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// The sidebar's field while no page has the address there (roadmap 0035 G): a tab's size, it says what can be typed; a click
-/// opens the command bar in its place (a search, an address, a tab, a command), where Return on an address or a search opens it
-/// in a new tab.
+/// The sidebar's field while no page has the address there: a tab's size, it says what can be typed; a click opens the command
+/// bar in its place (a search, an address, a tab, a command), where Return on an address or a search opens it in a new tab.
 struct SidebarCommandField: View {
     let tabs: TabsModel
 
     /// What it says, and the command bar's field opened in its place: with the web off there is no address to enter, only tabs
-    /// and commands (roadmap 0033).
+    /// and commands.
     static var prompt: String {
         AppScopes.current.web ? "Search or Enter Address" : "Go to a Tab"
     }

@@ -4,8 +4,8 @@ import SunsetShell
 import SunsetWeb
 import SunsetWebModel
 
-/// The pop-up windows (task t132, the owner's design of 2026-11-20): a page a page opened as a pop-up, alone in a window of
-/// its own with no sidebar, in no Space's tabs until it is moved to one. It outlives its opener; it is not kept by the session.
+/// The pop-up windows: a page a page opened as a pop-up, alone in a window of its own with no sidebar, in no Space's tabs until
+/// it is moved to one. It outlives its opener; it is not kept by the session.
 @MainActor final class PopupWindowStore {
     static let shared = PopupWindowStore()
 
@@ -27,7 +27,7 @@ import SunsetWebModel
     }
 
     private(set) var popups: [UUID: Popup] = [:]
-    /// Where its tasks run (ADR-0087).
+    /// Where its tasks run.
     var runtime = Runtime.live
     /// Opens the window of the pop-up with this id (SwiftUI's `openWindow`, given by the first window).
     var openWindow: (UUID) -> Void = { _ in }

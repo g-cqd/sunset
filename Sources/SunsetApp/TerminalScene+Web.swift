@@ -20,7 +20,7 @@ extension TerminalScene {
         configuration.addressPlace
     }
 
-    /// The built-in tab bar holds the address (t223): the selected tab is the field, back and forward after the window's buttons;
+    /// The built-in tab bar holds the address: the selected tab is the field, back and forward after the window's buttons;
     /// the window bar does not come out.
     var addressInTabBar: Bool {
         presentation.showsBuiltInBar && addressPlace == .window
@@ -48,8 +48,8 @@ extension TerminalScene {
         )
     }
 
-    /// The sidebar's field, always there (roadmap 0035 G): the focused page's address where pages have it in the sidebar, else
-    /// the field where a search, an address or a tab is typed.
+    /// The sidebar's field, always there: the focused page's address where pages have it in the sidebar, else the field
+    /// where a search, an address or a tab is typed.
     var sidebarAddress: AnyView? {
         guard addressPlace == .sidebar, let page = focusedPage else { return AnyView(SidebarCommandField(tabs: tabs)) }
         return AnyView(
@@ -82,7 +82,7 @@ extension TerminalScene {
                         atTop ? .top : .bottom,
                         addressPlace == .window && !addressInTabBar ? Design.Space.m + Design.Size.bar : 0
                     )
-                    // Beside the floating sidebar whose field is typed in, not under it (note n63).
+                    // Beside the floating sidebar whose field is typed in, not under it.
                     .padding(sidebarSide.edge, floatingFieldInset)
                     .frame(maxHeight: .infinity, alignment: atTop ? .top : .bottom)
             }
@@ -132,11 +132,11 @@ extension TerminalScene {
         if tabs.showsHistory {
             corners.subtract(sidebarSide == .left ? [.topTrailing, .bottomTrailing] : [.topLeading, .bottomLeading])
         }
-        // The built-in bar floats over the pane area (roadmap 0055): the area keeps the window's corners.
+        // The built-in bar floats over the pane area: the area keeps the window's corners.
         return corners
     }
 
-    /// The panel on the side opposite the tabs (web step e, roadmap 0031): History, Documents or Downloads, by the switch at its foot.
+    /// The panel on the side opposite the tabs (web step e): History, Documents or Downloads, by the switch at its foot.
     /// Placed as the docked sidebar is: its margin on the window's edge and top.
     var historyPanel: some View {
         let side: Configuration.Side = sidebarSide == .left ? .right : .left
@@ -165,8 +165,8 @@ extension TerminalScene {
 }
 
 extension TerminalScene {
-    /// A page not loaded shows its site's icon, kept (roadmap 0035 H), while tabs show sites' icons (`web.tabIcon`); not a
-    /// private page's.
+    /// A page not loaded shows its site's icon, kept, while tabs show sites' icons (`web.tabIcon`); not a private
+    /// page's.
     var savedPicture: SavedPictures {
         guard configuration.web.tabIcon == .favicon else { return SavedPictures() }
         return SavedPictures(source: 1) { saved in

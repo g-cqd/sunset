@@ -5,8 +5,8 @@ import SunsetDocuments
 import SunsetShell
 import SunsetStorage
 
-/// The documents of the store as the sidebars reach them (roadmap 0030 step ST-5): the shell lists, makes and deletes them
-/// through a `DocumentShelf`, which is filled here from `SunsetStore`.
+/// The documents of the store as the sidebars reach them: the shell lists, makes and deletes them through a
+/// `DocumentShelf`, which is filled here from `SunsetStore`.
 @MainActor
 enum AppDocuments {
     /// Says to `shelf` how the store's documents are listed, made and deleted.
@@ -21,8 +21,8 @@ enum AppDocuments {
         shelf.forgetFile = { recent.remove($0) }
     }
 
-    /// Deletes a document at once (the owner, ST-5): what was typed and not saved is saved first, so that the plain text put
-    /// in the Mac's Trash is the latest; then its panes close in every window.
+    /// Deletes a document at once (ST-5): what was typed and not saved is saved first, so that the plain text put in
+    /// the Mac's Trash is the latest; then its panes close in every window.
     /// - Parameter id: the document.
     /// - Returns: whether it was deleted; when not, it is said (`StorageProblems`) and nothing closes.
     static func delete(_ id: UUID) -> Bool {

@@ -4,7 +4,7 @@ import SunsetShell
 import SwiftUI
 
 /// Above a block of Settings: the page's heading over the first one, and the block's own heading, with the "?" of the help
-/// that explains the whole block (a list's) after it, not beside one of its controls (the owner, 2026-11-18).
+/// that explains the whole block (a list's) after it, not beside one of its controls.
 struct SettingsBlockHeader: View {
     let page: String?
     let block: SettingsBlock

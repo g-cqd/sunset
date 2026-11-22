@@ -1,7 +1,7 @@
 import AppKit
 
 /// The system's own record of the windows that were open (AppKit's saved application state): Sunset neither reads it nor
-/// writes it, because it restores its own session from its sealed store (ADR-0039).
+/// writes it, because it restores its own session from its sealed store.
 ///
 /// Read, it leaves Sunset with no window: a Sunset that was killed after its last window closed leaves a record of no
 /// windows, kept per signing identity and so shared by every copy of Sunset, and AppKit, restoring it at the next start,

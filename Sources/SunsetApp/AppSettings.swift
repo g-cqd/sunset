@@ -3,7 +3,7 @@ import SunsetConfig
 import SunsetPane
 import SunsetShell
 
-/// The settings in the window (roadmap 0032): their one tab in a window, and the ways to it.
+/// The settings in the window: their one tab in a window, and the ways to it.
 @MainActor
 enum AppSettings {
     /// The window's page of settings, when it has one.

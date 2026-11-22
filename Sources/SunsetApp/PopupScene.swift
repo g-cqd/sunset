@@ -8,10 +8,10 @@ import SunsetShellBridge
 import SunsetWeb
 import SwiftUI
 
-/// A pop-up window (task t132, the owner, 2026-11-20): "the slight margin window, corner radii on all corners and just a
-/// little space above the content to have the traffic lights (on the side the sidebar is) and the other side a button with
-/// 'Open in ‹current Space›' with a selector for the Space to move the popup to as a standard tab there. It should not exist
-/// as a standard tab until then, and it should not show the sidebar at all."
+/// A pop-up window: "the slight margin window, corner radii on all corners and just a little space above the content to have
+/// the traffic lights (on the side the sidebar is) and the other side a button with 'Open in ‹current Space›' with a
+/// selector for the Space to move the popup to as a standard tab there. It should not exist as a standard tab until then,
+/// and it should not show the sidebar at all."
 struct PopupScene: View {
     let id: UUID
     @State private var window: NSWindow?
@@ -77,8 +77,8 @@ struct PopupScene: View {
         return settings
     }
 
-    /// The lights on one side, Open in ‹Space› on the other; a peek's back, forward and address between (note n66), in the
-    /// window bar's glass groups; the rest drags the window.
+    /// The lights on one side, Open in ‹Space› on the other; a peek's back, forward and address between, in the window
+    /// bar's glass groups; the rest drags the window.
     private var strip: some View {
         GlassEffectContainer(spacing: PopupWindowLayout.capsuleGap) {
             HStack(spacing: PopupWindowLayout.capsuleGap) {
@@ -126,8 +126,8 @@ struct PopupScene: View {
         }
     }
 
-    /// The extensions of the profile the window's opener is in, by Open in (the owner, 2026-11-20, t138): its page is
-    /// their tab while it is shown; past the room for a few, the puzzle piece lists them.
+    /// The extensions of the profile the window's opener is in, by Open in: its page is their tab while it is shown;
+    /// past the room for a few, the puzzle piece lists them.
     @ViewBuilder private var extensions: some View {
         if let popup, let host = ExtensionHosts.shared.host(for: profile(of: popup)),
             host.installed.contains(where: \.enabled)

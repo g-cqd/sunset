@@ -16,9 +16,9 @@ struct CommandBarView: View {
 
     let tabs: TabsModel
     let layout: Configuration.Layout
-    /// The sidebar's field it opens in (roadmap 0035 G): its field is that size, its rows as wide; nil over the panes.
+    /// The sidebar's field it opens in: its field is that size, its rows as wide; nil over the panes.
     var anchor: CGSize?
-    /// The room it is shown in (the panes' width, the window's height): it fits in it (n52).
+    /// The room it is shown in (the panes' width, the window's height): it fits in it.
     var room: CGSize?
     @State private var suggestions = SuggestionSource()
     @FocusState private var typing: Bool
@@ -37,7 +37,7 @@ struct CommandBarView: View {
                 .padding(.top, anchor == nil ? Design.System.commandBarTop : 0)
                 .transition(.opacity)
                 // The field takes the keyboard as the bar shows; asked again once it is in the window, where the terminal
-                // kept it before (typed text went to the terminal, the owner's report of 2026-11-17).
+                // kept it before (typed text went to the terminal, 2026-11-17).
                 .onAppear { typing = true }
                 .task {
                     for wait in [16, 50, 120] {
@@ -78,7 +78,7 @@ struct CommandBarView: View {
             if !rows.isEmpty {
                 Divider().opacity(Design.Fill.fainterDivider)
                 // Under the sidebar's field, rows as its tabs: their space between them, 2 pt closer to the edge; the
-                // large bar's rows a little further apart than they were (the owner, 2026-11-17).
+                // large bar's rows a little further apart than they were.
                 ChoiceList(
                     rows: rows,
                     selection: selection,

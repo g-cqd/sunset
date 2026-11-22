@@ -3,13 +3,13 @@ import SunsetPane
 import SunsetRuntime
 import SunsetShell
 
-/// A harness for the cost of switching tabs (t205, owner notes n56 and n59), off unless `SUNSET_PROBE_SWITCH` names a file: a few
-/// seconds after the window opened it selects every tab in turn, three rounds, and writes one line per switch to that file:
-/// the tab's index, the time `select(item:)` took, and the time until the main run loop was next idle (the layout, the SwiftUI
-/// update and the commit that the switch caused), in milliseconds.
+/// A harness for the cost of switching tabs, off unless `SUNSET_PROBE_SWITCH` names a file: a few seconds after the window
+/// opened it selects every tab in turn, three rounds, and writes one line per switch to that file: the tab's index, the time
+/// `select(item:)` took, and the time until the main run loop was next idle (the layout, the SwiftUI update and the commit
+/// that the switch caused), in milliseconds.
 @MainActor
 enum SwitchProbe {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live
 
     private static var started = false

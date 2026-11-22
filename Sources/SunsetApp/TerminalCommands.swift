@@ -25,11 +25,10 @@ struct TerminalCommands: Commands {
     var body: some Commands {
         let open = openWindow
         let _ = AppActions.shared.opensWindows { open(id: "terminal") }
-        // What is of a scope that is off is not in the menus (roadmap 0033).
+        // What is of a scope that is off is not in the menus.
         let scopes = AppScopes.current
-        // The settings are a tab of the window (roadmap 0032): there is no Settings scene to give this item.
-        // Help is a tab of its own window (roadmap 0041 E; the owner, 2026-11-17: a window reusing the shell).
-        // Option turns About into the easter egg: the sun's opening again.
+        // The settings are a tab of the window: there is no Settings scene to give this item. Help is a tab of its own
+        // window (a window reusing the shell). Option turns About into the easter egg: the sun's opening again.
         CommandGroup(replacing: .appInfo) {
             Button("About Sunset") { AppActions.shared.showAbout() }
                 .modifierKeyAlternate(.option) {
@@ -46,7 +45,7 @@ struct TerminalCommands: Commands {
         CommandGroup(replacing: .newItem) {
             Button("New Window") { AppActions.shared.openTerminalWindow() }.keyboardShortcut("n")
             Button("New Tab") { AppActions.shared.newTab() }.keyboardShortcut("t")
-            // Every kind that is on (n69): asked whenever more than one is.
+            // Every kind that is on: asked whenever more than one is.
             if [scopes.terminal, scopes.web, scopes.documents].filter({ $0 }).count > 1 {
                 Button("New Tab of Kind\u{2026}") { AppActions.shared.chooseKind() }
                     .keyboardShortcut("t", modifiers: [.command, .shift])
@@ -68,7 +67,7 @@ struct TerminalCommands: Commands {
             }
         }
         CommandGroup(replacing: .saveItem) {
-            // Close Other Tabs with Option, as Safari's File menu (task t135).
+            // Close Other Tabs with Option, as Safari's File menu.
             Button("Close") { AppActions.shared.closeTab() }.keyboardShortcut("w")
                 .modifierKeyAlternate(.option) {
                     Button("Close Other Tabs") { AppActions.shared.closeOtherTabs() }
@@ -127,7 +126,7 @@ struct TerminalCommands: Commands {
             Button("Pin or Unpin Tab") { AppActions.shared.togglePinned() }
             Button("Add to or Remove from Favorites") { AppActions.shared.toggleFavorite() }
         }
-        // Not there with the web off (roadmap 0033).
+        // Not there with the web off.
         if scopes.web {
             CommandMenu("History") { history }
         }
@@ -140,7 +139,7 @@ struct TerminalCommands: Commands {
                 Button("Tab \(number)") { AppActions.shared.selectTab(number: number) }
                     .keyboardShortcut(KeyEquivalent(Character("\(number)")), modifiers: .command)
             }
-            // The acting window kept awake (roadmap 0035 E).
+            // The acting window kept awake.
             if let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) {
                 Divider()
                 KeepAwakeMenu(tabs: tabs, item: nil)
@@ -153,8 +152,8 @@ struct TerminalCommands: Commands {
         Button("Back") { page?.goBack() }.keyboardShortcut("[").disabled(page?.canGoBack != true)
         Button("Forward") { page?.goForward() }.keyboardShortcut("]").disabled(page?.canGoForward != true)
         Divider()
-        // Without the cache with Shift, and Force Reload with Option (its process ended and the page loaded in a new one, n50:
-        // for a page stuck loading or hung): one item, as Safari's (task t135); each shortcut works whatever is shown.
+        // Without the cache with Shift, and Force Reload with Option (its process ended and the page loaded in a new one:
+        // for a page stuck loading or hung): one item, as Safari's; each shortcut works whatever is shown.
         Button("Reload Page") { page?.reload() }.keyboardShortcut("r").disabled(page?.url == nil)
             .modifierKeyAlternate(.shift) {
                 Button("Reload Page Without Cache") { page?.reload(fromOrigin: true) }
@@ -171,7 +170,7 @@ struct TerminalCommands: Commands {
         Button("Stop") { page?.stopLoading() }.keyboardShortcut(".").disabled(page?.isLoading != true)
         // The page's address field, wherever `web.address` puts it (the window's bar comes out for it), ready to type in.
         Button("Open Address") { page?.wantsAddress = true }.disabled(page == nil)
-        // WebKit's inspector, docked beside the page in its pane (the owner, 2026-11-20); Inspect Element opens it too.
+        // WebKit's inspector, docked beside the page in its pane; Inspect Element opens it too.
         Button(page?.isInspectorVisible == true ? "Hide Web Inspector" : "Show Web Inspector") {
             page?.toggleInspector()
         }

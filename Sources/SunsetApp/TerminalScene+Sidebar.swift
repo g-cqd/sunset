@@ -89,7 +89,7 @@ extension TerminalScene {
         }
     }
 
-    /// The floating sidebar's field is typed in as the docked one's is (note n63): out while the command bar is open in it, or while
+    /// The floating sidebar's field is typed in as the docked one's is: out while the command bar is open in it, or while
     /// it holds the page's address and that is asked for (Open Address, a new page) or typed in.
     var holdsFloatingSidebar: Bool {
         if tabs.bar?.inSidebar == true { return true }
@@ -102,7 +102,7 @@ extension TerminalScene {
         Color.clear.frame(width: configuration.sidebar.width + libraryWidth).frame(maxHeight: .infinity)
     }
 
-    /// How much wider the docked sidebar is while the Library is open: its rail (roadmap 0031).
+    /// How much wider the docked sidebar is while the Library is open: its rail.
     var libraryWidth: Double {
         LibrarySidebar.extraWidth(tabs, ShellSettings(configuration), floating: false)
     }

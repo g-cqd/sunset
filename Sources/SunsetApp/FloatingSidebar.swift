@@ -17,9 +17,9 @@ struct FloatingSidebar: View {
     let windowRadius: Double
     @Binding var shown: Bool
     @Binding var opensAtOnce: Bool
-    /// The field at the top, as the docked sidebar has it (roadmap 0035 G).
+    /// The field at the top, as the docked sidebar has it.
     var accessory: AnyView?
-    /// Out whatever the pointer does: its field is typed in, or the page's address was asked for (note n63).
+    /// Out whatever the pointer does: its field is typed in, or the page's address was asked for.
     var held = false
     @State private var reveal = HoverReveal(hideDelay: .milliseconds(350))
 

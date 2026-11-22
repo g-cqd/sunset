@@ -79,7 +79,7 @@ extension SectionPanel {
         )
     }
 
-    /// The switch between the sections, at the foot of the panel opposite the tabs (the owner's choice B6).
+    /// The switch between the sections, at the foot of the panel opposite the tabs.
     @ViewBuilder var foot: some View {
         if place == .opposite {
             SectionSwitch(
@@ -92,8 +92,8 @@ extension SectionPanel {
         }
     }
 
-    /// Rows that scroll up are gone under the title and the search field, and fade out just below them (the owner,
-    /// 2026-11-17: under the field they were unreadable; an alpha mask, no blur); and under the switch at the foot.
+    /// Rows that scroll up are gone under the title and the search field, and fade out just below them (under the field
+    /// they were unreadable; an alpha mask, no blur); and under the switch at the foot.
     var fade: some View {
         VStack(spacing: 0) {
             Color.clear.frame(height: max(listTop - Design.Space.xs, 0))

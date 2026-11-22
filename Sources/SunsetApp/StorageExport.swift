@@ -4,8 +4,8 @@ import SunsetDocuments
 import SunsetStorage
 import SunsetWeb
 
-/// Export All (R12, roadmap 0030 step ST-6): every document as a plain file, the history as CSV and the session as readable
-/// JSON, in a dated folder of the folder the person chooses (`ExportAll`). A copy: nothing leaves the store.
+/// Export All: every document as a plain file, the history as CSV and the session as readable JSON, in a dated folder
+/// of the folder the person chooses (`ExportAll`). A copy: nothing leaves the store.
 @MainActor
 enum StorageExport {
     /// Asks where, then exports there; nil when the person cancelled.

@@ -8,11 +8,11 @@ import SunsetStorage
 import SunsetWeb
 import WebKit
 
-/// The app's side of blocking (roadmap 0022 W-c): the pauses kept sealed; the lists read from where they were kept, and
-/// fetched again when older than four days (EasyList's own "Expires"), checked every six hours. These are the only
-/// requests Sunset makes on its own: https only, at most 20 MB a list, no cookies (`WebFetch`).
+/// The app's side of blocking: the pauses kept sealed; the lists read from where they were kept, and fetched again when
+/// older than four days (EasyList's own "Expires"), checked every six hours. These are the only requests Sunset makes
+/// on its own: https only, at most 20 MB a list, no cookies (`WebFetch`).
 @MainActor enum AppBlocking {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live
 
     private static var loop: Task<Void, Never>?
@@ -22,7 +22,7 @@ import WebKit
         let storage = SunsetStore.shared
         ContentBlocker.shared.pauses.table = storage.table("blocking-pauses")
         HiddenElements.shared.table = storage.table("hidden-elements")
-        // Beside what else Sunset keeps (a debug build's apart: ADR-0042).
+        // Beside what else Sunset keeps (a debug build's apart).
         ContentBlocker.shared.folder = URL(fileURLWithPath: storage.places.directory)
             .appending(
                 path: "Blocking",
@@ -39,11 +39,11 @@ import WebKit
     }
 
     /// The settings changed: on or off at once; other lists fetched; the proxy given to the stores of pages made from now,
-    /// and to the stores that exist (W-f).
+    /// and to the stores that exist.
     static func apply(_ web: Configuration.Web) {
         let proxy = WebProxy(web.proxy)
         WebProxy.current = proxy
-        // Each profile's store its own proxy (roadmap 0050), else the app's; the first's is WebKit's default store.
+        // Each profile's store its own proxy, else the app's; the first's is WebKit's default store.
         for model in AppSpaces.all.profiles.profiles {
             let profile = model.profile
             let own = ProfileOverrides.apply(profile.overrides, to: AppConfiguration.shared.configuration).web.proxy
@@ -59,8 +59,8 @@ import WebKit
 
     private static var addresses: [String] = []
 
-    /// The lists as kept go on pages first (looked up once compiled: task t109), then each list older than `maxAge` or not
-    /// kept is fetched again, and the lists are put on pages again only if one changed: blocking never waits on the network.
+    /// The lists as kept go on pages first (looked up once compiled), then each list older than `maxAge` or not kept is
+    /// fetched again, and the lists are put on pages again only if one changed: blocking never waits on the network.
     static func refresh() async {
         await ContentBlocker.shared.compileHidden()
         let web = AppConfiguration.shared.configuration.web

@@ -4,9 +4,9 @@ import SunsetShell
 import SunsetShellModel
 import SwiftUI
 
-/// The welcome (roadmap 0111 H; docs/research/welcome-design.md): the sky the whole window, the sun low; one question a
-/// page, its text left-aligned in the darker sky above, answered with the system's own controls; Back, Skip Setup and one
-/// primary button below. Return goes on, ← and → move, Esc leaves. Answers are written at once and stay in Settings.
+/// The welcome (docs/research/welcome-design.md): the sky the whole window, the sun low; one question a page, its text
+/// left-aligned in the darker sky above, answered with the system's own controls; Back, Skip Setup and one primary button
+/// below. Return goes on, ← and → move, Esc leaves. Answers are written at once and stay in Settings.
 struct WelcomeView: View {
     let store: AppConfiguration
     let clock: WelcomeOpeningClock
@@ -46,7 +46,7 @@ struct WelcomeView: View {
         .background {
             ZStack {
                 SunsetSkyView { _, size in SunsetSkyFrame.window(size) }
-                // Dimmed where the text sits, the upper sky; under the buttons the sky out of focus, not darkened (n91).
+                // Dimmed where the text sits, the upper sky; under the buttons the sky out of focus, not darkened.
                 LinearGradient(
                     stops: [
                         .init(color: .black.opacity(Design.Welcome.dimming), location: 0),

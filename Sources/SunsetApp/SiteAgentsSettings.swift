@@ -3,9 +3,9 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// Settings > Web > Websites: the browser sites are shown (roadmap 0022, W-a), rows of their section (note n13): the default
-/// for every site, and the sites that have a rule of their own, each changeable or removed (the default applies to it
-/// again). A rule is for the site and its subdomains.
+/// Settings > Web > Websites: the browser sites are shown, rows of their section: the default for every site, and the
+/// sites that have a rule of their own, each changeable or removed (the default applies to it again). A rule is for the
+/// site and its subdomains.
 struct SiteAgentsSettings: View {
     /// The browser every site with no rule is shown (`web.agent`).
     @Binding var agent: Configuration.Web.Agent

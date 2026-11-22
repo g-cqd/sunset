@@ -2,7 +2,7 @@ import Darwin
 import SunsetWeb
 
 /// Whether macOS says memory is short: its pressure level (`kern.memorystatus_vm_pressure_level`: 1 normal, 2 warning, 4
-/// critical; short at critical, ADR-0076), read when asked; no dispatch source (ADR-0033).
+/// critical; short at critical), read when asked; no dispatch source.
 enum MemoryPressure {
     static var isShort: Bool {
         var level: Int32 = 0

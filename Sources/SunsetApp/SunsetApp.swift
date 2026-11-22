@@ -16,9 +16,9 @@ public struct SunsetApp: App {
         // the initial WindowGroup window whenever an argument matches an existing file path).
         UserDefaults.standard.register(defaults: ["NSTreatUnknownArgumentsAsOpen": false])
         SystemRestoration.ignoreSavedState()
-        // The other build that keeps this store, open: one at a time (ADR-0114), before anything of the store is read.
+        // The other build that keeps this store, open: one at a time, before anything of the store is read.
         MainActor.assumeIsolated { OtherBuildAtLaunch.settle() }
-        // The cookie jars sealed at the last quit, put back before any page's store opens (task t114).
+        // The cookie jars sealed at the last quit, put back before any page's store opens.
         MainActor.assumeIsolated { AppSealedData.openAtLaunch() }
         // The saved tabs of the last run are read once, before the first window asks for them.
         SessionStore.shared.load(
@@ -34,13 +34,13 @@ public struct SunsetApp: App {
         .defaultSize(width: 820, height: 520)
         // On the first launch the welcome comes first; the window opens when it closes (`WelcomeWindow`).
         .defaultLaunchBehavior(MainActor.assumeIsolated { WelcomeWindow.atLaunch } ? .suppressed : .automatic)
-        // A file opened with Sunset opens in a tab (AppDelegate), not in a window SwiftUI makes for it (ADR-0040).
+        // A file opened with Sunset opens in a tab (AppDelegate), not in a window SwiftUI makes for it.
         .handlesExternalEvents(matching: [])
         .commands {
             TerminalCommands()
             SpaceCommands()
         }
-        // A page's pop-up (task t132): a window of its own, not kept by the session.
+        // A page's pop-up: a window of its own, not kept by the session.
         WindowGroup(id: "popup", for: UUID.self) { $id in
             if let id { PopupScene(id: id) }
         }

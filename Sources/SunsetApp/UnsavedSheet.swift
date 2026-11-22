@@ -1,8 +1,8 @@
 import SunsetShell
 import SwiftUI
 
-/// The question before unsaved edits close (R6, roadmap 0023 step M-d): Save (Return), Don't Save (Cmd-D, as everywhere on
-/// the Mac), Cancel (Escape). With several documents they are named, and Save writes them all.
+/// The question before unsaved edits close: Save (Return), Don't Save (Cmd-D, as everywhere on the Mac), Cancel
+/// (Escape). With several documents they are named, and Save writes them all.
 struct UnsavedSheet: View {
     let tabs: TabsModel
     let question: UnsavedQuestion

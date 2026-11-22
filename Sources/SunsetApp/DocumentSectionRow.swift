@@ -62,10 +62,10 @@ struct DocumentSectionRow: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
         // A press through accessibility (VoiceOver, Voice Control) does not reach a tap gesture on a combined element: seen in
-        // the app, where pressing the row did nothing (diary 2026-11-15).
+        // the app, where pressing the row did nothing.
         .accessibilityAction { open() }
         .contextMenu {
-            // In a new tab with Option, for a document with no file (task t135).
+            // In a new tab with Option, for a document with no file.
             Button("Open") { open() }
                 .modifierKeyAlternate(.option) {
                     if document.file == nil { Button("Open in New Tab") { openInNewTab() } }

@@ -2,8 +2,8 @@ import SunsetConfig
 import SunsetShell
 import SwiftUI
 
-/// The search engines the person added (`web.engines`), rows of their section (the owner's note n13): each folds open on its
-/// name and keyword, every field labelled, Remove under them, the search and suggestion addresses with `%s`; added and removed here.
+/// The search engines the person added (`web.engines`), rows of their section: each folds open on its name and keyword, every field
+/// labelled, Remove under them, the search and suggestion addresses with `%s`; added and removed here.
 struct EngineList: View {
     @Binding var engines: [Configuration.Web.Engine]
     /// The engines folded open: a new one is.
@@ -62,7 +62,7 @@ struct EngineList: View {
         engines.remove(at: index)
     }
 
-    /// A labelled field; `code`, an address or a keyword, in monospace (note n26).
+    /// A labelled field; `code`, an address or a keyword, in monospace.
     private func field(_ title: String, _ text: Binding<String>, prompt: String, code: Bool = false) -> some View {
         LabeledContent {
             TextField(title, text: text, prompt: Text(prompt))

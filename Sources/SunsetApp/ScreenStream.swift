@@ -1,8 +1,8 @@
 import CoreImage
 @preconcurrency import ScreenCaptureKit
 
-/// What the person picked in macOS's picker, captured (ADR-0085): its last complete frame kept, at most 1920 wide and 30 a
-/// second, handed to the page as a tab's frames are.
+/// What the person picked in macOS's picker, captured: its last complete frame kept, at most 1920 wide and 30 a second,
+/// handed to the page as a tab's frames are.
 final class ScreenStream: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Sendable {
     private let lock = NSLock()
     private var latest: CVPixelBuffer?

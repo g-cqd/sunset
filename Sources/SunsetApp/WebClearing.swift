@@ -9,7 +9,7 @@ import WebKit
         if history {
             AppHistory.shared?.clear(since: date)
             DownloadCenter.shared.clear()
-            // The sites' icons say where one went (roadmap 0035 H).
+            // The sites' icons say where one went.
             FaviconStore.shared.forgetAll()
         }
         if siteZoom { SiteZoom.shared.clearAll() }
@@ -31,7 +31,7 @@ import WebKit
             AppHistory.shared?.clear(since: .distantPast)
             FaviconStore.shared.forgetAll()
         }
-        // What WebKit keeps, by each profile (ADR-0081).
+        // What WebKit keeps, by each profile.
         await AppKeeping.clearAtQuit()
     }
 }

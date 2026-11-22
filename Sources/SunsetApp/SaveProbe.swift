@@ -1,7 +1,7 @@
 import Foundation
 
-/// A harness for the main thread's share of a session save (roadmap 0049), off unless `SUNSET_PROBE_SAVE` names a file: one
-/// line per save, whether it went to the background, and the milliseconds the main thread spent on it.
+/// A harness for the main thread's share of a session save, off unless `SUNSET_PROBE_SAVE` names a file: one line per
+/// save, whether it went to the background, and the milliseconds the main thread spent on it.
 @MainActor
 enum SaveProbe {
     private static let path = ProcessInfo.processInfo.environment["SUNSET_PROBE_SAVE"]

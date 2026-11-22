@@ -1,7 +1,7 @@
 import SunsetPane
 import SunsetShell
 
-/// The command bar's rows for the other Spaces (R4): a Space by its name, and a tab of another Space, which is gone to
+/// The command bar's rows for the other Spaces: a Space by its name, and a tab of another Space, which is gone to
 /// there.
 @MainActor enum SpaceRows {
     static func rows(_ bar: CommandBar, tabs: TabsModel) -> [ChoiceRow] {

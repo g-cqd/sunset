@@ -5,7 +5,7 @@ import SunsetShell
 import SunsetWeb
 
 /// Where what a document pane opens goes, and what its changes save. Show Beside, beside; a link, where the keys held and
-/// `documents.linksOpen` say (the owner, 2026-11-17; R6 had "everything in a new split").
+/// `documents.linksOpen` say (R6 had "everything in a new split").
 @MainActor enum DocumentWiring {
     /// Gives `content` its way of placing what it opens, in the window `tabs`, and of saving which view it shows.
     static func wire(_ content: DocumentContent, in tabs: TabsModel) {

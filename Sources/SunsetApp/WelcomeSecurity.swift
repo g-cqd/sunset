@@ -2,7 +2,7 @@ import SunsetConfig
 import SunsetShell
 import SwiftUI
 
-/// The welcome's security question (roadmap 0111 H): a model for the settings that weigh safety against pages working.
+/// The welcome's security question: a model for the settings that weigh safety against pages working.
 struct WelcomeSecurity: View {
     let store: AppConfiguration
 

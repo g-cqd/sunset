@@ -3,8 +3,8 @@ import SunsetPane
 import SunsetShell
 import SunsetTerminal
 
-/// Files dropped on the panes (R6, roadmap 0023 step M-f, ADR-0040): on a terminal their paths are typed, as a paste, and
-/// that terminal takes the keyboard; anywhere else each opens as a document. What is done with them is `FileDrop`'s to say.
+/// Files dropped on the panes: on a terminal their paths are typed, as a paste, and that terminal takes the keyboard;
+/// anywhere else each opens as a document. What is done with them is `FileDrop`'s to say.
 ///
 /// A view that takes drops itself is asked before this: a web page keeps what is dropped on it, an editor's text view too.
 @MainActor enum FileDropping {

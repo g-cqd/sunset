@@ -11,12 +11,12 @@ import SunsetShellModel
 import SunsetTerminal
 import SunsetWeb
 
-/// Quitting (web step q, R1): by `tabs.askBeforeQuit`, what would be lost is gathered and a sheet on a window asks; meanwhile the app answers
+/// Quitting (web step q): by `tabs.askBeforeQuit`, what would be lost is gathered and a sheet on a window asks; meanwhile the app answers
 /// "later" to the system, so nothing (a logout, a restart) quits it unless it is force-quit. Edits to a file that are not saved are asked
-/// about at every level, with Save All (roadmap 0023 step M-d).
+/// about at every level, with Save All.
 @MainActor @Observable
 final class QuitGate {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored var runtime = Runtime.live
 
     static let shared = QuitGate()
@@ -34,7 +34,7 @@ final class QuitGate {
         // The documents Sunset keeps are kept now; what is left edited is a file's, and is asked about whatever the level.
         SunsetStore.shared.openDocuments.keepStored()
         // The quit's work is awaited (WebKit's stores cleared, their jars sealed), then AppKit is answered: never by
-        // spinning the run loop, which cannot run a main-actor task from inside one (diary 2026-11-19-12).
+        // spinning the run loop, which cannot run a main-actor task from inside one.
         guard level != .never || !SunsetStore.shared.openDocuments.edited.isEmpty else {
             runtime.task { await finishThenQuit() }
             return .terminateLater

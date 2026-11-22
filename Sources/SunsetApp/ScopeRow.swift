@@ -3,8 +3,8 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// At the top of Settings, with more than one profile (roadmap 0050; the owner's notes n1, n38): whose settings are shown,
-/// all profiles' or one profile's own. With a profile chosen, only what a profile can set is listed.
+/// At the top of Settings, with more than one profile: whose settings are shown, all profiles' or one profile's own.
+/// With a profile chosen, only what a profile can set is listed.
 struct ScopeRow: View {
     @Bindable var content: SettingsContent
 

@@ -4,7 +4,7 @@ import SunsetShellBridge
 import SunsetShellModel
 import SunsetTerminal
 
-/// Sunset's alerts (the owner's note n73) on the window in front, in the configuration's look.
+/// Sunset's alerts on the window in front, in the configuration's look.
 @MainActor
 enum SunsetAlerts {
     /// The alert on `window` (or the window in front), answered once with the index of the button pressed.

@@ -1,7 +1,7 @@
 import SunsetConfig
 import SunsetShell
 
-/// The sections of the sidebars (roadmap 0031), from the menus.
+/// The sections of the sidebars, from the menus.
 extension AppActions {
     private var actingTabs: TabsModel? {
         TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)

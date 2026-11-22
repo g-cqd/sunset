@@ -3,8 +3,8 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// Whether pages go through the proxy (the owner's note n37): checked by itself a moment after the proxy changes, and again
-/// on demand (`ProxyCheck`: Apple's captive-network page, through the proxy as pages are; nothing else is asked).
+/// Whether pages go through the proxy: checked by itself a moment after the proxy changes, and again on demand
+/// (`ProxyCheck`: Apple's captive-network page, through the proxy as pages are; nothing else is asked).
 struct ProxyCheckRow: View {
     @Environment(\.runtime) var runtime
 

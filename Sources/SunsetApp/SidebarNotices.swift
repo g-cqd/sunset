@@ -5,9 +5,9 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// The calls to action under the sidebar's field (roadmap 0035 I): the questions of the pages of the shown tab (what a site
-/// wants: Don't Allow, Allow Once, Allow), and what macOS must allow Sunset for a site allowed (`SystemAsk`). Nothing when
-/// there is nothing to answer.
+/// The calls to action under the sidebar's field: the questions of the pages of the shown tab (what a site wants: Don't
+/// Allow, Allow Once, Allow), and what macOS must allow Sunset for a site allowed (`SystemAsk`). Nothing when there is
+/// nothing to answer.
 struct SidebarNotices: View {
     let tabs: TabsModel
     let layout: Configuration.Layout

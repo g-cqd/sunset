@@ -5,8 +5,8 @@ import SunsetWeb
 import SunsetWebModel
 import SwiftUI
 
-/// Settings ▸ Web ▸ Extensions (roadmap 0109 C, ADR-0109): each profile's extensions, a section each: on or off, in private
-/// windows or not, removed after a question; Install… beside the profile's name.
+/// Settings ▸ Web ▸ Extensions: each profile's extensions, a section each: on or off, in private windows or not,
+/// removed after a question; Install… beside the profile's name.
 struct ExtensionsSettings: View {
     private let spaces = AppSpaces.all
     @State private var removing: (host: ExtensionHost, entry: ExtensionStore.Installed)?
@@ -20,7 +20,7 @@ struct ExtensionsSettings: View {
                     }
                     ForEach(Array(host.installed.enumerated()), id: \.element.id) { index, entry in
                         row(entry, in: host)
-                            // The buttons' order (the owner, 2026-11-20).
+                            // The buttons' order.
                             .contextMenu {
                                 Button("Move Up") { host.moveEntry(entry.id, by: -1) }.disabled(index == 0)
                                 Button("Move Down") { host.moveEntry(entry.id, by: 1) }

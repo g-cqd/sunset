@@ -6,7 +6,7 @@ import SunsetShellBridge
 import SunsetTerminal
 import SwiftUI
 
-/// The one preview card of a window (owner, 2026-11-13, t229): it comes in beside the row under the pointer, glides to the next row
+/// The one preview card of a window (owner, 2026-11-13): it comes in beside the row under the pointer, glides to the next row
 /// the pointer goes to while its content changes, and goes a moment after the pointer left the rows. For the selected tab too.
 /// Beside a sidebar's row, level with it; for a row of the built-in bar, above or below it (`PreviewPlacement`).
 struct TabPreviewHost: View {
@@ -24,7 +24,7 @@ struct TabPreviewHost: View {
     @State private var shown: Shown?
     @State private var leaving: Task<Void, Never>?
 
-    /// A tab's card, or a folder's (n77).
+    /// A tab's card, or a folder's.
     struct Shown: Equatable {
         var item: Workspace.ItemID?
         var folder: Favorites.NodeID?
@@ -56,7 +56,7 @@ struct TabPreviewHost: View {
         .onChange(of: tabs.hoveredRowFrame) { _, _ in follow() }
         .onChange(of: tabs.dragged == nil) { _, _ in follow() }
         .onChange(of: kinds) { _, _ in follow() }
-        // A page's snapshot taken as the pointer came arrives a moment later (roadmap 0035 C).
+        // A page's snapshot taken as the pointer came arrives a moment later.
         .onChange(of: hoveredHasPicture) { _, _ in follow() }
     }
 
@@ -102,8 +102,8 @@ struct TabPreviewHost: View {
             // A page on screen is pictured as it is now; one that is hidden keeps the picture taken as it was hidden.
             for pane in item.panes { tabs.content(pane)?.takePicture() }
         }
-        // Every kind has a card, a pane with no picture showing its icon (n77); not the tab on screen: its card would picture
-        // what is under it (the owner, 2026-11-17: "nesting of the preview in previews").
+        // Every kind has a card, a pane with no picture showing its icon; not the tab on screen: its card would picture
+        // what is under it ("nesting of the preview in previews").
         if let id = tabs.hoveredItem, id != tabs.shownItem?.id, let item = tabs.previewItem(id),
             kinds.shows(
                 kinds: item.panes.map { tabs.content($0)?.descriptor.kind ?? tabs.pendingDescriptor($0)?.kind ?? "" }

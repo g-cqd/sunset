@@ -4,8 +4,8 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// The rows of a section under their headings (roadmap 0031): the pages of the history by day, the documents in the chosen
-/// order, the downloads by day; or a line that says there is nothing, or nothing that matches.
+/// The rows of a section under their headings: the pages of the history by day, the documents in the chosen order, the
+/// downloads by day; or a line that says there is nothing, or nothing that matches.
 struct SectionList: View {
     let tabs: TabsModel
     let section: SidebarSection

@@ -2,8 +2,8 @@ import SunsetHelp
 import SunsetPane
 import SunsetShell
 
-/// Where Help shows (roadmap 0041 E; the owner, 2026-11-17): a window of its own that reuses the shell, opened by the Help
-/// menu; from Settings, the Help tab of the window Settings are in.
+/// Where Help shows: a window of its own that reuses the shell, opened by the Help menu; from Settings, the Help tab of
+/// the window Settings are in.
 @MainActor enum AppHelp {
     /// Shows Help in `tabs` on `topic` (nil: where it was): its tab, the one there or a new one.
     static func show(_ topic: HelpTopic? = nil, in tabs: TabsModel) {

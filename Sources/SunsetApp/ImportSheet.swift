@@ -4,9 +4,9 @@ import SunsetShell
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// File ▸ Import from Another Browser… (roadmap 0111 G; the owner's note n75): a browser on this Mac and one of its
-/// profiles, or an exported bookmarks file, into this Space or a new one. Extensions are offered by their store pages,
-/// installed by the person (roadmap 0109); nothing is installed or overwritten silently.
+/// File ▸ Import from Another Browser…: a browser on this Mac and one of its profiles, or an exported bookmarks file,
+/// into this Space or a new one. Extensions are offered by their store pages, installed by the person; nothing is
+/// installed or overwritten silently.
 struct ImportSheet: View {
     let tabs: TabsModel
     @Environment(\.dismiss) private var dismiss

@@ -1,8 +1,8 @@
 import SunsetShell
 import SunsetShellModel
 
-/// The menus' commands the command bar offers when what is typed names one (roadmap 0111 G; the owner's note n83): after
-/// what was typed, so that Return still does what it did.
+/// The menus' commands the command bar offers when what is typed names one: after what was typed, so that Return still
+/// does what it did.
 enum CommandRows {
     /// The rows for `typed` (none with an engine's chip: nil).
     @MainActor static func rows(typed: String?, tabs: TabsModel) -> [ChoiceRow] {

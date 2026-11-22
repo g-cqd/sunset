@@ -3,9 +3,8 @@ import SunsetRuntime
 import SunsetShellModel
 import SunsetWeb
 
-/// Sunset's windows as extensions see them (roadmap 0109 B): one object for each window while it is open (WebKit tells them
-/// apart by it), its Space's pages its tabs, the page it shows the active one; the hosts told as windows open, close and take
-/// the keyboard.
+/// Sunset's windows as extensions see them: one object for each window while it is open (WebKit tells them apart by it), its
+/// Space's pages its tabs, the page it shows the active one; the hosts told as windows open, close and take the keyboard.
 @MainActor
 enum AppExtensionWindows {
     private static var made: [ObjectIdentifier: ExtensionWindow] = [:]

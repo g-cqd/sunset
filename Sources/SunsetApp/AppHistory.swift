@@ -8,7 +8,7 @@ import SunsetWeb
 /// The app's one history (web step e): sealed records of the state database (R12 step ST-3), read once; pages older than
 /// `web.historyKeep` are forgotten at launch. The file of before the database is taken in once, then removed.
 @MainActor enum AppHistory {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live
 
     static let shared: HistoryStore? = {
@@ -22,7 +22,7 @@ import SunsetWeb
                 if store.importLegacy(at: storage.places.legacyHistory) != nil {
                     storage.retire(storage.places.legacyHistory, when: table.count() >= store.count)
                 }
-                // Sunset WebKit's store of before, once (ADR-0114): its documents and history join the shared store.
+                // Sunset WebKit's store of before, once: its documents and history join the shared store.
                 if let former = storage.places.former {
                     FormerStoreMerge.run(into: storage, history: store, from: former, scratch: NSTemporaryDirectory())
                 }

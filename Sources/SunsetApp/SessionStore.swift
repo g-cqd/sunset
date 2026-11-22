@@ -9,12 +9,12 @@ import SunsetStorage
 
 /// The tabs that come back: the Space and the windows that show it are written to the session file a moment after anything
 /// changes (and when the app is put away or quits) and read at the next launch, where each window takes one saved view in
-/// turn (`SpacesSession`, ADR-0045). Programs cannot be saved, so a restored pane is a new shell in the directory the old
-/// one was in. The Favorites are in the same file. They are kept whatever the restoring setting says: with it off, the
-/// tabs are not written and no entry comes back open.
+/// turn (`SpacesSession`). Programs cannot be saved, so a restored pane is a new shell in the directory the old one was
+/// in. The Favorites are in the same file. They are kept whatever the restoring setting says: with it off, the tabs are
+/// not written and no entry comes back open.
 @MainActor
 final class SessionStore {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     var runtime = Runtime.live
 
     static let shared = SessionStore()
@@ -58,7 +58,7 @@ final class SessionStore {
             return
         }
         AppSpaces.all.restore(session.spaces, reopening: enabled)
-        // Nor does anything of a scope that is off (roadmap 0033).
+        // Nor does anything of a scope that is off.
         AppScopes.enforce()
         // Tabs that were left by the last window long enough ago do not come back (`tabs.closeStoppedAfter`).
         AppSpaces.cleanStopped()
@@ -86,8 +86,8 @@ final class SessionStore {
     private static let identity = "session"
 
     /// The saved session: the sealed file, or the plain one of before sealing when there is no sealed one. A file that does
-    /// not read (damaged, or a later Sunset's) is moved aside and said, not dropped: the next save would write over it (R12).
-    /// One sealed with another key is left as it is, and nothing is saved in this run.
+    /// not read (damaged, or a later Sunset's) is moved aside and said, not dropped: the next save would write over it. One
+    /// sealed with another key is left as it is, and nothing is saved in this run.
     private func read() -> SpacesSession? {
         if let seal {
             let read = SealedFile.read(path, as: Self.what, seal: seal, identity: Self.identity) {
@@ -147,8 +147,8 @@ final class SessionStore {
         }
     }
 
-    /// Writes the session's file one at a time, the newest last (roadmap 0049: a write held the main thread for milliseconds
-    /// each time a change settled).
+    /// Writes the session's file one at a time, the newest last (a write held the main thread for milliseconds each
+    /// time a change settled).
     private static let disk = NewestWrites()
 
     /// Writes the session now, from the windows that are open (and the saved ones not yet taken, so that a quit during launch loses nothing).

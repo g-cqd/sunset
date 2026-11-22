@@ -3,9 +3,9 @@ import SunsetPane
 import SunsetShellModel
 import SunsetWeb
 
-/// The pages extensions open (`tabs.create`, a link in a popup, an options page; the owner's note n67): a tab of a window of
-/// the extension's profile (the one it names, else the one in front, else the first), right after the page it shows, the
-/// window brought forward when the tab is to be active. None when no window of the profile is open.
+/// The pages extensions open (`tabs.create`, a link in a popup, an options page): a tab of a window of the extension's
+/// profile (the one it names, else the one in front, else the first), right after the page it shows, the window brought
+/// forward when the tab is to be active. None when no window of the profile is open.
 @MainActor
 enum AppExtensionTabs {
     static func start() {

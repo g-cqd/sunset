@@ -12,11 +12,11 @@ import SunsetTerminal
 import SunsetWeb
 import WebKit
 
-/// The app's side of sharing a tab (ADR-0082): the open tabs of every Space, and a feed of each one's frames. A page not in
-/// a window (its tab not shown) is drawn in a window off screen while it is shared, as the probe measured; a terminal sends
-/// its renderer's last frame, a document is drawn again from its rows.
+/// The app's side of sharing a tab: the open tabs of every Space, and a feed of each one's frames. A page not in a window
+/// (its tab not shown) is drawn in a window off screen while it is shared, as the probe measured; a terminal sends its
+/// renderer's last frame, a document is drawn again from its rows.
 @MainActor enum AppShare {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live
 
     static func start() {
@@ -25,7 +25,7 @@ import WebKit
         WebShare.preview = { id in await preview(id) }
         WebShare.pickSystem = { await pickSystem() }
         WebShare.otherProfiles = AppConfiguration.shared.configuration.web.shareOtherProfiles
-        // Reload As (roadmap 0050 D): every profile, and a profile's page settings.
+        // Reload As: every profile, and a profile's page settings.
         WebProfiles.all = {
             AppSpaces.all.profiles.profiles.map(\.profile).map { ($0.isFirst ? nil : $0.id, $0.name) }
         }
@@ -36,8 +36,8 @@ import WebKit
         WebProfiles.settings = { id, like in PaneContentKinds.pageSettings(profile: id, privacy: like.privacy) }
     }
 
-    /// Every open tab of every kind, by Space (ADR-0082, step D): pages, terminals, documents, the asking page itself among its
-    /// Space's, marked (the owner, 2026-11-19); not a private page.
+    /// Every open tab of every kind, by Space: pages, terminals, documents, the asking page itself among its Space's,
+    /// marked; not a private page.
     static func sources(except asking: WebContent) -> [ShareSource] {
         var askingID: UUID?
         let tabs = AppSpaces.all.spaces.flatMap { space in
@@ -66,7 +66,7 @@ import WebKit
     }
 
     /// A page with no title of its own in this run (never loaded) is named by the title its address was last seen with,
-    /// not by its host (roadmap 0057).
+    /// not by its host.
     private static func shownTitle(_ content: any PaneContent) -> String {
         if let page = content as? WebContent, page.pageTitle.isEmpty, let url = page.url,
             let seen = AppHistory.shared?.title(of: url.absoluteString)
@@ -78,7 +78,7 @@ import WebKit
 
     private static let picker = ScreenPicker()
 
-    /// macOS's picker, then what is picked captured (ADR-0085); stopped with the share.
+    /// macOS's picker, then what is picked captured; stopped with the share.
     static func pickSystem() async -> ShareFeed? {
         guard let filter = await picker.pick() else { return nil }
         let stream = ScreenStream()
@@ -110,7 +110,7 @@ import WebKit
     static func feed(_ id: UUID) -> ShareFeed? {
         switch anyContent(id) {
             case let other? where other is TerminalModel || other is DocumentContent:
-                // Its tab marked while shared, as a page's is (roadmap 0057).
+                // Its tab marked while shared, as a page's is.
                 return ShareFeed(
                     frame: { await otherFrame(id) },
                     isOpen: { anyContent(id) != nil },
@@ -133,7 +133,7 @@ import WebKit
     /// The widest preview, in points: the share panel's cards.
     static let previewWidth = 320.0
 
-    /// A tab as it is now, small, for the share panel (n72): a page as it is drawn (not loaded for it: a page never loaded
+    /// A tab as it is now, small, for the share panel: a page as it is drawn (not loaded for it: a page never loaded
     /// has none), a terminal and a document drawn now.
     static func preview(_ id: UUID) async -> CGImage? {
         switch anyContent(id) {

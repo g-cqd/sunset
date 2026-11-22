@@ -4,11 +4,11 @@ import SunsetPane
 import SunsetRuntime
 import SunsetShell
 
-/// The Spaces of the app (R4; ADR-0045, ADR-0047). Every window that lists tabs (the sidebar, the built-in bar) shows one
-/// of them; a Space keeps its tabs when its last window closes, unless the settings say otherwise. A private window, and a
-/// window that is one tab (the system's tab bar, a window each), has a Space of its own instead.
+/// The Spaces of the app. Every window that lists tabs (the sidebar, the built-in bar) shows one of them; a Space keeps
+/// its tabs when its last window closes, unless the settings say otherwise. A private window, and a window that is one tab
+/// (the system's tab bar, a window each), has a Space of its own instead.
 @MainActor enum AppSpaces {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live
 
     static let all: SpacesModel = {
@@ -22,8 +22,8 @@ import SunsetShell
         return spaces
     }()
 
-    /// Whose the Favorites and the Pinned grid are (`spaces.favorites`, `spaces.pinned`; roadmap 0044): read once, when the
-    /// Spaces are made; a change takes effect the next time Sunset opens.
+    /// Whose the Favorites and the Pinned grid are (`spaces.favorites`, `spaces.pinned`): read once, when the Spaces
+    /// are made; a change takes effect the next time Sunset opens.
     static let ownership: SpacesSession.Ownership = {
         let scopes = AppConfiguration.shared.configuration.spaces
         return SpacesSession.Ownership(favoritesBySpace: scopes.favorites == .space, pinnedByApp: scopes.pinned == .app)

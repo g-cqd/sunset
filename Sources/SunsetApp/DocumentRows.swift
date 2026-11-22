@@ -2,8 +2,8 @@ import AppKit
 import SunsetPane
 import SunsetShell
 
-/// The rows of the command bar that open a document (R6, roadmap 0023 step M-f): the file a typed path names, and the
-/// documents Sunset keeps whose title matches.
+/// The rows of the command bar that open a document: the file a typed path names, and the documents Sunset keeps whose
+/// title matches.
 @MainActor enum DocumentRows {
     /// The file at `path`: Return opens it in a tab (or shows the tab that has it).
     static func file(_ path: String, tabs: TabsModel) -> ChoiceRow {

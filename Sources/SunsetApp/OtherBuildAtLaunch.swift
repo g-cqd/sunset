@@ -2,9 +2,9 @@ import AppKit
 import SunsetRuntime
 import SunsetStorage
 
-/// Sunset and Sunset WebKit keep one store (ADR-0114), and only one may have it open: both would write the same session.
-/// Opened while the other runs, the second says so before it reads anything, and offers to quit the other (which saves its
-/// session as it quits) or itself. Only for the person's own store: a test's or a named setup's run is left alone.
+/// Sunset and Sunset WebKit keep one store, and only one may have it open: both would write the same session. Opened while
+/// the other runs, the second says so before it reads anything, and offers to quit the other (which saves its session as
+/// it quits) or itself. Only for the person's own store: a test's or a named setup's run is left alone.
 @MainActor
 enum OtherBuildAtLaunch {
     /// How long the other is waited for once asked to quit.

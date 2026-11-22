@@ -4,7 +4,7 @@ import SunsetMarkdown
 import SunsetPane
 import SunsetShell
 
-/// Documents (roadmap 0023 step M-c): opening a file in a tab, and what the menus do to the document pane in front.
+/// Documents: opening a file in a tab, and what the menus do to the document pane in front.
 extension AppActions {
     /// The document pane the menus act on: the one shown in the acting window.
     var frontDocument: DocumentContent? {
@@ -44,10 +44,10 @@ extension AppActions {
 
     /// Opens files (the Open panel, a drop, Finder, the command bar) in the window that acts: each in a tab of its own, one
     /// that window already shows is shown. With no window (Sunset was started by opening them, or its last window is closed)
-    /// one is opened for them: SwiftUI makes none for a file (`handlesExternalEvents(matching: [])`, ADR-0040), and AppKit
-    /// makes no first window for a Sunset started on one.
+    /// one is opened for them: SwiftUI makes none for a file (`handlesExternalEvents(matching: [])`), and AppKit makes no
+    /// first window for a Sunset started on one.
     func open(files paths: [String]) {
-        // With documents off Sunset shows no file: each goes to the app that opens it by default (roadmap 0033).
+        // With documents off Sunset shows no file: each goes to the app that opens it by default.
         guard AppScopes.current.documents else { return AppScopes.openElsewhere(paths) }
         guard let tabs = incomingTabs(alreadyAsked: !pendingFiles.isEmpty) else {
             pendingFiles += paths

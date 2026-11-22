@@ -4,12 +4,12 @@ import SunsetConfig
 import SunsetRuntime
 import SunsetShell
 
-/// Holds the system's "do not sleep" while a tab or a window wants the Mac awake (roadmap 0035 E): one activity for the app,
-/// begun when the first wants it, ended when the last lets go; with `tabs.keepAwakeDisplay`, the display stays on too.
-/// Follows the windows' models by observation: a command that ends, a tab closed, a setting changed, a window gone.
+/// Holds the system's "do not sleep" while a tab or a window wants the Mac awake: one activity for the app, begun when
+/// the first wants it, ended when the last lets go; with `tabs.keepAwakeDisplay`, the display stays on too. Follows the
+/// windows' models by observation: a command that ends, a tab closed, a setting changed, a window gone.
 @MainActor
 final class MacAwake {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     var runtime = Runtime.live
 
     static let shared = MacAwake()

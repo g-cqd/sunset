@@ -17,7 +17,7 @@ struct WindowDialogs: ViewModifier {
                     let panes = area.map { proxy[$0.bounds] } ?? CGRect(origin: .zero, size: proxy.size)
                     ZStack(alignment: .topLeading) {
                         if tabs.bar != nil {
-                            // Nothing beneath takes the pointer: no click, scroll or hover (t232); a click closes the bar.
+                            // Nothing beneath takes the pointer: no click, scroll or hover; a click closes the bar.
                             CommandBarBackdrop()
                                 .overlay { PointerShieldView { tabs.bar = nil } }
                                 .transition(.opacity)
@@ -26,7 +26,7 @@ struct WindowDialogs: ViewModifier {
                             .frame(width: panes.width, height: panes.height)
                             .offset(x: panes.minX, y: panes.minY)
                         if tabs.bar?.inSidebar == true, let field = tabs.sidebarField {
-                            // In the sidebar's field, its size, the rows under it (roadmap 0035 G).
+                            // In the sidebar's field, its size, the rows under it.
                             let origin = proxy.frame(in: .global).origin
                             CommandBarView(tabs: tabs, layout: layout, anchor: field.size)
                                 .modifier(RenameTabAlert(tabs: tabs))

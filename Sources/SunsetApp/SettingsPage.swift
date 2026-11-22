@@ -5,16 +5,16 @@ import SunsetShell
 import SunsetShellBridge
 import SwiftUI
 
-/// The page of the settings in a pane (roadmap 0032): the options of the topic shown, or what the search finds under each
-/// option's section and topic. Edits go to the file (saved a moment after the last change) and the windows follow at once; a
-/// hand edit of the file shows up here too. With no docked sidebar showing the list of sections and topics, the page has it at
-/// its side, with a search field.
+/// The page of the settings in a pane: the options of the topic shown, or what the search finds under each option's section
+/// and topic. Edits go to the file (saved a moment after the last change) and the windows follow at once; a hand edit of the
+/// file shows up here too. With no docked sidebar showing the list of sections and topics, the page has it at its side, with a
+/// search field.
 struct SettingsPage: View {
     @Bindable var content: SettingsContent
     let context: PaneViewContext
     private let config = AppConfiguration.shared
 
-    /// The profile chosen at the top, if one is (roadmap 0050).
+    /// The profile chosen at the top, if one is.
     private var scoped: ProfileSettingsStore? {
         guard let id = content.scope,
             let profile = AppSpaces.all.profiles.profiles.first(where: { $0.profile.id == id })
@@ -36,7 +36,7 @@ struct SettingsPage: View {
         let features = config.configuration.features
         return SettingsSearch.matches(content.query, in: Self.entries)
             .compactMap { Self.byID[$0.id] }
-            // The settings of a scope that is off are not found (roadmap 0033).
+            // The settings of a scope that is off are not found.
             .filter { SettingsSection.showsTopic($0.topic, features) }
     }
     private var ownList: Bool {
@@ -62,7 +62,7 @@ struct SettingsPage: View {
         }
         .padding(.top, context.topInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // On the terminal's background, as every pane (the owner, 2026-11-15).
+        // On the terminal's background, as every pane.
         .paneBackdrop(context.backdrop)
         .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
     }
@@ -71,7 +71,7 @@ struct SettingsPage: View {
         Form {
             ScopeRow(content: content)
             if content.isSearching {
-                // Searched once a keystroke, then grouped: the results were searched again for each topic shown (note n15).
+                // Searched once a keystroke, then grouped: the results were searched again for each topic shown.
                 let found = results
                 let byTopic = Dictionary(grouping: found, by: \.topic)
                 if found.isEmpty { ContentUnavailableView.search(text: content.query) }
@@ -83,10 +83,10 @@ struct SettingsPage: View {
                 let plain = shown.topic.first.isEmpty ? shown.topic.further : shown.topic.first
                 let heading = shown.section.title + " \u{203A} " + shown.topic.title
                 blocks(SettingsBlock.blocks(applying(plain)), heading: heading)
-                // The measures and the finer choices a level down (roadmap 0047 G).
+                // The measures and the finer choices a level down.
                 if !shown.topic.first.isEmpty, !shown.topic.further.isEmpty {
-                    // The finer choices inside the fold, right under it, each group under its heading (the owner's notes
-                    // n32, n33: in sections of their own they were far from it).
+                    // The finer choices inside the fold, right under it, each group under its heading (in sections of
+                    // their own they were far from it).
                     Section {
                         DisclosureGroup("More", isExpanded: $content.showsMore) {
                             FoldContent {
@@ -104,19 +104,19 @@ struct SettingsPage: View {
             }
         }
         .formStyle(.grouped)
-        // Every setting that turns something on or off is a switch, wherever its row puts it (note n6).
+        // Every setting that turns something on or off is a switch, wherever its row puts it.
         .settingSwitch()
         .scrollContentBackground(.hidden)
         .frame(maxWidth: Design.Size.settingsPage)
         .frame(maxWidth: .infinity)
     }
 
-    /// Each block a section (the owner's note n13): a group under its heading, a list under its title with its note under
-    /// it; the page's heading above the first.
+    /// Each block a section: a group under its heading, a list under its title with its note under it; the page's
+    /// heading above the first.
     private func blocks(_ blocks: [SettingsBlock], heading: String?) -> some View {
         ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
             if block.isList, let list = block.options.first, list.ownsSections {
-                // Its own sections, one a thing (the profiles, notes n38, n39), the page's heading over the first.
+                // Its own sections, one a thing (the profiles), the page's heading over the first.
                 SettingsRow.list(list, config: store, heading: index == 0 ? heading : nil)
             } else {
                 section(block, index: index, heading: heading)
@@ -145,14 +145,14 @@ struct SettingsPage: View {
         }
     }
 
-    /// The options that act under the configuration now; a group left empty is not shown (note n29).
+    /// The options that act under the configuration now; a group left empty is not shown.
     private func applying(_ options: [SettingsOption]) -> [SettingsOption] {
-        // With a profile chosen, only what a profile can set (roadmap 0050).
+        // With a profile chosen, only what a profile can set.
         options.filter { $0.isShown(in: store.configuration) && (scoped == nil || $0.isProfileSetting) }
     }
 
     private func rows(_ options: [SettingsOption]) -> some View {
-        // A choice that acts only under another is shown under it only (the owner's note n29).
+        // A choice that acts only under another is shown under it only.
         ForEach(applying(options)) { option in
             SettingsRow(option: option, config: store)
             if let scoped, scoped.isOwn(option) { OwnSettingRow(store: scoped, option: option) }

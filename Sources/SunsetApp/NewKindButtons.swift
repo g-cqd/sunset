@@ -2,8 +2,8 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// A new terminal tab and a new page, each where its scope is on (roadmap 0086 E: the Panes menu and the sidebar's add menu
-/// each listed them).
+/// A new terminal tab and a new page, each where its scope is on (the Panes menu and the sidebar's add menu each listed
+/// them).
 struct NewKindButtons: View {
     let scopes: Scopes
 

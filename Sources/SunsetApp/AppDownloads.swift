@@ -10,20 +10,20 @@ import UserNotifications
 /// The app's side of downloads (web step f) and of site permissions (step g): the settings from `web.*`, the approval of risky kinds and the save panel, and what is done when one
 /// finishes: the Dock bounces while Sunset is in the background, a notification (`web.notifyDownloads`), safe kinds opened (`web.openSafeDownloads`).
 @MainActor enum AppDownloads {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live
 
     static func start() {
         let center = DownloadCenter.shared
         apply(AppConfiguration.shared.configuration.web)
         let storage = SunsetStore.shared
-        // The browser each site is shown (W-a): kept sealed, as what each site may do is.
+        // The browser each site is shown: kept sealed, as what each site may do is.
         SiteAgents.shared.table = storage.table("agents")
-        // The sites whose data is kept (ADR-0081).
+        // The sites whose data is kept.
         AppKeeping.start()
-        // The Space each site opens in (W-d).
+        // The Space each site opens in.
         SiteSpaces.shared.table = storage.table("site-spaces")
-        // The sites' icons, for tabs not loaded (roadmap 0035 H).
+        // The sites' icons, for tabs not loaded.
         FaviconStore.shared.table = storage.table("favicons")
         let permissions = storage.table("permissions")
         SitePermissions.shared.table = permissions
@@ -65,7 +65,7 @@ import UserNotifications
         PageSettingsMaker.permissionDefaults(web)
     }
 
-    /// Cancel is the default: Return does not download (n73: in Sunset's look).
+    /// Cancel is the default: Return does not download (in Sunset's look).
     private static func approve(_ name: String, origin: URL?) async -> Bool {
         let alert = SunsetAlert(
             title: "Download \u{201C}\(name)\u{201D}?",

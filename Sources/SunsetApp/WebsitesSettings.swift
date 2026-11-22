@@ -4,9 +4,9 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// Settings > Web > Websites (web step g), rows of their section (the owner's note n13): for each permission, what a site not
-/// yet answered gets, and under it the sites answered, each changeable or removed (the default applies to it again). With a
-/// profile chosen in "Settings for", the sites that profile answered itself, set for it alone (roadmap 0050 E).
+/// Settings > Web > Websites (web step g), rows of their section: for each permission, what a site not yet answered gets,
+/// and under it the sites answered, each changeable or removed (the default applies to it again). With a profile chosen in
+/// "Settings for", the sites that profile answered itself, set for it alone.
 struct WebsitesSettings: View {
     @Binding var defaults: [String: Configuration.Web.PermissionDefault]
     /// The profile chosen in "Settings for"; nil: all profiles'.

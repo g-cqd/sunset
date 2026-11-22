@@ -6,11 +6,11 @@ import SunsetRuntime
 import SunsetWeb
 import UserNotifications
 
-/// What macOS lets Sunset do now (roadmap 0035 I): notifications, the camera, the microphone, the location; looked at when the
-/// app starts and each time it comes to the front (a change in System Settings is seen on coming back), and after asking.
+/// What macOS lets Sunset do now: notifications, the camera, the microphone, the location; looked at when the app starts
+/// and each time it comes to the front (a change in System Settings is seen on coming back), and after asking.
 @MainActor @Observable
 final class SystemAuthorizations {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored var runtime = Runtime.live
 
     static let shared = SystemAuthorizations()

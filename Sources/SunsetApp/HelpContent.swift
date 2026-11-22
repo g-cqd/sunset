@@ -4,8 +4,8 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// Help as the content of a pane (roadmap 0041 E): a tab like any other, one in a window, its topics listed by area on its
-/// left with a search field, the topic chosen on its right with all of its text.
+/// Help as the content of a pane: a tab like any other, one in a window, its topics listed by area on its left with a
+/// search field, the topic chosen on its right with all of its text.
 @MainActor @Observable
 final class HelpContent: PaneContent, PaneViewMaking {
     static let kind = PaneDescriptor.helpKind

@@ -10,7 +10,7 @@ import SunsetWeb
 /// The few things SwiftUI's `App` does not say: this process is a regular app even when started as a bare executable, and it ends with its last window.
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
-        // Each profile's extensions, from its folder (roadmap 0109), before any page is made.
+        // Each profile's extensions, from its folder, before any page is made.
         ExtensionHosts.shared.root = URL(filePath: StoragePlaces.current.extensions)
         AppExtensionWindows.start()
         AppExtensionTabs.start()
@@ -27,7 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Started for a test driven through accessibility (`Tools/axdrive`): it stays behind what the person is doing.
         if ProcessInfo.processInfo.environment["SUNSET_BACKGROUND"] != "1" { NSApp.activate() }
         WebKitFolders.tightenOwn()
-        // Sites' caches out of backups (task t114): a walk of WebKit's folder, kept off the launch's way.
+        // Sites' caches out of backups: a walk of WebKit's folder, kept off the launch's way.
         Runtime.live.detached(priority: .utility) { WebKitFolders.excludeOwnCaches() }
         MainActor.assumeIsolated {
             SystemRestoration.excludeEveryWindow()
@@ -44,7 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Files opened with Sunset (Finder's Open With, a drop on its icon, `open -a`): each in a tab of the window in front;
-    /// links to pages from other apps, Sunset being the Mac's browser (note n18): each a page in a tab of that window.
+    /// links to pages from other apps, Sunset being the Mac's browser: each a page in a tab of that window.
     func application(_ application: NSApplication, open urls: [URL]) {
         let incoming = IncomingLinks.split(urls)
         MainActor.assumeIsolated {
@@ -68,7 +68,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         MainActor.assumeIsolated { SunsetStore.shared.openDocuments.focusLost() }
     }
 
-    /// The app ends with its last window, unless a kept entry is open and the setting keeps it running for it (R3).
+    /// The app ends with its last window, unless a kept entry is open and the setting keeps it running for it.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         MainActor.assumeIsolated {
             !(AppConfiguration.shared.configuration.tabs.keepRunningForFavorites && AppFavorites.hasOpenEntry)

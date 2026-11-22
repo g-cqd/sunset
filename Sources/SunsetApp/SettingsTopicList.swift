@@ -4,15 +4,15 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// The sections of the settings and, under the one shown, its topics (roadmap 0032): in the tab sidebar while the Library is on
-/// its Settings section, and at the side of the page when the sidebar does not show it. A section's row shows its first topic.
+/// The sections of the settings and, under the one shown, its topics: in the tab sidebar while the Library is on its Settings
+/// section, and at the side of the page when the sidebar does not show it. A section's row shows its first topic.
 struct SettingsTopicList: View {
     /// The window's page of settings; nil when it has none yet (a row then opens it).
     let content: SettingsContent?
     let layout: LayoutMetrics
     /// A row was chosen: its tag (a topic, or a section's).
     var choose: ((String) -> Void)?
-    /// Help was chosen (roadmap 0041 E: a Help section in Settings); nil, no Help row.
+    /// Help was chosen (a Help section in Settings); nil, no Help row.
     var help: (() -> Void)?
 
     private var shown: (section: SettingsSection, topic: SettingsTopic)? {
@@ -22,7 +22,7 @@ struct SettingsTopicList: View {
 
     var body: some View {
         VStack(spacing: layout.tabSpacing) {
-            // With a profile chosen, the sections that have something it can set (roadmap 0050).
+            // With a profile chosen, the sections that have something it can set.
             ForEach(
                 SettingsSection.sections(for: AppConfiguration.shared.configuration.features)
                     .filter { content?.scope == nil || $0.topics.contains(where: \.hasProfileSettings) }
@@ -34,7 +34,7 @@ struct SettingsTopicList: View {
                     tag: SettingsSection.sectionPrefix + section.id
                 )
                 if section.id == shown?.section.id {
-                    // With a profile chosen, the topics it can set (roadmap 0050).
+                    // With a profile chosen, the topics it can set.
                     ForEach(section.topics.filter { content?.scope == nil || $0.hasProfileSettings }) { topic in
                         row(topic.title, symbol: nil, selected: topic.id == shown?.topic.id, tag: topic.id)
                     }

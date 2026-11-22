@@ -26,7 +26,7 @@ struct TerminalScene: View {
     /// How much of the window's top the title bar and the system tab bar cover.
     @State private var obscured = 0.0
     @State var barOut = false
-    /// The floating tab bar's address is typed in: it stays out (roadmap 0055).
+    /// The floating tab bar's address is typed in: it stays out.
     @State var tabBarTyping = false
     /// Whether the floating sidebar (and with it the traffic lights) is out.
     @State var floatingShown = false
@@ -75,7 +75,7 @@ struct TerminalScene: View {
         guard look.isOpaque else { return .clear }
         return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
     }
-    /// The window's look, tinted by the colour of the Space it shows (the owner, 2026-11-17).
+    /// The window's look, tinted by the colour of the Space it shows.
     private var look: WindowLook {
         WindowLook(configuration, light: config.isLight).tinted(by: tabs.space.space.tint)
     }
@@ -106,7 +106,7 @@ struct TerminalScene: View {
             .overlay(alignment: .top) { if floatsSidebar { dragHandle(height: configuration.window.dragStrip) } }
             .overlay(alignment: sidebarSide.alignment) { floatingSidebar }
             // The built-in bar floats over the page at its edge, which keeps the whole height; or, shown always on a toolbar,
-            // it takes a band of its own and the page starts past it (roadmap 0055 C).
+            // it takes a band of its own and the page starts past it.
             .overlay {
                 if presentation.showsBuiltInBar, case .over(let hides) = BarPlacement(configuration.tabs.bar) {
                     FloatingEdgeBar(atTop: configuration.tabs.bar.position == .top, hides: hides, typing: tabBarTyping)
@@ -129,7 +129,7 @@ struct TerminalScene: View {
         }
         .background(rootColor)
         .environment(\.webAddressRow, addressPlace == .pane)
-        // Docked, the sidebar asks the pages' questions under its field (roadmap 0035 I).
+        // Docked, the sidebar asks the pages' questions under its field.
         .environment(\.permissionsInSidebar, configuration.sidebarDocked)
         .environment(\.addressTyping, addressTyping)
         .modifier(
@@ -182,7 +182,7 @@ struct TerminalScene: View {
         .onChange(of: colors) { _, _ in forEachModel(configure) }
         .onChange(of: blinkSchedule) { _, _ in forEachModel(configure) }
         .onChange(of: configuration.tabs.confirmClose, initial: true) { _, confirm in tabs.confirmClose = confirm }
-        // A scope of the app turned off, or on (roadmap 0033): what is open of it closes, in every window.
+        // A scope of the app turned off, or on: what is open of it closes, in every window.
         .onChange(of: configuration.features, initial: true) { _, _ in AppScopes.enforce() }
         .onChange(of: configuration.tabs.closeWindowWithLastTab, initial: true) { _, closes in
             tabs.closesWithLastTab = closes
@@ -207,7 +207,7 @@ struct TerminalScene: View {
 
     /// The panes of what is shown; with nothing shown, the pane area's hint while the window stays for its Favorites, and nothing while it goes.
     @ViewBuilder private var terminal: some View {
-        // A window on one of the app's Spaces stays when the Space is empty (ADR-0048): it says so, and lists nothing.
+        // A window on one of the app's Spaces stays when the Space is empty: it says so, and lists nothing.
         if tabs.selectedContent != nil || !tabs.favorites.isEmpty || !tabs.workspace.isEmpty || tabs.spaces != nil {
             PaneArea(
                 tabs: tabs,

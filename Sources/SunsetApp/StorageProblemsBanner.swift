@@ -3,9 +3,9 @@ import SunsetShell
 import SunsetStorage
 import SwiftUI
 
-/// Says, at the top of the window, what Sunset keeps that did not read (R12: never dropped silently; the owner, 2026-11-14: a
-/// banner once, and the list stays in Settings). One line per file: what it was, where it was moved aside, Show in Finder,
-/// and a button that puts the banner away.
+/// Says, at the top of the window, what Sunset keeps that did not read (never dropped silently: a banner once, and the
+/// list stays in Settings). One line per file: what it was, where it was moved aside, Show in Finder, and a button that
+/// puts the banner away.
 struct StorageProblemsBanner: ViewModifier {
     var problems = StorageProblems.shared
     @Environment(\.surfaceStyle) private var surface

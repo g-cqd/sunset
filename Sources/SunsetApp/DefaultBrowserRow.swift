@@ -3,8 +3,8 @@ import SunsetRuntime
 import SunsetShell
 import SwiftUI
 
-/// Settings > Web > Pages: whether Sunset is the Mac's browser, and a button to make it so (the owner's note n18). macOS asks
-/// the person to confirm; the answer is read again when Sunset comes back to the front.
+/// Settings > Web > Pages: whether Sunset is the Mac's browser, and a button to make it so. macOS asks the person to
+/// confirm; the answer is read again when Sunset comes back to the front.
 struct DefaultBrowserRow: View {
     @Environment(\.runtime) var runtime
 

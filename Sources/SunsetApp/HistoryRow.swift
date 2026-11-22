@@ -13,7 +13,7 @@ struct HistoryRow: View {
     @State private var hovered = false
 
     var body: some View {
-        // A sidebar row of a page that is not open: its glyph and two lines, no fill at rest (owner note n67).
+        // A sidebar row of a page that is not open: its glyph and two lines, no fill at rest.
         HStack(spacing: GlyphSpacing.toText) {
             PaneGlyphView(glyph: .symbol("globe"))
             VStack(alignment: .leading, spacing: Design.Space.hair) {
@@ -36,7 +36,7 @@ struct HistoryRow: View {
         .accessibilityAction { AppActions.shared.openFromHistory(entry.url, newTab: false) }
         .help(entry.url)
         .contextMenu {
-            // In a new tab with Option, as ⌘-click does (task t135).
+            // In a new tab with Option, as ⌘-click does.
             Button("Open") { AppActions.shared.openFromHistory(entry.url, newTab: false) }
                 .modifierKeyAlternate(.option) {
                     Button("Open in New Tab") { AppActions.shared.openFromHistory(entry.url, newTab: true) }

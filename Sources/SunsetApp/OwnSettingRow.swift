@@ -3,7 +3,7 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// Under a setting the profile chosen sets otherwise (roadmap 0050): it says so, and lets it follow all profiles again.
+/// Under a setting the profile chosen sets otherwise: it says so, and lets it follow all profiles again.
 struct OwnSettingRow: View {
     let store: ProfileSettingsStore
     let option: SettingsOption

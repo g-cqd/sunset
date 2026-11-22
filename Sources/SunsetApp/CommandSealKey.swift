@@ -4,7 +4,7 @@ import Security
 import SunsetHost
 import SunsetStorage
 
-/// The secret that seals kept terminals' commands (t145), in the login Keychain as a generic password, made on first use. Nil when the Keychain cannot
+/// The secret that seals kept terminals' commands, in the login Keychain as a generic password, made on first use. Nil when the Keychain cannot
 /// be used: then no command is ever run (they are shown, and saving cannot trust them).
 enum CommandSealKey {
     private static var service: String {

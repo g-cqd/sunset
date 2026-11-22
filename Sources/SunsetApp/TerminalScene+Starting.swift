@@ -10,13 +10,13 @@ import SunsetTerminal
 import SunsetWeb
 import SwiftUI
 
-/// A window starts: which Space it shows, and what it shows of it (ADR-0045, design 0004).
+/// A window starts: which Space it shows, and what it shows of it (design 0004).
 extension TerminalScene {
     func start() {
         AppActions.shared.openTerminalWindow = { openWindow(id: "terminal") }
         PopupWindowStore.shared.openWindow = { openWindow(id: "popup", value: $0) }
         tabs.onEmpty = { dismiss() }
-        // The mouse button, from the system: the model knows nothing of AppKit (roadmap 0086 D).
+        // The mouse button, from the system: the model knows nothing of AppKit.
         tabs.mouseIsDown = { NSEvent.pressedMouseButtons != 0 }
         tabs.wireContent = { wire($0) }
         AppDocuments.wire(tabs.shelf)
@@ -52,7 +52,7 @@ extension TerminalScene {
             return
         }
         // A new window shows the Space of the window it was asked from (the one in front), else the first of the profile
-        // `tabs.startProfile` names (n74), else the first.
+        // `tabs.startProfile` names, else the first.
         let asked = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.space
         let space = asked.flatMap { all.contains($0) ? $0 : nil } ?? Self.startSpace(in: all) ?? all.spaces[0]
         let others = space.viewerCount
@@ -68,7 +68,7 @@ extension TerminalScene {
         } else if space.tabs.isEmpty {
             if nothingAsked { startTab(oneTab: false) }
         } else if others > 0 {
-            // New Window: nothing selected, and the command bar open on a new tab (the owner, 2026-11-16).
+            // New Window: nothing selected, and the command bar open on a new tab.
             if nothingAsked { tabs.toggleBar() }
         } else if let first = space.lastShown ?? space.tabs.items.first?.id {
             tabs.select(item: first)
@@ -92,8 +92,8 @@ extension TerminalScene {
         }
     }
 
-    /// What opens with no tab (the owner's note n74, `tabs.start`): nothing by default; a window that is one tab cannot be
-    /// empty, so there it is the command bar on no tab, as with terminals off.
+    /// What opens with no tab (`tabs.start`): nothing by default; a window that is one tab cannot be empty, so there it
+    /// is the command bar on no tab, as with terminals off.
     private func startTab(oneTab: Bool) {
         switch StartTab.resolve(AppConfiguration.shared.configuration.tabs) {
             case .nothing:
@@ -110,7 +110,7 @@ extension TerminalScene {
         }
     }
 
-    /// The first Space of the profile `tabs.startProfile` names (n74), by name, any case; nil when it names none.
+    /// The first Space of the profile `tabs.startProfile` names, by name, any case; nil when it names none.
     private static func startSpace(in all: SpacesModel) -> SpaceModel? {
         let named = AppConfiguration.shared.configuration.tabs.startProfile.trimmingCharacters(in: .whitespaces)
         guard !named.isEmpty else { return nil }

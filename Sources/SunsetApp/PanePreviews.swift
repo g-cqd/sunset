@@ -2,8 +2,8 @@ import SunsetConfig
 import SunsetShell
 import SwiftUI
 
-/// The tabs' previews of a window, drawn over everything in it, a floating sidebar included (roadmap 0047 B: they were
-/// drawn by the pane area, which the floating sidebar covers), in the pane area's place.
+/// The tabs' previews of a window, drawn over everything in it, a floating sidebar included (they were drawn by the
+/// pane area, which the floating sidebar covers), in the pane area's place.
 struct PanePreviews: View {
     let tabs: TabsModel
     let layout: Configuration.Layout

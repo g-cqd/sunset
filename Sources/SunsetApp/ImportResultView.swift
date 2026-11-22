@@ -3,8 +3,8 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// What an import did (roadmap 0111 G): the bookmarks placed and what was left out; the extensions found, each opened on
-/// its store page for the person to install; the containers found, not yet made profiles.
+/// What an import did: the bookmarks placed and what was left out; the extensions found, each opened on its store page
+/// for the person to install; the containers found, not yet made profiles.
 struct ImportResultView: View {
     let outcome: ImportOutcome
     let tabs: TabsModel

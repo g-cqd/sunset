@@ -4,9 +4,9 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// The settings as the content of a pane (roadmap 0032): a tab like any other, one in a window, showing one topic at a time or
-/// what a search finds. The sidebar's list of sections and topics (the gear of the Library's rail) says which; the page carries
-/// that list itself when the sidebar does not show it.
+/// The settings as the content of a pane: a tab like any other, one in a window, showing one topic at a time or what a search
+/// finds. The sidebar's list of sections and topics (the gear of the Library's rail) says which; the page carries that list
+/// itself when the sidebar does not show it.
 @MainActor @Observable
 final class SettingsContent: PaneContent, PaneViewMaking {
     static let kind = PaneDescriptor.settingsKind
@@ -19,9 +19,9 @@ final class SettingsContent: PaneContent, PaneViewMaking {
     }
     /// What is searched for; while it is not blank the page shows what it finds, under each option's section and topic.
     var query = ""
-    /// The profile whose own settings are shown (roadmap 0050); nil: all profiles'.
+    /// The profile whose own settings are shown; nil: all profiles'.
     var scope: UUID?
-    /// The topic's More is open (roadmap 0047 G).
+    /// The topic's More is open.
     var showsMore = false {
         didSet {
             if showsMore != oldValue { onChange() }

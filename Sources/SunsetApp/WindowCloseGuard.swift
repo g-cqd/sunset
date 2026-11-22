@@ -2,9 +2,9 @@ import AppKit
 import ObjectiveC
 import SunsetShell
 
-/// Asks before a window closes with unsaved edits (R6, roadmap 0023 step M-d). SwiftUI owns the window and its delegate, and
-/// gives no say on closing; this stands in front of that delegate, answers `windowShouldClose` (the red button, Close Window,
-/// a system tab's close button: all `performClose`), and passes everything else on untouched.
+/// Asks before a window closes with unsaved edits. SwiftUI owns the window and its delegate, and gives no say on closing;
+/// this stands in front of that delegate, answers `windowShouldClose` (the red button, Close Window, a system tab's close
+/// button: all `performClose`), and passes everything else on untouched.
 ///
 /// It does not see a window closed by code (`close()`): edits that go that way are kept by `OpenDocuments` and named at quit.
 @MainActor

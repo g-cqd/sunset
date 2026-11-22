@@ -2,8 +2,8 @@ import SunsetMetrics
 import SunsetShell
 import SwiftUI
 
-/// A row of the Library's lists (a document, a page of the history; roadmap 0086 E: each drew it whole): a tab row's
-/// paddings and height for its lines, its rounded fill, and the hover it keeps through menus.
+/// A row of the Library's lists (a document, a page of the history): a tab row's paddings and height for its lines, its
+/// rounded fill, and the hover it keeps through menus.
 struct LibraryRowFrame: ViewModifier {
     let layout: ShellSettings.Layout
     let lines: Int

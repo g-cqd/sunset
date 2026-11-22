@@ -82,7 +82,7 @@ final class ChromeView: NSView {
             window.styleMask.remove(.fullSizeContentView)
         }
         // Not with system tabs: SwiftUI asserts (BarAppearanceBridge.updatePlatformBar) when a window with a transparent title bar
-        // closes in a tab group (crash reports 2026-11-13, t242/t243; its own close handler runs before any of ours).
+        // closes in a tab group (crash reports 2026-11-13; its own close handler runs before any of ours).
         let transparent = hidden && !presentation.usesSystemTabbing
         if window.titlebarAppearsTransparent != transparent { window.titlebarAppearsTransparent = transparent }
         let visibility: NSWindow.TitleVisibility = hidden ? .hidden : .visible

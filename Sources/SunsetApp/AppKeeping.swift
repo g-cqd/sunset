@@ -9,10 +9,10 @@ import SunsetStorage
 import SunsetWeb
 import WebKit
 
-/// The app's side of what WebKit keeps between runs (ADR-0081): each profile's store with what it keeps (the app's
-/// `web.keep`, or the profile's own), and what is cleared before Sunset ends.
+/// The app's side of what WebKit keeps between runs: each profile's store with what it keeps (the app's `web.keep`, or
+/// the profile's own), and what is cleared before Sunset ends.
 @MainActor enum AppKeeping {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live
 
     /// What `profile` keeps: its own choices over the app's.
@@ -52,8 +52,8 @@ import WebKit
         return Array(Set(entries.compactMap { URL(string: $0.url)?.host() }))
     }
 
-    /// At quit: every store cleared by what it keeps, every jar flushed then sealed (task t114); awaited at most `limit`
-    /// (past it, the jars stay as WebKit writes them).
+    /// At quit: every store cleared by what it keeps, every jar flushed then sealed; awaited at most `limit` (past it,
+    /// the jars stay as WebKit writes them).
     static func clearAtQuit(limit: Duration = .seconds(5)) async {
         // WebKit's stores are the bundle's, the person's: a setup of a test or a second setup (its own folder) never
         // clears them.
@@ -62,18 +62,17 @@ import WebKit
         let all = every.filter { $0.keep != WebKeep() }
         await QuitDeadline.wait(limit: limit, runtime: runtime) { @MainActor in
             // The first quit that keeps the chosen sites keeps every site holding cookies then, in every profile: the
-            // change signs no one out (ADR-0081, 3). Done here, when every profile's store is known.
+            // change signs no one out (3). Done here, when every profile's store is known.
             let choosing = all.filter { $0.keep.siteData == .keepChosen }.map(\.store)
             if !choosing.isEmpty { await WebKeeping.seedKept(from: choosing, visited: visitedHosts()) }
             for (store, keep, profile) in all { await WebKeeping.clear(store, keep: keep, profile: profile) }
             // Every cookie on disk now, then the jars made their owner's only: written at teardown instead, after Sunset
-            // has gone, they were readable by every account (roadmap 0051 G). Then sealed: flushed, WebKit does not write
-            // them again (diary 2026-11-19-12).
+            // has gone, they were readable by every account. Then sealed: flushed, WebKit does not write them again.
             for (store, _, _) in every { await WebProcessControl.flushCookies(store.httpCookieStore) }
             WebKitFolders.tightenOwn()
             AppSealedData.sealJars()
             // The sites' storage: the network process puts it to rest (nothing written after), then ends (it does not wake
-            // to write again), then each file is sealed (t137).
+            // to write again), then each file is sealed.
             for (store, _, _) in every { await WebProcessControl.quietNetwork(store) }
             for (store, _, _) in every { WebProcessControl.endNetwork(store) }
             AppSealedData.sealSiteStorage()

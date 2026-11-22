@@ -6,12 +6,12 @@ import SunsetShell
 import SunsetShellBridge
 import SwiftUI
 
-/// Help's page (roadmap 0041 E), built as the settings' (the owner's note n16): the settings' sections on the left, in their
-/// order and with their pictures, the topics of the one shown under it (all of them while searching), Settings last; the
-/// chosen topic on the right, under its section's name.
+/// Help's page, built as the settings': the settings' sections on the left, in their order and with their pictures, the
+/// topics of the one shown under it (all of them while searching), Settings last; the chosen topic on the right, under
+/// its section's name.
 struct HelpPage: View {
     @Bindable var content: HelpContent
-    /// The pane's backdrop and top inset, as Settings' (the owner's note n44).
+    /// The pane's backdrop and top inset, as Settings'.
     let context: PaneViewContext
     private let config = AppConfiguration.shared
 

@@ -6,11 +6,11 @@ import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 
-/// What Settings show of what Sunset keeps (R12, roadmap 0030 step ST-6): the inventory of its folder, the website data's size,
-/// FileVault's state, and the recovery code while it is shown.
+/// What Settings show of what Sunset keeps: the inventory of its folder, the website data's size, FileVault's state,
+/// and the recovery code while it is shown.
 @MainActor @Observable
 final class StorageSettings {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored var runtime = Runtime.live
 
     static let shared = StorageSettings()

@@ -61,7 +61,7 @@ extension StorageRows {
         }
     }
 
-    /// Cookies and sites' storage are WebKit's: Sunset cannot seal them (R12). FileVault is what protects them.
+    /// Cookies and sites' storage are WebKit's: Sunset cannot seal them. FileVault is what protects them.
     private var websiteSentence: String {
         let kept = storage.websiteBytes.map { ", \(size($0))" } ?? ""
         let vault =

@@ -5,8 +5,8 @@ import SunsetShell
 import SunsetShellModel
 import SwiftUI
 
-/// The welcome's window (roadmap 0111 H; the owner's note n75): on the first launch after the sky's opening, and from
-/// Help ▸ Welcome to Sunset. Closing it in any way marks it seen.
+/// The welcome's window: on the first launch after the sky's opening, and from Help ▸ Welcome to Sunset. Closing it in
+/// any way marks it seen.
 @MainActor final class WelcomeWindow: NSObject, NSWindowDelegate {
     static let shared = WelcomeWindow()
     private var window: NSWindow?
@@ -16,9 +16,9 @@ import SwiftUI
         (AppConfiguration.shared.path as NSString).deletingLastPathComponent + "/welcome-seen"
     }
 
-    /// Whether this launch is the first (`WelcomeGate`): the welcome opens, and the main window waits for it (the owner,
-    /// 2026-11-21: "the main window of sunset should not show before onboarding is passed"). Decided once, before any
-    /// scene: the configuration file is looked for before anything could write it.
+    /// Whether this launch is the first (`WelcomeGate`): the welcome opens, and the main window waits for it: it shows
+    /// only once the welcome is passed. Decided once, before any scene: the configuration file is looked for before
+    /// anything could write it.
     static let atLaunch: Bool = {
         let environment = ProcessInfo.processInfo.environment
         let path = MainActor.assumeIsolated { AppConfiguration.shared.path }
@@ -93,14 +93,14 @@ import SwiftUI
         WelcomeOpeningPlayer.play(on: screen, for: made, clock: clock)
     }
 
-    /// Where the window goes: the middle of the screen's visible part, both ways (the owner, 2026-11-21: "more centered
-    /// vertically"; it was placed for its sun to be on the screen's centre, which put it high). The opening's sun is drawn
-    /// where this window keeps it, wherever that is.
+    /// Where the window goes: the middle of the screen's visible part, both ways ("more centered vertically"; it was
+    /// placed for its sun to be on the screen's centre, which put it high). The opening's sun is drawn where this window
+    /// keeps it, wherever that is.
     static func origin(on screen: NSScreen) -> CGPoint {
         let visible = screen.visibleFrame
         return CGPoint(
             x: (visible.midX - Design.Welcome.size.width / 2).rounded(),
-            // The optical centre, a little above the middle, as macOS centres a window (the owner: "a bit too low").
+            // The optical centre, a little above the middle, as macOS centres a window ("a bit too low").
             y: (visible.midY - Design.Welcome.size.height / 2 + visible.height * Design.Welcome.opticalLift).rounded()
         )
     }

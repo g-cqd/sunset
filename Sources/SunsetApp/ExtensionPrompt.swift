@@ -2,8 +2,8 @@ import AppKit
 import SunsetShellModel
 import SunsetWeb
 
-/// "Add “Name”?" with what it may do, as Safari asks (ADR-0109: all or nothing). Cancel is the default: Return does not
-/// install, a click on "Add Extension" does. In Sunset's look (n73).
+/// "Add “Name”?" with what it may do, as Safari asks (all or nothing). Cancel is the default: Return does not install,
+/// a click on "Add Extension" does. In Sunset's look.
 enum ExtensionPrompt {
     @MainActor static func ask(_ candidate: ExtensionHost.Candidate) async -> Bool {
         let lines = candidate.lines

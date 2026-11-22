@@ -2,9 +2,8 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// The Spaces menu (R4; roadmap 0021 steps S-b and S-c): the Spaces by name, the one before and the one after, and what
-/// makes, edits and deletes one. The keys are fixed until there is a section for keys (the owner, 2026-11-17:
-/// Option-Command with a digit or an arrow).
+/// The Spaces menu: the Spaces by name, the one before and the one after, and what makes, edits and deletes one. The
+/// keys are fixed: Option-Command with a digit or an arrow.
 struct SpaceCommands: Commands {
     private let spaces = AppSpaces.all
 

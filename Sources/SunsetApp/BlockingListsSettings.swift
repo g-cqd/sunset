@@ -4,9 +4,9 @@ import SunsetWeb
 import SunsetWebModel
 import SwiftUI
 
-/// Settings > Web > Blocking: each list Sunset fetches (roadmap 0022 W-c), how many of its rules are in use, when it was
-/// fetched, why one is not in use, each removable; another added by its address (task t109, the owner's note n58); and the
-/// sites blocking is paused on, each removable. The addresses are the file's (`web.blockingLists`).
+/// Settings > Web > Blocking: each list Sunset fetches, how many of its rules are in use, when it was fetched, why one
+/// is not in use, each removable; another added by its address; and the sites blocking is paused on, each removable.
+/// The addresses are the file's (`web.blockingLists`).
 struct BlockingListsSettings: View {
     private let blocker = ContentBlocker.shared
     @State private var adding = ""

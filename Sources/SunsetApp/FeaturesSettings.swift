@@ -4,8 +4,8 @@ import SunsetShell
 import SunsetShellModel
 import SwiftUI
 
-/// Settings > General > What Sunset does (roadmap 0033; ADR-0056): a switch for each scope. Turning one off closes what
-/// is open of it, after a question when there is anything; the last one on cannot be turned off.
+/// Settings > General > What Sunset does: a switch for each scope. Turning one off closes what is open of it, after a
+/// question when there is anything; the last one on cannot be turned off.
 struct FeaturesSettings: View {
     @Binding var features: Configuration.Features
     @State private var asking: Scopes.Scope?

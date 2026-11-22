@@ -32,7 +32,7 @@ final class TabRegistry {
                     let window = note.object as? NSWindow
                     let key = name == NSWindow.didBecomeKeyNotification
                     MainActor.assumeIsolated {
-                        // A window of a Space brought to the front draws what it shows (roadmap 0035 J).
+                        // A window of a Space brought to the front draws what it shows.
                         if key { self?.tabs(for: window)?.cameToFront() }
                         self?.touch()
                     }

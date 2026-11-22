@@ -7,10 +7,10 @@ import SunsetShellBridge
 import SunsetWeb
 import SwiftUI
 
-/// What the tab sidebar shows, docked or floating: the tabs, or the Library on one of its sections (roadmap 0031). Opening the
-/// Library widens the sidebar in place (the owner, 2026-11-15): the rail comes at the window's edge past a gutter, and what
-/// the list shows changes where it is. The tabs stay as they are underneath (their scroll, their rows), unseen and out of
-/// reach, so that going back does not make them again.
+/// What the tab sidebar shows, docked or floating: the tabs, or the Library on one of its sections. Opening the Library
+/// widens the sidebar in place: the rail comes at the window's edge past a gutter, and what the list shows changes where
+/// it is. The tabs stay as they are underneath (their scroll, their rows), unseen and out of reach, so that going back
+/// does not make them again.
 struct AppSidebar: View {
     let tabs: TabsModel
     let configuration: Configuration
@@ -19,7 +19,7 @@ struct AppSidebar: View {
     /// The window's corner radius: docked, the button at its bottom corner is concentric with it.
     var windowRadius = ConcentricRadius.standardWindow
     var accessory: AnyView?
-    /// The calls to action under it (roadmap 0035 I).
+    /// The calls to action under it.
     var notices: AnyView?
 
     var body: some View {
@@ -53,7 +53,7 @@ struct AppSidebar: View {
                     let page = section == .settings ? AppSettings.content(in: tabs)?.topic : nil
                     AppHelp.show(HelpTree.topic(about: page), in: tabs)
                 },
-                // Where it is above the Library's glyph with the Library closed (the owner's notes n60, n61).
+                // Where it is above the Library's glyph with the Library closed.
                 downloads: DownloadCenter.shared.items.isEmpty ? nil : AnyView(DownloadsButton())
             ) { chosen in
                 if chosen == .settings { AppSettings.show(in: tabs) } else { tabs.sections.show(library: chosen) }
@@ -100,7 +100,7 @@ struct AppSidebar: View {
             - Design.TabCapsules.lightsClearance
     }
 
-    /// The window's profile's extensions, beside the pin (roadmap 0109 D): with the web on and one installed and on.
+    /// The window's profile's extensions, beside the pin: with the web on and one installed and on.
     private var extensionButtons: AnyView? {
         guard tabs.scopes.web, let host = ExtensionHosts.shared.host(for: PaneContentKinds.profile(of: tabs)),
             host.installed.contains(where: \.enabled)

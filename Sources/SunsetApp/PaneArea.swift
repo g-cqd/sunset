@@ -103,7 +103,7 @@ struct PaneArea: View {
                     dropPreview(item: item, bounds: bounds, space: space, radius: radius, card: card)
                     // While a drag the panes would take is under way, and none is under the pointer: each outlined.
                 }
-                // The tabs' previews are drawn by the window, over a floating sidebar too (`PanePreviews`, roadmap 0047 B).
+                // The tabs' previews are drawn by the window, over a floating sidebar too (`PanePreviews`).
                 .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { tabs.paneAreaFrame = $0 }
                 .overlay { if !tabs.showsLive { elsewhere } }
                 .coordinateSpace(.named(Self.space))
@@ -120,7 +120,7 @@ struct PaneArea: View {
                 .onChange(of: frames, initial: true) { _, new in applyInsets(new, bounds: bounds) }
                 .onChange(of: topInset) { _, _ in applyInsets(frames, bounds: bounds) }
             } else {
-                // No tab left, and no kept entry shown: the window stays while there are Favorites (R3).
+                // No tab left, and no kept entry shown: the window stays while there are Favorites.
                 Text(tabs.emptyHint)
                     .font(Design.Text.secondary)
                     .foregroundStyle(.tertiary)
@@ -175,22 +175,22 @@ struct PaneArea: View {
         } else if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
             SurfacePreviewView(surface: surface, background: terminal.layerBackground)
         } else if let picture = content.picture {
-            // A page's last snapshot (roadmap 0035 J), the size it was drawn at.
+            // A page's last snapshot, the size it was drawn at.
             Image(decorative: picture, scale: 1)
                 .resizable()
                 .scaledToFill()
                 .frame(width: frame.width, height: frame.height, alignment: .top)
                 .clipped()
-                // As it is now, when this window comes to show it (roadmap 0036 D).
+                // As it is now, when this window comes to show it.
                 .onAppear { content.takePicture() }
         } else {
-            // Nothing pictured (settings, help, a page not drawn yet): its icon, as its preview card has (S-d, n77).
+            // Nothing pictured (settings, help, a page not drawn yet): its icon, as its preview card has (S-d).
             Color.primary.opacity(Design.Fill.faint)
                 .overlay { TabIcon(model: content, showsProgress: false).opacity(Design.Fill.inkSecondary) }
         }
     }
 
-    /// Over the last picture of an entry live in another window: dimmed, a small label, and a click brings it here (R3, R4).
+    /// Over the last picture of an entry live in another window: dimmed, a small label, and a click brings it here.
     private var elsewhere: some View {
         ZStack {
             Color.black.opacity(Design.Fill.scrim)

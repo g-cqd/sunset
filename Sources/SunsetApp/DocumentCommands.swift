@@ -1,7 +1,7 @@
 import SunsetMarkdown
 import SwiftUI
 
-/// The View menu's items for the document in front (roadmap 0023 step M-c): off while another kind of pane has the keyboard.
+/// The View menu's items for the document in front: off while another kind of pane has the keyboard.
 struct DocumentCommands: View {
     let document: DocumentContent?
 

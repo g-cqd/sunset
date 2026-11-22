@@ -32,23 +32,23 @@ final class AppActions {
     var handoff: [any PaneContent] = []
     /// Files asked to be opened before any window was there (Sunset started by opening them): the first window opens them.
     var pendingFiles: [String] = []
-    /// Links to pages asked for before a window was there (note n18).
+    /// Links to pages asked for before a window was there.
     var pendingPages: [URL] = []
     /// The next window to appear is a private one (File > New Private Window, web step h).
     var pendingPrivateWindow = false
     /// The next window opens showing the settings (Cmd-, with no window open).
     var pendingSettings = false
 
-    /// Asks which kind of tab to make (Shift-Cmd-T): the command bar with the kinds that are on (the owner's note n82).
+    /// Asks which kind of tab to make (Shift-Cmd-T): the command bar with the kinds that are on.
     func chooseKind() {
         guard let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) else { return }
         tabs.bar = CommandBar(purpose: .newTab)
     }
 
     /// A new tab in the way the configuration shows tabs: a tab of the window with the built-in bar, a new window that joins
-    /// the group with system tabs, a plain window with none. `kind` asks for one; else `tabs.newTab` decides (n70): the
-    /// focused tab's kind by default (a page makes a new empty page, private if it is; a document a new document; anything
-    /// else a terminal), or always one kind.
+    /// the group with system tabs, a plain window with none. `kind` asks for one; else `tabs.newTab` decides: the focused
+    /// tab's kind by default (a page makes a new empty page, private if it is; a document a new document; anything else a
+    /// terminal), or always one kind.
     func newTab(kind: PaneDescriptor? = nil) {
         let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
         var wanted = kind
@@ -71,7 +71,7 @@ final class AppActions {
         } else if let wanted, wanted.kind != PaneDescriptor.terminalKind {
             // A window of its own: a page waits for it as content handed over.
             let page = PaneContentKinds.make(wanted) { SessionStore.shared.scheduleSave() }
-            // A new empty page in a window of its own: its address is asked for there (n12, n52: this action's to ask).
+            // A new empty page in a window of its own: its address is asked for there (this action's to ask).
             if let made = page as? WebContent, made.isBlankPage { made.wantsAddress = true }
             handoff.append(page)
             tabParent = AppConfiguration.shared.presentation.usesSystemTabbing ? TabRegistry.shared.actingWindow : nil
@@ -186,7 +186,7 @@ final class AppActions {
 
     /// The focused pane of a split leaves it, to a tab of its own.
     func moveFocusedPaneToTab() {
-        // A kept entry's too (the owner, 2026-11-17: "separate any tabs from split tabs anywhere").
+        // A kept entry's too ("separate any tabs from split tabs anywhere").
         if let tabs = keyTabs, let pane = tabs.shownPane { tabs.separate(pane: pane) }
     }
 

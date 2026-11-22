@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// A colour of the settings file (`#rrggbb`, three sRGB bytes) and the colour a picker shows (roadmap 0086 E: the ANSI
-/// palette's and the colour settings' bindings converted each way the same).
+/// A colour of the settings file (`#rrggbb`, three sRGB bytes) and the colour a picker shows (the ANSI palette's and
+/// the colour settings' bindings converted each way the same).
 extension Color {
     init(sRGBBytes bytes: [UInt8]) {
         self.init(

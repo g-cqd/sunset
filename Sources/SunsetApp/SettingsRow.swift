@@ -37,8 +37,8 @@ struct SettingsRow: View {
         HelpTopic.explaining(setting: option.id)
     }
 
-    /// The title on the leading edge with its "?" beside it, the control on the trailing edge (the owner, 2026-11-18): every
-    /// control of a page lines up on one edge, every title on the other.
+    /// The title on the leading edge with its "?" beside it, the control on the trailing edge: every control of a page
+    /// lines up on one edge, every title on the other.
     @ViewBuilder private var explained: some View {
         switch option.control {
             case .toggle(let value, let label):
@@ -72,7 +72,7 @@ struct SettingsRow: View {
                     HStack(spacing: Design.Space.s) {
                         TextField(option.title, text: config.binding(value), prompt: Text(prompt)).labelsHidden()
                             .code(option.isCode)
-                        // A folder: the system's panel too (the owner's note n36).
+                        // A folder: the system's panel too.
                         if option.isFolder { FolderPicker(title: option.title, path: config.binding(value)) }
                     }
                 } label: {

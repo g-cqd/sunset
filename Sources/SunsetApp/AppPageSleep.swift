@@ -5,11 +5,11 @@ import SunsetRuntime
 import SunsetShell
 import SunsetWeb
 
-/// Hidden pages let go of their memory (roadmap 0021 S-f, ADR-0071): once a minute, those hidden longer than
-/// `web.unloadAfter`; while macOS says memory is short (`web.unloadUnderPressure`), the one hidden the longest. Never a page
-/// on screen, one that plays, captures or asks something, one kept awake, one in a Pinned grid, nor one holding unsent text.
+/// Hidden pages let go of their memory: once a minute, those hidden longer than `web.unloadAfter`; while macOS says memory
+/// is short (`web.unloadUnderPressure`), the one hidden the longest. Never a page on screen, one that plays, captures or
+/// asks something, one kept awake, one in a Pinned grid, nor one holding unsent text.
 @MainActor enum AppPageSleep {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live
 
     private static var loop: Task<Void, Never>?

@@ -2,8 +2,8 @@ import AppKit
 import SunsetConfig
 import SwiftUI
 
-/// A folder chosen in the system's panel, for a setting that holds one (the owner's note n36): written as the file writes it
-/// (`~` under the home folder). The field beside it stays, for a path typed or pasted.
+/// A folder chosen in the system's panel, for a setting that holds one: written as the file writes it (`~` under the
+/// home folder). The field beside it stays, for a path typed or pasted.
 struct FolderPicker: View {
     let title: String
     @Binding var path: String

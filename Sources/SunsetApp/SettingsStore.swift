@@ -3,11 +3,11 @@ import SwiftUI
 
 /// Bindings from the Settings window to the configuration: reading is the configuration, writing is `update` (which saves the file).
 /// Where Settings reads and writes: all profiles' settings (`AppConfiguration`, the file), or one profile's own
-/// (`ProfileSettingsStore`, roadmap 0050).
+/// (`ProfileSettingsStore`).
 @MainActor protocol SettingsStore: AnyObject {
     var configuration: Configuration { get }
     func update(_ edit: (inout Configuration) -> Void)
-    /// The profile whose own site rules are listed (roadmap 0050 E); nil: all profiles' (and the first profile's).
+    /// The profile whose own site rules are listed; nil: all profiles' (and the first profile's).
     var profileID: UUID? { get }
 }
 

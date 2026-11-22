@@ -6,8 +6,8 @@ import SunsetWeb
 import SunsetWebModel
 import UniformTypeIdentifiers
 
-/// Installing an extension (roadmap 0109 C, ADR-0109): a package or folder picked, read, and a prompt that says what it may do;
-/// granted all of it on Add, nothing on Cancel.
+/// Installing an extension: a package or folder picked, read, and a prompt that says what it may do; granted all of it
+/// on Add, nothing on Cancel.
 extension AppActions {
     /// Into the acting window's profile.
     func installExtension() {
@@ -42,8 +42,8 @@ extension AppActions {
     /// The installs being fetched or asked about now.
     private static var underway = InstallsUnderway()
 
-    /// What a store's page names (roadmap 0109 E): its package fetched from the store, then read, asked and installed into the
-    /// page's profile.
+    /// What a store's page names: its package fetched from the store, then read, asked and installed into the page's
+    /// profile.
     func install(from link: ExtensionStoreLink, profile: UUID?) {
         installFetched(String(describing: link), profile: profile) { try await ExtensionDownload.fetch(link) }
     }
@@ -70,7 +70,7 @@ extension AppActions {
         }
     }
 
-    /// What went wrong, in Sunset's look (n73).
+    /// What went wrong, in Sunset's look.
     private static func tell(_ title: String, _ error: any Error) async {
         let alert = SunsetAlert(
             title: title,

@@ -3,8 +3,8 @@ import SunsetShell
 import SunsetShellModel
 import SwiftUI
 
-/// Another browser's containers, offered as profiles (roadmap 0111 D): each keeps its sites' data apart, as the container
-/// did; made on the person's press, once.
+/// Another browser's containers, offered as profiles: each keeps its sites' data apart, as the container did; made on
+/// the person's press, once.
 struct ImportContainers: View {
     let containers: [BrowserContainer]
     let tabs: TabsModel

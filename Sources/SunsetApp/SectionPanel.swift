@@ -5,14 +5,14 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// One section of a sidebar (roadmap 0031): History, Documents or Downloads, the same list in the panel opposite the tabs and
-/// in the Library of the tab sidebar. Built on the sidebar's parts (owner note n67): a title, a search field where the
-/// sidebar's address field is, the rows as sidebar rows under their headings; the list scrolls under the top, fading and
-/// blurring there as the sidebar's.
+/// One section of a sidebar: History, Documents or Downloads, the same list in the panel opposite the tabs and in the
+/// Library of the tab sidebar. Built on the sidebar's parts: a title, a search field where the sidebar's address field
+/// is, the rows as sidebar rows under their headings; the list scrolls under the top, fading and blurring there as the
+/// sidebar's.
 struct SectionPanel: View {
     @Environment(\.runtime) var runtime
 
-    /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
+    /// The ends fade out, or are cut (`appearance.ends`).
     @Environment(\.fadesEnds) var fadesEnds
     /// Where it is shown.
     enum Place {
@@ -31,7 +31,7 @@ struct SectionPanel: View {
     /// The Library opens with its search field ready: typing searches, Escape goes back to the tabs.
     @FocusState var searching: Bool
     /// The list itself has the keyboard: a section with nothing to search, or a click beside its rows. Escape then goes
-    /// back to the tabs too (the owner, 2026-11-16: from anywhere in the Library).
+    /// back to the tabs too (from anywhere in the Library).
     @FocusState var inList: Bool
     /// How far the rows are scrolled down: the fade under the field grows with it.
     @State var scrolledBy = 0.0

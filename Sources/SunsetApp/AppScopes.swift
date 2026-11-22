@@ -4,8 +4,8 @@ import SunsetConfig
 import SunsetPane
 import SunsetShell
 
-/// The scopes of the app that are on (roadmap 0033; ADR-0056), from `features` in the configuration, and what turning
-/// one off does to what is open: its panes close in every Space and every window, and what is kept of it is unloaded.
+/// The scopes of the app that are on, from `features` in the configuration, and what turning one off does to what is
+/// open: its panes close in every Space and every window, and what is kept of it is unloaded.
 @MainActor enum AppScopes {
     /// The scopes as the configuration says.
     static var current: Scopes {

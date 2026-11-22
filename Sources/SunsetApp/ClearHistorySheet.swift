@@ -4,7 +4,7 @@ import SunsetWeb
 import SwiftUI
 import WebKit
 
-/// History > Clear History… (web step e): a span and what goes with it, each its own choice (the owner: every variant left to the user).
+/// History > Clear History… (web step e): a span and what goes with it, each its own choice (every variant left to the user).
 struct ClearHistorySheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var span = ClearSpan.lastHour

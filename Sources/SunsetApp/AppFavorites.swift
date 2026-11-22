@@ -13,7 +13,7 @@ import SunsetShell
         return model
     }
 
-    /// The Pinned grid: the app's, the same in every Space, until there are profiles (roadmap 0021, P-b; ADR-0050).
+    /// The Pinned grid: the app's, the same in every Space, until there are profiles (P-b).
     static var pinned: FavoritesModel {
         AppSpaces.all.profiles.first.pinned
     }

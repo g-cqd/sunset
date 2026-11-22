@@ -57,7 +57,7 @@ import SunsetWeb
         webSettings(from: AppConfiguration.shared.configuration.web)
     }
 
-    /// A page's settings from a configuration's (all profiles', or one profile's with its own values, roadmap 0050).
+    /// A page's settings from a configuration's (all profiles', or one profile's with its own values).
     static func webSettings(from web: Configuration.Web) -> WebSettings {
         maker.settings(from: web)
     }
@@ -77,8 +77,8 @@ import SunsetWeb
     }
 
     /// A page's settings, the one way they are made (every page made, Reload As, a change of settings): its profile's own
-    /// values over all profiles' (ADR-0083), its profile (nil: the first), its privacy. Before, four places each made them,
-    /// and one that forgot the profile or its own values sent a page to another profile's settings (the owner, 2026-11-19).
+    /// values over all profiles', its profile (nil: the first), its privacy. Before, four places each made them, and one
+    /// that forgot the profile or its own values sent a page to another profile's settings.
     static func pageSettings(profile id: UUID?, privacy: PagePrivacy?) -> WebSettings {
         let own = AppSpaces.all.profiles.profiles.map(\.profile).first { ($0.isFirst ? nil : $0.id) == id }
         var settings = webSettings(of: own)
@@ -87,7 +87,7 @@ import SunsetWeb
         return settings
     }
 
-    /// A profile's page settings: its own values over all profiles' (ADR-0083); nil: all profiles'.
+    /// A profile's page settings: its own values over all profiles'; nil: all profiles'.
     private static func webSettings(of own: Profile?) -> WebSettings {
         maker.settings(app: AppConfiguration.shared.configuration, own: own)
     }

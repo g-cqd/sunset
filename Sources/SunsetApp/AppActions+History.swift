@@ -20,7 +20,7 @@ extension AppActions {
         keyWindowTabs?.clearingHistory = true
     }
 
-    /// File ▸ Import from Another Browser… (roadmap 0111 G).
+    /// File ▸ Import from Another Browser….
     func importFromBrowser() {
         keyWindowTabs?.importing = true
     }

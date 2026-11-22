@@ -13,7 +13,7 @@ import SunsetWeb
 /// themselves; a file that cannot be read leaves the last good configuration in force and says why.
 @MainActor @Observable
 final class AppConfiguration {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored var runtime = Runtime.live
 
     /// The sidebar's pin button: it stays beside the content, or hides and floats (`sidebar.autoHide`).
@@ -166,8 +166,8 @@ final class AppConfiguration {
         configuration = new
         let after = new.presentation
         // At launch the file is read before the application exists (`NSApp` is nil then, and there is no window to move): nothing to reshape.
-        // After SwiftUI has applied the change that set it (a Settings toggle): closing windows inside that update trips SwiftUI's
-        // bar appearance bridge (crash report 2026-11-13, t242).
+        // After SwiftUI has applied the change that set it (a Settings toggle): closing windows inside that update trips SwiftUI's bar
+        // appearance bridge (crash report 2026-11-13).
         if before != after, (NSApp as NSApplication?) != nil {
             runtime.task { @MainActor in AppActions.shared.reshape(from: before, to: after) }
         }
@@ -211,7 +211,7 @@ final class AppConfiguration {
 }
 
 extension AppConfiguration {
-    /// `web.showOpenedPages`: a page a page opens is shown (notes n64, n65).
+    /// `web.showOpenedPages`: a page a page opens is shown.
     var showsOpenedPages: Bool {
         configuration.web.showOpenedPages
     }

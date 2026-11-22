@@ -4,8 +4,8 @@ import SunsetShell
 import SunsetShellBridge
 import SwiftUI
 
-/// "Open in ‹Space›" and, beside it, the menu of the other Spaces (the owner's "^ with selector"); with no Space to name (a
-/// private window opened it), Open as Tab. One glass group, as the window bar's.
+/// "Open in ‹Space›" and, beside it, the menu of the other Spaces; with no Space to name (a private window opened it),
+/// Open as Tab. One glass group, as the window bar's.
 struct PopupOpenInButton: View {
     let current: SpaceModel?
     let spaces: [SpaceModel]

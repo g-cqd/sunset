@@ -1,8 +1,8 @@
 import Foundation
 import SunsetWebModel
 
-/// A store's package fetched into the temporary folder (roadmap 0109 E): Chrome's from its update service, Firefox's from the
-/// `.xpi` its API names. Nothing of the person is sent: no cookie, no identifier (an ephemeral session).
+/// A store's package fetched into the temporary folder: Chrome's from its update service, Firefox's from the `.xpi` its
+/// API names. Nothing of the person is sent: no cookie, no identifier (an ephemeral session).
 enum ExtensionDownload {
     struct Failed: LocalizedError {
         let errorDescription: String?

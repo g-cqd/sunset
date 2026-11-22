@@ -4,9 +4,9 @@ import SunsetMetrics
 import SunsetShell
 import SunsetShellBridge
 
-/// The measures of a pop-up window (task t132): the window's own margin around one card (`sidebar.padding`, the window of
-/// tabs' margin around its card: the owner, 2026-11-20, "the margin does not respect the usual one of window"), round at every
-/// corner, and a strip above it holding the traffic lights where the window of tabs has them and Open in ‹Space›.
+/// The measures of a pop-up window: the window's own margin around one card (`sidebar.padding`, the window of tabs'
+/// margin around its card), round at every corner, and a strip above it holding the traffic lights where the window of
+/// tabs has them and Open in ‹Space›.
 struct PopupWindowLayout {
     /// Around the card, and its corners: the window of tabs' own (`PaneAreaGeometry`, one card with the sidebar docked).
     let margin: Double
@@ -57,8 +57,8 @@ struct PopupWindowLayout {
     }
 
     /// The room the lights take from the strip's controls' edge (`capsuleGap` in from the window's): from where they are, not
-    /// the tab bar's (the owner: "a weird spacing between the address bar and the traffic lights"). The strip's spacing then
-    /// leaves `capsuleGap` between them and the next control, as between two controls (seen 2026-11-20: 13 pt, now 6).
+    /// the tab bar's ("a weird spacing between the address bar and the traffic lights"). The strip's spacing then leaves
+    /// `capsuleGap` between them and the next control, as between two controls (seen 2026-11-20: 13 pt, now 6).
     var lightsRoom: Double {
         lightsX + 2 * Design.System.lightsPitch + Design.TabCapsules.lightWidth - Self.capsuleGap
     }

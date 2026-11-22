@@ -21,8 +21,8 @@ import SunsetWeb
         var rows = tabRows + SpaceRows.rows(bar, tabs: tabs)
         let chip = bar.engine.flatMap { name in settings.engines.first { $0.name == name } }
         let typed = bar.query.trimmingCharacters(in: .whitespaces)
-        // Nothing of a scope that is off is offered (roadmap 0033): no address or search without the web, no file or
-        // stored document without documents.
+        // Nothing of a scope that is off is offered: no address or search without the web, no file or stored document
+        // without documents.
         let (web, documents) = (tabs.scopes.web, tabs.scopes.documents)
         let input: WebInput? =
             if !web { nil } else if let chip { typed.isEmpty ? nil : .search(chip, words: typed) } else {
@@ -35,7 +35,7 @@ import SunsetWeb
         if let input { rows.append(Self.web(input, id: "typed", tabs: tabs, recall: recall)) }
         // The documents Sunset keeps, by title: after what was typed, so that Return does what it did.
         if documents, chip == nil { rows += documentRows(bar, typed: typed, tabs: tabs) }
-        // A terminal or a document made as a page is (n71): last, so that Return still does what it did.
+        // A terminal or a document made as a page is: last, so that Return still does what it did.
         rows += newKindRows(bar, typed: chip == nil ? typed : nil, tabs: tabs)
         rows += CommandRows.rows(typed: chip == nil ? typed : nil, tabs: tabs)
         guard web else { return rows }
@@ -63,7 +63,7 @@ import SunsetWeb
         return rows
     }
 
-    /// The tabs that match; opened to make a new tab (Shift-Cmd-T; n82), its kinds instead.
+    /// The tabs that match; opened to make a new tab (Shift-Cmd-T), its kinds instead.
     private static func purposeRows(_ bar: CommandBar, tabs: TabsModel) -> [ChoiceRow] {
         guard bar.purpose == .newTab else { return tabs.barResults(bar).map { tab($0, bar: bar, tabs: tabs) } }
         return NewKindChoices.newTab(typed: bar.query, scopes: tabs.scopes).map { newKind($0, bar: bar, tabs: tabs) }

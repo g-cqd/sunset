@@ -3,7 +3,7 @@ import SunsetShell
 import SunsetShellBridge
 import SwiftUI
 
-/// The Pinned grid from the menu bar (roadmap 0021, P-b).
+/// The Pinned grid from the menu bar (P-b).
 extension AppActions {
     /// Pins the tab or the favourite the acting window shows, or unpins the pinned entry it shows (it is a tab again).
     func togglePinned() {

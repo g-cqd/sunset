@@ -5,9 +5,9 @@ import SunsetShellModel
 import SunsetStorage
 import WebKit
 
-/// File ▸ Bring Cookies from Sunset (roadmap 0112 E, ADR-0114): Sunset WebKit reads Sunset's cookie jars (sealed with the
-/// key both builds share, or in the clear while Sunset runs) and sets each cookie that has not expired in the same profile's
-/// store of its own WebKit. One way, on the person's request; WebKit's own files are never shared.
+/// File ▸ Bring Cookies from Sunset: Sunset WebKit reads Sunset's cookie jars (sealed with the key both builds share, or in
+/// the clear while Sunset runs) and sets each cookie that has not expired in the same profile's store of its own WebKit. One
+/// way, on the person's request; WebKit's own files are never shared.
 @MainActor
 enum AppCookieTransfer {
     /// Sunset's identifier: whose jars are read.

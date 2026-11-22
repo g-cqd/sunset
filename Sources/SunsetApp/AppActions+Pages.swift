@@ -7,7 +7,7 @@ import SunsetWeb
 import SunsetWebModel
 
 extension AppActions {
-    /// Links to pages handed over by the system (note n18): each a page in a new tab of the window in front, or of the first
+    /// Links to pages handed over by the system: each a page in a new tab of the window in front, or of the first
     /// window once there is one. With the web off, they go to the next app that opens them.
     func open(pages: [URL]) {
         let configuration = AppConfiguration.shared.configuration
@@ -16,7 +16,7 @@ extension AppActions {
                 for page in pages { NSWorkspace.shared.open(page) }
                 return
             case .peek:
-                // A peek window each (the owner's note n66), titled with the Space of the window in front.
+                // A peek window each, titled with the Space of the window in front.
                 let space = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.space.space.id
                 for page in pages {
                     let content = WebContent(url: page, settings: PaneContentKinds.webSettings(from: configuration.web))

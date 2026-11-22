@@ -13,7 +13,7 @@ import SunsetPrivate
 final class WindowBackdrop {
     private var backdrop: NSView?
     private var tintView: NSView?
-    /// `window.blur` over the material or the glass (the owner's note n28: it only reached the floating sidebar).
+    /// `window.blur` over the material or the glass (it only reached the floating sidebar).
     private var blurView: NSView?
     private var applied: WindowLook?
     private var appliedWindowNumber = -1

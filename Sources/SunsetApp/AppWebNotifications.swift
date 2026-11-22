@@ -5,11 +5,11 @@ import SunsetShell
 import SunsetWeb
 import UserNotifications
 
-/// A page's notifications as the system's (roadmap 0035 D): posted to the notification centre, shown even while Sunset is in
-/// front; a click shows the page's tab in its window and tells the page. The system asks once whether Sunset may notify.
+/// A page's notifications as the system's: posted to the notification centre, shown even while Sunset is in front; a
+/// click shows the page's tab in its window and tells the page. The system asks once whether Sunset may notify.
 @MainActor
 final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     var runtime = Runtime.live
 
     static let shared = AppWebNotifications()
@@ -33,7 +33,7 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
     /// Posts what `page` may show (`WebContent.onNotify` has checked the site's answer and cleaned the text).
     func post(_ note: WebNotification, from page: WebContent) {
         guard Bundle.main.bundleIdentifier != nil else { return }
-        // With a tag, the site's later one with the same tag replaces it (roadmap 0036 E).
+        // With a tag, the site's later one with the same tag replaces it.
         let identifier = note.tag.isEmpty ? UUID().uuidString : "web|\(note.host)|\(note.tag)"
         remember(identifier, from: page, id: note.id)
         let space = spaceName(of: page)
@@ -45,7 +45,7 @@ final class AppWebNotifications: NSObject, UNUserNotificationCenterDelegate {
             content.subtitle = [note.title.isEmpty ? nil : note.host, space].compactMap { $0 }
                 .joined(separator: " \u{00B7} ")
             content.body = note.body
-            // The page asked for no sound, or has not (roadmap 0037 C).
+            // The page asked for no sound, or has not.
             content.sound = note.silent ? nil : .default
             // A later one with the same tag is a new alert: macOS shows a replaced banner again.
             content.interruptionLevel = .active

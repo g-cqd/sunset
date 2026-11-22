@@ -4,8 +4,8 @@ import SunsetShellModel
 import SwiftUI
 
 /// Asks for the name and the icon of the tab `tabs.renaming` names: one place for every "Rename Tab…" (the sidebar, the tab
-/// bar, the menu), in Sunset's look (the owner's note n73). An empty name gives the tab its program's title back, an empty
-/// icon its own picture. Return renames, Escape cancels.
+/// bar, the menu), in Sunset's look. An empty name gives the tab its program's title back, an empty icon its own picture.
+/// Return renames, Escape cancels.
 struct RenameTabAlert: ViewModifier {
     let tabs: TabsModel
     @State private var name = ""

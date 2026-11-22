@@ -3,7 +3,7 @@ import SunsetPane
 import SunsetShell
 import SwiftUI
 
-/// View's items for the sections of the sidebars (roadmap 0031). No keys of their own yet: Cmd-Y stays the history's.
+/// View's items for the sections of the sidebars. No keys of their own yet: Cmd-Y stays the history's.
 struct SectionCommands: View {
     let scopes: Scopes
 

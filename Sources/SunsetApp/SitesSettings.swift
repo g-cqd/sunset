@@ -5,10 +5,10 @@ import SunsetShell
 import SunsetWeb
 import SwiftUI
 
-/// Settings › Web › Each site (roadmap 0022 W-d; the owner's note n40), in its own sections: the defaults every site gets;
-/// the sites and patterns with settings of their own, each folding open on what differs, each line reset by itself, the
-/// site forgotten at once; and a rule added for a host, its subdomains (`*.host`) or an address prefix, the most specific
-/// winning. Everything a site's panel can set is listed here.
+/// Settings › Web › Each site, in its own sections: the defaults every site gets; the sites and patterns with settings of
+/// their own, each folding open on what differs, each line reset by itself, the site forgotten at once; and a rule added
+/// for a host, its subdomains (`*.host`) or an address prefix, the most specific winning. Everything a site's panel can
+/// set is listed here.
 struct SitesSettings: View {
     @Environment(\.runtime) var runtime
 

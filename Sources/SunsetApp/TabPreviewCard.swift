@@ -6,8 +6,8 @@ import SunsetShellBridge
 import SunsetTerminal
 import SwiftUI
 
-/// A floating card beside the row of a tab while the pointer is over it (`n36`, R2; `TabPreviewHost` places it): the tab's layout in miniature, each pane with
-/// the last frame it drew, a page its last snapshot (a pane that has not drawn yet is a blank card). Drawn when asked; nothing is kept (R2).
+/// A floating card beside the row of a tab while the pointer is over it (`TabPreviewHost` places it): the tab's layout in miniature, each pane with
+/// the last frame it drew, a page its last snapshot (a pane that has not drawn yet is a blank card). Drawn when asked; nothing is kept.
 struct TabPreviewCard: View {
     let item: Workspace.Item
     let tabs: TabsModel
@@ -16,7 +16,7 @@ struct TabPreviewCard: View {
     static let width = 280.0
     private static let gap = 3.0
 
-    /// The proportions of the area the tab is shown in, from what its panes drew (`SplitLayout.aspect(drawn:)`, owner note n58), kept between
+    /// The proportions of the area the tab is shown in, from what its panes drew (`SplitLayout.aspect(drawn:)`), kept between
     /// 110 and 220 pt; 175 when nothing has drawn yet.
     var height: Double {
         var sizes: [PaneID: CGSize] = [:]
@@ -53,7 +53,7 @@ struct TabPreviewCard: View {
                 parts: TabParts(icon: true, title: true, directory: true, progress: false),
                 name: custom.name,
                 icon: custom.icon,
-                // Not made yet (back from the session): what it is saved as, not a terminal (roadmap 0047 I).
+                // Not made yet (back from the session): what it is saved as, not a terminal.
                 saved: tabs.pendingDescriptor(item.focused)
             )
             .padding(.horizontal, Design.Space.l)
@@ -77,8 +77,7 @@ struct TabPreviewCard: View {
                         .overlay {
                             RoundedRectangle(cornerRadius: Design.Radius.small(layout), style: .continuous)
                                 .strokeBorder(
-                                    // The pane whose part is under the pointer in the split's row, not the focused one
-                                    // (the owner's note n77).
+                                    // The pane whose part is under the pointer in the split's row, not the focused one.
                                     Color.primary.opacity(
                                         pane == tabs.hoveredPane && item.isSplit ? Design.Fill.focusLine : 0
                                     ),
@@ -96,13 +95,13 @@ struct TabPreviewCard: View {
         if let terminal = tabs.terminal(pane), let surface = terminal.lastSurface {
             SurfacePreviewView(surface: surface, background: terminal.layerBackground)
         } else if let picture = tabs.content(pane)?.picture {
-            // A page's last snapshot (roadmap 0035 C); cut at its bottom when the card is shorter, its top kept (seen
-            // 2026-11-17: centred, the page's heading was cut).
+            // A page's last snapshot; cut at its bottom when the card is shorter, its top kept (seen 2026-11-17:
+            // centred, the page's heading was cut).
             Color.clear
                 .overlay(alignment: .top) { Image(decorative: picture, scale: 1).resizable().scaledToFill() }
                 .clipped()
         } else {
-            // A pane with nothing pictured (a settings tab, a page not loaded yet): its icon, so every kind has a card (n77).
+            // A pane with nothing pictured (a settings tab, a page not loaded yet): its icon, so every kind has a card.
             Color.primary.opacity(Design.Fill.open)
                 .overlay {
                     TabIcon(model: tabs.content(pane), saved: tabs.pendingDescriptor(pane), showsProgress: false)

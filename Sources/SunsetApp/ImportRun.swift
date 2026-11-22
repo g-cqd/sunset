@@ -1,8 +1,8 @@
 import Foundation
 import SunsetImport
 
-/// The reading part of an import (roadmap 0111 G), off the main thread: a browser's folder can be large (a Firefox
-/// history database is copied to be read).
+/// The reading part of an import, off the main thread: a browser's folder can be large (a Firefox history database is
+/// copied to be read).
 enum ImportRun {
     /// What one source gives: a browser's profile, or an exported file.
     enum Source: Equatable {

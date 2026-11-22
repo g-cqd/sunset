@@ -1,6 +1,6 @@
 import SunsetImport
 
-/// What an import did, for the sheet to say (roadmap 0111 G).
+/// What an import did, for the sheet to say.
 struct ImportOutcome: Equatable {
     var report: ImportReport
     var folder: String
