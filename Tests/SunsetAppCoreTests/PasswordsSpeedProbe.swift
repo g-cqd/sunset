@@ -41,6 +41,11 @@ struct PasswordsSpeedProbe {
             saves.append(try milliseconds { try model.save(entry) })
             reads.append(milliseconds { _ = (model.entries.count, model.neverSave.count) })
         }
+        var searches: [Double] = []
+        for query in ["e", "en", "ent", "entr", "entry", "entry 9", "entry 99"] {
+            for _ in 0 ..< 5 { searches.append(milliseconds { _ = EntrySearch.matching(query, in: model.entries) }) }
+        }
+        print("PROBE search a keystroke:", percentiles(searches))
         print("PROBE save:", percentiles(saves))
         print("PROBE sign-in reads:", percentiles(reads))
     }

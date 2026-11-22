@@ -58,7 +58,7 @@ state of the art, field by field).
 |---|---|---|---|
 | A page tells Sunset from Safari, tracks it | A1 | ADR-0089 (nothing of Sunset's in the page), ADR-0051/-0074 | Safari's APIs missing; WebAuthn's inconsistent answer |
 | A page drives Sunset's handlers (fake clicks, frames, shares) | A1, A10 | Pull, not push; origin from `WKFrameInfo`; bounded (ADR-0067, ADR-0089) | Handlers' fuzzing; a check that a compromised WebContent cannot claim another origin (WebKit's site isolation: to read) |
-| A page phishes a fill, reads secrets from hidden fields | A1 | — (no fill) | ADR-0094: the person's act, same origin, shown fields, suggestions drawn outside the page |
+| A page phishes a fill, reads secrets from hidden fields | A1 | Filling in Sunset's own world, on a click, for one origin checked as it fills; the page's made-up events not believed (ADR-0094) | ADR-0094: the person's act, same origin, shown fields, suggestions drawn outside the page |
 | A page abuses permissions (camera, notifications, pop-ups, sound) | A1 | Answers per site, asked on gesture, limits (ADR-0061, ADR-0077) | One table of every permission's policy and its test |
 | A hostile page exploits WebKit | A1 → A10 | WebKit's sandbox, Apple's updates; HTTPS upgrade, a hardened mode and GPC as settings (`WebProtection`) | A hardened level without JIT, measured |
 | Escape sequences act outside the screen | A2 | ADR-0010, ADR-0026, ADR-0027: no title, clipboard or font reports, no DECRQSS, bounded replies, REP capped, OSC 7 never looked up | Fuzz targets with a known-CVE corpus (vt-houdini); C1 controls inside UTF-8 dropped by default since 2026-11-21 (a setting turns them on) |
@@ -67,7 +67,7 @@ state of the art, field by field).
 | Behaviour read from Sunset's files | A3, A4 | Sealed payloads, their times and counts sealed too, kinds as keyed tags; 0600/0700, `secure_delete`, the WAL truncated | — |
 | Session tokens and sites' data read from WebKit's folders | A3, A4 | Cleared at quit for sites not kept; caches marked out of backups; cookie jars and sites' storage (IndexedDB, local storage, service workers, statistics, HSTS) sealed at quit, after the network process has put its storage to rest and ended, and opened at launch | A3 while Sunset runs (all in the clear then); a crash leaves them in the clear until the next quit; extensions' storage (`WebExtensions`) not sealed |
 | The storage key taken | A3, A4 | The data-protection keychain, the Secure Enclave wrap; FileVault | — |
-| A vault opened | A3, A4, A5 | Factors, the lock, zeroed buffers (ADR-0091), in the model | Capture exclusion, with the vault's windows |
+| A vault opened | A3, A4, A5 | Factors, the lock (idle, sleep, screen lock, another user, quit, last window), zeroed key buffers (ADR-0091); the window out of capture while it shows an unlocked vault; a secret copied leaves the clipboard after 90 s | The entries' text is held as Swift strings while unlocked (not zeroed) |
 | Clipboard secrets left behind | A3, A5 | Clipboard gate | Concealed type, clearing |
 | Screen captured with secrets | A5 | — | `sharingType = .none` for the vault; Sunset's own share skips those windows |
 | A sync provider rolls back, withholds, reorders | A7 | — | Per-device logs with sequence numbers; each device remembers the highest seen per device and refuses older; heads sealed and chained (ADR-0095, to add) |
