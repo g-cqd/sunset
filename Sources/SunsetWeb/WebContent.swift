@@ -64,6 +64,9 @@ package final class WebContent: PaneContent, PaneViewMaking {
     package internal(set) var playsSound = false
     package internal(set) var isMuted = false
     @ObservationIgnored var soundWatch: NSObject?
+    /// Its Now Playing card's identity, and where it reports what plays (roadmap 0114).
+    @ObservationIgnored package let mediaID = UUID()
+    @ObservationIgnored package var nowPlaying = NowPlaying.shared
     /// The address of the link under the pointer (`LinkStatus`).
     package internal(set) var hoveredLink: String?
     /// The page, once it has been shown.

@@ -32,6 +32,9 @@ package struct TabSidebar: View {
     var bottomBar: AnyView?
     /// How many buttons high the bar is: two while the downloads' button is above the Library's glyph.
     var bottomBarRows = 1
+    /// What the app puts above the bar (the Now Playing cards); the rows end above it, as tall as it is.
+    var footer: AnyView?
+    @State var footerHeight = 0.0
     /// The row a drag is over, and what a drop there would do.
     @State var rowDrop: (owner: Workspace.ItemID, place: TabDropAction)?
     /// The gap between tabs a drag is over (before the tab at this index): the rows beside it move apart.
@@ -73,11 +76,13 @@ package struct TabSidebar: View {
         notices: AnyView? = nil,
         bottomBar: AnyView? = nil,
         bottomBarRows: Int = 1,
+        footer: AnyView? = nil,
         headerExtras: AnyView? = nil,
         togglePin: @escaping () -> Void
     ) {
         self.headerExtras = headerExtras
         self.bottomBarRows = bottomBarRows
+        self.footer = footer
         self.accessory = accessory
         self.notices = notices
         self.bottomBar = bottomBar

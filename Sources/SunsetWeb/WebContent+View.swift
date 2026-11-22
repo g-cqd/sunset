@@ -28,17 +28,8 @@ extension WebContent {
         SignInWatch.install(on: configuration, privately: isPrivate, profile: settings.profile)
         if !isPrivate { shareWrapper = ShareWrapper.install(on: configuration, for: self) }
         if settings.agentScripts { AgentScript.install(on: configuration) }
-        WebDeveloperExtras.set(settings.developer, on: configuration.preferences)
-        WebPermissionHooks.enable(on: configuration.preferences)
-        WebFrameRate.set(fullRate: settings.fullFrameRate, on: configuration.preferences)
+        setPreferences(configuration.preferences)
         configuration.defaultWebpagePreferences = WebProtection.preferences(for: settings)
-        WebAttribution.turnOff(on: configuration.preferences)
-        SafariParity.turnOn(on: configuration.preferences)
-        if settings.mediaDevices { WebFeature.set("MediaDevicesEnabled", enabled: true, on: configuration.preferences) }
-        // Pop-ups without a click reach Sunset, which decides by the site's answer; sound does not play on its own unless the site may.
-        configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
-        // A video, or an element the page asks to, can fill the screen.
-        configuration.preferences.isElementFullscreenEnabled = true
         if given == nil {
             let host = url?.host()
             configuration.mediaTypesRequiringUserActionForPlayback =
@@ -64,7 +55,10 @@ extension WebContent {
         find.attach(view)
         applyZoom()
         observe(view)
-        soundWatch = WebAudio.watchPlaying(view) { [weak self] playing in self?.playsSound = playing }
+        soundWatch = WebAudio.watchPlaying(view) { [weak self] playing in
+            self?.playsSound = playing
+            self?.reportMedia()
+        }
         // A view WebKit made for a pop-up loads itself; one made here loads the page (an extension's included).
         // An extension's page whose extensions have not loaded waits for them, its history kept for the view made then.
         guard offered == nil, !waitsForExtensions() else { return }
@@ -73,6 +67,21 @@ extension WebContent {
             savedHistory = nil
         }
         if view.url == nil, let url { view.load(URLRequest(url: url)) }
+    }
+
+    /// What Sunset sets on every page's preferences, from its settings.
+    private func setPreferences(_ preferences: WKPreferences) {
+        WebDeveloperExtras.set(settings.developer, on: preferences)
+        WebPermissionHooks.enable(on: preferences)
+        WebFrameRate.set(fullRate: settings.fullFrameRate, on: preferences)
+        WebAttribution.turnOff(on: preferences)
+        SafariParity.turnOn(on: preferences)
+        if settings.mediaDevices { WebFeature.set("MediaDevicesEnabled", enabled: true, on: preferences) }
+        // Pop-ups without a click reach Sunset, which decides by the site's answer; sound does not play on its own unless the site may.
+        preferences.javaScriptCanOpenWindowsAutomatically = true
+        // A video, or an element the page asks to, can fill the screen; and float in picture in picture.
+        preferences.isElementFullscreenEnabled = true
+        WebNowPlaying.allowPictureInPicture(settings.pictureInPicture, in: preferences)
     }
 
     func observe(_ view: WKWebView) {
@@ -118,6 +127,7 @@ extension WebContent {
         guard title != pageTitle else { return }
         pageTitle = title
         onChange()
+        if playsSound || nowPlaying.page(mediaID) != nil { reportMedia() }
         // Pictured once: pictured again as it changes without loading (a chat's count), once a second at most.
         if picture != nil, !isLoading {
             let now = ProcessInfo.processInfo.systemUptime

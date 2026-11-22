@@ -12,7 +12,8 @@ extension Reader {
         "approveRiskyDownloads": \.approveRiskyDownloads, "privateSuggestions": \.privateSuggestions,
         "privateWindowShares": \.privateWindowShares, "unloadUnderPressure": \.unloadUnderPressure,
         "blocking": \.blocking, "notificationsWithoutClick": \.notificationsWithoutClick,
-        "workerNotifications": \.workerNotifications
+        "workerNotifications": \.workerNotifications, "nowPlaying": \.nowPlaying,
+        "pictureInPicture": \.pictureInPicture
     ]
 
     mutating func readWeb(_ object: Object) {

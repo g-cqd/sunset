@@ -119,6 +119,10 @@ extension Configuration {
         public var notificationsWithoutClick = false
         /// A page's notifications through its service worker's registration are posted too.
         public var workerNotifications = true
+        /// What plays in pages is shown as cards at the foot of the sidebar.
+        public var nowPlaying = true
+        /// A page's video can float in the system's picture in picture window.
+        public var pictureInPicture = true
         /// The site's icon, its initial in a square while it has none.
         public var tabIcon = TabIcon.favicon
         public var address = AddressPlace.sidebar

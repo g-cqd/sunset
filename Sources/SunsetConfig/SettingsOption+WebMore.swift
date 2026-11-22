@@ -124,8 +124,30 @@ extension SettingsOption {
             .noted(
                 "A page shown Chrome, Edge or Firefox also reads that browser's vendor and client hints. Turn it off if a "
                     + "site breaks; pages opened after follow."
+            ),
+            media(
+                ("web.nowPlaying", "Now Playing", "Show what plays at the foot of the sidebar"),
+                "now playing media music video audio play pause next previous mute cards sidebar",
+                \.web.nowPlaying,
+                "A card for each page that plays: play and pause, previous and next, mute, and the way to its tab."
+            ),
+            media(
+                ("web.pictureInPicture", "Picture in picture", "Allow picture in picture for videos"),
+                "picture in picture pip video float window",
+                \.web.pictureInPicture,
+                "A video can float in its own small window above the others, as in Safari."
             )
         ]
+
+    /// A switch of the Media group: its key, title and label; its search words, its value, its sentence.
+    private static func media(
+        _ names: (key: String, title: String, label: String),
+        _ words: String,
+        _ path: Path<Bool>,
+        _ note: String
+    ) -> Self {
+        toggle(names.key, names.title, words, path, label: names.label).noted(note).grouped("Media")
+    }
 
     /// For developers.
     static let webAdvanced: [Self] =

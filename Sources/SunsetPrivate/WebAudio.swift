@@ -25,10 +25,7 @@ public enum WebAudio {
 
     /// Mutes the page's sound (not its camera or microphone).
     public static func setMuted(_ muted: Bool, on view: NSObject) {
-        let setter = NSSelectorFromString(#Interned("_setPageMuted:"))
-        guard view.responds(to: setter) else { return }
-        typealias Setter = @convention(c) (NSObject, Selector, UInt) -> Void
-        unsafeBitCast(view.method(for: setter), to: Setter.self)(view, setter, muted ? audio : 0)
+        PrivateSetter.set(#Interned("_setPageMuted:"), to: muted ? audio : 0, on: view)
     }
 
     private static var playingKey: String {

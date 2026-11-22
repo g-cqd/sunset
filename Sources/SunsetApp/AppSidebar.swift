@@ -82,8 +82,19 @@ struct AppSidebar: View {
                 library: configuration.sidebar.library && SidebarSection.rail(for: tabs.scopes).count > 1,
                 downloads: !DownloadCenter.shared.items.isEmpty
             ),
+            footer: nowPlaying,
             headerExtras: extensionButtons,
             togglePin: AppConfiguration.togglePin
+        )
+    }
+
+    /// What plays, above the bar (`web.nowPlaying`; roadmap 0114); Go There shows its tab, in its Space and window.
+    private var nowPlaying: AnyView? {
+        guard configuration.web.nowPlaying, !NowPlaying.shared.stack.pages.isEmpty else { return nil }
+        return AnyView(
+            NowPlayingStack(pictureInPicture: configuration.web.pictureInPicture) { page in
+                AppWebNotifications.shared.reveal(page)
+            }
         )
     }
 

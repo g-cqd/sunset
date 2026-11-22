@@ -28,32 +28,15 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
         view.stop()
     }
 
-    final class CatcherView: NSView {
+    final class CatcherView: ScrollCatcherView {
         weak var tabs: TabsModel?
         var animation = Animation.default
         var library: SpaceSwipe.LibrarySide?
-        private var monitor: Any?
-
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            stop()
-            guard window != nil else { return }
-            monitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
-                // The monitor is called on the main thread, where events are.
-                let taken = MainActor.assumeIsolated { self?.take(event) ?? false }
-                return taken ? nil : event
-            }
-        }
-
-        func stop() {
-            if let monitor { NSEvent.removeMonitor(monitor) }
-            monitor = nil
-        }
 
         /// Whether the event was this one's (the list does not get it then).
-        private func take(_ event: NSEvent) -> Bool {
+        override func take(_ event: NSEvent) -> Bool {
             // Not in the settings, whose lists and pages are not the Library's to leave by a swipe.
-            guard let tabs, event.window === window, bounds.contains(convert(event.locationInWindow, from: nil)),
+            guard let tabs, isOver(event),
                 !(tabs.sections.isLibraryOpen && tabs.sections.library == .settings),
                 SpaceSwipe.listens(
                     libraryOpen: tabs.sections.isLibraryOpen,

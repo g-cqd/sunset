@@ -26,17 +26,27 @@ extension TabSidebar {
 
     /// How much room the rows leave at the bottom for the app's bar.
     var bottomInset: Double {
-        bottomBar == nil ? 0 : buttons.barRoom(rows: bottomBarRows)
+        (bottomBar == nil ? 0 : buttons.barRoom(rows: bottomBarRows))
+            + (footer == nil || footerHeight == 0 ? 0 : footerHeight + layout.tabSpacing)
     }
 
     /// The app's bar at the bottom, as the pin is at the top: the same gap to the side edges, and to the bottom (the card's bottom when docked).
     @ViewBuilder var bottomBarView: some View {
         if let bottomBar {
-            bottomBar
-                .environment(\.sidebarButtonMetrics, buttons.metrics)
-                .frame(height: buttons.barHeight(rows: bottomBarRows))
-                .padding(.horizontal, buttons.gap)
-                .padding(.bottom, buttons.bottom)
+            VStack(spacing: layout.tabSpacing) {
+                if let footer {
+                    footer.onGeometryChange(for: Double.self) {
+                        $0.size.height
+                    } action: {
+                        footerHeight = $0
+                    }
+                }
+                bottomBar
+                    .environment(\.sidebarButtonMetrics, buttons.metrics)
+                    .frame(height: buttons.barHeight(rows: bottomBarRows))
+            }
+            .padding(.horizontal, buttons.gap)
+            .padding(.bottom, buttons.bottom)
         }
     }
 

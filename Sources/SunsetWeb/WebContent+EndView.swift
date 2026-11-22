@@ -16,6 +16,7 @@ extension WebContent {
         }
         if keepingHistory { savedHistory = view.interactionState as? Data }
         soundWatch = nil
+        nowPlaying.gone(self)
         notificationClicks.end()
         observations = []
         view.stopLoading()
