@@ -9,4 +9,6 @@ package struct LoginField: Equatable, Sendable {
     package var role: Role
     package var frame: CGRect
     package var origin: URL
+    /// A new password's field: the page's `passwordrules`, when it says any.
+    package var rules: String?
 }

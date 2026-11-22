@@ -35,7 +35,8 @@ final class AppPasswordFill: PasswordFillHost {
     }
 
     func loginField(focused field: LoginField, in page: WebContent) {
-        guard isOn, field.role != .newPassword, let view = page.webView else { return popover.close() }
+        guard isOn, let view = page.webView else { return popover.close() }
+        if field.role == .newPassword { return offerNewPassword(for: field, in: page, view: view) }
         let logins = LoginMatch.offered(model.entries, for: field.origin, site: Self.site)
         guard !logins.isEmpty else { return popover.close() }
         popover.show(
@@ -68,6 +69,23 @@ final class AppPasswordFill: PasswordFillHost {
             at: login.frame.isEmpty ? CGRect(x: view.bounds.midX, y: 0, width: 1, height: 1) : login.frame,
             of: view,
             edge: .maxY
+        )
+    }
+
+    /// A sign-up form's password field: a strong password made for the page (its rules, else its site's), offered under
+    /// the field; filled into the password and its confirmation when clicked; saved after the form is sent.
+    private func offerNewPassword(for field: LoginField, in page: WebContent, view: NSView) {
+        let site = field.origin.host().flatMap { (try? PasswordManagerResources.bundled())?.passwordRules(for: $0) }
+        let password = NewPassword.make(rules: NewPassword.rules(page: field.rules, site: site))
+        popover.show(
+            StrongPasswordOffer(password: password) { [weak self] in
+                self?.popover.close()
+                Runtime.live.task { @MainActor in _ = await page.fillNewPassword(password) }
+            },
+            at: field.frame,
+            of: view,
+            edge: .maxY,
+            suggestions: true
         )
     }
 

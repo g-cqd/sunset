@@ -26,16 +26,19 @@ final class PasswordFill: PageScriptHandler, WKScriptMessageHandler {
     }
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.frameInfo.isMainFrame, let page = content, let host = Self.host,
+        guard message.frameInfo.isMainFrame, let page = content, let host = page.passwordFillHost ?? Self.host,
             let body = message.body as? [String: Any], let origin = Self.origin(of: message.frameInfo)
         else { return }
         switch body["kind"] as? String {
             case "focus":
                 guard let role = (body["role"] as? String).flatMap(LoginField.Role.init(rawValue:)) else { return }
-                host.loginField(
-                    focused: LoginField(role: role, frame: Self.frame(body, in: page), origin: origin),
-                    in: page
+                let field = LoginField(
+                    role: role,
+                    frame: Self.frame(body, in: page),
+                    origin: origin,
+                    rules: body["rules"] as? String
                 )
+                host.loginField(focused: field, in: page)
             case "blur":
                 host.loginFieldBlurred(in: page)
             case "sent":

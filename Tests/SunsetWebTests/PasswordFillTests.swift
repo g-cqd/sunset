@@ -33,21 +33,26 @@ final class PasswordFillTests {
 
     /// What the script told, in order. Kept by the test: `PasswordFill.host` holds it weakly.
     final class Host: PasswordFillHost {
+        /// Its page: what other pages tell (tests of other suites, at the same time) is not its.
+        weak var page: WebContent?
         var events: [String] = []
         var focused: LoginField?
         var sent: SentLogin?
         private var waiting: CheckedContinuation<Void, Never>?
 
         func loginField(focused field: LoginField, in page: WebContent) {
+            guard page === self.page else { return }
             focused = field
             record("focus \(field.role)")
         }
 
         func loginFieldBlurred(in page: WebContent) {
+            guard page === self.page else { return }
             record("blur")
         }
 
         func loginSent(_ login: SentLogin, in page: WebContent) {
+            guard page === self.page else { return }
             sent = login
             record("sent")
         }
@@ -71,9 +76,10 @@ final class PasswordFillTests {
         if isPrivate { settings.privacy = PagePrivacy() }
         let page = WebContent(url: URL(string: "https://example.com/"), settings: settings)
         let host = Host()
+        host.page = page
         hosts.append(host)
         pages.append(page)
-        PasswordFill.host = host
+        page.passwordFillHost = host
         page.setState(focused: true, visible: true)
         let view = try #require(page.webView)
         view.frame = CGRect(x: 0, y: 0, width: 600, height: 400)

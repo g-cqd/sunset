@@ -14,7 +14,7 @@ Research: docs/research/credentials/web-apis-and-payments.md. ADR-0094 (proposed
 | B | Matching (registrable domain with the PSL if accepted, else host; per-URL rules); homograph display | done 2026-11-22 (`LoginMatch`, `LoginSite`: registrable domain, exact host first, https entries not on http, look-alikes never); per-URL rules and homograph display not |
 | C | Suggestions drawn outside the page; fill on the person's act; automatic fill for exact matches only if allowed; never hidden fields, cross-origin frames; http warned | done 2026-11-22: a popover under the field, on the person's click only, as typing would (input events), never a hidden field; seen in a test copy. Automatic fill and the http warning not |
 | D | Saving: `SignInWatch` grows to read the username and password at sending; a bar outside the page; once a page; never in private windows | done 2026-11-22: offered after sending, at the field, Save / Update / Never for This Site / Not Now (`LoginSave`); never in private windows; seen. While locked not offered |
-| E | New passwords: generated with `passwordrules`, kept as a draft before sending | not-started |
+| E | New passwords: generated with `passwordrules`, kept as a draft before sending | done 2026-11-22: Use Strong Password under a new password's field (`NewPassword`, `fillNewPassword`): the page's rules, else the site's; filled into the password and its confirmation on a click; saved by the offer after sending. No draft kept before sending |
 | F | Cards, addresses, emails, one-time codes; a card's security code never without a reveal | not-started |
 
-Not done: E (new passwords generated into a page), F (cards, addresses, codes); frames other than the main one; the hover seen on screen (a background copy gets no pointer).
+Not done: F (cards, addresses, codes); frames other than the main one; the hover seen on screen (a background copy gets no pointer).

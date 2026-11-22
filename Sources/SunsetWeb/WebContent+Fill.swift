@@ -13,4 +13,17 @@ extension WebContent {
         )
         return filled as? Bool ?? false
     }
+
+    /// Fills `password` into the sign-up form of the field that has the keyboard: its password and confirmation fields,
+    /// from Sunset's own world, on the person's act (roadmap 0094 E). Returns whether a field was filled.
+    package func fillNewPassword(_ password: String) async -> Bool {
+        guard let view = webView else { return false }
+        let filled = try? await view.callAsyncJavaScript(
+            PasswordFillScript.fillNew,
+            arguments: ["secret": password],
+            in: nil,
+            contentWorld: .defaultClient
+        )
+        return filled as? Bool ?? false
+    }
 }

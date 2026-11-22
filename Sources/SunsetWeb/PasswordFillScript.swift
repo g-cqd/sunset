@@ -20,7 +20,14 @@ enum PasswordFillScript {
         };
         const scope = (el) => (el && el.form) || document;
         const roleOf = (el) => {
-          if (isPassword(el)) return /new-password/.test(el.autocomplete || '') ? 'newPassword' : 'password';
+          // A new password: its token; or a form of two or three password fields (a password and its confirmation),
+          // none of them a current one.
+          if (isPassword(el)) {
+            if (/new-password/.test(el.autocomplete || '')) return 'newPassword';
+            const all = passwords(scope(el));
+            const current = all.some(f => /current-password/.test(f.autocomplete || ''));
+            return all.length >= 2 && all.length <= 3 && !current ? 'newPassword' : 'password';
+          }
           if (isText(el) && passwords(scope(el)).length > 0 && usernameOf(scope(el)) === el) return 'username';
           if (isText(el) && /username/.test(el.autocomplete || '')) return 'username';
           return null;
@@ -40,7 +47,8 @@ enum PasswordFillScript {
             if (role && visible(e.target)) {
               const r = e.target.getBoundingClientRect();
               shown = e.target;
-              post({ kind: 'focus', role, x: r.left, y: r.top, width: r.width, height: r.height });
+              post({ kind: 'focus', role, x: r.left, y: r.top, width: r.width, height: r.height,
+                     rules: e.target.getAttribute('passwordrules') || null });
             } else if (shown) {
               shown = null;
               post({ kind: 'blur' });
@@ -87,5 +95,21 @@ enum PasswordFillScript {
         if (user && username.length > 0) set(user, username);
         set(password, secret);
         return true;
+        """
+
+    /// Fills a new password into the form of the field that has the keyboard: every visible password field of it (the
+    /// password and its confirmation), nothing else. Returns whether one was filled.
+    static let fillNew = """
+        \(fields)
+        const el = document.activeElement;
+        if (!isPassword(el)) return false;
+        const set = (field) => {
+          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(field, secret);
+          field.dispatchEvent(new Event('input', { bubbles: true }));
+          field.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        const all = passwords(scope(el));
+        all.forEach(set);
+        return all.length > 0;
         """
 }

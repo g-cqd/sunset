@@ -67,6 +67,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     /// Its Now Playing card's identity, and where it reports what plays (roadmap 0114).
     @ObservationIgnored package let mediaID = UUID()
     @ObservationIgnored package var nowPlaying = NowPlaying.shared
+    /// Where this page's sign-in fields are told, instead of the app's (`PasswordFill`): a test's.
+    @ObservationIgnored package weak var passwordFillHost: (any PasswordFillHost)?
     /// The address of the link under the pointer (`LinkStatus`).
     package internal(set) var hoveredLink: String?
     /// The page, once it has been shown.
