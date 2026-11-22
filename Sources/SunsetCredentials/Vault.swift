@@ -1,4 +1,5 @@
 public import Foundation
+public import LocalAuthentication
 public import SunsetRuntime
 import SunsetStorage
 
@@ -25,11 +26,13 @@ public final class Vault {
         ((try? file.factorSlots()) ?? []).map(\.factor)
     }
 
-    /// Makes a vault at `path`, unlocked: a new key, wrapped by `password` (stretched at `cost`) and by a new recovery
-    /// code, which is returned to be shown once.
+    /// Makes a vault at `path`, unlocked: a new key, wrapped by Touch ID when `touchID` makes its factor (the app asks
+    /// for the fingers enrolled; a test, no one), by `password` (stretched at `cost`), and by a new recovery code, which is
+    /// returned to be shown once.
     public static func create(
         at path: String,
         password: String,
+        touchID: ((UUID) throws(TouchIDFactor.Refused) -> (TouchIDFactor, Data))? = nil,
         cost: MasterPassword.Cost = .standard,
         idle: Duration = .seconds(600),
         runtime: Runtime,
@@ -40,23 +43,42 @@ public final class Vault {
         let salt = StorageKey.random().bytes.prefix(16)
         let stretched = try MasterPassword.stretch(password, salt: Data(salt), cost: cost)
         let code = RecoveryCode.generate()
-        try file.setFactorSlots([
-            VaultFile.FactorSlot(
-                factor: .password,
-                wrapped: try WrappedKey.wrap(key, with: stretched, factor: Factor.password.rawValue, vault: file.id),
-                salt: Data(salt),
-                cost: cost
-            ),
-            VaultFile.FactorSlot(
-                factor: .recoveryCode,
-                wrapped: try WrappedKey.wrap(
-                    key,
-                    with: code.factorKey(vault: file.id),
-                    factor: Factor.recoveryCode.rawValue,
-                    vault: file.id
+        var slots: [VaultFile.FactorSlot] = []
+        // Touch ID first, when asked for: the everyday factor; the password its fallback.
+        if let touchID {
+            let (factor, factorKey) = try touchID(file.id)
+            slots.append(
+                VaultFile.FactorSlot(
+                    factor: .touchID,
+                    wrapped: try WrappedKey.wrap(key, with: factorKey, factor: Factor.touchID.rawValue, vault: file.id),
+                    touchID: factor.bytes
                 )
             )
-        ])
+        }
+        try file.setFactorSlots(
+            slots + [
+                VaultFile.FactorSlot(
+                    factor: .password,
+                    wrapped: try WrappedKey.wrap(
+                        key,
+                        with: stretched,
+                        factor: Factor.password.rawValue,
+                        vault: file.id
+                    ),
+                    salt: Data(salt),
+                    cost: cost
+                ),
+                VaultFile.FactorSlot(
+                    factor: .recoveryCode,
+                    wrapped: try WrappedKey.wrap(
+                        key,
+                        with: code.factorKey(vault: file.id),
+                        factor: Factor.recoveryCode.rawValue,
+                        vault: file.id
+                    )
+                )
+            ]
+        )
         let vault = Vault(file: file, lock: VaultLock(idle: idle, runtime: runtime), locks: locks)
         vault.unlocked(key)
         return (vault, code)
@@ -78,6 +100,15 @@ public final class Vault {
             let stretched = try? MasterPassword.stretch(password, salt: salt, cost: cost)
         else { throw Refused() }
         try unwrap(slot, with: stretched)
+    }
+
+    /// Unlocks with Touch ID, asked through `context` (nil: the system's own prompt).
+    public func unlock(touchID context: LAContext?) throws(Refused) {
+        let slot = try slot(.touchID)
+        guard let bytes = slot.touchID, let factor = try? TouchIDFactor(bytes),
+            let factorKey = try? factor.factorKey(vault: file.id, context: context)
+        else { throw Refused() }
+        try unwrap(slot, with: factorKey)
     }
 
     public func unlock(recoveryCode: RecoveryCode) throws(Refused) {
