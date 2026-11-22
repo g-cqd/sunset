@@ -1,6 +1,6 @@
-# 0006 — Threat model (draft, 2026-11-19; refined 2026-11-21)
+# 0006 — Threat model (2026-11-19; refined and accepted 2026-11-22)
 
-Status: **draft for the owner**. It replaces roadmap 0012's missing "threat list". Every security decision (ADRs) names the
+Status: **accepted by the owner, 2026-11-22**; its open rows are tasks. It replaces roadmap 0012's missing "threat list". Every security decision (ADRs) names the
 adversaries it answers. The evidence behind it: diary 2026-11-19-04 to -07; docs/research/security-realism-2026-11-19.md;
 docs/research/credentials/; docs/research/threat-model-sota-2026-11-21.md (the state of the art, field by field).
 
