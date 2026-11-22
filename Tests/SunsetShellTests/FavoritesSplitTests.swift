@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner (2026-11-21, note n80): two favorite tabs could not be split; only pinned tabs should refuse being split by
-/// drag and drop, and a split tab can still be pinned.
+/// The owner (2026-11-21): two favorite tabs could not be split; only pinned tabs should refuse being split by drag and
+/// drop, and a split tab can still be pinned.
 @MainActor
 @Suite("Favorites split")
 struct FavoritesSplitTests {

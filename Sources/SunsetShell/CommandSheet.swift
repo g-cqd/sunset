@@ -1,7 +1,7 @@
 package import SunsetPane
 package import SwiftUI
 
-/// The dialog that shows a kept terminal's command whole and edits it (R3, t145): the only way a command is written. Empty removes it.
+/// The dialog that shows a kept terminal's command whole and edits it: the only way a command is written. Empty removes it.
 package struct CommandSheet: View {
     let tabs: TabsModel
     let entry: Favorites.NodeID

@@ -4,9 +4,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The emoji a person can pick as an icon (the owner, 2026-11-17: the picker "should allow for emojis as well as symbols"),
-/// read from the system's own names (`CoreEmoji`). The system gives their names, not their order: faces come first, flags
-/// last, the rest by where Unicode has them.
+/// The emoji a person can pick as an icon (the picker "should allow for emojis as well as symbols"), read from the
+/// system's own names (`CoreEmoji`). The system gives their names, not their order: faces come first, flags last, the
+/// rest by where Unicode has them.
 @Suite("The emoji catalog")
 struct EmojiCatalogTests {
     private func resources() throws -> URL {

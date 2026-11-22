@@ -6,7 +6,7 @@ package struct TabLabel: View {
     let model: (any PaneContent)?
     /// What it shows of the tab: its picture, title, second line and progress.
     var parts = TabParts()
-    /// Whether the label says its document has edits that are not saved; a sidebar row says it itself, at its end (owner note n76).
+    /// Whether the label says its document has edits that are not saved; a sidebar row says it itself, at its end.
     var showEdited = true
     /// Whether the label shows the sound, the microphone and the camera; a sidebar row has them as buttons at its end.
     var showControls = true
@@ -68,7 +68,7 @@ package struct TabLabel: View {
                 .buttonStyle(.plain)
                 .help(sound.help)
             }
-            // Loaded as another profile than its Space's (roadmap 0050 D): its name, small.
+            // Loaded as another profile than its Space's: its name, small.
             if let mark = Self.profileMark(model: model, saved: saved) {
                 Text(mark)
                     .font(Design.Text.detail.weight(.semibold))
@@ -78,7 +78,7 @@ package struct TabLabel: View {
                     .fixedSize()
                     .accessibilityLabel("Loaded as \(mark)")
             }
-            // The microphone and the camera it uses, each muted from here (the owner's note n47); the screen's dot stays.
+            // The microphone and the camera it uses, each muted from here; the screen's dot stays.
             if showControls, let model {
                 ForEach(PaneCapture.Device.allCases, id: \.self) { device in
                     if let state = model.devices[device] {

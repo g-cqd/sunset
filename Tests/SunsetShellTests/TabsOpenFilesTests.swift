@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Files opened in a window (R6, roadmap 0023 step M-f): from the Open panel, a drop, Finder, the command bar. Each in a
-/// tab of its own; one this window already shows is shown, not opened twice.
+/// Files opened in a window: from the Open panel, a drop, Finder, the command bar. Each in a tab of its own; one this
+/// window already shows is shown, not opened twice.
 @MainActor
 @Suite("Opening files in a window")
 struct TabsOpenFilesTests {
@@ -48,8 +48,8 @@ struct TabsOpenFilesTests {
         #expect(harness.tabs.barDocuments(bar("l")).map(\.id) == [flow.id])
     }
 
-    /// Roadmap 0031, the owner's answers of 2026-11-16: the files opened lately are listed with the documents, and a
-    /// private window lists neither, and is not remembered for what it opened.
+    /// The files opened lately are listed with the documents, and a private window lists neither, and is not remembered
+    /// for what it opened.
     @Test func `a file opened is noted as opened lately, but not from a private window`() {
         let harness = TabsHarness()
         var noted: [String] = []

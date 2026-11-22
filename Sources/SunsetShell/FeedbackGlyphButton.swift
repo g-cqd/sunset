@@ -1,8 +1,8 @@
 package import SunsetRuntime
 package import SwiftUI
 
-/// A row's glyph button that says what its click did (the owner's note n11): for a moment its symbol becomes a check, or a
-/// cross that shakes, with the trackpad's tap and VoiceOver's announcement (`Feedback`); its tooltip then says it too.
+/// A row's glyph button that says what its click did: for a moment its symbol becomes a check, or a cross that shakes,
+/// with the trackpad's tap and VoiceOver's announcement (`Feedback`); its tooltip then says it too.
 package struct FeedbackGlyphButton: View {
     @Environment(\.runtime) var runtime
 
@@ -30,7 +30,7 @@ package struct FeedbackGlyphButton: View {
             }
         } glyph: {
             Image(systemName: cue?.symbol ?? symbol)
-                // The owner, 2026-11-18: no change of colour (the button's own), and quick.
+                // No change of colour (the button's own), and quick.
                 .contentTransition(.symbolEffect(.replace.downUp.wholeSymbol, options: .speed(3)))
                 .keyframeAnimator(initialValue: 0.0, trigger: shakes) { glyph, offset in
                     glyph.offset(x: offset)

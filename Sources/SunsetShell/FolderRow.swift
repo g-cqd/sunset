@@ -3,7 +3,7 @@ import SunsetPane
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// A folder of the Favorites (R3): an indent per level, a folder icon filled when expanded; a click expands or collapses it, as does the chevron
+/// A folder of the Favorites: an indent per level, a folder icon filled when expanded; a click expands or collapses it, as does the chevron
 /// at its trailing edge (where a tab's close button is, shown under the pointer: owner, 2026-11-12); its name is edited in place; a tab or an
 /// entry dropped anywhere on it goes inside. It never opens or closes what it holds.
 struct FolderRow: View {
@@ -25,7 +25,7 @@ struct FolderRow: View {
     var body: some View {
         HStack(spacing: GlyphSpacing.toText) {
             // Under the pointer the fold's chevron takes the icon's place, on the leading edge as every fold's
-            // (docs/design/folds-and-menus.md, the owner's note n45).
+            // (docs/design/folds-and-menus.md).
             if hovering, tabs.renamingRow != .node(folder.id) {
                 disclosure
             } else {
@@ -45,7 +45,7 @@ struct FolderRow: View {
         .overlay {
             GeometryReader { proxy in
                 if tabs.renamingRow == .node(folder.id) {
-                    // Renaming: a button that clears the name in the chevron's place (the owner, 2026-11-17).
+                    // Renaming: a button that clears the name in the chevron's place.
                     ClearNameButton(layout: layout) {
                         name = ""
                     }
@@ -55,7 +55,7 @@ struct FolderRow: View {
         }
         .background(RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous).fill(fill))
         .overlay {
-            // Being renamed: the row is the field (note n4).
+            // Being renamed: the row is the field.
             if tabs.renamingRow == .node(folder.id) {
                 RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
                     .focusHairline(layout, accent: accent.color)
@@ -108,7 +108,7 @@ struct FolderRow: View {
         return .primary.opacity(hovering ? Design.Fill.hover : 0)
     }
 
-    /// Folded or unfolded in a stroke (n76): its rows slide in or out, the chevron turns.
+    /// Folded or unfolded in a stroke: its rows slide in or out, the chevron turns.
     private func toggle() {
         withAnimation(.easeOut(duration: Design.Motion.foldDuration)) {
             tabs.favorites.edit { $0.setCollapsed(!folder.isCollapsed, for: folder.id) }

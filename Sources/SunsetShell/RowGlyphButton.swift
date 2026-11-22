@@ -1,8 +1,8 @@
 import SunsetMetrics
 package import SwiftUI
 
-/// A small button of a row, as a tab's close button is (roadmap 0047 F): a glyph on nothing at rest, a rounded fill under the
-/// pointer, darker pressed. The address field's lock, Copy and Reload are these.
+/// A small button of a row, as a tab's close button is: a glyph on nothing at rest, a rounded fill under the pointer,
+/// darker pressed. The address field's lock, Copy and Reload are these.
 package struct RowGlyphButton<Glyph: View>: View {
     let help: String
     let action: () -> Void
@@ -45,7 +45,7 @@ package struct RowGlyphButton<Glyph: View>: View {
                         .fill(.primary.opacity(pressed ? Design.Fill.pressed : hovering ? Design.Fill.selected : 0))
                 )
                 .contentShape(.rect)
-                // The press is felt (the owner's note n11).
+                // The press is felt.
                 .scaleEffect(pressed ? Design.Motion.pressedScale : 1)
                 .keptHover($hovering)
                 .animation(layout.smooth, value: hovering)

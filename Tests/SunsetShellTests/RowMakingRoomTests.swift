@@ -4,7 +4,7 @@ import Testing
 
 @testable import SunsetShellModel
 
-/// n79: the rows on each side of where a dragged tab would go move apart; nothing else moves.
+/// The rows on each side of where a dragged tab would go move apart; nothing else moves.
 @Suite("Rows making room")
 struct RowMakingRoomTests {
     private let rows = (0 ..< 4).map { _ in Workspace.ItemID() }

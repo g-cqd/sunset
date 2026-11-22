@@ -2,8 +2,8 @@ import SunsetMetrics
 import SunsetPane
 import SwiftUI
 
-/// The sidebar's list, and the list of the Space the window is sliding to (`SpaceSlide`; the owner's note n79). The Pinned
-/// grid slides only to a Space of another profile (roadmap 0044 A).
+/// The sidebar's list, and the list of the Space the window is sliding to (`SpaceSlide`). The Pinned grid slides only
+/// to a Space of another profile.
 extension TabSidebar {
     /// The rows: the Pinned grid, the Favorites, the tabs.
     var list: some View {
@@ -30,14 +30,14 @@ extension TabSidebar {
 
     /// Today's tabs.
     var today: some View {
-        // Between two tabs, and at the top, a gap that takes a drop (roadmap 0038 F); after the last, `TodayEndDrop`.
+        // Between two tabs, and at the top, a gap that takes a drop; after the last, `TodayEndDrop`.
         LazyVStack(spacing: 0) {
             ForEach(Array(tabs.workspace.items.enumerated()), id: \.element.id) { index, item in
                 if isPreview {
                     if index > 0 { Color.clear.frame(height: layout.tabSpacing) }
                 } else {
-                    // The rows beside it make room instead of a line (n79); the gap stays where it is, so that the
-                    // rows moving do not take the drop from under the pointer (n84).
+                    // The rows beside it make room instead of a line; the gap stays where it is, so that the rows
+                    // moving do not take the drop from under the pointer.
                     GapDrop(tabs: tabs, layout: layout, place: .today(at: index), between: index > 0, line: false) {
                         targeted in
                         if targeted { gapRoom = index } else if gapRoom == index { gapRoom = nil }
@@ -51,9 +51,9 @@ extension TabSidebar {
         .frame(maxWidth: .infinity)
     }
 
-    /// The list of the Space the window is sliding to, beside this one's (n79): a column of its own from the top, so that
-    /// its tabs follow its own Pinned grid and Favorites, where they will be once the slide has ended (roadmap 0045 E). A
-    /// part both Spaces show keeps its place, empty: this list draws it, still.
+    /// The list of the Space the window is sliding to, beside this one's: a column of its own from the top, so that its
+    /// tabs follow its own Pinned grid and Favorites, where they will be once the slide has ended. A part both Spaces
+    /// show keeps its place, empty: this list draws it, still.
     @ViewBuilder var besideColumn: some View {
         if let beside = tabs.slide.beside {
             let other = preview(beside.tabs)

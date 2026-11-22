@@ -1,9 +1,9 @@
 import CoreGraphics
 import SunsetMetrics
 
-/// The measures of the top of a section's list (roadmap 0031): the title's row with what the section offers, then the search
-/// field when there is something to search. The row is as tall as its buttons and the tabs' spacing under them, so that they
-/// end above the field (the owner, 2026-11-15: they were over it).
+/// The measures of the top of a section's list: the title's row with what the section offers, then the search field when
+/// there is something to search. The row is as tall as its buttons and the tabs' spacing under them, so that they end above
+/// the field (they were over it).
 package struct SectionTop {
     package let buttons: SidebarButtons
     /// The title is under the window buttons' row (the Library, which keeps the pin there); otherwise it is on that row.

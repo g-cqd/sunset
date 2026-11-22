@@ -4,9 +4,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-17 (roadmap 0037 B): a tab or a favourite dragged into a window of another profile "moves, reload":
-/// it goes there, and its pages load again as that profile (as when a Space is given another profile, ADR-0053); a terminal
-/// moves as it is.
+/// A tab or a favourite dragged into a window of another profile "moves, reload": it goes there, and its pages load
+/// again as that profile (as when a Space is given another profile); a terminal moves as it is.
 @MainActor
 @Suite("Dragging into a window of another profile", .serialized)
 struct TabsCrossProfileDragTests {

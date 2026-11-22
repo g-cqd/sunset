@@ -4,9 +4,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// 0035's "not done" (roadmap 0036 F): a tab dragged from one window is dropped in another. The drag is the window's it
-/// started in; the window it is dropped in takes it: a tab of another Space comes to its Space (the first window stays where
-/// it is), a kept entry of the same profile is the same entry.
+/// 0035's "not done": a tab dragged from one window is dropped in another. The drag is the window's it started in; the
+/// window it is dropped in takes it: a tab of another Space comes to its Space (the first window stays where it is), a kept
+/// entry of the same profile is the same entry.
 @MainActor
 @Suite("Dragging from one window to another", .serialized)
 struct TabsCrossWindowDragTests {

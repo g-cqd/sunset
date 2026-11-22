@@ -6,9 +6,9 @@ extension View {
     /// clearing the selection; a double click edits the row's name in place.
     ///
     /// The double click is beside the click, not before it: a two-click gesture put first holds the click until a second one
-    /// can no longer come, and every click on a row was 360 ms late (measured in `SidebarClickTests`; owner notes n15, n56,
-    /// n59). The first click of a double click therefore runs `plain` too.
-    /// `undo` takes back what the first click of a double click did (a folder folded by it is as it was; roadmap 0036 G).
+    /// can no longer come, and every click on a row was 360 ms late (measured in `SidebarClickTests`). The first click of a
+    /// double click therefore runs `plain` too. `undo` takes back what the first click of a double click did (a folder
+    /// folded by it is as it was).
     func selectionTaps(
         _ tabs: TabsModel,
         row: RowTarget,
@@ -25,7 +25,7 @@ extension View {
                 TapGesture(count: 2)
                     .onEnded {
                         undo()
-                        // A kept entry away from where it was kept goes back there (n3); anything else is renamed.
+                        // A kept entry away from where it was kept goes back there; anything else is renamed.
                         if case .node(let id) = row, tabs.keeper(of: id).favorites.entry(id) != nil {
                             tabs.doubleClick(entry: id)
                         } else {

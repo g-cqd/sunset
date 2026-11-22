@@ -5,10 +5,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-17 (roadmap 0035 J): switching to the other window of a Space showed a white or black page with
-/// "Click to bring it here", "not even the last snapshot". His answer: both; the window brought to the front draws the tab
-/// it shows, and the window it leaves keeps a real picture of it. Supersedes the row of ADR-0045 "bringing a window to the
-/// front takes nothing".
+/// Switching to the other window of a Space showed a white or black page with "Click to bring it here", "not even the
+/// last snapshot". Now the window brought to the front draws the tab it shows, and the window it leaves keeps a real
+/// picture of it.
 @MainActor
 @Suite("A Space's window brought to the front")
 struct SpaceWindowFrontTests {

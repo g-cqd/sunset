@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetPane
 @testable import SunsetShellModel
 
-/// Another browser's bookmarks brought into Sunset (roadmap 0111 G).
+/// Another browser's bookmarks brought into Sunset.
 @MainActor @Suite("Bookmarks imported into a Space")
 struct SpacesImportTests {
     private func imported(_ count: Int) -> Favorites {

@@ -3,8 +3,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-19: "our synthesized icons for folders with initial appear bigger than the sf symbol used for folder on
-/// other tabs". A terminal's folder, its command mark and a symbol chosen for a tab are drawn at one size.
+/// "our synthesized icons for folders with initial appear bigger than the sf symbol used for folder on other tabs". A
+/// terminal's folder, its command mark and a symbol chosen for a tab are drawn at one size.
 @Suite("A tab's picture: one size for every symbol")
 @MainActor
 struct GlyphSizeTests {

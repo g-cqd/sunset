@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// How a window comes to a Space, and what is then its own to do (roadmap 0021; ADR-0045).
+/// How a window comes to a Space, and what is then its own to do.
 @MainActor
 @Suite("A window joins a Space")
 struct SpaceJoiningTests {

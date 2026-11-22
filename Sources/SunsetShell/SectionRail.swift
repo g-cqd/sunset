@@ -2,18 +2,18 @@ import SunsetMetrics
 import SunsetPane
 package import SwiftUI
 
-/// The Library's rail (roadmap 0031, the owner's choice L2): the sections as glyphs laid out vertically on the window's edge
-/// side of the sidebar, the one shown filled; Tabs, the first, goes back to the tabs, as does the arrow at its foot, which is
-/// where the Library's glyph was. Above the arrow, the gear of the settings (roadmap 0032).
+/// The Library's rail: the sections as glyphs laid out vertically on the window's edge side of the sidebar, the one shown
+/// filled; Tabs, the first, goes back to the tabs, as does the arrow at its foot, which is where the Library's glyph was.
+/// Above the arrow, the gear of the settings.
 package struct SectionRail: View {
     let selection: SidebarSection
     /// The Library's lists, from the top: none while the Library is not offered (the gear and the way back are still there).
     var sections = SidebarSection.rail
     let buttons: SidebarButtons
-    /// Opens Help (the owner's note n27): its glyph above the gear; nil, none.
+    /// Opens Help: its glyph above the gear; nil, none.
     var help: (() -> Void)?
     /// The downloads' button (the app's), between the gear and the way back while there are downloads: where it is above
-    /// the Library's glyph when the Library is closed (the owner's notes n60, n61); nil, none.
+    /// the Library's glyph when the Library is closed; nil, none.
     var downloads: AnyView?
     /// The rail is at the window's leading edge: its foot is at that bottom corner, whose button is concentric with it.
     var leading = false
@@ -37,7 +37,7 @@ package struct SectionRail: View {
         self.choose = choose
     }
 
-    /// The space between the rail and the list beside it (the owner, 2026-11-15).
+    /// The space between the rail and the list beside it.
     package static let gutter = Design.Space.m
 
     /// How much wider the sidebar is while the rail shows: a button, its gap to the window's edge, and the gutter to the
@@ -49,14 +49,13 @@ package struct SectionRail: View {
     /// What the rail's foot holds, from the top.
     package enum Foot: Sendable { case help, settings, downloads, back }
 
-    /// The foot's glyphs, from the top: Help above the gear (the owner's note n27), the downloads under it (n60, n61), the
-    /// way back last, at the corner.
+    /// The foot's glyphs, from the top: Help above the gear, the downloads under it, the way back last, at the corner.
     static func foot(hasHelp: Bool, hasDownloads: Bool = false) -> [Foot] {
         (hasHelp ? [.help] : []) + [.settings] + (hasDownloads ? [.downloads] : []) + [.back]
     }
 
-    /// The way back points at the edge the sidebar closes to, at a bar (the owner, 2026-11-17): left for a sidebar on the
-    /// left, right for one on the right.
+    /// The way back points at the edge the sidebar closes to, at a bar: left for a sidebar on the left, right for one
+    /// on the right.
     static func closeSymbol(leading: Bool) -> String {
         leading ? "arrow.left.to.line" : "arrow.right.to.line"
     }
@@ -65,7 +64,7 @@ package struct SectionRail: View {
         VStack(spacing: buttons.layout.tabSpacing) {
             ForEach(sections, id: \.self) { section in glyph(section) }
             Spacer(minLength: 0)
-            // Help and the settings (roadmap 0032), above the way back.
+            // Help and the settings, above the way back.
             ForEach(Self.foot(hasHelp: help != nil, hasDownloads: downloads != nil), id: \.self) { part in
                 switch part {
                     case .help:

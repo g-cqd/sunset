@@ -5,9 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Profiles (roadmap 0021, P-a; R4: "a web identity… a Space has one profile; several Spaces may share it"; decided by the
-/// builder while the owner was away, ADR-0053). The Pinned grid is the profile's: the same in each of its Spaces, and
-/// what is open there shows as open in all of them (the owner's note n80).
+/// Profiles ("a web identity… a Space has one profile; several Spaces may share it"). The Pinned grid is the profile's: the same in each of its Spaces, and
+/// what is open there shows as open in all of them.
 @MainActor
 @Suite("Profiles")
 struct ProfilesModelTests {
@@ -65,7 +64,7 @@ struct ProfilesModelTests {
         #expect(window.pinned === spaces.profiles.profiles[0].pinned)
         window.show(space: second)
         #expect(window.pinnedEntries.map(\.id) == [entry], "the same grid in the profile's other Space")
-        #expect(window.pinnedEntries.first?.isOpen == true && !made.all[0].stopped, "and open there too (n80)")
+        #expect(window.pinnedEntries.first?.isOpen == true && !made.all[0].stopped, "and open there too")
         window.select(entry: entry)
         #expect(window.shownEntry?.id == entry && window.showsLive && made.all[0].visible)
         window.show(space: third)
@@ -103,8 +102,8 @@ struct ProfilesModelTests {
         #expect(again.profiles.profile(of: orphan) === again.profiles.profiles[0])
     }
 
-    /// The owner, 2026-11-17: "Favorites become the profile's": one list, the same in every Space of the profile; what is
-    /// open there shows as open in all of them (his note n80).
+    /// Favorites are the profile's: one list, the same in every Space of the profile; what is open there shows as open
+    /// in all of them.
     @Test
     func
         `the Favorites are the profile's: the same in each of its Spaces, a new Space included; another profile's are its own`()
@@ -119,7 +118,7 @@ struct ProfilesModelTests {
         let second = spaces.add(from: home)
         #expect(second.favorites === home.favorites && home.favorites === spaces.profiles.first.favorites)
         window.show(space: second)
-        #expect(window.favorites.favorites.entry(entry)?.isOpen == true && !made.all[0].stopped, "open here too (n80)")
+        #expect(window.favorites.favorites.entry(entry)?.isOpen == true && !made.all[0].stopped, "open here too")
         window.select(entry: entry)
         #expect(window.shownEntry?.id == entry && window.showsLive && made.all[0].visible)
         // A Space that is deleted takes no favourite with it: they are not its own.
@@ -147,7 +146,7 @@ struct ProfilesModelTests {
 }
 
 extension ProfilesModelTests {
-    /// Roadmap 0050: a profile's own settings are kept with the session; a session of before's "Between runs" become them.
+    /// A profile's own settings are kept with the session; a session of before's "Between runs" become them.
     @Test func `a profile's overrides are saved and read back, a session of before's choices carried over`() throws {
         var profile = Profile(name: "Work")
         profile.overrides = ["web.engine": #""DuckDuckGo""#]

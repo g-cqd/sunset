@@ -3,7 +3,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// n46: a hover's end while a menu is open waits for the menu to close.
+/// A hover's end while a menu is open waits for the menu to close.
 @Suite("A hover held while a menu is open") struct HoverKeeperTests {
     @Test func `the pointer leaving while a menu tracks keeps the hover until the menu closes`() {
         var keeper = HoverKeeper()

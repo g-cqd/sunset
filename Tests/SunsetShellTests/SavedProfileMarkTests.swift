@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-19: a tab loaded as another profile shows that profile's name always, also while it is not loaded (a
-/// kept entry unloaded has no page: its saved state says which profile, `as`).
+/// A tab loaded as another profile shows that profile's name always, also while it is not loaded (a kept entry unloaded
+/// has no page: its saved state says which profile, `as`).
 @MainActor @Suite("A tab's profile mark, loaded or not")
 struct SavedProfileMarkTests {
     @Test func `a saved page's profile is named from its saved state; nothing without one`() {

@@ -5,8 +5,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The sidebar's lines stand between parts, never after the last one shown (the owner's note n87); the empty window's hint
-/// says what ⌘T makes (n81).
+/// The sidebar's lines stand between parts, never after the last one shown; the empty window's hint says what ⌘T makes.
 @MainActor
 @Suite("The sidebar's lines and the empty window's hint")
 struct SidebarLinesTests {

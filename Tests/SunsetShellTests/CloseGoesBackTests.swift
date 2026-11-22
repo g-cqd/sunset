@@ -4,8 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n4 (2026-11-18): "when closing a tab, the most recent tab that was focused before this one should be
-/// focused again (could be a configurable setting as well)".
+/// Closing the tab shown shows the tab shown before it.
 @MainActor @Suite("Closing the shown tab shows the one shown before it")
 struct CloseGoesBackTests {
     @Test func `the tab shown before, not the neighbour; off, the neighbour as before`() {

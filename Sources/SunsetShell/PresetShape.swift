@@ -4,7 +4,7 @@ import SwiftUI
 
 /// A layout drawn as its shape (its panes as rounded cells), for menus: no SF Symbol draws them all. A menu's palette does
 /// not tint a template picture (seen black on a dark menu, 2026-11-17), so it is drawn white on a dark scheme, black on a
-/// light one (the owner's ask).
+/// light one.
 enum PresetShape {
     @MainActor private static var drawn: [String: NSImage] = [:]
 

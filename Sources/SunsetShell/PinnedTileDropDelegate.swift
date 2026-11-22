@@ -1,8 +1,8 @@
 import SunsetPane
 import SwiftUI
 
-/// What is dragged over a tile of the Pinned grid (roadmap 0035 A): its leading half puts it before the tile, its trailing
-/// half after; a tile moves in the grid, a tab, a split or a favourite is pinned there.
+/// What is dragged over a tile of the Pinned grid: its leading half puts it before the tile, its trailing half after; a
+/// tile moves in the grid, a tab, a split or a favourite is pinned there.
 enum PinnedTileDropDelegate {
     @MainActor
     static func make(

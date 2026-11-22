@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// What a row or a tile of the sidebar does with something dragged over it (roadmap 0086 E: three delegates repeated this
-/// whole): where over it the pointer is says what the drop would do (`Place`); the view shows it while it is possible
-/// (`active`, `owner` its own), and the drop does it.
+/// What a row or a tile of the sidebar does with something dragged over it (three delegates repeated this whole): where
+/// over it the pointer is says what the drop would do (`Place`); the view shows it while it is possible (`active`,
+/// `owner` its own), and the drop does it.
 @MainActor
 struct PlacedDropDelegate<Owner: Equatable, Place>: DropDelegate {
     let owner: Owner

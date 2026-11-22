@@ -4,8 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n12 (2026-11-18): "when hitting cmd t and basically creating a new tab (web here i guess) the big command
-/// bar should be focused to let the user directly search or input the link".
+/// Command-T opens the command bar, ready to search or take an address.
 @MainActor @Suite("A new empty page opens the command bar")
 struct NewTabBarTests {
     @Test func `a new page with no address opens the bar; one with an address, or a terminal, does not`() {

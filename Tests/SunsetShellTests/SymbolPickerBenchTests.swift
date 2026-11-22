@@ -9,9 +9,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// What the symbol picker costs (the owner, 2026-11-17: "not really performant right now at loading all symbols"): reading
-/// the catalog, a search for each key typed, and drawing the grid. Off unless `SUNSET_BENCH=1`; run in release:
-/// `SUNSET_BENCH=1 swift test -c release --filter SymbolPickerBench`.
+/// What the symbol picker costs ("not really performant right now at loading all symbols"): reading the catalog, a
+/// search for each key typed, and drawing the grid. Off unless `SUNSET_BENCH=1`; run in release: `SUNSET_BENCH=1 swift
+/// test -c release --filter SymbolPickerBench`.
 @MainActor
 @Suite("The symbol picker's cost", .enabled(if: ProcessInfo.processInfo.environment["SUNSET_BENCH"] == "1"))
 struct SymbolPickerBenchTests {

@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The icon grid as it is drawn (the owner, 2026-11-17: instantaneous, symbols and emoji): what is in sight is drawn,
-/// symbols once they are rendered, and a click picks the cell under it.
+/// The icon grid as it is drawn (instantaneous, symbols and emoji): what is in sight is drawn, symbols once they are
+/// rendered, and a click picks the cell under it.
 @MainActor
 @Suite("The icon grid, drawn")
 struct IconGridViewTests {

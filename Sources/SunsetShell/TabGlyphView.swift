@@ -32,8 +32,8 @@ struct TabGlyphView: View {
         }
     }
 
-    /// The folder's and the command mark's size: any tab symbol's (the owner, 2026-11-19: the folder was drawn at the bar's
-    /// size, bigger than the folder symbol on other tabs).
+    /// The folder's and the command mark's size: any tab symbol's (the folder was drawn at the bar's size, bigger than
+    /// the folder symbol on other tabs).
     static let symbolSize = PaneIconView.symbolSize
     /// The letter in the folder, and how far below the middle it sits (into the folder's body, under its tab): the sizes
     /// tuned at the bar's size, scaled to this one.

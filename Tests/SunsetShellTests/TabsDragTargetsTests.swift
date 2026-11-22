@@ -6,9 +6,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// While a tab is dragged the places that would take it show (the owner, 2026-11-17: "when dragging, we might want that
-/// the target area show so that we know where to drop tabs"). A drag is known from its start until it is dropped, or
-/// until the mouse button is let go anywhere else.
+/// While a tab is dragged the places that would take it show ("when dragging, we might want that the target area show
+/// so that we know where to drop tabs"). A drag is known from its start until it is dropped, or until the mouse button
+/// is let go anywhere else.
 @MainActor
 @Suite("What shows while a tab is dragged")
 struct TabsDragTargetsTests {
@@ -57,7 +57,7 @@ struct TabsDragTargetsTests {
         #expect(tabs.dragTargets == nil && tabs.dragged == nil)
     }
 
-    /// A pane carries its tab to the grid and the Favorites (roadmap 0035 A; it went to neither before).
+    /// A pane carries its tab to the grid and the Favorites (it went to neither before).
     @Test func `what shows is what would take it: a pane goes as its tab, a full grid takes nothing`() throws {
         let tabs = window(MadeContents())
         tabs.newTab()

@@ -3,7 +3,7 @@ import SunsetPane
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// The Favorites at the top of the sidebar (R3, R4): kept entries and folders, then a thin line above the window's own tabs. A click opens an entry and
+/// The Favorites at the top of the sidebar: kept entries and folders, then a thin line above the window's own tabs. A click opens an entry and
 /// shows it; while it is open its row has a faint fill and a minus that unloads it; one that is not open has no fill and an x that removes it.
 struct FavoritesSection: View {
     let tabs: TabsModel
@@ -15,7 +15,7 @@ struct FavoritesSection: View {
     @Environment(\.accent) private var accent
 
     /// One view: the rows, then their line. As two, a modifier on the section (a measure) laid them over each other, the
-    /// line across the rows (the owner's screenshot of 13:05, roadmap 0047 D).
+    /// line across the rows.
     var body: some View {
         VStack(spacing: layout.tabSpacing) { rowsAndLine }
     }
@@ -23,8 +23,8 @@ struct FavoritesSection: View {
     @ViewBuilder private var rowsAndLine: some View {
         let favorites = tabs.favorites.favorites
         if !favorites.isEmpty {
-            // The tree's rows are the tabs' rows: their height and their spacing (owner, 2026-11-13, t227).
-            // Between two rows, and at the top and the bottom, a gap that takes a drop (roadmap 0038 B, F).
+            // The tree's rows are the tabs' rows: their height and their spacing (owner, 2026-11-13). Between two rows,
+            // and at the top and the bottom, a gap that takes a drop.
             let shown = favorites.rows(selected: tabs.workspace.selectedEntry)
                 .filter { row in
                     if case .entry(let entry) = favorites.node(row.id) { return tabs.shows(entry) }
@@ -41,7 +41,7 @@ struct FavoritesSection: View {
                         }
                     }
                     .padding(.leading, Double(row.level) * Design.Space.l)
-                    // A folder's rows slide out from under it as it unfolds, back as it folds (n76).
+                    // A folder's rows slide out from under it as it unfolds, back as it folds.
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
                 GapDrop(tabs: tabs, layout: layout, place: tabs.favoritesGap(shown.count), between: false)
@@ -51,7 +51,7 @@ struct FavoritesSection: View {
     }
 
     /// Where a drop on the row a drag is over lands: an insertion line at its top or bottom, or the half of it a split would
-    /// take, as on a tab's row (n84).
+    /// take, as on a tab's row.
     @ViewBuilder private func dropMark(_ id: Favorites.NodeID) -> some View {
         if let drop, drop.owner == id {
             switch drop.place {
@@ -64,7 +64,7 @@ struct FavoritesSection: View {
                     }
                     .allowsHitTesting(false)
                 case .moveBefore, .moveAfter:
-                    // In the gap beside the row, where a drop there would land (roadmap 0038 F), not on the row's edge.
+                    // In the gap beside the row, where a drop there would land, not on the row's edge.
                     let after = drop.place == .moveAfter
                     VStack {
                         if after { Spacer(minLength: 0) }
@@ -81,7 +81,7 @@ struct FavoritesSection: View {
     private func entryRow(_ entry: Favorites.Entry) -> some View {
         entryLook(entry)
             .overlay(alignment: .topLeading) {
-                // Its command was not run: something other than Sunset wrote it (t145).
+                // Its command was not run: something other than Sunset wrote it.
                 if tabs.favorites.unconfirmed.contains(entry.id) {
                     Image(systemName: "exclamationmark.shield.fill")
                         .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
@@ -98,7 +98,7 @@ struct FavoritesSection: View {
             .contextMenu { entryMenu(entry) }
     }
 
-    /// A split entry as a split tab is drawn (n55); else one row.
+    /// A split entry as a split tab is drawn; else one row.
     @ViewBuilder private func entryLook(_ entry: Favorites.Entry) -> some View {
         if (entry.open?.panes.count ?? entry.home.layout.panes.count) > 1 {
             EntryGroupRow(

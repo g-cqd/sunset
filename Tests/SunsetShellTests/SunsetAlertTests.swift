@@ -1,8 +1,8 @@
 import SunsetShellModel
 import Testing
 
-/// The owner's note n73: alerts and confirmations in Sunset's own look, one model for all of them; which button Return and
-/// Escape press is the model's, so every alert keeps the rule its NSAlert had.
+/// Alerts and confirmations in Sunset's own look, one model for all of them; which button Return and Escape press is
+/// the model's, so every alert keeps the rule its NSAlert had.
 @Suite("Sunset's alerts")
 struct SunsetAlertTests {
     @Test func `Escape presses Cancel; Return the default button, none when Cancel is the default`() {

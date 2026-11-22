@@ -1,7 +1,7 @@
 package import AppKit
 
-/// Every copy Sunset makes (the owner's note n11): the text goes on the pasteboard, and the person is told it did, by the
-/// button that asked when it has one, else by the trackpad and VoiceOver.
+/// Every copy Sunset makes: the text goes on the pasteboard, and the person is told it did, by the button that asked
+/// when it has one, else by the trackpad and VoiceOver.
 package enum Clipboard {
     /// Puts `text` on `board` (as a link too when `isLink`, marked as a secret when `concealed`); blocked when it is empty.
     @discardableResult

@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetShell
 
-/// Roadmap 0086 E: one delegate for every row and tile of the sidebar. Its rules, apart from DropInfo (which only the
-/// system makes): where the pointer is says what a drop would do; a target clears only its own mark.
+/// One delegate for every row and tile of the sidebar. Its rules, apart from DropInfo (which only the system makes):
+/// where the pointer is says what a drop would do; a target clears only its own mark.
 @MainActor @Suite("A row's or a tile's drop")
 struct PlacedDropDelegateTests {
     final class Mark {

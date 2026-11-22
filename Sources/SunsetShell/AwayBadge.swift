@@ -1,8 +1,8 @@
 import SunsetMetrics
 import SwiftUI
 
-/// A kept page away from where it was kept (the owner's notes n3 and n5): a small dot under its icon, centred on it, between
-/// the icon and the row's bottom edge, in a Pinned tile and a Favorites row alike; a double click on the row takes it back.
+/// A kept page away from where it was kept: a small dot under its icon, centred on it, between the icon and the row's
+/// bottom edge, in a Pinned tile and a Favorites row alike; a double click on the row takes it back.
 struct AwayBadge: View {
     /// The dot's diameter.
     static let size = 4.0

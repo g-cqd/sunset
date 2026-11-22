@@ -2,9 +2,8 @@ package import SunsetShellModel
 package import SwiftUI
 
 extension View {
-    /// The alert while `isPresented`, in Sunset's look (the owner's note n73), over this view on a veil: what `.alert` and
-    /// `.confirmationDialog` showed. `answer` gets the index of the button pressed; Escape and Return press what the alert
-    /// says.
+    /// The alert while `isPresented`, in Sunset's look, over this view on a veil: what `.alert` and `.confirmationDialog`
+    /// showed. `answer` gets the index of the button pressed; Escape and Return press what the alert says.
     package func sunsetAlert(
         isPresented: Binding<Bool>,
         _ alert: @autoclosure @escaping () -> SunsetAlert,

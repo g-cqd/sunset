@@ -5,9 +5,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The window's three buttons, kept where Sunset wants them (diary 2026-11-15: AppKit lays its title bar out again when it sees
-/// fit, and the buttons were left where it put them). They stay AppKit's, in its title bar; they are moved within it, and put
-/// back each time anything moves them.
+/// The window's three buttons, kept where Sunset wants them (AppKit lays its title bar out again when it sees fit, and the
+/// buttons were left where it put them). They stay AppKit's, in its title bar; they are moved within it, and put back each
+/// time anything moves them.
 @MainActor @Suite("The window's buttons, kept in place", .serialized)
 struct WindowLightsTests {
     static let types: [NSWindow.ButtonType] = [.closeButton, .miniaturizeButton, .zoomButton]

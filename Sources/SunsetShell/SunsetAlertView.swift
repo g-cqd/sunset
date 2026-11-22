@@ -2,8 +2,8 @@ import AppKit
 package import SunsetShellModel
 package import SwiftUI
 
-/// An alert drawn in Sunset's look (the owner's note n73): the app's surface, title and text as its panels, the buttons in
-/// the order macOS's alerts use; Return and Escape press what the alert says.
+/// An alert drawn in Sunset's look: the app's surface, title and text as its panels, the buttons in the order macOS's
+/// alerts use; Return and Escape press what the alert says.
 package struct SunsetAlertView: View {
     let alert: SunsetAlert
     let answer: (Int) -> Void

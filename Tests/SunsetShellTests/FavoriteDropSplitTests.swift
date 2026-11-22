@@ -5,9 +5,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n84: "i can't still drop a tab on a favorite and expect it to split". A tab dropped on a favorite row's
-/// middle splits with it, as a favorite dropped on a tab's does (`FavoritesSplitTests`): the favorite leaves the Favorites
-/// as a tab, the dropped tab joins it. Its top and bottom quarters still put the tab before or after it.
+/// "i can't still drop a tab on a favorite and expect it to split". A tab dropped on a favorite row's middle splits with
+/// it, as a favorite dropped on a tab's does (`FavoritesSplitTests`): the favorite leaves the Favorites as a tab, the
+/// dropped tab joins it. Its top and bottom quarters still put the tab before or after it.
 @MainActor
 @Suite("A tab dropped on a favorite")
 struct FavoriteDropSplitTests {

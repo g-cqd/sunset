@@ -2,10 +2,9 @@ import SunsetMetrics
 import SunsetPane
 import SwiftUI
 
-/// A kept entry whose panes are split (owner note n55): drawn as a split tab is in the window's list, one container with its panes as small tabs, its
-/// name and icon above them when it was given any. Open, the panes show what runs in them, on a faint fill; not open, what they would start
-/// from, with no fill (not dimmed). A click
-/// opens and shows the entry (the row's own taps, set by `FavoritesSection`).
+/// A kept entry whose panes are split: drawn as a split tab is in the window's list, one container with its panes as small tabs, its name
+/// and icon above them when it was given any. Open, the panes show what runs in them, on a faint fill; not open, what they would start
+/// from, with no fill (not dimmed). A click opens and shows the entry (the row's own taps, set by `FavoritesSection`).
 struct EntryGroupRow: View {
     let entry: Favorites.Entry
     let tabs: TabsModel
@@ -31,7 +30,7 @@ struct EntryGroupRow: View {
                     lit: selected && pane == (entry.open?.focused ?? entry.home.focused),
                     layout: layout,
                     height: Design.Size.favoriteRow - 2 * inset,
-                    // Open: shows the entry with the keyboard in that pane (the owner, 2026-11-17); not loaded, opens it.
+                    // Open: shows the entry with the keyboard in that pane; not loaded, opens it.
                     select: {
                         if entry.isOpen {
                             tabs.choose(part: pane, of: .node(entry.id))

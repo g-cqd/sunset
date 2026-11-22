@@ -1,7 +1,7 @@
 package import SwiftUI
 
-/// A title that shows or hides what is under it, for a popover's groups (the owner's note n62): its content as wide as the
-/// popover, where a `DisclosureGroup` indents it past its arrow. The title and the arrow are one button.
+/// A title that shows or hides what is under it, for a popover's groups: its content as wide as the popover, where a
+/// `DisclosureGroup` indents it past its arrow. The title and the arrow are one button.
 package struct Fold<Content: View>: View {
     let title: String
     @Binding var isExpanded: Bool

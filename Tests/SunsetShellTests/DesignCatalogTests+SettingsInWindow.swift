@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Mock-ups of the settings shown in a window (roadmap 0032, the owner on 2026-11-15): the sidebar lists the sections and their
-/// topics, the pane area shows the settings. Drawn with plain shapes for the owner to choose from; nothing is built.
+/// Mock-ups of the settings shown in a window: the sidebar lists the sections and their topics, the pane area shows the
+/// settings. Drawn with plain shapes to choose from; nothing is built.
 extension DesignCatalogTests {
     static let settingSections: [(String, String)] = [
         ("textformat", "Font"), ("paintpalette", "Colors"), ("sparkles", "Appearance"), ("macwindow", "Window"),
@@ -212,7 +212,7 @@ extension DesignCatalogTests {
         )
     }
 
-    @Test func `the settings in the window, drawn for the owner`() throws {
+    @Test func `the settings in the window, drawn to choose from`() throws {
         guard let folder = ProcessInfo.processInfo.environment["SUNSET_CATALOG"].map({ URL(fileURLWithPath: $0) })
         else { return }
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

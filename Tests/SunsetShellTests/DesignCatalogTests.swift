@@ -7,9 +7,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The design catalog (design 0003, migration step 3): every row and button variant, today's and proposed, drawn off-screen for the owner.
-/// Runs only with `SUNSET_CATALOG=<folder>`; otherwise it does nothing. Hover cannot be forced from outside a view; `keepCloseVisible` draws
-/// the same fill and close button a hovered row has.
+/// The design catalog (design 0003): every row and button variant, today's and proposed, drawn off-screen to choose from. Runs only with
+/// `SUNSET_CATALOG=<folder>`; otherwise it does nothing. Hover cannot be forced from outside a view; `keepCloseVisible` draws the same fill
+/// and close button a hovered row has.
 @MainActor @Suite("Design catalog") struct DesignCatalogTests {
     private let folder = ProcessInfo.processInfo.environment["SUNSET_CATALOG"].map { URL(fileURLWithPath: $0) }
 
@@ -98,7 +98,7 @@ import Testing
         .background(Color(white: 0.09))
     }
 
-    @Test func `the rows and buttons, drawn for the owner`() throws {
+    @Test func `the rows and buttons, drawn to choose from`() throws {
         guard let folder else { return }
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let docked = LayoutMetrics()
@@ -110,7 +110,7 @@ import Testing
         let rows = CatalogSheet(
             title: "Sidebar tab rows",
             note:
-                "Today and proposed (n66: one-line rows 26 → 32, the glyph's ink 9 pt from the top and bottom as from the leading edge; "
+                "Today and proposed (one-line rows 26 → 32, the glyph's ink 9 pt from the top and bottom as from the leading edge; "
                 + "two-line rows unchanged). Floating: the panel's own keys (tab spacing 3, side inset 4); proposed: the same rule.",
             columns: [
                 .init(title: "Docked, today", examples: tabRows(docked)),

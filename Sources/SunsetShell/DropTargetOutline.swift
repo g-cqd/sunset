@@ -1,8 +1,8 @@
 package import SwiftUI
 
-/// The place a drag would land, under the pointer only (the owner, 2026-11-21, note n79: fewer targets, white, blended in
-/// the chrome; it replaced outlining every place that could take the drag): a white veil and edge, blended with what is
-/// under them. Drawn inside the place's bounds.
+/// The place a drag would land, under the pointer only (fewer targets, white, blended in the chrome; it replaced
+/// outlining every place that could take the drag): a white veil and edge, blended with what is under them. Drawn
+/// inside the place's bounds.
 package struct DropTargetOutline: ViewModifier {
     let shown: Bool
     let targeted: Bool

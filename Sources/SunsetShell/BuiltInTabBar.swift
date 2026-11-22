@@ -4,18 +4,18 @@ import SunsetPane
 package import SwiftUI
 
 /// The tab bar of our own, for `tabs.mode: internal`: one window, many terminals, drawn in the sidebar's language (owner, 2026-11-12): each
-/// tab a sidebar row, the bar itself with no material of its own (the window's backdrop shows, as behind the sidebar), the tabs sharing
-/// its width. The kept entries that are open come first, then a thin line and the window's tabs (R3). Tabs are selected by a click, closed
-/// by their button (in the icon's place under the pointer) or the menu, and reordered by dragging; an entry's button unloads it.
+/// tab a sidebar row, the bar itself with no material of its own (the window's backdrop shows, as behind the sidebar), the tabs sharing its
+/// width. The kept entries that are open come first, then a thin line and the window's tabs. Tabs are selected by a click, closed by their
+/// button (in the icon's place under the pointer) or the menu, and reordered by dragging; an entry's button unloads it.
 package struct BuiltInTabBar: View {
-    /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
+    /// The ends fade out, or are cut (`appearance.ends`).
     @Environment(\.fadesEnds) var fadesEnds
     let tabs: TabsModel
     let settings: ShellSettings.Bar
     @Environment(\.surfaceStyle) var surface
-    /// Back and forward of the selected page, after the window's buttons (t223); nil while a terminal is selected.
+    /// Back and forward of the selected page, after the window's buttons; nil while a terminal is selected.
     let navigation: AnyView?
-    /// The selected page's address field, in its tab's place (t223): the selected tab is the field.
+    /// The selected page's address field, in its tab's place: the selected tab is the field.
     let address: AnyView?
     /// The row of capsules (`Design.TabCapsules`): set while the bar holds the address, whatever is selected, so that the bar does not
     /// change shape from a page to a terminal.
@@ -51,8 +51,8 @@ package struct BuiltInTabBar: View {
         HStack(spacing: capsules ? Design.Space.m : Design.Space.xs) {
             SpacesMenuButton(tabs: tabs)
             if let navigation { navigation.transition(.opacity) }
-            // Pinned: the Favorites as circles before the tabs, outside their scroll (owner, 2026-11-13).
-            // The Pinned grid has no place in a bar: its entries are the first tabs, as icons (ADR-0054).
+            // Pinned: the Favorites as circles before the tabs, outside their scroll (owner, 2026-11-13). The Pinned
+            // grid has no place in a bar: its entries are the first tabs, as icons.
             if !tabs.pinnedEntries.isEmpty { pinnedTiles }
             if capsules, !pinnedItems.isEmpty { pinned(pinnedItems) }
             GeometryReader { proxy in

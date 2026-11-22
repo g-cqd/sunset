@@ -4,9 +4,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The Pinned grid's tiles (roadmap 0021, P-b; the owner, 2026-11-17): four columns that share the width, "not necessarily
-/// a square, but with a max and min width"; fewer columns as the sidebar narrows, down to one; twelve entries at most
-/// ("up to 3x4 items or 4x3").
+/// The Pinned grid's tiles (P-b): four columns that share the width, "not necessarily a square, but with a max and min
+/// width"; fewer columns as the sidebar narrows, down to one; twelve entries at most ("up to 3x4 items or 4x3").
 @Suite("The Pinned grid's geometry")
 struct PinnedLayoutTests {
     @Test func `four columns share the width; a tile is no narrower than its least and no wider than its most`() {

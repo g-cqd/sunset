@@ -4,9 +4,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Where each icon of the picker's grid is (the owner, 2026-11-17: "the rendering and scrolling through the list should
-/// also be instantaneous"). The grid is one view that draws the cells in sight and finds a cell from a point by
-/// arithmetic: nothing is made for the thousands that are not shown.
+/// Where each icon of the picker's grid is ("the rendering and scrolling through the list should also be
+/// instantaneous"). The grid is one view that draws the cells in sight and finds a cell from a point by arithmetic:
+/// nothing is made for the thousands that are not shown.
 @Suite("The icon grid's geometry")
 struct IconGridLayoutTests {
     @Test func `as many columns as fit the width, centred; as many rows as hold every icon`() {

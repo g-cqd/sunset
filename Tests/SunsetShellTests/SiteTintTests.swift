@@ -3,7 +3,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n56: the variants of a tab tinted by its site's colour (its declared theme colour, else its icon's).
+/// The variants of a tab tinted by its site's colour (its declared theme colour, else its icon's).
 @Suite("A tab tinted by its site")
 struct SiteTintTests {
     private let blue: [UInt8] = [10, 120, 230]

@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n11: a copy goes through, or is blocked, and says which.
+/// A copy goes through, or is blocked, and says which.
 @MainActor
 @Suite("Copying, and saying so") struct ClipboardTests {
     private func board() -> NSPasteboard {

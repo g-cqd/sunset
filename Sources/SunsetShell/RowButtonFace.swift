@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// The face of a small button at a row's end (roadmap 0086 E: the close button and the clear button were drawn whole in the
-/// sidebar's row, the top bar's tab and a folder's row): a symbol at the controls' size and weight in a square the close
-/// button's size, filled as `RowFill.closeButton` says.
+/// The face of a small button at a row's end (the close button and the clear button were drawn whole in the sidebar's
+/// row, the top bar's tab and a folder's row): a symbol at the controls' size and weight in a square the close button's
+/// size, filled as `RowFill.closeButton` says.
 struct RowButtonFace: View {
     let symbol: String
     let side: Double

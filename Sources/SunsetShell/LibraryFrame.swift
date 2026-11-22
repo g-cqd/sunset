@@ -1,8 +1,8 @@
 package import SwiftUI
 
-/// The sidebar and the Library's rail side by side (roadmap 0031; the owner, 2026-11-15): the list keeps the width the tabs
-/// have, and the rail is added at the window's edge past a gutter, so that opening the Library widens the sidebar in place.
-/// The list is one view whether or not the rail shows: what is in it changes, it is not taken away and brought back.
+/// The sidebar and the Library's rail side by side: the list keeps the width the tabs have, and the rail is added at the
+/// window's edge past a gutter, so that opening the Library widens the sidebar in place. The list is one view whether or
+/// not the rail shows: what is in it changes, it is not taken away and brought back.
 package struct LibraryFrame<List: View, Rail: View>: View {
     /// The rail is at the leading end (a sidebar on the left: the window's edge is there).
     let railLeading: Bool

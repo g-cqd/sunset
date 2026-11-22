@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetShellModel
 
-/// Firefox's containers become Sunset profiles (roadmap 0111 D), once.
+/// Firefox's containers become Sunset profiles, once.
 @MainActor @Suite("Containers as profiles")
 struct ProfilesImportTests {
     @Test func `each name a profile, after the others; a name taken, or given twice, is not made again`() {

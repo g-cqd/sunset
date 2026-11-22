@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// What is behind a pane's content (the owner, 2026-11-15): "background for documents and all other panes should use the same
-/// background we use for terminals screens". The terminal's default background and how opaque it is, given to every pane.
+/// What is behind a pane's content: "background for documents and all other panes should use the same background we use
+/// for terminals screens". The terminal's default background and how opaque it is, given to every pane.
 @MainActor @Suite("The background of a pane") struct PaneBackdropTests {
     /// The middle of `view` drawn 20 pt square, as sRGB bytes (red, green, blue, alpha), not premultiplied.
     func pixel(_ view: some View) throws -> [Double] {
@@ -56,8 +56,8 @@ import Testing
         #expect(abs(colour[3] - 0.5) < 0.02, "\(colour)")
     }
 
-    /// Measured in the app (diary 2026-11-15-02): with `terminal.opacity` 0.2 over the window's 44 grey a terminal is 27 and a
-    /// document drawn once at 0.2 was 35. A terminal has its background twice, its layer's colour and its frame's pixels.
+    /// Measured in the app: with `terminal.opacity` 0.2 over the window's 44 grey a terminal is 27 and a document drawn
+    /// once at 0.2 was 35. A terminal has its background twice, its layer's colour and its frame's pixels.
     @Test func `it is as opaque as a terminal is seen, whose background is composed twice`() {
         #expect(PaneBackdrop(rgb: nil, terminalAlpha: 255).alpha == 1)
         #expect(PaneBackdrop(rgb: nil, terminalAlpha: 0).alpha == 0)

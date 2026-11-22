@@ -4,8 +4,8 @@ import Testing
 
 @testable import SunsetShell
 
-/// The owner's note n62: in the site settings popover "icons are not in a regular, consistently sized container, so text
-/// misaligns across lines". Rows whose symbols differ in width start their titles at one place.
+/// In the site settings popover "icons are not in a regular, consistently sized container, so text misaligns across
+/// lines". Rows whose symbols differ in width start their titles at one place.
 @MainActor @Suite("A row's label: one box for every symbol")
 struct RowLabelStyleTests {
     private final class Starts {

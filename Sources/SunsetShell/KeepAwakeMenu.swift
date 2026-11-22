@@ -1,8 +1,8 @@
 package import SunsetPane
 package import SwiftUI
 
-/// "Keep Mac Awake" in a tab's menu, a kept entry's, or the window's (roadmap 0035 E, 0036 C): until it is closed, or until
-/// its command ends (only while one runs). The item that is on is ticked; choosing it again turns it off.
+/// "Keep Mac Awake" in a tab's menu, a kept entry's, or the window's (0036 C): until it is closed, or until its command
+/// ends (only while one runs). The item that is on is ticked; choosing it again turns it off.
 package struct KeepAwakeMenu: View {
     enum Target {
         case window

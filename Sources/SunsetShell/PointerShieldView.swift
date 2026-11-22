@@ -1,6 +1,6 @@
 package import SwiftUI
 
-/// A surface that the pointer does not pass through (owner, 2026-11-13, t232): clicks, scrolls and hover stop at it, and the
+/// A surface that the pointer does not pass through (owner, 2026-11-13): clicks, scrolls and hover stop at it, and the
 /// views beneath in its window ignore the pointer while it is there. A click on it runs `onClick`.
 package struct PointerShieldView: NSViewRepresentable {
     let onClick: () -> Void

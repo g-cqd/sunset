@@ -1,10 +1,10 @@
 import SunsetPane
 import SwiftUI
 
-/// A Space's editor (roadmap 0021 step S-c; the owner, 2026-11-17: "more contained, with 3 fields, and a save and
-/// cancel"): its name, its colour, which tints the window that shows the Space and nothing else, and its icon. The colour
-/// and the icon are fields that open their pickers; neither picker is shown before it is asked for. Nothing is the
-/// Space's until Save, and a new Space is not made before.
+/// A Space's editor ("more contained, with 3 fields, and a save and cancel"): its name, its colour, which tints the
+/// window that shows the Space and nothing else, and its icon. The colour and the icon are fields that open their
+/// pickers; neither picker is shown before it is asked for. Nothing is the Space's until Save, and a new Space is not
+/// made before.
 struct SpaceSheet: View {
     let tabs: TabsModel
     @State var draft: SpaceDraft
@@ -82,7 +82,7 @@ struct SpaceSheet: View {
         .onAppear { naming = true }
     }
 
-    /// The profile, once there are several (R4: the Space's own editor is one of the places a profile is chosen).
+    /// The profile, once there are several (the Space's own editor is one of the places a profile is chosen).
     @ViewBuilder private var profileRow: some View {
         if let profiles = tabs.spaces?.profiles, profiles.profiles.count > 1 {
             VStack(alignment: .leading, spacing: Design.Space.xs) {

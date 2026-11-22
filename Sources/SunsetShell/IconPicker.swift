@@ -2,15 +2,15 @@ import AppKit
 package import SunsetPane
 package import SwiftUI
 
-/// Picks an icon (R3 step c; the owner, 2026-11-17: fast, and "emojis as well as symbols"): a search over the system's
-/// symbols and emoji, the symbols by category, the emoji in one list, a colour for a symbol, and no icon. What is typed
-/// finds symbols first, then emoji. The catalogs are kept between openings (`IconLibrary`), what is found is kept until
-/// the search changes, and the grid draws itself (`IconGridView`).
+/// Picks an icon, fast, among symbols and emoji: a search over the system's symbols and emoji, the symbols by category,
+/// the emoji in one list, a colour for a symbol, and no icon. What is typed finds symbols first, then emoji. The
+/// catalogs are kept between openings (`IconLibrary`), what is found is kept until the search changes, and the grid
+/// draws itself (`IconGridView`).
 package struct IconPicker: View {
     @Binding var icon: PaneIcon?
     /// Whether the colours are offered here; not when the form around the picker has a field for them.
     var showsColours = true
-    /// What the way back to no icon of its own says (a page: "Use Site Icon", roadmap 0036 A).
+    /// What the way back to no icon of its own says (a page: "Use Site Icon").
     var clearTitle = "No Icon"
     @State private var catalogs: IconCatalogs? = IconLibrary.shared.ready
     @State private var query = ""
@@ -143,7 +143,7 @@ package struct IconPicker: View {
         .opacity(searching ? Design.Fill.notApplicable : 1)
     }
 
-    /// A colour is for a symbol only (R3): with an emoji or no icon, the row is dimmed.
+    /// A colour is for a symbol only: with an emoji or no icon, the row is dimmed.
     private var colours: some View {
         let isSymbol = if case .symbol? = icon { true } else { false }
         return IconColourRow(color: Binding(get: { icon?.color }, set: { icon = icon?.colored($0) }))

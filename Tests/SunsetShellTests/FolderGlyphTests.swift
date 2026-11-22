@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n56: "Previews don't show the custom icon for folders". The folder's row and its card under the pointer
-/// show the same glyph: the folder's own icon when it has one the system can draw, else a folder, filled while open.
+/// "Previews don't show the custom icon for folders". The folder's row and its card under the pointer show the same
+/// glyph: the folder's own icon when it has one the system can draw, else a folder, filled while open.
 @MainActor @Suite("A folder's glyph, in its row and its card")
 struct FolderGlyphTests {
     private func folder(icon: PaneIcon?) throws -> Favorites.Folder {

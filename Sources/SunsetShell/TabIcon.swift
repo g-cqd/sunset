@@ -54,7 +54,7 @@ package struct TabIcon: View {
         } else if let model {
             PaneGlyphView(glyph: model.glyph)
         } else if let saved, let picture = savedPicture(saved) {
-            // A page not loaded: its site's icon, kept (roadmap 0035 H).
+            // A page not loaded: its site's icon, kept.
             PaneGlyphView(glyph: picture)
         } else {
             PaneGlyphView(

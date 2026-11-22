@@ -11,7 +11,7 @@ import SunsetRuntime
 /// symbol in it, then one that drew nothing at all).
 @MainActor
 final class IconPictures {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     var runtime = Runtime.live
 
     struct Picture: @unchecked Sendable {

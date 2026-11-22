@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Roadmap 0047 I (the owner, 2026-11-18, a screenshot of 11:56): a kept page that was the one shown at quit came back
-/// open but not made; its tile was drawn as loaded, and its preview said "Terminal" with a folder for a picture.
+/// A kept page that was the one shown at quit came back open but not made; its tile was drawn as loaded, and its
+/// preview said "Terminal" with a folder for a picture.
 @MainActor @Suite("A kept entry back from the session, not made yet")
 struct KeptEntryLoadedTests {
     @Test func `it is not drawn as loaded, and its preview reads its saved page until it is made`() throws {

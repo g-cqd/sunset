@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// A symbol struck through as SF Symbols' own `.slash` variants are (the owner, 2026-11-19): the symbol cut away along a
-/// band around the slash, so that the two never touch, and the slash as thick as the symbol's strokes at its weight. For a
-/// symbol that has no slashed variant (the cup).
+/// A symbol struck through as SF Symbols' own `.slash` variants are: the symbol cut away along a band around the slash, so
+/// that the two never touch, and the slash as thick as the symbol's strokes at its weight. For a symbol that has no
+/// slashed variant (the cup).
 struct SlashedSymbol: View {
     let name: String
     let size: Double

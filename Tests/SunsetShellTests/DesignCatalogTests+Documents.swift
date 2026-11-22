@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Mock-ups for the Documents section of the sidebar (roadmap 0030 step ST-5): where it sits, how it is headed, what an open
-/// document looks like. Drawn with plain shapes for the owner to choose from; nothing here is the built section.
+/// Mock-ups for the Documents section of the sidebar: where it sits, how it is headed, what an open document looks
+/// like. Drawn with plain shapes to choose from; nothing here is the built section.
 extension DesignCatalogTests {
     enum DocumentTrail {
         case none, close, unload, chevronUp
@@ -224,7 +224,7 @@ extension DesignCatalogTests {
         )
     }
 
-    @Test func `the Documents section, drawn for the owner`() throws {
+    @Test func `the Documents section, drawn to choose from`() throws {
         guard let folder = ProcessInfo.processInfo.environment["SUNSET_CATALOG"].map({ URL(fileURLWithPath: $0) })
         else { return }
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

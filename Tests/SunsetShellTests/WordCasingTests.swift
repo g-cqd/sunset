@@ -3,9 +3,8 @@ import SunsetConfig
 import SunsetHelp
 import Testing
 
-/// The owner's note n21 (2026-11-18): "some words might … benefit an improved/refined casing/case like HTTP or HTTPS instead
-/// of http and https". In what Settings and Help say (not the words a search is found by, not an address or a file's name),
-/// a protocol's or a format's name is written as its standard writes it.
+/// In what Settings and Help say (not the words a search is found by, not an address or a file's name), a protocol's or
+/// a format's name is written as its standard writes it.
 @Suite("The names of protocols and formats, cased")
 struct WordCasingTests {
     /// Each name, as written.

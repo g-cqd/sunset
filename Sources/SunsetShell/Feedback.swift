@@ -1,7 +1,7 @@
 import AppKit
 
-/// Says back what a click did (the owner's note n11), outside what the button itself shows: the trackpad (a light tap when
-/// it went through, a firmer one when it was blocked, on a Force Touch trackpad only) and VoiceOver (its announcement).
+/// Says back what a click did, outside what the button itself shows: the trackpad (a light tap when it went through, a
+/// firmer one when it was blocked, on a Force Touch trackpad only) and VoiceOver (its announcement).
 @MainActor
 package enum Feedback {
     /// Whether the trackpad taps (`appearance.haptics`).
@@ -26,7 +26,7 @@ package enum Feedback {
         )
     }
 
-    /// A drag snapped onto a new place that takes it (note n79): the alignment tick, the lightest the trackpad has.
+    /// A drag snapped onto a new place that takes it: the alignment tick, the lightest the trackpad has.
     package static func snapped() {
         guard taps else { return }
         NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)

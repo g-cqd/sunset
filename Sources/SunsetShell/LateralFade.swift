@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// The mask of the sidebar's list while it swipes between Spaces (the owner, 2026-11-17): the rows are cut at the sidebar's
-/// sides and fade there, instead of passing under the panes. At rest the mask reaches past the sides, so nothing is cut (a
-/// drop's outline is drawn past the rows). From one to the other the two masks are cross-faded, their edges where they are
-/// (roadmap 0047 C: moving the edges 400 points out took the fade off the sidebar in the first frames).
+/// The mask of the sidebar's list while it swipes between Spaces: the rows are cut at the sidebar's sides and fade there,
+/// instead of passing under the panes. At rest the mask reaches past the sides, so nothing is cut (a drop's outline is
+/// drawn past the rows). From one to the other the two masks are cross-faded, their edges where they are (moving the edges
+/// 400 points out took the fade off the sidebar in the first frames).
 struct LateralFade: View {
     let sliding: Bool
 

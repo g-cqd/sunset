@@ -5,7 +5,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n26: in a sentence, the host or the address is code, the words are not.
+/// In a sentence, the host or the address is code, the words are not.
 @Suite("A host in a sentence") struct CodeSpansTests {
     @Test func `the host is code, every time it is there, and nothing else`() {
         let text = Text.codeSpans("meet.example wants to use your camera; meet.example asked before.", ["meet.example"])

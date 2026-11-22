@@ -2,17 +2,17 @@ import SunsetMetrics
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// The gap between two rows of the sidebar as a place to drop (the owner, 2026-11-17, roadmap 0038 F): "the spacing between
-/// tabs […] might be one interactive target for dropping that only highlights when hovered during drag and drop". It is as
-/// tall as the rows' spacing (nothing at the ends of a section), and takes a drop over a band reaching a quarter into the
-/// rows beside it; a line in its middle shows only while a drop it would take is over it.
+/// The gap between two rows of the sidebar as a place to drop: "the spacing between tabs […] might be one interactive
+/// target for dropping that only highlights when hovered during drag and drop". It is as tall as the rows' spacing
+/// (nothing at the ends of a section), and takes a drop over a band reaching a quarter into the rows beside it; a line in
+/// its middle shows only while a drop it would take is over it.
 struct GapDrop: View {
     let tabs: TabsModel
     let layout: ShellSettings.Layout
     let place: SectionDrop
     /// As tall as the rows' spacing between two rows; nothing at a section's top or bottom.
     var between = true
-    /// Its line shows while a drop it would take is over it; off where the rows make room instead (n79).
+    /// Its line shows while a drop it would take is over it; off where the rows make room instead.
     var line = true
     /// Told when a drop it would take comes over it and leaves.
     var onTargeted: (Bool) -> Void = { _ in }
@@ -78,12 +78,12 @@ struct GapDrop: View {
 }
 
 extension ShellSettings.Layout {
-    /// How far a row's drop line reaches past its edge, to sit in the middle of the gap beside it (roadmap 0038 F).
+    /// How far a row's drop line reaches past its edge, to sit in the middle of the gap beside it.
     var gapMarkOutset: Double {
         (tabSpacing + Design.Space.hair) / 2
     }
 
-    /// How much room the rows make where a dragged tab would go (note n79): a third of a row.
+    /// How much room the rows make where a dragged tab would go: a third of a row.
     var rowMakingRoom: Double {
         Design.Space.xl
     }

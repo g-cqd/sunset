@@ -1,8 +1,8 @@
 import SunsetPane
 import SwiftUI
 
-/// A folder's glyph, the same in its row and in its card under the pointer (the owner's note n56: the card showed a plain
-/// folder): its own icon when it has one the system can draw, else a folder, filled while open.
+/// A folder's glyph, the same in its row and in its card under the pointer (the card showed a plain folder): its own
+/// icon when it has one the system can draw, else a folder, filled while open.
 struct FolderGlyph: View {
     let folder: Favorites.Folder
     let open: Bool

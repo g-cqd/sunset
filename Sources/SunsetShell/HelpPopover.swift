@@ -14,7 +14,7 @@ struct HelpPopover: View {
                 Text(RichText.attributed(paragraph)).fixedSize(horizontal: false, vertical: true)
             }
             if !entry.expert.isEmpty {
-                // As wide as the popover, as its other paragraphs (the owner's note n62).
+                // As wide as the popover, as its other paragraphs.
                 Fold("For experienced users", isExpanded: $showsExpert) {
                     VStack(alignment: .leading, spacing: Design.Space.s) {
                         ForEach(Array(entry.expert.enumerated()), id: \.offset) { _, paragraph in

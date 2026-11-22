@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetHelp
 
-/// A setting with a topic shows a "?" beside it (roadmap 0041 C).
+/// A setting with a topic shows a "?" beside it.
 @Suite("Help beside settings")
 struct HelpSettingsTests {
     @Test func `a setting is explained by its topic, and one without none`() {

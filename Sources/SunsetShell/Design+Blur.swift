@@ -1,7 +1,7 @@
 package import AemiSDR
 
 extension Design {
-    /// The blurs under the bars and behind the command bar (Sunset research/blur, variant A; AemiSDR roadmap 0020).
+    /// The blurs under the bars and behind the command bar (variant A of the blurs studied, `docs/research`).
     package enum Blur {
         /// Under a bar: full over the bar, falling to none over a bar's height beyond it.
         package static let barRadius = 8.0

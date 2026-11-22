@@ -1,8 +1,8 @@
 package import SunsetRuntime
 package import SwiftUI
 
-/// A button with words that says what its click did (the owner's note n11): for a moment its title becomes what was done
-/// ("Copied", with a check) or why not (with a cross), with the trackpad's tap and VoiceOver's announcement (`Feedback`).
+/// A button with words that says what its click did: for a moment its title becomes what was done ("Copied", with a
+/// check) or why not (with a cross), with the trackpad's tap and VoiceOver's announcement (`Feedback`).
 package struct FeedbackButton: View {
     @Environment(\.runtime) var runtime
 

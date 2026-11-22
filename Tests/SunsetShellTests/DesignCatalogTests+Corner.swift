@@ -6,8 +6,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The button at the window's bottom corner as built (the owner's A1, 2026-11-15): the real face, pressed so that its shape
-/// shows, in a corner of the window's radius, before (5 pt from the bottom, four corners of 5) and after.
+/// The button at the window's bottom corner as built (2026-11-15): the real face, pressed so that its shape shows, in a
+/// corner of the window's radius, before (5 pt from the bottom, four corners of 5) and after.
 extension DesignCatalogTests {
     private func corner(_ buttons: SidebarButtons, bottom: Double, named: SidebarButtonCorner?) -> some View {
         let window = UnevenRoundedRectangle(bottomTrailingRadius: buttons.windowRadius, style: .continuous)
@@ -24,7 +24,7 @@ extension DesignCatalogTests {
         .environment(\.colorScheme, .dark)
     }
 
-    @Test func `the button at the window's corner as built, drawn for the owner`() throws {
+    @Test func `the button at the window's corner as built, drawn`() throws {
         guard let folder = ProcessInfo.processInfo.environment["SUNSET_CATALOG"].map({ URL(fileURLWithPath: $0) })
         else { return }
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

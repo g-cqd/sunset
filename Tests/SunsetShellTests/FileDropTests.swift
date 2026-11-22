@@ -3,9 +3,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// A file dropped on the window (R6, roadmap 0023 step M-f, ADR-0040): on a terminal its path is typed for the program
-/// there, as in every terminal; anywhere else it opens as a document. A dropped name is not the person's typing: one that
-/// holds a control character is never sent to a shell.
+/// A file dropped on the window: on a terminal its path is typed for the program there, as in every terminal; anywhere
+/// else it opens as a document. A dropped name is not the person's typing: one that holds a control character is never
+/// sent to a shell.
 @Suite("A dropped file")
 struct FileDropTests {
     @Test func `on a terminal the path is typed, quoted only when the shell would read it otherwise`() {

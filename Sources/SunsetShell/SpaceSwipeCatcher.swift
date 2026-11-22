@@ -1,15 +1,15 @@
 import AppKit
 import SwiftUI
 
-/// Catches the two-finger swipe on the sidebar that changes Space (roadmap 0021 step S-b): put behind the list, it reads
-/// the scroll events of its window that are over it. A gesture that starts sideways is taken from the list (`SpaceSwipe`
-/// says what to do with it); one that starts up or down goes to the list untouched. At the snap the trackpad taps once.
+/// Catches the two-finger swipe on the sidebar that changes Space: put behind the list, it reads the scroll events of
+/// its window that are over it. A gesture that starts sideways is taken from the list (`SpaceSwipe` says what to do with
+/// it); one that starts up or down goes to the list untouched. At the snap the trackpad taps once.
 ///
 /// The gesture cannot be made by a test in the background: the numbers are tested (`SpaceSwipeTests`), this is not.
 struct SpaceSwipeCatcher: NSViewRepresentable {
     let tabs: TabsModel
     let animation: Animation
-    /// Where the Library is to swipe to, past the last Space on the sidebar's side (note n61); nil while it is not offered.
+    /// Where the Library is to swipe to, past the last Space on the sidebar's side; nil while it is not offered.
     let library: SpaceSwipe.LibrarySide?
 
     func makeNSView(context: Context) -> CatcherView {
@@ -52,7 +52,7 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
 
         /// Whether the event was this one's (the list does not get it then).
         private func take(_ event: NSEvent) -> Bool {
-            // Not in the settings, whose lists and pages are not the Library's to leave by a swipe (n61).
+            // Not in the settings, whose lists and pages are not the Library's to leave by a swipe.
             guard let tabs, event.window === window, bounds.contains(convert(event.locationInWindow, from: nil)),
                 !(tabs.sections.isLibraryOpen && tabs.sections.library == .settings),
                 SpaceSwipe.listens(

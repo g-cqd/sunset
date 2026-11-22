@@ -2,7 +2,7 @@ import SunsetPane
 import SunsetShellModel
 import Testing
 
-/// The owner's note n71: the command bar makes a terminal or a document as it makes a page, by its rows.
+/// The command bar makes a terminal or a document as it makes a page, by its rows.
 @Suite("The command bar's new-tab kinds")
 struct NewKindChoicesTests {
     private let all = Scopes()
@@ -22,7 +22,7 @@ struct NewKindChoicesTests {
         #expect(NewKindChoices.kinds(typed: "example.com", forNewPage: true, scopes: all).isEmpty)
     }
 
-    /// n82: Shift-Cmd-T opens the command bar with the kinds of tab, a web page among them, those that are on.
+    /// Shift-Cmd-T opens the command bar with the kinds of tab, a web page among them, those that are on.
     @Test func `a new tab's kinds: all that are on unasked; typed words narrow them`() {
         #expect(NewKindChoices.newTab(typed: "", scopes: all) == [.terminal, .page, .document])
         #expect(NewKindChoices.newTab(typed: "web", scopes: all) == [.page])

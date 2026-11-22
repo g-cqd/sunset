@@ -2,8 +2,8 @@ import SunsetPane
 import SwiftUI
 
 /// What the contents of a tab's panes add to its menu (`PaneContent.menuActions`): one pane's items in the menu itself, a
-/// split's under each pane's name (the owner's note n8: the split's container offers what fits its parts). The tab is shown
-/// and the pane given the keyboard first, so that what opens beside the page (its site's settings) has it.
+/// split's under each pane's name (the split's container offers what fits its parts). The tab is shown and the pane given
+/// the keyboard first, so that what opens beside the page (its site's settings) has it.
 struct PaneActionsMenu: View {
     let tabs: TabsModel
     let panes: [PaneID]

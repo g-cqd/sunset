@@ -5,21 +5,21 @@ import SunsetPane
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// The Pinned grid, at the top of the sidebar (R4; roadmap 0021, P-b; ADR-0050): the app's kept entries as tiles of icons,
-/// the same in every Space. A click shows an entry (opening it when it is not open); everything else is in its menu. A
-/// loaded entry has a line inside its tile, an unloaded one none. A tab's row dragged over the grid is given a slot, empty
-/// and unseen, where it will land; dropped, it is pinned.
+/// The Pinned grid, at the top of the sidebar (P-b): the app's kept entries as tiles of icons, the same in every Space. A
+/// click shows an entry (opening it when it is not open); everything else is in its menu. A loaded entry has a line inside
+/// its tile, an unloaded one none. A tab's row dragged over the grid is given a slot, empty and unseen, where it will
+/// land; dropped, it is pinned.
 struct PinnedGrid: View {
     let tabs: TabsModel
     let layout: ShellSettings.Layout
     @State private var targeted = false
-    /// The tile a drag is over, and on which side of it it would land (roadmap 0035 A).
-    /// The tile a drag is over, and whether it would land after it.
+    /// The tile a drag is over, and on which side of it it would land. The tile a drag is over, and whether it would
+    /// land after it.
     @State private var tileDrop: (owner: Int, place: Bool)?
     @State private var tileWidths: [Favorites.NodeID: Double] = [:]
     @Environment(\.accent) private var accent
 
-    /// A drag under way would be pinned here: the grid is there, even empty, and outlined (the owner, 2026-11-17).
+    /// A drag under way would be pinned here: the grid is there, even empty, and outlined.
     private var takesDrag: Bool {
         tabs.dragTargets?.pinned == true
     }
@@ -45,8 +45,8 @@ struct PinnedGrid: View {
                         )
                         .transition(.scale(scale: 0.6).combined(with: .opacity))
                 }
-                // The place kept for what is being dragged in (the owner, 2026-11-17: "an invisible placeholder slot"),
-                // outlined as the grid is while the drag is under way.
+                // The place kept for what is being dragged in ("an invisible placeholder slot"), outlined as the grid
+                // is while the drag is under way.
                 if takesDrag {
                     Color.clear
                         .dropTarget(shown: true, targeted: targeted, radius: layout.tabRadius)
@@ -55,15 +55,15 @@ struct PinnedGrid: View {
             }
             .animation(layout.smooth, value: entries.map(\.id))
             .animation(layout.smooth, value: takesDrag)
-            // The tiles reach the rows' edges (the owner, 2026-11-17, roadmap 0035 B); the grid's outline is drawn around them,
-            // past the edges, so that it does not move them.
+            // The tiles reach the rows' edges; the grid's outline is drawn around them, past the edges, so that it does
+            // not move them.
             .background {
                 Color.clear
                     .padding(-Design.Space.xs)
                     .dropTarget(shown: takesDrag && !entries.isEmpty, targeted: false, radius: layout.tabRadius)
             }
             .padding(.top, Design.Space.xs)
-            // The line under the grid, as under the Favorites (roadmap 0038 E); the rows' spacing above it.
+            // The line under the grid, as under the Favorites; the rows' spacing above it.
             .padding(.bottom, layout.tabSpacing)
             .overlay(alignment: .bottom) {
                 SectionSeparator(layout: layout, visible: tabs.linesShown.afterPinned && !takesDrag)
@@ -92,7 +92,7 @@ struct PinnedGrid: View {
     private func tile(_ entry: Favorites.Entry) -> some View {
         let shown = tabs.workspace.selectedEntry == entry.id
         let pane = entry.open?.focused ?? entry.home.focused
-        // The corner of a tab's row (the owner, 2026-11-17): a tile is a tab, shown as its icon.
+        // The corner of a tab's row: a tile is a tab, shown as its icon.
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         // Its clicks as a row's (n7's cause: a button with a drag took the clicks before a double click was seen): a click
         // shows it, a double click of its own takes an away page back or asks its name.
@@ -109,15 +109,15 @@ struct PinnedGrid: View {
                 in: shape
             )
             .overlay {
-                // Loaded: a line inside the tile, which does not change its size; none when it is not loaded (the owner,
-                // 2026-11-17). In the accent's colour for the one this window shows.
+                // Loaded: a line inside the tile, which does not change its size; none when it is not loaded. In the
+                // accent's colour for the one this window shows.
                 Group {
                     if shown { shape.focusHairline(layout, accent: accent.color) } else { shape.hoverHairline(layout) }
                 }
                 .opacity(tabs.isLoaded(entry: entry) ? 1 : 0)
             }
             .overlay(alignment: .topTrailing) {
-                // Kept awake (roadmap 0036 C): a cup in its corner.
+                // Kept awake: a cup in its corner.
                 if entry.isOpen, tabs.keepsAwake(entry: entry.id) != nil {
                     Image(systemName: "cup.and.saucer.fill")
                         .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))

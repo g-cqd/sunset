@@ -2,9 +2,9 @@ import SunsetMetrics
 import SwiftUI
 
 /// The app's accessory at the top of the sidebar, under the window's buttons: the address of the focused page, or the field
-/// where a search, an address or a command is typed (web step b; roadmap 0035 G).
+/// where a search, an address or a command is typed (web step b).
 extension TabSidebar {
-    /// A tab's row: the field is as tall as one (the owner, 2026-11-17, roadmap 0035 G).
+    /// A tab's row: the field is as tall as one.
     var accessoryHeight: Double {
         Design.oneLineHeight(layout, height: Design.Size.tabRow)
     }
@@ -19,7 +19,7 @@ extension TabSidebar {
         notices == nil || noticesHeight == 0 ? 0 : noticesHeight + layout.tabSpacing
     }
 
-    /// The calls to action, under the accessory (roadmap 0035 I).
+    /// The calls to action, under the accessory.
     @ViewBuilder var noticesView: some View {
         if let notices {
             notices
@@ -36,7 +36,7 @@ extension TabSidebar {
     @ViewBuilder var accessoryView: some View {
         if let accessory {
             accessory
-                // A tab's corner and its leading padding (roadmap 0035 G).
+                // A tab's corner and its leading padding.
                 .environment(\.controlRadius, layout.tabRadius)
                 .environment(\.controlPadding, layout.tabPaddingLeading)
                 .environment(\.controlHeight, accessoryHeight)

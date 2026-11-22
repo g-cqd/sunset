@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetShellModel
 
-/// Seen on screen (n72): a terminal's card was its whole window shrunk, the prompt a yellow dot. It shows the top left,
-/// 80 columns wide, at the card's ratio.
+/// Seen on screen: a terminal's card was its whole window shrunk, the prompt a yellow dot. It shows the top left, 80
+/// columns wide, at the card's ratio.
 @Suite("A terminal's share card")
 struct TerminalPreviewCropTests {
     @Test func `a wide terminal shows its top-left 80 columns, at the card's ratio`() {

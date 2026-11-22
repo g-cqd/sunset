@@ -1,8 +1,8 @@
 package import SunsetPane
 package import SwiftUI
 
-/// The card of a folder of the Favorites under the pointer (the owner's note n77): "the list of tabs present in the folder,
-/// not a tree", open ones first, the most recently used first, then the others in the folder's order
+/// The card of a folder of the Favorites under the pointer: "the list of tabs present in the folder, not a tree", open
+/// ones first, the most recently used first, then the others in the folder's order
 /// (`FavoritesModel.previewEntries(in:)`). At most `limit` rows, then how many more.
 package struct FolderPreviewCard: View {
     let folder: Favorites.Folder

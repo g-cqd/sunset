@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Roadmap 0045 E: the sides' fade comes with the swipe and goes after it, animated, not in the frame the slide ends.
+/// The sides' fade comes with the swipe and goes after it, animated, not in the frame the slide ends.
 @MainActor @Suite("The sides' fade of a Space's swipe, in time")
 struct LateralFadeTimingTests {
     @Test func `the fade is on from the first move and goes in an animation of its own after the slide`() {

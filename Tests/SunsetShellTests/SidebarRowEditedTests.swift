@@ -6,7 +6,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Where a row says its document has edits that are not saved (owner note n76): at the row's end, just before the close button.
+/// Where a row says its document has edits that are not saved: at the row's end, just before the close button.
 @MainActor
 @Suite("The edited mark of a sidebar row")
 struct SidebarRowEditedTests {

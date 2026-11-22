@@ -7,8 +7,8 @@ struct ChoiceRowView: View {
     @Environment(\.accent) private var accent
     @State private var width = 0.0
 
-    /// What a row shows by its width (roadmap 0036 B): in a narrow one (the sidebar's) the title has the room first, the
-    /// subtitle goes, then the accessory.
+    /// What a row shows by its width: in a narrow one (the sidebar's) the title has the room first, the subtitle goes,
+    /// then the accessory.
     struct Parts: Equatable {
         static let subtitleWidth = 400.0
         static let accessoryWidth = 300.0

@@ -1,9 +1,9 @@
 import SunsetPane
 import SwiftUI
 
-/// A tab, a pane or a kept entry dragged over a tab's or a favorite's row (`n25`; the owner's note n84): the top and bottom
-/// quarters put it before or after the row, the middle half splits with the row on the left or right (`TabDropAction`).
-/// What cannot split with the row (a pinned tile, a tab on itself) goes before or after it, by halves.
+/// A tab, a pane or a kept entry dragged over a tab's or a favorite's row: the top and bottom quarters put it before or
+/// after the row, the middle half splits with the row on the left or right (`TabDropAction`). What cannot split with
+/// the row (a pinned tile, a tab on itself) goes before or after it, by halves.
 enum RowDropDelegate {
     @MainActor
     static func make<Owner: Equatable>(

@@ -8,7 +8,7 @@ import UniformTypeIdentifiers
 /// (the window's own colour or material shows through, with the window's settings) and is not a system list: the rows are `SidebarRow`s in a scroll view whose
 /// content starts below the traffic lights and scrolls beneath them, fading out there. A click selects a tab, a drag reorders them.
 package struct TabSidebar: View {
-    /// The ends fade out, or are cut (`appearance.ends`, the owner's note n30).
+    /// The ends fade out, or are cut (`appearance.ends`).
     @Environment(\.fadesEnds) var fadesEnds
     var tabs: TabsModel
     let settings: ShellSettings
@@ -16,7 +16,7 @@ package struct TabSidebar: View {
     var isPreview = false
     /// The pin button was pressed: the sidebar is to stay beside the content, or to hide and float (`sidebar.autoHide`, which the app owns).
     let togglePin: () -> Void
-    /// Beside the pin, toward the traffic lights: the extensions' buttons (roadmap 0109 D).
+    /// Beside the pin, toward the traffic lights: the extensions' buttons.
     let headerExtras: AnyView?
     /// The floating panel: its traffic lights are a little further from the corner.
     var floating = false
@@ -26,19 +26,19 @@ package struct TabSidebar: View {
     var windowRadius = ConcentricRadius.standardWindow
     /// What the app puts at the top, under the window's buttons (the address of the focused page, web step b).
     var accessory: AnyView?
-    /// What the app puts under the accessory: calls to action (roadmap 0035 I); the rows start below it, as tall as it is.
+    /// What the app puts under the accessory: calls to action; the rows start below it, as tall as it is.
     var notices: AnyView?
     /// What the app puts at the bottom, against the window's edge (the + button and downloads, R2 and web step f).
     var bottomBar: AnyView?
-    /// How many buttons high the bar is: two while the downloads' button is above the Library's glyph (notes n60, n61).
+    /// How many buttons high the bar is: two while the downloads' button is above the Library's glyph.
     var bottomBarRows = 1
     /// The row a drag is over, and what a drop there would do.
     @State var rowDrop: (owner: Workspace.ItemID, place: TabDropAction)?
-    /// The gap between tabs a drag is over (before the tab at this index): the rows beside it move apart (n79, n84).
+    /// The gap between tabs a drag is over (before the tab at this index): the rows beside it move apart.
     @State var gapRoom: Int?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
     @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
-    /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
+    /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar.
     @State private var closingSlot: Int?
     /// How far Today's tabs are scrolled down: the fade at their top grows with it.
     @State var scrolledBy = 0.0
@@ -95,12 +95,12 @@ package struct TabSidebar: View {
 
     private var whole: some View {
         VStack(spacing: layout.tabSpacing) {
-            // One scroll view for the Pinned grid, the Favorites and Today's tabs (the owner's note n56, ADR-0088): in a short
-            // window it takes what the header and the bottom bar leave, and never pushes them out. The swipe between Spaces
-            // moves each part, with the neighbour's beside them.
+            // One scroll view for the Pinned grid, the Favorites and Today's tabs: in a short window it takes what the
+            // header and the bottom bar leave, and never pushes them out. The swipe between Spaces moves each part, with
+            // the neighbour's beside them.
             ScrollView {
                 VStack(spacing: layout.tabSpacing) {
-                    // Still while the swipe is to a Space that shows the same (roadmap 0044 A, E).
+                    // Still while the swipe is to a Space that shows the same.
                     pinnedPart
                         .onGeometryChange(for: Double.self, of: { Double($0.size.height) }) { keptHeights.pinned = $0 }
                         .offset(x: tabs.slide.beside?.shares(.pinned) == true ? 0 : tabs.slide.shift)
@@ -119,13 +119,13 @@ package struct TabSidebar: View {
             .onScrollGeometryChange(for: Double.self, of: { Double($0.contentOffset.y + $0.contentInsets.top) }) {
                 scrolledBy = max($1, 0)
             }
-            // Rows that scroll past either end fade out: an alpha mask, no blur (roadmap 0035 F).
+            // Rows that scroll past either end fade out: an alpha mask, no blur.
             .mask { fade }
         }
-        // The neighbour's list, a column of its own from the top (roadmap 0045 E).
+        // The neighbour's list, a column of its own from the top.
         .overlay(alignment: .top) { besideColumn }
-        // Swiping between Spaces, cut and faded at the sidebar's sides, not under the panes (the owner, 2026-11-17); the
-        // fade comes and goes in its own time (roadmap 0045 E).
+        // Swiping between Spaces, cut and faded at the sidebar's sides, not under the panes; the fade comes and goes in
+        // its own time.
         .mask { LateralFade(sliding: tabs.slide.masks || tabs.slide.beside != nil || tabs.slide.shift != 0) }
         .padding(.top, topInset)
         .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frame in

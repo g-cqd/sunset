@@ -1,8 +1,8 @@
 import SunsetPane
 import SwiftUI
 
-/// Move to Space, in the menu of a tab or of a selection (roadmap 0021 step S-c): the other Spaces, by name. The tabs go
-/// there running and the window follows them. Not shown while there is one Space.
+/// Move to Space, in the menu of a tab or of a selection: the other Spaces, by name. The tabs go there running and the
+/// window follows them. Not shown while there is one Space.
 struct MoveToSpaceMenu: View {
     let tabs: TabsModel
     let rows: [RowTarget]

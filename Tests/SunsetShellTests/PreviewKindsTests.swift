@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-18: "a setting to disable the previews (totally but also by kinds and even to disable it for folders
-/// or terminal or documents)".
+/// "a setting to disable the previews (totally but also by kinds and even to disable it for folders or terminal or
+/// documents)".
 @Suite("Which rows show a preview")
 struct PreviewKindsTests {
     @Test func `all by default; off, none; by kind, a tab of a kind turned off has none`() {

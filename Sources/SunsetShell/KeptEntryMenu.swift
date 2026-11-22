@@ -38,7 +38,7 @@ struct KeptEntryMenu: View {
             Button("Rename") { tabs.renamingRow = .node(entry.id) }
             Button("Change Icon\u{2026}") { tabs.iconRow = .node(entry.id) }
         }
-        // Run Command Now with Option (task t135).
+        // Run Command Now with Option.
         if runsTerminal {
             Button("Edit Command\u{2026}") { tabs.editingCommand = entry.id }
                 .modifierKeyAlternate(.option) {
@@ -50,8 +50,7 @@ struct KeptEntryMenu: View {
         }
         PaneActionsMenu(tabs: tabs, panes: entry.open?.panes ?? []) { tabs.select(entry: entry.id) }
         Divider()
-        // Where it starts from: gone back to, or set to where it is now.
-        // Set it to where it is now with Option, open (task t135).
+        // Where it starts from: gone back to, or set to where it is now. Set it to where it is now with Option, open.
         Button(isPinned ? "Reset to Where It Was Pinned" : "Reset to Home") { tabs.reset(entry: entry.id) }
             .modifierKeyAlternate(.option) {
                 if entry.isOpen {
@@ -63,14 +62,14 @@ struct KeptEntryMenu: View {
         if entry.isOpen {
             Button("Unload") { tabs.unload(entry: entry.id) }
             if let open = entry.open, open.isSplit {
-                // Any pane out of a kept split, into a tab of its own (the owner, 2026-11-17).
+                // Any pane out of a kept split, into a tab of its own.
                 Menu("Move Pane to Its Own Tab") {
                     ForEach(open.panes, id: \.self) { pane in
                         Button(tabs.content(pane)?.title ?? "Pane") { tabs.separate(pane: pane) }
                     }
                 }
             }
-            // While it is open: unloading it lets go (roadmap 0036 C).
+            // While it is open: unloading it lets go.
             KeepAwakeMenu(tabs: tabs, entry: entry.id)
         }
         Divider()

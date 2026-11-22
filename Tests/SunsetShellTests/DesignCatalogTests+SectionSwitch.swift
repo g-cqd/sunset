@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Mock-ups of the switch at the foot of a sidebar (roadmap 0031, the owner's choice P3): six looks for the row of sections,
-/// then how it sits with the + of the tab sidebar. Drawn with plain shapes for the owner to choose from; nothing is built.
+/// Mock-ups of the switch at the foot of a sidebar: six looks for the row of sections, then how it sits with the + of
+/// the tab sidebar. Drawn with plain shapes to choose from; nothing is built.
 extension DesignCatalogTests {
     /// How a foot's switch is drawn.
     enum FootLook: CaseIterable {
@@ -164,7 +164,7 @@ extension DesignCatalogTests {
         )
     }
 
-    @Test func `the switch at a sidebar's foot, drawn for the owner`() throws {
+    @Test func `the switch at a sidebar's foot, drawn to choose from`() throws {
         guard let folder = ProcessInfo.processInfo.environment["SUNSET_CATALOG"].map({ URL(fileURLWithPath: $0) })
         else { return }
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

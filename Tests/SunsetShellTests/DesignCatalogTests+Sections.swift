@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Mock-ups for sections in the sidebars (roadmap 0031): the switch between History, Documents and the rest, in the panel
-/// opposite the tabs and in the tab sidebar itself. Drawn with plain shapes for the owner to choose from; nothing is built.
+/// Mock-ups for sections in the sidebars: the switch between History, Documents and the rest, in the panel opposite the
+/// tabs and in the tab sidebar itself. Drawn with plain shapes to choose from; nothing is built.
 extension DesignCatalogTests {
     static let sectionGlyphs = ["clock", "doc.text", "arrow.down.circle"]
     static let sidebarGlyphs = ["rectangle.stack", "doc.text", "clock"]
@@ -196,7 +196,7 @@ extension DesignCatalogTests {
         )
     }
 
-    @Test func `the sections of the sidebars, drawn for the owner`() throws {
+    @Test func `the sections of the sidebars, drawn to choose from`() throws {
         guard let folder = ProcessInfo.processInfo.environment["SUNSET_CATALOG"].map({ URL(fileURLWithPath: $0) })
         else { return }
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

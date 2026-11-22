@@ -37,7 +37,7 @@ final class IconGridScrollView: NSScrollView {
     override func tile() {
         super.tile()
         grid.fit(width: contentSize.width)
-        // It bounces only when it has something to scroll (the owner, 2026-11-17).
+        // It bounces only when it has something to scroll.
         verticalScrollElasticity = grid.frame.height > contentSize.height ? .allowed : .none
         horizontalScrollElasticity = .none
     }

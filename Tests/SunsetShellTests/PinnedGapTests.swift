@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-17 (roadmap 0038 D): "the spacing between tabs of the pinned grid should be similar to the one between
-/// tabs": the grid's gap is the rows' spacing, whatever it is set to.
+/// "the spacing between tabs of the pinned grid should be similar to the one between tabs": the grid's gap is the rows'
+/// spacing, whatever it is set to.
 @Suite("The Pinned grid's gap")
 struct PinnedGapTests {
     @Test func `the gap between tiles, across and down, is the one given: the rows' spacing`() {

@@ -3,7 +3,7 @@ package import SwiftUI
 extension Design {
     /// The tab preview card (`TabPreviewHost`).
     package enum Preview {
-        /// From a row to the next, and in and out: quick, without a bounce (owner note n74: 0.3 s was too slow).
+        /// From a row to the next, and in and out: quick, without a bounce (0.3 s was too slow).
         package static let glide = Animation.spring(duration: 0.16, bounce: 0)
         /// How long it stays after the pointer left a row: long enough to reach the next one.
         package static let linger = Duration.milliseconds(140)

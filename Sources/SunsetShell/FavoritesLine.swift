@@ -2,9 +2,9 @@ import SunsetMetrics
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// The thin line between the Favorites and the tabs (R3). A tab dropped on it is kept at the end of the Favorites. While a
-/// drag that it would take is under way it is a place to drop, outlined and said ("Keep in Favorites"). With no Favorites yet it is drawn only
-/// while a tab is held over it: an empty sidebar looks as before.
+/// The thin line between the Favorites and the tabs. A tab dropped on it is kept at the end of the Favorites. While a drag that it would take
+/// is under way it is a place to drop, outlined and said ("Keep in Favorites"). With no Favorites yet it is drawn only while a tab is held
+/// over it: an empty sidebar looks as before.
 struct FavoritesLine: View {
     let tabs: TabsModel
     let layout: ShellSettings.Layout

@@ -1,7 +1,7 @@
 import SunsetPane
 import SwiftUI
 
-/// With no sidebar, the Spaces as one button in the tab bar that names the Space shown and opens a menu of them (R4). Not
+/// With no sidebar, the Spaces as one button in the tab bar that names the Space shown and opens a menu of them. Not
 /// there while there is one Space.
 struct SpacesMenuButton: View {
     let tabs: TabsModel

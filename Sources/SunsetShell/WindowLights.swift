@@ -5,18 +5,18 @@ package import SunsetRuntime
 ///
 /// They stay AppKit's own, in its title bar: they are moved within it, never taken out. AppKit lays its title bar out again
 /// whenever it sees fit (a resize, the window becoming key, full screen, the window shown while the screen is recorded) and
-/// puts each button back at its own place; so the buttons, their bar and its container are watched, and every time one of
-/// them moves the buttons are put back. Taken out of the title bar, as Sunset did before, AppKit took them back in and nothing
-/// noticed: they stayed at its place, the top left, whatever side the sidebar was on (diary 2026-11-15). The way of the
-/// Search browser by Office Commun (its `Lights.swift`, read for this; none of its code is here).
+/// puts each button back at its own place; so the buttons, their bar and its container are watched, and every time one of them
+/// moves the buttons are put back. Taken out of the title bar, as Sunset did before, AppKit took them back in and nothing
+/// noticed: they stayed at its place, the top left, whatever side the sidebar was on. The way of the Search browser by Office
+/// Commun (its `Lights.swift`, read for this; none of its code is here).
 ///
 /// A button cannot be moved while it says that it moved: AppKit's `-[_NSThemeWidget setFrameOrigin:ignoreRentry:]` drops the
 /// call. Each button was so put back while the next one said it had moved, and the last, the zoom button, never: a new title
-/// left it at the top left (diary 2026-11-15-02). So a button that moves is put back again once AppKit is done: at once when
-/// it is the title that changed (the window's title is watched), else on the run loop's next turn, before anything is drawn.
+/// left it at the top left. So a button that moves is put back again once AppKit is done: at once when it is the title that
+/// changed (the window's title is watched), else on the run loop's next turn, before anything is drawn.
 @MainActor
 package final class WindowLights {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     package var runtime = Runtime.live
 
     /// Where the buttons go and whether they show.

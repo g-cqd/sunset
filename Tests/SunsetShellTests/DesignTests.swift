@@ -27,7 +27,7 @@ import Testing
         #expect(Design.Accent.resolve("system", tint: [1, 2, 3]) == .system)
         #expect(Design.Accent.resolve("sunset", tint: nil) == .system)
         #expect(Design.Accent.resolve("sunset", tint: [255, 128, 0]) == .color(red: 255, green: 128, blue: 0))
-        #expect(Design.Accent.resolve("sunset", tint: [0, 0, 0]) == .system, "the owner's black tint")
+        #expect(Design.Accent.resolve("sunset", tint: [0, 0, 0]) == .system, "a black tint")
         #expect(Design.Accent.resolve("sunset", tint: [250, 250, 250]) == .system)
         #expect(Design.Accent.resolve("neutral", tint: nil) == .neutral)
     }

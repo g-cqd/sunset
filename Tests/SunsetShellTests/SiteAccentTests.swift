@@ -3,8 +3,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Roadmap 0047 H (the owner, 2026-11-18): "derive the color of the focused tab accent color from either the icon of the
-/// website or the website theme color themselves".
+/// "derive the color of the focused tab accent color from either the icon of the website or the website theme color
+/// themselves".
 @Suite("The accent from the site shown")
 struct SiteAccentTests {
     @Test func `the site's theme colour first, then its icon's, when either stands out; else the fallback`() {

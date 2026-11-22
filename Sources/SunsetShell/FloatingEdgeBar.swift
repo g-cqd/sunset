@@ -2,9 +2,9 @@ import AemiSDR
 package import SunsetRuntime
 package import SwiftUI
 
-/// A bar over the page at a window's edge (roadmap 0055; the owner's notes n41, n42): the page keeps the whole height under
-/// it. Hidden, it comes out when the pointer reaches the edge and goes a moment after the pointer leaves it, never while it
-/// is typed in (`EdgeReveal`); kept shown, it is always out, the fading blur under it.
+/// A bar over the page at a window's edge: the page keeps the whole height under it. Hidden, it comes out when the pointer
+/// reaches the edge and goes a moment after the pointer leaves it, never while it is typed in (`EdgeReveal`); kept shown,
+/// it is always out, the fading blur under it.
 package struct FloatingEdgeBar<Content: View>: View {
     @Environment(\.runtime) var runtime
 

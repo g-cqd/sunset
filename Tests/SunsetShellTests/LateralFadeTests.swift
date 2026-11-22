@@ -3,8 +3,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-17: the swipe between Spaces is clipped to the sidebar and fades at its sides, not drawn under the
-/// panes. At rest nothing is clipped (a drop's outline reaches past the rows).
+/// The swipe between Spaces is clipped to the sidebar and fades at its sides, not drawn under the panes. At rest
+/// nothing is clipped (a drop's outline reaches past the rows).
 @Suite("The sides of a Space's swipe")
 struct LateralFadeTests {
     @Test func `sliding, the list fades at its sides; at rest it is not clipped`() {

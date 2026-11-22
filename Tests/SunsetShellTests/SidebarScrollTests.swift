@@ -7,10 +7,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n56 (2026-11-19, ADR-0088, against roadmap 0035 F): "make the whole favorites and tabs scrollable at
-/// once and even the pinned tabs if necessary ... if the window height becomes very small ... what is meant to stay at the
-/// bottom or the top is not shown". One scroll view holds the Pinned grid, the Favorites and Today's tabs; it takes what the
-/// header and the bottom bar leave, and never pushes them out.
+/// One scroll view holds the Pinned grid, the Favorites and Today's tabs; it takes what the header and the bottom bar
+/// leave, and never pushes them out.
 @MainActor
 @Suite("What scrolls in the sidebar")
 struct SidebarScrollTests {

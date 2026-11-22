@@ -4,10 +4,10 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-17 (roadmap 0035 A): "Drag and drop of pinned, favorites and tabs does not work reliably"; "all tabs
-/// should be movable to all sections […] split dragging a tab from a split tab container should drag the container itself to
-/// whatever section. current drag and drop fails to reorder pinned tabs, and does not also work for favorites, all tabs and
-/// all kinds should be movable across all sections, with the exceptions of folders that can only be moved within favorites".
+/// "Drag and drop of pinned, favorites and tabs does not work reliably"; "all tabs should be movable to all sections […]
+/// split dragging a tab from a split tab container should drag the container itself to whatever section. current drag and
+/// drop fails to reorder pinned tabs, and does not also work for favorites, all tabs and all kinds should be movable across
+/// all sections, with the exceptions of folders that can only be moved within favorites".
 @MainActor
 @Suite("Dragging between the sidebar's sections")
 struct TabsSectionDropTests {

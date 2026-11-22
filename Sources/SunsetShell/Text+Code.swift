@@ -1,7 +1,7 @@
 package import SwiftUI
 
-/// An address, a host, a URL, a path, a command or a keyword (the owner's note n26): in the system's monospaced design, at
-/// the size and weight it has otherwise, so that it reads as what is typed.
+/// An address, a host, a URL, a path, a command or a keyword: in the system's monospaced design, at the size and weight
+/// it has otherwise, so that it reads as what is typed.
 extension Text {
     package func code() -> Text {
         fontDesign(.monospaced)

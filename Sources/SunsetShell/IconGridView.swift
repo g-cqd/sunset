@@ -1,10 +1,9 @@
 import AppKit
 
-/// The icon picker's grid, as one view that draws itself (the owner, 2026-11-17: "the rendering and scrolling through the
-/// list should also be instantaneous"). Only the cells of the part asked for are drawn, a symbol is rendered once into a
-/// picture and drawn from it after (`IconPictures`), and the cell under the pointer is found by arithmetic
-/// (`IconGridLayout`). As SwiftUI buttons, the seventy cells in sight cost 21 ms at each change of the list (measured,
-/// release).
+/// The icon picker's grid, as one view that draws itself ("the rendering and scrolling through the list should also be
+/// instantaneous"). Only the cells of the part asked for are drawn, a symbol is rendered once into a picture and drawn
+/// from it after (`IconPictures`), and the cell under the pointer is found by arithmetic (`IconGridLayout`). As SwiftUI
+/// buttons, the seventy cells in sight cost 21 ms at each change of the list (measured, release).
 final class IconGridView: NSView {
     private(set) var items: [IconChoice] = []
     var chosen: String? {

@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The settings in the window (roadmap 0032): a tab like any other, one in a window; the sidebar lists the sections and topics
-/// while the Library is on its Settings section.
+/// The settings in the window: a tab like any other, one in a window; the sidebar lists the sections and topics while
+/// the Library is on its Settings section.
 @MainActor @Suite("The settings as a tab") struct SettingsTabTests {
     let harness = TabsHarness()
     var tabs: TabsModel {

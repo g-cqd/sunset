@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetHelp
 
-/// Help's texts (roadmap 0041 A; research help-system-from-vmrunner-2026-11-17): one source for a control's tooltip and its
-/// explanation. Every topic has its text, a summary is one short sentence (it is the tooltip), titles are unique, related
-/// topics exist.
+/// Help's texts (research help-system-from-vmrunner-2026-11-17): one source for a control's tooltip and its explanation.
+/// Every topic has its text, a summary is one short sentence (it is the tooltip), titles are unique, related topics
+/// exist.
 @Suite("Help's texts")
 struct HelpCatalogTests {
     @Test func `every topic has its text`() {
@@ -36,14 +36,14 @@ struct HelpCatalogTests {
         #expect(HelpCatalog.search("").count == HelpTopic.allCases.count)
     }
 
-    /// Roadmap 0041 C: what the notes under these settings had to leave out is in a topic, opened by their "?".
+    /// What the notes under these settings had to leave out is in a topic, opened by their "?".
     @Test func `the settings whose notes were cut have their topics`() {
         let settings = ["web.agent", "web.agentScripts", "features"]
         let missing = settings.filter { HelpTopic.explaining(setting: $0) == nil }
         #expect(missing.isEmpty, "\(missing)")
     }
 
-    /// Roadmap 0044 E: whose the Favorites and the grid are is explained beside both settings.
+    /// Whose the Favorites and the grid are is explained beside both settings.
     @Test func `the settings of whose the Favorites and the grid are have their topic`() {
         let topics = ["spaces.favorites", "spaces.pinned"].map { HelpTopic.explaining(setting: $0) }
         #expect(topics.allSatisfy { $0 != nil && $0 == topics.first ?? nil })

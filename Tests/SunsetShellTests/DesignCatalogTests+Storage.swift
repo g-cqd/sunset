@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Mock-ups of Settings, Storage (roadmap 0030 step ST-6): where things are, what protects them, the recovery code, exporting.
-/// Drawn with plain shapes for the owner to choose from; nothing is built.
+/// Mock-ups of Settings, Storage: where things are, what protects them, the recovery code, exporting. Drawn with plain
+/// shapes to choose from; nothing is built.
 extension DesignCatalogTests {
     /// A line of a page: a name, what it says, and a button or nothing.
     func storageLine(_ name: String, _ value: String, button: String? = nil, warn: Bool = false) -> some View {
@@ -168,7 +168,7 @@ extension DesignCatalogTests {
         )
     }
 
-    @Test func `Settings, Storage, drawn for the owner`() throws {
+    @Test func `Settings, Storage, drawn to choose from`() throws {
         guard let folder = ProcessInfo.processInfo.environment["SUNSET_CATALOG"].map({ URL(fileURLWithPath: $0) })
         else { return }
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

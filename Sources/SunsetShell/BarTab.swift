@@ -13,7 +13,7 @@ struct BarTab<Icon: View, Label: View>: View {
     @ViewBuilder let icon: Icon
     @ViewBuilder let label: Label
     var lines = 1
-    /// The colour of what the tab shows, for a tab coloured by its site (the owner's note n56).
+    /// The colour of what the tab shows, for a tab coloured by its site.
     var siteColor: [UInt8]?
     /// A pinned tab of the row of capsules: its icon only, in a circle (its name is its help).
     @Environment(\.tabIconOnly) private var iconOnly

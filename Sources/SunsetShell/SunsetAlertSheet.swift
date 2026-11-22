@@ -2,8 +2,8 @@ package import AppKit
 package import SunsetShellModel
 import SwiftUI
 
-/// Shows a Sunset alert (the owner's note n73) as a sheet of `window`; with none, in a panel at the screen's centre, run
-/// modally. `answer` is called once, with the index of the button pressed.
+/// Shows a Sunset alert as a sheet of `window`; with none, in a panel at the screen's centre, run modally. `answer` is
+/// called once, with the index of the button pressed.
 @MainActor
 package enum SunsetAlertSheet {
     package static func show(

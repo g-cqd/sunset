@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetShellModel
 
-/// n79: a tick when a drag snaps onto a new place that takes it; nothing otherwise.
+/// A tick when a drag snaps onto a new place that takes it; nothing otherwise.
 @Suite("A drag's feel")
 struct DropFeelTests {
     @Test func `a tick on each new place, none while it stays, none over nothing, none on leaving`() {

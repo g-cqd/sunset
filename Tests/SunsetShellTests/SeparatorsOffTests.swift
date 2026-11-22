@@ -7,8 +7,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-19: "disable the rendering of the separators between pinned and favorites and standard tabs". With
-/// `sidebar.separators` off the sidebar draws no line between its sections; it draws the same otherwise.
+/// "disable the rendering of the separators between pinned and favorites and standard tabs". With `sidebar.separators`
+/// off the sidebar draws no line between its sections; it draws the same otherwise.
 @MainActor @Suite("The sidebar's separators, off")
 struct SeparatorsOffTests {
     private func picture(separators: Bool) throws -> NSBitmapImageRep {

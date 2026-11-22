@@ -61,7 +61,7 @@ struct SidebarGroupRow: View {
         )
         .onDrag { tabs.itemProvider(for: .pane(pane)) }
         .contextMenu {
-            // The pane's own item first, then its tab's, whose closing is this pane's (n85).
+            // The pane's own item first, then its tab's, whose closing is this pane's.
             Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
             Divider()
             TabRowMenu(tabs: tabs, item: item.id, animation: layout.smooth, pane: pane)

@@ -6,8 +6,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The sidebar with the Library open (the owner, 2026-11-15): the sidebar widens in place by a rail of glyphs at the window's
-/// edge, with a gutter between the rail and the list; the list is as wide as the tabs were and is not made again.
+/// The sidebar with the Library open: the sidebar widens in place by a rail of glyphs at the window's edge, with a
+/// gutter between the rail and the list; the list is as wide as the tabs were and is not made again.
 @MainActor @Suite("The sidebar widening for the Library") struct LibraryFrameTests {
     var buttons: SidebarButtons {
         SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil)

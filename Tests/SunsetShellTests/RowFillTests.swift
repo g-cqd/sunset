@@ -3,8 +3,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Roadmap 0086 E: how a tab's row is filled, decided once for the sidebar's row, the top bar's tab and a split's part (each
-/// had its own copy).
+/// How a tab's row is filled, decided once for the sidebar's row, the top bar's tab and a split's part (each had its
+/// own copy).
 @Suite("A tab's fill")
 struct RowFillTests {
     @Test func `selected, hovered, in a window at the back, open, or nothing`() {

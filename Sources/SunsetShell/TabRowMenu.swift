@@ -1,8 +1,8 @@
 import SunsetPane
 import SwiftUI
 
-/// What a tab's menu offers, the same from its row and from any part of a split (the owner, 2026-11-17: a split's parts had
-/// none of it): the layouts, the selection's actions, rename and icon, keeping, keeping the Mac awake, closing.
+/// What a tab's menu offers, the same from its row and from any part of a split (a split's parts had none of it): the
+/// layouts, the selection's actions, rename and icon, keeping, keeping the Mac awake, closing.
 struct TabRowMenu: View {
     let tabs: TabsModel
     let item: Workspace.ItemID
@@ -22,7 +22,7 @@ struct TabRowMenu: View {
             Button("Rename") { tabs.renamingRow = .tab(item) }
         }
         Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item) }
-        // What its panes' contents offer (a page's Reload, a document's other view; roadmap 0047 G, note n8).
+        // What its panes' contents offer (a page's Reload, a document's other view).
         if pageActions {
             PaneActionsMenu(tabs: tabs, panes: tabs.workspace.items.first { $0.id == item }?.panes ?? []) {
                 tabs.select(item: item)
@@ -35,8 +35,8 @@ struct TabRowMenu: View {
         closing
     }
 
-    /// A split closes one part; the whole split only with Option held, as macOS keeps its less used items (the owner's note
-    /// n85). A tab closes; Close Other Tabs with Option (t135).
+    /// A split closes one part; the whole split only with Option held, as macOS keeps its less used items. A tab
+    /// closes; Close Other Tabs with Option.
     @ViewBuilder private var closing: some View {
         let shown = tabs.workspace.items.first { $0.id == item }
         if let shown, shown.isSplit {

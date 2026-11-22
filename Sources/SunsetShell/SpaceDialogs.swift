@@ -2,8 +2,8 @@ import SunsetPane
 import SunsetShellModel
 package import SwiftUI
 
-/// A window's dialogs about Spaces (roadmap 0021 step S-c): the editor of a Space, as a sheet; and what is asked before a
-/// Space that has tabs is deleted: they go to the neighbouring Space, still running, or close.
+/// A window's dialogs about Spaces: the editor of a Space, as a sheet; and what is asked before a Space that has tabs
+/// is deleted: they go to the neighbouring Space, still running, or close.
 package struct SpaceDialogs: ViewModifier {
     let tabs: TabsModel
 

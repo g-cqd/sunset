@@ -27,7 +27,7 @@ struct SidebarIconButtonFace<Label: View>: View {
                 )
             )
             .contentShape(shape)
-            // The press is felt (the owner's note n11): the glyph gives a little under the pointer.
+            // The press is felt: the glyph gives a little under the pointer.
             .scaleEffect(pressed && enabled ? Design.Motion.pressedScale : 1)
             .keptHover($hovering)
             .animation(metrics.smooth, value: hovering)

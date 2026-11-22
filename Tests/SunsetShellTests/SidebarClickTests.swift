@@ -8,8 +8,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// A click on a row of the sidebar, in a window (review of 2026-11-15, owner notes n15, n56, n59): the row is shown at the
-/// click, not once a second click can no longer come.
+/// A click on a row of the sidebar, in a window (review of 2026-11-15): the row is shown at the click, not once a
+/// second click can no longer come.
 @MainActor @Suite("A sidebar row, clicked", .serialized)
 struct SidebarClickTests {
     let harness = TabsHarness()

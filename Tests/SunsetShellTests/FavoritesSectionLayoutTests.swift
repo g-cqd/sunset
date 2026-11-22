@@ -7,10 +7,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Roadmap 0047 D (the owner, 2026-11-18, a screenshot of 13:05: "separators come across tabs in the sidebar"; "it's there
-/// all the time … between two folders of the favorites section"). The Favorites and the line under them were two views
-/// side by side in the sidebar's stack; a modifier that measures them (added for the slide, roadmap 0045 E) laid the two
-/// over each other, the line across the middle of the rows.
+/// Separators were drawn across the tabs of the sidebar. The Favorites and the line under them were two views side by
+/// side in the sidebar's stack; a modifier that measures them (added for the slide) laid the two over each other, the
+/// line across the middle of the rows.
 @MainActor @Suite("The Favorites and their line")
 struct FavoritesSectionLayoutTests {
     @Test func `measured or not, the line stays under the rows`() throws {

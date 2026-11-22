@@ -3,8 +3,8 @@ import SunsetPane
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// After Today's last tab, while something is dragged (roadmap 0035 A): a row's room that takes it as the last tab, so that a
-/// tile or a favourite can come back to Today even when it has no tab to be dropped beside.
+/// After Today's last tab, while something is dragged: a row's room that takes it as the last tab, so that a tile or a
+/// favourite can come back to Today even when it has no tab to be dropped beside.
 struct TodayEndDrop: View {
     let tabs: TabsModel
     let layout: ShellSettings.Layout

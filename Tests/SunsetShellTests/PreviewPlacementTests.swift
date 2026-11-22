@@ -38,8 +38,8 @@ import Testing
         #expect(abs(right.x - 296) < 0.001, "\(right.x)")
     }
 
-    /// Roadmap 0047 B (the owner, 2026-11-18): with the sidebar floating, the previews of the Pinned grid's tiles, of
-    /// indented rows and of groups showed beneath the sidebar: they were placed beside the row, which is inside the panel.
+    /// With the sidebar floating, the previews of the Pinned grid's tiles, of indented rows and of groups showed beneath
+    /// the sidebar: they were placed beside the row, which is inside the panel.
     @Test func `beside the floating panel's edge, whatever the row's place in it`() {
         let panel = CGRect(x: 700, y: 0, width: 300, height: 600)
         let tile = CGRect(x: 860, y: 40, width: 120, height: 50)

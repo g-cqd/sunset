@@ -3,7 +3,7 @@ import Testing
 @testable import SunsetPane
 @testable import SunsetShellModel
 
-/// The command bar offers Import from Another Browser when it is asked for (roadmap 0111 G).
+/// The command bar offers Import from Another Browser when it is asked for.
 @Suite("Menu commands in the command bar")
 struct AppCommandChoicesTests {
     private let all = Scopes(terminal: true, web: true, documents: true)
@@ -17,7 +17,7 @@ struct AppCommandChoicesTests {
         #expect(AppCommandChoices.commands(typed: "import cats", scopes: all).isEmpty)
     }
 
-    /// n83: "the command bar should include more internal commands like settings, documents, history, library, help".
+    /// "the command bar should include more internal commands like settings, documents, history, library, help".
     @Test func `Sunset's own places are commands: settings, the Library's lists, help`() {
         #expect(AppCommandChoices.commands(typed: "settings", scopes: all) == [.settings])
         #expect(AppCommandChoices.commands(typed: "prefer", scopes: all) == [.settings])

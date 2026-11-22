@@ -62,7 +62,7 @@ import Testing
         let (harness, entries) = try window(tabs: 3, kept: 1)
         let tabs = harness.tabs.workspace.items.map(\.id)
         _ = harness.tabs.itemProvider(for: .entry(entries[0]))
-        // A favorite may split with a tab too (the owner, 2026-11-21: n80); `FavoritesSplitTests`.
+        // A favorite may split with a tab too; `FavoritesSplitTests`.
         #expect(
             harness.tabs.canDrop(onto: tabs[1], action: .moveAfter)
                 && harness.tabs.canDrop(onto: tabs[1], action: .split(.left))
@@ -73,8 +73,7 @@ import Testing
         #expect(harness.tabs.workspace.selectedIndex == 2)
     }
 
-    /// A pane carries its tab (the owner, 2026-11-17, roadmap 0035 A: "drag the container itself to whatever section"; it
-    /// could not be dropped there before).
+    /// A pane carries its tab ("drag the container itself to whatever section"; it could not be dropped there before).
     @Test func `a pane is kept as its whole tab; nothing cannot be dropped on the Favorites`() throws {
         let (harness, entries) = try window(tabs: 2, kept: 1)
         _ = harness.tabs.itemProvider(for: .pane(harness.tabs.workspace.items[0].focused))

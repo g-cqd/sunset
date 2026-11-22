@@ -3,7 +3,7 @@ import SwiftUI
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Mock-ups of an open document in the sidebar (roadmap 0030 step ST-5), for the owner to choose from.
+/// Mock-ups of an open document in the sidebar, to choose from.
 extension DesignCatalogTests {
     /// The panel variant C opens: a field, then the documents with their dates.
     var documentPanel: AnyView {

@@ -11,9 +11,9 @@ extension SidebarRow {
         }
     }
 
-    /// Kept awake (roadmap 0038 C): the close button's size, its symbol's size and weight, in its place while it is hidden.
-    /// While the row is pointed at it is a button beside the close button (note n5), slashed under the pointer: a click lets
-    /// the Mac sleep again.
+    /// Kept awake: the close button's size, its symbol's size and weight, in its place while it is hidden. While the
+    /// row is pointed at it is a button beside the close button, slashed under the pointer: a click lets the Mac sleep
+    /// again.
     @ViewBuilder var awakeMark: some View {
         if showsClose, let stopAwake {
             SwiftUI.Button(action: stopAwake) { cup(slashed: overAwake) }
@@ -46,8 +46,8 @@ extension SidebarRow {
         .contentShape(.rect)
     }
 
-    /// The controls at the row's end after the close button, in their order (the owner, 2026-11-19): the cup, the sound, the
-    /// microphone, the camera.
+    /// The controls at the row's end after the close button, in their order: the cup, the sound, the microphone, the
+    /// camera.
     var endControls: [RowEndControl] {
         var controls: [RowEndControl] = []
         if awake { controls.append(.awake) }

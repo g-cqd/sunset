@@ -69,7 +69,7 @@ package struct SidebarButtons {
     }
 
     /// From the sidebar's bottom, which is the window's, to the app's bar. Docked, as far as the buttons are from the window's
-    /// side (the owner, 2026-11-15, A1): that is `lift` above the card's bottom, where the bar was.
+    /// side (A1): that is `lift` above the card's bottom, where the bar was.
     package var bottom: Double {
         panelRadius == nil ? margin + gap : header.buttonTop
     }
@@ -84,7 +84,7 @@ package struct SidebarButtons {
         barRoom(rows: 1)
     }
 
-    /// The room for a bar `rows` buttons high (the downloads' button above the Library's glyph: notes n60, n61).
+    /// The room for a bar `rows` buttons high (the downloads' button above the Library's glyph).
     package func barRoom(rows: Int) -> Double {
         barHeight(rows: rows) + layout.tabSpacing + lift
     }

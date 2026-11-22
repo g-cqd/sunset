@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// n12 and n52's cause: a new empty page is asked where to go by the action that makes it (the command bar), not by its view.
+/// A new empty page is asked where to go by the action that makes it (the command bar), not by its view.
 @MainActor @Suite("A new empty page")
 struct NewBlankPageTests {
     @Test func `a new empty page opens the command bar for it; a page with an address does not`() {

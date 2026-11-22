@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Which section each sidebar shows (roadmap 0031).
+/// Which section each sidebar shows.
 @Suite("The sections of the sidebars") struct SidebarSectionsTests {
     @Test func `the opposite panel has History, Documents and Downloads; the Library's rail has Tabs first`() {
         #expect(SidebarSection.panel == [.history, .documents, .downloads])

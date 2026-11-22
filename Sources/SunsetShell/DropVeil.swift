@@ -1,7 +1,7 @@
 package import SwiftUI
 
-/// Where a drag would land (note n79): a white veil and a white edge, blended with what is under them (lighter on the dark
-/// chrome, never a colour of its own).
+/// Where a drag would land: a white veil and a white edge, blended with what is under them (lighter on the dark chrome,
+/// never a colour of its own).
 package struct DropVeil<S: InsettableShape>: View {
     let shape: S
 

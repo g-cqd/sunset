@@ -1,7 +1,7 @@
 package import SwiftUI
 
-/// The switch at the foot of the panel opposite the tabs (roadmap 0031, the owner's choice B6): a segmented row of glyphs in a
-/// trough, the section shown filled. Each glyph says its name to the pointer and to VoiceOver.
+/// The switch at the foot of the panel opposite the tabs: a segmented row of glyphs in a trough, the section shown
+/// filled. Each glyph says its name to the pointer and to VoiceOver.
 package struct SectionSwitch: View {
     let sections: [SidebarSection]
     @Binding var selection: SidebarSection

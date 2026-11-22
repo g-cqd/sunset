@@ -2,7 +2,7 @@ package import SwiftUI
 
 /// What is behind the content of a pane: the terminal's default background (the theme's `colors.background`, black with none)
 /// as opaque as the terminal draws it (`terminal.opacity` over a window that is not opaque). A terminal draws it itself; every
-/// other kind of pane is drawn on it (the owner, 2026-11-15), so that a window's panes are one surface whatever is in them.
+/// other kind of pane is drawn on it, so that a window's panes are one surface whatever is in them.
 package struct PaneBackdrop: Sendable, Equatable {
     package var red: UInt8
     package var green: UInt8
@@ -31,7 +31,7 @@ package struct PaneBackdrop: Sendable, Equatable {
 
     /// As a terminal is seen with its background at `terminalAlpha` of 255. A terminal has that background twice, one over the
     /// other: the colour of its view's layer and the pixels of its frame. Composed once, a document was lighter than the
-    /// terminal next to it (35 for 27 over the window's 44 with `terminal.opacity` 0.2; diary 2026-11-15-02).
+    /// terminal next to it (35 for 27 over the window's 44 with `terminal.opacity` 0.2).
     package init(rgb: [UInt8]?, terminalAlpha: UInt8) {
         let through = 1 - Double(terminalAlpha) / 255
         self.init(rgb: rgb, alpha: 1 - through * through)

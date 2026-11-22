@@ -2,9 +2,7 @@ import SunsetConfig
 import SunsetHelp
 import Testing
 
-/// The owner's note n16 (2026-11-18): "the helper window/scope does not have the same kind of tree than the general settings,
-/// you could harmonize and uniformize that". Help is listed under the settings' sections, each topic under the section of the
-/// settings it is about.
+/// Help is listed under the settings' sections, each topic under the section of the settings it is about.
 @Suite("Help's tree is the settings'") struct HelpTreeTests {
     @Test func `every topic is about a topic of the settings`() {
         let ids = Set(SettingsSection.all.flatMap(\.topics).map(\.id))

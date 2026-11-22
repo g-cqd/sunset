@@ -5,8 +5,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n14 (2026-11-18): "spaces order should be reorderable by drag and dropping the icons at the bottom of the
-/// sidebar".
+/// The Spaces are put in another order by dragging their icons at the foot of the sidebar.
 @MainActor @Suite("Dragging a Space's icon")
 struct SpacesDragTests {
     @Test func `a Space dragged over another's icon takes its place, and the others make room`() throws {

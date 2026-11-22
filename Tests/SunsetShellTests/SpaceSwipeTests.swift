@@ -3,9 +3,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The two-finger swipe on the sidebar that changes Space (roadmap 0021 step S-b). The owner, 2026-11-17: "it should snap
-/// to the space, starting slow and snap when enough swiped, not swipe multiple ones at the same time", with a tap of the
-/// trackpad at the snap.
+/// The two-finger swipe on the sidebar that changes Space. The owner, 2026-11-17: "it should snap to the space, starting
+/// slow and snap when enough swiped, not swipe multiple ones at the same time", with a tap of the trackpad at the snap.
 @Suite("The swipe between Spaces")
 struct SpaceSwipeTests {
     private let width = 240.0
@@ -39,7 +38,7 @@ struct SpaceSwipeTests {
         }
         #expect(result == .snap(1), "the next Space")
         #expect(travelled <= width * SpaceSwipe.threshold + 10 && travelled >= width * SpaceSwipe.threshold)
-        #expect(swipe.offset < -30, "left where the fingers had it: the slide goes on from there (n79)")
+        #expect(swipe.offset < -30, "left where the fingers had it: the slide goes on from there")
     }
 
     @Test func `one Space a gesture: what is swiped after the snap, and the trackpad's momentum, change nothing`() {
@@ -74,8 +73,7 @@ struct SpaceSwipeTests {
         #expect(swipe.offset > 0, "towards the previous Space now")
     }
 
-    /// The owner's note n61 (2026-11-19): "we should not allow swipe gesture in direction that don't contain another
-    /// space": the gesture is the list's, nothing moves.
+    /// The gesture is the list's, nothing moves.
     @Test func `towards a side with nothing the gesture is given back: nothing moves, nothing snaps`() {
         var swipe = SpaceSwipe()
         swipe.begin()
@@ -86,7 +84,7 @@ struct SpaceSwipeTests {
         #expect(results == ["scroll"] && swipe.offset == 0)
     }
 
-    /// n61: "allow a swipe gesture that allows to open the library when reaching the furthest away space on the side the
+    /// "allow a swipe gesture that allows to open the library when reaching the furthest away space on the side the
     /// sidebar is": past that Space, the Library is there to swipe to, as a Space would be.
     @Test func `past the last Space on the sidebar's side, the Library: followed, then opened once`() {
         var swipe = SpaceSwipe()
@@ -109,18 +107,18 @@ struct SpaceSwipeTests {
         #expect(SpaceSwipe.ways(index: 0, count: 1, library: nil) == (.nothing, .nothing))
     }
 
-    /// n61: "we should not catch swipe gestures when in the settings or help with the sidebar filled by the settings
+    /// "we should not catch swipe gestures when in the settings or help with the sidebar filled by the settings
     /// sidebar": nor with any of the Library's lists in it, where the Spaces are not shown.
     @Test func `listened to only while the tabs show, and only if there is somewhere to go`() {
         #expect(SpaceSwipe.listens(libraryOpen: false, spaces: 2, library: nil))
         #expect(SpaceSwipe.listens(libraryOpen: false, spaces: 1, library: .previous))
         #expect(!SpaceSwipe.listens(libraryOpen: false, spaces: 1, library: nil))
-        // n90: with the Library open, listened to for the way back to the tabs, where the Library is offered by a swipe.
+        // With the Library open, listened to for the way back to the tabs, where the Library is offered by a swipe.
         #expect(SpaceSwipe.listens(libraryOpen: true, spaces: 3, library: .previous))
         #expect(!SpaceSwipe.listens(libraryOpen: true, spaces: 3, library: nil))
     }
 
-    /// n90: "swipe back into tabs when in the library … the opposite to the one that led into the library".
+    /// "swipe back into tabs when in the library … the opposite to the one that led into the library".
     @Test func `with the Library open, only the way back leads somewhere: opposite to the way in`() {
         #expect(SpaceSwipe.ways(index: 0, count: 3, library: .previous, libraryOpen: true) == (.nothing, .library))
         #expect(SpaceSwipe.ways(index: 2, count: 3, library: .next, libraryOpen: true) == (.library, .nothing))

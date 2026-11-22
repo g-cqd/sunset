@@ -14,7 +14,7 @@ struct FieldSurface: ViewModifier {
         content
             .padding(.horizontal, controlPadding ?? Design.Space.m)
             // The container's height for its fields when it sets one, the field's own given or not (the sidebar's field, a tab's
-            // height: roadmap 0035 G).
+            // height).
             .frame(height: (height == nil ? controlHeight : height.map { controlHeight ?? $0 }).map { CGFloat($0) })
             .background(
                 shape.fill(dark ? Color.black.opacity(Design.Fill.darkField) : Color.primary.opacity(Design.Fill.field))

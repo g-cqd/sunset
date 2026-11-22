@@ -1,8 +1,8 @@
 package import SunsetHelp
 package import SwiftUI
 
-/// The "?" beside a title or a setting where there is room (roadmap 0041 A; the owner, 2026-11-17): its tooltip is the
-/// topic's summary, a click shows the topic's text in a popover, the part for experienced people folded away.
+/// The "?" beside a title or a setting where there is room: its tooltip is the topic's summary, a click shows the
+/// topic's text in a popover, the part for experienced people folded away.
 package struct HelpButton: View {
     let topic: HelpTopic
     @State private var shown = false

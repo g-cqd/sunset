@@ -6,9 +6,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The top of a section's list (the owner, 2026-11-15): "documents sorting and adding buttons overlap with the search and the
-/// search makes no sense with no documents existing". The title's row is as tall as its buttons, and the search field is there
-/// only when the section has something to search.
+/// The top of a section's list: "documents sorting and adding buttons overlap with the search and the search makes no sense
+/// with no documents existing". The title's row is as tall as its buttons, and the search field is there only when the section
+/// has something to search.
 @MainActor @Suite("The top of a section: its title, its buttons, its search") struct SectionTopTests {
     var docked: SidebarButtons {
         SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil)

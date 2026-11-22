@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetShellModel
 
-/// The welcome's opening, as the owner asked (2026-11-21): the sun alone fades in, out of focus, slowly, with no sky and no
-/// purple around it; then the real window fades in where it stands, its content coming into focus, and the sun passes
-/// into the window's own. Nothing drawn stands in for the window.
+/// The welcome's opening: the sun alone fades in, out of focus, slowly, with no sky and no purple around it; then the
+/// real window fades in where it stands, its content coming into focus, and the sun passes into the window's own.
+/// Nothing drawn stands in for the window.
 @Suite("The welcome's opening")
 struct WelcomeOpeningTests {
     private let frame = CGRect(x: 400, y: 200, width: 720, height: 470)
@@ -20,7 +20,7 @@ struct WelcomeOpeningTests {
     @Test func `the sun sets: it appears higher, then goes down to where the window keeps it, before the window shows`()
     {
         let rest = CGPoint(x: frame.midX, y: frame.minY + frame.height * WelcomeOpening.sunHeight)
-        // Low already (the owner: "should start lower on the screen"): under the window's middle, above its rest.
+        // Low already ("should start lower on the screen"): under the window's middle, above its rest.
         #expect(at(0).sun.y > frame.minY + frame.height * 0.7 && at(0).sun.y < rest.y - frame.height * 0.08)
         var last = at(0)
         for time in times {
@@ -31,8 +31,8 @@ struct WelcomeOpeningTests {
         }
         let setting = WelcomeOpening.setPhase
         #expect(setting.start >= 1, "it is seen before it moves")
-        // The window phases in as the sun settles: what is left of its way is imperceptible (the owner, 2026-11-21:
-        // "almost imperceptible with the phasing in of the window"), and no pause between the two.
+        // The window phases in as the sun settles: what is left of its way is imperceptible (2026-11-21: "almost
+        // imperceptible with the phasing in of the window"), and no pause between the two.
         let left = rest.y - at(WelcomeOpening.windowPhase.start).sun.y
         #expect(left < frame.height * 0.004, "\(left) points still to go")
         #expect(WelcomeOpening.windowPhase.start < setting.start + setting.length, "they overlap")
@@ -90,7 +90,7 @@ struct WelcomeOpeningTests {
         #expect(at(phase.start + phase.length * 0.5).windowOpacity > 0.3)
     }
 
-    /// n86: "could the … sun itself in the animation be more circular a tiny bit … and morph while moving into the shape it
+    /// "could the … sun itself in the animation be more circular a tiny bit … and morph while moving into the shape it
     /// should take on the window?"
     @Test func `the sun starts round and takes the window's shape as it sets, never back`() {
         #expect(at(0).sunRoundness == 1)

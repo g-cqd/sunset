@@ -2,12 +2,12 @@ import SunsetMetrics
 import SwiftUI
 
 /// The thin line between two sections of the sidebar: under the Favorites (`FavoritesLine`) and under the Pinned grid (the
-/// owner, 2026-11-17, roadmap 0038 E).
+/// owner, 2026-11-17).
 struct SectionSeparator: View {
     let layout: ShellSettings.Layout
     var visible = true
-    /// Hidden and taking no room: the Pinned grid's own line already makes the gap (the owner, 2026-11-17: one space
-    /// between the grid and the tabs when there is no Favorite).
+    /// Hidden and taking no room: the Pinned grid's own line already makes the gap (one space between the grid and the
+    /// tabs when there is no Favorite).
     var collapsed = false
     @Environment(\.sectionSeparators) private var drawn
 

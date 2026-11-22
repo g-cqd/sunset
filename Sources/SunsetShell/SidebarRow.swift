@@ -5,11 +5,11 @@ import SwiftUI
 /// One tab in the sidebar (its padding, radius and close button from `layout.*`), its title faded or cut at its end. While the pointer is over it a close
 /// button appears and the row is highlighted; the selected tab has a stronger highlight (dimmer in an inactive window) and the terminal card's hairline.
 struct SidebarRow: View {
-    @Environment(\.fadesEnds) var fadesEnds  // `appearance.ends` (n30)
+    @Environment(\.fadesEnds) var fadesEnds  // `appearance.ends`
     let model: (any PaneContent)?
     let selected: Bool
     var armed = false
-    /// Kept true when the row slid under a close button just clicked: rapid clicks there close tabs without a move (`n27`).
+    /// Kept true when the row slid under a close button just clicked: rapid clicks there close tabs without a move.
     var keepCloseVisible = false
     var name: String?
     var icon: PaneIcon?
@@ -27,7 +27,7 @@ struct SidebarRow: View {
     var compact = false
     /// One of several rows selected together (R3 step d): in the accent; stronger when it is also the shown row.
     var marked = false
-    /// It keeps the Mac awake (roadmap 0035 E): a cup after its title. Lets it sleep again: the cup, pointed at (note n5).
+    /// It keeps the Mac awake: a cup after its title. Lets it sleep again: the cup, pointed at.
     var awake = false
     var stopAwake: (() -> Void)?
     /// While its name is edited in place: the field's first text, and what to do with the result (nil: Escape, nothing changes).
@@ -61,7 +61,7 @@ struct SidebarRow: View {
         let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
         return HStack(spacing: Design.Space.xs) {
             if let renaming {
-                // The row is the field: its picture stays, the text is where the title was (note n4).
+                // The row is the field: its picture stays, the text is where the title was.
                 HStack(spacing: GlyphSpacing.toText) {
                     if parts.icon {
                         TabIcon(
@@ -72,8 +72,8 @@ struct SidebarRow: View {
                             showsProgress: false
                         )
                     }
-                    // Only the name being typed (the owner, 2026-11-17); the second line's room is kept, empty, so that the row
-                    // keeps its height.
+                    // Only the name being typed; the second line's room is kept, empty, so that the row keeps its
+                    // height.
                     VStack(alignment: .leading, spacing: Design.Space.hair) {
                         RenameField(
                             text: Binding(get: { typed ?? renaming.start }, set: { typed = $0 }),
@@ -118,7 +118,7 @@ struct SidebarRow: View {
                 if renaming == nil {
                     closeButton.position(x: proxy.size.width - middle, y: middle)
                 } else {
-                    // Renaming: no close button; in its place, one that clears the name (the owner, 2026-11-17).
+                    // Renaming: no close button; in its place, one that clears the name.
                     clearButton.position(x: proxy.size.width - middle, y: middle)
                 }
                 let end = rowEnd(closeShown: showsClose)
@@ -176,7 +176,7 @@ struct SidebarRow: View {
         parts.directory && (model?.detail ?? saved?.directory) != nil ? 2 : 1
     }
 
-    /// Over the row's end, so that the title has the whole width while it is hidden (owner note n65); shown, the title fades out under it.
+    /// Over the row's end, so that the title has the whole width while it is hidden; shown, the title fades out under it.
     private var closeButton: some View {
         SwiftUI.Button(action: close) {
             RowButtonFace(

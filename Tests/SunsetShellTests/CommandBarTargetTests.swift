@@ -4,8 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Roadmap 0047 E (the owner, 2026-11-18: "when focusing on command bar using cmd L, the focused input should contain the
-/// current tab target, for web tabs mostly").
+/// Command-L opens the command bar on the tab's own target (a page's address).
 @MainActor @Suite("The command bar opened on a tab")
 struct CommandBarTargetTests {
     @Test func `opened on a page, its field holds the page's address; on a terminal, nothing`() {

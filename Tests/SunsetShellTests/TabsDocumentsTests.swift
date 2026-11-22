@@ -5,8 +5,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The documents of the store as tabs (roadmap 0030 step ST-5, 0031; the owner on 2026-11-15: "documents should be standard tabs
-/// across all tabs"): a document opens as a tab like any other, among the tabs; one that is open is shown where it is; a
+/// The documents of the store as tabs: a document opens as a tab like any other, among the tabs; one that is open is shown where it is; a
 /// deleted one closes.
 @MainActor @Suite("Documents as tabs") struct TabsDocumentsTests {
     let harness = TabsHarness()

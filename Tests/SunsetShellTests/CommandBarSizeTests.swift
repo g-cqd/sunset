@@ -3,8 +3,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner's note n52: "the command bar when window gets shrunk can overflow the window". Its width is its own while there
-/// is room, else the room left with a margin on each side; its rows scroll in the height left under it.
+/// "the command bar when window gets shrunk can overflow the window". Its width is its own while there is room, else
+/// the room left with a margin on each side; its rows scroll in the height left under it.
 @Suite("The command bar's size in a small window")
 struct CommandBarSizeTests {
     @Test func `its own width when it fits, the room less a margin each side when not`() {

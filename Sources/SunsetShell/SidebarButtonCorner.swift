@@ -1,7 +1,6 @@
 package import SwiftUI
 
-/// Which corner of a sidebar button is at the window's corner: that one shares its centre with the window's (the owner,
-/// 2026-11-15, his choice A1), the three others keep the radius every sidebar button has.
+/// Which corner of a sidebar button is at the window's corner: that one shares its centre with the window's; the three others keep the radius every sidebar button has.
 package enum SidebarButtonCorner: Sendable {
     case bottomLeading
     case bottomTrailing

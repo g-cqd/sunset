@@ -5,9 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The Spaces of the app (roadmap 0021 steps S-b and S-c; the owner's answers of 2026-11-17): one order for every window;
-/// a window shows one and changes to another; a Space left by changing keeps running; a tab moves to another Space
-/// running, and the window follows it.
+/// The Spaces of the app: one order for every window; a window shows one and changes to another; a Space left by
+/// changing keeps running; a tab moves to another Space running, and the window follows it.
 @MainActor
 @Suite("The Spaces of the app")
 struct SpacesModelTests {
@@ -44,7 +43,7 @@ struct SpacesModelTests {
         let second = spaces.add(from: home)
         #expect(spaces.spaces.map(\.space.name) == ["Home", "Space 2"])
         #expect(home.space.icon == .symbol("house") && second.space.icon == .symbol("2.circle"))
-        // The Favorites are the profile's (ADR-0055): the same in both, not a copy.
+        // The Favorites are the profile's: the same in both, not a copy.
         #expect(second.favorites === home.favorites && second.keepsTabs)
         let original = try #require(folder)
         #expect(second.favorites.favorites.count == 1 && second.favorites.favorites.node(original) != nil)
@@ -172,7 +171,7 @@ struct SpacesModelTests {
         #expect(remade.all.map(\.descriptor.directory) == ["/work"], "the Space no window shows waits")
     }
 
-    /// R4: the command bar finds a Space by its name, and a tab of another Space (going to it changes Space).
+    /// The command bar finds a Space by its name, and a tab of another Space (going to it changes Space).
     @Test func `the bar finds the other Spaces by name, and their tabs; a tab of another Space is gone to there`()
         throws
     {

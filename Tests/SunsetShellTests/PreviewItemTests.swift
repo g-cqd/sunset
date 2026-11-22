@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-17: "there's no preview on loaded favorites tabs or pinned tabs". The hover card shows what is under
-/// the pointer: a tab of Today, or an open kept entry (a favourite, a tile); an entry not loaded has nothing to show.
+/// "there's no preview on loaded favorites tabs or pinned tabs". The hover card shows what is under the pointer: a tab
+/// of Today, or an open kept entry (a favourite, a tile); an entry not loaded has nothing to show.
 @MainActor
 @Suite("What the hover card shows")
 struct PreviewItemTests {

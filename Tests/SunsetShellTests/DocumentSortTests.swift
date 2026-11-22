@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The orders of the documents (the owner, 2026-11-15: Latest Changed, the default; Latest Made; Name; Kind), and their groups.
+/// The orders of the documents (Latest Changed, the default; Latest Made; Name; Kind), and their groups.
 @Suite("The order of the documents") struct DocumentSortTests {
     let calendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)

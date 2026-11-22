@@ -4,7 +4,7 @@ import SwiftUI
 /// What `View.hoverPreview(_:entry:)` and `View.hoverPreview(_:folder:)` do: the row under the pointer, and where it is, for
 /// the hover card.
 struct HoverPreview: ViewModifier {
-    /// What the row is: an open kept entry (its tab's card), or a folder (the list of its tabs, n77).
+    /// What the row is: an open kept entry (its tab's card), or a folder (the list of its tabs).
     enum Target {
         case entry(Favorites.NodeID)
         case folder(Favorites.NodeID)

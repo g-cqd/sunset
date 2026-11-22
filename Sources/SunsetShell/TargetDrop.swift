@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A drop on one target that is lit while what is dragged may land on it (roadmap 0086 E: the Favorites line and a folder's
-/// row each had this delegate): `allows` says whether it may, `drop` puts it there and says whether it did.
+/// A drop on one target that is lit while what is dragged may land on it (the Favorites line and a folder's row each
+/// had this delegate): `allows` says whether it may, `drop` puts it there and says whether it did.
 struct TargetDrop: DropDelegate {
     @Binding var targeted: Bool
     let allows: () -> Bool

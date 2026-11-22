@@ -171,8 +171,7 @@ import Testing
         )
     }
 
-    /// Seen by the owner (2026-11-21): extensions did not work in favorite and pinned tabs, which the window's tab list
-    /// left out.
+    /// Seen 2026-11-21: extensions did not work in favorite and pinned tabs, which the window's tab list left out.
     @Test func `what a window shows includes its open favorites, its tabs, and the shown one`() throws {
         let harness = window(2)
         let kept = harness.tabs.workspace.items[1]

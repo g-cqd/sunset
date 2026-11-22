@@ -2,9 +2,9 @@ import SunsetMetrics
 import SunsetPane
 import SwiftUI
 
-/// A split's row in the sidebar, a tab's or a kept entry's (roadmap 0086 E: both drew it whole): its own name and icon when
-/// it has any, above its panes side by side, in a rounded frame filled and outlined as the row says; the same small inset
-/// around the panes and between them, so that their corners nest in the row's.
+/// A split's row in the sidebar, a tab's or a kept entry's (both drew it whole): its own name and icon when it has any,
+/// above its panes side by side, in a rounded frame filled and outlined as the row says; the same small inset around the
+/// panes and between them, so that their corners nest in the row's.
 struct GroupFrame<Parts: View, Outline: View>: View {
     let name: String?
     let icon: PaneIcon?

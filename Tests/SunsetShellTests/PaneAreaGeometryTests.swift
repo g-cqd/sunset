@@ -3,12 +3,12 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-18: "when coming back from full screen corners of the terminal are not rounded anymore. also in full
-/// screen, no border or margin whatsoever should exist around the content area, unless sidebar is set to be fixed, then the
-/// sidebar should be shown as usual but the content itself should span from top to bottom and edge to sidebar, only
-/// exception is if split tab happens, if 2 tabs only vertically or horizontally we can go edge to edge with a small space
-/// between them …, but if we have a grid like area, then we should bring back standard margin around the content areas and
-/// then keep a minimum corner radius everywhere instead of 0".
+/// "when coming back from full screen corners of the terminal are not rounded anymore. also in full screen, no border or
+/// margin whatsoever should exist around the content area, unless sidebar is set to be fixed, then the sidebar should be
+/// shown as usual but the content itself should span from top to bottom and edge to sidebar, only exception is if split tab
+/// happens, if 2 tabs only vertically or horizontally we can go edge to edge with a small space between them …, but if we
+/// have a grid like area, then we should bring back standard margin around the content areas and then keep a minimum corner
+/// radius everywhere instead of 0".
 @Suite("How the panes sit, in a window and in full screen") struct PaneAreaGeometryTests {
     private func make(fullScreen: Bool, docked: Bool = false, panes: Int, windowRadius: Double = 16) -> PaneAreaGeometry
     {

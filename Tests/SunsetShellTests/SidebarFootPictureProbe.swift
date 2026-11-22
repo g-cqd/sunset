@@ -6,8 +6,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Pictures of the sidebar's foot for the owner's notes n60, n61 (2026-11-19), to `SUNSET_SIDEBAR_FOOT` (a folder): the
-/// Library's rail with downloads, and the closed bar's edge (the downloads above the Library's glyph). A probe.
+/// Pictures of the sidebar's foot to `SUNSET_SIDEBAR_FOOT` (a folder): the Library's rail with downloads, and the
+/// closed bar's edge (the downloads above the Library's glyph). A probe.
 @MainActor @Suite("The sidebar's foot (probe)")
 struct SidebarFootPictureProbe {
     @Test(.enabled(if: ProcessInfo.processInfo.environment["SUNSET_SIDEBAR_FOOT"] != nil))

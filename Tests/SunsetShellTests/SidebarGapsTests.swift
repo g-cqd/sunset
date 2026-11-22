@@ -4,9 +4,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The owner, 2026-11-17 (roadmap 0038 B, F): the places to drop are the gaps between rows, the top and the bottom of the
-/// Favorites included; "dragging tabs don't show the position placeholder at the top of favorites or the bottom of favorites
-/// which also prevents folders to be moved in such places". Gap k is before the k-th row shown; the last is after them all.
+/// The places to drop are the gaps between rows, the top and the bottom of the Favorites included; "dragging tabs don't show
+/// the position placeholder at the top of favorites or the bottom of favorites which also prevents folders to be moved in
+/// such places". Gap k is before the k-th row shown; the last is after them all.
 @MainActor
 @Suite("The gaps between the sidebar's rows")
 struct SidebarGapsTests {

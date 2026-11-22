@@ -5,9 +5,9 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Mock-ups of the Library of the tab sidebar (roadmap 0031, the owner on 2026-11-15): the sidebar's foot keeps its middle
-/// for spaces, later; a Library glyph opposite the + extends the sidebar into a variant whose content is chosen by tabs laid
-/// out vertically. Drawn with plain shapes for the owner to choose from; nothing is built.
+/// Mock-ups of the Library of the tab sidebar: the sidebar's foot keeps its middle for spaces, later; a Library glyph
+/// opposite the + extends the sidebar into a variant whose content is chosen by tabs laid out vertically. Drawn with plain
+/// shapes to choose from; nothing is built.
 extension DesignCatalogTests {
     /// How the Library's vertical tabs are drawn.
     enum LibraryLook: CaseIterable {
@@ -143,7 +143,7 @@ extension DesignCatalogTests {
         )
     }
 
-    @Test func `the Library of the tab sidebar, drawn for the owner`() throws {
+    @Test func `the Library of the tab sidebar, drawn to choose from`() throws {
         guard let folder = ProcessInfo.processInfo.environment["SUNSET_CATALOG"].map({ URL(fileURLWithPath: $0) })
         else { return }
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

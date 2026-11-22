@@ -1,7 +1,7 @@
 package import AppKit
 
-/// Windows whose content is covered by a modal surface (the command bar's backdrop, t232): the views beneath ignore the pointer
-/// there. AppKit sends tracking-area events (hover, the pointer's shape) to a view whatever covers it, so the covered views ask.
+/// Windows whose content is covered by a modal surface (the command bar's backdrop): the views beneath ignore the pointer there.
+/// AppKit sends tracking-area events (hover, the pointer's shape) to a view whatever covers it, so the covered views ask.
 @MainActor
 package enum PointerShield {
     private static var shielded: Set<ObjectIdentifier> = []

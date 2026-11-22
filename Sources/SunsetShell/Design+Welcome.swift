@@ -2,8 +2,8 @@ package import AemiSDR
 package import SwiftUI
 
 extension Design {
-    /// The welcome (roadmap 0111 H; docs/research/welcome-design.md): the sky the whole window, the text in the darker
-    /// upper sky over a dimming layer, left-aligned in the system's text styles.
+    /// The welcome (docs/research/welcome-design.md): the sky the whole window, the text in the darker upper sky over a
+    /// dimming layer, left-aligned in the system's text styles.
     package enum Welcome {
         /// How far above the screen's middle the window sits, as a share of the screen's height.
         package static let opticalLift = 0.07
@@ -19,8 +19,8 @@ extension Design {
         /// The dimming behind the text (the HIG's 35% for bright content), fading out by `dimmingReach` of the height.
         package static let dimming = 0.35
         package static let dimmingReach = 0.55
-        /// Under the buttons, the sky out of focus instead of darkened (the owner's note n91): solid over the buttons' band,
-        /// fading out above it.
+        /// Under the buttons, the sky out of focus instead of darkened: solid over the buttons' band, fading out above
+        /// it.
         package static let buttonsBlur = Blur.under(.bottom, solid: buttonsBlurSolid, fade: buttonsBlurFade, radius: 6)
         package static let buttonsBlurSolid = 56.0
         package static let buttonsBlurFade = 72.0

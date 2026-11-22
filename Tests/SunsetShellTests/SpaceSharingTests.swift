@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// A Space's tabs in several windows (roadmap 0021; ADR-0045, the owner's answers of 2026-11-16): the windows list the same
-/// tabs, each with its own selection; a tab is drawn and typed into in one window, the one that last clicked it.
+/// A Space's tabs in several windows: the windows list the same tabs, each with its own selection; a tab is drawn and
+/// typed into in one window, the one that last clicked it.
 @MainActor
 @Suite("A Space in several windows")
 struct SpaceSharingTests {
@@ -99,7 +99,7 @@ struct SpaceSharingTests {
         #expect(harness.space.tabs.count == 1 && harness.space.viewerCount == 1)
     }
 
-    /// The owner, 2026-11-16: "they stay, stop".
+    /// "they stay, stop".
     @Test
     func `the last window of a Space closes: its tabs stop and stay, and start again where they were in the next`()
         throws

@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The sections of the sidebars when a scope of the app is off (roadmap 0033): History and Downloads are the web's,
-/// Documents is the documents'.
+/// The sections of the sidebars when a scope of the app is off: History and Downloads are the web's, Documents is the
+/// documents'.
 @Suite("The sidebars' sections and the scopes that are off")
 struct SectionScopesTests {
     @Test func `a section of a scope that is off is not listed; the downloads stay when documents are off`() {

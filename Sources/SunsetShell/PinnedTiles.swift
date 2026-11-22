@@ -2,7 +2,7 @@ import SwiftUI
 
 /// The Pinned grid's tiles laid out by `PinnedLayout`: the columns that fit the width given, the block centred.
 struct PinnedTiles: Layout {
-    /// Between two tiles: the rows' spacing (roadmap 0038 D).
+    /// Between two tiles: the rows' spacing.
     var gap = PinnedLayout.gap
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
