@@ -55,8 +55,14 @@ extension TabsModel {
     }
 
     /// The window goes with its last tab, unless it shows a kept entry or there are Favorites to show (it stays, with a hint).
+    /// Nothing is left for the window to show: no tab, no kept entry shown, nothing in the Favorites or the Pinned grid.
+    /// A pinned tab unloaded by Cmd-W leaves its grid: the window is not empty (seen 2026-11-22: it closed).
+    package var showsNothing: Bool {
+        workspace.isEmpty && workspace.selectedEntry == nil && favorites.isEmpty && (pinned?.isEmpty ?? true)
+    }
+
     package func finishClosing() {
         onChange()
-        if workspace.isEmpty, workspace.selectedEntry == nil, favorites.isEmpty { emptied() } else { syncStates() }
+        if showsNothing { emptied() } else { syncStates() }
     }
 }

@@ -47,5 +47,8 @@ public struct SunsetApp: App {
         .defaultSize(width: 520, height: 640)
         .restorationBehavior(.disabled)
         .handlesExternalEvents(matching: [])
+        // Without this, a second window group puts the system's File ▸ Close (the window's) back in place of Sunset's
+        // Close (the focused tab's): ⌘W closed the whole window (seen 2026-11-22; the menus are the terminal group's).
+        .commandsRemoved()
     }
 }

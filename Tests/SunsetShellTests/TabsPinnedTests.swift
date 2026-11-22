@@ -41,6 +41,19 @@ struct TabsPinnedTests {
         #expect(pinned.favorites.entry(entry)?.isOpen == true && made.all.count == 3 && made.all[2].visible)
     }
 
+    @Test func `Cmd-W on a pinned tab unloads it: the entry stays, the window stays`() throws {
+        let (pinned, made) = (FavoritesModel(), MadeContents())
+        let tabs = window(pinned, made: made)
+        var emptied = false
+        tabs.onEmpty = { emptied = true }
+        tabs.newTab()
+        let id = try #require(tabs.workspace.selectedID)
+        let entry = try #require(tabs.pin(item: id))
+        tabs.closeSelected()
+        #expect(made.all[0].stopped && pinned.favorites.entry(entry)?.isOpen == false)
+        #expect(pinned.favorites.entries.map(\.id) == [entry] && tabs.shownEntry == nil && !emptied)
+    }
+
     @Test func `the grid is the same in every window and every Space; one window draws an entry`() throws {
         let (pinned, made) = (FavoritesModel(), MadeContents())
         let first = window(pinned, made: made)

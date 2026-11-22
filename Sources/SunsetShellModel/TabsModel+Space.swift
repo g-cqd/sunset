@@ -48,7 +48,7 @@ extension TabsModel {
         }
         marked.removeAll { if case .tab(let id) = $0 { !present.contains(id) } else { false } }
         if let hovered = hoveredItem, previewItem(hovered) == nil { hoveredItem = nil }
-        if items.isEmpty, selectedEntry == nil, favorites.isEmpty { emptied() }
+        if items.isEmpty, selectedEntry == nil, favorites.isEmpty, pinned?.isEmpty ?? true { emptied() }
     }
 
     /// Gives their content to the panes of the Space's tabs that have none, from what was kept for each; once this window
