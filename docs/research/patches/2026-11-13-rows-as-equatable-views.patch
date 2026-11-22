@@ -1,0 +1,175 @@
+diff --git a/Sources/SunsetShell/Design.swift b/Sources/SunsetShell/Design.swift
+index defa254b..8e0e3989 100644
+--- a/Sources/SunsetShell/Design.swift
++++ b/Sources/SunsetShell/Design.swift
+@@ -87,6 +87,8 @@ package enum Design {
+         package static let panel = 360.0
+         package static let sheet = 420.0
+         package static let commandBar = 520.0
++        /// A sidebar row before it has been measured (for a drop on it).
++        package static let rowFallback = 180.0
+         /// The find bar's text field.
+         package static let findField = 240.0
+     }
+diff --git a/Sources/SunsetShell/TabSidebar.swift b/Sources/SunsetShell/TabSidebar.swift
+index 89040ecb..d48fa5aa 100644
+--- a/Sources/SunsetShell/TabSidebar.swift
++++ b/Sources/SunsetShell/TabSidebar.swift
+@@ -21,11 +21,8 @@ package struct TabSidebar: View {
+     /// What the app puts at the bottom, against the window's edge (the + button and downloads, R2 and web step f).
+     var bottomBar: AnyView?
+     @State private var rowDrop: (item: Workspace.ItemID, action: TabDropAction)?
+-    @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
+-    @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
+     /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
+     @State private var closingSlot: Int?
+-    @Environment(\.accent) private var accentStyle
+ 
+     var margin: Double { settings.sidebar.padding }
+     /// The metrics the tabs draw with: the docked ones, or the floating panel's own.
+@@ -101,127 +98,30 @@ package struct TabSidebar: View {
+         }
+     }
+ 
+-    @ViewBuilder private func rowContent(_ item: Workspace.Item) -> some View {
+-        let armed = tabs.isCloseArmed(item.id)
+-        if item.isSplit {
+-            SidebarGroupRow(
+-                item: item,
+-                tabs: tabs,
+-                selected: tabs.isSelected(item.id),
+-                armed: armed,
+-                layout: layout
+-            )
+-        } else {
+-            let slot = tabs.workspace.items.firstIndex(where: { $0.id == item.id })
+-            let custom = tabs.custom(for: item)
+-            SidebarRow(
+-                model: tabs.contents[item.focused],
+-                selected: tabs.isSelected(item.id),
+-                armed: armed,
+-                keepCloseVisible: slot != nil && slot == closingSlot,
+-                name: custom.name,
+-                icon: custom.icon,
+-                showIcon: settings.tabs.bar.showIcon,
+-                showTitle: settings.tabs.bar.showTitle,
+-                showDirectory: settings.tabs.bar.showDirectory,
+-                showProgress: settings.tabs.bar.showProgress,
+-                layout: layout,
+-                marked: tabs.isMarked(.tab(item.id)),
+-                renaming: renaming(.tab(item.id)),
+-                close: {
+-                    closingSlot = slot
+-                    var transaction = Transaction()
+-                    transaction.disablesAnimations = true
+-                    withTransaction(transaction) {
+-                        tabs.close(item: item.id)
+-                    }
+-                }
+-            )
+-        }
+-    }
+-
++    /// One row, as a view of its own that is equal while nothing of its tab changed: selecting a tab re-draws the two rows it
++    /// concerns, not all of them (t205: 40 rows cost 20 ms of every switch).
+     private func row(_ item: Workspace.Item) -> some View {
+-        rowContent(item)
+-            .onGeometryChange(for: CGSize.self, of: \.size) { rowSizes[item.id] = $0 }
+-            .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { rowFrames[item.id] = $0 }
+-            .overlay {
+-                if rowDrop?.item == item.id, let action = rowDrop?.action {
+-                    rowDropOverlay(action)
+-                }
+-            }
+-            .onHover { inside in
+-                if inside {
+-                    if let slot = tabs.workspace.items.firstIndex(where: { $0.id == item.id }), closingSlot != slot {
+-                        closingSlot = nil
+-                    }
+-                    tabs.hoveredItem = item.id
+-                    tabs.hoveredRowFrame = rowFrames[item.id]
+-                } else if tabs.hoveredItem == item.id {
+-                    tabs.hoveredItem = nil
+-                }
+-            }
+-            .onTapGesture(count: 2) { tabs.renamingRow = .tab(item.id) }
+-            .selectionTaps(tabs, row: .tab(item.id)) { tabs.select(item: item.id) }
+-            .iconPopover(tabs: tabs, row: .tab(item.id))
+-            .onDrag { tabs.itemProvider(for: .item(item.id)) }
+-            .onDrop(
+-                of: [.plainText, .utf8PlainText],
+-                delegate: TabRowDropDelegate(
+-                    tabs: tabs,
+-                    item: item.id,
+-                    size: rowSizes[item.id] ?? CGSize(width: 180, height: 32),
+-                    active: $rowDrop
+-                )
+-            )
+-            .contextMenu {
+-                SelectionMenu(tabs: tabs, row: .tab(item.id))
+-                Button("Rename") { tabs.renamingRow = .tab(item.id) }
+-                Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item.id) }
+-                Button("Add to Favorites") { tabs.keep(item: item.id) }
+-                Button("New Folder with This Tab") { tabs.newFolder(with: item.id) }
+-                Button("Close Tab") { tabs.close(item: item.id) }
+-                Button("Close Other Tabs") { tabs.closeOthers(than: item.id) }
+-                    .disabled(tabs.workspace.count < 2)
++        TabSidebarRow(
++            tabs: tabs,
++            item: item,
++            bar: settings.tabs.bar,
++            layout: layout,
++            selected: tabs.isSelected(item.id),
++            armed: tabs.isCloseArmed(item.id),
++            keepCloseVisible: closingSlot.map {
++                tabs.workspace.items.indices.contains($0) && tabs.workspace.items[$0].id == item.id
+             }
+-    }
+-
+-    /// The in-place name of a row while it is being renamed.
+-    private func renaming(_ row: RowTarget) -> (start: String, done: (String?) -> Void)? {
+-        guard tabs.renamingRow == row else { return nil }
+-        return (
+-            tabs.name(of: row), { name in if let name { tabs.rename(row, to: name) } else { tabs.renamingRow = nil } }
++                ?? false,
++            marked: tabs.isMarked(.tab(item.id)),
++            renamingFrom: tabs.renamingRow == .tab(item.id) ? tabs.name(of: .tab(item.id)) : nil,
++            drop: rowDrop?.item == item.id ? rowDrop?.action : nil,
++            rowDrop: $rowDrop,
++            closingSlot: $closingSlot
+         )
++        .equatable()
+     }
+ 
+     /// Pins the sidebar beside the terminal (`sidebar.autoHide` off) or lets it hide and float: the sidebar symbol, filled while the sidebar is open
+     /// (pinned) and outlined while it only appears on hover. Its container is a rounded square the size of the hit box, highlighted under the pointer like a
+     /// tab, with its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
+-    /// Shows what dropping on this row will do: an insertion line at the top or bottom edge for reordering, or a left/right half highlight for splitting.
+-    @ViewBuilder private func rowDropOverlay(_ action: TabDropAction) -> some View {
+-        let accent = accentStyle.color
+-        let shape = RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous)
+-        switch action {
+-            case .moveBefore:
+-                VStack {
+-                    Capsule().fill(accent).frame(height: 2)
+-                    Spacer(minLength: 0)
+-                }
+-                .allowsHitTesting(false)
+-            case .moveAfter:
+-                VStack {
+-                    Spacer(minLength: 0)
+-                    Capsule().fill(accent).frame(height: 2)
+-                }
+-                .allowsHitTesting(false)
+-            case .split(let edge):
+-                GeometryReader { proxy in
+-                    let half = proxy.size.width / 2
+-                    shape.fill(accent.opacity(Design.Fill.target))
+-                        .overlay { shape.strokeBorder(accent.opacity(Design.Fill.armedButton), lineWidth: 1.5) }
+-                        .frame(width: half, height: proxy.size.height)
+-                        .offset(x: edge == .right ? half : 0)
+-                }
+-                .allowsHitTesting(false)
+-        }
+-    }
+ }
