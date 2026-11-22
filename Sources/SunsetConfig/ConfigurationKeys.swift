@@ -54,6 +54,7 @@ public enum ConfigurationKeys {
         "features.terminal",
         "features.web",
         "features.documents",
+        "features.credentials",
         "web.blockingLists",
         "web.proxy",
         "web.engine",

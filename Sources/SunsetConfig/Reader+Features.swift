@@ -12,6 +12,8 @@ extension Reader {
                 case "web": if let flag = bool("features.web", value) { configuration.features.web = flag }
                 case "documents":
                     if let flag = bool("features.documents", value) { configuration.features.documents = flag }
+                case "credentials":
+                    if let flag = bool("features.credentials", value) { configuration.features.credentials = flag }
                 default: unknown("features.\(key)")
             }
         }
