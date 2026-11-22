@@ -18,7 +18,7 @@ public struct StorageKey: Sendable {
 
     /// The key a recovery code holds.
     public init(recoveryCode: String) throws(StorageKeyFailure) {
-        guard let bytes = RecoveryCode.decode(recoveryCode) else { throw .badCode }
+        guard let bytes = RecoveryCodeText.decode(recoveryCode) else { throw .badCode }
         self.init(bytes: bytes)
     }
 
@@ -29,7 +29,7 @@ public struct StorageKey: Sendable {
 
     /// The key in a form to write down. Whoever has it and the files reads everything: shown once, on request.
     public var recoveryCode: String {
-        RecoveryCode.encode(bytes)
+        RecoveryCodeText.encode(bytes)
     }
 
     /// Four bytes that name the key without giving anything of it away: written in every seal, so that a thing sealed with

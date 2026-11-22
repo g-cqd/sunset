@@ -1,17 +1,17 @@
 import CryptoKit
-import Foundation
+package import Foundation
 
 /// The key in a form to write down (R12): its 32 bytes and two bytes that check them, in Crockford's base 32 (no I, L, O or U,
 /// so nothing is mistaken for a digit), as eleven groups of five. Read back whatever the case, with spaces or dashes, and with
 /// O, I and L taken for the digits they look like; a mistyped code fails the check.
-enum RecoveryCode {
+package enum RecoveryCodeText {
     private static let alphabet = Array("0123456789ABCDEFGHJKMNPQRSTVWXYZ")
     private static let keyLength = 32
     private static let checkLength = 2
     /// Symbols in a code: 34 bytes, five bits a symbol.
     static let symbols = ((keyLength + checkLength) * 8 + 4) / 5
 
-    static func encode(_ key: Data) -> String {
+    package static func encode(_ key: Data) -> String {
         let bytes = Array(key) + check(key)
         var symbols: [Character] = []
         var buffer = 0
@@ -31,7 +31,7 @@ enum RecoveryCode {
     }
 
     /// The key a code holds; nil when it is not a code, or its check fails.
-    static func decode(_ code: String) -> Data? {
+    package static func decode(_ code: String) -> Data? {
         var bytes: [UInt8] = []
         var buffer = 0
         var bits = 0

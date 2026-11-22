@@ -15,16 +15,7 @@ public struct EnclaveKeyVault: KeyVault {
         guard let stored = try backing.read() else { return nil }
         do {
             let record = try EnclaveWrap.Record(stored)
-            let classicalKey = try SecureEnclave.P256.KeyAgreement.PrivateKey(dataRepresentation: record.classicalKey)
-            let postQuantumKey = try SecureEnclave.MLKEM1024.PrivateKey(dataRepresentation: record.postQuantumKey)
-            let ephemeral = try P256.KeyAgreement.PublicKey(x963Representation: record.ephemeral)
-            let classical = try classicalKey.sharedSecretFromKeyAgreement(with: ephemeral)
-            let postQuantum = try postQuantumKey.decapsulate(record.encapsulated)
-            let wrap = EnclaveWrap.wrapKey(
-                classical: classical.withUnsafeBytes { Data($0) },
-                postQuantum: postQuantum.withUnsafeBytes { Data($0) },
-                transcript: record.transcript
-            )
+            let wrap = try EnclaveWrap.open(record)
             return try ChaChaPoly.open(ChaChaPoly.SealedBox(combined: record.sealed), using: SymmetricKey(data: wrap))
         } catch {
             throw .vault
@@ -40,27 +31,11 @@ public struct EnclaveKeyVault: KeyVault {
                 nil
             )
         else { throw .vault }
-        let record: EnclaveWrap.Record
+        var record: EnclaveWrap.Record
         do {
-            let classicalKey = try SecureEnclave.P256.KeyAgreement.PrivateKey(accessControl: access)
-            let postQuantumKey = try SecureEnclave.MLKEM1024.PrivateKey(accessControl: access)
-            let ephemeral = P256.KeyAgreement.PrivateKey()
-            let classical = try classicalKey.sharedSecretFromKeyAgreement(with: ephemeral.publicKey)
-            let encapsulation = try postQuantumKey.publicKey.encapsulate()
-            let transcript = ephemeral.publicKey.x963Representation + encapsulation.encapsulated
-            let wrap = EnclaveWrap.wrapKey(
-                classical: classical.withUnsafeBytes { Data($0) },
-                postQuantum: encapsulation.sharedSecret.withUnsafeBytes { Data($0) },
-                transcript: transcript
-            )
-            let sealed = try ChaChaPoly.seal(bytes, using: SymmetricKey(data: wrap)).combined
-            record = EnclaveWrap.Record(
-                classicalKey: classicalKey.dataRepresentation,
-                postQuantumKey: postQuantumKey.dataRepresentation,
-                ephemeral: ephemeral.publicKey.x963Representation,
-                encapsulated: encapsulation.encapsulated,
-                sealed: sealed
-            )
+            let made = try EnclaveWrap.make(access: access)
+            record = made.record
+            record.sealed = try ChaChaPoly.seal(bytes, using: SymmetricKey(data: made.wrapKey)).combined
         } catch {
             throw .vault
         }
