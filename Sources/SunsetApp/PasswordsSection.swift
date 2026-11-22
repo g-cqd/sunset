@@ -32,7 +32,7 @@ struct PasswordsSection: View {
                 .fixedSize(horizontal: false, vertical: true)
             Button("Set Up Passwords\u{2026}") { PasswordsSetupWindow.present(model: model) }
         }
-        .padding(.horizontal, layout.tabPaddingLeading)
+        .padding(.leading, layout.tabPaddingLeading)
         .padding(.top, Design.Space.m)
     }
 
@@ -42,7 +42,7 @@ struct PasswordsSection: View {
             Text("Your passwords are locked.").foregroundStyle(.secondary)
             Button("Unlock\u{2026}") { tabs?.showSingle(.passwords) }
         }
-        .padding(.horizontal, layout.tabPaddingLeading)
+        .padding(.leading, layout.tabPaddingLeading)
         .padding(.top, Design.Space.m)
     }
 
@@ -51,7 +51,7 @@ struct PasswordsSection: View {
         if found.isEmpty {
             Text(model.entries.isEmpty ? "No entries yet: + makes one" : "No entry matches")
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, layout.tabPaddingLeading)
+                .padding(.leading, layout.tabPaddingLeading)
                 .padding(.top, Design.Space.m)
         }
         ForEach(found) { entry in

@@ -9,6 +9,8 @@ package struct ChoiceList: View {
     /// Between two rows, and from the rows to the list's edge.
     let spacing: Double
     let inset: Double
+    /// From a row's fill to its glyph.
+    let rowPadding: Double
     /// A row was clicked: its first action.
     let activate: (Int) -> Void
 
@@ -21,6 +23,7 @@ package struct ChoiceList: View {
         radius: Double,
         spacing: Double = Design.Space.hair,
         inset: Double = Design.Space.s,
+        rowPadding: Double = Design.Space.l,
         maxHeight: Double = .infinity,
         activate: @escaping (Int) -> Void
     ) {
@@ -30,6 +33,7 @@ package struct ChoiceList: View {
         self.radius = radius
         self.spacing = spacing
         self.inset = inset
+        self.rowPadding = rowPadding
         self.activate = activate
     }
 
@@ -41,7 +45,7 @@ package struct ChoiceList: View {
                         Button {
                             activate(index)
                         } label: {
-                            ChoiceRowView(row: row, selected: index == selection)
+                            ChoiceRowView(row: row, selected: index == selection, padding: rowPadding)
                         }
                         .buttonStyle(ChoiceRowStyle(selected: index == selection, radius: radius))
                         .id(row.id)

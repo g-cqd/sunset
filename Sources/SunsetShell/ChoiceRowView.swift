@@ -4,6 +4,8 @@ import SwiftUI
 struct ChoiceRowView: View {
     let row: ChoiceRow
     let selected: Bool
+    /// From the row's fill to its glyph: on the field's line (`CommandBarGrid`).
+    var padding = Design.Space.l
     @Environment(\.accent) private var accent
     @State private var width = 0.0
 
@@ -35,10 +37,7 @@ struct ChoiceRowView: View {
             if let subtitle = row.subtitle, parts.subtitle {
                 Text(subtitle)
                     .font(Design.Text.detail)
-                    .foregroundStyle(
-                        selected
-                            ? AnyShapeStyle(accent.ink.opacity(Design.Fill.inkSecondary)) : AnyShapeStyle(.secondary)
-                    )
+                    .foregroundStyle(detail(Design.Fill.inkSecondary))
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
@@ -46,20 +45,23 @@ struct ChoiceRowView: View {
             if let accessory = row.accessory, parts.accessory {
                 Text(accessory)
                     .font(Design.Text.detail)
-                    .foregroundStyle(
-                        selected
-                            ? AnyShapeStyle(accent.ink.opacity(Design.Fill.accentPressed)) : AnyShapeStyle(.secondary)
-                    )
+                    .foregroundStyle(detail(Design.Fill.accentPressed))
                     .padding(.horizontal, Design.Space.s)
                     .padding(.vertical, Design.Space.hair)
                     .background(Capsule().fill(Color.primary.opacity(selected ? 0 : Design.Fill.hover)))
             }
         }
         .foregroundStyle(selected ? AnyShapeStyle(accent.ink) : AnyShapeStyle(.primary))
-        .padding(.horizontal, Design.Space.l)
+        .padding(.leading, padding)
+        .padding(.trailing, Design.Space.l)
         .frame(height: ChoiceList.rowHeight - Design.Space.hair)
         .frame(maxWidth: .infinity, alignment: .leading)
         .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { width = $0 }
         .contentShape(.rect)
+    }
+
+    /// A detail's colour: the accent's ink at `opacity` on the selected row, else secondary.
+    private func detail(_ opacity: Double) -> AnyShapeStyle {
+        selected ? AnyShapeStyle(accent.ink.opacity(opacity)) : AnyShapeStyle(.secondary)
     }
 }

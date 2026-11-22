@@ -68,12 +68,21 @@ struct CommandBarView: View {
         let style = SurfaceStyle(layout: layout)
         let selection = rows.isEmpty ? -1 : min(bar.selection, rows.count - 1)
         let scheme = tint.resolved(in: outer)
+        let grid = CommandBarGrid(sidebarLeading: anchor == nil ? nil : layout.tabPaddingLeading)
         return VStack(spacing: 0) {
-            HStack(spacing: Design.Space.s) {
-                if let engine = bar.engine { chip(engine) }
+            // The field's glyph on the rows' glyphs' line, the typed text on their titles' (`CommandBarGrid`).
+            HStack(spacing: GlyphSpacing.toText) {
+                if let engine = bar.engine {
+                    chip(engine)
+                } else {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                        .frame(width: Design.Size.glyphFrame)
+                }
                 field(bar, rows, selection, settings)
             }
-            .padding(.horizontal, anchor == nil ? Design.Space.xl : layout.tabPaddingLeading)
+            .padding(.leading, grid.fieldPadding)
+            .padding(.trailing, anchor == nil ? Design.Space.xl : layout.tabPaddingTrailing)
             .frame(height: anchor.map { Double($0.height) } ?? Design.Size.fieldLarge)
             if !rows.isEmpty {
                 Divider().opacity(Design.Fill.fainterDivider)
@@ -84,7 +93,8 @@ struct CommandBarView: View {
                     selection: selection,
                     radius: layout.tabRadius,
                     spacing: anchor == nil ? Design.Space.xs : layout.tabSpacing,
-                    inset: anchor == nil ? Design.Space.s : Design.Space.xs,
+                    inset: grid.listInset,
+                    rowPadding: grid.rowPadding,
                     maxHeight: listRoom
                 ) { run(rows, $0, action: 0) }
             } else if !bar.query.isEmpty {
