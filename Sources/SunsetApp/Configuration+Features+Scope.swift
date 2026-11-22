@@ -9,6 +9,7 @@ extension Configuration.Features {
                 case .terminal: terminal
                 case .web: web
                 case .documents: documents
+                case .passwords: credentials
             }
         }
         set {
@@ -16,6 +17,7 @@ extension Configuration.Features {
                 case .terminal: terminal = newValue
                 case .web: web = newValue
                 case .documents: documents = newValue
+                case .passwords: credentials = newValue
             }
         }
     }

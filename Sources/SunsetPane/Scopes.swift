@@ -3,37 +3,25 @@
 public struct Scopes: Sendable, Equatable {
     public enum Scope: String, Sendable, CaseIterable {
         case terminal, web, documents
+        /// The vault (the Library's Passwords section): not a kind of tab, and off unless turned on.
+        case passwords
 
-        /// The kind of pane it is (`PaneDescriptor.kind`).
-        public var kind: String {
-            switch self {
-                case .terminal: PaneDescriptor.terminalKind
-                case .web: "web"
-                case .documents: PaneDescriptor.documentKind
-            }
-        }
-
-        public var title: String {
-            switch self {
-                case .terminal: "Terminals"
-                case .web: "Web"
-                case .documents: "Documents"
-            }
+        /// A scope of tabs: at least one of these stays on.
+        public var isTabs: Bool {
+            self != .passwords
         }
     }
 
     private var on: Set<Scope>
-    /// The vault: not a kind of pane, and off unless turned on (`features.credentials`); its Library section shows then.
-    public var passwords: Bool
 
-    /// All three off is terminals on.
+    /// The three scopes of tabs all off is terminals on. Passwords is off unless asked for.
     public init(terminal: Bool = true, web: Bool = true, documents: Bool = true, passwords: Bool = false) {
-        self.passwords = passwords
         on = []
         if terminal { on.insert(.terminal) }
         if web { on.insert(.web) }
         if documents { on.insert(.documents) }
         if on.isEmpty { on = [.terminal] }
+        if passwords { on.insert(.passwords) }
     }
 
     /// Whether a scope is on. Turning the last one off is refused.
@@ -73,9 +61,18 @@ public struct Scopes: Sendable, Equatable {
         }
     }
 
-    /// It is on, and is not the only one.
+    public var passwords: Bool {
+        get {
+            self[.passwords]
+        }
+        set {
+            self[.passwords] = newValue
+        }
+    }
+
+    /// It is on, and is not the only scope of tabs on.
     public func canTurnOff(_ scope: Scope) -> Bool {
-        on.contains(scope) && on.count > 1
+        on.contains(scope) && (!scope.isTabs || on.count { $0.isTabs } > 1)
     }
 
     /// The scopes that are off.
@@ -83,7 +80,7 @@ public struct Scopes: Sendable, Equatable {
         Scope.allCases.filter { !on.contains($0) }
     }
 
-    /// Whether a pane of this kind can be: a kind that is none of the three (the settings) always can.
+    /// Whether a pane of this kind can be: a kind that is none of the scopes' (the settings) always can.
     public func allows(kind: String) -> Bool {
         Scope.allCases.first { $0.kind == kind }.map(on.contains) ?? true
     }

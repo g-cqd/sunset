@@ -48,7 +48,9 @@ import SunsetShell
     /// changes and when a session is read: nothing of a scope that is off is left running.
     static func enforce() {
         let scopes = current
-        for scope in scopes.off {
+        // Turned off, the vault locks: nothing of it stays open in memory.
+        if !scopes.passwords { AppPasswords.model.lock() }
+        for scope in scopes.off where scope.isTabs {
             for space in spaces { space.close(scope) }
             for favorites in kept { favorites.unload(scope) }
         }

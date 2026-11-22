@@ -16,7 +16,10 @@ struct ScopesTests {
         #expect(scopes.allows(.terminal(directory: nil)) && scopes.allows(nothing), "no descriptor is a terminal")
         scopes.terminal = false
         #expect(!scopes.allows(nothing) && !scopes.allows(kind: "terminal") && scopes.allows(kind: "document"))
-        #expect(Scopes.Scope.allCases.map(\.kind) == ["terminal", "web", "document"])
+        #expect(Scopes.Scope.allCases.map(\.kind) == ["terminal", "web", "document", "passwords"])
+        #expect(Scopes.Scope.terminal.kind == PaneDescriptor.terminalKind)
+        #expect(Scopes.Scope.documents.kind == PaneDescriptor.documentKind)
+        #expect(Scopes.Scope.allCases.map(\.name) == ["terminals", "the web", "documents", "passwords"])
         #expect(scopes[.documents] && !scopes[.web])
     }
 

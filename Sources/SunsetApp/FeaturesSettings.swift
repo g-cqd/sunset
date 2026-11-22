@@ -15,7 +15,7 @@ struct FeaturesSettings: View {
             ForEach(Scopes.Scope.allCases, id: \.self) { scope in
                 LabeledContent {
                     Toggle(scope.title, isOn: binding(scope)).settingSwitch().labelsHidden()
-                        .disabled(isOn(scope) && features.count == 1)
+                        .disabled(isOn(scope) && scope.isTabs && features.count == 1)
                         .accessibilityLabel(scope.title)
                 } label: {
                     Text(scope.title)
@@ -24,7 +24,7 @@ struct FeaturesSettings: View {
         }
         .sunsetAlert(item: $asking) { scope in
             SunsetAlert(
-                title: "Turn off \(Self.name(scope))?",
+                title: "Turn off \(scope.name)?",
                 message: AppScopes.sentence(closing: scope),
                 buttons: [.cancel("Cancel"), .destructive("Turn Off and Close")],
                 defaultButton: 0
@@ -50,13 +50,5 @@ struct FeaturesSettings: View {
                 if value || AppScopes.openCount(of: scope) == 0 { set(scope, value) } else { asking = scope }
             }
         )
-    }
-
-    static func name(_ scope: Scopes.Scope) -> String {
-        switch scope {
-            case .terminal: "terminals"
-            case .web: "the web"
-            case .documents: "documents"
-        }
     }
 }
