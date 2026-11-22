@@ -9,6 +9,8 @@ public import Foundation
 public struct Seal: Sendable {
     public enum Purpose: String, Sendable {
         case document, session, state, cookies, siteData
+        /// A vault's records and its index (ADR-0091): sealed with the vault's own key, never the app's.
+        case vaultRecord, vaultIndex
     }
 
     private static let magic = Data("SNSL".utf8)

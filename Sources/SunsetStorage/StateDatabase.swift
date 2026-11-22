@@ -77,16 +77,8 @@ public final class StateDatabase {
     }
 
     private static func attempt(_ path: String, _ key: StorageKey) -> Attempt {
-        if path != ":memory:" {
-            // Its owner's only (roadmap 0051 A): made so, and set so when it was made before.
-            let folder = (path as NSString).deletingLastPathComponent
-            try? FileManager.default.createDirectory(
-                atPath: folder,
-                withIntermediateDirectories: true,
-                attributes: [.posixPermissions: 0o700]
-            )
-            try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: folder)
-        }
+        // Its owner's only (roadmap 0051 A): made so, and set so when it was made before.
+        if path != ":memory:" { SQLiteBinding.ownFolder(of: path) }
         var handle: OpaquePointer?
         guard unsafe sqlite3_open_v2(path, &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) == SQLITE_OK else {
             unsafe sqlite3_close(handle)

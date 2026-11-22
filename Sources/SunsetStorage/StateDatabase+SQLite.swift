@@ -3,12 +3,7 @@ import SQLite3
 
 /// The few SQLite calls the database needs: a statement with bound values, run, or read as rows.
 extension StateDatabase {
-    enum Value {
-        case text(String)
-        case real(Double)
-        case integer(Int)
-        case blob(Data)
-    }
+    typealias Value = SQLiteBinding.Value
 
     @discardableResult
     func run(_ sql: String) -> Bool {
@@ -56,22 +51,6 @@ extension StateDatabase {
     }
 
     private func prepare(_ sql: String, _ values: [Value]) -> OpaquePointer? {
-        var prepared: OpaquePointer?
-        guard unsafe sqlite3_prepare_v2(handle, sql, -1, &prepared, nil) == SQLITE_OK else { return nil }
-        // SQLite copies what is bound at once (SQLITE_TRANSIENT).
-        let transient = unsafe unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-        for (index, value) in values.enumerated() {
-            let position = Int32(index + 1)
-            switch value {
-                case .text(let text): unsafe sqlite3_bind_text(prepared, position, text, -1, transient)
-                case .real(let number): unsafe sqlite3_bind_double(prepared, position, number)
-                case .integer(let number): unsafe sqlite3_bind_int64(prepared, position, Int64(number))
-                case .blob(let data):
-                    _ = unsafe data.withUnsafeBytes { bytes in
-                        unsafe sqlite3_bind_blob(prepared, position, bytes.baseAddress, Int32(bytes.count), transient)
-                    }
-            }
-        }
-        return unsafe prepared
+        SQLiteBinding.prepare(sql, values, on: handle)
     }
 }
