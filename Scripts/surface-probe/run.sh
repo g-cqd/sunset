@@ -1,6 +1,5 @@
 #!/bin/sh
-# What terminals that have gone quiet, or are not shown, keep of their surfaces (review of 2026-11-15, 3.2; owner note n14;
-# task t267).
+# What terminals that have gone quiet, or are not shown, keep of their surfaces.
 #
 # A test copy of Sunset (never the person's own) with four terminal tabs. Each one's "shell" prints fast for two seconds
 # (frames then come faster than the window server lets go of surfaces, so a third surface is made), then is quiet. Each

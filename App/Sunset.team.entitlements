@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  A build signed with the team's Developer ID and its profile (task t49): App/Sunset.entitlements, and the team's keychain
-  access group (the data-protection keychain: refused ad hoc, -34018, diary 2026-11-19-06). iCloud and the credential
-  provider are added when they are built (roadmap 0096, 0098).
+  A build signed with the team's Developer ID and its profile: App/Sunset.entitlements, and the team's keychain
+  access group (the data-protection keychain: refused ad hoc, -34018).
 -->
 <plist version="1.0">
 <dict>

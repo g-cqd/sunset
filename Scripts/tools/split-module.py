@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""After files move from a module into a new one (roadmap 0086 D: a model apart from its views), makes what was internal
+"""After files move from a module into a new one (a model apart from its views), makes what was internal
 across them visible again, then builds until the package builds or nothing more can be done by rule.
 
     Scripts/tools/split-module.py Sources/SunsetTerminalModel

@@ -1,10 +1,9 @@
 # axdrive
 
-Drives a test Sunset through the accessibility API without bringing it to the front (the owner, 2026-11-12: the screen is his, and nothing may
-ever touch data that is not a test's).
+Drives a test Sunset through the accessibility API without bringing it to the front, and never touches data that is not a test's.
 
 **The guard.** Every command first reads the target's environment from the kernel (`KERN_PROCARGS2`) and goes on only for a process axdrive
-launched: `AXDRIVE_TEST=1` and `SUNSET_CONFIG` inside `/tmp/axdrive/`. The owner's Sunset, any other app, a process whose environment cannot be
+launched: `AXDRIVE_TEST=1` and `SUNSET_CONFIG` inside `/tmp/axdrive/`. The person's own Sunset, any other app, a process whose environment cannot be
 read: refused with exit 4, reading included. `launch` makes a fresh folder there (its own configuration, session, history, downloads), starts the
 app with `SUNSET_BACKGROUND=1` and returns its pid once a window exists.
 
@@ -32,6 +31,6 @@ enabled (`--within`, 3 s). A match on letters in order alone is never acted on. 
 it), then by setting the value when the keys did not land. A failed step leaves `failed-step-N.png` and the tree beside the test's files.
 
 Measured 2026-11-12: an 8-step flow (permission panel, menu, command bar typing, a page load) in about 1.3 s once launched, a launch in about
-0.5-1 s; 40 of 40 runs passed after the last fix, with the owner's app in front throughout.
+0.5-1 s; 40 of 40 runs passed after the last fix, with the person's own app in front throughout.
 
 The call tester moved: `Tools/webtester/calls.html`, served by `Scripts/web-tester.sh` (see `Tools/webtester/README.md`).

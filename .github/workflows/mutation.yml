@@ -1,6 +1,6 @@
 name: Mutation
 
-# Mutation testing (white paper §1: CI only), once a day, not on every push (owner, 2026-11-01): the Sources files changed in the last day, with no
+# Mutation testing (white paper §1: CI only), once a day, not on every push: the Sources files changed in the last day, with no
 # new surviving mutant allowed beyond .ci/baselines/mutation.json; on Mondays, and when run by hand, every file, uploading a fresh
 # baseline to commit by hand.
 on:

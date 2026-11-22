@@ -1,10 +1,8 @@
-// Sunset's sky, alive, for the welcome (roadmap 0111 H, 0084 G): the icon's sky (Design/Icons/Sky.metal) made light
+// Sunset's sky, alive, for the welcome: the icon's sky (Design/Icons/Sky.metal) made light
 // enough for a whole screen at the display's rate: one sample a pixel (no chromatic split), 12 steps along the view and
 // 4 towards the sun (the icon takes 20 and 8). Drawn into an extended-range layer (`SunsetSkyLayer`): the sky tone-mapped
-// to the display's white, the sun's heart above it by the display's headroom (the owner, 2026-11-21: "exploit hdr values
-// for the sun"); on a display without headroom it is the icon's look. The sun and the sky are separate layers (the owner,
-// 2026-11-21: "separate the sun and the sky in the shader and animation to animate them in different phases"): the
-// opening draws the sun alone over the screen; the window draws both. Nothing here stands in for the window's shape.
+// to the display's white, the sun's heart above it by the display's headroom; on a display without headroom it is the icon's look. The sun and the sky are separate layers, animated in
+// phases of their own: the opening draws the sun alone over the screen; the window draws both. Nothing here stands in for the window's shape.
 #include <metal_stdlib>
 using namespace metal;
 
@@ -147,8 +145,7 @@ static float3 sunLayer(float2 p, constant SkyUniforms &u, thread float &heart) {
     heart = exp(-pow(r / R, 2.2f)) * dim;
     float corona = exp(-pow(r / (R * 2.0f), 1.8f)) * dim;
     float bloom = exp(-pow(r / (R * 3.8f), 1.5f));
-    // A wide, faint warmth around it, reaching across the screen while it is out of focus (the owner, 2026-11-21:
-    // "a wider surface to still cover the screen"); in focus, the window's sky gives the warmth instead.
+    // A wide, faint warmth around it, reaching across the screen while it is out of focus; in focus, the window's sky gives the warmth instead.
     float wash = exp(-r / (u.frameSize.y * 1.1f)) * 0.22f * defocus;
     // Under the horizon the haze takes its lower part, once it is in focus.
     float below = max(p.y - u.sun.y, 0.0f) / u.frameSize.y;

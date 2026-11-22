@@ -1,5 +1,5 @@
 #!/bin/sh
-# Our WebKit (roadmap 0048, ADR-0110): WebKit at the commit in Engine/WebKit/base with the series in Engine/WebKit/patches
+# Sunset's WebKit: WebKit at the commit in Engine/WebKit/base with the series in Engine/WebKit/patches
 # applied, built outside this repository. No WebKit tree is kept here.
 #
 #   Scripts/webkit.sh fetch            a shallow, sparse clone of the base in $SUNSET_WEBKIT: no LayoutTests but the
@@ -34,7 +34,7 @@ took() { echo "webkit: $1 in $(($(now) - $2)) s"; }
 # Swift Testing suites match by prefix; gtest ones need ".*".
 api_suites="WKWebExtensionAPI WKWebExtensionMatchPattern DOMLinearTime HTMLParserSiblingRuns DocumentOrder.* Position.* TextIteratorTest.* StaticRangeValidity.*"
 layout_tests="fast/dom/Range fast/selectors fast/css-grid-layout/remove-grid-deferred-deletion.html"
-# What the sparse checkout takes of LayoutTests, for those (and WPT runs by hand: diary 2026-11-21-08).
+# What the sparse checkout takes of LayoutTests, for those (and WPT runs by hand).
 test_paths='/LayoutTests/TestExpectations
 /LayoutTests/platform/mac/TestExpectations
 /LayoutTests/platform/mac-wk2/TestExpectations

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # A release of Sunset as people download it: the release build, signed with the team's Developer ID, notarised and stapled,
-# zipped with ditto, and its SHA-256 beside it. The same script on the owner's Mac and in CI (.github/workflows/release.yml).
+# zipped with ditto, and its SHA-256 beside it. The same script on a Mac and in CI (.github/workflows/release.yml).
 #
 #   Scripts/package-release.sh TAG [output folder]     TAG: v0.1.0 or v0.1.0-alpha.1; default folder: .build/dist
 #

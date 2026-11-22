@@ -1,4 +1,4 @@
-// Run: swiftc -O -o /tmp/titlebar Scripts/probes/webkit-titlebar-inset.swift && /tmp/titlebar (roadmap 0045 D, 2026-11-18).
+// Run: swiftc -O -o /tmp/titlebar Scripts/probes/webkit-titlebar-inset.swift && /tmp/titlebar (2026-11-18).
 // Does a WKWebView that reaches the top of a window with a full-size content view and a transparent title bar (Sunset's
 // window with no decorations) lay its page out below the title bar, leaving a band at the top? Read where the page's
 // first pixel row is (`elementFromPoint`) and WebKit's insets, at the window's top and inset from it (a docked card).

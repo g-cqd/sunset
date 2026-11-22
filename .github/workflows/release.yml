@@ -1,11 +1,11 @@
 name: Release
 
-# A tag v* publishes Sunset.app: built by Scripts/package-release.sh (the script the owner runs on his Mac), signed with the
+# A tag v* publishes Sunset.app: built by Scripts/package-release.sh (the script run on a Mac for a release), signed with the
 # team's Developer ID, notarised, zipped, and attached to a GitHub release with its SHA-256 (a pre-release when the tag has a
 # suffix, as v0.1.0-alpha.1). By hand (workflow_dispatch) it builds without the secrets, ad hoc and not notarised, and keeps the
 # zip as the run's artifact: a check that the app still builds on the runner, nothing to give people.
 #
-# Repository secrets, added by the owner (Settings › Secrets and variables › Actions); none of them is in the repository:
+# Repository secrets, added in the repository's settings (Settings › Secrets and variables › Actions); none of them is in the repository:
 #   DEVELOPER_ID_P12            the Developer ID Application certificate and its private key, as a .p12, base64
 #   DEVELOPER_ID_P12_PASSWORD   that file's password
 #   DEVELOPER_ID_PROFILE        the "Sunset" Developer ID provisioning profile (.provisionprofile), base64

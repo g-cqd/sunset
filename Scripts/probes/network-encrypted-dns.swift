@@ -1,4 +1,4 @@
-// Run: swiftc -O -o /tmp/edns Scripts/probes/network-encrypted-dns.swift && /tmp/edns (roadmap 0046 A, 2026-11-18).
+// Run: swiftc -O -o /tmp/edns Scripts/probes/network-encrypted-dns.swift && /tmp/edns (2026-11-18).
 // Can a connection Sunset makes resolve its host only over DNS over HTTPS or TLS (Network.framework's privacy context), as
 // a proxy inside Sunset that the pages go through would? With a resolver that works, the host is reached; with one that
 // cannot be reached, it must not be (else the system's resolver answered in its place). Names never asked before.

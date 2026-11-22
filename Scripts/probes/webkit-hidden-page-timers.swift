@@ -1,4 +1,4 @@
-// Run: swiftc -O -o /tmp/probe Scripts/probes/webkit-hidden-page-timers.swift && /tmp/probe (study t134, 2026-11-18).
+// Run: swiftc -O -o /tmp/probe Scripts/probes/webkit-hidden-page-timers.swift && /tmp/probe (2026-11-18).
 import AppKit
 import WebKit
 

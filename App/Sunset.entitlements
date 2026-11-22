@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  Under the hardened runtime (task t49): what a page the person allows may use, each still asked by macOS and by Sunset.
+  Under the hardened runtime: what a page the person allows may use, each still asked by macOS and by Sunset.
   None needs a provisioning profile, so an ad hoc build carries them too. The team's own (keychain access groups) are added by
   Signing.local.xcconfig with App/Sunset.team.entitlements, which needs the profile.
 -->

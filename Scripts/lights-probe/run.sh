@@ -1,6 +1,6 @@
 #!/bin/sh
 # Where the window's buttons (the traffic lights) are drawn three seconds after Sunset starts, with and without a recording of
-# the screen running (diary 2026-11-15: while the screen is recorded AppKit lays its title bar out again as the window shows,
+# the screen running (seen 2026-11-15: while the screen is recorded AppKit lays its title bar out again as the window shows,
 # and the buttons were left at its place, the top left).
 #
 # A test copy of Sunset (never the person's own) is started for each line. The recording leaves out every window that was

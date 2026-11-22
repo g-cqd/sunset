@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Moves raw tasks, sleeps and reads of the time onto `Runtime` (ADR-0087). Mechanical; the build then says where a type
+"""Moves raw tasks, sleeps and reads of the time onto `Runtime`. Mechanical; the build then says where a type
 has no `runtime` yet, and each is given one there. Run with paths."""
 import re
 import sys

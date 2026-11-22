@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Notarises and staples a release build signed with the team's Developer ID (task t49), so Gatekeeper opens it on any Mac
+# Notarises and staples a release build signed with the team's Developer ID, so Gatekeeper opens it on any Mac
 # without a warning, offline too. The credentials: `~/.config/sunset-signing/notary` (key=, key_id=, issuer=: an App Store
 # Connect API key, the file and the key 0600), else the keychain profile `sunset-notary` (xcrun notarytool
 # store-credentials). The keychain one can need a prompt notarytool cannot show from a script ("User interaction is not

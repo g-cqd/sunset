@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds Sunset.app with XcodeGen and xcodebuild from project.yml (the owner, 2026-11-13: no bundle assembled by hand).
+# Builds Sunset.app with XcodeGen and xcodebuild from project.yml: no bundle assembled by hand.
 #
 #   Scripts/make-app.sh [debug|release] [output folder]     (default: debug, .build/app)
 #

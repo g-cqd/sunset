@@ -1,5 +1,5 @@
 #!/bin/sh
-# Puts Sunset Lab in ~/Applications (the owner's note n34): the release build as another app, to try settings and variants
+# Puts Sunset Lab in ~/Applications: the release build as another app, to try settings and variants
 # (the tab bar at the top or the bottom, another material, …) without touching the person's Sunset. It has its own:
 #   bundle identifier  studio.aemi.sunset.lab (its own defaults, WebKit data, cookies, permissions in System Settings)
 #   folder             ~/Library/Application Support/Sunset Lab (session, history, documents)

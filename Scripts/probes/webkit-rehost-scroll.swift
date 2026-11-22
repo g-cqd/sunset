@@ -1,4 +1,4 @@
-// Run: swiftc -O -o /tmp/rehost Scripts/probes/webkit-rehost-scroll.swift && /tmp/rehost (roadmap 0045 A, 2026-11-18).
+// Run: swiftc -O -o /tmp/rehost Scripts/probes/webkit-rehost-scroll.swift && /tmp/rehost (2026-11-18).
 // Does a page keep its scroll positions (the document's, an inner scroller's, a horizontal one's) when its WKWebView is
 // taken out of its window and put back in a new host, as `WebViewHost` does when a tab is shown again? Once with the
 // view given the host's zero frame first (as `place(in:)` does), once at its own size, and once with a turn of the

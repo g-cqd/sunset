@@ -1,6 +1,5 @@
 #!/bin/sh
-# Sunset on our own WebKit (roadmap 0048 C; the owner, 2026-11-20: both builds possible and releasable, one on macOS's
-# WebKit, one bundling ours): "Sunset WebKit.app", made from a release build of Sunset and a release build of WebKit with
+# Sunset on its own WebKit (both builds are released: one on macOS's WebKit, one bundling Sunset's): "Sunset WebKit.app", made from a release build of Sunset and a release build of WebKit with
 # our patches (Scripts/webkit.sh build).
 #
 #   Scripts/make-webkit-app.sh [SUNSET.app] [OUTPUT FOLDER]
@@ -8,14 +7,14 @@
 #
 # - Its own identifier (studio.aemi.sunset.webkit): its own website data. A newer WebKit may change its stores so the
 #   system's can no longer read them: the two builds never share them. Sunset's own data (store, settings, the key that seals
-#   them) is shared (ADR-0114): Sunset's keychain group first, where new items go, then its own, where its key of before is.
+#   them) is shared: Sunset's keychain group first, where new items go, then its own, where its key of before is.
 # - WebKit's frameworks in Contents/Frameworks, its processes (XPC services) in Contents/XPCServices, where an app's own
 #   services are looked up (in the build folder they are links beside the frameworks: copied as links, nothing was found
 #   and WebKit fell back to the system's, which do not speak ours; seen 2026-11-20).
 # - Sunset is its executable and, seeing the Info.plist key SunsetWebKitBase, runs itself again once with the loader
 #   pointed at those frameworks, for itself and WebKit's processes (BundledWebKit). Not a launcher: macOS honours the
 #   team's entitlements only for the main executable (a launcher's Sunset was killed, 2026-11-20). Not links rewritten:
-#   system frameworks AppKit loads link the system's WebKit, and both were in the process (2026-11-20). ADR-0111.
+#   system frameworks AppKit loads link the system's WebKit, and both were in the process (2026-11-20).
 # - Signed inside out like the native build (Signing.local.xcconfig's identity, else ad hoc), hardened, with timestamps;
 #   Sunset and WebKit's services with one exception, reading the loader's variables (notarization accepts it); library
 #   validation stays on. Then Scripts/notarize-app.sh as the native one.
@@ -94,7 +93,7 @@ if [ -f "$profile" ] && [ "$identity" != "-" ]; then
     }
     cp "$profile" "$app/Contents/embedded.provisionprofile"
     teamEntitlements="$(mktemp -t sunset-team).plist"
-    # Its own application identifier; Sunset's keychain group, then its own (ADR-0114).
+    # Its own application identifier; Sunset's keychain group, then its own.
     sed -e "s#<string>\$(TeamIdentifierPrefix)studio\.aemi\.sunset</string>#<string>$team.studio.aemi.sunset</string><string>$team.studio.aemi.sunset.webkit</string>#" \
         -e "/application-identifier/{n;s#<string>.*</string>#<string>$team.studio.aemi.sunset.webkit</string>#;}" \
         -e "s/\$(DEVELOPMENT_TEAM)/$team/g" "$here/App/Sunset.team.entitlements" > "$teamEntitlements"

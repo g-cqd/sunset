@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs each stream of Scripts/oracle-streams (or the ones named) in other terminals, as processes, and in Sunset, all 80x24, and compares what the
-# screens show (white paper section 9, ADR-0004: other terminals are oracles run as processes, never linked).
+# screens show (white paper section 9: other terminals are oracles run as processes, never linked).
 #
 #   Scripts/oracle-compare.sh [stream.sh ...]        ORACLES="kitty ghostty alacritty" (default) chooses which
 #

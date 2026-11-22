@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs a stream in a Ghostty window (AppleScript), sized to 80x24 cells, and prints the text of its screen (Ghostty's own `write_screen_file` action).
-# Ghostty is an oracle run as a process (ADR-0004). Usage: Scripts/oracle-ghostty.sh stream.sh > screen.txt
+# Ghostty is an oracle run as a process. Usage: Scripts/oracle-ghostty.sh stream.sh > screen.txt
 #
 # A Ghostty window will not close while a program runs in it without a prompt, so the program in the window is a small loop that ends when told to:
 # the window closes by itself then. If it does not, the foreground process Ghostty reports is killed (that one process, nothing else).

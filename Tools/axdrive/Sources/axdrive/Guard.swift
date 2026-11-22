@@ -1,8 +1,8 @@
 import Darwin
 import Foundation
 
-/// axdrive acts only on what it can prove is a test (the owner, 2026-11-12: no trouble, ever, on data that is not a dummy): a process it launched
-/// itself, carrying `AXDRIVE_TEST=1` and a `SUNSET_CONFIG` inside axdrive's own folder under /tmp. Anything else, the owner's Sunset, another app,
+/// axdrive acts only on what it can prove is a test (never any trouble on data that is not a dummy): a process it launched
+/// itself, carrying `AXDRIVE_TEST=1` and a `SUNSET_CONFIG` inside axdrive's own folder under /tmp. Anything else, the person's own Sunset, another app,
 /// a process whose environment cannot be read, is refused, reading included.
 enum Guard {
     static let root = "/tmp/axdrive/"

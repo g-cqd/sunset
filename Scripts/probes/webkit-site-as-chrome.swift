@@ -1,5 +1,5 @@
 // Run: swiftc -O -o /tmp/site-probe Scripts/probes/webkit-site-as-chrome.swift && /tmp/site-probe https://app.site.example/
-// (roadmap 0045 F, 2026-11-18). Loads a site in a WKWebView in a window, once per way Sunset can show it, and prints where it
+// (2026-11-18). Loads a site in a WKWebView in a window, once per way Sunset can show it, and prints where it
 // ended, its title, the start of its text, its errors and its console, and writes a picture of each to /tmp/site-probe-<name>.png.
 import AppKit
 import Network
@@ -57,9 +57,9 @@ let agentScript: String = {
 let chrome =
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36"
 
-/// Sunset's settings, one by one (`PROBE_SET`): bisecting what keeps a page loading in Sunset (roadmap 0045 C).
+/// Sunset's settings, one by one (`PROBE_SET`): bisecting what keeps a page loading in Sunset.
 @MainActor func configure(_ configuration: WKWebViewConfiguration, set: String) {
-    // Bisecting what keeps a page loading in Sunset (roadmap 0045 C): Sunset's settings, one by one (`PROBE_SET`).
+    // Bisecting what keeps a page loading in Sunset: Sunset's settings, one by one (`PROBE_SET`).
     if set.contains("audio") { configuration.mediaTypesRequiringUserActionForPlayback = .audio }
     if set.contains("popups") { configuration.preferences.javaScriptCanOpenWindowsAutomatically = true }
     if set.contains("fullscreen") { configuration.preferences.isElementFullscreenEnabled = true }

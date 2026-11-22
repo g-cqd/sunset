@@ -5,7 +5,7 @@
 #
 # A release build is the installed app to the Mac (the same identifier), so it shares the person's defaults, where the
 # window's frame is remembered: that frame is read before and written back after (a test copy replaced it twice,
-# 2026-11-16, t276). A debug build has an identifier of its own and needs none of this: drive it with axdrive directly.
+# 2026-11-16). A debug build has an identifier of its own and needs none of this: drive it with axdrive directly.
 # The test copy has its own configuration and session (axdrive: SUNSET_CONFIG under /tmp/axdrive), never the person's.
 set -eu
 cd "$(dirname "$0")/.."

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""After `move-onto-runtime.py` (ADR-0087): reads a build log on stdin and fixes what is mechanical. A file that uses the
+"""After `move-onto-runtime.py`: reads a build log on stdin and fixes what is mechanical. A file that uses the
 runtime imports SunsetRuntime; a `runtime` capture the closure never uses goes. Prints what it changed."""
 import re
 import sys

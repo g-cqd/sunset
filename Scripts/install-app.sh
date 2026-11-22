@@ -1,5 +1,5 @@
 #!/bin/sh
-# Puts a built Sunset.app (or Sunset WebKit.app, ADR-0111) in ~/Applications under its own name, and says whether one that
+# Puts a built Sunset.app (or Sunset WebKit.app) in ~/Applications under its own name, and says whether one that
 # is running is still the build before.
 #
 #   Scripts/install-app.sh [BUILT.app]        default: .build/app-release/Sunset.app (Scripts/make-app.sh release .build/app-release)
@@ -8,7 +8,7 @@
 # .build/replaced, never deleted while a process runs from it, and deleted by a later install once none does. Which bundle a
 # process runs from is read with lsof, not ps or pgrep: ps goes on showing the path the process was started at after its
 # bundle has been moved, and pgrep leaves out its own ancestors, so it never sees the Sunset this script is run in (that is how
-# a fix was installed under a running Sunset and said to be in the owner's hands, 2026-11-16).
+# a fix was once installed under a running Sunset and said to be in use, 2026-11-16).
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -50,7 +50,7 @@ mv "$target.new" "$target"
 codesign --verify "$target"
 # One Sunset known to Launch Services: the installed one. A copy it also knew (a build, a test copy, a replaced bundle, one
 # deleted since) could be the one the Dock, the app switcher or a notification took its icon from, by the bundle identifier:
-# the owner saw the orange icon of before roadmap 0084 that way (note n59). Unregistered, the installed one registered again.
+# an icon of before was seen that way. Unregistered, the installed one registered again.
 lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 if [ -x "$lsregister" ]; then
     "$lsregister" -dump 2>/dev/null \

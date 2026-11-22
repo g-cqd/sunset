@@ -1,5 +1,5 @@
 #!/bin/bash
-# Colour accuracy of the app on the screen it is on (owner note n10): paints known sRGB colours, takes a screenshot of the window (which carries the display's
+# Colour accuracy of the app on the screen it is on: paints known sRGB colours, takes a screenshot of the window (which carries the display's
 # profile), converts it back to sRGB and compares. Needs a GUI session and screen-recording permission; a local probe, not CI.
 #   Scripts/colour-probe/run.sh [path to sunset-app]
 set -u

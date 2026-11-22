@@ -1,12 +1,12 @@
 #!/bin/sh
-# Sunset's benchmarks on ordo-one/benchmark (ADR-0018). Release only. Optional standard contention profile (ADR-0017).
+# Sunset's benchmarks on ordo-one/benchmark. Release only. Optional standard contention profile.
 #
 #   Scripts/benchmarks.sh [--contend] [args for `swift package benchmark`]     run every suite and print the results
 #   Scripts/benchmarks.sh [--contend] baseline <name>                          record a baseline (kept in Benchmarks/.benchmarkBaselines)
 #   Scripts/benchmarks.sh [--contend] compare <name>                           run and compare with a baseline; non-zero on a threshold breach
 #
 # --contend holds one CPU-spinning thread per logical CPU at the benchmark's QoS (bench/hog.c) for the length of the run and prints the
-# ambient load average first. Wall-clock numbers from different sessions are not comparable; compare baselines taken in one sitting (ADR-0017).
+# ambient load average first. Wall-clock numbers from different sessions are not comparable; compare baselines taken in one sitting.
 set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 contend=0

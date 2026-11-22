@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gives a type a `runtime` (ADR-0087): `python3 give-runtime.py FILE TYPE [static]`. The property goes first in the type,
+"""Gives a type a `runtime`: `python3 give-runtime.py FILE TYPE [static]`. The property goes first in the type,
 at the type's access level, and the file imports SunsetRuntime at the level its declarations need."""
 import re
 import sys
@@ -22,7 +22,7 @@ for index, line in enumerate(lines):
     access = (match.group(3) or "").strip()
     level = access if access in ("public", "package") else ""
     prefix = (level + " " if level else "") + ("static " if static else "")
-    doc = f"{indent}/// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another."
+    doc = f"{indent}/// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another."
     if environment:
         lines[open_at + 1:open_at + 1] = [f"{indent}@Environment(\\.runtime) var runtime", ""]
     else:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Spans the one-line bodies of Swift declarations over lines of their own (ADR-0087, the owner's note n55).
+"""Spans the one-line bodies of Swift declarations over lines of their own.
 
     var isEmpty: Bool { items.isEmpty }      ->   var isEmpty: Bool {
                                                        items.isEmpty

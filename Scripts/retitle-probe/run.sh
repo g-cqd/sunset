@@ -1,5 +1,5 @@
 #!/bin/sh
-# What a program that renames its tab costs the window (review of 2026-11-15, 2.1; task t265).
+# What a program that renames its tab costs the window.
 #
 # A test copy of Sunset (never the person's own) shows one terminal whose "shell" sets the title fifty times a second. The main
 # thread is sampled for five seconds, and the samples that pass through the window's chrome are counted.

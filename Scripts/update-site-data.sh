@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Fetches the site data Sunset ships (task t118) into Sources/SunsetSiteData/Resources and records where each came from:
+# Fetches the site data Sunset ships into Sources/SunsetSiteData/Resources and records where each came from:
 #   the Public Suffix List (publicsuffix.org, MPL 2.0: the file keeps its own notice), from the one address the list asks to
 #   be fetched from; Apple's password-manager-resources (MIT: its licence beside it), at the repository's latest commit.
 # Then run the tests: `swift test --filter SunsetSiteDataTests` holds the list's own checks.
