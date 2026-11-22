@@ -47,6 +47,28 @@ struct StoragePlacesTests {
         #expect(test.directory == StoragePlaces(environment: named, home: "/h").directory)
     }
 
+    /// ADR-0114: Sunset WebKit keeps Sunset's store and keys; its own from before are still found, to be merged once.
+    @Test func `Sunset WebKit shares Sunset's places, and knows its own from before`() throws {
+        let sunset = StoragePlaces(environment: [:], home: "/h", identifier: "studio.aemi.sunset")
+        let webKit = StoragePlaces(environment: [:], home: "/h", identifier: "studio.aemi.sunset.webkit")
+        #expect(webKit.directory == sunset.directory && webKit.keyService == sunset.keyService)
+        #expect(webKit.commandSealService == sunset.commandSealService && webKit.variant == nil)
+        let former = try #require(webKit.former)
+        #expect(former.directory == "/h/Library/Application Support/Sunset Webkit")
+        #expect(former.keyService == "studio.aemi.sunset.webkit.storage-key")
+        #expect(sunset.former == nil)
+        // The builds that keep the same store, each the other's (one at a time, ADR-0114).
+        #expect(StoragePlaces.sharers(of: "studio.aemi.sunset") == ["studio.aemi.sunset.webkit"])
+        #expect(StoragePlaces.sharers(of: "studio.aemi.sunset.webkit") == ["studio.aemi.sunset"])
+        #expect(StoragePlaces.sharers(of: "studio.aemi.sunset.lab").isEmpty)
+        #expect(StoragePlaces.sharers(of: "studio.aemi.sunset.dev").isEmpty && StoragePlaces.sharers(of: nil).isEmpty)
+        // Another variant keeps its own, as before (n34).
+        let lab = StoragePlaces(environment: [:], home: "/h", identifier: "studio.aemi.sunset.lab")
+        #expect(
+            lab.variant == "lab" && lab.directory == "/h/Library/Application Support/Sunset Lab" && lab.former == nil
+        )
+    }
+
     @Test func `the files of before the database are still found, to be imported`() {
         let places = StoragePlaces(environment: ["SUNSET_CONFIG": "/t/config.json"], home: "/h")
         #expect(places.legacyZoom == "/t/site-zoom.json" && places.legacyHistory == "/t/history.sqlite")

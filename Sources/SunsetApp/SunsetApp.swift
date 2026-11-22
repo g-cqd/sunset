@@ -16,6 +16,8 @@ public struct SunsetApp: App {
         // the initial WindowGroup window whenever an argument matches an existing file path).
         UserDefaults.standard.register(defaults: ["NSTreatUnknownArgumentsAsOpen": false])
         SystemRestoration.ignoreSavedState()
+        // The other build that keeps this store, open: one at a time (ADR-0114), before anything of the store is read.
+        MainActor.assumeIsolated { OtherBuildAtLaunch.settle() }
         // The cookie jars sealed at the last quit, put back before any page's store opens (task t114).
         MainActor.assumeIsolated { AppSealedData.openAtLaunch() }
         // The saved tabs of the last run are read once, before the first window asks for them.

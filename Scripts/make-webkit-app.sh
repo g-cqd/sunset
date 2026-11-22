@@ -6,8 +6,9 @@
 #   Scripts/make-webkit-app.sh [SUNSET.app] [OUTPUT FOLDER]
 #       default: .build/app-release/Sunset.app (Scripts/make-app.sh release .build/app-release), .build/app-webkit
 #
-# - Its own identifier (studio.aemi.sunset.webkit): its own settings, profiles and website data. A newer WebKit may change
-#   its stores so the system's can no longer read them: the two builds never share them.
+# - Its own identifier (studio.aemi.sunset.webkit): its own website data. A newer WebKit may change its stores so the
+#   system's can no longer read them: the two builds never share them. Sunset's own data (store, settings, the key that seals
+#   them) is shared (ADR-0114): Sunset's keychain group first, where new items go, then its own, where its key of before is.
 # - WebKit's frameworks in Contents/Frameworks, its processes (XPC services) in Contents/XPCServices, where an app's own
 #   services are looked up (in the build folder they are links beside the frameworks: copied as links, nothing was found
 #   and WebKit fell back to the system's, which do not speak ours; seen 2026-11-20).
@@ -93,7 +94,9 @@ if [ -f "$profile" ] && [ "$identity" != "-" ]; then
     }
     cp "$profile" "$app/Contents/embedded.provisionprofile"
     teamEntitlements="$(mktemp -t sunset-team).plist"
-    sed -e "s/\$(TeamIdentifierPrefix)studio\.aemi\.sunset/$team.studio.aemi.sunset.webkit/g" \
+    # Its own application identifier; Sunset's keychain group, then its own (ADR-0114).
+    sed -e "s#<string>\$(TeamIdentifierPrefix)studio\.aemi\.sunset</string>#<string>$team.studio.aemi.sunset</string><string>$team.studio.aemi.sunset.webkit</string>#" \
+        -e "/application-identifier/{n;s#<string>.*</string>#<string>$team.studio.aemi.sunset.webkit</string>#;}" \
         -e "s/\$(DEVELOPMENT_TEAM)/$team/g" "$here/App/Sunset.team.entitlements" > "$teamEntitlements"
     appEntitlements="$teamEntitlements"
 fi

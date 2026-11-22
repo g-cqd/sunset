@@ -22,6 +22,10 @@ import SunsetWeb
                 if store.importLegacy(at: storage.places.legacyHistory) != nil {
                     storage.retire(storage.places.legacyHistory, when: table.count() >= store.count)
                 }
+                // Sunset WebKit's store of before, once (ADR-0114): its documents and history join the shared store.
+                if let former = storage.places.former {
+                    FormerStoreMerge.run(into: storage, history: store, from: former, scratch: NSTemporaryDirectory())
+                }
             }
         }
         if let seconds = AppConfiguration.shared.configuration.web.historyKeep.seconds {

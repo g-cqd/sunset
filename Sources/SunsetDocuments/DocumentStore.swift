@@ -51,6 +51,15 @@ public final class DocumentStore {
         return try write(SealedDocument(kind: kind, created: runtime.now(), text: text), id: id)
     }
 
+    /// A document of another store (Sunset WebKit's of before, ADR-0114) kept here under its own id and creation date;
+    /// false when this store has it already.
+    @discardableResult
+    public func adopt(_ document: StoredDocument, text: String) throws(DocumentStoreFailure) -> Bool {
+        guard !documents.contains(where: { $0.id == document.id }) else { return false }
+        try write(SealedDocument(kind: document.kind, created: document.created, text: text), id: document.id)
+        return true
+    }
+
     public func text(of id: UUID) throws(DocumentStoreFailure) -> String {
         try file(id).text
     }

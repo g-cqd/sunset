@@ -23,9 +23,29 @@ public struct StoragePlaces: Sendable, Equatable {
     /// Another app than the person's (the owner's note n34): `lab` for `studio.aemi.sunset.lab`; nil for his and a
     /// development build.
     public let variant: String?
+    /// A build that shares Sunset's data (ADR-0114): the variant it was before, whose places are merged once.
+    let formerVariant: String?
+    private let home: String
 
-    /// The variant a bundle identifier names: what follows `studio.aemi.sunset.`, but `dev`.
+    /// The builds that keep Sunset's own data rather than their own (ADR-0114): Sunset WebKit.
+    static let sharing: Set<String> = ["webkit"]
+
+    /// The variant a bundle identifier names: what follows `studio.aemi.sunset.`, but `dev` and the builds that share
+    /// Sunset's data.
     public static func variant(of identifier: String?) -> String? {
+        named(identifier).flatMap { sharing.contains($0) ? nil : $0 }
+    }
+
+    /// The other builds that keep the store `identifier` keeps (ADR-0114): only one of them may have it open.
+    public static func sharers(of identifier: String?) -> [String] {
+        let root = "studio.aemi.sunset"
+        let all = [root] + sharing.sorted().map { root + "." + $0 }
+        guard let identifier, all.contains(identifier) else { return [] }
+        return all.filter { $0 != identifier }
+    }
+
+    /// What follows `studio.aemi.sunset.`, but `dev`.
+    private static func named(_ identifier: String?) -> String? {
         let root = "studio.aemi.sunset."
         guard let identifier, identifier.hasPrefix(root) else { return nil }
         let name = String(identifier.dropFirst(root.count))
@@ -37,8 +57,14 @@ public struct StoragePlaces: Sendable, Equatable {
     ///   - home: the home folder.
     ///   - identifier: the bundle identifier of the app that runs, when there is one.
     public init(environment: [String: String], home: String, identifier: String? = nil) {
+        self.init(environment: environment, home: home, identifier: identifier, variant: Self.variant(of: identifier))
+    }
+
+    private init(environment: [String: String], home: String, identifier: String?, variant: String?) {
         isDevelopment = identifier?.hasSuffix(".dev") ?? false
-        variant = Self.variant(of: identifier)
+        self.variant = variant
+        self.home = home
+        formerVariant = Self.named(identifier).flatMap { Self.sharing.contains($0) ? $0 : nil }
         if let file = environment["SUNSET_SESSION"], !file.isEmpty {
             session = file
             legacySession = nil
@@ -58,6 +84,29 @@ public struct StoragePlaces: Sendable, Equatable {
         }
         session = directory + "/session.sealed"
         legacySession = directory + "/session.json"
+    }
+
+    /// Where this build kept its data before it shared Sunset's (ADR-0114), to be merged once; nil for every other build.
+    public var former: StoragePlaces? {
+        guard let formerVariant, isDefault else { return nil }
+        return StoragePlaces(environment: [:], home: home, identifier: nil, variant: formerVariant)
+    }
+
+    /// The same setup in another folder: a copy of its store opened there, not the store itself. Its key is where it was (the
+    /// Keychain), or the copy's file for a named setup.
+    package func moved(to folder: String) -> StoragePlaces {
+        StoragePlaces(self, directory: folder)
+    }
+
+    private init(_ other: StoragePlaces, directory: String) {
+        self.directory = directory
+        session = directory + "/" + (other.session as NSString).lastPathComponent
+        legacySession = other.legacySession.map { directory + "/" + ($0 as NSString).lastPathComponent }
+        isDefault = other.isDefault
+        isDevelopment = other.isDevelopment
+        variant = other.variant
+        formerVariant = nil
+        home = other.home
     }
 
     /// The places of this run.

@@ -97,6 +97,23 @@ package final class HistoryStore {
         onChange()
     }
 
+    /// Pages kept elsewhere (Sunset WebKit's history of before, ADR-0114), added: a page in both keeps the visits of both,
+    /// its later visit and that visit's title.
+    package func merge(_ entries: [HistoryEntry]) {
+        for entry in entries {
+            var merged = entry
+            if let page = byAddress[entry.url] {
+                merged.visits += page.entry.visits
+                let ours = page.entry.lastVisit > entry.lastVisit
+                merged.lastVisit = max(page.entry.lastVisit, entry.lastVisit)
+                if ours && !page.entry.title.isEmpty || merged.title.isEmpty { merged.title = page.entry.title }
+                drop(page)
+            }
+            place(Page(merged))
+        }
+        onChange()
+    }
+
     /// The page's title arrived after its visit was counted.
     package func retitle(_ url: String, title: String) {
         guard !title.isEmpty, let page = byAddress[url] else { return }
