@@ -17,7 +17,25 @@ extension CPURenderer {
             height: metrics.cellHeight,
             color: Surface.pack(frame.background, alpha: frame.backgroundAlpha)
         )
-        drawImages(row: row, below: true, frame: frame, surface: &surface)
+        drawImages(row: row, layer: .underBackgrounds, frame: frame, surface: &surface)
+        if hasImages(row: row, in: .underText, frame: frame) {
+            // Kitty's middle layer: the cells' backgrounds, the images, then the text over them.
+            cellPass = .backgrounds
+            drawCells(row: row, frame: frame, walk: &walk, surface: &surface)
+            drawImages(row: row, layer: .underText, frame: frame, surface: &surface)
+            cellPass = .marks
+            drawCells(row: row, frame: frame, walk: &walk, surface: &surface)
+            cellPass = .all
+        } else {
+            drawCells(row: row, frame: frame, walk: &walk, surface: &surface)
+        }
+        drawImages(row: row, layer: .overText, frame: frame, surface: &surface)
+        if frame.hoveredLink != 0 { underlineHoveredLink(row: row, frame: frame, surface: &surface) }
+    }
+
+    /// The row's cells, left to right, as `cellPass` says: a run shaped together where ligatures are on, a blank cell in the
+    /// default style skipped (the strip was cleared to the background already).
+    private func drawCells(row: Int, frame: Frame, walk: inout Walk, surface: inout Surface) {
         let plainRow = frame.cursor?.row != row && frame.selection == nil && frame.hoveredLink == 0
         let cells = frame.row(row)
         var column = 0
@@ -57,8 +75,6 @@ extension CPURenderer {
             )
             column += span
         }
-        drawImages(row: row, below: false, frame: frame, surface: &surface)
-        if frame.hoveredLink != 0 { underlineHoveredLink(row: row, frame: frame, surface: &surface) }
     }
 
     func noteChanged(pixelRows rows: ClosedRange<Int>) {

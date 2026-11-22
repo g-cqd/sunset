@@ -25,7 +25,7 @@ extension CPURenderer {
         // A bar or underline cursor does not cover the cell: its background is only drawn if it differs from the window's (an opaque fill of the default
         // background would hide a translucent window behind the cell).
         let coveredByCursor = onCursor && cursor?.shape == .block
-        if background != frame.background || coveredByCursor || selected {
+        if cellPass.drawsBackgrounds, background != frame.background || coveredByCursor || selected {
             fill(
                 &surface,
                 x: box.x,
@@ -36,6 +36,7 @@ extension CPURenderer {
             )
         }
         if style.blinks { blinkRows[place.row] = true }
+        guard cellPass.drawsMarks else { return }
         if place.drawGlyph, cell.scalar != 0, !style.hidden,
             case let glyph = glyph(for: cell, style: style, wide: place.span == 2, frame: frame, table: &walk.glyphs),
             glyph != 0

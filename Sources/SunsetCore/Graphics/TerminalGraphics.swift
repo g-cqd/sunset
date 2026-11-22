@@ -3,8 +3,10 @@
 public struct TerminalGraphics: Sendable {
     /// The images, by id.
     public internal(set) var images: [UInt32: TerminalImage] = [:]
-    /// Where images are shown, oldest first.
+    /// Where images are shown on the screen in use, oldest first.
     public internal(set) var placements: [ImagePlacement] = []
+    /// The other screen's (the main screen's while the alternate is in use, and the other way round): each has its own.
+    var otherPlacements: [ImagePlacement] = []
     /// What the images take, in bytes.
     public internal(set) var bytes = 0
     /// The most the images may take, in bytes (`Terminal.setGraphicsQuota`).
@@ -34,8 +36,12 @@ public struct TerminalGraphics: Sendable {
     mutating func store(_ image: TerminalImage) -> Bool {
         guard image.pixels.count <= quota else { return false }
         remove(image: image.id)
-        while bytes + image.pixels.count > quota, let oldest = images.values.min(by: { $0.order < $1.order }) {
-            remove(image: oldest.id)
+        // The oldest image no screen shows goes first, then the oldest of all (kitty does the same).
+        while bytes + image.pixels.count > quota {
+            let shown = Set((placements + otherPlacements).map(\.image))
+            let unshown = images.values.filter { !shown.contains($0.id) }.min { $0.order < $1.order }
+            guard let gone = unshown ?? images.values.min(by: { $0.order < $1.order }) else { break }
+            remove(image: gone.id)
         }
         images[image.id] = image
         bytes += image.pixels.count
@@ -46,6 +52,12 @@ public struct TerminalGraphics: Sendable {
     mutating func remove(image id: UInt32) {
         if let image = images.removeValue(forKey: id) { bytes -= image.pixels.count }
         placements.removeAll { $0.image == id }
+        otherPlacements.removeAll { $0.image == id }
+    }
+
+    /// Whether any screen shows image `id`.
+    func isShown(_ id: UInt32) -> Bool {
+        placements.contains { $0.image == id } || otherPlacements.contains { $0.image == id }
     }
 
     mutating func place(_ placement: ImagePlacement) {
@@ -60,6 +72,7 @@ public struct TerminalGraphics: Sendable {
     mutating func clear() {
         images = [:]
         placements = []
+        otherPlacements = []
         bytes = 0
         pending = nil
     }

@@ -21,6 +21,8 @@ public final class CPURenderer: CellRenderer {
     var imageTable = ImageTable(generation: GlyphGenerations.next())
     var imageTableByteLimit = 128 << 20
     var shownImages: [ShownImage] = []
+    /// What the cells of the row being drawn draw now (`CellPass`): all of themselves but on rows an image goes between.
+    var cellPass = CellPass.all
     let imageDecoder: (any ImageDecoding)?
     var resolvedStyles = ResolvedStyles()
     var lastCursor: CursorDrawn?

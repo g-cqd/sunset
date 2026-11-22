@@ -38,4 +38,28 @@ import Testing
         #expect(red == RGB(255, 0, 0), "the CPU drew it")
         #expect(rig.gpuSurface()[5, 5] == red, "Metal drew it")
     }
+
+    @Test(arguments: [255, 200] as [UInt8])
+    func `layers, parts and offsets agree pixel for pixel`(alpha: UInt8) async throws {
+        var rig = try #require(MetalRig(), "a Metal device")
+        rig.alpha = alpha
+        let steps = [
+            "\u{1B}[41mab\u{1B}[0m█\r"
+                + KittyImages.show(id: 1, width: 30, height: 40, rgba: [0, 200, 0, 150], options: "z=-5,X=3,Y=5"),
+            "\n\n"
+                + KittyImages.show(
+                    id: 2,
+                    width: 12,
+                    height: 12,
+                    rgba: [0, 0, 255, 255],
+                    options: "x=2,y=3,w=7,h=6,c=3,z=-1073741900"
+                ),
+            "\n\n\nxyz"
+        ]
+        for step in steps {
+            try await rig.frame(step)
+            let difference = rig.differences()
+            #expect(difference.count == 0, "\(difference.count) pixels differ, by up to \(difference.largest)")
+        }
+    }
 }

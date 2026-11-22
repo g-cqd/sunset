@@ -70,15 +70,23 @@ extension Screen {
         swap(&grid, &other)
         swap(&keyboard, &otherKeyboard)
         swap(&pointer, &otherPointer)
+        swap(&graphics.placements, &graphics.otherPlacements)
         isAlternate = true
-        if clear { clearGrid() }
+        if clear {
+            clearGrid()
+            graphics.placements = []
+        }
         markDirty(0 ... rows - 1)
     }
 
     mutating func leaveAlternate(restoreCursor restore: Bool, clear: Bool) {
         guard isAlternate else { return }
-        if clear { clearGrid() }
+        if clear {
+            clearGrid()
+            graphics.placements = []
+        }
         swap(&grid, &other)
+        swap(&graphics.placements, &graphics.otherPlacements)
         swap(&keyboard, &otherKeyboard)
         swap(&pointer, &otherPointer)
         isAlternate = false

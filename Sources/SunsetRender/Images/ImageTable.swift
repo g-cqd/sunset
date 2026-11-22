@@ -9,6 +9,7 @@ struct ImageTable {
         let id: UInt32
         /// Which of the images sent under that number: a program sends a new one under the same number.
         let order: UInt64
+        let source: ImageCrop
         let width: Int
         let height: Int
     }
@@ -24,12 +25,18 @@ struct ImageTable {
         self.generation = generation
     }
 
-    /// The number of `image` at `width` × `height`, made the first time; nil when it does not read.
-    mutating func number(of image: TerminalImage, width: Int, height: Int, decoder: (any ImageDecoding)?) -> UInt32? {
-        let key = Key(id: image.id, order: image.order, width: width, height: height)
+    /// The number of `source` of `image` at `width` × `height`, made the first time; nil when it does not read.
+    mutating func number(
+        of image: TerminalImage,
+        source: ImageCrop,
+        width: Int,
+        height: Int,
+        decoder: (any ImageDecoding)?
+    ) -> UInt32? {
+        let key = Key(id: image.id, order: image.order, source: source, width: width, height: height)
         if let number = numbers[key] { return number }
         guard !unreadable.contains(key) else { return nil }
-        guard let made = RenderImage.make(image, width: width, height: height, decoder: decoder) else {
+        guard let made = RenderImage.make(image, source: source, width: width, height: height, decoder: decoder) else {
             unreadable.insert(key)
             return nil
         }

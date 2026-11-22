@@ -64,7 +64,7 @@ extension CPURenderer {
                 surface: &surface
             )
         }
-        if entry.glyph != 0 {
+        if entry.glyph != 0, cellPass.drawsMarks {
             let colors = Self.colors(of: style, frame: frame)
             blit(
                 entry.glyph,

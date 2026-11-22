@@ -7,10 +7,16 @@ extension RenderImage {
     /// made a gigabyte.
     static let pixelLimit = 1 << 24
 
-    /// `image` at `width` × `height`; nil when it does not read or is larger than `pixelLimit`.
-    static func make(_ image: TerminalImage, width: Int, height: Int, decoder: (any ImageDecoding)?) -> RenderImage? {
+    /// `crop` of `image` at `width` × `height`; nil when it does not read or is larger than `pixelLimit`.
+    static func make(
+        _ image: TerminalImage,
+        source crop: ImageCrop,
+        width: Int,
+        height: Int,
+        decoder: (any ImageDecoding)?
+    ) -> RenderImage? {
         guard width > 0, height > 0, width * height <= pixelLimit, image.width * image.height <= pixelLimit,
-            let source = read(image, decoder: decoder)
+            let whole = read(image, decoder: decoder), let source = whole.cropped(crop)
         else { return nil }
         if source.width == width, source.height == height { return source }
         return RenderImage(width: width, height: height, pixels: source.resampled(width: width, height: height))
@@ -90,5 +96,20 @@ extension RenderImage {
             }
         }
         return out
+    }
+
+    /// The part `crop` of the image (the whole one as it is); nil when the crop is not within it (a PNG that decoded to
+    /// another size than its header said).
+    func cropped(_ crop: ImageCrop) -> RenderImage? {
+        if crop.x == 0, crop.y == 0, crop.width == width, crop.height == height { return self }
+        guard crop.width > 0, crop.height > 0, crop.x >= 0, crop.y >= 0, crop.x + crop.width <= width,
+            crop.y + crop.height <= height
+        else { return nil }
+        var out = ContiguousArray<UInt32>()
+        out.reserveCapacity(crop.width * crop.height)
+        for row in crop.y ..< crop.y + crop.height {
+            out.append(contentsOf: pixels[row * width + crop.x ..< row * width + crop.x + crop.width])
+        }
+        return RenderImage(width: crop.width, height: crop.height, pixels: out)
     }
 }
