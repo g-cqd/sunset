@@ -50,7 +50,7 @@ import SwiftUI
             end()
             return nil
         }
-        let start = Date.now
+        let start = Runtime.live.now()
         Runtime.live.task { @MainActor in
             await Runtime.live.sleep(for: .seconds(WelcomeOpening.windowPhase.start))
             guard window === shown else { return }
@@ -59,7 +59,7 @@ import SwiftUI
             // The window's opacity from the model each frame, the same curve as its content's focus and the sun's fade (a
             // Core Animation curve only came near it).
             while window === shown {
-                let elapsed = Date.now.timeIntervalSince(start)
+                let elapsed = Runtime.live.now().timeIntervalSince(start)
                 guard elapsed < WelcomeOpening.duration else { break }
                 shown.alphaValue = WelcomeOpening.at(elapsed, frame: .zero).windowOpacity
                 await Runtime.live.sleep(for: .milliseconds(8))
