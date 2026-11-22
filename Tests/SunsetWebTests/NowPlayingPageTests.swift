@@ -58,52 +58,6 @@ final class NowPlayingPageTests {
         return (page, center)
     }
 
-    /// Waits for `condition`, as changes of what it reads; gives up when the test's time is up.
-    private func until(_ condition: @escaping @MainActor () -> Bool) async {
-        while !condition(), !Task.isCancelled {
-            let wake = Wake()
-            await withTaskCancellationHandler {
-                await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
-                    wake.set(done)
-                    withObservationTracking {
-                        _ = condition()
-                    } onChange: {
-                        wake.fire()
-                    }
-                }
-            } onCancel: {
-                wake.fire()
-            }
-        }
-    }
-
-    /// A continuation resumed once, by a change or by the test's end, whichever comes first.
-    final class Wake: @unchecked Sendable {
-        private let lock = NSLock()
-        private var waiting: CheckedContinuation<Void, Never>?
-        private var fired = false
-
-        func set(_ continuation: CheckedContinuation<Void, Never>) {
-            lock.lock()
-            if fired {
-                lock.unlock()
-                continuation.resume()
-                return
-            }
-            waiting = continuation
-            lock.unlock()
-        }
-
-        func fire() {
-            lock.lock()
-            fired = true
-            let continuation = waiting
-            waiting = nil
-            lock.unlock()
-            continuation?.resume()
-        }
-    }
-
     @Test func `a page that plays has a card: its session's title, artist and largest artwork, its host`() async throws
     {
         let (page, center) = try await playing()

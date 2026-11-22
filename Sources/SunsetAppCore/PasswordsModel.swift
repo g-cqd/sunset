@@ -90,6 +90,16 @@ package final class PasswordsModel {
         reload()
     }
 
+    /// The sites never to offer saving for; none while locked.
+    package var neverSave: Set<String> {
+        (try? vault?.neverSave()) ?? []
+    }
+
+    package func setNeverSave(_ site: String) throws {
+        guard let vault else { throw Vault.Refused() }
+        try vault.setNeverSave(neverSave.union([site]))
+    }
+
     package func remove(_ id: UUID) throws {
         guard let vault else { throw Vault.Refused() }
         try vault.remove(entry: id)

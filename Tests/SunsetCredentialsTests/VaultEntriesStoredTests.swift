@@ -43,5 +43,8 @@ struct VaultEntriesStoredTests {
         #expect(try vault.templates() == [mine])
         try vault.remove(entry: note.id)
         #expect(try vault.entries() == [login])
+        try vault.setNeverSave(["example.com"])
+        let (never, entries) = (try vault.neverSave(), try vault.entries())
+        #expect(never == ["example.com"] && entries == [login])
     }
 }

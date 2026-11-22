@@ -26,6 +26,7 @@ extension WebContent {
         }
         installWatches(on: configuration)
         SignInWatch.install(on: configuration, privately: isPrivate, profile: settings.profile)
+        PasswordFill.install(on: configuration, for: self, privately: isPrivate)
         if !isPrivate { shareWrapper = ShareWrapper.install(on: configuration, for: self) }
         if settings.agentScripts { AgentScript.install(on: configuration) }
         setPreferences(configuration.preferences)

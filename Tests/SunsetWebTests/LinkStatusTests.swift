@@ -21,11 +21,11 @@ import WebKit
         page.setState(focused: true, visible: true)
         let controller = try #require(page.webView?.configuration.userContentController)
         // The link's two scripts, the sign-in watch and the share wrapper in every frame; the page's `Notification`, its
-        // icon's and its text's watches and the stores' Add to Sunset in the page itself.
-        #expect(controller.userScripts.count == 8 && controller.userScripts.count { !$0.isForMainFrameOnly } == 4)
+        // icon's and its text's watches, the stores' Add to Sunset and the sign-in fields' watch in the page itself.
+        #expect(controller.userScripts.count == 9 && controller.userScripts.count { !$0.isForMainFrameOnly } == 4)
         let opened = WebContent(configuration: try #require(page.webView?.configuration), settings: WebSettings())
         #expect(opened.webView?.configuration.userContentController !== controller)
-        #expect(opened.webView?.configuration.userContentController.userScripts.count == 8)
+        #expect(opened.webView?.configuration.userContentController.userScripts.count == 9)
         page.hoveredLink = "x"
         page.linkHovered("")
         #expect(page.hoveredLink == nil)

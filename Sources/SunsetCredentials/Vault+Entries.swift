@@ -16,6 +16,19 @@ extension Vault {
         try file.remove(id)
     }
 
+    /// The sites never to offer saving for, sealed as a record of their own.
+    public func neverSave() throws -> Set<String> {
+        let lists: [[String]] = try records().map { if case .neverSave(let sites) = $0 { sites } else { [] } }
+        return Set(lists.joined())
+    }
+
+    public func setNeverSave(_ sites: Set<String>) throws {
+        try put(JSONEncoder().encode(VaultRecord.neverSave(sites.sorted())), as: Self.neverSaveRecord)
+    }
+
+    /// The fixed id of the never-save record.
+    static let neverSaveRecord = UUID(uuid: (0x5E, 0x7C, 0, 0, 0, 0, 0x40, 0, 0x80, 0, 0, 0, 0, 0, 0, 0x01))
+
     /// Every entry, in no order that means anything.
     public func entries() throws -> [VaultEntry] {
         try records().compactMap { if case .entry(let entry) = $0 { entry } else { nil } }

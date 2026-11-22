@@ -1,6 +1,6 @@
 ---
-status: not-started
-blocked-by: 0092; the owner's word on the Public Suffix List and Apple's password-manager-resources (§8)
+status: in-progress
+blocked-by: nothing
 date: 2026-11-19
 ---
 
@@ -10,11 +10,11 @@ Research: docs/research/credentials/web-apis-and-payments.md. ADR-0094 (proposed
 
 | Step | What | Status |
 |---|---|---|
-| A | Field finding in Sunset's world, every frame (autocomplete tokens, heuristics, open shadow roots); red tests on fixture pages | not-started |
-| B | Matching (registrable domain with the PSL if accepted, else host; per-URL rules); homograph display | not-started |
-| C | Suggestions drawn outside the page; fill on the person's act; automatic fill for exact matches only if allowed; never hidden fields, cross-origin frames; http warned | not-started |
-| D | Saving: `SignInWatch` grows to read the username and password at sending; a bar outside the page; once a page; never in private windows | not-started |
+| A | Field finding in Sunset's world, every frame (autocomplete tokens, heuristics, open shadow roots); red tests on fixture pages | done 2026-11-22 for the main frame (`PasswordFill`, `PasswordFillScript`: autocomplete tokens, the text field before a password, visible fields only; red tests). Frames and shadow roots not |
+| B | Matching (registrable domain with the PSL if accepted, else host; per-URL rules); homograph display | done 2026-11-22 (`LoginMatch`, `LoginSite`: registrable domain, exact host first, https entries not on http, look-alikes never); per-URL rules and homograph display not |
+| C | Suggestions drawn outside the page; fill on the person's act; automatic fill for exact matches only if allowed; never hidden fields, cross-origin frames; http warned | done 2026-11-22: a popover under the field, on the person's click only, as typing would (input events), never a hidden field; seen in a test copy. Automatic fill and the http warning not |
+| D | Saving: `SignInWatch` grows to read the username and password at sending; a bar outside the page; once a page; never in private windows | done 2026-11-22: offered after sending, at the field, Save / Update / Never for This Site / Not Now (`LoginSave`); never in private windows; seen. While locked not offered |
 | E | New passwords: generated with `passwordrules`, kept as a draft before sending | not-started |
 | F | Cards, addresses, emails, one-time codes; a card's security code never without a reveal | not-started |
 
-Not done: everything.
+Not done: E (new passwords generated into a page), F (cards, addresses, codes); frames other than the main one; the hover seen on screen (a background copy gets no pointer).

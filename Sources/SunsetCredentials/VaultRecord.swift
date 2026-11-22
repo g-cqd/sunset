@@ -3,4 +3,6 @@
 enum VaultRecord: Codable, Equatable {
     case entry(VaultEntry)
     case template(EntryTemplate)
+    /// The sites the person said never to offer saving for.
+    case neverSave([String])
 }
