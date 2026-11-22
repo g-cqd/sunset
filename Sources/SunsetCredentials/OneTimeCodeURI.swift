@@ -18,16 +18,13 @@ public struct OneTimeCodeURI: Equatable, Sendable {
     public var counter: UInt64 = 0
 
     public init(_ text: String) throws(Invalid) {
-        guard let parts = URLComponents(string: text), parts.scheme?.lowercased() == "otpauth",
-            let type = parts.host?.lowercased(), var kind = Kind(rawValue: type), kind != .steam
+        guard let link = OTPLink.read(text, scheme: "otpauth"), var kind = Kind(rawValue: link.host), kind != .steam
         else { throw Invalid() }
-        let query = Dictionary((parts.queryItems ?? []).map { ($0.name.lowercased(), $0.value ?? "") }) { first, _ in
-            first
-        }
+        let query = link.query
         guard let secretText = query["secret"], !secretText.isEmpty, let secret = try? Base32.decode(secretText),
             !secret.isEmpty
         else { throw Invalid() }
-        let label = String(parts.path.dropFirst())
+        let label = String(link.path.dropFirst())
         let (labelIssuer, account) = Self.split(label)
         if query["encoder"]?.lowercased() == "steam" || query["algorithm"]?.lowercased() == "steam" { kind = .steam }
         self.kind = kind
