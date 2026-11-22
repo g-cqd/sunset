@@ -58,6 +58,9 @@ package import SunsetPane
     var picture: CGImage? { get }
     /// Takes its picture now, as it leaves a window or is hidden (J); kinds without one ignore it.
     func takePicture()
+    /// Its row is pointed at: a picture older than `age` is taken again, even while hidden (the owner's note n95); kinds
+    /// without one ignore it.
+    func refreshPicture(olderThan age: Duration)
     /// Gets ready to be shown, without showing (its row is pointed at): a page not made yet starts loading. Kinds that
     /// are ready at once ignore it.
     func prepare()
@@ -109,6 +112,7 @@ extension PaneContent {
         false
     }
     package func takePicture() {}
+    package func refreshPicture(olderThan age: Duration) {}
     package func prepare() {}
     package var isUnloaded: Bool {
         false

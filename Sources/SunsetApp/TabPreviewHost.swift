@@ -91,6 +91,9 @@ struct TabPreviewHost: View {
         return UnitPoint(x: x / area.width, y: y / area.height)
     }
 
+    /// How old a hidden page's picture may be before its preview is made again.
+    static let pictureAge = Duration.seconds(30)
+
     /// Takes the row under the pointer when its tab has something to show; leaves a moment after there is none.
     private func follow() {
         guard tabs.dragged == nil else {
@@ -99,8 +102,9 @@ struct TabPreviewHost: View {
             return
         }
         if let id = tabs.hoveredItem, let item = tabs.previewItem(id) {
-            // A page on screen is pictured as it is now; one that is hidden keeps the picture taken as it was hidden.
-            for pane in item.panes { tabs.content(pane)?.takePicture() }
+            // A page on screen is pictured as it is now; a hidden one again once its picture is half a minute old (the
+            // owner's note n95: a preview is not kept forever).
+            for pane in item.panes { tabs.content(pane)?.refreshPicture(olderThan: Self.pictureAge) }
         }
         // Every kind has a card, a pane with no picture showing its icon; not the tab on screen: its card would picture
         // what is under it ("nesting of the preview in previews").

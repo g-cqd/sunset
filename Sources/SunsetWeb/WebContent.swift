@@ -82,6 +82,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var lastTitlePicture: Double?
     /// When the page was last pictured again for a change of its text.
     @ObservationIgnored var lastTextPicture: Double?
+    /// When `picture` was taken (uptime).
+    @ObservationIgnored var pictureTaken: Duration?
     /// A snapshot was asked for and has not arrived.
     @ObservationIgnored package internal(set) var takingPicture = false
     /// It was on screen at the last `setState`.
@@ -205,11 +207,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
         guard let webView, webView.window != nil, webView.bounds.width > 0, webView.bounds.height > 0 else { return }
         takingPicture = true
         webView.takeSnapshot(with: nil) { [weak self] image, _ in
-            MainActor.assumeIsolated {
-                guard let self else { return }
-                self.takingPicture = false
-                if let image { self.picture = image.cgImage(forProposedRect: nil, context: nil, hints: nil) }
-            }
+            MainActor.assumeIsolated { self?.pictured(image) }
         }
     }
 
