@@ -34,6 +34,8 @@ package struct TabSidebar: View {
     var bottomBarRows = 1
     /// The row a drag is over, and what a drop there would do.
     @State var rowDrop: (owner: Workspace.ItemID, place: TabDropAction)?
+    /// The gap between tabs a drag is over (before the tab at this index): the rows beside it move apart (n79, n84).
+    @State var gapRoom: Int?
     @State private var rowSizes: [Workspace.ItemID: CGSize] = [:]
     @State private var rowFrames: [Workspace.ItemID: CGRect] = [:]
     /// Index of the row whose close button was just clicked, while the pointer remains inside the sidebar (`n27`).
@@ -212,18 +214,7 @@ package struct TabSidebar: View {
                     tabs.hoveredItem = nil
                 }
             }
-            .selectionTaps(tabs, row: .tab(item.id)) { tabs.select(item: item.id) }
-            .iconPopover(tabs: tabs, row: .tab(item.id))
-            .onDrag { tabs.itemProvider(for: .item(item.id)) }
-            .onDrop(
-                of: [.plainText, .utf8PlainText],
-                delegate: TabRowDropDelegate.make(
-                    tabs: tabs,
-                    item: item.id,
-                    size: rowSizes[item.id] ?? CGSize(width: 180, height: 32),
-                    active: $rowDrop
-                )
-            )
+            .rowDragAndDrop(tabs, row: .tab(item.id), owner: item.id, size: rowSizes[item.id], active: $rowDrop)
             .contextMenu { TabRowMenu(tabs: tabs, item: item.id, animation: layout.smooth) }
     }
 

@@ -12,6 +12,10 @@ struct GapDrop: View {
     let place: SectionDrop
     /// As tall as the rows' spacing between two rows; nothing at a section's top or bottom.
     var between = true
+    /// Its line shows while a drop it would take is over it; off where the rows make room instead (n79).
+    var line = true
+    /// Told when a drop it would take comes over it and leaves.
+    var onTargeted: (Bool) -> Void = { _ in }
     @State private var targeted = false
     @Environment(\.accent) private var accent
 
@@ -29,7 +33,7 @@ struct GapDrop: View {
                     .frame(height: height + 2 * reach)
                     .contentShape(.rect)
                     .overlay {
-                        if targeted {
+                        if targeted, line {
                             Capsule().fill(accent.color).frame(height: Design.Space.hair)
                                 .padding(.horizontal, Design.Space.xs)
                                 .transition(.opacity)
@@ -44,6 +48,7 @@ struct GapDrop: View {
             }
             .zIndex(1)
             .animation(layout.smooth, value: targeted)
+            .onChange(of: targeted) { _, now in onTargeted(now) }
             .accessibilityHidden(true)
     }
 

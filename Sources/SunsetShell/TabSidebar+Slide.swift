@@ -36,7 +36,12 @@ extension TabSidebar {
                 if isPreview {
                     if index > 0 { Color.clear.frame(height: layout.tabSpacing) }
                 } else {
-                    GapDrop(tabs: tabs, layout: layout, place: .today(at: index), between: index > 0)
+                    // The rows beside it make room instead of a line (n79); the gap stays where it is, so that the
+                    // rows moving do not take the drop from under the pointer (n84).
+                    GapDrop(tabs: tabs, layout: layout, place: .today(at: index), between: index > 0, line: false) {
+                        targeted in
+                        if targeted { gapRoom = index } else if gapRoom == index { gapRoom = nil }
+                    }
                 }
                 row(item)
             }

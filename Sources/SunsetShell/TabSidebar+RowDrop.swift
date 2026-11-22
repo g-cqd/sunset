@@ -26,13 +26,12 @@ extension TabSidebar {
 
     /// How far the row moves to make room where the dragged tab would go (note n79, `RowMakingRoom`).
     func roomOffset(_ id: Workspace.ItemID) -> CGFloat {
-        guard let drop = rowDrop else { return 0 }
-        return RowMakingRoom.offset(
-            of: id,
-            rows: tabs.workspace.items.map(\.id),
-            owner: drop.owner,
-            action: drop.place,
-            room: layout.rowMakingRoom
-        )
+        let rows = tabs.workspace.items.map(\.id)
+        // A gap under the drag opens as a drop before the row under it would.
+        let drop =
+            gapRoom.flatMap { index in rows.indices.contains(index) ? (rows[index], TabDropAction.moveBefore) : nil }
+            ?? rowDrop.map { ($0.owner, $0.place) }
+        guard let (owner, action) = drop else { return 0 }
+        return RowMakingRoom.offset(of: id, rows: rows, owner: owner, action: action, room: layout.rowMakingRoom)
     }
 }

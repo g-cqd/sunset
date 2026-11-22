@@ -10,8 +10,8 @@ struct FavoritesSection: View {
     let settings: ShellSettings
     let layout: ShellSettings.Layout
     /// The row a drag is over, and whether it would land after it.
-    @State private var drop: (owner: Favorites.NodeID, place: Bool)?
-    @State private var heights: [Favorites.NodeID: Double] = [:]
+    @State private var drop: (owner: Favorites.NodeID, place: TabDropAction)?
+    @State private var sizes: [Favorites.NodeID: CGSize] = [:]
     @Environment(\.accent) private var accent
 
     /// One view: the rows, then their line. As two, a modifier on the section (a measure) laid them over each other, the
@@ -50,17 +50,31 @@ struct FavoritesSection: View {
         FavoritesLine(tabs: tabs, layout: layout, visible: tabs.linesShown.afterFavorites)
     }
 
-    /// An insertion line at the top or the bottom of the row a drag is over.
+    /// Where a drop on the row a drag is over lands: an insertion line at its top or bottom, or the half of it a split would
+    /// take, as on a tab's row (n84).
     @ViewBuilder private func dropMark(_ id: Favorites.NodeID) -> some View {
         if let drop, drop.owner == id {
-            // In the gap beside the row, where a drop there would land (roadmap 0038 F), not on the row's edge.
-            VStack {
-                if drop.place { Spacer(minLength: 0) }
-                Capsule().fill(accent.color).frame(height: Design.Space.hair).padding(.horizontal, Design.Space.xs)
-                if !drop.place { Spacer(minLength: 0) }
+            switch drop.place {
+                case .split(let edge):
+                    GeometryReader { proxy in
+                        let half = proxy.size.width / 2
+                        DropVeil(shape: RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous))
+                            .frame(width: half, height: proxy.size.height)
+                            .offset(x: edge == .right ? half : 0)
+                    }
+                    .allowsHitTesting(false)
+                case .moveBefore, .moveAfter:
+                    // In the gap beside the row, where a drop there would land (roadmap 0038 F), not on the row's edge.
+                    let after = drop.place == .moveAfter
+                    VStack {
+                        if after { Spacer(minLength: 0) }
+                        Capsule().fill(accent.color).frame(height: Design.Space.hair)
+                            .padding(.horizontal, Design.Space.xs)
+                        if !after { Spacer(minLength: 0) }
+                    }
+                    .padding(.vertical, -layout.gapMarkOutset)
+                    .allowsHitTesting(false)
             }
-            .padding(.vertical, -layout.gapMarkOutset)
-            .allowsHitTesting(false)
         }
     }
 
@@ -77,21 +91,10 @@ struct FavoritesSection: View {
                 }
             }
             .awayDot(tabs.isAway(entry: entry), iconCentre: layout.tabPaddingLeading + Design.Size.glyphFrame / 2)
-            .onGeometryChange(for: CGFloat.self, of: \.size.height) { heights[entry.id] = Double($0) }
+            .onGeometryChange(for: CGSize.self, of: \.size) { sizes[entry.id] = $0 }
             .hoverPreview(tabs, entry: entry.id)
             .overlay { dropMark(entry.id) }
-            .selectionTaps(tabs, row: .node(entry.id)) { tabs.select(entry: entry.id) }
-            .iconPopover(tabs: tabs, row: .node(entry.id))
-            .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
-            .onDrop(
-                of: [.plainText, .utf8PlainText],
-                delegate: EntryRowDropDelegate.make(
-                    tabs: tabs,
-                    entry: entry.id,
-                    height: heights[entry.id] ?? 32,
-                    active: $drop
-                )
-            )
+            .rowDragAndDrop(tabs, row: .node(entry.id), owner: entry.id, size: sizes[entry.id], active: $drop)
             .contextMenu { entryMenu(entry) }
     }
 
