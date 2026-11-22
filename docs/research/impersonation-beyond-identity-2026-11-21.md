@@ -30,6 +30,7 @@ JavaScriptCore from V8 can, and nothing short of running V8 changes that. Detect
 use them. Sunset's impersonation is for sites that **gate** on the user agent (their own code checks a string), not against
 sites that **fingerprint** the engine; the threat model should say so (A1 fingerprints Sunset as WebKit whatever it shows).
 
-Fixable now: `canPlayType('application/vnd.apple.mpegurl')` answering as Chrome does.
+Fixable: `canPlayType('application/vnd.apple.mpegurl')` answering as Chrome does. Done (`AgentScript`, for Chrome, Edge and
+Firefox alike, which play HLS through Media Source Extensions only).
 
 Not done: Firefox's values (SpiderMonkey's messages differ again); confirming Chrome's strings on Chrome itself.
