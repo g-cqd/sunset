@@ -1,5 +1,5 @@
 extension Configuration {
-    /// `storage.*` (R12).
+    /// `storage.*`.
     public struct Storage: Sendable, Equatable {
         /// What becomes of a plain file of before, once what it held is in the sealed store.
         public enum ImportedFiles: String, Sendable, Equatable, CaseIterable {

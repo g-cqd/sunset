@@ -1,7 +1,7 @@
 package import Foundation
 
-/// A server asking for a name and a password (HTTP Basic or Digest; roadmap 0029 step 8), waiting in the page's pane. What the
-/// server calls itself (its realm) is shown as plain text, cut; the host is the one the connection goes to.
+/// A server asking for a name and a password (HTTP Basic or Digest), waiting in the page's pane. What the server calls
+/// itself (its realm) is shown as plain text, cut; the host is the one the connection goes to.
 @MainActor
 package final class CredentialRequest: Identifiable {
     package struct Answer: Equatable, Sendable {

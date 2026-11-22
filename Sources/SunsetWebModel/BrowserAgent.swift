@@ -1,9 +1,9 @@
-/// A browser Sunset can appear as (roadmap 0022, W-a; the owner, 2026-11-17: Chrome, Edge, Firefox, Safari on macOS). The
-/// first rung of R5's ladder only: what the User-Agent says, in the header of every request of the page and to its
-/// scripts (`navigator.userAgent`). The engine is still WebKit: no client-hint header is sent (WebKit has none, and gives
-/// no way to add a header to every request), and what scripts can probe, and the connection's own fingerprint, are WebKit's.
+/// A browser Sunset can appear as (Chrome, Edge, Firefox, Safari on macOS). The first rung of R5's ladder only: what the
+/// User-Agent says, in the header of every request of the page and to its scripts (`navigator.userAgent`). The engine is
+/// still WebKit: no client-hint header is sent (WebKit has none, and gives no way to add a header to every request), and
+/// what scripts can probe, and the connection's own fingerprint, are WebKit's.
 package enum BrowserAgent: String, Sendable, CaseIterable, Equatable {
-    /// Sunset as it is: WebKit's own User-Agent, named as the installed Safari (R1).
+    /// Sunset as it is: WebKit's own User-Agent, named as the installed Safari.
     case safari
     case chrome
     case edge

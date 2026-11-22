@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetPane
 
-/// The scopes of the app that can be removed (roadmap 0033; the owner, 2026-11-16 and 2026-11-17): the web, terminals,
-/// documents. Each is a kind of pane; at least one is always on.
+/// The scopes of the app that can be removed (2026-11-16 and 2026-11-17): the web, terminals, documents. Each is a kind
+/// of pane; at least one is always on.
 @Suite("The scopes that can be turned off")
 struct ScopesTests {
     @Test func `each scope is a kind of pane; a kind that is none of the three is always allowed`() {

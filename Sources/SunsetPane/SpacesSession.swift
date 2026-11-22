@@ -1,7 +1,7 @@
 public import Foundation
 
-/// What the app had open, since Spaces (roadmap 0021 step S-a; ADR-0045): the Spaces in their one order, each with its
-/// tabs, the profiles with what is kept in each (the Pinned grid, the Favorites), and the windows as views of the Spaces. Written when it quits and as things change, read at launch.
+/// What the app had open, since Spaces: the Spaces in their one order, each with its tabs, the profiles with what is kept in each (the Pinned grid, the Favorites), and the windows
+/// as views of the Spaces. Written when it quits and as things change, read at launch.
 ///
 /// Reading never fails the launch: a file that cannot be understood is no session, a damaged Space or view is left out.
 /// What is read holds together: there is always a Space; a Space is there once; a pane is in one place (of two Spaces
@@ -28,7 +28,7 @@ public struct SpacesSession: Sendable, Equatable {
     ///   - views: the windows.
     ///   - pinned: the first profile's grid, when `profiles` does not hold the first (a file of before profiles).
     ///   - given: the profiles, each once.
-    ///   - ownership: whose the Favorites and the Pinned grid are (`spaces.favorites`, `spaces.pinned`; roadmap 0044).
+    ///   - ownership: whose the Favorites and the Pinned grid are (`spaces.favorites`, `spaces.pinned`).
     public init(
         spaces: [SavedSpace],
         views: [SavedView],
@@ -42,7 +42,7 @@ public struct SpacesSession: Sendable, Equatable {
         var seen = Set<Space.ID>()
         var own: [SavedSpace] = []
         for var space in spaces where own.count < Self.maximumSpaces && seen.insert(space.space.id).inserted {
-            // Favorites are the profile's (ADR-0055): a Space's own, of a file of before, go to its profile.
+            // Favorites are the profile's: a Space's own, of a file of before, go to its profile.
             if !ownership.favoritesBySpace, !space.favorites.favorites.isEmpty {
                 let index = profiles.firstIndex { $0.profile.id == space.space.profile } ?? 0
                 var all = profiles[index].favorites.favorites
@@ -54,7 +54,7 @@ public struct SpacesSession: Sendable, Equatable {
             }
             own.append(space)
         }
-        // Each Space's (roadmap 0044): a profile's list, of a file written the other way, goes to its first Space.
+        // Each Space's: a profile's list, of a file written the other way, goes to its first Space.
         if ownership.favoritesBySpace { Self.giveFavorites(of: &profiles, to: &own) }
         // One grid for the app: the other profiles' grids, of a file written the other way, join the first's.
         if ownership.pinnedByApp { Self.joinPinned(of: &profiles) }
@@ -92,7 +92,7 @@ public struct SpacesSession: Sendable, Equatable {
     /// - Parameters:
     ///   - old: the windows and the Favorites, as versions 1 and 2 had them.
     ///   - named: what names the Space they become; unnamed, with a new id, for a file of before.
-    ///   - ownership: whose the Favorites and the Pinned grid are (roadmap 0044).
+    ///   - ownership: whose the Favorites and the Pinned grid are.
     public init(_ old: SavedSession, space named: Space = Space(), ownership: Ownership = Ownership()) {
         let id = named.id
         var tabs = Workspace()

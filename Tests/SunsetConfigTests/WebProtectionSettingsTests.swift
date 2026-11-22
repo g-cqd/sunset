@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Task t115: what WebKit offers each navigation and Sunset did not ask for (diary 2026-11-19-07). HTTPS first, falling back
-/// to http with Not Secure shown, as Safari does; the hardened mode (no JIT) and Global Privacy Control are the person's.
+/// What WebKit offers each navigation and Sunset did not ask for. HTTPS first, falling back to http with Not Secure
+/// shown, as Safari does; the hardened mode (no JIT) and Global Privacy Control are the person's.
 @Suite("The web's protections: settings")
 struct WebProtectionSettingsTests {
     @Test func `defaults: https first with a fallback, not hardened, privacy control in private windows only`() {

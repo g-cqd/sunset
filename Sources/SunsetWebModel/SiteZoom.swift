@@ -30,7 +30,7 @@ package final class SiteZoom {
         sites(profile: nil)
     }
 
-    /// A profile's own levels (roadmap 0050 E), kept as `<profile>|<host>`; nil: all profiles'.
+    /// A profile's own levels, kept as `<profile>|<host>`; nil: all profiles'.
     package func sites(profile: UUID?) -> [(host: String, level: Double)] {
         let prefix = profile.map { $0.uuidString + "|" }
         return

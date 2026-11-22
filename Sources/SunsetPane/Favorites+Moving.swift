@@ -2,8 +2,8 @@ public import Foundation
 
 extension Favorites {
     /// Moves nodes together into `parent` (the top for nil), in the order they have in the tree. `index` counts among what `parent` holds once the moved
-    /// nodes are taken out, and is brought inside. A folder that would land deeper than the limit dissolves: what it holds takes its place (the owner's
-    /// rule, "flattened to fit"). Nothing moves into an entry, an unknown node, or a folder into itself or what it holds.
+    /// nodes are taken out, and is brought inside. A folder that would land deeper than the limit dissolves: what it holds takes its place ("flattened
+    /// to fit"). Nothing moves into an entry, an unknown node, or a folder into itself or what it holds.
     public mutating func move(_ ids: [NodeID], into parent: NodeID?, at index: Int) {
         let members = topmost(ids)
         guard !members.isEmpty else { return }

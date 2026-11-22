@@ -1,9 +1,9 @@
 import CryptoKit
 public import Foundation
 
-/// The key that seals what Sunset keeps (R12, roadmap 0030 step ST-2): 32 random bytes, made on first use and kept in a
-/// `KeyVault`. Nothing is sealed with it directly: each purpose has a key derived from it (`Seal`), so what is sealed for one
-/// purpose cannot be opened as another.
+/// The key that seals what Sunset keeps: 32 random bytes, made on first use and kept in a `KeyVault`. Nothing is sealed with
+/// it directly: each purpose has a key derived from it (`Seal`), so what is sealed for one purpose cannot be opened as
+/// another.
 public struct StorageKey: Sendable {
     private let key: SymmetricKey
 

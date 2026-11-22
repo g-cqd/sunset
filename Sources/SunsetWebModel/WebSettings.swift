@@ -26,7 +26,7 @@ package struct WebSettings: Sendable, Equatable {
     package var textOnlyZoom: Bool
     /// A private page's store (web step h); nil for a page of the persistent store. Pages it opens inherit it.
     package var privacy: PagePrivacy?
-    /// The profile whose website data the page uses (ADR-0053); nil: the first profile's, the store there always was.
+    /// The profile whose website data the page uses; nil: the first profile's, the store there always was.
     package var profile: UUID?
     /// Suggestions while typing in a private page (`web.privateSuggestions`).
     package var privateSuggestions = false
@@ -35,12 +35,12 @@ package struct WebSettings: Sendable, Equatable {
     /// What a page's scripts read to tell a browser is set too (`web.agentScripts`): the second rung.
     package var agentScripts = true
     /// A page's request to notify asks the person without a click too (`web.notificationsWithoutClick`, as Chrome); off,
-    /// it is answered by the site's answer as it stands (Safari; ADR-0067).
+    /// it is answered by the site's answer as it stands (Safari).
     package var notificationAskWithoutClick = false
-    /// A page's `registration.showNotification(…)` is posted as its own are (`web.workerNotifications`; roadmap 0046 S2).
+    /// A page's `registration.showNotification(…)` is posted as its own are (`web.workerNotifications`).
     package var workerNotifications = true
-    /// What its profile sets otherwise than all profiles (roadmap 0050), or all profiles' own: blocking, the proxy its store
-    /// is given, what a site gets until answered, where a download goes and whether it is asked.
+    /// What its profile sets otherwise than all profiles, or all profiles' own: blocking, the proxy its store is given,
+    /// what a site gets until answered, where a download goes and whether it is asked.
     package var blocking = true
     package var proxy: WebProxy?
     package var permissionDefaults: [SitePermission: PermissionAnswer]?

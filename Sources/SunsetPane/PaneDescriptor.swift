@@ -4,14 +4,14 @@ public import Foundation
 /// page its address). The model does not know the kinds: one that the running build cannot make is kept as it is and written back, not dropped.
 public struct PaneDescriptor: Sendable, Equatable, Codable {
     public static let terminalKind = "terminal"
-    /// A document: Markdown, a diagram or text (roadmap 0023). Its state names a file or a stored document.
+    /// A document: Markdown, a diagram or text. Its state names a file or a stored document.
     public static let documentKind = "document"
     /// The picture of a document's tab.
     public static let documentSymbol = "doc.text"
-    /// A document drawn as its page (rendered Markdown), not its source (note n3).
+    /// A document drawn as its page (rendered Markdown), not its source.
     public static let renderedDocumentSymbol = "richtext.page"
 
-    /// The settings, as a tab (roadmap 0032). Its state names the topic shown.
+    /// The settings, as a tab. Its state names the topic shown.
     public static let settingsKind = "settings"
     public static let settingsSymbol = "gearshape"
     public static let helpKind = "help"
@@ -47,7 +47,7 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
         PaneDescriptor(kind: settingsKind, state: ["topic": topic, "title": "Settings"])
     }
 
-    /// Help, on the topic `topic` (roadmap 0041 E).
+    /// Help, on the topic `topic`.
     public static func help(topic: String) -> PaneDescriptor {
         PaneDescriptor(kind: helpKind, state: ["topic": topic, "title": "Help"])
     }

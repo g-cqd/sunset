@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Roadmap 0047 G (the owner, 2026-11-18): "try to make the settings more tidy, sorted and not offer all the settings on the
-/// first level of them so that you'd find there only the most straightforward ones".
+/// "try to make the settings more tidy, sorted and not offer all the settings on the first level of them so that you'd
+/// find there only the most straightforward ones".
 @Suite("Settings: the plainest first, the measures a level down")
 struct SettingsAdvancedTests {
     @Test func `every number of the layout is a level down; a topic shows what is not first, and search finds both`()

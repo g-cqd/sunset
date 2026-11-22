@@ -9,7 +9,7 @@ import Testing
 
     @Test
     func
-        `the defaults (the owners settings of 2026-11-12): glass, a black tint at half, 4 pt padding, a docked sidebar on the right, native tabs`()
+        `the defaults: glass, a black tint at half, 4 pt padding, a docked sidebar on the right, native tabs`()
         throws
     {
         let configuration = try read("{}").configuration

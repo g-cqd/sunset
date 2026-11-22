@@ -27,7 +27,7 @@ struct StoragePlacesTests {
         #expect(empty == StoragePlaces(environment: [:], home: "/h"))
     }
 
-    /// t276: a build that is not the installed one (its identifier ends in `.dev`) started with nothing named must not read
+    /// A build that is not the installed one (its identifier ends in `.dev`) started with nothing named must not read
     /// or write the person's session, nor ask for his keys (a test copy started on his session once, 2026-11-16).
     @Test
     func `a development build keeps its own folder and its own keys; a named setup is the same whatever the build`() {
@@ -47,7 +47,7 @@ struct StoragePlacesTests {
         #expect(test.directory == StoragePlaces(environment: named, home: "/h").directory)
     }
 
-    /// ADR-0114: Sunset WebKit keeps Sunset's store and keys; its own from before are still found, to be merged once.
+    /// Sunset WebKit keeps Sunset's store and keys; its own from before are still found, to be merged once.
     @Test func `Sunset WebKit shares Sunset's places, and knows its own from before`() throws {
         let sunset = StoragePlaces(environment: [:], home: "/h", identifier: "studio.aemi.sunset")
         let webKit = StoragePlaces(environment: [:], home: "/h", identifier: "studio.aemi.sunset.webkit")
@@ -57,12 +57,12 @@ struct StoragePlacesTests {
         #expect(former.directory == "/h/Library/Application Support/Sunset Webkit")
         #expect(former.keyService == "studio.aemi.sunset.webkit.storage-key")
         #expect(sunset.former == nil)
-        // The builds that keep the same store, each the other's (one at a time, ADR-0114).
+        // The builds that keep the same store, each the other's (one at a time).
         #expect(StoragePlaces.sharers(of: "studio.aemi.sunset") == ["studio.aemi.sunset.webkit"])
         #expect(StoragePlaces.sharers(of: "studio.aemi.sunset.webkit") == ["studio.aemi.sunset"])
         #expect(StoragePlaces.sharers(of: "studio.aemi.sunset.lab").isEmpty)
         #expect(StoragePlaces.sharers(of: "studio.aemi.sunset.dev").isEmpty && StoragePlaces.sharers(of: nil).isEmpty)
-        // Another variant keeps its own, as before (n34).
+        // Another variant keeps its own, as before.
         let lab = StoragePlaces(environment: [:], home: "/h", identifier: "studio.aemi.sunset.lab")
         #expect(
             lab.variant == "lab" && lab.directory == "/h/Library/Application Support/Sunset Lab" && lab.former == nil

@@ -13,7 +13,7 @@ public enum ConfigurationWriter {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }
         layout.merge(extras(configuration)) { $1 }
-        // A plain value is written by its option's codec (roadmap 0086 C).
+        // A plain value is written by its option's codec.
         for (key, codec) in SettingCodec.byKey {
             layout[key] = codec.literal(configuration)
         }

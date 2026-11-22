@@ -1,5 +1,5 @@
-/// The scopes of the app that are on (roadmap 0033; ADR-0056): terminals, the web, documents. Each is a kind of pane, and
-/// can be removed whole; at least one is always on, so that there is something to turn the others back on from.
+/// The scopes of the app that are on: terminals, the web, documents. Each is a kind of pane, and can be removed whole;
+/// at least one is always on, so that there is something to turn the others back on from.
 public struct Scopes: Sendable, Equatable {
     public enum Scope: String, Sendable, CaseIterable {
         case terminal, web, documents

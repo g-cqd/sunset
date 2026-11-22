@@ -1,5 +1,5 @@
-/// How an extension's button looks (the owner, 2026-11-21: unavailable in a document or a terminal, they "should be
-/// disabled but also appear disabled": without colour, faded, blending with the window's chrome, not distracting).
+/// How an extension's button looks (unavailable in a document or a terminal, they "should be disabled but also appear
+/// disabled": without colour, faded, blending with the window's chrome, not distracting).
 package struct ExtensionFaceLook: Equatable, Sendable {
     /// 1: the icon's own colours; 0: grey.
     package let saturation: Double

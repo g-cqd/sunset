@@ -2,7 +2,7 @@ public import Foundation
 
 extension Favorites {
     /// The rows a sidebar shows, top to bottom. A collapsed folder shows its row, and under it the selected entry when that entry is inside, however
-    /// deep (R3): one never loses where one is.
+    /// deep: one never loses where one is.
     public func rows(selected: NodeID?) -> [Row] {
         var rows: [Row] = []
         Self.rows(of: nodes, level: 0, selected: selected, into: &rows)

@@ -2,8 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Roadmap 0055 C (the owner's notes n41, n42): shown always, the space under the bar is the page fading under a blur, or a
-/// native toolbar.
+/// Shown always, the space under the bar is the page fading under a blur, or a native toolbar.
 @Suite("Configuration: what is under a bar shown always")
 struct ConfigurationBarBackingTests {
     @Test func `the fade by default; the toolbar read, written, and offered only while the bar is shown always`() throws

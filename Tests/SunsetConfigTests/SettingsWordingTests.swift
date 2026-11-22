@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Settings are worded as settings are (roadmap 0040 B; docs/design/0005-settings-wording.md): every section, group, option,
-/// label, menu value and note of `SettingsSection.all`, by the rules read from VMRunner and System Settings.
+/// Settings are worded as settings are (docs/design/0005-settings-wording.md): every section, group, option, label,
+/// menu value and note of `SettingsSection.all`, by the rules read from VMRunner and System Settings.
 @Suite("Settings' wording")
 struct SettingsWordingTests {
     /// A piece of text and where it is, for the failure's message.

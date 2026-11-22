@@ -1,9 +1,9 @@
 import CryptoKit
 package import Foundation
 
-/// The key in a form to write down (R12): its 32 bytes and two bytes that check them, in Crockford's base 32 (no I, L, O or U,
-/// so nothing is mistaken for a digit), as eleven groups of five. Read back whatever the case, with spaces or dashes, and with
-/// O, I and L taken for the digits they look like; a mistyped code fails the check.
+/// The key in a form to write down: its 32 bytes and two bytes that check them, in Crockford's base 32 (no I, L, O or U, so
+/// nothing is mistaken for a digit), as eleven groups of five. Read back whatever the case, with spaces or dashes, and with O,
+/// I and L taken for the digits they look like; a mistyped code fails the check.
 package enum RecoveryCodeText {
     private static let alphabet = Array("0123456789ABCDEFGHJKMNPQRSTVWXYZ")
     private static let keyLength = 32

@@ -5,8 +5,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Task t48 C (design 0007, threat A4: a copy of the files): format 2 keeps no kind's name, no time and no count in the
-/// clear; a kind is a keyed tag, a record's time and count are sealed with it. A database of format 1 is resealed in one
+/// Design 0007, threat A4 (a copy of the files): format 2 keeps no kind's name, no time and no count in the clear; a
+/// kind is a keyed tag, a record's time and count are sealed with it. A database of format 1 is resealed in one
 /// transaction at its first opening; a record that does not open is left as it was.
 @MainActor
 @Suite("Storage format 2: nothing about a record in the clear")

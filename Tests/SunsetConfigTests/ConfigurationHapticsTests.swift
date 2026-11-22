@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `appearance.haptics` (roadmap 0054 F, the owner's note n11): the trackpad's tap when a click goes through or is blocked,
-/// on by default, and turned off here.
+/// `appearance.haptics`: the trackpad's tap when a click goes through or is blocked, on by default, and turned off
+/// here.
 @Suite("Configuration: the trackpad's taps")
 struct ConfigurationHapticsTests {
     @Test func `on unless the file says otherwise, written and read back, and in Settings`() throws {

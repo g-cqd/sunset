@@ -2,8 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n70: what Command-T makes, the focused tab's kind (as before) or always a terminal, a page or a
-/// document.
+/// What Command-T makes, the focused tab's kind (as before) or always a terminal, a page or a document.
 @Suite("Configuration: what a new tab is")
 struct ConfigurationNewTabTests {
     @Test func `the focused tab's kind by default; each kind read, written and offered`() throws {

@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Roadmap 0050 (notes n1, n38): a profile sets otherwise only what differs, only what a profile may.
+/// A profile sets otherwise only what differs, only what a profile may.
 @Suite("A profile's own settings") struct ProfileOverridesTests {
     @Test func `a profile may set search, privacy, network and downloads, nothing else`() {
         let keys = Set(ProfileOverrides.profileKeys)

@@ -1,7 +1,6 @@
 package import Foundation
 
-/// Files sealed beside themselves (`name.sealed`, 0600) and opened back: what the cookie jars and the sites' storage share
-/// (t114, t137).
+/// Files sealed beside themselves (`name.sealed`, 0600) and opened back: what the cookie jars and the sites' storage share.
 package enum SealedFiles {
     package static let sealedExtension = "sealed"
 

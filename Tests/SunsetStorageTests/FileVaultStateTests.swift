@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetStorage
 
 /// Whether FileVault protects the disk, as the Mac says (`fdesetup isactive`): the volume's "encrypted" flag does not say
-/// (diary 2026-11-15-01).
+/// (probed 2026-11-15).
 @Suite("FileVault's state") struct FileVaultStateTests {
     @Test func `the Mac's answer is read; anything else is not known`() {
         #expect(FileVaultState(answer: "true\n") == .on)

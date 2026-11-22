@@ -1,7 +1,7 @@
 import Foundation
 
-/// A cookie jar WebKit wrote (2026-11-22, a probe that set three cookies in a store of its own: diary 2026-11-22-05): no
-/// one's real cookies. "plain" (example.com), "secure" (.example.org, /app), "httponly" (sub.example.net, SameSite=Lax).
+/// A cookie jar WebKit wrote (2026-11-22, a probe that set three cookies in a store of its own): no one's real cookies.
+/// "plain" (example.com), "secure" (.example.org, /app), "httponly" (sub.example.net, SameSite=Lax).
 enum CookieJarFixture {
     static let jar = Data(
         base64Encoded: [

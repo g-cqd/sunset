@@ -1,5 +1,5 @@
 extension Configuration.Appearance {
-    /// The app's icon (roadmap 0084 F): one of the four skies built into the asset catalog, `App/<assetName>.icon`.
+    /// The app's icon: one of the four skies built into the asset catalog, `App/<assetName>.icon`.
     public enum Icon: String, Sendable, Equatable, CaseIterable {
         case sunset, twilight, dawn, dusk
 

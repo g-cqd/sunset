@@ -27,7 +27,7 @@ extension Reader {
                 case "blockingLists": readBlockingLists(value)
                 case "proxy": readProxy(value)
                 case "keep": section("web.keep", value) { reader, object in reader.readKeep(object) }
-                // Before ADR-0081: one switch that cleared everything at quit.
+                // The key of before `web.keep`: one switch that cleared everything at quit.
                 case "clearWebsiteDataOnQuit":
                     if bool("web.clearWebsiteDataOnQuit", value) == true {
                         configuration.web.keep = .init(

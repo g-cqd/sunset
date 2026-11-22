@@ -1,4 +1,4 @@
-/// The options of Web (R1): the address, search, pages.
+/// The options of Web: the address, search, pages.
 extension SettingsOption {
     /// The address and the bars.
     static let addressBars: [Self] =
@@ -63,7 +63,7 @@ extension SettingsOption {
     /// Pages.
     static let pages: [Self] =
         [
-            // Not a key of the file: the system's choice, shown and asked for (the owner's note n18).
+            // Not a key of the file: the system's choice, shown and asked for.
             custom(
                 "web.defaultBrowser",
                 "Default browser",

@@ -2,8 +2,7 @@ internal import AemiIO
 public import Foundation
 public import SunsetRuntime
 
-/// A file Sunset keeps (R12, roadmap 0030 step ST-1): written whole or not at all, and never dropped silently when it does not
-/// read.
+/// A file Sunset keeps: written whole or not at all, and never dropped silently when it does not read.
 public enum StoredFile {
     /// How hard a write is pushed to the disk before it counts as done.
     public enum Durability: Sendable {

@@ -1,6 +1,6 @@
-/// What the install prompt says an extension may do (roadmap 0109 C, ADR-0109: granted at install, all or nothing): its sites
-/// first, every website above the rest, then what its permissions let it do, each once, in plain words. Permissions that let it
-/// do nothing the person must weigh (its own storage, alarms) are not listed.
+/// What the install prompt says an extension may do (granted at install, all or nothing): its sites first, every website above
+/// the rest, then what its permissions let it do, each once, in plain words. Permissions that let it do nothing the person must
+/// weigh (its own storage, alarms) are not listed.
 package enum ExtensionWording {
     package static func lines(permissions: [String], sites: [String]) -> [String] {
         var seen = Set<String>()

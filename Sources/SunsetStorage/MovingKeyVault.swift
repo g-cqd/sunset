@@ -1,7 +1,7 @@
 public import Foundation
 
 /// The storage key moved from `old` (the login Keychain) to `new` (the data-protection keychain, wrapped by the Secure
-/// Enclave: task t121) without a launch that cannot open it:
+/// Enclave) without a launch that cannot open it:
 /// - the first launch copies the key and checks the copy opens to it, and keeps the old;
 /// - a later launch that opens the new one, and finds the same key in the old, removes the old;
 /// - a new place that cannot be used (a build without the team's entitlement, no Secure Enclave) leaves the key where it

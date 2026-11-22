@@ -4,7 +4,7 @@ import SQLite3
 
 @testable import SunsetStorage
 
-/// A state database written as format 1 was (before task t48 C): kinds by name, times and counts in the clear.
+/// A state database written as format 1 was (before 2026-11-18): kinds by name, times and counts in the clear.
 enum FormatOne {
     struct Row {
         let kind: String

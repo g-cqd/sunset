@@ -1,8 +1,8 @@
 import Foundation
 package import SunsetStorage
 
-/// A table of one value for each key, each record `<key>\n<value>` (roadmap 0086 E: the site rules and the sites' zoom
-/// wrote and read their records the same way).
+/// A table of one value for each key, each record `<key>\n<value>` (the site rules and the sites' zoom wrote and read
+/// their records the same way).
 extension SealedTable {
     /// Every record's key and value; a record that is not one is skipped.
     package func pairs() -> [(key: String, value: String)] {

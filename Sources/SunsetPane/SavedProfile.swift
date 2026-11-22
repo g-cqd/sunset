@@ -2,7 +2,7 @@
 public struct SavedProfile: Sendable, Equatable, Codable {
     public var profile: Profile
     public var pinned: SavedFavorites
-    /// The profile's Favorites: the same in each of its Spaces (ADR-0055).
+    /// The profile's Favorites: the same in each of its Spaces.
     public var favorites: SavedFavorites
 
     public init(

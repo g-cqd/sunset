@@ -1,7 +1,7 @@
 package import Foundation
 
-/// The Space each site opens in (roadmap 0022 W-d), kept per site (`SiteRules`). A link to such a site, from a page of
-/// another Space, opens in its Space, with that Space's profile (its logins).
+/// The Space each site opens in, kept per site (`SiteRules`). A link to such a site, from a page of another Space,
+/// opens in its Space, with that Space's profile (its logins).
 @MainActor
 package enum SiteSpaces {
     package static let shared = make()

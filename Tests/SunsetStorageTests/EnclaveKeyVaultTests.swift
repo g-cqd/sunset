@@ -4,8 +4,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Task t121 (ADR-0104): the storage key sealed by a wrap key from two Secure Enclave keys of this Mac, a P-256 one and an
-/// ML-KEM-1024 one: the wrap holds while either holds. The Secure Enclave works ad hoc signed (diary 2026-11-19-06, -14).
+/// The storage key sealed by a wrap key from two Secure Enclave keys of this Mac, a P-256 one and an ML-KEM-1024 one:
+/// the wrap holds while either holds. The Secure Enclave works ad hoc signed (-14).
 @Suite("The storage key, wrapped by the Secure Enclave", .enabled(if: SecureEnclave.isAvailable))
 struct EnclaveKeyVaultTests {
     private let key = Data((0 ..< 32).map { UInt8($0) })

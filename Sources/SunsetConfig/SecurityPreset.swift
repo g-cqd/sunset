@@ -1,5 +1,5 @@
-/// The security model asked about in the welcome (roadmap 0111 H; the owner's note n75): one choice for the settings
-/// that weigh safety against pages working, each still its own in Settings ▸ Privacy.
+/// The security model asked about in the welcome: one choice for the settings that weigh safety against pages working,
+/// each still its own in Settings ▸ Privacy.
 public enum SecurityPreset: String, Sendable, Equatable, CaseIterable {
     /// What Sunset ships with.
     case balanced

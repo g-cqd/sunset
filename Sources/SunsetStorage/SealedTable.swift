@@ -2,10 +2,10 @@ import CryptoKit
 public import Foundation
 import SQLite3
 
-/// The records of one kind in the state database (R12, step ST-3), each sealed on its own. A record is named by what its
-/// owner calls it (an address, a host); the file holds only a keyed hash of that name, so that a record can be found and
-/// replaced without the name being written. Each record carries two numbers its owner chooses (`sort`: a time, an order;
-/// `count`), sealed with it (format 2, task t48 C); the kind is a keyed tag in the file. Searching is its owner's, in memory.
+/// The records of one kind in the state database, each sealed on its own. A record is named by what its owner calls it
+/// (an address, a host); the file holds only a keyed hash of that name, so that a record can be found and replaced
+/// without the name being written. Each record carries two numbers its owner chooses (`sort`: a time, an order;
+/// `count`), sealed with it (format 2); the kind is a keyed tag in the file. Searching is its owner's, in memory.
 @MainActor
 public struct SealedTable {
     public struct Row: Sendable {
@@ -100,7 +100,7 @@ public struct SealedTable {
         }
     }
 
-    /// Every record of the kind, and the log emptied after (history cleared: roadmap 0051 B).
+    /// Every record of the kind, and the log emptied after (history cleared).
     public func removeAll() {
         database.execute("DELETE FROM records WHERE kind = ?1", [.text(tag)])
         database.compact()

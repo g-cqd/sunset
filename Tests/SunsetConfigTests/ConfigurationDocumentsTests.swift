@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `documents.saveAfter` and `documents.saveOnFocusLoss` (R6, roadmap 0023 step M-d): when a file is written by itself. By
-/// default two seconds after an edit and when it loses focus (the owner, 2026-11-16, ADR-0041); the file can say never.
+/// `documents.saveAfter` and `documents.saveOnFocusLoss`: when a file is written by itself. By default two seconds
+/// after an edit and when it loses focus; the file can say never.
 @Suite("Configuration: documents") struct ConfigurationDocumentsTests {
     @Test
     func `a file is saved by itself two seconds after an edit and on losing focus, unless the file says otherwise`()
@@ -43,8 +43,8 @@ import Testing
         )
     }
 
-    /// `documents.largerHeadings` (roadmap 0034 step B): the source shows a heading at the page's size for its level, closer
-    /// to what it becomes; on by default, since the owner asked for the source to look like its page.
+    /// `documents.largerHeadings`: the source shows a heading at the page's size for its level, closer to what it
+    /// becomes; on by default, so the source looks like its page.
     @Test func `the source's headings are at the page's size unless the file says otherwise`() throws {
         #expect(try ConfigurationParser.parse("{}").configuration.documents.largerHeadings)
         let off = try ConfigurationParser.parse(#"{ "documents": { "largerHeadings": false } }"#)

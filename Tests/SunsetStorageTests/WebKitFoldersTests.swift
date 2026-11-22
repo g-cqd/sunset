@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Roadmap 0051 G (the owner's extended audit, note n23): WebKit's folders and files beside Sunset's are its owner's only.
-@Suite("WebKit's folders, the owner's only") struct WebKitFoldersTests {
+/// WebKit's folders and files beside Sunset's are the person's only.
+@Suite("WebKit's folders, the person's only") struct WebKitFoldersTests {
     private func mode(_ url: URL) -> Int {
         ((try? FileManager.default.attributesOfItem(atPath: url.path))?[.posixPermissions] as? Int) ?? -1
     }

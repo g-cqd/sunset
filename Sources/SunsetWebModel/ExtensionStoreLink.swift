@@ -1,8 +1,8 @@
 package import Foundation
 
-/// An extension named by a store's page (roadmap 0109 E): the Chrome Web Store's (its 32-letter id), Firefox Add-ons' (its
-/// slug). Sunset fetches the package from the store itself (probed 2026-11-20): Chrome's update service answers a CRX3 for an
-/// id; Firefox Add-ons' API names the `.xpi` of the current version. HTTPS only.
+/// An extension named by a store's page: the Chrome Web Store's (its 32-letter id), Firefox Add-ons' (its slug). Sunset
+/// fetches the package from the store itself (probed 2026-11-20): Chrome's update service answers a CRX3 for an id; Firefox
+/// Add-ons' API names the `.xpi` of the current version. HTTPS only.
 package enum ExtensionStoreLink: Equatable, Sendable {
     case chrome(id: String)
     case firefox(slug: String)

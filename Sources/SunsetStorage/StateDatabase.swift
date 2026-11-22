@@ -3,13 +3,13 @@ public import Foundation
 import SQLite3
 public import SunsetRuntime
 
-/// The database of Sunset's small records (R12, roadmap 0030 step ST-3): page history, site zoom, site permissions and
-/// downloads, in one SQLite file with a version. Every record is sealed (`SealedTable`); the file holds no address or title in
-/// the clear, not even in what names a record. A file that does not read is set aside and said, and a new one is made; one
-/// sealed with another key is left as it is.
+/// The database of Sunset's small records: page history, site zoom, site permissions and downloads, in one SQLite file with a
+/// version. Every record is sealed (`SealedTable`); the file holds no address or title in the clear, not even in what names a
+/// record. A file that does not read is set aside and said, and a new one is made; one sealed with another key is left as it
+/// is.
 @MainActor
 public final class StateDatabase {
-    /// 2: kinds, times and counts sealed (task t48 C); 1 is resealed at its first opening.
+    /// 2: kinds, times and counts sealed; 1 is resealed at its first opening.
     public static let currentVersion = 2
     static let what = "Sunset's database of history and site settings"
 
@@ -38,7 +38,7 @@ public final class StateDatabase {
     isolated deinit { close() }
 
     /// Closes the database, its write-ahead log emptied first: nothing of what was written or deleted stays in the log beside
-    /// it (roadmap 0051 B). Closed once; a database closed is not used again.
+    /// it. Closed once; a database closed is not used again.
     public func close() {
         guard handle != nil else { return }
         compact()
@@ -77,7 +77,7 @@ public final class StateDatabase {
     }
 
     private static func attempt(_ path: String, _ key: StorageKey) -> Attempt {
-        // Its owner's only (roadmap 0051 A): made so, and set so when it was made before.
+        // Its owner's only: made so, and set so when it was made before.
         if path != ":memory:" { SQLiteBinding.ownFolder(of: path) }
         var handle: OpaquePointer?
         guard unsafe sqlite3_open_v2(path, &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nil) == SQLITE_OK else {
@@ -91,7 +91,7 @@ public final class StateDatabase {
                 try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: file)
             }
         }
-        // A record deleted is overwritten, not left in a free page (roadmap 0051 B).
+        // A record deleted is overwritten, not left in a free page.
         guard database.run("PRAGMA secure_delete = ON") else { return .unreadable }
         // Ordered writes without a wait for the disk at each record: a crash keeps the database whole; the last records
         // before a power loss may be gone, which history can bear.

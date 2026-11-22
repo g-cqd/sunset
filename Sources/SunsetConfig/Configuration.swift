@@ -62,7 +62,7 @@ public struct Configuration: Sendable, Equatable {
         /// Space between the window's edge and the terminal, in points (0: the text reaches the edge).
         public var padding = 4.0
         public var material = Material.glass
-        /// How thick the `material` background is (note n20).
+        /// How thick the `material` background is.
         public var materialThickness = MaterialThickness.regular
         /// The radius of the blur behind a `transparent` window, in points (0 to 100).
         public var blur = 0.0
@@ -109,13 +109,13 @@ public struct Configuration: Sendable, Equatable {
         /// The colour that marks a selection, a focus, a filled control (design 0003 §3.5): the system's accent, Sunset's (`tint.color`, the
         /// system's when unset), neutral shades of the scheme, or the shown site's colour.
         public var accent = Accent.system
-        /// The trackpad taps when a click goes through or is blocked (roadmap 0054 F).
+        /// The trackpad taps when a click goes through or is blocked.
         public var haptics = true
         /// What is under the bars (the address bar, the find bar, the ends of the sidebar's list) and behind the command bar: a
         /// blur that fades out (AemiSDR's variable blur), the surface the bar draws itself, or nothing (Sunset research/blur).
         public var barBlur = BarBlur.variable
         public var ends = Ends.fade
-        /// The app's icon in the Dock and the app switcher while Sunset runs (roadmap 0084 F).
+        /// The app's icon in the Dock and the app switcher while Sunset runs.
         public var icon = Icon.sunset
         /// The bars' fill and controls (`BarTint`); `scheme` follows the colour scheme (owner, 2026-11-13).
         public var barTint = BarTint.scheme
@@ -129,7 +129,7 @@ public struct Configuration: Sendable, Equatable {
             }
 
             public var position = Position.bottom
-            public var autoHide = true  // Hidden over the page until the pointer reaches its edge (roadmap 0055).
+            public var autoHide = true  // Hidden over the page until the pointer reaches its edge.
             public var backing = Backing.fade  // Under it while shown always: the page fading, or a toolbar (0055 C).
             public var showTitle = true
             /// A small picture before the title: a folder with the first letter of the directory's name, or a mark for a running command.
@@ -142,38 +142,38 @@ public struct Configuration: Sendable, Equatable {
         }
 
         public var mode = Mode.native
-        /// What Command-T makes (the owner's note n70).
+        /// What Command-T makes.
         public var newTab = NewTab.focused
-        /// What opens with no tab (n74): nothing, a kind of tab, `startAddress`, `startFile`; `startProfile` names the
+        /// What opens with no tab: nothing, a kind of tab, `startAddress`, `startFile`; `startProfile` names the
         /// profile whose first Space a new window opens on (empty: as before).
         public var start = Start.nothing
         public var startAddress = ""
         public var startFile = ""
         public var startProfile = ""
-        /// A tab coloured by its site (the owner's note n56).
+        /// A tab coloured by its site.
         public var siteColor = SiteColor.off
         public var bar = Bar()
         /// The tabs of each window (their splits and the directory of each) come back at the next launch, as new shells there (programs cannot be saved).
         public var restore = true
-        /// Closing a tab with a running command tints it red on the first click or ⌘W and requires a second one to confirm (`n28`).
+        /// Closing a tab with a running command tints it red on the first click or ⌘W and requires a second one to confirm.
         public var confirmClose = true
         /// Closing the last window does not quit the app while a kept entry of the Favorites is open: what runs in it goes on, and a new window shows it
-        /// again. Off: the app quits with its last window, as before (R3).
+        /// again. Off: the app quits with its last window, as before.
         public var keepRunningForFavorites = true
         /// Quitting asks first (web step q): never, when something would be lost (a running command, a form being filled, a download, tabs
         /// that will not come back), or always.
         public var askBeforeQuit = QuitAsk.whenLosing
-        /// The tabs of a Space when its last window closes (ADR-0045): they stop and stay, for the next window or the next
-        /// launch. On: they close with it, as before Spaces.
+        /// The tabs of a Space when its last window closes: they stop and stay, for the next window or the next launch.
+        /// On: they close with it, as before Spaces.
         public var closeWithLastWindow = false
         /// Tabs that stayed, stopped, are closed once this many hours have passed with no window showing them; 0 is never.
         public var closeStoppedAfter = 0.0
-        /// The window when the last tab of its Space closes: it stays, on the empty Space (the owner, 2026-11-17). On: it
-        /// closes with the tab, as before Spaces.
+        /// The window when the last tab of its Space closes: it stays, on the empty Space. On: it closes with the tab,
+        /// as before Spaces.
         public var closeWindowWithLastTab = false
-        /// Closing the shown tab shows the tab shown before it (the owner's note n4); off, its neighbour.
+        /// Closing the shown tab shows the tab shown before it; off, its neighbour.
         public var closeGoesBack = true
-        /// A tab or a window kept awake keeps the display on too, not only the Mac from sleeping (roadmap 0035 E).
+        /// A tab or a window kept awake keeps the display on too, not only the Mac from sleeping.
         public var keepAwakeDisplay = false
         public init() {}
 

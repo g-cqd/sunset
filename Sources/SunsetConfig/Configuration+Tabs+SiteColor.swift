@@ -1,5 +1,5 @@
 extension Configuration.Tabs {
-    /// A tab coloured by its site (the owner's note n56): its declared theme colour, else its icon's, when it stands out.
+    /// A tab coloured by its site: its declared theme colour, else its icon's, when it stands out.
     public enum SiteColor: String, Sendable, Equatable, CaseIterable {
         /// Grey, as every tab.
         case off

@@ -4,9 +4,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n15 (2026-11-18): "the search through settings can be very slow sometimes". What one keystroke costs:
-/// the search, then each found option looked up and its topic's scope checked, as the settings page does (`SUNSET_SPEED`:
-/// a probe; run it with `-c release`).
+/// What one keystroke costs in the settings' search: the search, then each found option looked up and its topic's scope
+/// checked, as the settings page does (`SUNSET_SPEED`: a probe; run it with `-c release`).
 @Suite("Searching the settings, timed (probe)")
 struct SettingsSearchSpeedProbe {
     @Test(.enabled(if: ProcessInfo.processInfo.environment["SUNSET_SPEED"] != nil))

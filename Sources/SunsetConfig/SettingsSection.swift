@@ -1,5 +1,5 @@
-/// A section of Settings and its topics (roadmap 0032; the review of 2026-11-15, 5.3, with the owner's changes): the sidebar
-/// lists the sections, and under the one shown its topics; a topic is a page.
+/// A section of Settings and its topics : the sidebar lists the sections, and under the one shown its topics; a topic
+/// is a page.
 public struct SettingsSection: Sendable, Identifiable {
     public let id: String
     public let title: String
@@ -26,7 +26,7 @@ public struct SettingsSection: Sendable, Identifiable {
     }
 
     /// The topic to show for what is chosen in the sidebar: a topic itself, or the first topic of a section's row.
-    /// `profileOnly`: a profile is chosen (roadmap 0050): a section opens on its first topic a profile can set.
+    /// `profileOnly`: a profile is chosen: a section opens on its first topic a profile can set.
     public static func shown(for selection: String?, profileOnly: Bool = false) -> String? {
         guard let selection else { return nil }
         guard selection.hasPrefix(sectionPrefix) else { return topic(selection)?.topic.id }

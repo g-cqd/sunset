@@ -1,9 +1,9 @@
 package import Foundation
 
-/// What WebKit keeps for Sunset beside Sunset's own store (roadmap 0051 G; docs/research/storage-audit-webkit-data-2026-11-18.md):
-/// its caches, its website data, its cookie jar. WebKit makes them readable by every account (0755, 0644); Sunset makes them
-/// its owner's only, at launch and at quit. `~/Library` is already its owner's only: this holds when a copy or a backup
-/// keeps the modes, or a parent is opened.
+/// What WebKit keeps for Sunset beside Sunset's own store (docs/research/storage-audit-webkit-data-2026-11-18.md): its
+/// caches, its website data, its cookie jar. WebKit makes them readable by every account (0755, 0644); Sunset makes them its
+/// owner's only, at launch and at quit. `~/Library` is already its owner's only: this holds when a copy or a backup keeps
+/// the modes, or a parent is opened.
 package enum WebKitFolders {
     /// The folders and files of the app `bundleID` under `library` (`~/Library`).
     package static func places(library: URL, bundleID: String) -> (folders: [URL], files: [URL]) {

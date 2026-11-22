@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Task t114 (design 0007, threat A4): what WebKit caches for sites (the Cache API's `CacheStorage`, 1.2 GB of Sunset's 1.7
-/// GB of website data on the owner's Mac) is left out of backups; what sites keep for the person (IndexedDB, local storage)
-/// stays in. The network cache is in `~/Library/Caches`, which Time Machine leaves out by itself (measured).
+/// Design 0007, threat A4: what WebKit caches for sites (the Cache API's `CacheStorage`, 1.2 GB of Sunset's 1.7 GB of
+/// website data on one Mac) is left out of backups; what sites keep for the person (IndexedDB, local storage) stays in.
+/// The network cache is in `~/Library/Caches`, which Time Machine leaves out by itself (measured).
 @Suite("Website data: caches out of backups")
 struct WebKitFoldersBackupsTests {
     @Test

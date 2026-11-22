@@ -1,6 +1,6 @@
 extension SettingsSection {
-    /// The sections and topics shown with these scopes on (roadmap 0033): the settings of a scope that is off are not
-    /// shown, and are not found by a search. The switches themselves always are.
+    /// The sections and topics shown with these scopes on: the settings of a scope that is off are not shown, and are
+    /// not found by a search. The switches themselves always are.
     public static func sections(for features: Configuration.Features) -> [Self] {
         all.compactMap { section in
             guard shows(section.id, features) else { return nil }

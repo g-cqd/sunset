@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetPane
 
-/// The session file since Spaces (roadmap 0021 step S-a; ADR-0045): the Spaces in one order, each with its Favorites and its
-/// tabs, and the windows as views of them. Reading never fails a launch, and what is read holds together: a pane is in one
-/// place, a view shows a Space that exists and selects what that Space has.
+/// The session file since Spaces: the Spaces in one order, each with its Favorites and its tabs, and the windows as views
+/// of them. Reading never fails a launch, and what is read holds together: a pane is in one place, a view shows a Space
+/// that exists and selects what that Space has.
 @Suite("The session, by Spaces")
 struct SpacesSessionTests {
     private func tabs(_ count: Int) -> Workspace {
@@ -59,7 +59,7 @@ struct SpacesSessionTests {
         #expect(read.spaces[0].stopped == Date(timeIntervalSince1970: 1_794_000_000) && read.spaces[1].stopped == nil)
     }
 
-    /// The owner, 2026-11-17: a Space has a colour, which tints the window that shows it.
+    /// A Space has a colour, which tints the window that shows it.
     @Test
     func `a Space's tint is kept in its look, as a colour; what is not one is no tint; mixed into a window's tint`() {
         var space = Space(name: "Work")
@@ -110,7 +110,7 @@ struct SpacesSessionTests {
         #expect(session.workspace(for: SavedView(space: UUID(), selected: nil)) == nil)
     }
 
-    /// What is kept (the profile's Favorites, ADR-0055, as its Pinned grid) holds its panes before any Space does.
+    /// What is kept (the profile's Favorites, as its Pinned grid) holds its panes before any Space does.
     @Test
     func `a pane is in one place: of two Spaces that hold it the first keeps it; a tab gives way to a kept entry`()
         throws

@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Roadmap 0044 (the owner, 2026-11-17): whose the Favorites and the Pinned grid are. By default the Favorites are each
-/// Space's and the grid each profile's; read, written, and in Settings > General > Spaces.
+/// Whose the Favorites and the Pinned grid are. By default the Favorites are each Space's and the grid each profile's;
+/// read, written, and in Settings > General > Spaces.
 @Suite("Whose the Favorites and the Pinned grid are")
 struct ConfigurationSpacesTests {
     @Test func `favorites by Space and the grid by profile unless the file says otherwise`() throws {

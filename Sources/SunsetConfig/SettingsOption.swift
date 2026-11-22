@@ -1,6 +1,6 @@
-/// One option of Settings, declared once (the review of 2026-11-15; task t268): the file's key, what it is called, the words
-/// it is found by and its control, in the list of its topic (`SettingsOption+*.swift`, `SettingsSection+All.swift`). The search
-/// entries, the topics' pages and the controls all come from here.
+/// One option of Settings, declared once (the review of 2026-11-15): the file's key, what it is called, the words it is found
+/// by and its control, in the list of its topic (`SettingsOption+*.swift`, `SettingsSection+All.swift`). The search entries,
+/// the topics' pages and the controls all come from here.
 public struct SettingsOption: Sendable, Identifiable {
     /// The file's key ("font.size"), or a name of its own for what is not one key of the file.
     public let id: String
@@ -14,12 +14,12 @@ public struct SettingsOption: Sendable, Identifiable {
     public let control: SettingsControl
     /// A sentence under the control.
     public var note: String?
-    /// Shown a level down, under its topic's More, not first (roadmap 0047 G); found by search all the same.
+    /// Shown a level down, under its topic's More, not first; found by search all the same.
     public var advanced = false
-    /// What it holds is an address, a pattern, a file's name or code: its field is in monospace (the owner's note n26).
+    /// What it holds is an address, a pattern, a file's name or code: its field is in monospace.
     public var isCode = false
 
-    /// Shown only while this holds (the owner's note n29: a choice that acts only under another); nil, always.
+    /// Shown only while this holds (a choice that acts only under another); nil, always.
     public var shownWhen: (@Sendable (Configuration) -> Bool)?
 
     /// Whether it is shown under `configuration`.
@@ -34,7 +34,7 @@ public struct SettingsOption: Sendable, Identifiable {
         return copy
     }
 
-    /// The heading it is shown under on its page, with the options next to it that have the same (the owner's note n13).
+    /// The heading it is shown under on its page, with the options next to it that have the same.
     public var group: String?
 
     /// Its control is a list of things the person added or answered (search engines, sites, profiles): its own block.
@@ -76,7 +76,7 @@ public struct SettingsOption: Sendable, Identifiable {
         return copy
     }
 
-    /// A profile may set it otherwise than all profiles (the owner's answer, 2026-11-18: search, privacy, network, downloads).
+    /// A profile may set it otherwise than all profiles (search, privacy, network, downloads).
     public var isPerProfile = false
 
     /// The same, settable by each profile.
@@ -96,7 +96,7 @@ public struct SettingsOption: Sendable, Identifiable {
         return copy
     }
 
-    /// What it holds is a folder: its row has a picker beside the field (the owner's note n36).
+    /// What it holds is a folder: its row has a picker beside the field.
     public var isFolder = false
 
     /// The same, a folder's: in monospace, with a picker.

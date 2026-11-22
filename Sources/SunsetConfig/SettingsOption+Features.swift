@@ -1,6 +1,5 @@
 extension SettingsOption {
-    /// The scopes of the app (roadmap 0033; ADR-0056): three switches, drawn by the app, which asks before closing what
-    /// is open of a scope.
+    /// The scopes of the app: three switches, drawn by the app, which asks before closing what is open of a scope.
     static let features: [Self] =
         [
             custom(

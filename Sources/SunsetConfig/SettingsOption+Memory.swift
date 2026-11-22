@@ -1,5 +1,5 @@
 extension SettingsOption {
-    /// Pages not on screen let go of their memory (roadmap 0021 S-f, ADR-0071).
+    /// Pages not on screen let go of their memory.
     static let memory: [Self] =
         [
             number(

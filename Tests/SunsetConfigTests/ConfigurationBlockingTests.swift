@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Roadmap 0022 W-c: blocking is on by default with EasyList and EasyPrivacy; lists are https addresses, others are said
-/// and left out; in Settings > Web > Blocking.
+/// Blocking is on by default with EasyList and EasyPrivacy; lists are https addresses, others are said and left out; in
+/// Settings > Web > Blocking.
 @Suite("Blocking: the settings")
 struct ConfigurationBlockingTests {
     @Test func `on with two lists by default; https lists only; read, written and in Settings`() throws {

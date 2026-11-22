@@ -1,5 +1,5 @@
-/// Something macOS must allow Sunset itself for a page to have it (roadmap 0035 I): asked about under the sidebar's field
-/// only while a site may use it (allowed, or allowed by default) and macOS has not allowed it.
+/// Something macOS must allow Sunset itself for a page to have it: asked about under the sidebar's field only while a
+/// site may use it (allowed, or allowed by default) and macOS has not allowed it.
 package struct SystemAsk: Equatable, Sendable, Identifiable {
     package enum Need: String, CaseIterable, Sendable {
         case notifications, camera, microphone, location

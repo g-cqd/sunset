@@ -4,12 +4,12 @@ extension Configuration {
         /// How opaque the terminal's default background is when the window is not opaque: 1 shows only the terminal's colour, less lets the window's
         /// material show through.
         public var opacity = 0.2
-        /// A program may put text on the clipboard (OSC 52); it can never read it (ADR-0010).
+        /// A program may put text on the clipboard (OSC 52); it can never read it.
         public var clipboardWrite = true
         /// Keys typed in the terminal are kept from other apps' event taps (keyloggers): while a program asks for a password,
-        /// always, or never (task t116).
+        /// always, or never.
         public var secureKeyboard = SecureKeyboard.whenPassword
-        /// A paste that would run commands, or holds control or hidden characters, is asked about first (task t116).
+        /// A paste that would run commands, or holds control or hidden characters, is asked about first.
         public var pasteWarning = true
         /// C1 controls encoded in UTF-8 (U+0080 to U+009F) act as controls; off, they are dropped (threat model A2: a program
         /// that escapes ESC before printing untrusted text rarely escapes U+009B, which is CSI).

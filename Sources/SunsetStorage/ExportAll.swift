@@ -1,9 +1,8 @@
 public import Foundation
 public import SunsetRuntime
 
-/// Export All (R12, roadmap 0030 step ST-6): a dated folder in the folder the person chose, each part written in it, and one
-/// sentence that says what was exported and what could not be. The app gives the parts: this target does not know documents
-/// from a history.
+/// Export All: a dated folder in the folder the person chose, each part written in it, and one sentence that says what was
+/// exported and what could not be. The app gives the parts: this target does not know documents from a history.
 public enum ExportAll {
     /// One part of an export: what is said of it when it was written, and what is said when something of it was not.
     public struct Step: Sendable, Equatable {
@@ -22,7 +21,7 @@ public enum ExportAll {
         public var sentence: String
     }
 
-    /// A part that is one file: written whole in `folder`, the person's only (0600: task t48 E), readable by their programs.
+    /// A part that is one file: written whole in `folder`, the person's only (0600), readable by their programs.
     public static func file(_ data: Data, named name: String, in folder: URL, said: String) -> Step {
         do {
             try StoredFile.write(
@@ -56,7 +55,7 @@ public enum ExportAll {
         return Outcome(folder: folder, sentence: ([what] + done.compactMap(\.problem)).joined(separator: " "))
     }
 
-    /// An export's files: the person's only (task t48 E; they were 0644, readable by every account on the Mac).
+    /// An export's files: the person's only (they were 0644, readable by every account on the Mac).
     public static let mode: UInt16 = 0o600
 
     /// "a", "a and b", "a, b and c".

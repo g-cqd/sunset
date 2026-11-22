@@ -13,7 +13,7 @@ public enum ExportFolder {
         for attempt in 1 ... 1000 {
             let folder = parent.appending(path: attempt == 1 ? name : "\(name) \(attempt)", directoryHint: .isDirectory)
             guard !FileManager.default.fileExists(atPath: folder.path) else { continue }
-            // The person's only (task t48 E): what is in it is plain text.
+            // The person's only: what is in it is plain text.
             try FileManager.default.createDirectory(
                 at: folder,
                 withIntermediateDirectories: false,

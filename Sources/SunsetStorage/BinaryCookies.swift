@@ -1,8 +1,8 @@
 package import Foundation
 
-/// CFNetwork's cookie jar (`*.binarycookies`), read (roadmap 0112 E): how Sunset's cookies reach Sunset WebKit, which sets
-/// them through its own WebKit, never by sharing WebKit's files (ADR-0114). The format is Apple's and undocumented; as read
-/// here (and checked against a jar WebKit wrote, `BinaryCookiesTests`):
+/// CFNetwork's cookie jar (`*.binarycookies`), read: how Sunset's cookies reach Sunset WebKit, which sets them through
+/// its own WebKit, never by sharing WebKit's files. The format is Apple's and undocumented; as read here (and checked
+/// against a jar WebKit wrote, `BinaryCookiesTests`):
 ///
 /// - "cook", a page count and each page's size (big-endian), then the pages;
 /// - a page: 0x00000100, a cookie count and each cookie's offset in the page (little-endian);

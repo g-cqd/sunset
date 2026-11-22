@@ -1,5 +1,5 @@
 extension SettingsOption {
-    /// Whose the Favorites and the Pinned grid are (roadmap 0044).
+    /// Whose the Favorites and the Pinned grid are.
     static let spaces: [Self] =
         [
             choice(

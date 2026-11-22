@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Roadmap 0051 A, B (the owner's audit, 2026-11-18): the folder and the databases were readable by others (0755, 0644), and
-/// the write-ahead log kept megabytes of what was written and deleted.
+/// An audit (2026-11-18) found the folder and the databases readable by others (0755, 0644), and the write-ahead log
+/// kept megabytes of what was written and deleted.
 @MainActor
 @Suite("The database's files: its owner's only, no residue")
 struct StateDatabaseHardeningTests {

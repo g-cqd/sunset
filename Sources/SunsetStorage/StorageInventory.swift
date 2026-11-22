@@ -1,7 +1,7 @@
 import Foundation
 
-/// What Settings say is kept (R12, roadmap 0030 step ST-6): each thing with its size, and the files that did not read and were
-/// moved aside, listed from the folder (nothing remembers them). Reading it walks the folder: off the main thread.
+/// What Settings say is kept: each thing with its size, and the files that did not read and were moved aside, listed
+/// from the folder (nothing remembers them). Reading it walks the folder: off the main thread.
 public struct StorageInventory: Sendable, Equatable {
     /// A file that did not read and was moved aside under a dated name (`StoredFile.moveAside`).
     public struct SetAside: Sendable, Equatable, Identifiable {

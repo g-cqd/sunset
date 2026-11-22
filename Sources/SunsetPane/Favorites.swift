@@ -1,6 +1,6 @@
 public import Foundation
 
-/// What is kept in the sidebar whether it is open or not (R3, R4): a tree of folders and kept entries. There is one for the app, shown in every window;
+/// What is kept in the sidebar whether it is open or not: a tree of folders and kept entries. There is one for the app, shown in every window;
 /// the tabs made on the fly stay each window's (`Workspace`).
 ///
 /// A folder nests others to `maximumDepth` levels and lives until it is removed, empty or not. An entry remembers what it starts from (its `home`) and,

@@ -3,10 +3,10 @@ public import Foundation
 package import LocalAuthentication
 package import Security
 
-/// The storage key's wrap by this Mac's Secure Enclave (task t121, ADR-0104): a wrap key from two secrets, the P-256
-/// ECDH of a Secure Enclave key with a key made for the wrap, and the ML-KEM-1024 decapsulation by another Secure Enclave
-/// key, so that the wrap holds while either algorithm holds (a quantum attacker who harvested the record breaks only the
-/// first). Both keys are made without Touch ID: the store opens at launch.
+/// The storage key's wrap by this Mac's Secure Enclave: a wrap key from two secrets, the P-256 ECDH of a Secure Enclave
+/// key with a key made for the wrap, and the ML-KEM-1024 decapsulation by another Secure Enclave key, so that the wrap
+/// holds while either algorithm holds (a quantum attacker who harvested the record breaks only the first). Both keys are
+/// made without Touch ID: the store opens at launch.
 package enum EnclaveWrap {
     /// The wrap key: HKDF-SHA256 over both secrets, bound to what was exchanged (`transcript`).
     package static func wrapKey(classical: Data, postQuantum: Data, transcript: Data) -> Data {

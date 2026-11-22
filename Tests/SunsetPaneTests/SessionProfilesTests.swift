@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetPane
 
-/// The session's profiles and their Pinned grids (roadmap 0021, P-a and P-b; ADR-0050, ADR-0053).
+/// The session's profiles and their Pinned grids (P-a and P-b).
 @Suite("The session's profiles and what is pinned")
 struct SessionProfilesTests {
     private func space(_ name: String, tabs count: Int) -> SavedSpace {
@@ -34,7 +34,7 @@ struct SessionProfilesTests {
         #expect(SpacesSession(spaces: [], views: []).pinned.favorites.isEmpty)
     }
 
-    /// Profiles (ADR-0053): kept beside the Spaces, each with its Pinned grid. A file of before has one, the first.
+    /// Profiles: kept beside the Spaces, each with its Pinned grid. A file of before has one, the first.
     @Test func `the profiles are kept with their grids; a file with none has the first, with what was pinned`() throws {
         var pinned = Favorites()
         var tabs = Workspace()
@@ -56,8 +56,8 @@ struct SessionProfilesTests {
         #expect(SpacesSession(spaces: [], views: []).profiles.map(\.profile.name) == ["Personal"])
     }
 
-    /// The owner, 2026-11-17 (on his note n80): "Favorites become the profile's". A file of before, where each Space had
-    /// its own (a new Space had a copy of another's), gives each profile the Favorites of its Spaces, a copy once.
+    /// Favorites are the profile's. A file of before, where each Space had its own (a new Space had a copy of
+    /// another's), gives each profile the Favorites of its Spaces, a copy once.
     @Test
     func `the Favorites are the profile's: those of its Spaces in a file of before are put together, a copy once`()
         throws

@@ -1,5 +1,5 @@
 extension Configuration.Terminal {
-    /// When keys typed in the terminal are kept from other apps' event taps (task t116).
+    /// When keys typed in the terminal are kept from other apps' event taps.
     public enum SecureKeyboard: String, Sendable, Equatable, CaseIterable {
         case off, whenPassword, always
 

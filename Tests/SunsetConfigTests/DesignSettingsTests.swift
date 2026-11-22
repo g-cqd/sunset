@@ -36,28 +36,28 @@ import Testing
         }
     }
 
-    /// The owner, 2026-11-20 (notes n64, n65): pages a page opens are shown, and a setting says so.
+    /// Pages a page opens are shown, and a setting says so.
     @Test func `pages a page opens are shown by default; the file can say not`() throws {
         #expect(Configuration().web.showOpenedPages)
         let read = try ConfigurationParser.parse(#"{ "web": { "showOpenedPages": false } }"#)
         #expect(!read.configuration.web.showOpenedPages && read.issues.isEmpty)
     }
 
-    /// The owner, 2026-11-20: Fall back to HTTP is Secure connections' to decide; a file that still sets it reads cleanly.
+    /// Fall back to HTTP is Secure connections' to decide; a file that still sets it reads cleanly.
     @Test func `Fall back to HTTP is gone from Settings; a file that sets it still reads`() throws {
         #expect(!SettingsOption.all.contains { $0.id == "web.httpFallback" })
         let read = try ConfigurationParser.parse(#"{ "web": { "httpFallback": true } }"#)
         #expect(read.issues.isEmpty)
     }
 
-    /// The owner's note n66: links from other apps open in a peek window, by default.
+    /// Links from other apps open in a peek window, by default.
     @Test func `links from other apps peek by default; the file can say not`() throws {
         #expect(Configuration().web.peekLinks)
         let read = try ConfigurationParser.parse(#"{ "web": { "peekLinks": false } }"#)
         #expect(!read.configuration.web.peekLinks && read.issues.isEmpty)
     }
 
-    /// Task t132: which pop-ups open in a pop-up window: those the page sizes, by default.
+    /// Which pop-ups open in a pop-up window: those the page sizes, by default.
     @Test func `pop-up windows are for sized pop-ups by default; each choice read`() throws {
         #expect(Configuration().web.popupWindows == .sized)
         for rule in Configuration.Web.PopupWindows.allCases {

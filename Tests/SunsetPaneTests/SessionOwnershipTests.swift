@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetPane
 
-/// Whose the Favorites and the Pinned grid are, as the session reads them (roadmap 0044): a file written one way is read
-/// the other without losing what was kept.
+/// Whose the Favorites and the Pinned grid are, as the session reads them: a file written one way is read the other
+/// without losing what was kept.
 @Suite("Whose the Favorites and the grid are, in the session")
 struct SessionOwnershipTests {
     private func kept(_ name: String) -> SavedFavorites {
@@ -37,7 +37,7 @@ struct SessionOwnershipTests {
         #expect(names(session.spaces[1].favorites) == ["Work's"])
         #expect(session.spaces[2].favorites.favorites.isEmpty)
         #expect(session.profiles.allSatisfy { $0.favorites.favorites.isEmpty }, "the profiles keep none")
-        // Read back the other way, the Spaces' lists go to their profiles again (ADR-0055).
+        // Read back the other way, the Spaces' lists go to their profiles again.
         let back = SpacesSession(spaces: session.spaces, views: [], profiles: session.profiles)
         #expect(names(back.profiles[0].favorites) == ["First's", "Home's"])
         #expect(back.spaces.allSatisfy { $0.favorites.favorites.isEmpty })

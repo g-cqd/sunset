@@ -2,7 +2,7 @@
 /// together, in the order the written file shows them: the writer opens a section once.
 public enum ConfigurationKeys {
     /// The keys read and written by hand: what is not a plain value of an option (texts, colours that may be unset, lists,
-    /// themes, the layout's measures); a plain value's key is its option's (roadmap 0086 C, `SettingCodec`).
+    /// themes, the layout's measures); a plain value's key is its option's (`SettingCodec`).
     static let byHand: [String] = [
         "theme",
         "font.family",

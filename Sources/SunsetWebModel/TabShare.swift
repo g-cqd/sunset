@@ -1,6 +1,6 @@
 package import Foundation
 
-/// The rules of a share (ADR-0082, white paper §9).
+/// The rules of a share (white paper §9).
 package enum TabShare {
     /// The tabs a page of `profile` may be offered: its own profile's, every profile's with `otherProfiles`.
     package static func offered(_ all: [ShareSource], to profile: UUID?, otherProfiles: Bool) -> [ShareSource] {

@@ -1,6 +1,6 @@
 package import Foundation
 
-/// The app's side: a profile's page settings (its own over all profiles', ADR-0083).
+/// The app's side: a profile's page settings (its own over all profiles').
 @MainActor
 package enum WebProfiles {
     /// Every profile, by id (nil for the first) and name, in their order.

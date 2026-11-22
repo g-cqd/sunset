@@ -7,7 +7,7 @@ package import SunsetRuntime
 /// address. Asked without cookies or a cache (an ephemeral session), so the engine cannot tie them to the pages' store.
 @MainActor @Observable
 package final class SuggestionSource {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored package var runtime = Runtime.live
 
     /// The suggestions, and what was typed they answer.

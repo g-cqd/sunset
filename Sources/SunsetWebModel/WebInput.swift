@@ -1,6 +1,6 @@
 package import Foundation
 
-/// What was typed where an address goes (R1, web step c): an address, or words to search with an engine.
+/// What was typed where an address goes (web step c): an address, or words to search with an engine.
 package enum WebInput: Equatable, Sendable {
     /// `guessed`: no scheme was typed and https was tried first (the http setting may then fall back).
     case address(URL, guessed: Bool)

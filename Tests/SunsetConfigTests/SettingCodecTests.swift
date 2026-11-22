@@ -4,8 +4,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Roadmap 0086 C (the owner's note n55: "duplicated codes"): a setting with a plain value is declared once, in its option;
-/// the reader, the writer and the key list take it from there.
+/// A setting with a plain value is declared once, in its option; the reader, the writer and the key list take it from
+/// there.
 @Suite("Settings declared once")
 struct SettingCodecTests {
     /// A value that is not the default, for each kind of control.

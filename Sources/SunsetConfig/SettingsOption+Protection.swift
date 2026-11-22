@@ -1,4 +1,4 @@
-/// Privacy and security > Protection on the web (task t115).
+/// Privacy and security > Protection on the web.
 extension SettingsOption {
     static let webProtection: [Self] =
         [

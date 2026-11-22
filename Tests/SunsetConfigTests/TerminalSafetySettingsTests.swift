@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Task t116: secure keyboard entry and the paste warning, as settings. Secure input is held only for the pane that has the
+/// Secure keyboard entry and the paste warning, as settings. Secure input is held only for the pane that has the
 /// keyboard in the window in front (another app's event taps then see no key typed in it).
 @Suite("Terminal safety: settings")
 struct TerminalSafetySettingsTests {

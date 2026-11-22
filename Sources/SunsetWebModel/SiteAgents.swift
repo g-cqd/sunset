@@ -1,8 +1,8 @@
 package import Foundation
 package import SunsetStorage
 
-/// The browser each site is shown (roadmap 0022, W-a): by host, for the site and its subdomains, kept as sealed records
-/// of the state database, or in memory until the app quits. A site with no rule is shown the default (`web.agent`).
+/// The browser each site is shown: by host, for the site and its subdomains, kept as sealed records of the state
+/// database, or in memory until the app quits. A site with no rule is shown the default (`web.agent`).
 @MainActor
 package final class SiteAgents {
     package static let shared = SiteAgents()
@@ -34,8 +34,8 @@ package final class SiteAgents {
         store.value(for: host) ?? fallback
     }
 
-    /// What the page at `url` is shown: the most specific rule for it (an address prefix, its host, a pattern; note n40).
-    /// `profile`: a page of that profile, its own rule first (roadmap 0050 E); nil: all profiles'.
+    /// What the page at `url` is shown: the most specific rule for it (an address prefix, its host, a pattern).
+    /// `profile`: a page of that profile, its own rule first; nil: all profiles'.
     package func agent(for url: URL, default fallback: BrowserAgent, profile: UUID? = nil) -> BrowserAgent {
         store.value(for: url, profile: profile) ?? fallback
     }

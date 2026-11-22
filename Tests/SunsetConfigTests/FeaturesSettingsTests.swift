@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `features.terminal`, `features.web`, `features.documents` (roadmap 0033): each removes a scope of the app; all on by
-/// default; at least one stays on.
+/// `features.terminal`, `features.web`, `features.documents`: each removes a scope of the app; all on by default; at
+/// least one stays on.
 @Suite("The scopes of the app, in the settings")
 struct FeaturesSettingsTests {
     @Test func `all on by default; each can be turned off in the file, and is written back`() throws {

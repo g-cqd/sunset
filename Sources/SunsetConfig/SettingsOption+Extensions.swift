@@ -1,5 +1,5 @@
 extension SettingsOption {
-    /// Each profile's extensions (roadmap 0109, ADR-0109): kept in the profile's folder, not in the file.
+    /// Each profile's extensions: kept in the profile's folder, not in the file.
     static let extensions: [Self] =
         [
             custom(

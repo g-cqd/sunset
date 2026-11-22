@@ -1,6 +1,6 @@
 package import Foundation
 
-/// A page that could not be opened (the owner's answer: a plain page of ours with the reason, the address and Try Again; Visit Anyway after a warning for
+/// A page that could not be opened (a plain page of ours with the reason, the address and Try Again; Visit Anyway after a warning for
 /// a certificate the system does not trust).
 package struct WebFailure: Sendable, Equatable {
     package let url: URL?
@@ -16,7 +16,7 @@ package struct WebFailure: Sendable, Equatable {
         NSURLErrorServerCertificateNotYetValid, NSURLErrorSecureConnectionFailed
     ]
 
-    /// A page whose process ended (roadmap 0029 step 5).
+    /// A page whose process ended.
     package static func processEnded(url: URL?) -> WebFailure {
         WebFailure(url: url, heading: "This page stopped", reason: "Its process ended. Try Again loads it afresh.")
     }
@@ -34,8 +34,8 @@ package struct WebFailure: Sendable, Equatable {
         if error.domain == NSURLErrorDomain, error.code == NSURLErrorCancelled { return nil }
         // WebKit's "frame load interrupted" (a navigation turned into a download or cancelled by a policy).
         if error.domain == "WebKitErrorDomain", error.code == 102 { return nil }
-        // WebKit's "plug-in handled load": its media page took a film's or a sound's address over and plays it (the owner's
-        // note n64: a failure page was put over it).
+        // WebKit's "plug-in handled load": its media page took a film's or a sound's address over and plays it (a
+        // failure page used to be put over it).
         if error.domain == "WebKitErrorDomain", error.code == 204 { return nil }
         self.url = (error.userInfo[NSURLErrorFailingURLErrorKey] as? URL) ?? url
         reason = error.localizedDescription

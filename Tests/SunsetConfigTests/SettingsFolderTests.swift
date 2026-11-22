@@ -2,9 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n36 (2026-11-18): "settings that imply choosing a directory or passing a path should also propose a
-/// native macos folder picker". Every setting that holds a folder says so; what is chosen is written as the file writes it,
-/// under the home folder with `~`.
+/// Every setting that holds a folder says so; what is chosen is written as the file writes it, under the home folder
+/// with `~`.
 @Suite("Settings that hold a folder") struct SettingsFolderTests {
     @Test func `the download folder and the terminal's starting directory hold a folder, in monospace`() {
         let folders = SettingsOption.all.filter(\.isFolder).map(\.id).sorted()

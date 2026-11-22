@@ -1,9 +1,8 @@
 internal import AemiJSONCore
 
-/// How one key of the file is read and written, from the control that shows it (roadmap 0086 C, the owner's note n55): a
-/// setting with a plain value (a switch, a number in a range, a choice) is declared once, in its `SettingsOption`, and the reader, the writer and the list of keys take
-/// it from there. What is not a plain value is read and written by hand: texts (each with its own rules: empty for unset, an
-/// address checked), colours that may be unset, lists, themes, keys kept for old files.
+/// How one key of the file is read and written, from the control that shows it: a setting with a plain value (a switch, a number in a range, a choice) is declared
+/// once, in its `SettingsOption`, and the reader, the writer and the list of keys take it from there. What is not a plain value is read and written by hand: texts
+/// (each with its own rules: empty for unset, an address checked), colours that may be unset, lists, themes, keys kept for old files.
 struct SettingCodec: Sendable {
     let key: String
     /// Reads `value` into the configuration, or says what is wrong with it.

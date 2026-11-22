@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n56: a tab's colour from its site ("propose variants please"): none, the selected tab, or every tab.
+/// A tab's colour from its site ("propose variants please"): none, the selected tab, or every tab.
 @Suite("Configuration: a tab's colour from its site")
 struct ConfigurationSiteColorTests {
     @Test func `off by default; selected and every read, written and offered`() throws {

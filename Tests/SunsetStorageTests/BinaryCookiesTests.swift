@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Roadmap 0112 E: Sunset's cookies brought into Sunset WebKit, read from Sunset's jar (CFNetwork's `binarycookies`), never
-/// by sharing WebKit's files. The jar here was written by WebKit itself (2026-11-22, a probe that set three cookies in a
-/// store of its own: diary 2026-11-22-05), no one's real cookies.
+/// Sunset's cookies brought into Sunset WebKit, read from Sunset's jar (CFNetwork's `binarycookies`), never by sharing
+/// WebKit's files. The jar here was written by WebKit itself (2026-11-22, a probe that set three cookies in a store of
+/// its own), no one's real cookies.
 @Suite("A cookie jar read")
 struct BinaryCookiesTests {
     private let jar = CookieJarFixture.jar

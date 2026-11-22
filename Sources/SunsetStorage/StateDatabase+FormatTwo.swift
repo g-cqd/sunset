@@ -2,9 +2,9 @@ import CryptoKit
 import Foundation
 import SQLite3
 
-/// Storage format 2 (task t48 C, design 0007, threat A4: a copy of the files): no kind's name, no time and no count in the
-/// clear. A kind is a keyed tag; a record's time and count are sealed with its payload (`envelope`). Format 1 is resealed
-/// in one transaction at the first opening (`migrateFromOne`).
+/// Storage format 2 (design 0007, threat A4: a copy of the files): no kind's name, no time and no count in the clear. A
+/// kind is a keyed tag; a record's time and count are sealed with its payload (`envelope`). Format 1 is resealed in one
+/// transaction at the first opening (`migrateFromOne`).
 extension StateDatabase {
     /// What stands for `kind` in the file: a keyed hash of its name, cut to 8 bytes, as hex.
     func tag(_ kind: String) -> String {
@@ -31,8 +31,8 @@ extension StateDatabase {
     }
 
     /// Every record of format 1 resealed as format 2, in one transaction: each opened with its kind's name, sealed again with
-    /// its time and count, filed under its kind's tag. One that does not open keeps its bytes (ADR-0038: what cannot be read
-    /// is never overwritten), filed under its tag. False, and nothing changed, when the transaction fails.
+    /// its time and count, filed under its kind's tag. One that does not open keeps its bytes (what cannot be read is never
+    /// overwritten), filed under its tag. False, and nothing changed, when the transaction fails.
     func migrateFromOne() -> Bool {
         var rows: [FormatOneRow] = []
         self.rows("SELECT kind, key, sealed, sort, count FROM records") { statement in

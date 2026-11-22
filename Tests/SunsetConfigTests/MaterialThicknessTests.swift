@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n20 (2026-11-18): with the window background "Material", a choice from ultrathin to ultrathick.
+/// With the window background "Material", a choice from ultrathin to ultrathick.
 @Suite("The material's thickness")
 struct MaterialThicknessTests {
     @Test func `read, written, regular by default, and offered beside the background`() throws {

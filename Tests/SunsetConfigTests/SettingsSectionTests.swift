@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The sections and topics of Settings (roadmap 0032; the review of 2026-11-15, 5.3, with the owner's changes of the same day).
+/// The sections and topics of Settings.
 @Suite("The sections and topics of Settings") struct SettingsSectionTests {
     let sections = SettingsSection.all
 
@@ -29,12 +29,12 @@ import Testing
         #expect(Set(placed).count == placed.count, "an option is in two topics")
     }
 
-    @Test func `the cursor has its colour, with its shape and its blinking (the owner)`() {
+    @Test func `the cursor has its colour, with its shape and its blinking`() {
         #expect(options("terminal.cursor") == ["cursor.shape", "colors.cursor", "cursor.blink", "cursor.blinkTimeout"])
         #expect(!options("appearance.theme").contains("colors.cursor"))
     }
 
-    @Test func `what a program may copy is under Privacy and security, with what the web keeps (the owner)`() {
+    @Test func `what a program may copy is under Privacy and security, with what the web keeps`() {
         #expect(
             options("privacy.programs") == [
                 "terminal.clipboardWrite", "terminal.secureKeyboard", "terminal.pasteWarning", "terminal.c1Controls"
@@ -48,8 +48,7 @@ import Testing
         )
     }
 
-    /// The owner's note n35 (2026-11-18): "remove all the padding/spacing/margin settings from the settings because now … we
-    /// figured them out". They stay in the file; Settings shows the terminal text's own padding and the floating sidebar's
+    /// Padding, spacing and margin settings stay in the file; Settings shows the terminal text's own padding and the floating sidebar's
     /// behaviour only.
     @Test func `no padding, spacing, margin or radius measure in Settings but the terminal text's padding`() {
         let all = SettingsSection.all.flatMap(\.topics).flatMap { $0.first + $0.further }.map(\.id)

@@ -1,10 +1,10 @@
 package import Foundation
 
-/// What sites keep for the person in WebKit's stores for Sunset, sealed at quit and opened at launch (t137, threat model A4;
-/// the owner, 2026-11-21: "seal at quit"): IndexedDB, local storage, service workers, and what tells which sites were seen
-/// (tracking prevention's statistics, HSTS). A copy or a backup of `~/Library` taken while Sunset is closed holds none of
-/// it in the clear. Caches are not here: they stay out of backups (`excludeCaches`). Each file is sealed beside itself,
-/// bound to its place; at launch a file in the clear beside its seal is newer and stays.
+/// What sites keep for the person in WebKit's stores for Sunset, sealed at quit and opened at launch (threat model A4;
+/// "seal at quit"): IndexedDB, local storage, service workers, and what tells which sites were seen (tracking
+/// prevention's statistics, HSTS). A copy or a backup of `~/Library` taken while Sunset is closed holds none of it in the
+/// clear. Caches are not here: they stay out of backups (`excludeCaches`). Each file is sealed beside itself, bound to
+/// its place; at launch a file in the clear beside its seal is newer and stays.
 ///
 /// While Sunset runs they are in the clear (A3 is not what this answers); a crash leaves them in the clear until the next
 /// quit.

@@ -17,12 +17,12 @@ extension Configuration {
         public var autoHide = false
         /// The edge of the window the sidebar is on.
         public var side = Side.right
-        /// The Library (roadmap 0031): a glyph at the sidebar's foot that widens it by a rail of sections.
+        /// The Library: a glyph at the sidebar's foot that widens it by a rail of sections.
         public var library = true
         public var documentSort = DocumentSort.changed
-        /// The lines between the Pinned grid, the Favorites and the tabs; off, their space stays (the owner, 2026-11-17).
+        /// The lines between the Pinned grid, the Favorites and the tabs; off, their space stays.
         public var separators = true
-        /// A card when a row is pointed at (`previews`), and of which kinds (the owner, 2026-11-18).
+        /// A card when a row is pointed at (`previews`), and of which kinds.
         public var previews = true
         public var previewPages = true
         public var previewTerminals = true

@@ -1,5 +1,5 @@
 extension Workspace {
-    /// The layouts that fit the tabs `ids` (n78, t287): those of as many panes as they hold together.
+    /// The layouts that fit the tabs `ids`: those of as many panes as they hold together.
     /// - Parameter ids: Tabs of this window.
     /// - Returns: The presets, in their order; none when a tab is not here.
     public func presets(for ids: [ItemID]) -> [SplitPreset] {
@@ -9,8 +9,8 @@ extension Workspace {
         return SplitPreset.allCases.filter { $0.paneCount == count }
     }
 
-    /// Lays the tabs `ids` out together as `preset` says (the owner, 2026-11-17: several tabs selected, or one split tab):
-    /// their panes, in the sidebar's order, become one tab where the first of them is, shown; the others go.
+    /// Lays the tabs `ids` out together as `preset` says (several tabs selected, or one split tab): their panes, in the
+    /// sidebar's order, become one tab where the first of them is, shown; the others go.
     /// - Parameters:
     ///   - preset: The shape; it must take as many panes as the tabs hold.
     ///   - ids: Tabs of this window.

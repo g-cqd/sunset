@@ -2,9 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n13 (2026-11-18): "more structure and nest some configurations, also some input of the settings pages
-/// don't even have any labels … add separators … (some entry points … the adding a new search engine, or the settings per
-/// website)". A page is made of blocks: groups under a heading, and each list on its own, its note under it.
+/// A page is made of blocks: groups under a heading, and each list on its own, its note under it.
 @Suite("A settings page in blocks") struct SettingsBlockTests {
     /// The most options a page shows together without a heading.
     static let mostUngrouped = 6
@@ -66,9 +64,7 @@ import Testing
 }
 
 extension SettingsBlockTests {
-    /// The owner's notes n38, n39 (2026-11-18): "profiles should be more separated from each other … a subsection belongs to the
-    /// profile set above it", and New Profile "at a location that does not make it confusable with another button for a
-    /// specific profile". The profiles draw a section each; no other list does.
+    /// Profiles are set apart from each other, and New Profile apart from any one profile's buttons. The profiles draw a section each; no other list does.
     @Test func `the profiles draw their own sections, one a profile`() {
         let owning = SettingsOption.all.filter(\.ownsSections).map(\.id)
         #expect(owning.sorted() == ["profiles.list", "web.sites"])

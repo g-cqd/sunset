@@ -69,7 +69,7 @@ extension ExportFolderTests {
             try FileManager.default.attributesOfItem(atPath: folder.appending(path: "Session.json").path)[
                 .posixPermissions
             ]
-        #expect(mode as? Int == 0o600, "the person's only: plain text (task t48 E)")
+        #expect(mode as? Int == 0o600, "the person's only: plain text")
     }
 
     @Test func `nothing to export is said; a folder that cannot be made is said, and nothing is written`() {

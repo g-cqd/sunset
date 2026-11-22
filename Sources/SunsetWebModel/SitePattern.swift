@@ -1,8 +1,8 @@
 package import Foundation
 
-/// What a site's rule is for (the owner's note n40): a host and its subdomains (`example.org`), its subdomains only
-/// (`*.example.org`), or the addresses under a prefix (`https://example.org/docs/`). When several match an address the most
-/// specific wins: a prefix (the longest), then the host itself, then the nearest site it is under, then a pattern.
+/// What a site's rule is for: a host and its subdomains (`example.org`), its subdomains only (`*.example.org`), or the
+/// addresses under a prefix (`https://example.org/docs/`). When several match an address the most specific wins: a prefix
+/// (the longest), then the host itself, then the nearest site it is under, then a pattern.
 package enum SitePattern: Equatable, Sendable {
     case site(String)
     case subdomains(String)

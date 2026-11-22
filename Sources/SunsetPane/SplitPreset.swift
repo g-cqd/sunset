@@ -1,4 +1,4 @@
-/// How a split tab can be laid out at once (n78, t287): the fourth light's presets, as the green light's are for windows.
+/// How a split tab can be laid out at once: the fourth light's presets, as the green light's are for windows.
 public enum SplitPreset: String, CaseIterable, Sendable {
     case sideBySide, stacked, threeColumns, largeAndTwoStacked, grid
 

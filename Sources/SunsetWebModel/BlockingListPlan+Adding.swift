@@ -1,6 +1,6 @@
 import Foundation
 
-/// Lists added and removed in Settings by their address (task t109, the owner's note n58).
+/// Lists added and removed in Settings by their address.
 extension BlockingListPlan {
     /// The most lists fetched: each is fetched by Sunset itself and compiled, so their number is bounded (white paper §9).
     package static let most = 16

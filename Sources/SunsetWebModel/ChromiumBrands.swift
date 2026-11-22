@@ -1,5 +1,5 @@
-/// The brands a Chromium browser names in `navigator.userAgentData` (roadmap 0045 F): Chromium, the browser, and a
-/// made-up brand, ordered and spelt by the major version, as Chromium's `GenerateBrandVersionList` does
+/// The brands a Chromium browser names in `navigator.userAgentData`: Chromium, the browser, and a made-up brand,
+/// ordered and spelt by the major version, as Chromium's `GenerateBrandVersionList` does
 /// (components/embedder_support/user_agent_utils.cc, read 2026-11-18). Chrome 160 gave the same on this Mac.
 package enum ChromiumBrands {
     package struct Brand: Equatable {

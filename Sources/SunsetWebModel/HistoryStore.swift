@@ -3,11 +3,11 @@ package import SunsetRuntime
 package import SunsetStorage
 
 /// The history of pages visited (web step e): an address, its title, its visit count and its last visit. Kept as sealed
-/// records of the state database (R12, roadmap 0030 step ST-3): nothing of it is in the file in the clear, so it is held whole
-/// in memory, latest first, and searched there. Without a table it is in memory only (a private window, tests).
+/// records of the state database: nothing of it is in the file in the clear, so it is held whole in memory, latest
+/// first, and searched there. Without a table it is in memory only (a private window, tests).
 @MainActor
 package final class HistoryStore {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     package var runtime = Runtime.live
 
     package var byAddress: [String: Page] = [:]
@@ -97,8 +97,8 @@ package final class HistoryStore {
         onChange()
     }
 
-    /// Pages kept elsewhere (Sunset WebKit's history of before, ADR-0114), added: a page in both keeps the visits of both,
-    /// its later visit and that visit's title.
+    /// Pages kept elsewhere (Sunset WebKit's history of before), added: a page in both keeps the visits of both, its
+    /// later visit and that visit's title.
     package func merge(_ entries: [HistoryEntry]) {
         for entry in entries {
             var merged = entry
@@ -145,7 +145,7 @@ package final class HistoryStore {
 
     // MARK: In memory
 
-    /// Forgets the pages `forgotten` names, in memory and in the table by name (format 2 seals the times: task t48 C).
+    /// Forgets the pages `forgotten` names, in memory and in the table by name (format 2 seals the times).
     private func forget(_ forgotten: (Page) -> Bool) {
         var gone: [String] = []
         ordered.removeAll { page in

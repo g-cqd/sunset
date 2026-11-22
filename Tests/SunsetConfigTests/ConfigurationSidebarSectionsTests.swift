@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `sidebar.library` and `sidebar.documentSort` (roadmap 0031). `sidebar.documents`, the heading among the tabs, was a key for a
-/// day (2026-11-15): the owner took the heading out, and a file that still names it reads without complaint.
+/// `sidebar.library` and `sidebar.documentSort`. `sidebar.documents`, the heading among the tabs, was a key for a day
+/// (2026-11-15): the heading was taken out, and a file that still names it reads without complaint.
 @Suite("Configuration: the sections of the sidebar") struct ConfigurationSidebarSectionsTests {
     private func read(_ text: String) throws(ConfigurationError) -> ConfigurationParser.Result {
         try ConfigurationParser.parse(text)

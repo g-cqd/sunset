@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `documents.linksOpen` (the owner, 2026-11-17: a link in a rendered document opened in a split, "a setting"): where a
-/// plain click on a document's link opens it. In a new tab by default, as a browser; or beside the document.
+/// `documents.linksOpen` (a link in a rendered document opened in a split, "a setting"): where a plain click on a
+/// document's link opens it. In a new tab by default, as a browser; or beside the document.
 @Suite("Configuration: where a document's links open")
 struct ConfigurationLinksTests {
     @Test func `a new tab unless the file says beside; written and read back; listed`() throws {

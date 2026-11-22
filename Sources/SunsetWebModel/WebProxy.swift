@@ -1,7 +1,7 @@
 import Foundation
 
-/// A proxy for the pages (roadmap 0022 W-f, first form; the owner's note n75): an HTTP (CONNECT) or SOCKS5 proxy, given to
-/// every store of pages (`WKWebsiteDataStore.proxyConfigurations`). Written `http://host:port` or `socks5://host:port`.
+/// A proxy for the pages (first form): an HTTP (CONNECT) or SOCKS5 proxy, given to every store of pages
+/// (`WKWebsiteDataStore.proxyConfigurations`). Written `http://host:port` or `socks5://host:port`.
 package struct WebProxy: Equatable, Sendable {
     package enum Kind: Sendable { case http, socks }
 

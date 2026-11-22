@@ -1,5 +1,5 @@
-/// What to clear when Sunset quits (ADR-0081), from `web.keep` and the sites kept: WebKit's data types by name, removed from
-/// a whole store, and the sites (WebKit's records, by their registrable domain) whose own data is removed.
+/// What to clear when Sunset quits, from `web.keep` and the sites kept: WebKit's data types by name, removed from a
+/// whole store, and the sites (WebKit's records, by their registrable domain) whose own data is removed.
 package struct WebKeepPlan: Equatable, Sendable {
     /// Removed from the whole store.
     package var everywhere: Set<String>

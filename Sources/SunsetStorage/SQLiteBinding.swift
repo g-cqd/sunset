@@ -12,7 +12,7 @@ public enum SQLiteBinding {
         case blob(Data)
     }
 
-    /// The folder of `path` made, or set, 0700 (roadmap 0051 A).
+    /// The folder of `path` made, or set, 0700.
     public static func ownFolder(of path: String) {
         let folder = (path as NSString).deletingLastPathComponent
         try? FileManager.default.createDirectory(

@@ -1,5 +1,5 @@
 extension SettingsOption {
-    /// Every site with something of its own (roadmap 0022 W-d): kept sealed, not in the file.
+    /// Every site with something of its own: kept sealed, not in the file.
     static let sites: [Self] =
         [
             custom(

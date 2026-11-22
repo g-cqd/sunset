@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Task t121: the storage key moved from the login Keychain to its new place without a launch that cannot open it. The
-/// first launch copies it and checks the copy; a later one that opens the copy removes the old item; a new place that
-/// fails leaves the key where it was.
+/// The storage key moved from the login Keychain to its new place without a launch that cannot open it. The first
+/// launch copies it and checks the copy; a later one that opens the copy removes the old item; a new place that fails
+/// leaves the key where it was.
 @Suite("The storage key, moved")
 struct MovingKeyVaultTests {
     private let key = Data(repeating: 7, count: 32)

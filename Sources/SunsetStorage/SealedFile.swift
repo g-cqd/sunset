@@ -1,7 +1,7 @@
 public import Foundation
 public import SunsetRuntime
 
-/// A file kept sealed and whole (R12, step ST-3: the session): `StoredFile` with a `Seal`.
+/// A file kept sealed and whole (the session): `StoredFile` with a `Seal`.
 public enum SealedFile {
     public static func write(
         _ data: Data,

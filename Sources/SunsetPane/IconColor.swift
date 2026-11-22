@@ -1,4 +1,4 @@
-/// The colour a person gives a symbol icon (R3: any colour, on tabs, entries and folders): sRGB, 8 bits a channel. Saved as `#RRGGBB`.
+/// The colour a person gives a symbol icon (any colour, on tabs, entries and folders): sRGB, 8 bits a channel. Saved as `#RRGGBB`.
 public struct IconColor: Sendable, Equatable, Hashable {
     public let red: UInt8
     public let green: UInt8

@@ -14,7 +14,7 @@ package final class SiteRules<Value: Sendable> {
         }
     }
     private var values: [String: Value] = [:]
-    /// Each profile's own (roadmap 0050 E), kept as `<profile>|<key>`.
+    /// Each profile's own, kept as `<profile>|<key>`.
     private var own: [UUID: [String: Value]] = [:]
     @ObservationIgnored private let encode: (Value) -> String
     @ObservationIgnored private let decode: (String) -> Value?
@@ -50,7 +50,7 @@ package final class SiteRules<Value: Sendable> {
         return parts.url.flatMap { value(for: $0) }
     }
 
-    /// The value for an address: the most specific rule that matches it (`SitePattern`; the owner's note n40).
+    /// The value for an address: the most specific rule that matches it (`SitePattern`).
     package func value(for url: URL) -> Value? {
         best(in: values, for: url)
     }
@@ -102,7 +102,7 @@ package final class SiteRules<Value: Sendable> {
         }
     }
 
-    // MARK: A profile's own (roadmap 0050 E)
+    // MARK: A profile's own
 
     /// For a page of `profile`: its own rule, else all profiles'. Nil: all profiles' only (the first profile's pages).
     package func value(for host: String?, profile: UUID?) -> Value? {

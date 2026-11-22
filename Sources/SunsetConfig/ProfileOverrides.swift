@@ -1,6 +1,5 @@
-/// What a profile sets otherwise than all profiles (the owner's notes n1, n38; roadmap 0050): only the keys a profile may
-/// set (`profileKeys`), each kept as the file writes it, and only where it differs from all profiles. What a profile never
-/// changed follows all profiles.
+/// What a profile sets otherwise than all profiles: only the keys a profile may set (`profileKeys`), each kept as the file
+/// writes it, and only where it differs from all profiles. What a profile never changed follows all profiles.
 public enum ProfileOverrides {
     /// The keys a profile may set otherwise: its options marked so (`perProfile`), and what sites may do.
     public static let profileKeys: [String] =
@@ -53,9 +52,9 @@ public enum ProfileOverrides {
 }
 
 extension SettingsOption {
-    /// A profile can set it otherwise (roadmap 0050): one of the keys it writes is a profile's.
+    /// A profile can set it otherwise: one of the keys it writes is a profile's.
     public var isProfileSetting: Bool {
-        // Each site: a profile's own site rules (roadmap 0050 E).
+        // Each site: a profile's own site rules.
         id == "web.sites" || keys.contains { ProfileOverrides.keySet.contains($0) }
     }
 }

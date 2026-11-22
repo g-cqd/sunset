@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The welcome's choices (roadmap 0111 H): its pages, and the security models it offers as settings.
+/// The welcome's choices: its pages, and the security models it offers as settings.
 @Suite("The welcome")
 struct WelcomeTests {
     @Test func `what Sunset ships with is the balanced model`() {

@@ -1,11 +1,11 @@
-/// A topic of a section of Settings: one page of options (roadmap 0032).
+/// A topic of a section of Settings: one page of options.
 public struct SettingsTopic: Sendable, Identifiable {
     /// The section's identifier, a dot, and its own ("terminal.cursor").
     public let id: String
     public let title: String
     public let options: [SettingsOption]
 
-    /// What its page shows first, and what a level down, under More (roadmap 0047 G).
+    /// What its page shows first, and what a level down, under More.
     public var first: [SettingsOption] {
         options.filter { !$0.advanced }
     }

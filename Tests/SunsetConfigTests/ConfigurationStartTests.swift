@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n74: Sunset opening with no tab is empty unless set to open a kind of tab, an address, a document
-/// file or a new document, in a profile or the last one.
+/// Sunset opening with no tab is empty unless set to open a kind of tab, an address, a document file or a new document,
+/// in a profile or the last one.
 @Suite("Configuration: what opens with no tab")
 struct ConfigurationStartTests {
     @Test func `nothing by default; each choice, the address, the file and the profile read, written and offered`()

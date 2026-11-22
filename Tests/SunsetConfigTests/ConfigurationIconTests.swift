@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Roadmap 0084 F, the owner (2026-11-19): choose among the four icons built (`App/<Name>.icon`, the first the bundle's own,
-/// the other three alternates in the same asset catalog).
+/// Choosing among the four icons built (`App/<Name>.icon`, the first the bundle's own, the other three alternates in
+/// the same asset catalog).
 @Suite("Configuration: the app's icon")
 struct ConfigurationIconTests {
     @Test func `Sunset by default; Twilight, Dawn and Dusk chosen, written and read back`() throws {

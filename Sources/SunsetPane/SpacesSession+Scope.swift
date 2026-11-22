@@ -1,6 +1,6 @@
 extension SpacesSession {
-    /// Whose the Favorites and the Pinned grid are (`spaces.favorites`, `spaces.pinned`; roadmap 0044). The default is how
-    /// files were written before the settings: the Favorites and the grid each profile's (ADR-0053, ADR-0055).
+    /// Whose the Favorites and the Pinned grid are (`spaces.favorites`, `spaces.pinned`). The default is how files were
+    /// written before the settings: the Favorites and the grid each profile's.
     public struct Ownership: Sendable, Equatable {
         /// Each Space has its own Favorites; else the Spaces of a profile share its list.
         public var favoritesBySpace: Bool
@@ -13,8 +13,8 @@ extension SpacesSession {
         }
     }
 
-    /// The Favorites made each Space's (roadmap 0044): what a profile kept goes to the first of its Spaces, put together with
-    /// what that Space has (`Favorites.merge`); the profile keeps none. A profile with no Space keeps its list.
+    /// The Favorites made each Space's: what a profile kept goes to the first of its Spaces, put together with what
+    /// that Space has (`Favorites.merge`); the profile keeps none. A profile with no Space keeps its list.
     static func giveFavorites(of profiles: inout [SavedProfile], to spaces: inout [SavedSpace]) {
         for index in profiles.indices where !profiles[index].favorites.favorites.isEmpty {
             let id = profiles[index].profile.id
@@ -29,7 +29,7 @@ extension SpacesSession {
         }
     }
 
-    /// One grid for the app (roadmap 0044): the other profiles' grids join the first's, which comes first; they keep none.
+    /// One grid for the app: the other profiles' grids join the first's, which comes first; they keep none.
     static func joinPinned(of profiles: inout [SavedProfile]) {
         guard let first = profiles.firstIndex(where: \.profile.isFirst) else { return }
         for index in profiles.indices where index != first && !profiles[index].pinned.favorites.isEmpty {

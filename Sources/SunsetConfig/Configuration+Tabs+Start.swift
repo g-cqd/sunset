@@ -1,5 +1,5 @@
 extension Configuration.Tabs {
-    /// What opens when Sunset, or a window on an empty Space, starts with no tab (the owner's note n74).
+    /// What opens when Sunset, or a window on an empty Space, starts with no tab.
     public enum Start: String, Sendable, Equatable, CaseIterable {
         /// Nothing: the window is empty.
         case nothing

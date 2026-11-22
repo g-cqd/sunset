@@ -1,5 +1,5 @@
 extension SettingsOption {
-    /// The proxy every page goes through (roadmap 0022 W-f, first form).
+    /// The proxy every page goes through (first form).
     static let proxy: [Self] =
         [
             text("web.proxy", "Proxy", "proxy socks http connect network route tunnel", \.web.proxy, prompt: "None")
@@ -9,7 +9,7 @@ extension SettingsOption {
                     "`http://host:port` or `socks5://host:port`. Every page, of every profile and private window, goes "
                         + "through it; Sunset's own requests do not yet."
                 ),
-            // Whether pages go through it (the owner's note n37).
+            // Whether pages go through it.
             custom("web.proxyCheck", "Use the proxy for pages", "proxy check test verify works", .proxyCheck)
                 .setting([])
         ]

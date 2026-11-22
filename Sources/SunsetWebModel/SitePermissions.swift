@@ -16,12 +16,11 @@ package final class SitePermissions {
         }
     }
 
-    /// The answers it shares (a profile's pages, roadmap 0050), its defaults its own.
+    /// The answers it shares (a profile's pages), its defaults its own.
     @ObservationIgnored private var base: SitePermissions?
 
-    /// Answers of `base`, defaults of its own.
-    /// `profile`: the answers given from its pages are its own (roadmap 0050 E), kept as `<profile>|<host>` in `base`; a
-    /// site it never answered falls to all profiles' answer, then to its defaults.
+    /// Answers of `base`, defaults of its own. `profile`: the answers given from its pages are its own, kept as
+    /// `<profile>|<host>` in `base`; a site it never answered falls to all profiles' answer, then to its defaults.
     package static func sharing(
         _ base: SitePermissions,
         defaults: [SitePermission: PermissionAnswer],

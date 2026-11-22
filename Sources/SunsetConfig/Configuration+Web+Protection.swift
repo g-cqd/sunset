@@ -1,4 +1,4 @@
-/// What WebKit offers each navigation (task t115, diary 2026-11-19-07), as the settings name it.
+/// What WebKit offers each navigation, as the settings name it.
 extension Configuration.Web {
     /// An http address: as asked, tried over https first and fallen back to http (Not Secure shown, as Safari does), the same
     /// after the person's answer to a warning, or https only.

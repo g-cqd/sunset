@@ -3,7 +3,7 @@ public import Foundation
 /// The tabs of a window, in order, with the selected one: the single source of truth that the presentations (system tabs, the sidebar, the built-in bar)
 /// show. A tab (an `Item`) holds one pane, or several arranged in a split layout (`Workspace+Splits`); each pane belongs to exactly one tab.
 ///
-/// It is a value and knows nothing of what a pane shows (a terminal, later a web page): the panes are identities, and the owner keeps their content. Closing
+/// It is a value and knows nothing of what a pane shows (a terminal, a web page, a document): the panes are identities, and the owner keeps their content. Closing
 /// operations return the panes that went, so that the owner can stop them.
 public struct Workspace: Sendable, Equatable {
     public typealias ItemID = UUID
@@ -13,9 +13,9 @@ public struct Workspace: Sendable, Equatable {
         public let id: ItemID
         public internal(set) var layout: SplitLayout
         public internal(set) var focused: PaneID
-        /// A custom user-specified title overriding the content's title (`n41`).
+        /// A custom user-specified title overriding the content's title.
         public internal(set) var customTitle: String?
-        /// A custom icon (SF Symbol or emoji) overriding the content's default glyph (`n41`).
+        /// A custom icon (SF Symbol or emoji) overriding the content's default glyph.
         public internal(set) var customIcon: PaneIcon?
 
         public var panes: [PaneID] {
@@ -184,8 +184,8 @@ public struct Workspace: Sendable, Equatable {
 }
 
 extension Workspace {
-    /// The same tabs with another selection: what one window shows of tabs that several list (a Space's, ADR-0045). A tab
-    /// that is not there is not selected.
+    /// The same tabs with another selection: what one window shows of tabs that several list (a Space's). A tab that is
+    /// not there is not selected.
     /// - Parameters:
     ///   - item: the tab the window has selected, or nil for none.
     ///   - entry: the kept entry it shows instead.

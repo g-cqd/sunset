@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetPane
 
 /// A document dragged, and a window saved while documents had rows of their own under a heading among the tabs (2026-11-15,
-/// for a day: the owner took the heading out).
+/// for a day: the heading was taken out).
 @Suite("Documents and the workspace") struct WorkspaceShelvedTests {
     @Test
     func `a window saved with a tab on a document's row reads with that tab among the tabs, and writes no such mark`()

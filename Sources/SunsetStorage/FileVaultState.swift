@@ -2,7 +2,7 @@ import Foundation
 
 /// Whether FileVault protects the disk (R12 step ST-6): the only protection of what Sunset does not seal (the website data).
 /// The Mac is asked with `fdesetup isactive`, which answers anyone; the volume's "encrypted" flag does not say (it is false on
-/// a Mac whose disk FileVault protects: diary 2026-11-15-01).
+/// a Mac whose disk FileVault protects).
 public enum FileVaultState: Sendable, Equatable {
     case on, off, unknown
 

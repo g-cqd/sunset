@@ -2,9 +2,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// The owner's note n34 (2026-11-18): "set up a completely different app so that i can exercise those kind of settings and
-/// variant without touching my current setup". A variant (a bundle identifier `studio.aemi.sunset.<name>`, not `.dev`) is
-/// another app: its own folder, its own Keychain items.
+/// A variant (a bundle identifier `studio.aemi.sunset.<name>`, not `.dev`) is another app: its own folder, its own
+/// Keychain items.
 @Suite("A variant of Sunset keeps its own") struct StoragePlacesVariantTests {
     @Test func `Sunset Lab has its folder and its keys, the person's setup none of them`() {
         let lab = StoragePlaces(environment: [:], home: "/Users/a", identifier: "studio.aemi.sunset.lab")

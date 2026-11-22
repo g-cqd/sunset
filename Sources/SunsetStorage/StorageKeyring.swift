@@ -1,4 +1,4 @@
-/// Gets the key from where it is kept, makes it the first time, and puts back one from a recovery code (R12, step ST-2).
+/// Gets the key from where it is kept, makes it the first time, and puts back one from a recovery code.
 public struct StorageKeyring: Sendable {
     private let vault: any KeyVault
 

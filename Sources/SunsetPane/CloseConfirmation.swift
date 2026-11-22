@@ -1,8 +1,8 @@
 public import Foundation
 
-/// Two-step confirmation before closing something that has a command running (`n28`): the first attempt arms it for `timeout` (its tab and close button go
-/// red), and the same attempt again while armed closes it. What is confirmed is exactly what was asked: agreeing to close one pane does not agree to close
-/// its tab, and agreeing to close a tab does not agree to close the others.
+/// Two-step confirmation before closing something that has a command running: the first attempt arms it for `timeout` (its tab and close button go red),
+/// and the same attempt again while armed closes it. What is confirmed is exactly what was asked: agreeing to close one pane does not agree to close its
+/// tab, and agreeing to close a tab does not agree to close the others.
 public struct CloseConfirmation: Sendable, Equatable {
     /// What a close would take away.
     public enum Target: Sendable, Equatable {

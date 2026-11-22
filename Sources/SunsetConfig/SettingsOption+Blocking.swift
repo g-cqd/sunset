@@ -1,5 +1,5 @@
 extension SettingsOption {
-    /// Ads and trackers blocked by lists Sunset fetches itself (roadmap 0022 W-c).
+    /// Ads and trackers blocked by lists Sunset fetches itself.
     static let blocking: [Self] =
         [
             toggle(

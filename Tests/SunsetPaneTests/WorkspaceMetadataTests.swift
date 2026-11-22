@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetPane
 
-/// The name and icon the user gives a tab (`n41`), over what its content says.
+/// The name and icon the user gives a tab, over what its content says.
 @Suite("Workspace metadata") struct WorkspaceMetadataTests {
     @Test func `a tab has no name or icon of its own until it is given one, and nil gives the content's back`() {
         var workspace = Workspace()

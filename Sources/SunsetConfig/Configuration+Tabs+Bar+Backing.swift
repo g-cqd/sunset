@@ -1,5 +1,5 @@
 extension Configuration.Tabs.Bar {
-    /// What is under the built-in bar while it is shown always (roadmap 0055 C).
+    /// What is under the built-in bar while it is shown always.
     public enum Backing: String, Sendable, Equatable, CaseIterable {
         /// The page goes on under the bar, fading under a blur.
         case fade

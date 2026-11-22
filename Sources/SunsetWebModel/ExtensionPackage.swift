@@ -1,8 +1,8 @@
 package import Foundation
 
-/// What WebKit loads from what the person picks (roadmap 0109 A, ADR-0109): `.xpi` and `.zip` are zips, taken as they are; a
-/// Chrome Web Store `.crx` (CRX3) is a zip behind a header ("Cr24", the version 3, the header's length, the header, a protocol
-/// buffer of keys and signatures), taken off. CRX2 (retired by Chrome in 2019) and anything else are refused.
+/// What WebKit loads from what the person picks: `.xpi` and `.zip` are zips, taken as they are; a Chrome Web Store `.crx`
+/// (CRX3) is a zip behind a header ("Cr24", the version 3, the header's length, the header, a protocol buffer of keys and
+/// signatures), taken off. CRX2 (retired by Chrome in 2019) and anything else are refused.
 package enum ExtensionPackage {
     package struct Refused: Error, Equatable, Sendable {
         package let reason: String
@@ -24,8 +24,8 @@ package enum ExtensionPackage {
         return Data(data.dropFirst(start))
     }
 
-    /// An extension's package a page offers (roadmap 0109 E): by its type (Chrome's, Firefox's), or its name ending `.crx` or
-    /// `.xpi` (stores serve them as plain bytes too). A `.zip` is a download like any other.
+    /// An extension's package a page offers: by its type (Chrome's, Firefox's), or its name ending `.crx` or `.xpi`
+    /// (stores serve them as plain bytes too). A `.zip` is a download like any other.
     package static func isPackage(mime: String?, path: String) -> Bool {
         let types: Set = ["application/x-chrome-extension", "application/x-xpinstall"]
         if let mime, types.contains(mime.lowercased()) { return true }

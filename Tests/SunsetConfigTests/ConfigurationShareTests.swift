@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `web.shareOtherProfiles` (ADR-0082, the owner's note n49): a page may be offered other profiles' tabs to share; off.
+/// `web.shareOtherProfiles`: a page may be offered other profiles' tabs to share; off.
 @Suite("Configuration: sharing other profiles' tabs")
 struct ConfigurationShareTests {
     @Test func `off by default, read, written, and in Settings`() throws {

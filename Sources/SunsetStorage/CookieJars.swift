@@ -1,9 +1,9 @@
 package import Foundation
 
-/// WebKit's cookie jars for Sunset, sealed at quit and opened at launch (task t114, design 0007, threat A4): a copy or a
-/// backup of `~/Library` taken while Sunset is closed holds no session token in the clear. Probed (diary 2026-11-19-12):
-/// flushed, then moved aside at quit, a jar is not written again by WebKit; put back before a store opens, its cookies are
-/// read. Each sealed jar is bound to its place, so one cannot stand in for another store's.
+/// WebKit's cookie jars for Sunset, sealed at quit and opened at launch (design 0007, threat A4): a copy or a backup of
+/// `~/Library` taken while Sunset is closed holds no session token in the clear. Probed: flushed, then moved aside at
+/// quit, a jar is not written again by WebKit; put back before a store opens, its cookies are read. Each sealed jar is
+/// bound to its place, so one cannot stand in for another store's.
 ///
 /// While Sunset runs the jars are in the clear (0600): another program of the same user (A3) is not what this answers.
 package struct CookieJars {
@@ -65,7 +65,7 @@ package struct CookieJars {
         package var unreadable = 0
     }
 
-    /// Every store's cookies, each jar read in the clear or opened in memory (roadmap 0112 E): nothing written.
+    /// Every store's cookies, each jar read in the clear or opened in memory: nothing written.
     package func read(with seal: Seal) -> Read {
         var read = Read()
         let defaultJar = places().first

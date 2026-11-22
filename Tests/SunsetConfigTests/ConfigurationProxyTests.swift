@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// Roadmap 0022 W-f: `web.proxy`, an http or socks5 address with a port, or nothing; anything else is said and left out.
+/// `web.proxy`, an http or socks5 address with a port, or nothing; anything else is said and left out.
 @Suite("A proxy for the pages: the setting")
 struct ConfigurationProxyTests {
     @Test func `none by default; http and socks5 with a port; others said`() throws {

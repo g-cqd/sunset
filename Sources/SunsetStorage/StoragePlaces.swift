@@ -1,14 +1,14 @@
 import Foundation
 
-/// Where each thing Sunset keeps is (R12, roadmap 0030 step ST-1): one folder, and the names in it. The only place that knows.
+/// Where each thing Sunset keeps is: one folder, and the names in it. The only place that knows.
 ///
 /// `$SUNSET_SESSION` names the session's file itself and puts everything else beside it; else `$SUNSET_CONFIG` (a test, a second
 /// setup) puts everything beside that file, so that it never touches the person's own; else
 /// `~/Library/Application Support/Sunset`. Empty variables count as unset.
 ///
-/// A development build (a bundle identifier that ends in `.dev`: every debug build, t276) is another app than the installed
-/// one: started with nothing named it keeps `~/Library/Application Support/Sunset Dev` and keys of its own in the Keychain, so
-/// it never reads or writes the person's session and never asks for his keys.
+/// A development build (a bundle identifier that ends in `.dev`: every debug build) is another app than the installed one:
+/// started with nothing named it keeps `~/Library/Application Support/Sunset Dev` and keys of its own in the Keychain, so it
+/// never reads or writes the person's session and never asks for his keys.
 public struct StoragePlaces: Sendable, Equatable {
     public let directory: String
     /// The open tabs, the folders and the Favorites: one file, sealed, read whole.
@@ -20,14 +20,13 @@ public struct StoragePlaces: Sendable, Equatable {
     public let isDefault: Bool
     /// Not the installed build: its bundle identifier ends in `.dev`.
     public let isDevelopment: Bool
-    /// Another app than the person's (the owner's note n34): `lab` for `studio.aemi.sunset.lab`; nil for his and a
-    /// development build.
+    /// Another app than the person's: `lab` for `studio.aemi.sunset.lab`; nil for his and a development build.
     public let variant: String?
-    /// A build that shares Sunset's data (ADR-0114): the variant it was before, whose places are merged once.
+    /// A build that shares Sunset's data: the variant it was before, whose places are merged once.
     let formerVariant: String?
     private let home: String
 
-    /// The builds that keep Sunset's own data rather than their own (ADR-0114): Sunset WebKit.
+    /// The builds that keep Sunset's own data rather than their own: Sunset WebKit.
     static let sharing: Set<String> = ["webkit"]
 
     /// The variant a bundle identifier names: what follows `studio.aemi.sunset.`, but `dev` and the builds that share
@@ -36,7 +35,7 @@ public struct StoragePlaces: Sendable, Equatable {
         named(identifier).flatMap { sharing.contains($0) ? nil : $0 }
     }
 
-    /// The other builds that keep the store `identifier` keeps (ADR-0114): only one of them may have it open.
+    /// The other builds that keep the store `identifier` keeps: only one of them may have it open.
     public static func sharers(of identifier: String?) -> [String] {
         let root = "studio.aemi.sunset"
         let all = [root] + sharing.sorted().map { root + "." + $0 }
@@ -86,7 +85,7 @@ public struct StoragePlaces: Sendable, Equatable {
         legacySession = directory + "/session.json"
     }
 
-    /// Where this build kept its data before it shared Sunset's (ADR-0114), to be merged once; nil for every other build.
+    /// Where this build kept its data before it shared Sunset's, to be merged once; nil for every other build.
     public var former: StoragePlaces? {
         guard let formerVariant, isDefault else { return nil }
         return StoragePlaces(environment: [:], home: home, identifier: nil, variant: formerVariant)
@@ -124,7 +123,7 @@ public struct StoragePlaces: Sendable, Equatable {
     public var documents: String {
         directory + "/Documents"
     }
-    /// The extensions installed, a folder per profile (roadmap 0109).
+    /// The extensions installed, a folder per profile.
     public var extensions: String {
         directory + "/Extensions"
     }
@@ -134,8 +133,8 @@ public struct StoragePlaces: Sendable, Equatable {
     }
 
     /// Where the key that seals all this is kept: for the person's own setup, the data-protection keychain, the key wrapped by
-    /// this Mac's Secure Enclave (ADR-0104, task t121), moved there from the login Keychain, where it stays for a build that
-    /// cannot use the new place; a file beside the others for a named one, which must not touch the Keychain.
+    /// this Mac's Secure Enclave, moved there from the login Keychain, where it stays for a build that cannot use the new
+    /// place; a file beside the others for a named one, which must not touch the Keychain.
     public var keyVault: any KeyVault {
         guard isDefault else { return FileKeyVault(path: directory + "/storage.key") }
         return MovingKeyVault(
@@ -148,7 +147,7 @@ public struct StoragePlaces: Sendable, Equatable {
     public var keyService: String {
         serviceRoot + ".storage-key"
     }
-    /// The Keychain item of the key that seals the commands of kept terminals (t145): a development build has its own.
+    /// The Keychain item of the key that seals the commands of kept terminals: a development build has its own.
     public var commandSealService: String {
         serviceRoot + ".command-seal"
     }

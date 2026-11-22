@@ -1,6 +1,6 @@
 package import Foundation
 
-/// A notification a page asked to show (roadmap 0035 D), as the app is to post it: its text cleaned (white paper §9).
+/// A notification a page asked to show, as the app is to post it: its text cleaned (white paper §9).
 package struct WebNotification: Sendable, Equatable {
     /// The longest title and body shown: what a notification shows of them, and no more is kept.
     package static let titleLimit = 120
@@ -12,11 +12,11 @@ package struct WebNotification: Sendable, Equatable {
     package let body: String
     /// The site that showed it (from WebKit, not from the page).
     package let host: String
-    /// A later one of the page's site with the same tag replaces it (roadmap 0036 E); empty: none.
+    /// A later one of the page's site with the same tag replaces it; empty: none.
     package let tag: String
-    /// Its picture: an http, https or data address only (roadmap 0036 E).
+    /// Its picture: an http, https or data address only.
     package let icon: URL?
-    /// The page asked for no sound (roadmap 0037 C).
+    /// The page asked for no sound.
     package let silent: Bool
 
     package init(

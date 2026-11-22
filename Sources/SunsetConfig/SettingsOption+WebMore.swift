@@ -1,4 +1,4 @@
-/// The options of Web (R1): downloads, websites, advanced.
+/// The options of Web: downloads, websites, advanced.
 extension SettingsOption {
     /// Downloads.
     static let downloads: [Self] =
@@ -58,7 +58,7 @@ extension SettingsOption {
             .grouped("Once downloaded")
         ]
 
-    /// The profiles (R4; ADR-0053): kept with the session, not in the file.
+    /// The profiles: kept with the session, not in the file.
     static let profiles: [Self] =
         [
             custom("profiles.list", "Your profiles", "profile identity cookies login account work personal", .profiles)

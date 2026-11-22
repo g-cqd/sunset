@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Task t48 E (design 0007, threat A4): an export is plain text by nature, so it is the person's only: its folder 0700,
-/// its files 0600 (they were 0644, readable by every account on the Mac), and the sentence after it says what it is.
+/// Design 0007, threat A4: an export is plain text by nature, so it is the person's only: its folder 0700, its files
+/// 0600 (they were 0644, readable by every account on the Mac), and the sentence after it says what it is.
 @Suite("Export All: the person's only")
 struct ExportPermissionsTests {
     @Test func `the folder is 0700, each file 0600, and the sentence says they are plain`() throws {

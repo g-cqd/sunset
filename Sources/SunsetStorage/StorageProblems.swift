@@ -1,6 +1,6 @@
 public import Observation
 
-/// What did not read in this run, kept to be said to the person (R12). One entry per file.
+/// What did not read in this run, kept to be said to the person. One entry per file.
 @MainActor @Observable
 public final class StorageProblems {
     public static let shared = StorageProblems()

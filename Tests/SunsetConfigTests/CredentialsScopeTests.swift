@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// ADR-0090: Sunset's own password management is a feature scope of its own, off until turned on.
+/// Sunset's own password management is a feature scope of its own, off until turned on.
 @Suite("The credentials scope")
 struct CredentialsScopeTests {
     @Test func `off by default, not counted among the three, read and written`() throws {

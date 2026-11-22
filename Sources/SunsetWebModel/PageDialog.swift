@@ -1,7 +1,7 @@
 package import Foundation
 
-/// A dialog a page asked for (`alert`, `confirm`, `prompt`; roadmap 0029 step 1), waiting in its pane. A page is an untrusted
-/// program (white paper §9): what it says is shown as plain text, cut to a length, under its host's name, and it is answered once.
+/// A dialog a page asked for (`alert`, `confirm`, `prompt`), waiting in its pane. A page is an untrusted program (white paper §9):
+/// what it says is shown as plain text, cut to a length, under its host's name, and it is answered once.
 @MainActor
 package final class PageDialog: Identifiable {
     package enum Kind: Equatable, Sendable {

@@ -1,8 +1,8 @@
 package import Foundation
 
-/// What WebKit caches for sites stays out of backups (task t114, design 0007, threat A4): every cache folder under WebKit's
-/// folder for Sunset is marked excluded, so Time Machine and backup tools that honour the mark leave it out:
-/// - `CacheStorage`, the Cache API, which sites fill and refill (1.2 GB of 1.7 GB on the owner's Mac);
+/// What WebKit caches for sites stays out of backups (design 0007, threat A4): every cache folder under WebKit's folder
+/// for Sunset is marked excluded, so Time Machine and backup tools that honour the mark leave it out:
+/// - `CacheStorage`, the Cache API, which sites fill and refill (1.2 GB of 1.7 GB on one Mac, 2026-11);
 /// - `NetworkCache` and `MediaCache`, which each profile's store keeps beside its data, not in `~/Library/Caches` (the
 ///   default store's network cache, which Time Machine leaves out by itself: measured).
 /// What sites keep for the person (cookies, IndexedDB, local storage) stays in.

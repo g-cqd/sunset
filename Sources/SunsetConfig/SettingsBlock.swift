@@ -1,5 +1,5 @@
-/// A part of a settings page (the owner's note n13): a group of options under a heading, or one list of things the person
-/// added (search engines, sites, profiles) with its heading and its note under it. The page draws each as a section.
+/// A part of a settings page: a group of options under a heading, or one list of things the person added (search
+/// engines, sites, profiles) with its heading and its note under it. The page draws each as a section.
 public struct SettingsBlock: Sendable, Identifiable {
     /// The heading: the group's, or the list's own title; nil for the options of a topic that are not grouped.
     public let title: String?

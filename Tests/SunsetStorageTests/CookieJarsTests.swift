@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Task t114 (design 0007, threat A4): WebKit's cookie jars are sealed at quit and opened at launch, so a copy or a backup of
-/// `~/Library` taken while Sunset is closed holds no session token in the clear. Probed (diary 2026-11-19-12): flushed, then
-/// moved aside at quit, a jar is not written again by WebKit; put back before a store opens, its cookies are read.
+/// Design 0007, threat A4: WebKit's cookie jars are sealed at quit and opened at launch, so a copy or a backup of
+/// `~/Library` taken while Sunset is closed holds no session token in the clear. Probed: flushed, then moved aside at
+/// quit, a jar is not written again by WebKit; put back before a store opens, its cookies are read.
 @Suite("Cookie jars: sealed at quit, opened at launch")
 struct CookieJarsTests {
     private let id = "studio.aemi.sunset"

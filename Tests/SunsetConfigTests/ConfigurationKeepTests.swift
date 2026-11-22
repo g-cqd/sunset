@@ -2,11 +2,11 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `web.keep` (ADR-0081, roadmap 0051 H): what WebKit keeps between runs. The cache and the traces kept, a site's data kept
-/// only for the sites chosen or signed in to; the old `web.clearWebsiteDataOnQuit` read as clearing all three.
+/// `web.keep`: what WebKit keeps between runs. The cache and the traces kept, a site's data kept only for the sites
+/// chosen or signed in to; the old `web.clearWebsiteDataOnQuit` read as clearing all three.
 @Suite("Configuration: what WebKit keeps between runs")
 struct ConfigurationKeepTests {
-    @Test func `the defaults are the owner's`() throws {
+    @Test func `the defaults keep the cache and traces, and the data of the sites chosen`() throws {
         let keep = try ConfigurationParser.parse("{}").configuration.web.keep
         #expect(keep == .init(cache: .keep, traces: .keep, siteData: .keepChosen))
     }
@@ -32,7 +32,7 @@ struct ConfigurationKeepTests {
 }
 
 extension ConfigurationKeepTests {
-    /// "Both should be possible" (the owner, 2026-11-18): a profile's own choice wins; none, or one not known, is the app's.
+    /// "Both should be possible": a profile's own choice wins; none, or one not known, is the app's.
     @Test func `a profile's choices win over the app's, one by one`() {
         let app = Configuration.Web.Keep(cache: .keep, traces: .clearOnQuit, siteData: .keepChosen)
         #expect(app.overriding(cache: nil, traces: nil, siteData: nil) == app)

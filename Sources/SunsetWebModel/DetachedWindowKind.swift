@@ -1,5 +1,5 @@
-/// A page in a window of its own, in no Space's tabs until moved to one: a page's pop-up (task t132), or a peek at a link
-/// from another app (the owner's note n66).
+/// A page in a window of its own, in no Space's tabs until moved to one: a page's pop-up, or a peek at a link from
+/// another app.
 package enum DetachedWindowKind: Sendable, Equatable {
     case popup
     case peek

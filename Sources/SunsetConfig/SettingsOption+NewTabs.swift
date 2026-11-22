@@ -1,6 +1,6 @@
 import SunsetMetrics
 
-/// What a new tab is, and what opens with none (the owner's notes n70, n74).
+/// What a new tab is, and what opens with none.
 extension SettingsOption {
     static let newTabs: [Self] =
         [

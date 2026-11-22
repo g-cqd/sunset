@@ -14,7 +14,7 @@ extension Favorites {
         }
     }
 
-    /// A synthetic folder (`n40`): not a directory on disk.
+    /// A synthetic folder: not a directory on disk.
     public struct Folder: Sendable, Equatable, Identifiable {
         public let id: NodeID
         public internal(set) var name: String
@@ -45,7 +45,7 @@ extension Favorites {
         public internal(set) var icon: PaneIcon?
         public internal(set) var home: Home
         public internal(set) var open: Workspace.Item?
-        /// What is typed into a kept terminal's shell when it opens (R3), and the check that says Sunset wrote it (t145). The model only keeps them:
+        /// What is typed into a kept terminal's shell when it opens, and the check that says Sunset wrote it. The model only keeps them:
         /// checking and running are the app's.
         public internal(set) var command: String?
         public internal(set) var commandSeal: String?

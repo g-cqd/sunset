@@ -8,7 +8,7 @@ public enum ConfigurationLocation {
             return result
         }
         if let file = environment["SUNSET_CONFIG"], !file.isEmpty { return file }
-        // A variant of Sunset (the owner's note n34) reads its own: `sunset-lab`.
+        // A variant of Sunset reads its own: `sunset-lab`.
         let folder = variant.map { "sunset-" + $0 } ?? "sunset"
         if let base = environment["XDG_CONFIG_HOME"], !base.isEmpty { return trimmed(base) + "/\(folder)/config.json" }
         return trimmed(home) + "/.config/\(folder)/config.json"

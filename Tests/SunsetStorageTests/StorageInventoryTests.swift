@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetStorage
 
-/// What Settings say is kept (R12, roadmap 0030 step ST-6): each thing with its size, and the files that were set aside.
+/// What Settings say is kept: each thing with its size, and the files that were set aside.
 @Suite("What is kept, for Settings") struct StorageInventoryTests {
     let root = NSTemporaryDirectory() + "inventory-\(UUID().uuidString)"
     var places: StoragePlaces {

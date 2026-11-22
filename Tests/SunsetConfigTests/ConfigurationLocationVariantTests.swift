@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n34: a variant of Sunset reads its own configuration file, so that its settings never touch his.
+/// A variant of Sunset reads its own configuration file, so that its settings never touch his.
 @Suite("A variant's configuration file") struct ConfigurationLocationVariantTests {
     @Test func `Sunset Lab reads its own file; the variables still win`() {
         #expect(

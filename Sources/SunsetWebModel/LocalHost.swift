@@ -1,6 +1,6 @@
 import Foundation
 
-/// This machine and the local network (R1): reached over http at once, never sent for suggestions, not marked Not Secure.
+/// This machine and the local network: reached over http at once, never sent for suggestions, not marked Not Secure.
 package enum LocalHost {
     /// The host part of something typed without a scheme ("nas:8080/a" is "nas").
     package static func host(of text: String) -> String {

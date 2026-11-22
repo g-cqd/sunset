@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The options of Settings, declared once (the review of 2026-11-15, section 5; task t268): the file's key, the title, the words
+/// The options of Settings, declared once (the review of 2026-11-15, section 5): the file's key, the title, the words
 /// it is found by, where it is shown and what control it has.
 @Suite("The options of Settings") struct SettingsOptionTests {
     let options = SettingsOption.all
@@ -27,10 +27,9 @@ import Testing
         let others = options.filter { $0.keys != [$0.id] }.map(\.id).sorted()
         let pages = ["storage.enterCode", "storage.export", "storage.key", "storage.sealed", "storage.setAside"]
         #expect(
-            // `profiles.list`: the profiles are kept with the session, not in the file (ADR-0053).
-            // `features`: three keys under one control (ADR-0056).
-            // `web.defaultBrowser`: the system's choice, not the file's (note n18).
-            // `web.extensions`: kept in each profile's folder (roadmap 0109).
+            // `profiles.list`: the profiles are kept with the session, not in the file. `features`: three keys under
+            // one control. `web.defaultBrowser`: the system's choice, not the file's. `web.extensions`: kept in each
+            // profile's folder.
             others == ["features", "file.location", "profiles.list"] + pages + [
                 "storage.websiteData", "web.defaultBrowser", "web.extensions", "web.permissions", "web.proxyCheck",
                 "web.sites"

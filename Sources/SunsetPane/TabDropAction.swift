@@ -1,7 +1,7 @@
 public import CoreGraphics
 
 /// What dropping a tab or pane onto a tab row in the sidebar does, decided by where the pointer is inside the row: the top and bottom quarters reorder
-/// before or after the row, and the middle half splits the row's tab on its left or right (`n25`).
+/// before or after the row, and the middle half splits the row's tab on its left or right.
 public enum TabDropAction: Sendable, Equatable {
     case moveBefore
     case moveAfter

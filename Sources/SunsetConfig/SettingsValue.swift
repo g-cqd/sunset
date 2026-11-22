@@ -2,8 +2,8 @@
 public struct SettingsValue<Value: Sendable>: Sendable {
     public let get: @Sendable (Configuration) -> Value
     public let set: @Sendable (inout Configuration, Value) -> Void
-    /// Made from a key path: what the control shows is what the file holds, so the file is read and written through it
-    /// (roadmap 0086 C). A value made of its own getter and setter is not.
+    /// Made from a key path: what the control shows is what the file holds, so the file is read and written through it.
+    /// A value made of its own getter and setter is not.
     public let isDirect: Bool
 
     public init(

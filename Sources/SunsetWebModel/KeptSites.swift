@@ -1,16 +1,16 @@
 package import Foundation
 package import SunsetStorage
 
-/// The sites whose data is kept when Sunset quits while `web.keep.siteData` keeps the chosen ones (ADR-0081): chosen from a
-/// site's panel, or by themselves when a password is sent from one of their pages. Kept as sealed records of the state
+/// The sites whose data is kept when Sunset quits while `web.keep.siteData` keeps the chosen ones: chosen from a site's
+/// panel, or by themselves when a password is sent from one of their pages. Kept as sealed records of the state
 /// database, or in memory until the app quits.
 @MainActor
 package final class KeptSites {
     package static let shared = KeptSites()
 
     private let store: SiteRules<Bool>
-    /// The mark that the list was filled once with the sites holding cookies then (ADR-0081, 3), kept with the list: a test
-    /// copy shares WebKit's stores and the defaults with the person's Sunset, never its sealed store.
+    /// The mark that the list was filled once with the sites holding cookies then (3), kept with the list: a test copy
+    /// shares WebKit's stores and the defaults with the person's Sunset, never its sealed store.
     package var marks: SealedTable? {
         didSet {
             seeded = marks.map { !$0.all().rows.isEmpty } ?? false
@@ -47,7 +47,7 @@ package final class KeptSites {
         store.value(for: host, profile: profile) == true
     }
 
-    /// The sites kept for a profile's store: its own and all profiles' (roadmap 0050 E).
+    /// The sites kept for a profile's store: its own and all profiles'.
     package func hosts(profile: UUID?) -> [String] {
         guard profile != nil else { return hosts }
         return Array(Set(hosts + store.rules(profile: profile).map(\.host))).sorted()

@@ -2,7 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// `storage.importedFiles` (R12, the owner on 2026-11-15: a setting, the Trash by default).
+/// `storage.importedFiles` (a setting, the Trash by default).
 @Suite("Configuration: storage") struct ConfigurationStorageTests {
     @Test func `the plain files of before go to the Trash unless the file says they are deleted`() throws {
         #expect(try ConfigurationParser.parse("{}").configuration.storage.importedFiles == .trash)

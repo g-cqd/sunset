@@ -1,7 +1,7 @@
 import Synchronization
 
-/// A file's writes (the session's: roadmap 0049), one at a time and the newest last, from any thread (roadmap 0049): a write is numbered when it
-/// is asked for; one that comes to the disk after a newer one has been written is dropped, so that a save in the background
+/// A file's writes (the session's), one at a time and the newest last, from any thread: a write is numbered when it is
+/// asked for; one that comes to the disk after a newer one has been written is dropped, so that a save in the background
 /// that starts late never puts an older session over a newer one (a quit's).
 public final class NewestWrites: Sendable {
     public init() {}

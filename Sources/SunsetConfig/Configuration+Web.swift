@@ -1,5 +1,5 @@
 extension Configuration {
-    /// The web pane (R1).
+    /// The web pane.
     public struct Web: Sendable, Equatable {
         /// What a page's tab shows when it has no icon of its own: the first letter of its title in a square, or a globe.
         public enum TabIcon: String, Sendable, Equatable, CaseIterable {
@@ -16,7 +16,7 @@ extension Configuration {
             case margin, pane
         }
 
-        /// Which pop-ups open in a pop-up window (task t132): those the page sizes, every one a script opens, or none (tabs).
+        /// Which pop-ups open in a pop-up window: those the page sizes, every one a script opens, or none (tabs).
         public enum PopupWindows: String, Sendable, Equatable, CaseIterable {
             case sized, scripted, never
         }
@@ -47,14 +47,14 @@ extension Configuration {
             case site, session, page
         }
 
-        /// The browser a site with no rule of its own is shown (roadmap 0022, W-a): Safari is Sunset as it is; the others
-        /// change what the User-Agent says, and nothing else of the engine.
+        /// The browser a site with no rule of its own is shown: Safari is Sunset as it is; the others change what the
+        /// User-Agent says, and nothing else of the engine.
         public enum Agent: String, Sendable, Equatable, CaseIterable {
             case safari, chrome, edge, firefox
         }
 
-        /// How long the history keeps a page (web step e).
-        /// What WebKit keeps between runs (ADR-0081): app-wide; a profile may set otherwise.
+        /// How long the history keeps a page (web step e). What WebKit keeps between runs: app-wide; a profile may set
+        /// otherwise.
         public struct Keep: Sendable, Equatable {
             /// The caches, the traces: kept, or cleared when Sunset quits.
             public enum Choice: String, Sendable, Equatable, CaseIterable {
@@ -116,9 +116,9 @@ extension Configuration {
         public var openLinksInSunset = true
         /// The page's inspector (Inspect Element, and Safari's Develop menu) can be opened.
         public var developer = true
-        /// A page's request to notify asks without a click too (Chrome's way; roadmap 0046 S1); off, Safari's.
+        /// A page's request to notify asks without a click too (Chrome's way); off, Safari's.
         public var notificationsWithoutClick = false
-        /// A page's notifications through its service worker's registration are posted too (roadmap 0046 S2).
+        /// A page's notifications through its service worker's registration are posted too.
         public var workerNotifications = true
         /// The site's icon, its initial in a square while it has none (owner, 2026-11-13).
         public var tabIcon = TabIcon.favicon
@@ -128,12 +128,12 @@ extension Configuration {
         /// only less of them shows), or over the focused pane (owner, 2026-11-13).
         public var splitBar = SplitBar.margin
         /// A page a page opens (a link with a target, a pop-up after a click, Open Image in New Window) is shown, as Safari
-        /// does; off, it waits in a tab after its opener (the owner, 2026-11-20, notes n64 and n65).
+        /// does; off, it waits in a tab after its opener.
         public var showOpenedPages = true
-        /// Which pop-ups open in a window of their own with no sidebar, a page that is no tab until moved to a Space (t132).
+        /// Which pop-ups open in a window of their own with no sidebar, a page that is no tab until moved to a Space.
         public var popupWindows = PopupWindows.sized
         /// A link from another app (Sunset the Mac's browser) opens in a peek window: back, forward, an address field, moved to a
-        /// Space by the person (the owner's note n66). Off, a tab of the window in front.
+        /// Space by the person. Off, a tab of the window in front.
         public var peekLinks = true
         /// Pages animate and redraw at the screen's rate (120 fps on a ProMotion screen), not near 60 (owner, 2026-11-13).
         public var fullFrameRate = true
@@ -143,8 +143,8 @@ extension Configuration {
         public var engines: [Engine] = []
         /// What is typed is sent to the engine for suggestions (never an address of this machine or the local network).
         public var suggestions = true
-        /// Retired (the owner, 2026-11-20): `web.httpsUpgrade` decides for a typed address too. Still read, so that a file
-        /// that sets it reads cleanly; nothing uses it.
+        /// Retired: `web.httpsUpgrade` decides for a typed address too. Still read, so that a file that sets it reads
+        /// cleanly; nothing uses it.
         public var httpFallback = false
         public var httpsUpgrade = HTTPSUpgrade.fallback
         public var hardening = Hardening.off
@@ -152,7 +152,7 @@ extension Configuration {
         public var zoomScope = ZoomScope.site
         public var agent = Agent.safari
         /// What a page's scripts read to tell a browser is set to what `agent` (or the site's rule) names: the second
-        /// rung (ADR-0052). Off: the User-Agent only.
+        /// rung. Off: the User-Agent only.
         public var agentScripts = true
         /// Zoom makes only the text bigger, not the images (WebKit's private text zoom; nothing where it is missing).
         public var textOnlyZoom = false
@@ -160,7 +160,7 @@ extension Configuration {
         /// What goes when Sunset quits: the history, the website data (cookies, caches, storage).
         public var clearHistoryOnQuit = false
         public var keep = Keep(siteData: .keepChosen)
-        /// A page may be offered other profiles' tabs to share (ADR-0082).
+        /// A page may be offered other profiles' tabs to share.
         public var shareOtherProfiles = false
         /// Where files are downloaded; empty: ~/Downloads.
         public var downloadFolder = ""
@@ -176,13 +176,13 @@ extension Configuration {
         /// The pages of a new private window share one store (its selector changes it for the window).
         public var privateWindowShares = true
         /// A page not on screen is unloaded after this many hours (0: never by the delay), and when memory runs short,
-        /// the longest idle first (roadmap 0021 S-f, ADR-0071).
+        /// the longest idle first.
         public var unloadAfter = 12.0
         public var unloadUnderPressure = true
-        /// Ads and trackers are blocked with these lists, which Sunset fetches itself (roadmap 0022 W-c): https only.
+        /// Ads and trackers are blocked with these lists, which Sunset fetches itself: https only.
         public var blocking = true
         public var blockingLists = Self.defaultBlockingLists
-        /// The proxy every page goes through (W-f): `http://host:port` or `socks5://host:port`; empty for none.
+        /// The proxy every page goes through: `http://host:port` or `socks5://host:port`; empty for none.
         public var proxy = ""
         public static let defaultBlockingLists = [
             "https://easylist.to/easylist/easylist.txt", "https://easylist.to/easylist/easyprivacy.txt"

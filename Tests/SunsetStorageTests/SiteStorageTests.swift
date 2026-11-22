@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// t137 (threat model A4; the owner chose "seal at quit"): what sites keep is sealed at quit and opened at launch; caches
-/// are left as they are (out of backups instead).
+/// Threat model A4: what sites keep is sealed at quit and opened at launch; caches are left as they are (out of backups
+/// instead).
 @Suite("Sites' storage: sealed at quit, opened at launch")
 struct SiteStorageTests {
     private let id = "studio.aemi.sunset"

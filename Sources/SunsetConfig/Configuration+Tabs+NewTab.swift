@@ -1,5 +1,5 @@
 extension Configuration.Tabs {
-    /// What Command-T makes (the owner's note n70).
+    /// What Command-T makes.
     public enum NewTab: String, Sendable, Equatable, CaseIterable {
         /// The focused tab's kind: a page makes a page, a document a document, anything else a terminal.
         case focused

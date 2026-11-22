@@ -36,8 +36,8 @@ import Testing
         #expect(bad.configuration.tabs.confirmClose && bad.issues.map(\.path) == ["tabs.confirmClose"])
     }
 
-    /// The owner, 2026-11-16: the tabs of a Space stay, stopped, when its last window closes; "a setting should allow to
-    /// clean open tabs after a delay or when (last) window of a space closes".
+    /// The tabs of a Space stay, stopped, when its last window closes; "a setting should allow to clean open tabs after
+    /// a delay or when (last) window of a space closes".
     @Test
     func `the tabs left by the last window: kept by default; closed with it, or after some hours, when the file says`()
         throws
@@ -56,8 +56,8 @@ import Testing
         #expect(!bad.configuration.tabs.closeWithLastWindow && bad.configuration.tabs.closeStoppedAfter == 0)
     }
 
-    /// The owner, 2026-11-17: "closing the last tab of a space should not close the window, but this could be a behaviour
-    /// to decide about in a setting".
+    /// "closing the last tab of a space should not close the window, but this could be a behaviour to decide about in a
+    /// setting".
     @Test func `the window stays when the last tab of its Space closes, unless the file says it closes`() throws {
         #expect(Configuration().tabs.closeGoesBack, "n4: on by default")
         #expect(

@@ -4,8 +4,8 @@ import Testing
 
 @testable import SunsetPane
 
-/// A tab menu's layouts (n78, t287; the owner, 2026-11-17): side by side, stacked, three columns, one large and two stacked,
-/// a 2×2 grid; offered for several tabs selected or one split tab, only those of as many panes as they hold.
+/// A tab menu's layouts: side by side, stacked, three columns, one large and two stacked, a 2×2 grid; offered for
+/// several tabs selected or one split tab, only those of as many panes as they hold.
 @Suite("Split presets") struct SplitPresetTests {
     /// A window of `count` one-pane tabs.
     private func window(_ count: Int) -> Workspace {

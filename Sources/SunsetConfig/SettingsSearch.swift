@@ -25,7 +25,7 @@ public enum SettingsSearch {
         return seen
     }
 
-    /// An entry's title and all its words, folded once and kept (note n15: folding every entry again on every keystroke).
+    /// An entry's title and all its words, folded once and kept (folding every entry again on every keystroke).
     private static let cache = Mutex([String: (title: String, haystack: String)]())
 
     private static func folded(_ entry: SettingsEntry) -> (title: String, haystack: String) {

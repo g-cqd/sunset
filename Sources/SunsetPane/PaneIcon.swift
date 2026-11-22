@@ -1,6 +1,6 @@
 import Foundation
 
-/// The icon a user gives a tab or a folder of the sidebar, over the one its content has (`n40`, `n41`): an SF Symbol by name, or an emoji.
+/// The icon a user gives a tab or a folder of the sidebar, over the one its content has: an SF Symbol by name, or an emoji.
 public enum PaneIcon: Sendable, Equatable {
     /// A symbol, drawn in its colour when it has one (in the secondary colour otherwise).
     case symbol(String, color: IconColor? = nil)

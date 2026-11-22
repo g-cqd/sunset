@@ -1,7 +1,7 @@
 package import Foundation
 
-/// What a page sees of the browser (R1: the system's WebKit, named as the installed Safari; the owner: "make it appear as Safari by default"). WebKit
-/// writes the start of the user agent (`Mozilla/5.0 (Macintosh; …) AppleWebKit/605.1.15 (KHTML, like Gecko)`); this is the end Safari adds to it.
+/// What a page sees of the browser (the system's WebKit, named as the installed Safari: Sunset appears as Safari by default). WebKit writes the
+/// start of the user agent (`Mozilla/5.0 (Macintosh; …) AppleWebKit/605.1.15 (KHTML, like Gecko)`); this is the end Safari adds to it.
 package enum SafariName {
     /// The token Safari has put after its version since 2017; it no longer changes with releases.
     package static let safariToken = "Safari/605.1.15"

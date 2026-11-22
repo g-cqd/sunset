@@ -15,7 +15,7 @@ package struct SearchEngine: Sendable, Equatable, Hashable {
         self.suggest = suggest
     }
 
-    /// The engines that come with Sunset (the owner's list). Bing has no suggestion address: its OpenSearch one answers nothing (2026-11-12).
+    /// The engines that come with Sunset. Bing has no suggestion address: its OpenSearch one answers nothing (2026-11-12).
     package static let builtIn: [SearchEngine] = [
         SearchEngine(
             name: "Google",

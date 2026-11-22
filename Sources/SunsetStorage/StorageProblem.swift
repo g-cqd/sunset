@@ -1,6 +1,6 @@
 import Foundation
 
-/// Something Sunset keeps could not be used (R12: never dropped silently): what it was, where, and what was done.
+/// Something Sunset keeps could not be used (never dropped silently): what it was, where, and what was done.
 public struct StorageProblem: Identifiable, Sendable, Equatable {
     public enum Kind: Sendable, Equatable {
         /// It did not read: moved aside under a dated name (`movedTo`), and a new one is used.

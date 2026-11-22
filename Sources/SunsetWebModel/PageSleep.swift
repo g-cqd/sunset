@@ -1,8 +1,8 @@
 public import Foundation
 
-/// Which hidden pages let go of their memory now (roadmap 0021 S-f, ADR-0071): those hidden longer than the delay; and
-/// while memory is short, the one hidden the longest, one at a time. Never one on screen nor one that is exempt (plays,
-/// captures, is kept awake, is pinned). Decided from what it is given, at the time it is given: no clock of its own.
+/// Which hidden pages let go of their memory now: those hidden longer than the delay; and while memory is short, the
+/// one hidden the longest, one at a time. Never one on screen nor one that is exempt (plays, captures, is kept awake,
+/// is pinned). Decided from what it is given, at the time it is given: no clock of its own.
 package enum PageSleep {
     package struct Candidate: Sendable, Equatable {
         /// Since when it is not on screen; nil while it is.
@@ -46,7 +46,7 @@ package enum PageSleep {
     }
 
     /// Whether macOS's memory pressure level (`kern.memorystatus_vm_pressure_level`: 1 normal, 2 warning, 4 critical) says
-    /// memory is short: critical only (ADR-0076). The warning level held for minutes with half the memory free.
+    /// memory is short: critical only. The warning level held for minutes with half the memory free.
     package static func memoryIsShort(level: Int32) -> Bool {
         level >= 4
     }

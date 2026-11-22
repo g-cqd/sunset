@@ -62,7 +62,7 @@ struct Reader {
             issue(path, "expected an object")
             return
         }
-        // A plain value is read by its option's codec (roadmap 0086 C); the section's own reading sees the rest.
+        // A plain value is read by its option's codec; the section's own reading sees the rest.
         for (key, entry) in object {
             if let codec = SettingCodec.byKey["\(path).\(key)"] {
                 codec.read(&self, entry)

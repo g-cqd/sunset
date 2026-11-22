@@ -1,8 +1,8 @@
 package import Foundation
 
-/// Which blocking lists are fetched, when again, and under what name they are kept (roadmap 0022 W-c; out of the app target,
-/// roadmap 0086 D): only over HTTPS, again when older than four days (EasyList's own "Expires"), under a name made of the
-/// address's safe characters.
+/// Which blocking lists are fetched, when again, and under what name they are kept (out of the app target, so tested):
+/// only over HTTPS, again when older than four days (EasyList's own "Expires"), under a name made of the address's safe
+/// characters.
 package enum BlockingListPlan {
     /// How old a kept list may be before it is fetched again.
     package static let maxAge: TimeInterval = 4 * 24 * 3600

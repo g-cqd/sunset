@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Roadmap 0112 E: Sunset WebKit reads Sunset's jars to bring its cookies over: each store's, sealed or (Sunset running) in
-/// the clear, opened in memory only: nothing of Sunset's is written, moved or unsealed on disk.
+/// Sunset WebKit reads Sunset's jars to bring its cookies over: each store's, sealed or (Sunset running) in the clear,
+/// opened in memory only: nothing of Sunset's is written, moved or unsealed on disk.
 @Suite("Sunset's cookie jars, read by Sunset WebKit")
 struct CookieJarsReadTests {
     private let id = "studio.aemi.sunset"

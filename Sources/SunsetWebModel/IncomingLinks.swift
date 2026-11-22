@@ -1,8 +1,8 @@
 package import Foundation
 
-/// What the system hands Sunset to open, from another app or Finder (the owner's note n18): links to pages, opened as pages,
-/// and files, opened as documents. A link of any other kind (`mailto:`, `javascript:`, an app's own) is neither: the system
-/// does not send Sunset those it does not claim, and one that comes anyway is dropped.
+/// What the system hands Sunset to open, from another app or Finder: links to pages, opened as pages, and files, opened as
+/// documents. A link of any other kind (`mailto:`, `javascript:`, an app's own) is neither: the system does not send Sunset
+/// those it does not claim, and one that comes anyway is dropped.
 package enum IncomingLinks {
     package static func split(_ urls: [URL]) -> (pages: [URL], files: [String]) {
         var pages: [URL] = []
@@ -19,7 +19,7 @@ package enum IncomingLinks {
 
     /// Where a link from another app opens.
     package enum Place: Sendable, Equatable {
-        /// A peek window (the owner's note n66), moved to a Space by the person.
+        /// A peek window, moved to a Space by the person.
         case peek
         /// A tab of the window in front.
         case tab

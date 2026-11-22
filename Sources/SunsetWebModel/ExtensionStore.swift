@@ -1,9 +1,9 @@
 package import Foundation
 import SunsetPane
 
-/// The extensions installed in one profile (roadmap 0109 A, ADR-0109): each a copy in the profile's folder (a zip WebKit loads,
-/// or an unpacked folder copied as it is), listed in that folder's `index.json`: its name, on or off, in private windows or not
-/// (off by default), what the person granted at install.
+/// The extensions installed in one profile: each a copy in the profile's folder (a zip WebKit loads, or an unpacked folder
+/// copied as it is), listed in that folder's `index.json`: its name, on or off, in private windows or not (off by default),
+/// what the person granted at install.
 package struct ExtensionStore {
     package struct Installed: Codable, Equatable, Sendable, Identifiable {
         package let id: UUID

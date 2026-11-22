@@ -1,15 +1,15 @@
 import CryptoKit
 public import Foundation
 
-/// Seals what Sunset keeps (R12, roadmap 0030 step ST-2): ChaCha20-Poly1305 from the system's CryptoKit, with a key derived
-/// from the storage key for one purpose, a new nonce each time, and the thing's identity bound in, so that one sealed thing
-/// cannot stand in for another and a change to it is detected, not read.
+/// Seals what Sunset keeps: ChaCha20-Poly1305 from the system's CryptoKit, with a key derived from the storage key for one
+/// purpose, a new nonce each time, and the thing's identity bound in, so that one sealed thing cannot stand in for another
+/// and a change to it is detected, not read.
 ///
 /// The format: `SNSL`, a version byte, the key's four-byte identifier, the 12-byte nonce, the sealed bytes, the 16-byte tag.
 public struct Seal: Sendable {
     public enum Purpose: String, Sendable {
         case document, session, state, cookies, siteData
-        /// A vault's records and its index (ADR-0091): sealed with the vault's own key, never the app's.
+        /// A vault's records and its index: sealed with the vault's own key, never the app's.
         case vaultRecord, vaultIndex
     }
 

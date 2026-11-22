@@ -2,8 +2,7 @@ import Testing
 
 @testable import SunsetConfig
 
-/// The owner's note n29 (2026-11-18): "the glass type should only be shown when the glass is set for the window, and same goes
-/// for the material kind when it is set to material". What a choice only changes under another is shown under it only.
+/// What a choice only changes under another is shown under it only.
 @Suite("Settings shown only where they act") struct SettingsShownWhenTests {
     private func shown(_ id: String, _ material: Configuration.Material) -> Bool {
         var configuration = Configuration()

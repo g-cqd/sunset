@@ -1,4 +1,4 @@
-/// What a page's navigations ask of WebKit (task t115): its settings' `httpsUpgrade`, `hardening`, `globalPrivacyControl`.
+/// What a page's navigations ask of WebKit: its settings' `httpsUpgrade`, `hardening`, `globalPrivacyControl`.
 package enum HTTPSUpgrade: String, Sendable, Equatable {
     case off, fallback, ask, only
 }
@@ -14,7 +14,7 @@ extension HTTPSUpgrade {
         case failVisibly
     }
 
-    /// This machine and the local network are never upgraded (R1: reached over http at once). Under "ask", a host the person
+    /// This machine and the local network are never upgraded (reached over http at once). Under "ask", a host the person
     /// let over http on this page is kept as asked. "ask" is not WebKit's user-mediated fallback: in an app that commits
     /// `about:blank` where Safari shows its own warning (probed 2026-11-20), so a site without HTTPS loaded nothing.
     package func policy(host: String?, allowedOverHTTP: Set<String>) -> Policy {
@@ -27,8 +27,8 @@ extension HTTPSUpgrade {
         }
     }
 
-    /// An address typed without a scheme, failing over HTTPS, is tried over HTTP without a word (the owner, 2026-11-20: one
-    /// setting for both): where HTTPS comes first and http follows, or where nothing is upgraded.
+    /// An address typed without a scheme, failing over HTTPS, is tried over HTTP without a word (one setting for both):
+    /// where HTTPS comes first and http follows, or where nothing is upgraded.
     package var retriesTypedOverHTTP: Bool {
         self == .fallback || self == .off
     }
