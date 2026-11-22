@@ -1,6 +1,7 @@
 import AppKit
 import SunsetAppCore
 import SunsetConfig
+import SunsetCredentials
 import SunsetDocuments
 import SunsetRuntime
 import SunsetShell
@@ -35,6 +36,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             AppWebNotifications.start()
             AppPageSleep.start()
             AppBlocking.start()
+            AppVaultLocking.start()
             SystemAuthorizations.shared.start()
             AppConfiguration.shared.applyScheme()
             AppConfiguration.shared.applyIcon()
@@ -54,7 +56,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        MainActor.assumeIsolated { SunsetStore.shared.close() }
+        MainActor.assumeIsolated {
+            AppVaultLocking.lockAll(.quit)
+            SunsetStore.shared.close()
+        }
         WebKitFolders.tightenOwn()
     }
 
@@ -71,7 +76,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// The app ends with its last window, unless a kept entry is open and the setting keeps it running for it.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         MainActor.assumeIsolated {
-            !(AppConfiguration.shared.configuration.tabs.keepRunningForFavorites && AppFavorites.hasOpenEntry)
+            // No window is left to show a vault: every one locks, whether the app goes on running or not.
+            AppVaultLocking.lockAll(.lastWindowClosed)
+            return !(AppConfiguration.shared.configuration.tabs.keepRunningForFavorites && AppFavorites.hasOpenEntry)
         }
     }
 }
