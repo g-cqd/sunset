@@ -84,26 +84,28 @@ package final class PasswordsModel {
         return entry
     }
 
+    /// Keeps `entry`: its record alone is sealed and written; the list is changed in place, nothing else is opened again.
     package func save(_ entry: VaultEntry) throws {
         guard let vault else { throw Vault.Refused() }
         try vault.save(entry)
-        reload()
+        entries.removeAll { $0.id == entry.id }
+        entries.insert(entry, at: entries.firstIndex { Self.before(entry, $0) } ?? entries.endIndex)
     }
 
-    /// The sites never to offer saving for; none while locked.
-    package var neverSave: Set<String> {
-        (try? vault?.neverSave()) ?? []
-    }
+    /// The sites never to offer saving for; none while locked. Read with the entries when unlocking.
+    package private(set) var neverSave: Set<String> = []
 
     package func setNeverSave(_ site: String) throws {
         guard let vault else { throw Vault.Refused() }
-        try vault.setNeverSave(neverSave.union([site]))
+        let sites = neverSave.union([site])
+        try vault.setNeverSave(sites)
+        neverSave = sites
     }
 
     package func remove(_ id: UUID) throws {
         guard let vault else { throw Vault.Refused() }
         try vault.remove(entry: id)
-        reload()
+        entries.removeAll { $0.id == id }
     }
 
     private func adopt(_ vault: Vault) {
@@ -122,11 +124,19 @@ package final class PasswordsModel {
     private func locked() {
         state = .locked
         entries = []
+        neverSave = []
     }
 
+    /// Opens every record once (after unlocking): the entries by title, and the sites never to save for.
     private func reload() {
-        guard let vault, !vault.lock.isLocked, let all = try? vault.entries() else { return locked() }
+        guard let vault, !vault.lock.isLocked, let contents = try? vault.contents() else { return locked() }
         state = .unlocked
-        entries = all.sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+        entries = contents.entries.sorted(by: Self.before)
+        neverSave = contents.neverSave
+    }
+
+    /// The list's order: by title, as the Finder sorts names.
+    private static func before(_ first: VaultEntry, _ second: VaultEntry) -> Bool {
+        first.title.localizedStandardCompare(second.title) == .orderedAscending
     }
 }

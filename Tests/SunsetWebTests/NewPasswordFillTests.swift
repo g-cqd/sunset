@@ -46,7 +46,7 @@ final class NewPasswordFillTests {
 
     private func focus(_ id: String, in view: WKWebView) async throws {
         _ = try await view.callAsyncJavaScript(
-            "document.getElementById(id).dispatchEvent(new FocusEvent('focusin', { bubbles: true }))",
+            "document.getElementById(id).focus()",
             arguments: ["id": id],
             contentWorld: .page
         )
@@ -75,7 +75,7 @@ final class NewPasswordFillTests {
     @Test func `filled into the password and its confirmation, not the username`() async throws {
         let (page, view, _) = try await page()
         _ = try await view.callAsyncJavaScript("document.getElementById('n2').focus()", contentWorld: .page)
-        let filled = await page.fillNewPassword("Fresh-Pa55word")
+        let filled = await page.fillNewPassword("Fresh-Pa55word", for: try #require(URL(string: "https://example.com")))
         #expect(filled)
         let (new, confirmation, user) = (
             try await value("n2", in: view), try await value("c2", in: view), try await value("u2", in: view)

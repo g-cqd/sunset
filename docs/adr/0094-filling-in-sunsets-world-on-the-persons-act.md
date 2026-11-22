@@ -34,6 +34,11 @@ already runs in Sunset's own content world. ADR-0089 keeps Sunset's footprint ou
 - Both popovers are drawn on the window's own background, not translucent: legible in front or not.
 - **Security codes** (cards) are never filled without a reveal.
 
+- **Only the person's acts** count: a focus, a submit, a key or a click the page makes up (untrusted) shows nothing and
+  offers nothing.
+- **A fill is for one origin**: the one its suggestion was made for, checked in the page in the same turn as the fill.
+- **A secret copied** leaves the clipboard after 90 seconds, unless something else was copied since.
+
 ## Consequences
 
 Every rule above is a policy with a test (a page with a hidden field, a cross-origin frame, a look-alike host).

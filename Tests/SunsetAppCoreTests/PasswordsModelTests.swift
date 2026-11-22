@@ -77,4 +77,17 @@ struct PasswordsModelTests {
         #expect(passwords.state == .locked && passwords.entries.isEmpty)
         #expect(model(folder, time).state == .locked)
     }
+
+    @Test func `the sites never to save for: kept, read again on unlocking, none in memory while locked`() throws {
+        let time = TestTime()
+        let folder = FileManager.default.temporaryDirectory.appending(path: "pw-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let passwords = model(folder, time)
+        _ = try passwords.create(password: "pw", again: "pw")
+        try passwords.setNeverSave("example.com")
+        #expect(passwords.neverSave == ["example.com"])
+        passwords.lock()
+        #expect(passwords.neverSave.isEmpty)
+        #expect(passwords.unlock(password: "pw") && passwords.neverSave == ["example.com"])
+    }
 }

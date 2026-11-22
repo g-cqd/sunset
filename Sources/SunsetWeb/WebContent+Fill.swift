@@ -1,39 +1,33 @@
+package import Foundation
 import WebKit
 
+/// Filling a page's fields, from Sunset's own world, on the person's act (roadmap 0094, ADR-0094). Each fill is for the
+/// origin its suggestion was made for: the script itself checks the page is still there, in the same turn as it fills, so
+/// a page that went elsewhere meanwhile (a redirect, a navigation while the suggestion was shown) gets nothing.
 extension WebContent {
-    /// Fills the page's sign-in form with a username and a password, on the person's act (roadmap 0094 C): the main frame's visible
-    /// fields only, from Sunset's own world. Returns whether a password field was filled.
-    package func fill(username: String, password: String) async -> Bool {
-        guard let view = webView else { return false }
-        let filled = try? await view.callAsyncJavaScript(
-            PasswordFillScript.fill,
-            arguments: ["username": username, "secret": password],
-            in: nil,
-            contentWorld: .defaultClient
-        )
-        return filled as? Bool ?? false
+    /// A username and a password into the sign-in form of the field that has the keyboard (its visible fields only).
+    /// Returns whether a password field was filled.
+    package func fill(username: String, password: String, for origin: URL) async -> Bool {
+        await fill(PasswordFillScript.fill, ["username": username, "secret": password], for: origin)
     }
 
-    /// Fills `password` into the sign-up form of the field that has the keyboard: its password and confirmation fields,
-    /// from Sunset's own world, on the person's act (roadmap 0094 E). Returns whether a field was filled.
-    package func fillNewPassword(_ password: String) async -> Bool {
-        guard let view = webView else { return false }
-        let filled = try? await view.callAsyncJavaScript(
-            PasswordFillScript.fillNew,
-            arguments: ["secret": password],
-            in: nil,
-            contentWorld: .defaultClient
-        )
-        return filled as? Bool ?? false
+    /// A new password into the sign-up form of the field that has the keyboard: its password and confirmation fields.
+    package func fillNewPassword(_ password: String, for origin: URL) async -> Bool {
+        await fill(PasswordFillScript.fillNew, ["secret": password], for: origin)
     }
 
-    /// Fills a one-time code into the code field that has the keyboard, or one character a box into a code split in boxes
-    /// (roadmap 0094 F), from Sunset's own world, on the person's act. Returns whether it was filled.
-    package func fillCode(_ code: String) async -> Bool {
+    /// A one-time code into the code field that has the keyboard, or one character a box into a code split in boxes.
+    package func fillCode(_ code: String, for origin: URL) async -> Bool {
+        await fill(PasswordFillScript.fillCode, ["code": code], for: origin)
+    }
+
+    private func fill(_ script: String, _ arguments: [String: Any], for origin: URL) async -> Bool {
         guard let view = webView else { return false }
+        var arguments = arguments
+        arguments["expected"] = origin.absoluteString.trimmingCharacters(in: ["/"])
         let filled = try? await view.callAsyncJavaScript(
-            PasswordFillScript.fillCode,
-            arguments: ["code": code],
+            "if (location.origin !== expected) return false;\n" + script,
+            arguments: arguments,
             in: nil,
             contentWorld: .defaultClient
         )

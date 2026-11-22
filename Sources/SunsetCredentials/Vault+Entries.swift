@@ -29,6 +29,19 @@ extension Vault {
     /// The fixed id of the never-save record.
     static let neverSaveRecord = UUID(uuid: (0x5E, 0x7C, 0, 0, 0, 0, 0x40, 0, 0x80, 0, 0, 0, 0, 0, 0, 0x01))
 
+    /// What the vault holds, read in one pass: each record opened once.
+    public func contents() throws -> (entries: [VaultEntry], templates: [EntryTemplate], neverSave: Set<String>) {
+        var (entries, templates, never) = ([VaultEntry](), [EntryTemplate](), Set<String>())
+        for record in try records() {
+            switch record {
+                case .entry(let entry): entries.append(entry)
+                case .template(let template): templates.append(template)
+                case .neverSave(let sites): never.formUnion(sites)
+            }
+        }
+        return (entries, templates, never)
+    }
+
     /// Every entry, in no order that means anything.
     public func entries() throws -> [VaultEntry] {
         try records().compactMap { if case .entry(let entry) = $0 { entry } else { nil } }

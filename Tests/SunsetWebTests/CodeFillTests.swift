@@ -52,7 +52,7 @@ final class CodeFillTests {
         let (_, view, host) = try await page()
         for id in ["tagged", "named", "search", "b0"] {
             _ = try await run(
-                "document.getElementById('\(id)').dispatchEvent(new FocusEvent('focusin', { bubbles: true }))",
+                "document.getElementById('\(id)').focus()",
                 in: view
             )
         }
@@ -63,10 +63,10 @@ final class CodeFillTests {
     @Test func `filled into its field, or one character a box`() async throws {
         let (page, view, _) = try await page()
         _ = try await run("document.getElementById('tagged').focus()", in: view)
-        #expect(await page.fillCode("123456"))
+        #expect(await page.fillCode("123456", for: try #require(URL(string: "https://example.com"))))
         #expect(try await run("return document.getElementById('tagged').value", in: view) as? String == "123456")
         _ = try await run("document.getElementById('b0').focus()", in: view)
-        #expect(await page.fillCode("654321"))
+        #expect(await page.fillCode("654321", for: try #require(URL(string: "https://example.com"))))
         let boxes = try await run(
             "return [...document.querySelectorAll('#boxes input')].map(i => i.value).join('')",
             in: view

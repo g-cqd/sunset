@@ -43,7 +43,9 @@ final class AppPasswordFill: PasswordFillHost {
                 // A sign-in form's field: the site's logins; the one clicked fills the form.
                 case .username, .password:
                     shown(LoginMatch.offered(model.entries, for: field.origin, site: Self.site)) { logins in
-                        PasswordSuggestions(logins: logins) { [weak self] entry in self?.fill(entry, in: page) }
+                        PasswordSuggestions(logins: logins) { [weak self] entry in
+                            self?.fill(entry, in: page, for: field.origin)
+                        }
                     }
             }
         guard let content else { return popover.close() }
@@ -79,7 +81,7 @@ final class AppPasswordFill: PasswordFillHost {
         let password = NewPassword.make(rules: NewPassword.rules(page: field.rules, site: site))
         return AnyView(
             StrongPasswordOffer(password: password) { [weak self] in
-                self?.filling { _ = await page.fillNewPassword(password) }
+                self?.filling { _ = await page.fillNewPassword(password, for: field.origin) }
             }
         )
     }
@@ -89,14 +91,14 @@ final class AppPasswordFill: PasswordFillHost {
         shown(CodeOffer.offered(model.entries, for: field.origin, site: Self.site)) { offers in
             CodeSuggestions(offers: offers) { [weak self] offer in
                 let code = offer.field.code(at: Runtime.live.now())
-                self?.filling { _ = await page.fillCode(code) }
+                self?.filling { _ = await page.fillCode(code, for: field.origin) }
             }
         }
     }
 
-    private func fill(_ entry: VaultEntry, in page: WebContent) {
+    private func fill(_ entry: VaultEntry, in page: WebContent, for origin: URL) {
         guard let credentials = LoginMatch.credentials(of: entry) else { return popover.close() }
-        filling { _ = await page.fill(username: credentials.username, password: credentials.password) }
+        filling { _ = await page.fill(username: credentials.username, password: credentials.password, for: origin) }
     }
 
     /// `content` of `items`; none when there are none.

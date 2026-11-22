@@ -27,6 +27,7 @@ package enum DocumentLinkMenu {
     ///   - url: where the link leads.
     ///   - board: the pasteboard; the general one by default.
     /// - Returns: What it did, for the person to be told.
+    @MainActor
     @discardableResult
     package static func copy(_ url: URL, to board: NSPasteboard = .general) -> ActionFeedback {
         Clipboard.copy(

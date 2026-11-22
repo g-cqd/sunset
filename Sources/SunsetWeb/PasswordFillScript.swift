@@ -8,7 +8,10 @@ enum PasswordFillScript {
           const post = (message) => webkit.messageHandlers.\(handler).postMessage(message);
           \(fields)
           let shown = null;
+          // Only what the person does: an event the page made up (a focus, a submit, a key or a click it dispatches)
+          // shows nothing and offers nothing.
           addEventListener('focusin', (e) => {
+            if (!e.isTrusted) return;
             const role = roleOf(e.target);
             if (role && visible(e.target)) {
               const r = e.target.getBoundingClientRect();
@@ -21,6 +24,7 @@ enum PasswordFillScript {
             }
           }, true);
           addEventListener('focusout', (e) => {
+            if (!e.isTrusted) return;
             if (e.target === shown && !e.relatedTarget) { shown = null; post({ kind: 'blur' }); }
           }, true);
           if (!\(saving)) return;
@@ -34,9 +38,10 @@ enum PasswordFillScript {
             post({ kind: 'sent', username: user ? user.value : '', password: password.value,
                    x: r.left, y: r.top, width: r.width, height: r.height });
           };
-          addEventListener('submit', (e) => send(e.target), true);
-          addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.form !== undefined) send(scope(e.target)); }, true);
+          addEventListener('submit', (e) => { if (e.isTrusted) send(e.target); }, true);
+          addEventListener('keydown', (e) => { if (e.isTrusted && e.key === 'Enter' && e.target && e.target.form !== undefined) send(scope(e.target)); }, true);
           addEventListener('click', (e) => {
+            if (!e.isTrusted) return;
             const button = e.target && e.target.closest && e.target.closest('button, input[type=submit], [role=button]');
             if (button) send(scope(button));
           }, true);

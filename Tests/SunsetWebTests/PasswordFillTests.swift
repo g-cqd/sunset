@@ -65,7 +65,12 @@ final class PasswordFillTests {
 
         /// Until `count` events have been told.
         func wait(for count: Int) async {
-            while events.count < count {
+            await wait { $0.events.count >= count }
+        }
+
+        /// Until `done` holds of what was told.
+        func wait(until done: (Host) -> Bool) async {
+            while !done(self) {
                 await withCheckedContinuation { waiting = $0 }
             }
         }
@@ -95,10 +100,34 @@ final class PasswordFillTests {
 
     private func focus(_ id: String, in view: WKWebView) async throws {
         _ = try await view.callAsyncJavaScript(
-            "document.getElementById(id).dispatchEvent(new FocusEvent('focusin', { bubbles: true }))",
+            "document.getElementById(id).focus()",
             arguments: ["id": id],
             contentWorld: .page
         )
+    }
+
+    /// Fills the form, then presses Return in its password field as the person would: a key from AppKit, which the page
+    /// sees as real (what a script makes up is not believed).
+    private func signIn(in view: WKWebView) async throws {
+        _ = try await view.callAsyncJavaScript(
+            "document.getElementById('u').value = 'ada'; document.getElementById('p').value = 'pw1'; document.getElementById('p').focus()",
+            contentWorld: .page
+        )
+        let returnKey = try #require(
+            NSEvent.keyEvent(
+                with: .keyDown,
+                location: .zero,
+                modifierFlags: [],
+                timestamp: 0,
+                windowNumber: view.window?.windowNumber ?? 0,
+                context: nil,
+                characters: "\r",
+                charactersIgnoringModifiers: "\r",
+                isARepeat: false,
+                keyCode: 36
+            )
+        )
+        view.keyDown(with: returnKey)
     }
 
     private func value(_ id: String, in view: WKWebView) async throws -> String {
@@ -113,7 +142,7 @@ final class PasswordFillTests {
         let (_, view, host) = try await page()
         // A window in the background has no focus to give: the focus is told as the browser tells it.
         try await focus("u", in: view)
-        await host.wait(for: 1)
+        await host.wait { $0.focused != nil }
         let field = try #require(host.focused)
         #expect(field.role == .username && field.frame.width > 0 && field.frame.height > 0)
         #expect(field.origin == URL(string: "https://example.com"))
@@ -126,7 +155,11 @@ final class PasswordFillTests {
         async throws
     {
         let (page, view, _) = try await page()
-        let filled = await page.fill(username: "ada@example.com", password: "s3cret")
+        let filled = await page.fill(
+            username: "ada@example.com",
+            password: "s3cret",
+            for: try #require(URL(string: "https://example.com"))
+        )
         #expect(filled)
         let (user, password) = (try await value("u", in: view), try await value("p", in: view))
         #expect(user == "ada@example.com" && password == "s3cret")
@@ -140,20 +173,44 @@ final class PasswordFillTests {
 
     @Test func `a password sent is told with its username; in a private window never`() async throws {
         let (_, view, host) = try await page()
-        _ = try await view.callAsyncJavaScript(
-            "document.getElementById('u').value = 'ada'; document.getElementById('p').value = 'pw1'; document.getElementById('go').click()",
-            contentWorld: .page
-        )
-        await host.wait(for: 1)
+        try await signIn(in: view)
+        await host.wait { $0.sent != nil }
         let origin = try #require(URL(string: "https://example.com"))
         let sent = try #require(host.sent)
         #expect(sent.origin == origin && sent.username == "ada" && sent.password == "pw1" && sent.frame.width > 0)
         let (_, privateView, privateHost) = try await page(private: true)
-        _ = try await privateView.callAsyncJavaScript(
-            "document.getElementById('u').value = 'ada'; document.getElementById('p').value = 'pw1'; document.getElementById('go').click()",
-            contentWorld: .page
-        )
+        try await signIn(in: privateView)
         _ = try await privateView.callAsyncJavaScript("await new Promise(r => setTimeout(r, 200))", contentWorld: .page)
         #expect(privateHost.sent == nil)
+    }
+
+    @Test func `what the page makes up is not believed: a focus or a submit it dispatches tells nothing`() async throws
+    {
+        let (_, view, host) = try await page()
+        _ = try await view.callAsyncJavaScript(
+            """
+            document.getElementById('p').dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+            document.getElementById('u').value = 'ada'; document.getElementById('p').value = 'forged';
+            document.getElementById('f').dispatchEvent(new Event('submit', { bubbles: true }));
+            document.getElementById('go').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+            """,
+            contentWorld: .page
+        )
+        // A real focus afterwards is told: the made-up ones came first and were not (the browser's own focus of the
+        // first field when the page loads is real, and told).
+        try await focus("p", in: view)
+        await host.wait { $0.events.contains("focus password") }
+        #expect(host.events.filter { $0 == "focus password" }.count == 1 && host.sent == nil)
+    }
+
+    @Test func `never filled into another origin than the one offered: a page gone elsewhere meanwhile gets nothing`()
+        async throws
+    {
+        let (page, view, _) = try await page()
+        let elsewhere = try #require(URL(string: "https://evil.example.net"))
+        #expect(await page.fill(username: "ada", password: "s3cret", for: elsewhere) == false)
+        #expect(await page.fillNewPassword("s3cret", for: elsewhere) == false)
+        #expect(await page.fillCode("123456", for: elsewhere) == false)
+        #expect(try await value("p", in: view).isEmpty)
     }
 }

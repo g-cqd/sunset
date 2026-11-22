@@ -5,11 +5,11 @@ import Testing
 /// A click shows whether it went through or was blocked, a copy that it copied: every copy goes through `Clipboard.copy`,
 /// which says what it did.
 @Suite("Every copy says it copied") struct ClipboardGateTests {
-    /// The clipboard itself; a terminal's copy of its selection (Cmd-C, as every terminal, silent) and a program's write
+    /// The clipboard itself (and its clearing of a secret copied); a terminal's copy of its selection (Cmd-C, as every terminal, silent) and a program's write
     /// through OSC 52 (its own policy, white paper §9; the model asks, the app writes: `TerminalModel+App.swift`), which are
     /// not clicks.
     static let exempt: Set<String> = [
-        "Clipboard.swift", "TerminalNSView+Pasteboard.swift", "TerminalModel+App.swift"
+        "Clipboard.swift", "ClipboardExpiry.swift", "TerminalNSView+Pasteboard.swift", "TerminalModel+App.swift"
     ]
 
     @Test func `no code writes to the pasteboard but the clipboard's`() {
