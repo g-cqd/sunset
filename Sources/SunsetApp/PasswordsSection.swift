@@ -47,7 +47,7 @@ struct PasswordsSection: View {
     }
 
     @ViewBuilder private var list: some View {
-        let found = model.entries.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }
+        let found = EntrySearch.matching(query, in: model.entries)
         if found.isEmpty {
             Text(model.entries.isEmpty ? "No entries yet: + makes one" : "No entry matches")
                 .foregroundStyle(.secondary)
