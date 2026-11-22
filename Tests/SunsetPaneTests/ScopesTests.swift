@@ -18,6 +18,11 @@ struct ScopesTests {
         #expect(!scopes.allows(nothing) && !scopes.allows(kind: "terminal") && scopes.allows(kind: "document"))
         #expect(Scopes.Scope.allCases.map(\.kind) == ["terminal", "web", "document", "passwords"])
         #expect(Scopes.Scope.terminal.kind == PaneDescriptor.terminalKind)
+        #expect(Scopes.Scope.passwords.kind == PaneDescriptor.passwordsKind)
+        #expect(
+            !Scopes().allows(PaneDescriptor.passwords) && Scopes(passwords: true).allows(PaneDescriptor.passwords),
+            "a Passwords tab follows its scope"
+        )
         #expect(Scopes.Scope.documents.kind == PaneDescriptor.documentKind)
         #expect(Scopes.Scope.allCases.map(\.name) == ["terminals", "the web", "documents", "passwords"])
         #expect(scopes[.documents] && !scopes[.web])

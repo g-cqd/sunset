@@ -130,6 +130,7 @@ package struct TabLabel: View {
             return .symbol(rendered ? PaneDescriptor.renderedDocumentSymbol : PaneDescriptor.documentSymbol)
         }
         if saved.kind == PaneDescriptor.settingsKind { return .symbol(PaneDescriptor.settingsSymbol) }
+        if saved.kind == PaneDescriptor.passwordsKind { return .symbol("key") }
         guard saved.kind == PaneDescriptor.terminalKind else { return .symbol("square.dashed") }
         if let command, !command.isEmpty { return .tab(TabGlyph(kind: .command, letter: nil)) }
         return .tab(TabGlyph.make(directory: saved.directory, command: nil, home: NSHomeDirectory()))

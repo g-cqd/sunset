@@ -9,9 +9,10 @@ import SwiftUI
 struct PasswordsSection: View {
     let layout: LayoutMetrics
     let query: String
+    /// The window: where an entry chosen opens.
+    let tabs: TabsModel?
     @State private var password = ""
     @State private var refused = false
-    @State private var opened: VaultEntry.ID?
     private let model = AppPasswords.model
 
     var body: some View {
@@ -62,9 +63,13 @@ struct PasswordsSection: View {
                 .padding(.top, Design.Space.m)
         }
         ForEach(found) { entry in
-            PasswordEntryRow(entry: entry, isOpen: opened == entry.id, model: model) {
-                opened = opened == entry.id ? nil : entry.id
-            }
+            PasswordEntryRow(
+                entry: entry,
+                isSelected: tabs.flatMap(AppPasswords.content(in:))?.selected == entry.id,
+                layout: layout,
+                open: { if let tabs { AppPasswords.show(entry.id, in: tabs) } },
+                remove: { try? model.remove(entry.id) }
+            )
         }
     }
 }

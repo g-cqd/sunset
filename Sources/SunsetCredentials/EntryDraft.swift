@@ -44,6 +44,18 @@ public struct EntryDraft: Equatable, Sendable {
         return entry.add(EntryField(name: name, kind: kind), to: section)
     }
 
+    /// Moves the fields at `offsets` of `section` to `destination`, as a list's move gives them.
+    public mutating func move(in section: UUID, from offsets: IndexSet, to destination: Int) {
+        guard let index = entry.sections.firstIndex(where: { $0.id == section }) else { return }
+        let fields = entry.sections[index].fields
+        let moved = offsets.filter(fields.indices.contains).map { fields[$0] }
+        var rest = fields.enumerated().filter { !offsets.contains($0.offset) }.map(\.element)
+        // The destination counts the moved fields still in place before it.
+        let before = offsets.count { $0 < destination }
+        rest.insert(contentsOf: moved, at: min(max(destination - before, 0), rest.count))
+        entry.sections[index].fields = rest
+    }
+
     /// A password made by `recipe`, with the system's generator, put into `field`.
     public mutating func generate(into field: UUID, recipe: PasswordRecipe) {
         var random = SystemRandomNumberGenerator()

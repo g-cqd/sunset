@@ -13,6 +13,8 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
 
     /// The settings, as a tab. Its state names the topic shown.
     public static let settingsKind = "settings"
+    /// The vault's page: the entry chosen in the Library's Passwords section (its scope's kind).
+    public static let passwordsKind = "passwords"
     public static let settingsSymbol = "gearshape"
     public static let helpKind = "help"
     /// A web page (`SunsetWeb`). Its state's "url" is the address it opens.
@@ -46,6 +48,9 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
     public static func settings(topic: String) -> PaneDescriptor {
         PaneDescriptor(kind: settingsKind, state: ["topic": topic, "title": "Settings"])
     }
+
+    /// The vault's page. Which entry it shows is not kept: it opens on none.
+    public static let passwords = PaneDescriptor(kind: passwordsKind, state: ["title": "Passwords"])
 
     /// Help, on the topic `topic`.
     public static func help(topic: String) -> PaneDescriptor {

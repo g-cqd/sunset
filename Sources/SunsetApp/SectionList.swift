@@ -60,7 +60,7 @@ struct SectionList: View {
                     help: { AppHelp.show(HelpTree.topic(about: AppSettings.content(in: tabs)?.topic), in: tabs) }
                 )
             case .passwords:
-                PasswordsSection(layout: layout, query: query)
+                PasswordsSection(layout: layout, query: query, tabs: tabs)
             case .tabs:
                 EmptyView()
         }

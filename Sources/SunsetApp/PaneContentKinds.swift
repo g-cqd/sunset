@@ -43,6 +43,10 @@ import SunsetWeb
                 let settings = SettingsContent(descriptor)
                 settings.onChange = changed
                 return settings
+            case PasswordsContent.kind:
+                let passwords = PasswordsContent()
+                passwords.onChange = changed
+                return passwords
             case HelpContent.kind:
                 let help = HelpContent(descriptor)
                 help.onChange = changed
