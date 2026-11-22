@@ -3,7 +3,7 @@ import Foundation
 
 /// The key a factor wraps a vault's key with, from the factor's secret: HKDF-SHA256, salted by the factor's kind, bound to
 /// the vault (ADR-0091). For secrets with a key's strength (a recovery code, the Secure Enclave's wrap), not passwords.
-enum FactorKey {
+public enum FactorKey {
     static func derive(_ secret: Data, kind: String, vault: UUID) -> Data {
         HKDF<SHA256>
             .deriveKey(

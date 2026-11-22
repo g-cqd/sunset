@@ -190,7 +190,7 @@ let package = Package(
         tests("SunsetStorageTests", ["SunsetTestSupport", "SunsetStorage"]),
         // Sunset's own password management (ADR-0090, roadmap 0091): the vaults, their keys and records; no UI.
         module("SunsetCredentials", ["SunsetStorage", "SunsetRuntime", .product(name: "AemiArgon2", package: "aemi")]),
-        tests("SunsetCredentialsTests", ["SunsetCredentials", "SunsetStorage"]),
+        tests("SunsetCredentialsTests", ["SunsetCredentials", "SunsetStorage", "SunsetTestSupport", "SunsetRuntime"]),
         module("SunsetConfig", [.product(name: "AemiJSONCore", package: "AemiJSON"), "SunsetMetrics"]),
         tests("SunsetConfigTests", ["SunsetTestSupport", "SunsetConfig", "SunsetMetrics"]),
         .target(
