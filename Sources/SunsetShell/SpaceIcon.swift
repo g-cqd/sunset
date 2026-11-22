@@ -11,7 +11,6 @@ struct SpaceIcon: View {
         } else {
             Text(space.name.prefix(1).uppercased())
                 .font(.system(size: Design.Symbol.row, weight: .semibold, design: .rounded))
-                .foregroundStyle(.secondary)
         }
     }
 }

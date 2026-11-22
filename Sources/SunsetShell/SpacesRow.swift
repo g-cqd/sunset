@@ -17,54 +17,81 @@ package struct SpacesRow: View {
     /// The Space whose icon is being dragged.
     @State private var dragged: Space.ID?
 
-    package init(tabs: TabsModel) {
+    /// Dots always (`sidebar.spaces` "dots"), the shown Space's too.
+    let onlyDots: Bool
+
+    package init(tabs: TabsModel, onlyDots: Bool = false) {
         self.tabs = tabs
+        self.onlyDots = onlyDots
     }
 
     package var body: some View {
         if let spaces = tabs.spaces, spaces.spaces.count > 1 {
-            // Centred between the buttons at the two ends; scrolled only when there are more than fit.
+            // Centred between the buttons at the two ends: icons; dots, the shown Space's icon among them, once they do not
+            // fit; dots always when asked (`sidebar.spaces`); scrolled only when even those do not fit.
             ViewThatFits(in: .horizontal) {
-                icons(spaces)
-                ScrollView(.horizontal, showsIndicators: false) { icons(spaces) }
+                if !onlyDots { icons(spaces, dots: false) }
+                icons(spaces, dots: true)
+                ScrollView(.horizontal, showsIndicators: false) { icons(spaces, dots: true) }
                     .bouncesOnlyWhenScrolling()
             }
+            .animation(animation, value: tabs.space.space.id)
             .frame(maxWidth: .infinity)
             .accessibilityElement(children: .contain)
             .accessibilityLabel("Spaces")
         }
     }
 
-    private func icons(_ spaces: SpacesModel) -> some View {
-        HStack(spacing: Design.Space.hair) {
+    private func icons(_ spaces: SpacesModel, dots: Bool) -> some View {
+        HStack(spacing: dots ? 0 : Design.Space.hair) {
             ForEach(Array(spaces.spaces.enumerated()), id: \.element.space.id) { index, space in
-                icon(space, at: index, in: spaces)
+                icon(
+                    space,
+                    at: index,
+                    in: spaces,
+                    dot: dots && (space !== tabs.space || onlyDots)
+                )
             }
         }
     }
 
-    /// A Space's icon: a button of the sidebar, of the size and with the hover of the + and the Library; the one shown
-    /// has the accent's fill under it.
-    private func icon(_ space: SpaceModel, at index: Int, in spaces: SpacesModel) -> some View {
+    /// A Space's icon: a button of the sidebar, of the size and with the hover of the + and the Library; the one shown has
+    /// the selection's fill under it, as a selected tab. As a dot (`dot`), a narrower button: the shown one's dot larger and
+    /// bright, the others small and dim.
+    private func icon(_ space: SpaceModel, at index: Int, in spaces: SpacesModel, dot: Bool) -> some View {
         let shown = space === tabs.space
         return SidebarIconButton(
             help: index < 9 ? "\(space.space.name) (\u{2325}\u{2318}\(index + 1))" : space.space.name,
             menu: AnyView(menu(space, at: index, in: spaces)),
             action: { tabs.show(spaceInOrder: space) },
             label: {
-                SpaceIcon(space: space.space)
-                    // Something in it asked for attention while no window showed it (S-e).
-                    .overlay(alignment: .topTrailing) {
-                        if space.needsAttention && !shown {
-                            Circle().fill(accent.color).frame(width: Design.Symbol.mark, height: Design.Symbol.mark)
-                                .offset(x: Design.Space.xs, y: -Design.Space.xs)
-                                .accessibilityLabel("Needs attention")
-                        }
+                Group {
+                    if dot {
+                        Circle()
+                            .frame(
+                                width: shown ? Design.SpaceDot.shown : Design.SpaceDot.size,
+                                height: shown ? Design.SpaceDot.shown : Design.SpaceDot.size
+                            )
+                            .opacity(shown ? 1 : Design.Fill.inkSecondary)
+                    } else {
+                        SpaceIcon(space: space.space)
                     }
+                }
+                // The shown one in white (primary), as the selected tab's ink; the others as the bar's other glyphs.
+                .foregroundStyle(shown ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary))
+                // Something in it asked for attention while no window showed it (S-e).
+                .overlay(alignment: .topTrailing) {
+                    if space.needsAttention && !shown {
+                        Circle().fill(accent.color).frame(width: Design.Symbol.mark, height: Design.Symbol.mark)
+                            .offset(x: Design.Space.xs, y: -Design.Space.xs)
+                            .accessibilityLabel("Needs attention")
+                    }
+                }
             }
         )
+        .environment(\.sidebarButtonMetrics, dot ? metrics.narrowed(to: Design.SpaceDot.button) : metrics)
         .background(
-            shown ? AnyShapeStyle(accent.color.opacity(Design.Fill.target)) : AnyShapeStyle(Color.clear),
+            Color.primary.opacity(shown && !dot ? Design.Fill.selected : 0),
             in: .rect(cornerRadius: metrics.radius, style: .continuous)
         )
         .accessibilityLabel(space.space.name)

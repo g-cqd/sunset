@@ -1,6 +1,7 @@
 import SunsetConfig
 import SunsetPane
 import SunsetShell
+import SunsetShellBridge
 import SunsetWeb
 import SwiftUI
 
@@ -34,7 +35,10 @@ struct SidebarBottomBar: View {
             // The Spaces, centred between the two ends: there once a second exists. The row
             // takes the width between the buttons; with one Space it is not there and the width is left empty.
             Spacer(minLength: 0)
-            SpacesRow(tabs: tabs)
+            SpacesRow(
+                tabs: tabs,
+                onlyDots: ShellSettings(AppConfiguration.shared.configuration).sidebar.spaces == "dots"
+            )
             Spacer(minLength: 0)
             if side == .left {
                 plus

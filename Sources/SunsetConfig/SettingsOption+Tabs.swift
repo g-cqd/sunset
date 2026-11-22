@@ -161,6 +161,14 @@ extension SettingsOption {
                     + "the same lists (⌘Y)."
             ),
             choice(
+                "sidebar.spaces",
+                "Spaces",
+                "spaces switcher dots compact icons bottom foot",
+                \.sidebar.spaces,
+                [(.auto, "Icons, dots when many"), (.dots, "Dots")]
+            )
+            .noted("As dots, the Space shown is the one that stands out."),
+            choice(
                 "sidebar.documentSort",
                 "Order of documents",
                 "sort latest name kind changed",

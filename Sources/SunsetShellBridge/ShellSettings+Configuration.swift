@@ -12,6 +12,7 @@ extension ShellSettings {
         sidebar.side = configuration.sidebar.side == .left ? .left : .right
         sidebar.library = configuration.sidebar.library
         sidebar.separators = configuration.sidebar.separators
+        sidebar.spaces = configuration.sidebar.spaces.rawValue
         sidebar.previews = configuration.sidebar.previews
         sidebar.previewPages = configuration.sidebar.previewPages
         sidebar.previewTerminals = configuration.sidebar.previewTerminals

@@ -22,6 +22,8 @@ extension Configuration {
         public var documentSort = DocumentSort.changed
         /// The lines between the Pinned grid, the Favorites and the tabs; off, their space stays.
         public var separators = true
+        /// How the Spaces show at the sidebar's foot (`SpacesStyle`).
+        public var spaces = SpacesStyle.auto
         /// A card when a row is pointed at (`previews`), and of which kinds.
         public var previews = true
         public var previewPages = true

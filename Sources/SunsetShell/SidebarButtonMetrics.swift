@@ -22,6 +22,15 @@ package struct SidebarButtonMetrics: Sendable {
     }
 }
 
+extension SidebarButtonMetrics {
+    /// The same button, `width` wide (a Space's dot).
+    package func narrowed(to width: Double) -> Self {
+        var narrow = self
+        narrow.size.width = width
+        return narrow
+    }
+}
+
 extension EnvironmentValues {
     @Entry package var sidebarButtonMetrics = SidebarButtonMetrics()
 }

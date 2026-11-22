@@ -9,11 +9,10 @@ struct PasswordsActions: View {
     let model: PasswordsModel
     /// The window, where a new entry opens to be filled in.
     let tabs: TabsModel
-    let size: CGSize
 
     var body: some View {
         if model.state == .unlocked {
-            SectionMenuButton(symbol: "plus", label: "New Entry", size: size) {
+            SidebarIconMenu(symbol: "plus", help: "New Entry") {
                 ForEach(EntryTemplate.shipped) { template in
                     Button(template.name, systemImage: template.symbol) {
                         guard let made = try? model.add(from: template, title: "") else { return }
