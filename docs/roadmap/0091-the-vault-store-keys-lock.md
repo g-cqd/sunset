@@ -17,4 +17,4 @@ Research: docs/research/credentials/vault.md. ADR-0090, ADR-0091 (proposed).
 | E | The unlock sheet, the menu, Settings' page; Help | not-started |
 | F | Measured: unlock time, opening a 10,000-entry vault (release, percentiles) | not-started |
 
-Not done: D's capture exclusion (with E), E–F; a vault is not yet made or shown anywhere.
+Not done: D's capture exclusion (with E), E–F. A vault can be made, opened and unlocked (`Vault`, its factors kept in its file: 2026-11-22), but nothing in the app does so yet; Touch ID and two factors at once are not yet slots of a made vault.
