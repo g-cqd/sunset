@@ -7,33 +7,24 @@ import SwiftUI
 /// (`MediaStackScroll`); one that goes sideways is left to the sidebar (the swipe between Spaces).
 ///
 /// A test in the background cannot scroll: the numbers are tested (`MediaStackTests`), this is not.
-struct NowPlayingScrollCatcher: NSViewRepresentable {
+struct NowPlayingScrollCatcher: View {
     let scrolled: @MainActor (Int) -> Void
+    @State private var scroll = Scroll()
 
-    func makeNSView(context: Context) -> CatcherView {
-        let view = CatcherView()
-        view.scrolled = scrolled
-        return view
+    /// What the scroll has gone so far, kept across events.
+    final class Scroll {
+        var cards = MediaStackScroll(threshold: Design.NowPlaying.scrollStep)
     }
 
-    func updateNSView(_ view: CatcherView, context: Context) {
-        view.scrolled = scrolled
-    }
-
-    static func dismantleNSView(_ view: CatcherView, coordinator: ()) {
-        view.stop()
-    }
-
-    final class CatcherView: ScrollCatcherView {
-        var scrolled: @MainActor (Int) -> Void = { _ in }
-        private var scroll = MediaStackScroll(threshold: Design.NowPlaying.scrollStep)
-
-        override func take(_ event: NSEvent) -> Bool {
-            guard isOver(event), abs(event.scrollingDeltaY) > abs(event.scrollingDeltaX) else { return false }
+    var body: some View {
+        EventCatcher(events: .scrollWheel) { event, view in
+            guard (view as? EventCatcherView)?.isOver(event) == true,
+                abs(event.scrollingDeltaY) > abs(event.scrollingDeltaX)
+            else { return false }
             // Fingers up move the stack up: the next card comes to the front.
-            let cards = scroll.add(-event.scrollingDeltaY)
+            let cards = scroll.cards.add(-event.scrollingDeltaY)
             if cards != 0 { scrolled(cards) }
-            if event.phase == .ended || event.phase == .cancelled { scroll.end() }
+            if event.phase == .ended || event.phase == .cancelled { scroll.cards.end() }
             return true
         }
     }

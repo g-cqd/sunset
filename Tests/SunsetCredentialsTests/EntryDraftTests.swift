@@ -45,4 +45,23 @@ struct EntryDraftTests {
         #expect(draft.entry.sections[0].fields.map(\.name) == ["Website", "One-Time Code", "Password", "Username"])
         #expect(draft.isChanged)
     }
+
+    @Test func `a code read from a QR code sets up the entry: its code field, and the title and username left empty`()
+        throws
+    {
+        let code = try OneTimeCodeURI("otpauth://totp/GitHub:ada?secret=JBSWY3DPEHPK3PXP&issuer=GitHub")
+        var login = EntryDraft(EntryTemplate.login.makeEntry(title: ""))
+        login.setUp(code)
+        #expect(login.entry.title == "GitHub" && login.entry.field(named: "Username")?.value == "ada")
+        #expect(login.entry.field(named: "One-Time Code")?.value == code.uri)
+        var named = EntryDraft(EntryTemplate.login.makeEntry(title: "Work"))
+        named.setUp(code)
+        #expect(named.entry.title == "Work", "a title already there is kept")
+        var note = EntryDraft(EntryTemplate.secureNote.makeEntry(title: "Recovery"))
+        note.setUp(code)
+        #expect(
+            note.entry.sections.flatMap(\.fields).map(\.kind) == [.oneTimeCode],
+            "a field made where there was none"
+        )
+    }
 }

@@ -12,6 +12,8 @@ struct PasswordFieldRow: View {
     let problem: String?
     @Binding var value: String
     let generate: () -> Void
+    /// A code read from a QR code's picture (the clipboard's, or a file's) sets the entry up.
+    let readCode: @MainActor (OneTimeCodeURI) -> Void
     let remove: () -> Void
     @State private var hovered = false
 
@@ -62,7 +64,8 @@ struct PasswordFieldRow: View {
             Menu {
                 if field.kind == .concealed { Button("Generate Password", action: generate) }
                 if field.kind == .oneTimeCode {
-                    Button("Read from QR Code Image\u{2026}") { QRCodeImagePicker.read { value = $0 } }
+                    Button("Paste QR Code") { pasteCode() }
+                    Button("Read from QR Code Image\u{2026}") { QRCodeImagePicker.read(into: readCode) }
                 }
                 Button("Remove Field", role: .destructive, action: remove)
             } label: {
@@ -74,6 +77,17 @@ struct PasswordFieldRow: View {
             .fixedSize()
             .tint(.secondary)
             .accessibilityLabel("\(field.name) Actions")
+        }
+    }
+
+    /// The clipboard's QR code picture read.
+    private func pasteCode() {
+        guard let image = QRCodeImages.image() else {
+            Feedback.give(.blocked("No picture on the clipboard"))
+            return
+        }
+        Runtime.live.task { @MainActor in
+            if let code = await QRCodeImages.code(in: image) { readCode(code) }
         }
     }
 

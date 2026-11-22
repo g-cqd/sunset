@@ -28,7 +28,7 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
         view.stop()
     }
 
-    final class CatcherView: ScrollCatcherView {
+    final class CatcherView: EventCatcherView {
         weak var tabs: TabsModel?
         var animation = Animation.default
         var library: SpaceSwipe.LibrarySide?

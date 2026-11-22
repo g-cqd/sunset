@@ -3,6 +3,7 @@ import SunsetCredentials
 import SunsetRuntime
 import SunsetShell
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// An entry on the vault's page, laid out as a page of Settings (a grouped form, as wide as theirs, centred): a header
 /// with its picture, title and kind, Edit at its end; each section's fields; its notes. Read, a field is its value (a
@@ -51,6 +52,12 @@ struct PasswordEntryPage: View {
         .frame(maxWidth: Design.Size.settingsPage)
         .frame(maxWidth: .infinity)
         .animation(.smooth, value: editing)
+        // A QR code's picture pasted or dropped on the page sets its one-time code up (roadmap 0093 D).
+        .background(QRPasteCatcher { read($0) })
+        .onDrop(of: [.image, .fileURL], isTargeted: nil) { providers in
+            QRDrop.images(providers) { read($0) }
+            return true
+        }
     }
 
     @ViewBuilder private func fields(of section: EntrySection) -> some View {
@@ -64,6 +71,7 @@ struct PasswordEntryPage: View {
                         problem: problem(field),
                         value: binding(field.id),
                         generate: { draft.generate(into: field.id, recipe: Self.recipe) },
+                        readCode: { code in draft.setUp(code) },
                         remove: { draft.entry.remove(field.id) }
                     )
                 }
@@ -117,6 +125,16 @@ struct PasswordEntryPage: View {
     private func problem(_ field: EntryField) -> String? {
         draft.entry.problems(now: Runtime.live.now()).first { $0.field == field.id }
             .map { FieldWording.problem($0.constraint) }
+    }
+
+    /// Reads `image` for a one-time code, and sets the entry up with it, ready to be checked and saved.
+    private func read(_ image: CGImage) {
+        Runtime.live.task { @MainActor in
+            guard let code = await QRCodeImages.code(in: image) else { return }
+            draft.setUp(code)
+            editing = true
+            Feedback.give(.done("One-time code read"))
+        }
     }
 
     private func cancel() {

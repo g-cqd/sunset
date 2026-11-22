@@ -56,6 +56,18 @@ public struct EntryDraft: Equatable, Sendable {
         entry.sections[index].fields = rest
     }
 
+    /// Sets the entry up from a code read (a QR code): its first One-Time Code field (one is made when there is none)
+    /// holds the code's link; a title or a username left empty takes the code's issuer or account.
+    public mutating func setUp(_ code: OneTimeCodeURI) {
+        let field =
+            entry.sections.lazy.flatMap(\.fields).first { $0.kind == .oneTimeCode }?.id ?? add(.oneTimeCode)
+        entry.set(field, code.uri)
+        if entry.title.trimmingCharacters(in: .whitespaces).isEmpty, let issuer = code.issuer { entry.title = issuer }
+        if let user = entry.field(named: "Username"), user.value.isEmpty, !code.account.isEmpty {
+            entry.set(user.id, code.account)
+        }
+    }
+
     /// A password made by `recipe`, with the system's generator, put into `field`.
     public mutating func generate(into field: UUID, recipe: PasswordRecipe) {
         var random = SystemRandomNumberGenerator()

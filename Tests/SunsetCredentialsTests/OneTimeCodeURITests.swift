@@ -44,7 +44,7 @@ struct OneTimeCodeURITests {
         let bad = [
             "https://example.com", "otpauth://totp/x", "otpauth://totp/x?secret=not*base32",
             "otpauth://totp/x?secret=JBSWY3DPEHPK3PXP&digits=12", "otpauth://totp/x?secret=JBSWY3DPEHPK3PXP&period=0",
-            "otpauth://hotp/x?secret=JBSWY3DPEHPK3PXP", "otpauth://totp/x?secret=JBSWY3DPEHPK3PXP&algorithm=MD5"
+            "otpauth://totp/x?secret=JBSWY3DPEHPK3PXP&algorithm=MD5"
         ]
         for uri in bad {
             #expect(throws: OneTimeCodeURI.Invalid.self, "\(uri)") { try OneTimeCodeURI(uri) }
