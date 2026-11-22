@@ -26,4 +26,17 @@ extension WebContent {
         )
         return filled as? Bool ?? false
     }
+
+    /// Fills a one-time code into the code field that has the keyboard, or one character a box into a code split in boxes
+    /// (roadmap 0094 F), from Sunset's own world, on the person's act. Returns whether it was filled.
+    package func fillCode(_ code: String) async -> Bool {
+        guard let view = webView else { return false }
+        let filled = try? await view.callAsyncJavaScript(
+            PasswordFillScript.fillCode,
+            arguments: ["code": code],
+            in: nil,
+            contentWorld: .defaultClient
+        )
+        return filled as? Bool ?? false
+    }
 }

@@ -36,18 +36,18 @@ final class AppPasswordFill: PasswordFillHost {
 
     func loginField(focused field: LoginField, in page: WebContent) {
         guard isOn, let view = page.webView else { return popover.close() }
-        if field.role == .newPassword { return offerNewPassword(for: field, in: page, view: view) }
-        let logins = LoginMatch.offered(model.entries, for: field.origin, site: Self.site)
-        guard !logins.isEmpty else { return popover.close() }
-        popover.show(
-            PasswordSuggestions(logins: logins) { [weak self] entry in
-                self?.fill(entry, in: page)
-            },
-            at: field.frame,
-            of: view,
-            edge: .maxY,
-            suggestions: true
-        )
+        let content: AnyView? =
+            switch field.role {
+                case .newPassword: newPassword(for: field, in: page)
+                case .oneTimeCode: codes(for: field, in: page)
+                // A sign-in form's field: the site's logins; the one clicked fills the form.
+                case .username, .password:
+                    shown(LoginMatch.offered(model.entries, for: field.origin, site: Self.site)) { logins in
+                        PasswordSuggestions(logins: logins) { [weak self] entry in self?.fill(entry, in: page) }
+                    }
+            }
+        guard let content else { return popover.close() }
+        popover.show(content, at: field.frame, of: view, edge: .maxY, suggestions: true)
     }
 
     func loginFieldBlurred(in page: WebContent) {
@@ -72,29 +72,42 @@ final class AppPasswordFill: PasswordFillHost {
         )
     }
 
-    /// A sign-up form's password field: a strong password made for the page (its rules, else its site's), offered under
-    /// the field; filled into the password and its confirmation when clicked; saved after the form is sent.
-    private func offerNewPassword(for field: LoginField, in page: WebContent, view: NSView) {
+    /// A sign-up form's password field: a strong password made for the page (its rules, else its site's), filled into
+    /// the password and its confirmation when clicked; saved after the form is sent.
+    private func newPassword(for field: LoginField, in page: WebContent) -> AnyView? {
         let site = field.origin.host().flatMap { (try? PasswordManagerResources.bundled())?.passwordRules(for: $0) }
         let password = NewPassword.make(rules: NewPassword.rules(page: field.rules, site: site))
-        popover.show(
+        return AnyView(
             StrongPasswordOffer(password: password) { [weak self] in
-                self?.popover.close()
-                Runtime.live.task { @MainActor in _ = await page.fillNewPassword(password) }
-            },
-            at: field.frame,
-            of: view,
-            edge: .maxY,
-            suggestions: true
+                self?.filling { _ = await page.fillNewPassword(password) }
+            }
         )
     }
 
-    private func fill(_ entry: VaultEntry, in page: WebContent) {
-        popover.close()
-        guard let credentials = LoginMatch.credentials(of: entry) else { return }
-        Runtime.live.task { @MainActor in
-            _ = await page.fill(username: credentials.username, password: credentials.password)
+    /// A one-time code's field: the codes of the site's entries that have one; the one clicked is filled as it is then.
+    private func codes(for field: LoginField, in page: WebContent) -> AnyView? {
+        shown(CodeOffer.offered(model.entries, for: field.origin, site: Self.site)) { offers in
+            CodeSuggestions(offers: offers) { [weak self] offer in
+                let code = offer.field.code(at: Runtime.live.now())
+                self?.filling { _ = await page.fillCode(code) }
+            }
         }
+    }
+
+    private func fill(_ entry: VaultEntry, in page: WebContent) {
+        guard let credentials = LoginMatch.credentials(of: entry) else { return popover.close() }
+        filling { _ = await page.fill(username: credentials.username, password: credentials.password) }
+    }
+
+    /// `content` of `items`; none when there are none.
+    private func shown<Item>(_ items: [Item], _ content: ([Item]) -> some View) -> AnyView? {
+        items.isEmpty ? nil : AnyView(content(items))
+    }
+
+    /// What a click on a suggestion does: the popover goes, then the page is filled.
+    private func filling(_ work: @escaping @MainActor () async -> Void) {
+        popover.close()
+        Runtime.live.task { @MainActor in await work() }
     }
 
     private func answer(_ answer: PasswordSaveOffer.Answer, offer: LoginSave.Offer, sent: SentLoginValues, site: String)

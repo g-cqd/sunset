@@ -6,13 +6,17 @@ public import Foundation
 /// http page (the page could be anyone's); one saved for http is offered on both. Only http and https pages.
 public enum LoginMatch {
     public static func offered(_ entries: [VaultEntry], for page: URL?, site: (String) -> String?) -> [VaultEntry] {
+        sited(entries.filter { credentials(of: $0) != nil }, for: page, site: site)
+    }
+
+    /// `entries` whose website is the page's site, the exact host first, then by title; https entries not on http.
+    public static func sited(_ entries: [VaultEntry], for page: URL?, site: (String) -> String?) -> [VaultEntry] {
         guard let page, let scheme = page.scheme?.lowercased(), ["http", "https"].contains(scheme),
             let host = page.host()?.lowercased(), let pageSite = site(host)
         else { return [] }
         let matched: [(entry: VaultEntry, exact: Bool)] = entries.compactMap { entry in
-            guard credentials(of: entry) != nil, let website = website(of: entry),
-                let entryHost = website.host()?.lowercased(), site(entryHost) == pageSite,
-                scheme == "https" || website.scheme?.lowercased() == "http"
+            guard let website = website(of: entry), let entryHost = website.host()?.lowercased(),
+                site(entryHost) == pageSite, scheme == "https" || website.scheme?.lowercased() == "http"
             else { return nil }
             return (entry, entryHost == host)
         }
