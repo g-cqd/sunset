@@ -65,3 +65,30 @@ Tests: 615 files, 1,980 tests, in 19 test targets, all passing with `swift test`
 - `swift test`: 19 test runs, no warnings.
 - CI (`.ci/action.json`): the same, plus deadwood, dolly and arcleak against their baselines; mutation testing once a day.
 - Benchmarks: ordo-one in `Benchmarks/`, release only, against the oracles where a comparison exists.
+
+## Priorities (rescheduled 2026-11-22)
+
+The owner asked for performance, security, safety and memory first, and native, quiet interfaces; his latest note (n94) is
+images in the terminal. The tasks carry the band as a tag (`p1-now`, `p2-next`, `p3-screen`, `p4-later`, `owner`,
+`elsewhere`), in this order.
+
+1. **Now**
+   - Terminal images (n94, ADR-0117, roadmap 0010): kitty graphics in the core, then drawn; Sixel and iTerm2 after.
+   - The parser fuzzed (roadmap 0026 T-8): every byte a program prints is untrusted, and images add a new parser; the
+     fuzzer covers both.
+   - Tab switching speed (n56, n59): measured in release first; mbp23's patch (`docs/research/patches/`) read again.
+   - Performance and memory (n11): a measured pass over idle memory, a page's, a terminal's scrollback, the vault's.
+2. **Next**
+   - WebKit's data at rest beyond the cookie jar (A4); the vault's imports and backups (0095), then its open steps
+     (0091 E, 0092 B–F, 0093 C–F, 0094 F); the architecture's ratchets (n55).
+   - The terminal's open ends (0026): scrollback search, bash integration, fonts per style, OSC 21, the esctest and
+     vttest gaps, shaping's cost.
+   - Restoring the running state (0024, n46).
+3. **With the owner, on screen**: drag and drop (n79, n80, n84/n85), Now Playing, and what only tests have seen.
+4. **Later**
+   - Markdown's tools (0023 M-g to M-i); commands, keys, App Intents and remote control (0027, n1).
+   - Network and engine (0046, 0048); Safari's missing APIs; the vault's sync, hardware keys, passkeys and payments.
+   - The interface notes (n50, n51, n53–n55, n57, n60, n66, n68); the studies; CI; one app with a downloadable engine
+     (0113); WebKit's speed (0110) last, as asked.
+5. **The owner's**: the white paper as AGENTS.md; the family's history purge and repins.
+6. **Elsewhere**: the TUI framework's tasks (from mbp23), the harness's, AemiSDR's iOS slices.
