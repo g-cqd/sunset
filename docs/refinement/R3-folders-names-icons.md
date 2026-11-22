@@ -1,12 +1,12 @@
-# R3 — Sidebar folders, pinning, names and icons (roadmap 0018)
+# R3 — Sidebar folders, pinning, names and icons
 
-Status: **accepted by the owner 2026-11-11** (roadmap 0020, tasks t112, t142-t146). Nothing here is built.
+Status: **accepted 2026-11-11**.
 
 **Amended by R4 the same day** (`R4-spaces-and-profiles.md`, "What this changes in R3"): the section called *pinned* below is **Favorites** (per
 Space); **Pinned** is the profile's grid at the top; folders live only in Favorites, so grouping tabs moves them there; "Unpin" is moving an entry
 out of Favorites; Cmd-W or a minus unloads a kept entry, and an x on an unloaded one deletes it.
 
-## The owner's answers
+## Answers
 
 | Question | Answer | His note |
 | --- | --- | --- |
@@ -46,7 +46,7 @@ icon that is a symbol (any colour; on folders and on tabs). Rows are not tinted.
 
 With the built-in tab bar, folders are groups that expand and collapse along the bar.
 
-Costs, as the owner asked to see them. **Memory**: a saved entry that is not open holds a few strings; the symbol and emoji lists are loaded only
+Costs, as asked. **Memory**: a saved entry that is not open holds a few strings; the symbol and emoji lists are loaded only
 while the popover is open. **Speed**: the sidebar draws only the rows on screen; the tree is walked once per change, not per row. **Safety**: the
 session file gains a tree and saved entries, read with the same checks as today (a pane in one place only, depth within the limit), and a file from
 before them reads as a flat list. **Security**: a command in a pinned terminal is text that will run on a click: it is only ever written by the
@@ -87,7 +87,7 @@ app's, Tabs each window's) until Spaces rework the Tabs.
 | --- | --- | --- |
 | The app and its last window | It quits with its last window, unless a kept entry is still open | A configurable setting |
 | Order | The Favorites section first, then folders in it, then names and icons, selection, the tab bar | |
-| The library (R8) | First, as its own step with no visible change: `SunsetShell` is created, the tab model, the content protocol and the sidebar move into it behind its own settings type, with unit tests; the Favorites section is then written inside it | |
+| The library | First, as its own step with no visible change: `SunsetShell` is created, the tab model, the content protocol and the sidebar move into it behind its own settings type, with unit tests; the Favorites section is then written inside it | |
 | Adding to Favorites | Context menu "Add to Favorites"; dragging the tab above the divider (and an entry below it to take it out) | |
 | The section's mark | A thin line between Favorites and Tabs, shown when there are favourites or while a tab is dragged | |
 | Cmd-1 to 9, Next and Previous | Only what is open is counted: open entries in the order of Favorites, then the Tabs | |
@@ -99,19 +99,19 @@ app's, Tabs each window's) until Spaces rework the Tabs.
 | "Set Home to Current" (the assistant's proposition) | Yes | |
 
 Corrected on the way: the question in step a about "a new window after the last one is closed while the app runs" rested on a wrong premise (the
-app quits with its last window); the owner's answer above replaces it.
+app quits with its last window); the answer above replaces it.
 
-## A kept terminal's command (t145), its questions answered (2026-11-11)
+## A kept terminal's command, its questions answered (2026-11-11)
 
 | Question | Answer | His note |
 | --- | --- | --- |
 | When it is typed | Each time the entry opens from its home, and also at relaunch when the entry was open | |
 | How | As if typed, then Return, once the shell has drawn its prompt | |
 | Tampering | Stored with a check only Sunset can make (a signature keyed by a secret in the Keychain); a command whose check fails is shown, never run, until confirmed in the dialog | |
-| The dialog | "Edit Command…" in the entry's menu, a sheet showing it whole; "Run Command Now" for an open entry | "Both maybe": a wider Entry Settings sheet can come later, with the name and icon popover (step c) |
+| The dialog | "Edit Command…" in the entry's menu, a sheet showing it whole; "Run Command Now" for an open entry | "Both maybe": a wider Entry Settings sheet can come later, with the name and icon popover |
 | When the command ends | The shell stays | |
 
-## Folders in the sidebar (t142), its questions answered (2026-11-11)
+## Folders in the sidebar, its questions answered (2026-11-11)
 
 | Question | Answer | His note |
 | --- | --- | --- |
@@ -125,18 +125,18 @@ app quits with its last window); the owner's answer above replaces it.
 
 This replaces R3's "Close Folder (closes what is inside)".
 
-## Names and icons (step c, t143), its questions answered (2026-11-11)
+## Names and icons, its questions answered (2026-11-11)
 
 | Question | Answer | His note |
 | --- | --- | --- |
-| Where the symbols come from | Read from the system's SF Symbols data at run time (`CoreGlyphs.bundle`) | Look at local g-cqd projects, mbp23.local or apple-docs for what can be extracted (KittyCode's `SymbolMetadataLoader` reads the same files) |
+| Where the symbols come from | Read from the system's SF Symbols data at run time (`CoreGlyphs.bundle`) | Look at local projects, another Mac or apple-docs for what can be extracted (KittyCode's `SymbolMetadataLoader` reads the same files) |
 | Emojis | A button opening the system's Character Viewer | |
 | A symbol's colour | Preset colours and a colour well | |
 | How the popover opens | From the menu only: Change Icon… | |
 | Renaming in place | Double-click, the menu, and Return on a selected row | |
 | The Rename Tab dialog | Kept for the built-in tab bar | |
 
-## Selecting several rows (step d, t144), its questions answered (2026-11-11)
+## Selecting several rows, its questions answered (2026-11-11)
 
 | Question | Answer |
 | --- | --- |
@@ -145,7 +145,7 @@ This replaces R3's "Close Folder (closes what is inside)".
 | Actions | New Folder with Selection; Add to Favorites / Remove from Favorites; Delete (entries, folders); dragging a selected row carries the whole selection. Close / Unload of a selection was not chosen |
 | Cleared | By a plain click, Escape, or after an action |
 
-## Folders in the built-in tab bar (step f, t146), its questions answered (2026-11-11)
+## Folders in the built-in tab bar, its questions answered (2026-11-11)
 
 | Question | Answer |
 | --- | --- |

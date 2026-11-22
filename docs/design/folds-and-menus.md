@@ -1,6 +1,6 @@
 # Folds, menus and what they show
 
-The owner's note n45 (2026-11-18): one rule for what opens more, and the same symbols for it everywhere.
+One rule for what opens more, and the same symbols for it everywhere.
 
 | What it does | How it looks | Its symbol |
 |---|---|---|

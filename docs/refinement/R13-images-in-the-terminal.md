@@ -1,7 +1,7 @@
-# R13 — Images in the terminal: the design session (roadmap 0010, 0026 T-9, t183)
+# R13 — Images in the terminal: the design session (0026 T-9)
 
-Status: **answered by the owner 2026-11-22** (below). Nothing is built.
-The owner, 2026-11-21: "it seems the terminal for sunset still can't show images, even though ask can work with showing pictures in ask".
+Status: **answered 2026-11-22** (below).
+"it seems the terminal for sunset still can't show images, even though ask can work with showing pictures in ask".
 R9 set the process: images get a design session of their own, then kitty graphics.
 
 ## Why nothing shows today (read in the source, 2026-11-22)
@@ -39,7 +39,7 @@ why they cost the screen nothing new. They arrive as cluster cells (the scalar a
   from the marks, the image's grid from its virtual placement). The CPU reference renderer draws the same, as the oracle for the GPU's
   pixels. **Cost when unused:** the only new work on the text path is a test of a cluster cell's base scalar for `U+10EEEE`; it is
   measured before and after on the existing benchmark (R9's first requirement for images).
-- **Policy (ADR-0010):** direct transmission only in the first slice; file, temporary file and shared memory refused with an error (they
+- **Policy:** direct transmission only in the first slice; file, temporary file and shared memory refused with an error (they
   read the person's disk or memory on a program's say-so; Q4). Images are per screen, freed with it; the alternate screen keeps its own.
 - **ask:** once Sunset answers `OK`, `TerminalGraphics.mayDraw` accepts `TERM_PROGRAM=sunset`, tested both ways.
 - **Oracles:** kitty and Ghostty run as processes on the same byte streams (ask's recorded output of a picture), compared by screenshot.
@@ -49,7 +49,7 @@ why they cost the screen nothing new. They arrive as cluster cells (the scalar a
 Placements at the cursor (`a=T`/`a=p` without `U=1`), z-index, cropping and offsets; animation; compressed payloads (`o=z`); Sixel and
 iTerm2's OSC 1337 inline images; `a=q` capability details; the deletion kinds other than `d=i`/`d=I`.
 
-## Questions for the owner
+## Questions for the maintainer
 
 - **Q1** The first slice as above (exactly what ask uses), or kitty's whole protocol before anything ships?
 - **Q2** Its place in the order: now, ahead of R9's other terminal items (which wait behind the pane work), or where R9 put it?
@@ -58,12 +58,12 @@ iTerm2's OSC 1337 inline images; `a=q` capability details; the deletion kinds ot
 - **Q4** File, temporary-file and shared-memory transmission: refused (proposed), or allowed for local programs with a setting?
 - **Q5** Sixel and iTerm2 images: wanted at all, and when?
 
-## The owner's answers (2026-11-22)
+## Answers (2026-11-22)
 
 | Question | Answer |
 | --- | --- |
 | Q1 the first slice | **The whole kitty graphics protocol first**, not only what ask uses |
-| Q2 its place in the order | not answered separately; asked for now (the owner raised it on 2026-11-21) |
+| Q2 its place in the order | not answered separately; asked for now (the maintainer raised it on 2026-11-21) |
 | Q3 limits | not answered: the proposal (64 MB encoded, 64 megapixels decoded per terminal, oldest evicted) stands as a default to confirm |
 | Q4 file, temporary-file and shared-memory transmission | not answered: refused until answered (ADR-0010's rule: no untrusted action without a policy) |
 | Q5 Sixel and iTerm2 images | not answered |

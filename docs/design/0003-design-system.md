@@ -1,7 +1,8 @@
 # Design 0003 — The design system
 
 Intended design of Sunset's interface measures, surfaces and components. Why: the study `docs/research/design-system-2026-11-12.md` and the
-owner's answers in its §8. **Nothing in it is built yet**; the migration is roadmap 0028's design section, steps 1 to 5 (t222).
+answers in its §8 (Q1–Q8 below). Built: the `Design` tokens, the accent setting, the glass groups, and the enforcement
+(`DesignTokenTests`, with its list of files still allowed).
 
 ## 1. Principles
 
@@ -68,7 +69,7 @@ In one namespace, `Design`, in SunsetShell (SunsetWeb and SunsetApp import it). 
 | `Design.Space.xl` | 16 | between groups in a panel |
 | `Design.Space.xxl` | 24 | a sheet's padding |
 
-A value between two steps moves up to the next one (owner, Q1).
+A value between two steps moves up to the next one (Q1).
 
 ### 3.2 Radius
 
@@ -108,7 +109,7 @@ token (§4).
 - Fills: `Design.Fill.faint` 0.04, `.hover` 0.07, `.pressed` 0.16, `.selected` = the accent.
 - Lines: `Design.Line.hairline` (`layout.hairlineWidth`, `layout.hairlineOpacity`), `.focus` (the accent at 0.85).
 - Scrim: `Design.Fill.scrim` 0.35 (the HIG's figure for a dimming layer under clear glass).
-- **The accent** (owner, Q5) is a setting, `appearance.accent`: `system` (System Settings' accent, the default), `sunset` (Sunset's own tint),
+- **The accent** (Q5) is a setting, `appearance.accent`: `system` (System Settings' accent, the default), `sunset` (Sunset's own tint),
   `neutral` (black / grey / white shades by scheme). Every accent use reads one token; later tinting options extend this setting.
 
 ### 3.6 Elevation and motion
@@ -125,7 +126,7 @@ than the line) is corrected by a token in `Design.Optical`, each with:
 - its value,
 - its reason and how it was measured (a screenshot, the ink's distance), in its documentation comment.
 
-The two that exist today become the first: `GlyphSpacing.toText` (7: the glyph's ink as far from the text as from the edge, n63) and
+The two that exist today become the first: `GlyphSpacing.toText` (7: the glyph's ink as far from the text as from the edge) and
 `SidebarHeader.dockedButtonInset` (one hairline inside the card's edge). The enforcement test allows literals in `Design` only.
 
 ## 5. Components
@@ -142,7 +143,7 @@ The two that exist today become the first: `GlyphSpacing.toText` (7: the glyph's
 
 ## 6. Surfaces
 
-Every surface is drawn as one of four kinds: **glass, material, opaque, transparent**, the values `window.material` already has. Owner (Q8):
+Every surface is drawn as one of four kinds: **glass, material, opaque, transparent**, the values `window.material` already has. Q8:
 this becomes one general choice for every surface, not only the window's background: the bars, panels, the floating sidebar, the tab
 preview and the pane-area capsule all draw through one `Design.Surface` that reads it. Whether that is `window.material` itself or a new key
 alongside it (e.g. the window opaque, its bars glass) is migration step 1's first question.
@@ -152,7 +153,7 @@ Glass groups: the address bar with its suggestions, the command bar with its act
 
 ## 7. Configuration
 
-Today's `layout.*` keys stay the owner's to tune and are the source of the tokens they name; nothing else becomes a setting (Q7). New keys:
+Today's `layout.*` keys stay the person's to tune and are the source of the tokens they name; nothing else becomes a setting (Q7). New keys:
 `appearance.accent`; the surface choice (§6); the pin button's two sizes as two named keys, docked and floating (Q6). `ShellSettings.Layout`
 stops being a hand copy of `Configuration.Layout`: one list of fields describes both.
 
@@ -164,6 +165,6 @@ an error inside `.padding(`, `spacing:`, `cornerRadius:`, `.opacity(`, `.shadow(
 
 ## 9. Not yet known
 
-- The system's control measures on macOS 27 (a bordered button's radius, a rounded field's height per `ControlSize`): measured off-screen in
-  step 1 before any token is said to match them.
-- Variable blur on macOS (n60): a probe of the private `CAFilter` `variableBlur`, before 0028 step C.
+- The system's control measures on macOS 27 (a bordered button's radius, a rounded field's height per `ControlSize`): measured off-screen
+  before any token is said to match them.
+- Variable blur on macOS: answered, AemiSDR's variable blur draws it.

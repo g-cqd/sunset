@@ -1,9 +1,9 @@
-# R6 — Markdown, and the document behind a pane (roadmap 0018)
+# R6 — Markdown, and the document behind a pane
 
-Status: **accepted by the owner 2026-11-11** (roadmap 0023, tasks t115, t164-t171; the store t172; session R11 t173). Nothing here is built.
-Input: note n43, task t115, R2 (the hidden note pane; one document in two panes), `AemiMarkdown/Apps/MarkdownLook` (its README read today).
+Status: **accepted 2026-11-11**.
+Input: R2 (the hidden note pane; one document in two panes), `AemiMarkdown/Apps/MarkdownLook` (its README read today).
 
-## The owner's answers
+## Answers
 
 | Question | Answer | His note |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ Input: note n43, task t115, R2 (the hidden note pane; one document in two panes)
 | Saving | Cmd-S, plus two settings (a timer; on losing focus) | Storage in the app or on the computer, chosen by the user, in the app by default; could benefit the encryption study |
 | The in-app storage | A store of Sunset's own | This needs to be refined |
 | An in-app document whose pane is closed | It stays in a library, to reopen or delete | |
-| Encryption | One study for the web store and in-app documents (t135, widened) | |
+| Encryption | One study for the web store and in-app documents (widened) | |
 | A change on disk | Reloaded silently if unedited; merged if edited | Ask when nodes conflict |
 | A pane with no file | Yes, kept by Sunset until saved | |
 | Opening | Open File and the + menu; dropping a file; Cmd-click on a path in a terminal; a command from the shell; the command bar; as the Mac's handler for .md | Build with App Intents in mind: the system and the command bar can run actions such as a new tab of any kind |
@@ -41,7 +41,7 @@ losing focus. Closing with unsaved edits asks Save, Don't Save, Cancel. When the
 edited one is merged by Markdown nodes, and conflicting nodes are asked about.
 
 A document need not be a file: by default a new one lives in **Sunset's own store**, where it stays in a library after its pane closes, and it
-can be moved to a file. The store's form is not decided: it gets its own refinement, with the encryption study (t135, now covering the web store
+can be moved to a file. The store's form is not decided: it gets its own refinement, with the encryption study (now covering the web store
 and these documents).
 
 Documents open from Open File, the + menu, a drop, the command bar, Finder (Sunset as a handler for .md), a Cmd-click on a path in a terminal,
@@ -49,11 +49,11 @@ and a command typed in a shell.
 
 It replaces the hidden note pane, which is removed then.
 
-Two things came out of this session that are larger than Markdown and get **their own refinement session (R11)**: a command model, where every
+Two things came out of this session that are larger than Markdown and get **their own refinement session**: a command model, where every
 action is declared once and run by the menus, the keys, the command bar, App Intents and later remote control; and the command bar as the place
 to run them, with no prefix, matching by words, ranked and tolerant of errors.
 
-Costs, as the owner asked to see them. **Memory**: one copy of a document's text however many panes show it; the native view needs no web
+Costs, as asked. **Memory**: one copy of a document's text however many panes show it; the native view needs no web
 process; a text file as source is held whole in memory, so a size limit is asked at that step. **Speed**: the rendered side re-renders as you
 type; what that costs on a long document is to be measured (the kit has benchmarks). **Safety**: atomic writes; one edited state per file; a
 merge is the risky part, since a wrong merge is silent damage: only non-conflicting nodes merge by themselves, the result stays undoable, and
@@ -82,5 +82,5 @@ in a terminal that ability, to be bounded at that step; an App Intent can be run
 | M-g | The editor's tools: find and replace, formatting keys, the outline, smooth scroll sync | Which keys |
 | M-h | Paths in terminal output and Cmd-click on them | Which paths; relative to what |
 | M-i | The command from the shell | The channel; its bounds |
-| Store | Sunset's own document store and its library: its own refinement, with the widened study t135 | |
+| Store | Sunset's own document store and its library: its own refinement, with the widened storage study | |
 | R11 | Commands, App Intents and the command bar: its own refinement session | |

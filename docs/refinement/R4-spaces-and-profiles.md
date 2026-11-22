@@ -1,9 +1,9 @@
-# R4 — Spaces and profiles (roadmap 0018)
+# R4 — Spaces and profiles
 
-Status: **accepted by the owner 2026-11-11** (roadmap 0021, tasks t110, t147-t153). Nothing here is built.
+Status: **accepted 2026-11-11**.
 Research asked for during the session: `docs/research/tab-sleeping-in-browsers-2026-11-11.md`.
 
-## The owner's answers
+## Answers
 
 | Question | Answer | His note |
 | --- | --- | --- |
@@ -19,7 +19,7 @@ Research asked for during the session: `docs/research/tab-sleeping-in-browsers-2
 | Delays | Three settings: sleep after (default 15 min), unload after (default 12 h), unload under memory pressure, longest idle first (default on) | Fine settings, sensible defaults, after looking at Chrome, Safari, Firefox |
 | Never unloaded by the delay | Playing audio or video; unsent form text; pinned entries that are open; in a call or using camera, microphone, screen; driven by an agent or a terminal; marked "keep awake" by the person | |
 | The cue | A moon badge by the icon when asleep; a dimmed icon when unloaded; the same dimming for a terminal that is not running | A cue for loaded, going to sleep, unloaded |
-| The sleeping study (t134) | After the web milestone, before Spaces | |
+| The sleeping study | After the web milestone, before Spaces | |
 | Switching | Two-finger swipe on the sidebar; a row of Space icons; keys; the command bar; a Spaces menu in the menu bar | Keys configurable |
 | The icons row | Bottom of the sidebar, beside the + button | With no sidebar: a header with a menu, in the tab bar |
 | With no sidebar | A small button in the tab bar | The profile and the Space in one button and menu |
@@ -52,7 +52,7 @@ shows the tab's last picture.
 Pages that are not on screen sleep after 15 minutes and unload after 12 hours, and under memory pressure the longest idle unload first; each of
 the three is a setting. Pages that play, hold unsent text, are in a call or capturing, are pinned and open, are driven by an agent or a terminal,
 or are marked keep-awake are left alone. A sleeping page has a moon by its icon; anything unloaded, page or terminal, has a dimmed icon. What
-WebKit allows for the sleeping stage is not known until the study (t134), which is done after the web milestone and before Spaces.
+WebKit allows for the sleeping stage is not known until the study, which is done after the web milestone and before Spaces.
 
 The Space is changed by a two-finger swipe on the sidebar, a row of icons at the bottom beside the + button, configurable keys, the command bar
 and a Spaces menu; with no sidebar, by one button in the tab bar that names the profile and the Space. Until a second Space exists none of this
@@ -60,7 +60,7 @@ shows. Activity in a Space not shown marks its icon, and its notification names 
 to the sidebar's edge. Deleting a Space asks whether to close what it holds or move it; deleting a profile asks the same of its Spaces and erases
 its website data; changing a Space's profile reloads its pages after a confirmation.
 
-Costs, as the owner asked to see them. **Memory**: a parked Space's terminals stay (their programs run); pages are bounded by the sleep and unload
+Costs, as asked. **Memory**: a parked Space's terminals stay (their programs run); pages are bounded by the sleep and unload
 settings; an entry that is not open is a few strings; the picture shown in a second window is one image per tab shown there, dropped when that
 window leaves the tab; each profile in use adds WebKit's own storage and network processes (to be measured, not known). **Speed**: switching
 Space swaps one tree for another and redraws; waking a sleeping page is immediate if WebKit can suspend, a page load if not. **Safety**: one live
@@ -75,12 +75,12 @@ profiles; a link opens in the Space shown, so a work link clicked in a personal 
   A folder there still lives until removed by hand, even empty.
 - "Unpin" becomes moving an entry out of Favorites into Tabs; "Delete" stays, and is the x on an unloaded entry.
 - Before Spaces and profiles exist (folders come first), there is one Space and one profile, unnamed and not shown: Favorites and Tabs are the
-  window's, and Pinned waits for profiles unless the owner wants it earlier.
+  window's, and Pinned waits for profiles unless the maintainer wants it earlier.
 
 ## Left out, said plainly
 
 - **WebKit's native favourites.** I do not know of a bookmarks API in WebKit; Safari keeps its own file, which the system protects. Unverified:
-  it needs a study before it can be promised. Importing from other browsers is delayed by the owner's word.
+  it needs a study before it can be promised. Importing from other browsers is delayed by the maintainer's word.
 - A directory, a shell environment and terminal settings per Space or profile: a much later phase.
 - The look per Space: the format leaves room; no editor until asked.
 - Rules sending a site to a Space, and per-site settings: R5.
@@ -95,6 +95,6 @@ profiles; a link opens in the Space shown, so a work link clicked in a personal 
 | S-c | The Space's editor (name, icon), New Space, Move to Space, drag to the edge, deleting | What a new Space starts with |
 | S-d | The same Space in several windows: one live view, the last picture elsewhere | What the picture looks like (dimmed, a label); what a click on it does |
 | S-e | Activity marks and notifications naming the Space | |
-| S-f | Sleeping and unloading: the three settings, the exceptions, keep awake, the cue (after study t134) | What WebKit allows; Pinned only or Favorites too; where keep-awake is set |
-| P-a | Profiles: a data store each, the Settings section, the picker in the Space's editor, the Spaces menu; changing and deleting | The first profile's name; what a private page (R1 step h) is beside a profile |
+| S-f | Sleeping and unloading: the three settings, the exceptions, keep awake, the cue (after a study of what WebKit allows) | What WebKit allows; Pinned only or Favorites too; where keep-awake is set |
+| P-a | Profiles: a data store each, the Settings section, the picker in the Space's editor, the Spaces menu; changing and deleting | The first profile's name; what a private page is beside a profile |
 | P-b | Pinned: the profile's grid (pages, terminals, a split set), its menu | Tile size and count; how something is pinned |

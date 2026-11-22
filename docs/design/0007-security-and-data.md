@@ -1,8 +1,7 @@
-# 0007 — Security, data handling and safety: one scope (draft, 2026-11-19)
+# 0007 — Security, data handling and safety: one scope (as of 2026-11-22)
 
-Status: **draft for the owner.** It puts the open security points (0051, 0012, t13, t14, t98), the credentials staging
-(0090–0099), and what the realism study found (docs/research/security-realism-2026-11-19.md) into one scope. Threats:
-docs/design/0006-threat-model.md.
+Status: the scope worked from; its open questions were answered on 2026-11-20. It puts security, the credentials work and what the realism study found
+(docs/research/security-realism-2026-11-19.md) into one scope. Threats: docs/design/0006-threat-model.md.
 
 ## Principles
 
@@ -30,50 +29,36 @@ docs/design/0006-threat-model.md.
 | Class | Data | At rest | Kept for | Leaves Sunset by | Deleted by |
 |---|---|---|---|---|---|
 | Secret | Vault entries, files, codes | Vault file, sealed by the vault key | Until deleted; history by count or age | Sealed backup; sync (sealed); fill on act; export with warning | The person; tombstones synced |
-| Secret | Cookies, tokens (WebKit) | WebKit's jar (clear) → sealed by Sunset at quit (planned) | ADR-0081: kept sites only | Never by Sunset | Clearing at quit; per site |
-| Secret | Storage key, recovery code | Keychain (→ Secure Enclave wrap; data-protection class after t49) | The install | Recovery code shown once | Reset |
-| Personal | History, sessions, tabs, permissions, downloads list, recent files, favicons | `state.sqlite`, `session.sealed`, sealed (metadata sealed with t48 C) | Settings' retention | Export (plain, 0600, warned); sealed backup | Clear by kind; per site |
+| Secret | Cookies, tokens (WebKit) | WebKit's jars, sealed by Sunset while it is closed | ADR-0081: kept sites only | Never by Sunset (Sunset WebKit may bring Sunset's, on request) | Clearing at quit; per site |
+| Secret | Storage key, recovery code | The data-protection keychain, wrapped by the Secure Enclave | The install | Recovery code shown once | Reset |
+| Personal | History, sessions, tabs, permissions, downloads list, recent files, favicons | `state.sqlite`, `session.sealed`, sealed with their times, counts and kinds (format 2) | Settings' retention | Export (plain, 0600, warned) | Clear by kind; per site |
 | Personal | Documents | `Documents/`, sealed | Until deleted | Export; move to a file | Trash as plain text (ADR-0038's rules) |
-| Personal | WebKit's cache, website data, HSTS, statistics | WebKit's folders (clear, 0700) | ADR-0081 | Never by Sunset | Clearing; out of backups (planned) |
+| Personal | WebKit's cache, website data, HSTS, statistics | WebKit's folders (0700); sites' storage sealed while Sunset is closed; caches out of backups | ADR-0081 | Never by Sunset | Clearing |
 | Transient | Clipboard, terminal output, scrollback | Memory; pasteboard | The session; concealed clipboard cleared | The person | Quit |
 | Config | Settings, block lists | `~/.config/sunset`, `Blocking/` | Always | The person's files | The person |
 
-Each row's "at rest" and "deleted by" gets a test that reads the files, as 0051 A/B's tests do.
+Each row's "at rest" and "deleted by" is meant to have a test that reads the files; the state database's and WebKit's
+folders have theirs (`StateDatabaseHardeningTests`, `WebKitFoldersTests`).
 
-## The scope, by layer
+## Where each stage stands
 
-| Layer | What | Source |
+| Stage | What | State on 2026-11-22 |
 |---|---|---|
-| **Platform** | Developer ID, hardened runtime, library validation, notarisation; then the Keychain's protection class, iCloud | t49 |
-| **Storage** | Format 2 (metadata sealed, HMAC keys); Secure Enclave wrap of the storage key; sealed backup of everything; exports 0600 with a warning; the cookie jar sealed at quit; caches out of backups | t48 C/E (split), new |
-| **Credentials** | Vault, entries, one-time codes, filling and saving, backups and imports, sync with anti-rollback, hardware keys, Apple's side | 0091–0098 |
-| **Web** | Per-navigation protections (HTTPS upgrade with a warning, a hardened level without JIT, GPC); Safari's APIs (t98); payments (0099); permissions in one policy table; extension policy (t14); DNS (t13); block lists (n58: other lists, performance) | new, t98, 0099, t14, t13, t109 |
-| **Terminal** | Fuzz targets; secure keyboard entry; a paste warning; the control socket's authentication with remote control | 0012, new, 0016 |
-| **Assurance** | The threat model kept current; a test per data-map row; handler fuzzing; restore tests | new |
+| S1 — cheap and high | HTTPS upgrade, a hardened mode and GPC as settings (ADR-0102); secure keyboard entry; a paste warning; exports 0600 with a warning; caches out of backups; WebKit's folders 0700/0600 | Done |
+| S2 — storage format 2 | Metadata sealed, keyed tags, the reseal migration; the Secure Enclave wrap of the storage key; the sealed backup format (shared with the vault) | Done, except the sealed backup format |
+| S3 — the vault, first release | The model (vault file, factors: master password, Touch ID, recovery code; the lock; zeroed buffers); the editor, notes, files, history | The model is built (`SunsetCredentials`); no window shows a vault yet |
+| S4 — the vault in pages and across Macs | Filling and saving; imports (KDBX); sync through a folder with anti-rollback | Not built |
+| S5 — hardening and keys | The hardened level without JIT (measured); fuzz targets; hardware keys; the cookie jars sealed at quit; one table of every permission's policy | The cookie jars and sites' storage are sealed at quit; the rest is not built |
+| S6 — Apple's side | Developer ID, hardened runtime, library validation, notarisation; then passkeys, the credential provider, Credential Exchange, iCloud | Signed and notarised; the rest is not built |
+| Later | Encrypted DNS; extensions with their policy; Sunset's own WebKit | Extensions with their policy (ADR-0113) and Sunset WebKit are built; DNS is not |
 
-## Staging proposed (the owner orders)
+**Dropped:** a KDF for the recovery code (it needs none); an encrypted disk image (low worth with FileVault on, open while
+Sunset runs).
 
-| Stage | What | Why first |
-|---|---|---|
-| S1 — cheap and high | HTTPS upgrade (done: ADR-0102, also the hardened mode and GPC as settings); secure keyboard entry; paste warning; exports 0600 with a warning; caches out of backups; the cookie jar 0600 check (0058 1.6) | Hours each; close real gaps (A1, A3, A4, A6) |
-| S2 — storage format 2 | t48 C (metadata sealed, HMAC row keys, reseal migration); the Secure Enclave wrap; the sealed backup format (shared with the vault) | The foundation the vault reuses |
-| S3 — the vault, first release | 0091, 0092 (model, editor, notes, files, history), 0093 | The owner's main request; no t49 needed |
-| S4 — the vault in pages and across Macs | 0094 (filling, saving), 0095 (imports, KDBX), 0096 (sync through a folder, anti-rollback) | Highest risk (A1 fills, A7): after the model is stable |
-| S5 — hardening and keys | The hardened level without JIT (measured), GPC; fuzz targets; 0097 with the owner's key; the cookie jar sealed at quit; the permissions table | Needs measurements or the owner's hardware |
-| S6 — Apple's side | t49 → 0098 (passkeys, credential provider, Credential Exchange, iCloud); 0099 on screen | External: the certificate, Apple's grant |
-| Later | t13 DNS; extensions with their policy (t14); the own WebKit (0048) | Large, lower worth now |
+## Decided
 
-**Dropped:** t48 D (the recovery code needs no KDF); t51's encrypted image (low worth with FileVault on, open while Sunset
-runs); t59's further runs.
-
-## Open for the owner
-
-Answered 2026-11-20 (roadmap 0100 C): 1, allowed with a setting to turn it off; 2, no (the owner has not seen a Keychain prompt
-after an install); 3, bundled and refreshed (ADR-0108); 4, yes, covered beyond the cookie jar. The drops below are confirmed.
-The threat model is to be hardened and refined with the state of the art before it is accepted.
-
-
-1. OSC 52 write allowed by default (ADR-0010's open question)?
-2. Does macOS ask for the Keychain after each install of an ad hoc build?
-3. The Public Suffix List and Apple's password-manager-resources as data dependencies (§8)?
-4. Is A4 (copies of `~/Library`, backups) a threat you want covered for WebKit's data beyond the cookie jar?
+1. A program may write the clipboard (OSC 52) by default; a setting (`terminal.clipboardWrite`) turns it off.
+2. No Keychain prompt was seen after an install.
+3. The Public Suffix List and Apple's password-manager-resources are bundled data, refreshed by a script (ADR-0108).
+4. Copies of `~/Library` and backups (A4) are covered for WebKit's data beyond the cookie jars: sites' storage is sealed
+   too.

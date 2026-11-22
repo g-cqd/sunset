@@ -1,12 +1,12 @@
-# R2 — Panes that are not terminals, as built (roadmap 0018)
+# R2 — Panes that are not terminals, as built
 
-Status: **accepted by the owner on 2026-11-11.** Tasks t137-t139; the rest is carried by web steps a and d (t125, t128) and by R6.
+Status: **accepted 2026-11-11.** the rest is carried by web steps a and d and by R6.
 
-## The owner's answers
+## Answers
 
 | Question | Answer | His note |
 | --- | --- | --- |
-| The note pane | Hidden now, replaced by the Markdown pane later (R6) | Done in d01b61e: no menu item makes one |
+| The note pane | Hidden now, replaced by the Markdown pane later | Done in d01b61e: no menu item makes one |
 | A kind this build cannot make | A placeholder tab, kept and written back as it was (as built) | |
 | How a pane of a kind is asked for | A menu item per kind | And a + button that opens a menu, near the panes: in the sidebar, or in the toolbar when there is no sidebar |
 | A click on + | Always opens the menu | |
@@ -15,20 +15,20 @@ Status: **accepted by the owner on 2026-11-11.** Tasks t137-t139; the rest is ca
 | The hover preview | A snapshot for every kind | A split tab's preview shows its split configuration |
 | How a split tab's preview is made | A miniature of the layout, drawn on demand: nothing is kept | |
 | Cmd-plus / minus / 0 | Act on the focused pane; with a terminal focused, all the window's terminals change as today | |
-| One document in two panes | Needed for the kinds that are edited | To be designed before the Markdown pane (R6) |
+| One document in two panes | Needed for the kinds that are edited | To be designed before the Markdown pane |
 | Budgets for the web steps | Measured and reported at each step, not gated | |
 | The terminal performance work | Stays deferred | |
-| The costs not spelled out in R1 (no sleep, suggestions sent to Google, inspector on, http for local names, a plain store, history on disk, a picture per tab) | Not answered: they stand as accepted unless the owner says otherwise | |
+| The costs not spelled out in R1 (no sleep, suggestions sent to Google, inspector on, http for local names, a plain store, history on disk, a picture per tab) | Not answered: they stand as accepted unless the maintainer says otherwise | |
 
 ## Where the + button is
 
-The owner's own placement (sketch `sketches/R2-plus-button-E.png`): at the very bottom of the sidebar, against the window's bottom, on the edge of
+The maintainer's own placement (sketch `sketches/R2-plus-button-E.png`): at the very bottom of the sidebar, against the window's bottom, on the edge of
 the tab rows that is nearest the panes; the counterpart, at the bottom, of the pin button at the top. With no sidebar: the + at the end of the
 built-in tab bar (sketch D in `sketches/R2-plus-button.png`). Sketches A, B and C were not taken.
 
 ## What follows from it
 
-1. The + button and its menu of kinds (terminal now; page with web step a), where the owner places it.
+1. The + button and its menu of kinds (terminal now; page with web step a), where the maintainer places it.
 2. Split of the same kind, with its setting (same kind / terminal), and for a page the setting of what it shows; comes with web step a.
 3. The preview for every kind, and a split tab's miniature drawn on demand: each kind gives a picture of itself when asked.
 4. Cmd-plus / minus / 0 go to the focused pane: a page's zoom is web step d.

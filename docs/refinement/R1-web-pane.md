@@ -1,9 +1,9 @@
-# R1 — The web pane (roadmap 0018)
+# R1 — The web pane
 
-Status: **accepted by the owner on 2026-11-11.** Nothing here is built. The steps are roadmap 0019 and tasks t125-t136. The first web pane (e5bd1e9, aa1c900) was removed on the owner's
+Status: **accepted 2026-11-11.** The first web pane (e5bd1e9, aa1c900) was removed on the maintainer's
 answer "revert, rebuild"; a saved session that has a `web` pane shows it as a placeholder and keeps it.
 
-## Round 1: the owner's answers
+## Round 1: the answers
 
 | Question | Answer | His note |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ answer "revert, rebuild"; a saved session that has a `web` pane shows it as a pl
 | Where the address is | Configurable | A general bar at the top or the bottom (configurable) that can collapse and appear when the pointer reaches its area; or a row per tab; or a compact address bar at the top or bottom of the sidebar |
 | Text that is not an address | Searched, with the engine a setting | Customisable: new engines can be set up, with their prediction and suggestion addresses |
 | A host with no scheme | https first | A setting loosens it to fall back to http; local addresses stay reachable |
-| What a page sees as the browser | Safari, read from the system | (presets and passing for other browsers: R5) |
+| What a page sees as the browser | Safari, read from the system | (presets and passing for other browsers) |
 | Cookies and site data | One persistent store | Perhaps encrypted: to be studied and refined, as a feature the user turns on (Aemi's Argon work, or other encryption) |
 | A link that asks for a new window | A new window | Sunset's context menu offers to open in a split: both directions in the menu, and/or a default direction in the settings, and/or a choice made on the spot |
 | What is saved of a page | Address, history and scroll | |
@@ -22,7 +22,7 @@ answer "revert, rebuild"; a saved session that has a `web` pane shows it as a pl
 | Closing | The page may object | Quitting Sunset is held back by an active terminal process or a page that objects; and a setting to be asked before quitting whatever the state, with a way to remember or turn off |
 | Inspector | Own menu item too | A developer setting turns inspector access on or off |
 
-## Rounds 2 and 3: the owner's answers
+## Rounds 2 and 3: the answers
 
 | Question | Answer |
 | --- | --- |
@@ -82,7 +82,7 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 
 ## After the milestone, each with its own session
 
-- Sleeping pages: study the official and upstream WebKit controls first (owner's note).
+- Sleeping pages: study the official and upstream WebKit controls first (maintainer's note).
 - Encrypting the store, as a feature the user turns on: study first (Aemi's Argon work or other encryption; what WebKit lets an app do with its
   store at all).
 - Pages driven by agents (with remote control).
@@ -97,7 +97,7 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | A failed load | A plain page of ours (what failed, the system's reason, the address, Try Again); certificate errors offer Visit Anyway after a warning | |
 | Named as Safari | Decided at the step | "Make it appear as Safari by default" |
 
-## Step b: the owner's answers (2026-11-11)
+## Step b: the answers (2026-11-11)
 
 | Question | Answer |
 | --- | --- |
@@ -114,14 +114,14 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Cmd-L | Stays the command bar, which takes addresses too: a "Go to <address>" row loads in the focused page, or in a new page tab when a terminal is focused. The window bar is then brought by the pointer only |
 | Rename Tab's Shift-Cmd-R | Removed (menu and double-click only); Shift-Cmd-R reloads without the cache |
 
-## Step c: the owner's answers (2026-11-12)
+## Step c: the answers (2026-11-12)
 
 | Question | Answer |
 | --- | --- |
 | Built-in engines | Google (default), DuckDuckGo, Bing, Ecosia, Kagi |
 | An added engine in the file | `web.engines`: name, search address and suggestion address with `%s` for the words, and a keyword (`ddg words` searches DuckDuckGo); `web.engine` names the one used |
 | Suggestion format | The OpenSearch JSON format only (`[query, [suggestions]]`) |
-| When suggestions are sent | Always while typing, on by default; a setting turns them off; for private pages a setting of their own (step h, off by default) |
+| When suggestions are sent | Always while typing, on by default; a setting turns them off; for private pages a setting of their own (off by default) |
 | Where they are shown | A list under the field (above it for a bottom bar), as wide as the content area; and in the command bar |
 | The field's list | The typed row (Go to / Search), then suggestions; open tabs only in the command bar |
 | The command bar | A "Search <engine> for <words>" row after the tab matches, and suggestions; and its redesign (hover, pressed and focused states, richer controls) now, after a study of Spotlight, Raycast and Sol shown first |
@@ -129,7 +129,7 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | The command bar's redesign (study `docs/research/command-bar-design-2026-11-12.md`) | Taken: states on every row (hover, pressed, selected), each row's actions on Cmd-K with Cmd-Return and Option-Return for the second and third, the engine as a chip in the field after its keyword and a space, an accessory on the right of a row, Up in an empty field recalling earlier entries (this session). Not taken: sections with headers, a footer, a wider panel |
 | The address field's list | The same rows and states as the command bar, one shared view |
 
-## Step d: the owner's answers (2026-11-12)
+## Step d: the answers (2026-11-12)
 
 | Question | Answer |
 | --- | --- |
@@ -142,14 +142,14 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Text only | Everything by default; `web.textOnlyZoom` through WebKit's private text zoom, hidden when it is missing |
 | The level shown | "125%" in the address field when not 100%; a click resets it |
 
-## Step e: the owner's answers (2026-11-12)
+## Step e: the answers (2026-11-12)
 
 | Question | Answer |
 | --- | --- |
 | What is kept | One entry per address: title, visit count, last visit time. Private pages keep none |
 | For how long | `web.history.keep`: 1 day, 1 week, 2 weeks, 1 month, 1 year (default), forever; and an option to clear it when Sunset quits |
 | Where | A SQLite file beside the session (the system's library), not encrypted (the store study comes after the milestone) |
-| Where it is shown | Matches in the address field's list and the command bar (between the typed row and the suggestions, up to 4, by frecency, title or host prefix first); History > Show All History; and a history panel in a sidebar on the side opposite the tabs, toggled (the owner: a panel system, a bottom panel or half of the sidebar, needs a study of SunsetShell; the opposite sidebar only for now) |
+| Where it is shown | Matches in the address field's list and the command bar (between the typed row and the suggestions, up to 4, by frecency, title or host prefix first); History > Show All History; and a history panel in a sidebar on the side opposite the tabs, toggled (a panel system, a bottom panel or half of the sidebar, needs a study of SunsetShell; the opposite sidebar only for now) |
 | Clearing | History > Clear History…: a span (the last hour, today, today and yesterday, all) and what goes with it, each its own choice: history, website data (cookies, caches, storage), site zoom levels |
 | The history panel | A docked column on the side opposite the tabs, with the tab sidebar's width rules and look; View > Show History (Cmd-Y); a search field, entries by day; a click opens in the focused page, Cmd-click in a new tab; a menu per entry (Open in New Tab, Copy Address, Delete) |
 | Show All History | Opens or focuses the panel; no pane kind of its own |
@@ -157,31 +157,31 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Clear History… | A sheet: the span, three checkboxes (History on; Website data; Site zoom), a note that website data logs you out of sites, Cancel and Clear |
 | The History menu | The last 10 pages below Back, Forward, Reload, then Show All History and Clear History… |
 
-## Step f: the owner's answers (2026-11-12)
+## Step f: the answers (2026-11-12)
 
 | Question | Answer |
 | --- | --- |
 | Where files go | ~/Downloads; `web.downloadFolder` for another; `web.askWhereToSave` to ask for each file |
 | When a download starts | At once for an attachment and for what WebKit cannot show; what it can show (PDF, image) opens in the page unless the link says download or it is Option-clicked |
-| What shows progress | A button at the bottom of the sidebar, at the end opposite the + button (the + of R2, t137, built with this step): a ring while running; the latest download as a card on hover (Quick Look thumbnail, name, size, progress); a click opens the list (name, size, progress, Stop, Resume, Show in Finder, Clear) |
+| What shows progress | A button at the bottom of the sidebar, at the end opposite the + button (the + of R2, built with this step): a ring while running; the latest download as a card on hover (Quick Look thumbnail, name, size, progress); a click opens the list (name, size, progress, Stop, Resume, Show in Finder, Clear) |
 | When one finishes | In the list; the Dock icon bounces once when Sunset is in the background; a system notification (a setting, on); opening safe files (images, PDF) after download (a setting, off) |
 | Safety | The quarantine mark with the page as origin; a taken name gets "-2"; the partial file ends in .download and goes on cancel; apps, installers and scripts (not .dmg) need an approval, by a setting that can turn it off. Later, much later: an antivirus check (ClamAV) of downloaded files |
 | The list kept | `web.keepDownloads`: until removed by hand (default), a day, a week, a month, until Sunset quits, when it finishes; Clear History clears it too |
 | Interrupted | Resumed where possible, also across a quit (the resume data is saved). Later: a study of faster, more reliable downloading (segmented, as aria2c does) |
 
-## Step g: the owner's answers (2026-11-12)
+## Step g: the answers (2026-11-12)
 
 | Question | Answer |
 | --- | --- |
 | What is covered | Camera and microphone, screen sharing, location, notifications, pop-ups and windows without a click, autoplay with sound |
 | How a page asks | A small glass panel under the page's address (wherever it is placed): the site, what it wants, Allow Once / Allow / Don't Allow; the page keeps working |
-| Where answers are kept | Per site, in a file beside the session; Allow and Don't Allow kept, Allow Once not. The owner: the storage of the whole app (session, history, zoom, downloads, permissions…) is to be consolidated |
+| Where answers are kept | Per site, in a file beside the session; Allow and Don't Allow kept, Allow Once not. The maintainer: the storage of the whole app (session, history, zoom, downloads, permissions…) is to be consolidated |
 | Defaults | Ask for camera, microphone, screen, location, notifications; block pop-ups and autoplay with sound; each changeable in Settings (Ask / Allow / Deny) |
 | Where they are reviewed | Settings > Web > Websites, a list per permission (site, answer, remove); and a per-page menu from a site button in the address field (following the tabs' spacing and the design system) |
 | While in use | A dot on the tab row and in the address field (camera/microphone red, screen orange) besides the system's own indicator; a click stops it |
 | Sunset's identity for macOS | A script builds Sunset.app (Info.plist with the usage strings, an icon placeholder, ad-hoc signed), run from there; without it (the bare executable) Sunset answers Don't Allow itself and the panel says it needs Sunset.app |
 
-## Step h: the owner's answers (2026-11-12)
+## Step h: the answers (2026-11-12)
 
 | Question | Answer |
 | --- | --- |
@@ -192,7 +192,7 @@ three-level setting. The Web Inspector has its own menu item, behind a developer
 | Suggestions | `web.privateSuggestions`, off |
 | Closing | Its data goes with it; nothing is asked |
 
-## Step q: the owner's answers (2026-11-12)
+## Step q: the answers (2026-11-12)
 
 | Question | Answer |
 | --- | --- |

@@ -1,6 +1,6 @@
 # 0004 — Spaces: what holds the tabs, and what a window is
 
-What is intended for roadmap 0021 (R4, and the owner's answers of 2026-11-16). ADR-0045 says why. Built so far: the
+What is intended for Spaces. ADR-0045 says why. Built: the
 file, the Space at run time, windows as views of a Space, the settings that clean stopped tabs, and making, switching
 and deleting Spaces (ADR-0047).
 

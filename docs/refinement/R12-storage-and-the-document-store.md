@@ -1,10 +1,10 @@
-# R12 — Storage, the document store and its library (roadmap 0018)
+# R12 — Storage, the document store and its library
 
-Status: **accepted by the owner 2026-11-13** (roadmap 0030; tasks t172, t217, t135). Nothing here is built.
+Status: **accepted 2026-11-13**.
 Input: R6 (the document behind a pane; "the in-app storage needs to be refined"), the study `docs/research/storage/README.md` of
 the same day (what Sunset keeps, forms of a store, encryption, what WebKit allows, probed).
 
-## The owner's answers
+## Answers
 
 | Question | Answer | His note |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ recovery code that Settings can show once. It seals every document, the session 
 so one cannot be put in place of another, and a damaged one is detected rather than read). Nothing is asked of the person. The
 web store is WebKit's and is not sealed: FileVault is its only protection, and Settings say so.
 
-## Costs, as the owner asks to see them
+## Costs, as the maintainer asks to see them
 
 - **Memory.** A document is held once, unsealed, while a pane shows it. The library's titles and the history are unsealed into
   memory at launch so that they can be searched: a history of tens of thousands of visits is a few megabytes. To be measured.
@@ -62,8 +62,8 @@ web store is WebKit's and is not sealed: FileVault is its only protection, and S
 - iCloud Keychain syncs the key, not the documents: a second Mac has the key and nothing to open with it unless the store's folder
   is brought over (a backup, a copy).
 - The recovery code is the key itself in a form to write down. Whoever has it and the files reads everything.
-- A document in the Trash as plain text is outside the seal by the owner's choice.
-- Private pages keep nothing, as now. Profiles (roadmap 0021) get a folder each with their own `state.sqlite`; whether a profile
+- A document in the Trash as plain text is outside the seal by the maintainer's choice.
+- Private pages keep nothing, as now. Profiles get a folder each with their own `state.sqlite`; whether a profile
   has its own key is asked there.
 - `MarkdownLookKit` has `DocumentFile.write` for a document that is a file of the person's (it keeps permissions and symbolic
   links); the store uses Aemi's `AtomicFile` directly.
@@ -78,16 +78,16 @@ web store is WebKit's and is not sealed: FileVault is its only protection, and S
 | ST-4 | The document store: `Documents/`, `library.sqlite`, rebuilding, deleting to the Trash, moving to a file | The file's name on export |
 | ST-5 | The Documents section of the sidebar | Its look and order (sketches) |
 | ST-6 | Settings, Storage: where things are, the web store's sentence, FileVault's state, the recovery code, Export All | |
-| then | Markdown M-b onward (roadmap 0023), on this store | |
+| then | Markdown M-b onward, on this store | |
 
 ## Answers at the steps (2026-11-14)
 
 | Step | Question | Answer |
 | --- | --- | --- |
 | ST-1 | How a file that did not read is said | Both: a banner at the top of the window, once, and the list stays in Settings (ST-6: the files set aside are listed from the folder) |
-| ST-2 | iCloud Keychain needs an entitlement Sunset does not have (probed: a synced item is refused, -34018, for an ad hoc and for an unentitled build) | The key with its recovery code now, in the login Keychain of this Mac. The owner: "icloud sync should come for the whole software if we decide to connect to it": a later decision for the whole app, not for the key alone |
+| ST-2 | iCloud Keychain needs an entitlement Sunset does not have (probed: a synced item is refused, -34018, for an ad hoc and for an unentitled build) | The key with its recovery code now, in the login Keychain of this Mac. The maintainer: "icloud sync should come for the whole software if we decide to connect to it": a later decision for the whole app, not for the key alone |
 
-| ST-3 | What becomes of the plain files once they are imported (a plain copy left in the folder would defeat the sealing) | First "Delete"; then: "maybe the import should put things in the trash as you proposed initially, i let you reassess the topic later". Built as the choice that destroys nothing: the person's own files go to the Mac's Trash; a named setup's (a test's) are removed. To be reassessed (task t258) |
+| ST-3 | What becomes of the plain files once they are imported (a plain copy left in the folder would defeat the sealing) | First "Delete"; then: "maybe the import should put things in the trash as you proposed initially, i let you reassess the topic later". Built as the choice that destroys nothing: the person's own files go to the Mac's Trash; a named setup's (a test's) are removed. To be reassessed |
 
 | ST-4 | What a document is called; what a new one is | Named from its content; a new document is Markdown |
 | ST-5 | The layout (sketches `docs/research/storage/st5-documents-sketch.png`) | **A**: a small "Documents" heading with a + and a chevron that folds it, the documents under it. And more, in his words below |
@@ -97,13 +97,13 @@ web store is WebKit's and is not sealed: FileVault is its only protection, and S
 | ST-5 | Deleting from the row's menu | At once (the plain text is in the Mac's Trash) |
 | ST-5 | When, since nothing shows a document yet | After the pane: Markdown M-b and M-c first, then ST-5, then ST-6 |
 
-The owner at ST-5 (2026-11-14), beside choosing A: "i believe documents should be movable across tabs as standard tabs, and i'd say
+The maintainer at ST-5 (2026-11-14), beside choosing A: "i believe documents should be movable across tabs as standard tabs, and i'd say
 we should have a way to toggle having a specific section for documents, but i would imagine, we could have the documents in the
 opposite sidebar (the one with the history) and we could switch there between history or documents or other things, and we could
 have a setting that would allow having them in an extended original sidebar where it would show history, documents, tabs as
 sectionned tabs that would change the sidebar content either for the original one or the opposite one, check arc behaviour".
 
-Read as four things, to be shown as sketches before ST-5 is built (roadmap 0031, task t259): a document's row is dragged as a tab's
+Read as four things, to be shown as sketches before ST-5 is built: a document's row is dragged as a tab's
 is (into Favorites and their folders, among the tabs); a setting shows or hides the Documents section of the tab sidebar; the panel
 on the opposite side, which today is the history, becomes a place with sections (History, Documents, others) and a way to switch;
 and a setting puts that switch in the tab sidebar itself instead (Tabs, Documents, History), changing what the sidebar shows.
@@ -116,19 +116,19 @@ and the key moved to the data protection keychain as a synchronizable item.
 | ST-6 | How the recovery code is shown | **On request, after Touch ID or the password**; hidden again when the page is left; it can be asked for again. With **Copy** (no Print) |
 | ST-6 | When a code can be entered | **Always**: an Enter button; a different key already kept is not replaced unless confirmed |
 | ST-6 | What Export All exports | **Every document as plain files, the history as CSV, the session as readable JSON** |
-| ST-3, again (t258) | The plain files of before, once imported | **A setting, the Trash by default** |
+| ST-3, again | The plain files of before, once imported | **A setting, the Trash by default** |
 | ST-6 | The website data's row | **Clear (all website data)**, and **Open FileVault's settings when it is off** |
 
 | ST-5, again (2026-11-15, with the build in hand) | The Documents heading among the tabs | **Taken out**: "i don't think i like having the documents header in the tabs list, documents should be standard tabs across all tabs". Rows A and 2 above no longer hold; the documents are listed in the Library and the opposite panel |
 
-### The sections of the sidebars (2026-11-15, roadmap 0031)
+### The sections of the sidebars (2026-11-15)
 
 Asked on two sketches (`docs/research/sidebar/sections-opposite.png`, `sections-sidebar.png`). The switch of the opposite
 panel is a row of glyphs at its bottom, and he wants several sketches of it to decide among. The Documents heading among
 the tabs and the switch in the tab sidebar coexist, each with its own setting. Sections at first: History, Documents,
 Downloads, Tabs. Orders: Latest Changed (default), Latest Made, Name, Kind. Both sidebars can be open on different
 sections. A document's row dragged onto the tab list opens it as a tab, onto a pane splits it, into Favorites keeps it.
-Arc may be opened to look at it. The table is in roadmap 0031.
+Arc may be opened to look at it.
 
 Then, on six sketches of the foot: the tab sidebar's foot is kept for spaces, later, so it gets a Library glyph opposite the
 + that extends the sidebar, its sections chosen by tabs laid out vertically (Arc's Library, looked at on screen); only the
@@ -136,7 +136,7 @@ opposite panel has its switch at the foot, the segmented one. On three sketches 
 an arrow at its foot, the glyph again, a Tabs glyph and Escape; the glyph and the + follow the sidebar's side; a setting, on
 at first; the same sections in both sidebars. ST-5 and the sections are built in one step.
 
-Settings in the window (roadmap 0032), asked the same day: a gear on the Library's rail, the sidebar listing sections and
+Settings in the window, asked the same day: a gear on the Library's rail, the sidebar listing sections and
 topics, the settings a tab (one per window), a topic a page of its own; Cmd-, uses the window in front, else opens a
 standard one; the Settings window of today goes; built after the sections.
 
@@ -152,5 +152,5 @@ standard one; the Settings window of today goes; built after the sections.
 | Filling 50,000 | 20.6 s | 3.2 s |
 | On disk | 11.1 MB | 16.8 MB (each record carries 37 bytes of seal and 16 of its name's hash) |
 
-The owner's own history today is 30 pages. What the memory buys: nothing of the history is in the file in the clear, not even
+The maintainer's own history today is 30 pages. What the memory buys: nothing of the history is in the file in the clear, not even
 what names a record.

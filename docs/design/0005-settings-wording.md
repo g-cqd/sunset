@@ -1,7 +1,6 @@
 # 0005 — How a setting is worded
 
-Roadmap 0040 A. The owner, 2026-11-17: "'The <something>' as either a title or an option is usually not how you do it";
-VMRunner as a model. Read on 2026-11-17: VMRunner's Settings (`Sources/VMRunner/Views/Settings/SettingsView.swift`) and
+Settings are worded as macOS words its own, with VMRunner as a model. Read on 2026-11-17: VMRunner's Settings (`Sources/VMRunner/Views/Settings/SettingsView.swift`) and
 macOS's System Settings (General, Appearance, Desktop & Dock, Privacy & Security). Both word a setting the same way:
 
 | | VMRunner | System Settings |
@@ -25,8 +24,8 @@ macOS's System Settings (General, Appearance, Desktop & Dock, Privacy & Security
    the setting in its own: "Traffic light inset".
 5. **One spelling: macOS's.** American, as the system's own words beside ours: color, favorite, gray, center.
 6. **The text under a setting** is one or two plain sentences, ending with a period, at most 200 characters. What needs
-   more is help (roadmap 0041), not a note.
+   more is help, not a note.
 7. **Groups and sections** are nouns: "Features", not "What Sunset does".
 
 The rules are checked by `SettingsWordingTests` over every section, group, option, label, value and note of
-`SettingsSection.all` (roadmap 0040 B).
+`SettingsSection.all`.

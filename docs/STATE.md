@@ -1,149 +1,67 @@
-# Sunset — state of the implementation (handoff)
+# Sunset — the state of the code (2026-11-22)
 
-Rewritten 2026-11-11 from the code, the tests and the log, in refinement session R10. Facts only; decisions are in the ADRs and in `docs/refinement/`.
-A new session reads this, the white paper, `AGENTS.md`, `docs/roadmap/0018-refinement-phase.md`, the open tasks and the notes.
+Facts measured from the repository on 2026-11-22: 726 commits; the latest release is v0.1.0-alpha.8 (`docs/releases/`).
+Why things are as they are is in `docs/adr/`; what is intended is in `docs/design/`; the rules every change follows are in
+`docs/WHITE-PAPER.md` and `docs/quality.md`.
 
-## How work is decided
+## What Sunset is
 
-White paper §10: nothing is built that was not asked for; an idea is a proposition that goes through the owner. The refinement phase (roadmap 0018)
-is in progress: each topic is decided with the owner, alternatives and their costs (speed, memory, safety, security) stated, before any of it is
-built. The ten sessions were held and accepted on 2026-11-11; each has a file in `docs/refinement/` and a roadmap: the web pane (0019), folders
-and Favorites (0020), Spaces and profiles (0021), web beyond the first pane (0022), Markdown and the document behind a pane (0023), restoring the
-running state (0024), the window shell as a library (0025), the terminal's open ends (0026). The owner's order of building: folders, the web
-milestone, Markdown, Spaces, profiles, web beyond, restoring, then the terminal items and performance. R11, asked for during R6 (commands, keys, the command bar, App
-Intents, remote control), was held too: roadmap 0027, built after the pane work. One session is still to hold: Sunset's own document store (t172). The owner's notes n49 to n67 not yet in a step are gathered in roadmap 0028 (the shell's polish). Nothing of all this is built.
+A terminal emulator for macOS, written in Swift, whose window also holds web pages and documents as tabs and panes:
 
-## What exists (macOS 26, Swift 6, 172 commits, nothing pushed: there is no remote)
+- **Terminal**: a platform-free core (parser, screen, modes, replies) fed by a program on a pseudo-terminal, drawn by a CPU
+  renderer or a Metal one that replays its draw list.
+- **Web**: pages on the system's WebKit, with history, downloads, per-site permissions, content blocking, private windows,
+  WebKit's extensions, and a choice of the browser a site is shown.
+- **Documents**: Markdown, Mermaid and text, drawn natively or as source, either a file of the person's or a document that
+  lives in Sunset's sealed store; a change on disk is merged block by block.
+- **The window**: tabs in a sidebar, a built-in bar or the system's tabs; splits; Spaces, each with a profile; Favorites and
+  a Pinned grid per profile; the Library (history, documents, downloads); a command bar.
+- **What it keeps**: sealed records in one state database, sealed documents, WebKit's cookie jars and sites' storage sealed
+  while Sunset is closed; the key in the data-protection keychain, wrapped by the Secure Enclave.
 
-| Target | Size | What it is |
-| --- | --- | --- |
-| `SunsetCore` | 85 files, 4,750 lines | Platform-free: the parser (byte state machine, UTF-8, whole-CSI and control fast paths), the screen (8-byte cells, row map, styles, modes, regions, alternate screen, grapheme clusters, charsets), scrollback in chunks with packing, reflow on resize, replies, selection, key and mouse encoding (legacy and kitty keyboard flags), OSC (see below) |
-| `SunsetHost` | 24 files | The PTY seam: spawn, the output pump on its own thread, `TerminalSession`, `HeadlessSession`, foreground command, shell integration for zsh, history packing, notification gate, host policy |
-| `SunsetRender`, `SunsetRenderMac`, `SunsetRenderMetal` | 50 files | The CPU renderer (dirty rows, box drawing, ligatures and OpenType features by run shaping), CoreText glyphs, the Metal renderer; chosen at run time (`renderer`: auto, gpu, cpu), falling back to the CPU one when the GPU one fails |
-| `SunsetPane` | 41 files | No dependency: `Workspace` (a window's tabs, each a split tree), split geometry, drop zones, close confirmation, saved sessions with a descriptor per pane, a tab's own name and icon; `Favorites` (folders step a1, 2026-11-11: the app-wide tree of folders and kept entries, in the model and the session file; step a2: the app reads it at launch and writes it back, whatever the restoring setting says, and **nothing in a window shows or edits it yet**) |
-| `SunsetShell`, `SunsetShellBridge` | 26 + 2 files | The window shell (R8, step H-1, 2026-11-11): the tab model of a window (`TabsModel`), the pane content protocol, the sidebar and its rows, tab labels and glyphs, the command bar's state, its own plain settings (`ShellSettings`, the configuration's names); the bridge fills them from the configuration. Package access |
-| `SunsetTerminal` | 30 files | The terminal as a kind of pane content (R8): its model, its AppKit view, input, selection, the renderer's wiring; what it needs from the app (the clipboard policy, the font zoom) comes in as callbacks |
-| `SunsetConfig` | 22 files | The JSON configuration file, read and written, watched and applied live; 110 keys |
-| `SunsetPrivate` | 3 files | Private API by run-time lookup (window blur, backdrop blur, the window's corner radius) |
-| `SunsetApp` | 50 files | The app: SwiftUI scenes, settings and menus over AppKit views; no Dispatch |
-| `sunset-run`, `sunset-render` | | A program's screen as text; as a PNG, with no window |
+Two builds are released, both signed with Developer ID and notarised: **Sunset**, on macOS's WebKit, and **Sunset WebKit**,
+on a WebKit of its own (`Scripts/webkit.sh`, `Scripts/make-webkit-app.sh`). They share Sunset's store, settings and key; one
+runs at a time.
 
-Tests: 939 in 176 suites, all passing on 2026-11-11 (`swift test`). Gates at every commit: swift-format, SwiftLint (no `try!`, `as!`, force
-unwrap), one top-level type per file and 250 lines a file (a test). Benchmarks: ordo-one in `Benchmarks/`, and `bench/instructions/run.sh`
-(instructions per MiB by stream, independent of the machine's load).
+## The targets
 
-### The app, as built
+| Target | Swift files | Lines | What it is |
+| --- | ---: | ---: | --- |
+| `SunsetCore` | 87 | 5,042 | The headless emulator: VT parser, screen, modes and replies. Platform-free |
+| `SunsetHost` | 26 | 1,320 | A program on a pseudo-terminal feeding the core, with no window; the only core target that imports the platform |
+| `SunsetRender` | 38 | 2,183 | The CPU renderer: cells to pixels, the reference the GPU renderer is held to. Platform-free |
+| `SunsetRenderMac` | 10 | 569 | The macOS glyph source (CoreText) and the surfaces a window shows |
+| `SunsetRenderMetal` | 7 | 683 | The Metal renderer: replays the CPU renderer's draw list on the GPU |
+| `CSunsetKernels` | — | — | Pixel kernels in C with NEON and a scalar fallback, each tested against its scalar reference |
+| `SunsetTerminalModel` | 26 | 1,149 | The terminal's model: session, screen, renderer's wiring, selection, links. No AppKit, no SwiftUI |
+| `SunsetTerminal` | 14 | 677 | The terminal as a kind of pane content: its AppKit view, keys and mouse |
+| `SunsetPane` | 64 | 3,127 | What a window holds: panes in splits, tabs, Spaces, Favorites. Pure values, no UI |
+| `SunsetShellModel` | 133 | 6,941 | The window's model: tabs, Spaces, Favorites, sidebar sections, commands. No UI framework |
+| `SunsetShell` | 181 | 7,926 | What shows the window's model (SwiftUI, AppKit) |
+| `SunsetShellBridge` | 3 | 59 | Joins the configuration file to the shell's settings |
+| `SunsetWebModel` | 71 | 3,038 | The web's policy: site rules, permissions, history, how sites see Sunset, search, downloads. No WebKit, no UI |
+| `SunsetWeb` | 117 | 7,886 | Web pages (WebKit) and what shows them |
+| `SunsetSiteData` | 5 | 244 | The Public Suffix List and Apple's password-manager-resources, with their readers |
+| `SunsetDocuments` | 32 | 1,784 | Sunset's document store, and the one document behind every pane on a file or a stored document |
+| `SunsetMarkdown` | 21 | 1,130 | A document as a kind of pane content: Markdown and Mermaid drawn natively or as source |
+| `SunsetConfig` | 84 | 4,464 | The configuration file: schema, defaults, validation, Settings' sections. Platform-free |
+| `SunsetStorage` | 40 | 2,280 | Where everything Sunset keeps is, sealed, written whole or not at all; the keys; WebKit's folders |
+| `SunsetCredentials` | 11 | 474 | Password management's model: vault files, factors (master password, Touch ID, recovery code), the lock. No UI |
+| `SunsetImport` | 29 | 978 | Another browser's bookmarks, profiles and more, read and turned into Sunset's. No UI |
+| `SunsetHelp` | 9 | 437 | Help's topics and texts, one source for a control's tooltip and its explanation |
+| `SunsetPrivate` | 17 | 661 | Private API looked up by name at run time (window blur, WebKit's find, permissions, audio) |
+| `SunsetRuntime` | 1 | 74 | Tasks and time through seams: what every module is given, live in the app, a test's own in tests |
+| `SunsetMetrics` | 1 | 63 | The interface's measures (`layout.*`): one list, read by the configuration and drawn by the shell |
+| `SunsetAppCore` | 21 | 784 | What the app decides, apart from what it shows. No UI framework |
+| `SunsetApp` | 206 | 12,686 | The app: scenes, menus, settings, the glue between the targets |
+| `SunsetAppMain`, `SunsetRun`, `SunsetRenderTool` | 3 | 245 | The executables: the app's entry, `sunset-run` (a program's screen as text), `sunset-render` (as a PNG) |
 
-- Windows with no title bar, movable window buttons, a drag strip; materials, blur, tint, colour scheme; themes.
-- Tabs in three presentations (system tabs, a sidebar, a built-in bar), changed live; splits by menu, drag and drop; a command bar (Cmd-L) searching
-  tabs; hover previews of a tab's last frame; a two-step confirmation before closing a pane, a tab or the other tabs while a command runs.
-- Sessions: tabs, splits, each pane's directory, a tab's name and icon come back at launch.
-- Favorites (2026-11-11): one set for the app at the top of the sidebar, above a thin line. Add to Favorites (a tab's menu); a click
-  opens and shows an entry; a minus unloads it, Cmd-W unloads it with its last pane; an entry that is not open is drawn fainter with an x that
-  deletes it; Remove from Favorites, Set Home to Current; Cmd-1..9 and Next/Previous count open entries, then tabs; an entry shown in a second
-  window is live there and the first shows its last picture, dimmed, with a label (a click brings it back); the window stays, with a hint, when
-  its last tab closes while there are Favorites; a tab dragged onto the line or onto an entry is kept there, an entry dragged among the tabs
-  leaves the Favorites, entries reorder by drag; open entries lead the built-in tab bar, each with a star; the app keeps running when its last
-  window closes while an entry is open (`tabs.keepRunningForFavorites`, on by default). A kept terminal can hold a command (Edit Command…), typed into its new shell
-  when it opens and at relaunch; it is sealed with a key in the Keychain, and a command something else wrote into the session file is shown,
-  never run, until saved in the dialog. Folders: New Folder (the sidebar's empty area, a folder's menu), New Folder with This Tab, a tab
-  or an entry dropped on a folder goes in, Ungroup, Delete Folder and Its Contents (asks first when something runs); a folder never opens or
-  closes what it holds (owner). Names are edited in place (Rename in a row's menu, a double-click, Shift-Cmd-R with the sidebar
-  docked); Change Icon… opens a popover: the system's SF Symbols (read from CoreGlyphs, searchable, by category), the Character Viewer for an
-  emoji, preset colours and a colour well for a symbol. Several rows are selected together (Cmd-click, Shift-click, across Favorites and Tabs; Escape or a plain
-  click clears): New Folder with the selection, Add to / Remove from Favorites, Delete, and a drag carries the selection. In the built-in
-  bar, top-level folders are chips followed by their open entries; a click collapses one (with a count), shared with the sidebar. Not yet: entries under system tabs, folders made from the UI.
-- A tab can be renamed and given an emoji or an SF Symbol (Rename Tab…).
-- Selection by cells, words and lines, block selection, copy and paste; links (OSC 8) opened on Cmd-click under a policy; the input method; kitty
-  keyboard; mouse reporting; scrollback with trackpad and wheel inertia; Previous and Next Prompt.
-- The click that activates the window gives the pane under it the keyboard.
-- Panes hold `PaneContent`: a terminal (`SunsetTerminal`) or a web page (`SunsetWeb`, web step a, 2026-11-11). A note kind exists and is hidden;
-  a kind a build cannot make is shown as a placeholder and kept.
-- Web pages: the system's WebKit with Safari's name and version; made when first shown; the default persistent store; address, title and history
-  saved and restored. Cmd-T makes a tab of the focused kind, Shift-Cmd-T asks which kind, Panes > New Web Page. Cmd-click on a link in a terminal
-  opens it split beside it (`web.openLinksInSunset`). A page's link menu: Open Link in Split Right / Split Down / New Tab (after it, not shown) /
-  New Window, Copy Link; Cmd-click in a page opens a tab after it. A failed load is our page (reason, address, Try Again; Visit Anyway after a
-  warning for an untrusted certificate). Inspect Element by `web.developer`. A page's tab shows the first letter of its title (`web.tabIcon`).
-- The address (web step b): `web.address` = a field at the top of the docked sidebar (default; the window bar stands in without a docked sidebar),
-  the window bar (`web.windowBar` top or bottom: back, forward, reload/stop, the address; out when the pointer reaches its edge, gone after it
-  leaves), or a row in every page. Hidden while a terminal has the keyboard. A field shows the host; a click selects the whole address; Return
-  loads, Escape gives up; a thin line shows loading. History menu: Cmd-[ Cmd-] Cmd-R, Shift-Cmd-R without the cache, Cmd-. Stop. The command bar
-  (Cmd-L) offers "Go to <address>" for what looks like one: the focused page, or a new page tab from a terminal. Rename Tab lost Shift-Cmd-R.
-- Search (web step c, 2026-11-12): what is typed is an address (a scheme kept; this machine and the local network over http at once; a dotted host
-  over https, falling back to http by `web.httpFallback`, marked Not Secure) or words searched with `web.engine` (Google, DuckDuckGo, Bing, Ecosia,
-  Kagi, and `web.engines` added in the file or Settings; a keyword and a space pick one). Suggestions in the OpenSearch format (`web.suggestions`,
-  on; an ephemeral session; Bing has none) in a list under the address field as wide as the content. The command bar (Cmd-L) has row states, an
-  accessory per row, each row's actions on Cmd-K (Cmd-Return, Option-Return), the engine as a chip, Up recalling this session's entries.
-- Find and zoom (web step d, 2026-11-12): Cmd-F opens a glass find bar at the top right of the page's pane (Edit > Find: Find Next Cmd-G, Previous
-  Shift-Cmd-G, Use Selection Cmd-E; off with a terminal focused) through WebKit's private find (`SunsetPrivate.WebFind`: every match highlighted,
-  "3 of 12", Match Case and Starts With; the public find without a count where it is missing). Cmd-+ Cmd-- Cmd-0 zoom the focused page (Zoom In /
-  Zoom Out), else size the terminal's font; `web.zoomScope` site (remembered in `site-zoom.json` beside the session) / session / page;
-  `web.textOnlyZoom` through WebKit's private text zoom; "125%" in the address field resets on a click.
-- History (web step e, 2026-11-12): visits kept in `history.sqlite` beside the session (system SQLite; one row per address: title,
-  visits, last visit), expired at launch by `web.historyKeep` (a year), optionally cleared at quit (`web.clearHistoryOnQuit`,
-  `web.clearWebsiteDataOnQuit`). Matches by frecency (prefix first, up to 4) in the address field's list and the command bar. History menu: the
-  last 10, Show All History (Cmd-Y: a panel on the side opposite the tabs, by day, searchable, menu per entry), Clear History… (span; history,
-  website data, site zoom). Web tabs have one line (n62); Not Secure is a symbol with its text on hover (n64); glyph to text 7 pt (n63, `docs/design/0002-spacing.md`).
-- Downloads (web step f, 2026-11-12): attachments, what WebKit cannot show, links with download and Option-click download; to ~/Downloads or
-  `web.downloadFolder` (or asked, `web.askWhereToSave`); written as .download then renamed to a free name ("-2"), marked with quarantine;
-  apps, installers and scripts (not .dmg) after an approval (`web.approveRiskyDownloads`); Stop and Resume, also across a quit (resume data in
-  `downloads.json`); a Dock bounce, a notification (`web.notifyDownloads`, bundled app only), safe kinds opened (`web.openSafeDownloads`, off);
-  the list kept by `web.keepDownloads`, cleared with history. The sidebar's bottom: the + (R2, t137; right-click for its kind) on the corner
-  nearest the panes and downloads (a ring; the latest as a card on resting; the list on click) on the other, both `SidebarIconButton`s like the pin.
-- Permissions (web step g, 2026-11-12): camera and microphone, location (public WebKit questions), screen sharing and notifications
-  (WebKit's private questions, `SunsetPrivate.WebPermissionHooks`), pop-ups without a click, autoplay with sound. Asked in a glass panel at the
-  top of the page (Allow Once / Allow / Don't Allow); kept by site in `site-permissions.json`; defaults by `web.permissions.*` (ask; pop-ups and
-  sound denied); Settings > Web > Websites; the site button in the address field (lock, capture dot, this site's answers); a capture dot on the
-  tab. Camera, microphone and location need Sunset.app (`Scripts/make-app.sh`: Info.plist with usage strings, icon, ad-hoc signature, bundle
-  id studio.aemi.sunset); the bare executable refuses them and says so.
-- Private pages (web step h, 2026-11-12): a private tab anywhere (File > New Private Tab, Option-Shift-Cmd-N; the + menu; Open Link in Private
-  Tab) and a private window (Shift-Cmd-N). In-memory stores: a private tab of a normal window has its own; a private window's pages share one
-  (`web.privateWindowShares`, and a toggle in the "Private" mark's popover). Never kept: history, command bar recall, site answers (its own, in
-  memory), site zoom, the session, the download's list entry. `web.privateSuggestions` off. Marked by a dark address field with "Private" and
-  a mask on the tab. Tested in the background with axdrive (Tools/axdrive).
-- Quitting (web step q, 2026-11-12): `tabs.askBeforeQuit` never / whenLosing (default) / always. What would be lost: running commands (also in
-  Favorites), text typed and not sent in a page, running downloads, tabs that will not come back (`tabs.restore` off). A sheet on a window lists
-  them (a click shows the tab and cancels), Cancel / Quit / Don't ask again (sets never). Until answered Sunset tells the system "later": a
-  logout waits unless it is force-quit. Closing a window is not covered (per-tab confirmation stays). The web milestone (roadmap 0019) is done.
-- Design system (design 0003, 2026-11-12): migration step 1 done. `SunsetMetrics` holds the one `layout.*` list (`LayoutMetrics`), aliased by
-  `Configuration.Layout` and `ShellSettings.Layout` (the hand copy is gone). `Design` tokens in SunsetShell (space, radius, size, width, fill,
-  shadow, symbol, text, surface, accent, optical). `layout.sidebarButtonSize/Radius` (old `pinButton*` names still read), `appearance.accent`
-  (system / sunset / neutral; not drawn yet). `DesignTokenTests` rejects literal measures in views; 58 files allowed, the list only shrinks.
-  Before/after window shots from both builds: 0 pixels differ.
-- Defaults (2026-11-12, owner): the owner's settings: `window.material` glass, tint #000000 at 0.5, `terminal.opacity` 0.2, background #000000,
-  no decorations, window and sidebar padding 4, sidebar on the right, 229 wide, kept visible, JetBrains Mono 12 (Menlo when it is not
-  installed: `FontFallback`, CoreText would give Helvetica), bar cursor, blink stops after 15 s. `window.material: transparent` is now `fill`
-  (the tint's colour and alpha, no desktop blur; `transparent` still read).
-- Design step 2 (surfaces): every floating surface through `SurfaceStyle` / `.surface(_:shadow:)` by `window.material`; concentric radii (bars 12
-  holding 6, the permission panel 22); bars 38; panels pad 16, sheets 24; shadows `popover` / `float`. See research/design-system §12.
-- Design step 3 (rows, fields, buttons): built from four review rounds (research/design-step3/README.md): 32 pt tab rows, a 28 pt Favorites
-  tree, open rows filled and none dimmed, the close button centred half a row from the edge, monospaced second line
-  (`tabs.bar.monospacedDirectory`), kept terminals drawn as themselves, folders with a trailing chevron, split sub-rows icon-only when narrow,
-  one field (`fieldSurface`), bar buttons as icon buttons, eye.slash for private, new pin and downloads symbols. `FontServer`: one font at a time.
-- Design step 4 (text, fills, accent): `appearance.accent` drawn (system / sunset with a contrast fallback / neutral) through `AccentStyle`
-  and `tint`; text by macOS's built-in styles (`Design.Text`); named fills.
-- Design step 5: every view names its measures (`DesignTokenAllowance` empty); off-scale values moved up, shown in research/design-step5.
+Tests: 615 files, 1,980 tests, in 19 test targets, all passing with `swift test` on 2026-11-22.
 
-### OSC handled by the core (ADR-0010 policy)
+## How it is checked
 
-0, 1, 2 (titles); 4, 104, 10, 11, 12, 110-112 (colours, set, queried, reset); 7 (directory); 8 (links); 9 and 9;4 (notification, progress); 22
-(pointer shape); 52 (clipboard write only, behind `terminal.clipboardWrite`; read is denied); 99, 777 (notifications); 133 (prompt marks); 1337
-(SetMark, CurrentDir). Not handled: 21, 66.
-
-## Not built (found by searching the sources on 2026-11-11)
-
-Left and right margins (DECLRMM); kitty graphics, Sixel, inline images; search in the scrollback; text sizing (OSC 66); unscroll; an own font
-stack (CoreText is used); per-style fonts, fallback order and variable-font settings; Linux (no Linux code path in the sources); remote control;
-session recording and replay as a feature; `esctest` / `vttest` fixtures; a crash fuzzer beyond the seeded random and differential tests; wezterm
-as an oracle; bash shell integration; quitting or closing a window is not confirmed.
-
-## Measured (2026-11-11, headless, release, instructions per MiB)
-
-Plain ASCII 33 M · dense colour 76 M · cursor moves 78 M · full lines 30 M · titles 116 M · short lines (real scrolling) 257 M · unicode 166 M.
-The app against Ghostty on vtebench was last measured before 2026-11-11 (dense equal; scrolling 26 vs 17 ms, regions 20 vs 15, fullscreen 34 vs
-22, unicode 8 vs 2) and **not** since the scrolling work of that day. Performance work is deferred by the owner (task t100).
-
-## Not verified, said plainly
-
-Much of the app's UI was built without being exercised by hand: the hover preview, sidebar drag and drop, rapid close, the rename dialog, the
-pointer shapes, Previous and Next Prompt in the running app. The CI workflows were written and never run. Each task says what was and was not tried.
+- At every commit: swift-format, SwiftLint, the structure rules (one top-level type per file, 250 lines a file), no
+  unseamed time or tasks, no Grand Central Dispatch (`docs/quality.md`).
+- `swift test`: 19 test runs, no warnings.
+- CI (`.ci/action.json`): the same, plus deadwood, dolly and arcleak against their baselines; mutation testing once a day.
+- Benchmarks: ordo-one in `Benchmarks/`, release only, against the oracles where a comparison exists.

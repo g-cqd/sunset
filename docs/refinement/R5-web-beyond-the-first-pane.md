@@ -1,13 +1,13 @@
-# R5 — Web, beyond the first pane (roadmap 0018)
+# R5 — Web, beyond the first pane
 
-Status: **accepted by the owner 2026-11-11** (roadmap 0022, tasks t121, t154-t163, t119). Nothing here is built.
-Input: notes n42, n45; `docs/research/search-browser-review-2026-11-11.md`; R1 and R4.
+Status: **accepted 2026-11-11**.
+Input: `docs/research/search-browser-review-2026-11-11.md`; R1 and R4.
 
-## The owner's answers
+## Answers
 
 | Question | Answer | His note |
 | --- | --- | --- |
-| The engine | Our own WebKit build, shipped with the app, beside the system's | "Remote" in n42 meant WebKit's repository: build on macOS's WebKit or on a latest build of ours |
+| The engine | Our own WebKit build, shipped with the app, beside the system's | "Remote" in the request meant WebKit's repository: build on macOS's WebKit or on a latest build of ours |
 | How the two are offered | Two builds of the app | Switching from one to the other without hassle, with download and reload handled by the app, can be studied later |
 | Which WebKit ours follows | The tip of main, on a schedule | |
 | Patches | WebKit as it is first; a patch only when a decided feature cannot be done otherwise, each put to him with its upkeep | |
@@ -16,7 +16,7 @@ Input: notes n42, n45; `docs/research/search-browser-review-2026-11-11.md`; R1 a
 | Where it is built | Decided after the spike | His machine for now, CI possibly later |
 | When | Last of all in R5 | |
 | What the own engine may lose | Read back to him, then he decides | DRM is especially important |
-| From the Search browser | Content blocking; hiding an element for good; extensions; a proxy per profile; driving pages from a socket and MCP (t136) | |
+| From the Search browser | Content blocking; hiding an element for good; extensions; a proxy per profile; driving pages from a socket and MCP | |
 | Extensions | A study first | |
 | Blocking lists | Well-known lists, fetched and updated; a list can be added by address | |
 | Blocking by default | On | |
@@ -49,13 +49,13 @@ permissions, keep awake, and the Space the site goes to. Settings has the same f
 Chrome's and Firefox's, and one interoperable import and export); passwords (the system's Passwords and passkeys in our views, extensions, and
 our own later).
 
-**The engine, last.** A spike (t119) on a real build: can a WebKit built from the tip of main be loaded by our signed app, what it loses, its
+**The engine, last.** A spike on a real build: can a WebKit built from the tip of main be loaded by our signed app, what it loses, its
 size, build time and disk. Its findings are read back; DRM video matters especially. If it goes on: a second build of the app that carries the
-engine in its bundle, WebKit unpatched, rebuilt on a schedule on the owner's machine, the cadence held by us.
+engine in its bundle, WebKit unpatched, rebuilt on a schedule on the maintainer's machine, the cadence held by us.
 
-Costs, as the owner asked to see them.
+Costs, as asked.
 - **Security.** The own engine is the largest commitment here: between a WebKit security fix and our next build, its pages are exposed, and
-  following the tip of main adds regressions nobody has tested. The owner chose a cadence over a fallback; while the project is local this
+  following the tip of main adds regressions nobody has tested. The maintainer chose a cadence over a fallback; while the project is local this
   binds only his own use. The blocking lists are third-party data fetched over https: they can block or hide, not run code. The app then makes
   requests nobody typed (the lists only; agent versions are never fetched). A disguise changes what a site sends us: Chrome-only code may arrive.
   Site-to-Space rules keep a site's logins in one profile.
@@ -67,12 +67,12 @@ Costs, as the owner asked to see them.
 ## Said plainly
 
 - **DRM and the own engine.** Unverified, but likely: protected video (FairPlay) and passkeys depend on Apple's signed components, and a build of
-  ours may not get them. The spike must test exactly this, and the owner decides after.
-- "The tip of main" and "a cadence we hold" pull against each other: the newest code is also the least tested. The owner chose both knowingly; the
+  ours may not get them. The spike must test exactly this, and the maintainer decides after.
+- "The tip of main" and "a cadence we hold" pull against each other: the newest code is also the least tested. The maintainer chose both knowingly; the
   schedule and what test gates a build are asked at that step.
-- Hiding elements and the proxy were chosen without a place in the order: I put them after the site panel; the owner can move them.
+- Hiding elements and the proxy were chosen without a place in the order: I put them after the site panel; the maintainer can move them.
 - Not in this session: the extension decision itself (after its study), "offer a disguise when a site complains" (later study), switching engines
-  without two builds (later study), distribution and updating of the app (not handled yet, by the owner's word).
+  without two builds (later study), distribution and updating of the app (not handled yet, by the maintainer's word).
 
 ## Steps (each begins with its own questions)
 
@@ -87,4 +87,4 @@ Costs, as the owner asked to see them.
 | W-g | The second rung: the script-visible identity | What is set, per browser |
 | Studies | Extensions; bookmarks; passwords | |
 | W-h | The third rung: feature probes | After W-g has been lived with |
-| E | The own engine: the spike (t119), read back; then the second build | Schedule, test gate, what is lost |
+| E | The own engine: the spike, read back; then the second build | Schedule, test gate, what is lost |
