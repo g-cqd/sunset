@@ -1,7 +1,6 @@
 package import SunsetPane
 
-/// Laying tabs out from their menu (n78, t287; the owner, 2026-11-17): offered for several tabs selected, or for one split
-/// tab, never for one plain tab.
+/// Laying tabs out from their menu: offered for several tabs selected, or for one split tab, never for one plain tab.
 extension TabsModel {
     /// The tabs a layout from the menu of `row` acts on: the selected tabs with it when there are several, or the row's own
     /// tab when it is a split; none else.

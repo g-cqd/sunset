@@ -6,7 +6,7 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0022 W-c: the lists compiled are put on every page; a site's pause takes them off its pages; turned off, none.
+/// The lists compiled are put on every page; a site's pause takes them off its pages; turned off, none.
 @MainActor @Suite("Blocking on pages", .timeLimit(.minutes(1)))
 struct ContentBlockerTests {
     /// The page has loaded: told by WebKit, not looked for.

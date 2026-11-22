@@ -1,8 +1,8 @@
 package import Foundation
 import WebKit
 
-/// The picture of a page's notification (roadmap 0036 E): fetched as the page's icon is (without cookies, as the browser the
-/// site is shown), at most 1 MB, made a PNG of 256 px at most, written to a file of its own for the notification centre.
+/// The picture of a page's notification: fetched as the page's icon is (without cookies, as the browser the site is
+/// shown), at most 1 MB, made a PNG of 256 px at most, written to a file of its own for the notification centre.
 extension WebContent {
     /// The most read of a notification's picture.
     static let notificationIconLimit = 1 << 20

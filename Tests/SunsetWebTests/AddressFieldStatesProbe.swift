@@ -8,8 +8,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Pictures of the sidebar's field in the owner's two screenshots' states (2026-11-19), to `SUNSET_ADDRESS_STATES`
-/// (a folder): under the pointer; typed in; typed in after a change of width. A probe, never in the suite.
+/// Pictures of the sidebar's field in the states seen on 2026-11-19, to `SUNSET_ADDRESS_STATES` (a folder): under the
+/// pointer; typed in; typed in after a change of width. A probe, never in the suite.
 @MainActor @Suite("The address field's states (probe)")
 struct AddressFieldStatesProbe {
     @Test(.enabled(if: ProcessInfo.processInfo.environment["SUNSET_ADDRESS_STATES"] != nil))

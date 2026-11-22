@@ -7,7 +7,7 @@ import WebKit
 @testable import SunsetWebModel
 
 /// A probe, run when `SUNSET_BLOCKING_LISTS` names list files (colon-separated; fetched by hand, never by the tests):
-/// each converted and compiled by WebKit, with the time each took and the size compiled (roadmap 0022 W-c).
+/// each converted and compiled by WebKit, with the time each took and the size compiled.
 @MainActor @Suite("Blocking lists compiled by WebKit (probe)", .timeLimit(.minutes(5)))
 struct BlockingCompileProbeTests {
     @Test(.enabled(if: ProcessInfo.processInfo.environment["SUNSET_BLOCKING_LISTS"] != nil))

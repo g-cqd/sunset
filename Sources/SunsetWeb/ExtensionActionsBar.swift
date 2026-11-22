@@ -4,13 +4,12 @@ import SunsetWebModel
 package import SwiftUI
 import WebKit
 
-/// The extensions' buttons in the sidebar's header row, between the sidebar's button and the traffic lights (the owner,
-/// ADR-0109, roadmap 0109 D): each the sidebar's button with the extension's icon, its badge on a corner; clicked, the
+/// The extensions' buttons in the sidebar's header row, between the sidebar's button and the traffic lights: each the sidebar's button with the extension's icon, its badge on a corner; clicked, the
 /// extension's action (its popup under it); its menu: Settings ▸ Extensions.
 package struct ExtensionActionsBar: View {
     let host: ExtensionHost
     let page: WebContent?
-    /// The width the header leaves for the buttons (the owner, 2026-11-20: the rest behind the puzzle piece).
+    /// The width the header leaves for the buttons (the rest behind the puzzle piece).
     let width: Double
     let openSettings: () -> Void
     @Environment(\.sidebarButtonMetrics) private var metrics
@@ -52,7 +51,7 @@ package struct ExtensionActionsBar: View {
         .accessibilityLabel(item.label)
     }
 
-    /// Its order, and Settings (the owner: "allow reordering the extensions").
+    /// Its order, and Settings ("allow reordering the extensions").
     @ViewBuilder private func menu(_ item: ExtensionActionItem, first: Bool, last: Bool) -> some View {
         Button("Move Left") { host.move(item.id, by: -1) }.disabled(first)
         Button("Move Right") { host.move(item.id, by: 1) }.disabled(last)

@@ -54,7 +54,7 @@ extension TabsModel {
         }
     }
 
-    /// The window goes with its last tab, unless it shows a kept entry or there are Favorites to show (it stays, with a hint: R3).
+    /// The window goes with its last tab, unless it shows a kept entry or there are Favorites to show (it stays, with a hint).
     package func finishClosing() {
         onChange()
         if workspace.isEmpty, workspace.selectedEntry == nil, favorites.isEmpty { emptied() } else { syncStates() }

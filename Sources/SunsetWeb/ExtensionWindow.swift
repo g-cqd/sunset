@@ -2,9 +2,9 @@ package import AppKit
 package import Foundation
 package import WebKit
 
-/// A Sunset window as its profile's extensions see one (roadmap 0109 B; seen 2026-11-20: with none, uBO Lite's popup found no
-/// tab and drew nothing): the pages of the Space it shows as its tabs, the page it shows as the active one. A private window
-/// is the private pages'.
+/// A Sunset window as its profile's extensions see one (seen 2026-11-20: with none, uBO Lite's popup found no tab and drew
+/// nothing): the pages of the Space it shows as its tabs, the page it shows as the active one. A private window is the
+/// private pages'.
 @MainActor package final class ExtensionWindow: NSObject, WKWebExtensionWindow {
     package let profile: UUID?
     package let isPrivate: Bool

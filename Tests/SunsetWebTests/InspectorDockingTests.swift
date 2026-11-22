@@ -8,10 +8,10 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner, 2026-11-20: "the inspector not being usable at all, it flickers and shows nothing … make it work at all time,
-/// in any kind of split tabs, and in detached window modes". Docked, WebKit puts the inspector beside the page in the
-/// page's superview (Sunset's `WebViewHostView`) and gives the page what is left; the host set the page back to its whole
-/// size at every layout, over the inspector: the two fought (flicker), the inspector under the page (nothing shown).
+/// "the inspector not being usable at all, it flickers and shows nothing … make it work at all time, in any kind of split
+/// tabs, and in detached window modes". Docked, WebKit puts the inspector beside the page in the page's superview
+/// (Sunset's `WebViewHostView`) and gives the page what is left; the host set the page back to its whole size at every
+/// layout, over the inspector: the two fought (flicker), the inspector under the page (nothing shown).
 @MainActor @Suite("The web inspector, docked in a pane", .serialized, .timeLimit(.minutes(1)))
 struct InspectorDockingTests {
     private func hosted() async throws -> (NSWindow, WebViewHostView, WebContent) {
@@ -50,7 +50,7 @@ struct InspectorDockingTests {
             page.stop()
         }
         await page.showInspector(docked: true)
-        // WebKit's state, with no event to wait for (ADR-0087): looked at until it holds.
+        // WebKit's state, with no event to wait for: looked at until it holds.
         #expect(await RealWait.until { (self.inspectorView(in: host)?.frame.height ?? 0) > 50 })
         let inspector = try #require(inspectorView(in: host), "no inspector beside the page")
         let pageFrame = host.webView.frame

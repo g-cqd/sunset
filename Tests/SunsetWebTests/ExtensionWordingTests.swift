@@ -2,8 +2,8 @@ import Testing
 
 @testable import SunsetWebModel
 
-/// Roadmap 0109 C: what the install prompt says an extension may do, one line per thing it asks, in plain words (ADR-0109:
-/// granted at install, all or nothing, so the person must read what).
+/// What the install prompt says an extension may do, one line per thing it asks, in plain words (granted at install,
+/// all or nothing, so the person must read what).
 @Suite("What an extension asks, said plainly")
 struct ExtensionWordingTests {
     @Test func `sites: every site, one site, its subdomains; permissions by what they let it do`() {
@@ -30,7 +30,7 @@ struct ExtensionWordingTests {
         )
     }
 
-    /// ADR-0113: what blocking `webRequest` lets an extension do is said in words at install, its headers included.
+    /// What blocking `webRequest` lets an extension do is said in words at install, its headers included.
     @Test func `webRequest is worded as what it lets the extension do`() {
         #expect(ExtensionWording.permission("webRequest") == "See the requests pages make")
         #expect(

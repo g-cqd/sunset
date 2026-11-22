@@ -7,8 +7,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// A probe, run when `SUNSET_SITE_PROBE` names an address (roadmap 0045 F; never in the suite: it needs the network): the site
-/// loaded by Sunset's own page, shown as `SUNSET_SITE_AGENT` (chrome by default), with the blocking lists of
+/// A probe, run when `SUNSET_SITE_PROBE` names an address (never in the suite: it needs the network): the site loaded
+/// by Sunset's own page, shown as `SUNSET_SITE_AGENT` (chrome by default), with the blocking lists of
 /// `SUNSET_BLOCKING_LISTS` when given; where it ended, its text, and what its scripts reported, printed.
 @MainActor @Suite("A real site loaded by Sunset's page (probe)", .timeLimit(.minutes(2)))
 struct SiteLoadProbeTests {
@@ -83,7 +83,7 @@ struct SiteLoadProbeTests {
             "JSON.stringify({href: location.href, title: document.title, ua: navigator.userAgent, text: (document.body ? document.body.innerText : '').slice(0, 300)})"
         )
         print("probe: state", state ?? "nil", "loading", page.isLoading, "progress", page.progress ?? -1)
-        // A page that writes what it reads of the browser into #out (the fingerprint page of diary 2026-11-18-03).
+        // A page that writes what it reads of the browser into #out (a fingerprinting page).
         if let out = try await view.evaluateJavaScript("document.getElementById('out')?.textContent ?? ''") as? String,
             !out.isEmpty
         {

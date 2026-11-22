@@ -1,6 +1,6 @@
-/// A sidebar row's end (the owner, 2026-11-19): the close button, then the controls one after another, each the close button's
-/// size with a gap: the cup, the sound, the microphone, the camera. Slot 0 is the close button's own place while it hides, and
-/// the next one while it shows; the edited mark goes just before them, and the title stops before it all.
+/// A sidebar row's end: the close button, then the controls one after another, each the close button's size with a gap: the
+/// cup, the sound, the microphone, the camera. Slot 0 is the close button's own place while it hides, and the next one while
+/// it shows; the edited mark goes just before them, and the title stops before it all.
 package struct RowEnd: Equatable {
     /// A button's side, and the gap between two.
     package let size: Double

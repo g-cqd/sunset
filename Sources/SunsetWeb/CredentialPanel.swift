@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// The panel of a server that asks for a name and a password (roadmap 0029 step 8), in the middle of its page's pane.
+/// The panel of a server that asks for a name and a password, in the middle of its page's pane.
 struct CredentialPanel: View {
     let request: CredentialRequest
     @State private var user = ""

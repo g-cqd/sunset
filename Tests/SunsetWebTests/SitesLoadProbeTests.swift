@@ -10,7 +10,7 @@ import WebKit
 
 /// Many sites in a row (`SUNSET_SITES_PROBE`, comma-separated), each in its own page of Sunset's, blocking on with the lists
 /// of `SUNSET_BLOCKING_LISTS`: how long until the page says it has loaded, what its indicator says then, whether it failed,
-/// how much text it shows (roadmap 0045 C).
+/// how much text it shows.
 @MainActor @Suite("Real sites loaded one after another (probe)", .timeLimit(.minutes(10)))
 struct SitesLoadProbeTests {
     @Test(.enabled(if: ProcessInfo.processInfo.environment["SUNSET_SITES_PROBE"] != nil))

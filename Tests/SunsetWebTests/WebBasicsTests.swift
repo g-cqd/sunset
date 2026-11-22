@@ -5,7 +5,7 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-@Suite("Web basics pages rely on (roadmap 0029)") @MainActor struct WebBasicsTests {
+@Suite("Web basics pages rely on") @MainActor struct WebBasicsTests {
     @Test func `a page's file field opens a panel for what it asked: one file, several, folders`() {
         let one = FileChoice(multiple: false, folders: false).panel(host: "a.com")
         #expect(one.canChooseFiles && !one.allowsMultipleSelection && !one.canChooseDirectories)

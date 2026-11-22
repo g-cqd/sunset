@@ -1,5 +1,5 @@
-/// A file dropped on the window (R6, roadmap 0023 step M-f, ADR-0040). On a terminal its path is typed for the program
-/// there, as in every terminal; anywhere else each file opens as a document, and a folder does nothing.
+/// A file dropped on the window. On a terminal its path is typed for the program there, as in every terminal; anywhere
+/// else each file opens as a document, and a folder does nothing.
 ///
 /// A dropped name is not the person's typing: it can come from an archive or a download. Inside single quotes a shell reads
 /// nothing of it, but its line editor still acts on control characters (an interrupt ends the line, and what follows is
@@ -33,8 +33,8 @@ package enum FileDrop {
     }
 
     /// What a paste types: the copied files' paths as a drop types them, not the name a file manager puts beside them as text
-    /// (the owner, 2026-11-21); the text itself when no file was copied. Nil when there is nothing to paste, or when a copied
-    /// file's name would not be typed for a drop.
+    /// (2026-11-21); the text itself when no file was copied. Nil when there is nothing to paste, or when a copied file's
+    /// name would not be typed for a drop.
     package static func pasted(files: [String], text: String?) -> String? {
         files.isEmpty ? text : typed(files)
     }

@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// n37: the check of the proxy says what it found.
+/// The check of the proxy says what it found.
 @Suite("Checking the proxy") struct ProxyCheckTests {
     @Test func `answered through the proxy, answered around it, or failed with its reason`() {
         #expect(ProxyCheck.outcome(status: 200, error: nil, viaProxy: true) == .throughProxy)

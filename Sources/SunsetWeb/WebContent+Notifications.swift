@@ -1,8 +1,8 @@
 import Foundation
 import WebKit
 
-/// A page's notifications (roadmap 0035 D): what its `Notification` asks (`WebNotifications`) is answered here by the site's
-/// standing answer; what may be shown is handed to the app (`onNotify`), which posts it to the system.
+/// A page's notifications: what its `Notification` asks (`WebNotifications`) is answered here by the site's standing
+/// answer; what may be shown is handed to the app (`onNotify`), which posts it to the system.
 extension WebContent {
     /// Answers the page's `Notification`: `permission` (the API's word for the site's answer), `request` (asks the person when the
     /// site was not answered, from a gesture, one question at a time), `show` (true when it was handed on). Only the page itself, not a frame in it, and only by the
@@ -30,7 +30,7 @@ extension WebContent {
                 return notificationWord(host)
             case "show":
                 guard notificationWord(host) == "granted" else { return false }
-                // Through its service worker's registration: only when that is allowed (roadmap 0046 S2).
+                // Through its service worker's registration: only when that is allowed.
                 if fields["worker"] as? Bool == true, !settings.workerNotifications { return false }
                 if let last = lastNotification, now >= last, now - last < 1 { return false }
                 lastNotification = now
@@ -50,7 +50,7 @@ extension WebContent {
             case "clicks":
                 return await notificationClicks.next()
             case "close":
-                // The page takes one of its own away (roadmap 0036 E).
+                // The page takes one of its own away.
                 if let id = (fields["id"] as? Int) ?? (fields["id"] as? Double).map(Int.init) {
                     onNotificationClose(id)
                 }

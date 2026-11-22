@@ -1,4 +1,4 @@
-/// The sections of this window's sidebars (roadmap 0031).
+/// The sections of this window's sidebars.
 extension TabsModel {
     /// A key or a menu asks for `section` in the panel opposite the tabs: shown on it, or hidden when it was already showing
     /// it. `show` says which, when the asker knows.
@@ -16,7 +16,7 @@ extension TabsModel {
         return settings.sidebar.library || sections.library == .settings ? sections.library : nil
     }
 
-    /// Whether the page of the settings carries its own list of sections and topics (roadmap 0032): always, but when the docked
+    /// Whether the page of the settings carries its own list of sections and topics: always, but when the docked
     /// sidebar shows that list. A sidebar that hides, or none, cannot be counted on to move between topics.
     package func settingsListInPage(sidebarDocked: Bool) -> Bool {
         !(sidebarDocked && sections.library == .settings)

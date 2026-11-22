@@ -1,8 +1,8 @@
 package import Observation
 package import SunsetPane
 
-/// The Favorites of the app (`Favorites`) and the content of the panes of its open entries: one for every window (R3, R4). An open entry can be selected
-/// in several windows, and is live (drawn, typed into) in one of them: the last that claimed it; the others show its last picture (R4, S-d). Its
+/// The Favorites of the app (`Favorites`) and the content of the panes of its open entries: one for every window. An open entry can be selected
+/// in several windows, and is live (drawn, typed into) in one of them: the last that claimed it; the others show its last picture (S-d). Its
 /// content is made the first time it is shown, by the window that shows it.
 @MainActor @Observable
 package final class FavoritesModel {
@@ -17,10 +17,10 @@ package final class FavoritesModel {
     package var live: [Favorites.NodeID: Weak] = [:]
     /// Something changed that the session file holds.
     @ObservationIgnored package var onChange: () -> Void = {}
-    /// When each entry was last shown, as a count of entries shown since launch (a folder's preview, n77): not saved.
+    /// When each entry was last shown, as a count of entries shown since launch (a folder's preview): not saved.
     @ObservationIgnored package var used: [Favorites.NodeID: Int] = [:]
     /// Makes the sealer of kept terminals' commands, the first time a command is checked or saved: the app's reads a key from the Keychain, which can
-    /// ask the person, so it is never done at launch for nothing (t145).
+    /// ask the person, so it is never done at launch for nothing.
     @ObservationIgnored package var makeSealer: () -> (any CommandSealing)? = { nil }
     @ObservationIgnored private var loadedSealer: (any CommandSealing)??
     /// Seals and checks a kept terminal's command; with none, no command is ever run.
@@ -83,7 +83,7 @@ package final class FavoritesModel {
         live[id] = Weak(tabs: tabs)
         noteUsed(id)
         if let previous, previous !== tabs {
-            // The window it leaves shows its picture (roadmap 0035 J).
+            // The window it leaves shows its picture.
             for pane in favorites.entry(id)?.open?.panes ?? [] { contents[pane]?.takePicture() }
             previous.syncStates()
         }

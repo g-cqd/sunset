@@ -54,7 +54,7 @@ extension ExtensionHost {
         perform(id, for: tab)
     }
 
-    /// The order of the buttons (the owner, 2026-11-20).
+    /// The order of the buttons.
     package func move(_ id: String, by offset: Int) {
         guard let entry = installed.first(where: { context(of: $0.id)?.uniqueIdentifier == id }) else { return }
         moveEntry(entry.id, by: offset)

@@ -1,4 +1,4 @@
-/// The command bar's size in the room it has (the owner's note n52: in a small window it went past its edges).
+/// The command bar's size in the room it has (in a small window it went past its edges).
 package enum CommandBarSize {
     /// Its own width while it fits; else the room less a margin on each side.
     package static func width(room: Double) -> Double {

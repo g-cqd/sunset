@@ -1,5 +1,5 @@
-/// An alert or a confirmation in Sunset's own look (the owner's note n73): what it says and its buttons; `SunsetAlertView`
-/// draws it, `SunsetAlerts` shows it.
+/// An alert or a confirmation in Sunset's own look: what it says and its buttons; `SunsetAlertView` draws it,
+/// `SunsetAlerts` shows it.
 package struct SunsetAlert: Sendable {
     package struct Button: Sendable, Equatable {
         package enum Role: Sendable, Equatable {

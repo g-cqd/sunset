@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner, 2026-11-19: the asking tab itself is offered, in its Space, marked.
+/// The asking tab itself is offered, in its Space, marked.
 @Suite("Share: the asking tab")
 struct ShareAskingTabTests {
     @Test func `the asking tab is listed by its title, marked as this tab; another tab by its title alone`() {

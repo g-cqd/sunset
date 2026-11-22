@@ -1,5 +1,5 @@
-/// How the panes of a tab sit in the window (the owner, 2026-11-18): the margin around them, the space between them, and
-/// the radius of their corners at the window's corners and elsewhere.
+/// How the panes of a tab sit in the window: the margin around them, the space between them, and the radius of their
+/// corners at the window's corners and elsewhere.
 ///
 /// In a window, as before: cards with the sidebar docked or the tab split, `margin` (docked) or `paneGap` around and between
 /// them, their corners concentric with the window's. In full screen, nothing around the content: one pane fills the screen,

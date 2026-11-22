@@ -1,8 +1,8 @@
 import SunsetShell
 import SwiftUI
 
-/// A panel a page shows of its own (roadmap 0086 E: four panels drew it whole): on the popover's surface, one width, in its
-/// pane; `blocking`, over a veil that keeps the page from being used until it is answered (a dialog, a sign-in, a share).
+/// A panel a page shows of its own (four panels drew it whole): on the popover's surface, one width, in its pane;
+/// `blocking`, over a veil that keeps the page from being used until it is answered (a dialog, a sign-in, a share).
 struct PagePanel<Content: View>: View {
     var blocking = true
     /// Its width: one for every panel, but a wider one where it shows pictures (the share panel).

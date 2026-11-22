@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// The name and icon a person gives a tab, over what its program says (`n41`).
+/// The name and icon a person gives a tab, over what its program says.
 extension TabsModel {
     /// Opens the rename dialog for `item` (`RenameTabAlert`).
     package func beginRename(item: Workspace.ItemID) {
@@ -46,8 +46,8 @@ extension TabsModel {
         }
     }
 
-    /// What the icon picker's way back is called for the row (roadmap 0036 A): a page goes back to its site's icon (ADR-0063),
-    /// anything else to no icon of its own.
+    /// What the icon picker's way back is called for the row: a page goes back to its site's icon, anything else to no
+    /// icon of its own.
     package func clearIconTitle(for row: RowTarget) -> String {
         let descriptor: PaneDescriptor?
         switch row {

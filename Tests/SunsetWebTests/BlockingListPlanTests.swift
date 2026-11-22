@@ -3,7 +3,7 @@ import Testing
 
 @testable import SunsetWebModel
 
-/// Roadmap 0086 D: what the app decided about blocking lists by itself, untested (`AppBlocking`), now the web's model's.
+/// What the app decided about blocking lists by itself, untested (`AppBlocking`), now the web's model's.
 @Suite("Blocking lists: which, when, where")
 struct BlockingListPlanTests {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)

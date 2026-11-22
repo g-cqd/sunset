@@ -1,7 +1,7 @@
 import Observation
 
-/// What is shared into a call now, of every kind (a page, a terminal, a document; ADR-0082, roadmap 0057): a count for each
-/// content, since several calls may share one. While a content is shared its tab says so (`captureMark`).
+/// What is shared into a call now, of every kind (a page, a terminal, a document): a count for each content, since
+/// several calls may share one. While a content is shared its tab says so (`captureMark`).
 @MainActor @Observable
 package final class SharedPanes {
     package static let shared = SharedPanes()

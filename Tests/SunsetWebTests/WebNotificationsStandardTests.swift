@@ -8,10 +8,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0037 C, as WebKit has it (task t97, read in a bare WKWebView 2026-11-19): the standard's TypeErrors for `actions`
-/// and for `renotify` without a tag (notifications.spec.whatwg.org) are not WebKit's, which ignores both, and has no
-/// `requireInteraction`, `renotify`, `timestamp`; a page tells Sunset from Safari by any difference. `silent` is the page's
-/// to ask, and is handed on.
+/// The standard's TypeErrors for `actions` and for `renotify` without a tag (notifications.spec.whatwg.org) are not
+/// WebKit's, which ignores both, and has no `requireInteraction`, `renotify`, `timestamp`; a page tells Sunset from Safari
+/// by any difference. `silent` is the page's to ask, and is handed on.
 @MainActor
 @Suite("A page's notifications: what the standard asks")
 struct WebNotificationsStandardTests {

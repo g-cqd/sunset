@@ -5,7 +5,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// ADR-0082: what a page is offered, and when a share stops.
+/// What a page is offered, and when a share stops.
 @Suite("Sharing a tab") struct TabShareTests {
     private let work = UUID()
     private func source(_ title: String, profile: UUID?) -> ShareSource {
@@ -45,7 +45,7 @@ import Testing
 }
 
 extension TabShareTests {
-    /// ADR-0082: the shared tab stops being shared from its own panel; the call's track ends.
+    /// The shared tab stops being shared from its own panel; the call's track ends.
     @Test @MainActor func `a shared page stops every share of itself, and only those`() {
         let shared = WebContent(descriptor: PaneDescriptor(kind: "web", state: [:]), settings: WebSettings())
         let other = WebContent(descriptor: PaneDescriptor(kind: "web", state: [:]), settings: WebSettings())

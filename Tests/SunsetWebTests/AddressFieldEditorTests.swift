@@ -4,9 +4,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's note n41 (2026-11-18): "focusing on the address bar to edit the text now completely changes the dimensions
-/// and layout of the input". Typing in it leaves the editor where AppKit puts it; only a later change of the field's width
-/// moves the editor's end with it (note n10), keeping AppKit's margin.
+/// Typing in the address field leaves the editor where AppKit puts it; only a later change of the field's width moves
+/// the editor's end with it, keeping AppKit's margin.
 @MainActor @Suite("The address field while typed in")
 struct AddressFieldEditorTests {
     private func field(width: Double) -> (NSWindow, AddressNSField) {
@@ -63,7 +62,7 @@ struct AddressFieldEditorTests {
             clip.frame.minX == appKit.minX && clip.frame.minY == appKit.minY && clip.frame.height == appKit.height,
             "\(clip.frame)"
         )
-        // Its end at the field's alignment edge less the caret's margin (the owner's screenshot of 2026-11-19).
+        // Its end at the field's alignment edge less the caret's margin.
         #expect(
             abs(clip.frame.maxX - (200 - field.alignmentRectInsets.right - AddressNSField.caretMargin)) < 0.5,
             "\(clip.frame)"
@@ -81,8 +80,8 @@ struct AddressFieldEditorTests {
         #expect(clip.frame.minX == (try appKitFrame(width: 200)).minX)
     }
 
-    /// The owner's note n63: Open Address with the sidebar floating brings the panel in, and its field is asked to take the
-    /// keyboard before it is in a window (the panel's transition). It takes it as soon as it is in one; the ask is not lost.
+    /// Open Address with the sidebar floating brings the panel in, and its field is asked to take the keyboard before it is
+    /// in a window (the panel's transition). It takes it as soon as it is in one; the ask is not lost.
     @Test func `asked to take the keyboard before it is in a window, it takes it as it goes in one`() {
         let (window, field) = field(width: 200)
         field.removeFromSuperview()

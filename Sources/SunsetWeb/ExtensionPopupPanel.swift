@@ -2,9 +2,9 @@ import AppKit
 import SunsetShell
 import WebKit
 
-/// An extension's popup in a panel of Sunset's own (the owner, 2026-11-20: "decrease the corner radius of the popup"): the
-/// popover WebKit made for it is not shown; its content, sized by the page, sits in a panel with a smaller corner, under the
-/// button that was clicked. Closed when it loses the keyboard or on Escape.
+/// An extension's popup in a panel of Sunset's own ("decrease the corner radius of the popup"): the popover WebKit made for
+/// it is not shown; its content, sized by the page, sits in a panel with a smaller corner, under the button that was
+/// clicked. Closed when it loses the keyboard or on Escape.
 @MainActor final class ExtensionPopupPanel: NSPanel {
     private static var shown: ExtensionPopupPanel?
     private let action: WKWebExtension.Action

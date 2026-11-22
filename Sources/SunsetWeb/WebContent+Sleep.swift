@@ -1,8 +1,8 @@
 import Foundation
 import WebKit
 
-/// A page not on screen lets go of its view to free its memory (roadmap 0021 S-f, ADR-0071): its address, its history and
-/// its place in it are kept (`interactionState`), and its picture; shown again, it is made again there.
+/// A page not on screen lets go of its view to free its memory: its address, its history and its place in it are kept
+/// (`interactionState`), and its picture; shown again, it is made again there.
 extension WebContent {
     /// Whether something would be lost or broken by unloading it now: it plays, captures, or holds a dialog or a question.
     package var mustStayLoaded: Bool {
@@ -16,7 +16,7 @@ extension WebContent {
         guard !shown, webView != nil, !mustStayLoaded else { return false }
         endView(keepingHistory: true)
         progress = nil
-        // It loads no more (roadmap 0045 C): nothing is left saying it does.
+        // It loads no more: nothing is left saying it does.
         isLoading = false
         isUnloaded = true
         hiddenSince = nil
@@ -24,7 +24,7 @@ extension WebContent {
     }
 
     /// Whether the page holds text typed in a field and not sent: asked of the page before it is unloaded. Not perfect, said
-    /// plainly (R4): a field the page keeps itself, outside `value`, is not seen. False when the page cannot be asked.
+    /// plainly: a field the page keeps itself, outside `value`, is not seen. False when the page cannot be asked.
     package func holdsUnsentText() async -> Bool {
         guard let webView else { return false }
         let script = """

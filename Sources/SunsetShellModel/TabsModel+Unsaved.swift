@@ -1,7 +1,7 @@
 package import SunsetPane
 
-/// Unsaved edits are asked about before anything closes them (R6, roadmap 0023 step M-d): a pane, a tab, the other tabs, a
-/// kept entry, the window. A running command is confirmed first (the tab goes red), then this.
+/// Unsaved edits are asked about before anything closes them: a pane, a tab, the other tabs, a kept entry, the window.
+/// A running command is confirmed first (the tab goes red), then this.
 extension TabsModel {
     /// The documents whose every pane is among `panes`, in the order of the panes: closing these loses their edits.
     package func unsaved(lostBy panes: [PaneID]) -> (documents: [UnsavedEdits], holders: [PaneID]) {

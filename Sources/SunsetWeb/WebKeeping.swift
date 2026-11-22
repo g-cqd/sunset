@@ -1,7 +1,7 @@
 package import Foundation
 package import WebKit
 
-/// Clears what is not kept from WebKit's stores (ADR-0081), and fills the kept list once.
+/// Clears what is not kept from WebKit's stores, and fills the kept list once.
 @MainActor
 package enum WebKeeping {
     /// The registrable domains holding cookies in `store`.
@@ -20,8 +20,8 @@ package enum WebKeeping {
         kept.seedOnce(with: Array(Set(first)).sorted())
     }
 
-    /// Clears `store` by `keep`: what is cleared everywhere, then the data of the sites not kept.
-    /// `profile`: the store's, whose own kept sites count with all profiles' (roadmap 0050 E).
+    /// Clears `store` by `keep`: what is cleared everywhere, then the data of the sites not kept. `profile`: the
+    /// store's, whose own kept sites count with all profiles'.
     package static func clear(
         _ store: WKWebsiteDataStore,
         keep: WebKeep,

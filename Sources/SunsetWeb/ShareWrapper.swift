@@ -1,10 +1,10 @@
 import Foundation
 import WebKit
 
-/// A page asking to share its screen (ADR-0082): `getDisplayMedia` wrapped in the page's world so that Sunset's sheet is
-/// asked first. The sheet's answer: a Sunset tab, or what is picked in macOS's own picker (ADR-0085), each a canvas's stream
-/// the page is given; or nothing. The page pulls each frame through this handler (`frame`), an empty answer ending its
-/// track (task t97: nothing of Sunset's on the page's window, and what is replaced reads as WebKit's own).
+/// A page asking to share its screen: `getDisplayMedia` wrapped in the page's world so that Sunset's sheet is asked
+/// first. The sheet's answer: a Sunset tab, or what is picked in macOS's own picker, each a canvas's stream the page is
+/// given; or nothing. The page pulls each frame through this handler (`frame`), an empty answer ending its track
+/// (nothing of Sunset's on the page's window, and what is replaced reads as WebKit's own).
 @MainActor
 final class ShareWrapper: PageScriptHandler, WKScriptMessageHandlerWithReply {
     static let name = "sunsetShare"
@@ -79,8 +79,8 @@ final class ShareWrapper: PageScriptHandler, WKScriptMessageHandlerWithReply {
         switch kind {
             case "ask":
                 switch await content.askShare() {
-                    // macOS's picker, and Sunset's capture of what is picked (ADR-0085): WebKit's own takes a
-                    // screen or a window of its choosing, shows no picker, and needs the click Sunset's sheet used up.
+                    // macOS's picker, and Sunset's capture of what is picked: WebKit's own takes a screen or a window
+                    // of its choosing, shows no picker, and needs the click Sunset's sheet used up.
                     case .system:
                         guard let feed = await WebShare.pickSystem() else { return ("cancel", nil) }
                         content.startShare(feed, source: UUID(), asker: Self.origin(of: message.frameInfo))

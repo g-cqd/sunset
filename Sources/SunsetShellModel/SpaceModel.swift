@@ -3,9 +3,9 @@ package import Observation
 package import SunsetPane
 import SunsetRuntime
 
-/// A Space while the app runs (R4; ADR-0045): its tabs and the content of their panes. A window is a view of
-/// one (`TabsModel`): every window on a Space lists the same tabs, each with its own selection, and a tab is drawn and typed
-/// into in one window at most, the one that last clicked it; the others show its last picture.
+/// A Space while the app runs: its tabs and the content of their panes. A window is a view of one (`TabsModel`): every
+/// window on a Space lists the same tabs, each with its own selection, and a tab is drawn and typed into in one window at
+/// most, the one that last clicked it; the others show its last picture.
 ///
 /// Like `FavoritesModel` for kept entries, this is where what several windows share lives. A Space that keeps its tabs
 /// (`keepsTabs`: the app's) stops them and keeps them when its last window closes, and starts them again, where they were,
@@ -16,11 +16,11 @@ package final class SpaceModel {
     /// The tabs in order, with no selection: each window has its own.
     package internal(set) var tabs = Workspace()
     package internal(set) var contents: [PaneID: any PaneContent] = [:]
-    /// The Favorites its windows show: its profile's, the same in every Space of the profile (ADR-0055); its own for a
-    /// Space that is not among the app's (a private window's, a window that is one tab).
+    /// The Favorites its windows show: its profile's, the same in every Space of the profile; its own for a Space that
+    /// is not among the app's (a private window's, a window that is one tab).
     package internal(set) var favorites: FavoritesModel
-    /// Its Favorites are its own, not its profile's (`spaces.favorites`, roadmap 0044): saved with it, asked about when it
-    /// is deleted.
+    /// Its Favorites are its own, not its profile's (`spaces.favorites`): saved with it, asked about when it is
+    /// deleted.
     package internal(set) var ownsFavorites = false
     /// Whether its tabs stay, stopped, when its last window closes (the app's Space, unless `tabs.closeWithLastWindow`).
     package var keepsTabs: Bool
@@ -89,7 +89,7 @@ package final class SpaceModel {
     }
 
     /// `viewer` changed to another Space: what it drew goes to a window that still shows it, or is hidden. Nothing
-    /// stops: a Space left by changing runs on (R4; the owner, 2026-11-17).
+    /// stops: a Space left by changing runs on.
     package func park(_ viewer: TabsModel) {
         viewers.removeAll { $0.tabs == nil || $0.tabs === viewer }
         for (id, owner) in live where owner.tabs === viewer { handOver(id) }
@@ -136,7 +136,7 @@ package final class SpaceModel {
         lastShown = id
         for pane in tabs.items.first(where: { $0.id == id })?.panes ?? [] {
             guard let content = contents[pane] else { continue }
-            // The window it leaves shows its picture (roadmap 0035 J).
+            // The window it leaves shows its picture.
             if previous != nil { content.takePicture() }
             viewer.wireContent(content)
         }

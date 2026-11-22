@@ -1,11 +1,10 @@
-/// An item a pane adds to its tab's menu: a command, or a submenu of them (Reload As, roadmap 0050 D).
+/// An item a pane adds to its tab's menu: a command, or a submenu of them (Reload As).
 package struct PaneMenuAction {
     package let title: String
     package let run: @MainActor () -> Void
     /// Its items, when it is a submenu.
     package let children: [Self]
-    /// What it becomes while Option is held (the owner, 2026-11-20, task t135: less used items behind Option, as macOS's
-    /// menus have them).
+    /// What it becomes while Option is held (less used items behind Option, as macOS's menus have them).
     package var alternate: PaneMenuAction? {
         boxed?.action
     }

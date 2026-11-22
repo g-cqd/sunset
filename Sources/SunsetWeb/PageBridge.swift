@@ -1,7 +1,7 @@
 import WebKit
 
-/// A page's script and the handler of what it posts (roadmap 0086 E: five bridges each installed themselves the same way):
-/// the script added to the configuration's controller, the handler under its name, both in one world.
+/// A page's script and the handler of what it posts (five bridges each installed themselves the same way): the script
+/// added to the configuration's controller, the handler under its name, both in one world.
 struct PageBridge {
     let name: String
     let script: String
@@ -36,7 +36,7 @@ struct PageBridge {
     }
 
     /// A script's end that watches the page for `function`, once the document is there: `function` run first when `first`, then
-    /// at each change under `root` (the three page watchers each wrote this; roadmap 0086 E).
+    /// at each change under `root` (the three page watchers each wrote this).
     static func watching(_ function: String, root: String, options: String, first: Bool) -> String {
         """
           const start = () => {

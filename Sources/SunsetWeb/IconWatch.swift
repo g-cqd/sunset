@@ -1,7 +1,7 @@
 import WebKit
 
-/// Tells its page that the page changed its icon (roadmap 0035 H): a script in Sunset's own script world watches the
-/// document's `<link rel="icon">` elements and posts the new address; the page's own scripts cannot post to it.
+/// Tells its page that the page changed its icon: a script in Sunset's own script world watches the document's `<link
+/// rel="icon">` elements and posts the new address; the page's own scripts cannot post to it.
 @MainActor
 final class IconWatch: PageScriptHandler, WKScriptMessageHandler {
     private static let name = "sunsetIcon"

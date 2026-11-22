@@ -6,7 +6,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0047 G (the owner, 2026-11-18): "tabs don't offer website settings or tab settings in the context menu".
+/// "tabs don't offer website settings or tab settings in the context menu".
 @MainActor @Suite("What a page adds to its tab's menu")
 struct PageMenuActionsTests {
     @Test func `a page with an address offers Reload, Copy Address and its site's settings; an empty page none`() {

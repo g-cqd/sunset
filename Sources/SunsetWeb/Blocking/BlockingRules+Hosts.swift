@@ -2,7 +2,7 @@ import Foundation
 
 extension BlockingRules {
     /// A hosts file's lines (StevenBlack's, OISD's hosts form): `0.0.0.0 host …`, each host blocked with its subdomains as
-    /// `||host^` is. The machine's own names (`localhost` and its kin) and addresses are never blocked (task t109).
+    /// `||host^` is. The machine's own names (`localhost` and its kin) and addresses are never blocked.
     enum Hosts {
         private static let sinks: Set<Substring> = [
             "0.0.0.0", "127.0.0.1", "255.255.255.255", "::", "::1", "0", "fe80::1%lo0"

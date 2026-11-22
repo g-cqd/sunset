@@ -8,10 +8,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0045 F (the owner, 2026-11-18: [a business site] and its siblings "not loading properly as they would in
-/// Chrome or Safari"). Such a site sends a browser it does not support to a page of its own with `location.replace`, and
-/// that page never sends it back: shown Chrome afterwards and loaded again, the site stayed on its "unsupported" page.
-/// What the person asked for is what is loaded again when the site's browser changes.
+/// A site sends a browser it does not support to a page of its own with `location.replace`, and that page never sends
+/// it back: shown Chrome afterwards and loaded again, the site stayed on its "unsupported" page. What the person asked
+/// for is what is loaded again when the site's browser changes.
 @MainActor @Suite("A site shown another browser is asked again for what the person asked", .timeLimit(.minutes(1)))
 struct AppearAgainTests {
     /// The site's sniffing, as the site's `browser-checker` does it: not Chrome, away for good.

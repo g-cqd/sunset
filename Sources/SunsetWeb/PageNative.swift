@@ -1,7 +1,7 @@
-/// What each of Sunset's page-world scripts starts with (task t97): `native(body, name, length)` makes a function of
-/// Sunset's read as WebKit's own — `[native code]` to `Function.prototype.toString`, its name and length as WebKit's,
-/// no `prototype`, not a constructor; `nativeMark` does the same for a function made otherwise (a constructor). Each script
-/// wraps the `toString` it finds, so they chain (the agent script, added last, outermost); nothing is left on a global.
+/// What each of Sunset's page-world scripts starts with: `native(body, name, length)` makes a function of Sunset's read as
+/// WebKit's own — `[native code]` to `Function.prototype.toString`, its name and length as WebKit's, no `prototype`, not a
+/// constructor; `nativeMark` does the same for a function made otherwise (a constructor). Each script wraps the `toString`
+/// it finds, so they chain (the agent script, added last, outermost); nothing is left on a global.
 enum PageNative {
     static let prelude = """
         const [native, nativeMark] = (() => {

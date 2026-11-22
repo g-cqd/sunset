@@ -5,7 +5,7 @@ package struct CommandBar: Equatable {
         case search
         /// A tab was dropped on its own content: pick the tab to put beside it.
         case splitWith(SplitChoice)
-        /// Which kind of tab to make (Shift-Cmd-T; the owner's note n82).
+        /// Which kind of tab to make (Shift-Cmd-T).
         case newTab
     }
 
@@ -18,11 +18,11 @@ package struct CommandBar: Equatable {
     package var showsActions = false
     package var actionsQuery = ""
     package var actionsSelection = 0
-    /// Opened in the sidebar's field, in its place and its width, the rows under it (roadmap 0035 G); else over the panes.
+    /// Opened in the sidebar's field, in its place and its width, the rows under it; else over the panes.
     package var inSidebar = false
     /// Up in an empty field went back this many entries (`TabsModel.barRecall`).
     package var recalled = 0
-    /// Opened on a new empty page (note n12): it asks where to go, not which tab.
+    /// Opened on a new empty page: it asks where to go, not which tab.
     package var forNewPage = false
 
     package init(purpose: Purpose) {

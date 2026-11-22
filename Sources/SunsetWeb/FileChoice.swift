@@ -1,7 +1,7 @@
 import AppKit
 
-/// What a page's file field asked for (`<input type=file>`; roadmap 0029 step 2), and the system's panel for it. The page gets only
-/// what the person chose there.
+/// What a page's file field asked for (`<input type=file>`), and the system's panel for it. The page gets only what the
+/// person chose there.
 struct FileChoice: Equatable, Sendable {
     let multiple: Bool
     let folders: Bool

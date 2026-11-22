@@ -6,9 +6,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0045 F, the second rung made deeper (ADR-0074): what a page's scripts read to tell a browser, read as that
-/// browser gives it. The oracle is Chrome Canary 160 headless on this Mac, 2026-11-18 (diary 2026-11-18-03): its values
-/// are quoted below as Chrome's; Sunset's are read from a real page shown Chrome, Edge, Firefox or Safari.
+/// What a page's scripts read to tell a browser, read as that browser gives it. The oracle is Chrome Canary 160
+/// headless on this Mac, 2026-11-18: its values are quoted below as Chrome's; Sunset's are read from a real page shown
+/// Chrome, Edge, Firefox or Safari.
 @MainActor @Suite("What a page's scripts read of the browser it is shown", .timeLimit(.minutes(1)))
 struct AgentIdentityTests {
     @Test func `the brands are Chromium's: its made-up brand and their order follow from the major version`() {
@@ -96,7 +96,7 @@ struct AgentIdentityTests {
     }
 
     /// Chrome and Firefox play HLS through Media Source Extensions, not natively: their `canPlayType` says "" for it, where
-    /// WebKit says "maybe" (t15, measured 2026-11-21). Other types answer as the engine does.
+    /// WebKit says "maybe" (measured 2026-11-21). Other types answer as the engine does.
     @Test func `shown another browser, native HLS is not offered; Safari offers it`() async throws {
         let probe = """
             const v = document.createElement('video');

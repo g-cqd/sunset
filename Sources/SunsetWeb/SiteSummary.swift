@@ -1,7 +1,7 @@
 package import Foundation
 
-/// Every site that has something of its own (roadmap 0022 W-d): what a site may do, the browser it is shown, blocking
-/// paused, a zoom, the Space it opens in; for Settings to list and forget at once.
+/// Every site that has something of its own: what a site may do, the browser it is shown, blocking paused, a zoom, the
+/// Space it opens in; for Settings to list and forget at once.
 @MainActor
 package enum SiteSummary {
     /// Where each kind is kept.
@@ -82,7 +82,7 @@ package enum SiteSummary {
 
     /// - Parameters:
     ///   - stores: where the rules are.
-    ///   - profile: its own rules (roadmap 0050 E); nil: all profiles'.
+    ///   - profile: its own rules; nil: all profiles'.
     ///   - spaceName: a Space's name, by its id; nil for one that is gone.
     /// - Returns: one row a site, by host.
     package static func rows(_ stores: Stores, profile: UUID? = nil, spaceName: (UUID) -> String?) -> [Row] {

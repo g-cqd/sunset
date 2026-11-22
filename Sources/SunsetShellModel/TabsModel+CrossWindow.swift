@@ -1,8 +1,8 @@
 package import SunsetPane
 
-/// A drag that ends in another window than the one it started in (roadmap 0036 F). What is dragged is known to the window it
-/// started in (`dragged`); the window it is over takes it up (`adoptDrag`), and, dropped, brings a tab of another Space to its
-/// own (`bringDraggedHere`). The first window stays on its Space.
+/// A drag that ends in another window than the one it started in. What is dragged is known to the window it started in
+/// (`dragged`); the window it is over takes it up (`adoptDrag`), and, dropped, brings a tab of another Space to its own
+/// (`bringDraggedHere`). The first window stays on its Space.
 extension TabsModel {
     /// The window the drag under way started in (observed: every window's drop places show while it is set).
     package internal(set) static var dragOrigin: TabsModel? {
@@ -28,11 +28,11 @@ extension TabsModel {
             case .item, .document:
                 dragged = drag
             case .pane(let pane):
-                // The pane of a split's row carries its tab (ADR-0062); the pane alone does not leave its window.
+                // The pane of a split's row carries its tab; the pane alone does not leave its window.
                 guard let item = origin.workspace.item(containing: pane) else { return false }
                 dragged = .item(item.id)
             case .entry(let id):
-                // The same entry where the profile is the same; another profile's comes as a tab (roadmap 0037 B).
+                // The same entry where the profile is the same; another profile's comes as a tab.
                 guard origin.keeper(of: id).favorites.entry(id) != nil else { return false }
                 dragged = drag
         }
@@ -43,13 +43,13 @@ extension TabsModel {
     /// window it came from forgets the drag.
     package func bringDraggedHere() {
         guard let origin = Self.dragOrigin, origin !== self else { return }
-        // A kept entry of another profile leaves it as a tab first (roadmap 0037 B).
+        // A kept entry of another profile leaves it as a tab first.
         if case .entry(let id) = dragged, case .foreignEntry? = dragSource, let item = origin.release(entry: id) {
             dragged = .item(item)
         }
         if case .item(let id) = dragged, !workspace.items.contains(where: { $0.id == id }) {
             origin.give(item: id, to: space)
-            // From another profile: its pages load again as this one's (as a Space given another profile, ADR-0053).
+            // From another profile: its pages load again as this one's (as a Space given another profile).
             if origin.space.favorites !== space.favorites, let item = workspace.items.first(where: { $0.id == id }) {
                 space.restart(kind: "web", panes: Set(item.panes), by: self)
             }

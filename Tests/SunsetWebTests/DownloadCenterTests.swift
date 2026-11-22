@@ -6,7 +6,7 @@ import Testing
 @testable import SunsetWebModel
 
 @Suite("The list of downloads") @MainActor struct DownloadCenterTests {
-    /// The wall time of these tests, and of the lists they make (ADR-0087).
+    /// The wall time of these tests, and of the lists they make.
     static let now = TestTime.epoch
     private let time = TestTime()
 

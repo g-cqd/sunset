@@ -18,10 +18,10 @@ extension Design {
         /// A row among several selected, and a place a drag would drop into (the accent at these opacities).
         package static let marked = 0.18
         package static let markedHover = 0.26
-        /// The shown row among several selected: the selection's accent, stronger (the owner, 2026-11-17).
+        /// The shown row among several selected: the selection's accent, stronger.
         package static let markedShown = 0.34
         package static let markedShownHover = 0.42
-        /// Where a drag would land: a white veil and edge, blended with what is under it (note n79: white, blended in the
+        /// Where a drag would land: a white veil and edge, blended with what is under it (white, blended in the
         /// chrome).
         package static let dropVeil = 0.14
         package static let dropEdge = 0.45
@@ -54,9 +54,9 @@ extension Design {
         package static let floatingMinimum = 0.85
         /// Under the window's address bar's surface (black), for its text over a light page (owner, 2026-11-13).
         package static let barShade = 0.5
-        /// The floating bar's tint at its edge, fading into the page (roadmap 0055): stronger than a group's, its text over any page.
+        /// The floating bar's tint at its edge, fading into the page: stronger than a group's, its text over any page.
         package static let floatingBarShade = 0.8
-        /// Under a popover's text, on its glass: the bars' tint, stronger, so that it reads over any page (note n19).
+        /// Under a popover's text, on its glass: the bars' tint, stronger, so that it reads over any page.
         package static let popoverShade = 0.75
         /// A dimming layer (Apple's figure for one under clear glass).
         package static let scrim = 0.35
@@ -79,7 +79,7 @@ extension Design {
     /// Measures the grid gets wrong to the eye, each named, with its reason and its measurement (design 0003 §4).
     package enum Optical {
         /// A row's glyph frame to its text: the glyph's ink as far from the text as from the row's edge (8.5 pt, measured on a selected
-        /// sidebar row; n63). With the glyph's 15 pt ink in an 18 pt frame, 7.
+        /// sidebar row). With the glyph's 15 pt ink in an 18 pt frame, 7.
         package static let glyphToText = 7.0
         /// A filled container flush with a hairline looks larger than the line: it is drawn one stroke inside (`SidebarHeader`).
         package static func insideHairline(_ hairlineWidth: Double) -> Double {
@@ -96,7 +96,7 @@ extension Design {
         package static let thumbnailSymbol = 0.5
         /// A tab's picture in the share panel: as tall as a window of 16 by 10 is.
         package static let sharePreviewRatio = 10.0 / 16.0
-        /// The per-site rows in Settings > Websites start under the site's name (to confirm by the owner: not measured).
+        /// The per-site rows in Settings > Websites start under the site's name (not measured).
         package static let siteRowsIndent = 26.0
     }
 }

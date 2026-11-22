@@ -6,7 +6,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0050 D: Reload as another profile.
+/// Reload as another profile.
 @MainActor @Suite("Reload as another profile") struct ReloadAsTests {
     /// One for the suite: the hook is the app's, shared by the tests that run at once.
     private static let workID = UUID()
@@ -28,8 +28,8 @@ import Testing
         [(nil, "Personal"), (work, "Work"), (Self.thirdID, "Third")]
     }
 
-    /// The owner, 2026-11-19: the menu said "(its Space's)" beside a profile that was not the Space's. A page never reloaded
-    /// has no home kept, and the first profile's id (nil) matched that absence.
+    /// The menu said "(its Space's)" beside a profile that was not the Space's. A page never reloaded has no home kept,
+    /// and the first profile's id (nil) matched that absence.
     @Test func `only the profile of the page's own Space is marked as its Space's`() {
         var home = WebSettings()
         home.profile = work

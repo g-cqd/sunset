@@ -51,20 +51,20 @@ package enum Design {
     }
 
     package enum Size {
-        /// The strip at a window's edge that brings a floating bar out (roadmap 0055).
+        /// The strip at a window's edge that brings a floating bar out.
         package static let edgeStrip = 6.0
-        /// An extension's icon in its button (roadmap 0109 D): the size of a toolbar's.
+        /// An extension's icon in its button: the size of a toolbar's.
         package static let extensionIcon = 16.0
-        /// An extension's popup's corner: smaller than the system popover's (the owner, 2026-11-20).
+        /// An extension's popup's corner: smaller than the system popover's.
         package static let extensionPopupRadius = 10.0
         /// A row's glyph: its frame, and the symbol in it.
         package static let glyphFrame = 18.0
         package static let glyphSymbol = 15.0
-        /// A help popover's width: a short paragraph per line group, as VMRunner's (roadmap 0041 A).
+        /// A help popover's width: a short paragraph per line group, as VMRunner's.
         package static let helpPopoverWidth = 320.0
         /// The width Help's text reads best at.
         package static let helpTextWidth = 560.0
-        /// A layout's shape drawn as a menu's image (t287): as an SF Symbol's at the menu's size.
+        /// A layout's shape drawn as a menu's image: as an SF Symbol's at the menu's size.
         package static let presetShapeWidth = 22.0
         package static let presetShapeHeight = 15.0
         /// An icon button in a bar.
@@ -77,16 +77,15 @@ package enum Design {
         package static let fieldLarge = 48.0
         /// A row in a list of choices.
         package static let row = 36.0
-        /// A one-line tab row: its glyph's ink as far from the top and the bottom as from the leading edge (n66, measured 9 pt). Two-line
-        /// rows keep `layout.tabPaddingVertical`.
-        /// An alert's icon (an extension's): as macOS's alerts show an app's.
+        /// A one-line tab row: its glyph's ink as far from the top and the bottom as from the leading edge (measured 9 pt). Two-line
+        /// rows keep `layout.tabPaddingVertical`. An alert's icon (an extension's): as macOS's alerts show an app's.
         package static let alertIcon = 48.0
-        /// A card of the share panel, at least (n72): three to a row in the panel.
+        /// A card of the share panel, at least: three to a row in the panel.
         package static let shareCard = 160.0
         /// The most of a page's dialog message that shows before it scrolls.
         package static let dialogMessage = 220.0
         package static let tabRow = 32.0
-        /// A one-line row of the Favorites tree: as tall as a tab (owner, 2026-11-13, t227; it was 28, more compact, on 11-12).
+        /// A one-line row of the Favorites tree: as tall as a tab.
         package static let favoriteRow = tabRow
         /// A topic's row in a list of the settings: shorter than a tab's.
         package static let topicRow = 26.0
@@ -109,7 +108,7 @@ package enum Design {
     }
 
     /// The height of every one-line row: `height`, or what its close button and padding need when that is more. Set as the row's
-    /// height (`View.rowHeight`), not left to its content: an emoji or a taller glyph made some rows taller (owner note n69).
+    /// height (`View.rowHeight`), not left to its content: an emoji or a taller glyph made some rows taller.
     package static func oneLineHeight(_ layout: LayoutMetrics, height: Double) -> Double {
         max(height, layout.closeButtonSize + 2 * layout.tabPaddingVertical)
     }
@@ -121,7 +120,7 @@ package enum Design {
     package enum Width {
         package static let popover = 320.0
         package static let panel = 360.0
-        /// The share panel (n72): three cards of open tabs side by side.
+        /// The share panel: three cards of open tabs side by side.
         package static let sharePanel = 560.0
         package static let sheet = 420.0
         package static let commandBar = 520.0

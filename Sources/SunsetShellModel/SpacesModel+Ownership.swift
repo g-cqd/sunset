@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// Whose the Favorites are (roadmap 0044): each Space's own, or its profile's (ADR-0055).
+/// Whose the Favorites are: each Space's own, or its profile's.
 extension SpacesModel {
     /// The Favorites a Space that is made or read shows: new ones of its own, or its profile's.
     package func favorites(for space: Space) -> FavoritesModel {

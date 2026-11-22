@@ -3,7 +3,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0050: a profile's pages share the answers kept, with defaults of their own.
+/// A profile's pages share the answers kept, with defaults of their own.
 @MainActor @Suite("A profile's own defaults") struct SitePermissionsSharingTests {
     @Test func `answers are shared both ways; what is not answered falls to the profile's defaults`() {
         let shared = SitePermissions()

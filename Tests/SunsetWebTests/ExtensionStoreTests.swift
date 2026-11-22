@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetWebModel
 
-/// Roadmap 0109 A: each extension installed is a copy in its profile's folder, listed in that folder's index: on or off, in
-/// private windows or not (off by default, ADR-0109), what it was granted at install.
+/// Each extension installed is a copy in its profile's folder, listed in that folder's index: on or off, in private
+/// windows or not (off by default), what it was granted at install.
 @Suite("The extensions installed, per profile")
 struct ExtensionStoreTests {
     private func folder() throws -> URL {

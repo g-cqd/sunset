@@ -4,11 +4,11 @@ import SunsetWebModel
 import Testing
 
 extension ExtensionHostTests {
-    /// Seen 2026-11-21 (the owner: uBlock Origin's dashboard shows every box unchecked; probed, diary 2026-11-21-03): a
-    /// Firefox extension that asks for `privacy` finds none in WebKit, and uBlock Origin's background then throws on each
-    /// request for its settings. Sunset gives such an extension Firefox's `privacy` settings, read-only: each reads as
-    /// WebKit's own and "not_controllable", a change is refused (`false`, as Firefox answers a setting it does not change).
-    /// An extension that does not ask for `privacy` meets none.
+    /// Seen 2026-11-21 (uBlock Origin's dashboard shows every box unchecked; probed): a Firefox extension that asks for
+    /// `privacy` finds none in WebKit, and uBlock Origin's background then throws on each request for its settings. Sunset
+    /// gives such an extension Firefox's `privacy` settings, read-only: each reads as WebKit's own and "not_controllable",
+    /// a change is refused (`false`, as Firefox answers a setting it does not change). An extension that does not ask for
+    /// `privacy` meets none.
     @Test(arguments: [true, false])
     func `an extension that asks for privacy reads the settings and changes none`(asks: Bool) async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")

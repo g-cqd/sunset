@@ -23,8 +23,8 @@ import WebKit
         #expect(page.webView == nil)
     }
 
-    /// Profiles (ADR-0053): a profile's pages have a website data store of their own; the first profile's is the one
-    /// there always was; a private page's is never a profile's.
+    /// Profiles: a profile's pages have a website data store of their own; the first profile's is the one there always
+    /// was; a private page's is never a profile's.
     @Test func `a page of a profile has that profile's website data; of the first, the default one; private, its own`()
     {
         let profile = UUID()

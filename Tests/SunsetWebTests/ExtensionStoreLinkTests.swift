@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetWebModel
 
-/// Roadmap 0109 E: a store's page names the extension; Sunset fetches its package from the store itself (probed 2026-11-20:
-/// Chrome's update service answers a CRX3 for an id; Firefox Add-ons' API names the `.xpi`).
+/// A store's page names the extension; Sunset fetches its package from the store itself (probed 2026-11-20: Chrome's
+/// update service answers a CRX3 for an id; Firefox Add-ons' API names the `.xpi`).
 @Suite("A store's page, and where its package is")
 struct ExtensionStoreLinkTests {
     @Test func `Chrome Web Store and Firefox Add-ons pages are read; others are not`() throws {

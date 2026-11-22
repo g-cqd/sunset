@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetWebModel
 
-/// Task t109 (the owner, n58: "allow using other list for the ad blocking"): a list is added in Settings by its address.
-/// Only https (a list in the clear could be changed on the way), once, and at most `BlockingListPlan.most` lists: each is
-/// fetched by Sunset itself and compiled, so their number is bounded (white paper §9).
+/// A list is added in Settings by its address. Only https (a list in the clear could be changed on the way), once, and at
+/// most `BlockingListPlan.most` lists: each is fetched by Sunset itself and compiled, so their number is bounded (white
+/// paper §9).
 @Suite("Blocking lists: added and removed by address")
 struct BlockingListAddingTests {
     private let easy = ["https://easylist.to/easylist/easylist.txt"]

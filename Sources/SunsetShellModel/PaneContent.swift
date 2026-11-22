@@ -17,8 +17,8 @@ package import SunsetPane
     func type(command: String)
     /// Activity to show under the title, 0 to 1; nil when there is none.
     var progress: Double? { get }
-    /// A command runs in it, in front of its shell (a terminal): what a tab kept awake until its command ends waits for
-    /// (roadmap 0035 E). Read often: it does not ask the system, unlike `closeWarning`.
+    /// A command runs in it, in front of its shell (a terminal): what a tab kept awake until its command ends waits for.
+    /// Read often: it does not ask the system, unlike `closeWarning`.
     var runsCommand: Bool { get }
     /// Why closing it now would lose something (a command is running), asked at the moment of closing; nil when it can go at once. Not the same thing
     /// as `progress`: a page that loads can be closed, a command that prints nothing cannot.
@@ -31,9 +31,9 @@ package import SunsetPane
     var sound: PaneSound? { get }
     /// Mutes it, or lets it be heard again.
     func toggleMuted()
-    /// The profile it was loaded as, when it is not its Space's (Reload As, roadmap 0050 D): its tab shows its name.
+    /// The profile it was loaded as, when it is not its Space's (Reload As): its tab shows its name.
     var profileMark: String? { get }
-    /// The microphone and the camera it uses (a web page, the owner's note n47): each on its tab, muted from there.
+    /// The microphone and the camera it uses (a web page): each on its tab, muted from there.
     var devices: PaneCapture { get }
     /// Mutes a device it uses, or turns it back on.
     func toggle(_ device: PaneCapture.Device)
@@ -56,16 +56,16 @@ package import SunsetPane
     /// Its last picture, for a window that shows it while another draws it and for its tab's preview (a page's snapshot); nil
     /// when it has none. Kinds that draw their own (a terminal's last surface) leave it nil.
     var picture: CGImage? { get }
-    /// Takes its picture now, as it leaves a window or is hidden (roadmap 0035 C, J); kinds without one ignore it.
+    /// Takes its picture now, as it leaves a window or is hidden (J); kinds without one ignore it.
     func takePicture()
-    /// Gets ready to be shown, without showing (its row is pointed at: note n1): a page not made yet starts loading. Kinds
-    /// that are ready at once ignore it.
+    /// Gets ready to be shown, without showing (its row is pointed at): a page not made yet starts loading. Kinds that
+    /// are ready at once ignore it.
     func prepare()
     /// It let go of its memory while hidden and is made again when shown (a page, S-f): its icon is dimmed.
     var isUnloaded: Bool { get }
-    /// A page with no address yet (a new tab's): the command bar opens on it (note n12).
+    /// A page with no address yet (a new tab's): the command bar opens on it.
     var isBlankPage: Bool { get }
-    /// What it adds to its tab's menu (a page: Reload, Copy Address, Site Settings; roadmap 0047 G).
+    /// What it adds to its tab's menu (a page: Reload, Copy Address, Site Settings).
     var menuActions: [PaneMenuAction] { get }
 }
 

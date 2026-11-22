@@ -3,7 +3,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// ADR-0081 (roadmap 0051 H): what Sunset clears at quit from WebKit's stores.
+/// What Sunset clears at quit from WebKit's stores.
 @Suite("What is cleared at quit") struct WebKeepPlanTests {
     @Test func `the types are WebKit's, each in one kind, none left out`() {
         let kinds = [WebKeepPlan.cacheTypes, WebKeepPlan.traceTypes, WebKeepPlan.siteDataTypes]

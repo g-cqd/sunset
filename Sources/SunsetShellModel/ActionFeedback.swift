@@ -1,7 +1,7 @@
 import Foundation
 
-/// What a click did, said back to the person (the owner's note n11): it went through, or it was blocked and why. A button
-/// shows it for a moment (a check, or a shake and a cross), the trackpad answers where it can, and VoiceOver says it.
+/// What a click did, said back to the person: it went through, or it was blocked and why. A button shows it for a
+/// moment (a check, or a shake and a cross), the trackpad answers where it can, and VoiceOver says it.
 package enum ActionFeedback: Equatable, Sendable {
     /// Done: what is said ("Copied").
     case done(String)

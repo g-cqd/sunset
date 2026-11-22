@@ -6,8 +6,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Task t115: a page's view asks WebKit for what the settings say: HTTPS first, the hardened mode, Global Privacy Control
-/// (read by the page as `navigator.globalPrivacyControl`, sent as `Sec-GPC`).
+/// A page's view asks WebKit for what the settings say: HTTPS first, the hardened mode, Global Privacy Control (read by
+/// the page as `navigator.globalPrivacyControl`, sent as `Sec-GPC`).
 @MainActor @Suite("The web's protections: on the page", .timeLimit(.minutes(1)))
 struct WebProtectionTests {
     @Test func `the view's navigations carry the settings' policy`() throws {

@@ -1,5 +1,5 @@
-/// When a bar at a window's edge is out (roadmap 0055, the owner's notes n41, n42): always, when it does not hide; else from
-/// the pointer reaching the edge until a moment after it leaves the bar, and all the while it is typed in.
+/// When a bar at a window's edge is out: always, when it does not hide; else from the pointer reaching the edge until a
+/// moment after it leaves the bar, and all the while it is typed in.
 package struct EdgeReveal: Equatable, Sendable {
     package var hides: Bool
     package private(set) var reached = false

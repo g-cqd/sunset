@@ -2,8 +2,8 @@ package import Foundation
 package import Observation
 package import SunsetStorage
 
-/// The sites blocking is paused on (roadmap 0022 W-c), from a site's panel: for the site and its subdomains, kept as sealed
-/// records of the state database, or in memory until the app quits. Never a bare last label ("com").
+/// The sites blocking is paused on, from a site's panel: for the site and its subdomains, kept as sealed records of the
+/// state database, or in memory until the app quits. Never a bare last label ("com").
 @MainActor @Observable
 package final class BlockingPauses {
     /// Where the pauses are kept; nil: in memory only (tests, a run with no key).
@@ -24,7 +24,7 @@ package final class BlockingPauses {
         paused(profile: nil)
     }
 
-    /// A profile's own pauses (roadmap 0050 E), kept as `<profile>|<host>`; nil: all profiles'.
+    /// A profile's own pauses, kept as `<profile>|<host>`; nil: all profiles'.
     package func paused(profile: UUID?) -> [String] {
         let prefix = profile.map { $0.uuidString + "|" }
         return

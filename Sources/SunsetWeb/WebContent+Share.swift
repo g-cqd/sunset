@@ -1,7 +1,7 @@
 import Foundation
 import WebKit
 
-/// Sharing a tab into this page (ADR-0082): the sheet's question, and the session once a tab is chosen.
+/// Sharing a tab into this page: the sheet's question, and the session once a tab is chosen.
 extension WebContent {
     /// Asks the sheet; one question at a time.
     func askShare() async -> ShareChoice {

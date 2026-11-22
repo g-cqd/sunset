@@ -1,7 +1,6 @@
 import SunsetPane
 
-/// Which rows show a preview card when pointed at (`sidebar.previews`, `sidebar.previewPages` and the rest; the owner,
-/// 2026-11-18): all, none, or by kind. A tab shows one when one of its panes' kinds does.
+/// Which rows show a preview card when pointed at (`sidebar.previews`, `sidebar.previewPages` and the rest): all, none, or by kind. A tab shows one when one of its panes' kinds does.
 package struct PreviewKinds: Sendable, Equatable {
     package var enabled = true
     package var pages = true

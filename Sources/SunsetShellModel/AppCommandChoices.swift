@@ -1,8 +1,7 @@
 package import SunsetPane
 
 /// Commands of the menus the command bar also offers when what is typed names one (as a new kind of tab is): importing
-/// another browser's things (roadmap 0111 G), and Sunset's own places: Settings, the Library and its lists, Help (the
-/// owner's note n83).
+/// another browser's things, and Sunset's own places: Settings, the Library and its lists, Help.
 package enum AppCommandChoices {
     package enum Command: Equatable, Sendable, CaseIterable {
         case importFromBrowser

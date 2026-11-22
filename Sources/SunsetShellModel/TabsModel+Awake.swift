@@ -1,7 +1,7 @@
 package import SunsetPane
 
-/// Tabs and windows that keep the Mac awake (roadmap 0035 E). The model says whether this window wants the Mac awake; the
-/// app holds the system's assertion while one does.
+/// Tabs and windows that keep the Mac awake. The model says whether this window wants the Mac awake; the app holds the
+/// system's assertion while one does.
 extension TabsModel {
     private var awake: KeepAwakePanes {
         KeepAwakePanes.shared
@@ -28,7 +28,7 @@ extension TabsModel {
         keeper(of: id).favorites.entry(id)?.open.flatMap { awake.until($0.panes) }
     }
 
-    /// Keeps the kept entry `id` awake until `until`, or no longer (nil); it lets go when it is unloaded (roadmap 0036 C).
+    /// Keeps the kept entry `id` awake until `until`, or no longer (nil); it lets go when it is unloaded.
     package func keepAwake(entry id: Favorites.NodeID, until: KeepAwake?) {
         guard let open = keeper(of: id).favorites.entry(id)?.open else { return }
         awake.set(until, for: open.panes)
@@ -54,8 +54,8 @@ extension TabsModel {
         workspace.items + [favorites, pinned].compactMap { $0 }.flatMap { $0.favorites.entries.compactMap(\.open) }
     }
 
-    /// The tabs of the Spaces no window shows, and the open entries of the Favorites and grids no window shows: a Space left runs on, and so does what it keeps awake
-    /// (the owner's note n25), whatever its profile. Each with whether a command runs in it.
+    /// The tabs of the Spaces no window shows, and the open entries of the Favorites and grids no window shows: a Space left runs on, and so does what it keeps awake,
+    /// whatever its profile. Each with whether a command runs in it.
     private var unshownItems: [(item: Workspace.Item, runsCommand: Bool)] {
         guard let spaces else { return [] }
         let unshown = spaces.spaces.filter { $0 !== space && $0.viewerCount == 0 }

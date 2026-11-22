@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// The page's zoom in its site's panel (W-d): smaller, the level, larger, back to 100 %; kept for the site when zoom is by
+/// The page's zoom in its site's panel: smaller, the level, larger, back to 100 %; kept for the site when zoom is by
 /// site (`web.zoomScope`).
 struct SiteZoomRow: View {
     let content: WebContent

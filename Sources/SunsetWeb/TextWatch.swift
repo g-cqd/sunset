@@ -1,7 +1,7 @@
 import WebKit
 
-/// Tells its page that the page's text changed while its title did not (roadmap 0042 D): a script in Sunset's own script
-/// world watches the document's body and posts once at most every two seconds; the page's own scripts cannot post to it.
+/// Tells its page that the page's text changed while its title did not: a script in Sunset's own script world watches
+/// the document's body and posts once at most every two seconds; the page's own scripts cannot post to it.
 @MainActor
 final class TextWatch: PageScriptHandler, WKScriptMessageHandler {
     private static let name = "sunsetText"

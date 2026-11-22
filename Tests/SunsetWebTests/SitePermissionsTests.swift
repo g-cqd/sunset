@@ -5,7 +5,7 @@ import Testing
 @testable import SunsetWebModel
 
 @Suite("What sites were allowed") @MainActor struct SitePermissionsTests {
-    @Test func `the owner's defaults: asked, pop-ups and sound blocked; a setting changes a default`() {
+    @Test func `the defaults: asked, pop-ups and sound blocked; a setting changes a default`() {
         let store = SitePermissions()
         #expect(store.answer(.camera, for: "a.com") == .ask && store.answer(.popups, for: "a.com") == .deny)
         store.defaults[.camera] = .deny

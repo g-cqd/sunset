@@ -1,12 +1,11 @@
 package import SunsetPane
 
-/// A new tab, a new split: what is made, and with terminals off what is not (roadmap 0033).
+/// A new tab, a new split: what is made, and with terminals off what is not.
 extension TabsModel {
     /// A new tab, selected, after the current one: a terminal, or what `descriptor` says.
     package func newTab(_ descriptor: PaneDescriptor? = nil) {
         guard scopes.allows(descriptor) else {
-            // With terminals off a new tab is the command bar on no tab (the owner, 2026-11-17); a kind that is off is
-            // not made.
+            // With terminals off a new tab is the command bar on no tab; a kind that is off is not made.
             if descriptor == nil, bar == nil { toggleBar() }
             return
         }
@@ -14,8 +13,8 @@ extension TabsModel {
         let made = makeContent(descriptor)
         register(made, as: workspace.add().pane)
         if let entry { left(entry) }
-        // A page with nowhere to go yet: the command bar, to type an address or a search (the owner's note n12). Asking is
-        // this action's; a page's view asks for nothing by itself (n52).
+        // A page with nowhere to go yet: the command bar, to type an address or a search. Asking is this action's; a
+        // page's view asks for nothing by itself.
         if made.isBlankPage, bar == nil {
             toggleBar()
             bar?.forNewPage = true

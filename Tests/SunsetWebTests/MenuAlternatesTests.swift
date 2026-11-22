@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner, 2026-11-20 (task t135): the menus' less used items behind Option, as macOS's own menus have them ("Reload being
-/// swapped to Force Reload when holding the Option key").
+/// The menus' less used items behind Option, as macOS's own menus have them ("Reload being swapped to Force Reload when
+/// holding the Option key").
 @MainActor @Suite("A page's tab menu: Force Reload behind Option")
 struct MenuAlternatesTests {
     @Test func `Reload's Option alternate is Force Reload; no Force Reload item of its own`() throws {

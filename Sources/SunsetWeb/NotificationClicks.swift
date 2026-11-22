@@ -1,5 +1,5 @@
-/// The person's clicks on a page's notifications, as the page pulls them (task t97: no event of Sunset's on its window, which
-/// any script could fire or hear): one pull waits at a time; clicks made while none waits are kept, in order, a few at most.
+/// The person's clicks on a page's notifications, as the page pulls them (no event of Sunset's on its window, which any
+/// script could fire or hear): one pull waits at a time; clicks made while none waits are kept, in order, a few at most.
 @MainActor
 final class NotificationClicks {
     private var waiting: CheckedContinuation<Int?, Never>?

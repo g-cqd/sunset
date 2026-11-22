@@ -6,8 +6,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Task t97: the person's click on a page's notification reaches the page by its pull through Sunset's handler, never an
-/// event on its window any script could fire (white paper §9: a page cannot make its own notifications look clicked).
+/// The person's click on a page's notification reaches the page by its pull through Sunset's handler, never an event on
+/// its window any script could fire (white paper §9: a page cannot make its own notifications look clicked).
 @MainActor
 @Suite("A page's notifications: the person's clicks")
 struct NotificationClicksTests {

@@ -5,9 +5,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner, 2026-11-17 (roadmap 0035 H): "Have a way to cache favicons when tabs are unloaded". His answers: on disk,
-/// across quits; the cache's expiry respected and the icon fetched again then; an icon the page changes while it runs
-/// replaces the one kept.
+/// "Have a way to cache favicons when tabs are unloaded". His answers: on disk, across quits; the cache's expiry
+/// respected and the icon fetched again then; an icon the page changes while it runs replaces the one kept.
 @MainActor
 @Suite("Site icons kept")
 struct FaviconStoreTests {

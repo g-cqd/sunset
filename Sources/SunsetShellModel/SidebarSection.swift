@@ -1,5 +1,5 @@
-/// What a sidebar shows (roadmap 0031, 0032): the tabs, one of the lists of the Library and of the panel opposite the tabs, or
-/// the sections and topics of the settings (the gear at the foot of the Library's rail).
+/// What a sidebar shows: the tabs, one of the lists of the Library and of the panel opposite the tabs, or the sections
+/// and topics of the settings (the gear at the foot of the Library's rail).
 package enum SidebarSection: String, Sendable, CaseIterable {
     case tabs, documents, history, downloads, settings
 
@@ -19,7 +19,7 @@ package enum SidebarSection: String, Sendable, CaseIterable {
     }
 
     /// Whether the section has a search field while it lists `count` things: with nothing in it there is nothing to search
-    /// (the owner, 2026-11-15). The settings are always there to search; the tabs have no field of their own.
+    /// (2026-11-15). The settings are always there to search; the tabs have no field of their own.
     package func isSearched(count: Int) -> Bool {
         switch self {
             case .settings: true

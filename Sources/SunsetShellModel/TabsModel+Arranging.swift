@@ -3,8 +3,8 @@ package import SunsetPane
 extension TabsModel {
     // MARK: Selecting and arranging
 
-    /// Shows a tab here, and takes it: a tab another window draws is drawn here from now on (the owner, 2026-11-16: a
-    /// click on a tab takes its control and its live rendering).
+    /// Shows a tab here, and takes it: a tab another window draws is drawn here from now on (a click on a tab takes its
+    /// control and its live rendering).
     package func select(item: Workspace.ItemID) {
         if hoveredItem == item { hoveredItem = nil }
         change { $0.select(item: item) }

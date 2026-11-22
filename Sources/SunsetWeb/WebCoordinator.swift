@@ -33,14 +33,14 @@ import WebKit
 
     /// Cmd-click on a link opens it in a tab right after, not shown (as a link asking for a new tab does).
     private func decide(_ action: WKNavigationAction, in webView: WKWebView) async -> WKNavigationActionPolicy {
-        // The page the view goes to is shown the browser its site is to see (W-a): set before the request leaves.
+        // The page the view goes to is shown the browser its site is to see: set before the request leaves.
         if action.targetFrame?.isMainFrame == true {
             content?.asked.navigation(to: action.request.url, type: action.navigationType)
             content?.appear(for: action.request.url)
-            // Blocking, or its pause on the site the page goes to (W-c): decided before the page loads.
+            // Blocking, or its pause on the site the page goes to: decided before the page loads.
             ContentBlocker.shared.apply(to: webView, host: action.request.url?.host())
         }
-        // A link to a site that opens in another Space goes there, with that Space's profile (W-d).
+        // A link to a site that opens in another Space goes there, with that Space's profile.
         if action.targetFrame?.isMainFrame == true, action.navigationType == .linkActivated, let content,
             !content.isPrivate, let url = action.request.url,
             let space = SiteSpaces.shared.elsewhere(
@@ -95,7 +95,7 @@ import WebKit
         -> (URLSession.AuthChallengeDisposition, URLCredential?)
     {
         let space = challenge.protectionSpace
-        // A server's own question (roadmap 0029 step 8): asked in the page; kept for this run of Sunset only.
+        // A server's own question: asked in the page; kept for this run of Sunset only.
         if [NSURLAuthenticationMethodHTTPBasic, NSURLAuthenticationMethodHTTPDigest]
             .contains(space.authenticationMethod)
         {
@@ -118,7 +118,7 @@ import WebKit
     }
 
     /// A page asks for a new one (a link with a target, the link menu, `window.open` after a click): made at once with WebKit's configuration, then
-    /// placed. A sized window asked by the page gets a window (R1: "a sized popup is a small window").
+    /// placed. A sized window asked by the page gets a window ("a sized popup is a small window").
     func webView(
         _ webView: WKWebView,
         createWebViewWith configuration: WKWebViewConfiguration,
@@ -154,7 +154,7 @@ import WebKit
     }
 
     /// A page asked for by one of the menu's items the person chose (Sunset's link items, WebKit's Open Image or Video) is
-    /// theirs: WebKit marks it as not opened by the person, and the pop-up rule would stop it (note n64).
+    /// theirs: WebKit marks it as not opened by the person, and the pop-up rule would stop it.
     nonisolated static func skipsPopupRule(chosen: WebPlacement?) -> Bool {
         chosen != nil
     }

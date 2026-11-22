@@ -1,7 +1,7 @@
 import WebKit
 
-/// Puts a site on the kept list when a password is sent from one of its pages (ADR-0081, 2): a script in Sunset's own world,
-/// in every frame, watches for a form sent, or Enter or a click on a button, while a password field of the page holds
+/// Puts a site on the kept list when a password is sent from one of its pages (2): a script in Sunset's own world, in
+/// every frame, watches for a form sent, or Enter or a click on a button, while a password field of the page holds
 /// something, and posts once a page; the page's own scripts cannot post to it. Not in a private window.
 @MainActor
 final class SignInWatch: NSObject, WKScriptMessageHandler {
@@ -24,7 +24,7 @@ final class SignInWatch: NSObject, WKScriptMessageHandler {
         })();
         """
 
-    /// The page's profile: the site is kept for it (roadmap 0050 E).
+    /// The page's profile: the site is kept for it.
     private let profile: UUID?
 
     private init(profile: UUID?) {

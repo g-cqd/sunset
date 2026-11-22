@@ -1,7 +1,7 @@
 package import Foundation
 import SunsetRuntime
 
-/// The order of the documents in a sidebar list (the owner, 2026-11-15): the latest changed first unless chosen otherwise.
+/// The order of the documents in a sidebar list: the latest changed first unless chosen otherwise.
 package enum DocumentSort: String, Sendable, CaseIterable {
     case changed, made, name, kind
 

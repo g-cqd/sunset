@@ -1,6 +1,6 @@
-/// What a drag feels like where it would land (the owner, 2026-11-21, note n79: "haptic feedback for good placement and
-/// snapping"): one tick each time the place it would land changes to another place that takes it; none while it stays,
-/// none where nothing takes it, none for leaving a place.
+/// What a drag feels like where it would land ("haptic feedback for good placement and snapping"): one tick each time
+/// the place it would land changes to another place that takes it; none while it stays, none where nothing takes it,
+/// none for leaving a place.
 package struct DropFeel<Place: Equatable> {
     private var last: Place?
 

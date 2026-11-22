@@ -7,8 +7,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Appearing as another browser (roadmap 0022, W-a; the owner's answers of 2026-11-17): Chrome, Edge, Firefox or Safari on
-/// macOS, for a site and its subdomains or for every site. The first rung only: what the User-Agent says.
+/// Appearing as another browser: Chrome, Edge, Firefox or Safari on macOS, for a site and its subdomains or for every
+/// site. The first rung only: what the User-Agent says.
 @MainActor
 @Suite("Appearing as another browser")
 struct BrowserAgentTests {
@@ -89,8 +89,8 @@ struct BrowserAgentTests {
         page.stop()
     }
 
-    /// The second rung (R5; decided by the builder while the owner was away, ADR-0052): what a page's scripts read first
-    /// to tell a browser, set to what that browser says. A page that says Chrome with Apple's vendor is told apart at once.
+    /// The second rung: what a page's scripts read first to tell a browser, set to what that browser says. A page that says
+    /// Chrome with Apple's vendor is told apart at once.
     @Test(.macOS27)
     func
         `to its scripts a page shown Chrome or Edge has Google's vendor, client hints and window.chrome; Firefox its own`()

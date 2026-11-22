@@ -2,10 +2,10 @@ import CryptoKit
 import Foundation
 import WebKit
 
-/// The lists, compiled once (task t109, diary 2026-11-19-08). A list's compiled parts are named by a digest of its text and
-/// of the converter's version, so a launch with the same lists looks them up (under 1 ms) instead of converting and
-/// compiling them again (0.77 s of the main thread and 2.9 s of compiling for EasyList and EasyPrivacy). The conversion runs
-/// off the main actor. What no list uses any more is taken out of WebKit's store.
+/// The lists, compiled once. A list's compiled parts are named by a digest of its text and of the converter's version, so a
+/// launch with the same lists looks them up (under 1 ms) instead of converting and compiling them again (0.77 s of the main
+/// thread and 2.9 s of compiling for EasyList and EasyPrivacy). The conversion runs off the main actor. What no list uses
+/// any more is taken out of WebKit's store.
 extension ContentBlocker {
     /// Changed whenever `BlockingRules` changes what it makes: every list is then compiled again once.
     static let converterVersion = "2"

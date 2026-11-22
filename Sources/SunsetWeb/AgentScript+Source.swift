@@ -1,4 +1,4 @@
-/// The script itself (ADR-0052, ADR-0074). Chrome's values were read from Chrome Canary 160 on 2026-11-18.
+/// The script itself. Chrome's values were read from Chrome Canary 160 on 2026-11-18.
 extension AgentScript {
     // swiftlint:disable function_body_length - one script, read as one
     package static func make(
@@ -53,7 +53,7 @@ extension AgentScript {
           remove(['standalone'], navigator);
           remove(['GestureEvent', 'WebKitPoint', ...force], window);
           remove(force, HTMLElement.prototype, Document.prototype);
-          // Chrome and Firefox play HLS through Media Source Extensions only: they offer no native HLS (t15).
+          // Chrome and Firefox play HLS through Media Source Extensions only: they offer no native HLS.
           const canPlay = HTMLMediaElement.prototype.canPlayType;
           const hls = /^\s*application\/(vnd\.apple\.mpegurl|x-mpegurl)\s*(;|$)/i;
           define(HTMLMediaElement.prototype, 'canPlayType', { writable: true, enumerable: true, configurable: true,

@@ -9,8 +9,8 @@ extension WebCoordinator {
         -> WKNavigationResponsePolicy
     {
         guard response.isForMainFrame else { return .allow }
-        // An extension's package (a store's "Download file", a link to a `.crx`): installed after its prompt, not downloaded
-        // (roadmap 0109 E). A private page's go to Downloads.
+        // An extension's package (a store's "Download file", a link to a `.crx`): installed after its prompt, not downloaded.
+        // A private page's go to Downloads.
         if let address = response.response.url, let content, !content.isPrivate,
             ExtensionPackage.isPackage(mime: response.response.mimeType, path: address.path())
         {
@@ -32,7 +32,7 @@ extension WebCoordinator {
     }
 
     /// Download Image, Download Video and Download Linked File: WebKit makes the download itself and hands it over by a private
-    /// method (the owner's note n64: nothing took it, and nothing happened).
+    /// method (nothing took it, and nothing happened).
     static func installMenuDownloads() {
         WebDownloadHooks.install(
             on: WebCoordinator.self,

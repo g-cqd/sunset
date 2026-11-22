@@ -7,8 +7,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0042 D: a page whose text changes while its title does not (a document edited, a list that grows) is pictured
-/// again for its tab's card, as one whose title changes is (0037 A).
+/// A page whose text changes while its title does not (a document edited, a list that grows) is pictured again for its
+/// tab's card, as one whose title changes is (0037 A).
 @MainActor @Suite("A page's picture follows its text", .timeLimit(.minutes(1)))
 struct WebPictureTextTests {
     @Test func `a page pictured once is pictured again when its text changes and its title does not`() async throws {

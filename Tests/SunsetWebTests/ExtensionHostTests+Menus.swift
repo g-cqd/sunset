@@ -4,10 +4,10 @@ import SunsetWebModel
 import Testing
 
 extension ExtensionHostTests {
-    /// Seen 2026-11-20 (diary 2026-11-20-19, W9): WebKit refuses a menu item whose `targetUrlPatterns` name a scheme of
-    /// its own (uBlock Origin's "subscribe to this list" item, `abp:*` with an https pattern), so the item is not made
-    /// and the call throws. Sunset drops the patterns WebKit refuses and keeps the others; an item left with none is not
-    /// made (it would show on every link), and its id is given back as Firefox would.
+    /// Seen 2026-11-20 (W9): WebKit refuses a menu item whose `targetUrlPatterns` name a scheme of its own (uBlock
+    /// Origin's "subscribe to this list" item, `abp:*` with an https pattern), so the item is not made and the call
+    /// throws. Sunset drops the patterns WebKit refuses and keeps the others; an item left with none is not made (it
+    /// would show on every link), and its id is given back as Firefox would.
     @Test
     func `a menu item with a pattern of another scheme is made with the patterns WebKit takes`() async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")

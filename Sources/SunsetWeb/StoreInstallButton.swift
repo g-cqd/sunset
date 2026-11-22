@@ -1,17 +1,17 @@
 import SunsetWebModel
 import WebKit
 
-/// "Add to Sunset" on a store's page of an extension (roadmap 0109 E, ADR-0109; the owner: "install directly through their
-/// pages"): a script in Sunset's own world puts the button right after the page's title, styled as a native button; pressed, it
-/// posts the page's address and Sunset installs what the page names, after the install prompt (the guard: a page's own script
-/// can press the button too, as it can any element).
+/// "Add to Sunset" on a store's page of an extension ("install directly through their pages"): a script in Sunset's own world
+/// puts the button right after the page's title, styled as a native button; pressed, it posts the page's address and Sunset
+/// installs what the page names, after the install prompt (the guard: a page's own script can press the button too, as it can
+/// any element).
 @MainActor
 final class StoreInstallButton: PageScriptHandler, WKScriptMessageHandler {
     private static let name = "sunsetStoreInstall"
     static let script = """
         (() => {
           // The Chrome Web Store only: Firefox Add-ons is shown Firefox, and its own button links to the package, which
-          // Sunset installs (roadmap 0109 E).
+          // Sunset installs.
           if (location.protocol !== "https:") return;
           if (!/^(chromewebstore\\.google\\.com|chrome\\.google\\.com)$/.test(location.hostname)) return;
           const press = event => {

@@ -7,8 +7,7 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0045 B (the owner, 2026-11-18: "No notifications at all are requested even though some tabs might be emitting
-/// some"): a site that asks the Permissions API before it asks or notifies was answered by WebKit, which has no notifications
+/// A site that asks the Permissions API before it asks or notifies was answered by WebKit, which has no notifications
 /// in an app, whatever the site's answer in Sunset.
 @MainActor
 @Suite("A page's notification permission, as the Permissions API reads it", .timeLimit(.minutes(1)))

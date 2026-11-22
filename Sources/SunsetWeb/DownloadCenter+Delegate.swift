@@ -92,8 +92,8 @@ extension DownloadCenter {
     }
 
     /// Bytes WebKit already has, to be saved as a download is (a film's Download Video: WebKit hands them over instead of
-    /// making a download; the owner's note n64): approved if risky, the place asked for or the folder, a free name,
-    /// quarantined, listed as finished. Nil when it is given up.
+    /// making a download): approved if risky, the place asked for or the folder, a free name, quarantined, listed as
+    /// finished. Nil when it is given up.
     package func save(_ saved: Saved, folder: URL?, asks: Bool?) async -> DownloadItem? {
         let name = DownloadNaming.cleaned(saved.name)
         if settings.approveRisky, DownloadNaming.isSuspicious(name), await !approve(name, saved.origin) { return nil }

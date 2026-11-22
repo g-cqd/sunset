@@ -1,8 +1,8 @@
 import SunsetWebModel
 import WebKit
 
-/// The protections WebKit offers each navigation, as a page's settings ask (task t115, diary 2026-11-19-07): HTTPS first,
-/// the hardened mode (macOS 26.4), Global Privacy Control (macOS 27; a private window by its own rule).
+/// The protections WebKit offers each navigation, as a page's settings ask: HTTPS first, the hardened mode (macOS
+/// 26.4), Global Privacy Control (macOS 27; a private window by its own rule).
 ///
 /// The SDKs disagree on both newer properties: the macOS 26 SDK of CI's runners marks `securityRestrictionMode` 26.5 (the
 /// 27 SDK says 26.4), and has no `globalPrivacyControlEnabled` at all. Hence 26.5, and Global Privacy Control set by its key

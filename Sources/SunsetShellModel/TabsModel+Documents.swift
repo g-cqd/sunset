@@ -1,9 +1,9 @@
 package import Foundation
 package import SunsetPane
 
-/// The documents of the store as tabs of this window (roadmap 0030 step ST-5, 0031). A document is opened from a list of them
-/// (the Library, the panel opposite the tabs) and is then a tab like any other, among the tabs: it is moved, split, kept and
-/// closed as they are (the owner, 2026-11-15). The document stays in the store when its tab closes.
+/// The documents of the store as tabs of this window. A document is opened from a list of them (the Library, the panel
+/// opposite the tabs) and is then a tab like any other, among the tabs: it is moved, split, kept and closed as they are. The
+/// document stays in the store when its tab closes.
 extension TabsModel {
     /// The stored document the pane shows, when it shows one.
     package func document(in pane: PaneID) -> UUID? {
@@ -34,7 +34,7 @@ extension TabsModel {
         if let made = shelf.create() { show(document: made) }
     }
 
-    /// Deletes `document` at once (the owner, ST-5): the shelf puts it away (what was typed is saved into it first), then its
+    /// Deletes `document` at once (ST-5): the shelf puts it away (what was typed is saved into it first), then its
     /// panes in this window close without asking.
     package func delete(document: UUID) {
         if shelf.delete(document) { closePanes(showing: document) }

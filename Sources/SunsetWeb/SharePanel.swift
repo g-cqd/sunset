@@ -1,9 +1,9 @@
 import SunsetShell
 import SwiftUI
 
-/// The sheet a page's request to share its screen shows first (ADR-0082): Sunset's tabs, by Space, each as it looks now
-/// (the owner's note n72), then "Screen, Window or App…", macOS's own picker (which shows its own previews). Nothing is
-/// shared until one is chosen; Escape shares nothing.
+/// The sheet a page's request to share its screen shows first: Sunset's tabs, by Space, each as it looks now, then
+/// "Screen, Window or App…", macOS's own picker (which shows its own previews). Nothing is shared until one is chosen;
+/// Escape shares nothing.
 struct SharePanel: View {
     let request: ShareRequest
     let host: String

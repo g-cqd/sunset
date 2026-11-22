@@ -1,7 +1,7 @@
 package import SunsetPane
 
-/// The parts of a split tab (the owner, 2026-11-17): a click on one shows the split and focuses that pane; any pane comes out
-/// into a tab of its own, from Today, the Favorites or the grid.
+/// The parts of a split tab: a click on one shows the split and focuses that pane; any pane comes out into a tab of its
+/// own, from Today, the Favorites or the grid.
 extension TabsModel {
     /// Shows the split `row` (a tab of Today or a kept entry) with the keyboard in `pane`.
     package func choose(part pane: PaneID, of row: RowTarget) {

@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// A Space when a scope of the app is turned off (roadmap 0033; ADR-0056): its panes of that kind close.
+/// A Space when a scope of the app is turned off: its panes of that kind close.
 extension SpaceModel {
     /// The panes of its tabs that are of the scope: running, or waiting to be made.
     private func panes(of scope: Scopes.Scope) -> [PaneID] {

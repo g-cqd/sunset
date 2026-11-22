@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// A window as a view of its Space (ADR-0045): the Space's tabs with this window's selection.
+/// A window as a view of its Space: the Space's tabs with this window's selection.
 extension TabsModel {
     /// The Space's tabs, with this window's selection. Changing it changes the Space's tabs for every window that shows
     /// them, and this window's selection only.

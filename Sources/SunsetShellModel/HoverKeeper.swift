@@ -1,6 +1,5 @@
-/// A hover that does not end while a menu is open (the owner's crash of 2026-11-18, note n46: a button shown on hover left
-/// while its menu was up, and AppKit laid the window out against it). An end of hover while a menu tracks is held until the
-/// menu closes.
+/// A hover that does not end while a menu is open (a crash, 2026-11-18: a button shown on hover left while its menu was up,
+/// and AppKit laid the window out against it). An end of hover while a menu tracks is held until the menu closes.
 package struct HoverKeeper: Equatable, Sendable {
     package private(set) var hovering = false
     private var held: Bool?

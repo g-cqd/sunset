@@ -4,10 +4,10 @@ package import Observation
 import SunsetRuntime
 package import SunsetStorage
 
-/// The sites' icons, kept (roadmap 0035 H): a tab that is not loaded, or was not yet this run, shows its site's icon. Kept
-/// as sealed records of the state database (one per host, the icon made small), read back at launch; each until the server
-/// said it expires, then fetched again the next time a page of the site loads (and shown meanwhile). Private pages keep
-/// nothing. Cleared with the history.
+/// The sites' icons, kept: a tab that is not loaded, or was not yet this run, shows its site's icon. Kept as sealed
+/// records of the state database (one per host, the icon made small), read back at launch; each until the server said it
+/// expires, then fetched again the next time a page of the site loads (and shown meanwhile). Private pages keep nothing.
+/// Cleared with the history.
 @MainActor @Observable
 package final class FaviconStore {
     package static let shared = FaviconStore()
@@ -36,9 +36,9 @@ package final class FaviconStore {
 
     package init() {}
 
-    /// Where a profile's icon of a site is kept: by profile and host (note n17: a site can say something of the page shown
-    /// through its icon, which another profile's page of the same site does not share). The first profile's (nil) is the
-    /// host alone, as icons were kept before.
+    /// Where a profile's icon of a site is kept: by profile and host (a site can say something of the page shown through
+    /// its icon, which another profile's page of the same site does not share). The first profile's (nil) is the host
+    /// alone, as icons were kept before.
     static func key(host: String, profile: UUID?) -> String {
         profile.map { "\($0.uuidString)/\(host.lowercased())" } ?? host.lowercased()
     }

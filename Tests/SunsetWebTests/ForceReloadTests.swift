@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's note n50: a tab stuck loading, or whose page process hangs or crashed, can be reloaded and force-reloaded.
-/// Force: the page's process is ended and the page loads again in a new one, its history kept (probed: `/tmp/killprobe`).
+/// A tab stuck loading, or whose page process hangs or crashed, can be reloaded and force-reloaded. Force: the page's
+/// process is ended and the page loads again in a new one, its history kept (probed: `/tmp/killprobe`).
 @MainActor @Suite("Reload and force reload")
 struct ForceReloadTests {
     @Test func `a page offers Reload and Force Reload in its tab's menu, loading or not`() {

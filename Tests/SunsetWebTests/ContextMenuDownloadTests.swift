@@ -5,8 +5,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's note n64: "downloading image and video from their context menu options in pages does not work". WebKit's
-/// Download Image and Download Video make the download themselves and hand it to the navigation delegate by a private method
+/// "downloading image and video from their context menu options in pages does not work". WebKit's Download Image and
+/// Download Video make the download themselves and hand it to the navigation delegate by a private method
 /// (`_webView:contextMenuDidCreateDownload:`, asked of the navigation delegate: probed 2026-11-20); Sunset's must take it.
 @MainActor @Suite("A download WebKit's page menu makes")
 struct ContextMenuDownloadTests {

@@ -14,8 +14,7 @@ extension WebContent {
                 settings.privacy.map(PrivateStores.store(for:))
                 ?? settings.profile.map { WKWebsiteDataStore(forIdentifier: $0) } ?? .default()
         }
-        // Through the app's proxy, if there is one (W-f).
-        // Its profile's proxy (roadmap 0050), else the app's.
+        // Through the app's proxy, if there is one. Its profile's proxy, else the app's.
         if let proxy = settings.proxy {
             proxy.apply(to: configuration.websiteDataStore)
         } else {
@@ -38,7 +37,7 @@ extension WebContent {
         if settings.mediaDevices { WebFeature.set("MediaDevicesEnabled", enabled: true, on: configuration.preferences) }
         // Pop-ups without a click reach Sunset, which decides by the site's answer; sound does not play on its own unless the site may.
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
-        // A video, or an element the page asks to, can fill the screen (roadmap 0029 step 3).
+        // A video, or an element the page asks to, can fill the screen.
         configuration.preferences.isElementFullscreenEnabled = true
         if given == nil {
             let host = url?.host()
@@ -47,7 +46,7 @@ extension WebContent {
         }
         let view = SunsetWebView(frame: .zero, configuration: configuration)
         openAsExtensionTab(in: configuration.webExtensionController)
-        // Ads and trackers blocked (W-c), unless paused for the site.
+        // Ads and trackers blocked, unless paused for the site.
         ContentBlocker.shared.attach(view, host: url?.host(), blocks: settings.blocking, profile: settings.profile)
         view.customUserAgent = agent(for: url).userAgent
         view.isInspectable = settings.developer
@@ -93,8 +92,7 @@ extension WebContent {
                     if !view.isLoading {
                         self?.progress = nil
                         self?.refreshFavicon()
-                        // Pictured once (another window shows its picture, its tab's card): pictured again as it is now
-                        // (roadmap 0036 D).
+                        // Pictured once (another window shows its picture, its tab's card): pictured again as it is now.
                         if self?.picture != nil { self?.takePicture() }
                     }
                 }
@@ -120,7 +118,7 @@ extension WebContent {
         guard title != pageTitle else { return }
         pageTitle = title
         onChange()
-        // Pictured once: pictured again as it changes without loading (a chat's count), once a second at most (roadmap 0037 A).
+        // Pictured once: pictured again as it changes without loading (a chat's count), once a second at most.
         if picture != nil, !isLoading {
             let now = ProcessInfo.processInfo.systemUptime
             if lastTitlePicture.map({ now - $0 >= 1 || now < $0 }) ?? true {
@@ -131,7 +129,7 @@ extension WebContent {
     }
 
     /// The page's text changed and its title did not (`TextWatch`): pictured once, it is pictured again, as for a new title,
-    /// at most every two seconds (roadmap 0042 D).
+    /// at most every two seconds.
     func textChanged(at now: Double) {
         guard picture != nil, !isLoading else { return }
         if let last = lastTextPicture, now >= last, now - last < Double(TextWatch.interval) / 1000 { return }
@@ -160,8 +158,8 @@ extension WebContent {
         }
     }
 
-    /// Its profile's extensions see it as a tab (roadmap 0109 B; a private page only those allowed there: each context's own
-    /// access to private data).
+    /// Its profile's extensions see it as a tab (a private page only those allowed there: each context's own access to
+    /// private data).
     private func openAsExtensionTab(in controller: WKWebExtensionController?) {
         guard let controller else { return }
         let tab = ExtensionTab(self)

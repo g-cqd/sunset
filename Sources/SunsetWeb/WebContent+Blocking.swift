@@ -1,6 +1,6 @@
 import WebKit
 
-/// Blocking on this page's site (roadmap 0022 W-c), from the site's panel.
+/// Blocking on this page's site, from the site's panel.
 extension WebContent {
     /// Whether ads and trackers are blocked on this page's site now.
     package var blocksOnSite: Bool {
@@ -11,13 +11,13 @@ extension WebContent {
     /// Pauses blocking on this page's site, or resumes it, and loads the page again so that it takes effect.
     package func setBlocking(_ on: Bool) {
         guard let host = siteHost, let webView else { return }
-        // For this page's profile only (roadmap 0050 E); the first profile's are all profiles'.
+        // For this page's profile only; the first profile's are all profiles'.
         ContentBlocker.shared.pauses.set(!on, for: host, profile: settings.profile)
         ContentBlocker.shared.apply(to: webView, host: host)
         webView.reload()
     }
 
-    /// The elements hidden for good on this page's site (W-e).
+    /// The elements hidden for good on this page's site.
     package var hiddenOnSite: [String] {
         ContentBlocker.shared.hidden.selectors(for: siteHost, profile: settings.profile)
     }

@@ -1,7 +1,7 @@
 import Foundation
 package import SunsetPane
 
-/// A kept terminal's command (R3, t145): written only through the dialog, sealed when it is saved, typed into the shell when the entry starts, and never run
+/// A kept terminal's command: written only through the dialog, sealed when it is saved, typed into the shell when the entry starts, and never run
 /// when its seal does not check (another program wrote it into the session file).
 extension FavoritesModel {
     /// Whether the entry's command can be run: sealed by this app, for exactly this text.

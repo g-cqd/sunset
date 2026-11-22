@@ -1,9 +1,8 @@
 package import Foundation
 package import Observation
 
-/// The documents of the store as the shell reaches them (roadmap 0030 step ST-5): the app says how they are listed, made and
-/// deleted; the shell does not know the store. With nothing said there are none; what is drawn from it follows it when the
-/// app says.
+/// The documents of the store as the shell reaches them: the app says how they are listed, made and deleted; the shell
+/// does not know the store. With nothing said there are none; what is drawn from it follows it when the app says.
 @MainActor @Observable
 package final class DocumentShelf {
     /// Whether documents can be kept in this run (there is a store, and its key).

@@ -1,9 +1,9 @@
 import Foundation
 import WebKit
 
-/// The page's `Notification` (roadmap 0035 D): WebKit's own shows nothing in an app (it has no place to post to), so a script
-/// at the document's start puts Sunset's in its place, in the page's world, where its scripts look for it. It asks Sunset
-/// for the site's answer, to ask the person, and to show; Sunset answers by the site WebKit names, never by what the page says.
+/// The page's `Notification`: WebKit's own shows nothing in an app (it has no place to post to), so a script at the document's
+/// start puts Sunset's in its place, in the page's world, where its scripts look for it. It asks Sunset for the site's answer,
+/// to ask the person, and to show; Sunset answers by the site WebKit names, never by what the page says.
 @MainActor
 final class WebNotifications: PageScriptHandler, WKScriptMessageHandlerWithReply {
     static let name = "sunsetNotifications"
@@ -12,8 +12,8 @@ final class WebNotifications: PageScriptHandler, WKScriptMessageHandlerWithReply
           const bridge = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.\(name);
           if (!bridge || window.top !== window) return;
           \(PageNative.prelude)
-          // Shaped as WebKit's own (task t97, read in a bare WKWebView): attributes are the prototype's getters, the state
-          // is this script's, and what the page could patch later (postMessage, dispatchEvent) is taken now.
+          // Shaped as WebKit's own (read in a bare WKWebView): attributes are the prototype's getters, the state is
+          // this script's, and what the page could patch later (postMessage, dispatchEvent) is taken now.
           const define = Object.defineProperty;
           const send = bridge.postMessage;
           const post = (message) => Reflect.apply(send, bridge, [message]);
@@ -125,7 +125,7 @@ final class WebNotifications: PageScriptHandler, WKScriptMessageHandlerWithReply
             return answer;
           }, "requestPermission") });
           define(window, "Notification", { value: Notification, writable: true, enumerable: false, configurable: true });
-          // The Permissions API reads the same answer (WebKit's would say "prompt" whatever it is: roadmap 0045 B).
+          // The Permissions API reads the same answer (WebKit's would say "prompt" whatever it is).
           const status = window.PermissionStatus && Object.getOwnPropertyDescriptor(PermissionStatus.prototype, "state");
           if (window.Permissions && Permissions.prototype.query && status && status.get) {
             const query = Permissions.prototype.query;
@@ -146,8 +146,8 @@ final class WebNotifications: PageScriptHandler, WKScriptMessageHandlerWithReply
               })();
             }, "query", 1) });
           }
-          // A service worker's registration shows its notifications through Sunset too (roadmap 0046 S2): an app's web view
-          // has no notification centre of its own for them. The worker's `notificationclick` is not fired.
+          // A service worker's registration shows its notifications through Sunset too: an app's web view has no
+          // notification centre of its own for them. The worker's `notificationclick` is not fired.
           if (window.ServiceWorkerRegistration && ServiceWorkerRegistration.prototype.showNotification) {
             const scope = Object.getOwnPropertyDescriptor(ServiceWorkerRegistration.prototype, "scope").get;
             define(ServiceWorkerRegistration.prototype, "showNotification", { writable: true, enumerable: true, configurable: true, value: native(async function (title, options) {

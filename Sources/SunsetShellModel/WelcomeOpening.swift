@@ -1,11 +1,10 @@
 package import CoreGraphics
 
-/// The welcome's opening at one moment (roadmap 0084 G). The owner, 2026-11-21: the sun and the sky in phases of their
-/// own; "remove the purple shades from the animation and fade the sun into the window"; no drawn stand-in for the window
-/// ("avoid faking stuff"); the sun going down before the window phases in. So: the sun alone fades in, out of focus,
-/// slowly, over what is on screen, and sets to where the window keeps it; then the real window
-/// fades in where it stands, its content coming into focus, and the opening's sun fades as the window's own takes over.
-/// Coordinates are SwiftUI's (y down).
+/// The welcome's opening at one moment. The owner, 2026-11-21: the sun and the sky in phases of their own; "remove the
+/// purple shades from the animation and fade the sun into the window"; no drawn stand-in for the window ("avoid faking
+/// stuff"); the sun going down before the window phases in. So: the sun alone fades in, out of focus, slowly, over what
+/// is on screen, and sets to where the window keeps it; then the real window fades in where it stands, its content
+/// coming into focus, and the opening's sun fades as the window's own takes over. Coordinates are SwiftUI's (y down).
 package struct WelcomeOpening: Equatable {
     /// The opening's sun: how much of it shows, and how far out of focus it is (1: a wide blur, 0: sharp).
     package var sunOpacity: Double
@@ -19,8 +18,8 @@ package struct WelcomeOpening: Equatable {
 
     package static let duration = 8.4
     package static let sunPhase = (start: 0.0, length: 2.8)
-    /// The sun going down (the owner, 2026-11-21: "make it go down before starting the window phasing in").
-    /// It ends under the window's first moments: the window starts when 97% of the way is done, the rest too slow to see.
+    /// The sun going down ("make it go down before starting the window phasing in"). It ends under the window's first
+    /// moments: the window starts when 97% of the way is done, the rest too slow to see.
     package static let setPhase = (start: 1.4, length: 4.2)
     package static let windowPhase = (start: 5.0, length: 3.4)
     /// Where the sun appears, from the window's top, as a share of its height, before it sets to `sunHeight`.
@@ -53,7 +52,7 @@ package struct WelcomeOpening: Equatable {
             windowOpacity: showing,
             contentBlur: startBlur * (1 - showing),
             sun: CGPoint(x: frame.midX, y: frame.minY + frame.height * height),
-            // Round while it appears; it takes the window's shape as it sets (the owner's note n86).
+            // Round while it appears; it takes the window's shape as it sets.
             sunRoundness: 1 - setting
         )
     }
@@ -64,7 +63,7 @@ package struct WelcomeOpening: Equatable {
     }
 
     /// 0 to 1, eased in and out with no jolt at either end (smootherstep: speed and acceleration both start and end at
-    /// zero; the owner, 2026-11-21: "the timing function of the animation could be improved").
+    /// zero).
     private static func smooth(_ value: Double) -> Double {
         let x = clamp(value)
         return x * x * x * (x * (6 * x - 15) + 10)

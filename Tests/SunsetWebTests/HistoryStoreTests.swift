@@ -117,10 +117,10 @@ import Testing
         store.delete("https://gone.com/")
         store.expire(before: day(9.5))
         store.clear(since: day(0.45))
-        // Format 2 seals the times (task t48 C): what was removed by time is removed by name once read, never by opening
-        // every record on the main actor before then.
-        // Five kept and one visited meanwhile, less the two removed by name ("gone" deleted, "new" cleared from memory):
-        // the kept pages that the expiry and the clearing cover are not removed until they are read.
+        // Format 2 seals the times: what was removed by time is removed by name once read, never by opening every record
+        // on the main actor before then. Five kept and one visited meanwhile, less the two removed by name ("gone"
+        // deleted, "new" cleared from memory): the kept pages that the expiry and the clearing cover are not removed
+        // until they are read.
         #expect(table.count() == 4, "nothing removed yet but by name: \(table.count())")
         await store.ready()
         #expect(store.isLoaded && changes > 0)

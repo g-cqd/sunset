@@ -1,7 +1,7 @@
 internal import Foundation
 internal import SunsetPane
 
-/// Files opened in this window (R6, roadmap 0023 step M-f): from the Open panel, a drop, Finder, the command bar.
+/// Files opened in this window: from the Open panel, a drop, Finder, the command bar.
 extension TabsModel {
     /// Opens each of `paths` in a tab of its own, the last one shown. A file this window already shows is shown where it
     /// is, however its path is written.
@@ -23,7 +23,7 @@ extension TabsModel {
     }
 
     /// The documents this window lists (the Library, the panel opposite the tabs, the command bar): the store's, then the
-    /// files opened lately. None in a private window (the owner, 2026-11-16): their names are the person's.
+    /// files opened lately. None in a private window: their names are the person's.
     package var listedDocuments: [ShelfDocument] {
         isPrivateWindow ? [] : shelf.list() + shelf.files()
     }

@@ -1,7 +1,7 @@
 package import SunsetPane
 
-/// Dropping what is dragged in a section of the sidebar (roadmap 0035 A): a tab of Today, a pane of a split (its whole split),
-/// a favourite, a folder, a tile of the Pinned grid, a document; in the grid, the Favorites or Today, at a place.
+/// Dropping what is dragged in a section of the sidebar: a tab of Today, a pane of a split (its whole split), a
+/// favourite, a folder, a tile of the Pinned grid, a document; in the grid, the Favorites or Today, at a place.
 extension TabsModel {
     /// What is dragged, by where it comes from.
     package enum DragSource: Equatable {
@@ -9,12 +9,12 @@ extension TabsModel {
         case favorite(Favorites.NodeID)
         case folder(Favorites.NodeID)
         case tile(Favorites.NodeID)
-        /// A kept entry of another profile, dragged from a window of it: it comes as a tab (roadmap 0037 B).
+        /// A kept entry of another profile, dragged from a window of it: it comes as a tab.
         case foreignEntry(Favorites.NodeID)
         case document
     }
 
-    /// What is dragged, by where it comes from; a pane of a split is its whole tab (the owner: "the container itself").
+    /// What is dragged, by where it comes from; a pane of a split is its whole tab ("the container itself").
     package var dragSource: DragSource? {
         switch dragged {
             case .item(let id): return .tab(id)

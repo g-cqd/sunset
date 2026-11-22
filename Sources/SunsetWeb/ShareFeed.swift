@@ -1,7 +1,7 @@
 package import CoreGraphics
 
-/// What Sunset is told by the app about a tab that can be shared (ADR-0082): how to draw a frame of it, whether it is still
-/// open, its page's host now.
+/// What Sunset is told by the app about a tab that can be shared: how to draw a frame of it, whether it is still open,
+/// its page's host now.
 package struct ShareFeed: Sendable {
     package let frame: @MainActor @Sendable () async -> CGImage?
     package let isOpen: @MainActor @Sendable () -> Bool

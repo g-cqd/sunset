@@ -1,7 +1,7 @@
 import AppKit
 import WebKit
 
-/// Roadmap 0029, steps 2 and 5: a page's file field, and a page whose process ended.
+/// A page's file field, and a page whose process ended.
 extension WebCoordinator {
     /// `<input type=file>`: the system's panel as a sheet on the page's window; nothing chosen, nothing given.
     func webView(

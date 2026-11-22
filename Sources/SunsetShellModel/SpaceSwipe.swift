@@ -1,6 +1,6 @@
-/// The two-finger swipe on the sidebar that changes Space (roadmap 0021 step S-b), as numbers: what the trackpad says goes
-/// in, what the list does comes out. The owner, 2026-11-17: the list follows the fingers, "starting slow and snap when
-/// enough swiped, not swipe multiple ones at the same time".
+/// The two-finger swipe on the sidebar that changes Space, as numbers: what the trackpad says goes in, what the list
+/// does comes out. The owner, 2026-11-17: the list follows the fingers, "starting slow and snap when enough swiped, not
+/// swipe multiple ones at the same time".
 ///
 /// A gesture is the list's or this one's from its start, by the direction it starts in. Sideways, the list moves less
 /// than the fingers at first and more as they go; at `threshold` of the sidebar's width it snaps to the neighbour, once: the
@@ -13,7 +13,7 @@ package struct SpaceSwipe: Equatable {
         case follow
         /// Enough was swiped: the Space is the next (1) or the previous (-1) now.
         case snap(Int)
-        /// Enough was swiped past the last Space on the sidebar's side: the Library opens (the owner's note n61).
+        /// Enough was swiped past the last Space on the sidebar's side: the Library opens.
         case library
         /// Of a gesture that already changed Space: nothing.
         case consumed
@@ -29,7 +29,7 @@ package struct SpaceSwipe: Equatable {
     package static func ways(index: Int, count: Int, library: LibrarySide?, libraryOpen: Bool = false)
         -> (previous: Way, next: Way)
     {
-        // With the Library open, the way back to the tabs only: opposite to the way in (the owner's note n90).
+        // With the Library open, the way back to the tabs only: opposite to the way in.
         if libraryOpen { return (library == .next ? .library : .nothing, library == .previous ? .library : .nothing) }
         return (
             index > 0 ? .space : (library == .previous ? .library : .nothing),
@@ -37,8 +37,8 @@ package struct SpaceSwipe: Equatable {
         )
     }
 
-    /// Whether the swipe is listened to: only if there is somewhere to go. With the Library open, the Spaces are not shown
-    /// (note n61): only for the way back to the tabs (n90).
+    /// Whether the swipe is listened to: only if there is somewhere to go. With the Library open, the Spaces are not shown:
+    /// only for the way back to the tabs.
     package static func listens(libraryOpen: Bool, spaces: Int, library: LibrarySide?) -> Bool {
         libraryOpen ? library != nil : spaces > 1 || library != nil
     }
@@ -93,7 +93,7 @@ package struct SpaceSwipe: Equatable {
         let towardsNext = travelled.x < 0
         let way = towardsNext ? ways.next : ways.previous
         guard way != .nothing else {
-            // Nothing that way (note n61): the gesture is the list's, as one up or down is.
+            // Nothing that way: the gesture is the list's, as one up or down is.
             phase = .scrolling
             offset = 0
             return .scroll

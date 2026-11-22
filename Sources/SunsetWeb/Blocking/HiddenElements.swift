@@ -1,7 +1,7 @@
 package import Foundation
 
-/// The elements hidden for good on each site (roadmap 0022 W-e), as CSS selectors, kept per site (`SiteRules`): for the site
-/// and its subdomains, whatever blocking says.
+/// The elements hidden for good on each site, as CSS selectors, kept per site (`SiteRules`): for the site and its
+/// subdomains, whatever blocking says.
 @MainActor
 package enum HiddenElements {
     package static let shared = make()
@@ -16,8 +16,8 @@ package enum HiddenElements {
 }
 
 extension SiteRules where Value == [String] {
-    /// The selectors hidden on `host` for a page of `profile`: its own, else all profiles' (roadmap 0050 E); nil: all
-    /// profiles'. A site's own, or its nearest parent site's.
+    /// The selectors hidden on `host` for a page of `profile`: its own, else all profiles'; nil: all profiles'. A
+    /// site's own, or its nearest parent site's.
     package func selectors(for host: String?, profile: UUID? = nil) -> [String] {
         value(for: host, profile: profile) ?? []
     }

@@ -1,5 +1,5 @@
-/// A device a page uses (the owner's note n47): the microphone or the camera, live or muted by the person. A tab shows each
-/// and mutes or unmutes it from there; the site's panel too.
+/// A device a page uses: the microphone or the camera, live or muted by the person. A tab shows each and mutes or
+/// unmutes it from there; the site's panel too.
 package struct PaneCapture: Equatable, Sendable {
     package enum Device: Sendable, CaseIterable { case microphone, camera }
     package enum State: Sendable { case live, muted }

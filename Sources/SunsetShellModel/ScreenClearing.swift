@@ -1,5 +1,5 @@
-/// The screen cleared for the sun (the owner, 2026-11-21: an easter egg that "would minimize windows on screen ... and
-/// start the animation"), and put back after: only what it cleared, never what was already minimized or hidden.
+/// The screen cleared for the sun (an easter egg that "would minimize windows on screen ... and start the animation"),
+/// and put back after: only what it cleared, never what was already minimized or hidden.
 package final class ScreenClearing {
     private var cleared: [any ClearableOnScreen] = []
 

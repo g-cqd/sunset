@@ -1,7 +1,7 @@
 import Foundation
 
-/// The accent from the site shown (`appearance.accent` "site"; roadmap 0047 H): its declared theme colour, else its icon's
-/// colour, when either stands out on a window (luminance in `readable`, colourful enough); else none, and the system's.
+/// The accent from the site shown (`appearance.accent` "site"): its declared theme colour, else its icon's colour, when
+/// either stands out on a window (luminance in `readable`, colourful enough); else none, and the system's.
 extension Design.Accent {
     /// How colourful a colour must be (its chroma, 0 to 1) to be an accent: a grey is not one.
     package static let minimumChroma = 0.2

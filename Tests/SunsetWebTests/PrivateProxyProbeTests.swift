@@ -6,9 +6,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// A probe (roadmap 0046 B, 2026-11-18): WebKit's private `-[WKWebsiteDataStore _setProxyConfiguration:]` takes a CFNetwork
-/// proxy dictionary. Does it take a proxy auto-configuration script, so that a page's requests go where a script decides
-/// per address (what an extension's `chrome.proxy` sets with `pac_script`)? Never in the suite: `SUNSET_PRIVATE_PROBE`.
+/// A probe (2026-11-18): WebKit's private `-[WKWebsiteDataStore _setProxyConfiguration:]` takes a CFNetwork proxy
+/// dictionary. Does it take a proxy auto-configuration script, so that a page's requests go where a script decides per
+/// address (what an extension's `chrome.proxy` sets with `pac_script`)? Never in the suite: `SUNSET_PRIVATE_PROBE`.
 @MainActor @Suite("WebKit's private proxy dictionary (probe)", .serialized, .timeLimit(.minutes(1)))
 struct PrivateProxyProbeTests {
     private func load(_ address: String, store: WKWebsiteDataStore) async throws -> String {

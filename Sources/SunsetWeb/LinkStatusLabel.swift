@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// The address of the link under the pointer, at the bottom of its page (roadmap 0029 step 6): one line, plain text.
+/// The address of the link under the pointer, at the bottom of its page: one line, plain text.
 struct LinkStatusLabel: View {
     let text: String
     @Environment(\.surfaceStyle) private var surface

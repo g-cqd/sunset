@@ -1,9 +1,9 @@
 import Observation
 package import SunsetPane
 
-/// What is kept awake, by pane (roadmap 0038 A): a tab's panes go with it wherever it goes (Today, the Favorites, the grid,
-/// another window or Space), and so does what it was asked; panes are unique to the app (`PaneID` is a UUID), so one table
-/// serves every window.
+/// What is kept awake, by pane: a tab's panes go with it wherever it goes (Today, the Favorites, the grid, another window
+/// or Space), and so does what it was asked; panes are unique to the app (`PaneID` is a UUID), so one table serves every
+/// window.
 @MainActor @Observable
 package final class KeepAwakePanes {
     package static let shared = KeepAwakePanes()

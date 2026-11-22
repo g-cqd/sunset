@@ -6,9 +6,9 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's note n10 (2026-11-18): the sidebar's address field "does not show the full length" of its text and the caret
-/// does not appear at its end. An `NSTextField` asks for its text's width; given a long address it was laid out wider than
-/// the field, and its end (and the caret there) fell outside, clipped by the field's shape.
+/// The sidebar's address field "does not show the full length" of its text and the caret does not appear at its end. An
+/// `NSTextField` asks for its text's width; given a long address it was laid out wider than the field, and its end (and
+/// the caret there) fell outside, clipped by the field's shape.
 @MainActor @Suite("The address field's width")
 struct AddressFieldWidthTests {
     @Test func `a long address is laid out in the width given, not its own`() throws {

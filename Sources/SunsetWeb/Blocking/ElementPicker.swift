@@ -1,7 +1,7 @@
 package import WebKit
 
-/// Picks an element of a page to hide for good (roadmap 0022 W-e): the element under the pointer is outlined, a click
-/// picks it, Escape gives up. Runs in Sunset's own script world: the page's scripts cannot see it nor answer for it.
+/// Picks an element of a page to hide for good: the element under the pointer is outlined, a click picks it, Escape
+/// gives up. Runs in Sunset's own script world: the page's scripts cannot see it nor answer for it.
 @MainActor
 package enum ElementPicker {
     /// A selector for an element: its id when it is unique, else its place under its nearest such ancestor or the body.

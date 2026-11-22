@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// The mark of a page over plain http in its address field: the symbol, with "Not Secure" shown beside it while the pointer is on it (owner note n64).
+/// The mark of a page over plain http in its address field: the symbol, with "Not Secure" shown beside it while the pointer is on it.
 struct NotSecureMark: View {
     @State private var hovered = false
 

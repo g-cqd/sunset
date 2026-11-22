@@ -7,7 +7,7 @@ extension WebContent {
     package var title: String {
         pageTitle.isEmpty ? (url?.host() ?? "New Page") : pageTitle
     }
-    /// No second line in a tab: the address is in the address field (owner note n62); the address is still searched by (`searchTerms`).
+    /// No second line in a tab: the address is in the address field; the address is still searched by (`searchTerms`).
     package var detail: String? {
         nil
     }

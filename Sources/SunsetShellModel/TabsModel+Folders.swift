@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// Folders (R3, t142): synthetic, only for tidying; they never open or close what they hold.
+/// Folders: synthetic, only for tidying; they never open or close what they hold.
 extension TabsModel {
     /// A new empty folder named "New Folder" at the end of the Favorites (or in `parent`); its name is edited at once.
     package func newFolder(in parent: Favorites.NodeID? = nil) {

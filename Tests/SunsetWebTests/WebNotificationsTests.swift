@@ -7,9 +7,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner, 2026-11-17 (roadmap 0035 D): "Web notifications don't work with system notifications". A page's `Notification`
-/// is Sunset's (a script at the document's start); what it asks reaches the page's content, which answers by the site's
-/// standing answer and hands what may be shown to the app (white paper §9: untrusted input has a policy).
+/// "Web notifications don't work with system notifications". A page's `Notification` is Sunset's (a script at the
+/// document's start); what it asks reaches the page's content, which answers by the site's standing answer and hands
+/// what may be shown to the app (white paper §9: untrusted input has a policy).
 @MainActor
 @Suite("A page's notifications")
 struct WebNotificationsTests {
@@ -140,7 +140,7 @@ struct WebNotificationsTests {
         )
         #expect(result as? [String] == ["granted", "granted", "show", "close"])
         #expect(shown.map(\.title) == ["Hi"] && shown.first?.body == "there" && shown.first?.host == "chat.example")
-        #expect(closed == shown.map(\.id), "close() reached Sunset (roadmap 0036 E)")
+        #expect(closed == shown.map(\.id), "close() reached Sunset")
         page.stop()
     }
 }

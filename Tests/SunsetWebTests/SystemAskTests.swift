@@ -3,9 +3,9 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner, 2026-11-17 (roadmap 0035 I): "calls to action for allowing and authorizing stuff below the address bar"; his
-/// answer: the pages' questions and what macOS must allow Sunset itself. macOS is asked about only when a site may use what
-/// it would refuse: no call to action for something nothing needs.
+/// "calls to action for allowing and authorizing stuff below the address bar"; his answer: the pages' questions and what
+/// macOS must allow Sunset itself. macOS is asked about only when a site may use what it would refuse: no call to action
+/// for something nothing needs.
 @MainActor
 @Suite("What macOS must allow Sunset")
 struct SystemAskTests {

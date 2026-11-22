@@ -7,8 +7,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Seen on screen 2026-11-20 with the owner's configuration (`web.httpsUpgrade` "ask"): an http address typed in the
-/// field (a server on this machine) loaded nothing, said nothing; the page stayed blank.
+/// Seen on screen 2026-11-20 with `web.httpsUpgrade` "ask": an http address typed in the field (a server on this
+/// machine) loaded nothing, said nothing; the page stayed blank.
 @MainActor @Suite("An http address with HTTPS asked first")
 struct HTTPSUpgradeAskTests {
     @Test func `this machine's http page loads, or says why not`() async throws {

@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// An entry going from one set of kept entries to another: the Favorites and the Pinned grid (ADR-0054).
+/// An entry going from one set of kept entries to another: the Favorites and the Pinned grid.
 extension FavoritesModel {
     /// Gives the entry `id` to `other` as it is: the same entry (its id, name, icon, command, home), and when it is open
     /// its content, still running, and the window that draws it. A window that shows it goes on showing it.

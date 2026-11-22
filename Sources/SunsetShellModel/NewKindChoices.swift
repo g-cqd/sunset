@@ -1,7 +1,7 @@
 package import SunsetPane
 
 /// The kinds of tab the command bar offers to make: besides a page under a new tab's empty field, and when what is typed
-/// names one (the owner's note n71); all of them, a page among them, when it was opened to make a new tab (n82).
+/// names one; all of them, a page among them, when it was opened to make a new tab.
 package enum NewKindChoices {
     package enum Kind: Equatable, Sendable, CaseIterable {
         case terminal
@@ -33,7 +33,7 @@ package enum NewKindChoices {
         return matching(on, typed: typed, unasked: forNewPage ? on : [])
     }
 
-    /// The kinds a new tab can be (Shift-Cmd-T; n82): all that are on unasked; else narrowed by what is typed.
+    /// The kinds a new tab can be (Shift-Cmd-T): all that are on unasked; else narrowed by what is typed.
     package static func newTab(typed: String, scopes: Scopes) -> [Kind] {
         let on = Kind.allCases.filter { $0.isOn(scopes) }
         return matching(on, typed: typed, unasked: on)

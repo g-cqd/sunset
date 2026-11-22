@@ -4,7 +4,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0022 W-d: a site can name its Space; a link to it opens there, from a page of any other Space.
+/// A site can name its Space; a link to it opens there, from a page of any other Space.
 @MainActor @Suite("The Space a site opens in")
 struct SiteSpacesTests {
     @Test func `a site and its subdomains open in their Space; from that Space, or with none, nothing moves`() throws {

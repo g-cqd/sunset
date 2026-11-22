@@ -19,10 +19,10 @@ final class SunsetWebView: WKWebView {
     var onSearch: (URL) -> Void = { _ in }
     /// The words selected in the page, read as the item is chosen (WebKit's own item gives them to the system's browser).
     var searchWords: () async -> String? = { nil }
-    /// Where its tasks run (ADR-0087: through the seam, not `Task {}`).
+    /// Where its tasks run (through the seam, not `Task {}`).
     var runtime = Runtime.live
 
-    // Covered by the command bar's backdrop: no hover, no pointer shape (t232).
+    // Covered by the command bar's backdrop: no hover, no pointer shape.
     override func mouseMoved(with event: NSEvent) {
         if !PointerShield.isShielded(window) { super.mouseMoved(with: event) }
     }
@@ -56,10 +56,10 @@ final class SunsetWebView: WKWebView {
         for (offset, item) in linkItems(replacing: original).enumerated() { menu.insertItem(item, at: index + offset) }
     }
 
-    /// WebKit's Open Image, Video or Frame in New Window: the page opens shown in a tab after this one (`WebPlacement.opened`,
-    /// the owner, 2026-11-20), and the item says so. Matched by WebKit's identifiers' shape, `…InNewWindow`; the link's has
-    /// Sunset's own items. Chosen, each says so before WebKit's action runs: WebKit asks for the page as one the person did
-    /// not open (probed 2026-11-20), and the pop-up rule stopped it (the owner's note n64).
+    /// WebKit's Open Image, Video or Frame in New Window: the page opens shown in a tab after this one (`WebPlacement.opened`),
+    /// and the item says so. Matched by WebKit's identifiers' shape, `…InNewWindow`; the link's has Sunset's own items. Chosen,
+    /// each says so before WebKit's action runs: WebKit asks for the page as one the person did not open (probed 2026-11-20),
+    /// and the pop-up rule stopped it.
     func retitleOpenedItems(in menu: NSMenu) {
         for item in menu.items {
             guard let identifier = item.identifier?.rawValue, identifier.hasPrefix("WKMenuItemIdentifier"),
@@ -104,7 +104,7 @@ final class SunsetWebView: WKWebView {
     }
 
     /// WebKit's item to open the link, as Sunset's items: each WebKit's own retitled, which says where the page goes as it is
-    /// chosen, then runs WebKit's action (which asks for the new page at once, before the menu says it closed; n51).
+    /// chosen, then runs WebKit's action (which asks for the new page at once, before the menu says it closed).
     func linkItems(replacing original: NSMenuItem) -> [NSMenuItem] {
         guard let action = original.action else { return [original] }
         webKitOpen = (action, original.target)

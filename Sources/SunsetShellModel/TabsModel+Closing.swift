@@ -1,9 +1,9 @@
 package import SunsetPane
 
-/// Closing what the person asked to close: a running command is confirmed first (the tab goes red, `n28`), then unsaved edits
+/// Closing what the person asked to close: a running command is confirmed first (the tab goes red), then unsaved edits
 /// are asked about (`losingNothing`), then it closes.
 extension TabsModel {
-    /// User-initiated request to close a pane: when a command is running in it, arms its tab for confirmation first (`n28`). A pane of a kept entry
+    /// User-initiated request to close a pane: when a command is running in it, arms its tab for confirmation first. A pane of a kept entry
     /// closes the same way, and its last pane unloads the entry (it stays in the Favorites).
     package func requestClose(pane: PaneID) {
         if let favorites = keeper(ofPane: pane), let entry = favorites.favorites.entry(containing: pane),
@@ -65,7 +65,7 @@ extension TabsModel {
         if let pane = shownPane { requestClose(pane: pane) }
     }
 
-    /// The tab this window showed last before `item`, still among the Space's (n4).
+    /// The tab this window showed last before `item`, still among the Space's.
     package func previouslyShown(before item: Workspace.ItemID) -> Workspace.ItemID? {
         let open = Set(workspace.items.map(\.id))
         return shownBefore.last { $0 != item && open.contains($0) }

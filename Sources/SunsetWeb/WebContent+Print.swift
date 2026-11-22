@@ -2,7 +2,7 @@ import AppKit
 import WebKit
 
 extension WebContent {
-    /// Prints the page (File > Print, Cmd-P; roadmap 0029 step 4): the system's print sheet on the page's window.
+    /// Prints the page (File > Print, Cmd-P): the system's print sheet on the page's window.
     package func printPage() {
         guard let webView, let window = webView.window else { return }
         let operation = webView.printOperation(with: NSPrintInfo.shared)

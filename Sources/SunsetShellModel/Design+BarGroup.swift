@@ -6,14 +6,14 @@ extension Design {
         package static let control = Size.bar
         /// A field's text from its rounded end: the field's own spacing and the half of the height it gained.
         package static let fieldPadding = Space.m + (control - Size.field) / 2
-        /// A button's room inside its group, on every side (the owner's note n43: buttons as tall as the group read as
-        /// spilling over it); the button concentric with the group.
+        /// A button's room inside its group, on every side (buttons as tall as the group read as spilling over it); the
+        /// button concentric with the group.
         package static let buttonInset = Space.xs
         /// A button's side in a group.
         package static let button = control - 2 * buttonInset
 
-        /// A compact group's (a pop-up or peek window's strip, the owner, 2026-11-20: "the compact version but with the paradigms
-        /// of the native ones"): `control` tall, its field's text and its buttons as the bar's are in theirs.
+        /// A compact group's (a pop-up or peek window's strip, compact but laid out as the bar's): `control` tall, its
+        /// field's text and its buttons as the bar's are in theirs.
         package static func fieldPadding(control: Double) -> Double {
             max(Space.s, Space.m + (control - Size.field) / 2)
         }

@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetWeb
 
-/// Task t109 (n58, diary 2026-11-19-08): other lists than EasyList's. A hosts file (StevenBlack, OISD's hosts form) blocks
-/// its hosts and never `localhost`; a `#` comment is not element hiding; a site written as a regular expression is left
-/// out (AdGuard Base was refused whole by WebKit for one); a list past WebKit's limit is split, its exceptions in every part.
+/// Other lists than EasyList's. A hosts file (StevenBlack, OISD's hosts form) blocks its hosts and never `localhost`; a `#`
+/// comment is not element hiding; a site written as a regular expression is left out (AdGuard Base was refused whole by
+/// WebKit for one); a list past WebKit's limit is split, its exceptions in every part.
 @Suite("Blocking lists: other formats and sizes")
 struct BlockingListFormatsTests {
     @Test func `a hosts file blocks its hosts, never the machine's own names; its comments are comments`() throws {

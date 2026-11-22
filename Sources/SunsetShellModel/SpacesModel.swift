@@ -2,8 +2,8 @@ package import Foundation
 package import Observation
 package import SunsetPane
 
-/// The Spaces of the app (R4; ADR-0045, ADR-0047): in one order, the same for every window. There is always one; until
-/// there are two nothing of them shows. A window shows one and can change to another (`TabsModel.show(space:)`).
+/// The Spaces of the app: in one order, the same for every window. There is always one; until there are two nothing of
+/// them shows. A window shows one and can change to another (`TabsModel.show(space:)`).
 @MainActor @Observable
 package final class SpacesModel {
     package private(set) var spaces: [SpaceModel]
@@ -11,7 +11,7 @@ package final class SpacesModel {
     package let profiles: ProfilesModel
     /// Makes the Favorites of a new Space (the app's save with the session and can seal commands).
     @ObservationIgnored package let makeFavorites: @MainActor () -> FavoritesModel
-    /// Whose the Favorites and the Pinned grid are (roadmap 0044); read when the app opens.
+    /// Whose the Favorites and the Pinned grid are; read when the app opens.
     package let ownership: SpacesSession.Ownership
     /// Something changed that the session file holds.
     @ObservationIgnored package var onChange: () -> Void = {}
@@ -118,8 +118,8 @@ package final class SpacesModel {
         onChange()
     }
 
-    /// A Space's icon dragged over another's (note n14): it takes that one's place, the others making room; over itself,
-    /// nothing moves.
+    /// A Space's icon dragged over another's: it takes that one's place, the others making room; over itself, nothing
+    /// moves.
     package func drag(_ dragged: Space.ID, over target: Space.ID) {
         guard dragged != target, let space = spaces.first(where: { $0.space.id == dragged }),
             let to = spaces.firstIndex(where: { $0.space.id == target })

@@ -3,13 +3,13 @@ package import Observation
 package import SunsetPane
 package import SunsetRuntime
 
-/// One window's view of a Space (`SpaceModel`; ADR-0045): the Space's tabs with this window's selection (`workspace`), and
-/// what is only the window's (the command bar, a rename in progress, the pointer). The tabs and the content of each pane
+/// One window's view of a Space (`SpaceModel`): the Space's tabs with this window's selection (`workspace`), and what is
+/// only the window's (the command bar, a rename in progress, the pointer). The tabs and the content of each pane
 /// (`PaneContent`: a terminal, a page) are the Space's: they run while the presentation changes or a window closes. A pane
 /// not shown is told it has no focus and is not visible (it neither blinks nor draws); of those shown, the focused blinks.
 @MainActor @Observable
 package final class TabsModel {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored package var runtime = Runtime.live
 
     /// The Space this window shows.
@@ -20,7 +20,7 @@ package final class TabsModel {
             remember(selectedID, was: oldValue)
         }
     }
-    /// The tabs this window showed, the last last (n4): closing the shown one goes back to the one before it.
+    /// The tabs this window showed, the last last: closing the shown one goes back to the one before it.
     @ObservationIgnored package var shownBefore: [Workspace.ItemID] = []
     package var selectedEntry: Favorites.NodeID?
     /// Makes a pane's content: the default kind for nil, else what the descriptor says; a placeholder until the app says
@@ -35,7 +35,7 @@ package final class TabsModel {
         }
     }
     @ObservationIgnored package var canMake = false
-    /// The scopes of the app that are on (roadmap 0033): nothing of one that is off is made or listed here.
+    /// The scopes of the app that are on: nothing of one that is off is made or listed here.
     package var scopes = Scopes() {
         didSet {
             if scopes != oldValue { scopesChanged() }
@@ -49,16 +49,16 @@ package final class TabsModel {
     }
     /// The Spaces this window can change to (the app's); nil for one whose Space is its own. Observed: drawn before set.
     package weak var spaces: SpacesModel?
-    /// Where the sidebar's field is, in the window, while it shows one: the command bar opens there (roadmap 0035 G).
+    /// Where the sidebar's field is, in the window, while it shows one: the command bar opens there.
     package var sidebarField: CGRect?
-    /// The window is kept awake, and until when (roadmap 0035 E).
+    /// The window is kept awake, and until when.
     package internal(set) var windowAwake: KeepAwake?
     /// What this window had selected in each Space it left: shown again when it comes back.
     @ObservationIgnored package var selections: [Space.ID: SavedView] = [:]
     /// What a Space's editor holds while it is open in this window; the Space being deleted, asked about first.
     package var spaceDraft: SpaceDraft?
     package var deletingSpace: Space.ID?
-    /// The window closes with its Space's last tab; closing the shown tab shows the one before it (`tabs.*`, n4).
+    /// The window closes with its Space's last tab; closing the shown tab shows the one before it (`tabs.*`).
     @ObservationIgnored package var closesWithLastTab = false
     @ObservationIgnored package var closeGoesBack = true
     /// The swipe between Spaces under way on this window's sidebar, and the list's slide from one Space to another.
@@ -96,25 +96,24 @@ package final class TabsModel {
     package var fontZoom = FontZoom()
     /// The pane whose sub-tab is currently under the pointer in a split container (`SidebarGroupRow`), so its terminal card can highlight its stroke.
     package var hoveredPane: PaneID?
-    /// The tab row currently under the pointer in the sidebar or tab bar, so an unselected tab can show a screen preview (`n36`).
+    /// The tab row currently under the pointer in the sidebar or tab bar, so an unselected tab can show a screen preview.
     package var hoveredItem: Workspace.ItemID? {
         didSet {
-            // Pointed at: what it would show gets ready (note n1).
+            // Pointed at: what it would show gets ready.
             guard let hoveredItem, hoveredItem != oldValue, let item = previewItem(hoveredItem) else { return }
             for pane in item.panes { content(pane)?.prepare() }
         }
     }
-    /// Where that row, the pane area and the sidebar are, in the window: the preview goes in the area, beside the sidebar
-    /// (n47, roadmap 0047 B).
+    /// Where that row, the pane area and the sidebar are, in the window: the preview goes in the area, beside the sidebar.
     package var hoveredRowFrame: CGRect?
     package var paneAreaFrame: CGRect?
     package var sidebarFrame: CGRect?
-    /// The folder of the Favorites under the pointer: its card lists its tabs (the owner's note n77).
+    /// The folder of the Favorites under the pointer: its card lists its tabs.
     package var hoveredFolder: Favorites.NodeID?
     /// The tab being renamed (`RenameTabAlert`) and the kept entry whose command is edited (`CommandSheet`).
     package var renaming: Workspace.ItemID?
     package var editingCommand: Favorites.NodeID?
-    /// The panel opposite the tabs is shown (Cmd-Y, web step e); which section each sidebar is on (roadmap 0031).
+    /// The panel opposite the tabs is shown (Cmd-Y, web step e); which section each sidebar is on.
     package var showsHistory = false
     package var sections = SidebarSections()
     @ObservationIgnored package let shelf = DocumentShelf()
@@ -125,7 +124,7 @@ package final class TabsModel {
         privateGroup != nil
     }
     package var clearingHistory = false
-    /// File ▸ Import from Another Browser… is open (roadmap 0111 G).
+    /// File ▸ Import from Another Browser… is open.
     package var importing = false
     /// The row whose name is being edited in place, and the row whose icon popover is open.
     package var renamingRow: RowTarget?
@@ -133,7 +132,7 @@ package final class TabsModel {
     /// The rows selected together (Cmd-click, Shift-click), in the sidebar's order, and the row a Shift-click counts from (R3 step d).
     package var marked: [RowTarget] = []
     package var markAnchor: RowTarget?
-    /// Two-step confirmation before closing a tab that has a command running (`n28`).
+    /// Two-step confirmation before closing a tab that has a command running.
     package var closeConfirmation = CloseConfirmation()
     /// What is asked before unsaved edits close (`UnsavedSheet`); nil when nothing is.
     package var unsavedQuestion: UnsavedQuestion?

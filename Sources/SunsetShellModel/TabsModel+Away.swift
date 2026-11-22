@@ -1,7 +1,7 @@
 import Foundation
 package import SunsetPane
 
-/// A kept page away from where it was kept (the owner's note n3): its row says so, and a double click takes it back.
+/// A kept page away from where it was kept: its row says so, and a double click takes it back.
 extension TabsModel {
     /// Whether an open kept entry's shown pane is somewhere else than where it was kept: a page at another address (its
     /// fragment aside), a document another one. A terminal is never away: its folder changes as it works.

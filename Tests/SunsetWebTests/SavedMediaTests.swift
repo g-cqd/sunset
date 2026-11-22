@@ -5,9 +5,9 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Seen on screen 2026-11-20 (the owner's note n64): Download Video did nothing. For a film WebKit does not make a download:
-/// it hands its bytes to the UI delegate (`_webView:saveDataToFile:suggestedFilename:mimeType:originatingURL:`, probed), which
-/// Sunset's did not answer. They are saved as a download is: the folder, a free name, quarantined, in the list, finished.
+/// Seen on screen 2026-11-20: Download Video did nothing. For a film WebKit does not make a download: it hands its bytes to
+/// the UI delegate (`_webView:saveDataToFile:suggestedFilename:mimeType:originatingURL:`, probed), which Sunset's did not
+/// answer. They are saved as a download is: the folder, a free name, quarantined, in the list, finished.
 @Suite("A film saved from the page's menu") @MainActor struct SavedMediaTests {
     @Test func `its bytes go to the folder under a free name, listed as finished`() async throws {
         let folder = URL(filePath: NSTemporaryDirectory()).appending(path: "saved-\(UUID().uuidString)")

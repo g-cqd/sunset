@@ -1,6 +1,6 @@
 import SunsetPane
 
-/// The sidebar's lines between its parts (the owner's note n87) and the empty window's hint (n81).
+/// The sidebar's lines between its parts and the empty window's hint.
 extension TabsModel {
     /// Which of the sidebar's lines are drawn.
     package struct SidebarLines: Equatable {

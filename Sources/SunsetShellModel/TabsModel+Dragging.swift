@@ -20,7 +20,7 @@ extension TabsModel {
             case .item(let id): workspace.item(containing: pane)?.id != id || workspace.count > 1
             case .pane(let id): id != pane
             case .document: true
-            // A favorite splits with a pane (the owner, 2026-11-21); a pinned tab does not.
+            // A favorite splits with a pane; a pinned tab does not.
             case .entry(let id): !isPinned(id)
             case nil: false
         }
@@ -65,17 +65,17 @@ extension TabsModel {
             case (.pane(let pane), .split):
                 return workspace.item(containing: pane)?.focused != pane || workspace.item(containing: pane)?.id != item
             case (.pane(let pane), .moveBefore), (.pane(let pane), .moveAfter):
-                // The pane of a split's row carries the split (roadmap 0035 A).
+                // The pane of a split's row carries the split.
                 guard let source = workspace.item(containing: pane) else { return false }
                 return source.id != item
             case (.entry, .moveBefore), (.entry, .moveAfter):
-                // A favourite or a tile, not a folder (roadmap 0035 A).
+                // A favourite or a tile, not a folder.
                 guard let index = workspace.items.firstIndex(where: { $0.id == item }) else { return false }
                 return canDropDragged(in: .today(at: action == .moveBefore ? index : index + 1))
             case (.document, _):
                 return true
             case (.entry(let id), .split):
-                // A favorite splits with a tab (the owner, 2026-11-21); a pinned tab does not.
+                // A favorite splits with a tab; a pinned tab does not.
                 return !isPinned(id)
             case (nil, _):
                 return false
@@ -102,7 +102,7 @@ extension TabsModel {
             return dropDragged(in: .today(at: action == .moveBefore ? index : index + 1))
         }
         dragged = nil
-        // Put in order among the tabs, a pane of a split moves its whole tab (roadmap 0035 A); on a row's half it still joins it.
+        // Put in order among the tabs, a pane of a split moves its whole tab; on a row's half it still joins it.
         var moved = drag
         if case .pane(let pane) = drag, action == .moveBefore || action == .moveAfter,
             let source = workspace.item(containing: pane)

@@ -2,13 +2,13 @@ import Foundation
 package import Observation
 package import SunsetPane
 
-/// The profiles of the app (R4; roadmap 0021, P-a; ADR-0053): the first, always there, and the ones made after. A Space
-/// that names no profile, or one that is gone, is of the first.
+/// The profiles of the app (P-a): the first, always there, and the ones made after. A Space that names no profile, or
+/// one that is gone, is of the first.
 @MainActor @Observable
 package final class ProfilesModel {
     package private(set) var profiles: [ProfileModel]
     @ObservationIgnored private let makeFavorites: @MainActor () -> FavoritesModel
-    /// One Pinned grid for every profile, the first's (`spaces.pinned`, roadmap 0044).
+    /// One Pinned grid for every profile, the first's (`spaces.pinned`).
     package let sharesPinned: Bool
     @ObservationIgnored package var onChange: () -> Void = {}
 
@@ -63,7 +63,7 @@ package final class ProfilesModel {
         onChange()
     }
 
-    /// Sets what `profile` sets otherwise than all profiles (roadmap 0050): only what differs.
+    /// Sets what `profile` sets otherwise than all profiles: only what differs.
     package func setOverrides(_ overrides: [String: String], for profile: ProfileModel) {
         guard overrides != profile.profile.overrides else { return }
         profile.profile.overrides = overrides
@@ -84,7 +84,7 @@ package final class ProfilesModel {
     // MARK: Session
 
     /// The profiles as the session file keeps them.
-    /// - Parameter favorites: the Favorites are the profiles' (else each Space's, which saves them: roadmap 0044).
+    /// - Parameter favorites: the Favorites are the profiles' (else each Space's, which saves them).
     /// - Returns: each profile, with its grid (a shared one with the first only) and its Favorites.
     package func saved(favorites: Bool = true) -> [SavedProfile] {
         profiles.map {

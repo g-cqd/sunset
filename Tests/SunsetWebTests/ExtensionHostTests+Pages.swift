@@ -7,10 +7,10 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner, 2026-11-21: "it seems sunset refuses to open webkit-extension url scheme". WebKit shows an extension's page as a
-/// page of its own only in a web view made from the extension's configuration (it carries the extension's base URL);
-/// in a tab's ordinary one it fails ("resource unavailable", -1008). A tab whose address is an extension's page gets one,
-/// and a new view each time it crosses between the extension's pages and the web.
+/// "it seems sunset refuses to open webkit-extension url scheme". WebKit shows an extension's page as a page of its own
+/// only in a web view made from the extension's configuration (it carries the extension's base URL); in a tab's ordinary
+/// one it fails ("resource unavailable", -1008). A tab whose address is an extension's page gets one, and a new view each
+/// time it crosses between the extension's pages and the web.
 extension ExtensionHostTests {
     @Test func `an extension's page opens in a tab, and from a web page`() async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "extpage-\(UUID().uuidString)")
@@ -39,7 +39,7 @@ extension ExtensionHostTests {
         }
         #expect(page.failure == nil, "\(String(describing: page.failure))")
         #expect(page.webView?.title == "Options of Pages")
-        // The field names the extension, not its identifier (the owner saw the identifier, 2026-11-21).
+        // The field names the extension, not its identifier.
         #expect(page.shownHost == "Pages")
 
         // From the web to the extension's page, in the same tab.

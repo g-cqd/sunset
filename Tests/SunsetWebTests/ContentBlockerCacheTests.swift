@@ -4,9 +4,9 @@ import WebKit
 
 @testable import SunsetWeb
 
-/// Task t109 (diary 2026-11-19-08): a list is converted and compiled once, then looked up (under 1 ms) at every launch and
-/// every six hours instead of 0.77 s of the main thread and 2.9 s of compiling; a changed list is compiled again; what no
-/// list uses any more is removed from WebKit's store.
+/// A list is converted and compiled once, then looked up (under 1 ms) at every launch and every six hours instead of 0.77
+/// s of the main thread and 2.9 s of compiling; a changed list is compiled again; what no list uses any more is removed
+/// from WebKit's store.
 @MainActor @Suite("Blocking lists: compiled once", .timeLimit(.minutes(1)))
 struct ContentBlockerCacheTests {
     @Test func `the same list is compiled once; a changed one again; the old one removed`() async throws {

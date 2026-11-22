@@ -6,9 +6,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's note n51: "open in split and other open options on link in web tabs don't work". WebKit runs a menu item's
-/// action, and asks for the new page, before the view hears that the menu closed (probed: `/tmp/linkmenu`), so a placement
-/// read when it closes came too late and every link opened as a tab. Each item says where it goes as it is chosen.
+/// "open in split and other open options on link in web tabs don't work". WebKit runs a menu item's action, and asks for
+/// the new page, before the view hears that the menu closed (probed: `/tmp/linkmenu`), so a placement read when it closes
+/// came too late and every link opened as a tab. Each item says where it goes as it is chosen.
 @MainActor @Suite("A page's link menu")
 struct LinkMenuTests {
     final class WebKitItem: NSObject {
@@ -47,9 +47,9 @@ struct LinkMenuTests {
         #expect(items.allSatisfy { $0.tag == 1 }, "each item keeps WebKit's tag")
     }
 
-    /// Notes n64 and n65: WebKit's Open Image in New Window opens the picture in a tab, shown; its title says where. WebKit
-    /// marks the page it asks for as not opened by the person (probed 2026-11-20, `/tmp/n64probe/menu.swift`): the item says
-    /// it was chosen, so that the pop-up rule does not stop it.
+    /// WebKit's Open Image in New Window opens the picture in a tab, shown; its title says where. WebKit marks the page it
+    /// asks for as not opened by the person (probed 2026-11-20, `/tmp/n64probe/menu.swift`): the item says it was chosen, so
+    /// that the pop-up rule does not stop it.
     @Test func `WebKit's image and video items say they open a tab, and that they were chosen; others are left`() throws
     {
         let view = SunsetWebView(frame: .zero, configuration: WKWebViewConfiguration())

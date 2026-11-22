@@ -1,8 +1,7 @@
 import Foundation
 package import SunsetPane
 
-/// A window among the Spaces of the app (roadmap 0021 steps S-b, S-c; ADR-0047): it changes to another, and takes tabs
-/// there.
+/// A window among the Spaces of the app: it changes to another, and takes tabs there.
 extension TabsModel {
     /// This window shows `other` from now on. The Space it leaves runs on, shown by the windows that still show it or by
     /// none; what this window had selected there is remembered for when it comes back. In `other` it shows what it had
@@ -85,7 +84,7 @@ extension TabsModel {
             guard let target = spaces.space(id) else { return }
             let before = target.space.profile
             spaces.apply(draft, to: target)
-            // Another profile: its pages load again with that profile's website data (R4; Save is the confirmation).
+            // Another profile: its pages load again with that profile's website data (Save is the confirmation).
             if target.space.profile != before { target.restart(kind: "web", by: target.currentViewers.first) }
             return
         }
@@ -132,7 +131,7 @@ extension TabsModel {
     }
 
     /// Moves the tabs among `rows` to another Space, still running, after its own; this window follows them there and
-    /// shows the last of them (the owner, 2026-11-17). Entries and folders of the Favorites stay.
+    /// shows the last of them. Entries and folders of the Favorites stay.
     package func move(rows: [RowTarget], to other: SpaceModel) {
         guard other !== space else { return }
         var items: [Workspace.Item] = []

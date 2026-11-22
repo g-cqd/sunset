@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0022 W-d: Settings list every site that has something of its own (answers, the browser it is shown, blocking
-/// paused, a zoom, its Space), and forget all of it at once.
+/// Settings list every site that has something of its own (answers, the browser it is shown, blocking paused, a zoom,
+/// its Space), and forget all of it at once.
 @MainActor @Suite("Every site's own settings")
 struct SiteSummaryTests {
     @Test func `each site is listed once with what it has; forgetting it takes all of it`() {
@@ -36,7 +36,7 @@ struct SiteSummaryTests {
         #expect(stores.hidden.rules.isEmpty && stores.spaces.rules.isEmpty)
     }
 
-    /// ADR-0081: a site whose data is kept is listed so; Forget lets it go too.
+    /// A site whose data is kept is listed so; Forget lets it go too.
     @Test func `a site kept is listed, and forgotten`() {
         let stores = SiteSummary.Stores(
             permissions: SitePermissions(),
@@ -55,7 +55,7 @@ struct SiteSummaryTests {
 }
 
 extension SiteSummaryTests {
-    /// n40: each site folds open on what differs from the defaults, each line reset by itself.
+    /// Each site folds open on what differs from the defaults, each line reset by itself.
     @Test func `each part of a site has its kind, and resetting one leaves the others`() {
         let stores = SiteSummary.Stores(
             permissions: SitePermissions(),

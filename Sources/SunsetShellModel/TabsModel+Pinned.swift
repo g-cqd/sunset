@@ -1,10 +1,10 @@
 package import SunsetPane
 
-/// A window and the Pinned grid (roadmap 0021, P-b; ADR-0050): the app's grid of kept entries, the same in every Space.
-/// An entry of the grid is kept as an entry of the Favorites is (shown instead of a tab, unloaded by Cmd-W, drawn in one
-/// window); it is only kept elsewhere, so what acts on an entry asks which of the two keeps it (`keeper(of:)`).
+/// A window and the Pinned grid (P-b): the app's grid of kept entries, the same in every Space. An entry of the grid is
+/// kept as an entry of the Favorites is (shown instead of a tab, unloaded by Cmd-W, drawn in one window); it is only
+/// kept elsewhere, so what acts on an entry asks which of the two keeps it (`keeper(of:)`).
 extension TabsModel {
-    /// The most the grid holds: "up to 3x4 items or 4x3" (the owner).
+    /// The most the grid holds: "up to 3x4 items or 4x3".
     package static let pinnedLimit = 12
 
     /// The Favorites or the Pinned grid, whichever keeps the entry `id`; the Favorites when neither does.
@@ -40,7 +40,7 @@ extension TabsModel {
         selectedEntry = nil
     }
 
-    /// The entries of the grid this window shows: those of a scope that is off are hidden (roadmap 0033).
+    /// The entries of the grid this window shows: those of a scope that is off are hidden.
     package var pinnedEntries: [Favorites.Entry] {
         (pinned?.favorites.entries ?? []).filter(scopes.allows)
     }

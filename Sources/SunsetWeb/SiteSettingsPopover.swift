@@ -18,25 +18,25 @@ struct SiteSettingsPopover: View {
     @State private var showsMore = false
 
     /// The plainest first: blocking, zoom, what Sunset appears as, where the site opens; what the site may use, and hiding
-    /// what is on its pages, a level down (the owner, 2026-11-18, roadmap 0047 F).
+    /// what is on its pages, a level down.
     var body: some View {
         let host = content.siteHost ?? ""
         VStack(alignment: .leading, spacing: Design.Space.m) {
             Text(host.isEmpty ? "This page" : host).font(Design.Text.title).fontDesign(host.isEmpty ? nil : .monospaced)
                 .foregroundStyle(.primary)
-            // What the page uses now, apart from the site's settings (the owner, 2026-11-19): live, for this tab only.
+            // What the page uses now, apart from the site's settings: live, for this tab only.
             if SitePageNow.shows(content) {
                 SitePageNow(content: content)
                 Divider()
             }
-            // Blocking, paused for this site and its subdomains (W-c); off for every site in Settings.
+            // Blocking, paused for this site and its subdomains; off for every site in Settings.
             Toggle(isOn: Binding(get: { content.blocksOnSite }, set: { content.setBlocking($0) })) {
                 Label("Block ads and trackers", systemImage: "hand.raised")
             }
             .settingSwitch()
             .disabled(host.isEmpty || !ContentBlocker.shared.enabled)
             if !content.isPrivate, KeptSites.shared.applies(content.settings.profile) {
-                // ADR-0081: the sites chosen keep their data when Sunset quits; the others' is cleared.
+                // The sites chosen keep their data when Sunset quits; the others' is cleared.
                 Toggle(
                     isOn: Binding(
                         get: { KeptSites.shared.keeps(host, profile: content.settings.profile) },
@@ -69,14 +69,14 @@ struct SiteSettingsPopover: View {
             }
             .disabled(host.isEmpty)
         }
-        // One font and one box for every row's symbol, so the titles start at one place (the owner's note n62).
+        // One font and one box for every row's symbol, so the titles start at one place.
         .font(Design.Text.body)
         .labelStyle(.row)
         .frame(width: 320, alignment: .leading)
         .padding(Design.Space.xl)
         // Read on any page: the popover's glass took the page's white under it while its text was the window's (light on
         // a dark window), which could not be read (seen 2026-11-18). The chrome's glass kept, its tint stronger under the
-        // text, and the controls in the tint's scheme (note n19).
+        // text, and the controls in the tint's scheme.
         .environment(\.colorScheme, tint.resolved(in: outer))
         .background(BarTint.fill(for: tint.resolved(in: outer)).opacity(Design.Fill.popoverShade))
     }
@@ -90,7 +90,7 @@ struct SiteSettingsPopover: View {
     }
 
     private func permissions(_ host: String) -> some View {
-        // As wide as the popover, each answer at its trailing edge, as the rows above (the owner's note n62).
+        // As wide as the popover, each answer at its trailing edge, as the rows above.
         VStack(alignment: .leading, spacing: Design.Space.s) {
             ForEach(SitePermission.allCases, id: \.self) { permission in
                 HStack {
@@ -151,7 +151,7 @@ struct SiteSettingsPopover: View {
         }
     }
 
-    /// The Space the site and its subdomains open in, from a link of another Space's page (W-d).
+    /// The Space the site and its subdomains open in, from a link of another Space's page.
     private var spaceBinding: Binding<UUID?> {
         Binding(
             get: { SiteSpaces.shared.rule(for: content.siteHost, profile: content.settings.profile) },

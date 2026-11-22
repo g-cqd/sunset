@@ -32,7 +32,7 @@ final class AddressNSField: NSTextField {
     /// Makes the field the one that has the keyboard, with the whole address selected.
     func beginTyping() {
         guard let window else {
-            // Not in a window yet (a floating sidebar coming in, note n63): it begins as it goes in one.
+            // Not in a window yet (a floating sidebar coming in): it begins as it goes in one.
             typesInWindow = true
             return
         }
@@ -44,7 +44,7 @@ final class AddressNSField: NSTextField {
         }
         stringValue = address
         // Typed in, the text scrolls and is clipped, not truncated: a truncating cell's editor kept the end of a long address
-        // (and the caret there) a couple of points past what it shows (the owner's note n10).
+        // (and the caret there) a couple of points past what it shows.
         typingLayout(true)
         endEditorAtAlignment()
         editorMargin = currentEditor()?.superview.map { bounds.width - $0.frame.maxX }
@@ -77,9 +77,9 @@ final class AddressNSField: NSTextField {
     }
 
     /// Laid out narrower while typed in (its row's buttons, its sidebar's width), the field kept its editor at the width it
-    /// began with: the end of the address and the caret were hidden past the field's edge (the owner's note n10). The editor
-    /// is left where AppKit puts it when typing begins (note n41: moving it there shifted the text), and only its end follows
-    /// a later change of the field's width, AppKit's margin kept. Not in `layout()`: no frame changes while AppKit lays out.
+    /// began with: the end of the address and the caret were hidden past the field's edge. The editor is left where AppKit
+    /// puts it when typing begins (moving it there shifted the text), and only its end follows a later change of the field's
+    /// width, AppKit's margin kept. Not in `layout()`: no frame changes while AppKit lays out.
     override func setFrameSize(_ newSize: NSSize) {
         super.setFrameSize(newSize)
         followWidth()
@@ -90,8 +90,7 @@ final class AddressNSField: NSTextField {
 
     /// AppKit's focus clip runs 2.5 points past the field's frame, which itself runs past what SwiftUI shows by the field's
     /// alignment inset: with the caret at the end, the last letters and the caret were scrolled into that strip and cut
-    /// (the owner's screenshot of 2026-11-19, "…&rv=("). The clip's end is brought to the alignment edge; its start stays
-    /// where AppKit put it (note n41).
+    /// (seen 2026-11-19). The clip's end is brought to the alignment edge; its start stays where AppKit put it.
     private func endEditorAtAlignment() {
         guard let editor = currentEditor() as? NSTextView, let clip = editor.superview else { return }
         let end = bounds.width - alignmentRectInsets.right - Self.caretMargin

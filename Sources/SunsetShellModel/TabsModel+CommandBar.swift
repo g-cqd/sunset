@@ -8,10 +8,10 @@ extension TabsModel {
             return
         }
         var opened = CommandBar(purpose: .search)
-        // In the sidebar's field while it shows one and no tab is shown (roadmap 0035 G); with a tab, large over the panes,
-        // where a long address has room (the owner, 2026-11-17).
+        // In the sidebar's field while it shows one and no tab is shown; with a tab, large over the panes, where a long
+        // address has room.
         opened.inSidebar = sidebarField != nil && workspace.selectedID == nil && workspace.selectedEntry == nil
-        // The shown tab's target in the field, selected as the field takes the keyboard: a page's address (roadmap 0047 E).
+        // The shown tab's target in the field, selected as the field takes the keyboard: a page's address.
         if let address = shownPane.flatMap(content)?.descriptor.state["url"] { opened.query = address }
         bar = opened
     }

@@ -1,8 +1,8 @@
 import SunsetShell
 import SwiftUI
 
-/// A page's dialog (roadmap 0029 step 1): a panel in the middle of its pane, over a veil that keeps the page from being used
-/// until it is answered. The page's words are plain text. Return answers OK, Escape cancels.
+/// A page's dialog: a panel in the middle of its pane, over a veil that keeps the page from being used until it is
+/// answered. The page's words are plain text. Return answers OK, Escape cancels.
 struct PageDialogPanel: View {
     let dialog: PageDialog
     let silence: () -> Void

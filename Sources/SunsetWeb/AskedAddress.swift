@@ -1,10 +1,10 @@
 import Foundation
 import WebKit
 
-/// The address the person last asked a page for, and whether a script of the site has sent the page elsewhere since
-/// (roadmap 0045 F). A site that does not like the browser it is shown sends it away with `location.replace` to a page
-/// that never sends it back; when the site is then shown another browser, it is the address asked for that is loaded
-/// again, not the page the site chose.
+/// The address the person last asked a page for, and whether a script of the site has sent the page elsewhere since. A
+/// site that does not like the browser it is shown sends it away with `location.replace` to a page that never sends it
+/// back; when the site is then shown another browser, it is the address asked for that is loaded again, not the page
+/// the site chose.
 struct AskedAddress {
     private(set) var url: URL?
     private var movedByScript = false

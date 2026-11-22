@@ -1,6 +1,6 @@
 package import Foundation
 
-/// A document of the store as the sidebars list it (roadmap 0030 step ST-5, 0031): what its row shows and is ordered by.
+/// A document of the store as the sidebars list it: what its row shows and is ordered by.
 package struct ShelfDocument: Identifiable, Sendable, Equatable {
     package enum Kind: Int, Sendable, CaseIterable {
         case markdown, diagram, text
@@ -30,7 +30,7 @@ package struct ShelfDocument: Identifiable, Sendable, Equatable {
     package var created: Date
     package var modified: Date
     /// The path of a file on disk that was opened lately; nil for a document of the store. Such a row is listed with the
-    /// documents (the owner, 2026-11-16) and is not one: it cannot be deleted from here, and its dates are when it was opened.
+    /// documents and is not one: it cannot be deleted from here, and its dates are when it was opened.
     package var file: String?
 
     package init(id: UUID, title: String, kind: Kind, created: Date, modified: Date) {

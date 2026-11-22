@@ -1,7 +1,7 @@
 package import SunsetPane
 
-/// The gaps between the sidebar's rows as places to drop (roadmap 0038 B, F): gap k is before the k-th row shown, the last
-/// one after them all.
+/// The gaps between the sidebar's rows as places to drop: gap k is before the k-th row shown, the last one after them
+/// all.
 extension TabsModel {
     /// The Favorites' rows as shown: folders, and the entries of open folders, in order; an entry of a scope that is off is not.
     package var favoritesRows: [Favorites.NodeID] {

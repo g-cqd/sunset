@@ -1,8 +1,8 @@
 import SunsetShell
 import SwiftUI
 
-/// The site panel's first group (the owner, 2026-11-19): what this tab's page uses now, each stopped or muted from here, as
-/// from the tab's own buttons; apart from the settings of the site, which stay for its next pages.
+/// The site panel's first group: what this tab's page uses now, each stopped or muted from here, as from the tab's own
+/// buttons; apart from the settings of the site, which stay for its next pages.
 struct SitePageNow: View {
     let content: WebContent
 
@@ -34,7 +34,7 @@ struct SitePageNow: View {
             if content.capture != nil {
                 Button("Stop Camera, Microphone and Screen") { content.stopCapture() }
             }
-            // This page is shared into a call (ADR-0082): stopped from here too.
+            // This page is shared into a call: stopped from here too.
             if content.sharedInto > 0 {
                 Button("Stop Sharing This Tab") { content.stopBeingShared() }
             }

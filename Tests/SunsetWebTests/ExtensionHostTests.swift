@@ -7,8 +7,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0109 B: a page of a profile runs that profile's extensions: the content script on a page it was granted, its worker
-/// answering it (WebKit needs the page as a tab: probed, diary 2026-11-20-13). Not in a private page unless allowed there.
+/// A page of a profile runs that profile's extensions: the content script on a page it was granted, its worker
+/// answering it (WebKit needs the page as a tab: probed). Not in a private page unless allowed there.
 @MainActor @Suite("A profile's extensions in its pages", .serialized, .timeLimit(.minutes(1)))
 struct ExtensionHostTests {
     static let content = """
@@ -78,7 +78,7 @@ struct ExtensionHostTests {
         #expect(hidden["ext"] as? String == "none", "private, not allowed there")
     }
 
-    /// Roadmap 0109 C: installed, turned off and removed while Sunset runs; read first, for the prompt, then installed.
+    /// Installed, turned off and removed while Sunset runs; read first, for the prompt, then installed.
     @Test func `read for the prompt, installed while running; off, a new page runs it no more; removed, gone`()
         async throws
     {
@@ -107,9 +107,9 @@ struct ExtensionHostTests {
         #expect(host.installed.isEmpty)
     }
 
-    /// Seen 2026-11-20 (the owner's screenshot: uBO Lite's popup empty): an extension saw no window and no tab; WebKit asks the
-    /// controller's delegate for the windows (probed: answered, uBO Lite's popup draws). The page shown is the active tab of a
-    /// window the extension sees.
+    /// Seen 2026-11-20 (uBO Lite's popup empty): an extension saw no window and no tab; WebKit asks the controller's delegate
+    /// for the windows (probed: answered, uBO Lite's popup draws). The page shown is the active tab of a window the extension
+    /// sees.
     @Test func `an extension sees the window and the page shown as its active tab`() async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
@@ -161,10 +161,10 @@ struct ExtensionHostTests {
         #expect(answer.contains("/shown") && answer.contains("normal"), "\(answer)")
     }
 
-    /// Seen 2026-11-20 (the owner: uBlock Origin from Firefox Add-ons draws nothing; probed, diaries 2026-11-20-15, -21): a Firefox
+    /// Seen 2026-11-20 (uBlock Origin from Firefox Add-ons draws nothing; probed, diaries 2026-11-20-15, -21): a Firefox
     /// extension's pages meet WebKit's differences from Firefox: a method called apart from its namespace gives undefined, an
     /// empty message name throws, an event WebKit lacks is undefined, `requestIdleCallback` is off. Sunset's script in
-    /// extension pages evens them out until our own WebKit fixes them (roadmap 0048 D).
+    /// extension pages evens them out until our own WebKit fixes them.
     @Test func `a Firefox extension's background page meets what Firefox gives`() async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }

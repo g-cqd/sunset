@@ -7,7 +7,7 @@ struct SiteButton: View {
     let content: WebContent
 
     var body: some View {
-        // One of the rows' buttons, its fill under the pointer (roadmap 0047 F).
+        // One of the rows' buttons, its fill under the pointer.
         RowGlyphButton(help: "This site's settings") {
             content.showsSiteSettings.toggle()
         } glyph: {

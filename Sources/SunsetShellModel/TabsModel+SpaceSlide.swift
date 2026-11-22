@@ -86,7 +86,7 @@ extension TabsModel {
         runSlide(animation, back, finish)
     }
 
-    /// The sides' fade goes, in an animation of its own once the list is at rest (roadmap 0045 E).
+    /// The sides' fade goes, in an animation of its own once the list is at rest.
     private func unmask() {
         guard slide.masks else { return }
         guard let animation = slide.duration else {

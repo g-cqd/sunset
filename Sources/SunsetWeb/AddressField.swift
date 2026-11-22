@@ -12,14 +12,14 @@ package struct AddressField: View {
     var place = AddressTyping.Place.top
     /// Tells whether the field is being typed in (the window bar stays out meanwhile).
     var onEditing: (Bool) -> Void = { _ in }
-    /// Copy and Reload (Stop while loading) at its trailing end, while the pointer is over it or the page loads (roadmap 0047
-    /// F). The text ends before them, by their measured width, truncated in its middle: a fade under them hid the end of the
-    /// host, which says whose site it is (the owner's screenshot of 2026-11-19, "idmsa.apple.c" under the copy glyph).
+    /// Copy and Reload (Stop while loading) at its trailing end, while the pointer is over it or the page loads. The
+    /// text ends before them, by their measured width, truncated in its middle: a fade under them hid the end of the
+    /// host, which says whose site it is.
     var reload = false
     /// What its context menu adds after the page's own items: the tab's menu (the app's).
     var menu: AnyView?
     @State private var hovering = false
-    /// Being typed in: no buttons over its end and no fade, so that the text and the caret are never hidden (note n9).
+    /// Being typed in: no buttons over its end and no fade, so that the text and the caret are never hidden.
     @State private var editing = false
     @State private var focusNow = false
     /// Copy and Reload's width, as laid out.
@@ -116,7 +116,7 @@ package struct AddressField: View {
         Self.showsActions(reload: reload, hovering: hovering, loading: content.isLoading, editing: editing)
     }
 
-    /// Copy and Reload at the end: asked for, under the pointer or loading, and never while it is typed in (note n9).
+    /// Copy and Reload at the end: asked for, under the pointer or loading, and never while it is typed in.
     static func showsActions(reload: Bool, hovering: Bool, loading: Bool, editing: Bool) -> Bool {
         reload && !editing && (hovering || loading)
     }
@@ -134,13 +134,13 @@ package struct AddressField: View {
     /// Right-click: the page's own actions, then the tab's (the app's menu).
     @ViewBuilder private var pageMenu: some View {
         Button("Copy Address") { Feedback.give(content.copyAddress()) }.disabled(content.url == nil)
-        // Stuck loading, or its process hung (n50): Reload and Force Reload are there while it loads too.
+        // Stuck loading, or its process hung: Reload and Force Reload are there while it loads too.
         if content.isLoading { Button("Stop") { content.stopLoading() } }
         Button("Reload") { content.reload() }.disabled(content.url == nil)
             .modifierKeyAlternate(.option) {
                 Button("Force Reload") { content.forceReload() }.disabled(content.url == nil)
             }
-        // The same page, loaded again with another profile's data (roadmap 0050 D).
+        // The same page, loaded again with another profile's data.
         if let reloadAs = content.reloadAsAction {
             Menu(reloadAs.title) {
                 ForEach(reloadAs.children.indices, id: \.self) { index in

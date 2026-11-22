@@ -8,7 +8,7 @@ package import WebKit
 /// a free name, the partial file), its progress followed, the file renamed, marked as downloaded (quarantine) and announced when it finishes.
 @MainActor @Observable
 package final class DownloadCenter: NSObject {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored package var runtime = Runtime.live
 
     package static let shared = DownloadCenter()
@@ -47,9 +47,8 @@ package final class DownloadCenter: NSObject {
 
     // MARK: Starting
 
-    /// A navigation became a download: it is followed from here.
-    /// `isPrivate`: from a private page: listed until Sunset quits, never written to the list's file (the file itself is saved).
-    /// `folder`, `asks`: its page's profile's (roadmap 0050), else the settings'.
+    /// A navigation became a download: it is followed from here. `isPrivate`: from a private page: listed until Sunset quits,
+    /// never written to the list's file (the file itself is saved). `folder`, `asks`: its page's profile's, else the settings'.
     package func adopt(
         _ download: WKDownload,
         origin: URL?,

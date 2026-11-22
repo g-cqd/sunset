@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0022 W-c: a blocking list in Adblock Plus syntax (EasyList, EasyPrivacy) becomes WebKit's content rules. What
-/// WebKit cannot do is left out and counted, never guessed at.
+/// A blocking list in Adblock Plus syntax (EasyList, EasyPrivacy) becomes WebKit's content rules. What WebKit cannot do
+/// is left out and counted, never guessed at.
 @Suite("Blocking lists as WebKit's rules")
 struct BlockingRulesTests {
     private func rules(_ text: String) -> BlockingRules.Converted {

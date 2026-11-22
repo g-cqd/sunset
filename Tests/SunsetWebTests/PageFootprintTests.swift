@@ -7,9 +7,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Task t97 (diary 2026-11-19-04): what Sunset puts in a page reads as Safari's own. Measured against a driven Safari
-/// (the web tester's inventory) and a bare WKWebView: no global of Sunset's, `Notification` shaped as WebKit's, Sunset's
-/// functions written `[native code]`, no Private Click Measurement attributes on links (Safari has them off).
+/// What Sunset puts in a page reads as Safari's own. Measured against a driven Safari (the web tester's inventory) and a
+/// bare WKWebView: no global of Sunset's, `Notification` shaped as WebKit's, Sunset's functions written `[native code]`,
+/// no Private Click Measurement attributes on links (Safari has them off).
 @MainActor
 @Suite("What a page can tell of Sunset")
 struct PageFootprintTests {

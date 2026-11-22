@@ -7,14 +7,12 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0109: what an extension opens (`tabs.create`, a link in its popup, its options page) is opened by the app, in the
-/// extension's profile.
-/// In `ExtensionHostTests`' suite: they share `ExtensionHosts.shared`, so they run one after another (run beside it, a reset
-/// there made this fail, 2026-11-21).
+/// What an extension opens (`tabs.create`, a link in its popup, its options page) is opened by the app, in the extension's
+/// profile. In `ExtensionHostTests`' suite: they share `ExtensionHosts.shared`, so they run one after another (run beside
+/// it, a reset there made this fail, 2026-11-21).
 extension ExtensionHostTests {
-    /// The owner's note n67 (2026-11-20): "navigation to other tabs from within extension popup does not work". WebKit asks the
-    /// controller's delegate to open a tab (`tabs.create`, a link in a popup, the options page); Sunset answered nothing. The
-    /// tab is opened by the app in the extension's profile, and the extension gets it back.
+    /// WebKit asks the controller's delegate to open a tab (`tabs.create`, a link in a popup, the options page); Sunset
+    /// answered nothing. The tab is opened by the app in the extension's profile, and the extension gets it back.
     @Test func `an extension opens a tab`() async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }

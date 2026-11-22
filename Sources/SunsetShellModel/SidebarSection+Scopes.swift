@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// The sections of the sidebars by the scope of the app they belong to (roadmap 0033; ADR-0056).
+/// The sections of the sidebars by the scope of the app they belong to.
 extension SidebarSection {
     /// History and Downloads are the web's, Documents the documents'; the tabs and the settings are no scope's.
     package var scope: Scopes.Scope? {

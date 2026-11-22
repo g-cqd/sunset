@@ -22,9 +22,9 @@ struct HTTPSUpgradePolicyTests {
         #expect(HTTPSUpgrade.off.policy(host: "neverssl.com", allowedOverHTTP: []) == .keepAsRequested)
     }
 
-    /// The owner, 2026-11-20: one setting. An address typed without a scheme, failing over HTTPS, is tried over HTTP without a
-    /// word only where Secure connections says so (or does not upgrade at all); "ask" shows the failure page with Load over
-    /// HTTP; "only" stays failed.
+    /// One setting. An address typed without a scheme, failing over HTTPS, is tried over HTTP without a word only where
+    /// Secure connections says so (or does not upgrade at all); "ask" shows the failure page with Load over HTTP; "only"
+    /// stays failed.
     @Test func `a typed address falls back to http as Secure connections says`() {
         #expect(HTTPSUpgrade.fallback.retriesTypedOverHTTP)
         #expect(HTTPSUpgrade.off.retriesTypedOverHTTP)

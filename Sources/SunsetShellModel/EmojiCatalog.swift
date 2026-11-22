@@ -1,9 +1,8 @@
 package import Foundation
 
-/// The emoji a person can pick as an icon (the owner, 2026-11-17), read from the system's own names (`CoreEmoji`'s
-/// `AppleName.strings`: some 1,900, with the flags and the joined ones; no skin tones). The files are the system's, not an
-/// API: when they are missing or change shape there is no emoji in the picker, and the Character Viewer is still a button
-/// away.
+/// The emoji a person can pick as an icon, read from the system's own names (`CoreEmoji`'s `AppleName.strings`: some
+/// 1,900, with the flags and the joined ones; no skin tones). The files are the system's, not an API: when they are
+/// missing or change shape there is no emoji in the picker, and the Character Viewer is still a button away.
 ///
 /// The system gives the names and not, in a form that can be read, their order or their categories: they are listed faces
 /// first, then by where Unicode has them, flags last; and found by name.

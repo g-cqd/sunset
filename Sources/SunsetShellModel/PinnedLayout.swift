@@ -1,12 +1,12 @@
 package import CoreGraphics
 
-/// Where the tiles of the Pinned grid are (roadmap 0021, P-b; the owner, 2026-11-17): four columns that share the width,
-/// each tile between a least and a most width and of one height ("not necessarily a square"); three, two, then one column
-/// as the sidebar narrows, so that no tile is under its least width; rows as needed for the twelve there can be.
+/// Where the tiles of the Pinned grid are (P-b): four columns that share the width, each tile between a least and a most
+/// width and of one height ("not necessarily a square"); three, two, then one column as the sidebar narrows, so that no
+/// tile is under its least width; rows as needed for the twelve there can be.
 package struct PinnedLayout: Equatable {
     package static let widths: ClosedRange<CGFloat> = 40 ... 120
     package static let height: CGFloat = 36
-    /// The gap when none is given; the grid gives the rows' spacing (roadmap 0038 D).
+    /// The gap when none is given; the grid gives the rows' spacing.
     package static let gap: CGFloat = 6
     package static let mostColumns = 4
 

@@ -2,7 +2,7 @@ package import AppKit
 package import SunsetShell
 import WebKit
 
-/// What the address bar does with the page's address (roadmap 0047 F).
+/// What the address bar does with the page's address.
 extension WebContent {
     /// Puts the page's whole address on `board`, as text and as a link; blocked when the page has none.
     @discardableResult

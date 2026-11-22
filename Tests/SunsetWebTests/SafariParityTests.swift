@@ -6,9 +6,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Task t98: what Safari gives pages and WebKit's views keep off (the inventory against a driven Safari, diary 2026-11-19-04):
-/// `requestIdleCallback` (IdleDeadline), and the media session's coordinator and playlist. Each is WebKit's own, turned on;
-/// `requestIdleCallback` is checked to work, not only to be there.
+/// What Safari gives pages and WebKit's views keep off (the inventory against a driven Safari): `requestIdleCallback`
+/// (IdleDeadline), and the media session's coordinator and playlist. Each is WebKit's own, turned on; `requestIdleCallback`
+/// is checked to work, not only to be there.
 @MainActor @Suite("What Safari gives pages", .timeLimit(.minutes(1)))
 struct SafariParityTests {
     @Test func `requestIdleCallback runs its callback with a deadline; the media session has Safari's members`()

@@ -1,4 +1,4 @@
-/// What a pane's sound is doing (a web page; roadmap 0029 step 7): shown as a speaker on its tab, which mutes and unmutes it.
+/// What a pane's sound is doing (a web page): shown as a speaker on its tab, which mutes and unmutes it.
 package enum PaneSound: Equatable, Sendable {
     case playing, muted
 

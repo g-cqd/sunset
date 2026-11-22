@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's note n17 (2026-11-18): two Spaces of two profiles with the same site pinned shared one icon, though a site can
-/// say something of the page shown through its icon (an unread count).
+/// Two Spaces of two profiles with the same site pinned shared one icon, though a site can say something of the page
+/// shown through its icon (an unread count).
 @MainActor @Suite("Site icons kept per profile")
 struct FaviconProfileTests {
     @Test func `a profile's icon of a site is its own; the first profile reads what was kept before profiles`() {

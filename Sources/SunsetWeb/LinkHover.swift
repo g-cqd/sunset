@@ -1,7 +1,7 @@
 import WebKit
 
-/// Tells its page which link is under the pointer (roadmap 0029 step 6). A script in Sunset's own script world listens to the
-/// pointer over links and posts their addresses; the page's own scripts cannot post to it, nor see it.
+/// Tells its page which link is under the pointer. A script in Sunset's own script world listens to the pointer over
+/// links and posts their addresses; the page's own scripts cannot post to it, nor see it.
 @MainActor
 final class LinkHover: PageScriptHandler, WKScriptMessageHandler {
     private static let name = "sunsetLink"

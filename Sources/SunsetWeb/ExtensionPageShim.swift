@@ -2,11 +2,11 @@ import SunsetPrivate
 import WebKit
 
 /// What extension pages (background, popup, options) meet in WebKit where Firefox and Chrome differ, evened out by a script
-/// of Sunset's at the start of each such page (probed on uBlock Origin from Firefox Add-ons: its background page stopped
-/// on the first, its popup on the second; diary 2026-11-20-15).
+/// of Sunset's at the start of each such page (probed on uBlock Origin from Firefox Add-ons: its background page stopped on
+/// the first, its popup on the second).
 ///
-/// Each part is a stopgap for a defect of WebKit's, listed with its repro in roadmap 0048 D ("WebKit patch candidates"):
-/// when our own WebKit fixes one, its part here goes (each part names its candidate, `W1`…).
+/// Each part is a stopgap for a defect of WebKit's, each part named for it (`W1`…): when Sunset's own WebKit fixes one,
+/// its part here goes.
 enum ExtensionPageShim {
     /// One stopgap, named by the WebKit defect it covers; it runs once for each namespace root (`browser`, `chrome`) with
     /// the helpers `root`, `kept`, `put` and `event`.

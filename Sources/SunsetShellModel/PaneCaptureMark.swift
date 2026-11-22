@@ -2,6 +2,6 @@
 package enum PaneCaptureMark: Equatable, Sendable {
     /// The camera or the microphone.
     case cameraOrMicrophone
-    /// A screen, or this tab shared into a call (ADR-0082).
+    /// A screen, or this tab shared into a call.
     case screen
 }

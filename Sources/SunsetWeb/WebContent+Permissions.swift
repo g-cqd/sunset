@@ -68,7 +68,7 @@ extension WebContent {
     }
 
     package var captureMark: PaneCaptureMark? {
-        // Shared into a call (ADR-0082): its tab says so, as the call's does.
+        // Shared into a call: its tab says so, as the call's does.
         if sharedInto > 0 { return .screen }
         return switch capture {
             case .cameraOrMicrophone: .cameraOrMicrophone

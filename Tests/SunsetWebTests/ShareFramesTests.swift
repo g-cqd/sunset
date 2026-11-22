@@ -8,8 +8,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Task t97: a share's frames reach the page by its pull through Sunset's handler, never a function on its window; only the
-/// origin that asked is given any (white paper §9: a frame of another site in the call's page gets no pixel of the share).
+/// A share's frames reach the page by its pull through Sunset's handler, never a function on its window; only the origin
+/// that asked is given any (white paper §9: a frame of another site in the call's page gets no pixel of the share).
 @MainActor
 @Suite("Share: frames pulled by the asking origin")
 struct ShareFramesTests {

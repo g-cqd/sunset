@@ -4,10 +4,10 @@ import SunsetWebModel
 import Testing
 
 extension ExtensionHostTests {
-    /// Seen 2026-11-21 (diary 2026-11-21-04): uBlock Origin from Firefox injects a site's scriptlets once by hand, then
-    /// leaves the later visits to `browser.contentScripts.register`, Firefox's content scripts from code, which WebKit has
-    /// not: on a second visit no scriptlet ran. Sunset gives an extension that may read the page's address one, which runs
-    /// the scripts once a matching page commits; a page that does not match runs none.
+    /// Seen 2026-11-21: uBlock Origin from Firefox injects a site's scriptlets once by hand, then leaves the later visits
+    /// to `browser.contentScripts.register`, Firefox's content scripts from code, which WebKit has not: on a second visit
+    /// no scriptlet ran. Sunset gives an extension that may read the page's address one, which runs the scripts once a
+    /// matching page commits; a page that does not match runs none.
     @Test(arguments: ["/registered", "/elsewhere"])
     func `an extension's content scripts registered from code run on matching pages`(path: String) async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")

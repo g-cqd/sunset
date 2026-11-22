@@ -1,8 +1,8 @@
 package import Foundation
 
-/// A blocking list in Adblock Plus syntax (EasyList, EasyPrivacy) as WebKit's content rules (roadmap 0022 W-c). What WebKit
-/// cannot do (a regular expression, a rewritten response, a scriptlet, an exception for one selector) is left out and
-/// counted, never approximated. The list is third-party text: it can only block or hide (white paper §9).
+/// A blocking list in Adblock Plus syntax (EasyList, EasyPrivacy) as WebKit's content rules. What WebKit cannot do (a
+/// regular expression, a rewritten response, a scriptlet, an exception for one selector) is left out and counted, never
+/// approximated. The list is third-party text: it can only block or hide (white paper §9).
 package enum BlockingRules {
     /// WebKit's limit for one compiled list.
     package static let webKitLimit = 150_000

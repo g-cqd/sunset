@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// A window and the Favorites (R3, R4): it shows a kept entry instead of one of its tabs, keeps a tab, takes one back out.
+/// A window and the Favorites: it shows a kept entry instead of one of its tabs, keeps a tab, takes one back out.
 extension TabsModel {
     /// The kept entry this window shows, when it shows one.
     package var shownEntry: Favorites.Entry? {
@@ -23,8 +23,7 @@ extension TabsModel {
         }
     }
 
-    /// The window came to the front: it draws what it shows, which the window that drew it shows as a picture (the owner,
-    /// 2026-11-17, roadmap 0035 J; supersedes ADR-0045's "bringing a window to the front takes nothing").
+    /// The window came to the front: it draws what it shows, which the window that drew it shows as a picture.
     package func cameToFront() {
         guard !showsLive else { return }
         takeShown()
@@ -171,7 +170,7 @@ extension TabsModel {
     }
 
     /// Where Cmd-1 to 9 and Next and Previous Tab go, in order: the kept entries that are open, in the order of the Favorites, then the window's tabs.
-    /// What is not open is not counted: stepping never starts anything (R3).
+    /// What is not open is not counted: stepping never starts anything.
     package enum Stop: Equatable {
         case entry(Favorites.NodeID)
         case tab(Workspace.ItemID)
@@ -196,7 +195,7 @@ extension TabsModel {
     }
 }
 
-/// Dragging across the line between the Favorites and the tabs (R3): a tab dropped above it is kept, an entry dropped below it leaves the Favorites.
+/// Dragging across the line between the Favorites and the tabs: a tab dropped above it is kept, an entry dropped below it leaves the Favorites.
 extension TabsModel {
     /// Whether what is dragged can be dropped on the row of the kept entry `target` (a tab is kept beside it, an entry moves beside it).
     package func canDrop(onEntry target: Favorites.NodeID) -> Bool {
@@ -210,7 +209,7 @@ extension TabsModel {
     package func dropDragged(onEntry target: Favorites.NodeID, after: Bool) -> Bool {
         if draggedSelection != nil { return dropSelection(nextTo: target, after: after) }
         guard canDrop(onEntry: target), let place = favorites.favorites.location(of: target) else { return false }
-        // Whatever it is (a tab, a split, a favourite, a tile, a document), it goes there (roadmap 0035 A).
+        // Whatever it is (a tab, a split, a favourite, a tile, a document), it goes there.
         return dropDragged(in: .favorites(in: place.parent, at: place.index + (after ? 1 : 0)))
     }
 

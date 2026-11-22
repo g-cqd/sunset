@@ -2,8 +2,8 @@ package import Foundation
 package import Observation
 package import WebKit
 
-/// Blocking on pages (roadmap 0022 W-c): the lists, converted (`BlockingRules`) and compiled by WebKit, put on every page's
-/// content controller; taken off a page whose site is paused, or all of them when blocking is off.
+/// Blocking on pages: the lists, converted (`BlockingRules`) and compiled by WebKit, put on every page's content
+/// controller; taken off a page whose site is paused, or all of them when blocking is off.
 @MainActor @Observable
 package final class ContentBlocker {
     /// The app's: its folder is set where the app keeps its files, before the lists are loaded.
@@ -37,7 +37,7 @@ package final class ContentBlocker {
     }
 
     package internal(set) var states: [ListState] = []
-    /// How many lists were compiled by WebKit since this was made (the rest were looked up: task t109).
+    /// How many lists were compiled by WebKit since this was made (the rest were looked up).
     @ObservationIgnored package internal(set) var compilations = 0
     /// Blocking is on (`web.blocking`): every page has the lists, but those of paused sites.
     @ObservationIgnored package var enabled = true {
@@ -46,9 +46,9 @@ package final class ContentBlocker {
         }
     }
     @ObservationIgnored package let pauses: BlockingPauses
-    /// The elements hidden for good, per site (W-e): on their sites whatever blocking says.
+    /// The elements hidden for good, per site: on their sites whatever blocking says.
     @ObservationIgnored package let hidden: SiteRules<[String]>
-    /// The elements hidden for good, compiled: all profiles' (nil), and each profile with its own's (roadmap 0050 E).
+    /// The elements hidden for good, compiled: all profiles' (nil), and each profile with its own's.
     @ObservationIgnored private var hiddenLists: [UUID?: WKContentRuleList] = [:]
     /// Where the lists and their compiled rules are kept.
     @ObservationIgnored package var folder: URL
@@ -75,8 +75,8 @@ package final class ContentBlocker {
 
     // MARK: Pages
 
-    /// A page's view, made: it has the lists from now on, as its site says.
-    /// `blocks`: its profile blocks (roadmap 0050); off, only the elements hidden for good are on it.
+    /// A page's view, made: it has the lists from now on, as its site says. `blocks`: its profile blocks; off, only the
+    /// elements hidden for good are on it.
     package func attach(_ view: WKWebView, host: String?, blocks: Bool = true, profile: UUID? = nil) {
         views.removeAll { $0.view.view == nil || $0.view.view === view }
         views.append(Attached(view: WeakView(view: view), host: host, blocks: blocks, profile: profile))

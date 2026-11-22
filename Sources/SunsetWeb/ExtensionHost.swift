@@ -5,11 +5,11 @@ import SunsetRuntime
 package import SunsetWebModel
 package import WebKit
 
-/// One profile's extensions running (roadmap 0109 B, C; ADR-0109): WebKit's controller, persistent and the profile's own,
-/// holding each extension installed and on, granted what the person granted at install; in private pages only where allowed.
-/// Installed, turned on or off, allowed in private windows or removed while Sunset runs.
+/// One profile's extensions running: WebKit's controller, persistent and the profile's own, holding each extension installed
+/// and on, granted what the person granted at install; in private pages only where allowed. Installed, turned on or off,
+/// allowed in private windows or removed while Sunset runs.
 @MainActor @Observable package final class ExtensionHost {
-    /// What an extension package says of itself, read before it is installed: for the prompt (ADR-0109: granted at install).
+    /// What an extension package says of itself, read before it is installed: for the prompt (granted at install).
     package struct Candidate {
         package let source: URL
         package let name: String
@@ -149,8 +149,8 @@ package import WebKit
             let loaded = try? await WKWebExtension(resourceBaseURL: store.file(of: entry))
         else { return }
         let context = WKWebExtensionContext(for: loaded)
-        // One identity for as long as it is installed (the owner, 2026-11-21: its pages' address changed at every launch,
-        // and WebKit keeps an extension's storage only for a context with an identifier of its own).
+        // One identity for as long as it is installed (its pages' address changed at every launch, and WebKit keeps an
+        // extension's storage only for a context with an identifier of its own).
         let identity = entry.id.uuidString.lowercased()
         context.uniqueIdentifier = identity
         if let base = URL(string: "webkit-extension://\(identity)/") { context.baseURL = base }

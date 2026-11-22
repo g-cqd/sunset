@@ -1,7 +1,7 @@
 internal import Foundation
 
-/// A path typed in the command bar (R6, roadmap 0023 step M-f). Only what is plainly a path: from the root, from the home
-/// folder (`~/`), or a `file:` address. A name alone is not one: from which folder is not known.
+/// A path typed in the command bar. Only what is plainly a path: from the root, from the home folder (`~/`), or a
+/// `file:` address. A name alone is not one: from which folder is not known.
 package enum TypedPath {
     /// The file `typed` names, when it is there and is not a folder.
     /// - Parameters:

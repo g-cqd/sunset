@@ -3,8 +3,8 @@ package import Foundation
 package import SunsetShell
 import WebKit
 
-/// Reload as (roadmap 0050 D): the same tab, where it is, loaded again with another profile's data and settings, a mark on
-/// it; reloaded as its Space's profile again, the mark goes. Kept in the session (`as`).
+/// Reload as: the same tab, where it is, loaded again with another profile's data and settings, a mark on it; reloaded
+/// as its Space's profile again, the mark goes. Kept in the session (`as`).
 extension WebContent {
     /// Loads the page again as `profile` (nil: the first).
     package func reload(as profile: UUID?) {

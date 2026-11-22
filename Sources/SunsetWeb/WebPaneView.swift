@@ -60,7 +60,7 @@ struct WebPaneView: View {
                         .transition(.opacity)
                 }
                 // The container stays and the bar comes and goes inside it: a glass container that leaves takes its glass
-                // with it at once, and the bar did not slide away (the owner's note n43).
+                // with it at once, and the bar did not slide away.
                 GlassEffectContainer(spacing: Design.Space.m) {
                     if content.find.isOpen, !(focused && findInWindowBar) {
                         WebFindBar(content: content)
@@ -71,7 +71,7 @@ struct WebPaneView: View {
                 .padding(Design.Space.m)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 .allowsHitTesting(content.find.isOpen)
-                // The page's own address row floats over its top, revealed there (roadmap 0055 D); the page keeps its top.
+                // The page's own address row floats over its top, revealed there; the page keeps its top.
                 if addressRow {
                     FloatingEdgeBar(atTop: true, hides: true, typing: rowTyping || content.wantsAddress) {
                         AddressField(content: content, place: .pane) { rowTyping = $0 }
@@ -84,15 +84,14 @@ struct WebPaneView: View {
             }
         }
         .padding(.top, Self.contentTop(topInset: topInset, addressRow: addressRow))
-        // The page's own colour, above it too (the strip that drags the window; note n71).
+        // The page's own colour, above it too (the strip that drags the window).
         .background(pageColor)
         .animation(BarGroupSlide.animation, value: content.find.isOpen)
     }
 
     /// How far below the pane's top the page starts. The strip that drags a window with no title bar (the floating sidebar's)
     /// lies over the page, which reaches the top as a docked card does: pushed below it, the page left a band of its colour
-    /// (the owner, 2026-11-18: "an odd blank space at the top", roadmap 0045 D). A row of the page's own address is kept
-    /// below it, out of the strip.
+    /// ("an odd blank space at the top"). A row of the page's own address is kept below it, out of the strip.
     static func contentTop(topInset: Double, addressRow: Bool) -> Double {
         0
     }
@@ -106,8 +105,7 @@ struct WebPaneView: View {
         content.url == nil && content.webView?.url == nil
     }
 
-    /// Behind a page, its own colour; behind no page or one that failed, the terminal's background, as every pane (the owner,
-    /// 2026-11-15).
+    /// Behind a page, its own colour; behind no page or one that failed, the terminal's background, as every pane.
     private var pageColor: Color {
         if isEmpty || content.failure != nil { return backdrop.color }
         return content.pageBackground.map { Color(nsColor: $0) } ?? backdrop.color

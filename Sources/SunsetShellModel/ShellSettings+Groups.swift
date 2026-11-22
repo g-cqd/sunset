@@ -14,7 +14,7 @@ extension ShellSettings {
         /// The sidebar is hidden and floats over the content while the pointer is at its edge; false: it stays beside the content.
         package var autoHide = false
         package var side = Side.right
-        /// The Library's glyph is at the sidebar's foot (roadmap 0031).
+        /// The Library's glyph is at the sidebar's foot.
         package var library = true
         /// The order of the documents in the sidebars' lists.
         package var documentSort = DocumentSort.changed
@@ -62,9 +62,9 @@ extension ShellSettings {
         /// The second line in the monospaced face.
         package var monospacedDirectory = true
         package var showProgress = true
-        /// Hidden over the page until the pointer reaches its edge (roadmap 0055).
+        /// Hidden over the page until the pointer reaches its edge.
         package var autoHide = true
-        /// Under it while shown always: the page fading, or a toolbar (roadmap 0055 C).
+        /// Under it while shown always: the page fading, or a toolbar.
         package var backing = Backing.fade
 
         /// What is under the bar while it is shown always.

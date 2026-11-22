@@ -1,8 +1,8 @@
 import Foundation
 package import SunsetPane
 
-/// What a Space's editor holds while it is open (the owner, 2026-11-17: three fields, Save and Cancel): nothing of it is
-/// the Space's until it is saved, and a new Space is not made before.
+/// What a Space's editor holds while it is open (three fields, Save and Cancel): nothing of it is the Space's until it
+/// is saved, and a new Space is not made before.
 package struct SpaceDraft: Equatable, Identifiable {
     /// The Space edited; nil for one that is not made yet.
     package let space: Space.ID?

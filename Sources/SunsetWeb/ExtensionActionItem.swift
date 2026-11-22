@@ -1,6 +1,6 @@
 package import AppKit
 
-/// An extension's action as its button shows it, for one page (roadmap 0109 D).
+/// An extension's action as its button shows it, for one page.
 package struct ExtensionActionItem: Identifiable {
     /// The extension's context's identifier.
     package let id: String

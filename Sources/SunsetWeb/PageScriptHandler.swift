@@ -1,8 +1,7 @@
 import Foundation
 
 /// What a page's script posts to Sunset is handled for one page, held weakly: the page owns its web view, whose controller holds
-/// the handler (roadmap 0086 E: `LinkHover`, `IconWatch`, `TextWatch`, `WebNotifications` and `ShareWrapper` each held it
-/// the same way).
+/// the handler (`LinkHover`, `IconWatch`, `TextWatch`, `WebNotifications` and `ShareWrapper` each held it the same way).
 @MainActor
 class PageScriptHandler: NSObject {
     private(set) weak var content: WebContent?

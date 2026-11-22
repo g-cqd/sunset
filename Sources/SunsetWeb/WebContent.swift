@@ -7,12 +7,12 @@ package import SunsetShell
 package import SwiftUI
 package import WebKit
 
-/// A web page as the content of a pane (R1, web step a): the system's WebKit, named as Safari; made the first time it is shown; the default persistent
+/// A web page as the content of a pane (web step a): the system's WebKit, named as Safari; made the first time it is shown; the default persistent
 /// store; brought back with its address, history and scroll. Pages it opens (a link asking for a new tab, the link menu) are handed to `onOpen`, which
 /// places them.
 @MainActor @Observable
 package final class WebContent: PaneContent, PaneViewMaking {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     @ObservationIgnored package var runtime = Runtime.live
 
     package static let kind = PaneDescriptor.webKind
@@ -27,12 +27,12 @@ package final class WebContent: PaneContent, PaneViewMaking {
     /// The page asks for its address to be typed (a new empty page): the address field of the window takes the keyboard and clears this.
     package var wantsAddress = false
     @ObservationIgnored var forcing = false  // Its process ended on purpose (a force reload): not a crash to show.
-    /// The site's settings are open beside its address field (its lock, or the field's menu: roadmap 0047 F).
+    /// The site's settings are open beside its address field (its lock, or the field's menu).
     package var showsSiteSettings = false
     package internal(set) var permissionRequest: PermissionRequest?  // Waiting under the address (web step g).
     /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).
     package internal(set) var capture: PageCapture?
-    package internal(set) var devices = PaneCapture()  // The microphone and the camera, each live or muted (n47).
+    package internal(set) var devices = PaneCapture()  // The microphone and the camera, each live or muted.
     package let find = PageFind()  // Find in the page (Cmd-F).
     package internal(set) var zoom = 1.0  // 1 for 100% (Cmd-+, Cmd--, Cmd-0; `WebContent+Zoom`).
     /// The site's icon, once fetched (`WebContent+Favicon`).
@@ -47,21 +47,21 @@ package final class WebContent: PaneContent, PaneViewMaking {
     /// The icon as the tab's picture, made once for each icon (`glyph` is read at every drawing).
     @ObservationIgnored var faviconPicture: PanePicture?
     package internal(set) var pageBackground: NSColor?
-    /// The colours the site declares (`<meta name="theme-color">`) and its icon has, as sRGB bytes (roadmap 0047 H).
+    /// The colours the site declares (`<meta name="theme-color">`) and its icon has, as sRGB bytes.
     package internal(set) var themeColor: [UInt8]?
     package internal(set) var iconColor: [UInt8]?
     /// The dialog the page asked for, waiting for its answer (`WebContent+Dialogs`).
     package internal(set) var dialog: PageDialog?
-    /// Sharing (ADR-0082): a tab asked for (the sheet shows it), the tab shared into this page, the calls it is shared into.
+    /// Sharing: a tab asked for (the sheet shows it), the tab shared into this page, the calls it is shared into.
     package internal(set) var shareRequest: ShareRequest?
     package internal(set) var share: ShareSession?
-    package internal(set) var reloadedAs: OtherProfile?  // Reload as (roadmap 0050 D), and its Space's:
+    package internal(set) var reloadedAs: OtherProfile?  // Reload as, and its Space's:
     @ObservationIgnored var homeProfile: OtherProfile?
     @ObservationIgnored var shareWrapper: ShareWrapper?
     @ObservationIgnored var dialogPolicy = PageDialogPolicy()
     /// A server's question for a name and a password, waiting (`CredentialRequest`).
     package internal(set) var credentialRequest: CredentialRequest?
-    /// The page plays sound; it is muted (roadmap 0029 step 7).
+    /// The page plays sound; it is muted.
     package internal(set) var playsSound = false
     package internal(set) var isMuted = false
     @ObservationIgnored var soundWatch: NSObject?
@@ -76,7 +76,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
     package internal(set) var picture: CGImage?
     /// When a title change last asked for a picture (seconds of uptime).
     @ObservationIgnored var lastTitlePicture: Double?
-    /// When the page was last pictured again for a change of its text (roadmap 0042 D).
+    /// When the page was last pictured again for a change of its text.
     @ObservationIgnored var lastTextPicture: Double?
     /// A snapshot was asked for and has not arrived.
     @ObservationIgnored package internal(set) var takingPicture = false
@@ -89,13 +89,13 @@ package final class WebContent: PaneContent, PaneViewMaking {
 
     package var onExit: () -> Void = {}
     package var onFocusRequest: () -> Void = {}
-    /// Where the sites' icons are kept (roadmap 0035 H): the app's; a test gives its own.
+    /// Where the sites' icons are kept: the app's; a test gives its own.
     @ObservationIgnored package var icons = FaviconStore.shared
     /// When the page last changed its icon (seconds of uptime): followed once a second at most.
     @ObservationIgnored var lastIconChange: Double?
-    /// A notification the page may show, to post (roadmap 0035 D).
+    /// A notification the page may show, to post.
     @ObservationIgnored package var onNotify: (WebNotification) -> Void = { _ in }
-    /// The page took a notification of its own away (`close()`, roadmap 0036 E).
+    /// The page took a notification of its own away (`close()`).
     @ObservationIgnored package var onNotificationClose: (Int) -> Void = { _ in }
     /// When it last showed one (seconds of uptime): one a second at most.
     @ObservationIgnored var lastNotification: Double?
@@ -106,10 +106,10 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored let notificationClicks = NotificationClicks()
     /// A page this one opened, and where it goes.
     @ObservationIgnored package var onOpen: (WebContent, WebPlacement) -> Void = { _, _ in }
-    /// The Space it is in, and the Spaces a site can be sent to (W-d): the app's; none in a test or a private window.
+    /// The Space it is in, and the Spaces a site can be sent to: the app's; none in a test or a private window.
     @ObservationIgnored package var currentSpace: () -> UUID? = { nil }
     @ObservationIgnored package var spaceChoices: () -> [(id: UUID, name: String)] = { [] }
-    /// Opens `url` in the Space `id`, as the site's rule says (W-d).
+    /// Opens `url` in the Space `id`, as the site's rule says.
     @ObservationIgnored package var openInSpace: (URL, UUID) -> Void = { _, _ in }
     /// The history visits are written to (web step e); nil keeps none (tests, and private pages in step h).
     @ObservationIgnored package var history: HistoryStore?
@@ -118,7 +118,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
 
     /// Followed when the configuration changes (`TerminalScene`); the engine, suggestions and http fallback apply at once.
     @ObservationIgnored package var settings: WebSettings
-    /// The browser each site is shown (W-a): the app's rules; a test gives its own.
+    /// The browser each site is shown: the app's rules; a test gives its own.
     @ObservationIgnored package var agents = SiteAgents.shared
     @ObservationIgnored var savedHistory: Data?
     @ObservationIgnored var observations: [NSKeyValueObservation] = []
@@ -127,15 +127,15 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var acceptedHosts: Set<String> = []
     /// Hosts the person chose to load over http on this page, HTTPS having failed ("ask", `web.httpsUpgrade`).
     @ObservationIgnored var httpHosts: Set<String> = []
-    /// The size the page that opened it asked for, as a pop-up (`window.open` with a width): its window's (task t132).
+    /// The size the page that opened it asked for, as a pop-up (`window.open` with a width): its window's.
     @ObservationIgnored package var popupSize: CGSize?
-    /// It, as its profile's extensions see a tab (roadmap 0109 B).
+    /// It, as its profile's extensions see a tab.
     @ObservationIgnored package internal(set) var extensionTab: ExtensionTab?
     /// A private page's answers, in memory for its life (web step h).
     @ObservationIgnored var ownPermissions: SitePermissions?
     /// The host last typed without a scheme while the http setting is on: if https fails for it, http is tried (`WebCoordinator`).
     @ObservationIgnored var fallbackHost: String?
-    /// What the person last asked this page for (roadmap 0045 F): loaded again when its site is shown another browser.
+    /// What the person last asked this page for: loaded again when its site is shown another browser.
     @ObservationIgnored var asked = AskedAddress()
 
     /// A page to open at `url` (nil: an empty page that asks for an address), with what brings its history back.
@@ -163,7 +163,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
         )
         zoom = descriptor.state["zoom"].flatMap(Double.init) ?? 1
         if let other = Self.savedProfile(descriptor.state["as"]) { takeProfile(other.id) }
-        // Not loaded until it is shown or pointed at (roadmap 0047 I).
+        // Not loaded until it is shown or pointed at.
         isUnloaded = url != nil
     }
 
@@ -185,18 +185,18 @@ package final class WebContent: PaneContent, PaneViewMaking {
     package func setState(focused: Bool, visible: Bool) {
         if visible, webView == nil { makeWebView(configuration: nil) }
         if visible { isUnloaded = false }
-        // Hidden: its last picture is taken while it is still drawn, for its tab's preview (roadmap 0035 C).
+        // Hidden: its last picture is taken while it is still drawn, for its tab's preview.
         if !visible, shown { takePicture() }
         if visible { hiddenSince = nil } else if hiddenSince == nil, webView != nil { hiddenSince = runtime.now() }
         shown = visible
     }
 
-    /// Its row is pointed at (note n1): a page not made yet is made and starts loading, drawn by the time it is shown.
+    /// Its row is pointed at: a page not made yet is made and starts loading, drawn by the time it is shown.
     package func prepare() {
         if webView == nil { makeWebView(configuration: nil) }
     }
 
-    /// A snapshot of the page as it is drawn now (roadmap 0035 C, J): kept as its `picture` when it arrives.
+    /// A snapshot of the page as it is drawn now (J): kept as its `picture` when it arrives.
     package func takePicture() {
         guard let webView, webView.window != nil, webView.bounds.width > 0, webView.bounds.height > 0 else { return }
         takingPicture = true

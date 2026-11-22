@@ -1,6 +1,6 @@
 package import SunsetPane
 
-/// A window and the scopes of the app that are off (roadmap 0033; ADR-0056).
+/// A window and the scopes of the app that are off.
 extension TabsModel {
     /// The entries of the Favorites this window lists, at any depth: those of a scope that is off are hidden.
     package var shownFavorites: [Favorites.Entry] {

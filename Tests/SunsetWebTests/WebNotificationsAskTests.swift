@@ -70,7 +70,7 @@ struct WebNotificationsAskTests {
         #expect(askedAgain || second == "default" || second == "granted")
     }
 
-    /// Roadmap 0046 S1 (the owner, 2026-11-18: "this could be a setting"): as Chrome, a request without a click asks.
+    /// As Chrome, a request without a click asks.
     @Test(.timeLimit(.minutes(1)))
     func `set to ask without a click, a request without a gesture asks the person`() async throws {
         let page = page(withoutClick: true)

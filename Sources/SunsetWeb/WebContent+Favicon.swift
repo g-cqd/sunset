@@ -3,9 +3,9 @@ import SunsetRuntime
 import WebKit
 
 /// The site's icon for its tab (owner, 2026-11-13): the page's `<link rel="icon">`, else `/favicon.ico`, fetched once the page has
-/// loaded, without cookies. Kept on disk by host (`FaviconStore`, roadmap 0035 H) until the server says it expires, so that a tab
-/// not loaded shows it too; an icon the page changes while it runs (`IconWatch`) replaces the one kept. Private pages show their
-/// mask, and fetch and keep nothing.
+/// loaded, without cookies. Kept on disk by host (`FaviconStore`) until the server says it expires, so that a tab not loaded shows
+/// it too; an icon the page changes while it runs (`IconWatch`) replaces the one kept. Private pages show their mask, and fetch
+/// and keep nothing.
 extension WebContent {
     /// The most read of a site's icon.
     static let faviconLimit = 1 << 20
@@ -21,7 +21,7 @@ extension WebContent {
         // What is kept shows at once, fresh or not.
         favicon = icons.image(for: host, profile: settings.profile)
         if favicon == nil, Self.missing.contains(FaviconStore.key(host: host, profile: settings.profile)) { return }
-        // With what the page says it is: the icon is asked for by Sunset, and must not say otherwise (W-a).
+        // With what the page says it is: the icon is asked for by Sunset, and must not say otherwise.
         let script = """
             (() => { const l = document.querySelector('link[rel~="icon"], link[rel="apple-touch-icon"]');
               return [l ? l.href : "", navigator.userAgent] })()
@@ -43,7 +43,7 @@ extension WebContent {
         }
     }
 
-    /// The page changed its icon while it runs (roadmap 0035 H): the new one is fetched and replaces the one kept.
+    /// The page changed its icon while it runs: the new one is fetched and replaces the one kept.
     func iconChanged(to address: String) {
         guard settings.favicons, !isPrivate, let webView, let host = webView.url?.host(),
             let url = URL(string: address, relativeTo: webView.url),

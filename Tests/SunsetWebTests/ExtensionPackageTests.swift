@@ -5,8 +5,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0109 A: what WebKit loads from what the person picks. `.xpi` and `.zip` are zips; a Chrome Web Store `.crx` (CRX3)
-/// is a zip behind a header ("Cr24", the version 3, the header's length, the header); WebKit takes a zip as it is.
+/// What WebKit loads from what the person picks. `.xpi` and `.zip` are zips; a Chrome Web Store `.crx` (CRX3) is a zip
+/// behind a header ("Cr24", the version 3, the header's length, the header); WebKit takes a zip as it is.
 @Suite("An extension's package")
 struct ExtensionPackageTests {
     static let zipStart = Data([0x50, 0x4B, 0x03, 0x04, 0x14, 0x00])
@@ -31,7 +31,7 @@ struct ExtensionPackageTests {
         }
     }
 
-    /// Roadmap 0109 E: a package a page offers (a store's "Download file", a link to a `.crx`) is installed, not downloaded.
+    /// A package a page offers (a store's "Download file", a link to a `.crx`) is installed, not downloaded.
     @Test func `an extension's package is told by its type or its name`() {
         #expect(ExtensionPackage.isPackage(mime: "application/x-chrome-extension", path: "/x"))
         #expect(ExtensionPackage.isPackage(mime: "application/x-xpinstall", path: "/x"))

@@ -8,8 +8,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0021 S-f (R4; ADR-0071): pages not on screen are unloaded after `web.unloadAfter` hours, and under memory
-/// pressure the longest idle first; never one that plays, captures, is kept awake or is in the Pinned grid.
+/// Pages not on screen are unloaded after `web.unloadAfter` hours, and under memory pressure the longest idle first;
+/// never one that plays, captures, is kept awake or is in the Pinned grid.
 @MainActor @Suite("Pages put to sleep", .timeLimit(.minutes(1)))
 struct PageSleepTests {
     private let settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
@@ -64,19 +64,18 @@ struct PageSleepTests {
         page.stop()
     }
 
-    /// Roadmap 0045 C: the owner saw load indicators not following a page's end. A page let go of while it loads no longer
-    /// loads: nothing is left saying it does (its ring, the Stop item, the window bar's stop button).
-    /// Roadmap 0045 A (the owner: a tab shown again "does not always keep its exact state"): this Mac read macOS's warning
-    /// level (2) for minutes on end with 48 % of its memory free, and a page was unloaded every minute of it. Only the
-    /// critical level (4) is memory short.
+    /// The owner saw load indicators not following a page's end. A page let go of while it loads no longer loads:
+    /// nothing is left saying it does (its ring, the Stop item, the window bar's stop button). This Mac read macOS's
+    /// warning level (2) for minutes on end with 48 % of its memory free, and a page was unloaded every minute of it.
+    /// Only the critical level (4) is memory short.
     @Test func `memory is short at macOS's critical level only, not at its warning`() {
         #expect(!PageSleep.memoryIsShort(level: 1))
         #expect(!PageSleep.memoryIsShort(level: 2), "warning: the system compresses, nothing is short yet")
         #expect(PageSleep.memoryIsShort(level: 4))
     }
 
-    /// Roadmap 0047 I: a page back from the session is not loaded until it is shown or pointed at; its icon says so, as an
-    /// unloaded page's does.
+    /// A page back from the session is not loaded until it is shown or pointed at; its icon says so, as an unloaded
+    /// page's does.
     @Test func `a page back from the session is unloaded until its view is made`() {
         let saved = PaneDescriptor(kind: WebContent.kind, state: ["url": "https://example.org/", "title": "Example"])
         let page = WebContent(descriptor: saved, settings: settings)

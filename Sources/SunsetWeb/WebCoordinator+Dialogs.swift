@@ -1,6 +1,6 @@
 import WebKit
 
-/// JavaScript's `alert`, `confirm` and `prompt` (roadmap 0029 step 1), as a panel in the page's pane.
+/// JavaScript's `alert`, `confirm` and `prompt`, as a panel in the page's pane.
 extension WebCoordinator {
     func webView(
         _ webView: WKWebView,

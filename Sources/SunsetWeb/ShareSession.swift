@@ -5,12 +5,12 @@ package import SunsetRuntime
 import UniformTypeIdentifiers
 import WebKit
 
-/// A tab's frames into a page that asked (ADR-0082): 30 a second at most, as JPEG; it stops by the rules of `TabShare.stop`.
-/// The page pulls each frame through its message handler (`pull`), and only the origin that asked for the share is given
-/// any (task t97: no function of Sunset's on the page's window, which its scripts could list and call).
+/// A tab's frames into a page that asked: 30 a second at most, as JPEG; it stops by the rules of `TabShare.stop`. The
+/// page pulls each frame through its message handler (`pull`), and only the origin that asked for the share is given any
+/// (no function of Sunset's on the page's window, which its scripts could list and call).
 @MainActor
 package final class ShareSession {
-    /// Where its tasks run, the clock it waits on, the time it reads (ADR-0087); `.live` unless a test sets another.
+    /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     package var runtime = Runtime.live
 
     package let source: UUID

@@ -6,10 +6,10 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's note n54: "closing a tab that had a video playing don't kill the video instantly". The cause: a page that
-/// stopped only let go of its view, which played on while anything else held it (a host, the off-screen window). Probed
-/// (`/tmp/closeprobe`): let go, it still played after 0.5 s; suspended, or closed, it did not. One way a page's view ends,
-/// for a tab closed, a page unloaded, and Reload As.
+/// "closing a tab that had a video playing don't kill the video instantly". The cause: a page that stopped only let go of
+/// its view, which played on while anything else held it (a host, the off-screen window). Probed (`/tmp/closeprobe`): let
+/// go, it still played after 0.5 s; suspended, or closed, it did not. One way a page's view ends, for a tab closed, a page
+/// unloaded, and Reload As.
 @MainActor @Suite("A page's view, ended")
 struct PageTeardownTests {
     @Test func `stopped, the view still held elsewhere is out of its window and its page closed`() {

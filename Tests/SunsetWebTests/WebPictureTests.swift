@@ -8,8 +8,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner, 2026-11-17 (roadmap 0035 C): "there is still no preview for regular web tabs". A page hidden keeps a picture of
-/// itself, taken while it is still drawn, for its tab's preview.
+/// "there is still no preview for regular web tabs". A page hidden keeps a picture of itself, taken while it is still
+/// drawn, for its tab's preview.
 @MainActor @Suite("A page's picture", .timeLimit(.minutes(1)))
 struct WebPictureTests {
     private let settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
@@ -49,8 +49,8 @@ struct WebPictureTests {
         #expect(!page.takingPicture && page.picture == nil && page.webView == nil)
     }
 
-    /// 0035's "not done" (roadmap 0036 D): a page pictured once (another window shows its picture) is pictured again when it
-    /// has loaded something new, so that the picture follows it.
+    /// 0035's "not done": a page pictured once (another window shows its picture) is pictured again when it has loaded
+    /// something new, so that the picture follows it.
     @Test(.timeLimit(.minutes(1)))
     func `a page pictured once is pictured again when it has loaded something new`() async throws {
         let page = WebContent(url: nil, settings: settings)
@@ -74,7 +74,7 @@ struct WebPictureTests {
         page.stop()
     }
 
-    /// Roadmap 0037 A: a page that changes without loading (a chat's title counting what is unread) is pictured again.
+    /// A page that changes without loading (a chat's title counting what is unread) is pictured again.
     @Test(.timeLimit(.minutes(1)))
     func `a page pictured once is pictured again when its title changes`() async throws {
         let page = WebContent(url: nil, settings: settings)

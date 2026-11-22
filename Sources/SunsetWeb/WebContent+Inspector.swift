@@ -1,9 +1,8 @@
 import SunsetPrivate
 import SunsetRuntime
 
-/// WebKit's inspector for the page (the owner, 2026-11-20: "make it work at all time, in any kind of split tabs, and in
-/// detached window modes"): docked in the page's pane, which keeps it beside the page (`WebViewHostView`), or in a window
-/// of its own.
+/// WebKit's inspector for the page ("make it work at all time, in any kind of split tabs, and in detached window modes"):
+/// docked in the page's pane, which keeps it beside the page (`WebViewHostView`), or in a window of its own.
 extension WebContent {
     /// Shows the inspector, docked or in its own window, once WebKit has it up (at most a second).
     package func showInspector(docked: Bool) async {

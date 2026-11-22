@@ -6,8 +6,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0022 W-e: an element picked on a page is hidden for good on its site (and its subdomains), whatever blocking
-/// says; the selector names that element and no other.
+/// An element picked on a page is hidden for good on its site (and its subdomains), whatever blocking says; the
+/// selector names that element and no other.
 @MainActor @Suite("Elements hidden for good", .timeLimit(.minutes(1)))
 struct HiddenElementsTests {
     final class Loaded: NSObject, WKNavigationDelegate {

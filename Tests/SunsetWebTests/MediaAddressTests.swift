@@ -8,8 +8,8 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's note n64: "opening the address of a media, image or video shows a page that says it is impossible to load
-/// the page". A picture's or a sound's address, opened in a tab, shows it, as Safari does, with no failure page.
+/// "opening the address of a media, image or video shows a page that says it is impossible to load the page". A
+/// picture's or a sound's address, opened in a tab, shows it, as Safari does, with no failure page.
 @MainActor @Suite("A picture's or a film's address, opened")
 struct MediaAddressTests {
     /// A 4 × 4 red PNG.

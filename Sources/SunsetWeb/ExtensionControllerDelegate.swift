@@ -38,8 +38,8 @@ import WebKit
         return window
     }
 
-    /// A tab an extension opens (`tabs.create`, a link in its popup; the owner's note n67): the app opens the page in the
-    /// window named, else the one in front, of the extension's profile.
+    /// A tab an extension opens (`tabs.create`, a link in its popup): the app opens the page in the window named, else
+    /// the one in front, of the extension's profile.
     func webExtensionController(
         _ controller: WKWebExtensionController,
         openNewTabUsing configuration: WKWebExtension.TabConfiguration,

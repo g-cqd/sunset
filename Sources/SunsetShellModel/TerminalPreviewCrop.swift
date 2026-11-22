@@ -1,7 +1,7 @@
 package import CoreGraphics
 
-/// The part of a terminal's frame a share card shows (n72): its top-left, as wide as `columns` cells and as high as the
-/// card's ratio makes it. A whole window shrunk to a card leaves glyphs a pixel or two tall; text starts at the top left.
+/// The part of a terminal's frame a share card shows: its top-left, as wide as `columns` cells and as high as the card's
+/// ratio makes it. A whole window shrunk to a card leaves glyphs a pixel or two tall; text starts at the top left.
 package enum TerminalPreviewCrop {
     /// The columns a card shows: a classic terminal's width.
     package static let columns = 80

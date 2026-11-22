@@ -1,5 +1,5 @@
-/// How strongly a tab's row is filled (roadmap 0086 E: the sidebar's row, the top bar's tab and a split's part each worked it
-/// out): an opacity of the primary colour, or of red for a close that waits for a second click.
+/// How strongly a tab's row is filled (the sidebar's row, the top bar's tab and a split's part each worked it out): an
+/// opacity of the primary colour, or of red for a close that waits for a second click.
 package enum RowFill {
     /// Selected (fainter in a window at the back), under the pointer, open in this window, or none.
     package static func opacity(selected: Bool, hovering: Bool, inactive: Bool, open: Bool) -> Double {
@@ -38,7 +38,7 @@ extension RowFill {
 }
 
 extension RowFill {
-    /// Which tabs take their site's colour (the owner's note n56; `tabs.siteColor`).
+    /// Which tabs take their site's colour (`tabs.siteColor`).
     package enum SiteTintMode: Hashable, Sendable {
         case off, selected, every
     }

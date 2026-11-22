@@ -1,7 +1,7 @@
 package import SunsetPane
 
-/// A tab dropped on a favorite's row (the owner's note n84): its middle splits with the favorite, which leaves the
-/// Favorites as a tab, as a favorite dropped on a tab's row does; its top and bottom quarters put it before or after.
+/// A tab dropped on a favorite's row: its middle splits with the favorite, which leaves the Favorites as a tab, as a
+/// favorite dropped on a tab's row does; its top and bottom quarters put it before or after.
 extension TabsModel {
     /// Whether what is dragged can be dropped on the favorite `entry` with `action`.
     package func canDrop(onEntry entry: Favorites.NodeID, action: TabDropAction) -> Bool {

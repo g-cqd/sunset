@@ -1,9 +1,9 @@
 package import Foundation
 import Network
 
-/// Whether pages go through the proxy (the owner's note n37): a request made the way pages are (`WebProxy`'s configuration
-/// in an ephemeral session) to the page macOS itself asks to find a captive network, and its metrics read. Nothing is sent
-/// to anyone but that page, through the proxy; no address of the person is looked up.
+/// Whether pages go through the proxy: a request made the way pages are (`WebProxy`'s configuration in an ephemeral
+/// session) to the page macOS itself asks to find a captive network, and its metrics read. Nothing is sent to anyone but
+/// that page, through the proxy; no address of the person is looked up.
 package enum ProxyCheck {
     /// What the check found.
     package enum Outcome: Equatable, Sendable {

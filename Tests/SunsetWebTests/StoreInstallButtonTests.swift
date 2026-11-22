@@ -7,9 +7,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0109 E (the owner: "install directly through their pages"): on a store's page of an extension, "Add to Sunset" by
-/// its title, from a script in Sunset's own world; pressed, Sunset is asked to install what the page names: the prompt that
-/// follows is the guard (a page's script can press the button too). Not on other pages.
+/// On a store's page of an extension, "Add to Sunset" by its title, from a script in Sunset's own world; pressed, Sunset is
+/// asked to install what the page names: the prompt that follows is the guard (a page's script can press the button too).
+/// Not on other pages.
 @MainActor @Suite("Add to Sunset on a store's page", .serialized, .timeLimit(.minutes(1)))
 struct StoreInstallButtonTests {
     private static let read = "document.querySelector('[data-sunset-install]')?.textContent ?? 'none'"
@@ -56,9 +56,8 @@ struct StoreInstallButtonTests {
         }
     }
 
-    /// The owner, 2026-11-20: "I can't install from the official buttons" (a German page: "Zu Chrome hinzufügen" was not
-    /// matched). The store's own button, in any language, is taken: enabled, "Chrome" said "Sunset", its look kept; pressed,
-    /// Sunset installs.
+    /// "I can't install from the official buttons" (a German page: "Zu Chrome hinzufügen" was not matched). The store's own
+    /// button, in any language, is taken: enabled, "Chrome" said "Sunset", its look kept; pressed, Sunset installs.
     @Test func `the store's own button is taken in any language`() async throws {
         var asked: [ExtensionStoreLink] = []
         ExtensionHosts.shared.installFromStore = { link, _ in asked.append(link) }

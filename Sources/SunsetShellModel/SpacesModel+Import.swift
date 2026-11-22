@@ -1,7 +1,7 @@
 package import SunsetPane
 
-/// Another browser's bookmarks brought in (roadmap 0111 G): in one folder named after where they come from, in a Space
-/// that is or one made for them.
+/// Another browser's bookmarks brought in: in one folder named after where they come from, in a Space that is or one
+/// made for them.
 extension SpacesModel {
     /// Puts `imported`'s nodes in a new folder `folder` at the end of the Favorites of `target`, or of a new Space named
     /// `newSpace` when `target` is nil. A Space whose Favorites are its profile's shares them with that profile's Spaces.

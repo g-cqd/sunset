@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// Roadmap 0050 E (not done: "elements hidden: one compiled list for every page"): a profile hides elements for itself; all
-/// profiles' apply where it set none for a site. Each profile with its own gets a list of its own.
+/// A profile hides elements for itself; all profiles' apply where it set none for a site. Each profile with its own
+/// gets a list of its own.
 @MainActor @Suite("Hidden elements per profile")
 struct HiddenElementsProfileTests {
     private let work = UUID()

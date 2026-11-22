@@ -1,5 +1,5 @@
 extension Design {
-    /// The built-in tab bar while it holds the address (t223): one row of capsules as tall as a bar group's.
+    /// The built-in tab bar while it holds the address: one row of capsules as tall as a bar group's.
     package enum TabCapsules {
         /// Smaller than a bar group (owner, 2026-11-13): the row's buttons are whole circles of this size, its tabs one line.
         package static let height = 34.0

@@ -1,6 +1,6 @@
 import Foundation
 
-/// A page's dialogs (roadmap 0029 step 1): one at a time, in its pane; see `PageDialogPolicy`.
+/// A page's dialogs: one at a time, in its pane; see `PageDialogPolicy`.
 extension WebContent {
     /// Shows a dialog the page asked for and waits for its answer. A dialog asked while one waits, or by a silenced page, is
     /// answered as cancelled at once.
