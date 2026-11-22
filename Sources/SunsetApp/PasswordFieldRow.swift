@@ -1,4 +1,5 @@
 import SunsetCredentials
+import SunsetRuntime
 import SunsetShell
 import SwiftUI
 
@@ -26,10 +27,14 @@ struct PasswordFieldRow: View {
     private var read: some View {
         LabeledContent(field.name) {
             HStack(spacing: Design.Space.s) {
-                Text(field.kind.isConcealed ? Self.dots : value)
-                    .lineLimit(field.kind == .multiline ? nil : 1)
-                    .truncationMode(.middle)
-                    .foregroundStyle(.primary)
+                if field.kind == .oneTimeCode {
+                    OneTimeCodeValue(field: OneTimeCodeField(value))
+                } else {
+                    Text(field.kind.isConcealed ? Self.dots : value)
+                        .lineLimit(field.kind == .multiline ? nil : 1)
+                        .truncationMode(.middle)
+                        .foregroundStyle(.primary)
+                }
                 Image(systemName: "doc.on.doc")
                     .foregroundStyle(.secondary)
                     .opacity(hovered ? 1 : 0)
@@ -78,7 +83,13 @@ struct PasswordFieldRow: View {
         field.kind == .multiline ? .vertical : .horizontal
     }
 
+    /// The value; a One-Time Code field's code now, never its secret.
     private func copy() {
+        if field.kind == .oneTimeCode {
+            guard let code = OneTimeCodeField(value)?.code(at: Runtime.live.now()) else { return }
+            Feedback.give(Clipboard.copy(code, concealed: true, what: "Code copied"))
+            return
+        }
         Feedback.give(Clipboard.copy(value, concealed: field.kind.isConcealed, what: "\(field.name) copied"))
     }
 
