@@ -4,7 +4,7 @@ package import SunsetShell
 import SwiftUI
 import WebKit
 
-/// A page's questions to the person (web step g): answered from what the site was given, else asked in the panel, one at a time.
+/// A page's questions to the person: answered from what the site was given, else asked in the panel, one at a time.
 extension WebContent {
     /// Whether the page may have all of `permissions`: a kept Deny refuses at once, a kept Allow grants at once, else the panel asks. Without
     /// Sunset.app's identity, what macOS must also allow is refused, the panel saying why.

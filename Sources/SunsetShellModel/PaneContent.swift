@@ -23,7 +23,7 @@ package import SunsetPane
     /// Why closing it now would lose something (a command is running), asked at the moment of closing; nil when it can go at once. Not the same thing
     /// as `progress`: a page that loads can be closed, a command that prints nothing cannot.
     var closeWarning: String? { get }
-    /// It captures the camera, microphone or screen (a web page, step g): a dot on its tab, of this colour.
+    /// It captures the camera, microphone or screen (a web page): a dot on its tab, of this colour.
     var captureMark: PaneCaptureMark? { get }
     /// The colour of what the pane shows (a site's theme or icon colour), for a tab coloured by it; nil: none.
     var siteColor: [UInt8]? { get }
@@ -41,7 +41,7 @@ package import SunsetPane
     var isEdited: Bool { get }
     /// Its unsaved edits, when closing it could lose some: asked about before it closes (`TabsModel.losingNothing`).
     var unsaved: UnsavedEdits? { get }
-    /// Nothing of it is kept: not in the session, not restored (a private page, web step h).
+    /// Nothing of it is kept: not in the session, not restored (a private page).
     var isPrivate: Bool { get }
     /// How to bring it back in another run.
     var descriptor: PaneDescriptor { get }

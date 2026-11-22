@@ -2,9 +2,9 @@ public import Foundation
 internal import InternedStrings
 internal import ObjectiveC
 
-/// WebKit's private permission questions and switches (web step g): screen sharing (`getDisplayMedia`), the Notification API, and whether a navigation
-/// came from a click. Not public API: looked up by name, added to the delegate's class at run time; where WebKit no longer has them nothing is added,
-/// the switches stay off, and a page cannot share its screen or notify.
+/// WebKit's private permission questions and switches: screen sharing (`getDisplayMedia`), the Notification API, and whether a navigation came from a
+/// click. Not public API: looked up by name, added to the delegate's class at run time; where WebKit no longer has them nothing is added, the
+/// switches stay off, and a page cannot share its screen or notify.
 @MainActor
 public enum WebPermissionHooks {
     /// A question to answer: the delegate it was asked of, the web view, the security origin (a `WKSecurityOrigin`), and the answer to give once.

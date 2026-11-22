@@ -2,7 +2,7 @@ package import SunsetRuntime
 import SunsetShell
 package import SwiftUI
 
-/// The downloads button at the bottom of the sidebar (web step f): a ring while something downloads; the pointer on it shows the latest download as a
+/// The downloads button at the bottom of the sidebar: a ring while something downloads; the pointer on it shows the latest download as a
 /// card; a click opens the list, which stays until dismissed. One popover shows either.
 package struct DownloadsButton: View {
     @Environment(\.runtime) var runtime

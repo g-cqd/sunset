@@ -3,10 +3,9 @@ import Testing
 
 @testable import SunsetAppCore
 
-/// Sunset WebKit runs Sunset on the WebKit inside it. The owner, 2026-11-20: "the webkit version does not start": a
-/// launcher ran Sunset as a second executable, whose team entitlements macOS does not honour outside the main one (AMFI
-/// killed it). Sunset is the main executable and runs itself again, once, with the loader pointed at the app's
-/// frameworks.
+/// Sunset WebKit runs Sunset on the WebKit inside it. It did not start (2026-11-20): a launcher ran Sunset as a second
+/// executable, whose team entitlements macOS does not honour outside the main one (AMFI killed it). Sunset is the main
+/// executable and runs itself again, once, with the loader pointed at the app's frameworks.
 @Suite("Sunset WebKit points the loader at its own WebKit")
 struct BundledWebKitTests {
     let bundle = "/Applications/Sunset WebKit.app"

@@ -29,8 +29,8 @@ struct PopupWindowLayout {
         cardRadius = geometry.outerRadius
     }
 
-    /// The strip's controls: the window bar's glass groups, as the system toolbar's (owner, 2026-11-20: "your buttons don't
-    /// look really native"), compact ("it's really big": "the compact version but with the paradigms of the native ones"),
+    /// The strip's controls: the window bar's glass groups, as the system toolbar's ("your buttons don't look really
+    /// native"), compact ("it's really big": "the compact version but with the paradigms of the native ones"),
     /// `capsuleGap` from the window's top and the card.
     static let capsuleHeight = 22.0
     static let capsuleGap = Design.Space.s

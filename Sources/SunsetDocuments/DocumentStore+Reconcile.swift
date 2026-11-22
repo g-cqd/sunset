@@ -1,7 +1,7 @@
 import Foundation
 import SunsetStorage
 
-/// The index against the files (R12 step ST-4): the files are what is true.
+/// The index against the files: the files are what is true.
 extension DocumentStore {
     /// Reads the index, then the folder: a file the index does not know, or knows with another size or time, is opened and
     /// indexed again; an entry without its file is dropped. A file that does not open is set aside and said (one sealed with

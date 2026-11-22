@@ -11,9 +11,9 @@ import SunsetShellModel
 import SunsetTerminal
 import SunsetWeb
 
-/// Quitting (web step q): by `tabs.askBeforeQuit`, what would be lost is gathered and a sheet on a window asks; meanwhile the app answers
-/// "later" to the system, so nothing (a logout, a restart) quits it unless it is force-quit. Edits to a file that are not saved are asked
-/// about at every level, with Save All.
+/// Quitting: by `tabs.askBeforeQuit`, what would be lost is gathered and a sheet on a window asks; meanwhile the app answers "later" to
+/// the system, so nothing (a logout, a restart) quits it unless it is force-quit. Edits to a file that are not saved are asked about at
+/// every level, with Save All.
 @MainActor @Observable
 final class QuitGate {
     /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.

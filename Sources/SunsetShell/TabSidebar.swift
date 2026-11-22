@@ -24,11 +24,11 @@ package struct TabSidebar: View {
     var panelRadius: Double?
     /// The window's corner radius: docked, the button at its bottom corner is concentric with it.
     var windowRadius = ConcentricRadius.standardWindow
-    /// What the app puts at the top, under the window's buttons (the address of the focused page, web step b).
+    /// What the app puts at the top, under the window's buttons (the address of the focused page).
     var accessory: AnyView?
     /// What the app puts under the accessory: calls to action; the rows start below it, as tall as it is.
     var notices: AnyView?
-    /// What the app puts at the bottom, against the window's edge (the + button and downloads, R2 and web step f).
+    /// What the app puts at the bottom, against the window's edge (the + button and downloads).
     var bottomBar: AnyView?
     /// How many buttons high the bar is: two while the downloads' button is above the Library's glyph.
     var bottomBarRows = 1

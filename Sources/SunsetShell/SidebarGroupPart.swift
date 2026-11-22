@@ -24,7 +24,7 @@ struct SidebarGroupPart: View {
             cornerRadius: ConcentricRadius.inner(outer: layout.tabRadius, inset: Design.Space.hair),
             style: .continuous
         )
-        // Its picture and title from its leading edge; only the picture, centred, when there is no room for a title (owner, 2026-11-12).
+        // Its picture and title from its leading edge; only the picture, centred, when there is no room for a title.
         let iconOnly = width < Design.Size.iconOnlyBelow
         TabLabel(
             model: model,

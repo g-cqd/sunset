@@ -2,7 +2,7 @@ package import SunsetRuntime
 
 /// The icon picker's catalogs, read once and kept while a picker may want them (the picker was slow "at loading all
 /// symbols"). They were read at each opening, with a spinner meanwhile; kept, a picker that opens has its grid at once.
-/// They are dropped a while after the last picker closed: what they weigh is measured in the diary.
+/// They are dropped a while after the last picker closed.
 @MainActor
 package final class IconLibrary {
     /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.

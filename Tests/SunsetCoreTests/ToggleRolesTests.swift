@@ -2,9 +2,8 @@ import Foundation
 import SunsetTestSupport
 import Testing
 
-/// The owner's note n6 (2026-11-18): switches and checkboxes used consistently. A toggle outside a menu says which it is
-/// (`settingSwitch()`, `choiceBox()`), or sits in a view that does (the settings' form): none takes the style of where it
-/// happens to be.
+/// Switches and checkboxes used consistently. A toggle outside a menu says which it is (`settingSwitch()`,
+/// `choiceBox()`), or sits in a view that does (the settings' form): none takes the style of where it happens to be.
 @Suite("Switches and checkboxes, each for its role") struct ToggleRolesTests {
     /// Files whose toggles are menu items (a menu draws them as checkmarks) or take their role from the settings' form.
     static let inMenusOrForm: Set<String> = [

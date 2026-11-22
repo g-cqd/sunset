@@ -1,4 +1,4 @@
-/// Private windows (web step h).
+/// Private windows.
 extension AppActions {
     /// A window whose pages are private, sharing one store in memory unless its selector says otherwise.
     func newPrivateWindow() {

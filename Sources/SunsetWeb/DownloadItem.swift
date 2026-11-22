@@ -3,7 +3,7 @@ package import Observation
 import SunsetRuntime
 import WebKit
 
-/// One download (web step f): where it comes from, where it goes, how far it is, and what resumes it once stopped or cut.
+/// One download: where it comes from, where it goes, how far it is, and what resumes it once stopped or cut.
 @MainActor @Observable
 package final class DownloadItem: Identifiable {
     package enum State: String, Codable, Sendable {
@@ -23,7 +23,7 @@ package final class DownloadItem: Identifiable {
     package internal(set) var finished: Date?
     package internal(set) var failure: String?
     @ObservationIgnored var resumeData: Data?
-    /// From a private page (web step h): never written to the list's file.
+    /// From a private page: never written to the list's file.
     @ObservationIgnored package internal(set) var isPrivate = false
     /// Where it goes and whether it is asked, from its page's profile; nil: the settings'.
     @ObservationIgnored var folder: URL?

@@ -23,8 +23,8 @@ struct FavoritesSection: View {
     @ViewBuilder private var rowsAndLine: some View {
         let favorites = tabs.favorites.favorites
         if !favorites.isEmpty {
-            // The tree's rows are the tabs' rows: their height and their spacing (owner, 2026-11-13). Between two rows,
-            // and at the top and the bottom, a gap that takes a drop.
+            // The tree's rows are the tabs' rows: their height and their spacing. Between two rows, and at the top and
+            // the bottom, a gap that takes a drop.
             let shown = favorites.rows(selected: tabs.workspace.selectedEntry)
                 .filter { row in
                     if case .entry(let entry) = favorites.node(row.id) { return tabs.shows(entry) }

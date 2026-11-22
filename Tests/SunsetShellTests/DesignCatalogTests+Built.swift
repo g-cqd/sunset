@@ -7,8 +7,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The sections of the sidebars as built (0030 step ST-5): a document's tab among the tabs, the switch at the foot of
-/// the opposite panel, the Library's rail. The real views, drawn off screen.
+/// The sections of the sidebars as built: a document's tab among the tabs, the switch at the foot of the opposite
+/// panel, the Library's rail. The real views, drawn off screen.
 extension DesignCatalogTests {
     /// A window's tabs: a terminal, and a document's tab (edited when `edited`), shown or not.
     private func documentTabs(edited: Bool, shown: Bool) -> TabsHarness {

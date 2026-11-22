@@ -2,10 +2,9 @@ import AppKit
 import SunsetRuntime
 import WebKit
 
-/// The site's icon for its tab (owner, 2026-11-13): the page's `<link rel="icon">`, else `/favicon.ico`, fetched once the page has
-/// loaded, without cookies. Kept on disk by host (`FaviconStore`) until the server says it expires, so that a tab not loaded shows
-/// it too; an icon the page changes while it runs (`IconWatch`) replaces the one kept. Private pages show their mask, and fetch
-/// and keep nothing.
+/// The site's icon for its tab: the page's `<link rel="icon">`, else `/favicon.ico`, fetched once the page has loaded, without
+/// cookies. Kept on disk by host (`FaviconStore`) until the server says it expires, so that a tab not loaded shows it too; an icon
+/// the page changes while it runs (`IconWatch`) replaces the one kept. Private pages show their mask, and fetch and keep nothing.
 extension WebContent {
     /// The most read of a site's icon.
     static let faviconLimit = 1 << 20

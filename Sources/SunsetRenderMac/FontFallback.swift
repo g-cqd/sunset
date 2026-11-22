@@ -2,7 +2,7 @@ package import CoreText
 internal import Foundation
 
 /// The font for a name, or Menlo (monospaced, always installed) when no installed font has that name: CoreText alone substitutes Helvetica,
-/// which is not monospaced (the default family, JetBrains Mono, is not installed everywhere: owner, 2026-11-12).
+/// which is not monospaced (the default family, JetBrains Mono, is not installed everywhere).
 ///
 /// No descriptor matching: matching (or asking for a missing name) from many threads at once left every thread of the test process waiting on
 /// the font server (2026-11-12). The font is made from the name, and the names CoreText gives back tell whether it was found.

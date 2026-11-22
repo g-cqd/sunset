@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// The question of a page (web step g): a small glass panel at the top of its pane, under its address: the site and what it wants, Allow Once,
+/// The question of a page: a small glass panel at the top of its pane, under its address: the site and what it wants, Allow Once,
 /// Allow, Don't Allow. The page keeps working meanwhile. Without Sunset.app's identity it says why it cannot allow, and only closes.
 struct PermissionPanel: View {
     let request: PermissionRequest

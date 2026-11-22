@@ -53,10 +53,10 @@ package final class SunsetStore {
         if let problem = opened.problem { problems.report(problem) }
     }
 
-    /// The documents that live in Sunset (R12 step ST-4), opened at first use; nil when there is no key in this run. Their index
-    /// is a database of its own (`library.sqlite`): it holds nothing the documents' files do not, and is rebuilt from them, so
-    /// one that did not read is not said. The documents that are open, one per file or stored document for the whole app: every
-    /// pane on one shows the same text.
+    /// The documents that live in Sunset, opened at first use; nil when there is no key in this run. Their index is a database
+    /// of its own (`library.sqlite`): it holds nothing the documents' files do not, and is rebuilt from them, so one that did
+    /// not read is not said. The documents that are open, one per file or stored document for the whole app: every pane on one
+    /// shows the same text.
     package private(set) lazy var openDocuments = OpenDocuments(store: documents)
 
     package private(set) lazy var documents: DocumentStore? = {

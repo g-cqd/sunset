@@ -1,6 +1,6 @@
 import WebKit
 
-/// The in-memory stores of private pages, one per group, alive while a page of the group holds it (web step h).
+/// The in-memory stores of private pages, one per group, alive while a page of the group holds it.
 @MainActor
 enum PrivateStores {
     private static let stores = NSMapTable<NSUUID, WKWebsiteDataStore>(

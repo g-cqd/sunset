@@ -1,6 +1,6 @@
 package import Foundation
 
-/// A page waiting for an answer (web step g): what it wants, from which site, and how to answer it. Shown as the panel under its address.
+/// A page waiting for an answer: what it wants, from which site, and how to answer it. Shown as the panel under its address.
 @MainActor
 package final class PermissionRequest: Identifiable {
     package enum Choice { case allowOnce, allow, deny }

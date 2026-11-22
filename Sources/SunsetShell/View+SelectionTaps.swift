@@ -2,7 +2,7 @@ import SunsetPane
 import SwiftUI
 
 extension View {
-    /// A row's clicks (R3 step d): Cmd-click and Shift-click select rows together; a plain click runs `plain` (shows the row) after
+    /// A row's clicks: Cmd-click and Shift-click select rows together; a plain click runs `plain` (shows the row) after
     /// clearing the selection; a double click edits the row's name in place.
     ///
     /// The double click is beside the click, not before it: a two-click gesture put first holds the click until a second one

@@ -6,7 +6,7 @@ extension Configuration {
             case favicon, initial, globe
         }
 
-        /// Where the address of the focused page is typed (web step b): a compact field at the top of the sidebar, a bar of the window that shows
+        /// Where the address of the focused page is typed: a compact field at the top of the sidebar, a bar of the window that shows
         /// when the pointer reaches its edge, or a row at the top of every page.
         public enum AddressPlace: String, Sendable, Equatable, CaseIterable {
             case sidebar, window, pane
@@ -41,7 +41,7 @@ extension Configuration {
             }
         }
 
-        /// What a page's zoom applies to (web step d): every page of its site, remembered across launches; the site until the app quits; the page
+        /// What a page's zoom applies to: every page of its site, remembered across launches; the site until the app quits; the page
         /// alone, saved with it.
         public enum ZoomScope: String, Sendable, Equatable, CaseIterable {
             case site, session, page
@@ -53,8 +53,7 @@ extension Configuration {
             case safari, chrome, edge, firefox
         }
 
-        /// How long the history keeps a page (web step e). What WebKit keeps between runs: app-wide; a profile may set
-        /// otherwise.
+        /// How long the history keeps a page. What WebKit keeps between runs: app-wide; a profile may set otherwise.
         public struct Keep: Sendable, Equatable {
             /// The caches, the traces: kept, or cleared when Sunset quits.
             public enum Choice: String, Sendable, Equatable, CaseIterable {
@@ -102,12 +101,12 @@ extension Configuration {
             }
         }
 
-        /// How long the list of downloads keeps a finished one (web step f).
+        /// How long the list of downloads keeps a finished one.
         public enum DownloadsKeep: String, Sendable, Equatable, CaseIterable {
             case byHand, day, week, month, untilQuit, whenFinished
         }
 
-        /// What a site gets before it was answered (web step g).
+        /// What a site gets before it was answered.
         public enum PermissionDefault: String, Sendable, Equatable, CaseIterable {
             case ask, allow, deny
         }
@@ -120,12 +119,12 @@ extension Configuration {
         public var notificationsWithoutClick = false
         /// A page's notifications through its service worker's registration are posted too.
         public var workerNotifications = true
-        /// The site's icon, its initial in a square while it has none (owner, 2026-11-13).
+        /// The site's icon, its initial in a square while it has none.
         public var tabIcon = TabIcon.favicon
         public var address = AddressPlace.sidebar
         public var windowBar = BarEdge.top
         /// In a split, where the window bar goes while it is out: in a margin that opens above the panes (they keep their size,
-        /// only less of them shows), or over the focused pane (owner, 2026-11-13).
+        /// only less of them shows), or over the focused pane.
         public var splitBar = SplitBar.margin
         /// A page a page opens (a link with a target, a pop-up after a click, Open Image in New Window) is shown, as Safari
         /// does; off, it waits in a tab after its opener.
@@ -135,7 +134,7 @@ extension Configuration {
         /// A link from another app (Sunset the Mac's browser) opens in a peek window: back, forward, an address field, moved to a
         /// Space by the person. Off, a tab of the window in front.
         public var peekLinks = true
-        /// Pages animate and redraw at the screen's rate (120 fps on a ProMotion screen), not near 60 (owner, 2026-11-13).
+        /// Pages animate and redraw at the screen's rate (120 fps on a ProMotion screen), not near 60.
         public var fullFrameRate = true
         /// The name of the engine words are searched with (a built-in one or one of `engines`).
         public var engine = "Google"
@@ -171,7 +170,7 @@ extension Configuration {
         /// Apps, installers and scripts are downloaded only after an approval.
         public var approveRiskyDownloads = true
         public var keepDownloads = DownloadsKeep.byHand
-        /// Suggestions while typing in a private page (web step h).
+        /// Suggestions while typing in a private page.
         public var privateSuggestions = false
         /// The pages of a new private window share one store (its selector changes it for the window).
         public var privateWindowShares = true

@@ -3,8 +3,8 @@ import SwiftUI
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// Round 3 of the review (owner's answers to round 2): more folder and sidebar symbols, downloads drawn as progress with the symbol itself,
-/// the initial's place in a kept terminal's picture, and split sub-rows aligned leading (icon and text) or centred (icon only).
+/// Round 3 of the review: more folder and sidebar symbols, downloads drawn as progress with the symbol itself, the initial's
+/// place in a kept terminal's picture, and split sub-rows aligned leading (icon and text) or centred (icon only).
 extension DesignCatalogTests {
     private func pair(_ label: String, _ first: String, _ second: String) -> CatalogSheet.Example {
         func cell(_ name: String) -> some View {

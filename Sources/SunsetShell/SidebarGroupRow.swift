@@ -9,7 +9,7 @@ struct SidebarGroupRow: View {
     let item: Workspace.Item
     let tabs: TabsModel
     let selected: Bool
-    /// Among several rows selected together (R3 step d).
+    /// Among several rows selected together.
     var marked = false
     var armed = false
     let layout: ShellSettings.Layout
@@ -40,7 +40,7 @@ struct SidebarGroupRow: View {
     }
 
     /// The same space between the container's edge and the small tabs on all four sides, and between the small tabs: small, so that the
-    /// small tabs have the room (owner, 2026-11-12); their corner nests in the row's at it.
+    /// small tabs have the room; their corner nests in the row's at it.
     private var inset: Double {
         GroupFrame<EmptyView, EmptyView>.inset
     }

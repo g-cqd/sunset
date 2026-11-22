@@ -1,7 +1,7 @@
 public import Foundation
 internal import InternedStrings
 
-/// WebKit's text-only zoom (`web.textOnlyZoom`, web step d): macOS has no public call for it. Set by name when the page answers to it; `isAvailable`
+/// WebKit's text-only zoom (`web.textOnlyZoom`): macOS has no public call for it. Set by name when the page answers to it; `isAvailable`
 /// tells Settings whether to offer it.
 public enum WebTextZoom {
     private typealias SetFactor = @convention(c) (AnyObject, Selector, Double) -> Void

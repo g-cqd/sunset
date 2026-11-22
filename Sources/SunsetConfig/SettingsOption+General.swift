@@ -139,7 +139,7 @@ extension SettingsOption {
             )
         ]
 
-    /// What is kept, and what protects it (R12 step ST-6).
+    /// What is kept, and what protects it.
     static let kept: [Self] =
         [
             custom(

@@ -5,9 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// "Address bar in the sidebar should always be there and be used as a central place where to start a search or creating a
-/// tab when focused on a terminal tab. its dimensions should match ones of a regular tab". His answer: the command bar's
-/// results are listed under it.
+/// The sidebar's field is always there, the place to start a search or a tab, a terminal's too, as tall as a tab; the
+/// command bar's results are listed under it.
 @MainActor
 @Suite("The sidebar's field")
 struct SidebarFieldTests {

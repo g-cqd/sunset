@@ -3,7 +3,7 @@ import Foundation
 import SunsetPrivate
 import WebKit
 
-/// A page's zoom (web step d): by site (remembered, or until quit) or by page, as `web.zoomScope` says; everything, or the text only.
+/// A page's zoom: by site (remembered, or until quit) or by page, as `web.zoomScope` says; everything, or the text only.
 extension WebContent {
     /// Cmd-+ (1), Cmd-- (-1).
     package func zoom(by steps: Int) {
@@ -17,7 +17,7 @@ extension WebContent {
 
     package func setZoom(_ level: Double) {
         zoom = level
-        // A private page's zoom is its own and is never written (web step h).
+        // A private page's zoom is its own and is never written.
         if settings.zoomScope != .page, !isPrivate {
             SiteZoom.shared.set(
                 level,

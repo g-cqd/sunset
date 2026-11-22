@@ -7,6 +7,6 @@ extension EnvironmentValues {
     @Entry package var permissionsInSidebar = false
     /// What is being typed in the window's address fields, for their list.
     @Entry package var addressTyping: AddressTyping?
-    /// In a private window: whether its pages share one store (the window's selector, web step h).
+    /// In a private window: whether its pages share one store (the window's selector).
     @Entry package var privateWindowSharing: Binding<Bool>?
 }

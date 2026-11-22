@@ -1,8 +1,7 @@
 import SunsetMetrics
 import SwiftUI
 
-/// The thin line between two sections of the sidebar: under the Favorites (`FavoritesLine`) and under the Pinned grid (the
-/// owner, 2026-11-17).
+/// The thin line between two sections of the sidebar: under the Favorites (`FavoritesLine`) and under the Pinned grid.
 struct SectionSeparator: View {
     let layout: ShellSettings.Layout
     var visible = true

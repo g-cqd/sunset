@@ -8,10 +8,9 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// "the inspector not being usable at all, it flickers and shows nothing … make it work at all time, in any kind of split
-/// tabs, and in detached window modes". Docked, WebKit puts the inspector beside the page in the page's superview
-/// (Sunset's `WebViewHostView`) and gives the page what is left; the host set the page back to its whole size at every
-/// layout, over the inspector: the two fought (flicker), the inspector under the page (nothing shown).
+/// The Web Inspector flickered and showed nothing; it works in every kind of split and detached. Docked, WebKit puts the inspector beside the page in the page's superview
+/// (Sunset's `WebViewHostView`) and gives the page what is left; the host set the page back to its whole size at every layout, over the inspector: the two fought
+/// (flicker), the inspector under the page (nothing shown).
 @MainActor @Suite("The web inspector, docked in a pane", .serialized, .timeLimit(.minutes(1)))
 struct InspectorDockingTests {
     private func hosted() async throws -> (NSWindow, WebViewHostView, WebContent) {

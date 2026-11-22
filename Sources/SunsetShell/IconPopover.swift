@@ -1,7 +1,7 @@
 import SunsetPane
 package import SwiftUI
 
-/// The icon of a tab, an entry or a folder (R3 step c): the picker, applied to the row as it is picked.
+/// The icon of a tab, an entry or a folder: the picker, applied to the row as it is picked.
 package struct IconPopover: View {
     let tabs: TabsModel
     let row: RowTarget

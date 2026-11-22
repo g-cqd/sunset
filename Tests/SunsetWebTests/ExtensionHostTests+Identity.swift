@@ -6,11 +6,11 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// "it seems sunset refuses to open webkit-extension url scheme". Probed: Sunset never set a context's unique identifier, so
-/// WebKit made a new one at every launch: the extension's pages had a new address each time, and WebKit keeps an extension's
-/// storage only for a context with an identifier of its own (WebExtensionController:: storageDirectory): every extension
-/// lost its settings at each launch. The installed entry's identifier is the context's. In `ExtensionHostTests`' suite: they
-/// share `ExtensionHosts.shared`, so they run one after another (run beside it, a reset there made this fail, 2026-11-21).
+/// Extension pages would not open. Probed: Sunset never set a context's unique identifier, so WebKit made a new one at every
+/// launch: the extension's pages had a new address each time, and WebKit keeps an extension's storage only for a context
+/// with an identifier of its own (WebExtensionController:: storageDirectory): every extension lost its settings at each
+/// launch. The installed entry's identifier is the context's. In `ExtensionHostTests`' suite: they share
+/// `ExtensionHosts.shared`, so they run one after another (run beside it, a reset there made this fail, 2026-11-21).
 extension ExtensionHostTests {
     @Test func `its identifier and its pages' address are the installed entry's, launch after launch`() async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "extid-\(UUID().uuidString)")

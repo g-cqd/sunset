@@ -2,7 +2,7 @@ import Foundation
 package import Observation
 package import SunsetShellModel
 
-/// What is being typed in an address field of a window, for the list under it (web step c): the typed row (Go to, or Search), then the engine's
+/// What is being typed in an address field of a window, for the list under it: the typed row (Go to, or Search), then the engine's
 /// suggestions, in the rows of the command bar (`ChoiceList`). One per window; the field that is typed in owns it while it is.
 @MainActor @Observable
 package final class AddressTyping {

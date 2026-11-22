@@ -1,7 +1,7 @@
 import Foundation
 package import SunsetShellModel
 
-/// A row of the lists where an address is typed (web step e): what was typed (Go to, Search), a page of the history, an engine's suggestion.
+/// A row of the lists where an address is typed: what was typed (Go to, Search), a page of the history, an engine's suggestion.
 package enum AddressChoice {
     case typed(WebInput)
     case visited(HistoryEntry)

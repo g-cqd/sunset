@@ -1,4 +1,4 @@
-/// A section of Settings and its topics : the sidebar lists the sections, and under the one shown its topics; a topic
+/// A section of Settings and its topics: the sidebar lists the sections, and under the one shown its topics; a topic
 /// is a page.
 public struct SettingsSection: Sendable, Identifiable {
     public let id: String

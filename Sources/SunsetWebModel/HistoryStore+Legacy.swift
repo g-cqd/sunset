@@ -1,7 +1,7 @@
 import Foundation
 import SQLite3
 
-/// The history file of before the state database (`history.sqlite`: one table, in the clear), read once (R12 step ST-3).
+/// The history file of before the state database (`history.sqlite`: one table, in the clear), read once.
 extension HistoryStore {
     /// Takes in the pages of the file at `path`; says how many it held, or nil when there is no such file or it does not read.
     /// The file is not touched: whoever calls removes it once the pages are kept.

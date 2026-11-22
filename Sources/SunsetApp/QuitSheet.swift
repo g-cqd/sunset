@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// The question before quitting (web step q): what would be lost, each row showing its tab when clicked (which cancels the quit), Cancel, Quit,
+/// The question before quitting: what would be lost, each row showing its tab when clicked (which cancels the quit), Cancel, Quit,
 /// and "Don't ask again". With unsaved edits among them, Return is Save All and Quit.
 struct QuitSheet: View {
     let gate: QuitGate

@@ -1,9 +1,9 @@
 import SunsetMetrics
 import SwiftUI
 
-/// One tab of the built-in bar, drawn as a sidebar row (owner, 2026-11-12: the bar in the sidebar's language): the open fill, the selected
-/// fill with the hairline, the leaf corner, the row's height. The close button takes the icon's place under the pointer (and while a close
-/// is armed); the icon is back when the pointer leaves.
+/// One tab of the built-in bar, drawn as a sidebar row (the bar in the sidebar's language): the open fill, the selected fill with the
+/// hairline, the leaf corner, the row's height. The close button takes the icon's place under the pointer (and while a close is armed);
+/// the icon is back when the pointer leaves.
 struct BarTab<Icon: View, Label: View>: View {
     let selected: Bool
     var armed = false

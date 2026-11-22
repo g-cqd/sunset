@@ -132,7 +132,7 @@ import Testing
     }
 }
 
-/// The history as a file of the person's (R12 step ST-6).
+/// The history as a file of the person's.
 extension HistoryStoreTests {
     @Test func `the history exports as CSV, the latest first, every page (not the 500 a list shows)`() throws {
         let store = HistoryStore()

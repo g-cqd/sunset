@@ -4,8 +4,7 @@ import SwiftUI
 
 /// Tells a window's tabs that the window closed: while another window shows their Space nothing stops; else they stop (and stay,
 /// in the app's Space). Not on `onDisappear`: SwiftUI rebuilds the window's content on some settings changes
-/// (window.decorations), the old content disappears while the window stays, and that stopped every program in it (owner,
-/// 2026-11-13).
+/// (window.decorations), the old content disappears while the window stays, and that stopped every program in it.
 struct StopsWithWindow: ViewModifier {
     let window: NSWindow?
     let tabs: TabsModel

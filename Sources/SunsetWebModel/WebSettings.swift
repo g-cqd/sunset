@@ -12,7 +12,7 @@ package struct WebSettings: Sendable, Equatable {
     package var favicons = true
     /// Pages render at the screen's rate, not near 60 fps (`web.fullFrameRate`).
     package var fullFrameRate = true
-    /// The engines that can be picked by keyword, built-in and added (web step c).
+    /// The engines that can be picked by keyword, built-in and added.
     package var engines: [SearchEngine]
     /// The one words are searched with.
     package var engine: SearchEngine
@@ -24,7 +24,7 @@ package struct WebSettings: Sendable, Equatable {
     package var globalPrivacyControl = GlobalPrivacyControl.privateWindows
     package var zoomScope: ZoomScope
     package var textOnlyZoom: Bool
-    /// A private page's store (web step h); nil for a page of the persistent store. Pages it opens inherit it.
+    /// A private page's store; nil for a page of the persistent store. Pages it opens inherit it.
     package var privacy: PagePrivacy?
     /// The profile whose website data the page uses; nil: the first profile's, the store there always was.
     package var profile: UUID?

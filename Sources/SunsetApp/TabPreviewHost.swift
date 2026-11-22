@@ -6,9 +6,9 @@ import SunsetShellBridge
 import SunsetTerminal
 import SwiftUI
 
-/// The one preview card of a window (owner, 2026-11-13): it comes in beside the row under the pointer, glides to the next row
-/// the pointer goes to while its content changes, and goes a moment after the pointer left the rows. For the selected tab too.
-/// Beside a sidebar's row, level with it; for a row of the built-in bar, above or below it (`PreviewPlacement`).
+/// The one preview card of a window: it comes in beside the row under the pointer, glides to the next row the pointer goes to
+/// while its content changes, and goes a moment after the pointer left the rows. For the selected tab too. Beside a sidebar's
+/// row, level with it; for a row of the built-in bar, above or below it (`PreviewPlacement`).
 struct TabPreviewHost: View {
     @Environment(\.runtime) var runtime
 
@@ -61,7 +61,7 @@ struct TabPreviewHost: View {
     }
 
     /// A card beside the row it is about. In an area-sized frame, so that the transition's anchor is a point of the area: the
-    /// card grows out of its row and shrinks back into it (owner, 2026-11-13), not from the card's or the window's middle.
+    /// card grows out of its row and shrinks back into it, not from the card's or the window's middle.
     private func placed(_ card: some View, size: CGSize, row: CGRect?) -> some View {
         let origin = PreviewPlacement.origin(
             size: size,

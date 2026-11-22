@@ -3,7 +3,7 @@ public import MarkdownLookKit
 public import Observation
 public import SunsetRuntime
 
-/// The rendered page of a document, one for every pane that shows it. Measured at step M-b: a page costs 3.5 ms at 20 KB and
+/// The rendered page of a document, one for every pane that shows it. Measured (2026-11-15): a page costs 3.5 ms at 20 KB and
 /// 330 ms at 2 MB, so it is made only while a pane has it on screen; at once on the main actor for a short text (no empty
 /// frame, no flicker), and off it for a long one, where what is typed while a page is being made makes one more page after it
 /// and not one for each key.

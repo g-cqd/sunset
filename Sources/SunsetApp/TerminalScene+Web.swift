@@ -8,7 +8,7 @@ import SunsetShellBridge
 import SunsetWeb
 import SwiftUI
 
-/// Where the address of the focused page is typed (web step b): the field at the top of the docked sidebar, the window bar (also while the sidebar is
+/// Where the address of the focused page is typed: the field at the top of the docked sidebar, the window bar (also while the sidebar is
 /// not docked), or a row in each page. Nothing while a terminal has the keyboard.
 extension TerminalScene {
     var focusedPage: WebContent? {
@@ -136,8 +136,8 @@ extension TerminalScene {
         return corners
     }
 
-    /// The panel on the side opposite the tabs (web step e): History, Documents or Downloads, by the switch at its foot.
-    /// Placed as the docked sidebar is: its margin on the window's edge and top.
+    /// The panel on the side opposite the tabs: History, Documents or Downloads, by the switch at its foot. Placed as
+    /// the docked sidebar is: its margin on the window's edge and top.
     var historyPanel: some View {
         let side: Configuration.Side = sidebarSide == .left ? .right : .left
         let settings = ShellSettings(configuration)
@@ -155,7 +155,7 @@ extension TerminalScene {
         .transition(.move(edge: side.moveEdge).combined(with: .opacity))
     }
 
-    /// A private window's first page (web step h): its pages share one store unless `web.privateWindowShares` says not.
+    /// A private window's first page: its pages share one store unless `web.privateWindowShares` says not.
     func startPrivate() {
         AppActions.shared.pendingPrivateWindow = false
         tabs.privateGroup = UUID()

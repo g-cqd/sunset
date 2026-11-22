@@ -1,8 +1,8 @@
 package import SwiftUI
 
 /// Pins the sidebar beside the content (`sidebar.autoHide` off) or lets it hide and float: the sidebar half of a window, drawn
-/// alone when it comes and goes, inset in its frame when it stays (owner, 2026-11-12). Its container is a button of the
-/// sidebar, its trailing edge on the tabs' trailing edge and its middle on the traffic lights'.
+/// alone when it comes and goes, inset in its frame when it stays. Its container is a button of the sidebar, its trailing edge
+/// on the tabs' trailing edge and its middle on the traffic lights'.
 package struct SidebarPinButton: View {
     let sidebar: ShellSettings.Sidebar
     let buttons: SidebarButtons

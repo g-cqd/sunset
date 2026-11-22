@@ -4,9 +4,9 @@ import SunsetPane
 import SunsetShell
 import SunsetWeb
 
-/// The rows of the command bar (the command bar study, web step c): the tabs that match, then what was typed as an address to go to or words to
-/// search (a path to a file first: it opens), then the documents of the store that match, then pages of the history that match (web step e),
-/// then the engine's suggestions. Each with its actions: the first is Return's, the second Cmd-Return's, the third Option-Return's.
+/// The rows of the command bar: the tabs that match, then what was typed as an address to go to or words to search (a path to a
+/// file first: it opens), then the documents of the store that match, then pages of the history that match, then the engine's
+/// suggestions. Each with its actions: the first is Return's, the second Cmd-Return's, the third Option-Return's.
 @MainActor enum CommandBarRows {
     static func rows(
         _ bar: CommandBar,
@@ -199,7 +199,7 @@ import SunsetWeb
     private static func webActions(_ input: WebInput, tabs: TabsModel, recall: String) -> [ChoiceAction] {
         func done() {
             tabs.bar = nil
-            // Nothing typed in a private context is kept, not even for this session's recall (web step h).
+            // Nothing typed in a private context is kept, not even for this session's recall.
             let privateHere = tabs.isPrivateWindow || (tabs.selectedContent as? WebContent)?.isPrivate == true
             guard !privateHere else { return }
             tabs.barRecall.removeAll { $0 == recall }

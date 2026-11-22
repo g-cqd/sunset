@@ -6,11 +6,10 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The button at the window's bottom corner: "library button does not have concentric corners to the window edges". It was
-/// 6.5 pt from the window's side (the margin, the tabs' inset, half a hairline) and 4.5 from its bottom, with the 5 pt
-/// corner every sidebar button has. His choice among four sketches (A1): the bar 2 pt higher, so both distances are 6.5,
-/// and only the corner at the window's corner takes the radius that shares its centre, 16 - 6.5 = 9.5; the three others
-/// keep `layout.sidebarButtonRadius`.
+/// The button at the window's bottom corner, concentric with the window's corner. It was 6.5 pt from the window's side
+/// (the margin, the tabs' inset, half a hairline) and 4.5 from its bottom, with the 5 pt corner every sidebar button
+/// has. Now the bar 2 pt higher, so both distances are 6.5, and only the corner at the window's corner takes the radius
+/// that shares its centre, 16 - 6.5 = 9.5; the three others keep `layout.sidebarButtonRadius`.
 @MainActor @Suite("The sidebar button at the window's corner") struct SidebarCornerTests {
     func docked(window: Double = 16) -> SidebarButtons {
         SidebarButtons(layout: LayoutMetrics(), margin: 4, panelRadius: nil, windowRadius: window)

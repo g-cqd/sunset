@@ -16,8 +16,7 @@ extension TabsModel {
         return [id]
     }
 
-    /// The rows a layout takes: tabs, and favorites (which leave the Favorites for it); not pinned tabs, not folders (the
-    /// owner, 2026-11-21: favorites could not be split).
+    /// The rows a layout takes: tabs, and favorites (which leave the Favorites for it); not pinned tabs, not folders.
     package func layoutRows(_ rows: [RowTarget]) -> [RowTarget] {
         rows.filter { row in
             switch row {

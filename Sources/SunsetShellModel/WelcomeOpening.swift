@@ -1,10 +1,9 @@
 package import CoreGraphics
 
-/// The welcome's opening at one moment. The owner, 2026-11-21: the sun and the sky in phases of their own; "remove the
-/// purple shades from the animation and fade the sun into the window"; no drawn stand-in for the window ("avoid faking
-/// stuff"); the sun going down before the window phases in. So: the sun alone fades in, out of focus, slowly, over what
-/// is on screen, and sets to where the window keeps it; then the real window fades in where it stands, its content
-/// coming into focus, and the opening's sun fades as the window's own takes over. Coordinates are SwiftUI's (y down).
+/// The welcome's opening at one moment: the sun and the sky in phases of their own, no purple shades, no drawn stand-in for the window,
+/// the sun going down before the window phases in. So: the sun alone fades in, out of focus, slowly, over what is on screen, and sets
+/// to where the window keeps it; then the real window fades in where it stands, its content coming into focus, and the opening's sun
+/// fades as the window's own takes over. Coordinates are SwiftUI's (y down).
 package struct WelcomeOpening: Equatable {
     /// The opening's sun: how much of it shows, and how far out of focus it is (1: a wide blur, 0: sharp).
     package var sunOpacity: Double

@@ -4,9 +4,8 @@ import SunsetShell
 import SunsetWebModel
 import WebKit
 
-/// The page's view: WebKit's, with the link menu R1 decided (Split Right, Split Down, New Tab, New Window, Copy Link) in place of WebKit's "Open Link in New
-/// Window". Each new item says where the page goes (`pendingPlacement`) as it is chosen, then asks WebKit to open the link as its own
-/// item would.
+/// The page's view: WebKit's, with Sunset's link menu (Split Right, Split Down, New Tab, New Window, Copy Link) in place of WebKit's "Open Link in New
+/// Window". Each new item says where the page goes (`pendingPlacement`) as it is chosen, then asks WebKit to open the link as its own item would.
 final class SunsetWebView: WKWebView {
     /// Where the next page this view's menu asks for goes; read and cleared when WebKit asks for it.
     var pendingPlacement: WebPlacement?

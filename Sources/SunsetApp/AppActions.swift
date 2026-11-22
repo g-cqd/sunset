@@ -34,7 +34,7 @@ final class AppActions {
     var pendingFiles: [String] = []
     /// Links to pages asked for before a window was there.
     var pendingPages: [URL] = []
-    /// The next window to appear is a private one (File > New Private Window, web step h).
+    /// The next window to appear is a private one (File > New Private Window).
     var pendingPrivateWindow = false
     /// The next window opens showing the settings (Cmd-, with no window open).
     var pendingSettings = false
@@ -136,7 +136,7 @@ final class AppActions {
         TabRegistry.shared.actingWindow?.performClose(nil)
     }
 
-    /// Renames what the key window shows: in place when the sidebar is docked (R3 step c), with the dialog otherwise (the built-in bar's rows are small).
+    /// Renames what the key window shows: in place when the sidebar is docked, with the dialog otherwise (the built-in bar's rows are small).
     func renameTab() {
         guard let tabs = keyTabs else { return }
         if AppConfiguration.shared.configuration.sidebarDocked {

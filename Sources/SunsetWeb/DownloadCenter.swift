@@ -4,7 +4,7 @@ package import SunsetRuntime
 package import SunsetStorage
 package import WebKit
 
-/// The app's downloads (web step f): the list, kept as sealed records of the state database (R12 step ST-3); each download's name and place decided (approval for risky kinds,
+/// The app's downloads: the list, kept as sealed records of the state database; each download's name and place decided (approval for risky kinds,
 /// a free name, the partial file), its progress followed, the file renamed, marked as downloaded (quarantine) and announced when it finishes.
 @MainActor @Observable
 package final class DownloadCenter: NSObject {

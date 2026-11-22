@@ -1,4 +1,4 @@
-/// A private page (web step h): its store in memory, its answers its own.
+/// A private page: its store in memory, its answers its own.
 extension WebContent {
     package var isPrivate: Bool {
         settings.privacy != nil

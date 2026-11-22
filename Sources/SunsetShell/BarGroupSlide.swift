@@ -1,6 +1,6 @@
 package import SwiftUI
 
-/// How a bar's groups come and go: sliding in from beyond the edge they sit at, not fading (owner, 2026-11-13).
+/// How a bar's groups come and go: sliding in from beyond the edge they sit at, not fading.
 package enum BarGroupSlide {
     /// Moved by the group's height and its inset from the edge, so that it starts wholly past the edge.
     package static func transition(atTop: Bool, inset: Double) -> AnyTransition {

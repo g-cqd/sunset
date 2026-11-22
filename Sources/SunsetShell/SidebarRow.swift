@@ -25,7 +25,7 @@ struct SidebarRow: View {
     var open = true
     /// A row of the Favorites tree: one line is `Design.Size.favoriteRow` tall instead of `tabRow`.
     var compact = false
-    /// One of several rows selected together (R3 step d): in the accent; stronger when it is also the shown row.
+    /// One of several rows selected together: in the accent; stronger when it is also the shown row.
     var marked = false
     /// It keeps the Mac awake: a cup after its title. Lets it sleep again: the cup, pointed at.
     var awake = false
@@ -111,7 +111,7 @@ struct SidebarRow: View {
         .padding(.leading, layout.tabPaddingLeading)
         .rowHeight(layout, lines: lines, height: compact ? Design.Size.favoriteRow : Design.Size.tabRow)
         .padding(.trailing, layout.tabPaddingTrailing)
-        // As far from the trailing edge as from the top and the bottom (owner, 2026-11-12): centred on a point half the row's height in.
+        // As far from the trailing edge as from the top and the bottom: centred on a point half the row's height in.
         .overlay {
             GeometryReader { proxy in
                 let middle = proxy.size.height / 2

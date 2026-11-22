@@ -1,8 +1,8 @@
 import SunsetShell
 import SwiftUI
 
-/// Entering a recovery code (R12 step ST-6): the key it holds is kept in place of none; in place of another only once the
-/// person has confirmed, because what the present key sealed would no longer open.
+/// Entering a recovery code: the key it holds is kept in place of none; in place of another only once the person has
+/// confirmed, because what the present key sealed would no longer open.
 struct RecoveryCodeSheet: View {
     let storage: StorageSettings
     @State private var code = ""

@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// The list of downloads, latest first, with Clear (web step f).
+/// The list of downloads, latest first, with Clear.
 struct DownloadsList: View {
     let center: DownloadCenter
 

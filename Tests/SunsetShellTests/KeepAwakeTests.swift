@@ -5,8 +5,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// "a tab or a window keep the mac awake as long as it is running". His answers: both ways, chosen, until it is closed or
-/// until its command ends; whether the display stays on too is a setting (the app's).
+/// A tab or a window keeps the Mac awake, as chosen: until it is closed, or until its command ends; whether the display
+/// stays on too is a setting (the app's).
 @MainActor
 @Suite("Keeping the Mac awake")
 struct KeepAwakeTests {

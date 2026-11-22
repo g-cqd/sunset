@@ -1,8 +1,8 @@
 package import Foundation
 import SunsetPane
 
-/// The SF Symbols a person can pick from (step c), read from the system's own data (`CoreGlyphs.bundle`: the order, the search words, the categories,
-/// the symbols Apple restricts). Read once, when an icon picker first opens, and kept (`SymbolLibrary`). The files are the system's, not an API: when
+/// The SF Symbols a person can pick from, read from the system's own data (`CoreGlyphs.bundle`: the order, the search words, the categories, the
+/// symbols Apple restricts). Read once, when an icon picker first opens, and kept (`SymbolLibrary`). The files are the system's, not an API: when
 /// they are missing or change shape, the catalog is empty and the picker says so.
 package struct SymbolCatalog: Sendable {
     package struct Symbol: Sendable, Equatable, Identifiable {

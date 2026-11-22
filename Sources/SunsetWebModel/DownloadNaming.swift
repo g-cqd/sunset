@@ -1,6 +1,6 @@
 import Foundation
 
-/// The names and kinds of downloaded files (web step f): a name that is free in the folder ("-2", "-3" before the extension), the partial file's name,
+/// The names and kinds of downloaded files: a name that is free in the folder ("-2", "-3" before the extension), the partial file's name,
 /// the kinds that need an approval (apps, installers, scripts; not disk images) and those that may open after download.
 package enum DownloadNaming {
     /// The kinds that run code when opened.

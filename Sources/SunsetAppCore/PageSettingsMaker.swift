@@ -57,7 +57,7 @@ package struct PageSettingsMaker: Sendable {
         return settings
     }
 
-    /// The answers to what sites may do, from `web.permissions.*` (web step g).
+    /// The answers to what sites may do, from `web.permissions.*`.
     package static func permissionDefaults(_ web: Configuration.Web) -> [SitePermission: PermissionAnswer] {
         var defaults: [SitePermission: PermissionAnswer] = [:]
         for (name, answer) in web.permissions {

@@ -15,7 +15,7 @@ extension StorageRows {
         if let code = storage.code {
             VStack(alignment: .leading, spacing: Design.Space.m) {
                 // No accessibility label on this text: a label on selectable text sends SwiftUI's accessibility into a loop
-                // that ends the app as soon as anything reads the element (seen 2026-11-15, diary). It is read as what it says.
+                // that ends the app as soon as anything reads the element (seen 2026-11-15). It is read as what it says.
                 Text(code).font(.system(.body, design: .monospaced)).textSelection(.enabled)
                 Text(
                     "Whoever has this code and the files reads everything. Write it down; it is hidden again when you leave."

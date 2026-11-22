@@ -129,8 +129,8 @@ extension TabsModel {
     }
 
     /// Starts a kept entry again from where it was pinned or kept: what it runs is stopped (asking first when something
-    /// would be lost, as unloading does), and it opens anew (a page at its address, a terminal in its folder). The owner,
-    /// 2026-11-17: in the menu, not on a second click.
+    /// would be lost, as unloading does), and it opens anew (a page at its address, a terminal in its folder). From the
+    /// menu, not on a second click.
     package func reset(entry id: Favorites.NodeID) {
         let keeper = keeper(of: id)
         guard let entry = keeper.favorites.entry(id) else { return }

@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Escape clears the rows selected together (R3 step d) without being taken from the terminal: the key still goes where it was going (a program in the
+/// Escape clears the rows selected together without being taken from the terminal: the key still goes where it was going (a program in the
 /// terminal reads Escape constantly). Watched while the sidebar is shown.
 struct EscapeClearsMarks: ViewModifier {
     let tabs: TabsModel

@@ -2,8 +2,8 @@ package import Foundation
 package import Observation
 package import SunsetRuntime
 
-/// The engine's suggestions for what is being typed (web step c): asked after a short pause, the earlier question dropped when more is typed; never
-/// for an address typed with its scheme or one of this machine or the local network; nothing when the setting is off or the engine has no suggestion
+/// The engine's suggestions for what is being typed: asked after a short pause, the earlier question dropped when more is typed; never for an
+/// address typed with its scheme or one of this machine or the local network; nothing when the setting is off or the engine has no suggestion
 /// address. Asked without cookies or a cache (an ephemeral session), so the engine cannot tie them to the pages' store.
 @MainActor @Observable
 package final class SuggestionSource {

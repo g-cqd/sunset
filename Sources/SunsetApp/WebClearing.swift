@@ -3,7 +3,7 @@ import SunsetConfig
 import SunsetWeb
 import WebKit
 
-/// What clearing removes (web step e): the history's pages, WebKit's website data and the site zoom levels, from `date` on.
+/// What clearing removes: the history's pages, WebKit's website data and the site zoom levels, from `date` on.
 @MainActor enum WebClearing {
     static func clear(since date: Date, history: Bool, websiteData: Bool, siteZoom: Bool) {
         if history {

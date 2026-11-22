@@ -5,8 +5,8 @@ import SunsetRuntime
 import SunsetStorage
 import SunsetWeb
 
-/// The app's one history (web step e): sealed records of the state database (R12 step ST-3), read once; pages older than
-/// `web.historyKeep` are forgotten at launch. The file of before the database is taken in once, then removed.
+/// The app's one history: sealed records of the state database, read once; pages older than `web.historyKeep` are
+/// forgotten at launch. The file of before the database is taken in once, then removed.
 @MainActor enum AppHistory {
     /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
     static var runtime = Runtime.live

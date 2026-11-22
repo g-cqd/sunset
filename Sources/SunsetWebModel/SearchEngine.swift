@@ -1,6 +1,6 @@
 package import Foundation
 
-/// A search engine (web step c): its name, the keyword that picks it ("ddg words"), its search address and, when it has one in the OpenSearch JSON
+/// A search engine: its name, the keyword that picks it ("ddg words"), its search address and, when it has one in the OpenSearch JSON
 /// format, its suggestion address; `%s` stands for the words.
 package struct SearchEngine: Sendable, Equatable, Hashable {
     package var name: String

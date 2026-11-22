@@ -1,7 +1,7 @@
 package import SwiftUI
 
-/// The rows of a list of choices, with the states of the command bar study: the pointer over a row a light fill, a row pressed a darker one, the
-/// keyboard's row the accent's fill. The pointer does not move the keyboard's row: a list that changes under a still pointer keeps its selection.
+/// The rows of a list of choices, with their states: the pointer over a row a light fill, a row pressed a darker one, the keyboard's row the
+/// accent's fill. The pointer does not move the keyboard's row: a list that changes under a still pointer keeps its selection.
 package struct ChoiceList: View {
     let rows: [ChoiceRow]
     let selection: Int

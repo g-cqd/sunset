@@ -1,8 +1,8 @@
 public import Foundation
 
-/// The sealed bytes of a table's records as the file holds them, with what opens them (R12 step ST-3). Read from the database
-/// on the main actor, in a few milliseconds; opened anywhere: at once for a small table, or on every core, off the main actor,
-/// for a large one (each record is sealed on its own).
+/// The sealed bytes of a table's records as the file holds them, with what opens them. Read from the database on the main
+/// actor, in a few milliseconds; opened anywhere: at once for a small table, or on every core, off the main actor, for a large
+/// one (each record is sealed on its own).
 public struct SealedRows: Sendable {
     struct Record: Sendable {
         let index: Data

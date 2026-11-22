@@ -1,6 +1,6 @@
 package import Foundation
 
-/// What downloads are made with, from `web.*` (web step f).
+/// What downloads are made with, from `web.*`.
 package struct DownloadSettings: Sendable, Equatable {
     package enum Keep: Sendable, Equatable { case byHand, day, week, month, untilQuit, whenFinished }
 

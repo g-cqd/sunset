@@ -3,8 +3,8 @@ import Testing
 
 @testable import SunsetStorage
 
-/// Where Export All writes (R12 step ST-6): a dated folder of its own in the folder the person chose, and names that never
-/// write over one another.
+/// Where Export All writes: a dated folder of its own in the folder the person chose, and names that never write over
+/// one another.
 @Suite("The folder of an export") struct ExportFolderTests {
     let root = NSTemporaryDirectory() + "export-\(UUID().uuidString)"
     let day = Date(timeIntervalSince1970: 1_794_700_800)

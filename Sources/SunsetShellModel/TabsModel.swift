@@ -113,11 +113,11 @@ package final class TabsModel {
     /// The tab being renamed (`RenameTabAlert`) and the kept entry whose command is edited (`CommandSheet`).
     package var renaming: Workspace.ItemID?
     package var editingCommand: Favorites.NodeID?
-    /// The panel opposite the tabs is shown (Cmd-Y, web step e); which section each sidebar is on.
+    /// The panel opposite the tabs is shown (Cmd-Y); which section each sidebar is on.
     package var showsHistory = false
     package var sections = SidebarSections()
     @ObservationIgnored package let shelf = DocumentShelf()
-    /// A private window (web step h): the group its pages share by default, and whether they do (the window's selector).
+    /// A private window: the group its pages share by default, and whether they do (the window's selector).
     package var privateGroup: UUID?
     package var privateShares = true
     package var isPrivateWindow: Bool {
@@ -129,7 +129,7 @@ package final class TabsModel {
     /// The row whose name is being edited in place, and the row whose icon popover is open.
     package var renamingRow: RowTarget?
     package var iconRow: RowTarget?
-    /// The rows selected together (Cmd-click, Shift-click), in the sidebar's order, and the row a Shift-click counts from (R3 step d).
+    /// The rows selected together (Cmd-click, Shift-click), in the sidebar's order, and the row a Shift-click counts from.
     package var marked: [RowTarget] = []
     package var markAnchor: RowTarget?
     /// Two-step confirmation before closing a tab that has a command running.

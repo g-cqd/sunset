@@ -3,8 +3,7 @@ import SwiftUI
 
 /// The menu of a kept entry, the same wherever the entry is shown (a row of the Favorites, a tile of the Pinned grid, a
 /// tab of the built-in bar): where it is kept (pinned, a favourite, a tab again), its name and icon, its command, what
-/// it starts from, and unloading or deleting it. The owner, 2026-11-17: the menus did not hold everything about pinning
-/// and favourites, and a favourite could not be pinned.
+/// it starts from, and unloading or deleting it.
 struct KeptEntryMenu: View {
     let tabs: TabsModel
     let entry: Favorites.Entry

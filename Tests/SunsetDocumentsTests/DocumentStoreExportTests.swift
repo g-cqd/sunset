@@ -4,7 +4,7 @@ import Testing
 
 @testable import SunsetDocuments
 
-/// Every document out of the store as a plain file (R12 step ST-6). They stay in the store: an export is a copy.
+/// Every document out of the store as a plain file. They stay in the store: an export is a copy.
 @MainActor @Suite("Exporting every document") struct DocumentStoreExportTests {
     private let key = try? StorageKeyring(vault: MemoryKeyVault()).key()
     private let root = NSTemporaryDirectory() + "export-documents-\(UUID().uuidString)"

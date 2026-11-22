@@ -2,7 +2,7 @@ import SunsetRuntime
 import WebKit
 
 extension WebContent {
-    /// Text typed into a field of the page and not sent (web step q): a field whose value is not empty and not the one it came with. Fields in
+    /// Text typed into a field of the page and not sent: a field whose value is not empty and not the one it came with. Fields in
     /// frames of other sites are not seen. False when the page does not answer within half a second.
     package func hasUnsentForm() async -> Bool {
         guard let webView, url != nil else { return false }

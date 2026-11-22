@@ -7,7 +7,7 @@ import SunsetStorage
 import SunsetWeb
 import UserNotifications
 
-/// The app's side of downloads (web step f) and of site permissions (step g): the settings from `web.*`, the approval of risky kinds and the save panel, and what is done when one
+/// The app's side of downloads and of site permissions: the settings from `web.*`, the approval of risky kinds and the save panel, and what is done when one
 /// finishes: the Dock bounces while Sunset is in the background, a notification (`web.notifyDownloads`), safe kinds opened (`web.openSafeDownloads`).
 @MainActor enum AppDownloads {
     /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
@@ -56,7 +56,7 @@ import UserNotifications
         PageSettingsMaker.folder(web)
     }
 
-    /// The defaults of `web.permissions.*` (web step g).
+    /// The defaults of `web.permissions.*`.
     static func applyPermissions(_ web: Configuration.Web) {
         SitePermissions.shared.defaults = permissionDefaults(web)
     }

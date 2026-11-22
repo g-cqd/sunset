@@ -2,7 +2,7 @@ package import Observation
 import SunsetPrivate
 import WebKit
 
-/// Find in a page (web step d): what is looked for, the options, the count and the current match. WebKit's private find when it has it (all matches
+/// Find in a page: what is looked for, the options, the count and the current match. WebKit's private find when it has it (all matches
 /// highlighted, "3 of 12"), else the public one (found or not).
 @MainActor @Observable
 package final class PageFind {

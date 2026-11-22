@@ -3,8 +3,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// "calls to action for allowing and authorizing stuff below the address bar"; his answer: the pages' questions and what
-/// macOS must allow Sunset itself. macOS is asked about only when a site may use what it would refuse: no call to action
+/// Under the address field: the pages' questions, and what macOS must allow Sunset itself. macOS is asked about only when a site may use what it would refuse: no call to action
 /// for something nothing needs.
 @MainActor
 @Suite("What macOS must allow Sunset")

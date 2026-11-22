@@ -17,7 +17,7 @@ struct BarGroup: ViewModifier {
         content
             // The controls' scheme set on them, inside the glass: set outside, the glass gave its content the window's.
             .environment(\.colorScheme, scheme)
-            // Tinted to the controls' scheme, so that they read over any page (owner, 2026-11-13: contrast).
+            // Tinted to the controls' scheme, so that they read over any page (contrast).
             .background { Self.shape.fill(BarTint.fill(for: scheme).opacity(Design.Fill.barShade)) }
             .glassEffect(.regular, in: Self.shape)
             .environment(\.controlRadius, control / 2)
@@ -38,7 +38,7 @@ struct BarGroup: ViewModifier {
             }
     }
 
-    /// A capsule, as the system's toolbar groups (owner, 2026-11-13).
+    /// A capsule, as the system's toolbar groups.
     static var shape: Capsule {
         Capsule()
     }

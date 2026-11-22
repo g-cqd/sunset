@@ -3,7 +3,7 @@ import SunsetPane
 import SunsetShell
 import SunsetWeb
 
-/// Where the pages a page opens go (web step a): a tab right after it, not shown; a split beside it; a window of its own.
+/// Where the pages a page opens go: a tab right after it, not shown; a split beside it; a window of its own.
 @MainActor enum WebOpening {
     /// Gives `page` its way of placing what it opens, in the window `tabs`, and of saving what changes.
     static func wire(_ page: WebContent, in tabs: TabsModel) {

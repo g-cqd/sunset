@@ -35,7 +35,7 @@ package struct FloatingEdgeBar<Content: View>: View {
             if reveal.isOut {
                 let scheme = tint.resolved(in: outer)
                 content()
-                    // Its controls in the tint's scheme, read over any page, as the bar groups' (owner, 2026-11-13: contrast).
+                    // Its controls in the tint's scheme, read over any page, as the bar groups' (contrast).
                     .environment(\.colorScheme, scheme)
                     .background(alignment: atTop ? .top : .bottom) {
                         // The bar's tint at the edge, fading into the page past the bar, over the fading blur.

@@ -1,7 +1,7 @@
 import SunsetShell
 import SwiftUI
 
-/// The site's button at the start of the address field (web step g): the lock (or Not Secure), a dot while the page captures (a click stops it), and
+/// The site's button at the start of the address field: the lock (or Not Secure), a dot while the page captures (a click stops it), and
 /// a menu with this site's answers.
 struct SiteButton: View {
     let content: WebContent

@@ -2,7 +2,7 @@ import SunsetMetrics
 import SwiftUI
 
 /// The app's accessory at the top of the sidebar, under the window's buttons: the address of the focused page, or the field
-/// where a search, an address or a command is typed (web step b).
+/// where a search, an address or a command is typed.
 extension TabSidebar {
     /// A tab's row: the field is as tall as one.
     var accessoryHeight: Double {

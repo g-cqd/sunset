@@ -42,7 +42,7 @@ final class AppConfiguration {
     @ObservationIgnored private var appearanceWatch: NSKeyValueObservation?
 
     /// `appearance.scheme` for the whole app (Settings, panels, menus), not only the terminal windows: dark or light locks it,
-    /// system follows the Mac (owner, 2026-11-13).
+    /// system follows the Mac.
     func applyScheme() {
         NSApp?.appearance = configuration.appearance.scheme.nsAppearance
         if appearanceWatch == nil, let app = NSApp {

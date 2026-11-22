@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The File menu's items about other browsers' things: installing an extension, into the window's profile; importing
-/// another browser's bookmarks and extensions; in Sunset WebKit, bringing Sunset's cookies (roadmap 0112 E).
+/// another browser's bookmarks and extensions; in Sunset WebKit, bringing Sunset's cookies.
 struct BrowserFileItems: View {
     var body: some View {
         Divider()

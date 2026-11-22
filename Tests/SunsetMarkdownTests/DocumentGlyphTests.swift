@@ -7,8 +7,8 @@ import Testing
 
 @testable import SunsetMarkdown
 
-/// "icon for a markdown rendering tab might need to be different than a simple document icon". Rendered, a page with
-/// its rich text; as source, the document of text, as before.
+/// A rendered document's tab has its own icon. Rendered, a page with its rich text; as source, the document of text, as
+/// before.
 @MainActor
 @Suite("A document tab's picture")
 struct DocumentGlyphTests {

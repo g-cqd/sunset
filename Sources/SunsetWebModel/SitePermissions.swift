@@ -2,7 +2,7 @@ package import Foundation
 package import Observation
 package import SunsetStorage
 
-/// The answers sites were given (web step g): Allow and Deny by host, kept as sealed records of the state database (R12 step ST-3); Allow Once is never kept. A permission no
+/// The answers sites were given: Allow and Deny by host, kept as sealed records of the state database; Allow Once is never kept. A permission no
 /// site was answered for falls to its default (`web.permissions.*`).
 @MainActor @Observable
 package final class SitePermissions {

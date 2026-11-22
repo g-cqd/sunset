@@ -3,7 +3,7 @@ import SunsetRuntime
 import SunsetWebModel
 import WebKit
 
-/// What becomes a download (web step f): an attachment, and what WebKit cannot show; what it can show (a PDF, a picture) opens in the page.
+/// What becomes a download: an attachment, and what WebKit cannot show; what it can show (a PDF, a picture) opens in the page.
 extension WebCoordinator {
     func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse) async
         -> WKNavigationResponsePolicy

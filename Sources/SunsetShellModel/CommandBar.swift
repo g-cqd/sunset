@@ -12,7 +12,7 @@ package struct CommandBar: Equatable {
     package let purpose: Purpose
     package var query = ""
     package var selection = 0
-    /// The engine picked by its keyword and a space, shown as a chip at the start of the field (web step c).
+    /// The engine picked by its keyword and a space, shown as a chip at the start of the field.
     package var engine: String?
     /// The selected row's actions are listed (Cmd-K), with what is typed to filter them and the one selected.
     package var showsActions = false

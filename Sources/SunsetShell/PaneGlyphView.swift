@@ -16,8 +16,7 @@ package struct PaneGlyphView: View {
         switch glyph {
             case .tab(let glyph): TabGlyphView(glyph: glyph, outlined: outlined)
             case .symbol(let name): PaneIconView(icon: .symbol(name))
-            // A filled rounded square with the letter, as an app's icon; a site's icon clipped to the same square (owner,
-            // 2026-11-13).
+            // A filled rounded square with the letter, as an app's icon; a site's icon clipped to the same square.
             case .initial(let letter):
                 Text(letter)
                     .font(Design.Text.small.weight(.bold))

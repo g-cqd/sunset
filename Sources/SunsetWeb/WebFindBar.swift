@@ -2,7 +2,7 @@ import AemiSDR
 import SunsetShell
 import SwiftUI
 
-/// The find bar of a page (web step d), the window bar's look: a field (its options, what is looked for, "3 of 12") and previous, next, Done.
+/// The find bar of a page, the window bar's look: a field (its options, what is looked for, "3 of 12") and previous, next, Done.
 /// Return goes to the next match, Shift-Return to the previous, Escape closes it and gives the page the keyboard.
 struct WebFindBar: View {
     let content: WebContent
@@ -79,7 +79,7 @@ struct WebFindBar: View {
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
-        // Not the accent: blue on the dark glass read badly (owner, 2026-11-13); the address field's lock is secondary too.
+        // Not the accent: blue on the dark glass read badly; the address field's lock is secondary too.
         .tint(.secondary)
         .foregroundStyle(.secondary)
         .fixedSize()

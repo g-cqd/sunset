@@ -1,7 +1,7 @@
 package import SunsetPane
 
-/// Several rows selected together (R3 step d, owner's answers): Cmd-click adds or removes one, Shift-click takes the range from the last one clicked, a
-/// plain click selects one and shows it. A selection may hold tabs, entries and folders; it is cleared by a plain click and after an action.
+/// Several rows selected together: Cmd-click adds or removes one, Shift-click takes the range from the last one clicked, a plain click
+/// selects one and shows it. A selection may hold tabs, entries and folders; it is cleared by a plain click and after an action.
 extension TabsModel {
     /// The rows of the sidebar in the order it draws them: the Favorites as shown (a collapsed folder hides what it holds), then the window's tabs.
     package var rowOrder: [RowTarget] {
@@ -129,7 +129,7 @@ extension TabsModel {
     }
 }
 
-/// Dragging a selection (R3 step d): a drag of a selected row carries every selected row, in order.
+/// Dragging a selection: a drag of a selected row carries every selected row, in order.
 extension TabsModel {
     /// The selection being dragged, when the dragged row is one of several selected; nil for a drag of one row.
     package var draggedSelection: [RowTarget]? {

@@ -1,6 +1,6 @@
 extension Favorites {
-    /// What the built-in tab bar shows of the Favorites (R3 step f): top-level open entries, and each top-level folder with the open entries it holds at any
-    /// depth (deeper folders flattened into it); a collapsed folder hides its entries, unless one of them is `selected`. Entries that are not open are never
+    /// What the built-in tab bar shows of the Favorites: top-level open entries, and each top-level folder with the open entries it holds at any depth
+    /// (deeper folders flattened into it); a collapsed folder hides its entries, unless one of them is `selected`. Entries that are not open are never
     /// shown; a folder holding none that is open is left out.
     public enum BarItem: Sendable, Hashable {
         case entry(NodeID)
@@ -21,9 +21,9 @@ extension Favorites {
         }
     }
 
-    /// The pinned tabs of the tab bar's row of capsules (owner, 2026-11-13): every top-level entry, open or not, and each top-level
-    /// folder with every entry it holds at any depth; a collapsed folder hides its entries, unless one of them is `selected`. An
-    /// empty folder is left out.
+    /// The pinned tabs of the tab bar's row of capsules: every top-level entry, open or not, and each top-level folder with
+    /// every entry it holds at any depth; a collapsed folder hides its entries, unless one of them is `selected`. An empty
+    /// folder is left out.
     public func pinnedItems(selected: NodeID?) -> [BarItem] {
         nodes.flatMap { node -> [BarItem] in
             switch node {

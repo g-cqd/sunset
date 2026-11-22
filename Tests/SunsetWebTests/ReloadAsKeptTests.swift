@@ -6,8 +6,8 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// "a tab reloaded as another profile and then moved to favorites, loses its profile attribution and loads then as the
-/// current profile"; and its mark should show even while it is not loaded.
+/// A tab reloaded as another profile and then moved to the Favorites keeps that profile, and its mark shows even while it
+/// is not loaded.
 @MainActor @Suite("Reload as: kept in the Favorites")
 struct ReloadAsKeptTests {
     private static let workID = UUID()

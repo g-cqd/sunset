@@ -8,7 +8,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// The owner's screenshots of 2026-11-19 (the sidebar's field):
+/// Seen 2026-11-19 in the sidebar's field:
 /// - under the pointer, the host ran under Copy and Reload ("idmsa.apple.c" and the copy glyph over it): the text was masked
 ///   for a guessed width of the buttons, shorter than theirs;
 /// - typed in, the caret at the end of a long address, its last letters were cut by the field's rounded edge

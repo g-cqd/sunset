@@ -1,7 +1,7 @@
 package import Foundation
 package import SunsetPane
 
-/// What quitting now would lose (web step q): shown in the sheet that asks, each with the tab it is in when it has one.
+/// What quitting now would lose: shown in the sheet that asks, each with the tab it is in when it has one.
 package struct QuitLoss: Identifiable, Sendable, Equatable {
     package enum Kind: Sendable, Equatable { case command, form, download, unrestored, document }
 

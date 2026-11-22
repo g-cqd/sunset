@@ -12,7 +12,7 @@ extension BuiltInTabBar {
         }
     }
 
-    /// A folder of the Favorites (R3 step f): its icon and name, its count of open entries while collapsed; a click opens or closes it.
+    /// A folder of the Favorites: its icon and name, its count of open entries while collapsed; a click opens or closes it.
     private func folderRow(_ folder: Favorites.Folder, count: Int) -> some View {
         BarTab(selected: false, close: nil) {
             if let icon = folder.icon, PaneIconView.canShow(icon) {

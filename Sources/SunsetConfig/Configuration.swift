@@ -77,7 +77,7 @@ public struct Configuration: Sendable, Equatable {
         case material
         /// Liquid Glass (`NSGlassEffectView`, macOS 26).
         case glass
-        /// A colour with alpha: the tint (`appearance.tint`), the desktop showing through it, nothing blurred (owner, 2026-11-12). Read also as
+        /// A colour with alpha: the tint (`appearance.tint`), the desktop showing through it, nothing blurred. Read also as
         /// `transparent`, its name before.
         case fill
     }
@@ -102,7 +102,7 @@ public struct Configuration: Sendable, Equatable {
         public var glass = Glass.regular
         /// `#rrggbb`; nil for no tint. One tint for the window and the sidebar.
         public var tintColor: [UInt8]? = [0x00, 0x00, 0x00]
-        /// The tint while the scheme is light, and its strength (owner, 2026-11-13: black text on the dark tint did not read).
+        /// The tint while the scheme is light, and its strength (black text on the dark tint did not read).
         public var lightTintColor: [UInt8]? = [0xFF, 0xFF, 0xFF]
         public var lightTintAlpha = 0.8
         public var tintAlpha = 0.5
@@ -112,12 +112,12 @@ public struct Configuration: Sendable, Equatable {
         /// The trackpad taps when a click goes through or is blocked.
         public var haptics = true
         /// What is under the bars (the address bar, the find bar, the ends of the sidebar's list) and behind the command bar: a
-        /// blur that fades out (AemiSDR's variable blur), the surface the bar draws itself, or nothing (Sunset research/blur).
+        /// blur that fades out (AemiSDR's variable blur), the surface the bar draws itself, or nothing.
         public var barBlur = BarBlur.variable
         public var ends = Ends.fade
         /// The app's icon in the Dock and the app switcher while Sunset runs.
         public var icon = Icon.sunset
-        /// The bars' fill and controls (`BarTint`); `scheme` follows the colour scheme (owner, 2026-11-13).
+        /// The bars' fill and controls (`BarTint`); `scheme` follows the colour scheme.
         public var barTint = BarTint.scheme
         public init() {}
     }
@@ -135,7 +135,7 @@ public struct Configuration: Sendable, Equatable {
             /// A small picture before the title: a folder with the first letter of the directory's name, or a mark for a running command.
             public var showIcon = true
             public var showDirectory = true
-            /// The second line (the directory, a page's address) in the monospaced face (owner, 2026-11-12).
+            /// The second line (the directory, a page's address) in the monospaced face.
             public var monospacedDirectory = true
             public var showProgress = true
             public init() {}
@@ -160,7 +160,7 @@ public struct Configuration: Sendable, Equatable {
         /// Closing the last window does not quit the app while a kept entry of the Favorites is open: what runs in it goes on, and a new window shows it
         /// again. Off: the app quits with its last window, as before.
         public var keepRunningForFavorites = true
-        /// Quitting asks first (web step q): never, when something would be lost (a running command, a form being filled, a download, tabs
+        /// Quitting asks first: never, when something would be lost (a running command, a form being filled, a download, tabs
         /// that will not come back), or always.
         public var askBeforeQuit = QuitAsk.whenLosing
         /// The tabs of a Space when its last window closes: they stop and stay, for the next window or the next launch.

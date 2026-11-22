@@ -4,7 +4,7 @@ import SunsetPane
 import SunsetShell
 import SunsetWeb
 
-/// The History menu's and panel's actions (web step e).
+/// The History menu's and panel's actions.
 extension AppActions {
     private var keyWindowTabs: TabsModel? {
         TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)

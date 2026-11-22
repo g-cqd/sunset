@@ -130,7 +130,7 @@ struct SpaceSharingTests {
         #expect(harness.made[0].stopped && !harness.space.isStopped && harness.space.tabs.isEmpty)
     }
 
-    /// The owner's setting (`tabs.closeWithLastWindow`): the app's Space can be told not to keep them, while it runs.
+    /// A setting (`tabs.closeWithLastWindow`): the app's Space can be told not to keep them, while it runs.
     @Test func `a Space told to close its tabs with its last window closes them; told again, it keeps them`() {
         let harness = SpaceHarness()
         harness.space.keepsTabs = false
@@ -146,8 +146,8 @@ struct SpaceSharingTests {
         #expect(harness.space.tabs.count == 1 && harness.space.isStopped)
     }
 
-    /// The owner's setting (`tabs.closeStoppedAfter`): what was stopped is closed once it has waited long enough, even
-    /// across a quit (the time it was stopped is in the session).
+    /// A setting (`tabs.closeStoppedAfter`): what was stopped is closed once it has waited long enough, even across a
+    /// quit (the time it was stopped is in the session).
     @Test
     func `tabs stopped with the last window are closed once they have waited long enough, not before, not once shown`()
     {

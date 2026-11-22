@@ -1,8 +1,8 @@
 import Foundation
 import SunsetStorage
 
-/// A document's sealed file (R12 step ST-4): one line that says what it is (its kind, when it was made), then its text. Sealed
-/// whole under the document's identifier, so that one document's file cannot stand for another's.
+/// A document's sealed file: one line that says what it is (its kind, when it was made), then its text. Sealed whole
+/// under the document's identifier, so that one document's file cannot stand for another's.
 struct SealedDocument {
     private struct Head: Codable {
         var version = 1

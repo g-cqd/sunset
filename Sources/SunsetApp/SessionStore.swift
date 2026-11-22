@@ -219,7 +219,7 @@ final class SessionStore {
         )
     }
 
-    /// The session as JSON a person can read, for Export All (R12 step ST-6): the open windows whatever the restoring setting.
+    /// The session as JSON a person can read, for Export All: the open windows whatever the restoring setting.
     func readable() -> Data? {
         try? current(windows: true).encoded()
     }

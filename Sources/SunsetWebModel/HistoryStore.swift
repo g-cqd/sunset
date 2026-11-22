@@ -2,9 +2,9 @@ package import Foundation
 package import SunsetRuntime
 package import SunsetStorage
 
-/// The history of pages visited (web step e): an address, its title, its visit count and its last visit. Kept as sealed
-/// records of the state database: nothing of it is in the file in the clear, so it is held whole in memory, latest
-/// first, and searched there. Without a table it is in memory only (a private window, tests).
+/// The history of pages visited: an address, its title, its visit count and its last visit. Kept as sealed records of
+/// the state database: nothing of it is in the file in the clear, so it is held whole in memory, latest first, and
+/// searched there. Without a table it is in memory only (a private window, tests).
 @MainActor
 package final class HistoryStore {
     /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.

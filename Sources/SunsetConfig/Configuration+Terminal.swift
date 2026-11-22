@@ -17,7 +17,7 @@ extension Configuration {
         /// The shell is taught to mark its prompts (OSC 133), which Previous Prompt and Next Prompt go by. zsh is taught (fish does it itself); the user's files are not changed.
         public var shellIntegration = true
         /// Where a new terminal starts when it has no directory of its own (a new tab, a split): a path, `~` for the home folder
-        /// (owner, 2026-11-13: an app opened from the Finder runs in `/`, which shells inherited).
+        /// (an app opened from the Finder runs in `/`, which shells inherited).
         public var directory = "~"
         public init() {}
     }

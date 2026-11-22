@@ -1,7 +1,7 @@
 import SunsetPane
 import SwiftUI
 
-/// What the context menu of a row offers for the rows selected with it (R3 step d), above the row's own items.
+/// What the context menu of a row offers for the rows selected with it, above the row's own items.
 struct SelectionMenu: View {
     let tabs: TabsModel
     let row: RowTarget

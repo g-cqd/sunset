@@ -32,7 +32,7 @@ struct TerminalScene: View {
     @State var floatingShown = false
     /// The sidebar was just unpinned: the panel starts out (the pointer is where the column was) and goes when the pointer is not on it.
     @State var opensAtOnce = false
-    /// What is typed in this window's address fields, for their list (web step c).
+    /// What is typed in this window's address fields, for their list.
     @State var addressTyping = AddressTyping()
     @Environment(\.dismiss) var dismiss
     @Environment(\.openWindow) var openWindow
@@ -92,13 +92,13 @@ struct TerminalScene: View {
             HStack(spacing: 0) {
                 if configuration.sidebarDocked, sidebarSide == .left { sidebarSlot }
                 if tabs.showsHistory, sidebarSide == .right { historyPanel }
-                // Above the sidebar, whose blur bands reach under the panes so that they have no side (owner, 2026-11-13).
+                // Above the sidebar, whose blur bands reach under the panes so that they have no side.
                 terminal.zIndex(1)
                 if configuration.sidebarDocked, sidebarSide == .right { sidebarSlot }
                 if tabs.showsHistory, sidebarSide == .left { historyPanel }
             }
             // The docked sidebar is drawn under the row and the panes above it: its list ends' blur bands are not cut at its side,
-            // they go on under the panes (owner, 2026-11-13).
+            // they go on under the panes.
             .background(alignment: sidebarSide.alignment) {
                 if configuration.sidebarDocked { dockedSidebar }
             }

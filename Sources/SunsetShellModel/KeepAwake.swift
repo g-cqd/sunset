@@ -1,4 +1,4 @@
-/// Until when a tab or a window keeps the Mac awake ("as long as it is running"; his answer: both, chosen).
+/// Until when a tab or a window keeps the Mac awake (until it is closed, or until its command ends).
 package enum KeepAwake: Equatable, Sendable {
     /// Until the tab, or the window, is closed.
     case closed

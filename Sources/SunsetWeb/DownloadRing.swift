@@ -2,7 +2,7 @@ import SunsetShell
 import SwiftUI
 
 /// The downloads symbol: an arrow in a circle; while something downloads, the circle is drawn as far round as the downloads have gone, by the
-/// symbol itself (Variable Draw, macOS 26: owner, 2026-11-12), and the system animates it between values.
+/// symbol itself (Variable Draw, macOS 26), and the system animates it between values.
 struct DownloadRing: View {
     let fraction: Double?
     let running: Bool

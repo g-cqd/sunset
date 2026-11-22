@@ -2,7 +2,7 @@ import SunsetPrivate
 import SunsetRuntime
 import WebKit
 
-/// The permission questions WebKit asks of a page (web step g): the camera and microphone, location (public API), screen sharing and notifications
+/// The permission questions WebKit asks of a page: the camera and microphone, location (public API), screen sharing and notifications
 /// (WebKit's private questions, `WebPermissionHooks`), pop-ups opened without a click.
 extension WebCoordinator {
     func webView(

@@ -1,6 +1,6 @@
 /// The two-finger swipe on the sidebar that changes Space, as numbers: what the trackpad says goes in, what the list
-/// does comes out. The owner, 2026-11-17: the list follows the fingers, "starting slow and snap when enough swiped, not
-/// swipe multiple ones at the same time".
+/// does comes out. The list follows the fingers, slowly at first, then snaps to the next Space once swiped far enough,
+/// one Space at a time.
 ///
 /// A gesture is the list's or this one's from its start, by the direction it starts in. Sideways, the list moves less
 /// than the fingers at first and more as they go; at `threshold` of the sidebar's width it snaps to the neighbour, once: the

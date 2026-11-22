@@ -17,7 +17,7 @@ package enum PreviewPlacement {
         guard let row else { return CGPoint(x: sidebarOnRight ? maxX : margin, y: margin) }
         if row.midY >= area.minY, row.midY <= area.maxY {
             // A row of the sidebar, docked beside the area or floating over it: next to the row's outer edge, level with it, so
-            // never under a floating panel (owner, 2026-11-13).
+            // never under a floating panel.
             let y = min(max(row.midY - area.minY - size.height / 2, margin), maxY)
             // Beside the sidebar's edge when it is known, not the row's: a Pinned tile, an indented or grouped row is inside
             // the panel, and a card beside it went under a floating one.

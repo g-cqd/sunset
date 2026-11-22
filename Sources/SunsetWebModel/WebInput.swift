@@ -1,13 +1,13 @@
 package import Foundation
 
-/// What was typed where an address goes (web step c): an address, or words to search with an engine.
+/// What was typed where an address goes: an address, or words to search with an engine.
 package enum WebInput: Equatable, Sendable {
     /// `guessed`: no scheme was typed and https was tried first (the http setting may then fall back).
     case address(URL, guessed: Bool)
     case search(SearchEngine, words: String)
 
-    /// The rules of R1: a scheme is kept; this machine and the local network (localhost and loopback, `.local` names, private ranges, one label with a
-    /// port or a slash) go over http at once; another host with a dot goes over https; one word alone, or several, is searched, with the engine whose
+    /// The rules: a scheme is kept; this machine and the local network (localhost and loopback, `.local` names, private ranges, one label with a port
+    /// or a slash) go over http at once; another host with a dot goes over https; one word alone, or several, is searched, with the engine whose
     /// keyword starts what was typed ("ddg words"), else `engine`.
     package static func parse(_ typed: String, engine: SearchEngine, engines: [SearchEngine]) -> WebInput? {
         let text = typed.trimmingCharacters(in: .whitespacesAndNewlines)

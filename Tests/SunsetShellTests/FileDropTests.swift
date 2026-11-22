@@ -29,8 +29,8 @@ struct FileDropTests {
         #expect(FileDrop.typed(["/tmp/fine.md", "/tmp/a" + character + "b"]) == nil, "nor the others dropped with it")
     }
 
-    /// The owner (2026-11-21): a document copied outside Sunset pasted as the last component of its path. Finder's copy holds the
-    /// file's URL and, as text, its name only.
+    /// A document copied outside Sunset used to paste as the last component of its path. Finder's copy holds the file's
+    /// URL and, as text, its name only.
     @Test func `a pasted copy of files is typed as their paths, as a drop is, not as the name beside them`() {
         #expect(
             FileDrop.pasted(files: ["/Users/gc/Documents/report.pdf"], text: "report.pdf")

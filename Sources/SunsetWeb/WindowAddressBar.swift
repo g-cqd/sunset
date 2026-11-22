@@ -3,8 +3,8 @@ package import SunsetRuntime
 package import SunsetShell
 package import SwiftUI
 
-/// The address bar of a window (web step b): back, forward, reload (Stop while loading) and the address of the focused page. Hidden; it comes out
-/// when the pointer reaches its edge of the pane area (or the page asks for an address), and goes after the pointer leaves it, unless it is typed in.
+/// The address bar of a window: back, forward, reload (Stop while loading) and the address of the focused page. Hidden; it comes out when the pointer
+/// reaches its edge of the pane area (or the page asks for an address), and goes after the pointer leaves it, unless it is typed in.
 package struct WindowAddressBar: View {
     @Environment(\.runtime) var runtime
 
@@ -15,9 +15,9 @@ package struct WindowAddressBar: View {
     /// Told when the bar comes out and goes (the split's margin follows it).
     var onOut: (Bool) -> Void = { _ in }
     /// From the bar's container to its groups: `Space.m` over a pane; the split's gap in its margin, so the bar lines up with the
-    /// panes' edges and sits where their tops were (owner, 2026-11-13).
+    /// panes' edges and sits where their tops were.
     var inset = Design.Space.m
-    /// The focused page's find bar goes in this row, at its trailing end, while it is open (owner, 2026-11-13: one row, one layer).
+    /// The focused page's find bar goes in this row, at its trailing end, while it is open (one row, one layer).
     var hostsFind = false
     @State private var shown = false
     @State private var hovering = false
@@ -82,11 +82,11 @@ package struct WindowAddressBar: View {
     }
 
     /// Back, forward and reload in one glass group at the leading edge; the address in another, as wide as the command bar at
-    /// most, centred in the rest (owner, 2026-11-13: the system toolbar's way); the find bar's groups at the trailing edge. Their
-    /// blurs all beneath all of them.
+    /// most, centred in the rest (the system toolbar's way); the find bar's groups at the trailing edge. Their blurs all
+    /// beneath all of them.
     private var groups: some View {
         let edge: Bool = atTop
-        // From beyond the edge, not faded (owner, 2026-11-13).
+        // From beyond the edge, not faded.
         let slide = BarGroupSlide.transition(atTop: atTop, inset: inset)
         return GlassEffectContainer(spacing: Design.Space.m) {
             HStack(spacing: Design.Space.m) {

@@ -4,8 +4,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// A folder of the Favorites: an indent per level, a folder icon filled when expanded; a click expands or collapses it, as does the chevron
-/// at its trailing edge (where a tab's close button is, shown under the pointer: owner, 2026-11-12); its name is edited in place; a tab or an
-/// entry dropped anywhere on it goes inside. It never opens or closes what it holds.
+/// at its trailing edge (where a tab's close button is, shown under the pointer); its name is edited in place; a tab or an entry dropped
+/// anywhere on it goes inside. It never opens or closes what it holds.
 struct FolderRow: View {
     let tabs: TabsModel
     let folder: Favorites.Folder

@@ -1,5 +1,5 @@
-/// A row of a list of choices (the command bar, the address field's list): what it shows and what it does (R1 web step c, the command bar study).
-/// The first action is the one Return does; Cmd-Return does the second, Option-Return the third; Cmd-K lists them all.
+/// A row of a list of choices (the command bar, the address field's list): what it shows and what it does. The first
+/// action is the one Return does; Cmd-Return does the second, Option-Return the third; Cmd-K lists them all.
 package struct ChoiceRow: Identifiable {
     package let id: String
     package var glyph: PaneGlyph

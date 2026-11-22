@@ -1,8 +1,8 @@
 package import Foundation
 package import SunsetStorage
 
-/// The zoom each site was given (web step d, `web.zoomScope`): by host, kept as sealed records of the state database when
-/// remembered (R12 step ST-3), or in memory until the app quits. 100% is not kept.
+/// The zoom each site was given (`web.zoomScope`): by host, kept as sealed records of the state database when
+/// remembered, or in memory until the app quits. 100% is not kept.
 @MainActor
 package final class SiteZoom {
     package static let shared = SiteZoom()

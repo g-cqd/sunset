@@ -1,7 +1,7 @@
 import SunsetWeb
 import SwiftUI
 
-/// Find in the focused page (web step d): off while a terminal has the keyboard.
+/// Find in the focused page: off while a terminal has the keyboard.
 struct PageFindCommands: View {
     let page: WebContent?
 

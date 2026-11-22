@@ -13,8 +13,8 @@ public struct Space: Sendable, Equatable, Identifiable, Codable {
     public var icon: PaneIcon?
     /// The profile it belongs to; nil is the one profile there is until profiles exist (P-a).
     public var profile: UUID?
-    /// Room for a look of its own (tint, colour scheme, material; R4: anticipated, no editor yet): carried as it was
-    /// written, so that a build that does not read it does not strip what another wrote.
+    /// Room for a look of its own (tint, colour scheme, material; nothing edits it): carried as it was written, so that
+    /// a build that does not read it does not strip what another wrote.
     public var look: [String: String]?
 
     public init(id: ID = ID(), name: String = "", icon: PaneIcon? = nil, profile: UUID? = nil) {

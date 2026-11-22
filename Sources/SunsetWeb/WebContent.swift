@@ -7,9 +7,8 @@ package import SunsetShell
 package import SwiftUI
 package import WebKit
 
-/// A web page as the content of a pane (web step a): the system's WebKit, named as Safari; made the first time it is shown; the default persistent
-/// store; brought back with its address, history and scroll. Pages it opens (a link asking for a new tab, the link menu) are handed to `onOpen`, which
-/// places them.
+/// A web page as the content of a pane: the system's WebKit, named as Safari; made the first time it is shown; the default persistent store; brought
+/// back with its address, history and scroll. Pages it opens (a link asking for a new tab, the link menu) are handed to `onOpen`, which places them.
 @MainActor @Observable
 package final class WebContent: PaneContent, PaneViewMaking {
     /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
@@ -29,7 +28,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var forcing = false  // Its process ended on purpose (a force reload): not a crash to show.
     /// The site's settings are open beside its address field (its lock, or the field's menu).
     package var showsSiteSettings = false
-    package internal(set) var permissionRequest: PermissionRequest?  // Waiting under the address (web step g).
+    package internal(set) var permissionRequest: PermissionRequest?  // Waiting under the address.
     /// What the page captures now: the camera or microphone, the screen (shown as a dot on its tab and in its address field).
     package internal(set) var capture: PageCapture?
     package internal(set) var devices = PaneCapture()  // The microphone and the camera, each live or muted.
@@ -111,7 +110,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored package var spaceChoices: () -> [(id: UUID, name: String)] = { [] }
     /// Opens `url` in the Space `id`, as the site's rule says.
     @ObservationIgnored package var openInSpace: (URL, UUID) -> Void = { _, _ in }
-    /// The history visits are written to (web step e); nil keeps none (tests, and private pages in step h).
+    /// The history visits are written to; nil keeps none (tests, and private pages).
     @ObservationIgnored package var history: HistoryStore?
     /// Something the session file holds changed (the address, the title).
     @ObservationIgnored package var onChange: () -> Void = {}
@@ -131,7 +130,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored package var popupSize: CGSize?
     /// It, as its profile's extensions see a tab.
     @ObservationIgnored package internal(set) var extensionTab: ExtensionTab?
-    /// A private page's answers, in memory for its life (web step h).
+    /// A private page's answers, in memory for its life.
     @ObservationIgnored var ownPermissions: SitePermissions?
     /// The host last typed without a scheme while the http setting is on: if https fails for it, http is tried (`WebCoordinator`).
     @ObservationIgnored var fallbackHost: String?

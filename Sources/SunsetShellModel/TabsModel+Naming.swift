@@ -15,7 +15,7 @@ extension TabsModel {
     }
 }
 
-/// Names and icons edited in place (R3 step c), for a tab, an entry or a folder.
+/// Names and icons edited in place, for a tab, an entry or a folder.
 extension TabsModel {
     /// The name a row shows, for its in-place field: the tab's or entry's own name, else its content's title; a folder's name.
     package func name(of row: RowTarget) -> String {

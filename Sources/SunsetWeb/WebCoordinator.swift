@@ -52,7 +52,7 @@ import WebKit
             content.openInSpace(url, space)
             return .cancel
         }
-        // A link that says download, or an Option-click (web step f).
+        // A link that says download, or an Option-click.
         if action.shouldPerformDownload
             || (action.navigationType == .linkActivated && action.modifierFlags.contains(.option))
         {

@@ -6,9 +6,8 @@ import Testing
 
 @testable import SunsetMarkdown
 
-/// "the preview of document and rendered documents does not work", then "there's nesting of the preview in previews". A
-/// document's picture is drawn from the document itself, rendered or as source, never from the window: nothing over it
-/// is pictured.
+/// A document's preview was missing, then nested previews in itself. A document's picture is drawn from the document
+/// itself, rendered or as source, never from the window: nothing over it is pictured.
 @MainActor
 @Suite("A document's picture")
 struct DocumentPictureTests {

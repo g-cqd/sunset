@@ -95,8 +95,8 @@ extension DocumentContentTests {
         #expect(page.shown.rows.isEmpty)
     }
 
-    /// Step M-e: the block changed on both sides is a conflict the pane shows, answered there; the whole file can still be
-    /// taken instead.
+    /// The block changed on both sides is a conflict the pane shows, answered there; the whole file can still be taken
+    /// instead.
     @Test func `a block changed here and on disk is kept as it is here until the person says, or takes the file`()
         throws
     {

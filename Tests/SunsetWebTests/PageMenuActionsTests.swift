@@ -6,7 +6,7 @@ import Testing
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// "tabs don't offer website settings or tab settings in the context menu".
+/// A page's tab menu offers the website's settings.
 @MainActor @Suite("What a page adds to its tab's menu")
 struct PageMenuActionsTests {
     @Test func `a page with an address offers Reload, Copy Address and its site's settings; an empty page none`() {

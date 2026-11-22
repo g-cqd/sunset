@@ -1,7 +1,7 @@
 import SunsetShell
 package import SwiftUI
 
-/// The list under an address field while it is typed in (web step c): as wide as the content it lies over, the rows of the command bar.
+/// The list under an address field while it is typed in: as wide as the content it lies over, the rows of the command bar.
 package struct AddressSuggestionList: View {
     let typing: AddressTyping
     let places: Set<AddressTyping.Place>

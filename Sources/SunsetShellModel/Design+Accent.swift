@@ -11,7 +11,7 @@ extension Design {
         case neutral
 
         /// The accent for a choice and the tint. "sunset" without a tint, or with one too dark or too light to stand out on a window
-        /// (relative luminance outside `readable`), is the system's (owner, 2026-11-12).
+        /// (relative luminance outside `readable`), is the system's.
         package static func resolve(_ choice: String, tint: [UInt8]?) -> Self {
             switch choice {
                 case "sunset":

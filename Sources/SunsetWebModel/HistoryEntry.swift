@@ -1,6 +1,6 @@
 package import Foundation
 
-/// A page in the history (web step e): one per address, with its last title, how often it was visited and when last.
+/// A page in the history: one per address, with its last title, how often it was visited and when last.
 package struct HistoryEntry: Sendable, Equatable, Identifiable {
     package var url: String
     package var title: String

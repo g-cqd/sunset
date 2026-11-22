@@ -1,11 +1,11 @@
 extension Design {
     /// The built-in tab bar while it holds the address: one row of capsules as tall as a bar group's.
     package enum TabCapsules {
-        /// Smaller than a bar group (owner, 2026-11-13): the row's buttons are whole circles of this size, its tabs one line.
+        /// Smaller than a bar group: the row's buttons are whole circles of this size, its tabs one line.
         package static let height = 34.0
         /// A capsule's corner: half its height.
         package static let radius = height / 2
-        /// Between two tabs: a point less than between the row's other items (owner, 2026-11-13).
+        /// Between two tabs: a point less than between the row's other items.
         package static let tabGap = Space.m - 1
         /// From the bar's edges to its capsules, above and below.
         package static let inset = Space.s

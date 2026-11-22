@@ -25,7 +25,7 @@ extension TerminalScene {
     /// there; floating they come and go with the panel, which is inset by the margin.
     var lights: LightsPlacement? {
         if addressInTabBar, configuration.tabs.bar.position == .top {
-            // Centred on the tab bar's row of capsules (owner, 2026-11-13).
+            // Centred on the tab bar's row of capsules.
             return LightsPlacement(
                 x: Design.TabCapsules.lightsX,
                 y: Design.TabCapsules.lightsCenter,

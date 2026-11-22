@@ -95,8 +95,7 @@ struct CommandBarView: View {
             width: anchor.map { Double($0.width) } ?? room.map { CommandBarSize.width(room: $0.width) }
                 ?? Design.Width.commandBar
         )
-        // The bars' tint (`appearance.barTint`), its scheme set inside the glass, as the address bar's groups (owner,
-        // 2026-11-13); the backdrop under it blurs the rest.
+        // The bars' tint (`appearance.barTint`), its scheme set inside the glass, as the address bar's groups; the backdrop under it blurs the rest.
         .environment(\.colorScheme, scheme)
         .background { style.shape.fill(BarTint.fill(for: scheme).opacity(Design.Fill.barShade)) }
         .glassEffect(.regular, in: style.shape)

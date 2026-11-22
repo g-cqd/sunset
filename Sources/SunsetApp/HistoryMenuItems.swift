@@ -1,7 +1,7 @@
 import SunsetWeb
 import SwiftUI
 
-/// The History menu's list (web step e): the last ten pages, then Show All History and Clear History…
+/// The History menu's list: the last ten pages, then Show All History and Clear History…
 struct HistoryMenuItems: View {
     let page: WebContent?
     private var changes = HistoryChanges.shared

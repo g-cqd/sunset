@@ -4,8 +4,8 @@ import Testing
 @testable import SunsetWebModel
 
 /// What a page opens itself (a link with a target, `window.open` after a click, WebKit's Open Image or Video in New Window)
-/// went to a tab after it that was not shown. The owner, 2026-11-20: shown, as Safari does, with a setting; Sunset's own menu
-/// items keep theirs.
+/// went to a tab after it that was not shown. Now shown, as Safari does, with a setting; Sunset's own menu items keep
+/// theirs.
 @Suite("Where a page a page opens goes")
 struct OpenedPagePlacementTests {
     @Test func `what the page asks for is an opened page; Sunset's own item wins`() {

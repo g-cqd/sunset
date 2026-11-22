@@ -1,7 +1,7 @@
 package import SwiftUI
 
 /// The focused pane's card, in the pane area's coordinates: its frame and its corners. What lies over the pane area for that pane
-/// (the window's address bar's blur) is cut to it, so it does not reach the gaps or the sidebar (owner, 2026-11-13).
+/// (the window's address bar's blur) is cut to it, so it does not reach the gaps or the sidebar.
 package struct PaneCardShape: Shape, Equatable {
     package var frame: CGRect
     package var radii: RectangleCornerRadii

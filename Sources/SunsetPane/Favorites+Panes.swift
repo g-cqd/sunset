@@ -45,7 +45,7 @@ extension Favorites {
 
 extension Favorites {
     /// Takes one pane out of an open entry's split, the entry keeping the others: true when it was taken (the entry held it,
-    /// with another pane). The owner, 2026-11-17: "separate any tabs from split tabs anywhere".
+    /// with another pane). Any tab can be taken out of a split, wherever the split is.
     @discardableResult
     public mutating func separate(pane: PaneID) -> Bool {
         guard let id = entry(containing: pane)?.id, (entry(id)?.open?.panes.count ?? 0) > 1 else { return false }

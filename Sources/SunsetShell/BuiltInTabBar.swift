@@ -3,10 +3,10 @@ import SunsetMetrics
 import SunsetPane
 package import SwiftUI
 
-/// The tab bar of our own, for `tabs.mode: internal`: one window, many terminals, drawn in the sidebar's language (owner, 2026-11-12): each
-/// tab a sidebar row, the bar itself with no material of its own (the window's backdrop shows, as behind the sidebar), the tabs sharing its
-/// width. The kept entries that are open come first, then a thin line and the window's tabs. Tabs are selected by a click, closed by their
-/// button (in the icon's place under the pointer) or the menu, and reordered by dragging; an entry's button unloads it.
+/// The tab bar of our own, for `tabs.mode: internal`: one window, many terminals, drawn in the sidebar's language: each tab a sidebar row,
+/// the bar itself with no material of its own (the window's backdrop shows, as behind the sidebar), the tabs sharing its width. The kept
+/// entries that are open come first, then a thin line and the window's tabs. Tabs are selected by a click, closed by their button (in the
+/// icon's place under the pointer) or the menu, and reordered by dragging; an entry's button unloads it.
 package struct BuiltInTabBar: View {
     /// The ends fade out, or are cut (`appearance.ends`).
     @Environment(\.fadesEnds) var fadesEnds
@@ -51,8 +51,8 @@ package struct BuiltInTabBar: View {
         HStack(spacing: capsules ? Design.Space.m : Design.Space.xs) {
             SpacesMenuButton(tabs: tabs)
             if let navigation { navigation.transition(.opacity) }
-            // Pinned: the Favorites as circles before the tabs, outside their scroll (owner, 2026-11-13). The Pinned
-            // grid has no place in a bar: its entries are the first tabs, as icons.
+            // Pinned: the Favorites as circles before the tabs, outside their scroll. The Pinned grid has no place in a
+            // bar: its entries are the first tabs, as icons.
             if !tabs.pinnedEntries.isEmpty { pinnedTiles }
             if capsules, !pinnedItems.isEmpty { pinned(pinnedItems) }
             GeometryReader { proxy in
@@ -86,7 +86,7 @@ package struct BuiltInTabBar: View {
                     }
                 }
                 .gesture(WindowDragGesture())
-                // The tabs that scroll under the + blur out towards it (owner, 2026-11-13).
+                // The tabs that scroll under the + blur out towards it.
                 .onScrollGeometryChange(for: Bool.self, of: { $0.contentOffset.x > 0.5 }) { _, now in
                     beyond.leading = now
                 }
@@ -94,7 +94,7 @@ package struct BuiltInTabBar: View {
                     for: Bool.self,
                     of: { $0.contentOffset.x + $0.containerSize.width < $0.contentSize.width - 0.5 }
                 ) { _, now in beyond.trailing = now }
-                // The tabs that scroll past either end blur and fade out there (owner, 2026-11-13).
+                // The tabs that scroll past either end blur and fade out there.
                 .overlay(alignment: .leading) { if capsules, beyond.leading { endBlur(.leading) } }
                 .overlay(alignment: .trailing) { if capsules, beyond.trailing { endBlur(.trailing) } }
                 .mask { if capsules { endFade } else { Color.black } }

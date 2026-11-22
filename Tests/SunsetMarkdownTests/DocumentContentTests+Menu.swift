@@ -4,7 +4,7 @@ import Testing
 
 @testable import SunsetMarkdown
 
-/// The owner's note n8 (2026-11-18): a document's tab menu offers "show rendering beside or show source beside".
+/// A document's tab menu offers to show the page beside the source, or the source beside the page.
 extension DocumentContentTests {
     @Test func `a document's tab menu shows the other view in place or beside; plain text has none`() throws {
         let rendered = try content(try file("menu.md", "# Menu\n"))

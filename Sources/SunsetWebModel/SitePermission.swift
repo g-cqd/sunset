@@ -1,4 +1,4 @@
-/// What a site can be allowed (web step g).
+/// What a site can be allowed.
 package enum SitePermission: String, CaseIterable, Codable, Sendable {
     case camera, microphone, screen, location, notifications, popups, autoplay
 
@@ -39,7 +39,7 @@ package enum SitePermission: String, CaseIterable, Codable, Sendable {
         }
     }
 
-    /// The owner's defaults: asked, except pop-ups and sound, blocked.
+    /// The defaults: asked, except pop-ups and sound, blocked.
     package var defaultAnswer: PermissionAnswer {
         self == .popups || self == .autoplay ? .deny : .ask
     }

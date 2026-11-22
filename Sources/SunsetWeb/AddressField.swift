@@ -2,8 +2,8 @@ package import SunsetRuntime
 import SunsetShell
 package import SwiftUI
 
-/// Where the address of a page is typed (web step b): the field, showing the host until clicked, and a thin line along its bottom edge while the page
-/// loads. Used by the sidebar, the window bar and the row of a page. Return opens what was typed and gives the page the keyboard; Escape gives it back.
+/// Where the address of a page is typed: the field, showing the host until clicked, and a thin line along its bottom edge while the page loads. Used by
+/// the sidebar, the window bar and the row of a page. Return opens what was typed and gives the page the keyboard; Escape gives it back.
 package struct AddressField: View {
     @Environment(\.runtime) var runtime
 
@@ -76,7 +76,7 @@ package struct AddressField: View {
         .contextMenu { pageMenu }
         .keptHover($hovering)
         .animation(.easeOut(duration: 0.15), value: hovering)
-        // A private page's field is dark, its text light (web step h).
+        // A private page's field is dark, its text light.
         .fieldSurface(dark: content.isPrivate)
         .clipShape(RoundedRectangle(cornerRadius: controlRadius ?? surface.leafRadius, style: .continuous))
         .environment(\.colorScheme, content.isPrivate ? .dark : colorScheme)

@@ -1,7 +1,7 @@
 public import Foundation
 import SunsetStorage
 
-/// Every document out of the store as a plain file (R12 step ST-6): a copy, the documents stay.
+/// Every document out of the store as a plain file: a copy, the documents stay.
 extension DocumentStore {
     /// What an export did: how many files were written, and the titles of the documents that could not be (one that does not
     /// read, a disk that refuses).

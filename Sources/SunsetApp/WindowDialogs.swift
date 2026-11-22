@@ -7,7 +7,7 @@ struct WindowDialogs: ViewModifier {
     let tabs: TabsModel
     let layout: Configuration.Layout
     /// The window's address bar over the focused pane (its card given): drawn here, above the command bar's backdrop, so that the
-    /// backdrop does not blur it (owner, 2026-11-13).
+    /// backdrop does not blur it.
     let addressBar: (PaneCardShape?) -> AnyView
 
     func body(content: Content) -> some View {
@@ -32,7 +32,7 @@ struct WindowDialogs: ViewModifier {
                                 .modifier(RenameTabAlert(tabs: tabs))
                                 .offset(x: field.minX - origin.x, y: field.minY - origin.y)
                         } else {
-                            // Centred over the panes, not the window (owner, 2026-11-13).
+                            // Centred over the panes, not the window.
                             CommandBarView(
                                 tabs: tabs,
                                 layout: layout,

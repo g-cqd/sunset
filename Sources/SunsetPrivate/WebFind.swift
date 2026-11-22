@@ -2,8 +2,8 @@ public import Foundation
 internal import InternedStrings
 internal import ObjectiveC
 
-/// WebKit's own find in page, the one Safari uses (web step d): every match highlighted, their count and the index of the current one. Not public
-/// API: the selectors are looked up by name (`responds(to:)`) and `isAvailable` is false when a macOS drops them; the caller then uses the public
+/// WebKit's own find in page, the one Safari uses: every match highlighted, their count and the index of the current one. Not public API: the
+/// selectors are looked up by name (`responds(to:)`) and `isAvailable` is false when a macOS drops them; the caller then uses the public
 /// `WKWebView.find` (no count). The answers come to a listener whose methods are added at run time, so no private name is written in plain.
 @MainActor
 public final class WebFind: NSObject {

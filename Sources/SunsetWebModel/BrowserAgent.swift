@@ -1,4 +1,4 @@
-/// A browser Sunset can appear as (Chrome, Edge, Firefox, Safari on macOS). The first rung of R5's ladder only: what the
+/// A browser Sunset can appear as (Chrome, Edge, Firefox, Safari on macOS). The first rung of the ladder only: what the
 /// User-Agent says, in the header of every request of the page and to its scripts (`navigator.userAgent`). The engine is
 /// still WebKit: no client-hint header is sent (WebKit has none, and gives no way to add a header to every request), and
 /// what scripts can probe, and the connection's own fingerprint, are WebKit's.

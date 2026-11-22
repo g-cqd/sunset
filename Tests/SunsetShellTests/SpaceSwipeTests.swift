@@ -3,8 +3,8 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// The two-finger swipe on the sidebar that changes Space. The owner, 2026-11-17: "it should snap to the space, starting
-/// slow and snap when enough swiped, not swipe multiple ones at the same time", with a tap of the trackpad at the snap.
+/// The two-finger swipe on the sidebar that changes Space. It snaps to the Space, slow at first, then snapping once
+/// swiped far enough, one Space at a time, with a tap of the trackpad at the snap.
 @Suite("The swipe between Spaces")
 struct SpaceSwipeTests {
     private let width = 240.0
