@@ -50,7 +50,7 @@ struct PasswordsPage: View {
         ContentUnavailableView {
             Label("Passwords Are Locked", systemImage: "lock")
         } description: {
-            Text(refused ? "That does not unlock this vault." : "Unlock them to see and edit your entries.")
+            Text(lockedMessage)
         } actions: {
             VStack(spacing: Design.Space.s) {
                 SecureField("Master Password", text: $password)
@@ -68,6 +68,13 @@ struct PasswordsPage: View {
     }
 
     private static let field = 240.0
+
+    private var lockedMessage: String {
+        if refused, let wait = model.retryIn {
+            return "That does not unlock this vault. Try again in \(Int(wait.components.seconds) + 1) s."
+        }
+        return refused ? "That does not unlock this vault." : "Unlock them to see and edit your entries."
+    }
 
     private func unlock() {
         refused = !model.unlock(password: password)

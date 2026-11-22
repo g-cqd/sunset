@@ -9,6 +9,9 @@ extension Configuration {
         /// Keys typed in the terminal are kept from other apps' event taps (keyloggers): while a program asks for a password,
         /// always, or never.
         public var secureKeyboard = SecureKeyboard.whenPassword
+        /// What a Cmd-click on a link to a file of this Mac does: programs shown in the Finder (the default), everything
+        /// opened, or everything shown (ADR-0118).
+        public var fileLinks = FileLinks.revealPrograms
         /// A paste that would run commands, or holds control or hidden characters, is asked about first.
         public var pasteWarning = true
         /// C1 controls encoded in UTF-8 (U+0080 to U+009F) act as controls; off, they are dropped (threat model A2: a program

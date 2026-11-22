@@ -31,7 +31,7 @@ struct PasswordsSpeedProbe {
             runtime: TestTime().runtime,
             locks: VaultLocks()
         )
-        _ = try model.create(password: "pw", again: "pw")
+        _ = try model.create(password: "correct horse battery", again: "correct horse battery")
         for index in 0 ..< 1_000 { _ = try model.add(from: .login, title: "Entry \(index)") }
         var saves: [Double] = []
         var reads: [Double] = []

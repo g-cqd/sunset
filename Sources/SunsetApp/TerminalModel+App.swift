@@ -1,4 +1,5 @@
 import AppKit
+import SunsetAppCore
 import SunsetConfig
 import SunsetHost
 import SunsetPane
@@ -24,6 +25,12 @@ extension TerminalModel {
             return (terminal.secureKeyboard, terminal.pasteWarning)
         }
         openURL = { [weak self, weak tabs] url in
+            // A file of this Mac: a program is shown in the Finder, not run, unless the setting says otherwise (ADR-0118).
+            let links = AppConfiguration.shared.configuration.terminal.fileLinks
+            if url.isFileURL, links.reveals(program: FileLinkTarget.isProgram(url)) {
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+                return
+            }
             // With the web off a link goes to the system's browser.
             guard AppConfiguration.shared.configuration.web.openLinksInSunset, AppScopes.current.web, let self, let tabs
             else {

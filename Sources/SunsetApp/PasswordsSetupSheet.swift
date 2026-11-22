@@ -75,6 +75,8 @@ struct PasswordsSetupSheet: View {
             again = ""
         } catch is PasswordsModel.Mismatch {
             problem = "The two passwords are not the same."
+        } catch is PasswordsModel.TooShort {
+            problem = "Use at least \(PasswordsModel.minimumLength) characters: a few words make a strong password."
         } catch {
             problem = "The vault could not be made."
         }

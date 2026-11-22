@@ -134,12 +134,14 @@ public struct StoragePlaces: Sendable, Equatable {
 
     /// Where the key that seals all this is kept: for the person's own setup, the data-protection keychain, the key wrapped by
     /// this Mac's Secure Enclave, moved there from the login Keychain, where it stays for a build that cannot use the new
-    /// place; a file beside the others for a named one, which must not touch the Keychain.
+    /// place; a file beside the others for a named one, which must not touch the Keychain. A team-signed build that is not a
+    /// development one requires the new place (ADR-0120): one that cannot use it says so rather than keep the key unwrapped.
     public var keyVault: any KeyVault {
         guard isDefault else { return FileKeyVault(path: directory + "/storage.key") }
         return MovingKeyVault(
             new: EnclaveKeyVault(backing: KeychainKeyVault(service: keyService + ".enclave", dataProtection: true)),
-            old: KeychainKeyVault(service: keyService)
+            old: KeychainKeyVault(service: keyService),
+            requiresNew: !isDevelopment && CodeSigning.teamIdentifier != nil
         )
     }
 

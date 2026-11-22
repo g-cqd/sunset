@@ -5,14 +5,17 @@ public import Foundation
 /// - the first launch copies the key and checks the copy opens to it, and keeps the old;
 /// - a later launch that opens the new one, and finds the same key in the old, removes the old;
 /// - a new place that cannot be used (a build without the team's entitlement, no Secure Enclave) leaves the key where it
-///   was, and it is read from there.
+///   was, and it is read from there; unless `requiresNew` (a team-signed release, ADR-0120): then it is an error, which
+///   the app says, and nothing is sealed with a key kept without the Secure Enclave's wrapping.
 public struct MovingKeyVault: KeyVault {
     let new: any KeyVault
     let old: any KeyVault
+    let requiresNew: Bool
 
-    public init(new: any KeyVault, old: any KeyVault) {
+    public init(new: any KeyVault, old: any KeyVault, requiresNew: Bool = false) {
         self.new = new
         self.old = old
+        self.requiresNew = requiresNew
     }
 
     public func read() throws(StorageKeyFailure) -> Data? {
@@ -20,6 +23,7 @@ public struct MovingKeyVault: KeyVault {
         do {
             moved = try new.read()
         } catch {
+            if requiresNew { throw StorageKeyFailure.vault }
             return try old.read()
         }
         if let moved {
@@ -34,6 +38,7 @@ public struct MovingKeyVault: KeyVault {
             guard try new.read() == kept else { throw StorageKeyFailure.vault }
         } catch {
             try? new.remove()
+            if requiresNew { throw StorageKeyFailure.vault }
         }
         return kept
     }
@@ -45,6 +50,7 @@ public struct MovingKeyVault: KeyVault {
             try? old.remove()
         } catch {
             try? new.remove()
+            if requiresNew { throw StorageKeyFailure.vault }
             try old.write(bytes)
         }
     }

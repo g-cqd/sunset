@@ -12,6 +12,9 @@ package final class PasswordsModel {
     package enum State: Equatable { case none, locked, unlocked }
     /// The two passwords typed differ, or are empty.
     package struct Mismatch: Error, Equatable {}
+    /// The password is shorter than `minimumLength` (ADR-0119).
+    package struct TooShort: Error, Equatable {}
+    package static let minimumLength = 12
 
     package private(set) var state = State.none
     /// The entries, by title, while unlocked; none otherwise.
@@ -24,6 +27,7 @@ package final class PasswordsModel {
     @ObservationIgnored private let runtime: Runtime
     @ObservationIgnored private let locks: VaultLocks
     @ObservationIgnored private var vault: Vault?
+    @ObservationIgnored private var throttle = UnlockThrottle()
 
     package init(path: String, cost: MasterPassword.Cost = .standard, runtime: Runtime, locks: VaultLocks = .shared) {
         self.path = path
@@ -37,7 +41,7 @@ package final class PasswordsModel {
         }
     }
 
-    /// Makes the vault: `password` and `again` must be the same, and not empty. With `touchID`, Touch ID is its first
+    /// Makes the vault: `password` and `again` must be the same, and at least `minimumLength` characters. With `touchID`, Touch ID is its first
     /// factor. The recovery code it returns is to be shown once; it is not kept.
     package func create(
         password: String,
@@ -45,6 +49,7 @@ package final class PasswordsModel {
         touchID: ((UUID) throws(TouchIDFactor.Refused) -> (TouchIDFactor, Data))? = nil
     ) throws -> RecoveryCode {
         guard !password.isEmpty, password == again else { throw Mismatch() }
+        guard password.count >= Self.minimumLength else { throw TooShort() }
         try FileManager.default.createDirectory(
             atPath: (path as NSString).deletingLastPathComponent,
             withIntermediateDirectories: true,
@@ -62,9 +67,18 @@ package final class PasswordsModel {
         return code
     }
 
-    /// Unlocks with the master password; false when it is not this vault's.
+    /// How long until a master password may be tried again after wrong ones (`UnlockThrottle`); nil when it may now.
+    package var retryIn: Duration? {
+        throttle.wait(at: runtime.uptime())
+    }
+
+    /// Unlocks with the master password; false when it is not this vault's, or when tries must wait (`retryIn`): then it
+    /// is not tried at all.
     package func unlock(password: String) -> Bool {
-        unlocking { try $0.unlock(password: password) }
+        guard retryIn == nil else { return false }
+        let opened = unlocking { try $0.unlock(password: password) }
+        if opened { throttle.succeeded() } else { throttle.failed(at: runtime.uptime()) }
+        return opened
     }
 
     /// Unlocks with Touch ID; false when it was refused or cancelled.

@@ -41,7 +41,7 @@ struct PasswordsModelTests {
         let folder = FileManager.default.temporaryDirectory.appending(path: "pw-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: folder) }
         let passwords = model(folder, time)
-        _ = try passwords.create(password: "pw", again: "pw")
+        _ = try passwords.create(password: "correct horse battery", again: "correct horse battery")
         let bank = try passwords.add(from: .login, title: "Bank")
         _ = try passwords.add(from: .card, title: "Amex")
         #expect(passwords.entries.map(\.title) == ["Amex", "Bank"])
@@ -52,7 +52,7 @@ struct PasswordsModelTests {
         passwords.lock()
         #expect(passwords.state == .locked && passwords.entries.isEmpty)
         #expect(!passwords.unlock(password: "wrong"))
-        #expect(passwords.unlock(password: "pw") && passwords.entries.count == 2)
+        #expect(passwords.unlock(password: "correct horse battery") && passwords.entries.count == 2)
         try passwords.remove(bank.id)
         #expect(passwords.entries.map(\.title) == ["Amex"])
     }
@@ -71,7 +71,7 @@ struct PasswordsModelTests {
             runtime: time.runtime,
             locks: locks
         )
-        _ = try passwords.create(password: "pw", again: "pw")
+        _ = try passwords.create(password: "correct horse battery", again: "correct horse battery")
         _ = try passwords.add(from: .secureNote, title: "Note")
         locks.lockAll(.screenLocked)
         #expect(passwords.state == .locked && passwords.entries.isEmpty)
@@ -83,11 +83,11 @@ struct PasswordsModelTests {
         let folder = FileManager.default.temporaryDirectory.appending(path: "pw-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: folder) }
         let passwords = model(folder, time)
-        _ = try passwords.create(password: "pw", again: "pw")
+        _ = try passwords.create(password: "correct horse battery", again: "correct horse battery")
         try passwords.setNeverSave("example.com")
         #expect(passwords.neverSave == ["example.com"])
         passwords.lock()
         #expect(passwords.neverSave.isEmpty)
-        #expect(passwords.unlock(password: "pw") && passwords.neverSave == ["example.com"])
+        #expect(passwords.unlock(password: "correct horse battery") && passwords.neverSave == ["example.com"])
     }
 }

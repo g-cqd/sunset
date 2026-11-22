@@ -119,6 +119,17 @@ extension SettingsOption {
                 "Other apps cannot read what you type in the terminal. A password asked on another computer through SSH is "
                     + "not seen: choose Always for those."
             ),
+            choice(
+                "terminal.fileLinks",
+                "Links to files",
+                "file link open reveal finder app script executable osc 8 hyperlink",
+                \.terminal.fileLinks,
+                [(.revealPrograms, "Show programs in the Finder"), (.open, "Open"), (.reveal, "Show in the Finder")]
+            )
+            .noted(
+                "What Cmd-clicking a link to a file does. A program's output can name any file: by default an app or a script "
+                    + "is shown, not run."
+            ),
             toggle(
                 "terminal.pasteWarning",
                 "Ask before a risky paste",

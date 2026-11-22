@@ -7,7 +7,9 @@ package enum DownloadNaming {
     package static let suspicious: Set<String> = [
         "app", "pkg", "mpkg", "command", "tool", "sh", "bash", "zsh", "terminal", "workflow", "scpt", "applescript",
         "jar",
-        "dylib", "bundle", "plugin", "action", "prefpane", "kext", "osax", "py", "pl", "rb"
+        "dylib", "bundle", "plugin", "action", "prefpane", "kext", "osax", "py", "pl", "rb", "fish", "csh", "ksh",
+        "saver",
+        "qlgenerator", "appex", "scptd"
     ]
     /// The kinds Safari calls safe: pictures, PDF, plain text, sound and film.
     package static let safe: Set<String> = [

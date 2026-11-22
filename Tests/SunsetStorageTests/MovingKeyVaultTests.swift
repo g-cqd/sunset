@@ -65,4 +65,26 @@ struct MovingKeyVaultTests {
         #expect(try MovingKeyVault(new: wrong, old: old).read() == ordered)
         #expect(wrong.inner.stored == nil && old.stored == ordered)
     }
+
+    /// A team-signed release (ADR-0120): the key lives in the new place or nowhere. A new place that fails is an error the
+    /// app says, never a quiet fall back to the login Keychain without the Secure Enclave's wrapping.
+    @Test func `strict: a new place that fails is an error, on reading and on writing; the old is not used`() throws {
+        let old = MemoryKeyVault()
+        try old.write(key)
+        let strict = MovingKeyVault(new: MemoryKeyVault(failing: true), old: old, requiresNew: true)
+        #expect(throws: StorageKeyFailure.vault) { try strict.read() }
+        let untouched = MemoryKeyVault()
+        #expect(throws: StorageKeyFailure.vault) {
+            try MovingKeyVault(new: MemoryKeyVault(failing: true), old: untouched, requiresNew: true).write(key)
+        }
+        #expect(untouched.stored == nil, "nothing written to the old place")
+    }
+
+    @Test func `strict: the key is still moved from the old place, when the new one works`() throws {
+        let old = MemoryKeyVault()
+        let new = MemoryKeyVault()
+        try old.write(key)
+        #expect(try MovingKeyVault(new: new, old: old, requiresNew: true).read() == key)
+        #expect(new.stored == key)
+    }
 }
