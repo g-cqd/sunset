@@ -22,8 +22,10 @@ temporary files on a program's word is one.
 - **Only data sent in the escape itself** (`t=d`) is read. A file, a temporary file or shared memory (`t=f`, `t=t`, `t=s`)
   is refused (`EPERM`): Sunset never opens a path or a memory region because a program named it. Compression (`o=z`) is
   refused (`EINVAL`) until an inflater is part of the core.
-- **A quota**: images take at most 320 MiB, kitty's own default; a new image that would not fit sends the oldest away first,
-  with their placements. An image of more than 10,000 pixels a side is refused.
+- **A quota**: a terminal's images take at most 64 MiB (kitty's default is 320 MiB, for one window; Sunset keeps a terminal
+  a tab, and a PNG is kept encoded, far smaller than its pixels). A new image that would not fit sends the oldest away
+  first, with their placements; one larger than the quota is refused (`ENOSPC`). An image of more than 10,000 pixels a side
+  is refused; at most 4,096 placements are kept, the oldest going first.
 - **Replies** only when the program gave an image id, kept quiet by `q=1` (success) and `q=2` (always), as kitty.
 
 ## Consequences

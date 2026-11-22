@@ -157,7 +157,7 @@ package import SunsetRuntime
                     await Self.forward(events, to: session) { self?.unclaimed($0) }
                 },
                 runtime.task(role: .observation) { [sizes = sizes.stream] in
-                    for await size in sizes { await session.resize(columns: size.columns, rows: size.rows) }
+                    for await size in sizes { await Self.resize(session, to: size) }
                 },
                 runtime.task { [weak self] in await self?.blink() }
             ]

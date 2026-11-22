@@ -191,9 +191,13 @@ public actor TerminalSession {
         continuation.yield(.changed)
     }
 
-    public func resize(columns: Int, rows: Int) {
-        core.terminal.withLock { $0.resize(columns: columns, rows: rows) }
-        process.resize(columns: columns, rows: rows)
+    /// The grid's new size; and a cell's in pixels, when known (0 otherwise), told to the terminal and the program.
+    public func resize(columns: Int, rows: Int, cellWidth: Int = 0, cellHeight: Int = 0) {
+        core.terminal.withLock {
+            $0.resize(columns: columns, rows: rows)
+            if cellWidth > 0, cellHeight > 0 { $0.setCellPixelSize(width: cellWidth, height: cellHeight) }
+        }
+        process.resize(columns: columns, rows: rows, cellWidth: cellWidth, cellHeight: cellHeight)
         continuation.yield(.changed)
     }
 

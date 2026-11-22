@@ -79,12 +79,13 @@ public final class PTYProcess: Sendable {
 
     // MARK: Control
 
-    public func resize(columns: Int, rows: Int) {
+    /// The program's window size: cells, and pixels when a cell's size is known (image tools read them, `TIOCGWINSZ`).
+    public func resize(columns: Int, rows: Int, cellWidth: Int = 0, cellHeight: Int = 0) {
         var size = winsize(
             ws_row: UInt16(clamping: rows),
             ws_col: UInt16(clamping: columns),
-            ws_xpixel: 0,
-            ws_ypixel: 0
+            ws_xpixel: UInt16(clamping: columns * max(cellWidth, 0)),
+            ws_ypixel: UInt16(clamping: rows * max(cellHeight, 0))
         )
         _ = unsafe ioctl(master, TIOCSWINSZ, &size)
     }

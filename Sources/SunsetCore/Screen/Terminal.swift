@@ -71,4 +71,15 @@ extension Terminal {
         screen.palette.setDefaults(foreground: foreground, background: background, cursor: cursor)
         screen.markDirty(0 ... screen.rows - 1)
     }
+
+    /// A cell's size in pixels, as the host draws it: an image takes as many cells as its pixels cover (ADR-0117).
+    public mutating func setCellPixelSize(width: Int, height: Int) {
+        screen.graphics.cellWidth = max(width, 1)
+        screen.graphics.cellHeight = max(height, 1)
+    }
+
+    /// The most a terminal's images may take, in bytes (64 MiB unless said).
+    public mutating func setGraphicsQuota(bytes: Int) {
+        screen.graphics.quota = max(bytes, 0)
+    }
 }

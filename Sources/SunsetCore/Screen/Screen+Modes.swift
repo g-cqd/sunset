@@ -110,7 +110,9 @@ extension Screen {
     /// the title or position) is refused, so a program cannot reach the window or read it back.
     mutating func windowOperation(_ parameters: Parameters) {
         switch parameters[0] {
-            case 18: reportSize()
+            case 14: reportSize(4)
+            case 16: reportSize(6)
+            case 18: reportSize(8)
             case 22 where parameters[1] == 0 || parameters[1] == 2: pushTitle()
             case 23 where parameters[1] == 0 || parameters[1] == 2: popTitle()
             default: break
@@ -160,8 +162,11 @@ extension Screen {
     /// RIS: back to the state of a new screen of the same size.
     mutating func fullReset() {
         let style = defaultCursor
+        // The images go; what the host said of its cells and of the images' room stays.
+        let (cellWidth, cellHeight, quota) = (graphics.cellWidth, graphics.cellHeight, graphics.quota)
         self = Screen(columns: columns, rows: rows)
         defaultCursor = style
         (cursorShape, cursorBlinks) = style
+        (graphics.cellWidth, graphics.cellHeight, graphics.quota) = (cellWidth, cellHeight, quota)
     }
 }

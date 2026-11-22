@@ -53,11 +53,20 @@ extension Screen {
         }
     }
 
-    mutating func reportSize() {
-        let height = rows
-        let width = columns
+    /// `CSI kind ; height ; width t`: 8 the screen in cells (CSI 18 t), 4 the text area in pixels (CSI 14 t), 6 a cell in
+    /// pixels (CSI 16 t), as the host draws them (`Terminal.setCellPixelSize`).
+    mutating func reportSize(_ kind: Int) {
+        let (cellWidth, cellHeight) = (graphics.cellWidth, graphics.cellHeight)
+        let (height, width) =
+            switch kind {
+                case 4: (rows * cellHeight, columns * cellWidth)
+                case 6: (cellHeight, cellWidth)
+                default: (rows, columns)
+            }
         reply { writer in
-            writer.text("\u{1B}[8;")
+            writer.text("\u{1B}[")
+            writer.number(kind)
+            writer.byte(0x3B)
             writer.number(height)
             writer.byte(0x3B)
             writer.number(width)

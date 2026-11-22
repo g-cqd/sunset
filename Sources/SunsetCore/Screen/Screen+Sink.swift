@@ -180,11 +180,14 @@ extension Screen: VTSink {
     ) {
         joinable = false
         oscStart(kind)
+        graphicsStart(kind)
     }
     public mutating func stringBytes(_ bytes: Span<UInt8>) {
         oscAppend(bytes)
+        graphicsAppend(bytes)
     }
     public mutating func stringEnd(completed: Bool, terminator: StringTerminator) {
         oscEnd(completed: completed, terminator: terminator)
+        graphicsEnd(completed: completed)
     }
 }

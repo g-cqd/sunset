@@ -67,6 +67,8 @@ public struct Screen: Sendable {
     var rowOrigins: ContiguousArray<Int32>
     public internal(set) var generation: UInt64 = 0
     public internal(set) var bellCount = 0
+    /// The images programs sent, and where they are shown (ADR-0117).
+    public internal(set) var graphics = TerminalGraphics()
 
     struct SavedCursor: Sendable {
         var column: Int
