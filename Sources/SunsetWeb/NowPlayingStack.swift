@@ -47,6 +47,8 @@ package struct NowPlayingStack: View {
             .overlay { shape.fill(.black.opacity(depth == 0 ? 0 : 1 - Design.NowPlaying.behind)) }
             .clipShape(shape)
             .allowsHitTesting(depth == 0)
+            // Nor to accessibility: a card behind has nothing to press (seen 2026-11-22: its hidden buttons were pressed).
+            .accessibilityHidden(depth != 0)
             .scaleEffect(1 - Design.NowPlaying.shrink * Double(depth), anchor: .top)
             .offset(y: -Design.NowPlaying.peek * Double(depth))
     }
