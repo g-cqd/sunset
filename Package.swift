@@ -294,14 +294,14 @@ let package = Package(
             "SunsetAppCore",
             [
                 "SunsetRuntime", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost", "SunsetShellModel",
-                "SunsetStorage", "SunsetDocuments", "SunsetWebModel"
+                "SunsetStorage", "SunsetDocuments", "SunsetWebModel", "SunsetCredentials"
             ]
         ),
         tests(
             "SunsetAppCoreTests",
             [
                 "SunsetTestSupport", "SunsetAppCore", "SunsetConfig", "SunsetPane", "SunsetWeb", "SunsetHost",
-                "SunsetShellModel", "SunsetStorage", "SunsetWebModel", "SunsetDocuments",
+                "SunsetShellModel", "SunsetStorage", "SunsetWebModel", "SunsetDocuments", "SunsetCredentials",
                 .product(name: "AemiTestKit", package: "aemi")
             ]
         ),

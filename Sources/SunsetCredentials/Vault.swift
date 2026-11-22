@@ -9,7 +9,9 @@ import SunsetStorage
 public final class Vault {
     public enum Factor: String, Equatable, Sendable, Codable { case password, recoveryCode, touchID }
     /// The factor given does not unlock this vault (a wrong password, another vault's code, a changed slot).
-    public struct Refused: Error, Equatable {}
+    public struct Refused: Error, Equatable {
+        public init() {}
+    }
 
     public let file: VaultFile
     public let lock: VaultLock

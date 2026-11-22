@@ -5,7 +5,18 @@ package import SunsetPane
 package enum AppCommandChoices {
     package enum Command: Equatable, Sendable, CaseIterable {
         case importFromBrowser
-        case settings, library, documents, history, downloads, help
+        case settings, library, documents, history, downloads, passwords, help
+
+        /// The Library's section it shows, for those that show one.
+        package var librarySection: SidebarSection? {
+            switch self {
+                case .documents: .documents
+                case .history: .history
+                case .downloads: .downloads
+                case .passwords: .passwords
+                case .importFromBrowser, .settings, .library, .help: nil
+            }
+        }
 
         /// The words that find it.
         var words: [String] {
@@ -17,6 +28,7 @@ package enum AppCommandChoices {
                 case .documents: ["documents", "files", "notes"]
                 case .history: ["history", "visited"]
                 case .downloads: ["downloads"]
+                case .passwords: ["passwords", "vault", "logins", "keys", "cards"]
                 case .help: ["help", "manual", "documentation", "shortcuts"]
             }
         }
@@ -31,6 +43,7 @@ package enum AppCommandChoices {
                 case .importFromBrowser: guard scopes.web else { return false }
                 case .documents: guard scopes.documents else { return false }
                 case .history, .downloads: guard scopes.web else { return false }
+                case .passwords: guard scopes.passwords else { return false }
                 case .settings, .library, .help: break
             }
             return words.allSatisfy { word in command.words.contains { $0.hasPrefix(word) } }

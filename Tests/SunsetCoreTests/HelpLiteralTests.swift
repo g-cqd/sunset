@@ -7,7 +7,6 @@ import Testing
 @Suite("Tooltips from help's topics") struct HelpLiteralTests {
     /// The tooltips written in place before help existed, by file.
     static let allowed: [String: Int] = [
-        "SectionPanel+Parts.swift": 1,
         "SiteRuleRow.swift": 1,
         "SidebarNotices.swift": 1, "StorageProblemsBanner.swift": 1, "PrivateMark.swift": 1, "AddressField.swift": 1,
         "NotSecureMark.swift": 1, "DocumentNotices.swift": 2, "EditedMark.swift": 1,

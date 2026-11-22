@@ -23,9 +23,12 @@ public struct Scopes: Sendable, Equatable {
     }
 
     private var on: Set<Scope>
+    /// The vault: not a kind of pane, and off unless turned on (`features.credentials`); its Library section shows then.
+    public var passwords: Bool
 
     /// All three off is terminals on.
-    public init(terminal: Bool = true, web: Bool = true, documents: Bool = true) {
+    public init(terminal: Bool = true, web: Bool = true, documents: Bool = true, passwords: Bool = false) {
+        self.passwords = passwords
         on = []
         if terminal { on.insert(.terminal) }
         if web { on.insert(.web) }

@@ -38,23 +38,17 @@ extension SectionPanel {
     @ViewBuilder private var actions: some View {
         switch section {
             case .documents:
-                Menu {
+                SectionMenuButton(
+                    symbol: "arrow.up.arrow.down",
+                    label: "Order of the documents",
+                    size: buttons.metrics.size
+                ) {
                     Picker("Order", selection: sortBinding) {
                         ForEach(DocumentSort.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
                     .pickerStyle(.inline)
                     .labelsHidden()
-                } label: {
-                    SidebarSymbol(name: "arrow.up.arrow.down", filled: false)
                 }
-                .menuStyle(.button)
-                .buttonStyle(.plain)
-                .menuIndicator(.hidden)
-                .foregroundStyle(.secondary)
-                .fixedSize()
-                .frame(width: buttons.metrics.size.width, height: buttons.metrics.size.height)
-                .help("Order of the documents")
-                .accessibilityLabel("Order of the documents")
                 SidebarIconButton(symbol: "plus", help: "New Document") { tabs.newDocument() }
                     .disabled(!tabs.shelf.available())
                     .accessibilityLabel("New Document")
@@ -63,6 +57,8 @@ extension SectionPanel {
                     .buttonStyle(.borderless)
                     .font(Design.Text.detail)
                     .disabled(DownloadCenter.shared.items.allSatisfy { $0.state == .running })
+            case .passwords:
+                PasswordsActions(model: AppPasswords.model, size: buttons.metrics.size)
             case .history, .tabs, .settings:
                 EmptyView()
         }

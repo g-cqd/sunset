@@ -7,12 +7,13 @@ extension SidebarSection {
         switch self {
             case .documents: .documents
             case .history, .downloads: .web
-            case .tabs, .settings: nil
+            case .tabs, .settings, .passwords: nil
         }
     }
 
     package func isShown(for scopes: Scopes) -> Bool {
-        scope.map { scopes[$0] } ?? true
+        if self == .passwords { return scopes.passwords }
+        return scope.map { scopes[$0] } ?? true
     }
 
     /// The Library's rail with these scopes on: the tabs alone is no Library.

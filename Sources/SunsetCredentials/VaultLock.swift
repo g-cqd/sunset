@@ -11,6 +11,8 @@ public final class VaultLock {
 
     /// Why it last locked; nil before it ever was unlocked.
     public private(set) var lockedBecause: Reason?
+    /// Told each time it locks, whatever the reason: what shows the vault lets go of what it held.
+    public var onLock: (@MainActor (Reason) -> Void)?
     private let idle: Duration
     private let runtime: Runtime
     private var key: SecretBuffer?
@@ -51,6 +53,7 @@ public final class VaultLock {
         key.wipe()
         self.key = nil
         lockedBecause = reason
+        onLock?(reason)
     }
 
     /// Sleeps until the idle time would be over; locks if nothing used the key meanwhile, else sleeps again.
@@ -61,6 +64,7 @@ public final class VaultLock {
                 key?.wipe()
                 key = nil
                 lockedBecause = .idle
+                onLock?(.idle)
             }
         }
     }

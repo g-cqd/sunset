@@ -8,7 +8,7 @@ import Testing
 @Suite("The sections of the sidebars") struct SidebarSectionsTests {
     @Test func `the opposite panel has History, Documents and Downloads; the Library's rail has Tabs first`() {
         #expect(SidebarSection.panel == [.history, .documents, .downloads])
-        #expect(SidebarSection.rail == [.tabs, .documents, .history, .downloads])
+        #expect(SidebarSection.rail == [.tabs, .documents, .history, .downloads, .passwords])
         #expect(SidebarSection.allCases.allSatisfy { !$0.title.isEmpty && !$0.symbol.isEmpty })
     }
 

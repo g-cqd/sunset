@@ -28,26 +28,22 @@ enum CommandRows {
     }
 
     private static func look(_ command: AppCommandChoices.Command) -> (String, String, String) {
+        if let section = command.librarySection { return (section.title, section.symbol, "Library") }
         switch command {
-            case .importFromBrowser: ("Import from Another Browser\u{2026}", "square.and.arrow.down", "File")
-            case .settings: ("Settings", "gearshape", "Sunset")
-            case .library: ("Library", "books.vertical", "Sidebar")
-            case .documents: ("Documents", "doc.text", "Library")
-            case .history: ("History", "clock", "Library")
-            case .downloads: ("Downloads", "arrow.down.circle", "Library")
-            case .help: ("Sunset Help", "questionmark.circle", "Help")
+            case .importFromBrowser: return ("Import from Another Browser\u{2026}", "square.and.arrow.down", "File")
+            case .settings: return ("Settings", "gearshape", "Sunset")
+            case .library: return ("Library", "books.vertical", "Sidebar")
+            default: return ("Sunset Help", "questionmark.circle", "Help")
         }
     }
 
     @MainActor private static func run(_ command: AppCommandChoices.Command, tabs: TabsModel) {
+        if let section = command.librarySection { return tabs.sections.show(library: section) }
         switch command {
             case .importFromBrowser: AppActions.shared.importFromBrowser()
             case .settings: AppSettings.show(in: tabs)
             case .library: if !tabs.sections.isLibraryOpen { tabs.sections.toggleLibrary() }
-            case .documents: tabs.sections.show(library: .documents)
-            case .history: tabs.sections.show(library: .history)
-            case .downloads: tabs.sections.show(library: .downloads)
-            case .help: AppHelp.show(in: tabs)
+            default: AppHelp.show(in: tabs)
         }
     }
 }

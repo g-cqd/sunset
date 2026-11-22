@@ -1,3 +1,4 @@
+import SunsetAppCore
 import SunsetConfig
 import SunsetMetrics
 import SunsetRuntime
@@ -47,6 +48,7 @@ struct SectionPanel: View {
                 let _ = HistoryChanges.shared.generation
                 return AppHistory.shared?.entries(limit: 1).count ?? 0
             case .downloads: return DownloadCenter.shared.items.count
+            case .passwords: return AppPasswords.model.entries.count
             case .tabs, .settings: return 0
         }
     }

@@ -10,7 +10,12 @@ import SunsetShell
     /// The scopes as the configuration says.
     static var current: Scopes {
         let features = AppConfiguration.shared.configuration.features
-        return Scopes(terminal: features.terminal, web: features.web, documents: features.documents)
+        return Scopes(
+            terminal: features.terminal,
+            web: features.web,
+            documents: features.documents,
+            passwords: features.credentials
+        )
     }
 
     /// Every Space there is: the app's, and, once there are windows, those of windows that have their own (private, one
