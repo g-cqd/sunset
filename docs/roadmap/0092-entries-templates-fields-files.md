@@ -15,6 +15,6 @@ Research: docs/research/credentials/vault.md. ADR-0092 (proposed).
 | C | Notes (Markdown, AemiMarkdown); attachments (1 MiB sealed chunks, own key, limits, preview inside Sunset only) | not-started |
 | D | History: versions by count or age; concealed fields' dated history; restore | not-started |
 | E | The library: search (never concealed values; measured at 10,000), folders, tags, favourites, icons through the profile's store | not-started |
-| F | The generator (characters, words, PIN; `passwordrules`); local health (reused, weak, old); a breach check only if turned on | not-started |
+| F | The generator (characters, words, PIN; `passwordrules`); local health (reused, weak, old); a breach check only if turned on | in-progress: characters, PIN, `passwordrules` done 2026-11-22 (`PasswordRecipe`, `PasswordRules`); words, health and the breach check not |
 
 Not done: B–F; A's references.
