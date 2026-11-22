@@ -90,6 +90,27 @@ struct WelcomeOpeningTests {
         #expect(at(phase.start + phase.length * 0.5).windowOpacity > 0.3)
     }
 
+    /// n86: "could the … sun itself in the animation be more circular a tiny bit … and morph while moving into the shape it
+    /// should take on the window?"
+    @Test func `the sun starts round and takes the window's shape as it sets, never back`() {
+        #expect(at(0).sunRoundness == 1)
+        let set = WelcomeOpening.setPhase
+        #expect(at(set.start + set.length).sunRoundness < 1e-9, "the window's shape once it has set")
+        #expect(
+            at(set.start + set.length * 0.5).sunRoundness > 0.2 && at(set.start + set.length * 0.5).sunRoundness < 0.8
+        )
+        var last = at(0)
+        for time in times {
+            let now = at(time)
+            #expect(now.sunRoundness <= last.sunRoundness, "only towards the window's shape, at \(time)")
+            last = now
+        }
+        #expect(
+            WelcomeOpening.sunAspect(roundness: 0) == WelcomeOpening.windowAspect
+        )
+        #expect(WelcomeOpening.sunAspect(roundness: 1) == CGSize(width: 1, height: 1))
+    }
+
     @Test func `it ends as the window alone`() {
         let end = at(WelcomeOpening.duration)
         #expect(end.windowOpacity == 1 && end.contentBlur == 0 && end.sunOpacity == 0)

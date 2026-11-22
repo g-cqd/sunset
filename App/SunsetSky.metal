@@ -97,6 +97,7 @@ struct SkyUniforms {
     float time;
     float headroom;      // the display's: 1 without HDR
     float scale;         // pixels a point
+    float2 sunAspect;    // distances from its middle scaled by this: (1, 1) round; the window's a little wider
 };
 
 struct SkyVertex { float4 position [[position]]; };
@@ -140,7 +141,7 @@ static float3 skyLayer(SkyRay ray, constant SkyUniforms &u) {
 static float3 sunLayer(float2 p, constant SkyUniforms &u, thread float &heart) {
     float defocus = clamp(u.sunDefocus, 0.0f, 1.0f);
     float R = 0.13f * u.frameSize.y * (1.0f + defocus * 2.2f);
-    float2 d = (p - u.sun) * float2(0.92f, 1.08f);
+    float2 d = (p - u.sun) * u.sunAspect;
     float r = length(d);
     float dim = 1.0f / (1.0f + defocus * 2.4f);
     heart = exp(-pow(r / R, 2.2f)) * dim;

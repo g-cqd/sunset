@@ -11,6 +11,7 @@ struct SunsetSkyFrame {
     var sunDefocus = 0.0
     var elevation: Double
     var horizon = Double(WelcomeOpening.sunHeight)
+    var sunAspect = WelcomeOpening.windowAspect
 
     /// The whole view, sky and sun, as the welcome window draws it.
     static func window(_ size: CGSize) -> Self {
@@ -31,7 +32,8 @@ struct SunsetSkyFrame {
             skyOpacity: 0,
             sunOpacity: now.sunOpacity,
             sunDefocus: now.sunDefocus,
-            elevation: WelcomeOpening.elevation(at: time)
+            elevation: WelcomeOpening.elevation(at: time),
+            sunAspect: WelcomeOpening.sunAspect(roundness: now.sunRoundness)
         )
     }
 }
