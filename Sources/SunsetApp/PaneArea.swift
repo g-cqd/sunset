@@ -121,7 +121,7 @@ struct PaneArea: View {
                 .onChange(of: topInset) { _, _ in applyInsets(frames, bounds: bounds) }
             } else {
                 // No tab left, and no kept entry shown: the window stays while there are Favorites (R3).
-                Text("No tab. \u{2318}T for a terminal")
+                Text(tabs.emptyHint)
                     .font(Design.Text.secondary)
                     .foregroundStyle(.tertiary)
                     .frame(width: proxy.size.width, height: proxy.size.height)

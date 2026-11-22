@@ -66,7 +66,7 @@ struct PinnedGrid: View {
             // The line under the grid, as under the Favorites (roadmap 0038 E); the rows' spacing above it.
             .padding(.bottom, layout.tabSpacing)
             .overlay(alignment: .bottom) {
-                SectionSeparator(layout: layout, visible: !entries.isEmpty && !takesDrag)
+                SectionSeparator(layout: layout, visible: tabs.linesShown.afterPinned && !takesDrag)
                     .offset(y: SectionSeparator.room)
             }
             .padding(.bottom, SectionSeparator.room)

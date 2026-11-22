@@ -1,16 +1,24 @@
 package import SunsetPane
 
 /// Commands of the menus the command bar also offers when what is typed names one (as a new kind of tab is): importing
-/// another browser's things (roadmap 0111 G).
+/// another browser's things (roadmap 0111 G), and Sunset's own places: Settings, the Library and its lists, Help (the
+/// owner's note n83).
 package enum AppCommandChoices {
     package enum Command: Equatable, Sendable, CaseIterable {
         case importFromBrowser
+        case settings, library, documents, history, downloads, help
 
         /// The words that find it.
         var words: [String] {
             switch self {
                 case .importFromBrowser:
                     ["import", "from", "another", "browser", "bookmarks", "chrome", "firefox", "safari", "extensions"]
+                case .settings: ["settings", "preferences", "options", "configuration"]
+                case .library: ["library", "sidebar"]
+                case .documents: ["documents", "files", "notes"]
+                case .history: ["history", "visited"]
+                case .downloads: ["downloads"]
+                case .help: ["help", "manual", "documentation", "shortcuts"]
             }
         }
     }
@@ -22,6 +30,9 @@ package enum AppCommandChoices {
         return Command.allCases.filter { command in
             switch command {
                 case .importFromBrowser: guard scopes.web else { return false }
+                case .documents: guard scopes.documents else { return false }
+                case .history, .downloads: guard scopes.web else { return false }
+                case .settings, .library, .help: break
             }
             return words.allSatisfy { word in command.words.contains { $0.hasPrefix(word) } }
         }

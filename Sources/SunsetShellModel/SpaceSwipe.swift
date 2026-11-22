@@ -26,17 +26,21 @@ package struct SpaceSwipe: Equatable {
     package enum LibrarySide: Equatable, Sendable { case previous, next }
 
     /// What each side of the Space at `index` of `count` holds.
-    package static func ways(index: Int, count: Int, library: LibrarySide?) -> (previous: Way, next: Way) {
-        (
+    package static func ways(index: Int, count: Int, library: LibrarySide?, libraryOpen: Bool = false)
+        -> (previous: Way, next: Way)
+    {
+        // With the Library open, the way back to the tabs only: opposite to the way in (the owner's note n90).
+        if libraryOpen { return (library == .next ? .library : .nothing, library == .previous ? .library : .nothing) }
+        return (
             index > 0 ? .space : (library == .previous ? .library : .nothing),
             index < count - 1 ? .space : (library == .next ? .library : .nothing)
         )
     }
 
-    /// Whether the swipe is listened to: only while the tabs show (the Library's lists, the settings and Help fill the
-    /// sidebar otherwise: note n61), and only if there is somewhere to go.
+    /// Whether the swipe is listened to: only if there is somewhere to go. With the Library open, the Spaces are not shown
+    /// (note n61): only for the way back to the tabs (n90).
     package static func listens(libraryOpen: Bool, spaces: Int, library: LibrarySide?) -> Bool {
-        !libraryOpen && (spaces > 1 || library != nil)
+        libraryOpen ? library != nil : spaces > 1 || library != nil
     }
 
     /// How far the fingers go, as a part of the sidebar's width, before the Space changes.

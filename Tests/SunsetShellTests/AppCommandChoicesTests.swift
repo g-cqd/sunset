@@ -17,6 +17,21 @@ struct AppCommandChoicesTests {
         #expect(AppCommandChoices.commands(typed: "import cats", scopes: all).isEmpty)
     }
 
+    /// n83: "the command bar should include more internal commands like settings, documents, history, library, help".
+    @Test func `Sunset's own places are commands: settings, the Library's lists, help`() {
+        #expect(AppCommandChoices.commands(typed: "settings", scopes: all) == [.settings])
+        #expect(AppCommandChoices.commands(typed: "prefer", scopes: all) == [.settings])
+        #expect(AppCommandChoices.commands(typed: "history", scopes: all) == [.history])
+        #expect(AppCommandChoices.commands(typed: "documents", scopes: all) == [.documents])
+        #expect(AppCommandChoices.commands(typed: "library", scopes: all) == [.library])
+        #expect(AppCommandChoices.commands(typed: "help", scopes: all) == [.help])
+        #expect(AppCommandChoices.commands(typed: "downloads", scopes: all) == [.downloads])
+        let noWeb = Scopes(terminal: true, web: false, documents: false)
+        #expect(AppCommandChoices.commands(typed: "history", scopes: noWeb).isEmpty)
+        #expect(AppCommandChoices.commands(typed: "documents", scopes: noWeb).isEmpty)
+        #expect(AppCommandChoices.commands(typed: "settings", scopes: noWeb) == [.settings])
+    }
+
     @Test func `not offered with the web off`() {
         #expect(
             AppCommandChoices.commands(typed: "import", scopes: Scopes(terminal: true, web: false, documents: true))

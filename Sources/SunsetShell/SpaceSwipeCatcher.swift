@@ -52,7 +52,9 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
 
         /// Whether the event was this one's (the list does not get it then).
         private func take(_ event: NSEvent) -> Bool {
+            // Not in the settings, whose lists and pages are not the Library's to leave by a swipe (n61).
             guard let tabs, event.window === window, bounds.contains(convert(event.locationInWindow, from: nil)),
+                !(tabs.sections.isLibraryOpen && tabs.sections.library == .settings),
                 SpaceSwipe.listens(
                     libraryOpen: tabs.sections.isLibraryOpen,
                     spaces: tabs.spaces?.spaces.count ?? 1,
@@ -83,7 +85,8 @@ struct SpaceSwipeCatcher: NSViewRepresentable {
                 case .scroll: return false
                 case .consumed: return true
                 case .follow:
-                    tabs.shift(spaceListTo: tabs.spaceSwipe.offset)
+                    // The tabs' list is hidden under the Library: nothing of it moves.
+                    if !tabs.sections.isLibraryOpen { tabs.shift(spaceListTo: tabs.spaceSwipe.offset) }
                     return true
                 case .snap(let direction):
                     NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)

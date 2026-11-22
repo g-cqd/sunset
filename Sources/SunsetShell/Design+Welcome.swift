@@ -1,3 +1,4 @@
+package import AemiSDR
 package import SwiftUI
 
 extension Design {
@@ -18,8 +19,11 @@ extension Design {
         /// The dimming behind the text (the HIG's 35% for bright content), fading out by `dimmingReach` of the height.
         package static let dimming = 0.35
         package static let dimmingReach = 0.55
-        /// Where the dimming under the buttons starts, as a share of the height.
-        package static let buttonsDimmingStart = 0.8
+        /// Under the buttons, the sky out of focus instead of darkened (the owner's note n91): solid over the buttons' band,
+        /// fading out above it.
+        package static let buttonsBlur = Blur.under(.bottom, solid: buttonsBlurSolid, fade: buttonsBlurFade, radius: 6)
+        package static let buttonsBlurSolid = 56.0
+        package static let buttonsBlurFade = 72.0
         /// The page change: a cross-fade.
         package static let change = Animation.smooth(duration: 0.3)
     }

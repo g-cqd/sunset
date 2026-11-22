@@ -1,3 +1,4 @@
+import AemiSDR
 import SunsetConfig
 import SunsetShell
 import SunsetShellModel
@@ -45,17 +46,19 @@ struct WelcomeView: View {
         .background {
             ZStack {
                 SunsetSkyView { _, size in SunsetSkyFrame.window(size) }
-                // Dimmed where text and controls sit: the upper sky, and the band of the buttons under the sun.
+                // Dimmed where the text sits, the upper sky; under the buttons the sky out of focus, not darkened (n91).
                 LinearGradient(
                     stops: [
                         .init(color: .black.opacity(Design.Welcome.dimming), location: 0),
-                        .init(color: .clear, location: Design.Welcome.dimmingReach),
-                        .init(color: .clear, location: Design.Welcome.buttonsDimmingStart),
-                        .init(color: .black.opacity(Design.Welcome.dimming), location: 1)
+                        .init(color: .clear, location: Design.Welcome.dimmingReach)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
+                BlurBackdropView(Design.Welcome.buttonsBlur)
+                    .frame(height: Design.Welcome.buttonsBlurSolid + Design.Welcome.buttonsBlurFade)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .allowsHitTesting(false)
             }
         }
         .environment(\.colorScheme, .dark)

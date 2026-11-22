@@ -36,7 +36,7 @@ extension TabsModel {
     package func accept(_ item: Workspace.ItemID, in bar: CommandBar) {
         self.bar = nil
         switch bar.purpose {
-            case .search: select(item: item)
+            case .search, .newTab: select(item: item)
             case .splitWith(let choice): complete(choice, with: item)
         }
     }

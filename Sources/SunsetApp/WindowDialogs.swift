@@ -46,9 +46,6 @@ struct WindowDialogs: ViewModifier {
                 }
             }
             .modifier(SpaceDialogs(tabs: tabs))
-            .sheet(isPresented: Binding(get: { tabs.choosingKind }, set: { tabs.choosingKind = $0 })) {
-                KindChooser(tabs: tabs)
-            }
             .sheet(
                 isPresented: Binding(get: { tabs.editingCommand != nil }, set: { if !$0 { tabs.editingCommand = nil } })
             ) {

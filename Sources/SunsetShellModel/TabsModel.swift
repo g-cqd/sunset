@@ -114,9 +114,7 @@ package final class TabsModel {
     /// The tab being renamed (`RenameTabAlert`) and the kept entry whose command is edited (`CommandSheet`).
     package var renaming: Workspace.ItemID?
     package var editingCommand: Favorites.NodeID?
-    /// The choice of kind for a new tab is open (Shift-Cmd-T); the panel opposite the tabs is shown (Cmd-Y, web step e);
-    /// which section each sidebar is on (roadmap 0031).
-    package var choosingKind = false
+    /// The panel opposite the tabs is shown (Cmd-Y, web step e); which section each sidebar is on (roadmap 0031).
     package var showsHistory = false
     package var sections = SidebarSections()
     @ObservationIgnored package let shelf = DocumentShelf()

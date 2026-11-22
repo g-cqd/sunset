@@ -39,9 +39,10 @@ final class AppActions {
     /// The next window opens showing the settings (Cmd-, with no window open).
     var pendingSettings = false
 
-    /// Asks which kind of tab to make (Shift-Cmd-T).
+    /// Asks which kind of tab to make (Shift-Cmd-T): the command bar with the kinds that are on (the owner's note n82).
     func chooseKind() {
-        TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.choosingKind = true
+        guard let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow) else { return }
+        tabs.bar = CommandBar(purpose: .newTab)
     }
 
     /// A new tab in the way the configuration shows tabs: a tab of the window with the built-in bar, a new window that joins

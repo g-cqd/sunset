@@ -47,7 +47,7 @@ struct FavoritesSection: View {
                 GapDrop(tabs: tabs, layout: layout, place: tabs.favoritesGap(shown.count), between: false)
             }
         }
-        FavoritesLine(tabs: tabs, layout: layout, visible: !favorites.isEmpty)
+        FavoritesLine(tabs: tabs, layout: layout, visible: tabs.linesShown.afterFavorites)
     }
 
     /// An insertion line at the top or the bottom of the row a drag is over.

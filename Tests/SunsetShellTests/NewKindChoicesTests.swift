@@ -22,6 +22,18 @@ struct NewKindChoicesTests {
         #expect(NewKindChoices.kinds(typed: "example.com", forNewPage: true, scopes: all).isEmpty)
     }
 
+    /// n82: Shift-Cmd-T opens the command bar with the kinds of tab, a web page among them, those that are on.
+    @Test func `a new tab's kinds: all that are on unasked; typed words narrow them`() {
+        #expect(NewKindChoices.newTab(typed: "", scopes: all) == [.terminal, .page, .document])
+        #expect(NewKindChoices.newTab(typed: "web", scopes: all) == [.page])
+        #expect(NewKindChoices.newTab(typed: "doc", scopes: all) == [.document])
+        var noTerminal = Scopes()
+        noTerminal.terminal = false
+        #expect(NewKindChoices.newTab(typed: "", scopes: noTerminal) == [.page, .document])
+        // A page is not offered as a new kind in the search bar: it is what typing there makes.
+        #expect(NewKindChoices.kinds(typed: "", forNewPage: true, scopes: all) == [.terminal, .document])
+    }
+
     @Test func `a kind that is off is not offered`() {
         var noTerminal = Scopes()
         noTerminal.terminal = false

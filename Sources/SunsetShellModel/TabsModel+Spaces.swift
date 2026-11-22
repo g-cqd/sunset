@@ -124,10 +124,11 @@ extension TabsModel {
 
     /// Whether there is a Space before this window's, and one after: where a swipe can go (it does not go round).
     package func spaceWays(library: SpaceSwipe.LibrarySide?) -> (previous: SpaceSwipe.Way, next: SpaceSwipe.Way) {
+        let open = sections.isLibraryOpen
         guard let spaces, let index = spaces.index(of: space) else {
-            return SpaceSwipe.ways(index: 0, count: 1, library: library)
+            return SpaceSwipe.ways(index: 0, count: 1, library: library, libraryOpen: open)
         }
-        return SpaceSwipe.ways(index: index, count: spaces.spaces.count, library: library)
+        return SpaceSwipe.ways(index: index, count: spaces.spaces.count, library: library, libraryOpen: open)
     }
 
     /// Moves the tabs among `rows` to another Space, still running, after its own; this window follows them there and

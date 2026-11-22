@@ -9,6 +9,8 @@ struct TabRowMenu: View {
     let animation: Animation?
     /// The page's own items (Reload, Copy Address, Site Settings); not in the address bar's menu, which has them first.
     var pageActions = true
+    /// The part of a split the menu was opened on; nil from the row or the address bar, which mean the focused part.
+    var pane: PaneID?
 
     var body: some View {
         TabLayoutMenu(tabs: tabs, row: .tab(item))
@@ -30,10 +32,24 @@ struct TabRowMenu: View {
         TabKeepMenu(tabs: tabs, item: item, animation: animation)
         KeepAwakeMenu(tabs: tabs, item: item)
         Divider()
-        // Close Other Tabs with Option, as macOS's own menus keep their less used items (the owner, 2026-11-20, task t135).
-        Button("Close Tab") { tabs.close(item: item) }
-            .modifierKeyAlternate(.option) {
-                Button("Close Other Tabs") { tabs.closeOthers(than: item) }.disabled(tabs.workspace.count < 2)
-            }
+        closing
+    }
+
+    /// A split closes one part; the whole split only with Option held, as macOS keeps its less used items (the owner's note
+    /// n85). A tab closes; Close Other Tabs with Option (t135).
+    @ViewBuilder private var closing: some View {
+        let shown = tabs.workspace.items.first { $0.id == item }
+        if let shown, shown.isSplit {
+            let part = pane ?? shown.focused
+            Button("Close Pane") { tabs.requestClose(pane: part) }
+                .modifierKeyAlternate(.option) {
+                    Button("Close All \(shown.panes.count) Panes") { tabs.close(item: item) }
+                }
+        } else {
+            Button("Close Tab") { tabs.close(item: item) }
+                .modifierKeyAlternate(.option) {
+                    Button("Close Other Tabs") { tabs.closeOthers(than: item) }.disabled(tabs.workspace.count < 2)
+                }
+        }
     }
 }

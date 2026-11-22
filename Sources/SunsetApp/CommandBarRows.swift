@@ -15,7 +15,7 @@ import SunsetWeb
         suggestions: [String],
         history: HistoryStore? = AppHistory.shared
     ) -> [ChoiceRow] {
-        let tabRows = tabs.barResults(bar).map { tab($0, bar: bar, tabs: tabs) }
+        let tabRows = purposeRows(bar, tabs: tabs)
         guard bar.purpose == .search else { return tabRows }
         // The other Spaces: by name, then their tabs (going to one changes Space).
         var rows = tabRows + SpaceRows.rows(bar, tabs: tabs)
@@ -63,6 +63,12 @@ import SunsetWeb
         return rows
     }
 
+    /// The tabs that match; opened to make a new tab (Shift-Cmd-T; n82), its kinds instead.
+    private static func purposeRows(_ bar: CommandBar, tabs: TabsModel) -> [ChoiceRow] {
+        guard bar.purpose == .newTab else { return tabs.barResults(bar).map { tab($0, bar: bar, tabs: tabs) } }
+        return NewKindChoices.newTab(typed: bar.query, scopes: tabs.scopes).map { newKind($0, bar: bar, tabs: tabs) }
+    }
+
     /// The documents of the store and the files opened lately whose title matches; not a file twice when its path is
     /// what was typed.
     private static func documentRows(_ bar: CommandBar, typed: String, tabs: TabsModel) -> [ChoiceRow] {
@@ -87,6 +93,7 @@ import SunsetWeb
         let (title, glyph) =
             switch kind {
                 case .terminal: ("New Terminal", "terminal")
+                case .page: ("New Web Page", "globe")
                 case .document: ("New Document", "doc.text")
             }
         let make: @MainActor () -> Void = {
@@ -95,6 +102,7 @@ import SunsetWeb
             if let blank { tabs.close(item: blank.id) }
             switch kind {
                 case .terminal: AppActions.shared.newTab(kind: PaneDescriptor.terminal(directory: nil))
+                case .page: AppActions.shared.newTab(kind: PaneContentKinds.newPage)
                 case .document: AppActions.shared.newDocument()
             }
         }

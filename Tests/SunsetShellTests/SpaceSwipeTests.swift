@@ -115,6 +115,15 @@ struct SpaceSwipeTests {
         #expect(SpaceSwipe.listens(libraryOpen: false, spaces: 2, library: nil))
         #expect(SpaceSwipe.listens(libraryOpen: false, spaces: 1, library: .previous))
         #expect(!SpaceSwipe.listens(libraryOpen: false, spaces: 1, library: nil))
-        #expect(!SpaceSwipe.listens(libraryOpen: true, spaces: 3, library: .previous))
+        // n90: with the Library open, listened to for the way back to the tabs, where the Library is offered by a swipe.
+        #expect(SpaceSwipe.listens(libraryOpen: true, spaces: 3, library: .previous))
+        #expect(!SpaceSwipe.listens(libraryOpen: true, spaces: 3, library: nil))
+    }
+
+    /// n90: "swipe back into tabs when in the library … the opposite to the one that led into the library".
+    @Test func `with the Library open, only the way back leads somewhere: opposite to the way in`() {
+        #expect(SpaceSwipe.ways(index: 0, count: 3, library: .previous, libraryOpen: true) == (.nothing, .library))
+        #expect(SpaceSwipe.ways(index: 2, count: 3, library: .next, libraryOpen: true) == (.library, .nothing))
+        #expect(SpaceSwipe.ways(index: 1, count: 3, library: nil, libraryOpen: true) == (.nothing, .nothing))
     }
 }

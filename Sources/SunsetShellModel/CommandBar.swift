@@ -5,6 +5,8 @@ package struct CommandBar: Equatable {
         case search
         /// A tab was dropped on its own content: pick the tab to put beside it.
         case splitWith(SplitChoice)
+        /// Which kind of tab to make (Shift-Cmd-T; the owner's note n82).
+        case newTab
     }
 
     package let purpose: Purpose
@@ -31,6 +33,7 @@ package struct CommandBar: Equatable {
         switch purpose {
             case .search: forNewPage ? "Search or enter an address…" : "Go to a tab…"
             case .splitWith: "Split with…"
+            case .newTab: "New tab: a terminal, a page, a document…"
         }
     }
 }
