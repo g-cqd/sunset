@@ -13,6 +13,20 @@ extension Screen {
         let part = Self.part(of: image, command, graphics)
         let size = Self.size(of: part, columns: command.int("c"), rows: command.int("r"), graphics)
         let (across, down) = (size.cells.columns, size.cells.rows)
+        // A virtual placement (`U=1`): nothing at the cursor, which stays; the cells that name it draw it, perhaps already shown.
+        if command.int("U") == 1 {
+            graphics.place(
+                virtual: VirtualPlacement(
+                    image: id,
+                    placement: UInt32(clamping: command.int("p")),
+                    columns: across,
+                    rows: down,
+                    layer: command.int("z")
+                )
+            )
+            markDirty(0 ... rows - 1)
+            return true
+        }
         let before = graphics.placements.count
         let placement = ImagePlacement(
             image: id,

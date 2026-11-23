@@ -10,6 +10,18 @@ extension Screen {
         let deleted = graphics.placements.map { doomed($0, command) }
         let gone = Set(zip(graphics.placements, deleted).filter(\.1).map(\.0.image))
         graphics.placements = zip(graphics.placements, deleted).filter { !$0.1 }.map(\.0)
+        // A virtual placement is on no cell of its own: only a delete by image or range names it.
+        let kept = graphics.virtualPlacements.filter { virtual in
+            switch what | 0x20 {
+                case UInt8(ascii: "i"):
+                    let number = UInt32(clamping: command.int("p"))
+                    return virtual.image != UInt32(clamping: command.int("i"))
+                        || (number != 0 && virtual.placement != number)
+                case UInt8(ascii: "r"): return !named(virtual.image, command)
+                default: return true
+            }
+        }
+        graphics.virtualPlacements = kept
         if what >= UInt8(ascii: "A"), what <= UInt8(ascii: "Z") {
             for id in gone where !graphics.isShown(id) { graphics.remove(image: id) }
             for id in graphics.images.keys where named(id, command) { graphics.remove(image: id) }

@@ -44,6 +44,9 @@ extension CPURenderer {
         frame: Frame,
         table: inout GlyphTable
     ) -> UInt32 {
+        // A placeholder cell draws a piece of an image, not a glyph (roadmap 0010 E): its scalar is past the direct table, so only
+        // the cells that come here pay for the question.
+        if frame.screen.isImagePlaceholder(cell) { return 0 }
         let key = GlyphTable.Key(id: cell.scalar, cluster: cell.isCluster, bold: bold, italic: italic, wide: wide)
         if let cached = table[key] { return cached }
         // Lines, blocks and braille are drawn to the cell, not taken from the font.

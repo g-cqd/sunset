@@ -7,6 +7,8 @@ public struct TerminalGraphics: Sendable {
     public internal(set) var placements: [ImagePlacement] = []
     /// The other screen's (the main screen's while the alternate is in use, and the other way round): each has its own.
     var otherPlacements: [ImagePlacement] = []
+    /// Images placed for placeholder cells to draw (`U=1`, roadmap 0010 E), oldest first: the cells are on either screen.
+    public internal(set) var virtualPlacements: [VirtualPlacement] = []
     /// What the images take, in bytes.
     public internal(set) var bytes = 0
     /// The most the images may take, in bytes (`Terminal.setGraphicsQuota`).
@@ -25,7 +27,7 @@ public struct TerminalGraphics: Sendable {
     var pending: (command: KittyCommand, data: [UInt8])?
     var stored: UInt64 = 0
 
-    /// The most placements kept, the oldest going first.
+    /// The most placements kept, the oldest going first; virtual placements too.
     static let placementLimit = 4_096
     /// The most pixels an image may have a side.
     static let sideLimit = 10_000
@@ -38,7 +40,7 @@ public struct TerminalGraphics: Sendable {
         remove(image: image.id)
         // The oldest image no screen shows goes first, then the oldest of all (kitty does the same).
         while bytes + image.pixels.count > quota {
-            let shown = Set((placements + otherPlacements).map(\.image))
+            let shown = Set((placements + otherPlacements).map(\.image) + virtualPlacements.map(\.image))
             let unshown = images.values.filter { !shown.contains($0.id) }.min { $0.order < $1.order }
             guard let gone = unshown ?? images.values.min(by: { $0.order < $1.order }) else { break }
             remove(image: gone.id)
@@ -53,11 +55,28 @@ public struct TerminalGraphics: Sendable {
         if let image = images.removeValue(forKey: id) { bytes -= image.pixels.count }
         placements.removeAll { $0.image == id }
         otherPlacements.removeAll { $0.image == id }
+        virtualPlacements.removeAll { $0.image == id }
     }
 
-    /// Whether any screen shows image `id`.
+    /// Whether any screen shows image `id`, or placeholder cells may.
     func isShown(_ id: UInt32) -> Bool {
         placements.contains { $0.image == id } || otherPlacements.contains { $0.image == id }
+            || virtualPlacements.contains { $0.image == id }
+    }
+
+    /// Keeps `virtual`, in place of the one with its image and number (any of its image's, when it has no number).
+    mutating func place(virtual: VirtualPlacement) {
+        virtualPlacements.removeAll { $0.image == virtual.image && $0.placement == virtual.placement }
+        virtualPlacements.append(virtual)
+        if virtualPlacements.count > Self.placementLimit {
+            virtualPlacements.removeFirst(virtualPlacements.count - Self.placementLimit)
+        }
+    }
+
+    /// The virtual placement placeholder cells naming `image` and `placement` draw: that one, or for no number the last of the
+    /// image's (kitty takes any).
+    func virtual(image: UInt32, placement: UInt32) -> VirtualPlacement? {
+        virtualPlacements.last { $0.image == image && (placement == 0 || $0.placement == placement) }
     }
 
     mutating func place(_ placement: ImagePlacement) {
@@ -73,6 +92,7 @@ public struct TerminalGraphics: Sendable {
         images = [:]
         placements = []
         otherPlacements = []
+        virtualPlacements = []
         bytes = 0
         pending = nil
     }

@@ -1,4 +1,5 @@
 import Foundation
+import SunsetCore
 import SunsetHost
 
 extension TerminalScene {
@@ -7,6 +8,7 @@ extension TerminalScene {
     static func shellEnvironment(for command: [String], integrated: Bool) -> [String: String] {
         var environment = ProcessInfo.processInfo.environment
         environment["TERM_PROGRAM"] = "sunset"
+        environment["TERM_PROGRAM_VERSION"] = "\(Sunset.version)"
         environment["COLORTERM"] = "truecolor"
         environment["TERM"] = "xterm-256color"
         guard integrated else { return environment }

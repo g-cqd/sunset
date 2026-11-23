@@ -65,7 +65,10 @@ func screen(_ input: String, _ columns: Int = 10, _ rows: Int = 4) -> Screen {
     }
 
     @Test func `terminal name and version`() {
-        #expect(answer("\(esc)[>0q") == "\(esc)P>|sunset(0.0.1)\(esc)\\")
+        #expect(
+            answer("\(esc)[>0q") == "\(esc)P>|sunset(0.1.0)\(esc)\\",
+            "0.1.0: Unicode placeholders (roadmap 0010 E)"
+        )
     }
 
     @Test func `replies come in the order of the questions`() {

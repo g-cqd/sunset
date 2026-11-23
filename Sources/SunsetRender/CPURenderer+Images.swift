@@ -7,10 +7,11 @@ extension CPURenderer {
     func prepareImages(_ screen: Screen, firstLine: Int) {
         shownImages.removeAll(keepingCapacity: true)
         let graphics = screen.graphics
-        guard !graphics.placements.isEmpty else { return }
+        guard !graphics.placements.isEmpty || !graphics.virtualPlacements.isEmpty else { return }
         if imageTable.bytes > imageTableByteLimit { imageTable.startAgain(generation: GlyphGenerations.next()) }
         let lines = firstLine ..< firstLine + screen.rows
-        for placement in graphics.placements {
+        // Those placed at the cursor, then those the placeholder cells on the lines shown draw (roadmap 0010 E).
+        for placement in graphics.placements + screen.placeholderPlacements(lines: lines) {
             guard let top = screen.absoluteLine(ofStable: placement.stableLine),
                 top < lines.upperBound, top + placement.rows > lines.lowerBound,
                 let image = graphics.images[placement.image],

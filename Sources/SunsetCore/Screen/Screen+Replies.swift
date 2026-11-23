@@ -29,7 +29,7 @@ extension Screen {
     mutating func reportVersion() {
         reply { writer in
             writer.text("\u{1B}P>|sunset(")
-            writer.text("0.0.1")
+            writer.text(Sunset.version)
             writer.text(")\u{1B}\\")
         }
     }

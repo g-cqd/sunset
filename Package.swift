@@ -334,6 +334,13 @@ let package = Package(
                 "SunsetMetrics"
             ]
         ),
-        tests("SunsetCoreTests", ["SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi"), "SunsetCore"])
+        tests(
+            "SunsetCoreTests",
+            [
+                "SunsetTestSupport", .product(name: "AemiTestKit", package: "aemi"), "SunsetCore",
+                // The oracle for kitty's placeholder marks: the table ask draws with (PlaceholderDiacriticsTests).
+                .product(name: "TerminalKitCodecs", package: "TerminalKit")
+            ]
+        )
     ]
 )
