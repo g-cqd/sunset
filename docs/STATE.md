@@ -99,13 +99,10 @@ Work paused at the owner's request (no access to mbp23, which signs and pushes, 
 
 - **Published**: main at 49386279 on GitHub; release v0.1.0-alpha.11 (build 786), both apps installed from the
   downloaded copies.
-- **Local only**: everything after 49386279, starting with 1279b224 (audit MEM-06: link addresses no cell uses are
-  forgotten when the table fills; styles and links share `Interned`). It builds and its link and style tests pass. Not yet
-  run on it: the full `swift test`, `.ci/swift-ci run quality`, `Scripts/make-app.sh release`, the clone ratchet
-  (expected 133: lower `CloneRatchetTests.remaining`), and a release speed check of styled text (every cell a new colour)
-  against 49386279.
-- **To resume**: run those checks, then push through mbp23 with its key unlocked (`/tmp/push.sh N`, which refuses to
-  start when the key is locked; it does not survive a reboot of this Mac: it bundles `origin/main..HEAD`, rebases and signs
+- **Local only**: everything after 49386279 (work goes on locally the rest of the day, unpushed). 1279b224 (audit MEM-06)
+  was checked afterwards: the full suite, the quality gate, the release build pass; clones 133.
+- **To resume**: run those checks, push through mbp23 with its key unlocked (`~/.local/share/sunset-agent/push.sh N`, which
+  refuses to start when the key is locked: it bundles `origin/main..HEAD`, rebases and signs
   on mbp23, pushes, and resets here only once mbp23's main has the same changes).
 - **Next** (tasks): the vault fields' editing sheet (t334), the vault's cards (t318), the recovery code window closing
   with Touch ID on (t333, mitigated), `.xpi` signatures (t305), the remaining audit tasks (t304, t307–t314), Sunset WebKit
