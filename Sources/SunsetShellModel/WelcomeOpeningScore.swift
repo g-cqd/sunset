@@ -112,9 +112,9 @@ package struct WelcomeOpeningScore: Sendable {
     /// Warm, musical bass centered on D2 (73.42 Hz) with gentle A1 (55 Hz) undertone and D3 harmonic — full on laptop
     /// speakers and headphones alike, without sub-40 Hz mud.
     private mutating func synthesizeWarmBass(shape: PhaseShape) -> Double {
-        bassFifthPhase = Self.advance(bassFifthPhase, hz: 55.000, invRate: invSampleRate)
-        bassRootPhase = Self.advance(bassRootPhase, hz: 73.416, invRate: invSampleRate)
-        bassOctavePhase = Self.advance(bassOctavePhase, hz: 146.832, invRate: invSampleRate)
+        bassFifthPhase = ScoreMath.advance(bassFifthPhase, hz: 55.000, invSampleRate: invSampleRate)
+        bassRootPhase = ScoreMath.advance(bassRootPhase, hz: 73.416, invSampleRate: invSampleRate)
+        bassOctavePhase = ScoreMath.advance(bassOctavePhase, hz: 146.832, invSampleRate: invSampleRate)
         let a1 = 0.26 * sin(2.0 * .pi * bassFifthPhase)
         let d2 = 0.72 * sin(2.0 * .pi * bassRootPhase)
         let d3 = 0.24 * sin(2.0 * .pi * bassOctavePhase)
@@ -123,7 +123,11 @@ package struct WelcomeOpeningScore: Sendable {
 
     private mutating func synthesizeStrings(shape: PhaseShape) -> (Double, Double) {
         for idx in 0 ..< driftPhases.count {
-            driftPhases[idx] = Self.advance(driftPhases[idx], hz: Self.driftRates[idx], invRate: invSampleRate)
+            driftPhases[idx] = ScoreMath.advance(
+                driftPhases[idx],
+                hz: Self.driftRates[idx],
+                invSampleRate: invSampleRate
+            )
         }
         let pitchDrift = 1.0 + 0.0007 * sin(2.0 * .pi * driftPhases[1])
         var left = 0.0
@@ -174,7 +178,7 @@ package struct WelcomeOpeningScore: Sendable {
         for idx in 0 ..< phases.count {
             let vib = 1.0 + 0.0005 * sin(2.0 * .pi * drift[(idx + 2) % drift.count])
             let hz = spec.baseHz * pow(2.0, spec.detuneCents[idx] / 1200.0) * vib
-            phases[idx] = advance(phases[idx], hz: hz, invRate: invRate)
+            phases[idx] = ScoreMath.advance(phases[idx], hz: hz, invSampleRate: invRate)
             let pan = spec.invertPan ? -voicePans[idx] : voicePans[idx]
             accumulate(bowedSaw(phases[idx]) * spec.gain, pan: pan, left: &left, right: &right)
         }
@@ -192,7 +196,7 @@ package struct WelcomeOpeningScore: Sendable {
         var right = 0.0
         for idx in 0 ..< liftPhases.count {
             let hz = notes[idx] * pow(2.0, Self.liftDetuneCents[idx] / 1200.0) * pitchDrift
-            liftPhases[idx] = Self.advance(liftPhases[idx], hz: hz, invRate: invSampleRate)
+            liftPhases[idx] = ScoreMath.advance(liftPhases[idx], hz: hz, invSampleRate: invSampleRate)
             let sample = (0.32 * Self.bowedSaw(liftPhases[idx]) + 0.68 * sin(2.0 * .pi * liftPhases[idx])) * gain
             Self.accumulate(sample, pan: Self.voicePans[idx], left: &left, right: &right)
         }

@@ -1,11 +1,6 @@
 import Foundation
 
 extension WelcomeOpeningScore {
-    static func advance(_ phase: Double, hz: Double, invRate: Double) -> Double {
-        let next = phase + hz * invRate
-        return next - floor(next)
-    }
-
     static func bowedSaw(_ phase: Double) -> Double {
         let saw = 2.0 * phase - 1.0
         return 0.50 * (saw - 0.36 * saw * saw * saw) + 0.50 * sin(2.0 * .pi * phase)
@@ -35,18 +30,18 @@ extension WelcomeOpeningScore {
         var master: Double
 
         static func at(_ time: Double) -> Self {
-            let earlyRise = smooth(clamp(time / 1.90))
-            let groundRelease = 1.0 - smooth(clamp((time - 2.30) / 3.00))
-            let stringRecede = 1.0 - smooth(clamp((time - 2.70) / 3.90))
+            let earlyRise = ScoreMath.smooth(time / 1.90)
+            let groundRelease = 1.0 - ScoreMath.smooth((time - 2.30) / 3.00)
+            let stringRecede = 1.0 - ScoreMath.smooth((time - 2.70) / 3.90)
 
-            let liftRise = smooth(clamp((time - 1.85) / 2.20))
-            let liftRelease = 1.0 - smooth(clamp((time - 4.40) / 3.30))
+            let liftRise = ScoreMath.smooth((time - 1.85) / 2.20)
+            let liftRelease = 1.0 - ScoreMath.smooth((time - 4.40) / 3.30)
             let liftOff = liftRise * liftRelease
 
-            let diffuseProgress = smooth(clamp((time - 2.40) / 3.30))
-            let dryFade = 1.0 - smooth(clamp((time - 3.25) / 3.35))
-            let tailFade = 1.0 - smooth(clamp((time - 6.00) / (WelcomeOpeningScore.duration - 6.00)))
-            let onset = smooth(clamp(time / 0.70))
+            let diffuseProgress = ScoreMath.smooth((time - 2.40) / 3.30)
+            let dryFade = 1.0 - ScoreMath.smooth((time - 3.25) / 3.35)
+            let tailFade = 1.0 - ScoreMath.smooth((time - 6.00) / (WelcomeOpeningScore.duration - 6.00))
+            let onset = ScoreMath.smooth(time / 0.70)
 
             let cutoff = 280.0 + 900.0 * (earlyRise * (0.25 + 0.75 * stringRecede)) + 540.0 * liftOff
 
@@ -59,18 +54,9 @@ extension WelcomeOpeningScore {
                 dryMix: 0.60 * dryFade,
                 wetMix: 0.34 + 0.44 * diffuseProgress,
                 reverbFeedback: 0.69 + 0.14 * diffuseProgress,
-                reverbDamp: 0.58 - 0.30 * smooth(clamp((time - 4.80) / 3.80)),
+                reverbDamp: 0.58 - 0.30 * ScoreMath.smooth((time - 4.80) / 3.80),
                 master: onset * tailFade
             )
-        }
-
-        private static func smooth(_ value: Double) -> Double {
-            let x = clamp(value)
-            return x * x * x * (x * (6 * x - 15) + 10)
-        }
-
-        private static func clamp(_ value: Double) -> Double {
-            min(max(value, 0), 1)
         }
     }
 

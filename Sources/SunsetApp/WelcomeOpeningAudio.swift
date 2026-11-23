@@ -58,8 +58,9 @@ import Synchronization
             let rate = outputFormat.sampleRate > 0 ? outputFormat.sampleRate : 48_000
             guard let format = AVAudioFormat(standardFormatWithSampleRate: rate, channels: 2) else { return nil }
             let session = Session(engine: engine, score: WelcomeOpeningScore(sampleRate: rate))
-            let source = AVAudioSourceNode(format: format) { _, _, frameCount, audioBufferList in
-                session.render(audioBufferList, frames: Int(frameCount))
+            let source = AVAudioSourceNode(format: format) { isSilence, _, frameCount, audioBufferList in
+                // Once the score has ended, its buffers are silence and CoreAudio is told so (it skips mixing them).
+                if session.render(audioBufferList, frames: Int(frameCount)) { unsafe isSilence.pointee = true }
                 return noErr
             }
             engine.attach(source)
@@ -84,14 +85,16 @@ import Synchronization
             engine.stop()
         }
 
+        /// Fills the buffers; true when the score has finished, and they hold silence.
         private nonisolated func render(
             _ audioBufferList: UnsafeMutablePointer<AudioBufferList>,
             frames: Int
-        ) {
+        ) -> Bool {
             state.withLock { score in
                 // CoreAudio provides two non-interleaved Float32 channel buffers sized for `frames` samples;
                 // we write sequentially within `[0, frames)`.
                 unsafe Self.fill(audioBufferList, frames: frames, score: &score)
+                return score.isFinished
             }
         }
 

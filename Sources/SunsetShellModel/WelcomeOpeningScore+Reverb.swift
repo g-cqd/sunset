@@ -48,18 +48,18 @@ extension WelcomeOpeningScore {
         private var hpD: BiquadHighPass
 
         init(sampleRate: Double) {
-            diffL1 = AllpassLine(samples: Int((0.0047 * sampleRate).rounded()))
-            diffL2 = AllpassLine(samples: Int((0.0091 * sampleRate).rounded()))
-            diffL3 = AllpassLine(samples: Int((0.0157 * sampleRate).rounded()))
-            diffL4 = AllpassLine(samples: Int((0.0233 * sampleRate).rounded()))
-            diffR1 = AllpassLine(samples: Int((0.0053 * sampleRate).rounded()))
-            diffR2 = AllpassLine(samples: Int((0.0103 * sampleRate).rounded()))
-            diffR3 = AllpassLine(samples: Int((0.0173 * sampleRate).rounded()))
-            diffR4 = AllpassLine(samples: Int((0.0257 * sampleRate).rounded()))
-            delayA = [Double](repeating: 0, count: max(64, Int((0.0311 * sampleRate).rounded())))
-            delayB = [Double](repeating: 0, count: max(64, Int((0.0443 * sampleRate).rounded())))
-            delayC = [Double](repeating: 0, count: max(64, Int((0.0607 * sampleRate).rounded())))
-            delayD = [Double](repeating: 0, count: max(64, Int((0.0797 * sampleRate).rounded())))
+            /// `seconds` of sound, in samples.
+            func samples(_ seconds: Double) -> Int {
+                Int((seconds * sampleRate).rounded())
+            }
+            func delay(_ seconds: Double) -> [Double] {
+                [Double](repeating: 0, count: max(64, samples(seconds)))
+            }
+            (diffL1, diffL2) = (AllpassLine(samples: samples(0.0047)), AllpassLine(samples: samples(0.0091)))
+            (diffL3, diffL4) = (AllpassLine(samples: samples(0.0157)), AllpassLine(samples: samples(0.0233)))
+            (diffR1, diffR2) = (AllpassLine(samples: samples(0.0053)), AllpassLine(samples: samples(0.0103)))
+            (diffR3, diffR4) = (AllpassLine(samples: samples(0.0173)), AllpassLine(samples: samples(0.0257)))
+            (delayA, delayB, delayC, delayD) = (delay(0.0311), delay(0.0443), delay(0.0607), delay(0.0797))
             hpA = BiquadHighPass(cutoffHz: 110.0, sampleRate: sampleRate)
             hpB = BiquadHighPass(cutoffHz: 110.0, sampleRate: sampleRate)
             hpC = BiquadHighPass(cutoffHz: 110.0, sampleRate: sampleRate)
