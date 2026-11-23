@@ -134,7 +134,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var observations: [NSKeyValueObservation] = []
     @ObservationIgnored var coordinator: WebCoordinator?
     /// Hosts whose untrusted certificate the person chose to accept, for this page (Visit Anyway).
-    @ObservationIgnored var acceptedHosts: Set<String> = []
+    /// The certificates Visit Anyway trusted on this page, each the one shown (`CertificateExceptions`).
+    @ObservationIgnored var acceptedCertificates = CertificateExceptions()
     /// Hosts the person chose to load over http on this page, HTTPS having failed ("ask", `web.httpsUpgrade`).
     @ObservationIgnored var httpHosts: Set<String> = []
     /// The size the page that opened it asked for, as a pop-up (`window.open` with a width): its window's.

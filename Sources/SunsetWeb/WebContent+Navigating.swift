@@ -67,10 +67,11 @@ extension WebContent {
         if let plain = parts.url { load(plain) }
     }
 
-    /// Visit Anyway: the certificate of this host is accepted for this page, and the page is loaded again.
+    /// Visit Anyway: the certificate the person was shown, for this host, is accepted on this page (no other one), and
+    /// the page is loaded again.
     package func acceptCertificate() {
-        guard let host = failure?.url?.host() else { return }
-        acceptedHosts.insert(host)
+        guard let host = failure?.url?.host(), let certificate = failure?.certificate else { return }
+        acceptedCertificates.accept(host: host, certificate: certificate)
         if let address = failure?.url { load(address) }
     }
 }

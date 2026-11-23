@@ -1,4 +1,5 @@
 import Foundation
+import Security
 import SunsetPane
 import SunsetShell
 import Testing
@@ -86,14 +87,25 @@ import WebKit
         )
     }
 
-    @Test func `Visit Anyway accepts that host's certificate for this page`() {
+    @Test func `Visit Anyway accepts the certificate shown, for this host, on this page`() throws {
         let url = URL(string: "https://box.local:8443/")
         let page = WebContent(url: url, settings: settings)
+        var anchors: CFArray?
+        _ = SecTrustCopyAnchorCertificates(&anchors)
+        let certificate = try #require((anchors as? [SecCertificate])?.first)
+        var trust: SecTrust?
+        _ = SecTrustCreateWithCertificates(certificate, SecPolicyCreateBasicX509(), &trust)
         page.failure = WebFailure(
-            NSError(domain: NSURLErrorDomain, code: NSURLErrorServerCertificateUntrusted),
+            NSError(
+                domain: NSURLErrorDomain,
+                code: NSURLErrorServerCertificateUntrusted,
+                userInfo: [NSURLErrorFailingURLPeerTrustErrorKey: try #require(trust)]
+            ),
             url: url
         )
+        let shown = try #require(page.failure?.certificate)
         page.acceptCertificate()
-        #expect(page.acceptedHosts == ["box.local"] && page.failure == nil)
+        #expect(page.acceptedCertificates.accepts(host: "box.local", certificate: shown) && page.failure == nil)
+        #expect(!page.acceptedCertificates.accepts(host: "box.local", certificate: Data(repeating: 0, count: 32)))
     }
 }

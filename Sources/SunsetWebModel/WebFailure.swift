@@ -6,6 +6,8 @@ package struct WebFailure: Sendable, Equatable {
     package let url: URL?
     package let reason: String
     package let isCertificate: Bool
+    /// The fingerprint of the certificate the server presented, for a certificate failure: what Visit Anyway trusts.
+    package let certificate: Data?
     /// What the failure page is headed with.
     package let heading: String
 
@@ -26,6 +28,7 @@ package struct WebFailure: Sendable, Equatable {
         self.heading = heading
         self.reason = reason
         isCertificate = false
+        certificate = nil
     }
 
     /// The failure an error means; nil for what is not one (a load replaced by another, a download).
@@ -41,5 +44,8 @@ package struct WebFailure: Sendable, Equatable {
         reason = error.localizedDescription
         heading = "Sunset could not open this page"
         isCertificate = error.domain == NSURLErrorDomain && Self.certificateCodes.contains(error.code)
+        certificate =
+            isCertificate
+            ? ServerCertificate.fingerprint(of: error.userInfo[NSURLErrorFailingURLPeerTrustErrorKey]) : nil
     }
 }

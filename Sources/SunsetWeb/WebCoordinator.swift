@@ -118,7 +118,8 @@ import WebKit
             )
         }
         guard space.authenticationMethod == NSURLAuthenticationMethodServerTrust, let trust = space.serverTrust,
-            content?.acceptedHosts.contains(space.host) == true
+            content?.acceptedCertificates.accepts(host: space.host, certificate: ServerCertificate.fingerprint(trust))
+                == true
         else { return (.performDefaultHandling, nil) }
         return (.useCredential, URLCredential(trust: trust))
     }
