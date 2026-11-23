@@ -7,7 +7,11 @@ public import SunsetStorage
 /// clock, so that a test moves the time), and at once for the other reasons, which the app reports.
 @MainActor
 public final class VaultLock {
-    public enum Reason: Equatable, Sendable { case idle, quit, sleep, screenLocked, lastWindowClosed, byHand }
+    public enum Reason: Equatable, Sendable {
+        case idle, quit, sleep, screenLocked, lastWindowClosed, byHand
+        /// Its page's tab was left, or its window stopped being the one in front, and the settings say to lock then.
+        case leftTab, windowInactive
+    }
 
     /// Why it last locked; nil before it ever was unlocked.
     public private(set) var lockedBecause: Reason?
@@ -15,13 +19,21 @@ public final class VaultLock {
     public var onLock: (@MainActor (Reason) -> Void)?
     /// Told just before it locks, the key still there: what holds unkept edits keeps them (n138).
     public var willLock: (@MainActor (Reason) -> Void)?
-    private let idle: Duration
+    /// The time without use after which it locks; nil: never by itself (`passwords.lockAfter`). Changed while unlocked,
+    /// it counts from the last use.
+    public var idle: Duration? {
+        didSet {
+            guard key != nil else { return }
+            watch?.cancel()
+            watch = runtime.task(role: .observation) { [weak self] in await self?.watchIdle() }
+        }
+    }
     private let runtime: Runtime
     private var key: SecretBuffer?
     private var lastUse = Duration.zero
     private var watch: Task<Void, Never>?
 
-    public init(idle: Duration, runtime: Runtime) {
+    public init(idle: Duration?, runtime: Runtime) {
         self.idle = idle
         self.runtime = runtime
     }
@@ -62,7 +74,7 @@ public final class VaultLock {
 
     /// Sleeps until the idle time would be over; locks if nothing used the key meanwhile, else sleeps again.
     private func watchIdle() async {
-        while key != nil {
+        while key != nil, let idle {
             guard await runtime.sleep(until: lastUse + idle) else { return }
             if key != nil, runtime.uptime() - lastUse >= idle {
                 willLock?(.idle)

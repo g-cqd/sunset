@@ -30,6 +30,14 @@ package final class PasswordsModel {
     @ObservationIgnored private var vault: Vault?
     /// Edits a page noted and that are not kept yet, by entry (`noteEdit`, `keepPending`).
     @ObservationIgnored var pending: [UUID: VaultEntry] = [:]
+    /// When it locks besides its idle time; neither until the settings say (`passwords.*`).
+    @ObservationIgnored package var lockWhen = LockWhen(leavingTab: false, windowInactive: false)
+    /// The idle time; the vault's own until the settings say (`lockAfter(minutes:)`).
+    @ObservationIgnored var idle: Duration? = .seconds(600) {
+        didSet {
+            vault?.lock.idle = idle
+        }
+    }
     @ObservationIgnored private var throttle = UnlockThrottle()
     /// The recovery code of the vault just made, until the person says they kept it (t333: the window that showed it was
     /// seen closing by itself, and the code, shown once, was lost). In memory only.
@@ -100,8 +108,8 @@ package final class PasswordsModel {
         unkeptCode = nil
     }
 
-    package func lock() {
-        vault?.lock.lock(.byHand)
+    package func lock(_ reason: VaultLock.Reason = .byHand) {
+        vault?.lock.lock(reason)
     }
 
     /// A new entry made from `template`, kept.
@@ -142,6 +150,7 @@ package final class PasswordsModel {
         hasTouchID = vault.factors.contains(.touchID)
         vault.lock.onLock = { [weak self] _ in self?.locked() }
         vault.lock.willLock = { [weak self] _ in self?.keepPending() }
+        vault.lock.idle = idle
         if vault.lock.isLocked { locked() } else { reload() }
     }
 

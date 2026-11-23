@@ -29,6 +29,7 @@ final class AppConfiguration {
             if configuration.appearance.icon != oldValue.appearance.icon { applyIcon() }
             Feedback.taps = configuration.appearance.haptics
             WebShare.otherProfiles = configuration.web.shareOtherProfiles
+            if configuration.passwords != AppPasswords.settings { AppPasswords.settings = configuration.passwords }
             refreshShown()
         }
     }

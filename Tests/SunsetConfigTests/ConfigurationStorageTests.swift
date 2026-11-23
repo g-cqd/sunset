@@ -21,7 +21,7 @@ import Testing
         #expect(
             SettingsSection.all.last?.topics.map(\.title) == [
                 "Programs in a terminal", "Browsing", "Protection on the web", "What is kept", "Key and recovery",
-                "Export"
+                "Passwords", "Export"
             ]
         )
         #expect(

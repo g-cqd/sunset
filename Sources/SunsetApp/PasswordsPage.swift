@@ -9,6 +9,7 @@ struct PasswordsPage: View {
     @Bindable var content: PasswordsContent
     let context: PaneViewContext
     private let model = AppPasswords.model
+    @Environment(\.appearsActive) private var appearsActive
     @State private var password = ""
     @State private var refused = false
 
@@ -43,6 +44,8 @@ struct PasswordsPage: View {
         .padding(.top, context.topInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .paneBackdrop(context.backdrop)
+        // Its window no longer in front: locked when `passwords.lockOnWindowBlur` says so.
+        .onChange(of: appearsActive) { _, active in if !active { model.left(.window) } }
         .background(CaptureExclusion(excluded: model.state == .unlocked))
     }
 

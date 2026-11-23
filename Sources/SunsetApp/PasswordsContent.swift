@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SunsetAppCore
 import SunsetPane
 import SunsetShell
 import SwiftUI
@@ -41,8 +42,18 @@ final class PasswordsContent: PaneContent, PaneViewMaking {
         .passwords
     }
 
-    func setState(focused: Bool, visible: Bool) {}
-    func stop() {}
+    /// Shown in its window: leaving it for another tab locks the vault when `passwords.lockOnLeavingTab` says so.
+    @ObservationIgnored private var shown = false
+
+    func setState(focused: Bool, visible: Bool) {
+        if shown, !visible { AppPasswords.model.left(.tab) }
+        shown = visible
+    }
+
+    func stop() {
+        if shown { AppPasswords.model.left(.tab) }
+        shown = false
+    }
     func makeView(_ context: PaneViewContext) -> AnyView {
         AnyView(PasswordsPage(content: self, context: context))
     }
