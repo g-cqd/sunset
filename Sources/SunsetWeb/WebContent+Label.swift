@@ -34,5 +34,7 @@ extension WebContent {
         guard let webView else { return }
         isMuted.toggle()
         WebAudio.setMuted(isMuted, on: webView)
+        // Its card says the same at once, wherever it was muted from (n123).
+        nowPlaying.mutedChanged(self)
     }
 }

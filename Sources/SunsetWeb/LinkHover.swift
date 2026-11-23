@@ -21,8 +21,7 @@ final class LinkHover: PageScriptHandler, WKScriptMessageHandler {
     /// another: that one's configuration comes with its opener's controller, whose handler tells the opener.
     static func install(on configuration: WKWebViewConfiguration, for content: WebContent) {
         configuration.userContentController = WKUserContentController()
-        PageBridge(name: name, script: script, injection: .atDocumentStart, mainFrameOnly: false, world: .defaultClient)
-            .install(on: configuration, handler: LinkHover(page: content))
+        PageBridge.everyFrame(name, script).install(on: configuration, handler: LinkHover(page: content))
     }
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {

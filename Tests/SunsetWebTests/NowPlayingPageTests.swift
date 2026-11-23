@@ -113,4 +113,15 @@ final class NowPlayingPageTests {
         #expect(still as? Bool == false, "it plays on")
         page.stop()
     }
+
+    /// Muted from its tab or from its card, the page and its card say the same at once (n123).
+    @Test func `muted from the tab or from the card: both show it`() async throws {
+        let (page, center) = try await playing()
+        defer { page.stop() }
+        let id = try #require(center.stack.front?.id)
+        page.toggleMuted()
+        #expect(page.isMuted && center.stack.front?.isMuted == true, "muted from its tab")
+        center.toggleMuted(id)
+        #expect(!page.isMuted && center.stack.front?.isMuted == false, "unmuted from its card")
+    }
 }

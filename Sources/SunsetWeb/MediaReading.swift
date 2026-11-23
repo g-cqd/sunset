@@ -57,12 +57,13 @@ enum MediaReading {
     }
 
     /// Puts the main frame's playing video, else its first, in picture in picture, from Sunset's world.
-    static func pictureInPicture(_ view: WKWebView) async {
-        _ = try? await view.callAsyncJavaScript(
-            "const all = [...document.querySelectorAll('video')]; const v = all.find(v => !v.paused) || all[0]; if (v && v.webkitSupportsPresentationMode && v.webkitSupportsPresentationMode('picture-in-picture')) v.webkitSetPresentationMode('picture-in-picture');",
-            contentWorld: .defaultClient
-        )
+    static func pictureInPicture(_ view: WKWebView, in frame: WKFrameInfo? = nil) async {
+        _ = try? await view.callAsyncJavaScript(pictureInPictureScript, in: frame, contentWorld: .defaultClient)
     }
+
+    /// The video playing (else the first) of a frame, into picture in picture when it can go there.
+    static let pictureInPictureScript =
+        "const all = [...document.querySelectorAll('video')]; const v = all.find(v => !v.paused) || all[0]; if (v && v.webkitSupportsPresentationMode && v.webkitSupportsPresentationMode('picture-in-picture')) v.webkitSetPresentationMode('picture-in-picture');"
 
     /// Pauses and plays again what plays in the main frame, from Sunset's world: the page becomes the system's now
     /// playing, so that a media command reaches it (diary 2026-11-22-06).

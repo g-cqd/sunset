@@ -49,6 +49,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     /// The colours the site declares (`<meta name="theme-color">`) and its icon has, as sRGB bytes.
     package internal(set) var themeColor: [UInt8]?
     package internal(set) var iconColor: [UInt8]?
+    /// The frame where a video last started playing (`VideoFrameWatch`), for picture in picture.
+    @ObservationIgnored var videoFrame: WKFrameInfo?
     /// The dialog the page asked for, waiting for its answer (`WebContent+Dialogs`).
     package internal(set) var dialog: PageDialog?
     /// Sharing: a tab asked for (the sheet shows it), the tab shared into this page, the calls it is shared into.

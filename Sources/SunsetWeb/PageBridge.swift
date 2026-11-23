@@ -14,6 +14,11 @@ struct PageBridge {
         Self(name: name, script: script, injection: injection, mainFrameOnly: true, world: .defaultClient)
     }
 
+    /// The same in every frame of the page, from its start.
+    @MainActor static func everyFrame(_ name: String, _ script: String) -> Self {
+        Self(name: name, script: script, injection: .atDocumentStart, mainFrameOnly: false, world: .defaultClient)
+    }
+
     /// Adds the script and `handler`, which posts without a reply.
     @MainActor func install(on configuration: WKWebViewConfiguration, handler: some WKScriptMessageHandler) {
         addScript(to: configuration)

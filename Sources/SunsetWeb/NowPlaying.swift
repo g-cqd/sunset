@@ -67,12 +67,16 @@ package final class NowPlaying {
     }
 
     package func toggleMuted(_ id: MediaPage.ID) {
-        guard let page = page(id) else { return }
-        page.toggleMuted()
-        if var card = stack.pages.first(where: { $0.id == id }) {
-            card.isMuted = page.isMuted
-            stack.update(card)
+        page(id)?.toggleMuted()
+    }
+
+    /// The page was muted or unmuted (from its tab, its menu, its card): its card follows.
+    func mutedChanged(_ page: WebContent) {
+        guard var card = stack.pages.first(where: { $0.id == page.mediaID }), card.isMuted != page.isMuted else {
+            return
         }
+        card.isMuted = page.isMuted
+        stack.update(card)
     }
 
     /// Brings the card `cards` further back to the front.
@@ -83,9 +87,11 @@ package final class NowPlaying {
     /// The card's video in the system's picture in picture window (ADR-0115): WebKit's own toggle when it offers one, else
     /// the video's presentation mode set from Sunset's world.
     package func pictureInPicture(_ id: MediaPage.ID) {
-        guard let view = page(id)?.webView else { return }
+        guard let page = page(id), let view = page.webView else { return }
         if WebNowPlaying.togglePictureInPicture(view) { return }
-        runtimeTask { await MediaReading.pictureInPicture(view) }
+        // In the frame that plays a video when one does (a player in a frame of its own), else the page.
+        let frame = page.videoFrame
+        runtimeTask { await MediaReading.pictureInPicture(view, in: frame) }
     }
 
     private func runtimeTask(_ work: @escaping @MainActor () async -> Void) {
