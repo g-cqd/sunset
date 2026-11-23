@@ -42,6 +42,16 @@ if [ -n "$ours" ]; then
     exit 1
 fi
 built="$derived/Build/Products/$scheme_configuration/Sunset.app"
+# The signature must hold what the app holds: an incremental build was seen running the phase that removes the iOS shader
+# libraries after signing (2026-11-23, alpha.11: notarisation refused "the signature of the binary is invalid").
+if ! codesign --verify --deep --strict "$built" 2>/dev/null; then
+    echo "make-app: the built app's signature does not match its contents (an incremental build's order); building again in a fresh folder" >&2
+    rm -rf "$derived"
+    xcodebuild -project Sunset.xcodeproj -scheme Sunset -configuration "$scheme_configuration" \
+        -derivedDataPath "$derived" -skipPackagePluginValidation -skipMacroValidation \
+        CURRENT_PROJECT_VERSION="$build" "${marketing[@]}" build >"$log" 2>&1 || { tail -20 "$log" >&2; exit 1; }
+    codesign --verify --deep --strict "$built" || { echo "make-app: the signature is still broken" >&2; exit 1; }
+fi
 mkdir -p "$output"
 rm -rf "$output/Sunset.app"
 ditto "$built" "$output/Sunset.app"

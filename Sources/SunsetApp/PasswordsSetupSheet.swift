@@ -48,19 +48,9 @@ struct PasswordsSetupSheet: View {
     }
 
     private func shown(_ code: RecoveryCode) -> some View {
-        Group {
-            Text("Your Recovery Code").font(Design.Text.title)
-            Text(
-                "It opens the vault if you forget the password and Touch ID cannot. Write it down or keep it somewhere safe: it is shown this once."
-            )
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-            Text(code.text).font(Design.Text.body.monospaced()).textSelection(.enabled)
-            HStack {
-                FeedbackButton("Copy") { Clipboard.copy(code.text, concealed: true, what: "Recovery code copied") }
-                Spacer()
-                Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)
-            }
+        UnkeptRecoveryCode(code: code, done: "Done", leading: 0) {
+            model.codeKept()
+            dismiss()
         }
     }
 

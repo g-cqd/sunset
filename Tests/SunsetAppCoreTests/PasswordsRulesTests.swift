@@ -58,4 +58,23 @@ struct PasswordsRulesTests {
         model.lock()
         #expect(!model.unlock(password: "wrong") && model.retryIn == nil, "counted again from the start")
     }
+
+    /// t333: the recovery code is kept by the model until the person says they kept it, whatever happens to the window
+    /// that first shows it (seen closing by itself with Touch ID on, the code lost).
+    @Test func `the recovery code stays until it is said kept`() throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "pw-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let model = PasswordsModel(
+            path: folder.appending(path: "Vaults/personal.vault").path,
+            cost: MasterPassword.Cost(memoryKiB: 64, passes: 1, lanes: 1),
+            runtime: TestTime().runtime,
+            locks: VaultLocks()
+        )
+        let code = try model.create(password: "correct horse battery", again: "correct horse battery")
+        #expect(model.unkeptCode == code)
+        model.lock()
+        #expect(model.unkeptCode == code, "not lost by locking")
+        model.codeKept()
+        #expect(model.unkeptCode == nil)
+    }
 }

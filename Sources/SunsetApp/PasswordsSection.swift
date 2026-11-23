@@ -47,6 +47,10 @@ struct PasswordsSection: View {
     }
 
     @ViewBuilder private var list: some View {
+        if let code = model.unkeptCode {
+            UnkeptRecoveryCode(code: code, done: "I Kept It", leading: layout.tabPaddingLeading) { model.codeKept() }
+                .padding(.vertical, Design.Space.m)
+        }
         let found = EntrySearch.matching(query, in: model.entries)
         if found.isEmpty {
             Text(model.entries.isEmpty ? "No entries yet: + makes one" : "No entry matches")

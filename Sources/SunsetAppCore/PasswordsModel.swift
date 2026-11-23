@@ -29,6 +29,9 @@ package final class PasswordsModel {
     @ObservationIgnored private let locks: VaultLocks
     @ObservationIgnored private var vault: Vault?
     @ObservationIgnored private var throttle = UnlockThrottle()
+    /// The recovery code of the vault just made, until the person says they kept it (t333: the window that showed it was
+    /// seen closing by itself, and the code, shown once, was lost). In memory only.
+    package private(set) var unkeptCode: RecoveryCode?
 
     package init(path: String, cost: MasterPassword.Cost = .standard, runtime: Runtime, locks: VaultLocks = .shared) {
         self.path = path
@@ -65,6 +68,7 @@ package final class PasswordsModel {
             locks: locks
         )
         adopt(made)
+        unkeptCode = code
         return code
     }
 
@@ -87,6 +91,11 @@ package final class PasswordsModel {
         let context = LAContext()
         context.localizedReason = "unlock your passwords"
         return unlocking { try $0.unlock(touchID: context) }
+    }
+
+    /// The person kept the recovery code: it is forgotten.
+    package func codeKept() {
+        unkeptCode = nil
     }
 
     package func lock() {
