@@ -272,6 +272,16 @@ let package = Package(
             swiftSettings: strictSettings
         ),
         tests("SunsetSiteDataTests", ["SunsetSiteData"]),
+        // Sunset updates itself and its components from its GitHub releases (roadmap 0122, ADR-0122): the feed, the
+        // choice, the deltas. No UI, no AppKit.
+        module("SunsetUpdate", []),
+        tests("SunsetUpdateTests", ["SunsetUpdate"]),
+        .executableTarget(
+            name: "SunsetDeltaTool",
+            dependencies: ["SunsetUpdate"],
+            path: "Sources/SunsetDeltaTool",
+            swiftSettings: strictSettings
+        ),
         // The pages (WebKit) and what shows them; re-exports the web's model.
         module(
             "SunsetWeb",
