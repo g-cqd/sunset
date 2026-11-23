@@ -5,6 +5,8 @@ extension Configuration {
         public var automatic = true
         /// Pre-releases are offered too (every release of Sunset so far is one).
         public var prereleases = true
+        /// A WebKit engine installed beside the app is updated on its own too (roadmap 0113).
+        public var engineAutomatic = true
 
         public init() {}
     }

@@ -75,6 +75,11 @@ final class AppUpdates {
         do {
             let releases = try await UpdateTransfer.releases()
             checked = Runtime.live.now()
+            await AppEngine.shared.consider(
+                releases,
+                automatic: AppConfiguration.shared.configuration.updates.engineAutomatic,
+                prereleases: settings.prereleases
+            )
             guard
                 let offer = UpdateChoice.offer(
                     in: releases,

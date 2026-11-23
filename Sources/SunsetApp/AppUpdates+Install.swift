@@ -7,6 +7,11 @@ extension AppUpdates {
     /// Sunset opens again.
     func installAndRestart() {
         guard case .ready = phase else { return }
+        restart()
+    }
+
+    /// Quits and opens again: what waits for it (an update, a change of engine) is made in between.
+    func restart() {
         restartsAfterInstall = true
         NSApp.terminate(nil)
     }
@@ -14,7 +19,11 @@ extension AppUpdates {
     /// As Sunset ends (`applicationWillTerminate`): a ready update checked once more and swapped in; the former app to the
     /// Trash; Sunset opened again when asked to. Anything wrong leaves the running app as it is.
     func installAtQuit() {
-        guard case .ready = phase, let staging, refusal == nil else { return }
+        AppEngine.shared.applyAtQuit()
+        guard case .ready = phase, let staging, refusal == nil else {
+            if restartsAfterInstall { Self.openWhenGone(running.bundle) }
+            return
+        }
         do {
             try UpdateTransfer.check(staging, running: running)
             try BundleSwap.swap(running: running.bundle, staging: staging)

@@ -48,7 +48,7 @@ enum UpdateTransfer {
 
     /// An asset into the temporary folder.
     @Sendable
-    private static func download(_ address: URL) async throws -> URL {
+    static func download(_ address: URL) async throws -> URL {
         let file = URL(filePath: NSTemporaryDirectory()).appending(path: "sunset-update-\(UUID().uuidString)")
         if address.isFileURL {
             try FileManager.default.copyItem(at: address, to: file)

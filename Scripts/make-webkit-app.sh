@@ -81,6 +81,12 @@ $buddy -c "Delete :SunsetWebKitBaseDate" "$plist" 2>/dev/null || true
 webkitPlist="$frameworks/WebKit.framework/Versions/A/Resources/Info.plist"
 $buddy -c "Delete :SunsetWebKitBase" "$webkitPlist" 2>/dev/null || true
 $buddy -c "Add :SunsetWebKitBase string $base" "$webkitPlist"
+# And the build, which orders engines published as a component (roadmap 0113): signed with it, so that an older engine
+# cannot say it is newer (EngineManifest).
+$buddy -c "Delete :SunsetEngineBuild" "$webkitPlist" 2>/dev/null || true
+$buddy -c "Add :SunsetEngineBuild integer $($buddy -c "Print :CFBundleVersion" "$plist")" "$webkitPlist"
+$buddy -c "Delete :SunsetWebKitBaseDate" "$webkitPlist" 2>/dev/null || true
+[ -n "$baseDate" ] && $buddy -c "Add :SunsetWebKitBaseDate string $baseDate" "$webkitPlist"
 # The native build's profile names its identifier, not this one's: this one's own, when there is one.
 rm -f "$app/Contents/embedded.provisionprofile"
 profile="${SUNSET_WEBKIT_PROFILE:-$HOME/.config/sunset-signing/webkit.provisionprofile}"

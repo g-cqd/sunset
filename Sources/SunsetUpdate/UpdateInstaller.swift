@@ -44,7 +44,8 @@ public struct UpdateInstaller: Sendable {
         try UpdateStaging.build(package, running: running, staging: staging)
     }
 
-    /// The archive unzipped (`ditto`, as it was zipped) beside the app, its one app moved to `staging`.
+    /// The archive unzipped (`ditto`, as it was zipped) beside the app, its one item moved to `staging`: an app, or the
+    /// engine's folder.
     private func stageArchive(_ asset: ReleaseAsset, staging: URL) async throws {
         let file = try await fetch(asset.url)
         defer { try? FileManager.default.removeItem(at: file) }
@@ -55,13 +56,14 @@ public struct UpdateInstaller: Sendable {
         ditto.arguments = ["-x", "-k", file.path, folder.path]
         try ditto.run()
         ditto.waitUntilExit()
-        let apps = (try? FileManager.default.contentsOfDirectory(atPath: folder.path))?.filter { $0.hasSuffix(".app") }
+        let apps = (try? FileManager.default.contentsOfDirectory(atPath: folder.path))?
+            .filter { $0.hasSuffix(".app") || $0 == Flavour.engine.rawValue }
         guard ditto.terminationStatus == 0, let apps, apps.count == 1 else { throw Failure.noApp }
         try FileManager.default.moveItem(at: folder.appending(path: apps[0]), to: staging)
     }
 
     public enum Failure: Error, Equatable {
-        /// The archive did not hold one app.
+        /// The archive did not hold one app (or one engine folder).
         case noApp
     }
 }

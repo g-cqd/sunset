@@ -22,7 +22,7 @@ import Testing
         #expect(back.issues.isEmpty && back.configuration.updates == configuration.updates)
         #expect(
             SettingsSection.topic("general.updates")?.topic.options.map(\.id) == [
-                "updates.center", "updates.automatic", "updates.prereleases"
+                "updates.center", "updates.automatic", "updates.engineAutomatic", "updates.prereleases"
             ]
         )
     }
