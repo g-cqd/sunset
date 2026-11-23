@@ -20,6 +20,12 @@ public enum NotesCheck: Equatable, Sendable {
         return BundleManifest.hex(Data(notes.utf8)) == index.notesSHA256 ? .verified : .mismatch
     }
 
+    /// The title the window shows for the release: GitHub's, unless the release failed its check, whose title (not
+    /// covered by the signature) is not shown as given.
+    public func title(given: String, build: Int) -> String {
+        self == .mismatch ? "Unverified release (build \(build))" : given
+    }
+
     /// Whether the window shows the notes.
     public var showsNotes: Bool {
         self != .mismatch

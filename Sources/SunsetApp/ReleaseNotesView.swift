@@ -13,7 +13,7 @@ struct ReleaseNotesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.m) {
             HStack(alignment: .firstTextBaseline) {
-                if showsTitle { Text(release.title).font(.title3.weight(.semibold)) }
+                if showsTitle { Text(shownTitle).font(.title3.weight(.semibold)) }
                 if showsTitle { Spacer() }
                 if let published = release.published {
                     Text("Released \(published.formatted(.dateTime.day().month(.wide).year()))")
@@ -38,6 +38,11 @@ struct ReleaseNotesView: View {
             }
         }
         .textSelection(.enabled)
+    }
+
+    /// GitHub's title, unless the release failed its check (`NotesCheck.title`).
+    private var shownTitle: String {
+        (check ?? .unsigned).title(given: release.title, build: release.build)
     }
 
     @ViewBuilder private func view(_ block: ReleaseNotes.Block) -> some View {

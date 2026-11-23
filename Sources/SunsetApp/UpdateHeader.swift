@@ -10,6 +10,8 @@ struct UpdateHeader: View {
     let offer: UpdateOffer
     let running: RunningApp
     let state: String
+    /// The release's title as the window may show it (`NotesCheck.title`).
+    var title: String
 
     var body: some View {
         HStack(spacing: Design.Space.xl) {
@@ -19,7 +21,7 @@ struct UpdateHeader: View {
                 .shadow(color: .black.opacity(Design.Shadow.popover.opacity), radius: Design.Shadow.popover.radius)
             VStack(alignment: .leading, spacing: Design.Space.xs) {
                 Text(state).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
-                Text(offer.release.title).font(.title.bold())
+                Text(title).font(.title.bold())
                 Text(verbatim: "You have \(running.version) (build \(running.build))")
                     .font(Design.Text.secondary)
                     .foregroundStyle(.secondary)

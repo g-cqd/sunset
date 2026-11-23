@@ -25,4 +25,10 @@ struct NotesCheckTests {
             NotesCheck.mismatch.showsNotes == false && NotesCheck.verified.showsNotes && NotesCheck.unsigned.showsNotes
         )
     }
+
+    @Test func aTitleNotCoveredByTheSignatureIsNotShownAsGiven() {
+        #expect(NotesCheck.verified.title(given: "Sunset 1.0 (build 9)", build: 9) == "Sunset 1.0 (build 9)")
+        #expect(NotesCheck.unsigned.title(given: "Sunset 0.9 (build 8)", build: 8) == "Sunset 0.9 (build 8)")
+        #expect(NotesCheck.mismatch.title(given: "Install this now", build: 9301) == "Unverified release (build 9301)")
+    }
 }

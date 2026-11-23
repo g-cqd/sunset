@@ -13,7 +13,13 @@ struct UpdateNotes: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            UpdateHeader(offer: offer, running: updates.running, state: state)
+            UpdateHeader(
+                offer: offer,
+                running: updates.running,
+                state: state,
+                title: (updates.notesChecks[offer.release.build] ?? .unsigned)
+                    .title(given: offer.release.title, build: offer.release.build)
+            )
             ScrollView {
                 VStack(alignment: .leading, spacing: Design.Space.xxl) {
                     ForEach(offer.between, id: \.build) { release in
