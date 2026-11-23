@@ -21,10 +21,15 @@ extension WebContent {
         guard url != nil else { return [] }
         return [
             PaneMenuAction("Reload Page") { [weak self] in self?.reload() }
-                .withOption(PaneMenuAction("Force Reload Page") { [weak self] in self?.forceReload() }),
+                .symbol("arrow.clockwise")
+                .withOption(
+                    PaneMenuAction("Force Reload Page") { [weak self] in self?.forceReload() }.symbol("arrow.clockwise")
+                ),
             reloadAsAction,
-            PaneMenuAction("Copy Address") { [weak self] in if let self { Feedback.give(copyAddress()) } },
+            PaneMenuAction("Copy Address") { [weak self] in if let self { Feedback.give(copyAddress()) } }
+                .symbol("link"),
             PaneMenuAction("Site Settings\u{2026}") { [weak self] in self?.showsSiteSettings = true }
+                .symbol("slider.horizontal.3")
         ]
         .compactMap(\.self)
     }

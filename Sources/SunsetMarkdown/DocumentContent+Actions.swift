@@ -74,10 +74,12 @@ extension DocumentContent {
         guard canRender else { return [] }
         let rendered = mode == .rendered
         return [
-            PaneMenuAction(rendered ? "Show Source" : "Show Rendered") { [weak self] in self?.toggleMode() },
+            PaneMenuAction(rendered ? "Show Source" : "Show Rendered") { [weak self] in self?.toggleMode() }
+                .symbol(rendered ? "chevron.left.forwardslash.chevron.right" : "doc.richtext"),
             PaneMenuAction(rendered ? "Show Source Beside" : "Show Rendering Beside") { [weak self] in
                 self?.showBeside()
             }
+            .symbol("rectangle.split.2x1")
         ]
     }
 }

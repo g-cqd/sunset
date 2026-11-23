@@ -13,15 +13,32 @@ struct TabRowMenu: View {
     var pane: PaneID?
 
     var body: some View {
+        // The menu's own ink for every symbol, never the accent (n140: they were blue).
+        Group { items }.tint(.primary)
+    }
+
+    @ViewBuilder private var items: some View {
         TabLayoutMenu(tabs: tabs, row: .tab(item))
         SelectionMenu(tabs: tabs, row: .tab(item))
         // A split's row has no field of its own to rename in: the alert asks.
         if tabs.workspace.items.first(where: { $0.id == item })?.isSplit == true {
-            Button("Rename Tab\u{2026}") { tabs.beginRename(item: item) }
+            Button {
+                tabs.beginRename(item: item)
+            } label: {
+                MenuItemLabel("Rename Tab\u{2026}", symbol: "pencil")
+            }
         } else {
-            Button("Rename") { tabs.renamingRow = .tab(item) }
+            Button {
+                tabs.renamingRow = .tab(item)
+            } label: {
+                MenuItemLabel("Rename", symbol: "pencil")
+            }
         }
-        Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item) }
+        Button {
+            tabs.iconRow = .tab(item)
+        } label: {
+            MenuItemLabel("Change Icon\u{2026}", symbol: "face.smiling")
+        }
         RowShareMenu(tabs: tabs, row: .tab(item))
         // What its panes' contents offer (a page's Reload, a document's other view).
         if pageActions {
@@ -42,15 +59,23 @@ struct TabRowMenu: View {
         let shown = tabs.workspace.items.first { $0.id == item }
         if let shown, shown.isSplit {
             let part = pane ?? shown.focused
-            Button("Close Pane") { tabs.requestClose(pane: part) }
-                .modifierKeyAlternate(.option) {
-                    Button("Close All \(shown.panes.count) Panes") { tabs.close(item: item) }
-                }
+            Button {
+                tabs.requestClose(pane: part)
+            } label: {
+                MenuItemLabel("Close Pane", symbol: "xmark")
+            }
+            .modifierKeyAlternate(.option) {
+                Button("Close All \(shown.panes.count) Panes") { tabs.close(item: item) }
+            }
         } else {
-            Button("Close Tab") { tabs.close(item: item) }
-                .modifierKeyAlternate(.option) {
-                    Button("Close Other Tabs") { tabs.closeOthers(than: item) }.disabled(tabs.workspace.count < 2)
-                }
+            Button {
+                tabs.close(item: item)
+            } label: {
+                MenuItemLabel("Close Tab", symbol: "xmark")
+            }
+            .modifierKeyAlternate(.option) {
+                Button("Close Other Tabs") { tabs.closeOthers(than: item) }.disabled(tabs.workspace.count < 2)
+            }
         }
     }
 }

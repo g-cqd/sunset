@@ -4,6 +4,8 @@ package struct PaneMenuAction {
     package let run: @MainActor () -> Void
     /// Its items, when it is a submenu.
     package let children: [Self]
+    /// Its symbol, shown when the menus show symbols (n139).
+    package private(set) var symbol: String?
     /// What it becomes while Option is held (less used items behind Option, as macOS's menus have them).
     package var alternate: PaneMenuAction? {
         boxed?.action
@@ -30,6 +32,13 @@ package struct PaneMenuAction {
         self.title = title
         run = {}
         self.children = children
+    }
+
+    /// This item with `symbol`.
+    package func symbol(_ symbol: String) -> Self {
+        var item = self
+        item.symbol = symbol
+        return item
     }
 
     /// This item, with `alternate` in its place while Option is held.

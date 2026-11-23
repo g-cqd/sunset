@@ -141,6 +141,9 @@ extension TerminalScene {
         guard self.window !== window else { return }
         self.window = window
         TabRegistry.shared.register(window, tabs: tabs)
+        // The scopes as configured: they are told to the windows registered when the features change, and this one was not
+        // yet when the scene first applied them (n141: Passwords, off by default, stayed out of the Library).
+        tabs.scopes = AppScopes.current
         WindowCloseGuard.install(on: window, tabs: tabs)
         AppActions.shared.joinPendingTab(window)
         if !tabs.workspace.isEmpty { AppActions.shared.finishStarting(tabs) }

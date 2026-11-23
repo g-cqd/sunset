@@ -50,6 +50,7 @@ extension WebContent {
                 }
             }
         )
+        .symbol("person.crop.circle")
     }
 
     /// The name of the profile it was reloaded as, for its mark.

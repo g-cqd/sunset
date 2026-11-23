@@ -12,25 +12,42 @@ struct RowShareMenu: View {
         let tabCount = rows.filter { if case .tab = $0 { true } else { false } }.count
         let addresses = tabs.addresses(of: rows)
         if tabCount > 0 {
-            Button(tabCount == 1 ? "Duplicate" : "Duplicate \(tabCount) Tabs") { tabs.duplicate(rows) }
+            Button {
+                tabs.duplicate(rows)
+            } label: {
+                MenuItemLabel(
+                    tabCount == 1 ? "Duplicate" : "Duplicate \(tabCount) Tabs",
+                    symbol: "plus.square.on.square",
+                    kind: .action
+                )
+            }
         }
         // One open page has its own Copy Address among its actions.
         if !addresses.isEmpty, rows.count > 1 || !showsPageActions {
-            Button(addresses.count == 1 ? "Copy Address" : "Copy \(addresses.count) Addresses") {
+            Button {
                 Clipboard.copyAndSay(
                     addresses.map(\.absoluteString).joined(separator: "\n"),
                     isLink: addresses.count == 1,
                     what: addresses.count == 1 ? "Copied the address" : "Copied \(addresses.count) addresses"
                 )
+            } label: {
+                MenuItemLabel(
+                    addresses.count == 1 ? "Copy Address" : "Copy \(addresses.count) Addresses",
+                    symbol: "link",
+                    kind: .action
+                )
             }
         }
         if !addresses.isEmpty {
             ShareLink(items: addresses) {
-                Label(
+                MenuItemLabel(
                     addresses.count == 1 ? "Share\u{2026}" : "Share \(addresses.count) Pages\u{2026}",
-                    systemImage: "square.and.arrow.up"
+                    symbol: "square.and.arrow.up",
+                    kind: .action
                 )
             }
+            // A share link takes the accent (n140: blue in the menu): the menu's own ink, as every item's.
+            .tint(.primary)
         }
     }
 

@@ -9,9 +9,22 @@ struct TabKeepMenu: View {
     var animation: Animation?
 
     var body: some View {
-        Button("Pin") { withAnimation(animation) { _ = tabs.pin(item: item) } }.disabled(!tabs.canPin)
-        Button("Add to Favorites") { withAnimation(animation) { _ = tabs.keep(item: item) } }
-        Button("New Folder with This Tab") { tabs.newFolder(with: item) }
+        Button {
+            withAnimation(animation) { _ = tabs.pin(item: item) }
+        } label: {
+            MenuItemLabel("Pin", symbol: "pin")
+        }
+        .disabled(!tabs.canPin)
+        Button {
+            withAnimation(animation) { _ = tabs.keep(item: item) }
+        } label: {
+            MenuItemLabel("Add to Favorites", symbol: "star")
+        }
+        Button {
+            tabs.newFolder(with: item)
+        } label: {
+            MenuItemLabel("New Folder with This Tab", symbol: "folder.badge.plus")
+        }
         MoveToSpaceMenu(tabs: tabs, rows: [.tab(item)])
     }
 }

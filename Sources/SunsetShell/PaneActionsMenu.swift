@@ -30,8 +30,10 @@ struct PaneActionsMenu: View {
             if action.children.isEmpty {
                 button(action, of: pane)
             } else {
-                Menu(action.title) {
+                Menu {
                     ForEach(action.children.indices, id: \.self) { child in button(action.children[child], of: pane) }
+                } label: {
+                    MenuItemLabel(action.title, symbol: action.symbol, kind: .action)
                 }
             }
         }
@@ -45,10 +47,12 @@ struct PaneActionsMenu: View {
     }
 
     private func plain(_ action: PaneMenuAction, of pane: PaneID) -> some View {
-        Button(action.title) {
+        Button {
             show()
             tabs.focus(pane)
             action.run()
+        } label: {
+            MenuItemLabel(action.title, symbol: action.symbol, kind: .action)
         }
     }
 }

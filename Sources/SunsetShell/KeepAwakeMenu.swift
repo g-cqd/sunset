@@ -44,10 +44,12 @@ package struct KeepAwakeMenu: View {
     package var body: some View {
         let now = now
         let isWindow = if case .window = target { true } else { false }
-        Menu("Keep Mac Awake") {
+        Menu {
             Toggle(isWindow ? "Until the Window Closes" : "Until the Tab Closes", isOn: binding(.closed, now))
             Toggle(isWindow ? "Until Its Commands End" : "Until Its Command Ends", isOn: binding(.commandEnds, now))
                 .disabled(now != .commandEnds && !canWait)
+        } label: {
+            MenuItemLabel("Keep Mac Awake", symbol: "cup.and.saucer")
         }
     }
 
