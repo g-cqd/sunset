@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import LocalAuthentication
 import Security
 import SunsetRuntime
 import SunsetTestSupport
@@ -45,7 +46,7 @@ struct VaultTouchIDTests {
         try made.put(Data("secret".utf8), as: entry)
         let vault = try Vault.open(at: place, runtime: time.runtime, locks: VaultLocks())
         #expect(vault.factors == [.touchID, .password, .recoveryCode])
-        try vault.unlock(touchID: nil)
+        try vault.unlock(touchID: LAContext())
         #expect(try vault.record(entry) == Data("secret".utf8))
         vault.lock.lock(.byHand)
         try vault.unlock(password: "pw")
@@ -66,6 +67,6 @@ struct VaultTouchIDTests {
             locks: VaultLocks()
         )
         vault.lock.lock(.byHand)
-        #expect(throws: Vault.Refused.self) { try vault.unlock(touchID: nil) }
+        #expect(throws: Vault.Refused.self) { try vault.unlock(touchID: LAContext()) }
     }
 }

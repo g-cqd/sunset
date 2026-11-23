@@ -1,4 +1,5 @@
 package import Foundation
+import LocalAuthentication
 package import Observation
 package import SunsetCredentials
 package import SunsetRuntime
@@ -83,7 +84,9 @@ package final class PasswordsModel {
 
     /// Unlocks with Touch ID; false when it was refused or cancelled.
     package func unlockWithTouchID() -> Bool {
-        unlocking { try $0.unlock(touchID: nil) }
+        let context = LAContext()
+        context.localizedReason = "unlock your passwords"
+        return unlocking { try $0.unlock(touchID: context) }
     }
 
     package func lock() {

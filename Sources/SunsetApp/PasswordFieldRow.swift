@@ -4,7 +4,7 @@ import SunsetShell
 import SwiftUI
 
 /// One field of an entry on its page, a row of the form: its name, then its value. Read, the value (a secret one as dots,
-/// never its characters), copied by a click on the row or its button. Edited, a field of the form (a secret one a secure
+/// never its characters), copied by its button (never a click on the row, n129). Edited, a field of the form (a secret one a secure
 /// field), its menu to generate a password into it or remove it. A problem with its value under it.
 struct PasswordFieldRow: View {
     let field: EntryField
@@ -21,7 +21,6 @@ struct PasswordFieldRow: View {
     @State private var hovered = false
     @State private var feedback = FeedbackCue()
     @Environment(\.runtime) private var runtime
-    @Environment(\.surfaceStyle) private var surface
 
     var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.hair) {
@@ -47,26 +46,17 @@ struct PasswordFieldRow: View {
                         .textSelection(.disabled)
                     if field.isSecret { revealButton }
                 }
-                // The app's copy: the glyph becomes a check for a moment (n111); shown under the pointer, and while it says so.
-                FeedbackGlyph(symbol: "doc.on.doc", cue: feedback.cue, shakes: feedback.shakes)
-                    .foregroundStyle(.secondary)
-                    .opacity(hovered || feedback.cue != nil ? 1 : 0)
-                    .accessibilityHidden(true)
+                // Copying is its button's, not the whole field's (n129): shown under the pointer, and while it says it copied;
+                // the glyph becomes a check for a moment (n111).
+                RowGlyphButton(help: feedback.cue?.announcement ?? "Copy \(field.name)", action: copy) {
+                    FeedbackGlyph(symbol: "doc.on.doc", cue: feedback.cue, shakes: feedback.shakes)
+                }
+                .opacity(hovered || feedback.cue != nil ? 1 : 0)
+                .accessibilityLabel("Copy \(field.name)")
             }
         }
-        // The row is the button: the app's hover fill under the pointer (n110).
-        .padding(.horizontal, Design.Space.xs)
-        .background(
-            RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout), style: .continuous)
-                .fill(.primary.opacity(hovered ? Design.Fill.hover : 0))
-        )
-        .contentShape(Rectangle())
         .onHover { hovered = $0 }
         .animation(.snappy(duration: 0.12), value: hovered)
-        .onTapGesture(perform: copy)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAction(named: "Copy \(field.name)", copy)
         .contextMenu { Button("Copy \(field.name)", action: copy) }
     }
 

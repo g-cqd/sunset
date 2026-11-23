@@ -6,8 +6,8 @@ package enum RowFill {
     /// Selected (fainter in a window at the back), under the pointer, open in this window, or none.
     package static func opacity(selected: Bool, hovering: Bool, inactive: Bool, open: Bool) -> Double {
         switch (selected, hovering) {
-            case (true, true): inactive ? Design.Fill.selectedInactiveHover : Design.Fill.selectedHover
-            case (true, false): inactive ? Design.Fill.selectedInactive : Design.Fill.selected
+            case (true, true): inactive ? Design.Fill.tabSelectedInactiveHover : Design.Fill.tabSelectedHover
+            case (true, false): inactive ? Design.Fill.tabSelectedInactive : Design.Fill.tabSelected
             case (false, true): open ? Design.Fill.openHover : Design.Fill.hover
             case (false, false): open ? Design.Fill.open : 0
         }

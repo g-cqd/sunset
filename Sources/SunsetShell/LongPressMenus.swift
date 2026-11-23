@@ -14,6 +14,7 @@ public enum LongPressMenus {
 
     public static func start() {
         guard monitor == nil else { return }
+        _ = MenuTracking.shared
         let kinds: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseDragged, .leftMouseUp, .pressure]
         monitor = NSEvent.addLocalMonitorForEvents(matching: kinds) { event in
             follow(event) ? nil : event
@@ -52,7 +53,14 @@ public enum LongPressMenus {
             repeats: false
         ) { _ in
             MainActor.assumeIsolated {
-                guard press?.isDue(at: Runtime.live.uptime()) == true, let down = pressEvent else { return }
+                // Still held: a control that runs its own loop (a pop-up's menu, a slider) swallows the release, so it
+                // is not seen here (n128: a click on a picker opened a menu half a second later).
+                guard NSEvent.pressedMouseButtons & 1 == 1, !MenuTracking.shared.isOpen,
+                    press?.isDue(at: Runtime.live.uptime()) == true, let down = pressEvent
+                else {
+                    end()
+                    return
+                }
                 end()
                 // The press still held: its button's release must not click what the menu covers.
                 openMenu(like: down)
@@ -79,7 +87,8 @@ public enum LongPressMenus {
         }
         var view: NSView? = hit
         while let current = view {
-            if current is NSTextView || current is NSTextField || current.acceptsLongPressItself
+            // A control of AppKit's (a pop-up, a button, a slider, a field) has presses of its own.
+            if current is NSControl || current is NSTextView || current.acceptsLongPressItself
                 || ownPresses.contains(String(describing: type(of: current)))
             {
                 return false

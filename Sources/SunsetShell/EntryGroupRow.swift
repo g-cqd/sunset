@@ -50,7 +50,7 @@ struct EntryGroupRow: View {
         }
         .keptHover($hovering)
         .animation(layout.smooth, value: hovering)
-        .animation(layout.smooth, value: selected)
+        .animation(layout.selection, value: selected)
     }
 
     private var fill: Color {

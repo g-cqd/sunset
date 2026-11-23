@@ -104,8 +104,9 @@ public final class Vault {
         try unwrap(slot, with: stretched)
     }
 
-    /// Unlocks with Touch ID, asked through `context` (nil: the system's own prompt).
-    public func unlock(touchID context: LAContext?) throws(Refused) {
+    /// Unlocks with Touch ID, asked once through `context`: the factor's two keys share it (n127: without one, each of them
+    /// asked).
+    public func unlock(touchID context: LAContext) throws(Refused) {
         let slot = try slot(.touchID)
         guard let bytes = slot.touchID, let factor = try? TouchIDFactor(bytes),
             let factorKey = try? factor.factorKey(vault: file.id, context: context)

@@ -143,7 +143,7 @@ struct SidebarRow: View {
         .keptHover($hovering)
         .animation(layout.smooth, value: hovering)
         .animation(layout.smooth, value: overClose)
-        .animation(layout.smooth, value: selected)
+        .animation(layout.selection, value: selected)
         .animation(layout.smooth, value: armed)
         .animation(layout.smooth, value: activeState)
     }

@@ -9,15 +9,16 @@ import Testing
 struct RowFillTests {
     @Test func `selected, hovered, in a window at the back, open, or nothing`() {
         #expect(
-            RowFill.opacity(selected: true, hovering: true, inactive: false, open: false) == Design.Fill.selectedHover
+            RowFill.opacity(selected: true, hovering: true, inactive: false, open: false)
+                == Design.Fill.tabSelectedHover
         )
         #expect(
             RowFill.opacity(selected: true, hovering: false, inactive: true, open: false)
-                == Design.Fill.selectedInactive
+                == Design.Fill.tabSelectedInactive
         )
         #expect(
             RowFill.opacity(selected: true, hovering: true, inactive: true, open: false)
-                == Design.Fill.selectedInactiveHover
+                == Design.Fill.tabSelectedInactiveHover
         )
         #expect(RowFill.opacity(selected: false, hovering: true, inactive: false, open: true) == Design.Fill.openHover)
         #expect(RowFill.opacity(selected: false, hovering: true, inactive: false, open: false) == Design.Fill.hover)
@@ -43,5 +44,13 @@ extension RowFillTests {
         #expect(RowFill.marked(.markedShown, hovering: false) == Design.Fill.markedShown)
         #expect(RowFill.marked(.markedShown, hovering: true) == Design.Fill.markedShownHover)
         #expect(RowFill.marked(.shown, hovering: true) == nil && RowFill.marked(.none, hovering: false) == nil)
+    }
+
+    /// n114: the shown tab stands apart from the other open ones, in a window at the back too.
+    @Test func `the shown tab is at least twice an open one, active or not`() {
+        let open = RowFill.opacity(selected: false, hovering: false, inactive: false, open: true)
+        for inactive in [false, true] {
+            #expect(RowFill.opacity(selected: true, hovering: false, inactive: inactive, open: true) >= 2 * open)
+        }
     }
 }

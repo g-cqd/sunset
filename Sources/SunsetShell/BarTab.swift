@@ -61,7 +61,7 @@ struct BarTab<Icon: View, Label: View>: View {
             onHover(inside)
         }
         .animation(layout.smooth, value: hovering)
-        .animation(layout.smooth, value: selected)
+        .animation(layout.selection, value: selected)
         .animation(layout.smooth, value: armed)
     }
 

@@ -10,11 +10,15 @@ extension Design {
         /// A row that is open (every tab, an open kept entry), at rest and under the pointer; a kept entry that is not open has no fill and is
         /// not dimmed.
         package static let open = 0.06
-        /// The selected row (primary), at rest and under the pointer; dimmer while the window is not the active one.
+        /// A selected thing (primary), at rest and under the pointer.
         package static let selected = 0.14
         package static let selectedHover = 0.2
-        package static let selectedInactive = 0.08
-        package static let selectedInactiveHover = 0.12
+        /// The tab shown, against the other open ones (0.06): clearly apart, in a window at the back too (n114: the shown tab
+        /// at 0.14, and 0.08 at the back, was hardly told from them).
+        package static let tabSelected = 0.22
+        package static let tabSelectedHover = 0.28
+        package static let tabSelectedInactive = 0.15
+        package static let tabSelectedInactiveHover = 0.2
         /// A row among several selected, and a place a drag would drop into (the accent at these opacities).
         package static let marked = 0.18
         package static let markedHover = 0.26
