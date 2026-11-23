@@ -149,5 +149,7 @@
 			</dict>
 		</dict>
 	</array>
+	<key>WebKitXPCServicePrefix</key>
+	<string>studio.aemi.sunset.engine</string>
 </dict>
 </plist>

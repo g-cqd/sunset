@@ -111,3 +111,15 @@ Work paused at the owner's request (no access to mbp23, which signs and pushes, 
   `Scripts/make-update-packages.sh <zip> 3` for each zip, and upload the `.update` files and their `.sha256` with the
   zips (the `upN.sh` on mbp23 must take `*.update*` too). alpha.12 is the first build that updates itself; it can only
   be seen doing so once alpha.13 is out (roadmap 0122).
+
+## On hold (2026-11-23, 17:05)
+
+- **Local only**: 29 commits after GitHub's main (49386279); none pushed (mbp23 unavailable). The tip builds and passes
+  the gates. The web tests timed out under another project's load (load average 40–215), alone too; not re-run since.
+- **Installed**: 818 for both apps (notarized). Later commits are not installed: the tab menu's symbols, Share no longer blue
+  (n139, n140); Passwords in every window's Library (n141); the engine as a downloadable component (roadmap 0113 C, D in
+  part). The 818 → next build was stopped mid-build on purpose.
+- **Waiting for the owner**: which tab-menu symbols (none, page actions, all: `~/.local/share/sunset-agent/n139/`); then
+  remove `SUNSET_PROBE_MENU_ICONS` (`MenuIcons`). Whether passwords now save as expected (t346).
+- **Next**: n142 (icon previews, Auto icon by time of day), n143 (welcome animation by time of day); roadmap 0113: publish an
+  engine (`make-engine-archive.sh`) and see it downloaded, switched, deleted end to end; roadmap 0122 alpha.12 release step.
