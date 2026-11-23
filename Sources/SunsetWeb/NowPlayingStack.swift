@@ -11,6 +11,7 @@ package struct NowPlayingStack: View {
     let pictureInPicture: Bool
     /// What every card is drawn on: the window's own material, from the app.
     let surface: AnyView
+    @Environment(\.surfaceStyle) private var style
 
     package init(center: NowPlaying = .shared, pictureInPicture: Bool, surface: AnyView) {
         self.center = center
@@ -46,6 +47,8 @@ package struct NowPlayingStack: View {
             .background { surface.clipShape(shape) }
             .overlay { shape.fill(.black.opacity(depth == 0 ? 0 : 1 - Design.NowPlaying.behind)) }
             .clipShape(shape)
+            // Its edge, as the window's other surfaces have (n125): a card without one blurred into the sidebar.
+            .overlay { shape.hairline(style.layout) }
             .allowsHitTesting(depth == 0)
             // Nor to accessibility: a card behind has nothing to press (seen 2026-11-22: its hidden buttons were pressed).
             .accessibilityHidden(depth != 0)

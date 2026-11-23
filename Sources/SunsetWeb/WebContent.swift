@@ -90,6 +90,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored package internal(set) var takingPicture = false
     /// It was on screen at the last `setState`.
     @ObservationIgnored var shown = false
+    /// Its video floats because Sunset floated it as the page was left (`web.autoPictureInPicture`).
+    @ObservationIgnored var floatedBySunset = false
     /// Since when it is not on screen, once it was made (S-f): what decides when it is unloaded.
     @ObservationIgnored package internal(set) var hiddenSince: Date?
     /// Its view was let go of to free memory (S-f): it is made again, where it was, when it is shown. Its icon is dimmed.
@@ -196,6 +198,7 @@ package final class WebContent: PaneContent, PaneViewMaking {
         // Hidden: its last picture is taken while it is still drawn, for its tab's preview.
         if !visible, shown { takePicture() }
         if visible { hiddenSince = nil } else if hiddenSince == nil, webView != nil { hiddenSince = runtime.now() }
+        followPictureInPicture(was: shown, now: visible)
         shown = visible
     }
 

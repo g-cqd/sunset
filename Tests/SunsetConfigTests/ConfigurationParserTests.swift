@@ -180,4 +180,12 @@ import Testing
         #expect(result.issues.map(\.path).sorted() == ["scroll.inertia", "scroll.trackpad", "scroll.wheel"])
         #expect(result.configuration.scroll == Configuration.Scroll())
     }
+
+    /// n124: a playing video floats when its tab is left; off unless asked.
+    @Test func `web.autoPictureInPicture is read, off by default, nonsense an issue`() throws {
+        #expect(!Configuration().web.autoPictureInPicture)
+        #expect(try read(#"{ "web": { "autoPictureInPicture": true } }"#).configuration.web.autoPictureInPicture)
+        let bad = try read(#"{ "web": { "autoPictureInPicture": "yes" } }"#)
+        #expect(!bad.configuration.web.autoPictureInPicture && !bad.issues.isEmpty)
+    }
 }

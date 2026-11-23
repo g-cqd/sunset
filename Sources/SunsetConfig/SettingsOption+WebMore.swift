@@ -136,6 +136,13 @@ extension SettingsOption {
                 "picture in picture pip video float window",
                 \.web.pictureInPicture,
                 "A video can float in its own small window above the others, as in Safari."
+            ),
+            media(
+                ("web.autoPictureInPicture", "Float when leaving", "Float a playing video when you leave its tab"),
+                "picture in picture pip automatic auto float video leave switch tab return",
+                \.web.autoPictureInPicture,
+                "A video that plays floats in picture in picture when you show another tab, and goes back in its page when you "
+                    + "come back to it."
             )
         ]
 

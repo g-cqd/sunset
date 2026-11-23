@@ -123,6 +123,8 @@ extension Configuration {
         public var nowPlaying = true
         /// A page's video can float in the system's picture in picture window.
         public var pictureInPicture = true
+        /// A playing video floats in picture in picture when its tab is left, and comes back when it is shown (n124).
+        public var autoPictureInPicture = false
         /// The site's icon, its initial in a square while it has none.
         public var tabIcon = TabIcon.favicon
         public var address = AddressPlace.sidebar

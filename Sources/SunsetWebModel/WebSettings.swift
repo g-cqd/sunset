@@ -41,6 +41,8 @@ package struct WebSettings: Sendable, Equatable {
     package var workerNotifications = true
     /// A video may float in the system's picture in picture window (`web.pictureInPicture`).
     package var pictureInPicture = true
+    /// A playing video floats when its page is left, back when it is shown (`web.autoPictureInPicture`).
+    package var autoPictureInPicture = false
     /// What its profile sets otherwise than all profiles, or all profiles' own: blocking, the proxy its store is given,
     /// what a site gets until answered, where a download goes and whether it is asked.
     package var blocking = true

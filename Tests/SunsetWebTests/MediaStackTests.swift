@@ -84,9 +84,10 @@ struct MediaStackTests {
         var scroll = MediaStackScroll(threshold: 30)
         #expect(scroll.add(12) == 0 && scroll.add(12) == 0)
         #expect(scroll.add(12) == 1, "36 points: one card")
-        #expect(scroll.add(200) == 1, "one card at a time")
-        #expect(scroll.add(-31) == -1)
+        // One card a gesture, as a page snaps (n125): the rest of it, and its momentum, move nothing.
+        #expect(scroll.add(200) == 0 && scroll.add(-31) == 0, "the gesture is spent")
         scroll.end()
         #expect(scroll.add(20) == 0, "a new gesture starts from nothing")
+        #expect(scroll.add(-50) == -1, "and turns one card, either way")
     }
 }

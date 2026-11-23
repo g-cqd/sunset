@@ -49,6 +49,7 @@ package struct PageSettingsMaker: Sendable {
         settings.notificationAskWithoutClick = web.notificationsWithoutClick
         settings.workerNotifications = web.workerNotifications
         settings.pictureInPicture = web.pictureInPicture
+        settings.autoPictureInPicture = web.autoPictureInPicture
         settings.blocking = web.blocking
         settings.httpsUpgrade = HTTPSUpgrade(rawValue: web.httpsUpgrade.rawValue) ?? .fallback
         settings.popupWindows = PopupWindows(rawValue: web.popupWindows.rawValue) ?? .sized

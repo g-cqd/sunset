@@ -21,6 +21,13 @@ struct NowPlayingScrollCatcher: View {
             guard (view as? EventCatcherView)?.isOver(event) == true,
                 abs(event.scrollingDeltaY) > abs(event.scrollingDeltaX)
             else { return false }
+            // The momentum after the fingers lift moves nothing (n125: the stack snaps, it does not coast).
+            guard event.momentumPhase.isEmpty else { return true }
+            // A mouse wheel's click turns one card.
+            if !event.hasPreciseScrollingDeltas {
+                if event.scrollingDeltaY != 0 { scrolled(event.scrollingDeltaY > 0 ? -1 : 1) }
+                return true
+            }
             // Fingers up move the stack up: the next card comes to the front.
             let cards = scroll.cards.add(-event.scrollingDeltaY)
             if cards != 0 { scrolled(cards) }

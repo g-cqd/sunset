@@ -24,6 +24,10 @@ extension Reader {
             }
             switch key {
                 case "engine": if let name = string("web.engine", value) { configuration.web.engine = name }
+                case "autoPictureInPicture":
+                    if let flag = bool("web.\(key)", value) {
+                        configuration.web.autoPictureInPicture = flag
+                    }
                 case "engines": readEngines(value)
                 case "blockingLists": readBlockingLists(value)
                 case "proxy": readProxy(value)
