@@ -54,27 +54,11 @@ for framework in "$frameworks"/*.framework; do
     rm -rf "$framework/Headers" "$framework/PrivateHeaders" "$framework/Helpers" \
         "$framework/Versions/A/Headers" "$framework/Versions/A/PrivateHeaders" "$framework/Versions/A/Helpers"
 done
-# Each service's executable is ours: WebKit's entry point, with the loader's framework path toward the app's Frameworks
-# in the executable (Engine/WebKit/service-main.c), so no service reads the environment's loader variables.
-serviceMain="$(mktemp -t sunset-service)"
-clang -O2 -arch arm64 -mmacosx-version-min="$(/usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$built/Contents/Info.plist")" \
-    -F"$products" -framework WebKit -Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../../../../Frameworks \
-    "$here/Engine/WebKit/service-main.c" -o "$serviceMain"
-# Under names of ours (studio.aemi.sunset.engine.WebContent…, patch 0037): WebKit's own names are the system WebKit's
-# too, and an app's services of those names would serve it as well (roadmap 0113, ADR-0124). Each says WebKit's name in
-# its Info.plist (its sandbox profile is that name's) and is signed with WebKit's identifier, as before.
+# WebKit's processes: the app's own services under names of ours (Scripts/engine-services.sh; the native build has them
+# too), their loader's path toward the app's Frameworks first.
+rm -rf "$services"
+Scripts/engine-services.sh add "$app"
 servicePrefix=studio.aemi.sunset.engine
-for service in "$products"/*.xpc; do
-    webkitName="$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$service/Contents/Info.plist")"
-    ours="$servicePrefix${webkitName#com.apple.WebKit}"
-    copy="$services/$ours.xpc"
-    ditto "$service" "$copy"
-    /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $ours" "$copy/Contents/Info.plist"
-    /usr/libexec/PlistBuddy -c "Add :WebKitServiceName string $webkitName" "$copy/Contents/Info.plist"
-    executable="$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$copy/Contents/Info.plist")"
-    cp "$serviceMain" "$copy/Contents/MacOS/$executable"
-done
-rm -f "$serviceMain"
 
 plist="$app/Contents/Info.plist"
 buddy=/usr/libexec/PlistBuddy

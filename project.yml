@@ -48,6 +48,9 @@ targets:
       properties:
         # "Sunset Dev" for a debug build, so that Open With and the Dock tell it from the installed one (t276).
         CFBundleDisplayName: $(SUNSET_DISPLAY_NAME)
+        # Where a WebKit of ours looks its processes up: the app's services under names of ours (patch 0037; roadmap
+        # 0113, ADR-0124). The system's WebKit does not read it.
+        WebKitXPCServicePrefix: studio.aemi.sunset.engine
         CFBundleIconFile: Sunset
         LSApplicationCategoryType: public.app-category.developer-tools
         NSHighResolutionCapable: true
@@ -116,7 +119,10 @@ targets:
         # on the WebKit in its own Frameworks, system frameworks that link WebKit included, with no exception for the
         # environment's loader variables (which a hardened process ignores). The native build has no WebKit there: the
         # system's is used.
-        OTHER_LDFLAGS: ["$(inherited)", "-Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks"]
+        # Then the engine's folder beside the app (roadmap 0113, ADR-0124): a WebKit downloaded as a component.
+        OTHER_LDFLAGS:
+          - "$(inherited)"
+          - "-Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks:@executable_path/../../../SunsetEngine/Frameworks"
         SUNSET_DISPLAY_NAME: Sunset
         # The icon (roadmap 0084): App/Sunset.icon, made in Design/Icons; Xcode compiles it into Assets.car and into
         # Sunset.icns (CFBundleIconFile). The three other skies go in as alternates, for the person to choose later.

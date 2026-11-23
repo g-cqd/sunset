@@ -56,11 +56,28 @@ if ! codesign --verify --deep --strict "$built" 2>/dev/null; then
 fi
 # The loader's framework path is the executable's own (roadmap 0113, CRIT-02): Sunset WebKit runs on the WebKit in its
 # Frameworks with no exception for the environment's loader variables, which stay ignored; the native build has none there.
-otool -l "$built/Contents/MacOS/Sunset" | grep -q "DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks" ||
+otool -l "$built/Contents/MacOS/Sunset" | grep -q "DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks:" ||
     { echo "make-app: Sunset's executable does not set its framework path (LC_DYLD_ENVIRONMENT)" >&2; exit 1; }
 mkdir -p "$output"
 rm -rf "$output/Sunset.app"
 ditto "$built" "$output/Sunset.app"
+# WebKit's processes under names of ours (roadmap 0113, ADR-0124): the system's WebKit never looks them up; a WebKit of
+# ours, in Sunset WebKit or in the engine's folder beside the app, does. Signed as the app is, the app signed again over
+# them with what it had.
+Scripts/engine-services.sh add "$output/Sunset.app"
+authority="$(codesign -dvv "$output/Sunset.app" 2>&1 | sed -n 's/^Authority=//p' | sed -n 1p)"
+identity="${authority:--}"
+signing=(--force --sign "$identity" --options runtime)
+case "$identity" in Developer\ ID*) signing+=(--timestamp) ;; esac
+for service in "$output/Sunset.app/Contents/XPCServices"/*.xpc; do
+    webkitName="$(/usr/libexec/PlistBuddy -c "Print :WebKitServiceName" "$service/Contents/Info.plist")"
+    case "$service" in
+        *WebContent*) codesign "${signing[@]}" --identifier "$webkitName" --entitlements Engine/WebKit/WebContent.entitlements "$service" ;;
+        *) codesign "${signing[@]}" --identifier "$webkitName" "$service" ;;
+    esac
+done 2>/dev/null
+codesign "${signing[@]}" --preserve-metadata=entitlements,requirements,flags,runtime "$output/Sunset.app" 2>/dev/null
+codesign --verify --deep --strict "$output/Sunset.app" || { echo "make-app: the app with its services does not verify" >&2; exit 1; }
 # A build is not the Mac's browser: macOS sent a link from another app to a copy in .build once (2026-11-20, a test copy
 # then ran with the person's settings). Only the installed app stays known to Launch Services.
 lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
