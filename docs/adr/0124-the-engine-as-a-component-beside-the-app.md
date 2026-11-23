@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-11-23
 ---
 
@@ -12,7 +12,7 @@ automatically or by hand (owner, 2026-11-23). ADR-0123: the executables set the 
 a folder without WebKit falls back to the system's. Roadmap 0122 (ADR-0122): updates from GitHub releases, checked by
 signature, as deltas.
 
-## Decision (proposed)
+## Decision
 
 1. **Where**: the engine's frameworks in a folder beside the app, named in Sunset's executable relative to it
    (`DYLD_FRAMEWORK_PATH=@executable_path/../../../Sunset Engine/Frameworks`, one folder per app copy; the folder of
@@ -29,7 +29,7 @@ signature, as deltas.
 4. **Updates**: the engine is a release asset of its own (zip and deltas, roadmap 0122), offered in the update centre beside
    the app, with its own automatic switch.
 
-## To probe before accepting
+## Probed (diaries 2026-11-23-08)
 
 - The relative folder in a translocated or read-only copy (then the component cannot be installed: said so).
 - ~~The patch's service names against the sandbox profiles WebKit selects by service name.~~ Done (diary
@@ -38,3 +38,5 @@ signature, as deltas.
   by one rename of a folder checked whole, and at launch a process that has both (`refuseOtherWebKit`'s images) sets the
   engine folder aside and runs itself again, on the system's WebKit, saying so.
 - The folder beside the app, with a space, two folders in the path, off by renaming: holds (diary 2026-11-23-08).
+- A translocated copy: the folder relative to it is the randomized place's, where no engine is: it runs on the system's
+  WebKit, and the component cannot be installed (the update centre says so, `UpdatePlace.translocated`).
