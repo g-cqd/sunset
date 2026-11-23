@@ -1,13 +1,16 @@
 /// The styles in use on a screen, interned: a cell holds the 16-bit id. Id 0 is the default style. Entries are not reference-counted (a cell write
 /// must not pay for it); when the table is full the screen rebuilds it from the cells that are still on screen (`Screen.compactStyles`).
 struct StyleTable: Sendable {
-    static let capacity = 1 << 16
+    static let capacity = Interned<CellStyle>.capacity
 
-    private(set) var styles: ContiguousArray<CellStyle> = [CellStyle()]
-    private var ids: [CellStyle: UInt16] = [CellStyle(): 0]
+    private var table = Interned(none: CellStyle())
+
+    var styles: ContiguousArray<CellStyle> {
+        table.values
+    }
 
     var count: Int {
-        styles.count
+        table.count
     }
 
     subscript(id: UInt16) -> CellStyle {
@@ -16,11 +19,12 @@ struct StyleTable: Sendable {
 
     /// The id of `style`, adding it if new; nil when the table is full.
     mutating func intern(_ style: CellStyle) -> UInt16? {
-        if let id = ids[style] { return id }
-        guard styles.count < Self.capacity else { return nil }
-        let id = UInt16(styles.count)
-        styles.append(style)
-        ids[style] = id
-        return id
+        table.intern(style)
+    }
+
+    /// Rewrites each style's link id through `map` (the link table compacted). Styles that become equal stay apart: a
+    /// cell keeps its id.
+    mutating func mapLinks(_ map: (UInt16) -> UInt16) {
+        table.rewrite { $0.link = map($0.link) }
     }
 }

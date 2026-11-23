@@ -36,7 +36,30 @@ extension Screen {
         guard bytes.count <= LinkTable.addressLimit, !bytes.contains(where: { $0 < 0x20 || $0 == 0x7F }),
             let address = String(validating: bytes, as: UTF8.self)
         else { return 0 }
+        if let id = links.intern(address) { return id }
+        compactLinks()
         return links.intern(address) ?? 0
+    }
+
+    /// Forgets the link addresses no cell uses any more (MEM-06): the styles are compacted first (a style no cell uses goes,
+    /// and with it the link it held), then the table is rebuilt from the links the remaining styles and the pen hold, and
+    /// their ids rewritten. Runs when the table is full: at most once per 65 535 new addresses.
+    mutating func compactLinks() {
+        compactStyles()
+        let old = links
+        var fresh = LinkTable()
+        var remap: [UInt16: UInt16] = [0: 0]
+        func map(_ id: UInt16) -> UInt16 {
+            if let mapped = remap[id] { return mapped }
+            let mapped = old[id].flatMap { fresh.intern($0) } ?? 0
+            remap[id] = mapped
+            return mapped
+        }
+        styles.mapLinks(map)
+        penLink = map(penLink)
+        links = fresh
+        penIDIsCurrent = false
+        eraseIDIsCurrent = false
     }
 
     private mutating func setLink(_ id: UInt16) {

@@ -61,13 +61,14 @@ import Testing
         #expect(links(feed("\(esc)]8;;\(exact)\u{07}x"), count: 1) == [exact])
     }
 
-    @Test func `no more than 65535 distinct links are kept, and the rest are text`() {
+    /// Past 65 535 distinct links the table forgets those no cell shows (MEM-06), so a new link is still recorded.
+    @Test func `past 65535 distinct links, a new one is still recorded`() {
         var t = Terminal(columns: 80, rows: 4, scrollbackLimit: 0)
         for index in 0 ..< 66000 { t.feed("\(esc)]8;;http://h/\(index)\u{07}x\r\n") }
         t.feed("\(esc)]8;;http://h/0\u{07}y")
-        #expect(t.screen.link(row: 3, column: 0) == "http://h/0", "a link already known is still usable")
+        #expect(t.screen.link(row: 3, column: 0) == "http://h/0")
         t.feed("\r\(esc)]8;;http://h/new\u{07}z")
-        #expect(t.screen.link(row: 3, column: 0) == nil, "a new one past the limit is not recorded")
+        #expect(t.screen.link(row: 3, column: 0) == "http://h/new")
     }
 
     @Test func `a link is not reported back`() {
