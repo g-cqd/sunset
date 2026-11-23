@@ -11,16 +11,33 @@ package struct DownloadsButton: View {
 
     @State private var shown: Shown?
     @State private var resting: Task<Void, Never>?
+    /// The finished downloads the button has shown its check for (n137): below `finishedCount`, it shows one.
+    @State private var acknowledged: Int?
+    @State private var settling: Task<Void, Never>?
     private let center = DownloadCenter.shared
 
     package init() {}
+
+    /// A download finished since the check was last put away, and none runs.
+    private var showsDone: Bool {
+        center.running.isEmpty && center.finishedCount > (acknowledged ?? center.finishedCount)
+    }
 
     package var body: some View {
         SidebarIconButton(help: "Downloads") {
             resting?.cancel()
             shown = shown == .list ? nil : .list
         } label: {
-            DownloadRing(fraction: center.progress, running: !center.running.isEmpty)
+            DownloadRing(fraction: center.progress, running: !center.running.isEmpty, done: showsDone)
+        }
+        .onAppear { acknowledged = acknowledged ?? center.finishedCount }
+        .onChange(of: center.finishedCount) { _, count in
+            // A check for a few seconds, from the same frame the ring stops (it flashed full before), then the arrow again.
+            settling?.cancel()
+            settling = runtime.task { @MainActor in
+                guard await runtime.sleep(for: DownloadRing.doneFor) else { return }
+                acknowledged = count
+            }
         }
         .onHover { inside in
             resting?.cancel()

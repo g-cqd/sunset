@@ -15,6 +15,8 @@ package final class DownloadCenter: NSObject {
 
     /// Latest first.
     package internal(set) var items: [DownloadItem] = []
+    /// How many downloads have finished since launch: the downloads button shows a check when it goes up (n137).
+    package internal(set) var finishedCount = 0
     @ObservationIgnored package var settings = DownloadSettings()
     /// Where the list is kept; nil: not kept (tests).
     @ObservationIgnored package var table: SealedTable? {

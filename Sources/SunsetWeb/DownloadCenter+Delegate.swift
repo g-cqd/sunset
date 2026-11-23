@@ -61,6 +61,7 @@ extension DownloadCenter: WKDownloadDelegate {
         item.finished = runtime.now()
         if let expected = item.expected { item.received = expected }
         item.observation = nil
+        finishedCount += 1
         onFinished(item)
         if settings.keep == .whenFinished { items.removeAll { $0 === item } }
         save()
@@ -131,6 +132,7 @@ extension DownloadCenter {
         item.state = .finished
         item.finished = runtime.now()
         insert(item)
+        finishedCount += 1
         onFinished(item)
         if settings.keep == .whenFinished { items.removeAll { $0 === item } }
         save()

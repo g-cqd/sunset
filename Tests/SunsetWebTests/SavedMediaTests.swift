@@ -33,6 +33,7 @@ import Testing
         #expect(written.lastPathComponent == "clip-2.mp4", "the name already there is kept")
         #expect(try Data(contentsOf: written) == Data("film".utf8))
         #expect(item.state == .finished && center.items.first === item)
+        #expect(center.finishedCount == 1, "the downloads button shows it done (n137)")
         let quarantine = try written.resourceValues(forKeys: [.quarantinePropertiesKey]).quarantineProperties
         #expect(quarantine?[kLSQuarantineAgentNameKey as String] as? String == "Sunset", "quarantined")
         let place = written.deletingLastPathComponent()
