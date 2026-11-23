@@ -8,19 +8,29 @@ public enum UpdateChoice {
     ///   - architecture: the archives' architecture (`arm64`).
     ///   - running: the running app's build (`CFBundleVersion`).
     ///   - prereleases: whether pre-releases count (the notes between are then theirs too).
-    /// - Returns: the offer, or nil when nothing later is published for this app.
+    ///   - allowingEqual: when true, accepts the same build (used when switching between Native and WebKit variants).
+    /// - Returns: the offer, or nil when nothing matching is published for this app.
     public static func offer(
         in releases: [PublishedRelease],
         flavour: Flavour,
         architecture: String,
         running: Int,
-        prereleases: Bool
+        prereleases: Bool,
+        allowingEqual: Bool = false
     ) -> UpdateOffer? {
-        let later = releases.filter { $0.build > running && (prereleases || !$0.prerelease) }
+        let candidates =
+            releases.filter {
+                (allowingEqual ? $0.build >= running : $0.build > running) && (prereleases || !$0.prerelease)
+            }
             .sorted { $0.build > $1.build }
-        for (index, release) in later.enumerated() {
+        for (index, release) in candidates.enumerated() {
             if let archive = release.archive(for: flavour, architecture: architecture) {
-                return UpdateOffer(release: release, archive: archive, between: Array(later[index...]))
+                let between = candidates[index...].filter { $0.build > running }
+                return UpdateOffer(
+                    release: release,
+                    archive: archive,
+                    between: between.isEmpty ? [release] : Array(between)
+                )
             }
         }
         return nil

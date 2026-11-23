@@ -17,10 +17,13 @@ extension BinaryDelta {
         guard size >= 0, size <= largest, numbers[1...].allSatisfy({ $0 >= 0 }),
             numbers[1...].reduce(headerSize, { $0.addingReportingOverflow($1).partialValue }) == bytes.count
         else { throw .malformed }
+        // Bound each block's decompressed size before allocating (controls ≤ 24 MiB, diff & extra ≤ new size, ADR-0125).
+        let limits = [min(max(size, 1) * 24, 24 << 20), size, size]
         var start = headerSize
         var blocks: [[UInt8]] = []
-        for length in numbers[1...] {
-            blocks.append([UInt8](try decompress(Data(bytes[start ..< start + length]))))
+        for (index, length) in numbers[1...].enumerated() {
+            let slice = Data(bytes[start ..< start + length])
+            blocks.append([UInt8](try decompress(slice, maxOutput: limits[index])))
             start += length
         }
         let new = try run(controls: blocks[0], difference: blocks[1], extra: blocks[2], old: [UInt8](old), size: size)

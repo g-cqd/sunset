@@ -1,19 +1,117 @@
 import Foundation
 import SunsetUpdate
 
-// Sunset's deltas and update packages from the command line (roadmap 0122 C): the release routine makes them, a person can
-// check one.
+// Sunset's deltas, SSDLTA2 archives, verification, and release index tooling (ADR-0122, ADR-0125):
 //
-//   SunsetDeltaTool make OLD NEW DELTA                     the delta that turns the file OLD into NEW
-//   SunsetDeltaTool apply OLD DELTA NEW                    NEW from OLD and DELTA (checked against the SHA-256 it names)
-//   SunsetDeltaTool package OLD.app NEW.app FROM TO OUT    the update from build FROM to build TO
-//   SunsetDeltaTool stage PACKAGE RUNNING.app STAGING.app  the package applied, as Sunset applies it
+//   SunsetDeltaTool make OLD NEW DELTA
+//   SunsetDeltaTool apply OLD DELTA NEW
+//   SunsetDeltaTool package OLD.app NEW.app FROM TO OUT
+//   SunsetDeltaTool stage PACKAGE RUNNING.app STAGING.app
+//   SunsetDeltaTool verify A.app B.app
+//   SunsetDeltaTool archive FLAVOUR TO_BUILD MAX_BYTES TARGET.app OUT.deltas [KEY:SRC.app ...]
+//   SunsetDeltaTool index TAG BUILD NOTES_FILE OUT.json [FLAVOUR:ARCH:ZIP:DELTAS ...]
 
 let words = Array(CommandLine.arguments.dropFirst())
-let usage =
-    "usage: SunsetDeltaTool make OLD NEW DELTA | apply OLD DELTA NEW | package OLD NEW FROM TO OUT | stage PACKAGE APP STAGING\n"
+let usage = """
+    usage:
+      SunsetDeltaTool make OLD NEW DELTA
+      SunsetDeltaTool apply OLD DELTA NEW
+      SunsetDeltaTool package OLD NEW FROM TO OUT
+      SunsetDeltaTool stage PACKAGE APP STAGING
+      SunsetDeltaTool verify A.app B.app
+      SunsetDeltaTool archive native|webkit TO_BUILD MAX_BYTES TARGET.app OUT.deltas [KEY:SRC.app ...]
+      SunsetDeltaTool index TAG BUILD NOTES_FILE OUT.json [native|webkit:ARCH:ZIP:DELTAS ...]
+    """
 
-/// Runs `words`; returns what it wrote, or nil for a wrong use.
+func parseFlavour(_ raw: String) -> Flavour? {
+    switch raw.lowercased() {
+        case "native", "sunset": .native
+        case "webkit", "sunset-webkit": .webKit
+        default: nil
+    }
+}
+
+func makeArchive(_ words: [String]) throws -> String? {
+    guard words.count >= 6,
+        let flavour = parseFlavour(words[1]),
+        let toBuild = Int(words[2]),
+        let maxBytes = Int(words[3])
+    else { return nil }
+    let target = URL(filePath: words[4])
+    let output = URL(filePath: words[5])
+    var sources: [DeltaArchive.SourceInput] = []
+    for spec in words.dropFirst(6) {
+        guard let colon = spec.firstIndex(of: ":") else { return nil }
+        let key = String(spec[..<colon])
+        let path = String(spec[spec.index(after: colon)...])
+        sources.append(DeltaArchive.SourceInput(key: key, bundle: URL(filePath: path)))
+    }
+    let built = try DeltaArchive.make(
+        target: target,
+        flavour: flavour,
+        toBuild: toBuild,
+        sources: sources,
+        maxSourceBytes: maxBytes
+    )
+    try built.data.write(to: output)
+    // Self-verify every included source plan by staging into a temp directory and comparing BundleManifests.
+    for source in sources {
+        guard let plan = built.toc.sources[source.key] else { continue }
+        let staging = FileManager.default.temporaryDirectory.appending(path: "delta-verify-\(UUID().uuidString).app")
+        defer { try? FileManager.default.removeItem(at: staging) }
+        let header = try DeltaArchive.Header.decode(built.data)
+        let fileStart = DeltaArchive.Header.size + header.tocLength + plan.rangeOffset
+        let slice = built.data.subdata(in: fileStart ..< (fileStart + plan.rangeLength))
+        try DeltaArchive.stage(toc: built.toc, plan: plan, payload: slice, running: source.bundle, staging: staging)
+    }
+    return
+        "\(output.path): \(built.data.count) bytes, tocSHA256=\(built.tocSHA256), sources=\(built.toc.sources.keys.sorted().joined(separator: ","))"
+}
+
+func makeIndex(_ words: [String]) throws -> String? {
+    guard words.count >= 5, let build = Int(words[2]) else { return nil }
+    let tag = words[1]
+    let notesData = try Data(contentsOf: URL(filePath: words[3]))
+    let output = URL(filePath: words[4])
+    var variants: [ReleaseIndex.Variant] = []
+    for spec in words.dropFirst(5) {
+        let parts = spec.split(separator: ":", omittingEmptySubsequences: false).map(String.init)
+        guard parts.count == 4, let flavour = parseFlavour(parts[0]) else { return nil }
+        let arch = parts[1]
+        let zipURL = URL(filePath: parts[2])
+        let zipData = try Data(contentsOf: zipURL, options: .mappedIfSafe)
+        var deltasName: String?
+        var deltasSize: Int?
+        var deltasTOCSHA256: String?
+        if !parts[3].isEmpty {
+            let deltasURL = URL(filePath: parts[3])
+            let deltasData = try Data(contentsOf: deltasURL, options: .mappedIfSafe)
+            let header = try DeltaArchive.Header.decode(deltasData)
+            deltasName = deltasURL.lastPathComponent
+            deltasSize = deltasData.count
+            deltasTOCSHA256 = header.tocSHA256
+        }
+        variants.append(
+            ReleaseIndex.Variant(
+                flavour: flavour,
+                architecture: arch,
+                archiveName: zipURL.lastPathComponent,
+                archiveSize: zipData.count,
+                archiveSHA256: BundleManifest.hex(zipData),
+                deltasName: deltasName,
+                deltasSize: deltasSize,
+                deltasTOCSHA256: deltasTOCSHA256
+            )
+        )
+    }
+    let index = ReleaseIndex(tag: tag, build: build, notesSHA256: BundleManifest.hex(notesData), variants: variants)
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+    let encoded = try encoder.encode(index)
+    try encoded.write(to: output)
+    return "\(output.path): \(encoded.count) bytes, \(variants.count) variant(s)"
+}
+
 func run(_ words: [String]) throws -> String? {
     let urls = words.dropFirst().map { URL(filePath: $0) }
     switch (words.first, words.count) {
@@ -33,6 +131,18 @@ func run(_ words: [String]) throws -> String? {
             let package = try UpdatePackage(decoding: Data(contentsOf: urls[0]))
             try UpdateStaging.build(package, running: urls[1], staging: urls[2])
             return "\(urls[2].path): build \(package.to), every file as its manifest says"
+        case ("verify", 3):
+            let left = try BundleManifest.read(bundle: urls[0])
+            let right = try BundleManifest.read(bundle: urls[1])
+            guard left == right else {
+                FileHandle.standardError.write(Data("SunsetDeltaTool: manifests differ\n".utf8))
+                exit(1)
+            }
+            return "manifests match (\(left.entries.count) entries)"
+        case ("archive", _):
+            return try makeArchive(words)
+        case ("index", _):
+            return try makeIndex(words)
         default:
             return nil
     }

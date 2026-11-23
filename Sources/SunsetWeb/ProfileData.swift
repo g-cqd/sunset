@@ -8,6 +8,9 @@ package enum ProfileData {
     /// - Returns: whether it was erased.
     @MainActor
     package static func erase(_ profile: UUID) async -> Bool {
-        (try? await WKWebsiteDataStore.remove(forIdentifier: profile)) != nil
+        let native = (try? await WKWebsiteDataStore.remove(forIdentifier: profile)) != nil
+        let bundled =
+            (try? await WKWebsiteDataStore.remove(forIdentifier: VariantStore.bundledIdentifier(for: profile))) != nil
+        return native || bundled
     }
 }

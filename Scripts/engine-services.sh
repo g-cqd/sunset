@@ -16,8 +16,7 @@ here="$PWD"
 templates="$here/Engine/WebKit/services"
 prefix=studio.aemi.sunset.engine
 buddy=/usr/libexec/PlistBuddy
-# The engine's folder beside the app, as Sunset's executable names it (project.yml).
-engine="SunsetEngine/Frameworks"
+# Services live inside the WebKit variant's bundle and load from its own Frameworks (ADR-0125).
 
 case "${1:-}" in
     templates)
@@ -46,7 +45,7 @@ case "${1:-}" in
         minimum="$($buddy -c "Print :LSMinimumSystemVersion" "$app/Contents/Info.plist")"
         main="$(mktemp -t sunset-service)"
         clang -O2 -arch arm64 -mmacosx-version-min="$minimum" -framework WebKit \
-            "-Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../../../../Frameworks:@executable_path/../../../../../../$engine" \
+            "-Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../../../../Frameworks" \
             "$here/Engine/WebKit/service-main.c" -o "$main"
         mkdir -p "$app/Contents/XPCServices"
         for template in "$templates"/*.xpc; do

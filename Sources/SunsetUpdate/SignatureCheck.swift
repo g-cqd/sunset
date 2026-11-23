@@ -32,11 +32,14 @@ public enum SignatureCheck {
         guard status == errSecSuccess else { throw .refused(status) }
     }
 
-    /// Checks that the staged bundle's build (`CFBundleVersion`, a count) is later than `running`.
-    public static func checkLater(bundle: URL, than running: Int) throws(Failure) {
+    /// Checks that the staged bundle's build (`CFBundleVersion`, a count) is later than `running`, or equal when
+    /// `allowingEqual` is true (a same-build variant switch between System WebKit and Sunset's WebKit, ADR-0125).
+    public static func checkLater(bundle: URL, than running: Int, allowingEqual: Bool = false) throws(Failure) {
         let info = NSDictionary(contentsOf: bundle.appending(path: "Contents/Info.plist"))
         let staged = (info?["CFBundleVersion"] as? String).flatMap { Int($0) }
-        guard let staged, staged > running else { throw .notLater(running: running, staged: staged) }
+        guard let staged, allowingEqual ? staged >= running : staged > running else {
+            throw .notLater(running: running, staged: staged)
+        }
     }
 
     /// The team that signed the running process, nil when it has none (a development build: no updates).

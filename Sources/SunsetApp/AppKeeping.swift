@@ -26,7 +26,7 @@ import WebKit
         AppSpaces.all.profiles.profiles.map(\.profile)
             .map { profile in
                 let store =
-                    profile.isFirst ? WKWebsiteDataStore.default() : WKWebsiteDataStore(forIdentifier: profile.id)
+                    VariantStore.store(for: profile.isFirst ? nil : profile.id)
                 return (store, web(keep(for: profile)), profile.isFirst ? nil : profile.id)
             }
     }

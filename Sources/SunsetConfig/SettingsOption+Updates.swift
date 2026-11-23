@@ -11,13 +11,6 @@ extension SettingsOption {
             "Download updates and install them when Sunset quits"
         ),
         updateSwitch(
-            "updates.engineAutomatic",
-            \.updates.engineAutomatic,
-            "Update the web engine automatically",
-            "webkit engine component download",
-            "Download a new engine and use it when Sunset next opens"
-        ),
-        updateSwitch(
             "updates.prereleases",
             \.updates.prereleases,
             "Take pre-releases",

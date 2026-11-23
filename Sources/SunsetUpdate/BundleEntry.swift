@@ -33,4 +33,21 @@ public struct BundleEntry: Equatable, Sendable, Codable {
         let parts = path.split(separator: "/", omittingEmptySubsequences: false)
         return !path.hasPrefix("/") && !parts.isEmpty && !parts.contains { $0.isEmpty || $0 == ".." || $0 == "." }
     }
+
+    /// For a symlink entry, whether `target` is non-empty, relative, and resolves inside the bundle root (ADR-0125).
+    public var hasSafeTarget: Bool {
+        guard kind == .link else { return true }
+        guard let target, !target.isEmpty, !target.hasPrefix("/") else { return false }
+        var depth = path.split(separator: "/").count - 1
+        for component in target.split(separator: "/", omittingEmptySubsequences: false) {
+            if component.isEmpty || component == "." { continue }
+            if component == ".." {
+                depth -= 1
+                if depth < 0 { return false }
+            } else {
+                depth += 1
+            }
+        }
+        return true
+    }
 }

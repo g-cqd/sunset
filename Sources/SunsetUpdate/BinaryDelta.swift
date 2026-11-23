@@ -24,13 +24,13 @@ public enum BinaryDelta {
     }
 
     static let magic = Data("SSDELTA1".utf8)
-    /// The largest new file a delta may say (a bound on what it makes us allocate).
-    static let largest = 1 << 31
+    /// The largest new file a delta may say (256 MiB: a bound on what it makes us allocate, ADR-0125).
+    static let largest = 256 << 20
 
-    /// The delta that turns `old` into `new`.
+    /// The delta that turns `old` into `new`. Strips any identical prefix and suffix first so re-signed binaries (e.g.
+    /// 122 MB WebCore with only its header and signature changed) diff in milliseconds instead of sorting the whole file.
     public static func make(from old: Data, to new: Data) throws -> Data {
-        let scan = DeltaScan(old: [UInt8](old), new: [UInt8](new))
-        let found = scan.run()
+        let found = Self.scanWithEdgeSkip(old: [UInt8](old), new: [UInt8](new))
         var controls = Data(capacity: found.controls.count * 24)
         for control in found.controls {
             for value in [control.add, control.copy, control.seek] { controls.append(littleEndian: Int64(value)) }
@@ -45,15 +45,97 @@ public enum BinaryDelta {
         return delta
     }
 
-    /// LZMA, or nothing for nothing.
-    static func compress(_ data: Data) throws -> Data {
-        data.isEmpty ? Data() : try (data as NSData).compressed(using: .lzma) as Data
+    /// Identical-edge skip + `DeltaScan` over only the differing middle, keeping memory and CPU proportional to what
+    /// actually changed (ADR-0125).
+    static func scanWithEdgeSkip(old: [UInt8], new: [UInt8]) -> DeltaScan.Found {
+        let commonLimit = min(old.count, new.count)
+        var prefix = 0
+        while prefix < commonLimit, old[prefix] == new[prefix] { prefix += 1 }
+        if prefix == old.count, prefix == new.count {
+            var exact = DeltaScan.Found()
+            if prefix > 0 {
+                exact.controls.append(DeltaScan.Control(add: prefix, copy: 0, seek: 0))
+                exact.difference = Array(repeating: 0, count: prefix)
+            }
+            return exact
+        }
+        var suffix = 0
+        while suffix < commonLimit - prefix, old[old.count - 1 - suffix] == new[new.count - 1 - suffix] {
+            suffix += 1
+        }
+        // Fast path for in-place edits / re-signed Mach-O binaries (ADR-0125): when > 95% of bytes at identical
+        // offsets in the common range already match, emit one direct diff control + tail copy in O(N) time and zero
+        // suffix-array memory (re-signed 122 MB WebCore drops from ~52 s to ~0.2 s, same tiny LZMA output).
+        if let direct = Self.directSameOffsetDiff(old: old, new: new, prefix: prefix) {
+            return direct
+        }
+        // Only engage the edge skip when it saves meaningful work (> 4 KiB unchanged).
+        guard prefix + suffix > 4096 else {
+            return DeltaScan(old: old, new: new).run()
+        }
+        let midOld = Array(old[prefix ..< (old.count - suffix)])
+        let midNew = Array(new[prefix ..< (new.count - suffix)])
+        let middle = DeltaScan(old: midOld, new: midNew).run()
+        var combined = DeltaScan.Found()
+        if prefix > 0 {
+            combined.controls.append(DeltaScan.Control(add: prefix, copy: 0, seek: 0))
+            combined.difference.append(contentsOf: repeatElement(UInt8(0), count: prefix))
+        }
+        combined.controls.append(contentsOf: middle.controls)
+        combined.difference.append(contentsOf: middle.difference)
+        combined.extra.append(contentsOf: middle.extra)
+        if suffix > 0 {
+            // Re-align oldAt to the end of `midOld` (where `suffix` begins) after middle's controls.
+            var oldAt = 0
+            for control in middle.controls { oldAt += control.add + control.seek }
+            let jump = midOld.count - oldAt
+            combined.controls.append(DeltaScan.Control(add: 0, copy: 0, seek: jump))
+            combined.controls.append(DeltaScan.Control(add: suffix, copy: 0, seek: 0))
+            combined.difference.append(contentsOf: repeatElement(UInt8(0), count: suffix))
+        }
+        return combined
     }
 
-    /// The block back; throws `malformed` when it does not decompress.
-    static func decompress(_ data: Data) throws(Failure) -> Data {
-        guard !data.isEmpty else { return Data() }
-        do { return try (data as NSData).decompressed(using: .lzma) as Data } catch { throw .malformed }
+    /// O(N) same-offset diff when > 95% of the overlapping region matches byte-for-byte (e.g. a re-signed Mach-O whose
+    /// header and trailing `LC_CODE_SIGNATURE` changed while 99.8% of the binary is untouched).
+    private static func directSameOffsetDiff(old: [UInt8], new: [UInt8], prefix: Int) -> DeltaScan.Found? {
+        let common = min(old.count, new.count)
+        guard common >= 65_536 else { return nil }
+        // Sample 4096 evenly spaced offsets first (O(1) check) before scanning all bytes.
+        let strideStep = max(1, (common - prefix) / 4096)
+        var sampled = 0
+        var matched = 0
+        var probe = prefix
+        while probe < common {
+            sampled += 1
+            if old[probe] == new[probe] { matched += 1 }
+            probe += strideStep
+        }
+        guard sampled > 0, matched * 100 >= sampled * 95 else { return nil }
+        var diff = [UInt8](repeating: 0, count: common)
+        var exactMatches = prefix
+        for index in prefix ..< common {
+            let delta = new[index] &- old[index]
+            diff[index] = delta
+            if delta == 0 { exactMatches += 1 }
+        }
+        guard exactMatches * 100 >= common * 95 else { return nil }
+        var found = DeltaScan.Found()
+        let extraCount = max(0, new.count - common)
+        found.controls.append(DeltaScan.Control(add: common, copy: extraCount, seek: 0))
+        found.difference = diff
+        if extraCount > 0 { found.extra = Array(new[common...]) }
+        return found
+    }
+
+    /// LZMA via `BoundedLZMA` (native Compression framework).
+    static func compress(_ data: Data) throws -> Data {
+        try BoundedLZMA.compress(data)
+    }
+
+    /// Streaming bounded LZMA decompression; throws `malformed` on corrupt data or if output exceeds `maxOutput`.
+    static func decompress(_ data: Data, maxOutput: Int) throws(Failure) -> Data {
+        do { return try BoundedLZMA.decompress(data, maxOutput: maxOutput) } catch { throw .malformed }
     }
 }
 

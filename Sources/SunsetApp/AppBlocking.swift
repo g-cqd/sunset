@@ -47,7 +47,7 @@ import WebKit
         for model in AppSpaces.all.profiles.profiles {
             let profile = model.profile
             let own = ProfileOverrides.apply(profile.overrides, to: AppConfiguration.shared.configuration).web.proxy
-            let store = profile.isFirst ? WKWebsiteDataStore.default() : WKWebsiteDataStore(forIdentifier: profile.id)
+            let store = VariantStore.store(for: profile.isFirst ? nil : profile.id)
             if let given = WebProxy(own) { given.apply(to: store) } else { WebProxy.clear(store) }
         }
         ContentBlocker.shared.enabled = web.blocking

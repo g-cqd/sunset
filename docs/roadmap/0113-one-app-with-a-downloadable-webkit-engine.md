@@ -24,3 +24,8 @@ engine cannot be loaded that way safely.
 
 Not done: steps C to E; in A, notarization of the load command, and an engine never notarized. Known from 0112: the two engines compile the content blocking lists over each other's in the shared
 folder; one app with one engine at a time would end that.
+
+
+## Revision (2026-11-23, ADR-0125)
+
+Replaced the external `SunsetEngine` folder with two complete notarized variants of the same `Sunset.app` (`studio.aemi.sunset`), switched via the single-archive updater (`SSDLTA2`), with per-variant `WKWebsiteDataStore` IDs.

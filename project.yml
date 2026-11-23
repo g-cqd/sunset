@@ -119,10 +119,7 @@ targets:
         # on the WebKit in its own Frameworks, system frameworks that link WebKit included, with no exception for the
         # environment's loader variables (which a hardened process ignores). The native build has no WebKit there: the
         # system's is used.
-        # Then the engine's folder beside the app (roadmap 0113, ADR-0124): a WebKit downloaded as a component.
-        OTHER_LDFLAGS:
-          - "$(inherited)"
-          - "-Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks:@executable_path/../../../SunsetEngine/Frameworks"
+        OTHER_LDFLAGS: ["$(inherited)", "-Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks"]
         SUNSET_DISPLAY_NAME: Sunset
         # The icon (roadmap 0084): App/Sunset.icon, made in Design/Icons; Xcode compiles it into Assets.car and into
         # Sunset.icns (CFBundleIconFile). The three other skies go in as alternates, for the person to choose later.

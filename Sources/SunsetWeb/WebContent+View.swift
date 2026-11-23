@@ -11,8 +11,7 @@ extension WebContent {
         if given == nil {
             // A private page's own; else its profile's; else the one there always was (the first profile's).
             configuration.websiteDataStore =
-                settings.privacy.map(PrivateStores.store(for:))
-                ?? settings.profile.map { WKWebsiteDataStore(forIdentifier: $0) } ?? .default()
+                settings.privacy.map(PrivateStores.store(for:)) ?? VariantStore.store(for: settings.profile)
         }
         // Through the app's proxy, if there is one. Its profile's proxy, else the app's.
         if let proxy = settings.proxy {

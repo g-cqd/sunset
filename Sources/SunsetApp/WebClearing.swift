@@ -14,7 +14,7 @@ import WebKit
         }
         if siteZoom { SiteZoom.shared.clearAll() }
         if websiteData {
-            WKWebsiteDataStore.default()
+            VariantStore.store(for: nil)
                 .removeData(
                     ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
                     modifiedSince: date

@@ -6,10 +6,9 @@ import SunsetConfig
 import SunsetRuntime
 import SunsetUpdate
 
-/// Sunset updating itself from its GitHub releases (roadmap 0122, ADR-0122, n135): it checks at launch and every few
-/// hours; with `updates.automatic` it downloads and checks the update on its own and puts it in place when Sunset quits;
-/// either way it tells once for each new build, with the notes between the two (`UpdateWindow`). The update centre
-/// (Settings, General, Updates) shows where it is.
+/// Sunset updating itself — and switching between System WebKit and Sunset's WebKit — from its GitHub releases
+/// (ADR-0122, ADR-0125): checks at launch and every few hours; with `updates.automatic` it downloads and checks updates
+/// on its own and swaps them in on quit; either way it notifies once per build with the release notes between versions.
 @MainActor @Observable
 final class AppUpdates {
     static let shared = AppUpdates()
@@ -26,6 +25,12 @@ final class AppUpdates {
     }
 
     private(set) var phase = Phase.idle
+    /// Fraction downloaded during `.downloading` (0...1), nil when unknown.
+    private(set) var downloadProgress: Double?
+    /// The flavour staged in `staging` (equals `running.flavour` for a normal update, the other for an engine switch).
+    private(set) var stagedFlavour: Flavour?
+    /// Latest releases read from the feed (used to offer switching between System WebKit and Sunset's WebKit).
+    private(set) var latestReleases: [PublishedRelease] = []
     private(set) var checked: Date?
     /// Why this copy cannot update itself; nil when it can.
     let refusal: UpdatePlace.Refusal?
@@ -52,6 +57,19 @@ final class AppUpdates {
         return (updates.automatic, updates.prereleases)
     }
 
+    /// The other engine variant (Native <-> WebKit) offered for switching at the current or newer build.
+    var otherEngineOffer: UpdateOffer? {
+        let other: Flavour = running.flavour == .native ? .webKit : .native
+        return UpdateChoice.offer(
+            in: latestReleases,
+            flavour: other,
+            architecture: RunningApp.architecture,
+            running: running.build,
+            prereleases: settings.prereleases,
+            allowingEqual: true
+        )
+    }
+
     /// At launch: a first check soon, then every `interval`. A copy that cannot update itself does not check on its own.
     static func start() {
         let updates = shared
@@ -74,12 +92,8 @@ final class AppUpdates {
         phase = .checking
         do {
             let releases = try await UpdateTransfer.releases()
+            latestReleases = releases
             checked = Runtime.live.now()
-            await AppEngine.shared.consider(
-                releases,
-                automatic: AppConfiguration.shared.configuration.updates.engineAutomatic,
-                prereleases: settings.prereleases
-            )
             guard
                 let offer = UpdateChoice.offer(
                     in: releases,
@@ -100,18 +114,38 @@ final class AppUpdates {
         }
     }
 
-    /// Downloads, stages and checks `offer`; `ready` once it can be put in place.
-    func download(_ offer: UpdateOffer) async {
+    /// Downloads, stages and checks `offer` for `flavour` (default: the running flavour); `ready` once it can swap in.
+    func download(_ offer: UpdateOffer, flavour: Flavour? = nil) async {
         guard refusal == nil else { return }
+        let target = flavour ?? running.flavour
         phase = .downloading(offer)
+        downloadProgress = 0
         do {
-            staging = try await UpdateTransfer.stage(offer, running: running)
+            staging = try await UpdateTransfer.stage(offer, running: running, targetFlavour: target) { fraction in
+                Runtime.live.task { @MainActor in AppUpdates.shared.downloadProgress = fraction }
+            }
+            stagedFlavour = target
+            downloadProgress = nil
             phase = .ready(offer)
         } catch {
+            downloadProgress = nil
             phase = .failed(
                 "The update to build \(offer.release.build) was not installed: \(error.localizedDescription)"
             )
         }
+    }
+
+    /// Switches to the other engine variant (System WebKit <-> Sunset's WebKit) by downloading it from the latest
+    /// release and staging it for restart (ADR-0125).
+    func switchEngine() async {
+        guard refusal == nil else { return }
+        if latestReleases.isEmpty { await check(manual: false) }
+        guard let offer = otherEngineOffer else {
+            phase = .failed("No release found for the other web engine.")
+            return
+        }
+        let target: Flavour = running.flavour == .native ? .webKit : .native
+        await download(offer, flavour: target)
     }
 
     /// The dialog, once for each build (asked for: always).

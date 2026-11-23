@@ -53,7 +53,8 @@ struct UpdateNotes: View {
             } else if case .ready = updates.phase {
                 Text(updates.settings.automatic ? "Installed when Sunset quits, or now." : "Ready to install.")
             } else if case .downloading = updates.phase {
-                ProgressView().controlSize(.small)
+                ProgressView(value: updates.downloadProgress ?? 0).controlSize(.small)
+                    .frame(width: Design.Size.alertIcon)
             } else {
                 Text("\(download.formatted(.byteCount(style: .file))) to download")
             }

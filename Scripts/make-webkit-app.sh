@@ -36,7 +36,8 @@ products="$tree/WebKitBuild/Release"
 identity="$(sed -n 's/^CODE_SIGN_IDENTITY *= *//p' Signing.local.xcconfig 2>/dev/null | head -1)"
 identity="${identity:--}"
 
-app="$output/Sunset WebKit.app"
+# ADR-0125: one Sunset.app (`studio.aemi.sunset`) with two engine variants, switched cleanly via the updater.
+app="$output/Sunset.app"
 rm -rf "$app"
 mkdir -p "$output"
 ditto "$built" "$app"
@@ -62,10 +63,8 @@ servicePrefix=studio.aemi.sunset.engine
 
 plist="$app/Contents/Info.plist"
 buddy=/usr/libexec/PlistBuddy
-$buddy -c "Set :CFBundleIdentifier studio.aemi.sunset.webkit" "$plist"
-$buddy -c "Set :CFBundleName Sunset WebKit" "$plist"
-$buddy -c "Delete :CFBundleDisplayName" "$plist" 2>/dev/null || true
-$buddy -c "Add :CFBundleDisplayName string Sunset WebKit" "$plist"
+# Keep CFBundleIdentifier (studio.aemi.sunset), CFBundleName and CFBundleDisplayName identical to the native variant
+# so switching engines preserves Keychain, Touch ID, defaults and macOS permissions (ADR-0125).
 base="$(cat "$here/Engine/WebKit/base")"
 $buddy -c "Delete :SunsetWebKitBase" "$plist" 2>/dev/null || true
 $buddy -c "Add :SunsetWebKitBase string $base" "$plist"
@@ -87,26 +86,26 @@ $buddy -c "Delete :SunsetEngineBuild" "$webkitPlist" 2>/dev/null || true
 $buddy -c "Add :SunsetEngineBuild integer $($buddy -c "Print :CFBundleVersion" "$plist")" "$webkitPlist"
 $buddy -c "Delete :SunsetWebKitBaseDate" "$webkitPlist" 2>/dev/null || true
 [ -n "$baseDate" ] && $buddy -c "Add :SunsetWebKitBaseDate string $baseDate" "$webkitPlist"
-# The native build's profile names its identifier, not this one's: this one's own, when there is one.
-rm -f "$app/Contents/embedded.provisionprofile"
-profile="${SUNSET_WEBKIT_PROFILE:-$HOME/.config/sunset-signing/webkit.provisionprofile}"
+# Same bundle identifier (studio.aemi.sunset): keep Sunset's embedded provisioning profile and team entitlements.
 appEntitlements="$here/App/Sunset.entitlements"
 teamEntitlements=""
+profile="$app/Contents/embedded.provisionprofile"
+if [ ! -f "$profile" ]; then
+    fallback="${SUNSET_PROFILE:-$HOME/.config/sunset-signing/Sunset.provisionprofile}"
+    [ -f "$fallback" ] && cp "$fallback" "$profile"
+fi
 if [ -f "$profile" ] && [ "$identity" != "-" ]; then
     decoded="$(mktemp -t sunset-profile).plist"
     security cms -D -i "$profile" > "$decoded"
     team="$($buddy -c "Print :TeamIdentifier:0" "$decoded")"
     identifier="$($buddy -c "Print :Entitlements:com.apple.application-identifier" "$decoded")"
     rm -f "$decoded"
-    [ "$identifier" = "$team.studio.aemi.sunset.webkit" ] || {
-        echo "make-webkit-app: $profile is for $identifier, not studio.aemi.sunset.webkit" >&2
+    [ "$identifier" = "$team.studio.aemi.sunset" ] || {
+        echo "make-webkit-app: $profile is for $identifier, not studio.aemi.sunset" >&2
         exit 1
     }
-    cp "$profile" "$app/Contents/embedded.provisionprofile"
     teamEntitlements="$(mktemp -t sunset-team).plist"
-    # Its own application identifier; Sunset's keychain group, then its own.
-    sed -e "s#<string>\$(TeamIdentifierPrefix)studio\.aemi\.sunset</string>#<string>$team.studio.aemi.sunset</string><string>$team.studio.aemi.sunset.webkit</string>#" \
-        -e "/application-identifier/{n;s#<string>.*</string>#<string>$team.studio.aemi.sunset.webkit</string>#;}" \
+    sed -e "s/\$(TeamIdentifierPrefix)/$team./g" \
         -e "s/\$(DEVELOPMENT_TEAM)/$team/g" "$here/App/Sunset.team.entitlements" > "$teamEntitlements"
     appEntitlements="$teamEntitlements"
 fi

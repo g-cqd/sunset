@@ -57,7 +57,7 @@ public struct UpdateInstaller: Sendable {
         try ditto.run()
         ditto.waitUntilExit()
         let apps = (try? FileManager.default.contentsOfDirectory(atPath: folder.path))?
-            .filter { $0.hasSuffix(".app") || $0 == Flavour.engine.rawValue }
+            .filter { $0.hasSuffix(".app") }
         guard ditto.terminationStatus == 0, let apps, apps.count == 1 else { throw Failure.noApp }
         try FileManager.default.moveItem(at: folder.appending(path: apps[0]), to: staging)
     }

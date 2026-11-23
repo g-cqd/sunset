@@ -26,3 +26,8 @@ Why it is shaped so: ADR-0122.
 | G | Components (roadmap 0113): the engine published, checked and installed the same way | blocked-by: 0113 B |
 
 Not done: G; a real release has not updated itself yet (the first that can is alpha.12, to alpha.13): seen only on two test builds through a local list. Not covered: a download's progress, a package's resume.
+
+
+## Revision (2026-11-23, ADR-0125)
+
+Upgraded to single-archive range-addressed deltas (`SSDLTA2`, capped at `K = 3` previous builds + same-build peer variant, 65% size cutoff), Ed25519 signed release index (`release-index.json` + `.sig`, main + backup keys), bounded streaming LZMA (`BoundedLZMA`), HTTPS GitHub host pinning, `If-Match` range fetches, download progress, and O(N) re-signed binary fast path.
