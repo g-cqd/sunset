@@ -71,8 +71,15 @@ extension RowFill {
     /// The colour a tab takes (`tabs.siteColor`, the owner's note n118): the icon it shows. One the person gave it, in a
     /// colour: that colour; one they gave it without a colour (or an emoji): none, the site's icon not being shown;
     /// otherwise the site's (`PaneContent.siteColor`: its icon's colour, else the colour the page declares).
-    package static func tabColor(custom: PaneIcon?, site: [UInt8]?) -> [UInt8]? {
+    /// A tab not loaded (a favorite or a pinned one not opened, a tab asleep) takes none: plain as any unloaded tab.
+    package static func tabColor(custom: PaneIcon?, site: [UInt8]?, loaded: Bool = true) -> [UInt8]? {
+        guard loaded else { return nil }
         guard let custom else { return site }
         return custom.color.map { [$0.red, $0.green, $0.blue] }
+    }
+
+    /// `tabColor` for a tab showing `model` (nil: not open): its site's colour, loaded or not.
+    @MainActor package static func tabColor(custom: PaneIcon?, model: (any PaneContent)?) -> [UInt8]? {
+        tabColor(custom: custom, site: model?.siteColor, loaded: model.map { !$0.isUnloaded } ?? false)
     }
 }

@@ -48,7 +48,8 @@ struct SidebarGroupPart: View {
     }
 
     private var highlight: Color {
-        if let tint = RowFill.siteTint(siteTint, selected: lit, hovering: hovering, color: model?.siteColor) {
+        let color = RowFill.tabColor(custom: nil, model: model)
+        if let tint = RowFill.siteTint(siteTint, selected: lit, hovering: hovering, color: color) {
             return tint.color
         }
         let fill = RowFill.opacity(selected: lit, hovering: hovering, inactive: activeState == .inactive, open: false)

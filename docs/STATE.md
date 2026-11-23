@@ -101,7 +101,7 @@ Work paused at the owner's request (no access to mbp23, which signs and pushes, 
   downloaded copies.
 - **Local only**: everything after 49386279 (work goes on locally the rest of the day, unpushed). 1279b224 (audit MEM-06)
   was checked afterwards: the full suite, the quality gate, the release build pass; clones 133.
-- **To resume**: run those checks, push through mbp23 with its key unlocked (`~/.local/share/sunset-agent/push.sh N`, which
+- **To resume**: push through mbp23 with its key unlocked (`~/.local/share/sunset-agent/push.sh N`, which
   refuses to start when the key is locked: it bundles `origin/main..HEAD`, rebases and signs
   on mbp23, pushes, and resets here only once mbp23's main has the same changes).
 - **Next** (tasks): the vault fields' editing sheet (t334), the vault's cards (t318), the recovery code window closing

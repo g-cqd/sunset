@@ -40,4 +40,12 @@ struct SiteTintTests {
         #expect(RowFill.tabColor(custom: .emoji("🔥"), site: site) == nil)
         #expect(RowFill.tabColor(custom: nil, site: nil) == nil)
     }
+
+    /// The owner, 2026-11-23: a favorite or a pinned tab not loaded is not tinted, whatever its icon or its site.
+    @Test func `a tab not loaded takes no colour`() {
+        let blue = IconColor(red: 10, green: 120, blue: 250)
+        #expect(RowFill.tabColor(custom: .symbol("star", color: blue), site: [200, 30, 30], loaded: false) == nil)
+        #expect(RowFill.tabColor(custom: nil, site: [200, 30, 30], loaded: false) == nil)
+        #expect(RowFill.tabColor(custom: .symbol("star", color: blue), site: nil, loaded: true) == [10, 120, 250])
+    }
 }
