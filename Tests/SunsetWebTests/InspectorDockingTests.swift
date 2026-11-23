@@ -2,6 +2,7 @@ import AemiTestKit
 import AppKit
 import SunsetPrivate
 import SunsetTestSupport
+import SwiftUI
 import Testing
 import WebKit
 
@@ -130,5 +131,57 @@ struct InspectorDockingTests {
             !windows.isEmpty,
             "no inspector window: \(NSApp.windows.map { "\(type(of: $0)) visible \($0.isVisible) \($0.frame)" })"
         )
+    }
+
+    /// The owner (2026-11-23, t339), seen live: a tab hidden and shown again lost its docked inspector, and its page kept
+    /// the inspector's room as a dark band. Hidden, its pane goes, and the host is freed with it; shown, a new host takes
+    /// the page.
+    @Test func `docked, the page hidden and shown again in a new pane keeps its inspector and its whole room`()
+        async throws
+    {
+        var settings = WebSettings(applicationName: "x")
+        settings.developer = true
+        let page = WebContent(url: nil, settings: settings)
+        page.setState(focused: false, visible: true)
+        let view = try #require(page.webView)
+        let window = NSWindow(
+            contentRect: CGRect(x: 0, y: 0, width: 900, height: 700),
+            styleMask: [.titled, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.isReleasedWhenClosed = false
+        defer {
+            page.closeInspector()
+            window.close()
+            page.stop()
+        }
+        weak var old: WebViewHostView?
+        do {
+            let host = WebViewHostView(webView: view)
+            old = host
+            window.contentView = host
+            host.frame = window.contentView?.bounds ?? .zero
+            host.place()
+            window.makeKeyAndOrderFront(nil)
+            view.loadHTMLString("<p>inspect me</p>", baseURL: URL(string: "https://inspect.example/"))
+            try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "inspect.example" }
+            await page.showInspector(docked: true)
+            #expect(await RealWait.until { host.isInspectorDocked })
+            // Hidden: the pane, and the host, go (as SwiftUI dismantles them).
+            window.contentView = NSView()
+            WebViewHost.dismantleNSView(host, coordinator: ())
+        }
+        #expect(await RealWait.until { old == nil }, "the old host is freed, as in the app")
+        // Shown again: a new host for the page.
+        let shown = WebViewHostView(webView: view)
+        window.contentView = shown
+        shown.frame = window.contentView?.bounds ?? .zero
+        shown.place()
+        shown.layoutSubtreeIfNeeded()
+        await RealWait.until { (shown.subviews.first { $0 !== shown.webView }?.frame.height ?? 0) > 50 }
+        let inspector = try #require(shown.subviews.first { $0 !== shown.webView }, "the inspector did not come back")
+        #expect(!shown.webView.frame.intersects(inspector.frame) && inspector.frame.height > 50)
+        #expect(abs(shown.webView.frame.union(inspector.frame).height - shown.bounds.height) < 1.5, "no band left")
     }
 }

@@ -15,6 +15,11 @@ struct WebViewHost: NSViewRepresentable {
         return host
     }
 
+    /// The pane goes (the tab hidden, the split changed): the page and its docked inspector wait together (`WebViewParking`).
+    static func dismantleNSView(_ host: WebViewHostView, coordinator: ()) {
+        WebViewParking.park(host.webView, from: host)
+    }
+
     func updateNSView(_ host: WebViewHostView, context: Context) {
         host.place()
         guard focused, webView.superview === host, let window = host.window else { return }

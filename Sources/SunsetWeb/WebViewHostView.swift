@@ -54,8 +54,11 @@ final class WebViewHostView: NSView {
         guard Self.takesBack(webView.fullscreenState) else { return }
         if webView.superview !== self {
             guard ownsPage else { return }
-            // The inspector docked beside the page goes with it (the views WebKit added to the host it leaves).
-            let inspector = (webView.superview as? WebViewHostView)?.subviews.filter { $0 !== webView } ?? []
+            // The inspector docked beside the page goes with it (the views WebKit added to the host it leaves, or kept with
+            // it while no pane showed it).
+            let left = webView.superview
+            let fromHost = left is WebViewHostView || WebViewParking.isSpot(left)
+            let inspector = fromHost ? left?.subviews.filter { $0 !== webView } ?? [] : []
             webView.removeFromSuperview()
             webView.autoresizingMask = []
             addSubview(webView)
