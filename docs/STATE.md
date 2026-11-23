@@ -108,4 +108,5 @@ Work paused at the owner's request (no access to mbp23, which signs and pushes, 
   start when the key is locked; it does not survive a reboot of this Mac: it bundles `origin/main..HEAD`, rebases and signs
   on mbp23, pushes, and resets here only once mbp23's main has the same changes).
 - **Next** (tasks): the vault fields' editing sheet (t334), the vault's cards (t318), the recovery code window closing
-  with Touch ID on (t333, mitigated), `.xpi` signatures (t305), the remaining audit tasks (t304, t307–t314).
+  with Touch ID on (t333, mitigated), `.xpi` signatures (t305), the remaining audit tasks (t304, t307–t314), Sunset WebKit
+  kept up to date on a schedule (t335, roadmap 0115).
