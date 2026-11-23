@@ -1,12 +1,13 @@
 import AppKit
+import QuartzCore
 import SunsetRuntime
 import SunsetShellModel
 import SwiftUI
 
-/// Plays the welcome's opening (`WelcomeOpening`): the sun alone in a borderless panel over the screen, where the window
-/// will keep it; then the real window, transparent at first, fades in where it stands while its content comes into focus
-/// and the panel's sun fades. A click or a key ends it at once (HIG Motion: let people cancel motion); with Reduce
-/// Motion on, the window shows at once.
+/// Plays the welcome's opening (`WelcomeOpening`) in lockstep with `WelcomeOpeningAudio`: the sun alone in a
+/// borderless panel over the screen, where the window will keep it; then the real window, transparent at first, fades
+/// in where it stands while its content comes into focus and the panel's sun fades. A click or a key ends it at once
+/// (HIG Motion: let people cancel motion); with Reduce Motion on, the window shows at once.
 @MainActor enum WelcomeOpeningPlayer {
     private static var panel: NSPanel?
     private static var window: NSWindow?
@@ -37,30 +38,37 @@ import SwiftUI
         sun.ignoresMouseEvents = true
         sun.level = .statusBar
         sun.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        // Drive the sun shader from the shared clock so it stays locked to the audio engine and window fade.
         sun.contentView = NSHostingView(
-            rootView: SunsetSkyView { time, _ in SunsetSkyFrame.opening(at: time, frame: local) }.ignoresSafeArea()
+            rootView: SunsetSkyView { _, _ in
+                SunsetSkyFrame.opening(at: clock.elapsed(), frame: local)
+            }
+            .ignoresSafeArea()
         )
+        // Start audio before anchoring the shared clock so engine warm-up and output latency stay aligned with t = 0.
+        let audioLatency = WelcomeOpeningAudio.play()
+        clock.begin(delay: audioLatency)
         sun.orderFrontRegardless()
         panel = sun
         window = shown
         self.clock = clock
-        clock.begin()
-        WelcomeOpeningAudio.play()
         // The key or click that ends it does only that.
         monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .leftMouseDown]) { _ in
             end(cancelled: true)
             return nil
         }
-        let start = Runtime.live.now()
         Runtime.live.task { @MainActor in
-            await Runtime.live.sleep(for: .seconds(WelcomeOpening.windowPhase.start))
+            let waitForWindow = max(
+                0,
+                (clock.mediaStart ?? CACurrentMediaTime()) + WelcomeOpening.windowPhase.start - CACurrentMediaTime()
+            )
+            await Runtime.live.sleep(for: .seconds(waitForWindow))
             guard window === shown else { return }
             shown.alphaValue = 0
             show(shown)
-            // The window's opacity from the model each frame, the same curve as its content's focus and the sun's fade (a
-            // Core Animation curve only came near it).
+            // The window's opacity from the model each frame, using the same shared clock as the sun and content focus.
             while window === shown {
-                let elapsed = Runtime.live.now().timeIntervalSince(start)
+                let elapsed = clock.elapsed()
                 guard elapsed < WelcomeOpening.duration else { break }
                 shown.alphaValue = WelcomeOpening.at(elapsed, frame: .zero).windowOpacity
                 await Runtime.live.sleep(for: .milliseconds(8))

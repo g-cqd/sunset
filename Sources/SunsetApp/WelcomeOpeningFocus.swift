@@ -10,7 +10,8 @@ struct WelcomeOpeningFocus<Content: View>: View {
     var body: some View {
         if let start = clock.start {
             TimelineView(.animation) { context in
-                let now = WelcomeOpening.at(context.date.timeIntervalSince(start), frame: .zero)
+                let elapsed = max(0, context.date.timeIntervalSince(start))
+                let now = WelcomeOpening.at(elapsed, frame: .zero)
                 content().blur(radius: now.contentBlur)
             }
         } else {
