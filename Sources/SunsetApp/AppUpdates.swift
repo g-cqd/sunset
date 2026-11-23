@@ -129,9 +129,9 @@ final class AppUpdates {
             phase = .ready(offer)
         } catch {
             downloadProgress = nil
-            phase = .failed(
-                "The update to build \(offer.release.build) was not installed: \(error.localizedDescription)"
-            )
+            let what =
+                target == running.flavour ? "The update to build \(offer.release.build)" : "The web engine switch"
+            phase = .failed("\(what) was not installed. \(error.localizedDescription)")
         }
     }
 

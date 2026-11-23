@@ -41,7 +41,8 @@ struct UpdateComponentRow: View {
 
     private var detail: String {
         if let engine = AppEngineFreshness.engine {
-            let age = engine.weeks.map { "\($0) week\($0 == 1 ? "" : "s") old, " } ?? ""
+            let age =
+                engine.weeks.map { $0 == 0 ? "under a week old, " : "\($0) week\($0 == 1 ? "" : "s") old, " } ?? ""
             return
                 "Sunset\u{2019}s WebKit \(engine.base.prefix(12)) (\(age)updated with Sunset). Separate website data from System WebKit."
         }

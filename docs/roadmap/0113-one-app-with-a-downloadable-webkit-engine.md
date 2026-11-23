@@ -29,3 +29,5 @@ folder; one app with one engine at a time would end that.
 ## Revision (2026-11-23, ADR-0125)
 
 Replaced the external `SunsetEngine` folder with two complete notarized variants of the same `Sunset.app` (`studio.aemi.sunset`), switched via the single-archive updater (`SSDLTA2`), with per-variant `WKWebsiteDataStore` IDs.
+
+Switch seen live both ways on two notarized builds through a local signed feed (diary 2026-11-23-14). Not done: the first release in this shape (alpha.13), the release note retiring `Sunset WebKit.app` (`studio.aemi.sunset.webkit`, whose updater will refuse the new variant: another identifier), a vault opened across a switch.

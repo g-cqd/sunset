@@ -132,8 +132,24 @@ for service in "$services"/*.xpc; do
     esac
 done
 # Sunset's: the app's own (the team's with a profile, else an ad hoc build's); no exception for the loader's variables.
-sign "$appEntitlements" "$app/Contents/MacOS/Sunset"
-sign "$appEntitlements" "$app"
+# The native build's own designated requirement, word for word (ADR-0125): both variants are the same app to the keychain
+# and to macOS's permissions.
+designated="$(codesign -dr - "$built" 2>&1 | sed -n 's/^designated => //p')"
+signApp() { # PATH
+    if [ -n "$designated" ]; then
+        codesign --force --sign "$identity" --options runtime --timestamp --entitlements "$appEntitlements" \
+            --requirements "=designated => $designated" "$1"
+    else
+        codesign --force --sign "$identity" --options runtime --timestamp --entitlements "$appEntitlements" "$1"
+    fi
+}
+if [ "$identity" = "-" ]; then
+    sign "$appEntitlements" "$app/Contents/MacOS/Sunset"
+    sign "$appEntitlements" "$app"
+else
+    signApp "$app/Contents/MacOS/Sunset"
+    signApp "$app"
+fi
 rm -f ${teamEntitlements:+"$teamEntitlements"}
 # No part of it may read the environment's loader variables (CRIT-02).
 if find "$app" -type f -perm -u+x -print0 | xargs -0 -n1 codesign -d --entitlements - 2>/dev/null |

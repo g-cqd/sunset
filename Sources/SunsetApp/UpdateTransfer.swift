@@ -155,7 +155,7 @@ enum UpdateTransfer {
                 allowingEqual: targetFlavour != running.flavour
             )
         } catch {
-            throw Failed(errorDescription: "the downloaded app is not one Sunset can trust (\(error)).")
+            throw Failed(errorDescription: error.localizedDescription)
         }
     }
 
