@@ -8,9 +8,11 @@ enum UpdateTransfer {
         let errorDescription: String?
     }
 
-    /// GitHub's list of Sunset's releases.
+    /// GitHub's list of Sunset's releases; `$SUNSET_UPDATES_FEED` names another list (a test's, on files: the assets it
+    /// names are trusted no more than GitHub's, ADR-0122).
     static func releases() async throws -> [PublishedRelease] {
-        guard let address = ReleaseFeed.address else { return [] }
+        let named = ProcessInfo.processInfo.environment["SUNSET_UPDATES_FEED"].flatMap { URL(string: $0) }
+        guard let address = named ?? ReleaseFeed.address else { return [] }
         let file = try await download(address)
         defer { try? FileManager.default.removeItem(at: file) }
         return try ReleaseFeed.decode(Data(contentsOf: file))
@@ -47,6 +49,11 @@ enum UpdateTransfer {
     /// An asset into the temporary folder.
     @Sendable
     private static func download(_ address: URL) async throws -> URL {
+        let file = URL(filePath: NSTemporaryDirectory()).appending(path: "sunset-update-\(UUID().uuidString)")
+        if address.isFileURL {
+            try FileManager.default.copyItem(at: address, to: file)
+            return file
+        }
         let session = URLSession(configuration: .ephemeral)
         defer { session.finishTasksAndInvalidate() }
         let (temporary, response) = try await session.download(from: address)
@@ -54,7 +61,6 @@ enum UpdateTransfer {
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
             throw Failed(errorDescription: "GitHub answered \(status) for \(address.lastPathComponent).")
         }
-        let file = URL(filePath: NSTemporaryDirectory()).appending(path: "sunset-update-\(UUID().uuidString)")
         try FileManager.default.moveItem(at: temporary, to: file)
         return file
     }

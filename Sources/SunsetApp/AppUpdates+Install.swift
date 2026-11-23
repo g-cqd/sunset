@@ -26,12 +26,17 @@ extension AppUpdates {
         if restartsAfterInstall { Self.openWhenGone(running.bundle) }
     }
 
-    /// Opens `app` once this process has ended (a shell that waits on its identifier: no program of ours outlives it).
+    /// Opens `app` once this process has ended (a shell that waits on its identifier: no program of ours outlives it),
+    /// with Sunset's own variables of this process (a test copy's folders stay its own).
     private static func openWhenGone(_ app: URL) {
         let opener = Process()
         opener.executableURL = URL(filePath: "/bin/sh")
-        let script = "while /bin/kill -0 \"$1\" 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"$2\""
-        opener.arguments = ["-c", script, "sh", String(ProcessInfo.processInfo.processIdentifier), app.path]
+        let script =
+            "pid=\"$1\"; shift; while /bin/kill -0 \"$pid\" 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"$@\""
+        let own = ProcessInfo.processInfo.environment.filter { $0.key.hasPrefix("SUNSET_") }.sorted { $0.key < $1.key }
+        let options = own.flatMap { ["--env", "\($0.key)=\($0.value)"] }
+        opener.arguments =
+            ["-c", script, "sh", String(ProcessInfo.processInfo.processIdentifier)] + options + [app.path]
         try? opener.run()
     }
 }

@@ -64,29 +64,11 @@ import SwiftUI
         if let window {
             return window.makeKeyAndOrderFront(nil)
         }
-        let made = NSWindow(
-            contentRect: CGRect(origin: .zero, size: Design.Welcome.size),
-            styleMask: [.titled, .closable, .fullSizeContentView],
-            backing: .buffered,
-            defer: false
-        )
-        made.title = "Welcome to Sunset"
-        made.titlebarAppearsTransparent = true
-        made.titleVisibility = .hidden
-        made.isReleasedWhenClosed = false
-        made.isMovableByWindowBackground = true
-        made.delegate = self
         let clock = WelcomeOpeningClock()
-        let hosting = NSHostingView(
-            rootView: WelcomeView(store: .shared, clock: clock, greeting: greeting) { [weak made] in made?.close() }
-        )
-        // The sky to every edge: no room kept for the title bar (seen as a dark strip at the bottom).
-        hosting.safeAreaRegions = []
-        made.contentView = hosting
-        made.setContentSize(Design.Welcome.size)
-        for button in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
-            made.standardWindowButton(button)?.isHidden = true
+        let made = SkyWindow.make(title: "Welcome to Sunset", size: Design.Welcome.size, showsClose: false) { made in
+            WelcomeView(store: .shared, clock: clock, greeting: greeting) { [weak made] in made?.close() }
         }
+        made.delegate = self
         if let screen = NSScreen.main { made.setFrameOrigin(Self.origin(on: screen)) }
         window = made
         guard withOpening, let screen = made.screen ?? NSScreen.main else { return made.makeKeyAndOrderFront(nil) }

@@ -1,4 +1,5 @@
 import AppKit
+import SunsetShell
 import SunsetUpdate
 import SwiftUI
 
@@ -10,15 +11,9 @@ enum UpdateWindow {
 
     static func show(_ offer: UpdateOffer) {
         window?.close()
-        let shown = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 520),
-            styleMask: [.titled, .closable, .resizable],
-            backing: .buffered,
-            defer: false
-        )
-        shown.title = "Sunset Update"
-        shown.isReleasedWhenClosed = false
-        shown.contentViewController = NSHostingController(rootView: UpdateNotes(offer: offer) { shown.close() })
+        let shown = SkyWindow.make(title: "Sunset Update", size: Design.Update.size, showsClose: true) { shown in
+            UpdateNotes(offer: offer) { [weak shown] in shown?.close() }
+        }
         shown.center()
         shown.makeKeyAndOrderFront(nil)
         window = shown

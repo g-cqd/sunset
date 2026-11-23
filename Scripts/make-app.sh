@@ -16,6 +16,8 @@ case "$configuration" in
     *) scheme_configuration=Debug ;;
 esac
 build="$(git rev-list --count HEAD 2>/dev/null || echo 0)"
+# A test of updates needs two builds of one commit: $SUNSET_BUILD_NUMBER gives this one's.
+build="${SUNSET_BUILD_NUMBER:-$build}"
 marketing=()
 [ -z "${SUNSET_VERSION:-}" ] || marketing=(MARKETING_VERSION="$SUNSET_VERSION")
 

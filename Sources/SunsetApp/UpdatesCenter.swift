@@ -18,7 +18,7 @@ struct UpdatesCenter: View {
         } label: {
             VStack(alignment: .leading, spacing: Design.Space.hair) {
                 Text(updates.running.flavour == .webKit ? "Sunset WebKit" : "Sunset")
-                Text("\(updates.running.version) (build \(updates.running.build))")
+                Text(verbatim: "\(updates.running.version) (build \(updates.running.build))")
                     .font(Design.Text.detail)
                     .foregroundStyle(.secondary)
             }
@@ -34,9 +34,9 @@ struct UpdatesCenter: View {
             case .idle: Text(updates.checked == nil ? "Not checked yet" : "").foregroundStyle(.secondary)
             case .checking: ProgressView().controlSize(.small)
             case .upToDate: Label("Up to date", systemImage: "checkmark.circle.fill").foregroundStyle(.secondary)
-            case .found(let offer): Text("Build \(offer.release.build) is out").foregroundStyle(.secondary)
+            case .found(let offer): Text(verbatim: "Build \(offer.release.build) is out").foregroundStyle(.secondary)
             case .downloading: ProgressView().controlSize(.small)
-            case .ready(let offer): Text("Build \(offer.release.build) is ready").foregroundStyle(.secondary)
+            case .ready(let offer): Text(verbatim: "Build \(offer.release.build) is ready").foregroundStyle(.secondary)
             case .failed(let why): Text(why).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(2)
         }
     }
