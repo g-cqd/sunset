@@ -17,8 +17,7 @@ struct RowShareMenu: View {
             } label: {
                 MenuItemLabel(
                     tabCount == 1 ? "Duplicate" : "Duplicate \(tabCount) Tabs",
-                    symbol: "plus.square.on.square",
-                    kind: .action
+                    symbol: "plus.square.on.square"
                 )
             }
         }
@@ -33,8 +32,7 @@ struct RowShareMenu: View {
             } label: {
                 MenuItemLabel(
                     addresses.count == 1 ? "Copy Address" : "Copy \(addresses.count) Addresses",
-                    symbol: "link",
-                    kind: .action
+                    symbol: "link"
                 )
             }
         }
@@ -42,8 +40,7 @@ struct RowShareMenu: View {
             ShareLink(items: addresses) {
                 MenuItemLabel(
                     addresses.count == 1 ? "Share\u{2026}" : "Share \(addresses.count) Pages\u{2026}",
-                    symbol: "square.and.arrow.up",
-                    kind: .action
+                    symbol: "square.and.arrow.up"
                 )
             }
             // A share link takes the accent (n140: blue in the menu): the menu's own ink, as every item's.

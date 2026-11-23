@@ -119,7 +119,9 @@ Work paused at the owner's request (no access to mbp23, which signs and pushes, 
 - **Installed**: 818 for both apps (notarized). Later commits are not installed: the tab menu's symbols, Share no longer blue
   (n139, n140); Passwords in every window's Library (n141); the engine as a downloadable component (roadmap 0113 C, D in
   part). The 818 → next build was stopped mid-build on purpose.
-- **Waiting for the owner**: which tab-menu symbols (none, page actions, all: `~/.local/share/sunset-agent/n139/`); then
-  remove `SUNSET_PROBE_MENU_ICONS` (`MenuIcons`). Whether passwords now save as expected (t346).
+- **Tab menu symbols**: the owner chose every item's (done, not installed). **Waiting for the owner**: whether passwords
+  now save as expected (t346).
+- **To look at**: three web tests on a local server (`BrowserAgentTests` ×2, `HTTPSUpgradeAskTests`) fail in every full
+  run since mid-afternoon, pass alone.
 - **Next**: n142 (icon previews, Auto icon by time of day), n143 (welcome animation by time of day); roadmap 0113: publish an
   engine (`make-engine-archive.sh`) and see it downloaded, switched, deleted end to end; roadmap 0122 alpha.12 release step.

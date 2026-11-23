@@ -33,7 +33,7 @@ struct PaneActionsMenu: View {
                 Menu {
                     ForEach(action.children.indices, id: \.self) { child in button(action.children[child], of: pane) }
                 } label: {
-                    MenuItemLabel(action.title, symbol: action.symbol, kind: .action)
+                    MenuItemLabel(action.title, symbol: action.symbol)
                 }
             }
         }
@@ -52,7 +52,7 @@ struct PaneActionsMenu: View {
             tabs.focus(pane)
             action.run()
         } label: {
-            MenuItemLabel(action.title, symbol: action.symbol, kind: .action)
+            MenuItemLabel(action.title, symbol: action.symbol)
         }
     }
 }
