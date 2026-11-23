@@ -12,6 +12,14 @@ struct UpdatePackageTests {
         try body(folder)
     }
 
+    /// The same for an asynchronous body.
+    static func inFolderAsync(_ body: (URL) async throws -> Void) async throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "update-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        try await body(folder)
+    }
+
     /// A small bundle: an executable, resources, a framework with its `Versions/Current` link.
     static func bundle(at url: URL, executable: [UInt8], resource: String, extra: Bool) throws {
         let files = FileManager.default
