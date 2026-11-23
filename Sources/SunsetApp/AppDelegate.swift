@@ -74,8 +74,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidResignActive(_ notification: Notification) {
         SessionStore.shared.saveNow()
-        // Another app came to the front: the documents that save themselves then do (`documents.saveOnFocusLoss`).
-        MainActor.assumeIsolated { SunsetStore.shared.openDocuments.focusLost() }
+        // Another app came to the front: the documents that save themselves then do (`documents.saveOnFocusLoss`), and
+        // the vault's entries being edited are kept (n138).
+        MainActor.assumeIsolated {
+            SunsetStore.shared.openDocuments.focusLost()
+            AppPasswords.model.keepPending()
+        }
     }
 
     /// The app ends with its last window, unless a kept entry is open and the setting keeps it running for it.

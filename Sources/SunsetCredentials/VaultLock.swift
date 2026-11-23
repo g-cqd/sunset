@@ -13,6 +13,8 @@ public final class VaultLock {
     public private(set) var lockedBecause: Reason?
     /// Told each time it locks, whatever the reason: what shows the vault lets go of what it held.
     public var onLock: (@MainActor (Reason) -> Void)?
+    /// Told just before it locks, the key still there: what holds unkept edits keeps them (n138).
+    public var willLock: (@MainActor (Reason) -> Void)?
     private let idle: Duration
     private let runtime: Runtime
     private var key: SecretBuffer?
@@ -49,6 +51,8 @@ public final class VaultLock {
     public func lock(_ reason: Reason) {
         watch?.cancel()
         watch = nil
+        guard key != nil else { return }
+        willLock?(reason)
         guard let key else { return }
         key.wipe()
         self.key = nil
@@ -61,6 +65,7 @@ public final class VaultLock {
         while key != nil {
             guard await runtime.sleep(until: lastUse + idle) else { return }
             if key != nil, runtime.uptime() - lastUse >= idle {
+                willLock?(.idle)
                 key?.wipe()
                 key = nil
                 lockedBecause = .idle

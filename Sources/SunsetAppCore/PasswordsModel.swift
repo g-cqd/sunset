@@ -28,6 +28,8 @@ package final class PasswordsModel {
     @ObservationIgnored private let runtime: Runtime
     @ObservationIgnored private let locks: VaultLocks
     @ObservationIgnored private var vault: Vault?
+    /// Edits a page noted and that are not kept yet, by entry (`noteEdit`, `keepPending`).
+    @ObservationIgnored var pending: [UUID: VaultEntry] = [:]
     @ObservationIgnored private var throttle = UnlockThrottle()
     /// The recovery code of the vault just made, until the person says they kept it (t333: the window that showed it was
     /// seen closing by itself, and the code, shown once, was lost). In memory only.
@@ -114,6 +116,7 @@ package final class PasswordsModel {
     package func save(_ entry: VaultEntry) throws {
         guard let vault else { throw Vault.Refused() }
         try vault.save(entry)
+        pending[entry.id] = nil
         entries.removeAll { $0.id == entry.id }
         entries.insert(entry, at: entries.firstIndex { Self.before(entry, $0) } ?? entries.endIndex)
     }
@@ -138,6 +141,7 @@ package final class PasswordsModel {
         self.vault = vault
         hasTouchID = vault.factors.contains(.touchID)
         vault.lock.onLock = { [weak self] _ in self?.locked() }
+        vault.lock.willLock = { [weak self] _ in self?.keepPending() }
         if vault.lock.isLocked { locked() } else { reload() }
     }
 

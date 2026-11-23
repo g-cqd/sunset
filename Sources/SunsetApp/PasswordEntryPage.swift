@@ -15,6 +15,8 @@ struct PasswordEntryPage: View {
     @State private var draft: EntryDraft
     @State private var editing = false
     @State private var keeping: Task<Void, Never>?
+    /// Whether the window is the key one: the edits are kept when it is no longer (the focus went elsewhere).
+    @Environment(\.appearsActive) private var appearsActive
 
     init(entry: VaultEntry, model: PasswordsModel, editing: Bool = false) {
         self.model = model
@@ -57,7 +59,12 @@ struct PasswordEntryPage: View {
         .animation(.smooth, value: editing)
         // Edits are kept as they are made (n138: a card filled in and left without Done was lost): a moment after the
         // last change, and when the page goes away.
-        .onChange(of: draft.entry) { keepSoon() }
+        .onChange(of: draft.entry) {
+            // Noted at once: kept before the vault locks and when Sunset loses focus, whatever comes first.
+            if draft.canSave(now: Runtime.live.now()) { model.noteEdit(draft.entry) }
+            keepSoon()
+        }
+        .onChange(of: appearsActive) { _, active in if !active { keep() } }
         .onDisappear { keep() }
         // A QR code's picture pasted or dropped on the page sets its one-time code up (roadmap 0093 D).
         .background(QRPasteCatcher { read($0) })
