@@ -1,6 +1,6 @@
 import Foundation
 package import Observation
-package import SunsetPrivate
+internal import SunsetPrivate
 import SunsetRuntime
 package import SunsetWebModel
 
@@ -11,8 +11,6 @@ package final class NowPlaying {
     package static let shared = NowPlaying()
 
     package private(set) var stack = MediaStack()
-    /// Where previous and next go: the system's media commands, unless a test says otherwise.
-    @ObservationIgnored package var sendCommand: @MainActor (WebNowPlaying.Command) -> Bool = { WebNowPlaying.send($0) }
     @ObservationIgnored private var pages: [MediaPage.ID: Weak] = [:]
     /// Shows a page's tab, in its Space and window (the app's): a card's Go There, and picture in picture's way back.
     @ObservationIgnored package var goThere: @MainActor (WebContent) -> Void = { _ in }
@@ -31,8 +29,13 @@ package final class NowPlaying {
     /// Reads `page` again and updates its card: a page that never played has none.
     func report(_ page: WebContent) async {
         guard let view = page.webView, let media = await MediaReading.read(view) else { return }
+        // Played to its end: its card goes (n131).
+        if media.ended, !media.playing, !page.playsSound {
+            stack.remove(page.mediaID)
+            return
+        }
         let host = page.url?.host() ?? ""
-        let card = MediaPage(
+        var card = MediaPage(
             id: page.mediaID,
             title: media.title.isEmpty ? page.pageTitle : media.title,
             artist: media.artist.isEmpty ? nil : media.artist,
@@ -42,6 +45,7 @@ package final class NowPlaying {
             isPlaying: media.playing || page.playsSound,
             isMuted: page.isMuted
         )
+        card.canSeek = media.seekable
         pages[page.mediaID] = Weak(page: page)
         stack.update(card)
     }
@@ -98,10 +102,14 @@ package final class NowPlaying {
         Runtime.live.task { @MainActor in await work() }
     }
 
-    /// Previous or next: the page is made the system's now playing again, then the command is sent (ADR-0115).
-    package func skip(_ id: MediaPage.ID, forward: Bool) async {
+    /// 10 seconds on or back in the card's media (n131: next and previous held playback instead of seeking).
+    package func seek(_ id: MediaPage.ID, forward: Bool) async {
         guard let page = page(id), let view = page.webView else { return }
-        await MediaReading.replay(view)
-        _ = sendCommand(forward ? .nextTrack : .previousTrack)
+        await MediaReading.seek(view, by: forward ? 10 : -10, in: page.videoFrame)
+    }
+
+    /// The person dismissed the card: it goes, and stays gone while its page plays on (n131).
+    package func dismiss(_ id: MediaPage.ID) {
+        stack.dismiss(id)
     }
 }

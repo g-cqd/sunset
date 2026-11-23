@@ -16,6 +16,8 @@ extension Design {
         package let y: Double
         /// Under a popover or a panel attached to a bar.
         package static let popover = Self(opacity: 0.25, radius: 14, y: 6)
+        /// Under the front Now Playing card: slight, to lift it off the sidebar (n133).
+        package static let card = Self(opacity: 0.18, radius: 6, y: 2)
     }
 
     /// The sizes of SF Symbols that are not in a row's glyph slot.

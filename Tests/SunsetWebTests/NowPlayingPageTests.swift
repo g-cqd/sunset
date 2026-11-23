@@ -1,7 +1,9 @@
+import AemiTestKit
 import AppKit
 import Foundation
 import Observation
 import SunsetPrivate
+import SunsetTestSupport
 import Testing
 import WebKit
 
@@ -11,7 +13,7 @@ import WebKit
 /// A page's Now Playing card, read from the page by Sunset's own world (ADR-0115): its media session's title, artist and
 /// artwork, whether it plays; and what a card does to it. The page makes its own sound (a WAV it writes), so nothing is
 /// fetched. Previous and next go to a sender given here: a test never sends the system a real media command.
-@MainActor @Suite("A page's Now Playing card", .timeLimit(.minutes(1)))
+@MainActor @Suite("A page's Now Playing card", .serialized, .timeLimit(.minutes(1)))
 final class NowPlayingPageTests {
     private var windows: [NSWindow] = []
 
@@ -23,7 +25,7 @@ final class NowPlayingPageTests {
     static let page = """
         <audio id="a" loop></audio>
         <script>
-        const rate = 8000, n = rate, b = new ArrayBuffer(44 + n * 2), v = new DataView(b);
+        const rate = 8000, n = rate * 30, b = new ArrayBuffer(44 + n * 2), v = new DataView(b);
         const s = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
         s(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); s(8, 'WAVE'); s(12, 'fmt '); v.setUint32(16, 16, true);
         v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
@@ -87,31 +89,35 @@ final class NowPlayingPageTests {
         page.stop()
     }
 
-    @Test func `previous and next make the page the one now playing, then send the command`() async throws {
+    /// n131: the card's back and forward buttons move 10 seconds in the media (they held playback instead); offered when
+    /// the media has a length.
+    @Test func `back and forward move 10 seconds in its media`() async throws {
         let (page, center) = try await playing()
+        defer { page.stop() }
         let view = try #require(page.webView)
-        var sent: [WebNowPlaying.Command] = []
-        var replayedFirst = false
-        center.sendCommand = { command in
-            sent.append(command)
-            return true
+        #expect(center.stack.front?.canSeek == true)
+        func now() async throws -> Double {
+            try await view.callAsyncJavaScript("return document.getElementById('a').currentTime", contentWorld: .page)
+                as? Double ?? -1
         }
-        // The page counts its own `play` events: the pause-play from Sunset's world comes before the command.
+        let start = try await now()
+        await center.seek(page.mediaID, forward: true)
+        let later = try await now()
+        #expect(later >= start + 9.5, "\(start) to \(later)")
+        await center.seek(page.mediaID, forward: false)
+        #expect(try await now() < later - 9.5)
+    }
+
+    /// n131: played to its end, its card goes; dismissed, it goes too.
+    @Test func `played to its end, its card goes`() async throws {
+        let (page, center) = try await playing()
+        defer { page.stop() }
+        let view = try #require(page.webView)
         _ = try await view.callAsyncJavaScript(
-            "window.plays = 0; document.getElementById('a').addEventListener('play', () => window.plays++)",
+            "const a = document.getElementById('a'); a.loop = false; a.currentTime = a.duration - 0.2;",
             contentWorld: .page
         )
-        await center.skip(page.mediaID, forward: true)
-        let plays = try await view.callAsyncJavaScript("return window.plays", contentWorld: .page)
-        replayedFirst = (plays as? Int ?? 0) >= 1
-        await center.skip(page.mediaID, forward: false)
-        #expect(sent == [.nextTrack, .previousTrack] && replayedFirst)
-        let still = try await view.callAsyncJavaScript(
-            "return document.getElementById('a').paused",
-            contentWorld: .page
-        )
-        #expect(still as? Bool == false, "it plays on")
-        page.stop()
+        #expect(await RealWait.until(within: .seconds(10)) { center.stack.pages.isEmpty })
     }
 
     /// Muted from its tab or from its card, the page and its card say the same at once (n123).

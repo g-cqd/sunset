@@ -13,6 +13,8 @@ package struct MediaPage: Equatable, Sendable, Identifiable {
     package var hasVideo: Bool
     package var isPlaying: Bool
     package var isMuted: Bool
+    /// Its media can be moved in (a length, not a live stream): the card offers ±10 s.
+    package var canSeek = false
 
     package init(
         id: UUID,

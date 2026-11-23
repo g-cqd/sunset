@@ -49,6 +49,12 @@ package struct NowPlayingStack: View {
             .clipShape(shape)
             // Its edge, as the window's other surfaces have (n125): a card without one blurred into the sidebar.
             .overlay { shape.hairline(style.layout) }
+            // A slight shadow under the front card (n133); the cards behind it are under it already.
+            .shadow(
+                color: .black.opacity(depth == 0 ? Design.Shadow.card.opacity : 0),
+                radius: Design.Shadow.card.radius,
+                y: Design.Shadow.card.y
+            )
             .allowsHitTesting(depth == 0)
             // Nor to accessibility: a card behind has nothing to press (seen 2026-11-22: its hidden buttons were pressed).
             .accessibilityHidden(depth != 0)

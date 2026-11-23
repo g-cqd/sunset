@@ -90,4 +90,19 @@ struct MediaStackTests {
         #expect(scroll.add(20) == 0, "a new gesture starts from nothing")
         #expect(scroll.add(-50) == -1, "and turns one card, either way")
     }
+
+    /// The owner's note n131: a card dismissed goes, and stays gone while its page plays on; played again after a pause,
+    /// it is back.
+    @Test func `dismissed: gone while it plays on, back when played again`() {
+        var stack = MediaStack()
+        let id = UUID()
+        stack.update(MediaPage(id: id, title: "Song", host: "music.example", isPlaying: true))
+        stack.dismiss(id)
+        #expect(stack.pages.isEmpty)
+        stack.update(MediaPage(id: id, title: "Next song", host: "music.example", isPlaying: true))
+        #expect(stack.pages.isEmpty, "still playing: still dismissed")
+        stack.update(MediaPage(id: id, title: "Next song", host: "music.example", isPlaying: false))
+        stack.update(MediaPage(id: id, title: "Next song", host: "music.example", isPlaying: true))
+        #expect(stack.pages.map(\.id) == [id], "played again")
+    }
 }

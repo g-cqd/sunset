@@ -92,7 +92,11 @@ struct SectionPanel: View {
         .onScrollGeometryChange(for: Double.self, of: { Double($0.contentOffset.y + $0.contentInsets.top) }) {
             scrolledBy = max($1, 0)
         }
-        .contentMargins(.bottom, buttons.margin + footInset, for: .scrollContent)
+        .contentMargins(
+            .bottom,
+            FootFade.margin(buttons.margin, faded: place == .opposite) + footInset,
+            for: .scrollContent
+        )
         .mask { fade }
         .overlay(alignment: .top) { top }
         .overlay(alignment: .bottom) { foot }

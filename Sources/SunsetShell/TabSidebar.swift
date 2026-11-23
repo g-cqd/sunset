@@ -120,7 +120,12 @@ package struct TabSidebar: View {
             }
             .bouncesOnlyWhenScrolling()
             .scrollIndicators(.never)
-            .contentMargins(.bottom, margin + bottomInset, for: .scrollContent)
+            // Scrolled to its end, the last row clears the fade above the bottom bar (n134: it was faded).
+            .contentMargins(
+                .bottom,
+                FootFade.margin(margin, faded: bottomBar != nil) + bottomInset,
+                for: .scrollContent
+            )
             .onScrollGeometryChange(for: Double.self, of: { Double($0.contentOffset.y + $0.contentInsets.top) }) {
                 scrolledBy = max($1, 0)
             }

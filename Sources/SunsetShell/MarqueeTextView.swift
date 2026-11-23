@@ -102,7 +102,32 @@ final class MarqueeTextView: NSView {
         guard wanted?.0 != shownFor?.0 || wanted?.1 != shownFor?.1 else { return }
         shownFor = wanted
         strip.removeAllAnimations()
-        if scrolls { strip.add(Self.scrolling(by: width + Self.gap), forKey: "marquee") }
+        edges.removeAllAnimations()
+        guard scrolls else { return }
+        // Both in one transaction: they start together, and keep in step.
+        CATransaction.begin()
+        strip.add(Self.scrolling(by: width + Self.gap), forKey: "marquee")
+        edges.add(Self.leadingFade(scrolling: width + Self.gap), forKey: "marquee")
+        CATransaction.commit()
+    }
+
+    /// The leading edge fades only while the text is away from its start (n132: it faded the first letters at rest): none
+    /// during the pause, in as the text leaves, out as its next copy comes back to the start, in step with `scrolling`.
+    private static func leadingFade(scrolling distance: CGFloat) -> CAAnimation {
+        let total = pause + Double(distance) / speed
+        let turn = min(fade / speed, total / 4) / total
+        let start = pause / total
+        let solid = NSColor.black.cgColor
+        let clear = NSColor.clear.cgColor
+        let still = [solid, solid, solid, clear]
+        let moving = [clear, solid, solid, clear]
+        let animation = CAKeyframeAnimation(keyPath: "colors")
+        animation.values = [still, still, moving, moving, still]
+        animation.keyTimes = [0, start, start + turn, 1 - turn, 1].map { NSNumber(value: $0) }
+        animation.duration = total
+        animation.repeatCount = .infinity
+        animation.isRemovedOnCompletion = false
+        return animation
     }
 
     private func edgesMask() -> CALayer {
@@ -110,7 +135,8 @@ final class MarqueeTextView: NSView {
         let clear = NSColor.clear.cgColor
         let solid = NSColor.black.cgColor
         let edge = NSNumber(value: Double(min(Self.fade / max(bounds.width, 1), 0.25)))
-        edges.colors = [clear, solid, solid, clear]
+        // At rest the leading edge does not fade (n132); while the text scrolls, `leadingFade` fades it.
+        edges.colors = [solid, solid, solid, clear]
         edges.locations = [0, edge, NSNumber(value: 1 - edge.doubleValue), 1]
         return edges
     }
