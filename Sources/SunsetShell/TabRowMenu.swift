@@ -22,6 +22,7 @@ struct TabRowMenu: View {
             Button("Rename") { tabs.renamingRow = .tab(item) }
         }
         Button("Change Icon\u{2026}") { tabs.iconRow = .tab(item) }
+        RowShareMenu(tabs: tabs, row: .tab(item))
         // What its panes' contents offer (a page's Reload, a document's other view).
         if pageActions {
             PaneActionsMenu(tabs: tabs, panes: tabs.workspace.items.first { $0.id == item }?.panes ?? []) {

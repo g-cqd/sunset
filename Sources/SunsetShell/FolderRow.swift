@@ -82,6 +82,7 @@ struct FolderRow: View {
             Button("Change Icon…") { tabs.iconRow = .node(folder.id) }
             Button("New Folder Inside") { tabs.newFolder(in: folder.id) }
             Button("Ungroup") { tabs.favorites.edit { $0.ungroup(folder.id) } }
+            RowShareMenu(tabs: tabs, row: .node(folder.id))
             Divider()
             Button("Delete Folder and Its Contents") { tabs.delete(folder: folder.id) }
         }

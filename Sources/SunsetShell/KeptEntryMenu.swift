@@ -47,6 +47,7 @@ struct KeptEntryMenu: View {
                     }
                 }
         }
+        RowShareMenu(tabs: tabs, row: .node(entry.id))
         PaneActionsMenu(tabs: tabs, panes: entry.open?.panes ?? []) { tabs.select(entry: entry.id) }
         Divider()
         // Where it starts from: gone back to, or set to where it is now. Set it to where it is now with Option, open.
