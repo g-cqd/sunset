@@ -22,7 +22,7 @@ struct ExtensionPackageLoadTests {
         ditto.arguments = ["-c", "-k", folder.appending(path: "manifest.json").path, zip.path]
         try ditto.run()
         ditto.waitUntilExit()
-        let crx = ExtensionPackageTests.crx3(header: Data(repeating: 1, count: 12), zip: try Data(contentsOf: zip))
+        let crx = try SignedCRX.signed(Data(contentsOf: zip))
         let unpacked = folder.appending(path: "out.zip")
         try ExtensionPackage.zip(from: crx).write(to: unpacked)
         let loaded = try await WKWebExtension(resourceBaseURL: unpacked)

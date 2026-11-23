@@ -1,4 +1,5 @@
 import Foundation
+internal import SunsetStorage
 
 /// Google Authenticator's export (roadmap 0093 B): `otpauth-migration://offline?data=…`, a base64 protobuf
 /// `MigrationPayload` of `OtpParameters` (secret 1, name 2, issuer 3, algorithm 4, digits 5, type 6, counter 7) and its

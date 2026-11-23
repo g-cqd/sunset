@@ -19,7 +19,7 @@ struct ExtensionStoreTests {
         let root = try folder()
         defer { try? FileManager.default.removeItem(at: root) }
         let package = root.appending(path: "a.crx")
-        try ExtensionPackageTests.crx3(header: Data(count: 8), zip: ExtensionPackageTests.zipStart).write(to: package)
+        try SignedCRX.signed(ExtensionPackageTests.zipStart).write(to: package)
         let profile = UUID()
         var store = ExtensionStore(root: root.appending(path: "Extensions"), profile: profile)
         let installed = try store.install(from: package, name: "A", granted: ["storage", "https://a.example/*"])

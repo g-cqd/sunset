@@ -1,12 +1,13 @@
 import Foundation
 
 /// The protobuf wire format, as far as an import needs it: varints and length-delimited fields, each bounded by what is
-/// left (a cut or altered payload is refused, never read past its end). Groups and fixed-width fields are skipped.
-struct ProtobufReader {
-    struct Invalid: Error {}
+/// left (a cut or altered payload is refused, never read past its end). Groups and fixed-width fields are skipped. Read for
+/// Google Authenticator's export and Chrome's extension packages.
+package struct ProtobufReader {
+    package struct Invalid: Error {}
 
     /// A field: its number, and its varint or its bytes.
-    enum Value {
+    package enum Value {
         case varint(UInt64)
         case bytes([UInt8])
     }
@@ -14,12 +15,12 @@ struct ProtobufReader {
     private let bytes: [UInt8]
     private var at = 0
 
-    init(_ bytes: [UInt8]) {
+    package init(_ bytes: [UInt8]) {
         self.bytes = bytes
     }
 
     /// Every field, in order.
-    mutating func fields() throws(Invalid) -> [(number: UInt64, value: Value)] {
+    package mutating func fields() throws(Invalid) -> [(number: UInt64, value: Value)] {
         var fields: [(UInt64, Value)] = []
         while at < bytes.count {
             let key = try varint()

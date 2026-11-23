@@ -21,7 +21,10 @@ package enum ExtensionPackage {
         guard start <= data.count, data.dropFirst(start).starts(with: zipMagic) else {
             throw Refused(reason: "a .crx whose archive is not where its header says")
         }
-        return Data(data.dropFirst(start))
+        let archive = Data(data.dropFirst(start))
+        // Its signature checked before anything of it is read (CRIT-03).
+        try CRX3Signature.verify(header: Data(data[data.startIndex + 12 ..< data.startIndex + start]), archive: archive)
+        return archive
     }
 
     /// An extension's package a page offers: by its type (Chrome's, Firefox's), or its name ending `.crx` or `.xpi`

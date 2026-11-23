@@ -20,7 +20,7 @@ struct ExtensionPackageTests {
 
     @Test func `a zip is a zip; a CRX3 is its zip; anything else is refused`() throws {
         #expect(try ExtensionPackage.zip(from: Self.zipStart) == Self.zipStart)
-        let crx = Self.crx3(header: Data(repeating: 7, count: 40), zip: Self.zipStart)
+        let crx = try SignedCRX.signed(Self.zipStart)
         #expect(try ExtensionPackage.zip(from: crx) == Self.zipStart)
         #expect(throws: ExtensionPackage.Refused.self) { try ExtensionPackage.zip(from: Data("<html>".utf8)) }
         var crx2 = Data("Cr24".utf8)
