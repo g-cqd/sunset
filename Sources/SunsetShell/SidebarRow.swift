@@ -158,7 +158,7 @@ struct SidebarRow: View {
             siteTint,
             selected: selected,
             hovering: hovering || keepCloseVisible,
-            color: model?.siteColor
+            color: RowFill.tabColor(custom: icon, site: model?.siteColor)
         ) {
             return tint.color
         }

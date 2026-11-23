@@ -53,6 +53,13 @@ package final class FaviconStore {
         return image
     }
 
+    /// The icon kept for the site of the page at `address` (History, n120): the profile's own, else the first profile's;
+    /// nil for an address that names no site, or a site with no icon kept.
+    package func image(forPage address: String, profile: UUID?) -> NSImage? {
+        guard let host = URL(string: address)?.host()?.lowercased(), !host.isEmpty else { return nil }
+        return image(for: host, profile: profile) ?? (profile == nil ? nil : image(for: host, profile: nil))
+    }
+
     /// Whether the icon kept for the site is the one the page names (when it names one) and has not expired.
     package func isFresh(host: String, profile: UUID? = nil, source: URL?, at now: Date = Runtime.live.now()) -> Bool {
         guard let entry = kept[Self.key(host: host, profile: profile)], entry.expires > now.timeIntervalSince1970 else {

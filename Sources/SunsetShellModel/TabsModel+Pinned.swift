@@ -22,7 +22,8 @@ extension TabsModel {
     /// Shows the Pinned grid of the profile of this window's Space (a window among the app's Spaces): another Space,
     /// or another profile for the Space, is another grid. An entry of the grid it leaves is no longer shown here.
     package func followProfile() {
-        guard let spaces else { return }
+        // A private window shows no grid (n100).
+        guard let spaces, !isPrivateWindow else { return }
         let grid = spaces.profiles.profile(of: space.space).pinned
         guard grid !== pinned else { return }
         if let shown = selectedEntry, pinned?.favorites.entry(shown) != nil {

@@ -1,4 +1,5 @@
 import AppKit
+import Foundation
 import SunsetMetrics
 import SunsetShell
 import SunsetWeb
@@ -8,14 +9,22 @@ import SwiftUI
 struct HistoryRow: View {
     let entry: HistoryEntry
     let layout: LayoutMetrics
+    /// The window's profile, whose kept site icons are shown.
+    var profile: UUID?
     /// Its title and its address.
     private static let lines = 2
     @State private var hovered = false
 
+    /// The site's icon when one is kept (n120), else a globe.
+    private var glyph: PaneGlyph {
+        FaviconStore.shared.image(forPage: entry.url, profile: profile)?.panePicture.map(PaneGlyph.image)
+            ?? .symbol("globe")
+    }
+
     var body: some View {
         // A sidebar row of a page that is not open: its glyph and two lines, no fill at rest.
         HStack(spacing: GlyphSpacing.toText) {
-            PaneGlyphView(glyph: .symbol("globe"))
+            PaneGlyphView(glyph: glyph)
             VStack(alignment: .leading, spacing: Design.Space.hair) {
                 Text(entry.title.isEmpty ? AddressChoice.shortAddress(entry.url) : entry.title).lineLimit(1)
                 Text(AddressChoice.shortAddress(entry.url))

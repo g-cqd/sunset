@@ -158,8 +158,7 @@ extension TerminalScene {
     /// A private window's first page: its pages share one store unless `web.privateWindowShares` says not.
     func startPrivate() {
         AppActions.shared.pendingPrivateWindow = false
-        tabs.privateGroup = UUID()
-        tabs.privateShares = configuration.web.privateWindowShares
+        tabs.becomePrivate(group: UUID(), shares: configuration.web.privateWindowShares)
         tabs.newTab(PaneContentKinds.newPage)
     }
 }

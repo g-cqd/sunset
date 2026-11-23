@@ -33,7 +33,7 @@ struct SectionList: View {
                 let pages = AppHistory.shared?.entries(matching: query) ?? []
                 groups(ListGroup.days(pages, by: \.lastVisit), none: "No pages visited yet", noMatch: "No page matches")
                 {
-                    HistoryRow(entry: $0, layout: layout)
+                    HistoryRow(entry: $0, layout: layout, profile: PaneContentKinds.profile(of: tabs))
                 }
             case .documents:
                 let found = ShelfDocument.matching(query, in: tabs.listedDocuments)

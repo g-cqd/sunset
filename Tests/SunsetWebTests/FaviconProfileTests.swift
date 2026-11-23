@@ -23,4 +23,29 @@ struct FaviconProfileTests {
         #expect(store.isFresh(host: "chat.example", profile: work, source: nil))
         #expect(!store.isFresh(host: "chat.example", profile: UUID(), source: nil))
     }
+
+    /// History shows a page's kept icon (the owner's note n120): looked up by its address, the window's profile first.
+    @Test func `a page's icon by its address: the profile's, else the first profile's, else none`() {
+        let store = FaviconStore()
+        let work = UUID()
+        store.keep(
+            host: "news.example",
+            profile: nil,
+            source: nil,
+            data: FaviconStoreTests.pngData(.red),
+            expires: .distantFuture
+        )
+        store.keep(
+            host: "chat.example",
+            profile: work,
+            source: nil,
+            data: FaviconStoreTests.pngData(.blue),
+            expires: .distantFuture
+        )
+        #expect(store.image(forPage: "https://chat.example/room/1", profile: work) != nil)
+        #expect(store.image(forPage: "https://News.Example/a?b", profile: work) != nil, "the first profile's")
+        #expect(store.image(forPage: "https://chat.example/", profile: nil) == nil, "not another profile's")
+        #expect(store.image(forPage: "about:blank", profile: nil) == nil)
+        #expect(store.image(forPage: "https://none.example/", profile: work) == nil)
+    }
 }

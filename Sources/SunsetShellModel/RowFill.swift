@@ -1,3 +1,5 @@
+package import SunsetPane
+
 /// How strongly a tab's row is filled (the sidebar's row, the top bar's tab and a split's part each worked it out): an
 /// opacity of the primary colour, or of red for a close that waits for a second click.
 package enum RowFill {
@@ -64,5 +66,13 @@ extension RowFill {
                 case .every: selected ? siteSelected : hovering ? siteHover : siteResting
             }
         return opacity.map { SiteTint(rgb: Array(color.prefix(3)), opacity: $0) }
+    }
+
+    /// The colour a tab takes (`tabs.siteColor`, the owner's note n118): the icon it shows. One the person gave it, in a
+    /// colour: that colour; one they gave it without a colour (or an emoji): none, the site's icon not being shown;
+    /// otherwise the site's (`PaneContent.siteColor`: its icon's colour, else the colour the page declares).
+    package static func tabColor(custom: PaneIcon?, site: [UInt8]?) -> [UInt8]? {
+        guard let custom else { return site }
+        return custom.color.map { [$0.red, $0.green, $0.blue] }
     }
 }
