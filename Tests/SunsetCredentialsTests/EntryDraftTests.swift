@@ -20,6 +20,25 @@ struct EntryDraftTests {
         #expect(draft.entry == kept && !draft.isChanged)
     }
 
+    /// n138: a card filled in and left without Done was not kept. Edits are kept as they are made; Cancel goes back to
+    /// the entry as it was when editing began, which is then kept again.
+    @Test func `kept as it is edited; Cancel goes back to the entry as editing began`() {
+        let kept = EntryTemplate.login.makeEntry(title: "Card")
+        var draft = EntryDraft(kept)
+        draft.beginEditing()
+        draft.entry.title = "Visa"
+        #expect(draft.canSave(now: .now))
+        draft.saved()
+        #expect(!draft.isChanged && draft.kept.title == "Visa", "kept as it was edited")
+        draft.entry.title = "Visa card"
+        draft.saved()
+        let back = draft.cancelEditing()
+        #expect(back == kept && draft.entry == kept && draft.isChanged, "something to keep again")
+        draft.saved()
+        let again = draft.cancelEditing()
+        #expect(again == nil, "nothing changed since")
+    }
+
     @Test func `a field added by kind, named for it; a password generated into a concealed field`() throws {
         var draft = EntryDraft(VaultEntry(title: "Custom"))
         let added = draft.add(.concealed)

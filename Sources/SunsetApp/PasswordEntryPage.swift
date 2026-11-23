@@ -14,10 +14,13 @@ struct PasswordEntryPage: View {
     let model: PasswordsModel
     @State private var draft: EntryDraft
     @State private var editing = false
+    @State private var keeping: Task<Void, Never>?
 
     init(entry: VaultEntry, model: PasswordsModel, editing: Bool = false) {
         self.model = model
-        _draft = State(initialValue: EntryDraft(entry))
+        var draft = EntryDraft(entry)
+        if editing { draft.beginEditing() }
+        _draft = State(initialValue: draft)
         _editing = State(initialValue: editing)
     }
 
@@ -31,7 +34,7 @@ struct PasswordEntryPage: View {
                     entry: $draft.entry,
                     editing: editing,
                     canSave: draft.canSave(now: Runtime.live.now()) || !draft.isChanged,
-                    edit: { editing = true },
+                    edit: beginEditing,
                     cancel: cancel,
                     done: done
                 )
@@ -52,6 +55,10 @@ struct PasswordEntryPage: View {
         .frame(maxWidth: Design.Size.settingsPage)
         .frame(maxWidth: .infinity)
         .animation(.smooth, value: editing)
+        // Edits are kept as they are made (n138: a card filled in and left without Done was lost): a moment after the
+        // last change, and when the page goes away.
+        .onChange(of: draft.entry) { keepSoon() }
+        .onDisappear { keep() }
         // A QR code's picture pasted or dropped on the page sets its one-time code up (roadmap 0093 D).
         .background(QRPasteCatcher { read($0) })
         .onDrop(of: [.image, .fileURL], isTargeted: nil) { providers in
@@ -133,13 +140,19 @@ struct PasswordEntryPage: View {
         Runtime.live.task { @MainActor in
             guard let code = await QRCodeImages.code(in: image) else { return }
             draft.setUp(code)
-            editing = true
+            if !editing { beginEditing() }
             Feedback.give(.done("One-time code read"))
         }
     }
 
+    private func beginEditing() {
+        draft.beginEditing()
+        editing = true
+    }
+
+    /// Back to the entry as editing began, kept again when edits were kept meanwhile.
     private func cancel() {
-        draft.revert()
+        if let back = draft.cancelEditing(), (try? model.save(back)) != nil { draft.saved() }
         editing = false
     }
 
@@ -150,4 +163,22 @@ struct PasswordEntryPage: View {
         }
         editing = false
     }
+
+    /// Keeps the edits when they can be kept (a required field left empty keeps them from it).
+    private func keep() {
+        keeping?.cancel()
+        guard draft.canSave(now: Runtime.live.now()), (try? model.save(draft.entry)) != nil else { return }
+        draft.saved()
+    }
+
+    private func keepSoon() {
+        keeping?.cancel()
+        keeping = Runtime.live.task { @MainActor in
+            guard await Runtime.live.sleep(for: Self.keepAfter) else { return }
+            keep()
+        }
+    }
+
+    /// How long after the last change edits are kept.
+    static let keepAfter = Duration.milliseconds(700)
 }

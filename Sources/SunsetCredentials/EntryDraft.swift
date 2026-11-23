@@ -36,6 +36,24 @@ public struct EntryDraft: Equatable, Sendable {
         entry = kept
     }
 
+    /// The entry as it was when editing began: edits are kept as they are made (n138), and Cancel goes back to it.
+    public private(set) var began: VaultEntry?
+
+    public mutating func beginEditing() {
+        began = kept
+    }
+
+    /// Back to the entry as editing began; returns it when it must be kept again (edits were kept since), nil otherwise.
+    public mutating func cancelEditing() -> VaultEntry? {
+        guard let began else {
+            revert()
+            return nil
+        }
+        self.began = nil
+        entry = began
+        return kept == began ? nil : began
+    }
+
     /// A field of `kind`, named for it, at the end of the last section (one is made when there is none); its id.
     @discardableResult
     public mutating func add(_ kind: FieldKind) -> UUID {
