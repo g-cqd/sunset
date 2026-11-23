@@ -3,9 +3,9 @@ import Testing
 
 @testable import SunsetShellModel
 
-/// The welcome opening's score: a dark, low-frequency atmospheric swell that matches the opening's phases
-/// (`WelcomeOpening`) — rising out of silence with the sun, building tension as it descends, opening its harmonic veil
-/// into the window transition, and settling gently into silence.
+/// The welcome opening's score (`WelcomeOpeningScore`): a unified, warm consonant blend of low-mid bass, bowed
+/// electronic strings, softly sustained felted piano, and an airy flute that blooms early with the sun, lifts off into
+/// a diffused cloud across the window transition, and dissolves cleanly into silence with nothing below 20 Hz.
 @Suite("The welcome opening's score")
 struct WelcomeOpeningScoreTests {
     private let sampleRate = 48_000.0
@@ -43,51 +43,60 @@ struct WelcomeOpeningScoreTests {
             #expect(sample.isFinite)
             peak = max(peak, abs(sample))
         }
-        #expect(peak > 0.15, "audible level: \(peak)")
+        #expect(peak > 0.25, "audible level: \(peak)")
         #expect(peak <= 0.95, "no clipping: \(peak)")
-        // Starts from silence (no click at t = 0) and finishes in silence.
         #expect(abs(stereo[0]) < 1e-4 && abs(stereo[1]) < 1e-4)
         let tail = rms(of: stereo, from: WelcomeOpeningScore.duration + 0.05, to: WelcomeOpeningScore.duration + 0.45)
         #expect(tail < 1e-4, "silent after the tail: \(tail)")
     }
 
-    @Test func `energy follows the opening phases: grows with the sun, peaks into the window, then releases`() {
+    @Test func `reaches full bloom early, lifts through the window reveal, and dissolves cleanly into silence`() {
         let stereo = render()
-        let onset = rms(of: stereo, from: 0.0, to: 0.35)
-        let sunAppear = rms(of: stereo, from: 1.0, to: 2.6)
-        let settingSwell = rms(of: stereo, from: 3.2, to: 4.9)
-        let windowCrossfade = rms(of: stereo, from: 5.0, to: 6.4)
-        let release = rms(of: stereo, from: 7.4, to: 8.6)
-        #expect(onset < sunAppear * 0.4, "rises gently out of silence: \(onset) vs \(sunAppear)")
-        #expect(settingSwell > sunAppear * 1.15, "builds as the sun descends: \(settingSwell) vs \(sunAppear)")
-        #expect(windowCrossfade > sunAppear, "present across the window reveal: \(windowCrossfade) vs \(sunAppear)")
-        #expect(release < windowCrossfade * 0.55, "fades away as the window settles: \(release) vs \(windowCrossfade)")
+        let onset = rms(of: stereo, from: 0.0, to: 0.4)
+        let earlyBloom = rms(of: stereo, from: 1.5, to: 2.8)
+        let liftOff = rms(of: stereo, from: 3.8, to: 5.4)
+        let lateTail = rms(of: stereo, from: 7.4, to: 9.2)
+        #expect(onset < earlyBloom * 0.25, "smooth onset from silence: \(onset) vs \(earlyBloom)")
+        #expect(earlyBloom > 0.10, "reaches strong presence early: \(earlyBloom)")
+        #expect(liftOff > earlyBloom * 0.95, "carries luminous lift-off into the window: \(liftOff) vs \(earlyBloom)")
+        #expect(lateTail < liftOff * 0.08, "diffuses cleanly into silence: \(lateTail) vs \(liftOff)")
     }
 
-    @Test func `most of the energy sits in the low frequencies`() {
-        // Measure spectral balance during the main sustain (2.0..5.5 s) using a simple one-pole split at 350 Hz.
+    @Test func `produces virtually no energy at or below 20 Hz`() {
         let stereo = render()
-        let start = Int(2.0 * sampleRate)
-        let end = Int(5.5 * sampleRate)
-        let alpha = 1.0 - exp(-2.0 * .pi * 350.0 / sampleRate)
-        var lowState = 0.0
-        var lowEnergy = 0.0
-        var highEnergy = 0.0
+        let start = 0
+        let end = Int(5.0 * sampleRate)
+        let count = end - start
+        var totalSq = 0.0
         for frame in start ..< end {
             let mono = 0.5 * (Double(stereo[frame * 2]) + Double(stereo[frame * 2 + 1]))
-            lowState += alpha * (mono - lowState)
-            let high = mono - lowState
-            lowEnergy += lowState * lowState
-            highEnergy += high * high
+            totalSq += mono * mono
         }
-        let lowShare = lowEnergy / max(lowEnergy + highEnergy, 1e-12)
-        #expect(lowShare > 0.72, "low-frequency dominant: \(lowShare)")
+        let totalRMS = (totalSq / Double(count)).squareRoot()
+        for hz in [5.0, 10.0, 15.0, 18.0, 20.0] {
+            var cosSum = 0.0
+            var sinSum = 0.0
+            let omega = 2.0 * .pi * hz / sampleRate
+            var samples = 0
+            // 8x decimation (6 kHz effective rate) is exact for frequencies <= 20 Hz.
+            for frame in stride(from: start, to: end, by: 8) {
+                let win = 0.5 * (1.0 - cos(2.0 * .pi * Double(frame - start) / Double(count - 1)))
+                let mono = 0.5 * (Double(stereo[frame * 2]) + Double(stereo[frame * 2 + 1])) * win
+                let angle = omega * Double(frame)
+                cosSum += mono * cos(angle)
+                sinSum += mono * sin(angle)
+                samples += 1
+            }
+            let mag = 2.0 * hypot(cosSum, sinSum) / Double(samples)
+            let db = 20.0 * log10(max(mag, 1e-12) / max(totalRMS, 1e-12))
+            #expect(db < -70.0, "no sub-20 Hz energy at \(hz) Hz: \(db) dB")
+        }
     }
 
-    @Test func `the window transition opens the upper harmonics compared to the sun's first appearance`() {
+    @Test func `upper harmonic lift-off brightens relative to the low end during the transition`() {
         let stereo = render()
-        let alpha = 1.0 - exp(-2.0 * .pi * 220.0 / sampleRate)
-        func brightness(from startSeconds: Double, to endSeconds: Double) -> Double {
+        let alpha = 1.0 - exp(-2.0 * .pi * 240.0 / sampleRate)
+        func upperShare(from startSeconds: Double, to endSeconds: Double) -> Double {
             let start = Int(startSeconds * sampleRate)
             let end = Int(endSeconds * sampleRate)
             var low = 0.0
@@ -102,15 +111,15 @@ struct WelcomeOpeningScoreTests {
             }
             return upper / max(total, 1e-12)
         }
-        let early = brightness(from: 0.6, to: 2.2)
-        let reveal = brightness(from: 5.0, to: 6.4)
-        #expect(reveal > early * 1.35, "filter opens into the window: \(reveal) vs \(early)")
+        let early = upperShare(from: 0.6, to: 1.8)
+        let lift = upperShare(from: 3.6, to: 5.4)
+        #expect(lift > early * 2.0, "lift-off shifts upward into upper harmonics: \(lift) vs \(early)")
     }
 
     @Test func `stereo width exists without severe phase cancellation`() {
         let stereo = render()
-        let start = Int(2.5 * sampleRate)
-        let end = Int(6.0 * sampleRate)
+        let start = Int(2.0 * sampleRate)
+        let end = Int(5.6 * sampleRate)
         var midEnergy = 0.0
         var sideEnergy = 0.0
         for frame in start ..< end {
@@ -121,47 +130,13 @@ struct WelcomeOpeningScoreTests {
             midEnergy += mid * mid
             sideEnergy += side * side
         }
-        #expect(sideEnergy > midEnergy * 0.02, "noticeable stereo spread")
-        #expect(midEnergy > sideEnergy * 2.0, "solid mono-compatible low end")
-    }
-
-    @Test func `sustained piano and flute layers add gentle dissonance and harmonic motion through the transition`() {
-        // Sample the harmonic spectrum in the 140..420 Hz band (where the felted piano dyad, dissonant seconds,
-        // and breathy dark flute sit) during early sun appearance vs. descent and window transition.
-        let stereo = render()
-        func bandEnergy(lowHz: Double, highHz: Double, from startSeconds: Double, to endSeconds: Double) -> Double {
-            let start = Int(startSeconds * sampleRate)
-            let end = Int(endSeconds * sampleRate)
-            let alphaLow = 1.0 - exp(-2.0 * .pi * lowHz / sampleRate)
-            let alphaHigh = 1.0 - exp(-2.0 * .pi * highHz / sampleRate)
-            var lpLow = 0.0
-            var lpHigh = 0.0
-            var energy = 0.0
-            for frame in start ..< end {
-                let mono = 0.5 * (Double(stereo[frame * 2]) + Double(stereo[frame * 2 + 1]))
-                lpLow += alphaLow * (mono - lpLow)
-                lpHigh += alphaHigh * (mono - lpHigh)
-                let band = lpHigh - lpLow
-                energy += band * band
-            }
-            return (energy / Double(max(1, end - start))).squareRoot()
-        }
-        let earlyWarmth = bandEnergy(lowHz: 140, highHz: 420, from: 0.4, to: 1.4)
-        let descentHarmonics = bandEnergy(lowHz: 140, highHz: 420, from: 2.0, to: 4.8)
-        let transitionBloom = bandEnergy(lowHz: 140, highHz: 420, from: 5.0, to: 6.8)
-        #expect(
-            descentHarmonics > earlyWarmth * 1.8,
-            "piano and flute enter during the descent: \(descentHarmonics) vs \(earlyWarmth)"
-        )
-        #expect(
-            transitionBloom > descentHarmonics * 1.15,
-            "harmonic bloom opens further into the window: \(transitionBloom) vs \(descentHarmonics)"
-        )
+        #expect(sideEnergy > midEnergy * 0.15, "spacious diffused stereo spread")
+        #expect(midEnergy > sideEnergy, "mono-compatible centre image (mid > side)")
     }
 
     @Test func `cancelling early fades out smoothly to silence without a click`() {
         var score = WelcomeOpeningScore(sampleRate: sampleRate)
-        let cutFrame = Int(3.5 * sampleRate)
+        let cutFrame = Int(3.2 * sampleRate)
         for _ in 0 ..< cutFrame { _ = score.nextSample() }
         let before = score.nextSample()
         score.fadeOut()

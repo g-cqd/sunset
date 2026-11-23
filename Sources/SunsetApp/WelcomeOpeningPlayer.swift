@@ -45,9 +45,10 @@ import SwiftUI
         window = shown
         self.clock = clock
         clock.begin()
+        WelcomeOpeningAudio.play()
         // The key or click that ends it does only that.
         monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .leftMouseDown]) { _ in
-            end()
+            end(cancelled: true)
             return nil
         }
         let start = Runtime.live.now()
@@ -64,7 +65,7 @@ import SwiftUI
                 shown.alphaValue = WelcomeOpening.at(elapsed, frame: .zero).windowOpacity
                 await Runtime.live.sleep(for: .milliseconds(8))
             }
-            end()
+            end(cancelled: false)
         }
     }
 
@@ -74,8 +75,9 @@ import SwiftUI
         shown.orderFrontRegardless()
     }
 
-    /// The window alone, at once; once.
-    private static func end() {
+    /// The window alone, at once; once. When cancelled early, the score fades out smoothly; at the natural end, its
+    /// diffused reverb tail finishes on its own.
+    private static func end(cancelled: Bool) {
         guard let sun = panel, let shown = window else { return }
         panel = nil
         window = nil
@@ -83,6 +85,7 @@ import SwiftUI
         monitor = nil
         clock?.finish()
         clock = nil
+        if cancelled { WelcomeOpeningAudio.fadeOut() }
         if !shown.isVisible { show(shown) }
         shown.alphaValue = 1
         sun.orderOut(nil)

@@ -106,6 +106,7 @@ import SwiftUI
     }
 
     func windowWillClose(_ notification: Notification) {
+        WelcomeOpeningAudio.fadeOut()
         // The main window, held back, opens as the welcome goes (before it has: no moment without a window, when Sunset
         // would quit).
         clearing.restore()
