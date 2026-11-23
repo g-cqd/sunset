@@ -32,6 +32,13 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
 
     /// The settings' section it is listed under: its topic's.
     public var settingsSection: String {
-        String(settingsTopic.prefix { $0 != "." })
+        Self.section(ofTopic: settingsTopic)
+    }
+
+    /// The section a settings' topic is in: its id's first part, but for the window's and the tabs' topics, which are in
+    /// Appearance and layout (n119).
+    public static func section(ofTopic topic: String) -> String {
+        let first = String(topic.prefix { $0 != "." })
+        return first == "tabs" || first == "window" ? "appearance" : first
     }
 }

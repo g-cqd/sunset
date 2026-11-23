@@ -1,7 +1,7 @@
 /// The sections of Settings, in the sidebar's order, each with its topics in theirs. An option is declared in
 /// `SettingsOption+*.swift`, in the list of its topic; a number of the layout is named here, beside the thing it measures.
 extension SettingsSection {
-    public static let all: [Self] = [general, appearance, window, tabs, terminal, web, privacy]
+    public static let all: [Self] = [general, appearance, terminal, web, privacy]
 
     static let general = Self(
         id: "general",
@@ -16,44 +16,26 @@ extension SettingsSection {
         ]
     )
 
+    /// How the window looks and how its tabs are laid out, together (n119: Appearance, Window and Tabs and sidebar spoke of
+    /// the same things in three places). The topics keep their ids: Help links to them.
     static let appearance = Self(
         id: "appearance",
-        title: "Appearance",
+        title: "Appearance and layout",
         symbol: "paintpalette",
         topics: [
             SettingsTopic("appearance.theme", "Theme and colors", SettingsOption.theme),
             SettingsTopic("appearance.tint", "Accent and tint", SettingsOption.tint),
-            SettingsTopic("appearance.materials", "Materials", SettingsOption.materials)
-        ]
-    )
-
-    static let window = Self(
-        id: "window",
-        title: "Window",
-        symbol: "macwindow",
-        topics: [
-            SettingsTopic(
-                "window.titleBar",
-                "Title bar and buttons",
-                SettingsOption.titleBar
-            )
-        ]
-    )
-
-    static let tabs = Self(
-        id: "tabs",
-        title: "Tabs and sidebar",
-        symbol: "sidebar.left",
-        topics: [
-            SettingsTopic("tabs.placement", "Placement", SettingsOption.placement),
+            SettingsTopic("appearance.materials", "Materials", SettingsOption.materials),
+            SettingsTopic("window.titleBar", "Window", SettingsOption.window),
+            SettingsTopic("tabs.placement", "Tabs and sidebar", SettingsOption.placement),
+            SettingsTopic("tabs.labels", "Tab labels", SettingsOption.labels),
+            SettingsTopic("tabs.library", "Library and documents", SettingsOption.library),
             SettingsTopic("tabs.new", "New tabs", SettingsOption.newTabs),
             SettingsTopic(
                 "tabs.floating",
                 "Floating sidebar",
                 SettingsOption.layout("hideDelay", "revealStripWidth")
-            ),
-            SettingsTopic("tabs.labels", "Tab labels", SettingsOption.labels),
-            SettingsTopic("tabs.library", "Library and documents", SettingsOption.library)
+            )
         ]
     )
 

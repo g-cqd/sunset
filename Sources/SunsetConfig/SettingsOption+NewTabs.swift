@@ -42,13 +42,7 @@ extension SettingsOption {
                 prompt: "~/Notes/today.md"
             )
             .shown { $0.tabs.start == .file },
-            text(
-                "tabs.startProfile",
-                "Profile",
-                "start launch profile space",
-                \.tabs.startProfile,
-                prompt: "The last one used"
-            )
-            .noted("A new window opens on this profile's first Space when it is not asked from another window.")
+            custom("tabs.startProfile", "Profile", "start launch profile space", .startProfile)
+                .noted("A new window opens on this profile's first Space when it is not asked from another window.")
         ]
 }

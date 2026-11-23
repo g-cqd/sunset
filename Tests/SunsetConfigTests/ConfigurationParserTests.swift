@@ -139,10 +139,10 @@ import Testing
             { "window": { "decorations": "native", "trafficLights": { "x": 20, "y": 8.5 }, "dragStrip": 24 } }
             """
         )
+        // The title bar and the traffic lights are fixed (n115): a file's values are read without a word, and not used.
         #expect(result.issues.isEmpty)
-        #expect(result.configuration.window.decorations == .native)
-        #expect(result.configuration.window.trafficLightsX == 20)
-        #expect(result.configuration.window.trafficLightsY == 8.5)
+        #expect(result.configuration.window.decorations == .none)
+        #expect(result.configuration.window.trafficLightsX == 8 && result.configuration.window.trafficLightsY == 8)
         #expect(result.configuration.window.dragStrip == 24)
     }
 
@@ -156,14 +156,10 @@ import Testing
     @Test func `window values that are wrong are reported with their keys`() throws {
         let result = try read(
             """
-            { "window": { "decorations": "fancy", "trafficLights": { "x": -4, "z": 1 }, "dragStrip": 500 } }
+            { "window": { "decorations": "fancy", "trafficLights": { "x": -4, "z": 1 }, "dragStrip": 500, "colour": 1 } }
             """
         )
-        #expect(
-            result.issues.map(\.path).sorted() == [
-                "window.decorations", "window.dragStrip", "window.trafficLights.x", "window.trafficLights.z"
-            ]
-        )
+        #expect(result.issues.map(\.path).sorted() == ["window.colour", "window.dragStrip"])
         #expect(result.configuration.window == Configuration.Window())
     }
 

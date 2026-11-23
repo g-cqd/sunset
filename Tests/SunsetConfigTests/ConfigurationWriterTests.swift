@@ -12,9 +12,6 @@ import Testing
         configuration.colors.foreground = [0xE0, 0xE1, 0xE2]
         configuration.colors.background = [0x01, 0x02, 0x03]
         configuration.colors.cursor = [0xFF, 0x88, 0x00]
-        configuration.window.decorations = .native
-        configuration.window.trafficLightsX = 20
-        configuration.window.trafficLightsY = 8.5
         configuration.window.dragStrip = 24
         configuration.scroll.trackpad = 0.6
         configuration.scroll.wheel = 5
@@ -68,7 +65,7 @@ import Testing
     @Test func `every key the reader knows is in the file, so the file shows what can be set`() throws {
         let text = ConfigurationWriter.text(for: Configuration())
         #expect(
-            ConfigurationKeys.all.count == 178,
+            ConfigurationKeys.all.count == 174,
             "a key was added or removed: the list, the reader and the writer move together"
         )
         for key in ConfigurationKeys.all {

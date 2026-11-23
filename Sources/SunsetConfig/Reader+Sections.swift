@@ -18,8 +18,8 @@ extension Reader {
     mutating func readWindow(_ object: Object) {
         for (key, value) in object {
             switch key {
-                case "trafficLights":
-                    section("window.trafficLights", value) { reader, lights in reader.readTrafficLights(lights) }
+                // Fixed since 2026-11-23 (n115): a file's copies are ignored, and taken out when the file is next saved.
+                case "decorations", "trafficLights": break
                 case "opacity": readLegacyWindowOpacity(value)
                 default: unknown("window.\(key)")
             }
@@ -51,13 +51,6 @@ extension Reader {
         // Every key is a plain value its option reads; anything else is not one.
         for key in object.keys {
             unknown("scroll.\(key)")
-        }
-    }
-
-    mutating func readTrafficLights(_ object: Object) {
-        // Every key is a plain value its option reads; anything else is not one.
-        for key in object.keys {
-            unknown("window.trafficLights.\(key)")
         }
     }
 

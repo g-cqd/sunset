@@ -10,11 +10,10 @@ import Testing
         SettingsSection.topic(topic)?.topic.options.map(\.id) ?? []
     }
 
-    @Test func `seven sections, each with its topics, and no Layout among them`() {
+    /// n119: Appearance, Window and Tabs and sidebar are one section.
+    @Test func `five sections, each with its topics`() {
         #expect(
-            sections.map(\.title) == [
-                "General", "Appearance", "Window", "Tabs and sidebar", "Terminal", "Web", "Privacy and security"
-            ]
+            sections.map(\.title) == ["General", "Appearance and layout", "Terminal", "Web", "Privacy and security"]
         )
         #expect(sections.allSatisfy { !$0.symbol.isEmpty && !$0.topics.isEmpty })
         let topics = sections.flatMap(\.topics)
@@ -62,11 +61,14 @@ import Testing
     @Test func `where the tabs are is one topic; what was found by search is under its section and topic`() {
         #expect(
             options("tabs.placement") == [
-                "tabs.mode", "tabs.bar.position", "tabs.bar.autoHide", "tabs.bar.backing", "sidebar.enabled",
-                "sidebar.side", "sidebar.autoHide", "sidebar.width", "sidebar.separators"
+                "tabs.mode", "tabs.bar.position", "tabs.bar.autoHide", "tabs.bar.backing", "sidebar.side",
+                "sidebar.separators"
             ]
         )
-        #expect(SettingsSection.topic("tabs.placement")?.section.title == "Tabs and sidebar")
+        // The sidebar's own (shown, hidden until its edge, its width) are set from the window, not here (n116).
+        #expect(["sidebar.enabled", "sidebar.autoHide", "sidebar.width"].allSatisfy { SettingsOption.named($0) == nil })
+        #expect(options("window.titleBar") == ["window.dragStrip", "appearance.haptics"], "n115")
+        #expect(SettingsSection.topic("tabs.placement")?.section.title == "Appearance and layout")
         #expect(SettingsSection.heading(of: "terminal.cursor") == "Terminal \u{203A} Cursor")
         #expect(SettingsSection.topic("nowhere") == nil && SettingsSection.heading(of: "nowhere") == "nowhere")
     }

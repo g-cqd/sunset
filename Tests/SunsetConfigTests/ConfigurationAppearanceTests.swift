@@ -136,16 +136,11 @@ import Testing
         #expect(wrong.issues.map(\.path) == ["sidebar.side"] && wrong.configuration.sidebar.side == .right)
     }
 
-    @Test func `the traffic lights follow the sidebar unless window.trafficLights.side puts them on a side`() throws {
+    @Test func `the traffic lights follow the sidebar, whatever a file says (fixed, n115)`() throws {
         #expect(try read("{}").configuration.window.lightsSide == .sidebar)
-        let right = try read(#"{ "window": { "trafficLights": { "side": "right" } } }"#)
-        #expect(right.issues.isEmpty && right.configuration.window.lightsSide == .right)
-        #expect(
-            try read(#"{ "window": { "trafficLights": { "side": "left", "x": 9 } } }"#).configuration.window
-                .trafficLightsX == 9
-        )
-        let wrong = try read(#"{ "window": { "trafficLights": { "side": "middle" } } }"#)
-        #expect(wrong.issues.map(\.path) == ["window.trafficLights.side"])
+        let right = try read(#"{ "window": { "trafficLights": { "side": "right", "x": 9 } } }"#)
+        #expect(right.issues.isEmpty && right.configuration.window.lightsSide == .sidebar)
+        #expect(right.configuration.window.trafficLightsX == 8)
         #expect(Configuration.Window.LightsSide.sidebar.resolved(sidebar: .right) == .right)
         #expect(Configuration.Window.LightsSide.sidebar.resolved(sidebar: .left) == .left)
         #expect(Configuration.Window.LightsSide.left.resolved(sidebar: .right) == .left)

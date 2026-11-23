@@ -7,7 +7,7 @@ public enum HelpTree {
     }
 
     /// The settings' sections in their order (`SettingsSection.all`'s ids, which SunsetHelp does not import).
-    public static let order = ["general", "appearance", "window", "tabs", "terminal", "web", "privacy"]
+    public static let order = ["general", "appearance", "terminal", "web", "privacy"]
 
     /// Every section with a topic, its topics in their order; `topics` narrows them (a search's).
     public static func sections(_ topics: [HelpTopic] = HelpTopic.allCases) -> [Section] {
@@ -24,7 +24,7 @@ public enum HelpTree {
     /// The topic Help opens on from the settings' page `settingsTopic`: its own, else its section's first; nil, none.
     public static func topic(about settingsTopic: String?) -> HelpTopic? {
         guard let settingsTopic else { return nil }
-        let section = String(settingsTopic.prefix { $0 != "." })
+        let section = HelpTopic.section(ofTopic: settingsTopic)
         return HelpTopic.allCases.first { $0.settingsTopic == settingsTopic }
             ?? HelpTopic.allCases.first { $0.settingsSection == section }
     }

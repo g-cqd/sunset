@@ -5,6 +5,8 @@ extension ConfigurationKeys {
     public static let fileOnly: Set<String> = {
         let behaviour: Set<String> = ["layout.hideDelay", "layout.revealStripWidth"]
         let measures = all.filter { $0.hasPrefix("layout.") && !behaviour.contains($0) }
-        return Set(measures + ["sidebar.padding"])
+        // The sidebar's own: shown or not, hidden until the pointer reaches its edge, its width; set from the window (its
+        // button, its pin, its edge dragged) and kept in the file (n116).
+        return Set(measures + ["sidebar.padding", "sidebar.enabled", "sidebar.autoHide", "sidebar.width"])
     }()
 }

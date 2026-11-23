@@ -18,6 +18,8 @@ public enum SettingsControl: Sendable {
     public enum Custom: Sendable {
         case ansiPalette, scrollback, blinkTimeout, searchEngine, engines, websites, fileLocation, textOnlyZoom,
             siteAgents, profiles, features, blockingLists, sites, defaultBrowser, proxyCheck, extensions
+        /// The profile a new window opens on, chosen among the profiles (n117: it was a name typed).
+        case startProfile
         /// Settings, Storage: what is sealed, the website data, the files set aside, the key, a code, export.
         case storageSealed, storageWebsiteData, storageSetAside, storageKey, storageEnterCode, storageExport
 

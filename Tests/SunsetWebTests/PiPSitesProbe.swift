@@ -12,8 +12,10 @@ final class PiPSitesProbe: NSObject, WKScriptMessageHandler {
     var seen: [String: String] = [:]
 
     nonisolated func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
-        let body = message.body as? String ?? ""
-        MainActor.assumeIsolated { seen[body.prefix(90).description] = body }
+        MainActor.assumeIsolated {
+            let body = message.body as? String ?? ""
+            seen[body.prefix(90).description] = body
+        }
     }
 
     @Test(arguments: ["https://www.cnews.fr/les-replays/21h-ferrari", "https://www.foxnews.com/video/5614615980001"])

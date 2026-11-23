@@ -46,9 +46,6 @@ extension SettingsOption {
             .grouped("Tabs")
             .shown { $0.tabs.mode == .internal && !$0.tabs.bar.autoHide }
             .noted("Toolbar: the system's own bar, the page starting below it."),
-            toggle("sidebar.enabled", "Show the sidebar", "tabs vertical list", \.sidebar.enabled)
-                .noted("The sidebar lists the tabs. It needs tabs set to Native (the built-in bar replaces it).")
-                .grouped("Sidebar"),
             choice(
                 "sidebar.side",
                 "Side",
@@ -57,17 +54,6 @@ extension SettingsOption {
                 [(.left, "Left"), (.right, "Right")]
             )
             .grouped("Sidebar"),
-            toggle(
-                "sidebar.autoHide",
-                "Hide the sidebar",
-                "float hover pin reveal auto",
-                \.sidebar.autoHide,
-                label: "Hide the sidebar until the pointer reaches its edge"
-            )
-            .noted("The same as the pin at the top of the sidebar.")
-            .grouped("Sidebar"),
-            number("sidebar.width", "Width", "size wide", \.sidebar.width, 120 ... 480, step: 5)
-                .grouped("Sidebar"),
             toggle(
                 "sidebar.separators",
                 "Section separators",

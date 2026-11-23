@@ -38,6 +38,7 @@ struct SettingsCustomRow: View {
                 } label: {
                     SettingsLabel(option.title)
                 }
+            case .startProfile: StartProfilePicker(title: option.title, config: config)
             case .engines: EngineList(engines: config.binding(\.web.engines))
             case .websites: WebsitesSettings(defaults: config.binding(\.web.permissions), profile: config.profileID)
             case .siteAgents: SiteAgentsSettings(agent: config.binding(\.web.agent))

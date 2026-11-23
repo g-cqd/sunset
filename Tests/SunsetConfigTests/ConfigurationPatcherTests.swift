@@ -98,7 +98,6 @@ import Testing
         var target = Configuration()
         target.font.size = 17
         target.colors.background = [1, 2, 3]
-        target.window.decorations = .native
         target.scroll.wheel = 7
         target.cursorBlinkTimeout = nil
         let starts = [

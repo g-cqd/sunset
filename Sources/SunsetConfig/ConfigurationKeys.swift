@@ -16,6 +16,9 @@ public enum ConfigurationKeys {
         "tabs.startFile",
         "tabs.startProfile",
         "sidebar.padding",
+        "sidebar.enabled",
+        "sidebar.autoHide",
+        "sidebar.width",
         "layout.tabSpacing",
         "layout.tabSideInset",
         "layout.tabPaddingLeading",
@@ -80,6 +83,9 @@ public enum ConfigurationKeys {
     /// Every key: the hand-written ones and the options' own, each section's together (its subsections too), the sections
     /// in their order.
     public static let all: [String] = grouped(byHand + SettingCodec.ordered)
+
+    /// Keys no longer set (made fixed): read without a word, and taken out of the file when it is next saved (n115).
+    public static let removed = ["window.decorations", "window.trafficLights"]
 
     /// `keys` with each section's (and subsection's) together, the sections first as `sections` orders them, then each part
     /// in the order its first key came.

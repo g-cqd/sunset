@@ -18,6 +18,10 @@ extension Reader {
             switch key {
                 case "padding":
                     if let points = number(path, value, range: 0 ... 16) { configuration.sidebar.padding = points }
+                case "enabled": if let flag = bool(path, value) { configuration.sidebar.enabled = flag }
+                case "autoHide": if let flag = bool(path, value) { configuration.sidebar.autoHide = flag }
+                case "width":
+                    if let points = number(path, value, range: 120 ... 480) { configuration.sidebar.width = points }
                 // A Documents heading among the tabs, for a day (2026-11-15): the key is read and does nothing, so that a file
                 // written that day does not complain.
                 case "documents": break
