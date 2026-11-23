@@ -70,19 +70,19 @@ extension WelcomeOpeningScore {
         }
     }
 
-    /// Unified sustained felted-piano harmony in radiant D major 9: swells together smoothly from the start into an
-    /// early golden climax (`2.5–3.2 s`), with gentle `C♯4 / E4` major-7th/9th warmth that dissolves into the reverb.
+    /// Unified sustained felted-piano harmony in radiant D major 9: low/mid voices reach full bloom early (~1.8 s),
+    /// then upper octave voices (`A4`, `F♯4`) lift off into the diffused cloud as the bass releases.
     struct FeltPianoLayer: Sendable {
         private var voices: [FeltPianoVoice] = [
-            // Unified warm D major 9 chord blooming right into the early climax.
+            // Early-blooming warm core (reaches full presence by ~1.8 s, recedes into the diffusion).
             FeltPianoVoice(
                 baseHz: 146.832,
                 amplitude: 0.16,
                 pan: -0.26,
                 enterStart: 0.0,
-                enterLength: 2.3,
-                leaveStart: 3.4,
-                leaveLength: 3.4,
+                enterLength: 1.75,
+                leaveStart: 2.6,
+                leaveLength: 3.2,
                 seed: 0.11
             ),
             FeltPianoVoice(
@@ -90,52 +90,62 @@ extension WelcomeOpeningScore {
                 amplitude: 0.14,
                 pan: 0.28,
                 enterStart: 0.0,
-                enterLength: 2.35,
-                leaveStart: 3.5,
-                leaveLength: 3.4,
+                enterLength: 1.80,
+                leaveStart: 2.8,
+                leaveLength: 3.3,
                 seed: 0.37
             ),
             FeltPianoVoice(
                 baseHz: 184.997,
                 amplitude: 0.14,
                 pan: -0.46,
-                enterStart: 0.15,
-                enterLength: 2.3,
-                leaveStart: 3.7,
+                enterStart: 0.08,
+                enterLength: 1.85,
+                leaveStart: 3.1,
                 leaveLength: 3.3,
                 seed: 0.59
             ),
-            FeltPianoVoice(
-                baseHz: 329.628,
-                amplitude: 0.10,
-                pan: 0.50,
-                enterStart: 0.25,
-                enterLength: 2.3,
-                leaveStart: 3.8,
-                leaveLength: 3.3,
-                seed: 0.83
-            ),
-            // Tender major-7th dissonance (C#4, 277.18 Hz) kissing D4 softly at the early climax before releasing.
+            // Gentle major-7th dissonance (C#4) kissing D4 at the early climax before lifting away.
             FeltPianoVoice(
                 baseHz: 277.183,
-                amplitude: 0.085,
+                amplitude: 0.09,
                 pan: -0.58,
-                enterStart: 0.45,
-                enterLength: 2.0,
-                leaveStart: 2.9,
+                enterStart: 0.25,
+                enterLength: 1.70,
+                leaveStart: 2.5,
                 leaveLength: 2.3,
                 seed: 0.23
             ),
-            // Luminous D4 octave halo blooming as C#4 resolves toward the window reveal.
+            // Lift-off halo: E4, F#4, and A4 float upward right as the bass lifts out, feeding the diffused cloud.
             FeltPianoVoice(
-                baseHz: 293.665,
-                amplitude: 0.10,
-                pan: 0.22,
-                enterStart: 1.80,
-                enterLength: 1.9,
+                baseHz: 329.628,
+                amplitude: 0.11,
+                pan: 0.52,
+                enterStart: 1.55,
+                enterLength: 1.85,
                 leaveStart: 4.1,
-                leaveLength: 3.3,
-                seed: 0.67
+                leaveLength: 3.2,
+                seed: 0.83
+            ),
+            FeltPianoVoice(
+                baseHz: 369.994,
+                amplitude: 0.085,
+                pan: -0.64,
+                enterStart: 2.25,
+                enterLength: 1.95,
+                leaveStart: 4.4,
+                leaveLength: 3.1,
+                seed: 0.47
+            ),
+            FeltPianoVoice(
+                baseHz: 440.000,
+                amplitude: 0.075,
+                pan: 0.66,
+                enterStart: 2.55,
+                enterLength: 2.00,
+                leaveStart: 4.6,
+                leaveLength: 3.1,
+                seed: 0.71
             )
         ]
 
@@ -151,39 +161,41 @@ extension WelcomeOpeningScore {
         }
     }
 
-    /// Warm, airy flute fused into the harmonic cloud: swells cleanly into the early climax on a suspended `G3`
-    /// (196 Hz), then glides smoothly down a semitone to luminous `F♯3` (185 Hz) as the sun hands off to the window,
-    /// accompanied by a serene `A3` (220 Hz) fifth breeze.
+    /// Warm, airy flute that blooms early on suspended `G3` (196 Hz), resolves down to `F♯3` (185 Hz), and then
+    /// floats upward an octave into a weightless `D4 -> F♯4` lift-off halo as the bass recedes into diffusion.
     struct AiryFluteLayer: Sendable {
         private var mainPhase = 0.17
         private var harmonicPhase = 0.43
-        private var haloPhase = 0.71
+        private var liftPhase = 0.71
         private var driftPhase = 0.09
         private var breathPhaseA = 0.23
         private var breathPhaseB = 0.61
 
         mutating func sample(at time: Double, invSampleRate: Double) -> (Double, Double) {
-            let enter = smooth((time - 0.20) / 2.20)
-            let leave = 1.0 - smooth((time - 3.60) / 3.40)
+            let enter = smooth((time - 0.10) / 1.75)
+            let leave = 1.0 - smooth((time - 3.30) / 3.40)
             let env = enter * leave
-            guard env > 1e-6 else { return (0, 0) }
 
-            // Smooth 4-3 suspension glide G3 (196.0 Hz) -> F#3 (185.0 Hz) resolving gently toward the window.
-            let glide = smooth((time - 2.90) / 1.90)
+            // Early 4-3 suspension glide G3 (196 Hz) -> F#3 (185 Hz).
+            let glide = smooth((time - 2.35) / 1.65)
             let baseHz = 195.998 + (184.997 - 195.998) * glide
 
-            driftPhase = advance(driftPhase, hz: 0.38, invSampleRate: invSampleRate)
-            let hz = baseHz * (1.0 + 0.0014 * sin(2.0 * .pi * driftPhase))
+            driftPhase = advance(driftPhase, hz: 0.36, invSampleRate: invSampleRate)
+            let vib = 1.0 + 0.0013 * sin(2.0 * .pi * driftPhase)
+            let hz = baseHz * vib
 
             mainPhase = advance(mainPhase, hz: hz, invSampleRate: invSampleRate)
             harmonicPhase = advance(harmonicPhase, hz: hz * 2.0, invSampleRate: invSampleRate)
 
-            let haloEnv = smooth((time - 2.30) / 1.80) * leave
-            haloPhase = advance(
-                haloPhase,
-                hz: 220.0 * (1.0 + 0.0012 * sin(2.0 * .pi * driftPhase)),
-                invSampleRate: invSampleRate
-            )
+            // Upward lift-off voice: gently glides upward from E4 (329.63 Hz) to F#4 (369.99 Hz) inside the diffusion.
+            let liftIn = smooth((time - 2.15) / 1.85)
+            let liftOut = 1.0 - smooth((time - 4.45) / 3.15)
+            let liftEnv = liftIn * liftOut
+            let liftGlide = smooth((time - 2.95) / 2.20)
+            let liftHz = (329.628 + (369.994 - 329.628) * liftGlide) * vib
+            liftPhase = advance(liftPhase, hz: liftHz, invSampleRate: invSampleRate)
+
+            guard env > 1e-6 || liftEnv > 1e-6 else { return (0, 0) }
 
             let fluteCore =
                 0.76 * sin(2.0 * .pi * mainPhase)
@@ -192,11 +204,11 @@ extension WelcomeOpeningScore {
 
             breathPhaseA = advance(breathPhaseA, hz: hz * 1.498, invSampleRate: invSampleRate)
             breathPhaseB = advance(breathPhaseB, hz: hz * 2.011, invSampleRate: invSampleRate)
-            let breath = 0.024 * (sin(2.0 * .pi * breathPhaseA) + 0.5 * sin(2.0 * .pi * breathPhaseB))
+            let breath = 0.022 * (sin(2.0 * .pi * breathPhaseA) + 0.5 * sin(2.0 * .pi * breathPhaseB))
 
-            let mainSample = (fluteCore + breath) * 0.14 * env
-            let haloSample = sin(2.0 * .pi * haloPhase) * 0.075 * haloEnv
-            return (mainSample * 0.76 + haloSample * 0.42, mainSample * 0.62 + haloSample * 0.86)
+            let mainSample = (fluteCore + breath) * 0.13 * env
+            let liftSample = (0.82 * sin(2.0 * .pi * liftPhase) + 0.18 * sin(4.0 * .pi * liftPhase)) * 0.095 * liftEnv
+            return (mainSample * 0.76 + liftSample * 0.42, mainSample * 0.62 + liftSample * 0.88)
         }
 
         private func advance(_ phase: Double, hz: Double, invSampleRate: Double) -> Double {
