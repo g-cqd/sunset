@@ -104,18 +104,20 @@ struct PinnedGrid: View {
                 savedCommand: entry.command
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                shown ? AnyShapeStyle(accent.color.opacity(Design.Fill.target)) : AnyShapeStyle(.quaternary),
-                in: shape
-            )
+            // The shown one's accent over the tile's own fill, faded in and out (n130: it changed at once): two layers,
+            // since a fill in the accent and the hierarchical one do not blend into each other.
+            .background(.quaternary.opacity(shown ? 0 : 1), in: shape)
+            .background(accent.color.opacity(shown ? Design.Fill.target : 0), in: shape)
             .overlay {
                 // Loaded: a line inside the tile, which does not change its size; none when it is not loaded. In the
                 // accent's colour for the one this window shows.
-                Group {
-                    if shown { shape.focusHairline(layout, accent: accent.color) } else { shape.hoverHairline(layout) }
+                ZStack {
+                    shape.hoverHairline(layout).opacity(shown ? 0 : 1)
+                    shape.focusHairline(layout, accent: accent.color).opacity(shown ? 1 : 0)
                 }
                 .opacity(tabs.isLoaded(entry: entry) ? 1 : 0)
             }
+            .animation(layout.selection, value: shown)
             .overlay(alignment: .topTrailing) {
                 // Kept awake: a cup in its corner.
                 if entry.isOpen, tabs.keepsAwake(entry: entry.id) != nil {
