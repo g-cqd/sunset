@@ -73,11 +73,7 @@ struct PasswordEntryPage: View {
                         generate: { draft.generate(into: field.id, recipe: Self.recipe) },
                         readCode: { code in draft.setUp(code) },
                         remove: { draft.entry.remove(field.id) },
-                        edits: FieldEdits(
-                            rename: { draft.entry.rename(field.id, to: $0) },
-                            setKind: { draft.entry.setKind(field.id, $0) },
-                            markSecret: { draft.entry.markSecret(field.id, $0) }
-                        )
+                        edits: FieldEdits { draft.entry.apply($0, to: field.id) }
                     )
                 }
                 .onMove(perform: editing ? { draft.move(in: section.id, from: $0, to: $1) } : nil)

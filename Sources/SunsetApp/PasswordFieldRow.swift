@@ -18,6 +18,8 @@ struct PasswordFieldRow: View {
     let edits: FieldEdits
     /// A secret shown in clear by its eye button, until the page is left (n101).
     @State var revealed = false
+    /// Its name, kind and secrecy being edited in a sheet (t334).
+    @State var editingField = false
     @State private var hovered = false
     @State private var feedback = FeedbackCue()
     @Environment(\.runtime) private var runtime

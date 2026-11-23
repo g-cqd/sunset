@@ -34,7 +34,7 @@ struct EntryFieldSecretTests {
         let user = try #require(entry.field(named: "Username")?.id)
         entry.set(user, "ada@example.com")
         entry.rename(user, to: "Email address")
-        entry.setKind(user, .email)
+        entry.changeKind(user, to: .email, keepingOld: true)
         let field = try #require(entry.field(named: "Email address"))
         #expect(field.kind == .email && field.value == "ada@example.com")
     }
