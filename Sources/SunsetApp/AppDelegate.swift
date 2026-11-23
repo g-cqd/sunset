@@ -43,6 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             SystemAuthorizations.shared.start()
             AppConfiguration.shared.applyScheme()
             AppConfiguration.shared.applyIcon()
+            AppConfiguration.shared.watchIconDay()
             WelcomeWindow.shared.openIfFirstLaunch()
             if !WelcomeWindow.atLaunch { AppEngineFreshness.tellIfBehind() }
             AppUpdates.start()

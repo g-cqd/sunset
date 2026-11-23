@@ -88,6 +88,8 @@ final class AppConfiguration {
     @ObservationIgnored private var baseline = Configuration()
     @ObservationIgnored var themeWatcher: FileWatcher?
     @ObservationIgnored var themeWatching: Task<Void, Never>?
+    @ObservationIgnored var iconSchedule: Task<Void, Never>?
+    @ObservationIgnored var iconObservers: [any NSObjectProtocol] = []
     @ObservationIgnored var watchedTheme: String?
 
     private init() {

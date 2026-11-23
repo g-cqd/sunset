@@ -11,6 +11,7 @@ struct WelcomeView: View {
     let store: AppConfiguration
     let clock: WelcomeOpeningClock
     var greeting = WelcomeGreeting.first
+    var preset = SkyPreset.sunset
     let close: () -> Void
     @State private var index = 0
 
@@ -45,7 +46,7 @@ struct WelcomeView: View {
         .padding(Design.Welcome.margin)
         .background {
             ZStack {
-                SunsetSkyView { _, size in SunsetSkyFrame.window(size) }
+                SunsetSkyView { _, size in SunsetSkyFrame.window(size, preset: preset) }
                 // Dimmed where the text sits, the upper sky; under the buttons the sky out of focus, not darkened.
                 LinearGradient(
                     stops: [

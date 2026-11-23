@@ -25,12 +25,12 @@ extension SettingsOption {
             choice(
                 "appearance.icon",
                 "App icon",
-                "icon dock app sky sunset twilight dawn dusk alternate",
+                "icon dock app sky auto time day sunset twilight dawn dusk alternate",
                 \.appearance.icon,
-                [(.sunset, "Sunset"), (.twilight, "Twilight"), (.dawn, "Dawn"), (.dusk, "Dusk")]
+                [(.auto, "Auto"), (.dawn, "Dawn"), (.sunset, "Sunset"), (.twilight, "Twilight"), (.dusk, "Dusk")]
             )
             .noted(
-                "In the Dock and the app switcher while Sunset runs; Finder and a Dock kept icon show Sunset's own when it is not running."
+                "Auto follows the time of day while Sunset runs; Finder and a Dock kept icon show Sunset's own when it is not running."
             ),
             color("colors.foreground", "Foreground", "text color colour theme", \.colors.foreground, [229, 229, 229]),
             color("colors.background", "Background", "color colour theme", \.colors.background, [0, 0, 0]),

@@ -58,14 +58,18 @@ struct SettingsRow: View {
                     help: help
                 )
             case .choice(let choice, let label):
-                LabeledContent {
-                    Picker(label ?? option.title, selection: binding(choice)) {
-                        ForEach(choice.items, id: \.value) { Text($0.label).tag($0.value) }
+                if option.id == "appearance.icon" {
+                    AppIconPickerRow(title: label ?? option.title, help: help, config: config)
+                } else {
+                    LabeledContent {
+                        Picker(label ?? option.title, selection: binding(choice)) {
+                            ForEach(choice.items, id: \.value) { Text($0.label).tag($0.value) }
+                        }
+                        .labelsHidden()
+                        .fixedSize()
+                    } label: {
+                        SettingsLabel(label ?? option.title, help: help)
                     }
-                    .labelsHidden()
-                    .fixedSize()
-                } label: {
-                    SettingsLabel(label ?? option.title, help: help)
                 }
             case .text(let value, let prompt):
                 LabeledContent {

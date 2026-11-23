@@ -14,8 +14,9 @@ import SwiftUI
     private static var monitor: Any?
     private static var clock: WelcomeOpeningClock?
 
-    /// The opening on `screen` for `window`, whose content follows `clock`.
-    static func play(on screen: NSScreen, for shown: NSWindow, clock: WelcomeOpeningClock) {
+    /// The opening on `screen` for `window`, whose content follows `clock`, in `preset`.
+    static func play(on screen: NSScreen, for shown: NSWindow, clock: WelcomeOpeningClock, preset: SkyPreset = .sunset)
+    {
         guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return show(shown) }
         let frame = screen.frame
         let target = shown.frame
@@ -41,7 +42,7 @@ import SwiftUI
         // Drive the sun shader from the shared clock so it stays locked to the audio engine and window fade.
         sun.contentView = NSHostingView(
             rootView: SunsetSkyView { _, _ in
-                SunsetSkyFrame.opening(at: clock.elapsed(), frame: local)
+                SunsetSkyFrame.opening(at: clock.elapsed(), frame: local, preset: preset)
             }
             .ignoresSafeArea()
         )

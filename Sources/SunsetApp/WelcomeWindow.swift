@@ -65,14 +65,18 @@ import SwiftUI
             return window.makeKeyAndOrderFront(nil)
         }
         let clock = WelcomeOpeningClock()
+        // Time-of-day sky preset (n143): Dawn, Sunset, Twilight or Dusk for both the opening sun and the window.
+        let preset = SkyPreset.at(Runtime.live.now())
         let made = SkyWindow.make(title: "Welcome to Sunset", size: Design.Welcome.size, showsClose: false) { made in
-            WelcomeView(store: .shared, clock: clock, greeting: greeting) { [weak made] in made?.close() }
+            WelcomeView(store: .shared, clock: clock, greeting: greeting, preset: preset) { [weak made] in
+                made?.close()
+            }
         }
         made.delegate = self
         if let screen = NSScreen.main { made.setFrameOrigin(Self.origin(on: screen)) }
         window = made
         guard withOpening, let screen = made.screen ?? NSScreen.main else { return made.makeKeyAndOrderFront(nil) }
-        WelcomeOpeningPlayer.play(on: screen, for: made, clock: clock)
+        WelcomeOpeningPlayer.play(on: screen, for: made, clock: clock, preset: preset)
     }
 
     /// Where the window goes: the middle of the screen's visible part, both ways ("more centered vertically"; it was

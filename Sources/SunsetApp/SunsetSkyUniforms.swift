@@ -1,7 +1,8 @@
 import CoreGraphics
+import SunsetShellModel
 
-/// `SkyUniforms` of `App/SunsetSky.metal`, field for field: three pairs, nine numbers, then a pair (72 bytes; the pair
-/// starts at 64, on its 8-byte alignment, in both).
+/// `SkyUniforms` of `App/SunsetSky.metal`, field for field: three pairs, eight numbers, a pair, four preset numbers
+/// (88 bytes, 8-byte aligned in both).
 struct SunsetSkyUniforms {
     var frameOrigin: SIMD2<Float>
     var frameSize: SIMD2<Float>
@@ -15,6 +16,10 @@ struct SunsetSkyUniforms {
     var headroom: Float
     var scale: Float
     var sunAspect: SIMD2<Float>
+    var pale: Float
+    var burn: Float
+    var airy: Float
+    var exposure: Float
 
     init(_ sky: SunsetSkyFrame, time: Double, headroom: CGFloat, scale: CGFloat) {
         frameOrigin = SIMD2(Float(sky.frame.minX), Float(sky.frame.minY))
@@ -29,5 +34,9 @@ struct SunsetSkyUniforms {
         self.headroom = Float(headroom)
         self.scale = Float(scale)
         sunAspect = SIMD2(Float(sky.sunAspect.width), Float(sky.sunAspect.height))
+        pale = Float(sky.preset.pale)
+        burn = Float(sky.preset.burn)
+        airy = Float(sky.preset.airy)
+        exposure = Float(sky.preset.exposure)
     }
 }

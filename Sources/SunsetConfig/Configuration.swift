@@ -116,7 +116,7 @@ public struct Configuration: Sendable, Equatable {
         public var barBlur = BarBlur.variable
         public var ends = Ends.fade
         /// The app's icon in the Dock and the app switcher while Sunset runs.
-        public var icon = Icon.sunset
+        public var icon = Icon.auto
         /// The bars' fill and controls (`BarTint`); `scheme` follows the colour scheme.
         public var barTint = BarTint.scheme
         public init() {}

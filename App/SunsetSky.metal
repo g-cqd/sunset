@@ -3,6 +3,8 @@
 // 4 towards the sun (the icon takes 20 and 8). Drawn into an extended-range layer (`SunsetSkyLayer`): the sky tone-mapped
 // to the display's white, the sun's heart above it by the display's headroom; on a display without headroom it is the icon's look. The sun and the sky are separate layers, animated in
 // phases of their own: the opening draws the sun alone over the screen; the window draws both. Nothing here stands in for the window's shape.
+// Adapted by time of day (n143): `pale`, `burn`, `airy` and `exposure` select the Dawn, Sunset, Twilight or Dusk look
+// from `Design/Icons/Sky.metal`.
 #include <metal_stdlib>
 using namespace metal;
 
@@ -96,6 +98,10 @@ struct SkyUniforms {
     float headroom;      // the display's: 1 without HDR
     float scale;         // pixels a point
     float2 sunAspect;    // distances from its middle scaled by this: (1, 1) round; the window's a little wider
+    float pale;          // Twilight and Dawn (from Design/Icons/Sky.metal)
+    float burn;          // Dusk
+    float airy;          // Dawn
+    float exposure;      // overall exposure (0.92 for Sunset)
 };
 
 struct SkyVertex { float4 position [[position]]; };
@@ -108,7 +114,7 @@ vertex SkyVertex sky_vertex(uint vid [[vertex_id]]) {
 }
 
 /// Where a point of the window's frame looks, and its height under the horizon.
-struct SkyRay { float3 dir; float dx; float dy; };
+struct SkyRay { float3 dir; float dx; float dy; float y; };
 
 static SkyRay skyRay(float2 uv, float aspect, constant SkyUniforms &u) {
     float band = exp(-pow((uv.y - u.horizon) / 0.16f, 2.0f));
@@ -118,24 +124,50 @@ static SkyRay skyRay(float2 uv, float aspect, constant SkyUniforms &u) {
     SkyRay ray;
     ray.dx = (uv.x - 0.5f) * aspect;
     ray.dy = uv.y - (u.horizon + ray.dx * ray.dx * 0.08f / max(aspect, 1.0f));
+    ray.y = clamp(uv.y, 0.0f, 1.0f);
     float pitch = max(-ray.dy, 0.0f) * 0.78f;
     float yaw = ray.dx * 1.04f;
     ray.dir = normalize(float3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)));
     return ray;
 }
 
-/// The sky alone, in linear light: the air, the haze band, the dark below. No sun in it.
+/// The sky alone, in linear light: the air, the haze band, the preset's tint (`pale`, `burn`, `airy`), the dark below.
 static float3 skyLayer(SkyRay ray, constant SkyUniforms &u) {
     const float mistSoft = 0.06f;
+    float above = max(-ray.dy, 0.0f);
     float3 s = skyAtmosphere(ray.dir, u.elevation * (3.14159265f / 180.0f)) * 0.54f;
-    s += float3(0.95f, 0.42f, 0.26f) * exp(-pow((ray.dy + mistSoft * 0.3f) / (mistSoft * 2.4f), 2.0f)) * 0.30f;
+    float3 hazeColor = mix(mix(float3(0.95f, 0.42f, 0.26f), float3(0.95f, 0.55f, 0.58f), u.pale),
+                           float3(0.80f, 0.22f, 0.08f), u.burn);
+    s += hazeColor * exp(-pow((ray.dy + mistSoft * 0.3f) / (mistSoft * 2.4f), 2.0f)) * 0.30f;
+
+    // Twilight (pale) and Dusk (burn), matching Design/Icons/Sky.metal.
+    float up = smoothstep(0.04f, 0.42f, above);
+    float3 paleTint = mix(float3(1.06f, 0.80f, 0.88f), float3(0.62f, 0.86f, 1.18f), up);
+    s = mix(s, s * paleTint + mix(float3(0.020f, 0.008f, 0.012f), float3(0.004f, 0.012f, 0.030f), up), u.pale);
+    s = mix(s, s * float3(0.82f, 0.56f, 0.42f), u.burn);
+
+    // Dawn (airy): halfway (dawnMix) between the pushed twilight and the white pastel sky.
+    if (u.airy > 0.0f) {
+        const float dawnMix = 0.40f;
+        float3 airyTint = mix(float3(1.08f, 0.80f, 0.90f), float3(0.62f, 0.94f, 1.16f), up);
+        float3 pushed = s * airyTint * 1.30f;
+        float pl = dot(pushed, float3(0.2126f, 0.7152f, 0.0722f));
+        pushed = mix(pushed, float3(0.92f, 0.90f, 0.96f), 0.20f * (1.0f - clamp(pl, 0.0f, 1.0f)));
+        float hy = 1.0f - ray.y;
+        float3 pastel = mix(float3(1.00f, 0.40f, 0.60f), float3(1.00f, 0.91f, 0.94f), smoothstep(0.10f, 0.42f, hy));
+        pastel = mix(pastel, float3(0.26f, 0.58f, 1.00f), smoothstep(0.48f, 0.98f, hy));
+        float lum = dot(s, float3(0.2126f, 0.7152f, 0.0722f));
+        float3 white = pastel * mix(1.05f, 1.75f, clamp(lum * 1.6f, 0.0f, 1.0f)) + s * 0.18f;
+        s = mix(s, mix(pushed, white, dawnMix), u.airy);
+    }
+
     float fall = smoothstep(-mistSoft * 0.5f, mistSoft * 7.0f, ray.dy);
     s *= mix(1.0f, mix(0.22f, 0.42f, exp(-pow(ray.dx / 0.26f, 2.0f))), fall);
     return s;
 }
 
 /// The sun alone, in linear light: heart, corona, bloom; out of focus it spreads wider and dimmer. `heart` is its core,
-/// for the extended range.
+/// for the extended range. Coloured by the preset (`pale`, `burn`), matching Design/Icons/Sky.metal.
 static float3 sunLayer(float2 p, constant SkyUniforms &u, thread float &heart) {
     float defocus = clamp(u.sunDefocus, 0.0f, 1.0f);
     float R = 0.13f * u.frameSize.y * (1.0f + defocus * 2.2f);
@@ -151,8 +183,12 @@ static float3 sunLayer(float2 p, constant SkyUniforms &u, thread float &heart) {
     float below = max(p.y - u.sun.y, 0.0f) / u.frameSize.y;
     float hide = mix(1.0f - smoothstep(0.0f, 0.14f, below), 1.0f, defocus);
     heart *= hide;
-    return float3(3.0f, 2.05f, 0.85f) * heart * 0.9f + float3(1.8f, 0.60f, 0.18f) * corona * 0.6f * (0.45f + 0.55f * hide)
-        + float3(0.9f, 0.25f, 0.16f) * bloom * 0.45f + float3(0.95f, 0.45f, 0.25f) * wash;
+    float3 cCore = mix(mix(float3(3.0f, 2.05f, 0.85f), float3(2.7f, 2.05f, 1.85f), u.pale), float3(2.9f, 1.05f, 0.30f), u.burn);
+    float3 cCor = mix(mix(float3(1.8f, 0.60f, 0.18f), float3(1.55f, 0.62f, 0.62f), u.pale), float3(1.6f, 0.30f, 0.07f), u.burn);
+    float3 cBloom = mix(mix(float3(0.9f, 0.25f, 0.16f), float3(0.85f, 0.34f, 0.44f), u.pale), float3(0.85f, 0.14f, 0.06f), u.burn);
+    float3 cWash = mix(mix(float3(0.95f, 0.45f, 0.25f), float3(0.95f, 0.55f, 0.58f), u.pale), float3(0.80f, 0.22f, 0.08f), u.burn);
+    return cCore * heart * mix(0.9f, 0.7f, u.pale) + cCor * corona * 0.6f * (0.45f + 0.55f * hide)
+        + cBloom * bloom * 0.45f + cWash * wash;
 }
 
 static float3 toneMap(float3 lit) {
@@ -170,11 +206,12 @@ fragment float4 sky_fragment(SkyVertex in [[stage_in]], constant SkyUniforms &u 
     SkyRay ray = skyRay(uv, u.frameSize.x / max(u.frameSize.y, 1.0f), u);
     float heart = 0.0f;
     float3 sun = sunLayer(p, u, heart) * u.sunOpacity;
-    float3 sky = u.skyOpacity > 0.0f ? skyLayer(ray, u) * 0.97f * u.skyOpacity : float3(0.0f);
+    float3 sky = u.skyOpacity > 0.0f ? skyLayer(ray, u) * u.exposure * u.skyOpacity : float3(0.0f);
 
-    float3 color = toneMap(sky + sun * 0.97f);
+    float3 color = toneMap(sky + sun * u.exposure);
     // The sun's heart past white, as bright as the display allows.
-    color += float3(1.0f, 0.86f, 0.62f) * pow(heart, 1.4f) * extra * 0.7f * u.sunOpacity;
+    float3 hdrTint = mix(mix(float3(1.0f, 0.86f, 0.62f), float3(1.0f, 0.88f, 0.86f), u.pale), float3(1.0f, 0.58f, 0.30f), u.burn);
+    color += hdrTint * pow(heart, 1.4f) * extra * 0.7f * u.sunOpacity;
     color += (skyHash(in.position.xy + fract(u.time) * 17.0f) - 0.5f) * 0.004f * u.skyOpacity;
     // Alone, the sun is its own light over what is behind it: as opaque as it is bright.
     float sunAlpha = clamp(dot(toneMap(sun), float3(0.2126f, 0.7152f, 0.0722f)) * 1.6f, 0.0f, 1.0f);

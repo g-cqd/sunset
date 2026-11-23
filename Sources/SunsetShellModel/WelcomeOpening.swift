@@ -73,6 +73,12 @@ package struct WelcomeOpening: Equatable {
         -4 + 3.4 * (1 - pow(1 - clamp(time / duration), 3))
     }
 
+    /// The sun's elevation in degrees `time` seconds in, rising toward `preset`'s own elevation (n143).
+    package static func elevation(at time: Double, for preset: SkyPreset) -> Double {
+        let rise = 3.4
+        return (preset.elevation - rise) + rise * (1 - pow(1 - clamp(time / duration), 3))
+    }
+
     static func clamp(_ value: Double) -> Double {
         min(max(value, 0), 1)
     }

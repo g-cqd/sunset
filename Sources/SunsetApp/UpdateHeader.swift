@@ -1,5 +1,7 @@
 import AppKit
+import SunsetRuntime
 import SunsetShell
+import SunsetShellModel
 import SunsetUpdate
 import SwiftUI
 
@@ -28,7 +30,7 @@ struct UpdateHeader: View {
         .frame(maxWidth: .infinity, minHeight: Design.Update.header, maxHeight: Design.Update.header)
         .background {
             ZStack {
-                SunsetSkyView { _, size in SunsetSkyFrame.window(size) }
+                SunsetSkyView { _, size in SunsetSkyFrame.window(size, preset: SkyPreset.at(Runtime.live.now())) }
                 LinearGradient(
                     colors: [.black.opacity(Design.Update.dimming), .clear],
                     startPoint: .leading,
