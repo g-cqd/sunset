@@ -125,3 +125,17 @@ Work paused at the owner's request (no access to mbp23, which signs and pushes, 
   run since mid-afternoon, pass alone.
 - **Next**: n142 (icon previews, Auto icon by time of day), n143 (welcome animation by time of day); roadmap 0113: publish an
   engine (`make-engine-archive.sh`) and see it downloaded, switched, deleted end to end; roadmap 0122 alpha.12 release step.
+
+## Release routine from alpha.13 (ADR-0125)
+
+1. `Scripts/package-release.sh vX DIST` (the native zip), then `SUNSET_SIGN_HOST=<signing Mac> Scripts/package-variants.sh vX DIST docs/releases/vX.md`:
+   the WebKit variant (same `Sunset.app`, `studio.aemi.sunset`) notarized and zipped, one `.deltas` archive per variant
+   (the last three builds of the same app, and the other variant at this build), checksums, and the signed
+   `release-index.json` + `.sig` (Ed25519, key on the signing Mac only). The notes signed must be the file given to
+   `gh release create`, byte for byte.
+2. Upload: both zips, both `.deltas`, every `.sha256`, `release-index.json`, `release-index.json.sig`.
+3. The CI release workflow signs the index only when the `RELEASE_INDEX_KEY` secret (the main key, base64) is set; not set
+   today.
+- alpha.12's updater cannot read `.deltas`: it falls back to the zip. Sunset WebKit alpha.12 (`studio.aemi.sunset.webkit`)
+  will refuse the new WebKit variant (another identifier): its users install Sunset and switch the engine in Settings; the
+  alpha.13 note must say so.

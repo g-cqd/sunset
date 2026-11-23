@@ -116,8 +116,33 @@ jobs:
       - name: Package · Update Packages From the Last Builds
         if: ${{ env.SIGNED == 'true' }}
         # Roadmap 0122 F: what Sunset fetches to update itself from one of the last three builds (the zip otherwise).
+        # ADR-0125: one .deltas archive per variant (the CI builds the native one).
         run: |
           for zip in .build/dist/*.zip; do Scripts/make-update-packages.sh "$zip" 3; done
+      - name: Release · Notes
+        if: ${{ env.SIGNED == 'true' }}
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          notes="docs/releases/$TAG.md"
+          [ -f "$notes" ] || { echo "::error::no release note at $notes"; exit 1; }
+          # The build package-release.sh read from the app (its count of commits): in the title and atop the note.
+          build="$(cat .build/dist.build)"
+          { printf 'Build %s.\n\n' "$build"; cat "$notes"; } > "$RUNNER_TEMP/notes.md"
+      - name: Release · Signed Index
+        # ADR-0125: signed only where the release key is given; without it the release has no index, and Sunset
+        # falls back to the archive's own checks and Apple's signature.
+        if: ${{ env.SIGNED == 'true' }}
+        env:
+          TAG: ${{ github.ref_name }}
+          RELEASE_INDEX_KEY: ${{ secrets.RELEASE_INDEX_KEY }}
+        run: |
+          [ -n "$RELEASE_INDEX_KEY" ] || { echo "no RELEASE_INDEX_KEY: the release has no signed index"; exit 0; }
+          mkdir -p "$HOME/.config/sunset-signing"
+          printf '%s' "$RELEASE_INDEX_KEY" | base64 --decode > "$HOME/.config/sunset-signing/release-index-main.pem"
+          chmod 600 "$HOME/.config/sunset-signing/release-index-main.pem"
+          Scripts/sign-release-index.sh "$TAG" "$(cat .build/dist.build)" "$RUNNER_TEMP/notes.md" .build/dist
+          rm -f "$HOME/.config/sunset-signing/release-index-main.pem"
       - name: Release · Publish
         if: ${{ env.SIGNED == 'true' }}
         env:
@@ -126,11 +151,7 @@ jobs:
         run: |
           prerelease=()
           case "$TAG" in *-*) prerelease=(--prerelease) ;; esac
-          notes="docs/releases/$TAG.md"
-          [ -f "$notes" ] || { echo "::error::no release note at $notes"; exit 1; }
-          # The build package-release.sh read from the app (its count of commits): in the title and atop the note.
           build="$(cat .build/dist.build)"
-          { printf 'Build %s.\n\n' "$build"; cat "$notes"; } > "$RUNNER_TEMP/notes.md"
           gh release create "$TAG" .build/dist/* --repo "$GITHUB_REPOSITORY" --title "Sunset ${TAG#v} (build $build)" \
             --notes-file "$RUNNER_TEMP/notes.md" --verify-tag "${prerelease[@]}"
       - name: Artifacts · Upload the Unsigned Check

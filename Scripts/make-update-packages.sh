@@ -35,6 +35,7 @@ trap 'rm -rf "$work"' EXIT
 ditto -x -k "$zip" "$work/new"
 new_app="$(find "$work/new" -maxdepth 1 -name '*.app' | head -1)"
 
+identifier() { /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$1/Contents/Info.plist"; }
 source_args=()
 # Same-build peer variant for fast System <-> Sunset's WebKit switching
 if [ -n "$peer" ] && [ -f "$peer" ]; then
@@ -68,8 +69,12 @@ while read -r old url; do
     curl -fsSL -o "$work/old-$old.zip" "$url"
     ditto -x -k "$work/old-$old.zip" "$work/old-$old"
     old_app="$(find "$work/old-$old" -maxdepth 1 -name '*.app' | head -1)"
-    if [ -n "$old_app" ]; then
+    # Only another build of the same app: a release before ADR-0125 shipped Sunset WebKit under its own identifier,
+    # which the updater would refuse to swap in anyway.
+    if [ -n "$old_app" ] && [ "$(identifier "$old_app")" = "$(identifier "$new_app")" ]; then
         source_args+=("${tool_flavour}-${old}:${old_app}")
+    elif [ -n "$old_app" ]; then
+        echo "make-update-packages: skipping build $old ($(identifier "$old_app"))" >&2
     fi
 done < "$work/olds"
 
