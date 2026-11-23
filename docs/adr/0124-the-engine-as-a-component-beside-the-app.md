@@ -34,4 +34,7 @@ signature, as deltas.
 - The relative folder in a translocated or read-only copy (then the component cannot be installed: said so).
 - ~~The patch's service names against the sandbox profiles WebKit selects by service name.~~ Done (diary
   2026-11-23-08): patch 0037; the profile follows `WebKitServiceName`; sandboxed; the system's WebKit ignores them.
-- What the WebKit process launcher does when the named services are missing (the engine half-installed).
+- ~~A half-installed engine.~~ Probed (diary 2026-11-23-08): the loader mixes the two WebKits. So the engine is installed
+  by one rename of a folder checked whole, and at launch a process that has both (`refuseOtherWebKit`'s images) sets the
+  engine folder aside and runs itself again, on the system's WebKit, saying so.
+- The folder beside the app, with a space, two folders in the path, off by renaming: holds (diary 2026-11-23-08).
