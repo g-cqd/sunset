@@ -6,8 +6,5 @@
 	     build gives its web content process this, fatal-exceptions and get-task-allow (debugging: not in a release). -->
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
-	<!-- It reads the loader's variables the launcher set (see Loader.entitlements). -->
-	<key>com.apple.security.cs.allow-dyld-environment-variables</key>
-	<true/>
 </dict>
 </plist>

@@ -11,13 +11,13 @@
 # - WebKit's frameworks in Contents/Frameworks, its processes (XPC services) in Contents/XPCServices, where an app's own
 #   services are looked up (in the build folder they are links beside the frameworks: copied as links, nothing was found
 #   and WebKit fell back to the system's, which do not speak ours; seen 2026-11-20).
-# - Sunset is its executable and, seeing the Info.plist key SunsetWebKitBase, runs itself again once with the loader
-#   pointed at those frameworks, for itself and WebKit's processes (BundledWebKit). Not a launcher: macOS honours the
-#   team's entitlements only for the main executable (a launcher's Sunset was killed, 2026-11-20). Not links rewritten:
-#   system frameworks AppKit loads link the system's WebKit, and both were in the process (2026-11-20).
+# - Sunset is its executable, and finds WebKit there through the loader's framework path its executable sets
+#   (LC_DYLD_ENVIRONMENT, @executable_path/../Frameworks: project.yml); WebKit's processes get executables of ours that
+#   set it too (Engine/WebKit/service-main.c). Every system framework that links WebKit then binds to ours. Not links
+#   rewritten: system frameworks link the system's WebKit, and both were in the process (2026-11-20, 2026-11-23-05). Not the
+#   environment's loader variables: that needed an exception of the hardened runtime (CRIT-02).
 # - Signed inside out like the native build (Signing.local.xcconfig's identity, else ad hoc), hardened, with timestamps;
-#   Sunset and WebKit's services with one exception, reading the loader's variables (notarization accepts it); library
-#   validation stays on. Then Scripts/notarize-app.sh as the native one.
+#   library validation stays on; the web content process has the JIT's exception. Then Scripts/notarize-app.sh.
 # - Its provisioning profile (an App ID studio.aemi.sunset.webkit), when there is one: $SUNSET_WEBKIT_PROFILE, else
 #   ~/.config/sunset-signing/webkit.provisionprofile (beside the notary's credentials, never in the repository). With it,
 #   the team entitlements of the native build (App/Sunset.team.entitlements) for this identifier, the team read from the
@@ -54,9 +54,19 @@ for framework in "$frameworks"/*.framework; do
     rm -rf "$framework/Headers" "$framework/PrivateHeaders" "$framework/Helpers" \
         "$framework/Versions/A/Headers" "$framework/Versions/A/PrivateHeaders" "$framework/Versions/A/Helpers"
 done
+# Each service's executable is ours: WebKit's entry point, with the loader's framework path toward the app's Frameworks
+# in the executable (Engine/WebKit/service-main.c), so no service reads the environment's loader variables.
+serviceMain="$(mktemp -t sunset-service)"
+clang -O2 -arch arm64 -mmacosx-version-min="$(/usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$built/Contents/Info.plist")" \
+    -F"$products" -framework WebKit -Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../../../../Frameworks \
+    "$here/Engine/WebKit/service-main.c" -o "$serviceMain"
 for service in "$products"/*.xpc; do
-    ditto "$service" "$services/$(basename "$service")"
+    copy="$services/$(basename "$service")"
+    ditto "$service" "$copy"
+    executable="$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$copy/Contents/Info.plist")"
+    cp "$serviceMain" "$copy/Contents/MacOS/$executable"
 done
+rm -f "$serviceMain"
 
 plist="$app/Contents/Info.plist"
 buddy=/usr/libexec/PlistBuddy
@@ -117,16 +127,19 @@ done
 for service in "$services"/*.xpc; do
     case "$service" in
         *WebContent*) sign "$here/Engine/WebKit/WebContent.entitlements" "$service" ;;
-        *) sign "$here/Engine/WebKit/Loader.entitlements" "$service" ;;
+        *) sign "" "$service" ;;
     esac
 done
-# Sunset's: the app's own (the team's with a profile, else an ad hoc build's) and the loader's exception.
-entitlements="$(mktemp -t sunset-webkit).plist"
-cp "$appEntitlements" "$entitlements"
-$buddy -c "Add :com.apple.security.cs.allow-dyld-environment-variables bool true" "$entitlements"
-sign "$entitlements" "$app/Contents/MacOS/Sunset"
-sign "$entitlements" "$app"
-rm -f "$entitlements" ${teamEntitlements:+"$teamEntitlements"}
+# Sunset's: the app's own (the team's with a profile, else an ad hoc build's); no exception for the loader's variables.
+sign "$appEntitlements" "$app/Contents/MacOS/Sunset"
+sign "$appEntitlements" "$app"
+rm -f ${teamEntitlements:+"$teamEntitlements"}
+# No part of it may read the environment's loader variables (CRIT-02).
+if find "$app" -type f -perm -u+x -print0 | xargs -0 -n1 codesign -d --entitlements - 2>/dev/null |
+    grep -q allow-dyld-environment-variables; then
+    echo "make-webkit-app: something is signed with allow-dyld-environment-variables" >&2
+    exit 1
+fi
 codesign --verify --deep --strict "$app" || { echo "make-webkit-app: the signature does not verify" >&2; exit 1; }
 
 lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister

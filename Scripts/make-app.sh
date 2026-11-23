@@ -52,6 +52,10 @@ if ! codesign --verify --deep --strict "$built" 2>/dev/null; then
         CURRENT_PROJECT_VERSION="$build" "${marketing[@]}" build >"$log" 2>&1 || { tail -20 "$log" >&2; exit 1; }
     codesign --verify --deep --strict "$built" || { echo "make-app: the signature is still broken" >&2; exit 1; }
 fi
+# The loader's framework path is the executable's own (roadmap 0113, CRIT-02): Sunset WebKit runs on the WebKit in its
+# Frameworks with no exception for the environment's loader variables, which stay ignored; the native build has none there.
+otool -l "$built/Contents/MacOS/Sunset" | grep -q "DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks" ||
+    { echo "make-app: Sunset's executable does not set its framework path (LC_DYLD_ENVIRONMENT)" >&2; exit 1; }
 mkdir -p "$output"
 rm -rf "$output/Sunset.app"
 ditto "$built" "$output/Sunset.app"

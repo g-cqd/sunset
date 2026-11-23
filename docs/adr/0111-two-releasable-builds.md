@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: superseded in part by ADR-0123 (how Sunset WebKit finds its WebKit)
 date: 2026-11-20
 ---
 

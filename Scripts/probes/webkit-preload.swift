@@ -67,7 +67,10 @@ _ = NSApplication.shared
 let view = viewType.init(frame: NSRect(x: 0, y: 0, width: 400, height: 300))
 let script = Selector(("evaluateJavaScript:completionHandler:"))
 let load = Selector(("loadHTMLString:baseURL:"))
-_ = view.perform(load, with: "<p>probe</p>", with: URL(string: "https://example.com/"))
+// $PROBE_PAGE: the page's HTML (a form, a video…), to see what WebKit loads for it.
+let beforePage = Set((0 ..< _dyld_image_count()).compactMap { _dyld_get_image_name($0).map { String(cString: $0) } })
+let html = ProcessInfo.processInfo.environment["PROBE_PAGE"] ?? "<p>probe</p>"
+_ = view.perform(load, with: html, with: URL(string: "https://example.com/"))
 var answered = false
 let deadline = Date().addingTimeInterval(20)
 RunLoop.main.run(
@@ -85,3 +88,8 @@ _ = view.perform(
 while !answered && Date() < deadline { RunLoop.main.run(until: Date().addingTimeInterval(0.2)) }
 if !answered { print("page: no answer in 20 s") }
 show("after the page")
+if ProcessInfo.processInfo.environment["PROBE_ALL"] != nil {
+    let after = (0 ..< _dyld_image_count()).compactMap { _dyld_get_image_name($0).map { String(cString: $0) } }
+    for image in after where !beforePage.contains(image) { print("new: \(image)") }
+}
+print("system WebKit images after the page: \(webKitImages().filter { $0.hasPrefix("/System") }.count)")

@@ -112,6 +112,11 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset
         PRODUCT_NAME: Sunset
+        # The loader's framework path, in the executable (roadmap 0113, diary 2026-11-23-05, CRIT-02): Sunset WebKit runs
+        # on the WebKit in its own Frameworks, system frameworks that link WebKit included, with no exception for the
+        # environment's loader variables (which a hardened process ignores). The native build has no WebKit there: the
+        # system's is used.
+        OTHER_LDFLAGS: ["$(inherited)", "-Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../Frameworks"]
         SUNSET_DISPLAY_NAME: Sunset
         # The icon (roadmap 0084): App/Sunset.icon, made in Design/Icons; Xcode compiles it into Assets.car and into
         # Sunset.icns (CFBundleIconFile). The three other skies go in as alternates, for the person to choose later.
