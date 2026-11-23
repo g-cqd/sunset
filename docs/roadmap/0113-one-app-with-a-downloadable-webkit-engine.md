@@ -9,6 +9,11 @@ date: 2026-11-22
 The owner (2026-11-22, after 0112): later, a single Sunset whose patched WebKit is a component downloaded and updated
 from within the app; the person chooses between the system's WebKit and Sunset's.
 
+The owner (2026-11-23): to be started now, not later; and with 0115 (the engine updated on a schedule), whose releases are
+what this app downloads. The present way of loading the bundled engine (`DYLD_FRAMEWORK_PATH` and the
+`allow-dyld-environment-variables` entitlement, the outside audit's CRIT-02) is what step A must replace: a downloaded
+engine cannot be loaded that way safely.
+
 | Step | What | Status |
 |---|---|---|
 | A | Research: can one process load either WebKit (system or a downloaded framework) chosen at launch; what signing, notarization, library validation and the hardened runtime allow for a downloaded framework and its XPC services | not-started |

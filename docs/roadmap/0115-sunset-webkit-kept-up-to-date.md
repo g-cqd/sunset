@@ -1,6 +1,6 @@
 ---
 status: not-started
-blocked-by: the owner's choices below
+blocked-by: nothing (where the build fits: step A)
 date: 2026-11-23
 ---
 
@@ -30,13 +30,15 @@ patches it on its own.
 | D | After the owner merges: Sunset WebKit built, notarised, released (or a security release at once when `behind` fired) | not-started |
 | E | The app says when its engine is old (exists: eight weeks) and, later, fetches the new engine itself (roadmap 0113) | not-started |
 
-## For the owner to choose
+## The owner's choices (2026-11-23)
 
-- **Where it runs.** A WebKit build takes hours and tens of GB: GitHub's hosted runners are too small and too short.
-  A Mac of the owner's (launchd), or a self-hosted runner on one, is the likely place. Which Mac, and is it awake?
-- **How much is automatic.** Update and test only, a person merging (recommended: a WebKit main build can break the series
-  in ways only a person can judge); or also build, notarise and publish a release when the tests pass.
-- **Signing.** A release needs the Developer ID and notary keys on that Mac, and the release tag the GPG key on mbp23.
-- **How often.** Daily advisory check and weekly update, or daily update.
+- **Where**: GitHub Actions workflows. A hosted macOS runner allows a job 6 hours and about 14 GB free; a WebKit release
+  build is near both limits. To find out in step A: whether an incremental build from a cached tree fits (the cache is
+  limited too), or a larger runner (paid) or a self-hosted runner registered to the workflows is needed.
+- **How automatic**: released when every test passes: built, notarised and published without the owner. The signing
+  material (Developer ID, the notary key) then lives in the repository's secrets, and the tag is signed in the workflow
+  (not with mbp23's key): to settle in an ADR before step D.
+- **How often**: a daily check for WebKit security advisories newer than the base; a full update weekly, or at once when
+  an advisory is.
 
 Not done: all of it.
