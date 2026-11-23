@@ -16,6 +16,7 @@ count="${2:-3}"
 name="$(basename "$zip")"
 case "$name" in
     Sunset-WebKit-*) flavour="Sunset-WebKit" ;;
+    SunsetEngine-*) flavour="SunsetEngine" ;;
     Sunset-*) flavour="Sunset" ;;
     *) echo "make-update-packages: $name is not a release zip" >&2; exit 2 ;;
 esac
@@ -30,7 +31,7 @@ tool="$(swift build -c release --show-bin-path)/SunsetDeltaTool"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 ditto -x -k "$zip" "$work/new"
-new_app="$(find "$work/new" -maxdepth 1 -name '*.app' | head -1)"
+new_app="$(find "$work/new" -maxdepth 1 \( -name '*.app' -o -name 'SunsetEngine' \) | head -1)"
 
 # The last COUNT releases before this one that publish this flavour's archive.
 curl -fsSL "https://api.github.com/repos/g-cqd/sunset/releases?per_page=30" |
@@ -52,7 +53,7 @@ for old, url in sorted(found, reverse=True)[:count]:
 while read -r old url; do
     curl -fsSL -o "$work/old-$old.zip" "$url"
     ditto -x -k "$work/old-$old.zip" "$work/old-$old"
-    old_app="$(find "$work/old-$old" -maxdepth 1 -name '*.app' | head -1)"
+    old_app="$(find "$work/old-$old" -maxdepth 1 \( -name '*.app' -o -name 'SunsetEngine' \) | head -1)"
     package="$flavour-$tag-build$build-from-build$old-macos-$arch.update"
     "$tool" package "$old_app" "$new_app" "$old" "$build" "$out/$package" >&2
     "$tool" stage "$out/$package" "$old_app" "$work/staged-$old.app" >&2
