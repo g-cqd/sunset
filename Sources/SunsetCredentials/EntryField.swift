@@ -7,6 +7,14 @@ public struct EntryField: Hashable, Sendable, Codable, Identifiable {
     public var kind: FieldKind
     public var value: String
     public var constraints: [FieldConstraint]
+    /// Marked secret, or not, by the person, whatever its kind (n102); nil: as its kind says. Optional so that a record
+    /// written before it reads.
+    public var markedSecret: Bool?
+
+    /// Hidden until shown, monospaced, never searched, copied as a secret: its kind's, or as the person marked it.
+    public var isSecret: Bool {
+        markedSecret ?? kind.isConcealed
+    }
 
     public init(
         id: UUID = UUID(),

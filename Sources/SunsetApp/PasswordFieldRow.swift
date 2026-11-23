@@ -15,6 +15,9 @@ struct PasswordFieldRow: View {
     /// A code read from a QR code's picture (the clipboard's, or a file's) sets the entry up.
     let readCode: @MainActor (OneTimeCodeURI) -> Void
     let remove: () -> Void
+    let edits: FieldEdits
+    /// A secret shown in clear by its eye button, until the page is left (n101).
+    @State var revealed = false
     @State private var hovered = false
     @State private var feedback = FeedbackCue()
     @Environment(\.runtime) private var runtime
@@ -35,10 +38,14 @@ struct PasswordFieldRow: View {
                 if field.kind == .oneTimeCode {
                     OneTimeCodeValue(field: OneTimeCodeField(value))
                 } else {
-                    Text(field.kind.isConcealed ? Self.dots : value)
+                    Text(field.isSecret && !revealed ? Self.dots : value)
+                        // A secret in a monospaced face, as a terminal shows it: 0 and O, l and 1 apart (n103).
+                        .font(field.isSecret ? Design.Text.body.monospaced() : Design.Text.body)
                         .lineLimit(field.kind == .multiline ? nil : 1)
                         .truncationMode(.middle)
                         .foregroundStyle(.primary)
+                        .textSelection(.disabled)
+                    if field.isSecret { revealButton }
                 }
                 // The app's copy: the glyph becomes a check for a moment (n111); shown under the pointer, and while it says so.
                 FeedbackGlyph(symbol: "doc.on.doc", cue: feedback.cue, shakes: feedback.shakes)
@@ -63,36 +70,8 @@ struct PasswordFieldRow: View {
         .contextMenu { Button("Copy \(field.name)", action: copy) }
     }
 
-    private var edited: some View {
-        HStack(spacing: Design.Space.s) {
-            Group {
-                if field.kind.isConcealed {
-                    SecureField(field.name, text: $value, prompt: Text(prompt))
-                } else {
-                    TextField(field.name, text: $value, prompt: Text(prompt), axis: axis)
-                }
-            }
-            Menu {
-                if field.kind == .concealed { Button("Generate Password", action: generate) }
-                if field.kind == .oneTimeCode {
-                    Button("Paste QR Code") { pasteCode() }
-                    Button("Read from QR Code Image\u{2026}") { QRCodeImagePicker.read(into: readCode) }
-                }
-                Button("Remove Field", role: .destructive, action: remove)
-            } label: {
-                Image(systemName: "ellipsis.circle")
-            }
-            .menuStyle(.button)
-            .buttonStyle(.quietGlyph)
-            .menuIndicator(.hidden)
-            .fixedSize()
-            .tint(.secondary)
-            .accessibilityLabel("\(field.name) Actions")
-        }
-    }
-
     /// The clipboard's QR code picture read.
-    private func pasteCode() {
+    func pasteCode() {
         guard let image = QRCodeImages.image() else {
             Feedback.give(.blocked("No picture on the clipboard"))
             return
@@ -103,11 +82,11 @@ struct PasswordFieldRow: View {
     }
 
     /// "Required" for a field that must be filled, else "Optional".
-    private var prompt: String {
+    var prompt: String {
         field.constraints.contains(.required) ? "Required" : "Optional"
     }
 
-    private var axis: Axis {
+    var axis: Axis {
         field.kind == .multiline ? .vertical : .horizontal
     }
 
@@ -118,7 +97,7 @@ struct PasswordFieldRow: View {
             guard let code = OneTimeCodeField(value)?.code(at: runtime.now()) else { return }
             outcome = Clipboard.copy(code, concealed: true, what: "Code copied")
         } else {
-            outcome = Clipboard.copy(value, concealed: field.kind.isConcealed, what: "\(field.name) copied")
+            outcome = Clipboard.copy(value, concealed: field.isSecret, what: "\(field.name) copied")
         }
         feedback.show(outcome)
         runtime.task {

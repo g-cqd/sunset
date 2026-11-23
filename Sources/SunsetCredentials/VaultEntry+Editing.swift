@@ -30,6 +30,16 @@ extension VaultEntry {
         change(field) { $0.constraints = constraints }
     }
 
+    /// Gives the field another kind, its value kept as written (n104).
+    public mutating func setKind(_ field: UUID, _ kind: FieldKind) {
+        change(field) { $0.kind = kind }
+    }
+
+    /// Marks the field secret, or not (n102).
+    public mutating func markSecret(_ field: UUID, _ secret: Bool) {
+        change(field) { $0.markedSecret = secret }
+    }
+
     public mutating func remove(_ field: UUID) {
         for index in sections.indices { sections[index].fields.removeAll { $0.id == field } }
     }

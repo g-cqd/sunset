@@ -15,7 +15,7 @@ public enum EntrySearch {
 
     /// What of an entry is searched.
     private static func searchable(_ entry: VaultEntry) -> String {
-        let values = entry.sections.flatMap(\.fields).filter { !$0.kind.isConcealed }.map(\.value)
+        let values = entry.sections.flatMap(\.fields).filter { !$0.isSecret }.map(\.value)
         return ([entry.title, entry.note, entry.folder ?? ""] + entry.tags + values).joined(separator: "\n")
     }
 
