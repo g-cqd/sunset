@@ -40,19 +40,34 @@ package struct ExtensionActionsBar: View {
 
     private func button(_ item: ExtensionActionItem, first: Bool, last: Bool) -> some View {
         SidebarIconButton(
-            help: page == nil
-                ? "\(item.label): for web pages" : item.badge.isEmpty ? item.label : "\(item.label) (\(item.badge))",
+            help: help(item),
             menu: AnyView(menu(item, first: first, last: last)),
-            action: { host.perform(item.id, for: page?.extensionTab) },
+            action: { blockedAsPrivate(item) ? offerPrivate(item) : host.perform(item.id, for: page?.extensionTab) },
             label: { face(item, look: .of(available: available(item))) }
         )
-        .disabled(!available(item))
+        // Dimmed but clickable when only private windows keep it out: the click offers to allow it (n99).
+        .disabled(!available(item) && !blockedAsPrivate(item))
         .background { PopupAnchor { host.anchor(item.id, $0) } }
         .accessibilityLabel(item.label)
     }
 
+    private func help(_ item: ExtensionActionItem) -> String {
+        if page == nil { return "\(item.label): for web pages" }
+        if blockedAsPrivate(item) { return "\(item.label): not allowed in private windows" }
+        return item.badge.isEmpty ? item.label : "\(item.label) (\(item.badge))"
+    }
+
+    /// A private page an extension may not see: its popup would find no tab (n99, probed 2026-11-23).
+    private func blockedAsPrivate(_ item: ExtensionActionItem) -> Bool {
+        page?.isPrivate == true && !item.inPrivate
+    }
+
     /// Its order, and Settings ("allow reordering the extensions").
     @ViewBuilder private func menu(_ item: ExtensionActionItem, first: Bool, last: Bool) -> some View {
+        if blockedAsPrivate(item) {
+            Button("Allow in Private Windows") { host.allowInPrivate(item.id) }
+            Divider()
+        }
         Button("Move Left") { host.move(item.id, by: -1) }.disabled(first)
         Button("Move Right") { host.move(item.id, by: 1) }.disabled(last)
         Divider()
@@ -71,18 +86,38 @@ package struct ExtensionActionsBar: View {
         .accessibilityLabel("Extensions")
     }
 
+    /// Under its button: it may not see private pages, and one click lets it.
+    private func offerPrivate(_ item: ExtensionActionItem) {
+        guard let anchor = host.anchors[item.id] else { return }
+        let menu = NSMenu()
+        let note = NSMenuItem(title: "\(item.label) is not allowed in private windows", action: nil, keyEquivalent: "")
+        note.isEnabled = false
+        menu.addItem(note)
+        menu.addItem(ClosureMenuItem(title: "Allow in Private Windows") { host.allowInPrivate(item.id) })
+        menu.popUp(positioning: nil, at: CGPoint(x: 0, y: anchor.bounds.maxY + Design.Space.xs), in: anchor)
+    }
+
     private func showList(_ items: [ExtensionActionItem]) {
         guard let puzzle else { return }
         let menu = NSMenu()
         // Each entry's own state: automatic enabling would turn every entry with an action on.
         menu.autoenablesItems = false
         for item in items {
-            let entry = ClosureMenuItem(title: item.badge.isEmpty ? item.label : "\(item.label)  (\(item.badge))") {
-                host.perform(item.id, for: page?.extensionTab, under: puzzle)
+            let blocked = blockedAsPrivate(item)
+            let title =
+                blocked
+                ? "\(item.label): Allow in Private Windows"
+                : item.badge.isEmpty ? item.label : "\(item.label)  (\(item.badge))"
+            let entry = ClosureMenuItem(title: title) {
+                if blocked {
+                    host.allowInPrivate(item.id)
+                } else {
+                    host.perform(item.id, for: page?.extensionTab, under: puzzle)
+                }
             }
             entry.image = item.icon ?? NSImage(systemSymbolName: "puzzlepiece.extension", accessibilityDescription: nil)
             entry.image?.size = CGSize(width: Design.Size.extensionIcon, height: Design.Size.extensionIcon)
-            entry.isEnabled = ExtensionRoom.isAvailable(enabled: item.enabled, inWebTab: page != nil)
+            entry.isEnabled = available(item) || blocked
             menu.addItem(entry)
         }
         menu.addItem(.separator())
@@ -91,7 +126,11 @@ package struct ExtensionActionsBar: View {
     }
 
     private func available(_ item: ExtensionActionItem) -> Bool {
-        ExtensionRoom.isAvailable(enabled: item.enabled, inWebTab: page != nil)
+        ExtensionRoom.isAvailable(
+            enabled: item.enabled,
+            inWebTab: page != nil,
+            blockedAsPrivate: blockedAsPrivate(item)
+        )
     }
 
     private func face(_ item: ExtensionActionItem, look: ExtensionFaceLook) -> some View {

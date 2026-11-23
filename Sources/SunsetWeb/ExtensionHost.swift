@@ -32,7 +32,7 @@ package import WebKit
     @ObservationIgnored private let runtime: Runtime
     /// Bumped when an action changes (its badge, its title): the buttons are drawn again.
     var revision = 0
-    @ObservationIgnored var anchors: [String: NSView] = [:]
+    @ObservationIgnored package var anchors: [String: NSView] = [:]
     /// The puzzle piece, while an extension chosen from its list opens its popup.
     @ObservationIgnored var popupAnchor: NSView?
     @ObservationIgnored private let delegate = ExtensionControllerDelegate()

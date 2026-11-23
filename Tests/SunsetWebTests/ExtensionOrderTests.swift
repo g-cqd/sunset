@@ -41,5 +41,6 @@ struct ExtensionOrderTests {
         #expect(ExtensionRoom.isAvailable(enabled: true, inWebTab: true))
         #expect(!ExtensionRoom.isAvailable(enabled: true, inWebTab: false))
         #expect(!ExtensionRoom.isAvailable(enabled: false, inWebTab: true))
+        #expect(!ExtensionRoom.isAvailable(enabled: true, inWebTab: true, blockedAsPrivate: true), "n99")
     }
 }

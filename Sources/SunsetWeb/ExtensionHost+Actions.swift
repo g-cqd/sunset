@@ -14,9 +14,17 @@ extension ExtensionHost {
                 label: action.label.isEmpty ? entry.name : action.label,
                 icon: action.icon(for: CGSize(width: 16, height: 16)),
                 badge: action.badgeText,
-                enabled: action.isEnabled
+                enabled: action.isEnabled,
+                inPrivate: entry.inPrivate
             )
         }
+    }
+
+    /// Lets the extension whose button is `id` see private pages (a not-allowed button's menu, n99).
+    package func allowInPrivate(_ id: String) {
+        guard let entry = installed.first(where: { context(of: $0.id)?.uniqueIdentifier == id }) else { return }
+        set(entry.id, inPrivate: true)
+        revision += 1
     }
 
     /// The button was clicked: the extension's own (a popup asked for, or its click event).

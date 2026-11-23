@@ -8,8 +8,8 @@ package enum ExtensionRoom {
 
     /// A button can be used when its extension enables it and the tab shown is a web page; in another tab (a terminal, a
     /// document) it is shown, disabled: an action there would run for no page.
-    package static func isAvailable(enabled: Bool, inWebTab: Bool) -> Bool {
-        enabled && inWebTab
+    package static func isAvailable(enabled: Bool, inWebTab: Bool, blockedAsPrivate: Bool = false) -> Bool {
+        enabled && inWebTab && !blockedAsPrivate
     }
 
     /// The places `width` holds, each `button` wide, `spacing` apart.

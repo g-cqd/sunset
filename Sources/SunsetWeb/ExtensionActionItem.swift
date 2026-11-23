@@ -8,4 +8,6 @@ package struct ExtensionActionItem: Identifiable {
     package let icon: NSImage?
     package let badge: String
     package let enabled: Bool
+    /// Whether it may see private pages (Settings ▸ Extensions: Allow in Private Windows).
+    package var inPrivate = true
 }
