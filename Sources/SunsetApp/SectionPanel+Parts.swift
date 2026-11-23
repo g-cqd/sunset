@@ -50,7 +50,7 @@ extension SectionPanel {
                     .accessibilityLabel("New Document")
             case .downloads:
                 Button("Clear") { DownloadCenter.shared.clear() }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.quiet)
                     .font(Design.Text.detail)
                     .disabled(DownloadCenter.shared.items.allSatisfy { $0.state == .running })
             case .passwords:

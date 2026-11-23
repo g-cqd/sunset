@@ -57,7 +57,7 @@ struct PasswordsSetupSheet: View {
             .fixedSize(horizontal: false, vertical: true)
             Text(code.text).font(Design.Text.body.monospaced()).textSelection(.enabled)
             HStack {
-                Button("Copy") { Clipboard.copy(code.text, concealed: true) }
+                FeedbackButton("Copy") { Clipboard.copy(code.text, concealed: true, what: "Recovery code copied") }
                 Spacer()
                 Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)
             }

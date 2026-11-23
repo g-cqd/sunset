@@ -25,6 +25,6 @@ struct SiteZoomRow: View {
             }
             .accessibilityLabel("Zoom In")
         }
-        .buttonStyle(.borderless)
+        .buttonStyle(.quietGlyph)
     }
 }

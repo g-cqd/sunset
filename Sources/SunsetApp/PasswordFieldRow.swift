@@ -16,6 +16,9 @@ struct PasswordFieldRow: View {
     let readCode: @MainActor (OneTimeCodeURI) -> Void
     let remove: () -> Void
     @State private var hovered = false
+    @State private var feedback = FeedbackCue()
+    @Environment(\.runtime) private var runtime
+    @Environment(\.surfaceStyle) private var surface
 
     var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.hair) {
@@ -37,14 +40,22 @@ struct PasswordFieldRow: View {
                         .truncationMode(.middle)
                         .foregroundStyle(.primary)
                 }
-                Image(systemName: "doc.on.doc")
+                // The app's copy: the glyph becomes a check for a moment (n111); shown under the pointer, and while it says so.
+                FeedbackGlyph(symbol: "doc.on.doc", cue: feedback.cue, shakes: feedback.shakes)
                     .foregroundStyle(.secondary)
-                    .opacity(hovered ? 1 : 0)
+                    .opacity(hovered || feedback.cue != nil ? 1 : 0)
                     .accessibilityHidden(true)
             }
         }
+        // The row is the button: the app's hover fill under the pointer (n110).
+        .padding(.horizontal, Design.Space.xs)
+        .background(
+            RoundedRectangle(cornerRadius: Design.Radius.small(surface.layout), style: .continuous)
+                .fill(.primary.opacity(hovered ? Design.Fill.hover : 0))
+        )
         .contentShape(Rectangle())
         .onHover { hovered = $0 }
+        .animation(.snappy(duration: 0.12), value: hovered)
         .onTapGesture(perform: copy)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
@@ -72,7 +83,7 @@ struct PasswordFieldRow: View {
                 Image(systemName: "ellipsis.circle")
             }
             .menuStyle(.button)
-            .buttonStyle(.borderless)
+            .buttonStyle(.quietGlyph)
             .menuIndicator(.hidden)
             .fixedSize()
             .tint(.secondary)
@@ -100,14 +111,20 @@ struct PasswordFieldRow: View {
         field.kind == .multiline ? .vertical : .horizontal
     }
 
-    /// The value; a One-Time Code field's code now, never its secret.
+    /// The value; a One-Time Code field's code now, never its secret. Said as every copy is (`FeedbackCue`).
     private func copy() {
+        let outcome: ActionFeedback
         if field.kind == .oneTimeCode {
-            guard let code = OneTimeCodeField(value)?.code(at: Runtime.live.now()) else { return }
-            Feedback.give(Clipboard.copy(code, concealed: true, what: "Code copied"))
-            return
+            guard let code = OneTimeCodeField(value)?.code(at: runtime.now()) else { return }
+            outcome = Clipboard.copy(code, concealed: true, what: "Code copied")
+        } else {
+            outcome = Clipboard.copy(value, concealed: field.kind.isConcealed, what: "\(field.name) copied")
         }
-        Feedback.give(Clipboard.copy(value, concealed: field.kind.isConcealed, what: "\(field.name) copied"))
+        feedback.show(outcome)
+        runtime.task {
+            await runtime.sleep(for: ActionFeedback.shown)
+            feedback.clear(outcome)
+        }
     }
 
     /// A secret's stand-in: always as long, whatever its length.

@@ -104,7 +104,7 @@ struct PasswordEntryPage: View {
                 Label("Add Field", systemImage: "plus")
             }
             .menuStyle(.button)
-            .buttonStyle(.borderless)
+            .buttonStyle(.quiet)
             .menuIndicator(.hidden)
             .fixedSize()
         }

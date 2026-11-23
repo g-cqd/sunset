@@ -11,7 +11,7 @@ struct DownloadsList: View {
                 Text("Downloads").font(Design.Text.title)
                 Spacer()
                 Button("Clear") { center.clear() }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.quiet)
                     .disabled(center.items.allSatisfy { $0.state == .running })
             }
             if center.items.isEmpty {

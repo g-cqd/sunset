@@ -39,7 +39,7 @@ struct StorageProblemsBanner: ViewModifier {
             } label: {
                 Image(systemName: "xmark")
             }
-            .buttonStyle(.borderless)
+            .buttonStyle(.quietGlyph)
             .help("Dismiss")
         }
         .font(Design.Text.small)

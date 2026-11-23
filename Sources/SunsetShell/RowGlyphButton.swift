@@ -7,7 +7,6 @@ package struct RowGlyphButton<Glyph: View>: View {
     let help: String
     let action: () -> Void
     let glyph: Glyph
-    @Environment(\.surfaceStyle) private var surface
 
     package init(help: String, action: @escaping () -> Void, @ViewBuilder glyph: () -> Glyph) {
         self.help = help
@@ -16,41 +15,11 @@ package struct RowGlyphButton<Glyph: View>: View {
     }
 
     package var body: some View {
-        Button(action: action) { glyph }
-            .buttonStyle(Style(layout: surface.layout))
-            .help(help)
-    }
-
-    private struct Style: ButtonStyle {
-        let layout: ShellSettings.Layout
-
-        func makeBody(configuration: Configuration) -> some View {
-            Face(label: configuration.label, pressed: configuration.isPressed, layout: layout)
+        Button(action: action) {
+            glyph.font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
         }
-    }
-
-    private struct Face<Label: View>: View {
-        let label: Label
-        let pressed: Bool
-        let layout: ShellSettings.Layout
-        @State private var hovering = false
-
-        var body: some View {
-            label
-                .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
-                .foregroundStyle(hovering || pressed ? .primary : .secondary)
-                .frame(minWidth: layout.closeButtonSize, minHeight: layout.closeButtonSize)
-                .background(
-                    RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
-                        .fill(.primary.opacity(pressed ? Design.Fill.pressed : hovering ? Design.Fill.selected : 0))
-                )
-                .contentShape(.rect)
-                // The press is felt.
-                .scaleEffect(pressed ? Design.Motion.pressedScale : 1)
-                .keptHover($hovering)
-                .animation(layout.smooth, value: hovering)
-                .animation(.snappy(duration: 0.12), value: pressed)
-        }
+        .buttonStyle(.quietGlyph)
+        .help(help)
     }
 }
 

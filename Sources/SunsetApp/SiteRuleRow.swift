@@ -13,7 +13,7 @@ struct SiteRuleRow<Choice: View>: View {
             HStack(spacing: Design.Space.s) {
                 choice().labelsHidden().fixedSize()
                 Button(action: remove) { Image(systemName: "minus.circle") }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.quietGlyph)
                     .help("Remove: the default applies again")
                     .accessibilityLabel("Remove the rule of \(host)")
             }

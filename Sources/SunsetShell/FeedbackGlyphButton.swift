@@ -9,8 +9,7 @@ package struct FeedbackGlyphButton: View {
     let symbol: String
     let help: String
     let perform: () -> ActionFeedback
-    @State private var cue: ActionFeedback?
-    @State private var shakes = 0
+    @State private var feedback = FeedbackCue()
 
     package init(symbol: String, help: String, perform: @escaping () -> ActionFeedback) {
         self.symbol = symbol
@@ -19,27 +18,15 @@ package struct FeedbackGlyphButton: View {
     }
 
     package var body: some View {
-        RowGlyphButton(help: cue?.announcement ?? help) {
+        RowGlyphButton(help: feedback.cue?.announcement ?? help) {
             let outcome = perform()
-            Feedback.give(outcome)
-            cue = outcome
-            if !outcome.isDone { shakes += 1 }
+            feedback.show(outcome)
             runtime.task {
                 await runtime.sleep(for: ActionFeedback.shown)
-                if cue == outcome { cue = nil }
+                feedback.clear(outcome)
             }
         } glyph: {
-            Image(systemName: cue?.symbol ?? symbol)
-                // No change of colour (the button's own), and quick.
-                .contentTransition(.symbolEffect(.replace.downUp.wholeSymbol, options: .speed(3)))
-                .keyframeAnimator(initialValue: 0.0, trigger: shakes) { glyph, offset in
-                    glyph.offset(x: offset)
-                } keyframes: { _ in
-                    // A shake: no, no (blocked).
-                    KeyframeTrack {
-                        for x in [-3.0, 3, -2, 0] { SpringKeyframe(x, duration: 0.04) }
-                    }
-                }
+            FeedbackGlyph(symbol: symbol, cue: feedback.cue, shakes: feedback.shakes)
         }
         .accessibilityLabel(help)
     }

@@ -8,7 +8,7 @@ package struct FeedbackButton: View {
 
     let title: String
     let perform: () -> ActionFeedback
-    @State private var cue: ActionFeedback?
+    @State private var feedback = FeedbackCue()
 
     package init(_ title: String, perform: @escaping () -> ActionFeedback) {
         self.title = title
@@ -18,20 +18,19 @@ package struct FeedbackButton: View {
     package var body: some View {
         Button {
             let outcome = perform()
-            Feedback.give(outcome)
-            cue = outcome
+            feedback.show(outcome)
             runtime.task {
                 await runtime.sleep(for: ActionFeedback.shown)
-                if cue == outcome { cue = nil }
+                feedback.clear(outcome)
             }
         } label: {
-            if let cue {
+            if let cue = feedback.cue {
                 Label(cue.announcement, systemImage: cue.symbol)
             } else {
                 Text(title)
             }
         }
-        .animation(.snappy, value: cue)
+        .animation(.snappy, value: feedback.cue)
         .accessibilityLabel(title)
     }
 }

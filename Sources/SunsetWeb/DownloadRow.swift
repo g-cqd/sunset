@@ -58,7 +58,7 @@ package struct DownloadRow: View {
 
     private func button(_ symbol: String, _ help: String, action: @escaping () -> Void) -> some View {
         Button(action: action) { Image(systemName: symbol).font(.system(size: Design.Symbol.bar)) }
-            .buttonStyle(.borderless)
+            .buttonStyle(.quietGlyph)
             .help(help)
     }
 

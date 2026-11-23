@@ -7,6 +7,11 @@ import WebKit
 /// The page's view: WebKit's, with Sunset's link menu (Split Right, Split Down, New Tab, New Window, Copy Link) in place of WebKit's "Open Link in New
 /// Window". Each new item says where the page goes (`pendingPlacement`) as it is chosen, then asks WebKit to open the link as its own item would.
 final class SunsetWebView: WKWebView {
+    /// A page's own long and deep presses (Look Up, a link's preview) stay its own (`LongPressMenus`).
+    override var acceptsLongPressItself: Bool {
+        true
+    }
+
     /// Where the next page this view's menu asks for goes; read and cleared when WebKit asks for it.
     var pendingPlacement: WebPlacement?
     /// The link menu offers a private tab (not in a page that is private already).

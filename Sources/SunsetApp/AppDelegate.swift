@@ -39,6 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             AppVaultLocking.start()
             NowPlaying.shared.goThere = { AppWebNotifications.shared.reveal($0) }
             AppPasswordFill.start()
+            LongPressMenus.start()
             SystemAuthorizations.shared.start()
             AppConfiguration.shared.applyScheme()
             AppConfiguration.shared.applyIcon()
