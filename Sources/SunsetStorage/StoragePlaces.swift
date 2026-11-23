@@ -24,6 +24,9 @@ public struct StoragePlaces: Sendable, Equatable {
     public let variant: String?
     /// A build that shares Sunset's data: the variant it was before, whose places are merged once.
     let formerVariant: String?
+    /// A test copy that keeps its key in the keychain, under a name of its own (`$SUNSET_PROBE_KEYCHAIN`): letters, digits
+    /// and dashes; nil for the person's own setup, which has its own names.
+    let probe: String?
     private let home: String
 
     /// The builds that keep Sunset's own data rather than their own: Sunset WebKit.
@@ -64,7 +67,13 @@ public struct StoragePlaces: Sendable, Equatable {
         self.variant = variant
         self.home = home
         formerVariant = Self.named(identifier).flatMap { Self.sharing.contains($0) ? $0 : nil }
+        let probeName = environment["SUNSET_PROBE_KEYCHAIN"]
+            .flatMap { name in
+                !name.isEmpty && name.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-") }
+                    ? name : nil
+            }
         if let file = environment["SUNSET_SESSION"], !file.isEmpty {
+            probe = probeName
             session = file
             legacySession = nil
             directory = Self.folder(of: file)
@@ -74,7 +83,9 @@ public struct StoragePlaces: Sendable, Equatable {
         if let config = environment["SUNSET_CONFIG"], !config.isEmpty {
             directory = Self.folder(of: config)
             isDefault = false
+            probe = probeName
         } else {
+            probe = nil
             var base = home
             while base.count > 1, base.hasSuffix("/") { base.removeLast() }
             let name = variant.map { "Sunset " + $0.prefix(1).uppercased() + $0.dropFirst() }
@@ -105,6 +116,7 @@ public struct StoragePlaces: Sendable, Equatable {
         isDevelopment = other.isDevelopment
         variant = other.variant
         formerVariant = nil
+        probe = other.probe
         home = other.home
     }
 
@@ -137,7 +149,7 @@ public struct StoragePlaces: Sendable, Equatable {
     /// place; a file beside the others for a named one, which must not touch the Keychain. A team-signed build that is not a
     /// development one requires the new place (ADR-0120): one that cannot use it says so rather than keep the key unwrapped.
     public var keyVault: any KeyVault {
-        guard isDefault else { return FileKeyVault(path: directory + "/storage.key") }
+        guard isDefault || probe != nil else { return FileKeyVault(path: directory + "/storage.key") }
         return MovingKeyVault(
             new: EnclaveKeyVault(backing: KeychainKeyVault(service: keyService + ".enclave", dataProtection: true)),
             old: KeychainKeyVault(service: keyService),
@@ -159,7 +171,10 @@ public struct StoragePlaces: Sendable, Equatable {
     }
 
     private var serviceRoot: String {
-        variant.map { "studio.aemi.sunset." + $0 } ?? (isDevelopment ? "studio.aemi.sunset.dev" : "studio.aemi.sunset")
+        let root =
+            variant.map { "studio.aemi.sunset." + $0 }
+            ?? (isDevelopment ? "studio.aemi.sunset.dev" : "studio.aemi.sunset")
+        return probe.map { root + ".probe-" + $0 } ?? root
     }
 
     // The files of before the database, imported once by ST-3.

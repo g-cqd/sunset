@@ -32,6 +32,8 @@ final class AppUpdates {
     /// Latest releases read from the feed (used to offer switching between System WebKit and Sunset's WebKit).
     private(set) var latestReleases: [PublishedRelease] = []
     private(set) var checked: Date?
+    /// Whether each shown release's notes are the ones its signed index names, by build (`checkNotes`).
+    var notesChecks: [Int: NotesCheck] = [:]
     /// Why this copy cannot update itself; nil when it can.
     let refusal: UpdatePlace.Refusal?
     let running = RunningApp.current
@@ -108,6 +110,7 @@ final class AppUpdates {
             }
             phase = .found(offer)
             if settings.automatic && refusal == nil { await download(offer) }
+            await checkNotes(of: offer.between)
             tellOnce(offer, manual: manual)
         } catch {
             phase = .failed("Could not read Sunset\u{2019}s releases: \(error.localizedDescription)")

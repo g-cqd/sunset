@@ -5,5 +5,6 @@ extension SunsetApp {
     /// `main()`.
     public static func pointAtBundledWebKit() {
         BundledWebKit.refuseOtherWebKit()
+        ProbeKeychainErase.runIfAsked()
     }
 }

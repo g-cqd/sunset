@@ -7,6 +7,8 @@ struct ReleaseNotesView: View {
     let release: PublishedRelease
     /// Its name above its notes: when several releases are shown (one alone is named by the window's header).
     var showsTitle = true
+    /// Whether its notes are the ones its signed index names; nil while unchecked (shown as they are).
+    var check: NotesCheck?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.m) {
@@ -19,8 +21,20 @@ struct ReleaseNotesView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            ForEach(Array(ReleaseNotes.blocks(release.notes).enumerated()), id: \.offset) { _, block in
-                view(block)
+            if check?.showsNotes == false {
+                Label(
+                    "These notes do not match the release\u{2019}s signature and are not shown.",
+                    systemImage: "exclamationmark.shield"
+                )
+                .foregroundStyle(.secondary)
+            } else {
+                if check == .unsigned {
+                    Text("Published before releases were signed.").font(Design.Text.secondary)
+                        .foregroundStyle(.secondary)
+                }
+                ForEach(Array(ReleaseNotes.blocks(release.notes).enumerated()), id: \.offset) { _, block in
+                    view(block)
+                }
             }
         }
         .textSelection(.enabled)

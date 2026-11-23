@@ -17,7 +17,11 @@ struct UpdateNotes: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Design.Space.xxl) {
                     ForEach(offer.between, id: \.build) { release in
-                        ReleaseNotesView(release: release, showsTitle: offer.between.count > 1)
+                        ReleaseNotesView(
+                            release: release,
+                            showsTitle: offer.between.count > 1,
+                            check: updates.notesChecks[release.build]
+                        )
                     }
                 }
                 .frame(maxWidth: Design.Update.column, alignment: .leading)
