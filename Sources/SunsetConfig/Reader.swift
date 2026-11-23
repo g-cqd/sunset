@@ -32,6 +32,8 @@ struct Reader {
                 continue
             }
             switch key {
+                case "keyboard", "storage", "updates", "documents", "scroll":
+                    section(key, value) { reader, object in reader.readPlain(key, object) }
                 case "font": section("font", value) { reader, object in reader.readFont(object) }
                 case "colors": section("colors", value) { reader, object in reader.readColors(object) }
                 case "window": section("window", value) { reader, object in reader.readWindow(object) }
@@ -41,13 +43,9 @@ struct Reader {
                 case "layout": section("layout", value) { reader, object in reader.readLayout(object) }
                 case "tabs": section("tabs", value) { reader, object in reader.readTabs(object) }
                 case "theme": readTheme(value)
-                case "keyboard": section("keyboard", value) { reader, object in reader.readKeyboard(object) }
-                case "storage": section("storage", value) { reader, object in reader.readStorage(object) }
-                case "documents": section("documents", value) { reader, object in reader.readDocuments(object) }
                 case "spaces": section("spaces", value) { reader, object in reader.readSpaces(object) }
                 case "features": section("features", value) { reader, object in reader.readFeatures(object) }
                 case "web": section("web", value) { reader, object in reader.readWeb(object) }
-                case "scroll": section("scroll", value) { reader, object in reader.readScroll(object) }
                 case "scrollback": section("scrollback", value) { reader, object in reader.readScrollback(object) }
                 case "cursor": section("cursor", value) { reader, object in reader.readCursor(object) }
                 default: unknown(key)

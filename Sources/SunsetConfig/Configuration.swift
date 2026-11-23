@@ -231,6 +231,8 @@ public struct Configuration: Sendable, Equatable {
     public var cursorShape = CursorShape.bar
     public var cursorBlinks = true
     public var renderer = Renderer.auto
+    /// How Sunset updates itself (roadmap 0122).
+    public var updates = Updates()
 
     public init() {}
 }

@@ -45,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             AppConfiguration.shared.applyIcon()
             WelcomeWindow.shared.openIfFirstLaunch()
             if !WelcomeWindow.atLaunch { AppEngineFreshness.tellIfBehind() }
+            AppUpdates.start()
         }
     }
 
@@ -62,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         MainActor.assumeIsolated {
             AppVaultLocking.lockAll(.quit)
             SunsetStore.shared.close()
+            AppUpdates.shared.installAtQuit()
         }
         WebKitFolders.tightenOwn()
     }

@@ -22,6 +22,8 @@ public enum SettingsControl: Sendable {
         case startProfile
         /// Settings, Storage: what is sealed, the website data, the files set aside, the key, a code, export.
         case storageSealed, storageWebsiteData, storageSetAside, storageKey, storageEnterCode, storageExport
+        /// Settings, Updates: the app's and its components' versions and updates (roadmap 0122).
+        case updates
 
         /// A list that draws a section for each of its things (the profiles): the page does not wrap it.
         public var ownsSections: Bool {

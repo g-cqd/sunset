@@ -52,6 +52,7 @@ struct SettingsCustomRow: View {
             case .storageSealed, .storageWebsiteData, .storageSetAside, .storageKey, .storageEnterCode, .storageExport:
                 StorageRows(custom: custom)
             case .defaultBrowser: DefaultBrowserRow()
+            case .updates: UpdatesCenter()
             case .textOnlyZoom:
                 if WebTextZoomProbe.isAvailable {
                     LabeledContent {

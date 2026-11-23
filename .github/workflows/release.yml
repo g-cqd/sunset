@@ -113,6 +113,11 @@ jobs:
           [ "$SIGNED" != true ] || spctl --assess --type execute --verbose=2 "$app"
           Scripts/smoke-launch.sh "$app" | tee "$RUNNER_TEMP/smoke.txt"
           grep -q "alive after 10 s" "$RUNNER_TEMP/smoke.txt"
+      - name: Package · Update Packages From the Last Builds
+        if: ${{ env.SIGNED == 'true' }}
+        # Roadmap 0122 F: what Sunset fetches to update itself from one of the last three builds (the zip otherwise).
+        run: |
+          for zip in .build/dist/*.zip; do Scripts/make-update-packages.sh "$zip" 3; done
       - name: Release · Publish
         if: ${{ env.SIGNED == 'true' }}
         env:

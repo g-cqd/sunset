@@ -29,9 +29,10 @@ import Testing
         #expect(
             // `profiles.list`: the profiles are kept with the session, not in the file. `features`: three keys under
             // one control. `web.defaultBrowser`: the system's choice, not the file's. `web.extensions`: kept in each
-            // profile's folder.
+            // profile's folder. `updates.center`: the versions and updates, nothing kept.
             others == ["features", "file.location", "profiles.list"] + pages + [
-                "storage.websiteData", "web.defaultBrowser", "web.extensions", "web.permissions", "web.proxyCheck",
+                "storage.websiteData", "updates.center", "web.defaultBrowser", "web.extensions", "web.permissions",
+                "web.proxyCheck",
                 "web.sites"
             ],
             "only these are not one key of the file: \(others)"

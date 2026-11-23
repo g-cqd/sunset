@@ -107,3 +107,7 @@ Work paused at the owner's request (no access to mbp23, which signs and pushes, 
 - **Next** (tasks): the vault fields' editing sheet (t334), the vault's cards (t318), the recovery code window closing
   with Touch ID on (t333, mitigated), `.xpi` signatures (t305), the remaining audit tasks (t304, t307–t314), Sunset WebKit
   kept up to date on a schedule (t335, roadmap 0115).
+- **Next release (alpha.12) adds a step**: after `package-release.sh` and the WebKit app, run
+  `Scripts/make-update-packages.sh <zip> 3` for each zip, and upload the `.update` files and their `.sha256` with the
+  zips (the `upN.sh` on mbp23 must take `*.update*` too). alpha.12 is the first build that updates itself; it can only
+  be seen doing so once alpha.13 is out (roadmap 0122).

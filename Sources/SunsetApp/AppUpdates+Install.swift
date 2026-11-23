@@ -1,0 +1,37 @@
+import AppKit
+import Foundation
+import SunsetUpdate
+
+extension AppUpdates {
+    /// Restart to Update: Sunset quits as it always does (it may ask first); the update goes in place as it ends, and
+    /// Sunset opens again.
+    func installAndRestart() {
+        guard case .ready = phase else { return }
+        restartsAfterInstall = true
+        NSApp.terminate(nil)
+    }
+
+    /// As Sunset ends (`applicationWillTerminate`): a ready update checked once more and swapped in; the former app to the
+    /// Trash; Sunset opened again when asked to. Anything wrong leaves the running app as it is.
+    func installAtQuit() {
+        guard case .ready = phase, let staging, refusal == nil else { return }
+        do {
+            try UpdateTransfer.check(staging, running: running)
+            try BundleSwap.swap(running: running.bundle, staging: staging)
+        } catch {
+            restartsAfterInstall = false
+            return
+        }
+        try? FileManager.default.trashItem(at: staging, resultingItemURL: nil)
+        if restartsAfterInstall { Self.openWhenGone(running.bundle) }
+    }
+
+    /// Opens `app` once this process has ended (a shell that waits on its identifier: no program of ours outlives it).
+    private static func openWhenGone(_ app: URL) {
+        let opener = Process()
+        opener.executableURL = URL(filePath: "/bin/sh")
+        let script = "while /bin/kill -0 \"$1\" 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"$2\""
+        opener.arguments = ["-c", script, "sh", String(ProcessInfo.processInfo.processIdentifier), app.path]
+        try? opener.run()
+    }
+}

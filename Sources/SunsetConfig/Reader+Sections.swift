@@ -26,31 +26,11 @@ extension Reader {
         }
     }
 
-    mutating func readKeyboard(_ object: Object) {
-        // Every key is a plain value its option reads; anything else is not one.
+    /// A section whose every key is a plain value its option reads (keyboard, storage, updates, documents, scroll):
+    /// anything else in it is not one.
+    mutating func readPlain(_ section: String, _ object: Object) {
         for key in object.keys {
-            unknown("keyboard.\(key)")
-        }
-    }
-
-    mutating func readStorage(_ object: Object) {
-        // Every key is a plain value its option reads; anything else is not one.
-        for key in object.keys {
-            unknown("storage.\(key)")
-        }
-    }
-
-    mutating func readDocuments(_ object: Object) {
-        // Every key is a plain value its option reads; anything else is not one.
-        for key in object.keys {
-            unknown("documents.\(key)")
-        }
-    }
-
-    mutating func readScroll(_ object: Object) {
-        // Every key is a plain value its option reads; anything else is not one.
-        for key in object.keys {
-            unknown("scroll.\(key)")
+            unknown("\(section).\(key)")
         }
     }
 

@@ -20,9 +20,9 @@ Why it is shaped so: ADR-0122.
 | A | Research: what a release changes between builds; what deltas save; where the feed lives | done (diary 2026-11-23-03) |
 | B | The feed and the choice: GitHub's releases read into releases (version, build, flavour's asset, notes); the newest one for this build and channel; the notes between the two | done (`ReleaseFeed`, `UpdateChoice`) |
 | C | Deltas: our own binary delta (format, patch applied, a tool that makes them), per changed file; a manifest of the bundle's files and their hashes | done (`BinaryDelta`, `UpdatePackage`, `BundleManifest`, `SunsetDeltaTool`) |
-| D | Install: downloaded or patched into a staging copy beside the app, every file's hash checked, the whole signature checked (our team, notarized, the same identifier, a later build), swapped in at quit, run again | in part: `UpdateStaging`, `SignatureCheck`, `BundleSwap`; not the app's side (download, when to swap, running again) |
-| E | The update centre in Settings (the app and its components: version, what's new, check, update, automatic on or off) and the dialog with the notes between the two versions | not-started |
-| F | Releases make the manifest and the deltas from the last few builds, as assets beside the zip | not-started |
+| D | Install: downloaded or patched into a staging copy beside the app, every file's hash checked, the whole signature checked (our team, notarized, the same identifier, a later build), swapped in at quit, run again | written: `UpdateStaging`, `SignatureCheck`, `BundleSwap` (tested); `AppUpdates`, `UpdateTransfer`, `installAtQuit` (built, not run) |
+| E | The update centre in Settings (the app and its components: version, what's new, check, update, automatic on or off) and the dialog with the notes between the two versions | written: `UpdatesCenter` (Settings › General › Updates), `UpdateWindow`; not seen |
+| F | Releases make the manifest and the deltas from the last few builds, as assets beside the zip | done: `Scripts/make-update-packages.sh` (run on alpha.11), a step in the release workflow (not run) |
 | G | Components (roadmap 0113): the engine published, checked and installed the same way | blocked-by: 0113 B |
 
-Not done: D's app side, E, F, G. No update has been installed by Sunset yet.
+Not done: G; and nothing of the app's side has run: no Sunset has updated itself yet. The first that can is alpha.12, updating to alpha.13. Not covered: a download's progress, a package's resume.
