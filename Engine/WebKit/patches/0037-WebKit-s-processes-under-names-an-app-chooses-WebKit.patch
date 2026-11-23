@@ -1,0 +1,100 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gigi <42325924+g-cqd@users.noreply.github.com>
+Date: Mon, 23 Nov 2026 14:03:29 +0100
+Subject: [PATCH] WebKit's processes under names an app chooses:
+ WebKitXPCServicePrefix in the app, WebKitServiceName in the service (Sunset
+ 0113)
+
+An app that ships this WebKit's processes as its own XPC services, and can also run on the system's WebKit, must not
+have services named as the system's: the system's WebKit would find them first. The app's Info.plist gives the
+prefix that takes the place of com.apple.WebKit in the name looked up; the service is told WebKit's name as before,
+and its sandbox profile is the one of the name its Info.plist says.
+
+diff --git a/Source/WebKit/Shared/mac/AuxiliaryProcessMac.mm b/Source/WebKit/Shared/mac/AuxiliaryProcessMac.mm
+index 95df84584..dd970411d 100644
+--- a/Source/WebKit/Shared/mac/AuxiliaryProcessMac.mm
++++ b/Source/WebKit/Shared/mac/AuxiliaryProcessMac.mm
+@@ -506,11 +506,22 @@ static inline const NSBundle *webKit2BundleSingleton()
+     return bundle.get().get();
+ }
+ 
++// Sunset: a service an app ships under a name of its own (WebKitXPCServicePrefix, ProcessLauncherCocoa.mm) says WebKit's
++// name in its Info.plist (WebKitServiceName): its sandbox profile is that name's.
++static RetainPtr<NSString> sandboxProfileName()
++{
++    NSBundle *main = [NSBundle mainBundle];
++    id name = [main objectForInfoDictionaryKey:@"WebKitServiceName"];
++    if ([name isKindOfClass:NSString.class])
++        return (NSString *)name;
++    return main.bundleIdentifier;
++}
++
+ static void getSandboxProfileOrProfilePath(const SandboxInitializationParameters& parameters, String& profileOrProfilePath, bool& isProfilePath)
+ {
+     switch (parameters.mode()) {
+     case SandboxInitializationParameters::ProfileSelectionMode::UseDefaultSandboxProfilePath:
+-        profileOrProfilePath = [webKit2BundleSingleton() pathForResource:protect([[NSBundle mainBundle] bundleIdentifier]).get() ofType:@"sb"];
++        profileOrProfilePath = [webKit2BundleSingleton() pathForResource:sandboxProfileName().get() ofType:@"sb"];
+         isProfilePath = true;
+         return;
+     case SandboxInitializationParameters::ProfileSelectionMode::UseOverrideSandboxProfilePath:
+diff --git a/Source/WebKit/UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm b/Source/WebKit/UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm
+index 3a807a898..eba2e7d69 100644
+--- a/Source/WebKit/UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm
++++ b/Source/WebKit/UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm
+@@ -187,6 +187,28 @@ static ASCIILiteral serviceName(const ProcessLauncher::LaunchOptions& launchOpti
+ }
+ #endif // !USE(EXTENSIONKIT) || !PLATFORM(IOS)
+ 
++// Sunset: an app that ships this WebKit's processes as its own XPC services may give them names of its own, so that the
++// system's WebKit, in an app that can run on either, never finds them under WebKit's names: the app's Info.plist says the
++// prefix (WebKitXPCServicePrefix), which takes the place of "com.apple.WebKit" in the name looked up. The service is told
++// WebKit's name as before.
++static const char* xpcServiceName(ASCIILiteral name)
++{
++    static NSString *prefix = dynamic_objc_cast<NSString>([[NSBundle mainBundle] objectForInfoDictionaryKey:@"WebKitXPCServicePrefix"]);
++    static NeverDestroyed<RetainPtr<NSMutableDictionary<NSString *, NSString *>>> names = adoptNS([[NSMutableDictionary alloc] init]);
++    constexpr auto webKitPrefix = "com.apple.WebKit"_s;
++    if (!prefix.length || strncmp(name.characters(), webKitPrefix.characters(), webKitPrefix.length()))
++        return name.characters();
++    RetainPtr key = adoptNS([[NSString alloc] initWithUTF8String:name.characters()]);
++    @synchronized (names.get().get()) {
++        NSString *renamed = [names.get() objectForKey:key.get()];
++        if (!renamed) {
++            renamed = [prefix stringByAppendingString:[key substringFromIndex:webKitPrefix.length()]];
++            [names.get() setObject:renamed forKey:key.get()];
++        }
++        return renamed.UTF8String;
++    }
++}
++
+ #if USE(EXTENSIONKIT)
+ Ref<LaunchGrant> LaunchGrant::create(ExtensionProcess& process)
+ {
+@@ -240,7 +262,7 @@ void ProcessLauncher::launchProcess()
+                 if (!launcher)
+                     return;
+                 auto name = serviceName(launcher->m_launchOptions, launcher->m_client);
+-                launcher->m_xpcConnection = adoptOSObject(xpc_connection_create(name, nullptr));
++                launcher->m_xpcConnection = adoptOSObject(xpc_connection_create(xpcServiceName(name), nullptr));
+                 launcher->finishLaunchingProcess(name);
+             });
+ #endif
+@@ -277,7 +299,7 @@ void ProcessLauncher::launchProcess()
+     launchWithExtensionKit(*this, m_launchOptions.processType, m_client.get(), WTF::move(handler));
+ #else
+     auto name = serviceName(m_launchOptions, protect(m_client));
+-    m_xpcConnection = adoptOSObject(xpc_connection_create(name, nullptr));
++    m_xpcConnection = adoptOSObject(xpc_connection_create(xpcServiceName(name), nullptr));
+     finishLaunchingProcess(name);
+ #endif
+ }
+@@ -295,7 +317,7 @@ void ProcessLauncher::finishLaunchingProcess(ASCIILiteral name, int retriesRemai
+             LOG_ERROR("Retrying launch of %s (%d retries remaining)", name, retriesRemaining - 1);
+             // Each new launch requires a new XPC connection. tryFinishLaunchingProcess destroyed
+             // the previous one.
+-            processLauncher->m_xpcConnection = adoptOSObject(xpc_connection_create(name, nullptr));
++            processLauncher->m_xpcConnection = adoptOSObject(xpc_connection_create(xpcServiceName(name), nullptr));
+             processLauncher->finishLaunchingProcess(name, retriesRemaining - 1);
+             return;
+         }

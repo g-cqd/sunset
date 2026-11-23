@@ -17,7 +17,7 @@ engine cannot be loaded that way safely.
 | Step | What | Status |
 |---|---|---|
 | A | Research: can one process load either WebKit (system or a downloaded framework) chosen at launch; what signing, notarization, library validation and the hardened runtime allow for a downloaded framework and its XPC services | done (diaries 2026-11-23-02 and -05): loaded by path, system frameworks (AVKit among ten our WebKit loads) bring the system's WebKit in; a load command (`LC_DYLD_ENVIRONMENT`) in the executable sets the framework path with no loader exception, outside variables still ignored, a folder without WebKit falls back to the system's. Notarization of it not probed |
-| B | ADR: where the component lives, how it is signed, checked and updated, how a change of engine takes effect (relaunch) | proposed: ADR-0124 (a folder beside the app, services of our names by a patch, chosen at launch); its probes not done |
+| B | ADR: where the component lives, how it is signed, checked and updated, how a change of engine takes effect (relaunch) | in progress: ADR-0124 proposed; its services named ours by patch 0037, seen (diary 2026-11-23-08); not probed: a translocated copy, a half-installed engine |
 | C | Download, check (signature, team, version) and update the engine; keep the one before until the new one opens | not-started |
 | D | The choice in Settings, native or the component, switched back and forth; the component deleted to free its space; updated automatically or by hand (owner, 2026-11-23); the engine's age said as `AppEngineFreshness` does now | not-started |
 | E | Retire the second app: Sunset WebKit's data already shared (0112) | not-started |

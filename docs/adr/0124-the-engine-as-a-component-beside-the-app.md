@@ -32,5 +32,6 @@ signature, as deltas.
 ## To probe before accepting
 
 - The relative folder in a translocated or read-only copy (then the component cannot be installed: said so).
-- The patch's service names against the sandbox profiles WebKit selects by service name.
+- ~~The patch's service names against the sandbox profiles WebKit selects by service name.~~ Done (diary
+  2026-11-23-08): patch 0037; the profile follows `WebKitServiceName`; sandboxed; the system's WebKit ignores them.
 - What the WebKit process launcher does when the named services are missing (the engine half-installed).

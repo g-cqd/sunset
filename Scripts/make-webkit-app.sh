@@ -60,9 +60,17 @@ serviceMain="$(mktemp -t sunset-service)"
 clang -O2 -arch arm64 -mmacosx-version-min="$(/usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" "$built/Contents/Info.plist")" \
     -F"$products" -framework WebKit -Wl,-dyld_env,DYLD_FRAMEWORK_PATH=@executable_path/../../../../Frameworks \
     "$here/Engine/WebKit/service-main.c" -o "$serviceMain"
+# Under names of ours (studio.aemi.sunset.engine.WebContent…, patch 0037): WebKit's own names are the system WebKit's
+# too, and an app's services of those names would serve it as well (roadmap 0113, ADR-0124). Each says WebKit's name in
+# its Info.plist (its sandbox profile is that name's) and is signed with WebKit's identifier, as before.
+servicePrefix=studio.aemi.sunset.engine
 for service in "$products"/*.xpc; do
-    copy="$services/$(basename "$service")"
+    webkitName="$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$service/Contents/Info.plist")"
+    ours="$servicePrefix${webkitName#com.apple.WebKit}"
+    copy="$services/$ours.xpc"
     ditto "$service" "$copy"
+    /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $ours" "$copy/Contents/Info.plist"
+    /usr/libexec/PlistBuddy -c "Add :WebKitServiceName string $webkitName" "$copy/Contents/Info.plist"
     executable="$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$copy/Contents/Info.plist")"
     cp "$serviceMain" "$copy/Contents/MacOS/$executable"
 done
@@ -77,6 +85,9 @@ $buddy -c "Add :CFBundleDisplayName string Sunset WebKit" "$plist"
 base="$(cat "$here/Engine/WebKit/base")"
 $buddy -c "Delete :SunsetWebKitBase" "$plist" 2>/dev/null || true
 $buddy -c "Add :SunsetWebKitBase string $base" "$plist"
+# Where our WebKit looks its processes up (patch 0037).
+$buddy -c "Delete :WebKitXPCServicePrefix" "$plist" 2>/dev/null || true
+$buddy -c "Add :WebKitXPCServicePrefix string $servicePrefix" "$plist"
 # The base's date: the app tells when its engine is likely behind WebKit's security fixes (EngineFreshness).
 baseDate="$(git -C "$tree" show -s --format=%cI "$base" 2>/dev/null || true)"
 $buddy -c "Delete :SunsetWebKitBaseDate" "$plist" 2>/dev/null || true
@@ -111,11 +122,11 @@ if [ -f "$profile" ] && [ "$identity" != "-" ]; then
 fi
 
 # Signed inside out: libraries, frameworks, services, then Sunset and the app.
-sign() { # ENTITLEMENTS PATH
+sign() { # ENTITLEMENTS PATH [IDENTIFIER]
     if [ "$identity" = "-" ]; then
-        codesign --force --sign - --options runtime ${1:+--entitlements "$1"} "$2"
+        codesign --force --sign - --options runtime ${1:+--entitlements "$1"} ${3:+--identifier "$3"} "$2"
     else
-        codesign --force --sign "$identity" --options runtime --timestamp ${1:+--entitlements "$1"} "$2"
+        codesign --force --sign "$identity" --options runtime --timestamp ${1:+--entitlements "$1"} ${3:+--identifier "$3"} "$2"
     fi
 }
 for library in "$frameworks"/*.dylib "$frameworks"/*.framework/Versions/A/Frameworks/*.dylib; do
@@ -125,9 +136,10 @@ for name in WebGPU JavaScriptCore WebCore WebKitLegacy WebInspectorUI WebKit; do
     [ -d "$frameworks/$name.framework" ] && sign "" "$frameworks/$name.framework"
 done
 for service in "$services"/*.xpc; do
+    webkitName="$($buddy -c "Print :WebKitServiceName" "$service/Contents/Info.plist")"
     case "$service" in
-        *WebContent*) sign "$here/Engine/WebKit/WebContent.entitlements" "$service" ;;
-        *) sign "" "$service" ;;
+        *WebContent*) sign "$here/Engine/WebKit/WebContent.entitlements" "$service" "$webkitName" ;;
+        *) sign "" "$service" "$webkitName" ;;
     esac
 done
 # Sunset's: the app's own (the team's with a profile, else an ad hoc build's); no exception for the loader's variables.
