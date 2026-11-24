@@ -48,6 +48,7 @@ struct SidebarGroupRow: View {
     private func part(_ pane: PaneID) -> some View {
         SidebarGroupPart(
             model: tabs.content(pane),
+            saved: tabs.pendingDescriptor(pane),
             lit: selected && pane == item.focused,
             layout: layout,
             onHoverChange: { inside in

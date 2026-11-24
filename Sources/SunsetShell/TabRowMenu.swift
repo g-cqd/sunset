@@ -46,6 +46,13 @@ struct TabRowMenu: View {
                 tabs.select(item: item)
             }
         }
+        if tabs.canUnload(item: item) {
+            Button {
+                tabs.unload(item: item)
+            } label: {
+                MenuItemLabel("Unload", symbol: "minus.circle")
+            }
+        }
         Divider()
         TabKeepMenu(tabs: tabs, item: item, animation: animation)
         KeepAwakeMenu(tabs: tabs, item: item)

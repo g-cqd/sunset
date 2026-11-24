@@ -184,6 +184,8 @@ package struct TabSidebar: View {
                 keepCloseVisible: slot != nil && slot == closingSlot,
                 name: custom.name,
                 icon: custom.icon,
+                // A restored tab that waits has no content yet: its row reads what it starts from.
+                saved: tabs.pendingDescriptor(item.focused),
                 parts: settings.tabs.bar.parts,
                 layout: layout,
                 marked: tabs.isMarked(.tab(item.id)),

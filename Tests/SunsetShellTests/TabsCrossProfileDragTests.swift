@@ -28,6 +28,7 @@ struct TabsCrossProfileDragTests {
         #expect(second.dropDragged(in: .today(at: 0)))
         #expect(second.workspace.items.first?.id == pageTab)
         #expect(oldPage.stopped, "the page of the first profile stopped")
+        second.select(item: pageTab)
         let newPage = try #require(two.content(second.workspace.items[0].focused))
         #expect(newPage !== oldPage && newPage.descriptor == page, "made again from where it was")
 

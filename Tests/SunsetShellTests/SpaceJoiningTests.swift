@@ -72,6 +72,8 @@ struct SpaceJoiningTests {
         window.join(harness.space)
         #expect(harness.space.contents.isEmpty, "no placeholder is made of a pane that has a kind")
         window.makeContent = { FakeContent($0) }
+        #expect(harness.space.contents.isEmpty, "a tab that is not shown waits")
+        window.select(item: harness.space.tabs.items[0].id)
         #expect(harness.space.contents[pane]?.descriptor == .terminal(directory: "/a"))
     }
 }

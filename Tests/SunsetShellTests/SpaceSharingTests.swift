@@ -114,12 +114,16 @@ struct SpaceSharingTests {
         #expect(harness.space.tabs.count == 2 && harness.space.isStopped)
         #expect(harness.space.saved().contents.values.contains(.terminal(directory: "/work")), "still in the session")
         let next = harness.window()
+        #expect(harness.made.count == 2, "none starts again until it is shown")
+        let (one, two) = (harness.space.tabs.items[0].id, harness.space.tabs.items[1].id)
+        next.select(item: one)
+        next.select(item: two)
         #expect(harness.made.count == 4 && !harness.space.isStopped)
         #expect(
             harness.made[2].descriptor == .terminal(directory: "/work")
                 && harness.made[3].descriptor.state == ["k": "v"]
         )
-        #expect(next.workspace.count == 2 && next.workspace.selectedID == nil)
+        #expect(next.workspace.count == 2 && next.workspace.selectedID == two)
     }
 
     @Test func `a Space that does not keep its tabs (a private window, a window that is one tab) ends them with it`() {
@@ -167,6 +171,7 @@ struct SpaceSharingTests {
         #expect(other.space.tabs.isEmpty && !other.space.isStopped && other.space.saved().stopped == nil)
         // Shown again in time, they are no longer waiting.
         let next = harness.window()
+        next.select(item: harness.space.tabs.items[0].id)
         #expect(harness.space.stopped == nil && next.workspace.count == 1)
         #expect(!harness.space.closeStopped(after: 3600, now: closed.addingTimeInterval(99_999)))
         // A Space with windows, or with nothing stopped, has nothing to close; 0 is never.
@@ -204,8 +209,8 @@ struct SpaceSharingTests {
         first.show(SavedView(space: saved.space.id, selected: b.item))
         let second = harness.window()
         second.show(SavedView(space: saved.space.id, selected: b.item))
-        #expect(harness.made.map(\.descriptor.directory) == ["/a", "/b"], "made once, by the first window")
+        #expect(harness.made.map(\.descriptor.directory) == ["/b"], "made once, and only what is shown")
         #expect(first.showsLive && !second.showsLive && second.workspace.selectedID == b.item)
-        #expect(harness.content(b.pane)?.visible == true && harness.content(a.pane)?.visible == false)
+        #expect(harness.content(b.pane)?.visible == true && harness.content(a.pane) == nil, "the other tab waits")
     }
 }

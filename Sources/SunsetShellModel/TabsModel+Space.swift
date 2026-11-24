@@ -18,6 +18,8 @@ extension TabsModel {
             // Shown by something other than a click (a new tab, the neighbour of one that closed): taken only from no one.
             if let now { space.claim(now, by: self, force: false) }
             if let was { space.unclaim(was, by: self) }
+            // A tab that waited is made as it is shown; a new tab's content is made by whoever opened it, not here.
+            if now != nil { revive(onlyKept: true) }
         }
     }
 
@@ -51,13 +53,33 @@ extension TabsModel {
         if items.isEmpty, selectedEntry == nil, favorites.isEmpty, pinned?.isEmpty ?? true { emptied() }
     }
 
-    /// Gives their content to the panes of the Space's tabs that have none, from what was kept for each; once this window
-    /// was told how content is made (before that it could only make placeholders).
-    package func revive() {
-        guard canMake else { return }
-        for pane in space.tabs.allPanes where space.contents[pane] == nil {
+    /// Gives their content to the panes of the tab this window shows that have none, from what was kept for each; once this
+    /// window was told how content is made (before that it could only make placeholders). The other tabs wait, listed and
+    /// not loaded, each with what it starts from, until one is shown (n146): a launch started every shell of the last session.
+    package func revive(onlyKept: Bool = false) {
+        guard canMake, let shown = shownTab else { return }
+        guard let item = space.tabs.items.first(where: { $0.id == shown }) else { return }
+        for pane in item.panes where space.contents[pane] == nil && (!onlyKept || space.pending[pane] != nil) {
             register(makeContent(space.takePending(pane) ?? .terminal(directory: nil)), as: pane)
         }
+    }
+
+    /// Whether the menu offers Unload for the tab `id`: made, not shown by any window, and only documents (Markdown, rendered
+    /// Markdown, source) in it: a terminal's end would stop its program, and a page unloads by itself when it is hidden.
+    package func canUnload(item id: Workspace.ItemID) -> Bool {
+        guard let item = space.tabs.items.first(where: { $0.id == id }),
+            !space.currentViewers.contains(where: { $0.shownTab == id })
+        else { return false }
+        let made = item.panes.compactMap { space.contents[$0] }
+        return !made.isEmpty && made.allSatisfy { $0.descriptor.kind == PaneDescriptor.documentKind }
+    }
+
+    /// Unloads the tab `id` by hand (see `SpaceModel.unload`).
+    @discardableResult
+    package func unload(item id: Workspace.ItemID) -> Bool {
+        let done = space.unload(item: id)
+        if done { onChange() }
+        return done
     }
 
     /// The panes this window sets up (its font, what they ask of a window): those of the tabs it draws, and of the tabs no
