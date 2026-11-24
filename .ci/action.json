@@ -34,7 +34,7 @@
       "title": "Verification \u00b7 Mutation (litmus)",
       "os": "macOS",
       "cadence": [
-        "dispatch"
+        "pull-request"
       ],
       "mutation": {
         "paths": [
@@ -43,8 +43,8 @@
           "Sources/SunsetConfig/**",
           "Sources/SunsetDocuments/**"
         ],
-        "budget": 7200,
-        "workspace": "in-place"
+        "budget": 3600,
+        "workspace": "copy"
       }
     }
   ]

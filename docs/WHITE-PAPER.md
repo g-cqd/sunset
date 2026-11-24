@@ -106,8 +106,8 @@ proves nothing.
   white paper allows. Run the whole suite when handing a branch back, not after every edit.
 - **CI is never waited on.** Push, start the next piece of work, and read the result when it arrives (poll with an event-driven wait, never a fixed sleep). A red CI
   is fixed in the next piece of work, ahead of new features; it does not block thinking or writing.
-- **Mutation testing belongs to CI** (scheduled and on pull requests), never to the local loop. Its surviving mutants become red tests, recorded as roadmap entries or
-  diary lines, and are fixed like any other failing test.
+- **Mutation testing runs on pull requests, and locally in the background** (`Scripts/mutate-async.sh`; ADR-0126), never on a schedule and never in the loop or a gate.
+  Its surviving mutants become red tests, recorded as roadmap entries or diary lines, and are fixed like any other failing test.
 - Benchmarks that compare two runs (section 2) run when a hot path changed, not on every commit.
 
 ## 2. Performance doctrine

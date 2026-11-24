@@ -1,7 +1,7 @@
 name: CI
 
 # swift-ci plans and runs the checks from .ci/action.json (https://github.com/g-cqd/swift-ci). `.ci/swift-ci local` runs the same checks on a
-# developer's machine. Mutation testing is the `mutation` command of .ci/action.json (litmus): CI only, never the local loop (white paper section 1).
+# developer's machine. Mutation testing is the `mutation` command of .ci/action.json (litmus), on pull requests only (ADR-0126); locally it runs in the background, never in the loop.
 on:
   push:
     branches: [main]

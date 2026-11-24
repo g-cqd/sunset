@@ -16,7 +16,7 @@ Read [docs/WHITE-PAPER.md](docs/WHITE-PAPER.md) first; it binds everything below
 1. Read open tasks and new notes; pick the next unblocked roadmap entry.
 2. Name the claim, probe it, record it in the diary. **Red first**, observed and recorded; commits need not build, the tip you hand back must (ADR-0007).
 3. Measure hot paths before and after (release only, percentiles, same harness), against the oracles where a comparison exists.
-4. **Never wait on CI**; mutation testing runs in CI only.
+4. **Never wait on CI**; mutation testing runs on pull requests and, locally, in the background only (ADR-0126).
 5. Update the roadmap entry, write or supersede ADRs, update the task.
 
 ## Rules specific to this repository

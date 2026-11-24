@@ -15,7 +15,7 @@ rule comes from and what enforces it. Everything here fails the pre-commit hook,
 | One top-level type per file, named for it (`Type+Feature.swift` for extensions); no file past 250 lines, tests included; `@Suite` structs count; generated files exempt | ask's and AemiFormal's structure rules (`SourceStructureTests`) | `SourceStructureTests` inside `swift test` |
 | No `strtod`; no hand-rolled PRNG in tests (use AemiTestKit's `SeededRNG`); `#expect(throws:)` names its error; no wall-clock assertions | swift-ci `quality.discipline` | CI (`.ci/action.json` `quality.discipline`); `SeededRNG` is used throughout |
 | No Grand Central Dispatch (`import Dispatch`, `DispatchQueue`, `DispatchSource`, `DispatchSemaphore`, ...): Swift concurrency and executors only | project rule | `BannedAPITests` inside `swift test` |
-| Red first; a performance claim has a measurement; mutation testing in CI only; never wait on CI; restore mutants from a copy, never `git checkout` | white paper §1 | process; `.github/workflows/mutation.yml` |
+| Red first; a performance claim has a measurement; mutation testing on pull requests and in the background only (ADR-0126); never wait on CI; restore mutants from a copy, never `git checkout` | white paper §1 | process; `.github/workflows/mutation.yml` |
 | Documentation law, `// lint:allow` only with a reason on the line | swift-ci | CI |
 
 ## Not enforced
