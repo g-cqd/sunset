@@ -5,8 +5,8 @@ extension SettingsOption {
         [
             toggle("tabs.restore", "Restore tabs at launch", "session reopen quit windows", \.tabs.restore)
                 .noted(
-                    "The windows, tabs and splits come back, each pane as a new shell in the directory it was in. Programs "
-                        + "that were running are not restarted."
+                    "Tabs and splits come back; only the one shown is loaded, the others load when shown, a terminal as a new "
+                        + "shell where it was. Favorites and pinned tabs come back unloaded."
                 )
                 .grouped("Launch"),
             toggle(

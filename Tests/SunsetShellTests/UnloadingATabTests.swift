@@ -31,4 +31,19 @@ struct UnloadingATabTests {
         window.select(item: other.id)
         #expect(window.content(other.focused)?.descriptor == document)
     }
+
+    @Test func `an idle terminal unloads and starts again where it was; one running a command stays`() throws {
+        let harness = SpaceHarness()
+        let window = harness.window()
+        window.newTab(.terminal(directory: "/idle"))
+        window.newTab(.terminal(directory: "/busy"))
+        window.newTab(document)
+        let (idle, busy) = (window.workspace.items[0], window.workspace.items[1])
+        try #require(harness.content(busy.focused)).runsCommand = true
+        #expect(window.canUnload(item: idle.id) && !window.canUnload(item: busy.id))
+        #expect(!window.unload(item: busy.id) && window.content(busy.focused) != nil)
+        #expect(window.unload(item: idle.id) && window.content(idle.focused) == nil)
+        window.select(item: idle.id)
+        #expect(window.content(idle.focused)?.descriptor == .terminal(directory: "/idle"))
+    }
 }

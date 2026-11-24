@@ -37,13 +37,13 @@ extension SpaceModel {
 
     /// Lets go of what runs in the tab `id` by hand: its contents stop and what brings each back is kept, the tab stays in the
     /// list, not loaded, and is made again where it was when a window shows it. Not a tab a window shows, nor one with
-    /// something private (it keeps nothing to come back from) or edited and not saved (it would lose the edits).
+    /// something private (it keeps nothing to come back from) edited and not saved (it would lose the edits) or running a command.
     /// - Returns: whether it was unloaded.
     @discardableResult
     package func unload(item id: Workspace.ItemID) -> Bool {
         guard let item = tabs.items.first(where: { $0.id == id }),
             !currentViewers.contains(where: { $0.shownTab == id }),
-            !item.panes.contains(where: { contents[$0]?.isPrivate == true || contents[$0]?.isEdited == true })
+            !item.panes.contains(where: { holdsSomething($0) })
         else { return false }
         var any = false
         for pane in item.panes {
@@ -57,6 +57,11 @@ extension SpaceModel {
         live[id] = nil
         syncStates()
         return any
+    }
+
+    private func holdsSomething(_ pane: PaneID) -> Bool {
+        guard let content = contents[pane] else { return false }
+        return content.isPrivate || content.isEdited || content.runsCommand
     }
 
     /// What brings back the content of `pane`, which has none; taken, since the content is about to be made.

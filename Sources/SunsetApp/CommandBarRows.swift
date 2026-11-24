@@ -117,6 +117,8 @@ import SunsetWeb
 
     private static func tab(_ item: Workspace.Item, bar: CommandBar, tabs: TabsModel) -> ChoiceRow {
         let model = tabs.contents[item.focused]
+        // Not loaded (a tab of the last session that waits): what it would start from.
+        let saved = model == nil ? tabs.pendingDescriptor(item.focused) : nil
         let index = tabs.workspace.items.firstIndex { $0.id == item.id } ?? 99
         let last = index == tabs.workspace.count - 1
         let accessory =
@@ -124,9 +126,9 @@ import SunsetWeb
             ? "\(item.panes.count) panes" : (index < 8 ? "\u{2318}\(index + 1)" : (last ? "\u{2318}9" : nil))
         return ChoiceRow(
             id: "tab \(item.id)",
-            glyph: model?.glyph ?? .symbol("terminal"),
-            title: tabs.custom(for: item).name ?? model?.title ?? "Sunset",
-            subtitle: model?.detail.map(TabLabel.shortened),
+            glyph: TabLabel.rowGlyph(model: model, saved: saved),
+            title: TabLabel.rowTitle(model: model, saved: saved, name: tabs.custom(for: item).name),
+            subtitle: TabLabel.rowSubtitle(model: model, saved: saved),
             accessory: accessory,
             actions: tabActions(item.id, bar: bar, tabs: tabs)
         )

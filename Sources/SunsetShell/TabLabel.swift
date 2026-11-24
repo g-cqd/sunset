@@ -123,7 +123,7 @@ package struct TabLabel: View {
 
     /// The picture of a pane that is not running: a terminal that runs a command its terminal mark, one in a folder the folder with its
     /// letter, another kind its generic mark.
-    static func glyph(of saved: PaneDescriptor, command: String? = nil) -> PaneGlyph {
+    package static func glyph(of saved: PaneDescriptor, command: String? = nil) -> PaneGlyph {
         if saved.state["url"] != nil { return .symbol("globe") }
         if saved.kind == PaneDescriptor.documentKind {
             let rendered = saved.state["view"] == "rendered"
@@ -137,14 +137,26 @@ package struct TabLabel: View {
     }
 
     /// The title of a pane that is not running: the command a terminal would run, else its directory by its name; another kind by its kind.
-    static func title(of saved: PaneDescriptor, command: String? = nil) -> String {
+    package static func title(of saved: PaneDescriptor, command: String? = nil) -> String {
         if saved.kind == PaneDescriptor.terminalKind, let command, !command.isEmpty { return command }
         if let title = saved.state["title"], !title.isEmpty { return title }
+        if let file = saved.documentFile { return (file as NSString).lastPathComponent }
         if let host = saved.state["url"].flatMap(URL.init(string:))?.host() { return host }
         guard let directory = saved.directory else {
             return saved.kind == PaneDescriptor.terminalKind ? "Terminal" : saved.kind
         }
         return (directory as NSString).lastPathComponent
+    }
+
+    /// What a list row (the command bar's) shows of a tab: its content's, else, with none loaded, what it would start from.
+    package static func rowGlyph(model: (any PaneContent)?, saved: PaneDescriptor?) -> PaneGlyph {
+        model?.glyph ?? saved.map { glyph(of: $0) } ?? .symbol("terminal")
+    }
+    package static func rowTitle(model: (any PaneContent)?, saved: PaneDescriptor?, name: String?) -> String {
+        name ?? model?.title ?? saved.map { title(of: $0) } ?? "Sunset"
+    }
+    package static func rowSubtitle(model: (any PaneContent)?, saved: PaneDescriptor?) -> String? {
+        (model?.detail ?? saved?.directory).map(shortened)
     }
 
     /// The last two components of a path, with `~` for the home directory.

@@ -72,6 +72,14 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
         kind == Self.documentKind ? state["document"].flatMap(UUID.init(uuidString:)) : nil
     }
 
+    /// What a tab that exists but is not loaded is found by, from what was saved of it: its page's title and address, its file's
+    /// name and path, its directory. A loaded one is found by what its content says (`PaneContent.searchTerms`).
+    public var searchTerms: [String] {
+        var terms = [state["title"], state["url"], directory, documentFile.map { ($0 as NSString).lastPathComponent }]
+        terms.append(documentFile)
+        return terms.compactMap(\.self).filter { !$0.isEmpty }
+    }
+
     /// The directory of a terminal; nil for any other kind.
     public var directory: String? {
         kind == Self.terminalKind ? state["directory"] : nil

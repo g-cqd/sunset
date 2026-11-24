@@ -56,7 +56,7 @@ extension BuiltInTabBar {
                     showsProgress: settings.showProgress
                 )
             },
-            label: { label(model: model, name: entry.title) },
+            label: { label(model: model, name: entry.title, saved: entry.home.contents[entry.home.focused]) },
             lines: lines,
             siteColor: RowFill.tabColor(custom: entry.icon, model: model)
         )
@@ -68,12 +68,14 @@ extension BuiltInTabBar {
     func row(_ item: Workspace.Item) -> some View {
         let model = tabs.contents[item.focused]
         let custom = tabs.custom(for: item)
+        // A tab that exists but is not loaded reads what it would start from.
+        let saved = tabs.pendingDescriptor(item.focused)
         return BarTab(
             selected: tabs.isSelected(item.id),
             armed: tabs.isCloseArmed(item.id),
             close: { tabs.close(item: item.id) },
-            icon: { TabIcon(model: model, icon: custom.icon, showsProgress: settings.showProgress) },
-            label: { label(model: model, name: custom.name) },
+            icon: { TabIcon(model: model, icon: custom.icon, saved: saved, showsProgress: settings.showProgress) },
+            label: { label(model: model, name: custom.name, saved: saved) },
             lines: lines,
             siteColor: RowFill.tabColor(custom: custom.icon, model: model),
             onHover: { inside in hover(item.id, inside) }
@@ -109,7 +111,7 @@ extension BuiltInTabBar {
     }
 
     /// The title and the second line, without the icon (the bar's tab draws it in the slot it shares with the close button).
-    private func label(model: (any PaneContent)?, name: String?) -> some View {
+    private func label(model: (any PaneContent)?, name: String?, saved: PaneDescriptor?) -> some View {
         TabLabel(
             model: model,
             // One line in the row of capsules.
@@ -119,7 +121,8 @@ extension BuiltInTabBar {
                 directory: settings.showDirectory && !capsules,
                 progress: settings.showProgress
             ),
-            name: name
+            name: name,
+            saved: saved
         )
     }
 

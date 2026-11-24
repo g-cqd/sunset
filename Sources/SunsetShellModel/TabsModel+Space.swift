@@ -64,14 +64,16 @@ extension TabsModel {
         }
     }
 
-    /// Whether the menu offers Unload for the tab `id`: made, not shown by any window, and only documents (Markdown, rendered
-    /// Markdown, source) in it: a terminal's end would stop its program, and a page unloads by itself when it is hidden.
+    /// Whether the menu offers Unload for the tab `id`: loaded, not shown by any window, and made only of documents (Markdown,
+    /// rendered Markdown, source) and terminals with no command running (unloaded, a terminal starts a new shell where it
+    /// was). A page unloads by itself when it is hidden, and keeps its history doing so.
     package func canUnload(item id: Workspace.ItemID) -> Bool {
         guard let item = space.tabs.items.first(where: { $0.id == id }),
             !space.currentViewers.contains(where: { $0.shownTab == id })
         else { return false }
         let made = item.panes.compactMap { space.contents[$0] }
-        return !made.isEmpty && made.allSatisfy { $0.descriptor.kind == PaneDescriptor.documentKind }
+        let kinds: Set = [PaneDescriptor.documentKind, PaneDescriptor.terminalKind]
+        return !made.isEmpty && made.allSatisfy { kinds.contains($0.descriptor.kind) && !$0.runsCommand }
     }
 
     /// Unloads the tab `id` by hand (see `SpaceModel.unload`).

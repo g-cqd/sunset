@@ -24,11 +24,12 @@ import SunsetShell
         let elsewhere = tabs.barTabsElsewhere(bar)
             .map { found in
                 let model = found.space.contents[found.item.focused]
+                let saved = model == nil ? found.space.pending[found.item.focused] : nil
                 return ChoiceRow(
                     id: "tab \(found.item.id)",
-                    glyph: model?.glyph ?? .symbol("terminal"),
-                    title: found.item.customTitle ?? model?.title ?? "Sunset",
-                    subtitle: model?.detail.map(TabLabel.shortened),
+                    glyph: TabLabel.rowGlyph(model: model, saved: saved),
+                    title: TabLabel.rowTitle(model: model, saved: saved, name: found.item.customTitle),
+                    subtitle: TabLabel.rowSubtitle(model: model, saved: saved),
                     accessory: found.space.space.name,
                     actions: [
                         ChoiceAction("Show Tab in \(found.space.space.name)", symbol: "arrow.right.square") {

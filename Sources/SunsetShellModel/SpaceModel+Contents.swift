@@ -61,7 +61,8 @@ extension SpaceModel {
     package func fields(of item: Workspace.Item) -> [String] {
         let own = [item.customTitle ?? ""]
         let parts = item.panes.flatMap { pane -> [String] in
-            guard let content = contents[pane] else { return [] }
+            // Not loaded, it is found by what it would start from.
+            guard let content = contents[pane] else { return pending[pane]?.searchTerms ?? [] }
             return [content.title, content.detail ?? ""] + content.searchTerms
         }
         return (own + parts).filter { !$0.isEmpty }
