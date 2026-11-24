@@ -65,15 +65,32 @@ extension TabsModel {
     }
 
     /// Whether the menu offers Unload for the tab `id`: loaded, not shown by any window, and made only of documents (Markdown,
-    /// rendered Markdown, source) and terminals with no command running (unloaded, a terminal starts a new shell where it
-    /// was). A page unloads by itself when it is hidden, and keeps its history doing so.
+    /// rendered Markdown, source), terminals with no command running (unloaded, a terminal starts a new shell where it was)
+    /// and pages not unloaded yet (a page keeps its address and its history).
     package func canUnload(item id: Workspace.ItemID) -> Bool {
         guard let item = space.tabs.items.first(where: { $0.id == id }),
             !space.currentViewers.contains(where: { $0.shownTab == id })
         else { return false }
         let made = item.panes.compactMap { space.contents[$0] }
         let kinds: Set = [PaneDescriptor.documentKind, PaneDescriptor.terminalKind]
-        return !made.isEmpty && made.allSatisfy { kinds.contains($0.descriptor.kind) && !$0.runsCommand }
+        return !made.isEmpty
+            && made.allSatisfy {
+                $0.unloadsInPlace ? !$0.isUnloaded : kinds.contains($0.descriptor.kind) && !$0.runsCommand
+            }
+    }
+
+    /// Unloads the tab `id` by hand, after asking its pages whether they hold text typed and not sent.
+    /// - Returns: what the menu says: done, or why not.
+    package func unloadChecked(item id: Workspace.ItemID) async -> ActionFeedback {
+        guard canUnload(item: id), let item = space.tabs.items.first(where: { $0.id == id }) else {
+            return .blocked("It is shown, or something runs in it")
+        }
+        for pane in item.panes {
+            if let content = space.contents[pane], content.unloadsInPlace, await content.holdsUnsentText() {
+                return .blocked("Something typed in it is not sent")
+            }
+        }
+        return unload(item: id) ? .done("Unloaded") : .blocked("It plays, captures or asks something")
     }
 
     /// Unloads the tab `id` by hand (see `SpaceModel.unload`).

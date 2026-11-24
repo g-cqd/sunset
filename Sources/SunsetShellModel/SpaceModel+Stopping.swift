@@ -48,6 +48,11 @@ extension SpaceModel {
         var any = false
         for pane in item.panes {
             guard let content = contents[pane] else { continue }
+            // A page lets go of its view and keeps its place; a content that is made again is stopped and kept.
+            if content.unloadsInPlace {
+                if content.unload() { any = true }
+                continue
+            }
             pending[pane] = content.descriptor
             content.onExit = {}
             content.stop()

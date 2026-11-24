@@ -46,4 +46,29 @@ struct UnloadingATabTests {
         window.select(item: idle.id)
         #expect(window.content(idle.focused)?.descriptor == .terminal(directory: "/idle"))
     }
+
+    @Test func `a page unloads where it is, keeping its tab and its place; text typed and not sent stops it`()
+        async throws
+    {
+        let harness = SpaceHarness()
+        let window = harness.window()
+        let page = PaneDescriptor(kind: "web", state: ["url": "https://a.example/"])
+        window.newTab(page)
+        window.newTab(page)
+        window.newTab(.terminal(directory: "/shown"))
+        let (first, second) = (window.workspace.items[0], window.workspace.items[1])
+        for tab in [first, second] { try #require(harness.content(tab.focused)).unloadsInPlace = true }
+        try #require(harness.content(second.focused)).unsentText = true
+        #expect(window.canUnload(item: first.id))
+
+        #expect(await window.unloadChecked(item: first.id) == .done("Unloaded"))
+        let kept = try #require(harness.content(first.focused))
+        #expect(kept.unloads == 1 && kept.isUnloaded && !kept.stopped, "the page stays, its view let go of")
+        #expect(window.workspace.count == 3)
+        #expect(!window.canUnload(item: first.id), "already unloaded")
+
+        let typed = await window.unloadChecked(item: second.id)
+        #expect(typed == .blocked("Something typed in it is not sent"))
+        #expect(try #require(harness.content(second.focused)).unloads == 0)
+    }
 }

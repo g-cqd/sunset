@@ -1,9 +1,11 @@
 import SunsetPane
+import SunsetRuntime
 import SwiftUI
 
 /// What a tab's menu offers, the same from its row and from any part of a split (a split's parts had none of it): the
 /// layouts, the selection's actions, rename and icon, keeping, keeping the Mac awake, closing.
 struct TabRowMenu: View {
+    @Environment(\.runtime) private var runtime
     let tabs: TabsModel
     let item: Workspace.ItemID
     let animation: Animation?
@@ -48,7 +50,7 @@ struct TabRowMenu: View {
         }
         if tabs.canUnload(item: item) {
             Button {
-                tabs.unload(item: item)
+                runtime.task { Feedback.give(await tabs.unloadChecked(item: item)) }
             } label: {
                 MenuItemLabel("Unload", symbol: "minus.circle")
             }

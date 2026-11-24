@@ -96,6 +96,10 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored package internal(set) var hiddenSince: Date?
     /// Its view was let go of to free memory (S-f): it is made again, where it was, when it is shown. Its icon is dimmed.
     package internal(set) var isUnloaded = false
+    /// A page keeps its address and its place in its history when it is unloaded: it is not stopped.
+    package var unloadsInPlace: Bool {
+        true
+    }
 
     package var onExit: () -> Void = {}
     package var onFocusRequest: () -> Void = {}

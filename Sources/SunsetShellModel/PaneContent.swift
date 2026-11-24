@@ -66,6 +66,15 @@ package import SunsetPane
     func prepare()
     /// It let go of its memory while hidden and is made again when shown (a page, S-f): its icon is dimmed.
     var isUnloaded: Bool { get }
+    /// It lets go of its memory where it is, keeping its place (a page: its address, its history), instead of being stopped and
+    /// made again: `unload()` does it.
+    var unloadsInPlace: Bool { get }
+    /// Lets go of what it holds, when it is not on screen and nothing keeps it (a page that plays, captures or asks something).
+    /// - Returns: whether it did.
+    @discardableResult
+    func unload() -> Bool
+    /// Whether it holds text typed and not sent, which letting go would lose (asked of a page before it is unloaded by hand).
+    func holdsUnsentText() async -> Bool
     /// A page with no address yet (a new tab's): the command bar opens on it.
     var isBlankPage: Bool { get }
     /// What it adds to its tab's menu (a page: Reload, Copy Address, Site Settings).
@@ -115,6 +124,15 @@ extension PaneContent {
     package func refreshPicture(olderThan age: Duration) {}
     package func prepare() {}
     package var isUnloaded: Bool {
+        false
+    }
+    package var unloadsInPlace: Bool {
+        false
+    }
+    package func unload() -> Bool {
+        false
+    }
+    package func holdsUnsentText() async -> Bool {
         false
     }
     package var menuActions: [PaneMenuAction] {

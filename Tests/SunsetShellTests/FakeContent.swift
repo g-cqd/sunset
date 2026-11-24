@@ -23,6 +23,20 @@ import SwiftUI
     var searchTerms: [String] = []
     var isPrivate = false
     var runsCommand = false
+    /// A page: unloaded where it is, keeping its place, instead of stopped.
+    var unloadsInPlace = false
+    var isUnloaded = false
+    var unsentText = false
+    private(set) var unloads = 0
+    func unload() -> Bool {
+        guard unloadsInPlace, !isUnloaded else { return false }
+        unloads += 1
+        isUnloaded = true
+        return true
+    }
+    func holdsUnsentText() async -> Bool {
+        unsentText
+    }
     var descriptor: PaneDescriptor
     /// A page with no address, as a new tab's.
     var isBlankPage: Bool {
