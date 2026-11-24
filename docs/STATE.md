@@ -76,7 +76,7 @@ images in the terminal. The tasks carry the band as a tag (`p1-now`, `p2-next`, 
    - Terminal images (n94, ADR-0117, roadmap 0010): kitty graphics in the core, then drawn; Sixel and iTerm2 after.
    - The parser fuzzed (roadmap 0026 T-8): every byte a program prints is untrusted, and images add a new parser; the
      fuzzer covers both.
-   - Tab switching speed (n56, n59): measured in release first; mbp23's patch (`docs/research/patches/`) read again.
+   - ~~Tab switching speed (n56, n59)~~ done 2026-11-24: measured in release (the sidebar costs about 4 ms with 40 tabs, a terminal switch 10-17 ms of main-thread work), no slow switch reproduced, and the owner finds it fixed (`docs/diary/2026-11-24-05.md`).
    - Performance and memory (n11): a measured pass over idle memory, a page's, a terminal's scrollback, the vault's.
 2. **Next**
    - WebKit's data at rest beyond the cookie jar (A4); the vault's imports and backups (0095), then its open steps
