@@ -24,6 +24,9 @@ struct PasswordsActions: View {
                 Button("Import Logins from CSV…", systemImage: "square.and.arrow.down") {
                     PasswordsImport.run(into: model)
                 }
+                Button("Export Logins to CSV…", systemImage: "square.and.arrow.up") {
+                    PasswordsImport.export(from: model)
+                }
             }
             SidebarIconButton(symbol: "lock", help: "Lock Passwords") { model.lock() }
                 .accessibilityLabel("Lock Passwords")

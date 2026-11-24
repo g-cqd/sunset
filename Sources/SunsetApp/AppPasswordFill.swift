@@ -118,7 +118,7 @@ final class AppPasswordFill: PasswordFillHost {
     }
 
     /// The person at the Mac says it is them: Touch ID, else its password.
-    private static func isOwner(reason: String) async -> Bool {
+    static func isOwner(reason: String) async -> Bool {
         (try? await LAContext().evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)) ?? false
     }
 

@@ -2,15 +2,22 @@
 /// break. A cell that would start a formula in a spreadsheet (`=`, `+`, `-`, `@`, a tab, a return) gets an apostrophe first:
 /// what is exported (a page's title, an address) is chosen by others, and must not run when the file is opened (CWE-1236).
 public enum CSV {
-    public static func cell(_ text: String) -> String {
+    /// What is done to a cell that would start a formula: `protect` (the default: the file is for a spreadsheet) or `keep`, for a file another
+    /// program reads back, where an apostrophe would change what the cell is (a password).
+    public enum Formulas: Sendable {
+        case protect
+        case keep
+    }
+
+    public static func cell(_ text: String, formulas: Formulas = .protect) -> String {
         var cell = text
-        if let first = cell.first, "=+-@\t\r".contains(first) { cell = "'" + cell }
+        if formulas == .protect, let first = cell.first, "=+-@\t\r".contains(first) { cell = "'" + cell }
         guard cell.contains(where: { ",\"\n\r".contains($0) }) else { return cell }
         return "\"" + cell.replacing("\"", with: "\"\"") + "\""
     }
 
     /// One line, ended as the format asks.
-    public static func line(_ cells: [String]) -> String {
-        cells.map(cell).joined(separator: ",") + "\r\n"
+    public static func line(_ cells: [String], formulas: Formulas = .protect) -> String {
+        cells.map { cell($0, formulas: formulas) }.joined(separator: ",") + "\r\n"
     }
 }

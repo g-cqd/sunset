@@ -4,8 +4,9 @@ import SunsetCredentials
 import SunsetRuntime
 import UniformTypeIdentifiers
 
-/// Logins from the CSV file a browser or a password manager exported (roadmap 0095 D): the person chooses the file, is told what it holds
-/// and that it is in the clear, and confirms; the logins are kept in the vault and the file is left where it is, for the person to delete.
+/// Logins from the CSV file a browser or a password manager exported, and out to one (roadmap 0095 D). In: the person chooses the file, is told
+/// what it holds and that it is in the clear, and confirms; the logins are kept in the vault and the file is left where it is, for the person
+/// to delete. Out: warned, the person says it is them (Touch ID, else the Mac's password), chooses where; a file only they can read.
 @MainActor
 enum PasswordsImport {
     /// A file larger than this is not a list of logins.
@@ -80,5 +81,50 @@ enum PasswordsImport {
         alert.messageText = message
         alert.informativeText = detail
         alert.runModal()
+    }
+
+    /// Every login of the vault written to a file the person chooses, after a warning and the owner's word.
+    static func export(from model: PasswordsModel) {
+        let ask = NSAlert()
+        ask.alertStyle = .warning
+        ask.messageText = "Export every login?"
+        ask.informativeText =
+            "The file holds every password in the clear: anyone who can read it can sign in as you. Keep it only as long as you need it, "
+            + "never in a synced or shared folder, and do not open it in a spreadsheet. Delete it when you are done."
+        ask.addButton(withTitle: "Cancel")
+        ask.addButton(withTitle: "Export…")
+        guard ask.runModal() == .alertSecondButtonReturn else { return }
+        Runtime.live.task { @MainActor in
+            guard await AppPasswordFill.isOwner(reason: "export every login from Passwords, in the clear") else {
+                return
+            }
+            let result = LoginExport.csv(of: model.entries)
+            guard result.exported > 0 else {
+                say("Nothing to export", "The vault has no login. Cards and notes are not exported.")
+                return
+            }
+            let panel = NSSavePanel()
+            panel.allowedContentTypes = [.commaSeparatedText]
+            panel.nameFieldStringValue = "Sunset Logins.csv"
+            panel.message = "Choose where to write the file. It holds every password in the clear."
+            guard panel.runModal() == .OK, let url = panel.url else { return }
+            // Made readable by its owner only, from the start: not written and then restricted.
+            let made = FileManager.default.createFile(
+                atPath: url.path,
+                contents: Data(result.text.utf8),
+                attributes: [.posixPermissions: 0o600]
+            )
+            guard made else { return say("The file could not be written", "Choose another folder.") }
+            try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+            let done = NSAlert()
+            done.messageText = result.exported == 1 ? "1 login exported" : "\(result.exported) logins exported"
+            done.informativeText =
+                (result.skipped == 0
+                    ? "" : "\(result.skipped) cards, notes or other entries are not logins and were left out.\n\n")
+                + "The file has every password in the clear. Delete it when you are done."
+            done.addButton(withTitle: "Done")
+            done.addButton(withTitle: "Show File in Finder")
+            if done.runModal() == .alertSecondButtonReturn { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+        }
     }
 }
