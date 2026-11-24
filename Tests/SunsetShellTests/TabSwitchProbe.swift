@@ -13,9 +13,15 @@ import Testing
 @MainActor
 @Suite("Tab switch probe", .serialized, .enabled(if: ProcessInfo.processInfo.environment["SUNSET_PROBE"] != nil))
 struct TabSwitchProbe {
+    private func milliseconds(_ duration: Duration) -> Double {
+        Double(duration.components.attoseconds) / 1e15 + Double(duration.components.seconds) * 1000
+    }
+
     private func percentiles(_ samples: [Double]) -> String {
         let sorted = samples.sorted()
-        func at(_ p: Double) -> Double { sorted[min(sorted.count - 1, Int(p * Double(sorted.count)))] }
+        func at(_ p: Double) -> Double {
+            sorted[min(sorted.count - 1, Int(p * Double(sorted.count)))]
+        }
         return String(
             format: "n=%d p50=%.2f ms p95=%.2f ms max=%.2f ms",
             sorted.count,
@@ -36,9 +42,9 @@ struct TabSwitchProbe {
         var model: [Double] = []
         for round in 0 ..< 400 {
             let id = ids[round % ids.count]
-            let start = ContinuousClock.now
+            let watch = Stopwatch()
             tabs.select(item: id)
-            model.append(Double((ContinuousClock.now - start).components.attoseconds) / 1e15)
+            model.append(milliseconds(watch.elapsed))
         }
         print("PROBE model   select(item:):            \(percentiles(model))")
 
@@ -59,12 +65,12 @@ struct TabSwitchProbe {
         var drawn: [Double] = []
         for round in 0 ..< 200 {
             let id = ids[(round * 7) % ids.count]
-            let start = ContinuousClock.now
+            let watch = Stopwatch()
             tabs.select(item: id)
             window.contentView?.layoutSubtreeIfNeeded()
             window.displayIfNeeded()
             CATransaction.flush()
-            drawn.append(Double((ContinuousClock.now - start).components.attoseconds) / 1e15)
+            drawn.append(milliseconds(watch.elapsed))
             await RealWait.pass(.milliseconds(10))
         }
         print("PROBE sidebar select + layout + display: \(percentiles(drawn))")

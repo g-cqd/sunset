@@ -6,9 +6,11 @@ extension TabsModel {
     /// Shows a tab here, and takes it: a tab another window draws is drawn here from now on (a click on a tab takes its
     /// control and its live rendering).
     package func select(item: Workspace.ItemID) {
-        if hoveredItem == item { hoveredItem = nil }
-        change { $0.select(item: item) }
-        if shownTab == item, !space.isLive(item, in: self) { takeShown() }
+        TabSwitchSignpost.interval("select(item:)") {
+            if hoveredItem == item { hoveredItem = nil }
+            change { $0.select(item: item) }
+            if shownTab == item, !space.isLive(item, in: self) { takeShown() }
+        }
     }
     package func selectNext() {
         step(by: 1)

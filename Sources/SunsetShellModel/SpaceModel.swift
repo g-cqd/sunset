@@ -137,7 +137,7 @@ package final class SpaceModel {
         for pane in tabs.items.first(where: { $0.id == id })?.panes ?? [] {
             guard let content = contents[pane] else { continue }
             // The window it leaves shows its picture.
-            if previous != nil { content.takePicture() }
+            if previous != nil { TabSwitchSignpost.interval("takePicture (claim)") { content.takePicture() } }
             viewer.wireContent(content)
         }
     }
@@ -213,9 +213,16 @@ package final class SpaceModel {
     /// Tells every content of the Space's tabs whether it is shown and whether it has the keyboard: shown in the window its
     /// tab is live in, while that window has the tab selected.
     package func syncStates() {
-        for item in tabs.items {
-            let shown = live[item.id]?.tabs?.shownTab == item.id
-            for pane in item.panes { contents[pane]?.setState(focused: shown && pane == item.focused, visible: shown) }
+        TabSwitchSignpost.interval("syncStates") {
+            for item in tabs.items {
+                let shown = live[item.id]?.tabs?.shownTab == item.id
+                for pane in item.panes {
+                    guard let content = contents[pane] else { continue }
+                    TabSwitchSignpost.setState(kind: content.descriptor.kind, shown: shown) {
+                        content.setState(focused: shown && pane == item.focused, visible: shown)
+                    }
+                }
+            }
         }
     }
 }

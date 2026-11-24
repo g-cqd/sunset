@@ -2,6 +2,7 @@ import AppKit
 import Foundation
 import SunsetDocuments
 import SunsetPane
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetMarkdown
@@ -31,9 +32,8 @@ struct TabSwitchPictureProbe {
         pane.drawnSize = CGSize(width: 1100, height: 800)
         var samples: [Double] = []
         for _ in 0 ..< 30 {
-            let start = ContinuousClock.now
-            pane.takePicture()
-            samples.append(Double((ContinuousClock.now - start).components.attoseconds) / 1e15)
+            let elapsed = Stopwatch.time { pane.takePicture() }
+            samples.append(Double(elapsed.components.attoseconds) / 1e15 + Double(elapsed.components.seconds) * 1000)
         }
         samples.sort()
         print(

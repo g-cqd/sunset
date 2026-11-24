@@ -37,6 +37,7 @@ struct PaneArea: View {
     @Environment(\.accent) private var accent
 
     var body: some View {
+        let _ = TabSwitchSignpost.event("PaneArea body")
         GeometryReader { proxy in
             if let item = tabs.shownItem {
                 // Cards: with the sidebar docked, or when the tab is split. The space between two cards is the space between a card and the window's edge
