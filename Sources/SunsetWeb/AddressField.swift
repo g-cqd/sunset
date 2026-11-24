@@ -73,7 +73,7 @@ package struct AddressField: View {
                 .transition(.opacity)
             }
         }
-        .contextMenu { pageMenu }
+        .inkedContextMenu { pageMenu }
         .keptHover($hovering)
         .animation(.easeOut(duration: 0.15), value: hovering)
         // A private page's field is dark, its text light.

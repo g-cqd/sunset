@@ -150,7 +150,7 @@ package struct TabSidebar: View {
         .background { SpaceSwipeCatcher(tabs: tabs, animation: layout.smooth, library: swipeLibrary) }
         .gesture(WindowDragGesture())
         // On the sidebar's empty area (a row's own menu wins over it).
-        .contextMenu {
+        .inkedContextMenu {
             Button("New Folder") { tabs.newFolder() }
             Button("New Tab") { tabs.newTab() }
         }
@@ -227,7 +227,7 @@ package struct TabSidebar: View {
                 }
             }
             .rowDragAndDrop(tabs, row: .tab(item.id), owner: item.id, size: rowSizes[item.id], active: $rowDrop)
-            .contextMenu { TabRowMenu(tabs: tabs, item: item.id, animation: layout.smooth) }
+            .inkedContextMenu { TabRowMenu(tabs: tabs, item: item.id, animation: layout.smooth) }
     }
 
     /// The in-place name of a row while it is being renamed.

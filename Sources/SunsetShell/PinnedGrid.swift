@@ -146,7 +146,7 @@ struct PinnedGrid: View {
         .help(name(entry))
         .accessibilityLabel(name(entry))
         .accessibilityAddTraits(shown ? .isSelected : [])
-        .contextMenu { KeptEntryMenu(tabs: tabs, entry: entry, animation: layout.smooth) }
+        .inkedContextMenu { KeptEntryMenu(tabs: tabs, entry: entry, animation: layout.smooth) }
         // Dragged out: onto the Favorites it is a favourite there, onto the tabs a tab again.
         .onDrag { tabs.itemProvider(for: .entry(entry.id)) }
         .iconPopover(tabs: tabs, row: .node(entry.id))

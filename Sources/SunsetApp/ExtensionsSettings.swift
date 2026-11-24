@@ -21,7 +21,7 @@ struct ExtensionsSettings: View {
                     ForEach(Array(host.installed.enumerated()), id: \.element.id) { index, entry in
                         row(entry, in: host)
                             // The buttons' order.
-                            .contextMenu {
+                            .inkedContextMenu {
                                 Button("Move Up") { host.moveEntry(entry.id, by: -1) }.disabled(index == 0)
                                 Button("Move Down") { host.moveEntry(entry.id, by: 1) }
                                     .disabled(index == host.installed.count - 1)

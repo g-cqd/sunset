@@ -26,7 +26,7 @@ package struct DownloadRow: View {
             actions
         }
         .padding(.vertical, Design.Space.xs)
-        .contextMenu {
+        .inkedContextMenu {
             if item.state == .finished, let file = item.destination {
                 Button("Open") { NSWorkspace.shared.open(file) }
                 Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([file]) }

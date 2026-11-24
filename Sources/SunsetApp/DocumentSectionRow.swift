@@ -64,7 +64,7 @@ struct DocumentSectionRow: View {
         // A press through accessibility (VoiceOver, Voice Control) does not reach a tap gesture on a combined element: seen in
         // the app, where pressing the row did nothing.
         .accessibilityAction { open() }
-        .contextMenu {
+        .inkedContextMenu {
             // In a new tab with Option, for a document with no file.
             Button("Open") { open() }
                 .modifierKeyAlternate(.option) {

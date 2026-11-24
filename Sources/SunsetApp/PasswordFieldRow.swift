@@ -59,7 +59,7 @@ struct PasswordFieldRow: View {
         }
         .onHover { hovered = $0 }
         .animation(.snappy(duration: 0.12), value: hovered)
-        .contextMenu { Button("Copy \(field.name)", action: copy) }
+        .inkedContextMenu { Button("Copy \(field.name)", action: copy) }
     }
 
     /// The clipboard's QR code picture read.

@@ -21,7 +21,7 @@ package struct SidebarIconButton<Content: View>: View {
         Button(action: action) { label }
             .buttonStyle(SidebarIconButtonStyle(metrics: metrics))
             .help(help)
-            .contextMenu { if let menu { menu } }
+            .inkedContextMenu { if let menu { menu } }
     }
 }
 

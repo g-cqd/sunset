@@ -99,7 +99,7 @@ struct FavoritesSection: View {
             .hoverPreview(tabs, entry: entry.id)
             .overlay { dropMark(entry.id) }
             .rowDragAndDrop(tabs, row: .node(entry.id), owner: entry.id, size: sizes[entry.id], active: $drop)
-            .contextMenu { entryMenu(entry) }
+            .inkedContextMenu { entryMenu(entry) }
     }
 
     /// A split entry as a split tab is drawn; else one row.

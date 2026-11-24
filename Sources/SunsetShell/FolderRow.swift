@@ -76,7 +76,7 @@ struct FolderRow: View {
                 drop: { tabs.dropDragged(intoFolder: folder.id) }
             )
         )
-        .contextMenu {
+        .inkedContextMenu {
             SelectionMenu(tabs: tabs, row: .node(folder.id))
             Button("Rename") { tabs.renamingRow = .node(folder.id) }
             Button("Change Icon…") { tabs.iconRow = .node(folder.id) }

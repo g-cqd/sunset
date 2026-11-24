@@ -62,7 +62,7 @@ extension BuiltInTabBar {
         )
         .help(capsules ? entry.title ?? "" : "")
         .onTapGesture { tabs.select(entry: entry.id) }
-        .contextMenu { KeptEntryMenu(tabs: tabs, entry: entry, editsInPlace: false) }
+        .inkedContextMenu { KeptEntryMenu(tabs: tabs, entry: entry, editsInPlace: false) }
     }
 
     func row(_ item: Workspace.Item) -> some View {
@@ -94,7 +94,7 @@ extension BuiltInTabBar {
             tabs.move(item: id, to: index)
             return true
         }
-        .contextMenu {
+        .inkedContextMenu {
             Button("Rename Tab…") { tabs.beginRename(item: item.id) }
             TabKeepMenu(tabs: tabs, item: item.id)
             KeepAwakeMenu(tabs: tabs, item: item.id)

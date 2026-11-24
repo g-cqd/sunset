@@ -44,7 +44,7 @@ struct HistoryRow: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { AppActions.shared.openFromHistory(entry.url, newTab: false) }
         .help(entry.url)
-        .contextMenu {
+        .inkedContextMenu {
             // In a new tab with Option, as ⌘-click does.
             Button("Open") { AppActions.shared.openFromHistory(entry.url, newTab: false) }
                 .modifierKeyAlternate(.option) {

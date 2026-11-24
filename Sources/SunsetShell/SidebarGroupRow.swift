@@ -61,7 +61,7 @@ struct SidebarGroupRow: View {
             select: { tabs.choose(part: pane, of: .tab(item.id)) }
         )
         .onDrag { tabs.itemProvider(for: .pane(pane)) }
-        .contextMenu {
+        .inkedContextMenu {
             // The pane's own item first, then its tab's, whose closing is this pane's.
             Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
             Divider()

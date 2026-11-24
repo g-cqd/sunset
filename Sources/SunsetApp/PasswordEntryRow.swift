@@ -27,7 +27,7 @@ struct PasswordEntryRow: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .accessibilityAction { open() }
-        .contextMenu {
+        .inkedContextMenu {
             Button("Open", action: open)
             Divider()
             Button("Delete Entry", role: .destructive, action: remove)
