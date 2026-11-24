@@ -129,6 +129,19 @@ package final class PasswordsModel {
         entries.insert(entry, at: entries.firstIndex { Self.before(entry, $0) } ?? entries.endIndex)
     }
 
+    /// Keeps every entry of `entries` (logins read from a file), each sealed and written alone as `save` does; stops at the first that
+    /// fails, those before it stay kept.
+    /// - Returns: how many were kept.
+    package func importLogins(_ entries: [VaultEntry]) throws -> Int {
+        guard vault != nil else { throw Vault.Refused() }
+        var kept = 0
+        for entry in entries {
+            try save(entry)
+            kept += 1
+        }
+        return kept
+    }
+
     /// The sites never to offer saving for; none while locked. Read with the entries when unlocking.
     package private(set) var neverSave: Set<String> = []
 

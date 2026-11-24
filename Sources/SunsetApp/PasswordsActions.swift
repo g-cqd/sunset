@@ -4,7 +4,7 @@ import SunsetShell
 import SwiftUI
 
 /// The Passwords section's title row, while the vault is unlocked: a new entry from a template, opened on the vault's page
-/// to be filled in; and locking it.
+/// to be filled in; logins imported from a CSV file; and locking it.
 struct PasswordsActions: View {
     let model: PasswordsModel
     /// The window, where a new entry opens to be filled in.
@@ -18,6 +18,11 @@ struct PasswordsActions: View {
                         guard let made = try? model.add(from: template, title: "") else { return }
                         AppPasswords.show(made.id, in: tabs, editing: true)
                     }
+                }
+            }
+            SidebarIconMenu(symbol: "ellipsis", help: "More") {
+                Button("Import Logins from CSV…", systemImage: "square.and.arrow.down") {
+                    PasswordsImport.run(into: model)
                 }
             }
             SidebarIconButton(symbol: "lock", help: "Lock Passwords") { model.lock() }

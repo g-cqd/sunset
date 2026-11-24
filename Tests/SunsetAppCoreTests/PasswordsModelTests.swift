@@ -90,4 +90,33 @@ struct PasswordsModelTests {
         #expect(passwords.neverSave.isEmpty)
         #expect(passwords.unlock(password: "correct horse battery") && passwords.neverSave == ["example.com"])
     }
+
+    @Test func `logins imported are all kept, listed, and still there after the vault is locked and opened again`()
+        throws
+    {
+        let time = TestTime()
+        let folder = FileManager.default.temporaryDirectory.appending(path: "pw-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let passwords = model(folder, time)
+        _ = try passwords.create(password: "correct horse battery", again: "correct horse battery")
+        let file =
+            "name,url,username,password,note\nMail,https://mail.example.com,ada,pw1,\nShop,https://shop.example.org,bo,pw2,\n"
+        let imported = try LoginImport.read(file, site: { $0.split(separator: ".").suffix(2).joined(separator: ".") })
+        #expect(try passwords.importLogins(imported.entries) == 2)
+        #expect(passwords.entries.map(\.title) == ["Mail", "Shop"])
+        passwords.lock()
+        #expect(passwords.unlock(password: "correct horse battery"))
+        #expect(passwords.entries.map(\.title) == ["Mail", "Shop"])
+    }
+
+    @Test func `importing into a locked vault keeps nothing and says so`() throws {
+        let time = TestTime()
+        let folder = FileManager.default.temporaryDirectory.appending(path: "pw-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let passwords = model(folder, time)
+        _ = try passwords.create(password: "correct horse battery", again: "correct horse battery")
+        passwords.lock()
+        #expect(throws: Vault.Refused.self) { try passwords.importLogins([EntryTemplate.login.makeEntry(title: "X")]) }
+        #expect(passwords.entries.isEmpty)
+    }
 }

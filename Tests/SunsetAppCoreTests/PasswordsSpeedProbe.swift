@@ -49,4 +49,28 @@ struct PasswordsSpeedProbe {
         print("PROBE save:", percentiles(saves))
         print("PROBE sign-in reads:", percentiles(reads))
     }
+
+    @Test func `importing 2,000 logins read from a file, kept one after the other`() throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "speed-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let model = PasswordsModel(
+            path: folder.appending(path: "v.vault").path,
+            cost: MasterPassword.Cost(memoryKiB: 64, passes: 1, lanes: 1),
+            runtime: TestTime().runtime,
+            locks: VaultLocks()
+        )
+        _ = try model.create(password: "correct horse battery", again: "correct horse battery")
+        var file = "name,url,username,password,note\n"
+        for index in 0 ..< 2_000 { file += "Site \(index),https://site\(index).example.com,user\(index),pw\(index),\n" }
+        var read: LoginImport?
+        let reading = milliseconds {
+            read = try? LoginImport.read(file, site: { $0.split(separator: ".").suffix(2).joined(separator: ".") })
+        }
+        let imported = try #require(read)
+        var kept = 0
+        let keeping = try milliseconds { kept = try model.importLogins(imported.entries) }
+        print(
+            "PROBE import 2,000: reading the file \(String(format: "%.1f", reading)) ms, keeping \(kept) in the vault \(String(format: "%.0f", keeping)) ms"
+        )
+    }
 }

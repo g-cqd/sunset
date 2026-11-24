@@ -1,5 +1,5 @@
 {
-  "originHash" : "e24f8e5c2473e737022174e01b279bfca52dbb36d18260586f840cbd363ae5d2",
+  "originHash" : "46d4de7fc05d212cc7d4a28b7f7af4ac1d4fe52c21abd65ec5428f15a1da8b99",
   "pins" : [
     {
       "identity" : "abysm",
@@ -42,6 +42,14 @@
       }
     },
     {
+      "identity" : "aemimermaid",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiMermaid.git",
+      "state" : {
+        "revision" : "636c990fac6e7f6d76798c09952aac7c7d0601b8"
+      }
+    },
+    {
       "identity" : "aemiregex",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiRegex.git",
@@ -55,6 +63,22 @@
       "location" : "https://github.com/Aemi-Studio/AemiSDR.git",
       "state" : {
         "revision" : "70b33560051aed44da495412b747e7b878f0e59b"
+      }
+    },
+    {
+      "identity" : "aemitextui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiTextUI.git",
+      "state" : {
+        "revision" : "4b64bf4ea295d3ea68ceaa9ca2360beb7f5b0a3d"
+      }
+    },
+    {
+      "identity" : "csvcoder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/CSVCoder.git",
+      "state" : {
+        "revision" : "1709f6de2d5e914e38a405b5fd3f04a181cbd37c"
       }
     },
     {
