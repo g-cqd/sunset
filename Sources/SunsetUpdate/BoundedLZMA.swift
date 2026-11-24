@@ -47,7 +47,10 @@ public enum BoundedLZMA {
         var output = Data()
         let flags = Int32(COMPRESSION_STREAM_FINALIZE.rawValue)
 
-        return try input.withUnsafeBytes { raw throws(Failure) in
+        // The closure does not throw: `Data.withUnsafeBytes` has a typed-throws form only in the newest SDKs (CI's runners lack it), so a
+        // failure is kept and thrown once the closure is done.
+        var failure: Failure?
+        let result: Data? = input.withUnsafeBytes { raw -> Data? in
             guard let base = unsafe raw.bindMemory(to: UInt8.self).baseAddress else { return Data() }
             unsafe stream.src_ptr = base
             unsafe stream.src_size = raw.count
@@ -57,18 +60,27 @@ public enum BoundedLZMA {
                 let status = unsafe compression_stream_process(&stream, flags)
                 let produced = unsafe chunkSize - stream.dst_size
                 if produced > 0 {
-                    if output.count + produced > maxOutput { throw .outputLimitExceeded }
+                    if output.count + produced > maxOutput {
+                        failure = .outputLimitExceeded
+                        return nil
+                    }
                     unsafe output.append(buffer, count: produced)
                 }
                 switch status {
                     case COMPRESSION_STATUS_OK:
-                        if produced == 0, unsafe stream.src_size == 0 { throw .malformed }
+                        if produced == 0, unsafe stream.src_size == 0 {
+                            failure = .malformed
+                            return nil
+                        }
                     case COMPRESSION_STATUS_END:
                         return output
                     default:
-                        throw .malformed
+                        failure = .malformed
+                        return nil
                 }
             }
         }
+        if let failure { throw failure }
+        return result ?? Data()
     }
 }
