@@ -57,15 +57,19 @@ public struct LoginImport: Equatable, Sendable {
         var warnings: [Warning] = []
         for (offset, cells) in rows.dropFirst().enumerated() {
             let number = offset + 2
+            // A cell is the person's, as written: a title, a username, a note keep their spaces and line breaks. What is a token, not
+            // text (an address, a code, a flag, the kind of an item), is read without the space round it.
             func cell(_ role: Role) -> String {
-                layout[role].flatMap { $0 < cells.count ? cells[$0] : nil }?
-                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                layout[role].flatMap { $0 < cells.count ? cells[$0] : nil } ?? ""
             }
-            if let type = layout[.type].map({ _ in cell(.type).lowercased() }), !type.isEmpty, type != "login" {
+            func token(_ role: Role) -> String {
+                cell(role).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            if let type = layout[.type].map({ _ in token(.type).lowercased() }), !type.isEmpty, type != "login" {
                 skipped.append(Skipped(row: number, reason: .notALogin))
                 continue
             }
-            if ["1", "true", "yes"].contains(cell(.archived).lowercased()) {
+            if ["1", "true", "yes"].contains(token(.archived).lowercased()) {
                 skipped.append(Skipped(row: number, reason: .archived))
                 continue
             }
@@ -75,7 +79,7 @@ public struct LoginImport: Equatable, Sendable {
                 skipped.append(Skipped(row: number, reason: .empty))
                 continue
             }
-            let address = Self.address(cell(.url))
+            let address = Self.address(token(.url))
             var entry = EntryTemplate.login.makeEntry(
                 title: Self.entryTitle(cell(.title), address: address, username: username, site: site)
             )
@@ -85,7 +89,7 @@ public struct LoginImport: Equatable, Sendable {
             put("Website", address)
             put("Username", username)
             put("Password", password)
-            let codeText = cell(.code)
+            let codeText = token(.code)
             if !codeText.isEmpty {
                 if let link = Self.link(codeText, account: username, issuer: entry.title) {
                     put("One-Time Code", link)
@@ -96,7 +100,7 @@ public struct LoginImport: Equatable, Sendable {
             entry.note = cell(.notes)
             let folder = cell(.folder)
             entry.folder = folder.isEmpty ? nil : folder
-            entry.isFavorite = ["1", "true", "yes"].contains(cell(.favorite).lowercased())
+            entry.isFavorite = ["1", "true", "yes"].contains(token(.favorite).lowercased())
             entry.tags = cell(.tags).split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
                 .filter { !$0.isEmpty }
             entries.append(entry)

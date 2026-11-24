@@ -1,5 +1,5 @@
 {
-  "originHash" : "46d4de7fc05d212cc7d4a28b7f7af4ac1d4fe52c21abd65ec5428f15a1da8b99",
+  "originHash" : "962540fd9ace2c7176bf9a9a1bd1d983f0deacacaadc4dab2cc958ac599dbd6b",
   "pins" : [
     {
       "identity" : "abysm",
@@ -78,7 +78,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/CSVCoder.git",
       "state" : {
-        "revision" : "1709f6de2d5e914e38a405b5fd3f04a181cbd37c"
+        "revision" : "552f7502806993735deacc829d92b2524ee57ba4"
       }
     },
     {

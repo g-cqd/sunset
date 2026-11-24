@@ -84,7 +84,7 @@ let package = Package(
         // The configuration file: JSON read by AemiJSON's engine. Pinned by revision, as the family does.
         .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "968ecd17e9ba744655d5c3b60d3e759cf61dc211"),
         // Comma-separated files other programs wrote (the vault's imports): CSVCoder's parser. Ours; pinned by revision.
-        .package(url: "https://github.com/g-cqd/CSVCoder.git", revision: "1709f6de2d5e914e38a405b5fd3f04a181cbd37c"),
+        .package(url: "https://github.com/g-cqd/CSVCoder.git", revision: "552f7502806993735deacc829d92b2524ee57ba4"),
         // Blur under the bars and panels (the blurs studied in `docs/research`). Pinned by revision, as the family does.
         .package(
             url: "https://github.com/Aemi-Studio/AemiSDR.git",
@@ -205,7 +205,13 @@ let package = Package(
                 .product(name: "CSVCoder", package: "CSVCoder")
             ]
         ),
-        tests("SunsetCredentialsTests", ["SunsetCredentials", "SunsetStorage", "SunsetTestSupport", "SunsetRuntime"]),
+        tests(
+            "SunsetCredentialsTests",
+            [
+                "SunsetCredentials", "SunsetStorage", "SunsetTestSupport", "SunsetRuntime",
+                .product(name: "AemiTestKit", package: "aemi"), .product(name: "AemiJSON", package: "AemiJSON")
+            ]
+        ),
         module("SunsetConfig", [.product(name: "AemiJSONCore", package: "AemiJSON"), "SunsetMetrics"]),
         tests("SunsetConfigTests", ["SunsetTestSupport", "SunsetConfig", "SunsetMetrics"]),
         .target(

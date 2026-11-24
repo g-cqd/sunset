@@ -10,9 +10,12 @@ public enum CSV {
     }
 
     public static func cell(_ text: String, formulas: Formulas = .protect) -> String {
+        // By unicode scalar, not by character: "\r\n" is one character in Swift, and is neither "\r" nor "\n" to a test of characters.
         var cell = text
-        if formulas == .protect, let first = cell.first, "=+-@\t\r".contains(first) { cell = "'" + cell }
-        guard cell.contains(where: { ",\"\n\r".contains($0) }) else { return cell }
+        if formulas == .protect, let first = cell.unicodeScalars.first, "=+-@\t\r".unicodeScalars.contains(first) {
+            cell = "'" + cell
+        }
+        guard cell.unicodeScalars.contains(where: { ",\"\n\r".unicodeScalars.contains($0) }) else { return cell }
         return "\"" + cell.replacing("\"", with: "\"\"") + "\""
     }
 
