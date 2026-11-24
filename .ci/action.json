@@ -27,5 +27,25 @@
       "arcleak"
     ],
     "discipline": {}
-  }
+  },
+  "commands": [
+    {
+      "id": "mutation",
+      "title": "Verification \u00b7 Mutation (litmus)",
+      "os": "macOS",
+      "cadence": [
+        "dispatch"
+      ],
+      "mutation": {
+        "paths": [
+          "Sources/SunsetCore/**",
+          "Sources/SunsetPane/**",
+          "Sources/SunsetConfig/**",
+          "Sources/SunsetDocuments/**"
+        ],
+        "budget": 7200,
+        "workspace": "in-place"
+      }
+    }
+  ]
 }
