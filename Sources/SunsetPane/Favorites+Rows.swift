@@ -1,35 +1,49 @@
 public import Foundation
 
 extension Favorites {
-    /// The rows a sidebar shows, top to bottom. A collapsed folder shows its row, and under it the selected entry when that entry is inside, however
-    /// deep: one never loses where one is.
-    public func rows(selected: NodeID?) -> [Row] {
+    /// The rows a sidebar shows, top to bottom. A collapsed folder shows its row, under it any open entries inside when
+    /// `showOpenInCollapsed` is on (so open tabs are never hidden out of sight), and the selected entry when it is
+    /// inside, however deep: one never loses where one is.
+    public func rows(selected: NodeID?, showOpenInCollapsed: Bool = true) -> [Row] {
         var rows: [Row] = []
-        Self.rows(of: nodes, level: 0, selected: selected, into: &rows)
+        Self.collect(
+            nodes,
+            level: 0,
+            selected: selected,
+            showOpenInCollapsed: showOpenInCollapsed,
+            insideCollapsed: false,
+            into: &rows
+        )
         return rows
     }
 
-    private static func rows(of nodes: [Node], level: Int, selected: NodeID?, into rows: inout [Row]) {
+    private static func collect(
+        _ nodes: [Node],
+        level: Int,
+        selected: NodeID?,
+        showOpenInCollapsed: Bool,
+        insideCollapsed: Bool,
+        into rows: inout [Row]
+    ) {
         for node in nodes {
             switch node {
                 case .entry(let entry):
-                    rows.append(Row(id: entry.id, level: level, isFolder: false))
-                case .folder(let folder):
-                    rows.append(Row(id: folder.id, level: level, isFolder: true))
-                    if !folder.isCollapsed {
-                        Self.rows(of: folder.children, level: level + 1, selected: selected, into: &rows)
-                    } else if let selected, holdsEntry(selected, in: folder.children) {
-                        rows.append(Row(id: selected, level: level + 1, isFolder: false))
+                    if !insideCollapsed || (showOpenInCollapsed && entry.isOpen) || entry.id == selected {
+                        rows.append(Row(id: entry.id, level: level, isFolder: false))
                     }
-            }
-        }
-    }
-
-    private static func holdsEntry(_ id: NodeID, in nodes: [Node]) -> Bool {
-        nodes.contains { node in
-            switch node {
-                case .entry(let entry): entry.id == id
-                case .folder(let folder): holdsEntry(id, in: folder.children)
+                case .folder(let folder):
+                    if !insideCollapsed {
+                        rows.append(Row(id: folder.id, level: level, isFolder: true))
+                    }
+                    let nextLevel = insideCollapsed ? level : level + 1
+                    collect(
+                        folder.children,
+                        level: nextLevel,
+                        selected: selected,
+                        showOpenInCollapsed: showOpenInCollapsed,
+                        insideCollapsed: insideCollapsed || folder.isCollapsed,
+                        into: &rows
+                    )
             }
         }
     }

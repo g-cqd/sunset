@@ -47,7 +47,7 @@ package struct FolderPreviewCard: View {
         .padding(.horizontal, Design.Space.l)
         .padding(.vertical, Design.Space.m)
         .frame(width: Self.width, alignment: .leading)
-        .surface(shape, shadow: .popover)
+        .surface(shape, shadow: .popover, shaded: true)
         .allowsHitTesting(false)
     }
 

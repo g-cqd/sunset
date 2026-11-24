@@ -1,3 +1,4 @@
+public import MarkdownLookKit
 public import SunsetRuntime
 
 /// The documents that are open, for the whole app: asking for a place twice gives the same document, so every pane on a
@@ -22,6 +23,19 @@ public final class OpenDocuments {
 
     public var all: [OpenDocument] {
         Array(open.values)
+    }
+
+    /// Applies updated Markdown rendering settings to `look.viewer` and every currently open document.
+    public func applyViewer(_ settings: ViewerSettings) {
+        look.viewer = settings
+        for document in open.values {
+            var next = settings
+            // Keep per-pane zoom deltas relative to default if a user zoomed, else adopt the new text size.
+            if document.source.settings.textSize != next.textSize {
+                next.textSize = settings.textSize
+            }
+            if document.source.settings != next { document.source.settings = next }
+        }
     }
 
     /// The open document at `place`, without holding it.
@@ -56,6 +70,7 @@ public final class OpenDocuments {
                 }
                 document = OpenDocument(place: place, kind: kind, read: read, store: store)
         }
+        document.source.settings = look.viewer
         document.runtime = runtime
         document.holders = 1
         document.owner = self

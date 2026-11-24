@@ -24,6 +24,8 @@ public enum SettingsControl: Sendable {
         case storageSealed, storageWebsiteData, storageSetAside, storageKey, storageEnterCode, storageExport
         /// Settings, Updates: the app's and its components' versions and updates (roadmap 0122).
         case updates
+        /// Settings, Documents: toggle Sunset's Quick Look preview and thumbnail extensions for Markdown and Mermaid.
+        case quickLookMarkdown
 
         /// A list that draws a section for each of its things (the profiles): the page does not wrap it.
         public var ownsSections: Bool {

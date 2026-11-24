@@ -5,7 +5,9 @@ package import SunsetPane
 extension TabsModel {
     /// The rows of the sidebar in the order it draws them: the Favorites as shown (a collapsed folder hides what it holds), then the window's tabs.
     package var rowOrder: [RowTarget] {
-        favorites.favorites.rows(selected: workspace.selectedEntry).map { .node($0.id) }
+        favorites.favorites
+            .rows(selected: workspace.selectedEntry, showOpenInCollapsed: showOpenInCollapsedFolders)
+            .map { .node($0.id) }
             + workspace.items.map { .tab($0.id) }
     }
 

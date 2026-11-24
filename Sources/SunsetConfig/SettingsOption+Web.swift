@@ -93,7 +93,18 @@ extension SettingsOption {
                 \.web.showOpenedPages,
                 label: "Show the pages a page opens, its pop-ups, pictures and videos included"
             )
-            .noted("Off, it waits in a tab after the page. ⌘-click and Open Link in New Tab always leave it there.")
+            .noted("Off, it waits in a tab after the page.")
+            .grouped("New pages"),
+            toggle(
+                "web.focusOpenedTabOrPeek",
+                "Switch to newly opened tabs and peeks",
+                "switch focus navigate new tab peek window open link background cmd-click",
+                \.web.focusOpenedTabOrPeek,
+                label: "Switch automatically to a tab or peek window that just opened"
+            )
+            .noted(
+                "On, ⌘-click and Open Link in New Tab switch to the new tab, and peek windows take focus. Off, they wait behind."
+            )
             .grouped("New pages"),
             choice(
                 "web.popupWindows",

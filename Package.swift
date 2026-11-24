@@ -53,6 +53,7 @@ let package = Package(
         // Where everything Sunset keeps is, written whole or not at all, and what is done with a file that does not read.
         .library(name: "SunsetStorage", targets: ["SunsetStorage"]),
         .library(name: "SunsetDocuments", targets: ["SunsetDocuments"]),
+        .library(name: "SunsetQuickLookKit", targets: ["SunsetQuickLookKit"]),
         // The private window-server calls the app uses (the blur radius behind a window), looked up by name at run time.
         .library(name: "SunsetPrivate", targets: ["SunsetPrivate"]),
         // The CPU renderer: cells to pixels, the reference the GPU renderer is held to. Platform-free; glyphs come from a `GlyphSource`.
@@ -167,6 +168,11 @@ let package = Package(
         module("SunsetMetrics", []),
         // Documents: the store of those that live in Sunset (one sealed file each, an index rebuilt from them), and the
         // one document behind every pane on a file or a stored document (its text, saving, watching the file).
+        .target(
+            name: "SunsetQuickLookKit",
+            dependencies: [.product(name: "MarkdownLookKit", package: "AemiMarkdown")],
+            path: "Sources/SunsetQuickLookKit"
+        ),
         .target(
             name: "SunsetDocuments",
             dependencies: [

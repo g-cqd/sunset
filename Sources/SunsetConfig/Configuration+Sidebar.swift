@@ -22,6 +22,9 @@ extension Configuration {
         public var documentSort = DocumentSort.changed
         /// The lines between the Pinned grid, the Favorites and the tabs; off, their space stays.
         public var separators = true
+        /// Open entries inside collapsed Favorites folders stay visible under their folder so users can see what is
+        /// actually open.
+        public var showOpenInCollapsedFolders = true
         /// How the Spaces show at the sidebar's foot (`SpacesStyle`).
         public var spaces = SpacesStyle.auto
         /// A card when a row is pointed at (`previews`), and of which kinds.

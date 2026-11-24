@@ -90,4 +90,28 @@ import Testing
         let none = try ConfigurationParser.parse(#"{ "appearance": { "tint": { "light": null } } }"#)
         #expect(none.configuration.appearance.lightTintColor == nil && none.issues.isEmpty)
     }
+
+    @Test func `focusOpenedTabOrPeek and showOpenInCollapsedFolders parse and default as specified`() throws {
+        #expect(!Configuration().web.focusOpenedTabOrPeek)
+        #expect(Configuration().sidebar.showOpenInCollapsedFolders)
+        let read = try ConfigurationParser.parse(
+            #"{ "web": { "focusOpenedTabOrPeek": true }, "sidebar": { "showOpenInCollapsedFolders": false } }"#
+        )
+        #expect(read.configuration.web.focusOpenedTabOrPeek && !read.configuration.sidebar.showOpenInCollapsedFolders)
+        #expect(read.issues.isEmpty)
+    }
+
+    @Test func `markdown rendering settings parse and default cleanly`() throws {
+        let def = Configuration().documents
+        #expect(def.textSize == 13 && !def.fullWidth && def.smartPunctuation && def.textFont == "system")
+        let read = try ConfigurationParser.parse(
+            #"{ "documents": { "textSize": 15, "fullWidth": true, "textFont": "serif", "columnLines": true, "tabSize": 2 } }"#
+        )
+        #expect(read.issues.isEmpty)
+        #expect(read.configuration.documents.textSize == 15)
+        #expect(read.configuration.documents.fullWidth)
+        #expect(read.configuration.documents.textFont == "serif")
+        #expect(read.configuration.documents.columnLines)
+        #expect(read.configuration.documents.tabSize == 2)
+    }
 }

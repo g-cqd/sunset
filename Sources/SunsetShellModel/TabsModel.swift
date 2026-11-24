@@ -138,6 +138,8 @@ package final class TabsModel {
     package var unsavedQuestion: UnsavedQuestion?
     /// Whether closing a busy tab requires a second click or ⌘W (`tabs.confirmClose`).
     package var confirmClose = true
+    /// Open entries inside collapsed Favorites folders stay visible (`sidebar.showOpenInCollapsedFolders`).
+    package var showOpenInCollapsedFolders = true
     @ObservationIgnored package var expiryTask: Task<Void, Never>?
 
     /// The Favorites of the Space.

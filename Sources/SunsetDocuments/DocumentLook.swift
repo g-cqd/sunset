@@ -1,6 +1,7 @@
+public import MarkdownLookKit
 public import Observation
 
-/// How the documents' source looks, from the settings: what a source pane reads, so a change shows at once.
+/// How documents look, from the settings: what source and rendered panes read, so a change shows at once.
 @MainActor
 @Observable
 public final class DocumentLook {
@@ -8,6 +9,9 @@ public final class DocumentLook {
     public var largerHeadings = true
     /// A plain click on a link opens it beside the document, not in a new tab (`documents.linksOpen`).
     public var linksBeside = false
+    /// Markdown rendering settings (`documents.*`), mirrored to `OpenDocument.source.settings` and to the shared
+    /// Quick Look preferences domain.
+    public var viewer = ViewerSettings()
 
     public init() {}
 }

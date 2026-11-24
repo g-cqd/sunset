@@ -34,7 +34,14 @@ import Testing
         #expect(back.issues.isEmpty && back.configuration.documents == configuration.documents)
         #expect(
             SettingsSection.topic("general.documents")?.topic.options.map(\.id) == [
-                "documents.saveAfter", "documents.saveOnFocusLoss", "documents.largerHeadings", "documents.linksOpen"
+                "documents.saveAfter", "documents.saveOnFocusLoss", "documents.largerHeadings", "documents.linksOpen",
+                "documents.quickLook", "documents.textSize", "documents.fullWidth", "documents.alignsLeft",
+                "documents.smartPunctuation", "documents.textFont", "documents.headingFont", "documents.codeFont",
+                "documents.diagramFont", "documents.fontFeatures", "documents.highlightsCode",
+                "documents.showsLanguage",
+                "documents.copyButton", "documents.tabSize", "documents.rowLines", "documents.columnLines",
+                "documents.outerBorder", "documents.scrollsTables", "documents.bleedsTables", "documents.drawsDiagrams",
+                "documents.opensFrontMatter"
             ]
         )
         #expect(

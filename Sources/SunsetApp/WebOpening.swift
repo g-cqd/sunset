@@ -32,7 +32,8 @@ import SunsetWeb
             guard let tabs, let page else { return }
             wire(opened, in: tabs)
             switch placement {
-                case .tabAfter, .privateTab: tabs.insertTab(opened, after: page, show: false)
+                case .tabAfter, .privateTab:
+                    tabs.insertTab(opened, after: page, show: AppConfiguration.shared.focusesOpenedTabOrPeek)
                 case .opened:
                     tabs.insertTab(opened, after: page, show: AppConfiguration.shared.showsOpenedPages)
                 case .splitRight: tabs.split(.right, with: opened, beside: page)

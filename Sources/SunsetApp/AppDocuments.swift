@@ -1,4 +1,5 @@
 import Foundation
+import MarkdownLookKit
 import SunsetAppCore
 import SunsetConfig
 import SunsetDocuments
@@ -53,6 +54,9 @@ enum AppDocuments {
         SunsetStore.shared.openDocuments.autosave.onFocusLoss = asked.onFocusLoss
         SunsetStore.shared.openDocuments.look.largerHeadings = settings.largerHeadings
         SunsetStore.shared.openDocuments.look.linksBeside = settings.linksOpen == .beside
+        let viewer = ViewerSettings(settings)
+        SunsetStore.shared.openDocuments.applyViewer(viewer)
+        viewer.writeToQuickLookDomain()
     }
 }
 

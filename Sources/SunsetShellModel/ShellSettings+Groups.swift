@@ -20,6 +20,8 @@ extension ShellSettings {
         package var documentSort = DocumentSort.changed
         /// The lines between the Pinned grid, the Favorites and the tabs (`sidebar.separators`).
         package var separators = true
+        /// Open entries inside collapsed Favorites folders stay visible (`sidebar.showOpenInCollapsedFolders`).
+        package var showOpenInCollapsedFolders = true
         /// The Spaces at the foot: their icons, dots once they do not fit ("auto"); or dots always ("dots").
         package var spaces = "auto"
         /// A card when a row is pointed at, and of which kinds (`sidebar.previews`, `sidebar.preview*`).

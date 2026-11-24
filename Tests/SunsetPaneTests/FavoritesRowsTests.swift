@@ -52,4 +52,28 @@ import Testing
         #expect(names(favorites, selected: selected) == ["F", ">b", ">G", ">>c"])
         #expect(names(favorites, selected: Favorites.NodeID()) == ["F", ">b", ">G"])
     }
+
+    @Test func `a collapsed folder shows its open entries when showOpenInCollapsed is on`() throws {
+        var favorites = Favorites()
+        let folder = try FavoritesFixture.need(favorites.addFolder(named: "F"))
+        let closed = try FavoritesFixture.need(
+            favorites.addEntry(home: FavoritesFixture.home(), title: "closed", in: folder)
+        )
+        let open = try FavoritesFixture.need(
+            favorites.addEntry(home: FavoritesFixture.home(), title: "open", in: folder)
+        )
+        let inner = try FavoritesFixture.need(favorites.addFolder(named: "G", in: folder))
+        let deepOpen = try FavoritesFixture.need(
+            favorites.addEntry(home: FavoritesFixture.home(), title: "deep", in: inner)
+        )
+        _ = favorites.open(open)
+        _ = favorites.open(deepOpen)
+        favorites.setCollapsed(true, for: folder)
+        #expect(favorites.rows(selected: nil, showOpenInCollapsed: true).map(\.id) == [folder, open, deepOpen])
+        #expect(favorites.rows(selected: nil, showOpenInCollapsed: false).map(\.id) == [folder])
+        #expect(
+            favorites.rows(selected: closed, showOpenInCollapsed: true).map(\.id) == [folder, closed, open, deepOpen]
+        )
+        #expect(favorites.rows(selected: open, showOpenInCollapsed: true).map(\.id) == [folder, open, deepOpen])
+    }
 }

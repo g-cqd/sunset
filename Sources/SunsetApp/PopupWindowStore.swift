@@ -73,6 +73,14 @@ import SunsetWebModel
                     NSPoint(x: frame.midX - window.frame.width / 2, y: frame.midY - window.frame.height / 2)
                 )
             }
+            if popup.kind == .peek {
+                if AppConfiguration.shared.focusesOpenedTabOrPeek {
+                    window.makeKeyAndOrderFront(nil)
+                } else if let parent, parent.isVisible {
+                    window.order(.below, relativeTo: parent.windowNumber)
+                    parent.makeKeyAndOrderFront(nil)
+                }
+            }
         }
     }
 

@@ -17,4 +17,10 @@ package enum BarTint: String, Sendable, Equatable {
     package static func fill(for scheme: ColorScheme) -> Color {
         scheme == .dark ? .black : .white
     }
+
+    /// Resolves the colour scheme and popover/preview tint colour together.
+    package func shaded(in outer: ColorScheme) -> (scheme: ColorScheme, shade: Color) {
+        let scheme = resolved(in: outer)
+        return (scheme, Self.fill(for: scheme).opacity(Design.Fill.popoverShade))
+    }
 }

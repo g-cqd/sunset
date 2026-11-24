@@ -25,7 +25,11 @@ struct FavoritesSection: View {
         if !favorites.isEmpty {
             // The tree's rows are the tabs' rows: their height and their spacing. Between two rows, and at the top and
             // the bottom, a gap that takes a drop.
-            let shown = favorites.rows(selected: tabs.workspace.selectedEntry)
+            let shown =
+                favorites.rows(
+                    selected: tabs.workspace.selectedEntry,
+                    showOpenInCollapsed: settings.sidebar.showOpenInCollapsedFolders
+                )
                 .filter { row in
                     if case .entry(let entry) = favorites.node(row.id) { return tabs.shows(entry) }
                     return true

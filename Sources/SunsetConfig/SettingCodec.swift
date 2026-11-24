@@ -13,7 +13,8 @@ struct SettingCodec: Sendable {
     /// The codecs of every option whose control holds a plain value made from a key path, by key.
     static let byKey: [String: Self] = {
         var codecs: [String: Self] = [:]
-        for option in SettingsOption.all where option.keys == [option.id] {
+        let handWritten = Set(ConfigurationKeys.byHand)
+        for option in SettingsOption.all where option.keys == [option.id] && !handWritten.contains(option.id) {
             if let codec = codec(option.id, option.control, formerly: option.formerly) {
                 codecs[option.id] = codec
             }
@@ -27,24 +28,15 @@ struct SettingCodec: Sendable {
     private static func codec(_ key: String, _ control: SettingsControl, formerly: [String: String]) -> Self? {
         switch control {
             case .toggle(let value, _) where value.isDirect:
-                return Self(
-                    key: key,
-                    read: { reader, json in
-                        if let flag = reader.bool(key, json) {
-                            value.set(&reader.configuration, flag)
-                        }
-                    },
-                    literal: { String(value.get($0)) }
-                )
+                return scalar(key, value, parse: { $0.bool(key, $1) }, format: { String($0) })
+            case .text(let value, _) where value.isDirect:
+                return scalar(key, value, parse: { $0.string(key, $1) }, format: ConfigurationWriter.string)
             case .number(let value, let range, _, _, _) where value.isDirect:
-                return Self(
-                    key: key,
-                    read: { reader, json in
-                        if let number = reader.number(key, json, range: range) {
-                            value.set(&reader.configuration, number)
-                        }
-                    },
-                    literal: { ConfigurationWriter.number(value.get($0)) }
+                return scalar(
+                    key,
+                    value,
+                    parse: { $0.number(key, $1, range: range) },
+                    format: ConfigurationWriter.number
                 )
             case .choice(let choice, _):
                 return Self(
@@ -64,5 +56,20 @@ struct SettingCodec: Sendable {
             default:
                 return nil
         }
+    }
+
+    private static func scalar<T: Sendable>(
+        _ key: String,
+        _ value: SettingsValue<T>,
+        parse: @escaping @Sendable (inout Reader, JSONValue) -> T?,
+        format: @escaping @Sendable (T) -> String
+    ) -> Self {
+        Self(
+            key: key,
+            read: { reader, json in
+                if let parsed = parse(&reader, json) { value.set(&reader.configuration, parsed) }
+            },
+            literal: { format(value.get($0)) }
+        )
     }
 }

@@ -6,7 +6,7 @@ extension TabsModel {
     /// The Favorites' rows as shown: folders, and the entries of open folders, in order; an entry of a scope that is off is not.
     package var favoritesRows: [Favorites.NodeID] {
         let tree = favorites.favorites
-        return tree.rows(selected: workspace.selectedEntry)
+        return tree.rows(selected: workspace.selectedEntry, showOpenInCollapsed: showOpenInCollapsedFolders)
             .compactMap { row in
                 if case .entry(let entry) = tree.node(row.id), !shows(entry) { return nil }
                 return row.id

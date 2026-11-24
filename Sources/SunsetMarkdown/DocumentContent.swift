@@ -155,7 +155,8 @@ package final class DocumentContent: PaneContent, PaneViewMaking {
     }
 
     package func resetZoom() {
-        document.source.settings.textSize = ViewerSettings.defaultTextSize
-        fontSize = Double(ViewerSettings.defaultTextSize)
+        let base = documents.look.viewer.textSize
+        document.source.settings.textSize = base
+        fontSize = Double(base)
     }
 }

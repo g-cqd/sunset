@@ -218,4 +218,9 @@ extension AppConfiguration {
     var showsOpenedPages: Bool {
         configuration.web.showOpenedPages
     }
+
+    /// `web.focusOpenedTabOrPeek`: switch straight to a newly opened link tab or focus a newly opened peek window.
+    var focusesOpenedTabOrPeek: Bool {
+        configuration.web.focusOpenedTabOrPeek
+    }
 }

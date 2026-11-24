@@ -140,6 +140,9 @@ extension Configuration {
         /// A link from another app (Sunset the Mac's browser) opens in a peek window: back, forward, an address field, moved to a
         /// Space by the person. Off, a tab of the window in front.
         public var peekLinks = true
+        /// Switch straight to a newly opened link tab (⌘-click, Open Link in New Tab) or focus a peek window as soon as
+        /// it opens; off, link tabs wait behind and peek windows open without stealing focus.
+        public var focusOpenedTabOrPeek = false
         /// Pages animate and redraw at the screen's rate (120 fps on a ProMotion screen), not near 60.
         public var fullFrameRate = true
         /// The name of the engine words are searched with (a built-in one or one of `engines`).

@@ -39,10 +39,14 @@ targets:
     sources:
       - path: Sources/SunsetAppMain
       - path: App
-        excludes: [Info.plist]
+        excludes: [Info.plist, QuickLook]
     dependencies:
       - package: Sunset
         product: SunsetAppLibrary
+      - target: SunsetMarkdownPreview
+        embed: true
+      - target: SunsetMarkdownThumbnail
+        embed: true
     info:
       path: App/Info.plist
       properties:
@@ -132,3 +136,72 @@ targets:
         Debug:
           PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.dev
           SUNSET_DISPLAY_NAME: Sunset Dev
+  SunsetMarkdownPreview:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: App/QuickLook/Preview
+        excludes: [Info.plist, Preview.entitlements]
+    dependencies:
+      - package: Sunset
+        product: SunsetQuickLookKit
+    info:
+      path: App/QuickLook/Preview/Info.plist
+      properties:
+        CFBundleDisplayName: Sunset Markdown Preview
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.quicklook.preview
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).PreviewProvider
+          NSExtensionAttributes:
+            QLIsDataBasedPreview: true
+            QLSupportsSearchableItems: false
+            QLSupportedContentTypes:
+              - net.daringfireball.markdown
+              - studio.aemi.sunset.mermaid
+              - studio.aemi.mermaid
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.quicklook.preview
+        CODE_SIGN_ENTITLEMENTS: App/QuickLook/Preview/Preview.entitlements
+        PROVISIONING_PROFILE_SPECIFIER: ""
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.dev.quicklook.preview
+          CODE_SIGN_ENTITLEMENTS: App/QuickLook/Preview/Preview.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: App/QuickLook/Preview/Preview.entitlements
+          PROVISIONING_PROFILE_SPECIFIER: ""
+  SunsetMarkdownThumbnail:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: App/QuickLook/Thumbnail
+        excludes: [Info.plist, Thumbnail.entitlements]
+    dependencies:
+      - package: Sunset
+        product: SunsetQuickLookKit
+    info:
+      path: App/QuickLook/Thumbnail/Info.plist
+      properties:
+        CFBundleDisplayName: Sunset Markdown Thumbnail
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.quicklook.thumbnail
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ThumbnailProvider
+          NSExtensionAttributes:
+            QLThumbnailMinimumDimension: 0
+            QLSupportedContentTypes:
+              - net.daringfireball.markdown
+              - studio.aemi.sunset.mermaid
+              - studio.aemi.mermaid
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.quicklook.thumbnail
+        CODE_SIGN_ENTITLEMENTS: App/QuickLook/Thumbnail/Thumbnail.entitlements
+        PROVISIONING_PROFILE_SPECIFIER: ""
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.dev.quicklook.thumbnail
+          CODE_SIGN_ENTITLEMENTS: App/QuickLook/Thumbnail/Thumbnail.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: App/QuickLook/Thumbnail/Thumbnail.entitlements
+          PROVISIONING_PROFILE_SPECIFIER: ""

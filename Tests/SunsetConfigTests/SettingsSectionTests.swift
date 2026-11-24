@@ -62,7 +62,7 @@ import Testing
         #expect(
             options("tabs.placement") == [
                 "tabs.mode", "tabs.bar.position", "tabs.bar.autoHide", "tabs.bar.backing", "sidebar.side",
-                "sidebar.separators"
+                "sidebar.separators", "sidebar.showOpenInCollapsedFolders"
             ]
         )
         // The sidebar's own (shown, hidden until its edge, its width) are set from the window, not here (n116).

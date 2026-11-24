@@ -1,9 +1,9 @@
 package import SwiftUI
 
 extension View {
-    /// A popover's own background, the window's colour, opaque: the system's glass took on what was behind it (seen
-    /// 2026-11-20: the icon picker over a terminal, dark glyphs on dark, the hidden page's colours showing through).
+    /// A popover's own background, aligned with floating preview cards: the window's surface tinted by
+    /// `Design.Fill.popoverShade`, readable over any page and not as dark as an opaque black wash.
     package func solidPopoverBackground() -> some View {
-        presentationBackground(Color(nsColor: .windowBackgroundColor))
+        modifier(PopoverSurfaceModifier())
     }
 }

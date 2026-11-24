@@ -22,7 +22,7 @@ extension AppActions {
                     let content = WebContent(url: page, settings: PaneContentKinds.webSettings(from: configuration.web))
                     PopupWindowStore.shared.open(content, openerSpace: space, kind: .peek)
                 }
-                NSApp.activate()
+                if configuration.web.focusOpenedTabOrPeek { NSApp.activate() }
                 return
             case .tab: break
         }
@@ -33,12 +33,12 @@ extension AppActions {
         for page in pages {
             let descriptor = PaneDescriptor(kind: WebContent.kind, state: ["url": page.absoluteString])
             if AppConfiguration.shared.presentation.hostsTabsInWindow {
-                tabs.newTab(descriptor)
+                tabs.newTab(descriptor, show: configuration.web.focusOpenedTabOrPeek)
             } else {
                 newTab(kind: descriptor)
             }
         }
-        NSApp.activate()
+        if configuration.web.focusOpenedTabOrPeek { NSApp.activate() }
     }
 
     /// The links asked for before a window was there, in the first window.

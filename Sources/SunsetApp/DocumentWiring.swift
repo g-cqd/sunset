@@ -49,7 +49,8 @@ import SunsetWeb
         switch place {
             case .beside: tabs.split(.right, with: opened, beside: content)
             case .tab: tabs.insertTab(opened, after: content, show: true)
-            case .backgroundTab: tabs.insertTab(opened, after: content, show: false)
+            case .backgroundTab:
+                tabs.insertTab(opened, after: content, show: AppConfiguration.shared.focusesOpenedTabOrPeek)
             case .window:
                 AppActions.shared.handoff.append(opened)
                 AppActions.shared.openTerminalWindow()

@@ -7,8 +7,6 @@ struct SiteSettingsPopover: View {
     @Environment(\.runtime) var runtime
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.barTint) private var tint
-    @Environment(\.colorScheme) private var outer
     let content: WebContent
     private var store: SitePermissions {
         content.permissions
@@ -74,11 +72,7 @@ struct SiteSettingsPopover: View {
         .labelStyle(.row)
         .frame(width: 320, alignment: .leading)
         .padding(Design.Space.xl)
-        // Read on any page: the popover's glass took the page's white under it while its text was the window's (light on
-        // a dark window), which could not be read (seen 2026-11-18). The chrome's glass kept, its tint stronger under the
-        // text, and the controls in the tint's scheme.
-        .environment(\.colorScheme, tint.resolved(in: outer))
-        .background(BarTint.fill(for: tint.resolved(in: outer)).opacity(Design.Fill.popoverShade))
+        // Background and scheme come from `solidPopoverBackground()` at presentation, shared with preview cards.
     }
 
     /// "Permissions", with how many this site was given an answer of its own.

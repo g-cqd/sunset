@@ -62,7 +62,16 @@ extension SettingsOption {
                 label: "Show lines between Pinned, Favorites and tabs"
             )
             .grouped("Sidebar")
-            .noted("Off, the sections keep their space without a line.")
+            .noted("Off, the sections keep their space without a line."),
+            toggle(
+                "sidebar.showOpenInCollapsedFolders",
+                "Open tabs in collapsed folders",
+                "collapsed folder favorites open tabs visible sidebar",
+                \.sidebar.showOpenInCollapsedFolders,
+                label: "Keep open tabs visible under collapsed folders"
+            )
+            .grouped("Sidebar")
+            .noted("Off, a collapsed folder hides its open tabs unless one is selected.")
         ]
 
     static let labels: [Self] =

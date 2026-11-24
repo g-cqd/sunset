@@ -53,6 +53,7 @@ struct SettingsCustomRow: View {
                 StorageRows(custom: custom)
             case .defaultBrowser: DefaultBrowserRow()
             case .updates: UpdatesCenter()
+            case .quickLookMarkdown: QuickLookMarkdownRow()
             case .textOnlyZoom:
                 if WebTextZoomProbe.isAvailable {
                     LabeledContent {

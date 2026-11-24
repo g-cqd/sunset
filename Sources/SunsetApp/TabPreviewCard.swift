@@ -41,7 +41,7 @@ struct TabPreviewCard: View {
         // One card for every tab: this tab's content fades over the last one's while the card moves and takes its height.
         return ZStack(alignment: .topLeading) { content(custom).id(item.id).transition(.opacity) }
             .frame(width: Self.width + 2 * Design.Space.s)
-            .surface(shape, shadow: .popover)
+            .surface(shape, shadow: .popover, shaded: true)
             .animation(Design.Preview.swap, value: item.id)
             .allowsHitTesting(false)
     }

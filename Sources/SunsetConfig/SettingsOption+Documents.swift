@@ -1,6 +1,6 @@
 /// The options of General > Documents.
 extension SettingsOption {
-    /// When a file is written by itself, and how its source looks.
+    /// Saving, source appearance, Quick Look integration, and Markdown rendering (brought over from MarkdownLook).
     static let documents: [Self] =
         [
             number(
@@ -43,6 +43,67 @@ extension SettingsOption {
             )
             .noted(
                 "⌘-click opens a link in a tab behind, ⇧⌘-click in a tab shown, ⇧-click in a new window, ⌥-click beside."
+            ),
+            custom(
+                "documents.quickLook",
+                "Quick Look for Markdown",
+                "quick look quicklook finder preview thumbnail markdown mermaid extension",
+                .quickLookMarkdown
             )
-        ]
+            .setting([])
+            .grouped("Quick Look")
+        ] + markdownOptions
+
+    private static let markdownOptions: [Self] = {
+        let textSize = number(
+            "documents.textSize",
+            "Text size",
+            "markdown font size points rendered zoom",
+            \.documents.textSize,
+            11 ... 20,
+            step: 1,
+            unit: "pt",
+            digits: 0
+        )
+        .grouped("Markdown text")
+        let tabSize = number(
+            "documents.tabSize",
+            "Tab width in code",
+            "markdown code tab size spaces",
+            \.documents.tabSize,
+            1 ... 8,
+            step: 1,
+            unit: "sp",
+            digits: 0
+        )
+        .grouped("Markdown code")
+
+        let first = MarkdownSettingSpec.parse(
+            from: #"""
+                "documents.fullWidth"|Use the full width of the window|markdown width column wide prose full|Markdown text
+                "documents.alignsLeft"|Align text to the leading edge|markdown align left leading edge margin|Markdown text
+                "documents.smartPunctuation"|Curly quotes and ellipses|markdown smart punctuation quotes typographer|Markdown text
+                "documents.textFont"|Text font|markdown typeface family system serif rounded mono|system, serif, rounded, mono, or family name
+                "documents.headingFont"|Heading font|markdown heading typeface family text system serif|text, system, serif, rounded, mono, or family name
+                "documents.codeFont"|Code font|markdown code monospace typeface family|mono, system, serif, rounded, or family name
+                "documents.diagramFont"|Diagram font|markdown mermaid diagram typeface family|text, system, serif, rounded, mono, or family name
+                "documents.fontFeatures"|OpenType features|markdown font features opentype ss01 tnum|ss01, tnum, cv11=2|Applied to rendered Markdown text, headings, code and diagrams.
+                "documents.highlightsCode"|Syntax color in code blocks|markdown code syntax highlight color|Markdown code
+                "documents.showsLanguage"|Show the language of a code block|markdown code fence language label|Markdown code
+                "documents.copyButton"|Copy button on code blocks|markdown code copy button|Markdown code
+                """#
+        )
+        let second = MarkdownSettingSpec.parse(
+            from: #"""
+                "documents.rowLines"|Lines between table rows|markdown table rows border lines|Markdown tables
+                "documents.columnLines"|Lines between table columns|markdown table columns border lines|Markdown tables
+                "documents.outerBorder"|Outline around tables|markdown table outer border outline|Markdown tables
+                "documents.scrollsTables"|Keep table cells on one line and scroll|markdown table nowrap scroll sideways|Markdown tables
+                "documents.bleedsTables"|Scroll wide tables across the whole pane|markdown table bleed wide full|Markdown tables
+                "documents.drawsDiagrams"|Draw Mermaid diagrams|markdown mermaid diagram render svg|Diagrams and front matter
+                "documents.opensFrontMatter"|Show front matter open|markdown yaml front matter properties|Diagrams and front matter
+                """#
+        )
+        return [textSize] + first + [tabSize] + second
+    }()
 }
