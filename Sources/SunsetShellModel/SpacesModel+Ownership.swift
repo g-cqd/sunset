@@ -8,12 +8,12 @@ extension SpacesModel {
     }
 
     /// Gives a Space what was saved of its Favorites, when they are its own; else it shows its profile's.
-    package func restoreFavorites(of space: SpaceModel, from saved: SavedSpace, reopening: Bool) {
+    package func restoreFavorites(of space: SpaceModel, from saved: SavedSpace) {
         guard space.ownsFavorites else {
             space.favorites = profiles.profile(of: space.space).favorites
             return
         }
-        space.favorites.restore(saved.favorites, reopening: reopening)
+        space.favorites.restore(saved.favorites)
     }
 
     /// A Space is deleted: its own Favorites go, still running, to the end of `target`'s; with no target they close.

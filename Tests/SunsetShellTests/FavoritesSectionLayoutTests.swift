@@ -19,7 +19,7 @@ struct FavoritesSectionLayoutTests {
             _ = kept.addEntry(home: Favorites.Home(layout: .pane(pane), focused: pane))
         }
         let favorites = FavoritesModel()
-        favorites.restore(SavedFavorites(favorites: kept, contents: [:]), reopening: false)
+        favorites.restore(SavedFavorites(favorites: kept, contents: [:]))
         let harness = TabsHarness(favorites: favorites)
         let layout = ShellSettings().layout
         func height(_ view: some View) throws -> Double {

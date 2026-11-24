@@ -5,7 +5,7 @@ import Testing
 @testable import SunsetShell
 @testable import SunsetShellModel
 
-/// A kept page that was the one shown at quit came back open but not made; its tile was drawn as loaded, and its
+/// A kept page open but not made yet; its tile was drawn as loaded, and its
 /// preview said "Terminal" with a folder for a picture.
 @MainActor @Suite("A kept entry back from the session, not made yet")
 struct KeptEntryLoadedTests {
@@ -17,7 +17,10 @@ struct KeptEntryLoadedTests {
         kept.open(id)
         let page = PaneDescriptor(kind: "web", state: ["url": "https://claude.ai/", "title": "Claude"])
         let favorites = FavoritesModel()
-        favorites.restore(SavedFavorites(favorites: kept, contents: [pane: page]), reopening: true)
+        favorites.restore(SavedFavorites(favorites: kept, contents: [pane: page]))
+        // An entry opened but not made yet (a window selected it, the page loads when it is shown): not what a launch gives.
+        favorites.edit { $0.open(id) }
+        favorites.pending[pane] = page
         let harness = TabsHarness(favorites: favorites)
         let entry = try #require(harness.tabs.favorites.favorites.entry(id))
         #expect(entry.isOpen && harness.tabs.content(pane) == nil)

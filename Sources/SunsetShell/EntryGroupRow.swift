@@ -40,9 +40,13 @@ struct EntryGroupRow: View {
                     }
                 )
                 .contextMenu {
+                    // The part's own item first, then the entry's menu: its panes' actions (a document's other view), Unload, where it is kept.
+                    // The parts had only the first, so a Markdown part offered none of its actions (n146).
                     if entry.isOpen, panes.count > 1 {
                         Button("Move Pane to Its Own Tab") { tabs.separate(pane: pane) }
+                        Divider()
                     }
+                    KeptEntryMenu(tabs: tabs, entry: entry, animation: layout.smooth)
                 }
             }
         } outline: { shape in

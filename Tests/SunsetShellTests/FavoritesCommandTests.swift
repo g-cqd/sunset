@@ -83,7 +83,7 @@ import Testing
         #expect(read.favorites.entry(entry)?.command == "make" && read.favorites.entry(entry)?.commandSeal == "k:make")
     }
 
-    @Test func `an entry that comes back open at launch types its command when its shell is made`() throws {
+    @Test func `an entry opened but not made types its command when its shell is made`() throws {
         var kept = Favorites()
         let pane = PaneID()
         let id = kept.addEntry(home: Favorites.Home(layout: .pane(pane), focused: pane)) ?? Favorites.NodeID()
@@ -91,7 +91,8 @@ import Testing
         kept.open(id)
         let favorites = FavoritesModel()
         favorites.sealer = TestSealer()
-        favorites.restore(SavedFavorites(favorites: kept), reopening: true)
+        favorites.restore(SavedFavorites(favorites: kept))
+        favorites.edit { $0.open(id) }
         var workspace = Workspace()
         workspace.select(entry: id)
         let harness = TabsHarness(favorites: favorites)

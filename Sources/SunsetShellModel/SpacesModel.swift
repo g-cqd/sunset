@@ -208,7 +208,7 @@ package final class SpacesModel {
     package func restore(_ saved: [SavedSpace], reopening: Bool) {
         guard let first = saved.first, spaces.count == 1 else { return }
         spaces[0].restore(first, reopening: reopening)
-        restoreFavorites(of: spaces[0], from: first, reopening: reopening)
+        restoreFavorites(of: spaces[0], from: first)
         for other in saved.dropFirst() {
             let space = SpaceModel(
                 space: other.space,
@@ -217,7 +217,7 @@ package final class SpacesModel {
             )
             space.ownsFavorites = ownership.favoritesBySpace
             space.restore(other, reopening: reopening)
-            restoreFavorites(of: space, from: other, reopening: reopening)
+            restoreFavorites(of: space, from: other)
             spaces.append(space)
         }
     }

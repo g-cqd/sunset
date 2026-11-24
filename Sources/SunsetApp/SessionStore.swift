@@ -49,7 +49,7 @@ final class SessionStore {
     func load(enabled: Bool, namedCommand: Bool) {
         active = !namedCommand
         guard !namedCommand, let session = read(), let first = session.spaces.first else { return }
-        AppSpaces.all.profiles.restore(session.profiles, reopening: enabled)
+        AppSpaces.all.profiles.restore(session.profiles)
         guard hostsTabs else {
             // A window is one tab: the first Space's saved tabs each wait for a window; the other Spaces are kept as they are.
             let named = SavedSpace(space: first.space, favorites: first.favorites)

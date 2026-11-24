@@ -98,16 +98,16 @@ package final class ProfilesModel {
     }
 
     /// Takes the saved profiles, before any window: the first's name and what is kept in it, then the others in order.
-    package func restore(_ saved: [SavedProfile], reopening: Bool) {
+    package func restore(_ saved: [SavedProfile]) {
         for one in saved {
             if one.profile.isFirst {
                 first.profile = one.profile
-                first.pinned.restore(one.pinned, reopening: reopening)
-                first.favorites.restore(one.favorites, reopening: reopening)
+                first.pinned.restore(one.pinned)
+                first.favorites.restore(one.favorites)
             } else if !profiles.contains(where: { $0.profile.id == one.profile.id }) {
                 let made = ProfileModel(profile: one.profile, pinned: newPinned(), favorites: makeFavorites())
-                if !sharesPinned { made.pinned.restore(one.pinned, reopening: reopening) }
-                made.favorites.restore(one.favorites, reopening: reopening)
+                if !sharesPinned { made.pinned.restore(one.pinned) }
+                made.favorites.restore(one.favorites)
                 profiles.append(made)
             }
         }

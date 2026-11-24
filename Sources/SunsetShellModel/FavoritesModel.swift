@@ -54,11 +54,11 @@ package final class FavoritesModel {
 
     // MARK: Session
 
-    /// Takes the Favorites of the session file. The entries that were open stay open when `reopening`; otherwise every entry is kept and none is open.
-    package func restore(_ saved: SavedFavorites, reopening: Bool) {
+    /// Takes the Favorites of the session file (or the Pinned grid's). Every entry is kept and none is open, whatever was running at quit and
+    /// whatever the setting for reopening tabs says (n146): that setting is for the window's own tabs. Nothing is kept to start an entry from, and a
+    /// folder counts none of its entries open.
+    package func restore(_ saved: SavedFavorites) {
         favorites = saved.favorites
-        pending = saved.contents
-        guard !reopening else { return }
         favorites.unloadAll()
         pending = [:]
     }

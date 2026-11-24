@@ -157,10 +157,9 @@ import Testing
         let id = try #require(added)
         kept.open(id)
         let favorites = FavoritesModel()
-        favorites.restore(
-            SavedFavorites(favorites: kept, contents: [pane: .terminal(directory: "/k")]),
-            reopening: true
-        )
+        favorites.restore(SavedFavorites(favorites: kept, contents: [pane: .terminal(directory: "/k")]))
+        favorites.edit { $0.open(id) }
+        favorites.pending[pane] = .terminal(directory: "/k")
         var workspace = Workspace()
         workspace.select(entry: id)
         let harness = TabsHarness(favorites: favorites)
