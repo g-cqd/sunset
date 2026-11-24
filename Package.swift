@@ -75,14 +75,14 @@ let package = Package(
         // Tests: the family's seeded generator, allocation counting and fuzz helpers (AemiTestKit). Pinned like TerminalKit's, which resolves the same revision.
         .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "e34e3e517176a04f64e5d56e16f5019e55392a90"),
         // Our own tooling: terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
-        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "9fc4d2a1b5ae4a453112c46cd434687395bcb994"),
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "6a41516725b8919af73b2d12fa36b9655036ce5a"),
         // Markdown, Mermaid and text documents: the native view, the source editor, the one text behind them.
         .package(
             url: "https://github.com/g-cqd/AemiMarkdown.git",
-            revision: "f8e7a348fa9bede9430eff64701f87187d954145"
+            revision: "edb3104c10965912f271bd46029ec54ef3889a0b"
         ),
         // The configuration file: JSON read by AemiJSON's engine. Pinned by revision, as the family does.
-        .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "fb3d1649133eee852989bb7b2f40469b8a61c88d"),
+        .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "968ecd17e9ba744655d5c3b60d3e759cf61dc211"),
         // Blur under the bars and panels (the blurs studied in `docs/research`). Pinned by revision, as the family does.
         .package(
             url: "https://github.com/Aemi-Studio/AemiSDR.git",

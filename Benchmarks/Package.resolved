@@ -22,7 +22,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiHMMML.git",
       "state" : {
-        "revision" : "23d9a9d020cda1d215bd05fd9ace215c38198038"
+        "revision" : "ff6f0d21a99fde3336c711a8d7f1200a7156ff50"
       }
     },
     {
@@ -30,7 +30,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiJSON.git",
       "state" : {
-        "revision" : "fb3d1649133eee852989bb7b2f40469b8a61c88d"
+        "revision" : "968ecd17e9ba744655d5c3b60d3e759cf61dc211"
       }
     },
     {
@@ -38,15 +38,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiMarkdown.git",
       "state" : {
-        "revision" : "7b7fd228e13a7089e4c973c7d96faa2e6fd84c3d"
-      }
-    },
-    {
-      "identity" : "aemimermaid",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/g-cqd/AemiMermaid.git",
-      "state" : {
-        "revision" : "c29ed2ff011fb9e98f15917e48d5ff8538c1c6ce"
+        "revision" : "edb3104c10965912f271bd46029ec54ef3889a0b"
       }
     },
     {
@@ -54,7 +46,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiRegex.git",
       "state" : {
-        "revision" : "7f6b1f8b86002f099cca32735ff90455b990c4e6"
+        "revision" : "3e317a77886f3525ccb7d5176a97bcdee92a90dd"
       }
     },
     {
@@ -63,14 +55,6 @@
       "location" : "https://github.com/Aemi-Studio/AemiSDR.git",
       "state" : {
         "revision" : "70b33560051aed44da495412b747e7b878f0e59b"
-      }
-    },
-    {
-      "identity" : "aemitextui",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/g-cqd/AemiTextUI.git",
-      "state" : {
-        "revision" : "4b64bf4ea295d3ea68ceaa9ca2360beb7f5b0a3d"
       }
     },
     {
@@ -177,7 +161,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/TerminalKit.git",
       "state" : {
-        "revision" : "c6eb30847f79edf41ff5469a21dd29ab6816c4f7"
+        "revision" : "6a41516725b8919af73b2d12fa36b9655036ce5a"
       }
     },
     {
