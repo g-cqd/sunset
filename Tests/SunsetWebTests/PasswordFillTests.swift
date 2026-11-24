@@ -100,7 +100,7 @@ final class PasswordFillTests {
         return (page, view, host)
     }
 
-    private func focus(_ id: String, in view: WKWebView) async throws {
+    func focus(_ id: String, in view: WKWebView) async throws {
         _ = try await view.callAsyncJavaScript(
             "document.getElementById(id).focus()",
             arguments: ["id": id],

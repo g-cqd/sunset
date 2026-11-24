@@ -11,6 +11,8 @@ final class PasswordFillPopover {
 
     func show(_ content: some View, at rect: CGRect, of view: NSView, edge: NSRectEdge, suggestions: Bool = false) {
         close()
+        // AppKit raises for a view with no window (n144): a page that left the screen gets nothing shown.
+        guard view.window != nil, !view.isHiddenOrHasHiddenAncestor else { return }
         let popover = NSPopover()
         popover.behavior = .transient
         popover.animates = true

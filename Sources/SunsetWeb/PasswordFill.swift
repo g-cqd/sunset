@@ -31,7 +31,11 @@ final class PasswordFill: PageScriptHandler, WKScriptMessageHandler {
         else { return }
         switch body["kind"] as? String {
             case "focus":
-                guard let role = (body["role"] as? String).flatMap(LoginField.Role.init(rawValue:)) else { return }
+                // A page out of every window (a background tab, one being closed) is not on screen: nothing is offered
+                // for it (n144).
+                guard Self.isOnScreen(page),
+                    let role = (body["role"] as? String).flatMap(LoginField.Role.init(rawValue:))
+                else { return }
                 let field = LoginField(
                     role: role,
                     frame: Self.frame(body, in: page),
@@ -55,6 +59,12 @@ final class PasswordFill: PageScriptHandler, WKScriptMessageHandler {
             default:
                 return
         }
+    }
+
+    /// Whether the page's view is in a window and not hidden.
+    private static func isOnScreen(_ page: WebContent) -> Bool {
+        guard let view = page.webView, view.window != nil else { return false }
+        return !view.isHiddenOrHasHiddenAncestor
     }
 
     /// The frame's origin, as WebKit says it.
