@@ -75,11 +75,11 @@ let package = Package(
         // Tests: the family's seeded generator, allocation counting and fuzz helpers (AemiTestKit). Pinned like TerminalKit's, which resolves the same revision.
         .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "e34e3e517176a04f64e5d56e16f5019e55392a90"),
         // Our own tooling: terminal display widths come from TerminalKitText. Pinned by revision, as the family does.
-        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "c6eb30847f79edf41ff5469a21dd29ab6816c4f7"),
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "9fc4d2a1b5ae4a453112c46cd434687395bcb994"),
         // Markdown, Mermaid and text documents: the native view, the source editor, the one text behind them.
         .package(
             url: "https://github.com/g-cqd/AemiMarkdown.git",
-            revision: "7b7fd228e13a7089e4c973c7d96faa2e6fd84c3d"
+            revision: "f8e7a348fa9bede9430eff64701f87187d954145"
         ),
         // The configuration file: JSON read by AemiJSON's engine. Pinned by revision, as the family does.
         .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "fb3d1649133eee852989bb7b2f40469b8a61c88d"),
