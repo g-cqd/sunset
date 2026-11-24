@@ -21,7 +21,7 @@ struct PasswordsActions: View {
                 }
             }
             SidebarIconMenu(symbol: "ellipsis", help: "More") {
-                Button("Import Logins from CSV…", systemImage: "square.and.arrow.down") {
+                Button("Import Logins…", systemImage: "square.and.arrow.down") {
                     PasswordsImport.run(into: model)
                 }
                 Button("Export Logins to CSV…", systemImage: "square.and.arrow.up") {

@@ -202,7 +202,7 @@ let package = Package(
             "SunsetCredentials",
             [
                 "SunsetStorage", "SunsetRuntime", .product(name: "AemiArgon2", package: "aemi"),
-                .product(name: "CSVCoder", package: "CSVCoder")
+                .product(name: "CSVCoder", package: "CSVCoder"), .product(name: "AemiJSONCore", package: "AemiJSON")
             ]
         ),
         tests(

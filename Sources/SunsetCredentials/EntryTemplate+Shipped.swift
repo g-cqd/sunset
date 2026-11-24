@@ -24,6 +24,7 @@ extension EntryTemplate {
 
     public static let login = shipped[0]
     public static let card = shipped[1]
+    public static let identity = shipped[2]
     public static let secureNote = shipped[3]
     public static let server = shipped[10]
 }

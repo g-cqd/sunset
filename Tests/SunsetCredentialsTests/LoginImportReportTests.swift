@@ -27,7 +27,7 @@ struct LoginImportReportTests {
         #expect(
             imported.report == [
                 "2 logins", "1 already in the vault or earlier in the file",
-                "3 rows are not logins (2 notes, cards or archived items, 1 empty)",
+                "3 rows are not imported (2 notes or cards, 1 empty)",
                 "1 one-time code could not be read and was left out"
             ]
         )

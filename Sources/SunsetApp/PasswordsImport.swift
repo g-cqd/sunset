@@ -14,20 +14,17 @@ enum PasswordsImport {
 
     static func run(into model: PasswordsModel) {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.commaSeparatedText, .plainText]
-        panel.message = "Choose the CSV file your browser or password manager exported."
+        panel.allowedContentTypes = [.commaSeparatedText, .plainText, .json]
+        panel.message = "Choose the file your browser or password manager exported: CSV, or Bitwarden's JSON."
         panel.prompt = "Read"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         guard let text = read(url) else { return }
         let site = AppPasswordFill.site
         let imported: LoginImport
-        do {
-            imported = try LoginImport.read(text, site: site).leavingOut(held: model.entries, site: site)
+        do throws(LoginImport.Failure) {
+            imported = try LoginImport.readFile(text, site: site).leavingOut(held: model.entries, site: site)
         } catch {
-            say(
-                "This is not a file of logins",
-                "It has no password column. Sunset reads the CSV that Apple Passwords, Chrome, Edge, Brave, Firefox, Bitwarden, 1Password and LastPass export."
-            )
+            say(error.words.title, error.words.detail)
             return
         }
         guard !imported.entries.isEmpty else {

@@ -15,11 +15,17 @@ public struct LoginImport: Equatable, Sendable {
         case notALogin
         /// An archived item.
         case archived
+        /// In the manager's trash.
+        case deleted
+        /// A kind of item this version of Sunset does not know.
+        case unknownKind
     }
 
     public enum WarningReason: Equatable, Sendable {
         /// The login is kept, its one-time code is not: what the file has is neither an `otpauth://` link nor a secret.
         case unreadableCode
+        /// A card is kept, its expiry is not: the month or the year is not one.
+        case unreadableExpiry
     }
 
     /// A row not imported, its number in the file (the header row being 1).
@@ -37,6 +43,10 @@ public struct LoginImport: Equatable, Sendable {
     public enum Failure: Error, Equatable, Sendable {
         /// No password column: this is not a file of logins, and nothing is guessed.
         case noLoginColumns
+        /// A JSON file that is not an export of the manager it says it is, or not JSON.
+        case notAnExport
+        /// An export the manager protected with a password: Sunset reads the plain one.
+        case encrypted
     }
 
     public let source: Source
@@ -108,12 +118,16 @@ public struct LoginImport: Equatable, Sendable {
         return Self(source: source(of: header), entries: entries, skipped: skipped, warnings: warnings, duplicates: 0)
     }
 
-    /// What is not in `held` already, nor earlier in the file: the same site, username and password is the same login.
+    /// What is not in `held` already, nor earlier in the file: a login is the same by its site, username and password; any other entry by
+    /// its kind, title, fields and note.
     public func leavingOut(held: [VaultEntry], site: (String) -> String?) -> Self {
         func key(_ entry: VaultEntry) -> String? {
-            guard let credentials = LoginMatch.credentials(of: entry) else { return nil }
-            let host = LoginMatch.website(of: entry)?.host()?.lowercased() ?? ""
-            return [site(host) ?? host, credentials.username, credentials.password].joined(separator: "\u{1F}")
+            if entry.template == EntryTemplate.login.id, let credentials = LoginMatch.credentials(of: entry) {
+                let host = LoginMatch.website(of: entry)?.host()?.lowercased() ?? ""
+                return [site(host) ?? host, credentials.username, credentials.password].joined(separator: "\u{1F}")
+            }
+            let values = entry.sections.flatMap(\.fields).map { "\($0.name)=\($0.value)" }
+            return ([entry.template?.uuidString ?? "", entry.title, entry.note] + values).joined(separator: "\u{1F}")
         }
         var seen = Set(held.compactMap(key))
         var fresh: [VaultEntry] = []
@@ -135,7 +149,7 @@ public struct LoginImport: Equatable, Sendable {
     }
 
     /// The first address of a cell (a manager's export has several, one a line), with `https://` when it has no scheme.
-    private static func address(_ cell: String) -> String {
+    static func address(_ cell: String) -> String {
         let first = cell.split(whereSeparator: \.isNewline).first.map { $0.trimmingCharacters(in: .whitespaces) } ?? ""
         return first.isEmpty || first.contains("://") ? first : "https://" + first
     }
@@ -149,7 +163,7 @@ public struct LoginImport: Equatable, Sendable {
     }
 
     /// The link a code is kept as: an `otpauth://` or `steam://` link as it is, a bare Base32 secret made one; nil for anything else.
-    private static func link(_ text: String, account: String, issuer: String) -> String? {
+    static func link(_ text: String, account: String, issuer: String) -> String? {
         if (try? OneTimeCodeURI(text)) != nil { return text }
         let secret = text.filter { !$0.isWhitespace }
         guard let bytes = try? Base32.decode(secret), !bytes.isEmpty else { return nil }
