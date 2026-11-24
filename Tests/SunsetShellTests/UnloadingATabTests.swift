@@ -20,8 +20,6 @@ struct UnloadingATabTests {
         let content = try #require(window.content(other.focused))
 
         #expect(window.canUnload(item: other.id), "a document that is not on screen")
-        #expect(!window.canUnload(item: shown.id))
-        #expect(!window.unload(item: shown.id), "the tab on screen stays")
         #expect(window.unload(item: other.id))
         #expect(content is FakeContent && (content as? FakeContent)?.stopped == true)
         #expect(window.content(other.focused) == nil && window.workspace.count == 2)
@@ -30,6 +28,39 @@ struct UnloadingATabTests {
 
         window.select(item: other.id)
         #expect(window.content(other.focused)?.descriptor == document)
+        _ = shown
+    }
+
+    @Test func `the tab on screen unloads too: the window goes back to the tab it showed before`() throws {
+        let harness = SpaceHarness()
+        let window = harness.window()
+        window.newTab(.terminal(directory: "/a"))
+        window.newTab(document)
+        window.newTab(.terminal(directory: "/c"))
+        let (a, b, c) = (window.workspace.items[0], window.workspace.items[1], window.workspace.items[2])
+        window.select(item: b.id)
+        window.select(item: c.id)
+        #expect(window.canUnload(item: c.id))
+        #expect(window.unload(item: c.id))
+        #expect(window.workspace.selectedID == b.id, "back to the tab shown before")
+        #expect(window.content(c.focused) == nil && window.workspace.count == 3, "it stays in the list")
+        #expect(window.pendingDescriptor(c.focused) == .terminal(directory: "/c"))
+        window.select(item: c.id)
+        #expect(window.content(c.focused) != nil)
+        _ = a
+    }
+
+    @Test func `the only tab, or a tab another window shows, is not unloaded`() throws {
+        let harness = SpaceHarness()
+        let first = harness.window()
+        first.newTab(document)
+        let only = first.workspace.items[0]
+        #expect(!first.canUnload(item: only.id), "nowhere to go")
+        first.newTab(.terminal(directory: "/b"))
+        let second = harness.window()
+        second.select(item: only.id)
+        #expect(!first.canUnload(item: only.id), "another window shows it")
+        #expect(!second.canUnload(item: only.id) || second.workspace.items.count > 1)
     }
 
     @Test func `an idle terminal unloads and starts again where it was; one running a command stays`() throws {

@@ -69,7 +69,8 @@ extension TabsModel {
     /// and pages not unloaded yet (a page keeps its address and its history).
     package func canUnload(item id: Workspace.ItemID) -> Bool {
         guard let item = space.tabs.items.first(where: { $0.id == id }),
-            !space.currentViewers.contains(where: { $0.shownTab == id })
+            !space.currentViewers.contains(where: { $0 !== self && $0.shownTab == id }),
+            shownTab != id || tabToShow(instead: id) != nil
         else { return false }
         let made = item.panes.compactMap { space.contents[$0] }
         let kinds: Set = [PaneDescriptor.documentKind, PaneDescriptor.terminalKind]
@@ -93,9 +94,24 @@ extension TabsModel {
         return unload(item: id) ? .done("Unloaded") : .blocked("It plays, captures or asks something")
     }
 
-    /// Unloads the tab `id` by hand (see `SpaceModel.unload`).
+    /// The tab this window shows when `id`, which it shows, is unloaded: the one it showed before, else the next, else the
+    /// previous; nil when there is none.
+    private func tabToShow(instead id: Workspace.ItemID) -> Workspace.ItemID? {
+        if let back = previouslyShown(before: id) { return back }
+        let items = space.tabs.items
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return nil }
+        return items.indices.contains(index + 1) ? items[index + 1].id : (index > 0 ? items[index - 1].id : nil)
+    }
+
+    /// Unloads the tab `id` by hand (see `SpaceModel.unload`). The tab this window shows goes too: the window shows another
+    /// first, as when it is closed; the tab stays in the list.
     @discardableResult
     package func unload(item id: Workspace.ItemID) -> Bool {
+        if shownTab == id {
+            guard let away = tabToShow(instead: id) else { return false }
+            select(item: away)
+            syncStates()
+        }
         let done = space.unload(item: id)
         if done { onChange() }
         return done
