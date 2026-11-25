@@ -53,7 +53,7 @@ package enum ExtensionStoreLink: Equatable, Sendable {
         }
     }
 
-    /// The `.xpi` the API names for the current version; nil unless HTTPS.
+    /// The `.xpi` the API names for the current version; nil unless HTTPS on Mozilla's Add-ons host (N-S4).
     package static func firefoxPackage(fromAPI data: Data) -> URL? {
         struct Answer: Decodable {
             struct Version: Decodable {
@@ -63,7 +63,7 @@ package enum ExtensionStoreLink: Equatable, Sendable {
             let current_version: Version
         }
         guard let url = try? JSONDecoder().decode(Answer.self, from: data).current_version.file.url,
-            url.scheme == "https"
+            ExtensionPackage.isTrustedFirefoxDownload(url)
         else { return nil }
         return url
     }

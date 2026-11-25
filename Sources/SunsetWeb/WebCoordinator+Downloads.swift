@@ -9,10 +9,12 @@ extension WebCoordinator {
         -> WKNavigationResponsePolicy
     {
         guard response.isForMainFrame else { return .allow }
-        // An extension's package (a store's "Download file", a link to a `.crx`): installed after its prompt, not downloaded.
-        // A private page's go to Downloads.
+        // An extension's package (a `.crx` or an official `addons.mozilla.org` `.xpi`): installed after its prompt, not
+        // downloaded. Arbitrary-host `.xpi` links and private-page packages go to Downloads (N-S4).
         if let address = response.response.url, let content, !content.isPrivate,
             ExtensionPackage.isPackage(mime: response.response.mimeType, path: address.path())
+                || (ExtensionPackage.isTrustedFirefoxDownload(address)
+                    && ExtensionPackage.isFirefoxPackage(mime: response.response.mimeType, path: address.path()))
         {
             ExtensionHosts.shared.installPackage(address, content.settings.profile)
             return .cancel

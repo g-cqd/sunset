@@ -104,7 +104,16 @@ func makeIndex(_ words: [String]) throws -> String? {
             )
         )
     }
-    let index = ReleaseIndex(tag: tag, build: build, notesSHA256: BundleManifest.hex(notesData), variants: variants)
+    let nowSeconds = Int64(Date.now.timeIntervalSince1970)
+    let expiresAt = nowSeconds + Int64(ReleaseIndex.defaultLifetime)
+    let index = ReleaseIndex(
+        tag: tag,
+        build: build,
+        notesSHA256: BundleManifest.hex(notesData),
+        issuedAt: nowSeconds,
+        expiresAt: expiresAt,
+        variants: variants
+    )
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
     let encoded = try encoder.encode(index)

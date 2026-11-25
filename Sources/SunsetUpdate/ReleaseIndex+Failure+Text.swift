@@ -6,6 +6,9 @@ extension ReleaseIndex.Failure: LocalizedError {
         switch self {
             case .untrustedSignature: "The release is not signed by Sunset\u{2019}s release key."
             case .malformed: "The release\u{2019}s index could not be read."
+            case .missingIndex: "The release is missing its signed release index."
+            case .expired: "The release\u{2019}s signed index has expired."
+            case .metadataMismatch: "The signed release index does not match this release\u{2019}s tag and build."
         }
     }
 }

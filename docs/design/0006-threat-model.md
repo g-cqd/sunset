@@ -1,4 +1,4 @@
-# 0006 — Threat model (as of 2026-11-22)
+# 0006 — Threat model (as of 2026-11-25)
 
 Status: **accepted**. Every security decision (ADRs) names the adversaries it answers. The evidence behind it:
 docs/research/security-realism-2026-11-19.md; docs/research/credentials/; docs/research/threat-model-sota-2026-11-21.md (the
@@ -8,7 +8,7 @@ state of the art, field by field).
 
 | # | Asset | Where today | Protected by |
 |---|---|---|---|
-| D1 | Secrets for the person's accounts: a vault's passwords, codes, files; cookies and session tokens; HTTP auth answers | The vault (`SunsetCredentials`: its model, factors and lock; no window shows it yet); WebKit's cookie jars; `CredentialPanel` (not kept) | Vault: its key, locked (ADR-0091). Cookies: sealed while Sunset is closed, 0600/0700 |
+| D1 | Secrets for the person's accounts: a vault's passwords, codes, files; cookies and session tokens; HTTP auth answers | The vault (`SunsetCredentials`: its model, factors, lock, and `.svault` backups); WebKit's cookie jars; `CredentialPanel` (not kept) | Vault: its key, locked (ADR-0091). Cookies: sealed while Sunset is closed, 0600/0700 |
 | D2 | The storage key and the recovery code | The data-protection keychain, the key wrapped by the Secure Enclave (`EnclaveKeyVault`) | The keychain's access group; the Secure Enclave; FileVault |
 | D3 | Behaviour: history, sessions, open tabs, permissions answered, downloads list, recent files, favicons | `state.sqlite`, `session.sealed`, `library.sqlite` | Sealed payloads, their times and counts with them; a kind is a keyed tag (storage format 2) |
 | D4 | The person's documents in Sunset | `Documents/` sealed files | Sealed |
@@ -17,7 +17,8 @@ state of the art, field by field).
 | D7 | The person's input: keystrokes, pastes, clipboard | Memory, the system pasteboard | Clipboard gate; secure keyboard entry while a program reads a password; a warning before a risky paste |
 | D8 | The device's capabilities a page can borrow: camera, microphone, screen, location, notifications | The system (TCC) and Sunset's answers per site | Permission policies (ADR-0061, ADR-0082) |
 | D9 | Sunset's integrity: its code, its block lists, its settings | The app bundle (Developer ID, notarised, hardened runtime); `Blocking/`; `~/.config/sunset` | macOS; HTTPS for lists |
-| D10 | **The engine's freshness** (Sunset WebKit only): its WebKit is at least as new as the last WebKit security advisory | The bundled frameworks, rebuilt by `Scripts/webkit.sh update` | Nothing automatic: macOS updates do not reach it. Advisories come every 5–7 weeks, ≈26 fixes each lately |
+| D10 | **The engine's freshness** (Sunset WebKit only): its WebKit is at least as new as the last WebKit security advisory | The bundled frameworks, rebuilt by `Scripts/webkit.sh update` | Automated daily advisory & patch check (`webkit-check.yml`, ADR-0127) plus `AppEngineFreshness` age warning |
+| D11 | **Release signing keys & build Mac** | Developer ID certificate, App Store Connect notary key, Ed25519 release-index main key (CI secret / signing Mac) and offline backup key (ADR-0125, ADR-0127) | Keychain / GitHub Secrets; offline backup key kept off build hosts; hardware custody planned |
 
 ## Who attacks (adversaries)
 
@@ -30,8 +31,8 @@ state of the art, field by field).
 | A5 | **Someone at the unlocked Mac** (borrowed, shoulder-surfing, a screen share) | Use the open app; see the screen; capture it (share, screenshots) | Open a locked vault; see windows excluded from capture |
 | A6 | **The network**: a hostile Wi-Fi, an ISP, a proxy | See names (DNS), timing, sizes; tamper with http; block | Read or alter https (WebKit's TLS); alter lists fetched over https |
 | A7 | **The sync or backup provider**, honest but curious or malicious | Store, withhold, reorder, roll back, delete Sunset's files | Read or forge sealed records (AEAD, the vault key) |
-| A8 | **The supply chain**: dependencies, the build, updates, block list sources | Change what is built or fetched | Dependencies are the project's own packages only (§8); there is no updater |
-| A9 | **An extension** the person installs | What its permissions give, in WebKit's extension host | What Sunset's own policy refuses (ADR-0113) |
+| A8 | **The supply chain & update feed**: dependencies, GitHub release feed, build Mac, block-list sources | Tamper with GitHub release assets/metadata, serve stale/frozen feeds, or alter unsigned inputs | Forge Developer ID + Apple notarisation signatures, or forge Ed25519 `release-index.json.sig` without a release key; dependencies are revision-pinned |
+| A9 | **An extension** the person installs | What its permissions give, in WebKit's extension host | What Sunset's own policy refuses (ADR-0113); CRX3 signatures and Mozilla host checks enforced before load |
 | A10 | **A compromised WebContent process** (a WebKit exploit) | Act as the page with WebKit's sandbox's rights; maybe lie in messages to Sunset; **read what every frame of its page holds, cross-site frames included** (WebKit's site isolation is off in both builds: a cross-site frame shares its embedder's process) | Leave WebKit's sandbox without a second exploit |
 
 **Out of scope:**
@@ -47,10 +48,11 @@ state of the art, field by field).
 2. **Sunset's content world ↔ the page.** Sunset's own scripts (sign-in watch, fill) read the DOM. The page cannot call them
    or see them, but it shapes the DOM they read (hidden fields, look-alike forms).
 3. **The terminal's bytes ↔ the host.** ADR-0010's policy table; a bounded event queue.
-4. **Sunset ↔ the disk.** Sealed records; the vault sealed by its own key; WebKit's stores outside Sunset's sealing.
-5. **Sunset ↔ the network.** WebKit's loads; Sunset's own fetches (lists, icons) through the profile's store.
-6. **Sunset ↔ providers** (sync, backup). Sealed bytes only; anti-rollback (below).
-7. **Sunset ↔ the system.** Keychain, Secure Enclave, TCC, the pasteboard, notifications, Launch Services (links, downloads).
+4. **Sunset ↔ the disk.** Sealed records; the vault sealed by its own key; WebKit's stores sealed at quit.
+5. **Sunset ↔ the network.** WebKit's loads; Sunset's own fetches (lists, icons) through `PublicAddress`/`FetchDelegate` and the profile's store.
+6. **Sunset ↔ providers** (sync, backup, restore). Sealed `.svault` bytes only; Argon2id + AEAD authenticated header/payload; anti-rollback for sync.
+7. **Sunset ↔ the system.** Keychain, Secure Enclave, TCC, the pasteboard (`PasteboardImage` bounded to 16M px), notifications, Launch Services (links, downloads), and App-Sandboxed Quick Look preview/thumbnail extensions (read-only).
+8. **Sunset ↔ the updater & release feed (ADR-0122, ADR-0125, ADR-0127).** Host-pinned HTTPS (`UpdateURLPolicy`), mandatory Ed25519-signed expiring `release-index.json` (builds ≥ 829), bounded LZMA/SSDLTA2 delta staging, and mandatory Developer ID + team + bundle-ID + notarisation + build-order checks before bundle swap.
 
 ## Threats, mitigations, gaps
 
@@ -73,14 +75,26 @@ state of the art, field by field).
 | A sync provider rolls back, withholds, reorders | A7 | — | Per-device logs with sequence numbers; each device remembers the highest seen per device and refuses older; heads sealed and chained (ADR-0095, to add) |
 | Backups open to whoever holds them | A4 | Sealed records | A sealed backup of everything (realism study) |
 | Code injected into Sunset | A3 | Developer ID, notarised, the hardened runtime, library validation | — |
-| Lists or updates altered | A6, A8 | Lists over https | A list's size and rule-count bounds; an updater only with signed updates |
-| A download runs unchecked | A1 | Quarantine (Gatekeeper) | — |
+| Lists or updates altered or frozen | A6, A8 | Lists over HTTPS; updater enforces host-pinned HTTPS, mandatory Ed25519-signed expiring `release-index.json` (builds ≥ 829), hash-verified archives/delta TOCs, Developer ID + team + notarisation + build order | Hardware-held release key + separate offline root rotation key (N-S3); SLSA provenance + CycloneDX SBOM in `release.yml` (N-S7) |
+| Build Mac or release key compromised | A8 | Developer ID + Apple notarisation required independently of `release-index.json`; offline backup key stored off build hosts | Move signing key into Secure Enclave/HSM and gate `RELEASE_INDEX_KEY` behind a protected GitHub Environment (N-S3) |
+| Hostile `.svault` backup or credential import | A4, A7 | Bounded Argon2id parameters, authenticated AEAD header/payload, fuzzed CSV/Bitwarden JSON parsers | Dedicated fuzz target for `.svault` container parser; recurring clean-Mac restore drill |
+| Quick Look extensions parse untrusted Markdown | A3, A4 | App-Sandboxed, read-only preview & thumbnail extensions (`AemiMarkdown` safe HTML subset) | — |
+| Forged or MITM browser extension (`.crx`/`.xpi`) | A1, A6, A9 | CRX3 protobuf RSA/ECDSA + `crxID` verified before unpacking; arbitrary-host `.xpi` links refused (only `addons.mozilla.org` HTTPS without redirects accepted) | Full Mozilla PKCS#7/COSE `.xpi` signature verification for local/store `.xpi` files |
+| A download runs unchecked | A1 | Quarantine marked on hidden temp file before atomic rename (Gatekeeper) | — |
 | An extension oversteps | A9 | ADR-0113: granted at install only, in words (header rewriting named), nothing later, no native messaging; WebKit's permission model | A prompt for later requests (refused today); an audit of each API in WebKit |
-| Sunset WebKit runs a WebKit with known bugs | A1 → A10 | `Scripts/webkit.sh update` (< 90 s to apply, ≈61 min to build); the app says at launch, and in About, when its engine is weeks old (`AppEngineFreshness`) | A release on every WebKit advisory |
-| Sunset WebKit started with planted loader variables | A3 | Library validation (only Apple's or our team's code); at launch the variables are replaced by its own frameworks and inserted libraries removed, then it restarts | In the first instant, before the restart, frameworks of the launcher's choosing (an older release's WebKit) load: check that the WebKit loaded is the app's own before anything else, or link the bundled frameworks directly |
+| Sunset WebKit runs a WebKit with known bugs | A1 → A10 | `Scripts/webkit.sh update` + automated daily `webkit-check.yml` advisory check & local build/release scheduler (ADR-0127); `AppEngineFreshness` warns when engine is weeks old | — |
+| Sunset WebKit started with planted loader variables | A3 | Hardened Runtime without `allow-dyld-environment-variables` (ADR-0123); bundled WebKit linked via `@rpath`; `DYLD_*` scrubbed from terminal shells | — |
 | A site tells Sunset is WebKit whatever it shows | A1 | `AgentScript`: identity, `userAgentData`, `window.chrome`, Safari-only objects removed, native-looking functions, no native HLS (docs/research/impersonation-beyond-identity-2026-11-21.md) | Engine error messages and stack traces cannot be made V8's or SpiderMonkey's: impersonation is for sites that gate on the user agent, not against fingerprinting |
 | An extension's fill menu clicked through an invisible overlay (DOM-based clickjacking) | A1 | Sunset's own fill UI is outside the page (ADR-0094) | Extensions the person installs are as exposed as in other browsers; Sunset's fill: exact origin by default, subdomains on the person's choice |
-| Data lost by Sunset itself (safety) | — | Atomic writes, unreadable rows never overwritten, unsaved edits kept (ADR-0038) | A vault's factors all lost → the recovery code; backups tested by restoring |
+| Data lost by Sunset itself (safety) | — | Atomic writes, unreadable rows never overwritten, unsaved edits kept (ADR-0038), sealed `.svault` automatic quit backups + printable QR emergency sheet | Recurring clean-Mac restore drill |
+
+## Accepted residual risks (with review expiry)
+
+| Risk | Owner | Mitigation today | Review / expiry date |
+|---|---|---|---|
+| `HIGH-06`: WebKit stores exist in clear while Sunset is running (A3) | Maintainer | Cleared at quit for non-kept sites; sealed at quit; hardened runtime blocks debugger attach | 2027-02-25 |
+| `LOW-01` / `N-S5`: Main app not App-Sandboxed (terminal + vault share process) | Maintainer | Swift 6.4 strict memory safety, hardened runtime, WebKit isolated; XPC Vault + Decoder separation queued (Sprint 2) | 2027-02-25 |
+| `N-S6`: WebKit site isolation off in both builds (A10) | Maintainer | Hardened mode without JIT available; tracking upstream WebKit Site Isolation readiness | 2027-02-25 |
 
 ## How it is kept
 

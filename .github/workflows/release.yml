@@ -130,14 +130,13 @@ jobs:
           build="$(cat .build/dist.build)"
           { printf 'Build %s.\n\n' "$build"; cat "$notes"; } > "$RUNNER_TEMP/notes.md"
       - name: Release · Signed Index
-        # ADR-0125: signed only where the release key is given; without it the release has no index, and Sunset
-        # falls back to the archive's own checks and Apple's signature.
+        # ADR-0125 & N-S1: every tagged release must ship a signed release-index.json + .sig; fail closed if missing.
         if: ${{ env.SIGNED == 'true' }}
         env:
           TAG: ${{ github.ref_name }}
           RELEASE_INDEX_KEY: ${{ secrets.RELEASE_INDEX_KEY }}
         run: |
-          [ -n "$RELEASE_INDEX_KEY" ] || { echo "no RELEASE_INDEX_KEY: the release has no signed index"; exit 0; }
+          [ -n "$RELEASE_INDEX_KEY" ] || { echo "::error::RELEASE_INDEX_KEY is missing; tagged releases require a signed index"; exit 1; }
           mkdir -p "$HOME/.config/sunset-signing"
           printf '%s' "$RELEASE_INDEX_KEY" | base64 --decode > "$HOME/.config/sunset-signing/release-index-main.pem"
           chmod 600 "$HOME/.config/sunset-signing/release-index-main.pem"

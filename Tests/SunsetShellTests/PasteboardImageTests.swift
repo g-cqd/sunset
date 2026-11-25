@@ -1,36 +1,36 @@
-import AppKit
-import CoreImage
-import CoreImage.CIFilterBuiltins
+import Foundation
 import Testing
 
 @testable import SunsetShell
 
-/// A picture pasted to set a one-time code up: an image on the pasteboard, or an image file copied in the Finder; text
-/// alone is none. A pasteboard of the test's own, never the clipboard.
-@MainActor @Suite("A picture on the pasteboard")
+/// Pasteboard image bounds (N-S8): header dimensions must pass `pixelLimit` without integer overflow before decoding.
+@Suite("Pasteboard image pixel bounds")
 struct PasteboardImageTests {
-    private func png() throws -> Data {
-        let filter = CIFilter.qrCodeGenerator()
-        filter.message = Data("otpauth://totp/x?secret=JBSWY3DPEHPK3PXP".utf8)
-        let image = try #require(filter.outputImage).transformed(by: CGAffineTransform(scaleX: 6, y: 6))
-        let cg = try #require(CIContext().createCGImage(image, from: image.extent))
-        return try #require(NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:]))
+    @Test func `pixel limit accepts normal images and refuses zero, oversized, or overflowing dimensions`() {
+        #expect(PasteboardImage.isWithinPixelLimit(width: 1920, height: 1080))
+        #expect(PasteboardImage.isWithinPixelLimit(width: 4096, height: 4096))
+        #expect(!PasteboardImage.isWithinPixelLimit(width: 0, height: 100))
+        #expect(!PasteboardImage.isWithinPixelLimit(width: -1, height: 100))
+        #expect(!PasteboardImage.isWithinPixelLimit(width: 10_000, height: 10_000))
+        #expect(!PasteboardImage.isWithinPixelLimit(width: Int.max, height: 2))
     }
 
-    @Test func `an image, an image file, and text that is none`() throws {
-        let board = NSPasteboard(name: NSPasteboard.Name("sunset-test-\(UUID().uuidString)"))
-        defer { board.releaseGlobally() }
-        board.clearContents()
-        board.setData(try png(), forType: .png)
-        #expect(PasteboardImage.image(in: board) != nil)
-        let file = FileManager.default.temporaryDirectory.appending(path: "qr-\(UUID().uuidString).png")
-        defer { try? FileManager.default.removeItem(at: file) }
-        try png().write(to: file)
-        board.clearContents()
-        board.writeObjects([file as NSURL])
-        #expect(PasteboardImage.image(in: board) != nil)
-        board.clearContents()
-        board.setString("not a picture", forType: .string)
-        #expect(PasteboardImage.image(in: board) == nil)
+    @Test func `oversized PNG header is refused before decoding`() throws {
+        // Minimal PNG header declaring 10000x10000 (100M px > 16M px limit).
+        var png = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+        png.append(contentsOf: [0x00, 0x00, 0x00, 0x0D])
+        png.append(contentsOf: "IHDR".utf8)
+        png.append(contentsOf: [0x00, 0x00, 0x27, 0x10])  // 10000
+        png.append(contentsOf: [0x00, 0x00, 0x27, 0x10])  // 10000
+        png.append(contentsOf: [0x08, 0x02, 0x00, 0x00, 0x00])
+        png.append(contentsOf: [0x00, 0x00, 0x00, 0x00])
+
+        let dir = FileManager.default.temporaryDirectory.appending(path: "pasteboard-image-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let file = dir.appending(path: "bomb.png")
+        try png.write(to: file)
+
+        #expect(PasteboardImage.image(at: file) == nil)
     }
 }

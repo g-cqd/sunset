@@ -57,4 +57,64 @@ struct ReleaseIndexTests {
             #expect((try? Curve25519.Signing.PublicKey(rawRepresentation: raw)) != nil)
         }
     }
+
+    @Test func rejectsExpiredOrMismatchedIndexAndRequiresIndexForModernBuilds() throws {
+        let key = Curve25519.Signing.PrivateKey()
+        let keys = [key.publicKey.rawRepresentation]
+        let issued: Int64 = 1_700_000_000
+        let expires: Int64 = issued + 3_600
+
+        let index = ReleaseIndex(
+            tag: "v0.1.0-alpha.17",
+            build: 872,
+            notesSHA256: String(repeating: "d", count: 64),
+            issuedAt: issued,
+            expiresAt: expires,
+            variants: []
+        )
+        let bytes = try JSONEncoder().encode(index)
+        let sig = try key.signature(for: bytes)
+
+        let beforeExpiry = Date(timeIntervalSince1970: TimeInterval(issued + 1_800))
+        let verified = try ReleaseIndex.verify(data: bytes, signature: sig, trustedKeys: keys, now: beforeExpiry)
+        try verified.validate(forTag: "v0.1.0-alpha.17", build: 872, now: beforeExpiry)
+
+        let afterExpiry = Date(timeIntervalSince1970: TimeInterval(expires + 1))
+        #expect(throws: ReleaseIndex.Failure.expired) {
+            try ReleaseIndex.verify(data: bytes, signature: sig, trustedKeys: keys, now: afterExpiry)
+        }
+        #expect(throws: ReleaseIndex.Failure.expired) {
+            try verified.validate(forTag: "v0.1.0-alpha.17", build: 872, now: afterExpiry)
+        }
+        #expect(throws: ReleaseIndex.Failure.metadataMismatch) {
+            try verified.validate(forTag: "v0.1.0-alpha.99", build: 872, now: beforeExpiry)
+        }
+        #expect(throws: ReleaseIndex.Failure.metadataMismatch) {
+            try verified.validate(forTag: "v0.1.0-alpha.17", build: 900, now: beforeExpiry)
+        }
+
+        // Inverted window (expiresAt < issuedAt) is rejected as malformed.
+        let inverted = ReleaseIndex(
+            tag: "v0.1.0-alpha.17",
+            build: 872,
+            notesSHA256: String(repeating: "d", count: 64),
+            issuedAt: issued,
+            expiresAt: issued - 10,
+            variants: []
+        )
+        let invertedBytes = try JSONEncoder().encode(inverted)
+        let invertedSig = try key.signature(for: invertedBytes)
+        #expect(throws: ReleaseIndex.Failure.malformed) {
+            try ReleaseIndex.verify(
+                data: invertedBytes,
+                signature: invertedSig,
+                trustedKeys: keys,
+                now: Date(timeIntervalSince1970: TimeInterval(issued - 20))
+            )
+        }
+
+        #expect(!ReleaseIndex.isRequired(forBuild: 828))
+        #expect(ReleaseIndex.isRequired(forBuild: 829))
+        #expect(ReleaseIndex.isRequired(forBuild: 872))
+    }
 }

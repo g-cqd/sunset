@@ -48,5 +48,11 @@ struct ExtensionStoreLinkTests {
                 fromAPI: Data(#"{"current_version": {"file": {"url": "http://evil/x.xpi"}}}"#.utf8)
             ) == nil
         )
+        #expect(
+            ExtensionStoreLink.firefoxPackage(
+                fromAPI: Data(#"{"current_version": {"file": {"url": "https://evil.example/x.xpi"}}}"#.utf8)
+            ) == nil,
+            "refuse non-Mozilla HTTPS host (N-S4)"
+        )
     }
 }

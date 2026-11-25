@@ -31,13 +31,32 @@ struct ExtensionPackageTests {
         }
     }
 
-    /// A package a page offers (a store's "Download file", a link to a `.crx`) is installed, not downloaded.
-    @Test func `an extension's package is told by its type or its name`() {
+    /// A `.crx` package a page offers is installed, not downloaded; arbitrary-host `.xpi` and `.zip` links are left as
+    /// regular downloads (N-S4), while official `addons.mozilla.org` HTTPS `.xpi` links remain installable.
+    @Test func `an extension's package is told by its type or its name`() throws {
         #expect(ExtensionPackage.isPackage(mime: "application/x-chrome-extension", path: "/x"))
-        #expect(ExtensionPackage.isPackage(mime: "application/x-xpinstall", path: "/x"))
-        #expect(ExtensionPackage.isPackage(mime: "application/octet-stream", path: "/files/ublock_origin-1.76.4.xpi"))
         #expect(ExtensionPackage.isPackage(mime: nil, path: "/a.CRX"))
+        #expect(!ExtensionPackage.isPackage(mime: "application/x-xpinstall", path: "/x"))
+        #expect(!ExtensionPackage.isPackage(mime: "application/octet-stream", path: "/files/ublock_origin-1.76.4.xpi"))
         #expect(!ExtensionPackage.isPackage(mime: "application/zip", path: "/a.zip"), "a zip is a download")
         #expect(!ExtensionPackage.isPackage(mime: "text/html", path: "/addon/x/"))
+
+        #expect(ExtensionPackage.isFirefoxPackage(mime: "application/x-xpinstall", path: "/x"))
+        #expect(ExtensionPackage.isFirefoxPackage(mime: "application/octet-stream", path: "/files/addon.xpi"))
+        #expect(
+            ExtensionPackage.isTrustedFirefoxDownload(
+                try #require(URL(string: "https://addons.mozilla.org/firefox/downloads/file/1/x.xpi"))
+            )
+        )
+        #expect(
+            !ExtensionPackage.isTrustedFirefoxDownload(
+                try #require(URL(string: "https://evil.example/addon.xpi"))
+            )
+        )
+        #expect(
+            !ExtensionPackage.isTrustedFirefoxDownload(
+                try #require(URL(string: "http://addons.mozilla.org/firefox/downloads/file/1/x.xpi"))
+            )
+        )
     }
 }

@@ -1,9 +1,11 @@
 import Foundation
+import SunsetRuntime
 import SunsetUpdate
 
-/// The network and disk side of an update or variant switch (ADR-0122, ADR-0125): GitHub's list, optional signed
-/// `release-index.json`, the single range-addressed `.deltas` archive (falling back to legacy `.update` or full `.zip`),
-/// staging, and Apple signature + notarization checks. Ephemeral sessions only; host-pinned to GitHub over HTTPS.
+/// The network and disk side of an update or variant switch (ADR-0122, ADR-0125): GitHub's list, mandatory signed
+/// `release-index.json` (for builds ≥ `ReleaseIndex.firstRequiredBuild`, N-S1), the single range-addressed `.deltas`
+/// archive (falling back to legacy `.update` or full `.zip`), staging, and Apple signature + notarization checks.
+/// Ephemeral sessions only; host-pinned to GitHub over HTTPS.
 enum UpdateTransfer {
     struct Failed: LocalizedError {
         let errorDescription: String?
@@ -39,17 +41,26 @@ enum UpdateTransfer {
         return try ReleaseFeed.decode(Data(contentsOf: file))
     }
 
-    /// Downloads and verifies `release-index.json` + `.sig` when published with `release` (nil on older releases that
-    /// predate ADR-0125). Throws if the index is present but fails Ed25519 verification.
-    static func verifiedIndex(for release: PublishedRelease) async throws -> ReleaseIndex? {
-        guard let pair = release.signedIndexAssets else { return nil }
+    /// Downloads and verifies `release-index.json` + `.sig` (ADR-0125, N-S1). Throws `.missingIndex` when a release
+    /// at or above `ReleaseIndex.firstRequiredBuild` lacks an index, `.untrustedSignature`/`.expired`/`.metadataMismatch`
+    /// when verification fails, and returns `nil` only for historical releases predating signed indexes.
+    static func verifiedIndex(
+        for release: PublishedRelease,
+        now: Date = Runtime.live.now()
+    ) async throws -> ReleaseIndex? {
+        guard let pair = release.signedIndexAssets else {
+            if ReleaseIndex.isRequired(forBuild: release.build) { throw ReleaseIndex.Failure.missingIndex }
+            return nil
+        }
         let indexFile = try await download(pair.index.url)
         defer { try? FileManager.default.removeItem(at: indexFile) }
         let sigFile = try await download(pair.signature.url)
         defer { try? FileManager.default.removeItem(at: sigFile) }
         let indexData = try Data(contentsOf: indexFile)
         let sigData = try Data(contentsOf: sigFile)
-        return try ReleaseIndex.verify(data: indexData, signature: sigData)
+        let index = try ReleaseIndex.verify(data: indexData, signature: sigData, now: now)
+        try index.validate(forTag: release.tag, build: release.build, now: now)
+        return index
     }
 
     /// Stages `offer` (for `targetFlavour`: either an update of the running flavour or a variant switch to the other)

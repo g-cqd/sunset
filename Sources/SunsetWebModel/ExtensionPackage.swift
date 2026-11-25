@@ -27,13 +27,25 @@ package enum ExtensionPackage {
         return archive
     }
 
-    /// An extension's package a page offers: by its type (Chrome's, Firefox's), or its name ending `.crx` or `.xpi`
-    /// (stores serve them as plain bytes too). A `.zip` is a download like any other.
+    /// An extension's package a page offers: by its type (Chrome's CRX3) or its name ending `.crx` (stores serve them as
+    /// plain bytes too). Unsigned `.zip` and `.xpi` links are left as regular downloads (N-S4: Firefox `.xpi` installs
+    /// come from Firefox Add-ons' own API/host or explicit local file selection, never arbitrary page links).
     package static func isPackage(mime: String?, path: String) -> Bool {
-        let types: Set = ["application/x-chrome-extension", "application/x-xpinstall"]
-        if let mime, types.contains(mime.lowercased()) { return true }
-        let name = path.lowercased()
-        return name.hasSuffix(".crx") || name.hasSuffix(".xpi")
+        if let mime, mime.lowercased() == "application/x-chrome-extension" { return true }
+        return path.lowercased().hasSuffix(".crx")
+    }
+
+    /// Whether a response looks like a Firefox `.xpi` package (only acted on when fetched from a trusted Mozilla host).
+    package static func isFirefoxPackage(mime: String?, path: String) -> Bool {
+        if let mime, mime.lowercased() == "application/x-xpinstall" { return true }
+        return path.lowercased().hasSuffix(".xpi")
+    }
+
+    /// Whether a page-offered extension download URL is allowed to bypass Chrome's CRX3 signature check: only Mozilla's
+    /// official Add-ons download host over HTTPS (`addons.mozilla.org`). Any other `.xpi` or `.zip` URL is refused.
+    package static func isTrustedFirefoxDownload(_ url: URL) -> Bool {
+        guard url.scheme?.lowercased() == "https", let host = url.host()?.lowercased() else { return false }
+        return host == "addons.mozilla.org"
     }
 
     /// A little-endian 32-bit number at `offset`, counted from the start of `data`.
