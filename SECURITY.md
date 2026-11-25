@@ -20,19 +20,21 @@ public issues or pull requests. Please include:
   download quarantine, profile isolation, share/notification origin checks, extension CRX3/XPI verification).
 - Vault cryptographic weaknesses, credential leaks, or updater verification / rollback / freeze bypasses.
 
-## Response targets (SLAs)
+## Response targets (best-effort, solo maintainer)
 
-| Milestone | Target |
-|---|---|
-| Private acknowledgement | Within **3 working days** |
-| Initial triage & severity confirmation | Within **7 calendar days** |
-| Fix & advisory — **Critical** | Within **7 calendar days** |
-| Fix & advisory — **High** | Within **30 calendar days** |
-| Fix — **Medium / Low** | Next scheduled release |
+This project is maintained by a single developer on a best-effort basis; the targets below are realistic guidelines
+rather than contractual SLAs:
 
-Security fixes in released builds are published with a GitHub Security Advisory (and CVE identifier where applicable)
+| Milestone | Best-effort target |
+| --- | --- |
+| Private acknowledgement | Within **7–14 days** |
+| Initial triage & severity confirmation | Within **30 days** |
+| Fix & advisory — **Critical** | Within **30 days** (sooner when actively exploited) |
+| Fix & advisory — **High** | Within **60–90 days** |
+| Fix — **Medium / Low** | Next scheduled release, as time permits |
+
+Security fixes in released versions are published with a GitHub Security Advisory (and CVE identifier where applicable)
 and named in the release notes.
-
 ## Supported versions & verification
 
 Only the latest release line receives security updates (including automated Sunset WebKit security rebuilds under
