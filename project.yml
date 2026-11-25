@@ -39,7 +39,7 @@ targets:
     sources:
       - path: Sources/SunsetAppMain
       - path: App
-        excludes: [Info.plist, QuickLook, ImageDecoder]
+        excludes: [Info.plist, QuickLook, ImageDecoder, VaultService]
     dependencies:
       - package: Sunset
         product: SunsetAppLibrary
@@ -48,6 +48,8 @@ targets:
       - target: SunsetMarkdownThumbnail
         embed: true
       - target: SunsetImageDecoder
+        embed: true
+      - target: SunsetVaultService
         embed: true
     info:
       path: App/Info.plist
@@ -232,4 +234,30 @@ targets:
           CODE_SIGN_ENTITLEMENTS: App/ImageDecoder/ImageDecoder.entitlements
         Release:
           CODE_SIGN_ENTITLEMENTS: App/ImageDecoder/ImageDecoder.entitlements
+          PROVISIONING_PROFILE_SPECIFIER: ""
+  SunsetVaultService:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: App/VaultService
+        excludes: [VaultService.entitlements]
+    dependencies:
+      - package: Sunset
+        product: SunsetCredentials
+    info:
+      path: App/VaultService/Info.plist
+      properties:
+        XPCService:
+          ServiceType: Application
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.vault
+        CODE_SIGN_ENTITLEMENTS: App/VaultService/VaultService.entitlements
+        PROVISIONING_PROFILE_SPECIFIER: ""
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.dev.vault
+          CODE_SIGN_ENTITLEMENTS: App/VaultService/VaultService.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: App/VaultService/VaultService.entitlements
           PROVISIONING_PROFILE_SPECIFIER: ""

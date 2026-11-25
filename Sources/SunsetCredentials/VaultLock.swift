@@ -30,6 +30,10 @@ public final class VaultLock {
     }
     private let runtime: Runtime
     private var key: SecretBuffer?
+    /// True when the raw key is held exclusively inside `SunsetVaultService.xpc` rather than in this process (N-S5).
+    private var remoteUnlocked = false
+    /// Invoked whenever the lock clears state (idle timeout or explicit `lock`) so an XPC vault wipes its key too.
+    package var onWipeRemote: (@MainActor () -> Void)?
     private var lastUse = Duration.zero
     private var watch: Task<Void, Never>?
 
@@ -39,47 +43,74 @@ public final class VaultLock {
     }
 
     public var isLocked: Bool {
-        key == nil
+        key == nil && !remoteUnlocked
     }
 
-    /// Holds `key` until it locks, and watches for idleness.
+    /// Holds `key` in-process until it locks, and watches for idleness (used in bare SwiftPM tests / non-bundled CLI).
     public func unlock(with key: StorageKey) {
         self.key?.wipe()
         self.key = SecretBuffer(key.bytes)
+        remoteUnlocked = false
         lockedBecause = nil
         lastUse = runtime.uptime()
         watch?.cancel()
         watch = runtime.task(role: .observation) { [weak self] in await self?.watchIdle() }
     }
 
-    /// `body` with the vault key, which counts as a use; nil while locked.
+    /// Marks the vault unlocked while the raw key lives exclusively inside `SunsetVaultService.xpc` (N-S5).
+    package func unlockRemote() {
+        self.key?.wipe()
+        self.key = nil
+        remoteUnlocked = true
+        lockedBecause = nil
+        lastUse = runtime.uptime()
+        watch?.cancel()
+        watch = runtime.task(role: .observation) { [weak self] in await self?.watchIdle() }
+    }
+
+    /// Records a remote XPC crypto operation as vault activity so the idle timer resets.
+    package func touch() -> Bool {
+        guard !isLocked else { return false }
+        lastUse = runtime.uptime()
+        return true
+    }
+
+    /// `body` with the in-process vault key, which counts as a use; nil while locked or when key lives in XPC.
     public func withKey<R>(_ body: (StorageKey) throws -> R) rethrows -> R? {
         guard let key else { return nil }
         lastUse = runtime.uptime()
         return try key.withBytes { try body(StorageKey(bytes: Data($0))) }
     }
 
-    /// Zeroes and drops the key.
+    /// Zeroes and drops the key (locally and in XPC when remote).
     public func lock(_ reason: Reason) {
         watch?.cancel()
         watch = nil
-        guard key != nil else { return }
+        guard !isLocked else { return }
         willLock?(reason)
-        guard let key else { return }
-        key.wipe()
-        self.key = nil
+        guard !isLocked else { return }
+        key?.wipe()
+        key = nil
+        if remoteUnlocked {
+            remoteUnlocked = false
+            onWipeRemote?()
+        }
         lockedBecause = reason
         onLock?(reason)
     }
 
     /// Sleeps until the idle time would be over; locks if nothing used the key meanwhile, else sleeps again.
     private func watchIdle() async {
-        while key != nil, let idle {
+        while !isLocked, let idle {
             guard await runtime.sleep(until: lastUse + idle) else { return }
-            if key != nil, runtime.uptime() - lastUse >= idle {
+            if !isLocked, runtime.uptime() - lastUse >= idle {
                 willLock?(.idle)
                 key?.wipe()
                 key = nil
+                if remoteUnlocked {
+                    remoteUnlocked = false
+                    onWipeRemote?()
+                }
                 lockedBecause = .idle
                 onLock?(.idle)
             }

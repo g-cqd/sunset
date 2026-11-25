@@ -49,21 +49,31 @@ public final class VaultFile {
     }
 
     /// What a record's seal is bound to: this vault and this slot.
-    private func identity(_ recordID: UUID) -> String {
+    package func identity(_ recordID: UUID) -> String {
         "vault:\(id.uuidString)/record:\(recordID.uuidString)"
     }
 
     /// Writes `record` sealed under `recordID`, replacing what was there.
     public func put(_ record: Data, as recordID: UUID, key: StorageKey) throws(Failure) {
-        guard let sealed = try? Seal(key: key, purpose: .vaultRecord).seal(record, identity: identity(recordID)),
-            sql.run("INSERT OR REPLACE INTO records VALUES (?, ?)", [.text(recordID.uuidString), .blob(sealed)])
+        guard let sealed = try? Seal(key: key, purpose: .vaultRecord).seal(record, identity: identity(recordID))
         else { throw .cannotOpen }
+        try putSealed(sealed, as: recordID)
+    }
+
+    /// Writes already-sealed bytes under `recordID` (used when `SunsetVaultService.xpc` seals records out-of-process, N-S5).
+    package func putSealed(_ sealed: Data, as recordID: UUID) throws(Failure) {
+        guard sql.run("INSERT OR REPLACE INTO records VALUES (?, ?)", [.text(recordID.uuidString), .blob(sealed)])
+        else { throw .cannotOpen }
+    }
+
+    /// Reads the raw sealed blob stored under `recordID` without opening it (for out-of-process XPC decryption, N-S5).
+    package func sealedRecord(_ recordID: UUID) -> Data? {
+        sql.column("SELECT sealed FROM records WHERE id = ?", [.text(recordID.uuidString)]).first
     }
 
     /// The record `recordID`, opened; nil when there is none. Throws `damaged` when it does not open with `key` here.
     public func record(_ recordID: UUID, key: StorageKey) throws(Failure) -> Data? {
-        guard let sealed = sql.column("SELECT sealed FROM records WHERE id = ?", [.text(recordID.uuidString)]).first
-        else { return nil }
+        guard let sealed = sealedRecord(recordID) else { return nil }
         guard let plain = try? Seal(key: key, purpose: .vaultRecord).open(sealed, identity: identity(recordID)) else {
             throw .damaged
         }

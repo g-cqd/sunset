@@ -28,20 +28,11 @@ let package = Package(
     name: "Sunset",
     platforms: [.macOS(.v26)],
     products: [
-        .library(name: "SunsetCore", targets: ["SunsetCore"]),
-        .library(name: "SunsetHost", targets: ["SunsetHost"]),
-        .library(name: "SunsetPane", targets: ["SunsetPane"]),
-        .library(name: "SunsetShell", targets: ["SunsetShell"]),
-        .library(name: "SunsetTerminal", targets: ["SunsetTerminal"]),
-        .library(name: "SunsetWeb", targets: ["SunsetWeb"]),
-        .library(name: "SunsetConfig", targets: ["SunsetConfig"]),
-        .library(name: "SunsetStorage", targets: ["SunsetStorage"]),
-        .library(name: "SunsetDocuments", targets: ["SunsetDocuments"]),
-        .library(name: "SunsetQuickLookKit", targets: ["SunsetQuickLookKit"]),
-        .library(name: "SunsetPrivate", targets: ["SunsetPrivate"]),
-        .library(name: "SunsetRender", targets: ["SunsetRender"]),
-        .library(name: "SunsetRenderMac", targets: ["SunsetRenderMac"]),
-        .library(name: "SunsetRenderMetal", targets: ["SunsetRenderMetal"]),
+        "SunsetCore", "SunsetHost", "SunsetPane", "SunsetShell", "SunsetTerminal", "SunsetWeb", "SunsetConfig",
+        "SunsetStorage", "SunsetDocuments", "SunsetQuickLookKit", "SunsetPrivate", "SunsetRender", "SunsetRenderMac",
+        "SunsetRenderMetal", "SunsetCredentials"
+    ]
+    .map { Product.library(name: $0, targets: [$0]) } + [
         .executable(name: "sunset-run", targets: ["SunsetRun"]),
         .executable(name: "sunset-app", targets: ["SunsetAppMain"]),
         .library(name: "SunsetAppLibrary", targets: ["SunsetApp"]),

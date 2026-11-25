@@ -16,11 +16,23 @@ public final class Vault {
     public let file: VaultFile
     public let lock: VaultLock
     private let locks: VaultLocks
+    /// Non-nil when running inside a bundled `Sunset.app` that embeds `SunsetVaultService.xpc` (N-S5 / R-DES-2):
+    /// unwrapping, sealing, and opening happen exclusively inside the App-Sandboxed XPC service.
+    private let xpc: VaultXPCClient?
 
-    init(file: VaultFile, lock: VaultLock, locks: VaultLocks) {
+    init(file: VaultFile, lock: VaultLock, locks: VaultLocks, xpc: VaultXPCClient? = Vault.defaultXPCClient()) {
         self.file = file
         self.lock = lock
         self.locks = locks
+        self.xpc = xpc
+        if let xpc {
+            let vaultID = file.id
+            lock.onWipeRemote = { xpc.lock(vaultID: vaultID) }
+        }
+    }
+
+    private static func defaultXPCClient() -> VaultXPCClient? {
+        VaultXPCClient.bundledServiceName().map(VaultXPCClient.init(serviceName:))
     }
 
     /// The factors that unlock it.
@@ -119,18 +131,41 @@ public final class Vault {
     }
 
     private func unwrap(_ slot: VaultFile.FactorSlot, with factorKey: Data) throws(Refused) {
+        if let xpc {
+            guard
+                xpc.unlock(wrapped: slot.wrapped, factorKey: factorKey, factor: slot.factor.rawValue, vaultID: file.id)
+            else { throw Refused() }
+            lock.unlockRemote()
+            locks.add(lock)
+            return
+        }
         guard let key = try? slot.wrapped.unwrap(with: factorKey, vault: file.id) else { throw Refused() }
         unlocked(key)
     }
 
     /// Writes `record` sealed under `id`. Refused while locked.
     public func put(_ record: Data, as id: UUID) throws {
+        if let xpc {
+            guard lock.touch(),
+                let sealed = xpc.seal(plain: record, identity: file.identity(id), vaultID: file.id)
+            else { throw Refused() }
+            try file.putSealed(sealed, as: id)
+            return
+        }
         guard let done = try lock.withKey({ key in try file.put(record, as: id, key: key) }) else { throw Refused() }
         done
     }
 
     /// The record `id`, opened; nil when there is none. Refused while locked.
     public func record(_ id: UUID) throws -> Data? {
+        if let xpc {
+            guard lock.touch() else { throw Refused() }
+            guard let sealed = file.sealedRecord(id) else { return nil }
+            guard let plain = xpc.open(sealed: sealed, identity: file.identity(id), vaultID: file.id) else {
+                throw VaultFile.Failure.damaged
+            }
+            return plain
+        }
         guard let record = try lock.withKey({ key in try file.record(id, key: key) }) else { throw Refused() }
         return record
     }
@@ -140,8 +175,13 @@ public final class Vault {
         return slot
     }
 
-    /// Holds `key`, and joins the vaults that lock at once.
+    /// Holds `key` (inside `SunsetVaultService.xpc` when bundled, else in `VaultLock`), and joins the vaults that lock at once.
     private func unlocked(_ key: StorageKey) {
+        if let xpc, xpc.install(rawKey: key.bytes, vaultID: file.id) {
+            lock.unlockRemote()
+            locks.add(lock)
+            return
+        }
         lock.unlock(with: key)
         locks.add(lock)
     }
