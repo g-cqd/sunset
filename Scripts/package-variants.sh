@@ -11,7 +11,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 tag="${1:?usage: Scripts/package-variants.sh TAG DIST NOTES}"
-dist="${2:?usage: Scripts/package-variants.sh TAG DIST NOTES}"
+dist="$(cd "${2:?usage: Scripts/package-variants.sh TAG DIST NOTES}" && pwd)"
 notes="${3:?usage: Scripts/package-variants.sh TAG DIST NOTES}"
 native=".build/app-package/Sunset.app"
 build="$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$native/Contents/Info.plist")"
