@@ -9,6 +9,7 @@ extension CPURenderer {
     /// do not move rows.
     func moveScrolledRows(_ screen: Screen, frame: Frame, surface: inout Surface) -> [Bool]? {
         guard frame.scrolledBack == 0, lastScrolledBack == 0, frame.selection == nil, lastSelection == nil,
+            frame.search.isEmpty, lastSearch.isEmpty,
             frame.hoveredLink == 0, lastHoveredLink == 0, let band = longestMovedBand(screen)
         else { return nil }
         let height = metrics.cellHeight

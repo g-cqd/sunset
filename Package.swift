@@ -46,6 +46,7 @@ let package = Package(
             revision: "b32d5408b22bdce913a5363f75bfa41f60ae1286"
         ),
         .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "fdcf306b1ffbbd29161df787ae2ea97e56718d2c"),
+        .package(url: "https://github.com/g-cqd/AemiRegex.git", revision: "7be30789416069858a586e2c0cfc55bcd69ced14"),
         .package(url: "https://github.com/g-cqd/CSVCoder.git", revision: "c1edb52e41248e86704c870f4ff0b6146b2ce236"),
         .package(
             url: "https://github.com/Aemi-Studio/AemiSDR.git",
@@ -58,6 +59,7 @@ let package = Package(
             dependencies: [
                 .product(name: "TerminalKitText", package: "TerminalKit"),
                 .product(name: "AemiKernel", package: "aemi"),
+                .product(name: "AemiRegex", package: "AemiRegex"),
                 "CSunsetKernels"
             ],
             path: "Sources/SunsetCore",

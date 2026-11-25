@@ -5,11 +5,12 @@ package import SwiftUI
 extension TerminalModel: PaneViewMaking {
     package func makeView(_ context: PaneViewContext) -> AnyView {
         AnyView(
-            TerminalRepresentable(
+            TerminalPaneView(
                 model: self,
                 optionAsMeta: context.optionAsMeta,
                 translucent: context.translucent,
-                focused: context.focused
+                focused: context.focused,
+                topInset: context.topInset
             )
         )
     }

@@ -82,18 +82,20 @@ extension CPURenderer {
         lastBlink = textBlinkVisible
         lastScrolledBack = frame.scrolledBack
         lastSelection = frame.selection
+        lastSearch = frame.search
         lastHoveredLink = frame.hoveredLink
         lastBackgroundAlpha = frame.backgroundAlpha
         lastSelectionRows = selectionRows
         lastSize = (frame.columns, frame.screen.rows)
     }
 
-    /// Whether this frame has to draw everything again: the size, the palette, reverse video, the hovered link, the scroll position or the background alpha
-    /// changed since the last one.
+    /// Whether this frame has to draw everything again: the size, the palette, reverse video, the hovered link, the scroll position,
+    /// visible search highlights, or the background alpha changed since the last one.
     func needsFullRedraw(_ screen: Screen, view: FrameView, reverse: Bool, scrolledBack: Int) -> Bool {
         let sizeChanged = lastSize.map { $0.columns != screen.columns || $0.rows != screen.rows } ?? true
         return sizeChanged || lastPalette != screen.palette || reverse != lastReverse
             || view.hoveredLink != lastHoveredLink || scrolledBack != lastScrolledBack
             || view.backgroundAlpha != lastBackgroundAlpha || (scrolledBack > 0 && screen.hasDirtyRows)
+            || (!view.search.isEmpty || !lastSearch.isEmpty)
     }
 }

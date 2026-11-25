@@ -15,6 +15,8 @@ extension CPURenderer {
         /// How many lines of history the window is scrolled back.
         let scrolledBack: Int
         let selection: Selection?
+        /// Search highlights on the visible window (filtered to visible rows for O(matches-on-screen) cell checks).
+        let search: SearchHighlight
         /// The link under the pointer (an id from `Screen.linkID`), drawn underlined; 0 for none.
         let hoveredLink: UInt16
         /// How opaque the default background is (see `FrameView.backgroundAlpha`).
@@ -40,12 +42,26 @@ extension CPURenderer {
             self.blinkVisible = blinkVisible
             self.scrolledBack = scrolledBack
             selection = view.selection
+            let topLine = screen.scrollbackCount - scrolledBack
+            let bottomLine = topLine + screen.rows - 1
+            if view.search.isEmpty {
+                search = SearchHighlight()
+            } else {
+                var visible: [SearchMatch] = []
+                var mappedCurrent: Int?
+                for (index, match) in view.search.matches.enumerated()
+                where match.end.line >= topLine && match.start.line <= bottomLine {
+                    if index == view.search.current { mappedCurrent = visible.count }
+                    visible.append(match)
+                }
+                search = SearchHighlight(matches: visible, current: mappedCurrent)
+            }
             hoveredLink = view.hoveredLink
             backgroundAlpha = view.backgroundAlpha
             styles = screen.cellStyles
             palette = screen.palette
             columns = screen.columns
-            firstLine = screen.scrollbackCount - scrolledBack
+            firstLine = topLine
         }
 
         func style(of cell: Cell) -> CellStyle {
@@ -65,6 +81,10 @@ extension CPURenderer {
             guard selection != nil else { return false }
             for offset in 0 ..< span where isSelected(row: row, column: column + offset) { return true }
             return false
+        }
+
+        func searchHighlight(row: Int, column: Int, span: Int) -> SearchHighlight.Kind {
+            search.kind(line: firstLine + row, column: column, span: span)
         }
 
         func cell(row: Int, column: Int) -> Cell {

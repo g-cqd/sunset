@@ -1,11 +1,14 @@
 public import SunsetCore
 
-/// What a frame shows besides the live screen: how far the window is scrolled back into the history, the selection and the hovered link.
+/// What a frame shows besides the live screen: how far the window is scrolled back into the history, the selection,
+/// search highlights (T-3), and the hovered link.
 public struct FrameView: Sendable, Equatable {
     /// Lines of history the window is scrolled back (0: the live screen, the only one with a cursor).
     public var scrolledBack = 0
     /// Drawn with its cells' colours swapped.
     public var selection: Selection?
+    /// Search matches to highlight on the visible rows (`SearchHighlight.current` drawn brighter).
+    public var search = SearchHighlight()
     /// A link id from `Screen.linkID` (0 for none), drawn underlined.
     public var hoveredLink: UInt16 = 0
     /// How opaque the default background is (255: opaque, the normal case; less lets what is behind the window show through, with a window that has a material,
@@ -19,6 +22,7 @@ public struct FrameView: Sendable, Equatable {
     public init(
         scrolledBack: Int = 0,
         selection: Selection? = nil,
+        search: SearchHighlight = SearchHighlight(),
         hoveredLink: UInt16 = 0,
         backgroundAlpha: UInt8 = 255,
         extraPixels: (width: Int, height: Int) = (0, 0)
@@ -28,6 +32,7 @@ public struct FrameView: Sendable, Equatable {
         self.backgroundAlpha = backgroundAlpha
         self.scrolledBack = scrolledBack
         self.selection = selection
+        self.search = search
         self.hoveredLink = hoveredLink
     }
 }

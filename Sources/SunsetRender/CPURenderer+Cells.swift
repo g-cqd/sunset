@@ -4,28 +4,19 @@ internal import SunsetCore
 extension CPURenderer {
     func drawCell(_ cell: Cell, at place: Placement, frame: Frame, walk: inout Walk, surface: inout Surface) {
         let style = walk.styles.style(cell.styleID, in: frame)
-        var (foreground, background) = (style.foreground, style.background)
-        let selected =
-            frame.selection != nil && frame.isSelected(row: place.row, column: place.column, span: place.span)
-        if selected { swap(&foreground, &background) }
-        let cursor = frame.cursor
-        let onCursor =
-            cursor.map { $0.row == place.row && $0.column >= place.column && $0.column < place.column + place.span }
-            ?? false
-        if onCursor, cursor?.shape == .block {
-            let cellBackground = background
-            background = frame.palette.cursor
-            foreground = cellBackground
-        }
+        let (foreground, background, highlighted) = cellColors(for: style, at: place, frame: frame)
         let box = Box(
             x: metrics.paddingX + place.column * metrics.cellWidth,
             y: metrics.originY + place.row * metrics.cellHeight,
             width: place.span * metrics.cellWidth
         )
-        // A bar or underline cursor does not cover the cell: its background is only drawn if it differs from the window's (an opaque fill of the default
-        // background would hide a translucent window behind the cell).
-        let coveredByCursor = onCursor && cursor?.shape == .block
-        if cellPass.drawsBackgrounds, background != frame.background || coveredByCursor || selected {
+        let cursor = frame.cursor
+        let onCursor =
+            cursor.map { $0.row == place.row && $0.column >= place.column && $0.column < place.column + place.span }
+            ?? false
+        if cellPass.drawsBackgrounds,
+            background != frame.background || (onCursor && cursor?.shape == .block) || highlighted
+        {
             fill(
                 &surface,
                 x: box.x,
@@ -55,6 +46,35 @@ extension CPURenderer {
         if onCursor, let shape = cursor?.shape, shape != .block {
             drawThinCursor(shape, box: box, color: Surface.pack(frame.palette.cursor), surface: &surface)
         }
+    }
+
+    private func cellColors(
+        for style: ResolvedStyle,
+        at place: Placement,
+        frame: Frame
+    ) -> (foreground: RGB, background: RGB, highlighted: Bool) {
+        var (foreground, background) = (style.foreground, style.background)
+        let selected =
+            frame.selection != nil && frame.isSelected(row: place.row, column: place.column, span: place.span)
+        let matchKind =
+            selected ? .none : frame.searchHighlight(row: place.row, column: place.column, span: place.span)
+        if selected {
+            swap(&foreground, &background)
+        } else if matchKind == .current {
+            background = RGB(255, 214, 64)
+            foreground = RGB(20, 20, 20)
+        } else if matchKind == .other {
+            background = RGB(122, 96, 36)
+            foreground = RGB(248, 244, 232)
+        }
+        let cursor = frame.cursor
+        if let cursor, cursor.shape == .block,
+            cursor.row == place.row, cursor.column >= place.column, cursor.column < place.column + place.span
+        {
+            foreground = background
+            background = frame.palette.cursor
+        }
+        return (foreground, background, selected || matchKind != .none)
     }
 
     /// A bar or underline cursor, over the cell already drawn.

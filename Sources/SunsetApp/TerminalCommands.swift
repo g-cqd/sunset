@@ -86,7 +86,7 @@ struct TerminalCommands: Commands {
         }
         CommandGroup(after: .textEditing) {
             Button("Command Bar") { AppActions.shared.toggleCommandBar() }.keyboardShortcut("l")
-            if scopes.web { PageFindCommands(page: page) }
+            PageFindCommands(page: scopes.web ? page : nil, focusedTerminal: scopes.terminal ? model : nil)
         }
         CommandGroup(after: .toolbar) {
             Button(page == nil ? "Bigger" : "Zoom In") { AppActions.shared.zoomFont(by: 1) }.keyboardShortcut("+")

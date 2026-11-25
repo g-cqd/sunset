@@ -30,6 +30,7 @@ extension TerminalModel {
             view: FrameView(
                 scrolledBack: viewport.scrolledBack,
                 selection: selection,
+                search: find.highlight,
                 hoveredLink: hoveredLink,
                 backgroundAlpha: alpha,
                 extraPixels: extraPixels(for: snapshot)

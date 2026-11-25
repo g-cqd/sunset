@@ -40,6 +40,7 @@ public final class CPURenderer: CellRenderer {
     var blinkRows: [Bool] = []
     var lastScrolledBack = 0
     var lastSelection: Selection?
+    var lastSearch = SearchHighlight()
     var lastHoveredLink: UInt16 = 0
     var lastSelectionRows: ClosedRange<Int>?
     var lastSize: (columns: Int, rows: Int)?
@@ -69,6 +70,7 @@ public final class CPURenderer: CellRenderer {
         lastPalette = nil
         lastScrolledBack = 0
         lastSelection = nil
+        lastSearch = SearchHighlight()
         lastHoveredLink = 0
         lastSelectionRows = nil
         lastSize = nil

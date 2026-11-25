@@ -36,7 +36,8 @@ extension CPURenderer {
     /// The row's cells, left to right, as `cellPass` says: a run shaped together where ligatures are on, a blank cell in the
     /// default style skipped (the strip was cleared to the background already).
     private func drawCells(row: Int, frame: Frame, walk: inout Walk, surface: inout Surface) {
-        let plainRow = frame.cursor?.row != row && frame.selection == nil && frame.hoveredLink == 0
+        let plainRow =
+            frame.cursor?.row != row && frame.selection == nil && frame.search.isEmpty && frame.hoveredLink == 0
         let cells = frame.row(row)
         var column = 0
         while column < frame.columns {

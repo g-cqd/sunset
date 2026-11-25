@@ -18,6 +18,7 @@ extension CPURenderer {
         }
         if let cursor = frame.cursor, cursor.row == row, cursor.column == column { return false }
         if frame.isSelected(row: row, column: column) { return false }
+        if frame.searchHighlight(row: row, column: column, span: 1) != .none { return false }
         let attributes = frame.style(of: cell).attributes
         return !attributes.contains(.invisible) && !(attributes.contains(.blink) && !frame.blinkVisible)
     }

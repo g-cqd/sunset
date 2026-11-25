@@ -11,7 +11,12 @@ package struct TerminalRepresentable: NSViewRepresentable {
     package var focused = true
 
     package func makeNSView(context: Context) -> TerminalNSView {
-        TerminalNSView(model: model)
+        let view = TerminalNSView(model: model)
+        model.onFocusTerminalView = { [weak view] in
+            guard let view, let window = view.window else { return }
+            window.makeFirstResponder(view)
+        }
+        return view
     }
 
     package func updateNSView(_ view: TerminalNSView, context: Context) {
@@ -19,7 +24,9 @@ package struct TerminalRepresentable: NSViewRepresentable {
         view.layer?.isOpaque = !translucent
         // While the view is larger than the last frame (a layout that animates) the rest shows the terminal's own background, never black.
         view.layer?.backgroundColor = model.layerBackground
-        if focused, let window = view.window, PaneKeyboard.takes(from: window.firstResponder, into: view) {
+        if focused, !model.find.isOpen, let window = view.window,
+            PaneKeyboard.takes(from: window.firstResponder, into: view)
+        {
             window.makeFirstResponder(view)
         }
     }

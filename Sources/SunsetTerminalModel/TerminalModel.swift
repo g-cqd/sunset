@@ -22,6 +22,9 @@ package import SunsetRuntime
     package var foregroundCommand: String?
     @ObservationIgnored package var foregroundCheck: Task<Void, Never>?
     package private(set) var isRunning = true
+    /// Interactive scrollback & live-screen find bar state (T-3 / roadmap 0026).
+    package let find = TerminalFind()
+    @ObservationIgnored package var onFocusTerminalView: () -> Void = {}
     /// Whether text is selected (observed, so that the Copy menu item follows it).
     package var hasSelection = false
     @ObservationIgnored package var presentFrame: (IOSurface) -> Void = { _ in }
@@ -114,7 +117,9 @@ package import SunsetRuntime
         Int((paddingPoints * scale).rounded())
     }
 
-    package init() {}
+    package init() {
+        configureFind()
+    }
 
     /// Remembers what to run; the program starts when the view first has a size, so that it never sees a window of the wrong size (a shell that draws its
     /// prompt in a 2-column terminal and is then resized leaves a mess behind).
