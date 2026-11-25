@@ -8,7 +8,7 @@ public import Foundation
 /// The format: `SNSL`, a version byte, the key's four-byte identifier, the 12-byte nonce, the sealed bytes, the 16-byte tag.
 public struct Seal: Sendable {
     public enum Purpose: String, Sendable {
-        case document, session, state, cookies, siteData
+        case document, session, state, cookies, siteData, terminalHistory
         /// A vault's records and its index: sealed with the vault's own key, never the app's.
         case vaultRecord, vaultIndex
     }

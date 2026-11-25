@@ -38,10 +38,14 @@ public actor TerminalSession {
         environment: [String: String] = [:],
         directory: String? = nil,
         scrollbackLimit: Int = 10_000,
-        acceptsC1: Bool = false
+        acceptsC1: Bool = false,
+        initialOutput: [UInt8] = []
     ) throws {
         var terminal = Terminal(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit, acceptsC1: acceptsC1)
         terminal.setInflater(ZlibInflater())
+        if !initialOutput.isEmpty {
+            terminal.feed(initialOutput.span)
+        }
         core = SessionCore(terminal)
         process = try PTYProcess.spawn(
             command,

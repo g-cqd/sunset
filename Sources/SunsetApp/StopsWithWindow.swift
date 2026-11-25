@@ -13,7 +13,8 @@ struct StopsWithWindow: ViewModifier {
         content.onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { note in
             guard let window, (note.object as? NSWindow) === window else { return }
             TabRegistry.shared.unregister(window)
-            // The last window of the Space: what it showed is remembered, and its tabs stop and stay.
+            // The last window of the Space: snapshot its terminals, remember what it showed, and stop its tabs.
+            TerminalHistoryRestore.saveTerminals(in: tabs)
             SessionStore.shared.closing(tabs)
             tabs.windowClosed()
             AppSpaces.cleanStopped()

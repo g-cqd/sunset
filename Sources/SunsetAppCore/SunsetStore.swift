@@ -63,6 +63,12 @@ package final class SunsetStore {
         securityLog.record(kind, outcome: outcome, attributes: attributes, at: now)
     }
 
+    /// Persistent store for per-pane terminal screen & scrollback snapshots (roadmap 0024 S-1..S-4).
+    package private(set) lazy var terminalSnapshots = TerminalSnapshotStore(
+        directory: URL(fileURLWithPath: places.terminalSnapshots, isDirectory: true),
+        key: key
+    )
+
     /// Bounded, secret-free SIEM security audit log under Sunset's private storage directory (`security-audit.jsonl`, R-OPS-1).
     package private(set) lazy var securityLog = SecurityAuditLog(
         fileURL: URL(fileURLWithPath: places.directory, isDirectory: true).appending(path: "security-audit.jsonl")

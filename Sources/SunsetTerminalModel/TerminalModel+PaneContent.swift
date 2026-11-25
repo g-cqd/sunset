@@ -1,4 +1,6 @@
-import Foundation
+package import Foundation
+package import SunsetCore
+import SunsetHost
 package import SunsetPane
 package import SunsetShellModel
 
@@ -29,9 +31,19 @@ extension TerminalModel: PaneContent {
         return "\(command) is running"
     }
 
-    /// The directory the shell reported, or the one it was (or is to be) started in: a tab restored and never shown has reported nothing yet.
+    /// Captures the terminal's current scrollback and primary screen into a `ScreenSnapshot` (roadmap 0024 S-1).
+    package func captureSnapshot(at now: Date) -> ScreenSnapshot? {
+        guard let screen = session?.screenCopy() ?? lastScreen else { return nil }
+        let snap = screen.snapshot(savedAt: Int64(now.timeIntervalSince1970))
+        return snap.lines.isEmpty ? nil : snap
+    }
+
+    /// The directory the shell reported (plus its snapshot ID so saved scrollback can be replayed across quit/close),
+    /// or the one it was (or is to be) started in: a tab restored and never shown has reported nothing yet.
     package var descriptor: PaneDescriptor {
-        .terminal(directory: directory ?? startDirectory)
+        var desc = PaneDescriptor.terminal(directory: directory ?? startDirectory)
+        desc.state["snapshot"] = snapshotID.uuidString
+        return desc
     }
 
     package func setState(focused: Bool, visible: Bool) {

@@ -2,6 +2,7 @@ import Foundation
 import SunsetAppCore
 import SunsetConfig
 import SunsetShell
+import SunsetStorage
 public import SwiftUI
 
 /// Sunset, the app: one window per terminal, a Settings window, a Paste command. SwiftUI owns the scenes, the settings and the menus; the terminal view
@@ -21,8 +22,20 @@ public struct SunsetApp: App {
         // The cookie jars sealed at the last quit, put back before any page's store opens.
         MainActor.assumeIsolated { AppSealedData.openAtLaunch() }
         // The saved tabs of the last run are read once, before the first window asks for them.
+        // Crash detection + launch restore policy (roadmap 0024 S-3 / t214): always asks after a crash.
+        let shouldRestore = MainActor.assumeIsolated {
+            let places = SunsetStore.shared.places
+            let hasSaved =
+                FileManager.default.fileExists(atPath: places.session)
+                || places.legacySession.map { FileManager.default.fileExists(atPath: $0) } == true
+            return TerminalHistoryRestore.decideAtLaunch(
+                places: places,
+                configuration: AppConfiguration.shared.configuration,
+                hasSavedSession: hasSaved
+            )
+        }
         SessionStore.shared.load(
-            enabled: AppConfiguration.shared.configuration.tabs.restore,
+            enabled: shouldRestore,
             namedCommand: launch.namedCommand
         )
     }

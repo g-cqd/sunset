@@ -25,6 +25,9 @@ extension TerminalScene {
             return content
         }
         let model = TerminalModel()
+        let restored = TerminalHistoryRestore.loadReplayBytes(for: descriptor)
+        model.snapshotID = restored.snapshotID
+        model.initialOutput = restored.replay
         model.startDirectory =
             descriptor?.directory.flatMap { PaneContentKinds.isDirectory($0) ? $0 : nil } ?? configuredStartDirectory
         model.topInsetPoints = topInset

@@ -88,7 +88,7 @@ extension SettingsOption {
             )
             .noted("A tab or a window kept awake keeps the screen on too; off, only the Mac stays awake.")
             .grouped("Keeping awake")
-        ]
+        ] + sessionRestore
 
     /// The configuration file.
     static let configurationFile: [Self] =

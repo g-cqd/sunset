@@ -155,6 +155,10 @@ public struct Configuration: Sendable, Equatable {
         public var bar = Bar()
         /// The tabs of each window (their splits and the directory of each) come back at the next launch, as new shells there (programs cannot be saved).
         public var restore = true
+        /// Launch restore policy (roadmap 0024 S-3 / t214): always restore, ask first, or never restore (after a crash Sunset always asks).
+        public var restorePolicy = RestorePolicy.always
+        /// Save and replay terminal screen & scrollback lines across quit / window close (roadmap 0024 S-1..S-2).
+        public var restoreTerminalHistory = true
         /// Closing a tab with a running command tints it red on the first click or ⌘W and requires a second one to confirm.
         public var confirmClose = true
         /// Closing the last window does not quit the app while a kept entry of the Favorites is open: what runs in it goes on, and a new window shows it

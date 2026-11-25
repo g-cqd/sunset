@@ -82,17 +82,15 @@ extension Screen {
         return SearchResult(matches: matches, truncated: truncated)
     }
 
-    private func appendPhysicalLine(
-        _ line: Int,
-        bytes: inout [UInt8],
-        positions: inout [(line: Int, startColumn: Int, endColumn: Int)]
-    ) {
+    /// Walks every non-spacer cell on `line` (absolute index: scrollback then primary grid), invoking `body` with the
+    /// cell and its inclusive `[startColumn, endColumn]` range. Shared by `Screen+Search` and `Screen+Snapshot`.
+    func forEachAbsoluteCell(on line: Int, _ body: (Cell, Int, Int) -> Void) {
         let rowCells: ArraySlice<Cell>
         if line < scrollback.count {
             rowCells = scrollback.cells(line: line)
         } else {
-            let start = grid.base(line - scrollback.count)
-            rowCells = grid.cells[start ..< start + columns]
+            let base = grid.base(line - scrollback.count)
+            rowCells = grid.cells[base ..< base + columns]
         }
         let limit = min(rowCells.count, columns)
         var column = 0
@@ -103,15 +101,25 @@ extension Screen {
                 continue
             }
             let endColumn = cell.width == .wide && column + 1 < columns ? column + 1 : column
+            body(cell, column, endColumn)
+            column = endColumn + 1
+        }
+    }
+
+    private func appendPhysicalLine(
+        _ line: Int,
+        bytes: inout [UInt8],
+        positions: inout [(line: Int, startColumn: Int, endColumn: Int)]
+    ) {
+        forEachAbsoluteCell(on: line) { cell, startColumn, endColumn in
             var scalars = String.UnicodeScalarView()
             appendText(of: cell, to: &scalars)
             for scalar in scalars {
                 for byte in scalar.utf8 {
                     bytes.append(byte)
-                    positions.append((line: line, startColumn: column, endColumn: endColumn))
+                    positions.append((line: line, startColumn: startColumn, endColumn: endColumn))
                 }
             }
-            column = endColumn + 1
         }
     }
 

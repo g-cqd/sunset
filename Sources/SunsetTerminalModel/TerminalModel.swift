@@ -22,6 +22,10 @@ package import SunsetRuntime
     package var foregroundCommand: String?
     @ObservationIgnored package var foregroundCheck: Task<Void, Never>?
     package private(set) var isRunning = true
+    /// Unique persistence identifier linking this terminal to its saved scrollback snapshot on disk (roadmap 0024).
+    package var snapshotID = UUID()
+    /// Restored replay bytes (old scrollback + divider line) fed into the fresh `TerminalSession` before shell output.
+    @ObservationIgnored package var initialOutput: [UInt8] = []
     /// Interactive scrollback & live-screen find bar state (T-3 / roadmap 0026).
     package let find = TerminalFind()
     @ObservationIgnored package var onFocusTerminalView: () -> Void = {}
@@ -146,8 +150,10 @@ package import SunsetRuntime
                 environment: environment,
                 directory: startDirectory,
                 scrollbackLimit: scrollbackLimit,
-                acceptsC1: acceptsC1
+                acceptsC1: acceptsC1,
+                initialOutput: initialOutput
             )
+            initialOutput = []
             self.session = session
             deliverPendingCommand()
             packer = HistoryPacker(session) { [weak self] screen in self?.lastScreen?.adoptHistory(from: screen) }

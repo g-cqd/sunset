@@ -10,6 +10,9 @@ extension Configuration {
         }
 
         public var importedFiles = ImportedFiles.trash
+        /// Seal saved terminal screen & scrollback snapshots on disk with the Keychain/Secure Enclave storage key
+        /// (roadmap 0024 S-4 / t215). On by default so scrollback stays protected at rest.
+        public var encryptTerminalHistory = true
 
         public init() {}
     }

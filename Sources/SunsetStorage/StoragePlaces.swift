@@ -135,6 +135,15 @@ public struct StoragePlaces: Sendable, Equatable {
     public var documents: String {
         directory + "/Documents"
     }
+    /// Saved terminal screen & scrollback snapshots (roadmap 0024 S-1..S-4), one file per pane ID.
+    public var terminalSnapshots: String {
+        directory + "/TerminalSnapshots"
+    }
+    /// Clean-shutdown sentinel (roadmap 0024 S-3 / t214): written on launch, removed on clean quit; if present on next
+    /// launch, Sunset knows the previous run crashed and prompts before restoring.
+    public var runningMarker: String {
+        directory + "/session.running"
+    }
     /// The extensions installed, a folder per profile.
     public var extensions: String {
         directory + "/Extensions"

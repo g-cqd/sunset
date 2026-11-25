@@ -133,13 +133,15 @@ final class QuitGate {
         }
     }
 
-    /// What is kept is written, WebKit's stores are cleared and sealed, then the app ends. Once: a second quit asked
-    /// meanwhile waits for this one.
+    /// What is kept is written, terminal scrollback snapshots are saved, WebKit's stores are cleared and sealed, then
+    /// the app ends. Once: a second quit asked meanwhile waits for this one.
     private func finishThenQuit() async {
         guard !finishing else { return }
         finishing = true
         SunsetStore.shared.openDocuments.keepStored()
+        TerminalHistoryRestore.saveAllLiveTerminals()
         SessionStore.shared.finish()
+        TerminalHistoryRestore.markCleanShutdown()
         AppConfiguration.shared.saveNow()
         DownloadCenter.shared.finish()
         await WebClearing.clearAtQuit()
