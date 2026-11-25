@@ -32,6 +32,8 @@ jobs:
     timeout-minutes: 90
     permissions:
       contents: write # the release and its assets
+      id-token: write # SLSA build provenance attestation (N-S7)
+      attestations: write # SLSA build provenance attestation (N-S7)
     env:
       SIGNED: ${{ github.event_name == 'push' }}
     steps:
@@ -129,6 +131,14 @@ jobs:
           # The build package-release.sh read from the app (its count of commits): in the title and atop the note.
           build="$(cat .build/dist.build)"
           { printf 'Build %s.\n\n' "$build"; cat "$notes"; } > "$RUNNER_TEMP/notes.md"
+      - name: Release · CycloneDX SBOM
+        if: ${{ env.SIGNED == 'true' }}
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          sbom=".build/dist/Sunset-${TAG#v}.sbom.cdx.json"
+          Scripts/generate-sbom.sh "${TAG#v}" "$sbom"
+          (cd .build/dist && shasum -a 256 "$(basename "$sbom")" > "$(basename "$sbom").sha256")
       - name: Release · Signed Index
         # ADR-0125 & N-S1: every tagged release must ship a signed release-index.json + .sig; fail closed if missing.
         if: ${{ env.SIGNED == 'true' }}
@@ -153,6 +163,11 @@ jobs:
           build="$(cat .build/dist.build)"
           gh release create "$TAG" .build/dist/* --repo "$GITHUB_REPOSITORY" --title "Sunset ${TAG#v} (build $build)" \
             --notes-file "$RUNNER_TEMP/notes.md" --verify-tag "${prerelease[@]}"
+      - name: Release · SLSA Build Provenance
+        if: ${{ env.SIGNED == 'true' }}
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ".build/dist/*.zip,.build/dist/*.deltas,.build/dist/*.sbom.cdx.json"
       - name: Artifacts · Upload the Unsigned Check
         if: ${{ env.SIGNED != 'true' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

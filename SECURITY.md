@@ -1,10 +1,44 @@
 # Security policy
 
-A terminal emulator parses untrusted bytes from every program it hosts, and a few of its escape sequences can act: reading or writing the clipboard, reading files for image display,
-opening links, setting titles, answering queries, injecting text. Treat anything beyond drawing as a security surface.
+Sunset is a native macOS terminal emulator, WebKit browser, document viewer, and credential vault. Treat every byte
+coming from a terminal program, web page, browser extension, download, `.svault` backup, Markdown file, or update feed
+as untrusted input.
 
-Report vulnerabilities privately through GitHub's *Report a vulnerability* button on the Security tab, not in public issues. Include the revision, the byte sequence or program that
-triggers it, and what an attacker gains. In scope: memory-safety faults or hangs from crafted input, escapes from a policy (clipboard, file reads by graphics commands, hyperlink schemes,
-paste, title/notification injection), and credential or file exposure through the control socket.
+## Reporting a vulnerability
 
-The policy surface is specified in the white paper (§9) and will be an ADR before the first such feature is implemented.
+Report vulnerabilities privately through GitHub's **Report a vulnerability** button on the Security tab — never in
+public issues or pull requests. Please include:
+
+- The Sunset build number (`About Sunset` or `CFBundleVersion`) and variant (Sunset WebKit or System WebKit).
+- Minimal reproduction steps, byte sequence, HTML/Markdown sample, or extension package.
+- What an attacker gains (impact & violated boundary in `docs/design/0006-threat-model.md`).
+
+### Scope
+
+- Memory-safety faults, crashes, or denial-of-service hangs from untrusted input.
+- Escapes from policy boundaries (clipboard, Kitty graphics / pasteboard image limits, hyperlink schemes, paste guard,
+  download quarantine, profile isolation, share/notification origin checks, extension CRX3/XPI verification).
+- Vault cryptographic weaknesses, credential leaks, or updater verification / rollback / freeze bypasses.
+
+## Response targets (SLAs)
+
+| Milestone | Target |
+|---|---|
+| Private acknowledgement | Within **3 working days** |
+| Initial triage & severity confirmation | Within **7 calendar days** |
+| Fix & advisory — **Critical** | Within **7 calendar days** |
+| Fix & advisory — **High** | Within **30 calendar days** |
+| Fix — **Medium / Low** | Next scheduled release |
+
+Security fixes in released builds are published with a GitHub Security Advisory (and CVE identifier where applicable)
+and named in the release notes.
+
+## Supported versions & verification
+
+Only the latest release line receives security updates (including automated Sunset WebKit security rebuilds under
+ADR-0127). Every official release ships:
+
+- Developer ID signature, Hardened Runtime, and Apple notarisation.
+- Mandatory Ed25519-signed expiring `release-index.json` + `.sig` (ADR-0125).
+- CycloneDX 1.5 SBOM (`Sunset-<version>.sbom.cdx.json`) and GitHub SLSA Build Provenance attestations
+  (`gh attestation verify <asset> --owner g-cqd`).

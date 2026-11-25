@@ -117,6 +117,7 @@ jobs:
           }
 
           if [ "$BEHIND_STATUS" = "1" ]; then
+            # shellcheck disable=SC2016
             sync_issue "WebKit security advisory newer than Sunset's engine base" 1 \
               "$(printf 'Base `%s` is behind the latest WebKit security advisory.\n\n```\n%s\n```\n\nRun: %s\n\nTrigger `Scripts/webkit-auto-update.sh` (or wait for the scheduled Mac job) to update, build, test, and release.' "$base" "$BEHIND_SUMMARY" "$RUN_URL")"
           elif [ "$BEHIND_STATUS" = "0" ]; then
@@ -124,6 +125,7 @@ jobs:
           fi
 
           if [ "$APPLY_STATUS" != "0" ]; then
+            # shellcheck disable=SC2016
             sync_issue "WebKit patch series failed dry-run against WebKit main" 1 \
               "$(printf 'One or more patches in `Engine/WebKit/patches/` no longer apply cleanly against WebKit `main` (current base `%s`).\n\n```\n%s\n```\n\nRun: %s' "$base" "$APPLY_SUMMARY" "$RUN_URL")"
           else
