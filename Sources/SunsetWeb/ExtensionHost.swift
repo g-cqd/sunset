@@ -46,8 +46,10 @@ package import WebKit
         self.profile = profile
         store = ExtensionStore(root: root, profile: profile)
         self.runtime = runtime
-        // A profile's own storage for its extensions; the default profile's is WebKit's default.
+        // A profile's own storage for its extensions; the default profile's is WebKit's default (or bundled variant's
+        // deterministic store on Sunset WebKit builds, ADR-0125).
         let configuration = profile.map { WKWebExtensionController.Configuration(identifier: $0) } ?? .default()
+        configuration.defaultWebsiteDataStore = VariantStore.store(for: profile)
         ExtensionPageShim.install(on: configuration)
         controller = WKWebExtensionController(configuration: configuration)
         delegate.host = self

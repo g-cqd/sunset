@@ -112,7 +112,7 @@ extension TabsModel {
                 case .node(let id):
                     // A tile dragged out of the Pinned grid becomes a favourite where it is dropped.
                     if let pinned, pinned.favorites.entry(id) != nil {
-                        _ = pinned.give(id, to: favorites, in: folder, at: place)
+                        _ = favorite(pinned: id, in: folder, at: place)
                     } else {
                         favorites.edit { $0.move([id], into: folder, at: place ?? Int.max) }
                     }

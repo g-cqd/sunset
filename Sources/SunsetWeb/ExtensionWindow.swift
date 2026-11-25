@@ -6,7 +6,10 @@ package import WebKit
 /// nothing): the pages of the Space it shows as its tabs, the page it shows as the active one. A private window is the
 /// private pages'.
 @MainActor package final class ExtensionWindow: NSObject, WKWebExtensionWindow {
-    package let profile: UUID?
+    private let currentProfile: () -> UUID?
+    package var profile: UUID? {
+        currentProfile()
+    }
     package let isPrivate: Bool
     package let pages: () -> [WebContent]
     package let shown: () -> WebContent?
@@ -19,7 +22,21 @@ package import WebKit
         pages: @escaping () -> [WebContent],
         shown: @escaping () -> WebContent?
     ) {
-        self.profile = profile
+        self.currentProfile = { profile }
+        self.isPrivate = isPrivate
+        self.window = window
+        self.pages = pages
+        self.shown = shown
+    }
+
+    package init(
+        profile: @escaping () -> UUID?,
+        isPrivate: Bool,
+        window: NSWindow? = nil,
+        pages: @escaping () -> [WebContent],
+        shown: @escaping () -> WebContent?
+    ) {
+        self.currentProfile = profile
         self.isPrivate = isPrivate
         self.window = window
         self.pages = pages

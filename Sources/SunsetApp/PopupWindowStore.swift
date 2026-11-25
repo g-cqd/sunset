@@ -1,4 +1,5 @@
 import AppKit
+import SunsetPane
 import SunsetRuntime
 import SunsetShell
 import SunsetWeb
@@ -108,8 +109,20 @@ import SunsetWebModel
         popup.page.onExit = {}
         if let (window, tabs) = showing ?? acting ?? fitting.first {
             if let target, tabs.space !== target { tabs.show(space: target, in: AppSpaces.all) }
-            WebOpening.wire(popup.page, in: tabs)
-            tabs.adopt(popup.page)
+            let destinationProfile = PaneContentKinds.profile(of: tabs)
+            // If moving a non-private popup into a Space of a different profile, reload it under that profile so its
+            // session/cookies never leak into the destination Space.
+            if !isPrivate, popup.page.settings.profile != destinationProfile {
+                let descriptor = PaneDescriptor(
+                    kind: WebContent.kind,
+                    state: popup.page.url.map { ["url": $0.absoluteString] } ?? [:]
+                )
+                popup.page.stop()
+                tabs.newTab(descriptor)
+            } else {
+                WebOpening.wire(popup.page, in: tabs)
+                tabs.adopt(popup.page)
+            }
             window.makeKeyAndOrderFront(nil)
         } else if isPrivate {
             AppActions.shared.handoff.append(popup.page)

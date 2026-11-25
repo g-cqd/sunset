@@ -31,6 +31,7 @@ extension FavoritesModel {
         }
         if unconfirmed.remove(id) != nil { other.unconfirmed.insert(id) }
         if let owner = live.removeValue(forKey: id) { other.live[id] = owner }
+        if let profile = openedProfile.removeValue(forKey: id) { other.openedProfile[id] = profile }
         return true
     }
 }

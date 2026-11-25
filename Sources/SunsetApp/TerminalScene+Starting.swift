@@ -63,8 +63,18 @@ extension TerminalScene {
         if !AppActions.shared.handoff.isEmpty {
             // Content that already runs (a page opened in a window of its own) is a tab of the Space, shown here.
             let content = AppActions.shared.handoff.removeFirst()
-            wire(content)
-            tabs.adopt(content)
+            let destinationProfile = PaneContentKinds.profile(of: tabs)
+            if let page = content as? WebContent, !page.isPrivate, page.settings.profile != destinationProfile {
+                let descriptor = PaneDescriptor(
+                    kind: WebContent.kind,
+                    state: page.url.map { ["url": $0.absoluteString] } ?? [:]
+                )
+                page.stop()
+                tabs.newTab(descriptor)
+            } else {
+                wire(content)
+                tabs.adopt(content)
+            }
         } else if space.tabs.isEmpty {
             if nothingAsked { startTab(oneTab: false) }
         } else if others > 0 {

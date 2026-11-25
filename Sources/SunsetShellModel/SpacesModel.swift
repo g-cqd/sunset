@@ -127,13 +127,19 @@ package final class SpacesModel {
         move(space, to: to)
     }
 
-    /// Deletes a Space; the last one stays. What it holds goes to `target`, still running, or closes. The windows that
-    /// showed it show `target`, or the Space before it.
+    /// Deletes a Space; the last one stays. What it holds goes to `target`, still running, or closes. When `target`
+    /// belongs to a different profile than `space`, moved web tabs and moved Space-owned Favorites are stopped so they
+    /// reopen under `target`'s profile rather than leaking the deleted Space's web sessions. The windows that showed it
+    /// show `target`, or the Space before it.
     package func remove(_ space: SpaceModel, movingTo target: SpaceModel?) {
         guard spaces.count > 1, let index = index(of: space), target !== space else { return }
         let destination = target ?? spaces[index == 0 ? 1 : index - 1]
+        let crossesProfile = target != nil && space.space.profile != target?.space.profile
         for viewer in space.currentViewers { viewer.show(space: destination) }
         if let target {
+            if crossesProfile {
+                space.restart(kind: PaneDescriptor.webKind, by: nil)
+            }
             let given = space.giveAll()
             target.adopt(given.items, contents: given.contents, pending: given.pending)
         } else {

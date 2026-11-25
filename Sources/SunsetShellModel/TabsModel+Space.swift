@@ -124,9 +124,12 @@ extension TabsModel {
     }
 
     /// This window shows `other` from now on. The tabs it had in a Space no other window shows go with it, after the
-    /// Space's, still running, and it keeps its selection; a window that had none has nothing selected.
+    /// Space's, still running, and it keeps its selection; a window that had none has nothing selected. When `other`
+    /// belongs to a different profile than the previous Space, moved non-private web tabs restart under `other`'s
+    /// profile so web sessions never leak across profiles.
     package func join(_ other: SpaceModel) {
         guard other !== space else { return }
+        let sourceProfile = space.space.profile
         let selected = selectedID
         let moved = space.give(to: self)
         if other.favorites !== space.favorites { selectedEntry = nil }
@@ -138,6 +141,9 @@ extension TabsModel {
         for item in moved.items { tabs.insert(item, at: tabs.count) }
         workspace = tabs.selecting(selected, entry: selectedEntry)
         for (pane, content) in moved.contents { register(content, as: pane) }
+        if sourceProfile != other.space.profile, !moved.items.isEmpty {
+            other.restart(kind: PaneDescriptor.webKind, panes: Set(moved.items.flatMap(\.panes)), by: self)
+        }
         revive()
         syncStates()
     }

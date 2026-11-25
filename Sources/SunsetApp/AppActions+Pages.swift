@@ -16,10 +16,14 @@ extension AppActions {
                 for page in pages { NSWorkspace.shared.open(page) }
                 return
             case .peek:
-                // A peek window each, titled with the Space of the window in front.
-                let space = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.space.space.id
+                // A peek window each, titled with the Space of the window in front and using its profile's settings/store.
+                let acting = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
+                let space = acting?.space.space.id
+                let settings =
+                    acting.map { PaneContentKinds.webSettings(for: $0) }
+                    ?? PaneContentKinds.pageSettings(profile: nil, privacy: nil)
                 for page in pages {
-                    let content = WebContent(url: page, settings: PaneContentKinds.webSettings(from: configuration.web))
+                    let content = WebContent(url: page, settings: settings)
                     PopupWindowStore.shared.open(content, openerSpace: space, kind: .peek)
                 }
                 if configuration.web.focusOpenedTabOrPeek { NSApp.activate() }

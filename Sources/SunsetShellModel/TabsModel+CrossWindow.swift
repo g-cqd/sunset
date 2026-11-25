@@ -49,13 +49,35 @@ extension TabsModel {
         }
         if case .item(let id) = dragged, !workspace.items.contains(where: { $0.id == id }) {
             origin.give(item: id, to: space)
-            // From another profile: its pages load again as this one's (as a Space given another profile).
-            if origin.space.favorites !== space.favorites, let item = workspace.items.first(where: { $0.id == id }) {
-                space.restart(kind: "web", panes: Set(item.panes), by: self)
+            // From another profile (or an isolated unowned Space in tests where spaces == nil and favorites differ):
+            // its pages load again under this Space's profile.
+            let sameProfile =
+                spaces != nil
+                ? origin.space.space.profile == space.space.profile
+                : origin.space.favorites === space.favorites
+            if !sameProfile, let item = workspace.items.first(where: { $0.id == id }) {
+                space.restart(kind: PaneDescriptor.webKind, panes: Set(item.panes), by: self)
             }
         }
         origin.dragged = nil
         Self.dragOrigin = nil
+    }
+
+    /// Extracts the live contents and unloaded pending descriptors for `panes` out of this Space.
+    func takeContentsAndPending(for panes: [PaneID]) -> (
+        contents: [PaneID: any PaneContent],
+        pending: [PaneID: PaneDescriptor]
+    ) {
+        var moved: [PaneID: any PaneContent] = [:]
+        var waiting: [PaneID: PaneDescriptor] = [:]
+        for pane in panes {
+            if let content = contents.removeValue(forKey: pane) {
+                moved[pane] = content
+            } else if let pending = space.pending.removeValue(forKey: pane) {
+                waiting[pane] = pending
+            }
+        }
+        return (moved, waiting)
     }
 
     /// Gives the tab `item` to another Space, running, without this window following it.
@@ -63,10 +85,9 @@ extension TabsModel {
         guard other !== space else { return }
         var tabs = workspace
         guard let item = tabs.take(item: id) else { return }
-        var moved: [PaneID: any PaneContent] = [:]
-        for pane in item.panes { moved[pane] = contents.removeValue(forKey: pane) }
+        let extracted = takeContentsAndPending(for: item.panes)
         workspace = tabs
-        other.adopt([item], contents: moved, pending: [:])
+        other.adopt([item], contents: extracted.contents, pending: extracted.pending)
         syncStates()
         onChange()
     }

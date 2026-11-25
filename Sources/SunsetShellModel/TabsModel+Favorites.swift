@@ -75,6 +75,7 @@ extension TabsModel {
         var moved: [PaneID: any PaneContent] = [:]
         for pane in taken.panes { moved[pane] = contents.removeValue(forKey: pane) }
         guard let id = keeper.keep(taken, contents: moved, in: parent, at: index) else { return nil }
+        keeper.openedProfile[id] = space.space.profile
         for (pane, content) in moved { content.onExit = { [weak keeper] in keeper?.close(pane: pane) } }
         if show {
             showEntry(id)
@@ -86,18 +87,26 @@ extension TabsModel {
     }
 
     /// Shows a kept entry in this window, opening it first when it is not open (its panes start from where it was kept).
+    /// When an entry in an app-shared Pinned grid is already open with web pages from a different profile, it is
+    /// unloaded first so it reopens cleanly under this Space's profile instead of leaking the other profile's session.
     package func select(entry id: Favorites.NodeID) {
+        let model = keeper(of: id)
         // An entry of a scope that is off is not opened (it is not listed either).
-        guard keeper(of: id).favorites.entry(id).map(scopes.allows) != false,
-            keeper(of: id).open(id, make: makeContent) != nil
-        else { return }
+        guard let entry = model.favorites.entry(id), scopes.allows(entry) else { return }
+        if model === pinned, spaces?.ownership.pinnedByApp == true {
+            unloadIfForeignProfile(id, in: model)
+        }
+        guard model.open(id, make: makeContent) != nil else { return }
+        if model.openedProfile[id] == nil { model.openedProfile[id] = space.space.profile }
         showEntry(id)
     }
 
     /// Takes a kept entry out of the Favorites as a tab of this window, at `index` (after its selected tab when nil), selected.
     @discardableResult
     package func release(entry id: Favorites.NodeID, at index: Int? = nil) -> Workspace.ItemID? {
-        guard let released = keeper(of: id).release(id) else { return nil }
+        let model = keeper(of: id)
+        unloadIfForeignProfile(id, in: model)
+        guard let released = model.release(id) else { return nil }
         let index = index ?? workspace.selectedIndex.map { $0 + 1 } ?? workspace.count
         workspace.insert(released.item, at: index)
         for pane in released.item.panes {
@@ -109,13 +118,24 @@ extension TabsModel {
         return released.item.id
     }
 
+    /// Confirms closing the open panes of a kept entry `id` in `model` (if busy or holding unsaved edits), then runs
+    /// `perform`.
+    func withConfirmedEntryClose(
+        _ id: Favorites.NodeID,
+        in model: FavoritesModel,
+        open: Workspace.Item,
+        perform: @escaping @MainActor () -> Void
+    ) {
+        let busy = open.panes.contains { model.contents[$0]?.closeWarning != nil }
+        guard confirmed(.item(open.id), isBusy: busy) else { return }
+        losingNothing(closing: open.panes, perform)
+    }
+
     /// Unloads the kept entry: what runs in it stops (asking first when something would be lost), it stays in the Favorites.
     package func unload(entry id: Favorites.NodeID) {
         let favorites = keeper(of: id)
         guard let open = favorites.favorites.entry(id)?.open else { return }
-        let busy = open.panes.contains { favorites.contents[$0]?.closeWarning != nil }
-        guard confirmed(.item(open.id), isBusy: busy) else { return }
-        losingNothing(closing: open.panes) { [self] in
+        withConfirmedEntryClose(id, in: favorites, open: open) { [self] in
             favorites.unload(id)
             finishClosing()
         }

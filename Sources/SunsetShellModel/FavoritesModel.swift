@@ -118,6 +118,7 @@ package final class FavoritesModel {
         contents = [:]
         pending = [:]
         live = [:]
+        openedProfile = [:]
         favorites = Favorites()
     }
 
@@ -159,11 +160,16 @@ package final class FavoritesModel {
         return item
     }
 
+    /// The profile each open entry was opened under (for app-shared Pinned grids, so switching to a Space of a
+    /// different profile never reuses a web page belonging to another profile's `WKWebsiteDataStore`).
+    @ObservationIgnored package var openedProfile: [Favorites.NodeID: Profile.ID?] = [:]
+
     /// Stops an entry and keeps it.
     package func unload(_ id: Favorites.NodeID) {
         var gone: [PaneID] = []
         edit { gone = $0.unload(id) }
         stop(gone)
+        openedProfile[id] = nil
         released(id)
     }
 
@@ -174,7 +180,10 @@ package final class FavoritesModel {
         edit { gone = $0.remove(id) }
         stop(gone)
         // The entry itself, or every entry the folder held.
-        for removed in before.subtracting(favorites.entries.map(\.id)).union([id]) { released(removed) }
+        for removed in before.subtracting(favorites.entries.map(\.id)).union([id]) {
+            openedProfile[removed] = nil
+            released(removed)
+        }
     }
 
     /// Takes an entry out of the Favorites, as a tab with its content (open), or with what to make it from (not open).
@@ -187,6 +196,7 @@ package final class FavoritesModel {
         guard let result else { return nil }
         var live: [PaneID: any PaneContent] = [:]
         for pane in result.item.panes { live[pane] = contents.removeValue(forKey: pane) }
+        openedProfile[id] = nil
         return (result.item, live, result.home ?? [:])
     }
 

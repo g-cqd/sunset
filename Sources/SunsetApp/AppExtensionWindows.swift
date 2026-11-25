@@ -43,7 +43,8 @@ enum AppExtensionWindows {
             let found =
                 made[id]
                 ?? ExtensionWindow(
-                    profile: PaneContentKinds.profile(of: tabs),
+                    // Resolved dynamically so switching Spaces across profiles updates the window's visible profile.
+                    profile: { [weak tabs] in tabs.map(PaneContentKinds.profile(of:)) ?? nil },
                     isPrivate: tabs.isPrivateWindow,
                     window: window,
                     // Its tabs, open favorites and pinned tabs (seen: extensions did nothing in a favorite or pinned one).

@@ -69,8 +69,9 @@ final class AppActions {
         if AppConfiguration.shared.presentation.hostsTabsInWindow, let tabs {
             tabs.newTab(wanted)
         } else if let wanted, wanted.kind != PaneDescriptor.terminalKind {
-            // A window of its own: a page waits for it as content handed over.
-            let page = PaneContentKinds.make(wanted) { SessionStore.shared.scheduleSave() }
+            // A window of its own: a page waits for it as content handed over, inheriting the acting window's profile.
+            let profile = tabs.map(PaneContentKinds.profile(of:)) ?? nil
+            let page = PaneContentKinds.make(wanted, profile: profile) { SessionStore.shared.scheduleSave() }
             // A new empty page in a window of its own: its address is asked for there (this action's to ask).
             if let made = page as? WebContent, made.isBlankPage { made.wantsAddress = true }
             handoff.append(page)

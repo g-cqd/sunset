@@ -82,14 +82,30 @@ extension TabsModel {
     }
 
     /// Makes a pinned entry a favourite: the same entry, as it is, in the Favorites of the Space shown (at the end, unless a
-    /// folder and a place are given).
+    /// folder and a place are given). If an app-shared pinned entry is open with web pages from another profile, it is
+    /// unloaded first so it reopens under this Space's profile.
     @discardableResult
     package func favorite(pinned id: Favorites.NodeID, in parent: Favorites.NodeID? = nil, at index: Int? = nil) -> Bool
     {
-        guard let pinned, pinned.give(id, to: favorites, in: parent, at: index) else { return false }
+        guard let pinned else { return false }
+        unloadIfForeignProfile(id, in: pinned)
+        guard pinned.give(id, to: favorites, in: parent, at: index) else { return false }
         syncStates()
         onChange()
         return true
+    }
+
+    /// Unloads an open entry in `model` if it was opened under a different profile than this window's Space and holds
+    /// non-private web content, so it reopens under this Space's profile rather than leaking cookies/sessions.
+    func unloadIfForeignProfile(_ id: Favorites.NodeID, in model: FavoritesModel) {
+        guard let entry = model.favorites.entry(id), let open = entry.open,
+            let existing = model.openedProfile[id], existing != space.space.profile,
+            open.panes.contains(where: {
+                let content = model.contents[$0]
+                return content?.descriptor.kind == PaneDescriptor.webKind && content?.isPrivate == false
+            })
+        else { return }
+        model.unload(id)
     }
 
     /// Pins the tabs and the favourites among `rows`, in order, while there is room; says how many.
@@ -136,9 +152,7 @@ extension TabsModel {
         let keeper = keeper(of: id)
         guard let entry = keeper.favorites.entry(id) else { return }
         guard let open = entry.open else { return select(entry: id) }
-        let busy = open.panes.contains { keeper.contents[$0]?.closeWarning != nil }
-        guard confirmed(.item(open.id), isBusy: busy) else { return }
-        losingNothing(closing: open.panes) { [self] in
+        withConfirmedEntryClose(id, in: keeper, open: open) { [self] in
             if workspace.selectedEntry == id { left(id) }
             keeper.unload(id)
             select(entry: id)

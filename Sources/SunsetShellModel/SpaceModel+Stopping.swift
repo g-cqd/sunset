@@ -21,15 +21,32 @@ extension SpaceModel {
     }
 
     /// Stops the contents of the kind `kind` and has them made again from where each is (a Space given another
-    /// profile: its pages load again with that profile's website data): by a window that shows the Space, or, with
-    /// none, by the next that does.
+    /// profile, or tabs moved across profiles: its pages load again with the destination profile's website data): by a
+    /// window that shows the Space, or, with none, by the next that does.
+    /// When `only` is nil (the whole Space changed profile) and this Space owns its own Favorites (`ownsFavorites`),
+    /// open web entries in those Favorites are unloaded too so they reopen under the new profile.
+    /// Any `"as"` Reload-As override from the previous Space is cleared so pages take the destination Space's profile.
     package func restart(kind: String, panes only: Set<PaneID>? = nil, by viewer: TabsModel?) {
         for (pane, content) in contents
         where content.descriptor.kind == kind && !content.isPrivate && only.map({ $0.contains(pane) }) ?? true {
-            pending[pane] = content.descriptor
+            var next = content.descriptor
+            next.state["as"] = nil
+            pending[pane] = next
             content.onExit = {}
             content.stop()
             contents[pane] = nil
+        }
+        // Unloaded pending panes of this kind also drop stale Reload-As overrides from the source Space.
+        for (pane, descriptor) in pending
+        where descriptor.kind == kind && descriptor.state["private"] != "1"
+            && only.map({ $0.contains(pane) }) ?? true
+        {
+            var next = descriptor
+            next.state["as"] = nil
+            pending[pane] = next
+        }
+        if only == nil, ownsFavorites {
+            favorites.restart(kind: kind)
         }
         viewer?.revive()
         syncStates()

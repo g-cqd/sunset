@@ -131,21 +131,27 @@ extension TabsModel {
     }
 
     /// Moves the tabs among `rows` to another Space, still running, after its own; this window follows them there and
-    /// shows the last of them. Entries and folders of the Favorites stay.
+    /// shows the last of them. When `other` belongs to a different profile than `space`, moved non-private web pages
+    /// are stopped and reloaded under `other`'s profile so cookies/sessions never leak across profiles. Entries and
+    /// folders of the Favorites stay.
     package func move(rows: [RowTarget], to other: SpaceModel) {
         guard other !== space else { return }
+        let sourceProfile = space.space.profile
         var items: [Workspace.Item] = []
-        var moved: [PaneID: any PaneContent] = [:]
         var tabs = workspace
         for case .tab(let id) in rows {
             guard let item = tabs.take(item: id) else { continue }
             items.append(item)
-            for pane in item.panes { moved[pane] = contents.removeValue(forKey: pane) }
         }
         guard !items.isEmpty else { return }
+        let extracted = takeContentsAndPending(for: items.flatMap(\.panes))
         workspace = tabs
-        other.adopt(items, contents: moved, pending: [:])
+        other.adopt(items, contents: extracted.contents, pending: extracted.pending)
         show(space: other)
+        if sourceProfile != other.space.profile {
+            let movedPanes = Set(items.flatMap(\.panes))
+            other.restart(kind: PaneDescriptor.webKind, panes: movedPanes, by: self)
+        }
         if let last = items.last { select(item: last.id) }
         onChange()
     }
