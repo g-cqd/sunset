@@ -22,9 +22,9 @@ extension TabsModel {
         clearMarks()
     }
 
-    /// The addresses of the pages among `rows`, in order: a tab's panes, a kept entry's (what it shows when open, what it
-    /// starts from when not), every entry of a folder.
-    package func addresses(of rows: [RowTarget]) -> [URL] {
+    /// The descriptors of every pane among `rows`, in order: a tab's panes, a kept entry's (what it shows when open,
+    /// what it starts from when not), every entry of a folder.
+    private func descriptors(of rows: [RowTarget]) -> [PaneDescriptor] {
         rows.flatMap { row -> [PaneDescriptor] in
             switch row {
                 case .tab(let id):
@@ -41,8 +41,22 @@ extension TabsModel {
                         }
             }
         }
-        .compactMap { descriptor in
-            descriptor.kind == PaneDescriptor.webKind ? descriptor.state["url"].flatMap { URL(string: $0) } : nil
-        }
+    }
+
+    /// The web addresses of the pages among `rows`, in order.
+    package func addresses(of rows: [RowTarget]) -> [URL] {
+        descriptors(of: rows)
+            .compactMap { descriptor in
+                descriptor.kind == PaneDescriptor.webKind ? descriptor.state["url"].flatMap { URL(string: $0) } : nil
+            }
+    }
+
+    /// The file URLs of external documents (opened from disk, outside Sunset's internal store) among `rows`, in order
+    /// (t365, t366).
+    package func externalFileURLs(of rows: [RowTarget]) -> [URL] {
+        descriptors(of: rows)
+            .compactMap { descriptor in
+                descriptor.documentFile.map { URL(fileURLWithPath: $0) }
+            }
     }
 }

@@ -11,6 +11,8 @@ struct RowShareMenu: View {
         let rows = tabs.rows(actingOn: row)
         let tabCount = rows.filter { if case .tab = $0 { true } else { false } }.count
         let addresses = tabs.addresses(of: rows)
+        let files = tabs.externalFileURLs(of: rows)
+        let shareItems = addresses + files
         if tabCount > 0 {
             Button {
                 tabs.duplicate(rows)
@@ -36,16 +38,24 @@ struct RowShareMenu: View {
                 )
             }
         }
-        if !addresses.isEmpty {
-            ShareLink(items: addresses) {
+        if !shareItems.isEmpty {
+            ShareLink(items: shareItems) {
                 MenuItemLabel(
-                    addresses.count == 1 ? "Share\u{2026}" : "Share \(addresses.count) Pages\u{2026}",
+                    shareTitle(addresses: addresses.count, files: files.count),
                     symbol: "square.and.arrow.up"
                 )
             }
             // A share link takes the accent (n140: blue in the menu): the menu's own ink, as every item's.
             .tint(.primary)
         }
+    }
+
+    private func shareTitle(addresses: Int, files: Int) -> String {
+        let total = addresses + files
+        if total == 1 { return "Share\u{2026}" }
+        if files == 0 { return "Share \(total) Pages\u{2026}" }
+        if addresses == 0 { return "Share \(total) Documents\u{2026}" }
+        return "Share \(total) Items\u{2026}"
     }
 
     /// Whether the row's menu lists its page's own actions: a tab, an open entry.

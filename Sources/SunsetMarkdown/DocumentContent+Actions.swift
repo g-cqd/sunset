@@ -68,18 +68,40 @@ extension DocumentContent {
 }
 
 extension DocumentContent {
-    /// What a document adds to its tab's menu: the other view in place, and beside; nothing for a text file, which has
-    /// no page.
+    /// The file URL on disk when this document is an external file (outside Sunset's internal store); nil for stored
+    /// documents (t365, t366).
+    package var externalFileURL: URL? {
+        guard case .file(let path) = document.place else { return nil }
+        return URL(fileURLWithPath: path)
+    }
+
+    /// Reveals the external file in Finder (t365).
+    package func revealInFinder() {
+        guard let url = externalFileURL else { return }
+        NSWorkspace.shared.activateFileViewerSelecting([url])
+    }
+
+    /// What a document adds to its tab's menu: the other view in place and beside (for rendered documents), plus
+    /// Reveal in Finder when opened from disk (t365).
     package var menuActions: [PaneMenuAction] {
-        guard canRender else { return [] }
-        let rendered = mode == .rendered
-        return [
-            PaneMenuAction(rendered ? "Show Source" : "Show Rendered") { [weak self] in self?.toggleMode() }
-                .symbol(rendered ? "chevron.left.forwardslash.chevron.right" : "doc.richtext"),
-            PaneMenuAction(rendered ? "Show Source Beside" : "Show Rendering Beside") { [weak self] in
-                self?.showBeside()
-            }
-            .symbol("rectangle.split.2x1")
-        ]
+        var actions: [PaneMenuAction] = []
+        if canRender {
+            let rendered = mode == .rendered
+            actions += [
+                PaneMenuAction(rendered ? "Show Source" : "Show Rendered") { [weak self] in self?.toggleMode() }
+                    .symbol(rendered ? "chevron.left.forwardslash.chevron.right" : "doc.richtext"),
+                PaneMenuAction(rendered ? "Show Source Beside" : "Show Rendering Beside") { [weak self] in
+                    self?.showBeside()
+                }
+                .symbol("rectangle.split.2x1")
+            ]
+        }
+        if externalFileURL != nil {
+            actions.append(
+                PaneMenuAction("Reveal in Finder") { [weak self] in self?.revealInFinder() }
+                    .symbol("finder")
+            )
+        }
+        return actions
     }
 }

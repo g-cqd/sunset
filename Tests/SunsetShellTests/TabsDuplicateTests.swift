@@ -61,4 +61,17 @@ struct TabsDuplicateTests {
         #expect(addresses == ["https://a.example/", "https://b.example/", "https://c.example/"])
         #expect(tabs.addresses(of: [.tab(ids[1])]).isEmpty, "a terminal has none")
     }
+
+    @Test
+    func `external document file URLs are collected for sharing while stored documents and terminals are excluded`() {
+        let made = MadeContents()
+        let tabs = window(made)
+        tabs.newTab(.document(file: "/tmp/readme.md"))
+        tabs.newTab(.document(stored: UUID()))
+        tabs.newTab(.terminal(directory: nil))
+        let ids = tabs.workspace.items.map(\.id)
+        #expect(tabs.externalFileURLs(of: [.tab(ids[0])]).map(\.path) == ["/tmp/readme.md"])
+        #expect(tabs.externalFileURLs(of: [.tab(ids[1])]).isEmpty, "stored document has no external file URL")
+        #expect(tabs.externalFileURLs(of: [.tab(ids[2])]).isEmpty, "terminal has no external file URL")
+    }
 }
