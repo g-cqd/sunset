@@ -42,51 +42,21 @@ import Synchronization
         }
     }
 
-    private final class Session: Sendable {
-        private let engine: AVAudioEngine
+    /// Thread-safe handle to the score shared with CoreAudio's real-time render thread; keeps `AVAudioEngine` confined
+    /// to `@MainActor` (the macOS 26.5 SDK does not mark `AVAudioEngine` as `Sendable`).
+    private final class Renderer: Sendable {
         private let state: Mutex<WelcomeOpeningScore>
 
-        private init(engine: AVAudioEngine, score: WelcomeOpeningScore) {
-            self.engine = engine
+        init(score: WelcomeOpeningScore) {
             self.state = Mutex(score)
-        }
-
-        static func start() -> (session: Session, latency: TimeInterval)? {
-            let engine = AVAudioEngine()
-            let outputNode = engine.outputNode
-            let outputFormat = outputNode.outputFormat(forBus: 0)
-            let rate = outputFormat.sampleRate > 0 ? outputFormat.sampleRate : 48_000
-            guard let format = AVAudioFormat(standardFormatWithSampleRate: rate, channels: 2) else { return nil }
-            let session = Session(engine: engine, score: WelcomeOpeningScore(sampleRate: rate))
-            let source = AVAudioSourceNode(format: format) { isSilence, _, frameCount, audioBufferList in
-                // Once the score has ended, its buffers are silence and CoreAudio is told so (it skips mixing them).
-                if session.render(audioBufferList, frames: Int(frameCount)) { unsafe isSilence.pointee = true }
-                return noErr
-            }
-            engine.attach(source)
-            engine.connect(source, to: engine.mainMixerNode, format: format)
-            engine.prepare()
-            do {
-                try engine.start()
-            } catch {
-                engine.stop()
-                return nil
-            }
-            // Clamp latency to a sensible ceiling so a misreporting virtual device never stalls the opening.
-            let latency = min(max(outputNode.presentationLatency, 0), 0.35)
-            return (session, latency)
         }
 
         func fadeOut() {
             state.withLock { $0.fadeOut() }
         }
 
-        func stop() {
-            engine.stop()
-        }
-
         /// Fills the buffers; true when the score has finished, and they hold silence.
-        private nonisolated func render(
+        nonisolated func render(
             _ audioBufferList: UnsafeMutablePointer<AudioBufferList>,
             frames: Int
         ) -> Bool {
@@ -114,6 +84,51 @@ import Synchronization
                 unsafe left[index] = sample.left
                 unsafe right[index] = sample.right
             }
+        }
+    }
+
+    private final class Session {
+        private let engine: AVAudioEngine
+        private let renderer: Renderer
+
+        private init(engine: AVAudioEngine, renderer: Renderer) {
+            self.engine = engine
+            self.renderer = renderer
+        }
+
+        static func start() -> (session: Session, latency: TimeInterval)? {
+            let engine = AVAudioEngine()
+            let outputNode = engine.outputNode
+            let outputFormat = outputNode.outputFormat(forBus: 0)
+            let rate = outputFormat.sampleRate > 0 ? outputFormat.sampleRate : 48_000
+            guard let format = AVAudioFormat(standardFormatWithSampleRate: rate, channels: 2) else { return nil }
+            let renderer = Renderer(score: WelcomeOpeningScore(sampleRate: rate))
+            let session = Session(engine: engine, renderer: renderer)
+            let source = AVAudioSourceNode(format: format) { isSilence, _, frameCount, audioBufferList in
+                // Once the score has ended, its buffers are silence and CoreAudio is told so (it skips mixing them).
+                if renderer.render(audioBufferList, frames: Int(frameCount)) { unsafe isSilence.pointee = true }
+                return noErr
+            }
+            engine.attach(source)
+            engine.connect(source, to: engine.mainMixerNode, format: format)
+            engine.prepare()
+            do {
+                try engine.start()
+            } catch {
+                engine.stop()
+                return nil
+            }
+            // Clamp latency to a sensible ceiling so a misreporting virtual device never stalls the opening.
+            let latency = min(max(outputNode.presentationLatency, 0), 0.35)
+            return (session, latency)
+        }
+
+        func fadeOut() {
+            renderer.fadeOut()
+        }
+
+        func stop() {
+            engine.stop()
         }
     }
 }
