@@ -1,0 +1,136 @@
+name: WebKit Engine Check
+
+# Roadmap 0115 (split model): runs daily on a standard hosted Linux runner (fast, <1 min, zero disk pressure).
+#   1. Checks whether WebKit published a security advisory newer than Engine/WebKit/base (`Scripts/webkit.sh behind`).
+#   2. Dry-runs our patch series against WebKit main (`Scripts/webkit.sh check`), detecting upstream conflicts or
+#      upstreamed patches early.
+# When an advisory is newer than our base, or when a patch no longer applies cleanly, opens/updates one tracking issue
+# so the local Mac build + auto-release (`Scripts/webkit-auto-update.sh`) or manual fix picks it up immediately.
+# Full WebKit compilation (40 GB) + testing + notarized two-variant auto-release runs locally on the Mac via launchd.
+on:
+  schedule:
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Optional WebKit commit to check patches against (defaults to WebKit main)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: webkit-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: WebKit · Advisories & Patch Series
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Setup · Check Out Sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check · WebKit Security Advisories
+        id: behind
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          out="$(Scripts/webkit.sh behind 2>&1)"
+          code=$?
+          echo "$out"
+          {
+            echo "status=$code"
+            echo "summary<<EOF"
+            echo "$out"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Check · Dry-Run Patch Series Against WebKit main
+        id: apply
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          set +e
+          if [ -n "$COMMIT" ]; then
+            out="$(Scripts/webkit.sh check "$COMMIT" 2>&1)"
+          else
+            out="$(Scripts/webkit.sh check 2>&1)"
+          fi
+          code=$?
+          echo "$out"
+          {
+            echo "status=$code"
+            echo "summary<<EOF"
+            echo "$out"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Report · Summary & Tracking Issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEHIND_STATUS: ${{ steps.behind.outputs.status }}
+          BEHIND_SUMMARY: ${{ steps.behind.outputs.summary }}
+          APPLY_STATUS: ${{ steps.apply.outputs.status }}
+          APPLY_SUMMARY: ${{ steps.apply.outputs.summary }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          base="$(cat Engine/WebKit/base)"
+          patches="$(find Engine/WebKit/patches -name '*.patch' | wc -l | tr -d ' ')"
+          {
+            echo "## WebKit Engine Check"
+            echo ""
+            echo "- **Base:** \`$base\` ($patches patches)"
+            echo "- **Advisory check (exit $BEHIND_STATUS):**"
+            echo '```'
+            echo "$BEHIND_SUMMARY"
+            echo '```'
+            echo "- **Patch dry-run (exit $APPLY_STATUS):**"
+            echo '```'
+            echo "$APPLY_SUMMARY"
+            echo '```'
+            echo "- **Run:** $RUN_URL"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Keep one issue for an overdue advisory and one for a broken patch series; auto-close when clean again.
+          sync_issue() {
+            local title="$1" needed="$2" body="$3"
+            local existing
+            existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$title\"" --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -1)"
+            if [ "$needed" = "1" ]; then
+              if [ -n "$existing" ]; then
+                gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$body"
+              else
+                gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"
+              fi
+            elif [ -n "$existing" ]; then
+              gh issue close "$existing" --repo "$GITHUB_REPOSITORY" --comment "Resolved as of \`$base\` ($RUN_URL)."
+            fi
+          }
+
+          if [ "$BEHIND_STATUS" = "1" ]; then
+            sync_issue "WebKit security advisory newer than Sunset's engine base" 1 \
+              "$(printf 'Base `%s` is behind the latest WebKit security advisory.\n\n```\n%s\n```\n\nRun: %s\n\nTrigger `Scripts/webkit-auto-update.sh` (or wait for the scheduled Mac job) to update, build, test, and release.' "$base" "$BEHIND_SUMMARY" "$RUN_URL")"
+          elif [ "$BEHIND_STATUS" = "0" ]; then
+            sync_issue "WebKit security advisory newer than Sunset's engine base" 0 ""
+          fi
+
+          if [ "$APPLY_STATUS" != "0" ]; then
+            sync_issue "WebKit patch series failed dry-run against WebKit main" 1 \
+              "$(printf 'One or more patches in `Engine/WebKit/patches/` no longer apply cleanly against WebKit `main` (current base `%s`).\n\n```\n%s\n```\n\nRun: %s' "$base" "$APPLY_SUMMARY" "$RUN_URL")"
+          else
+            sync_issue "WebKit patch series failed dry-run against WebKit main" 0 ""
+          fi
+
+          # Surface real failures in the check status (advisory behind is exit 1; patch breakage is exit != 0; curl errors exit 2).
+          if [ "$BEHIND_STATUS" != "0" ] || [ "$APPLY_STATUS" != "0" ]; then
+            exit 1
+          fi

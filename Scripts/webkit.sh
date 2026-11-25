@@ -14,7 +14,11 @@
 #   Scripts/webkit.sh export           the tree's commits above the base written back as the series
 #   Scripts/webkit.sh status           the base, the series, the tree
 #   Scripts/webkit.sh behind           whether WebKit published a security advisory after the base's date (exit 1: an
-#                                      update and a Sunset WebKit release are due; threat model D10)
+#                                      update and a Sunset WebKit release are due; threat model D10); works without a local
+#                                      WebKit checkout by querying the base commit's date from GitHub
+#   Scripts/webkit.sh check [COMMIT]   dry-run our patch series against WebKit's main (or COMMIT) in a temporary minimal
+#                                      sparse checkout (only the ~70 files our patches touch); reports which patches apply,
+#                                      which upstream already took, or which patch broke without touching $SUNSET_WEBKIT
 #
 # $SUNSET_WEBKIT: where the tree is; default ~/Developer/g-cqd/webkit-spike/WebKit.
 set -eu
@@ -206,13 +210,47 @@ behind)
     latest="$(curl -fsS https://webkitgtk.org/security.html | grep -oE 'WSA-[0-9]{4}-[0-9]{4}' | head -1)"
     [ -n "$latest" ] || die "the advisories could not be read"
     reported="$(curl -fsS "https://webkitgtk.org/security/$latest.html" | sed -n 's/.*Date Reported: <strong>\([A-Za-z]* [0-9]*, [0-9]*\).*/\1/p' | head -1)"
-    advisory="$(date -j -f '%B %d, %Y' "$reported" +%Y-%m-%d 2> /dev/null)" || die "$latest has no date"
-    based="$(git_wk show -s --format=%cs "$base" 2> /dev/null)" || die "the base is not in the tree"
+    advisory="$(date -j -f '%B %d, %Y' "$reported" +%Y-%m-%d 2> /dev/null || date -d "$reported" +%Y-%m-%d 2> /dev/null)" || die "$latest has no date"
+    based="$(git_wk show -s --format=%cs "$base" 2> /dev/null || true)"
+    if [ -z "$based" ]; then
+        based="$(curl -fsS -H "Accept: application/vnd.github+json" ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} \
+            "https://api.github.com/repos/WebKit/WebKit/commits/$base" |
+            python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"]["committer"]["date"][:10])' 2> /dev/null || true)"
+    fi
+    [ -n "$based" ] || die "the base commit date could not be read"
     if [ "$(printf '%s\n%s\n' "$advisory" "$based" | sort | tail -1)" = "$advisory" ] && [ "$advisory" != "$based" ]; then
         echo "webkit: behind: $latest ($advisory) is after the base ($based); update and release"
         exit 1
     fi
     echo "webkit: up to date: the base ($based) is after $latest ($advisory)"
+    ;;
+check)
+    # Minimal sparse checkout containing only the files touched by our patch series: fits easily on any CI runner.
+    start="$(now)"
+    tmp_check="$(mktemp -d)"
+    trap 'rm -rf "$tmp_check"' EXIT
+    tree="$tmp_check/WebKit"
+    mkdir -p "$tree"
+    git -C "$tree" init -q
+    git_wk remote add origin https://github.com/WebKit/WebKit.git
+    git_wk config core.sparseCheckout true
+    # Collect every file touched (old or new path) by our patches, plus directories for new files.
+    touched="$(grep -h '^diff --git ' "$patches"/*.patch | awk '{print substr($3,3); print substr($4,3)}' | sort -u | sed 's|^|/|')"
+    [ -n "$touched" ] || die "no patches in $patches"
+    # shellcheck disable=SC2086 # paths in patches have no spaces
+    git_wk sparse-checkout set --no-cone $touched
+    if [ -n "${2:-}" ]; then
+        target="$2"
+        fetch_commit "$target"
+    else
+        git_wk fetch -q --depth 1 --filter=blob:none origin main
+        target="$(git_wk rev-parse FETCH_HEAD)"
+    fi
+    # Fetch base too so git am -3 has 3-way merge ancestors when a patch touches moved context.
+    fetch_commit "$base" || true
+    apply_series "$target"
+    took "check passed on $target" "$start"
+    [ ! -s "$tree.dropped" ] || { echo "webkit: dropped (already upstream):"; cat "$tree.dropped"; }
     ;;
 status)
     echo "webkit: base $base, $(find "$patches" -name '*.patch' | wc -l | tr -d ' ') patches"
