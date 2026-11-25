@@ -93,7 +93,7 @@ state of the art, field by field).
 | Risk | Owner | Mitigation today | Review / expiry date |
 |---|---|---|---|
 | `HIGH-06`: WebKit stores exist in clear while Sunset is running (A3) | Maintainer | Cleared at quit for non-kept sites; sealed at quit; hardened runtime blocks debugger attach | 2027-02-25 |
-| `LOW-01` / `N-S5`: Main app not App-Sandboxed (terminal + vault share process) | Maintainer | Swift 6.4 strict memory safety, hardened runtime, WebKit isolated; XPC Vault + Decoder separation queued (Sprint 2) | 2027-02-25 |
+| `LOW-01` / `N-S5`: Main app not App-Sandboxed (terminal + vault share process) | Maintainer | Swift 6.4 strict memory safety, hardened runtime, WebKit isolated, Kitty PNG decoding isolated in App-Sandboxed zero-network `SunsetImageDecoder.xpc`; Vault XPC separation queued | 2027-02-25 |
 | `N-S6`: WebKit site isolation off in both builds (A10) | Maintainer | Hardened mode without JIT available; tracking upstream WebKit Site Isolation readiness | 2027-02-25 |
 
 ## How it is kept

@@ -39,13 +39,15 @@ targets:
     sources:
       - path: Sources/SunsetAppMain
       - path: App
-        excludes: [Info.plist, QuickLook]
+        excludes: [Info.plist, QuickLook, ImageDecoder]
     dependencies:
       - package: Sunset
         product: SunsetAppLibrary
       - target: SunsetMarkdownPreview
         embed: true
       - target: SunsetMarkdownThumbnail
+        embed: true
+      - target: SunsetImageDecoder
         embed: true
     info:
       path: App/Info.plist
@@ -204,4 +206,30 @@ targets:
           CODE_SIGN_ENTITLEMENTS: App/QuickLook/Thumbnail/Thumbnail.entitlements
         Release:
           CODE_SIGN_ENTITLEMENTS: App/QuickLook/Thumbnail/Thumbnail.entitlements
+          PROVISIONING_PROFILE_SPECIFIER: ""
+  SunsetImageDecoder:
+    type: xpc-service
+    platform: macOS
+    sources:
+      - path: App/ImageDecoder
+        excludes: [ImageDecoder.entitlements]
+    dependencies:
+      - package: Sunset
+        product: SunsetRenderMac
+    info:
+      path: App/ImageDecoder/Info.plist
+      properties:
+        XPCService:
+          ServiceType: Application
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.imagedecoder
+        CODE_SIGN_ENTITLEMENTS: App/ImageDecoder/ImageDecoder.entitlements
+        PROVISIONING_PROFILE_SPECIFIER: ""
+      configs:
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.dev.imagedecoder
+          CODE_SIGN_ENTITLEMENTS: App/ImageDecoder/ImageDecoder.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: App/ImageDecoder/ImageDecoder.entitlements
           PROVISIONING_PROFILE_SPECIFIER: ""

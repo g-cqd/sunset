@@ -8,7 +8,12 @@ public final class CPUSurfaceRenderer: IOSurfaceRenderer {
     private let presenter = IOSurfacePresenter()
 
     public init(metrics: RenderMetrics, glyphs: any GlyphSource, ligatures: Bool) {
-        renderer = FrameRenderer(metrics: metrics, glyphs: glyphs, ligatures: ligatures, images: ImageIODecoder())
+        renderer = FrameRenderer(
+            metrics: metrics,
+            glyphs: glyphs,
+            ligatures: ligatures,
+            images: SandboxedImageDecoder()
+        )
     }
 
     public var cellMetrics: RenderMetrics {
