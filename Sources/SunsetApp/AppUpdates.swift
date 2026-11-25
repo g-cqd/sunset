@@ -4,6 +4,7 @@ import Observation
 import SunsetAppCore
 import SunsetConfig
 import SunsetRuntime
+import SunsetStorage
 import SunsetUpdate
 
 /// Sunset updating itself — and switching between System WebKit and Sunset's WebKit — from its GitHub releases
@@ -146,12 +147,28 @@ final class AppUpdates {
                 stagedFlavour = target
                 downloadState = nil
                 phase = .ready(offer)
+                SunsetStore.shared.securityLog.record(
+                    .update("verified"),
+                    outcome: "ok",
+                    attributes: ["tag": offer.release.tag, "build": String(offer.release.build)],
+                    at: Runtime.live.now()
+                )
             case .failure(let error):
                 downloadState = nil
                 let what =
                     target == running.flavour
                     ? "The update to build \(offer.release.build)" : "The web engine switch"
                 phase = .failed("\(what) was not installed. \(error.localizedDescription)")
+                SunsetStore.shared.securityLog.record(
+                    .update("refused"),
+                    outcome: "failed",
+                    attributes: [
+                        "tag": offer.release.tag,
+                        "build": String(offer.release.build),
+                        "reason": error.localizedDescription
+                    ],
+                    at: Runtime.live.now()
+                )
         }
     }
 

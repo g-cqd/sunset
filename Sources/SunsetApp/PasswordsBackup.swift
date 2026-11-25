@@ -3,6 +3,7 @@ import CoreImage.CIFilterBuiltins
 import SunsetAppCore
 import SunsetConfig
 import SunsetCredentials
+import SunsetRuntime
 import SunsetStorage
 import UniformTypeIdentifiers
 
@@ -23,12 +24,14 @@ enum PasswordsBackup {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             try model.exportBackup(to: url)
+            logVaultBackup("backup_exported", outcome: "ok")
             confirmReveal(
                 title: "Vault backed up",
                 detail: "The backup is sealed with your vault key and does not include this Mac's Touch ID factor.",
                 url: url
             )
         } catch {
+            logVaultBackup("backup_exported", outcome: "failed")
             say("Backup failed", "Sunset could not write the backup file to that folder.")
         }
     }
@@ -66,12 +69,18 @@ enum PasswordsBackup {
         }
         do {
             let summary = try model.restoreBackup(opened)
+            logVaultBackup(
+                "backup_restored",
+                outcome: "ok",
+                attributes: ["entries_added": String(summary.entriesAdded)]
+            )
             say(
                 "Backup restored",
                 "\(summary.entriesAdded) entries added, \(summary.entriesUnchanged) already present, "
                     + "\(summary.templatesAdded) templates added."
             )
         } catch {
+            logVaultBackup("backup_restored", outcome: "failed")
             say("Restore failed", "Make sure your vault is unlocked before restoring a backup.")
         }
     }
@@ -98,6 +107,15 @@ enum PasswordsBackup {
         op.showsPrintPanel = true
         op.showsProgressPanel = true
         op.run()
+    }
+
+    private static func logVaultBackup(_ event: String, outcome: String, attributes: [String: String] = [:]) {
+        SunsetStore.shared.recordSecurityEvent(
+            .vault(event),
+            outcome: outcome,
+            attributes: attributes,
+            at: Runtime.live.now()
+        )
     }
 
     private static func makeQR(_ text: String) -> NSImage? {

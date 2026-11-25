@@ -1,4 +1,4 @@
-import Foundation
+package import Foundation
 package import SunsetDocuments
 package import SunsetStorage
 
@@ -52,6 +52,21 @@ package final class SunsetStore {
         database = opened.database
         if let problem = opened.problem { problems.report(problem) }
     }
+
+    /// Records a security-relevant event in `securityLog` at `now` (one-line helper keeping call sites concise).
+    package func recordSecurityEvent(
+        _ kind: SecurityAuditLog.Kind,
+        outcome: String,
+        attributes: [String: String] = [:],
+        at now: Date
+    ) {
+        securityLog.record(kind, outcome: outcome, attributes: attributes, at: now)
+    }
+
+    /// Bounded, secret-free SIEM security audit log under Sunset's private storage directory (`security-audit.jsonl`, R-OPS-1).
+    package private(set) lazy var securityLog = SecurityAuditLog(
+        fileURL: URL(fileURLWithPath: places.directory, isDirectory: true).appending(path: "security-audit.jsonl")
+    )
 
     /// The documents that live in Sunset, opened at first use; nil when there is no key in this run. Their index is a database
     /// of its own (`library.sqlite`): it holds nothing the documents' files do not, and is rebuilt from them, so one that did

@@ -68,9 +68,12 @@ extension WebContent {
     }
 
     /// Visit Anyway: the certificate the person was shown, for this host, is accepted on this page (no other one), and
-    /// the page is loaded again.
+    /// the page is loaded again — unless MDM managed policy forbids certificate exceptions (`allowsCertificateExceptions`).
     package func acceptCertificate() {
-        guard let host = failure?.url?.host(), let certificate = failure?.certificate else { return }
+        guard settings.allowsCertificateExceptions,
+            let host = failure?.url?.host(),
+            let certificate = failure?.certificate
+        else { return }
         acceptedCertificates.accept(host: host, certificate: certificate)
         if let address = failure?.url { load(address) }
     }

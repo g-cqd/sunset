@@ -1,16 +1,20 @@
 import AppKit
 import Foundation
+import SunsetAppCore
+import SunsetConfig
 import SunsetRuntime
 import SunsetShellModel
+import SunsetStorage
 import SunsetWeb
 import SunsetWebModel
 import UniformTypeIdentifiers
 
 /// Installing an extension: a package or folder picked, read, and a prompt that says what it may do; granted all of it
-/// on Add, nothing on Cancel.
+/// on Add, nothing on Cancel. Refused when MDM `AllowExtensions = false` (R-OPS-2).
 extension AppActions {
     /// Into the acting window's profile.
     func installExtension() {
+        guard allowExtensionsByPolicy() else { return }
         let tabs = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
         let profile = tabs.flatMap(PaneContentKinds.profile(of:))
         guard let host = ExtensionHosts.shared.host(for: profile) else { return }
@@ -18,6 +22,7 @@ extension AppActions {
     }
 
     func installExtension(into host: ExtensionHost) {
+        guard allowExtensionsByPolicy() else { return }
         let panel = NSOpenPanel()
         panel.title = "Install Extension"
         panel.prompt = "Choose"
@@ -30,11 +35,22 @@ extension AppActions {
 
     /// Read, asked, installed; an alert when it cannot be.
     func install(_ source: URL, into host: ExtensionHost) async {
+        guard !ManagedPolicy.current.forbidsExtensions else {
+            recordExtensionEvent(
+                "extension_refused",
+                outcome: "managed_policy",
+                detail: ManagedPolicy.Key.allowExtensions.rawValue
+            )
+            await Self.tell("Extensions are disabled", ManagedExtensionError())
+            return
+        }
         do {
             let candidate = try await ExtensionHost.read(source)
             guard await ExtensionPrompt.ask(candidate) else { return }
             try await host.install(candidate)
+            recordExtensionEvent("extension_installed", outcome: "ok", detail: candidate.name)
         } catch {
+            recordExtensionEvent("extension_refused", outcome: "error", detail: error.localizedDescription)
             await Self.tell("This extension cannot be installed", error)
         }
     }
@@ -55,6 +71,14 @@ extension AppActions {
 
     /// `package` names it: a second request for it while this one is fetched or asked about is dropped (one prompt).
     private func installFetched(_ package: String, profile: UUID?, fetch: @escaping @MainActor () async throws -> URL) {
+        guard !ManagedPolicy.current.forbidsExtensions else {
+            recordExtensionEvent(
+                "extension_refused",
+                outcome: "managed_policy",
+                detail: ManagedPolicy.Key.allowExtensions.rawValue
+            )
+            return
+        }
         guard let host = ExtensionHosts.shared.host(for: profile),
             Self.underway.begin(package, profile: profile?.uuidString)
         else { return }
@@ -65,9 +89,36 @@ extension AppActions {
                 defer { try? FileManager.default.removeItem(at: file) }
                 await self.install(file, into: host)
             } catch {
+                self.recordExtensionEvent(
+                    "extension_refused",
+                    outcome: "fetch_failed",
+                    detail: error.localizedDescription
+                )
                 await Self.tell("This extension could not be fetched", error)
             }
         }
+    }
+
+    private func allowExtensionsByPolicy() -> Bool {
+        guard ManagedPolicy.current.forbidsExtensions else { return true }
+        recordExtensionEvent(
+            "extension_refused",
+            outcome: "managed_policy",
+            detail: ManagedPolicy.Key.allowExtensions.rawValue
+        )
+        Runtime.live.task { @MainActor in
+            await Self.tell("Extensions are disabled", ManagedExtensionError())
+        }
+        return false
+    }
+
+    private func recordExtensionEvent(_ event: String, outcome: String, detail: String) {
+        SunsetStore.shared.recordSecurityEvent(
+            .web(event),
+            outcome: outcome,
+            attributes: ["detail": detail],
+            at: Runtime.live.now()
+        )
     }
 
     /// What went wrong, in Sunset's look.
@@ -79,5 +130,11 @@ extension AppActions {
             defaultButton: 0
         )
         _ = await SunsetAlerts.ask(alert)
+    }
+}
+
+private struct ManagedExtensionError: LocalizedError {
+    var errorDescription: String? {
+        "Your organisation\u{2019}s managed policy (AllowExtensions) forbids installing browser extensions."
     }
 }

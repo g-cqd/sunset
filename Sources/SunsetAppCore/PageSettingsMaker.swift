@@ -56,6 +56,7 @@ package struct PageSettingsMaker: Sendable {
         settings.hardening = Hardening(rawValue: web.hardening.rawValue) ?? .off
         settings.globalPrivacyControl =
             GlobalPrivacyControl(rawValue: web.globalPrivacyControl.rawValue) ?? .privateWindows
+        settings.allowsCertificateExceptions = !ManagedPolicy.current.forbidsCertificateExceptions
         return settings
     }
 
