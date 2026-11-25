@@ -131,10 +131,10 @@ extension AppActions {
         )
         _ = await SunsetAlerts.ask(alert)
     }
-}
 
-private struct ManagedExtensionError: LocalizedError {
-    var errorDescription: String? {
-        "Your organisation\u{2019}s managed policy (AllowExtensions) forbids installing browser extensions."
+    private struct ManagedExtensionError: LocalizedError {
+        var errorDescription: String? {
+            "Your organisation\u{2019}s managed policy (AllowExtensions) forbids installing browser extensions."
+        }
     }
 }

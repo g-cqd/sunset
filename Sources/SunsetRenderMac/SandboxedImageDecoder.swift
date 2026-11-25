@@ -1,13 +1,5 @@
-import Dispatch
 public import Foundation
 public import SunsetRender
-import Synchronization
-
-/// Objective-C XPC protocol between Sunset and its App-Sandboxed, zero-network image decoder XPC service
-/// (`studio.aemi.sunset.imagedecoder`, N-S5 / R-DES-2).
-@objc public protocol SunsetImageDecoderXPCProtocol {
-    func decodePNG(_ data: NSData, withReply reply: @escaping (Int, Int, NSData?) -> Void)
-}
 
 /// Decodes untrusted terminal Kitty PNG images inside the embedded App-Sandboxed, zero-network XPC service
 /// (`studio.aemi.sunset.imagedecoder` / `studio.aemi.sunset.dev.imagedecoder`) when running from a bundled `Sunset.app`.
@@ -56,23 +48,41 @@ public struct SandboxedImageDecoder: ImageDecoding, Sendable {
         connection.resume()
         defer { connection.invalidate() }
 
-        let semaphore = DispatchSemaphore(value: 0)
-        let result = Mutex<DecodedImage?>(nil)
-
+        let gate = ReplyGate()
         let proxy =
             connection.remoteObjectProxyWithErrorHandler { _ in
-                semaphore.signal()
+                gate.finish(nil)
             } as? any SunsetImageDecoderXPCProtocol
 
         guard let proxy else { return nil }
         proxy.decodePNG(Data(file) as NSData) { width, height, rgbaData in
-            if let decoded = Self.validatedReply(width: width, height: height, rgba: rgbaData as Data?) {
-                result.withLock { $0 = decoded }
+            gate.finish(Self.validatedReply(width: width, height: height, rgba: rgbaData as Data?))
+        }
+        return gate.wait(seconds: Self.decodeTimeoutSeconds)
+    }
+
+    private final class ReplyGate: @unchecked Sendable {
+        private let condition = NSCondition()
+        private var done = false
+        private var decoded: DecodedImage?
+
+        func finish(_ value: DecodedImage?) {
+            condition.lock()
+            if !done {
+                decoded = value
+                done = true
+                condition.signal()
             }
-            semaphore.signal()
+            condition.unlock()
         }
 
-        _ = semaphore.wait(timeout: .now() + Self.decodeTimeoutSeconds)
-        return result.withLock { $0 }
+        func wait(seconds: TimeInterval) -> DecodedImage? {
+            let deadline = Date(timeIntervalSinceNow: seconds)
+            condition.lock()
+            while !done, condition.wait(until: deadline) {}
+            let value = decoded
+            condition.unlock()
+            return value
+        }
     }
 }
