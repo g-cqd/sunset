@@ -142,6 +142,23 @@ package final class PasswordsModel {
         return kept
     }
 
+    /// Exports a sealed `.svault` backup of the vault (works even if locked).
+    package func exportBackup(to url: URL) throws(VaultBackup.Failure) {
+        guard let vault else { throw .damaged }
+        _ = try VaultBackup.write(from: vault, to: url, createdAt: runtime.now())
+    }
+
+    /// Restores opened `.svault` backup contents into the unlocked vault and reloads the UI list.
+    package func restoreBackup(
+        _ contents: VaultBackup.Contents,
+        overwriteExisting: Bool = false
+    ) throws -> VaultBackup.RestoreSummary {
+        guard let vault, !vault.lock.isLocked else { throw Vault.Refused() }
+        let summary = try VaultBackup.restore(contents, into: vault, overwriteExisting: overwriteExisting)
+        reload()
+        return summary
+    }
+
     /// The sites never to offer saving for; none while locked. Read with the entries when unlocking.
     package private(set) var neverSave: Set<String> = []
 

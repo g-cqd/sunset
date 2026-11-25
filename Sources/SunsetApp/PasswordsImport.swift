@@ -45,13 +45,12 @@ enum PasswordsImport {
         guard ask.runModal() == .alertFirstButtonReturn else { return }
         do {
             let kept = try model.importLogins(imported.entries)
-            let done = NSAlert()
-            done.messageText = kept == 1 ? "1 login added" : "\(kept) logins added"
-            done.informativeText =
-                "The file is still where it was, with every password in the clear. Delete it when you are done."
-            done.addButton(withTitle: "Done")
-            done.addButton(withTitle: "Show File in Finder")
-            if done.runModal() == .alertSecondButtonReturn { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+            PasswordsBackup.confirmReveal(
+                title: kept == 1 ? "1 login added" : "\(kept) logins added",
+                detail:
+                    "The file is still where it was, with every password in the clear. Delete it when you are done.",
+                url: url
+            )
         } catch {
             say(
                 "The logins were not all added",
@@ -113,15 +112,13 @@ enum PasswordsImport {
             )
             guard made else { return say("The file could not be written", "Choose another folder.") }
             try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
-            let done = NSAlert()
-            done.messageText = result.exported == 1 ? "1 login exported" : "\(result.exported) logins exported"
-            done.informativeText =
-                (result.skipped == 0
+            PasswordsBackup.confirmReveal(
+                title: result.exported == 1 ? "1 login exported" : "\(result.exported) logins exported",
+                detail: (result.skipped == 0
                     ? "" : "\(result.skipped) cards, notes or other entries are not logins and were left out.\n\n")
-                + "The file has every password in the clear. Delete it when you are done."
-            done.addButton(withTitle: "Done")
-            done.addButton(withTitle: "Show File in Finder")
-            if done.runModal() == .alertSecondButtonReturn { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+                    + "The file has every password in the clear. Delete it when you are done.",
+                url: url
+            )
         }
     }
 }

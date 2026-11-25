@@ -23,6 +23,7 @@ struct UnkeptRecoveryCode: View {
             Text(code.text).font(Design.Text.body.monospaced()).textSelection(.enabled)
             HStack {
                 FeedbackButton("Copy") { Clipboard.copy(code.text, concealed: true, what: "Recovery code copied") }
+                Button("Print Emergency Sheet…") { PasswordsBackup.printEmergencySheet(code: code) }
                 Spacer()
                 // Return confirms it in the setup window only: in the sidebar, a Return meant for elsewhere must not.
                 if leading == 0 {

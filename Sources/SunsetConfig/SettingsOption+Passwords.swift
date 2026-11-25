@@ -24,8 +24,31 @@ extension SettingsOption {
             \.passwords.lockOnWindowBlur,
             "Lock with the window",
             "window focus blur"
-        )
+        ),
+        backupFolderOption,
+        backupKeepOption
     ]
+
+    private static let backupFolderOption = text(
+        "passwords.backupFolder",
+        "Automatic backup folder",
+        "vault passwords backup svault automatic folder path",
+        \.passwords.backupFolder,
+        prompt: "Off (choose a folder path)"
+    )
+    .noted("Writes a sealed .svault backup to this folder when Sunset quits. Leave empty to turn off.")
+
+    private static let backupKeepOption = number(
+        "passwords.backupKeep",
+        "Keep backups",
+        "vault passwords backup svault retain count rotate",
+        \.passwords.backupKeep,
+        1 ... 100,
+        step: 1,
+        unit: "files",
+        digits: 0
+    )
+    .noted("Older automatic .svault backups in the backup folder are removed past this count.")
 
     private static let lockWords = "vault passwords lock idle minutes timeout auto"
 

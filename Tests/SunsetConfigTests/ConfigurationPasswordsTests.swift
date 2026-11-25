@@ -11,25 +11,30 @@ import Testing
     {
         let plain = try ConfigurationParser.parse("{}").configuration.passwords
         #expect(plain.lockAfter == 10 && !plain.lockOnLeavingTab && !plain.lockOnWindowBlur)
+        #expect(plain.backupFolder.isEmpty && plain.backupKeep == 10)
         let result = try ConfigurationParser.parse(
-            #"{ "passwords": { "lockAfter": 0, "lockOnLeavingTab": true, "lockOnWindowBlur": true } }"#
+            #"{ "passwords": { "lockAfter": 0, "lockOnLeavingTab": true, "lockOnWindowBlur": true, "backupFolder": "/tmp/backups", "backupKeep": 5 } }"#
         )
         #expect(result.issues.isEmpty)
         let read = result.configuration.passwords
         #expect(read.lockAfter == 0 && read.lockOnLeavingTab && read.lockOnWindowBlur)
-        let wrong = try ConfigurationParser.parse(#"{ "passwords": { "lockAfter": -3, "other": 1 } }"#)
-        #expect(wrong.issues.map(\.path).sorted() == ["passwords.lockAfter", "passwords.other"])
+        #expect(read.backupFolder == "/tmp/backups" && read.backupKeep == 5)
+        let wrong = try ConfigurationParser.parse(#"{ "passwords": { "lockAfter": -3, "backupKeep": 0, "other": 1 } }"#)
+        #expect(wrong.issues.map(\.path).sorted() == ["passwords.backupKeep", "passwords.lockAfter", "passwords.other"])
     }
 
     @Test func `what is written reads back, and Settings have it under Privacy and security`() throws {
         var configuration = Configuration()
         configuration.passwords.lockAfter = 30
         configuration.passwords.lockOnWindowBlur = true
+        configuration.passwords.backupFolder = "/tmp/vault-backups"
+        configuration.passwords.backupKeep = 7
         let back = try ConfigurationParser.parse(ConfigurationWriter.text(for: configuration))
         #expect(back.issues.isEmpty && back.configuration.passwords == configuration.passwords)
         #expect(
             SettingsSection.topic("privacy.passwords")?.topic.options.map(\.id) == [
-                "passwords.lockAfter", "passwords.lockOnLeavingTab", "passwords.lockOnWindowBlur"
+                "passwords.lockAfter", "passwords.lockOnLeavingTab", "passwords.lockOnWindowBlur",
+                "passwords.backupFolder", "passwords.backupKeep"
             ]
         )
     }

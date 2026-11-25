@@ -21,6 +21,13 @@ struct PasswordsActions: View {
                 }
             }
             SidebarIconMenu(symbol: "ellipsis", help: "More") {
+                Button("Back Up Vault (.svault)…", systemImage: "externaldrive.badge.plus") {
+                    PasswordsBackup.backup(from: model)
+                }
+                Button("Restore from Backup (.svault)…", systemImage: "arrow.counterclockwise") {
+                    PasswordsBackup.restore(into: model)
+                }
+                Divider()
                 Button("Import Logins…", systemImage: "square.and.arrow.down") {
                     PasswordsImport.run(into: model)
                 }

@@ -62,6 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         MainActor.assumeIsolated {
+            PasswordsBackup.backupAtQuitIfConfigured()
             AppVaultLocking.lockAll(.quit)
             SunsetStore.shared.close()
             AppUpdates.shared.installAtQuit()

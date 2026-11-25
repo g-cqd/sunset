@@ -79,4 +79,13 @@ public final class VaultFile {
         sql.column("SELECT id FROM records ORDER BY id")
             .compactMap { UUID(uuidString: String(decoding: $0, as: UTF8.self)) }
     }
+
+    /// Every `(id, sealed)` pair as stored on disk, ordered by id, for sealing-preserving export (`.svault`).
+    func rawRecords() -> [(id: UUID, sealed: Data)] {
+        recordIDs.compactMap { id in
+            guard let sealed = sql.column("SELECT sealed FROM records WHERE id = ?", [.text(id.uuidString)]).first
+            else { return nil }
+            return (id, sealed)
+        }
+    }
 }
