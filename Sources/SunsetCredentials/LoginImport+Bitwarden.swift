@@ -32,17 +32,33 @@ extension LoginImport {
         case secureNote, card, identity
     }
 
-    /// A file chosen by the person, read as what it is: JSON that opens with an object or a list is Bitwarden's export, anything else is CSV.
+    /// A file chosen by the person, read as what it is: JSON that opens with an object or a list is sniffed across
+    /// Bitwarden, Aegis, 2FAS, and andOTP; anything else is CSV.
     public static func readFile(_ text: String, site: (String) -> String?) throws(Failure) -> Self {
         let opening = text.drop { $0 == "\u{FEFF}" || $0.isWhitespace }.first
-        return opening == "{" || opening == "[" ? try readBitwarden(text, site: site) : try read(text, site: site)
+        return opening == "{" || opening == "[" ? try readJSON(text, site: site) : try read(text, site: site)
+    }
+
+    /// Sniffs JSON exports (Bitwarden, Aegis, 2FAS, andOTP) using strict RFC 8259 AemiJSON parsing (no duplicate keys,
+    /// max depth 32).
+    public static func readJSON(_ text: String, site: (String) -> String?) throws(Failure) -> Self {
+        switch try parseStrictJSON(text) {
+            case .array(let list): return try readAndOTP(list)
+            case .object(let top) where top["items"] != nil || top["encrypted"] != nil:
+                return try readBitwardenObject(top, site: site)
+            case .object(let top) where top["db"] != nil: return try readAegisObject(top)
+            case .object(let top) where top["services"] != nil || top["servicesEncrypted"] != nil:
+                return try read2FASObject(top)
+            default: throw .notAnExport
+        }
     }
 
     public static func readBitwarden(_ text: String, site: (String) -> String?) throws(Failure) -> Self {
-        let options = JSONParseOptions(validation: .strict, duplicateKeys: .throwError, maxDepth: 32)
-        guard let root = try? JSONValue(parsing: text, options: options), case .object(let top) = root else {
-            throw .notAnExport
-        }
+        guard case .object(let top) = try parseStrictJSON(text) else { throw .notAnExport }
+        return try readBitwardenObject(top, site: site)
+    }
+
+    private static func readBitwardenObject(_ top: Object, site: (String) -> String?) throws(Failure) -> Self {
         if case .bool(true)? = top["encrypted"] { throw .encrypted }
         guard case .array(let items)? = top["items"] else { throw .notAnExport }
         let folders = folderNames(top["folders"])
@@ -80,7 +96,7 @@ extension LoginImport {
     }
 
     /// The text of a JSON value that is one; a whole number is its digits (a card number a program wrote as a number).
-    private static func jsonText(_ value: JSONValue?) -> String? {
+    static func jsonText(_ value: JSONValue?) -> String? {
         switch value {
             case .string(let text)?: text
             case .int(let number)?: String(number)
@@ -88,7 +104,7 @@ extension LoginImport {
         }
     }
 
-    private static func folderNames(_ folders: JSONValue?) -> [String: String] {
+    static func folderNames(_ folders: JSONValue?) -> [String: String] {
         guard case .array(let list)? = folders else { return [:] }
         var names: [String: String] = [:]
         for case .object(let folder) in list {

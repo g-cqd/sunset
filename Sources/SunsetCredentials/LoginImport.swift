@@ -5,7 +5,7 @@ import Foundation
 /// it holds is the person's to delete, and nothing here keeps it.
 public struct LoginImport: Equatable, Sendable {
     public enum Source: String, Equatable, Sendable {
-        case applePasswords, chrome, firefox, bitwarden, onePassword, lastPass, generic
+        case applePasswords, chrome, firefox, bitwarden, onePassword, lastPass, aegis, twoFAS, andOTP, generic
     }
 
     public enum SkipReason: Equatable, Sendable {

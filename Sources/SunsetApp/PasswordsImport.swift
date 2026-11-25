@@ -14,8 +14,14 @@ enum PasswordsImport {
 
     static func run(into model: PasswordsModel) {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.commaSeparatedText, .plainText, .json]
-        panel.message = "Choose the file your browser or password manager exported: CSV, or Bitwarden's JSON."
+        panel.allowedContentTypes =
+            [.commaSeparatedText, .plainText, .json]
+            + ["2fas"]
+            .compactMap {
+                UTType(filenameExtension: $0)
+            }
+        panel.message =
+            "Choose the file your browser, password manager, or authenticator exported: CSV, Bitwarden, Aegis, 2FAS, or andOTP JSON."
         panel.prompt = "Read"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         guard let text = read(url) else { return }

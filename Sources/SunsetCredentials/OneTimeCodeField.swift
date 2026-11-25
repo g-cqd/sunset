@@ -45,6 +45,15 @@ public struct OneTimeCodeField: Sendable, Equatable {
         return code[..<half] + " " + code[half...]
     }
 
+    /// Returns a copy of this field's URI string with the HOTP counter incremented by 1 (no-op for TOTP/Steam,
+    /// roadmap 0093 E / t102).
+    public var advancingCounterURI: String? {
+        guard link.kind == .hotp else { return nil }
+        var nextLink = link
+        nextLink.counter &+= 1
+        return nextLink.uri
+    }
+
     private func code(counter: UInt64) -> String {
         link.kind == .steam
             ? OneTimeCode.steam(secret: link.secret, counter: counter)

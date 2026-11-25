@@ -24,12 +24,9 @@ package import SunsetRuntime
     package private(set) var isRunning = true
     /// Unique persistence identifier linking this terminal to its saved scrollback snapshot on disk (roadmap 0024).
     package var snapshotID = UUID()
-    /// Restored replay bytes (old scrollback + divider line) fed into the fresh `TerminalSession` before shell output.
     @ObservationIgnored package var initialOutput: [UInt8] = []
-    /// Interactive scrollback & live-screen find bar state (T-3 / roadmap 0026).
     package let find = TerminalFind()
     @ObservationIgnored package var onFocusTerminalView: () -> Void = {}
-    /// Whether text is selected (observed, so that the Copy menu item follows it).
     package var hasSelection = false
     @ObservationIgnored package var presentFrame: (IOSurface) -> Void = { _ in }
     /// The last frame shown (kept across renderers, so that a new view or a new renderer starts from it).
@@ -238,17 +235,12 @@ package import SunsetRuntime
 
     /// The display link fired: draw a frame if one is wanted and none is being drawn; pause the link when there is nothing to draw.
     package func tick() {
-        guard frameWanted else {
-            setDisplayLinkPaused(true)
-            return
-        }
-        guard isVisible else {
+        guard frameWanted, isVisible else {
             setDisplayLinkPaused(true)
             return
         }
         guard !renderInFlight, session != nil, renderer != nil else { return }
         frameWanted = false
-        // Claimed here, before the task starts: a tick in between draws nothing.
         renderInFlight = true
         runtime.task { [weak self] in await self?.drawClaimed() }
     }

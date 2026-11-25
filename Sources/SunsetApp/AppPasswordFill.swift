@@ -89,13 +89,24 @@ final class AppPasswordFill: PasswordFillHost {
     }
 
     /// A one-time code's field: the codes of the site's entries that have one; the one clicked is filled as it is then.
+    /// For HOTP entries, advances and saves the persisted counter immediately after filling (roadmap 0093 E / t102).
     private func codes(for field: LoginField, in page: WebContent) -> AnyView? {
         shown(CodeOffer.offered(model.entries, for: field.origin, site: Self.site)) { offers in
             CodeSuggestions(offers: offers) { [weak self] offer in
                 let code = offer.field.code(at: Runtime.live.now())
+                if let advancedURI = offer.field.advancingCounterURI {
+                    self?.advanceHOTPCounter(in: offer.entry, newURI: advancedURI)
+                }
                 self?.filling { _ = await page.fillCode(code, for: field.origin) }
             }
         }
+    }
+
+    private func advanceHOTPCounter(in entry: VaultEntry, newURI: String) {
+        guard let otpField = entry.sections.flatMap(\.fields).first(where: { $0.kind == .oneTimeCode }) else { return }
+        var updated = entry
+        updated.set(otpField.id, newURI)
+        try? model.save(updated)
     }
 
     /// A card's field: the vault's cards; the one clicked is filled once the person has said it is them (Touch ID or the

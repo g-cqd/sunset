@@ -11,6 +11,9 @@ extension LoginImport {
             case .bitwarden: "Bitwarden"
             case .onePassword: "1Password"
             case .lastPass: "LastPass"
+            case .aegis: "Aegis Authenticator"
+            case .twoFAS: "2FAS Authenticator"
+            case .andOTP: "andOTP"
             case .generic: "a CSV file"
         }
     }
