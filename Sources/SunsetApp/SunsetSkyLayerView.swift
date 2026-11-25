@@ -79,13 +79,23 @@ final class SunsetSkyLayerView: NSView {
                 }
             )
         }
+        windowObservers.append(
+            NotificationCenter.default.addObserver(
+                forName: .NSProcessInfoPowerStateDidChange,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.followWindow() }
+            }
+        )
         followWindow()
     }
 
-    /// Draws while the window can be seen, pauses otherwise.
+    /// Draws while the window can be seen and macOS Low Power Mode is off (N-S9 / ENG-01); pauses otherwise.
     private func followWindow() {
         guard let window else { return }
-        link?.isPaused = !(window.occlusionState.contains(.visible) && !window.isMiniaturized)
+        let visible = window.occlusionState.contains(.visible) && !window.isMiniaturized
+        link?.isPaused = !(visible && !ProcessInfo.processInfo.isLowPowerModeEnabled)
     }
 
     override func layout() {

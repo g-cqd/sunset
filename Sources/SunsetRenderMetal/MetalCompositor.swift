@@ -1,3 +1,4 @@
+import Foundation
 public import Metal
 public import SunsetRender
 
@@ -46,11 +47,20 @@ public final class MetalCompositor {
     var lastGPUSeconds = 0.0
     var lastInstanceCount = 0
 
-    /// nil when there is no Metal device, or its shaders do not compile.
-    public init?(device: (any MTLDevice)? = MTLCreateSystemDefaultDevice()) {
-        guard let device, let queue = device.makeCommandQueue(), let atlas = GlyphAtlas(device: device) else {
-            return nil
+    /// Shared compiled Metal shader library & pipeline state per device (N-S9): avoids recompiling the MSL source on
+    /// every new terminal pane/compositor creation.
+    private static let sharedPipelineLock = NSLock()
+    private nonisolated(unsafe) static var sharedPipelines: [ObjectIdentifier: any MTLRenderPipelineState] = [:]
+
+    private static func sharedPipeline(for device: any MTLDevice) -> (any MTLRenderPipelineState)? {
+        let key = ObjectIdentifier(device)
+        sharedPipelineLock.lock()
+        if let cached = sharedPipelines[key] {
+            sharedPipelineLock.unlock()
+            return cached
         }
+        sharedPipelineLock.unlock()
+
         let options = MTLCompileOptions()
         options.mathMode = .safe
         guard let library = try? device.makeLibrary(source: MetalShaders.source, options: options),
@@ -61,7 +71,19 @@ public final class MetalCompositor {
         descriptor.vertexFunction = vertex
         descriptor.fragmentFunction = fragment
         descriptor.colorAttachments[0].pixelFormat = .rgba8Unorm
-        guard let pipeline = try? device.makeRenderPipelineState(descriptor: descriptor) else { return nil }
+        guard let built = try? device.makeRenderPipelineState(descriptor: descriptor) else { return nil }
+
+        sharedPipelineLock.lock()
+        sharedPipelines[key] = built
+        sharedPipelineLock.unlock()
+        return built
+    }
+
+    /// nil when there is no Metal device, or its shaders do not compile.
+    public init?(device: (any MTLDevice)? = MTLCreateSystemDefaultDevice()) {
+        guard let device, let queue = device.makeCommandQueue(), let atlas = GlyphAtlas(device: device),
+            let pipeline = Self.sharedPipeline(for: device)
+        else { return nil }
         self.device = device
         self.queue = queue
         self.pipeline = pipeline
