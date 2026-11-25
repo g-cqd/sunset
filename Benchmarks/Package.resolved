@@ -6,7 +6,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/Abysm.git",
       "state" : {
-        "revision" : "3e7418e55c0bc1eb482a712d356b56eab5854d53"
+        "revision" : "7817e2a853017126b956b31dbb7066d765c2a044"
       }
     },
     {
@@ -14,7 +14,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Aemi-Studio/aemi.git",
       "state" : {
-        "revision" : "340c49040faa49313d5632003d8224d9d0084fb0"
+        "revision" : "32f1d61e0ee2fe19af99c1c1a040f1fbdae91d4a"
       }
     },
     {
@@ -22,7 +22,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiHMMML.git",
       "state" : {
-        "revision" : "91e960f896248dad29405b1dfd2ec53d67896a0c"
+        "revision" : "4b57d76eec14278fa0014f7995720878a4e97517"
       }
     },
     {
@@ -30,7 +30,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiJSON.git",
       "state" : {
-        "revision" : "53e572d875cc42ade99083641efdfac7ab865f31"
+        "revision" : "fdcf306b1ffbbd29161df787ae2ea97e56718d2c"
       }
     },
     {
@@ -38,7 +38,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiMarkdown.git",
       "state" : {
-        "revision" : "7e222678876503101697c30dbbcfa8569c4117d7"
+        "revision" : "b32d5408b22bdce913a5363f75bfa41f60ae1286"
       }
     },
     {
@@ -46,7 +46,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiRegex.git",
       "state" : {
-        "revision" : "1e5aba1925a5aef6663de171cc7dab9a335eb09c"
+        "revision" : "7be30789416069858a586e2c0cfc55bcd69ced14"
       }
     },
     {
@@ -54,7 +54,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Aemi-Studio/AemiSDR.git",
       "state" : {
-        "revision" : "b2d688652df7faf9279be0f958f0108e987ee4bc"
+        "revision" : "ac0337d049920258b1875eb58425f29b7c01da7f"
       }
     },
     {
@@ -71,7 +71,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/CSVCoder.git",
       "state" : {
-        "revision" : "bd50c584657fbae2682681cf176372d069d3b200"
+        "revision" : "c1edb52e41248e86704c870f4ff0b6146b2ce236"
       }
     },
     {
@@ -169,7 +169,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/TerminalKit.git",
       "state" : {
-        "revision" : "f877981b59e200d0fb31ddd1a7d291c9ac6c96d9"
+        "revision" : "ac1e90640d8220374ed0590c4227e521c6421729"
       }
     },
     {
