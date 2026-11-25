@@ -25,31 +25,20 @@ extension UpdateTransfer {
         request.setValue("bytes=\(start)-\(start + length - 1)", forHTTPHeaderField: "Range")
         if let expectedETag { request.setValue(expectedETag, forHTTPHeaderField: "If-Match") }
 
-        let (data, http) = try await fetchData(request: request, onProgress: onProgress)
+        let (data, http) = try await UpdateHTTPTransfer.data(
+            for: request,
+            allowRedirect: { allowsLocalFeed || UpdateURLPolicy.isAllowed($0) },
+            onProgress: onProgress
+        )
         guard http.statusCode == 206 else {
             throw Failed(errorDescription: "range request returned HTTP \(http.statusCode).")
         }
+        if let finalURL = http.url { try enforcePolicy(finalURL) }
         let etag = http.value(forHTTPHeaderField: "ETag")
         if let expectedETag, let etag, etag != expectedETag {
             throw Failed(errorDescription: "asset changed mid-download.")
         }
         return (data, etag, http.url ?? url)
-    }
-
-    /// Executes an ephemeral, host-pinned data request with `RangeDownloadDelegate`.
-    static func fetchData(
-        request: URLRequest,
-        onProgress: (@Sendable (Int64, Int64) -> Void)?
-    ) async throws -> (Data, HTTPURLResponse) {
-        let delegate = RangeDownloadDelegate(onProgress: onProgress)
-        let session = URLSession(configuration: .ephemeral, delegate: delegate, delegateQueue: nil)
-        defer { session.finishTasksAndInvalidate() }
-        let (data, response) = try await session.data(for: request, delegate: delegate)
-        guard let http = response as? HTTPURLResponse else {
-            throw Failed(errorDescription: "unexpected response for \(request.url?.lastPathComponent ?? "update").")
-        }
-        if let finalURL = http.url { try enforcePolicy(finalURL) }
-        return (data, http)
     }
 
     static var allowsLocalFeed: Bool {

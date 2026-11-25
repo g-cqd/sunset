@@ -9,6 +9,27 @@ enum UpdateTransfer {
         let errorDescription: String?
     }
 
+    /// Progress of staging an update: nil fraction means indeterminate (reading index/manifest, unpacking, or verifying
+    /// Apple signatures); a finite fraction in `0...1` means bytes are streaming over the network.
+    struct Progress: Equatable, Sendable {
+        enum Stage: Equatable, Sendable {
+            case preparing
+            case downloading
+            case installing
+            case verifying
+        }
+
+        let stage: Stage
+        let fraction: Double?
+
+        static let preparing = Self(stage: .preparing, fraction: nil)
+        static let installing = Self(stage: .installing, fraction: nil)
+        static let verifying = Self(stage: .verifying, fraction: nil)
+        static func downloading(_ fraction: Double?) -> Self {
+            Self(stage: .downloading, fraction: fraction)
+        }
+    }
+
     /// GitHub's list of Sunset's releases; `$SUNSET_UPDATES_FEED` names another list (a test's, on files).
     static func releases() async throws -> [PublishedRelease] {
         let named = ProcessInfo.processInfo.environment["SUNSET_UPDATES_FEED"].flatMap { URL(string: $0) }
@@ -33,14 +54,16 @@ enum UpdateTransfer {
 
     /// Stages `offer` (for `targetFlavour`: either an update of the running flavour or a variant switch to the other)
     /// beside the running app and checks its Apple signature, team, identifier, notarization, and build order.
+    /// Runs off the main actor so unpacking, LZMA, hashing, and `codesign` checks never freeze SwiftUI animations.
     static func stage(
         _ offer: UpdateOffer,
         running: RunningApp,
         targetFlavour: Flavour,
-        onProgress: (@Sendable (Double) -> Void)? = nil
+        onProgress: (@Sendable (Progress) -> Void)? = nil
     ) async throws -> URL {
         let staging = running.staging
         try? FileManager.default.removeItem(at: staging)
+        onProgress?(.preparing)
         let index = try await verifiedIndex(for: offer.release)
         let variant = index?.variant(for: targetFlavour, architecture: RunningApp.architecture)
 
@@ -55,6 +78,7 @@ enum UpdateTransfer {
                     onProgress: onProgress
                 )) != nil
             if ok {
+                onProgress?(.verifying)
                 try check(staging, running: running, targetFlavour: targetFlavour)
                 return staging
             }
@@ -71,8 +95,10 @@ enum UpdateTransfer {
         let expectedZipHash = variant?.archiveSHA256
         let installer = UpdateInstaller(
             fetch: { url in
-                let file = try await download(url, onProgress: onProgress)
+                onProgress?(.downloading(nil))
+                let file = try await download(url) { fraction in onProgress?(.downloading(fraction)) }
                 if url == offer.archive.url, let expectedZipHash {
+                    onProgress?(.verifying)
                     let actual = BundleManifest.hex(try Data(contentsOf: file, options: .mappedIfSafe))
                     guard actual == expectedZipHash else {
                         try? FileManager.default.removeItem(at: file)
@@ -81,9 +107,13 @@ enum UpdateTransfer {
                         )
                     }
                 }
+                onProgress?(.installing)
                 return file
             },
-            trust: { staged in try check(staged, running: running, targetFlavour: targetFlavour) }
+            trust: { staged in
+                onProgress?(.verifying)
+                try check(staged, running: running, targetFlavour: targetFlavour)
+            }
         )
         try await installer.stage(offer, running: bundle, staging: staging)
         return staging
@@ -96,7 +126,7 @@ enum UpdateTransfer {
         expectedTOCSHA256: String?,
         running: RunningApp,
         staging: URL,
-        onProgress: (@Sendable (Double) -> Void)?
+        onProgress: (@Sendable (Progress) -> Void)?
     ) async throws {
         let initial = try await fetchRange(url: deltas.url, start: 0, length: 65_536)
         let header = try DeltaArchive.Header.decode(initial.data)
@@ -122,6 +152,7 @@ enum UpdateTransfer {
         guard try DeltaArchive.preflight(plan: plan, running: running.bundle) else {
             throw DeltaArchive.Failure.hashMismatch
         }
+        onProgress?(.downloading(0))
         let payload = try await fetchRange(
             url: initial.resolvedURL,
             start: tocEnd + plan.rangeOffset,
@@ -129,8 +160,9 @@ enum UpdateTransfer {
             expectedETag: initial.etag
         ) { received, total in
             guard total > 0 else { return }
-            onProgress?(min(1.0, Double(received) / Double(total)))
+            onProgress?(.downloading(min(1.0, Double(received) / Double(total))))
         }
+        onProgress?(.installing)
         try DeltaArchive.stage(
             toc: toc,
             plan: plan,
@@ -169,18 +201,19 @@ enum UpdateTransfer {
             return file
         }
         try enforcePolicy(address)
-        let delegate = RangeDownloadDelegate { received, total in
-            if total > 0 { onProgress?(min(1.0, Double(received) / Double(total))) }
-        }
-        let session = URLSession(configuration: .ephemeral, delegate: delegate, delegateQueue: nil)
-        defer { session.finishTasksAndInvalidate() }
-        let (temporary, response) = try await session.download(from: address, delegate: delegate)
-        let http = response as? HTTPURLResponse
-        guard let http, http.statusCode == 200 else {
-            throw Failed(errorDescription: "GitHub answered \(http?.statusCode ?? 0) for \(address.lastPathComponent).")
+        let http = try await UpdateHTTPTransfer.download(
+            from: address,
+            to: file,
+            allowRedirect: { allowsLocalFeed || UpdateURLPolicy.isAllowed($0) },
+            onProgress: { received, total in
+                if total > 0 { onProgress?(min(1.0, Double(received) / Double(total))) }
+            }
+        )
+        guard http.statusCode == 200 else {
+            try? FileManager.default.removeItem(at: file)
+            throw Failed(errorDescription: "GitHub answered \(http.statusCode) for \(address.lastPathComponent).")
         }
         if let finalURL = http.url { try enforcePolicy(finalURL) }
-        try FileManager.default.moveItem(at: temporary, to: file)
         onProgress?(1.0)
         return file
     }

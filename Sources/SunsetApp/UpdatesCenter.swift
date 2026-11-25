@@ -35,9 +35,7 @@ struct UpdatesCenter: View {
             case .checking: ProgressView().controlSize(.small)
             case .upToDate: Label("Up to date", systemImage: "checkmark.circle.fill").foregroundStyle(.secondary)
             case .found(let offer): Text(verbatim: "Build \(offer.release.build) is out").foregroundStyle(.secondary)
-            case .downloading:
-                ProgressView(value: updates.downloadProgress ?? 0).controlSize(.small)
-                    .frame(width: Design.Size.alertIcon)
+            case .downloading: UpdateProgressView(progress: updates.downloadState)
             case .ready(let offer): Text(verbatim: "Build \(offer.release.build) is ready").foregroundStyle(.secondary)
             case .failed(let why): Text(why).font(Design.Text.detail).foregroundStyle(.secondary).lineLimit(2)
         }

@@ -25,8 +25,8 @@ final class AppUpdates {
     }
 
     private(set) var phase = Phase.idle
-    /// Fraction downloaded during `.downloading` (0...1), nil when unknown.
-    private(set) var downloadProgress: Double?
+    /// Stage and fraction of the active download/staging (`nil` outside `.downloading`).
+    private(set) var downloadState: UpdateTransfer.Progress?
     /// The flavour staged in `staging` (equals `running.flavour` for a normal update, the other for an engine switch).
     private(set) var stagedFlavour: Flavour?
     /// Latest releases read from the feed (used to offer switching between System WebKit and Sunset's WebKit).
@@ -120,21 +120,38 @@ final class AppUpdates {
     /// Downloads, stages and checks `offer` for `flavour` (default: the running flavour); `ready` once it can swap in.
     func download(_ offer: UpdateOffer, flavour: Flavour? = nil) async {
         guard refusal == nil else { return }
+        if case .downloading = phase { return }
         let target = flavour ?? running.flavour
         phase = .downloading(offer)
-        downloadProgress = 0
-        do {
-            staging = try await UpdateTransfer.stage(offer, running: running, targetFlavour: target) { fraction in
-                Runtime.live.task { @MainActor in AppUpdates.shared.downloadProgress = fraction }
+        downloadState = .preparing
+        let running = self.running
+        // Run staging off the main actor so LZMA decompression, ditto unpacking, hashing, and codesign verification
+        // never stall SwiftUI progress animations.
+        let result = await Runtime.live
+            .detached { () async -> Result<URL, any Error> in
+                do {
+                    let staged = try await UpdateTransfer.stage(offer, running: running, targetFlavour: target) {
+                        progress in
+                        Runtime.live.task { @MainActor in AppUpdates.shared.downloadState = progress }
+                    }
+                    return .success(staged)
+                } catch {
+                    return .failure(error)
+                }
             }
-            stagedFlavour = target
-            downloadProgress = nil
-            phase = .ready(offer)
-        } catch {
-            downloadProgress = nil
-            let what =
-                target == running.flavour ? "The update to build \(offer.release.build)" : "The web engine switch"
-            phase = .failed("\(what) was not installed. \(error.localizedDescription)")
+            .value
+        switch result {
+            case .success(let staged):
+                staging = staged
+                stagedFlavour = target
+                downloadState = nil
+                phase = .ready(offer)
+            case .failure(let error):
+                downloadState = nil
+                let what =
+                    target == running.flavour
+                    ? "The update to build \(offer.release.build)" : "The web engine switch"
+                phase = .failed("\(what) was not installed. \(error.localizedDescription)")
         }
     }
 

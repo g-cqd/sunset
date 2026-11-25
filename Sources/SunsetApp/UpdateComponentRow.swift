@@ -28,9 +28,7 @@ struct UpdateComponentRow: View {
         if updates.refusal != nil {
             EmptyView()
         } else if case .downloading = updates.phase {
-            ProgressView(value: updates.downloadProgress ?? 0)
-                .controlSize(.small)
-                .frame(width: Design.Size.alertIcon)
+            UpdateProgressView(progress: updates.downloadState)
         } else if case .ready = updates.phase, let staged = updates.stagedFlavour, staged != updates.running.flavour {
             Button("Restart to Switch") { updates.installAndRestart() }
         } else {

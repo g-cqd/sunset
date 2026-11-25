@@ -55,16 +55,17 @@ struct UpdateNotes: View {
         .padding(.vertical, Design.Space.xl)
     }
 
-    /// The line beside the buttons: why it cannot install, the download's size, or when it goes in.
+    /// The line beside the buttons: why it cannot install, the download's size, an error, or when it goes in.
     @ViewBuilder private var note: some View {
         Group {
             if let refusal = updates.refusal {
                 Text(refusal.explanation)
+            } else if case .failed(let why) = updates.phase {
+                Text(why).foregroundStyle(.red)
             } else if case .ready = updates.phase {
                 Text(updates.settings.automatic ? "Installed when Sunset quits, or now." : "Ready to install.")
             } else if case .downloading = updates.phase {
-                ProgressView(value: updates.downloadProgress ?? 0).controlSize(.small)
-                    .frame(width: Design.Size.alertIcon)
+                UpdateProgressView(progress: updates.downloadState)
             } else {
                 Text("\(download.formatted(.byteCount(style: .file))) to download")
             }
@@ -80,11 +81,20 @@ struct UpdateNotes: View {
                 Button("Restart to Update") { updates.installAndRestart() }
                     .buttonStyle(.glassProminent)
                     .keyboardShortcut(.defaultAction)
+            case .downloading:
+                Button("Updating\u{2026}") {}
+                    .buttonStyle(.glassProminent)
+                    .disabled(true)
+            case .failed:
+                Button("Try Again") { runtime.task { await updates.download(offer) } }
+                    .buttonStyle(.glassProminent)
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(updates.refusal != nil)
             default:
                 Button("Update") { runtime.task { await updates.download(offer) } }
                     .buttonStyle(.glassProminent)
                     .keyboardShortcut(.defaultAction)
-                    .disabled(updates.refusal != nil || updates.phase == .downloading(offer))
+                    .disabled(updates.refusal != nil)
         }
     }
 
@@ -92,7 +102,14 @@ struct UpdateNotes: View {
     private var state: String {
         switch updates.phase {
             case .ready: "Ready to install"
-            case .downloading: "Downloading\u{2026}"
+            case .downloading:
+                switch updates.downloadState?.stage ?? .downloading {
+                    case .preparing: "Preparing\u{2026}"
+                    case .downloading: "Downloading\u{2026}"
+                    case .installing: "Preparing update\u{2026}"
+                    case .verifying: "Verifying\u{2026}"
+                }
+            case .failed: "Update failed"
             default: "A new Sunset is available"
         }
     }
