@@ -49,10 +49,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "340c49040faa49313d5632003d8224d9d0084fb0"),
-        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "f877981b59e200d0fb31ddd1a7d291c9ac6c96d9"),
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "4b047b937f55e53f31b42b62d6f8a56de29869d3"),
         .package(
             url: "https://github.com/g-cqd/AemiMarkdown.git",
-            revision: "7e222678876503101697c30dbbcfa8569c4117d7"
+            revision: "269d403d416e3fb5aff9bab9087907d8eb322866"
         ),
         .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "53e572d875cc42ade99083641efdfac7ab865f31"),
         .package(url: "https://github.com/g-cqd/CSVCoder.git", revision: "bd50c584657fbae2682681cf176372d069d3b200"),

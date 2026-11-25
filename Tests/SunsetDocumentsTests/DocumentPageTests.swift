@@ -93,4 +93,32 @@ struct DocumentPageTests {
         diagram.setInterest(true, of: first)
         #expect(diagram.shown.rows.count == 1)
     }
+
+    @Test func `details, summary, and br in tables render through DocumentPage`() {
+        let md = """
+            <details open>
+            <summary>Expand `me`</summary>
+
+            | Name | Notes |
+            | --- | --- |
+            | item | line 1<br>line 2 |
+
+            </details>
+            """
+        let source = MarkdownSource(text: md)
+        let page = DocumentPage(source: source)
+        let pane = Pane()
+        page.setInterest(true, of: pane)
+        #expect(page.shown.rows.count == 1)
+        guard case .details(let details) = page.shown.rows.first?.content else {
+            Issue.record("expected details row")
+            return
+        }
+        #expect(details.isOpen && String(details.summary.characters) == "Expand me")
+        guard case .table(let table) = details.rows.first?.content else {
+            Issue.record("expected table inside details")
+            return
+        }
+        #expect(String(table.rows[0][1].characters) == "line 1\nline 2")
+    }
 }
