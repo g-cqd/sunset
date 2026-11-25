@@ -56,8 +56,9 @@ for framework in "$frameworks"/*.framework; do
         "$framework/Versions/A/Headers" "$framework/Versions/A/PrivateHeaders" "$framework/Versions/A/Helpers"
 done
 # WebKit's processes: the app's own services under names of ours (Scripts/engine-services.sh; the native build has them
-# too), their loader's path toward the app's Frameworks first.
-rm -rf "$services"
+# too), their loader's path toward the app's Frameworks first. Keep Sunset's own App-Sandboxed XPC services
+# (`SunsetImageDecoder.xpc`, `SunsetVaultService.xpc`) intact beside them (N-S5).
+rm -rf "$services"/studio.aemi.sunset.engine*.xpc "$services"/com.apple.WebKit.*.xpc
 Scripts/engine-services.sh add "$app"
 servicePrefix=studio.aemi.sunset.engine
 
@@ -125,10 +126,21 @@ for name in WebGPU JavaScriptCore WebCore WebKitLegacy WebInspectorUI WebKit; do
     [ -d "$frameworks/$name.framework" ] && sign "" "$frameworks/$name.framework"
 done
 for service in "$services"/*.xpc; do
-    webkitName="$($buddy -c "Print :WebKitServiceName" "$service/Contents/Info.plist")"
-    case "$service" in
-        *WebContent*) sign "$here/Engine/WebKit/WebContent.entitlements" "$service" "$webkitName" ;;
-        *) sign "" "$service" "$webkitName" ;;
+    [ -d "$service" ] || continue
+    case "$(basename "$service")" in
+        SunsetImageDecoder.xpc)
+            sign "$here/App/ImageDecoder/ImageDecoder.entitlements" "$service"
+            ;;
+        SunsetVaultService.xpc)
+            sign "$here/App/VaultService/VaultService.entitlements" "$service"
+            ;;
+        *)
+            webkitName="$($buddy -c "Print :WebKitServiceName" "$service/Contents/Info.plist")"
+            case "$service" in
+                *WebContent*) sign "$here/Engine/WebKit/WebContent.entitlements" "$service" "$webkitName" ;;
+                *) sign "" "$service" "$webkitName" ;;
+            esac
+            ;;
     esac
 done
 # Sunset's: the app's own (the team's with a profile, else an ad hoc build's); no exception for the loader's variables.
