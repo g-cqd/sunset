@@ -163,11 +163,13 @@ final class AppConfiguration {
         }
     }
 
-    /// Sets the configuration; when the way tabs are shown changed, the open terminals move to where the new presentation keeps them.
+    /// Sets the configuration, clamped by any MDM managed preferences (R-OPS-2); when the way tabs are shown changed,
+    /// the open terminals move to where the new presentation keeps them.
     private func apply(_ new: Configuration) {
+        let enforced = ManagedPolicy.current.clamp(new)
         let before = configuration.presentation
-        configuration = new
-        let after = new.presentation
+        configuration = enforced
+        let after = enforced.presentation
         // At launch the file is read before the application exists (`NSApp` is nil then, and there is no window to move): nothing to reshape.
         // After SwiftUI has applied the change that set it (a Settings toggle): closing windows inside that update trips SwiftUI's bar
         // appearance bridge (crash report 2026-11-13).
