@@ -47,5 +47,13 @@
         "workspace": "copy"
       }
     }
-  ]
+  ],
+  "dependabot": {
+    "exclude": [
+      "Package.swift",
+      "Benchmarks/Package.swift",
+      "**/Fixtures/**",
+      ".build/**"
+    ]
+  }
 }

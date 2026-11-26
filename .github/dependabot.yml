@@ -8,23 +8,6 @@
 # before it is proposed (security updates do not).
 version: 2
 updates:
-  - package-ecosystem: "swift"
-    directories:
-      - "/"
-      - "/Benchmarks"
-      - "/Tools/axdrive"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    cooldown:
-      default-days: 7
-    groups:
-      swift-packages:
-        patterns: ["*"]
-    commit-message:
-      prefix: "build"
-
   - package-ecosystem: "github-actions"
     directories:
       - "/"
