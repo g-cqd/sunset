@@ -1,8 +1,8 @@
 import Foundation
 
 /// A server on this machine that answers every request with a page whose text is the User-Agent it was sent, and
-/// remembers each request's head: what a site sees of Sunset. Plain sockets on a thread of its own (no Grand Central
-/// Dispatch: the repository's rule).
+/// remembers each request's head: what a site sees of Sunset. Plain sockets, a thread to accept and one for each
+/// connection (no Grand Central Dispatch: the repository's rule).
 final class EchoServer: @unchecked Sendable {
     private let lock = NSLock()
     private var requests: [String] = []
@@ -49,8 +49,15 @@ final class EchoServer: @unchecked Sendable {
                 // (it ended it, 2026-11-21, when a tab's view was made again mid-load).
                 var on: Int32 = 1
                 unsafe setsockopt(client, SOL_SOCKET, SO_NOSIGPIPE, &on, socklen_t(MemoryLayout<Int32>.size))
-                self?.serve(client)
-                close(client)
+                // Each connection on a thread of its own: WebKit opens connections it may never send a request on (it
+                // keeps one ready ahead of time), and a server that read them one at a time waited on such a one while
+                // the page's request queued behind it, until the test gave up (ProfileWebCookieIsolationTests failed
+                // about one run in three, 2026-11-26).
+                Thread { [weak self] in
+                    self?.serve(client)
+                    close(client)
+                }
+                .start()
             }
         }
         thread.start()
@@ -81,6 +88,8 @@ final class EchoServer: @unchecked Sendable {
             guard count > 0 else { break }
             head += String(decoding: buffer[0 ..< count], as: UTF8.self)
         }
+        // A connection closed before it sent a request is not answered.
+        guard !head.isEmpty else { return }
         lock.withLock { requests.append(head) }
         let agent =
             head.components(separatedBy: "\r\n").first { $0.lowercased().hasPrefix("user-agent:") }
