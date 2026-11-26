@@ -41,6 +41,22 @@ import Testing
         #expect(t.screen.text(row: 0) == "abcZ")
     }
 
+    /// esctest2's `test_BS_InitialReverseWraparound` and `test_BS_ReverseWrapRequiresDECAWM`: since xterm's 2023 change,
+    /// mode 45 wraps back only over a line that wrapped, and never without autowrap.
+    @Test func `reverse wraparound needs a wrapped line above and autowrap on`() {
+        var t = Terminal(columns: 10, rows: 4)
+        t.feed("\(esc)[?7h\(esc)[?45h\(esc)[1;1H\(esc)E\u{08}")
+        #expect(t.screen.cursorRow == 1 && t.screen.cursorColumn == 0, "NEL does not wrap: BS stays")
+
+        var noWrap = Terminal(columns: 10, rows: 4)
+        noWrap.feed("\(esc)[?7l\(esc)[?45h\(esc)[1;1H0123456789\(esc)[2;1H\u{08}")
+        #expect(noWrap.screen.cursorRow == 1 && noWrap.screen.cursorColumn == 0, "no autowrap, no reverse wrap")
+
+        var wrapped = Terminal(columns: 10, rows: 4)
+        wrapped.feed("\(esc)[?7h\(esc)[?45h\(esc)[1;1H0123456789ab\u{08}\u{08}\u{08}")
+        #expect(wrapped.screen.cursorRow == 0 && wrapped.screen.cursorColumn == 9, "back over the wrapped line")
+    }
+
     @Test func `XTSAVE and XTRESTORE save and restore DEC private modes`() {
         var t = Terminal(columns: 10, rows: 4)
         #expect(t.screen.modes.autoWrap)
