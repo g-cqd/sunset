@@ -24,7 +24,7 @@ public struct VaultHealthReport: Sendable, Equatable {
         self.totalPasswords = totalPasswords
     }
 
-    /// Evaluates every non-empty password field in `entries` locally.
+    /// Evaluates every password (`isPassword`) in `entries`, locally.
     public static func analyze(_ entries: [VaultEntry]) -> Self {
         var weak: [Finding] = []
         var byValue: [String: [Finding]] = [:]
@@ -32,7 +32,7 @@ public struct VaultHealthReport: Sendable, Equatable {
 
         for entry in entries {
             for section in entry.sections {
-                for field in section.fields where field.kind == .concealed && !field.value.isEmpty {
+                for field in section.fields where isPassword(field) {
                     total += 1
                     let finding = Finding(entryID: entry.id, fieldID: field.id)
                     if isWeak(field.value) { weak.append(finding) }
@@ -45,6 +45,14 @@ public struct VaultHealthReport: Sendable, Equatable {
             reused.append(contentsOf: group)
         }
         return Self(weak: weak, reused: reused, totalPasswords: total)
+    }
+
+    /// A field this report judges: a hidden field named "Password" or "Passphrase" with a value (a login's, a server's,
+    /// a Wi-Fi network's). A card's security code or PIN, a licence key or an API secret is hidden but is not one.
+    static func isPassword(_ field: EntryField) -> Bool {
+        guard field.kind == .concealed, !field.value.isEmpty else { return false }
+        let name = field.name.lowercased()
+        return name == "password" || name == "passphrase"
     }
 
     /// True when `password` has fewer than 12 characters or fewer than 2 distinct character classes while under 16 chars.
