@@ -156,4 +156,30 @@ let benchmarks: @Sendable () -> Void = {
             blackHole(held.scrollbackCount)
         }
     }
+    // Scrollback search & snapshot benchmarks (t185 / T-3 / S-1): 10,000 lines of scrollback, plain + regex search and snapshot capture.
+    Benchmark("terminal/search 10k lines (plain)") { benchmark in
+        var terminal = Terminal(columns: 120, rows: 40, scrollbackLimit: 10_000)
+        for index in 0 ..< 10_000 {
+            terminal.feed("2026-11-26T00:00:00Z [info] worker-\(index % 16) processed job \(index) status=ok\r\n")
+        }
+        let screen = terminal.screen
+        let query = SearchQuery(text: "job 999", isRegex: false)
+        benchmark.startMeasurement()
+        for _ in benchmark.scaledIterations {
+            blackHole(screen.search(query).matches.count)
+        }
+        benchmark.stopMeasurement()
+    }
+    Benchmark("terminal/snapshot 2k lines") { benchmark in
+        var terminal = Terminal(columns: 120, rows: 40, scrollbackLimit: 10_000)
+        for index in 0 ..< 2_000 {
+            terminal.feed("2026-11-26T00:00:00Z [info] worker-\(index % 16) processed job \(index) status=ok\r\n")
+        }
+        let screen = terminal.screen
+        benchmark.startMeasurement()
+        for _ in benchmark.scaledIterations {
+            blackHole(screen.snapshot(savedAt: 1_700_000_000, maximumLines: 2_000).lines.count)
+        }
+        benchmark.stopMeasurement()
+    }
 }

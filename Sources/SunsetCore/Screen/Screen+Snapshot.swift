@@ -33,22 +33,47 @@ extension Screen {
         let start = max(0, total - maximumLines)
         var captured: [ScreenSnapshot.Line] = []
         captured.reserveCapacity(total - start)
+        var buffer: [UInt8] = []
+        buffer.reserveCapacity(columns * 2)
+        var scalars = String.UnicodeScalarView()
+        scalars.reserveCapacity(4)
         for absLine in start ..< total {
             let wrapped = isAbsoluteWrapped(line: absLine) && absLine + 1 < total
-            let text = trimmedLineText(absoluteLine: absLine, keepTrailingSpaces: wrapped)
+            let text = trimmedLineText(
+                absoluteLine: absLine,
+                keepTrailingSpaces: wrapped,
+                buffer: &buffer,
+                scalars: &scalars
+            )
             captured.append(ScreenSnapshot.Line(text: text, wrapped: wrapped))
         }
         return ScreenSnapshot(columns: columns, rows: rows, savedAt: savedAt, lines: captured)
     }
 
     private func trimmedLineText(absoluteLine line: Int, keepTrailingSpaces: Bool = false) -> String {
+        var buffer: [UInt8] = []
         var scalars = String.UnicodeScalarView()
+        return trimmedLineText(
+            absoluteLine: line,
+            keepTrailingSpaces: keepTrailingSpaces,
+            buffer: &buffer,
+            scalars: &scalars
+        )
+    }
+
+    private func trimmedLineText(
+        absoluteLine line: Int,
+        keepTrailingSpaces: Bool,
+        buffer: inout [UInt8],
+        scalars: inout String.UnicodeScalarView
+    ) -> String {
+        buffer.removeAll(keepingCapacity: true)
         forEachAbsoluteCell(on: line) { cell, _, _ in
-            appendText(of: cell, to: &scalars)
+            appendCellUTF8(cell, to: &buffer, scalars: &scalars)
         }
         if !keepTrailingSpaces {
-            while scalars.last == " " { scalars.removeLast() }
+            while buffer.last == 0x20 { buffer.removeLast() }
         }
-        return String(scalars)
+        return String(decoding: buffer, as: UTF8.self)
     }
 }
