@@ -12,8 +12,10 @@ already runs in Sunset's own content world. ADR-0089 keeps Sunset's footprint ou
 
 ## Decision
 
-- **Where:** the fill and save scripts run in Sunset's own `WKContentWorld`, in every frame. A frame's origin is WebKit's
-  `WKFrameInfo`, never what the page says.
+- **Where:** the fill and save scripts run in Sunset's own `WKContentWorld`, in every frame; a frame tells its fields
+  only when it and every frame above it are of the page's origin (checked in the frame, by the documents' origins, and
+  again by the app against WebKit's `WKFrameInfo`, never what the page says), so where it is in the page is known. A
+  frame of another origin, or a sandboxed one, is offered nothing. A fill runs in the frame whose field took the keyboard.
 - **Suggestions** are drawn by Sunset, outside the page, as macOS's own AutoFill: a small popover under the field that
   took the keyboard, only when the vault is unlocked and has logins for the page's site; it never takes the keyboard; the
   row under the pointer is highlighted as a menu's; nothing is filled until one is clicked (the owner, 2026-11-22: as

@@ -38,7 +38,7 @@ final class PasswordFillTests {
         var events: [String] = []
         var focused: LoginField?
         var sent: SentLogin?
-        private var waiting: CheckedContinuation<Void, Never>?
+        private var waiting: ObservedWake?
 
         func loginField(focused field: LoginField, in page: WebContent) {
             guard page === self.page else { return }
@@ -59,7 +59,7 @@ final class PasswordFillTests {
 
         private func record(_ event: String) {
             events.append(event)
-            waiting?.resume()
+            waiting?.fire()
             waiting = nil
         }
 
@@ -68,10 +68,16 @@ final class PasswordFillTests {
             await wait { $0.events.count >= count }
         }
 
-        /// Until `done` holds of what was told.
+        /// Until `done` holds of what was told, or the test is stopped (its time limit): a check after it fails then.
         func wait(until done: (Host) -> Bool) async {
-            while !done(self) {
-                await withCheckedContinuation { waiting = $0 }
+            while !done(self), !Task.isCancelled {
+                let wake = ObservedWake()
+                waiting = wake
+                await withTaskCancellationHandler {
+                    await withCheckedContinuation { wake.set($0) }
+                } onCancel: {
+                    wake.fire()
+                }
             }
         }
     }

@@ -3,23 +3,27 @@ import Foundation
 import Network
 import SunsetTestSupport
 
-/// An HTTP proxy on this Mac that answers every request with one page, and keeps the first line of each.
+/// An HTTP proxy on this Mac that answers every request with one page, and keeps the first line of each. Asked
+/// directly, it is a server of that page at `http://127.0.0.1:port`.
 @MainActor
 final class AnsweringProxy {
     private let listener: NWListener
     private(set) var requests: [String] = []
+    private let body: String
     var port: Int {
         Int(listener.port?.rawValue ?? 0)
     }
 
-    private init(listener: NWListener) {
+    private init(listener: NWListener, body: String) {
         self.listener = listener
+        self.body = body
     }
 
-    static func start() async throws -> AnsweringProxy {
+    static func start(answering body: String = "<title>proxied</title>through the proxy") async throws -> AnsweringProxy
+    {
         let parameters = NWParameters.tcp
         parameters.requiredLocalEndpoint = NWEndpoint.hostPort(host: "127.0.0.1", port: .any)
-        let proxy = AnsweringProxy(listener: try NWListener(using: parameters))
+        let proxy = AnsweringProxy(listener: try NWListener(using: parameters), body: body)
         proxy.listener.newConnectionHandler = { connection in
             Task { @MainActor in proxy.serve(connection) }
         }
@@ -54,7 +58,7 @@ final class AnsweringProxy {
                     self.answer(connection)
                     return
                 }
-                let body = "<title>proxied</title>through the proxy"
+                let body = self.body
                 let reply =
                     "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: \(body.utf8.count)\r\n"
                     + "Connection: close\r\n\r\n" + body

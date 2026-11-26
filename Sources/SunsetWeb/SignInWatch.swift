@@ -36,11 +36,7 @@ final class SignInWatch: NSObject, WKScriptMessageHandler {
     /// Adds the script and its handler to the configuration's controller, unless the page is private.
     static func install(on configuration: WKWebViewConfiguration, privately: Bool, profile: UUID?) {
         guard !privately else { return }
-        let controller = configuration.userContentController
-        controller.addUserScript(
-            WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false, in: .defaultClient)
-        )
-        controller.add(SignInWatch(profile: profile), contentWorld: .defaultClient, name: name)
+        configuration.userContentController.addClientScript(script, handler: SignInWatch(profile: profile), name: name)
     }
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {

@@ -20,10 +20,10 @@ import WebKit
         let page = WebContent(url: nil, settings: WebSettings())
         page.setState(focused: true, visible: true)
         let controller = try #require(page.webView?.configuration.userContentController)
-        // The link's two scripts, the sign-in watch, the share wrapper and the video frame watch in every frame; the page's
-        // `Notification`, its icon's and its text's watches, the stores' Add to Sunset and the sign-in fields' watch in the
+        // The link's two scripts, the sign-in watch, the share wrapper, the video frame watch and the sign-in fields' watch
+        // in every frame; the page's `Notification`, its icon's and its text's watches and the stores' Add to Sunset in the
         // page itself.
-        #expect(controller.userScripts.count == 10 && controller.userScripts.count { !$0.isForMainFrameOnly } == 5)
+        #expect(controller.userScripts.count == 10 && controller.userScripts.count { !$0.isForMainFrameOnly } == 6)
         let opened = WebContent(configuration: try #require(page.webView?.configuration), settings: WebSettings())
         #expect(opened.webView?.configuration.userContentController !== controller)
         #expect(opened.webView?.configuration.userContentController.userScripts.count == 10)

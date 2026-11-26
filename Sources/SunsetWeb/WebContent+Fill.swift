@@ -37,9 +37,9 @@ extension WebContent {
         var arguments = arguments
         arguments["expected"] = origin.absoluteString.trimmingCharacters(in: ["/"])
         let filled = try? await view.callAsyncJavaScript(
-            "if (location.origin !== expected) return false;\n" + script,
+            "if (self.origin !== expected) return false;\n" + script,
             arguments: arguments,
-            in: nil,
+            in: fillFrame,
             contentWorld: .defaultClient
         )
         return filled as? Bool ?? false

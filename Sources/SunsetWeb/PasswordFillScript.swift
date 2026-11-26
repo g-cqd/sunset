@@ -4,8 +4,19 @@ enum PasswordFillScript {
     static func watch(saving: Bool, handler: String) -> String {
         """
         (() => {
-          // Looked up when posting: the handler is the world's own, present whenever a message is sent.
-          const post = (message) => webkit.messageHandlers.\(handler).postMessage(message);
+          \(frameOffset)
+          if (!offset()) return;
+          // A message with a place gets the frame's; a blur goes even from a frame being taken out. The handler is
+          // looked up when posting: it is the world's own, present whenever a message is sent.
+          const post = (message) => {
+            if ('x' in message) {
+              const o = offset();
+              if (!o) return;
+              message.x += o.x;
+              message.y += o.y;
+            }
+            webkit.messageHandlers.\(handler).postMessage(message);
+          };
           \(fields)
           let shown = null;
           // Only what the person does: an event the page made up (a focus, a submit, a key or a click it dispatches)
