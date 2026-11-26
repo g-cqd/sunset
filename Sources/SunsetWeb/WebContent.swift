@@ -73,6 +73,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored package weak var passwordFillHost: (any PasswordFillHost)?
     /// The frame of the sign-in, card or contact field that last took the keyboard: where a fill runs (`PasswordFill`).
     @ObservationIgnored var fillFrame: WKFrameInfo?
+    /// The frame of the sign-in form last shown: where a fill on load runs.
+    @ObservationIgnored var formFrame: WKFrameInfo?
     /// The address of the link under the pointer (`LinkStatus`).
     package internal(set) var hoveredLink: String?
     /// The page, once it has been shown.

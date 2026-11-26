@@ -32,14 +32,30 @@ extension WebContent {
         await fill(PasswordFillScript.fillIdentity, ["values": values], for: origin)
     }
 
-    private func fill(_ script: String, _ arguments: [String: Any], for origin: URL) async -> Bool {
+    /// The sign-in form last shown (`PasswordFillHost.loginFormShown`), as its page loads: only if the person has not
+    /// typed a password in it, and only if it is sent to the page's own origin. Returns whether it was filled.
+    package func fillOnLoad(username: String, password: String, for origin: URL) async -> Bool {
+        await fill(
+            PasswordFillScript.fillOnLoad,
+            ["username": username, "secret": password],
+            for: origin,
+            in: formFrame
+        )
+    }
+
+    private func fill(
+        _ script: String,
+        _ arguments: [String: Any],
+        for origin: URL,
+        in frame: WKFrameInfo? = nil
+    ) async -> Bool {
         guard let view = webView else { return false }
         var arguments = arguments
         arguments["expected"] = origin.absoluteString.trimmingCharacters(in: ["/"])
         let filled = try? await view.callAsyncJavaScript(
             "if (self.origin !== expected) return false;\n" + script,
             arguments: arguments,
-            in: fillFrame,
+            in: frame ?? fillFrame,
             contentWorld: .defaultClient
         )
         return filled as? Bool ?? false

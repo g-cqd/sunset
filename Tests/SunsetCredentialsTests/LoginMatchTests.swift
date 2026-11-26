@@ -58,4 +58,27 @@ struct LoginMatchTests {
         note.addSection("x")
         #expect(LoginMatch.credentials(of: note) == nil)
     }
+
+    @Test func `filled on load only over https, with the site's one login, saved for the page's very origin`() throws {
+        let page = try #require(URL(string: "https://accounts.example.com/signin"))
+        func filled(_ entries: [VaultEntry], at page: URL) -> String? {
+            LoginMatch.autoFilled(entries, for: page, site: site)?.title
+        }
+        let exact = try login("Accounts", "https://accounts.example.com/login")
+        #expect(filled([exact], at: page) == "Accounts")
+        #expect(filled([exact, try login("Other", "https://example.org")], at: page) == "Accounts")
+        // A second account of the site, even for another host of it: the person chooses.
+        #expect(filled([exact, try login("Second", "https://accounts.example.com", user: "bob")], at: page) == nil)
+        #expect(filled([exact, try login("Sibling", "https://www.example.com")], at: page) == nil)
+        // Only one, but not for this very origin: another host, scheme or port; or a website without a scheme.
+        for website in ["https://www.example.com", "https://accounts.example.com:8443", "accounts.example.com"] {
+            let expected = website == "accounts.example.com" ? "Only" : nil
+            #expect(filled([try login("Only", website)], at: page) == expected, "\(website)")
+        }
+        let insecure = try #require(URL(string: "http://accounts.example.com/signin"))
+        #expect(filled([try login("Plain", "http://accounts.example.com")], at: insecure) == nil, "never over http")
+        #expect(filled([try login("Plain", "http://accounts.example.com")], at: page) == nil, "saved for http")
+        let port = try #require(URL(string: "https://accounts.example.com:443/"))
+        #expect(filled([exact], at: port) == "Accounts", "443 is https's own port")
+    }
 }

@@ -25,6 +25,16 @@ extension SettingsOption {
             "Lock with the window",
             "window focus blur"
         ),
+        toggle(
+            "passwords.autoFill",
+            "Fill on load",
+            "vault passwords autofill automatic fill load sign in login",
+            \.passwords.autoFill,
+            label: "Fill a sign-in form as its page loads"
+        )
+        .noted(
+            "Only over HTTPS, only when the site has one login, saved for that very address. Never in a private window."
+        ),
         backupFolderOption,
         backupKeepOption
     ]

@@ -22,7 +22,11 @@ already runs in Sunset's own content world. ADR-0089 keeps Sunset's footprint ou
   distraction-free and native as can be). The page cannot read them, cover them, or click them.
 - **Filling:**
   - only on the person's act (choosing the suggestion, a key);
-  - automatic fill on load only when the person allows it, and only for an exact match;
+  - on load only when the person allows it (`passwords.autoFill`, off unless set): an https page, not private, on
+    screen; the site's one login, saved for the page's very origin (scheme, host and port); the first sign-in form shown
+    within ten seconds of load (not a sign-up form's), and only if no password is typed in it, its username is empty or
+    the same, and it is sent to the page's own origin; in the main frame or a frame of the page's origin; no Touch ID,
+    as a click on a login asks none;
   - never into a hidden field;
   - never into a frame of another origin than the entry's site;
   - on http only after a warning.

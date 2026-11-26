@@ -42,6 +42,12 @@ final class PasswordFill: PageScriptHandler, WKScriptMessageHandler {
                 host.loginField(focused: field, in: page)
             case "blur":
                 host.loginFieldBlurred(in: page)
+            case "form":
+                // As a focus, only for a page on screen (n144): a tab loaded behind is filled by the person's click.
+                guard Self.isOnScreen(page) else { return }
+                page.formFrame = message.frameInfo
+                let field = LoginField(role: .password, frame: Self.frame(body, in: page), origin: origin, rules: nil)
+                host.loginFormShown(field, in: page)
             case "sent":
                 guard let password = body["password"] as? String, !password.isEmpty else { return }
                 host.loginSent(

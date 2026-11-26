@@ -28,6 +28,18 @@ public enum LoginMatch {
             .map(\.entry)
     }
 
+    /// The login a sign-in form is filled with as its page loads, when the person allows it (ADR-0094, t103): only on
+    /// https, only when the site has one login, and only when that login's website is the page's very origin (scheme,
+    /// host and port). Nil otherwise: two accounts, a sibling host or a page over http are left to the person's click.
+    public static func autoFilled(_ entries: [VaultEntry], for page: URL, site: (String) -> String?) -> VaultEntry? {
+        let logins = offered(entries, for: page, site: site)
+        guard page.scheme?.lowercased() == "https", logins.count == 1, let entry = logins.first,
+            let website = website(of: entry), website.scheme?.lowercased() == "https",
+            website.host()?.lowercased() == page.host()?.lowercased(), (website.port ?? 443) == (page.port ?? 443)
+        else { return nil }
+        return entry
+    }
+
     /// Its username and password; nil for an entry without a password.
     public static func credentials(of entry: VaultEntry) -> LoginCredentials? {
         let fields = entry.sections.flatMap(\.fields)

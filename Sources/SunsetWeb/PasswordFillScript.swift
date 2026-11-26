@@ -41,6 +41,7 @@ enum PasswordFillScript {
             if (e.target === shown && !e.relatedTarget) { shown = null; post({ kind: 'blur' }); }
           }, true);
           if (!\(saving)) return;
+          \(formShown)
           let sent = false;
           const send = (root) => {
             const password = passwords(root).find(f => f.value.length > 0);

@@ -38,6 +38,8 @@ final class PasswordFillTests {
         var events: [String] = []
         var focused: LoginField?
         var sent: SentLogin?
+        /// The sign-in forms told shown (for filling on load), apart from the fields' focus.
+        var forms: [LoginField] = []
         private var waiting: ObservedWake?
 
         func loginField(focused field: LoginField, in page: WebContent) {
@@ -51,6 +53,12 @@ final class PasswordFillTests {
             record("blur")
         }
 
+        func loginFormShown(_ field: LoginField, in page: WebContent) {
+            guard page === self.page else { return }
+            forms.append(field)
+            wake()
+        }
+
         func loginSent(_ login: SentLogin, in page: WebContent) {
             guard page === self.page else { return }
             sent = login
@@ -59,6 +67,10 @@ final class PasswordFillTests {
 
         private func record(_ event: String) {
             events.append(event)
+            wake()
+        }
+
+        private func wake() {
             waiting?.fire()
             waiting = nil
         }

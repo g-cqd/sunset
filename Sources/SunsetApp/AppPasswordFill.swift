@@ -63,6 +63,18 @@ final class AppPasswordFill: PasswordFillHost {
         popover.show(content, at: field.frame, of: view, edge: .maxY, suggestions: true)
     }
 
+    /// A sign-in form shown as its page loads: filled with the site's one login, saved for the page's very origin, when
+    /// the person allows it (`passwords.autoFill`, off unless asked) and the page is https; else nothing until a click.
+    func loginFormShown(_ field: LoginField, in page: WebContent) {
+        guard isOn, AppConfiguration.shared.configuration.passwords.autoFill,
+            let entry = LoginMatch.autoFilled(model.entries, for: field.origin, site: Self.site),
+            let credentials = LoginMatch.credentials(of: entry)
+        else { return }
+        Runtime.live.task { @MainActor in
+            _ = await page.fillOnLoad(username: credentials.username, password: credentials.password, for: field.origin)
+        }
+    }
+
     func loginFieldBlurred(in page: WebContent) {
         popover.closeSuggestions()
     }
