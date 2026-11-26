@@ -2,6 +2,7 @@ import AppKit
 import SunsetAppCore
 import SunsetConfig
 import SunsetHost
+import SunsetMarkdown
 import SunsetPane
 import SunsetShell
 import SunsetTerminal
@@ -25,10 +26,24 @@ extension TerminalModel {
             return (terminal.secureKeyboard, terminal.pasteWarning)
         }
         openURL = { [weak self, weak tabs] url in
-            // A file of this Mac: a program is shown in the Finder, not run, unless the setting says otherwise (ADR-0118).
+            // A file of this Mac: a program is shown in the Finder, not run (ADR-0118). Markdown/Mermaid/text files
+            // open beside the terminal in a Sunset document pane when documents are enabled (M-h / t211).
             let links = AppConfiguration.shared.configuration.terminal.fileLinks
-            if url.isFileURL, links.reveals(program: FileLinkTarget.isProgram(url)) {
-                NSWorkspace.shared.activateFileViewerSelecting([url])
+            if url.isFileURL {
+                if links.reveals(program: FileLinkTarget.isProgram(url)) {
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
+                    return
+                }
+                if AppScopes.current.documents, let self, let tabs, Self.isSunsetDocumentURL(url) {
+                    let descriptor = DocumentContent.descriptor(file: url.path)
+                    if let doc = DocumentContent(descriptor, documents: SunsetStore.shared.openDocuments) {
+                        if !tabs.isPrivateWindow { tabs.shelf.noteFile(url.path) }
+                        DocumentWiring.wire(doc, in: tabs)
+                        tabs.split(.right, with: doc, beside: self)
+                        return
+                    }
+                }
+                NSWorkspace.shared.open(url)
                 return
             }
             // With the web off a link goes to the system's browser.
@@ -41,5 +56,15 @@ extension TerminalModel {
             WebOpening.wire(page, in: tabs)
             tabs.split(.right, with: page, beside: self)
         }
+    }
+
+    private static let documentExtensions: Set<String> = Set(
+        "md markdown mdown mkd mmd mermaid txt swift json toml yaml yml sh zsh bash py js ts css html xml rs c h cpp hpp go rb log"
+            .split(separator: " ")
+            .map(String.init)
+    )
+
+    private static func isSunsetDocumentURL(_ url: URL) -> Bool {
+        documentExtensions.contains(url.pathExtension.lowercased())
     }
 }

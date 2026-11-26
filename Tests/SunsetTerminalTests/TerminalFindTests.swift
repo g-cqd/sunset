@@ -1,4 +1,5 @@
 import SunsetCore
+import SunsetRender
 import Testing
 
 @testable import SunsetTerminalModel

@@ -275,6 +275,7 @@ let package = Package(
             ["SunsetTestSupport", "SunsetShellBridge", "SunsetShell", "SunsetConfig", "SunsetMetrics"]
         ),
         module("SunsetHost", ["SunsetRuntime", "SunsetCore", "SunsetConfig", "SunsetMetrics"]),
+        tests("SunsetTerminalTests", ["SunsetTerminalModel", "SunsetCore", "SunsetRender", "SunsetConfig"]),
         .executableTarget(
             name: "SunsetRun",
             dependencies: ["SunsetCore", "SunsetHost"],
