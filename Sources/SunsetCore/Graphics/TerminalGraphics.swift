@@ -30,6 +30,8 @@ public struct TerminalGraphics: Sendable {
     var buffer = ContiguousArray<UInt8>()
     /// A command sent in chunks (`m=1`): its first chunk's control data, and the data decoded so far.
     var pending: (command: KittyCommand, data: [UInt8])?
+    /// An iTerm2 file sent in parts (`MultipartFile=` … `FilePart=` … `FileEnd`): its arguments and the base64 so far.
+    var iTermParts: (arguments: [UInt8], base64: [UInt8])?
     var stored: UInt64 = 0
 
     /// The most placements kept, the oldest going first; virtual placements too.
@@ -140,6 +142,7 @@ public struct TerminalGraphics: Sendable {
 
     /// Everything gone (a full reset).
     mutating func clear() {
+        iTermParts = nil
         images = [:]
         placements = []
         otherPlacements = []

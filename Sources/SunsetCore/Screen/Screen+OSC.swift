@@ -22,6 +22,7 @@ extension Screen {
             total <= Self.oscLimit
             || (total <= Self.clipboardLimit && startsWithPrefix([0x35, 0x32, 0x3B], adding: bytes))
             || (total <= Self.largeOSCLimit && startsWithPrefix(Self.iTermFilePrefix, adding: bytes))
+            || (total <= Self.largeOSCLimit && startsWithPrefix(Self.iTermFilePartPrefix, adding: bytes))
         guard allowed else {
             oscOverflowed = true
             return
@@ -30,6 +31,7 @@ extension Screen {
     }
 
     private static let iTermFilePrefix = Array("1337;File=".utf8)
+    private static let iTermFilePartPrefix = Array("1337;FilePart=".utf8)
 
     /// Whether the OSC string being collected begins with `target`.
     private func startsWithPrefix(_ target: [UInt8], adding bytes: Span<UInt8>) -> Bool {

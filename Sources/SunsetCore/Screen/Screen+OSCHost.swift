@@ -107,7 +107,7 @@ extension Screen {
         host.addMark(PromptMark(kind: kind, stableLine: cursorStableLine, exitStatus: status))
     }
 
-    // MARK: iTerm2 (1337): SetMark, CurrentDir, and inline File= images
+    // MARK: iTerm2 (1337): SetMark, CurrentDir, and inline images (File=, or in parts)
 
     private mutating func iTerm(from start: Int) {
         let rest = oscBuffer[min(start, oscBuffer.count)...]
@@ -121,6 +121,7 @@ extension Screen {
             iTermInlineImage(from: rest.dropFirst(fileKey.count))
             return
         }
+        if iTermFileInParts(rest) { return }
         let key = Array("CurrentDir=".utf8)
         guard rest.count > key.count, rest.prefix(key.count).elementsEqual(key) else { return }
         let path = rest.dropFirst(key.count)

@@ -85,12 +85,44 @@ extension Screen {
         markDirty(redrawStart ... min(row + cells.rows - 1, rows - 1))
         let startCol = column
         for _ in 0 ..< max(cells.rows - 1, 0) { lineFeed() }
+        pendingWrap = false
         if carriageReturnAfter {
             lineFeed()
             column = 0
         } else {
-            column = min(startCol + cells.columns, columns - 1)
+            // As iTerm2 leaves it: on the image's last row, just past it; past the right edge (the next character wraps)
+            // when the image reaches it.
+            let end = startCol + cells.columns
+            column = min(end, columns - 1)
+            pendingWrap = end >= columns && modes.autoWrap
         }
-        pendingWrap = false
+    }
+
+    /// iTerm2's file in parts (`MultipartFile=<arguments>`, `FilePart=<base64>`…, `FileEnd`), what `imgcat` sends unless
+    /// asked for `--legacy`: the parts' base64 is kept, bounded by the image quota, and read as `File=` at the end. A part
+    /// or an end with no file begun is ignored; parts past the quota drop the file. True when `rest` was one of these.
+    mutating func iTermFileInParts(_ rest: ArraySlice<UInt8>) -> Bool {
+        let (start, part, end) = (Array("MultipartFile=".utf8), Array("FilePart=".utf8), Array("FileEnd".utf8))
+        if rest.starts(with: start) {
+            graphics.iTermParts = (Array(rest.dropFirst(start.count)), [])
+        } else if rest.starts(with: part) {
+            guard var parts = graphics.iTermParts else { return true }
+            let more = rest.dropFirst(part.count)
+            // Base64 is 4 characters for 3 bytes: past this, the file could not fit the quota.
+            guard parts.base64.count + more.count <= graphics.quota / 3 * 4 + 4 else {
+                graphics.iTermParts = nil
+                return true
+            }
+            parts.base64.append(contentsOf: more)
+            graphics.iTermParts = parts
+        } else if rest.elementsEqual(end) {
+            guard let parts = graphics.iTermParts else { return true }
+            graphics.iTermParts = nil
+            guard !parts.base64.isEmpty else { return true }
+            iTermInlineImage(from: (parts.arguments + [0x3A] + parts.base64)[...])
+        } else {
+            return false
+        }
+        return true
     }
 }
