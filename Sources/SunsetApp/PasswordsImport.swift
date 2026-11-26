@@ -25,14 +25,7 @@ enum PasswordsImport {
         panel.prompt = "Read"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         guard let text = read(url) else { return }
-        let site = AppPasswordFill.site
-        let imported: LoginImport
-        do throws(LoginImport.Failure) {
-            imported = try LoginImport.readFile(text, site: site).leavingOut(held: model.entries, site: site)
-        } catch {
-            say(error.words.title, error.words.detail)
-            return
-        }
+        guard let imported = decodeImport(text, against: model.entries) else { return }
         guard !imported.entries.isEmpty else {
             say(
                 "Nothing to add",
@@ -62,6 +55,28 @@ enum PasswordsImport {
                 "The logins were not all added",
                 "The vault stopped them: \(model.entries.count) entries are in it now. Nothing was removed."
             )
+        }
+    }
+
+    private static func decodeImport(_ text: String, against held: [VaultEntry]) -> LoginImport? {
+        let site = AppPasswordFill.site
+        do throws(LoginImport.Failure) {
+            if LoginImport.isPasswordProtectedBitwarden(text) {
+                guard
+                    let password = PasswordsBackup.askSecret(
+                        title: "Unlock Encrypted Bitwarden Export",
+                        detail: "Enter the password that protects this Bitwarden JSON export.",
+                        placeholder: "Export Password",
+                        action: "Decrypt"
+                    )
+                else { return nil }
+                return try LoginImport.readEncryptedBitwarden(text, password: password, site: site)
+                    .leavingOut(held: held, site: site)
+            }
+            return try LoginImport.readFile(text, site: site).leavingOut(held: held, site: site)
+        } catch {
+            say(error.words.title, error.words.detail)
+            return nil
         }
     }
 

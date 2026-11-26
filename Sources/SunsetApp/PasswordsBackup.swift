@@ -130,19 +130,29 @@ enum PasswordsBackup {
         return image
     }
 
-    private static func askSecret(for header: VaultBackup.Header) -> String? {
+    /// Shared password-prompt alert for unlocking `.svault` backups and encrypted Bitwarden exports.
+    static func askSecret(title: String, detail: String, placeholder: String, action: String) -> String? {
         let alert = NSAlert()
-        alert.messageText = "Unlock backup (\(header.recordCount) sealed records)"
-        alert.informativeText = "Enter the backup's master password or recovery code."
+        alert.messageText = title
+        alert.informativeText = detail
         let field = NSSecureTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
-        field.placeholderString = "Master password or recovery code"
+        field.placeholderString = placeholder
         alert.accessoryView = field
-        alert.addButton(withTitle: "Restore")
+        alert.addButton(withTitle: action)
         alert.addButton(withTitle: "Cancel")
         alert.window.initialFirstResponder = field
         guard alert.runModal() == .alertFirstButtonReturn else { return nil }
         let value = field.stringValue
         return value.isEmpty ? nil : value
+    }
+
+    private static func askSecret(for header: VaultBackup.Header) -> String? {
+        askSecret(
+            title: "Unlock backup (\(header.recordCount) sealed records)",
+            detail: "Enter the backup's master password or recovery code.",
+            placeholder: "Master password or recovery code",
+            action: "Restore"
+        )
     }
 
     private static func describe(_ failure: VaultBackup.Failure) -> String {

@@ -58,6 +58,22 @@ extension LoginImport {
         return try readBitwardenObject(top, site: site)
     }
 
+    /// Reads a Bitwarden password-protected JSON export (`encrypted: true`, `passwordProtected: true`, roadmap 0095 E)
+    /// using `password` (supports both PBKDF2-HMAC-SHA256 and Argon2id KDFs). Throws `.encrypted` on wrong password.
+    public static func readEncryptedBitwarden(
+        _ text: String,
+        password: String,
+        site: (String) -> String?
+    ) throws(Failure) -> Self {
+        let plain = try BitwardenEncryptedExport.decrypt(text, password: password)
+        return try readBitwarden(plain, site: site)
+    }
+
+    /// True when `text` is a Bitwarden password-protected JSON export that can be opened with `readEncryptedBitwarden`.
+    public static func isPasswordProtectedBitwarden(_ text: String) -> Bool {
+        BitwardenEncryptedExport.isPasswordProtected(text)
+    }
+
     private static func readBitwardenObject(_ top: Object, site: (String) -> String?) throws(Failure) -> Self {
         if case .bool(true)? = top["encrypted"] { throw .encrypted }
         guard case .array(let items)? = top["items"] else { throw .notAnExport }
