@@ -4,7 +4,7 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
     case tabLayout, spaces
     case features
     case sitePermissions, webNotifications, popUps, pageDialogs, downloads, profiles, privateBrowsing, plainHTTP
-    case browserIdentity, blocking
+    case browserIdentity, blocking, passwords
 
     public var id: String {
         rawValue
@@ -27,6 +27,7 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
             case .profiles: "web.profiles"
             case .blocking: "web.blocking"
             case .privateBrowsing: "privacy.browsing"
+            case .passwords: "privacy.passwords"
         }
     }
 

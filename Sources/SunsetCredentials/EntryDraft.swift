@@ -112,4 +112,10 @@ public struct EntryDraft: Equatable, Sendable {
         var random = SystemRandomNumberGenerator()
         entry.set(field, recipe.generate(using: &random))
     }
+
+    /// A memorable Diceware passphrase made by `recipe`, put into `field` (roadmap 0092 F).
+    public mutating func generatePassphrase(into field: UUID, recipe: PassphraseRecipe) {
+        var random = SystemRandomNumberGenerator()
+        entry.set(field, recipe.generate(using: &random))
+    }
 }

@@ -35,6 +35,13 @@ final class AppPasswordFill: PasswordFillHost {
         LoginSite.of(host) { (try? PublicSuffixList.bundled())?.registrableDomain(of: $0) }
     }
 
+    /// True when `origin` is plain `http://` on a non-loopback host (roadmap 0094 / t103).
+    static func isInsecure(_ origin: URL) -> Bool {
+        guard origin.scheme?.lowercased() == "http" else { return false }
+        let host = (origin.host() ?? "").lowercased()
+        return host != "localhost" && host != "127.0.0.1" && host != "::1" && !host.hasSuffix(".localhost")
+    }
+
     func loginField(focused field: LoginField, in page: WebContent) {
         guard isOn, let view = page.webView else { return popover.close() }
         let content: AnyView? =
@@ -45,7 +52,8 @@ final class AppPasswordFill: PasswordFillHost {
                 // A sign-in form's field: the site's logins; the one clicked fills the form.
                 case .username, .password:
                     shown(LoginMatch.offered(model.entries, for: field.origin, site: Self.site)) { logins in
-                        PasswordSuggestions(logins: logins) { [weak self] entry in
+                        PasswordSuggestions(logins: logins, isInsecureOrigin: Self.isInsecure(field.origin)) {
+                            [weak self] entry in
                             self?.fill(entry, in: page, for: field.origin)
                         }
                     }

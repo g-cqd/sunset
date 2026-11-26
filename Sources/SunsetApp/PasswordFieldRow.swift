@@ -12,6 +12,7 @@ struct PasswordFieldRow: View {
     let problem: String?
     @Binding var value: String
     let generate: () -> Void
+    let generatePassphrase: () -> Void
     /// A code read from a QR code's picture (the clipboard's, or a file's) sets the entry up.
     let readCode: @MainActor (OneTimeCodeURI) -> Void
     let remove: () -> Void
@@ -20,6 +21,8 @@ struct PasswordFieldRow: View {
     @State var revealed = false
     /// Its name, kind and secrecy being edited in a sheet (t334).
     @State var editingField = false
+    /// Previous values popover for secret fields with recorded history (roadmap 0092 D).
+    @State var showingHistory = false
     @State private var hovered = false
     @State private var feedback = FeedbackCue()
     @Environment(\.runtime) private var runtime
@@ -47,6 +50,7 @@ struct PasswordFieldRow: View {
                         .foregroundStyle(.primary)
                         .textSelection(.disabled)
                     if field.isSecret { revealButton }
+                    if let history = field.history, !history.isEmpty { historyButton(history) }
                 }
                 // Copying is its button's, not the whole field's (n129): shown under the pointer, and while it says it copied;
                 // the glyph becomes a check for a moment (n111).

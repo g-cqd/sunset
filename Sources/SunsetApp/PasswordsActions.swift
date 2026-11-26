@@ -9,6 +9,7 @@ struct PasswordsActions: View {
     let model: PasswordsModel
     /// The window, where a new entry opens to be filled in.
     let tabs: TabsModel
+    @State private var showingHealth = false
 
     var body: some View {
         if model.state == .unlocked {
@@ -21,6 +22,10 @@ struct PasswordsActions: View {
                 }
             }
             SidebarIconMenu(symbol: "ellipsis", help: "More") {
+                Button("Password Health\u{2026}", systemImage: "checkmark.shield") {
+                    showingHealth = true
+                }
+                Divider()
                 Button("Back Up Vault (.svault)…", systemImage: "externaldrive.badge.plus") {
                     PasswordsBackup.backup(from: model)
                 }
@@ -33,6 +38,11 @@ struct PasswordsActions: View {
                 }
                 Button("Export Logins to CSV…", systemImage: "square.and.arrow.up") {
                     PasswordsImport.export(from: model)
+                }
+            }
+            .sheet(isPresented: $showingHealth) {
+                VaultHealthSheet(model: model) { id in
+                    AppPasswords.show(id, in: tabs, editing: true)
                 }
             }
             SidebarIconButton(symbol: "lock", help: "Lock Passwords") { model.lock() }

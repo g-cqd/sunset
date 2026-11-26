@@ -6,10 +6,22 @@ import SwiftUI
 /// the pointer highlighted as a menu's item (the accent, white text). Nothing is filled until one is clicked.
 struct PasswordSuggestions: View {
     let logins: [VaultEntry]
+    /// True when the page origin uses unencrypted `http://` (non-loopback) so the person sees a clear warning before
+    /// filling credentials (roadmap 0094 / t103).
+    var isInsecureOrigin = false
     let choose: (VaultEntry) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            if isInsecureOrigin {
+                Label("Not Secure (HTTP) — password sent unencrypted", systemImage: "exclamationmark.triangle.fill")
+                    .font(Design.Text.detail)
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, Design.Space.s)
+                    .padding(.vertical, Design.Space.xs)
+                Divider()
+                    .padding(.bottom, Design.Space.hair)
+            }
             ForEach(logins.prefix(Self.most)) { entry in
                 PasswordSuggestionRow(entry: entry) { choose(entry) }
             }

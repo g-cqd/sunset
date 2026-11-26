@@ -3,25 +3,21 @@ extension HelpTopic {
     /// - Parameter id: A setting's key ("tabs.keepAwakeDisplay").
     /// - Returns: Its topic, or nil.
     public static func explaining(setting id: String) -> HelpTopic? {
-        settings[id]
+        switch id {
+            case "tabs.keepAwakeDisplay": .keepAwake
+            case "tabs.keepRunningForFavorites": .favorites
+            case "sidebar.library", "sidebar.documentSort": .library
+            case "web.address": .sidebarField
+            case "web.permissions": .sitePermissions
+            case "web.approveRiskyDownloads", "web.askWhereToSave": .downloads
+            case "profiles.list": .profiles
+            case "web.privateWindowShares": .privateBrowsing
+            case "spaces.favorites", "spaces.pinned": .spaces
+            case "features": .features
+            case "web.agent", "web.agentScripts": .browserIdentity
+            case "web.blocking": .blocking
+            case "passwords.lockAfter", "passwords.backupFolder": .passwords
+            default: nil
+        }
     }
-
-    static let settings: [String: HelpTopic] = [
-        "tabs.keepAwakeDisplay": .keepAwake,
-        "tabs.keepRunningForFavorites": .favorites,
-        "sidebar.library": .library,
-        "sidebar.documentSort": .library,
-        "web.address": .sidebarField,
-        "web.permissions": .sitePermissions,
-        "web.approveRiskyDownloads": .downloads,
-        "web.askWhereToSave": .downloads,
-        "profiles.list": .profiles,
-        "web.privateWindowShares": .privateBrowsing,
-        "spaces.favorites": .spaces,
-        "spaces.pinned": .spaces,
-        "features": .features,
-        "web.agent": .browserIdentity,
-        "web.agentScripts": .browserIdentity,
-        "web.blocking": .blocking
-    ]
 }

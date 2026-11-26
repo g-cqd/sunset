@@ -28,6 +28,8 @@ struct PasswordEntryPage: View {
 
     /// The generator's recipe: twenty characters of every class.
     static let recipe = PasswordRecipe(length: 20, classes: CharacterClass.allCases)
+    /// Memorable Diceware passphrase recipe: five words separated by hyphens with a digit.
+    static let passphraseRecipe = PassphraseRecipe(words: 5, separator: "-", capitalize: false, includeNumber: true)
 
     var body: some View {
         Form {
@@ -50,6 +52,12 @@ struct PasswordEntryPage: View {
                 }
             }
             notes
+            PasswordAttachmentsSection(
+                attachments: draft.entry.attachments ?? [],
+                editing: editing,
+                add: { draft.entry.addAttachment($0) },
+                remove: { draft.entry.removeAttachment($0) }
+            )
             if editing { addField }
         }
         .formStyle(.grouped)
@@ -85,6 +93,7 @@ struct PasswordEntryPage: View {
                         problem: problem(field),
                         value: binding(field.id),
                         generate: { draft.generate(into: field.id, recipe: Self.recipe) },
+                        generatePassphrase: { draft.generatePassphrase(into: field.id, recipe: Self.passphraseRecipe) },
                         readCode: { code in draft.setUp(code) },
                         remove: { draft.entry.remove(field.id) },
                         edits: FieldEdits { draft.entry.apply($0, to: field.id) }
@@ -125,9 +134,11 @@ struct PasswordEntryPage: View {
         }
     }
 
-    /// Nothing to read: no field holds a value, and no note.
+    /// Nothing to read: no field holds a value, no note, and no attachments.
     private var isBlank: Bool {
-        draft.entry.note.isEmpty && draft.entry.sections.allSatisfy { $0.fields.allSatisfy(\.value.isEmpty) }
+        draft.entry.note.isEmpty
+            && (draft.entry.attachments?.isEmpty ?? true)
+            && draft.entry.sections.allSatisfy { $0.fields.allSatisfy(\.value.isEmpty) }
     }
 
     private func binding(_ field: EntryField.ID) -> Binding<String> {
