@@ -39,18 +39,18 @@ let package = Package(
         .executable(name: "sunset-render", targets: ["SunsetRenderTool"])
     ],
     dependencies: [
-        .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "32f1d61e0ee2fe19af99c1c1a040f1fbdae91d4a"),
-        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "ac1e90640d8220374ed0590c4227e521c6421729"),
+        .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "04cfb910446f446476c0c853317931f3444b1323"),
+        .package(url: "https://github.com/g-cqd/TerminalKit.git", revision: "e9ab0df71a205cd6ed33e9ca6871b13dce91d533"),
         .package(
             url: "https://github.com/g-cqd/AemiMarkdown.git",
-            revision: "b32d5408b22bdce913a5363f75bfa41f60ae1286"
+            revision: "4448cefa9eb7fc97e5f3161807631592d6f4ba29"
         ),
-        .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "fdcf306b1ffbbd29161df787ae2ea97e56718d2c"),
-        .package(url: "https://github.com/g-cqd/AemiRegex.git", revision: "7be30789416069858a586e2c0cfc55bcd69ced14"),
-        .package(url: "https://github.com/g-cqd/CSVCoder.git", revision: "c1edb52e41248e86704c870f4ff0b6146b2ce236"),
+        .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "a7bb9cc463fd1a7f58a404ce28dbbee6b7ee7fe7"),
+        .package(url: "https://github.com/g-cqd/AemiRegex.git", revision: "2b6cd82b452720dc2cb75cf56a6aa085a260415a"),
+        .package(url: "https://github.com/g-cqd/CSVCoder.git", revision: "18d9ca3e890d4f6c8155dee009cd49106ec56767"),
         .package(
             url: "https://github.com/Aemi-Studio/AemiSDR.git",
-            revision: "ac0337d049920258b1875eb58425f29b7c01da7f"
+            revision: "78dff2a56bb814f3758ba956afc3aec9ccf00d5d"
         )
     ],
     targets: [
