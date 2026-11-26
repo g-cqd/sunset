@@ -20,3 +20,13 @@ jobs:
     uses: g-cqd/swift-ci/.github/workflows/swift-ci.yml@47a42af8d79c2e5f8a50f9c4a13b0d3b46f2d009 # swift-ci 47a42af
     permissions:
       contents: write # reusable publish permission; this package publishes no archives
+
+  scan:
+    name: Code Scanning
+    uses: g-cqd/swift-ci/.github/workflows/code-scanning.yml@fda8ff085332c1883685384f975dff7227b1f7e5 # swift-ci fda8ff0
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    with:
+      codeql-languages: '["actions", "python"]'
