@@ -10,7 +10,7 @@ import Testing
     static let bashes: [String] = ["/bin/bash", "/opt/homebrew/bin/bash"]
         .filter { FileManager.default.isExecutableFile(atPath: $0) }
 
-    private func session(_ shell: String, bashrc: String) throws -> (HeadlessSession, String) {
+    func session(_ shell: String, bashrc: String) throws -> (HeadlessSession, String) {
         let base = NSTemporaryDirectory() + "sunset-bash-\(UUID().uuidString)"
         let home = base + "/home"
         try FileManager.default.createDirectory(atPath: home, withIntermediateDirectories: true)

@@ -5,9 +5,10 @@ extension ShellIntegration {
     static let zsh = zshHead + osc7(setup: "    builtin emulate -L zsh\n    builtin setopt no_multibyte\n") + zshHooks
 
     /// The rcfile bash reads at start: sources the user's own startup files, then adds its prompt commands and (when the
-    /// user has none) its DEBUG trap around theirs, for OSC 133 prompt marks and OSC 7 working directory reports.
+    /// user has none) its DEBUG trap around theirs, or its functions to bash-preexec's when that is loaded, for OSC 133
+    /// prompt marks and OSC 7 working directory reports.
     static var bash: String {
-        bashPreamble + bashHead + osc7(setup: "    local LC_ALL=C\n") + bashHooks
+        bashPreamble + bashHead + osc7(setup: "    local LC_ALL=C\n") + bashHooks + bashInstall
     }
 
     /// `_sunset_osc7`: the directory as OSC 7 carries it, each byte of its UTF-8 that is not unreserved percent-encoded.
@@ -124,17 +125,33 @@ extension ShellIntegration {
                 printf '\e]133;C\a'
             fi
         }
-        # Around the user's prompt commands, never in their place. An array stays one where bash runs it whole (5.1 and
-        # later); before that bash runs only its first element, which is the string the else branch extends.
-        if (( BASH_VERSINFO[0] > 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1) )) \
+
+        """#
+
+    /// Where bash runs the hooks: bash-preexec's lists when it is loaded, else the prompt commands and the DEBUG trap.
+    private static let bashInstall = #"""
+        # bash-preexec (loaded by the user's startup files) owns PROMPT_COMMAND and the DEBUG trap (PS0 from bash 5.3) and
+        # runs functions from its two lists, with $? set to the last command's status: Sunset's are among them. The prompt
+        # first, before the user's precmd functions; a command's start last, after their preexec functions.
+        _sunset_bp_preexec() {
+            _sunset_ran=1
+            printf '\e]133;C\a'
+        }
+        if [[ -n "${bash_preexec_imported:-}${__bp_imported:-}" ]]; then
+            precmd_functions=(_sunset_precmd ${precmd_functions[@]+"${precmd_functions[@]}"})
+            preexec_functions+=(_sunset_bp_preexec)
+        # Otherwise around the user's prompt commands, never in their place. An array stays one where bash runs it whole
+        # (5.1 and later); before that bash runs only its first element, which is the string the else branch extends.
+        elif (( BASH_VERSINFO[0] > 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1) )) \
             && [[ "$(declare -p PROMPT_COMMAND 2>/dev/null)" == "declare -a"* ]]; then
             PROMPT_COMMAND=(_sunset_precmd "${PROMPT_COMMAND[@]}" _sunset_arm)
         else
             PROMPT_COMMAND="_sunset_precmd${PROMPT_COMMAND:+; $PROMPT_COMMAND}; _sunset_arm"
         fi
-        # Only when the user has no DEBUG trap of their own: theirs is kept, and then where a command's output starts and
-        # how it ended are not marked; prompts and the directory still are.
-        if [[ -z "$(trap -p DEBUG)" ]]; then
+        # Only when neither the user nor bash-preexec has a DEBUG trap: theirs is kept, and then where a command's output
+        # starts and how it ended are not marked; prompts and the directory still are. bash-preexec sets its trap at the
+        # first prompt, so it is looked for by name.
+        if [[ -z "$(trap -p DEBUG)" && -z "${bash_preexec_imported:-}${__bp_imported:-}" ]]; then
             trap '_sunset_preexec' DEBUG
         fi
 

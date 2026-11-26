@@ -20,9 +20,11 @@ func module(_ name: String, _ dependencies: [Target.Dependency], settings: [Swif
     .target(name: name, dependencies: dependencies, path: "Sources/\(name)", swiftSettings: settings)
 }
 
-func tests(_ name: String, _ dependencies: [Target.Dependency], settings: [SwiftSetting] = strictSettings) -> Target {
-    .testTarget(name: name, dependencies: dependencies, path: "Tests/\(name)", swiftSettings: settings)
+func tests(_ name: String, _ deps: [Target.Dependency], settings: [SwiftSetting] = strictSettings) -> Target {
+    .testTarget(name: name, dependencies: deps, path: "Tests/\(name)", resources: files[name], swiftSettings: settings)
 }
+/// The files a test target reads, beside its tests with their provenance (copied whole; `Bundle.module` finds them).
+let files: [String: [Resource]] = ["SunsetHostTests": [.copy("Fixtures")]]
 
 let package = Package(
     name: "Sunset",
