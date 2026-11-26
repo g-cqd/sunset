@@ -70,7 +70,7 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
             (0, faces.regular), (1, faces.bold), (2, faces.italic), (3, faces.boldItalic)
         ]
         let sets = styleSpecs.map { variant, styleFont in
-            Self.computeASCIISafeSet(font: styleFont) { unit in
+            Self.computeASCIISafeSet(font: styleFont, settings: settings) { unit in
                 self.aloneGlyph(unit, variant: variant, font: styleFont, cellWidth: width)
             }
         }

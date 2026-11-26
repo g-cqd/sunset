@@ -7,7 +7,7 @@ import Testing
 @testable import SunsetRenderMac
 
 /// The ASCII fast path (t241) draws a run cell by cell, without shaping, when every byte of it is in the style's safe
-/// set; that is only right if shaping such a run would change nothing. Checked here against shaping itself
+/// set (`SubstitutionReach`); that is only right if shaping such a run would change nothing. Checked here against shaping itself
 /// (`runIsPlain`, which shapes) on every monospaced font this Mac has, in all four styles, with ligatures on and off,
 /// over seeded random runs built only from the bytes the fast path calls safe — not over a list chosen by hand.
 @Suite("ASCII fast path: safe bytes never shape") struct CoreTextFastPathTests {
@@ -31,15 +31,18 @@ import Testing
         #expect(Self.families.contains("Menlo"), "\(Self.families)")
     }
 
-    /// Only a font without substitution tables gets a fast path: Menlo has AAT `morx` (it ligates `fi`), Andale Mono
-    /// has none; both ship with macOS.
+    /// A font's substitution tables let go only the bytes a rule could change in a run of safe bytes: Menlo's AAT
+    /// `morx` ligates `fi` and `fl`, so `f` shapes and every other byte is drawn cell by cell; Andale Mono has no table.
+    /// Both ship with macOS.
     @Test(arguments: [true, false])
-    func `a font with substitution tables has no safe bytes; one without has every printable byte`(ligatures: Bool) {
+    func `a font's substitution tables let go only the bytes their rules use`(ligatures: Bool) {
         let menlo = CoreTextGlyphSource(fontName: "Menlo", size: 28, ligatures: ligatures)
         let andale = CoreTextGlyphSource(fontName: "Andale Mono", size: 28, ligatures: ligatures)
+        let bytes = UInt8(0x21) ... UInt8(0x7E)
+        let shaped = bytes.filter { !menlo.asciiRunByteIsPlain($0, bold: false, italic: false) }
+        #expect(String(decoding: shaped, as: UTF8.self) == "f")
+        #expect(bytes.filter { !menlo.asciiRunByteIsPlain($0, bold: true, italic: false) } == shaped)
         for (bold, italic) in [(false, false), (true, false), (false, true), (true, true)] {
-            let bytes = UInt8(0x21) ... UInt8(0x7E)
-            #expect(bytes.allSatisfy { !menlo.asciiRunByteIsPlain($0, bold: bold, italic: italic) })
             #expect(bytes.allSatisfy { andale.asciiRunByteIsPlain($0, bold: bold, italic: italic) })
         }
     }
