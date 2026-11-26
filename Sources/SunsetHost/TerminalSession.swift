@@ -115,6 +115,12 @@ public actor TerminalSession {
         core.terminal.withLock { $0.screen }
     }
 
+    /// Moves running image animations on at `now` (milliseconds, monotonic) under the lock; the marks it leaves are
+    /// drawn with the next snapshot (`Terminal.advanceAnimations`).
+    public nonisolated func advanceAnimations(nowMilliseconds now: Int64) -> Screen.AnimationTick {
+        core.terminal.withLock { $0.advanceAnimations(nowMilliseconds: now) }
+    }
+
     /// The title, directory and progress, read under the lock without copying the screen (`TerminalStatus`).
     public nonisolated func status() -> TerminalStatus {
         core.terminal.withLock { TerminalStatus($0.screen) }

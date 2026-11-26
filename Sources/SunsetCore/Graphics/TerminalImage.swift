@@ -45,7 +45,7 @@ public struct TerminalImage: Sendable, Equatable {
     }
 
     /// The image currently active for rendering (either the root image or the selected animation frame, with a distinct
-    /// order token so `ImageTable` caches each displayed frame separately).
+    /// order token, its revision, so `ImageTable` caches each displayed frame, and each edit of it, separately).
     public var activeForRender: TerminalImage {
         guard let frame = animation?.activeExtraFrame else { return self }
         return TerminalImage(
@@ -55,7 +55,7 @@ public struct TerminalImage: Sendable, Equatable {
             width: frame.width,
             height: frame.height,
             pixels: frame.rgba,
-            order: order ^ (UInt64(frame.index) &<< 48)
+            order: frame.revision
         )
     }
 }

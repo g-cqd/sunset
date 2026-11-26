@@ -90,9 +90,8 @@ package import SunsetRuntime
     @ObservationIgnored package var gates = TerminalGates()
     /// The view took the keyboard (a click): the tabs focus this pane.
     @ObservationIgnored package var onFocusRequest: () -> Void = {}
-    /// Wakes the blink task when it has no timer to wait on (the cursor is solid): activity or the focus coming back.
-    @ObservationIgnored package let blinkWake = AsyncStream<Void>
-        .makeStream(of: Void.self, bufferingPolicy: .bufferingNewest(1))
+    /// Wakes the blink and animation tasks when they wait without a timer (`TerminalWakes`).
+    @ObservationIgnored package let wakes = TerminalWakes()
     @ObservationIgnored package var hoveredLink: UInt16 = 0
     /// Whether the program asked for the mouse (as of the last frame): its events go to it, not to the selection.
     package var programHasMouse: Bool {
@@ -167,7 +166,8 @@ package import SunsetRuntime
                 runtime.task(role: .observation) { [sizes = sizes.stream] in
                     for await size in sizes { await Self.resize(session, to: size) }
                 },
-                runtime.task { [weak self] in await self?.blink() }
+                runtime.task { [weak self] in await self?.blink() },
+                runtime.task { [weak self] in await self?.animate(session) }
             ]
         } catch {
             title = "Sunset: cannot start \(command.first ?? "the program")"

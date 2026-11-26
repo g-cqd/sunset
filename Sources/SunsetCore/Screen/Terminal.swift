@@ -74,6 +74,12 @@ extension Terminal {
         screen.markDirty(0 ... screen.rows - 1)
     }
 
+    /// Moves running Kitty animations on (roadmap 0010 E): `now` is the host's monotonic time in milliseconds; the
+    /// result says whether to draw and when to call again (`Screen.advanceAnimations`).
+    public mutating func advanceAnimations(nowMilliseconds now: Int64) -> Screen.AnimationTick {
+        screen.advanceAnimations(nowMilliseconds: now)
+    }
+
     /// A cell's size in pixels, as the host draws it: an image takes as many cells as its pixels cover (ADR-0117).
     public mutating func setCellPixelSize(width: Int, height: Int) {
         let nextWidth = max(width, 1)

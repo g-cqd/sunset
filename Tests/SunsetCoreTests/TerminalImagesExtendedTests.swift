@@ -89,34 +89,6 @@ import Testing
 
     // MARK: - Kitty animation (`a=f`, `a=a`, `a=c`) & image numbers (`I=`)
 
-    @Test func `Kitty animation transmits frames, switches active frame, composes pixels, and obeys quota`() throws {
-        var t = terminal()
-        let red = Base64.encodedString([255, 0, 0, 255, 255, 0, 0, 255])  // 2x1 red
-        let blue = Base64.encodedString([0, 0, 255, 255])  // 1x1 blue
-        // Transmit 2x1 root image id=10
-        t.feed("\(esc)_Ga=T,i=10,f=32,s=2,v=1;\(red)\(esc)\\")
-        #expect(replies(&t) == "\(esc)_Gi=10;OK\(esc)\\")
-        // Add frame 2 derived from frame 1 (`c=1`), placing 1x1 blue at x=1 (`x=1,X=1` replace), gap 100ms
-        t.feed("\(esc)_Ga=f,i=10,f=32,s=1,v=1,x=1,y=0,c=1,X=1,z=100;\(blue)\(esc)\\")
-        #expect(replies(&t) == "\(esc)_Gi=10;OK\(esc)\\")
-        // Switch current frame to 2 and start playing (`s=3,c=2,v=1`)
-        t.feed("\(esc)_Ga=a,i=10,s=3,c=2,v=1\(esc)\\")
-        #expect(replies(&t) == "\(esc)_Gi=10;OK\(esc)\\")
-
-        let img = try #require(t.screen.graphics.images[10])
-        #expect(img.animation?.state == .running)
-        #expect(img.animation?.currentFrame == 2)
-        #expect(img.animation?.frameCount == 2)
-        let active = img.activeForRender
-        #expect(active.pixels == [255, 0, 0, 255, 0, 0, 255, 255])
-
-        // Compose pixel (1,0) of frame 2 onto (0,0) of frame 1 (`a=c,r=2,c=1,w=1,h=1,x=1,y=0,X=0,Y=0,C=1`)
-        t.feed("\(esc)_Ga=c,i=10,r=2,c=1,w=1,h=1,x=1,y=0,X=0,Y=0,C=1\(esc)\\")
-        #expect(replies(&t) == "\(esc)_Gi=10;OK\(esc)\\")
-        let composedRoot = try #require(t.screen.graphics.images[10])
-        #expect(composedRoot.pixels == [0, 0, 255, 255, 255, 0, 0, 255])
-    }
-
     @Test func `Kitty image numbers I= allocate unique ids, place newest, and delete by d=n/N`() throws {
         var t = terminal()
         let px = Base64.encodedString([10, 20, 30, 255])

@@ -42,25 +42,14 @@ enum ImageFrameBlit {
         }
     }
 
-    static func baseCanvas(
-        for root: TerminalImage,
-        anim: ImageAnimation,
-        baseFrame: Int,
-        background: Int
-    ) -> [UInt8] {
-        if baseFrame >= 1, baseFrame <= anim.frameCount {
-            return rgbaPixels(of: root, anim: anim, frame: baseFrame)
-        }
-        var out = [UInt8](repeating: 0, count: root.width * root.height * 4)
-        let bg = UInt32(bitPattern: Int32(truncatingIfNeeded: background))
+    /// A canvas of the root's size filled with `background`, a 32-bit RGBA value as kitty's `Y` key gives it.
+    static func filledCanvas(width: Int, height: Int, background: Int) -> [UInt8] {
+        var out = [UInt8](repeating: 0, count: width * height * 4)
+        let bg = UInt32(truncatingIfNeeded: background)
         guard bg != 0 else { return out }
-        let (r, g, b) = (UInt8((bg >> 24) & 0xFF), UInt8((bg >> 16) & 0xFF), UInt8((bg >> 8) & 0xFF))
-        let a = UInt8(bg & 0xFF)
+        let rgba = [UInt8(bg >> 24 & 0xFF), UInt8(bg >> 16 & 0xFF), UInt8(bg >> 8 & 0xFF), UInt8(bg & 0xFF)]
         for offset in stride(from: 0, to: out.count, by: 4) {
-            out[offset] = r
-            out[offset + 1] = g
-            out[offset + 2] = b
-            out[offset + 3] = a
+            out.replaceSubrange(offset ..< offset + 4, with: rgba)
         }
         return out
     }
@@ -85,41 +74,6 @@ enum ImageFrameBlit {
                 )
             }
         }
-    }
-
-    struct CommandBlit {
-        let bytes: [UInt8]
-        let channels: Int
-        let stride: Int
-        let width: Int
-        let height: Int
-        let isCompose: Bool
-    }
-
-    /// Blits a Kitty `a=f` or `a=c` command payload onto `dst` using the command's coordinate keys.
-    static func blitCommand(
-        _ command: KittyCommand,
-        source input: CommandBlit,
-        into dst: inout [UInt8],
-        canvas: (width: Int, height: Int)
-    ) {
-        let src = Source(
-            bytes: input.bytes,
-            channels: input.channels,
-            stride: input.stride,
-            x: input.isCompose ? max(command.int("x"), 0) : 0,
-            y: input.isCompose ? max(command.int("y"), 0) : 0,
-            width: input.width,
-            height: input.height
-        )
-        let target = Target(
-            width: canvas.width,
-            height: canvas.height,
-            x: max(command.int(input.isCompose ? "X" : "x"), 0),
-            y: max(command.int(input.isCompose ? "Y" : "y"), 0),
-            alphaBlend: command.int(input.isCompose ? "C" : "X") != 1
-        )
-        blit(src, into: &dst, target: target)
     }
 
     private static func blendPixel(

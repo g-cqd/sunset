@@ -1,11 +1,12 @@
 /// Images taken off the screen (`a=d`, ADR-0117), as kitty does: by id (`i`), range of ids (`r`), and the placements on
 /// the screen that meet a cell (`p`), the cursor's cell (`c`), a cell and a layer (`q`), a column (`x`), a row (`y`), a
-/// layer (`z`), or all of them (`a`). Lowercase keeps the images; uppercase frees those left without a placement, and by
+/// layer (`z`), or all of them (`a`); an image's animation frames (`f`). Lowercase keeps the images; uppercase frees those left without a placement, and by
 /// id or range the images named, shown or not. Any delete ends an upload in progress.
 extension Screen {
     mutating func deleteImages(_ command: KittyCommand) {
         graphics.pending = nil
         let what = command.letter("d", or: "a")
+        if what | 0x20 == UInt8(ascii: "f") { return deleteFrames(command) }
         guard Self.deletes.contains(what | 0x20) else { return }
         let deleted = graphics.placements.map { doomed($0, command) }
         let gone = Set(zip(graphics.placements, deleted).filter(\.1).map(\.0.image))
@@ -23,6 +24,22 @@ extension Screen {
     }
 
     private static let deletes = Set("incpqxyzra".utf8)
+
+    /// `d=f`/`F`: the frames past the root of the image named by `i` or `I` go; the root is shown and the animation
+    /// stops. Nothing named: nothing done.
+    private mutating func deleteFrames(_ command: KittyCommand) {
+        guard let id = graphics.resolveID(id: command.int("i"), number: command.int("I")),
+            var image = graphics.images[id], var anim = image.animation
+        else { return }
+        anim.frames = []
+        anim.currentFrame = 1
+        anim.state = .stopped
+        anim.loopBacks = 0
+        anim.deadline = nil
+        image.animation = anim
+        _ = graphics.update(image)
+        markShown(id)
+    }
 
     private func matchesTarget(image: UInt32, placement: UInt32, _ command: KittyCommand) -> Bool {
         let p = UInt32(clamping: command.int("p"))

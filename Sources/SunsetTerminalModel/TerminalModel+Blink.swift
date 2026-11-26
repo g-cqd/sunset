@@ -3,11 +3,11 @@ import SunsetRuntime
 
 /// The cursor's blink and what stops it.
 extension TerminalModel {
-    /// Something happened (a key, output): the cursor blinks again for a while, and the blink task is woken if it was waiting without a timer.
+    /// Something happened (a key, output): the cursor blinks again for a while, and the blink and animation tasks are woken if they were waiting without a timer.
     package func noteActivity() {
         lastActivity = runtime.uptime()
         packer?.noteActivity()
-        blinkWake.continuation.yield()
+        wakes.yieldAll()
     }
 
     /// The window gained or lost the key state, or was covered or uncovered.
@@ -31,13 +31,13 @@ extension TerminalModel {
         hasFocus = gates.hasFocus
         isVisible = visible
         updateSecureInput()
-        blinkWake.continuation.yield()
+        wakes.yieldAll()
         if visible, !wasVisible { requestFrame() }
         if !visible { setDisplayLinkPaused(true) }
     }
 
     package func blink() async {
-        var wakes = blinkWake.stream.makeAsyncIterator()
+        var wakes = wakes.blink.stream.makeAsyncIterator()
         while !Task.isCancelled {
             let idle = runtime.uptime() - lastActivity
             guard let wait = blinkSchedule.wait(afterIdle: idle, focused: hasFocus && isVisible), cursorBlinks else {
