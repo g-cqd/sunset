@@ -19,7 +19,9 @@ extension Screen {
                     Self.forEachLiteral(needle, in: bytes, asciiFold: false, emit: emit)
                 }
             }
-            if needle.allSatisfy({ $0 < 0x80 }) {
+            // ASCII folding is the regex engine's only for letters with no non-ASCII partner: `k` also matches the
+            // Kelvin sign and `s` the long s under `(?i)`, so a needle with either takes the regex path.
+            if needle.allSatisfy({ $0 < 0x80 && !Self.foldsBeyondASCII.contains($0 | 0x20) }) {
                 let lowered = needle.map { ($0 >= 0x41 && $0 <= 0x5A) ? ($0 | 0x20) : $0 }
                 return scanLines(limit: limit) { bytes, emit in
                     Self.forEachLiteral(lowered, in: bytes, asciiFold: true, emit: emit)
@@ -38,6 +40,10 @@ extension Screen {
             pattern.forEachMatch(in: bytes) { match in emit(match.range) }
         }
     }
+
+    /// The ASCII letters (lowercase) whose case folding reaches outside ASCII: k (U+212A KELVIN SIGN) and s (U+017F
+    /// LATIN SMALL LETTER LONG S). `SearchFoldingTests` derives this set from the regex engine itself.
+    static let foldsBeyondASCII: Set<UInt8> = [UInt8(ascii: "k"), UInt8(ascii: "s")]
 
     private func scanLines(
         limit: Int,
