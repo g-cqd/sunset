@@ -2,8 +2,8 @@ internal import CoreGraphics
 internal import CoreText
 internal import Foundation
 
-/// Precomputes which printable ASCII bytes (0x21...0x7E) can safely bypass CoreText run shaping per font style
-/// (t241: avoids paying 16–43 µs per line of new plain words when ligatures are enabled).
+/// Which printable ASCII bytes (0x21...0x7E) may be drawn cell by cell without shaping, per font style (t241). Only a
+/// font with no substitution table has any; see `computeASCIISafeSet`.
 extension CoreTextGlyphSource {
     struct ASCIISafeSets: Sendable {
         let regular: ASCIISafeSet
@@ -34,38 +34,13 @@ extension CoreTextGlyphSource {
         }
     }
 
-    private static let ligatureProbes =
-        "fi fl ff ffi ffl fj ft st ct ae oe www WWW 0x1A 1x2 0o7 0b1 WAVE Ta To Va We Ya Yo"
-        .split(separator: " ")
-        .map(String.init)
-
-    /// Computes the safe ASCII fast-path bitset for `font` at `cellWidth`.
-    /// Checks BOTH OpenType `GSUB` and Apple AAT `morx`/`mort` substitution tables!
-    static func computeASCIISafeSet(
-        font: CTFont,
-        cellWidth: Int,
-        ligatures: Bool,
-        lookup: (UInt16) -> AloneGlyph
-    ) -> ASCIISafeSet {
-        let hasSubstitutions = hasSubstitutionTables(font)
-        if !hasSubstitutions {
-            return allFittingASCII(lookup: lookup)
-        }
-        if !ligatures {
-            let sample = String((UInt8(0x21) ... UInt8(0x7E)).map { Character(UnicodeScalar($0)) })
-            return Self.isPlainShaped(sample, font: font, lookup: lookup)
-                ? allFittingASCII(lookup: lookup) : ASCIISafeSet()
-        }
-        var tainted: Set<UInt8> = []
-        for probe in ligatureProbes where !Self.isPlainShaped(probe, font: font, lookup: lookup) {
-            tainted.formUnion(probe.utf8)
-        }
-        var set = ASCIISafeSet()
-        for byte in UInt8(0x30) ... UInt8(0x7A) where isAlphaNum(byte) && !tainted.contains(byte) {
-            let pair = String([Character(UnicodeScalar(byte)), Character(UnicodeScalar(byte))])
-            if Self.isPlainShaped(pair, font: font, lookup: lookup) { set.insert(byte) }
-        }
-        return set
+    /// The safe ASCII bytes of `font`: every printable byte whose glyph alone is the font's own and keeps
+    /// to its cell — and only when the font has no substitution table at all (no OpenType `GSUB`, no AAT `morx` or
+    /// `mort`), the one case where shaping provably cannot change a glyph by its neighbours. A font with such a table
+    /// gets none: contextual rules can reach any letter (Monaspace's "texture healing" reshaped about 15% of random
+    /// letter runs, 2026-11-26), and no list of probes can show their absence. Such fonts take the shaping path (`runIsPlain`).
+    static func computeASCIISafeSet(font: CTFont, lookup: (UInt16) -> AloneGlyph) -> ASCIISafeSet {
+        hasSubstitutionTables(font) ? ASCIISafeSet() : allFittingASCII(lookup: lookup)
     }
 
     private static func hasSubstitutionTables(_ font: CTFont) -> Bool {
@@ -84,9 +59,5 @@ extension CoreTextGlyphSource {
             if solo.glyph != nil, solo.keepsToItsCell { set.insert(byte) }
         }
         return set
-    }
-
-    private static func isAlphaNum(_ byte: UInt8) -> Bool {
-        (byte >= 0x30 && byte <= 0x39) || (byte >= 0x41 && byte <= 0x5A) || (byte >= 0x61 && byte <= 0x7A)
     }
 }

@@ -64,15 +64,13 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
         made.strikeY = max(0, height - baseline - Int((CTFontGetXHeight(faces.regular) / 2).rounded()))
         made.overlineY = 0
         metrics = made
-        let effectiveLigatures =
-            settings.first { $0.tag == "liga" }?.value != 0 || settings.first { $0.tag == "calt" }?.value != 0
         let empty = ASCIISafeSet()
         asciiSafe = ASCIISafeSets(regular: empty, bold: empty, italic: empty, boldItalic: empty)
         let styleSpecs: [(UInt32, CTFont)] = [
             (0, faces.regular), (1, faces.bold), (2, faces.italic), (3, faces.boldItalic)
         ]
         let sets = styleSpecs.map { variant, styleFont in
-            Self.computeASCIISafeSet(font: styleFont, cellWidth: width, ligatures: effectiveLigatures) { unit in
+            Self.computeASCIISafeSet(font: styleFont) { unit in
                 self.aloneGlyph(unit, variant: variant, font: styleFont, cellWidth: width)
             }
         }
