@@ -1,5 +1,6 @@
 import SunsetAppCore
 import SunsetConfig
+import SunsetHost
 import SunsetMarkdown
 import SunsetPane
 import SunsetShell
@@ -34,9 +35,10 @@ extension TerminalScene {
         model.wire(to: tabs)
         configure(model)
         let integrated = configuration.terminal.shellIntegration
+        let prepared = Self.shellLaunch(for: launch.command, integrated: integrated)
         model.start(
-            command: launch.command,
-            environment: Self.shellEnvironment(for: launch.command, integrated: integrated),
+            command: prepared.command,
+            environment: prepared.environment,
             font: font,
             scrollback: launch.scrollback ?? configuration.scrollbackLines
         )

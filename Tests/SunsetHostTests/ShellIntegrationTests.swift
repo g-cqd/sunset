@@ -53,6 +53,36 @@ import Testing
         #expect(marks.first { $0.kind == .commandEnd }?.exitStatus == 1)
         let dotsName = dots.split(separator: "/").last.map(String.init) ?? ""
         #expect(session.lines.contains("env rc \(dotsName) 0"), "\(session.lines)")
+        // Taught zsh also reports its working directory via OSC 7 on each prompt (T-2 / t186).
+        #expect(session.terminal.screen.workingDirectory != nil)
+        try session.send("exit\n")
+        #expect(session.waitForExit())
+    }
+
+    @Test func `bash is taught via rcfile, reports prompts and working directory, and still reads user dotfiles`()
+        throws
+    {
+        let directory = try temporary("bash-int")
+        let home = try temporary("bash-home")
+        try "export FROM_BASHRC=yes\nPS1='$ '\n".write(toFile: home + "/.bashrc", atomically: true, encoding: .utf8)
+        let baseEnv = ["HOME": home, "TERM": "xterm-256color"]
+        let prepared = try ShellIntegration.prepare(
+            command: ["/bin/bash", "-i"],
+            inherited: baseEnv,
+            directory: directory
+        )
+        #expect(prepared.command.contains("--rcfile"))
+        var env = baseEnv
+        for (k, v) in prepared.environment { env[k] = v }
+
+        let session = try HeadlessSession(prepared.command, columns: 160, rows: 10, environment: env)
+        #expect(session.wait { $0.screen.promptMarks.contains { $0.kind == .promptStart } })
+        #expect(session.terminal.screen.workingDirectory != nil)
+        try session.send("echo $FROM_BASHRC; false\n")
+        #expect(session.wait { $0.screen.promptMarks.filter { $0.kind == .promptStart }.count >= 2 })
+        let marks = session.terminal.screen.promptMarks
+        #expect(marks.contains { $0.kind == .commandEnd && $0.exitStatus == 1 })
+        #expect(session.lines.contains("yes"), "\(session.lines)")
         try session.send("exit\n")
         #expect(session.waitForExit())
     }
