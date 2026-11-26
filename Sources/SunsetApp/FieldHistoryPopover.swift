@@ -24,6 +24,7 @@ struct FieldHistoryPopover: View {
                     }
                 }
             }
+            .bouncesOnlyWhenScrolling()
             .frame(maxHeight: 240)
         }
         .padding(Design.Space.m)
