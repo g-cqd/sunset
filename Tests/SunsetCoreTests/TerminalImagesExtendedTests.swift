@@ -44,7 +44,8 @@ import Testing
         let row6 = 6 * 20 * 4
         #expect(image.pixels[row6] == 0 && image.pixels[row6 + 1] == 255 && image.pixels[row6 + 2] == 0)
         #expect(placement.columns == 2 && placement.rows == 1)
-        #expect(t.screen.cursorRow == 1 && t.screen.cursorColumn == 0)
+        // xterm leaves the cursor on the image's last text row, at its first column (`SixelReferenceTests`).
+        #expect(t.screen.cursorRow == 0 && t.screen.cursorColumn == 0)
     }
 
     @Test func `Sixel rejects hostile oversized raster or repeat counts without trapping`() {

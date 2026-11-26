@@ -15,20 +15,16 @@ enum SixelDecoder {
     /// Maximum palette register count (VT340 supports 256; xterm supports 1024).
     static let maxColors = 1_024
 
-    /// Decodes a Sixel byte payload. `transparentBackground` is true when `P2 == 1` (unwritten pixels stay alpha 0).
-    static func decode(
-        _ data: ArraySlice<UInt8>,
-        transparentBackground: Bool = false,
-        background: RGB = RGB(0, 0, 0)
-    ) -> Output? {
-        var state = State(transparent: transparentBackground, background: background)
+    /// Decodes a Sixel byte payload. `transparentBackground` is true when `P2 == 1`: pixels no sixel sets stay clear;
+    /// otherwise they take colour register 0 as the image left it, as xterm and foot do (DEC's background register).
+    static func decode(_ data: ArraySlice<UInt8>, transparentBackground: Bool = false) -> Output? {
+        var state = State(transparent: transparentBackground)
         state.parse(data)
         return state.finalize()
     }
 
     private struct State {
         let transparent: Bool
-        let background: RGB
         var palette = SixelDecoder.defaultPalette()
         var colorIndex = 0
         var cursorX = 0
@@ -77,14 +73,26 @@ enum SixelDecoder {
             else { return nil }
             ensureCanvas(width: width, height: height)
             guard !overflowed else { return nil }
+            var out: [UInt8]
             if width == canvasWidth, height == canvasHeight {
-                return Output(width: width, height: height, rgba: pixels)
+                out = pixels
+            } else {
+                out = [UInt8](repeating: 0, count: width * height * 4)
+                let rowBytes = width * 4
+                for row in 0 ..< height {
+                    let src = row * canvasWidth * 4
+                    out.replaceSubrange(row * rowBytes ..< (row + 1) * rowBytes, with: pixels[src ..< src + rowBytes])
+                }
             }
-            var out = [UInt8](repeating: 0, count: width * height * 4)
-            let rowBytes = width * 4
-            for row in 0 ..< height {
-                let src = row * canvasWidth * 4
-                out.replaceSubrange(row * rowBytes ..< (row + 1) * rowBytes, with: pixels[src ..< src + rowBytes])
+            if !transparent {
+                // Every pixel a sixel set is opaque: the clear ones are the background.
+                let background = palette[0]
+                for offset in stride(from: 0, to: out.count, by: 4) where out[offset + 3] == 0 {
+                    out[offset] = background.red
+                    out[offset + 1] = background.green
+                    out[offset + 2] = background.blue
+                    out[offset + 3] = 255
+                }
             }
             return Output(width: width, height: height, rgba: out)
         }
@@ -143,11 +151,10 @@ enum SixelDecoder {
                     }
                     maxY = max(maxY, cursorY + bit + 1)
                 }
-            } else {
-                maxY = max(maxY, cursorY + 6)
+                maxX = max(maxX, endX)
             }
+            // A blank sixel moves the column but sizes nothing (xterm's set_sixel).
             cursorX = endX
-            maxX = max(maxX, endX)
         }
 
         private mutating func ensureCanvas(width neededW: Int, height neededH: Int) {
@@ -165,14 +172,6 @@ enum SixelDecoder {
                 return
             }
             var resized = [UInt8](repeating: 0, count: newW * newH * 4)
-            if !transparent {
-                for offset in stride(from: 0, to: resized.count, by: 4) {
-                    resized[offset] = background.red
-                    resized[offset + 1] = background.green
-                    resized[offset + 2] = background.blue
-                    resized[offset + 3] = 255
-                }
-            }
             let oldRowBytes = canvasWidth * 4
             if oldRowBytes > 0 {
                 for row in 0 ..< canvasHeight {

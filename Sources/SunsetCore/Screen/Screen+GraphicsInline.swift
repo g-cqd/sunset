@@ -4,14 +4,7 @@
 extension Screen {
     /// Decodes a completed Sixel DCS payload and places the resulting RGBA image at the cursor.
     mutating func finishSixel(_ bytes: ArraySlice<UInt8>) {
-        let bg = palette.resolve(pen.background) ?? palette.background
-        guard
-            let decoded = SixelDecoder.decode(
-                bytes,
-                transparentBackground: graphics.sixelTransparent,
-                background: bg
-            )
-        else { return }
+        guard let decoded = SixelDecoder.decode(bytes, transparentBackground: graphics.sixelTransparent) else { return }
         let cellW = max(graphics.cellWidth, 1)
         let cellH = max(graphics.cellHeight, 1)
         let cols = min(max((decoded.width + cellW - 1) / cellW, 1), TerminalGraphics.sideLimit)
@@ -22,7 +15,7 @@ extension Screen {
             pixels: decoded.rgba,
             cells: (cols, down),
             drawSize: (decoded.width, decoded.height),
-            carriageReturnAfter: true
+            cursorAfter: .firstColumn
         )
     }
 
@@ -41,7 +34,7 @@ extension Screen {
             pixels: request.data,
             cells: sized.cells,
             drawSize: sized.pixels,
-            carriageReturnAfter: false
+            cursorAfter: .pastImage
         )
     }
 
@@ -51,7 +44,7 @@ extension Screen {
         pixels: [UInt8],
         cells: (columns: Int, rows: Int),
         drawSize: (width: Int, height: Int),
-        carriageReturnAfter: Bool
+        cursorAfter: InlineCursor
     ) {
         let image = TerminalImage(
             id: graphics.nextAnonymousID(),
@@ -86,16 +79,25 @@ extension Screen {
         let startCol = column
         for _ in 0 ..< max(cells.rows - 1, 0) { lineFeed() }
         pendingWrap = false
-        if carriageReturnAfter {
-            lineFeed()
-            column = 0
-        } else {
-            // As iTerm2 leaves it: on the image's last row, just past it; past the right edge (the next character wraps)
-            // when the image reaches it.
-            let end = startCol + cells.columns
-            column = min(end, columns - 1)
-            pendingWrap = end >= columns && modes.autoWrap
+        switch cursorAfter {
+            case .firstColumn:
+                // As xterm leaves it after a sixel image (finished_parsing): on the image's last row, at its first column.
+                column = startCol
+            case .pastImage:
+                // As iTerm2 leaves it: on the image's last row, just past it; past the right edge (the next character
+                // wraps) when the image reaches it.
+                let end = startCol + cells.columns
+                column = min(end, columns - 1)
+                pendingWrap = end >= columns && modes.autoWrap
         }
+    }
+
+    /// Where the cursor goes after an inline image, on the image's last row.
+    enum InlineCursor {
+        /// The image's first column: Sixel, as xterm and foot do (sixel scrolling on, mode 8452 off).
+        case firstColumn
+        /// Just past the image: iTerm2's File=.
+        case pastImage
     }
 
     /// iTerm2's file in parts (`MultipartFile=<arguments>`, `FilePart=<base64>`…, `FileEnd`), what `imgcat` sends unless
