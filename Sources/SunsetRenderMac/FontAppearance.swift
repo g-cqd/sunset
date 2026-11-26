@@ -7,7 +7,8 @@ public struct FontAppearance: Sendable, Equatable {
     public var boldItalicName: String?
     /// Ordered fallback font families consulted before CoreText's default system cascade list.
     public var fallbackNames: [String]
-    /// OpenType variation axis values (`wght`, `wdth`, `opsz`, `slnt`, …) applied to every style font.
+    /// OpenType variation axis values (`wght`, `wdth`, `opsz`, `slnt`, …) for the regular face; the bold and italic
+    /// faces keep their own (as Ghostty's `font-variation`).
     public var variations: [FontVariationAxis]
 
     public init(

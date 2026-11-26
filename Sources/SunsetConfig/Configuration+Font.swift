@@ -4,7 +4,8 @@ extension Configuration {
     public struct Font: Sendable, Equatable {
         /// nil: the app's default monospaced font.
         public var family: String? = "JetBrains Mono"
-        /// Optional override font names for bold, italic, and bold-italic text (nil derives from `family`).
+        /// Fonts for bold, italic, and bold-italic text: a family (its face in that style) or a face; nil, or one not
+        /// installed, takes `family`'s own face in that style.
         public var boldFamily: String?
         public var italicFamily: String?
         public var boldItalicFamily: String?
@@ -14,7 +15,7 @@ extension Configuration {
         public var ligatures = true
         /// OpenType features as `tag` or `tag=value`, separated by commas: `zero, ss01, cv02=3`.
         public var features = ""
-        /// Variable-font axis coordinates as `tag=value`, separated by commas: `wght=500, opsz=12`.
+        /// Variable-font axis coordinates for regular text as `tag=value`, separated by commas: `wght=500, opsz=12`.
         public var variations = ""
         public init() {}
     }
