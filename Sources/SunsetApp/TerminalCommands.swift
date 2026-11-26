@@ -132,6 +132,9 @@ struct TerminalCommands: Commands {
     /// History and Window tab-switching commands, factored out so `body` stays within the 10-child `CommandsBuilder`
     /// limit on macOS 26.5's SDK (before variadic `buildBlock` existed).
     @CommandsBuilder private func trailingMenus(scopes: Scopes) -> some Commands {
+        if scopes.documents {
+            CommandMenu("Format") { MarkdownFormatMenu(document: document) }
+        }
         // Not there with the web off.
         if scopes.web {
             CommandMenu("History") { history }
