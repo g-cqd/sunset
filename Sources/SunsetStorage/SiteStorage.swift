@@ -9,10 +9,12 @@ package import Foundation
 /// While Sunset runs they are in the clear (A3 is not what this answers); a crash leaves them in the clear until the next
 /// quit.
 package struct SiteStorage {
-    /// The folders whose files are sealed, wherever WebKit keeps them (per store, per origin).
-    package static let folders: Set<String> = [
-        "IndexedDB", "LocalStorage", "ServiceWorkers", "ResourceLoadStatistics", "HSTS"
-    ]
+    /// The folders whose files are sealed, wherever WebKit keeps them (per store, per origin, and per extension).
+    package static let folders: Set<String> = Set(
+        "IndexedDB LocalStorage ServiceWorkers ResourceLoadStatistics HSTS WebExtensions Origins IsolatedSites AlternativeServices EnhancedSecurity"
+            .split(separator: " ")
+            .map(String.init)
+    )
     private let root: URL
     /// What a file's place is read from: its path after this (the same however the path to the library is written, as
     /// `/var` or `/private/var`).
@@ -42,6 +44,7 @@ package struct SiteStorage {
                 continue
             }
             guard values?.isRegularFile == true,
+                url.lastPathComponent != ".DS_Store",
                 url.pathComponents.dropLast().contains(where: Self.folders.contains)
             else { continue }
             if url.pathExtension == SealedFiles.sealedExtension { sealed.append(url) } else { clear.append(url) }

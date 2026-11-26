@@ -40,6 +40,11 @@ package import SunsetWebModel
         for host in hosts.values { host.sync(all.filter { $0.profile == host.profile }, focused: front) }
     }
 
+    /// Unloads every profile's extensions at quit so WebKit flushes and closes `WebExtensions/` storage before sealing.
+    package func unloadAll() {
+        for host in hosts.values { host.unloadAll() }
+    }
+
     /// No folder, no hosts (tests).
     package func reset() {
         root = nil

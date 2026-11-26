@@ -14,10 +14,20 @@ struct SiteStorageTests {
         "WebsiteData/Default/aa/bb/LocalStorage/localstorage.sqlite3",
         "WebsiteData/Default/aa/bb/LocalStorage/localstorage.sqlite3-wal",
         "WebsiteDataStore/P1/ServiceWorkers/SWRegistrations.db",
-        "WebsiteDataStore/P1/ResourceLoadStatistics/observations.db", "WebsiteDataStore/P1/HSTS/HSTS.plist"
+        "WebsiteDataStore/P1/ResourceLoadStatistics/observations.db",
+        "WebsiteDataStore/P1/HSTS/HSTS.plist",
+        "WebsiteDataStore/P1/Origins/origin-hash/origin",
+        "WebsiteDataStore/P1/IsolatedSites/IsolatedSites.db",
+        "WebsiteDataStore/P1/AlternativeServices/AlternativeService.sqlite",
+        "WebsiteDataStore/P1/EnhancedSecurity/EnhancedSecuritySites.db",
+        "WebExtensions/Default/ext-uuid/LocalStorage.db",
+        "WebExtensions/Default/ext-uuid/State.plist",
+        "WebExtensions/P1/ext-uuid/DeclarativeNetRequestRules.db"
     ]
     private let caches = [
-        "WebsiteData/Default/aa/bb/CacheStorage/salt", "WebsiteDataStore/P1/NetworkCache/Version 17/Records/x"
+        "WebsiteData/Default/aa/bb/CacheStorage/salt",
+        "WebsiteDataStore/P1/NetworkCache/Version 17/Records/x",
+        "WebsiteDataStore/P1/Origins/.DS_Store"
     ]
 
     private func library() throws -> URL {

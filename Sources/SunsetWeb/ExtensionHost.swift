@@ -184,6 +184,13 @@ package import WebKit
         contexts.values.first { $0.uniqueIdentifier == identifier }
     }
 
+    /// Unloads every active extension context before quit sealing so WebKit closes its `WebExtensions/` SQLite files.
+    package func unloadAll() {
+        loading?.cancel()
+        loading = nil
+        for id in Array(contexts.keys) { unload(id) }
+    }
+
     private func unload(_ id: UUID) {
         guard let context = contexts.removeValue(forKey: id) else { return }
         try? controller.unload(context)

@@ -71,6 +71,9 @@ import WebKit
             for (store, _, _) in every { await WebProcessControl.flushCookies(store.httpCookieStore) }
             WebKitFolders.tightenOwn()
             AppSealedData.sealJars()
+            // Unload extensions before quieting/ending the network process so WebKit closes `WebExtensions/` databases
+            // cleanly before `SiteStorage` seals them alongside site data (t137 / A4).
+            ExtensionHosts.shared.unloadAll()
             // The sites' storage: the network process puts it to rest (nothing written after), then ends (it does not wake
             // to write again), then each file is sealed.
             for (store, _, _) in every { await WebProcessControl.quietNetwork(store) }
