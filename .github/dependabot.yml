@@ -13,7 +13,6 @@ updates:
       - "/"
       - "/Benchmarks"
       - "/Tools/axdrive"
-      - "/bench/instructions"
     schedule:
       interval: "weekly"
       day: "monday"
