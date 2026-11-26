@@ -205,13 +205,10 @@ extension LoginImport {
                 "First Name",
                 [person.text("firstName"), person.text("middleName")].compactMap(\.self).joined(separator: " ")
             )
-            put(from: person, [("Last Name", "lastName"), ("Email", "email"), ("Phone", "phone")])
-            let place = ["city", "state", "postalCode"].compactMap { person.text($0) }.joined(separator: " ")
-            let lines =
-                ["address1", "address2", "address3"].map { person.text($0) } + [
-                    place.isEmpty ? nil : place, person.text("country")
-                ]
-            put("Address", lines.compactMap(\.self).joined(separator: "\n"))
+            let names = ["Last Name", "Email", "Phone", "City", "Postal Code", "Region", "Country"]
+            let keys = ["lastName", "email", "phone", "city", "postalCode", "state", "country"]
+            put(from: person, Array(zip(names, keys)))
+            put("Street", ["address1", "address2", "address3"].compactMap { person.text($0) }.joined(separator: "\n"))
             for (name, key) in [("Title", "title"), ("Company", "company"), ("Username", "username")] {
                 extra(name, person.text(key))
             }

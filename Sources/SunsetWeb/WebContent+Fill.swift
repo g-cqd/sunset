@@ -26,6 +26,12 @@ extension WebContent {
         await fill(PasswordFillScript.fillCard, card, for: origin)
     }
 
+    /// An identity into the form of the contact or address field that has the keyboard, its values by autofill token
+    /// (`IdentityOffer`). Returns whether a field was filled.
+    package func fillIdentity(_ values: [String: String], for origin: URL) async -> Bool {
+        await fill(PasswordFillScript.fillIdentity, ["values": values], for: origin)
+    }
+
     private func fill(_ script: String, _ arguments: [String: Any], for origin: URL) async -> Bool {
         guard let view = webView else { return false }
         var arguments = arguments

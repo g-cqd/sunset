@@ -169,7 +169,7 @@ struct BitwardenDocument: Sendable, CustomStringConvertible {
                     fields["Last Name"] = item.texts[1]
                     fields["Email"] = item.texts[2]
                     fields["Phone"] = item.texts[3]
-                    fields["Address"] = item.texts[4]
+                    fields["Street"] = item.texts[4]
                     fields["Company"] = item.texts[5]
             }
             return Expectation(

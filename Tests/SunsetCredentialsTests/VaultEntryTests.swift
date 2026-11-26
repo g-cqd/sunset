@@ -20,7 +20,14 @@ struct VaultEntryTests {
         )
         #expect(Set(EntryTemplate.shipped.map(\.id)).count == names.count, "each its own id")
         let fieldCounts = EntryTemplate.shipped.map { $0.sections.flatMap(\.fields).count }
-        #expect(fieldCounts == [4, 5, 6, 0, 6, 3, 3, 5, 5, 5, 4], "every field of the table read")
+        #expect(fieldCounts == [4, 5, 10, 0, 6, 3, 3, 5, 5, 5, 4], "every field of the table read")
+        let identity = EntryTemplate.identity.makeEntry(title: "Me").sections.flatMap(\.fields)
+        #expect(
+            identity.map(\.name) == [
+                "First Name", "Last Name", "Email", "Phone", "Street", "City", "Postal Code", "Region", "Country",
+                "Birthday"
+            ]
+        )
         let server = EntryTemplate.server.makeEntry(title: "Box")
         #expect(server.field(named: "Port")?.constraints == [.range(1 ... 65_535)])
         #expect(EntryTemplate.shipped[6].sections[0].fields[2].kind == .choice(["WPA3", "WPA2", "WEP", "None"]))

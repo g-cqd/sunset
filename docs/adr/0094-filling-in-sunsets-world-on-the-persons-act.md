@@ -33,6 +33,10 @@ already runs in Sunset's own content world. ADR-0089 keeps Sunset's footprint ou
   never silent; never in a private window; not while the vault is locked.
 - Both popovers are drawn on the window's own background, not translucent: legible in front or not.
 - **Security codes** (cards) are never filled without a reveal.
+- **Contact and address fields** (told by their HTML autofill token, else their type, else their name; a sign-in form's
+  email stays its username) are offered the vault's identities, which are not tied to a site, and filled without Touch
+  ID, as Safari fills contacts: names, email, phone and the address in parts (street, city, postal code, region,
+  country), never a password's, a code's or a card's field. An identity whose address is one piece is not filled from it.
 
 - **Only the person's acts** count: a focus, a submit, a key or a click the page makes up (untrusted) shows nothing and
   offers nothing.

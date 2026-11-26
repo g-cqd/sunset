@@ -29,7 +29,7 @@ struct BitwardenImportTests {
                       "expYear": "2030", "code": "1234"}, "deletedDate": null},
             {"id": "4", "folderId": null, "type": 4, "name": "Me", "notes": null, "favorite": false,
              "identity": {"title": "Ms", "firstName": "Ada", "middleName": "A", "lastName": "Lovelace", "address1": "1 Road",
-                          "address2": null, "address3": null, "city": "London", "state": null, "postalCode": "N1 9GU",
+                          "address2": "Flat 2", "address3": null, "city": "London", "state": "England", "postalCode": "N1 9GU",
                           "country": "GB", "company": "Engines", "email": "ada@example.com", "phone": "+44 20 7946 0000",
                           "ssn": "123-45-6789", "username": "ada", "passportNumber": null, "licenseNumber": null},
              "deletedDate": null},
@@ -87,7 +87,9 @@ struct BitwardenImportTests {
         #expect(person.template == EntryTemplate.identity.id)
         #expect(value(person, "First Name") == "Ada A" && value(person, "Last Name") == "Lovelace")
         #expect(value(person, "Email") == "ada@example.com" && value(person, "Phone") == "+44 20 7946 0000")
-        #expect(value(person, "Address") == "1 Road\nLondon N1 9GU\nGB")
+        #expect(value(person, "Street") == "1 Road\nFlat 2" && value(person, "City") == "London")
+        #expect(value(person, "Postal Code") == "N1 9GU" && value(person, "Region") == "England")
+        #expect(value(person, "Country") == "GB" && person.field(named: "Address") == nil)
         #expect(value(person, "SSN") == "123-45-6789" && person.field(named: "SSN")?.kind == .concealed)
         #expect(value(person, "Company") == "Engines" && value(person, "Title") == "Ms")
     }

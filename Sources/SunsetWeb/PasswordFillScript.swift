@@ -74,11 +74,21 @@ enum PasswordFillScript {
           return first > 0 ? inputs.slice(0, first).reverse().find(isText) : undefined;
         };
         const scope = (el) => (el && el.form) || document;
-        // A value set as typing sets it: through the input's own setter, then its input and change events.
+        // A value set as typing sets it: through the field's own setter, then its input and change events.
         const set = (el, value) => {
-          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, value);
+          const kind = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
+          Object.getOwnPropertyDescriptor(kind.prototype, 'value').set.call(el, value);
           el.dispatchEvent(new Event('input', { bubbles: true }));
           el.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        // A menu's option chosen by its value or its text, either of `wanted` in any case; whether one was.
+        const pick = (select, wanted) => {
+          const lower = wanted.map(w => String(w).toLowerCase());
+          const option = [...select.options].find(o => lower.includes(o.value.toLowerCase()) || lower.includes(o.text.trim().toLowerCase()));
+          if (!option) return false;
+          select.value = option.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          return true;
         };
         // A one-time code's field: its token; a short field named for a code; or a box of a code split one character a
         // box (maxlength 1, among five to eight such boxes in its parent).
@@ -118,8 +128,10 @@ enum PasswordFillScript {
           if (cardPart(el)) return 'card';
           if (isText(el) && passwords(scope(el)).length > 0 && usernameOf(scope(el)) === el) return 'username';
           if (isText(el) && /username/.test(el.autocomplete || '')) return 'username';
+          if (identityPart(el)) return 'identity';
           return null;
         };
+        \(identityFields)
         """
     }
 
@@ -168,12 +180,6 @@ enum PasswordFillScript {
         \(fields)
         const el = document.activeElement;
         if (!cardPart(el)) return false;
-        const pick = (select, wanted) => {
-          const option = [...select.options].find(o => wanted.some(w => o.value === w || o.text.trim() === w));
-          if (!option) return;
-          select.value = option.value;
-          select.dispatchEvent(new Event('change', { bubbles: true }));
-        };
         const put = (field, values) => field instanceof HTMLSelectElement ? pick(field, values) : set(field, values[0]);
         const yy = year.slice(-2);
         const month1 = String(Number(month));

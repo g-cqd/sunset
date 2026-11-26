@@ -6,8 +6,8 @@ extension EntryTemplate {
         01|Login|key|Username:text; Password:concealed; Website:url; One-Time Code:oneTimeCode
         02|Card|creditcard|Cardholder:text; Number:cardNumber/luhn; Expiry:monthYear/future; \
         Security Code:concealed/length3-4; PIN:concealed
-        03|Identity|person.text.rectangle|First Name:text; Last Name:text; Email:email; Phone:phone; Address:address; \
-        Birthday:date
+        03|Identity|person.text.rectangle|First Name:text; Last Name:text; Email:email; Phone:phone; Street:address; \
+        City:text; Postal Code:text; Region:text; Country:text; Birthday:date
         04|Secure Note|note.text|
         05|Licence|doc.badge.gearshape|Product:text; Licence Key:concealed; Licensed To:text; Email:email; \
         Purchased:date; Expires:date/future

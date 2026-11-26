@@ -49,6 +49,7 @@ final class AppPasswordFill: PasswordFillHost {
                 case .newPassword: newPassword(for: field, in: page)
                 case .oneTimeCode: codes(for: field, in: page)
                 case .card: cards(for: field, in: page)
+                case .identity: identities(for: field, in: page)
                 // A sign-in form's field: the site's logins; the one clicked fills the form.
                 case .username, .password:
                     shown(LoginMatch.offered(model.entries, for: field.origin, site: Self.site)) { logins in
@@ -120,18 +121,40 @@ final class AppPasswordFill: PasswordFillHost {
     /// A card's field: the vault's cards; the one clicked is filled once the person has said it is them (Touch ID or the
     /// Mac's password, as Safari asks for a card), its security code with it (ADR-0094).
     private func cards(for field: LoginField, in page: WebContent) -> AnyView? {
-        shown(CardOffer.offered(model.entries)) { offers in
-            CardSuggestions(offers: offers) { [weak self] offer in
-                self?
-                    .filling {
-                        guard await Self.isOwner(reason: "fill \(PasswordLook.title(offer.entry))") else { return }
-                        let values = offer.values
-                        let card = [
-                            "number": values.number, "name": values.name, "month": values.month, "year": values.year,
-                            "code": values.code
-                        ]
-                        _ = await page.fillCard(card, for: field.origin)
-                    }
+        suggest(CardOffer.offered(model.entries), symbol: "creditcard.fill", entry: \.entry) { offer in
+            "\u{2022}\u{2022}\u{2022}\u{2022} \(offer.lastFour)"
+        } fill: { offer in
+            guard await Self.isOwner(reason: "fill \(PasswordLook.title(offer.entry))") else { return }
+            let values = offer.values
+            let card = [
+                "number": values.number, "name": values.name, "month": values.month, "year": values.year,
+                "code": values.code
+            ]
+            _ = await page.fillCard(card, for: field.origin)
+        }
+    }
+
+    /// A contact or address field: the vault's identities; the one clicked fills the form's contact and address fields.
+    /// No Touch ID: what an identity holds is what the person gives every shop (Safari's contact AutoFill asks none).
+    private func identities(for field: LoginField, in page: WebContent) -> AnyView? {
+        suggest(IdentityOffer.offered(model.entries), symbol: "person.crop.circle.fill", entry: \.entry, \.detail) {
+            offer in _ = await page.fillIdentity(offer.values, for: field.origin)
+        }
+    }
+
+    /// `offers` as rows (`EntrySuggestions`), none when there are none; the one clicked closes the popover and `fill`s.
+    private func suggest<Offer>(
+        _ offers: [Offer],
+        symbol: String,
+        entry: KeyPath<Offer, VaultEntry>,
+        _ detail: @escaping (Offer) -> String,
+        fill: @escaping @MainActor (Offer) async -> Void
+    ) -> AnyView? {
+        let rows = offers.map { EntrySuggestions.Offer(entry: $0[keyPath: entry], detail: detail($0)) }
+        return shown(rows) { rows in
+            EntrySuggestions(offers: rows, symbol: symbol) { [weak self] chosen in
+                guard let offer = offers.first(where: { $0[keyPath: entry].id == chosen.id }) else { return }
+                self?.filling { await fill(offer) }
             }
         }
     }
