@@ -53,7 +53,7 @@ struct LoginImportTests {
 
     @Test
     func
-        `Bitwarden's: the first address, the folder, a favourite, a bare secret made a code, notes that are not logins left out`()
+        `Bitwarden's: the first address, the folder, a favourite, a bare secret made a code, a note kept as a Secure Note`()
         throws
     {
         let file = """
@@ -65,13 +65,14 @@ struct LoginImportTests {
         let imported = try LoginImport.read(file, site: site)
         #expect(imported.source == .bitwarden)
         let entry = try #require(imported.entries.first)
-        #expect(imported.entries.count == 1 && entry.title == "Mail")
+        #expect(imported.entries.count == 2 && entry.title == "Mail")
         #expect(value(entry, "Website") == "https://mail.example.com")
         #expect(entry.folder == "Work" && entry.isFavorite)
         let code = try #require(value(entry, "One-Time Code"))
         #expect((try? OneTimeCodeURI(code))?.secret == (try? Base32.decode("JBSWY3DPEHPK3PXP")))
-        #expect(imported.skipped.map(\.reason) == [.notALogin])
-        #expect(imported.skipped.map(\.row) == [3], "the row, the header being 1")
+        #expect(imported.skipped.isEmpty)
+        #expect(imported.entries.last?.template == EntryTemplate.secureNote.id)
+        #expect(imported.entries.last?.note == "body")
     }
 
     @Test func `1Password's: Title, Url, tags split, archived rows left out`() throws {

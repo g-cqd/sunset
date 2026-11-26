@@ -11,7 +11,7 @@ public struct LoginImport: Equatable, Sendable {
     public enum SkipReason: Equatable, Sendable {
         /// No password and no username.
         case empty
-        /// A note, a card or an identity of a manager's export (a `type` that is not a login).
+        /// An identity or another item of a manager's CSV export that is neither a login, a note nor a card.
         case notALogin
         /// An archived item.
         case archived
@@ -61,7 +61,7 @@ public struct LoginImport: Equatable, Sendable {
         let rows = CSVReader.rows(text)
         guard let header = rows.first else { throw .noLoginColumns }
         let layout = columns(of: header)
-        guard layout[.password] != nil else { throw .noLoginColumns }
+        guard layout[.password] != nil || layout[.type] != nil else { throw .noLoginColumns }
         var entries: [VaultEntry] = []
         var skipped: [Skipped] = []
         var warnings: [Warning] = []
@@ -75,12 +75,19 @@ public struct LoginImport: Equatable, Sendable {
             func token(_ role: Role) -> String {
                 cell(role).trimmingCharacters(in: .whitespacesAndNewlines)
             }
-            if let type = layout[.type].map({ _ in token(.type).lowercased() }), !type.isEmpty, type != "login" {
-                skipped.append(Skipped(row: number, reason: .notALogin))
-                continue
-            }
             if ["1", "true", "yes"].contains(token(.archived).lowercased()) {
                 skipped.append(Skipped(row: number, reason: .archived))
+                continue
+            }
+            if let type = layout[.type].map({ _ in token(.type).lowercased() }), !type.isEmpty, type != "login" {
+                guard let item = csvItem(kind: type, cell: cell, token: token) else {
+                    skipped.append(Skipped(row: number, reason: .notALogin))
+                    continue
+                }
+                if item.expiryUnreadable { warnings.append(Warning(row: number, reason: .unreadableExpiry)) }
+                entries.append(
+                    Self.filed(item.entry, folder: cell(.folder), favorite: token(.favorite), tags: cell(.tags))
+                )
                 continue
             }
             let username = cell(.username)
@@ -94,7 +101,7 @@ public struct LoginImport: Equatable, Sendable {
                 title: Self.entryTitle(cell(.title), address: address, username: username, site: site)
             )
             func put(_ name: String, _ value: String) {
-                if !value.isEmpty, let field = entry.field(named: name)?.id { entry.set(field, value) }
+                Self.put(name, value, in: &entry)
             }
             put("Website", address)
             put("Username", username)
@@ -108,14 +115,23 @@ public struct LoginImport: Equatable, Sendable {
                 }
             }
             entry.note = cell(.notes)
-            let folder = cell(.folder)
-            entry.folder = folder.isEmpty ? nil : folder
-            entry.isFavorite = ["1", "true", "yes"].contains(token(.favorite).lowercased())
-            entry.tags = cell(.tags).split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-                .filter { !$0.isEmpty }
-            entries.append(entry)
+            entries.append(Self.filed(entry, folder: cell(.folder), favorite: token(.favorite), tags: cell(.tags)))
         }
         return Self(source: source(of: header), entries: entries, skipped: skipped, warnings: warnings, duplicates: 0)
+    }
+
+    /// Sets the field named `name` of `entry` to `value`, when there is a value and such a field.
+    static func put(_ name: String, _ value: String, in entry: inout VaultEntry) {
+        if !value.isEmpty, let field = entry.field(named: name)?.id { entry.set(field, value) }
+    }
+
+    /// `entry` with the folder, favourite flag and tags a row gives it.
+    private static func filed(_ entry: VaultEntry, folder: String, favorite: String, tags: String) -> VaultEntry {
+        var filed = entry
+        filed.folder = folder.isEmpty ? nil : folder
+        filed.isFavorite = ["1", "true", "yes"].contains(favorite.lowercased())
+        filed.tags = tags.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        return filed
     }
 
     /// What is not in `held` already, nor earlier in the file: a login is the same by its site, username and password; any other entry by

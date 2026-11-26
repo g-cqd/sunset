@@ -7,7 +7,7 @@ extension LoginImport.SkipReason {
     /// What a count of rows left out for this reason is said to be.
     var words: String {
         switch self {
-            case .notALogin: "notes or cards"
+            case .notALogin: "identities or other items"
             case .archived: "archived"
             case .deleted: "in the trash"
             case .unknownKind: "of a kind Sunset does not know"

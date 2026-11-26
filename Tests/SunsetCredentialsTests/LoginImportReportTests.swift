@@ -20,14 +20,15 @@ struct LoginImportReportTests {
             ,,login,Dup,,,0,https://a.example.com,u,p,
             ,,note,Note,x,,0,,,,
             ,,card,Card,x,,0,,,,
+            ,,identity,Me,x,,0,,,,
             ,,login,Blank,,,0,,,,
             """
         let imported = try LoginImport.read(file, site: site).leavingOut(held: [], site: site)
         #expect(imported.sourceName == "Bitwarden")
         #expect(
             imported.report == [
-                "2 logins", "1 already in the vault or earlier in the file",
-                "3 rows are not imported (2 notes or cards, 1 empty)",
+                "2 logins, 1 secure note, 1 card", "1 already in the vault or earlier in the file",
+                "2 rows are not imported (1 identities or other items, 1 empty)",
                 "1 one-time code could not be read and was left out"
             ]
         )

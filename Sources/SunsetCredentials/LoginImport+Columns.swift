@@ -4,22 +4,39 @@
 extension LoginImport {
     enum Role: CaseIterable {
         case title, url, username, password, notes, code, folder, favorite, tags, type, archived
+        /// A card row's columns (roadmap 0095 D / t104): read only for rows whose `type` is a card.
+        case cardholder, cardNumber, cardExpiry, cardExpMonth, cardExpYear, cardCode
 
         var names: [String] {
-            switch self {
-                case .title: ["title", "name"]
-                case .url: ["url", "website", "loginuri", "uri", "weburl"]
-                case .username: ["username", "loginusername", "user", "login", "loginname"]
-                case .password: ["password", "loginpassword", "pass"]
-                case .notes: ["notes", "note", "extra"]
-                case .code: ["otpauth", "logintotp", "totp", "otp"]
-                case .folder: ["folder", "grouping", "group"]
-                case .favorite: ["favorite", "favourite", "fav"]
-                case .tags: ["tags"]
-                case .type: ["type"]
-                case .archived: ["archived"]
-            }
+            Self.table[self] ?? []
         }
+
+        /// Each role's header names, one line a role, in `allCases` order.
+        private static let table = Dictionary(
+            uniqueKeysWithValues: zip(
+                allCases,
+                """
+                title name
+                url website loginuri uri weburl
+                username loginusername user login loginname
+                password loginpassword pass
+                notes note extra
+                otpauth logintotp totp otp
+                folder grouping group
+                favorite favourite fav
+                tags
+                type
+                archived
+                cardholder cardholdername nameoncard cardname
+                cardnumber ccnumber number
+                expiry expirationdate expiration expires cardexpiry
+                expmonth expirationmonth cardexpmonth
+                expyear expirationyear cardexpyear
+                cvv cvc cvv2 securitycode cardcode cardcvv
+                """
+                .split(separator: "\n").map { $0.split(separator: " ").map(String.init) }
+            )
+        )
     }
 
     /// The column of each role the header row has (the first, when two names are there).
