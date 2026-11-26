@@ -7,7 +7,7 @@ import Testing
 @Suite("Switches and checkboxes, each for its role") struct ToggleRolesTests {
     /// Files whose toggles are menu items (a menu draws them as checkmarks) or take their role from the settings' form.
     static let inMenusOrForm: Set<String> = [
-        "KeepAwakeMenu.swift", "WebFindBar.swift", "SettingsRow.swift", "SettingsCustomRow.swift",
+        "KeepAwakeMenu.swift", "WebFindBar.swift", "FindBarView.swift", "SettingsRow.swift", "SettingsCustomRow.swift",
         // A field's menu (Secret, n102).
         "PasswordFieldRow+Editing.swift",
         // The switch style itself.

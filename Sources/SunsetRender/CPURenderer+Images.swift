@@ -14,9 +14,9 @@ extension CPURenderer {
         for placement in graphics.placements + screen.placeholderPlacements(lines: lines) {
             guard let top = screen.absoluteLine(ofStable: placement.stableLine),
                 top < lines.upperBound, top + placement.rows > lines.lowerBound,
-                let image = graphics.images[placement.image],
+                let stored = graphics.images[placement.image],
                 let number = imageTable.number(
-                    of: image,
+                    of: stored.activeForRender,
                     source: ImageCrop(
                         x: placement.sourceX,
                         y: placement.sourceY,

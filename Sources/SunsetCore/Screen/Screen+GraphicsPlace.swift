@@ -1,8 +1,10 @@
 /// Images put on the screen and taken off it (ADR-0117).
 extension Screen {
     mutating func place(_ command: KittyCommand) {
-        guard placeImage(UInt32(clamping: command.int("i")), command) else { return kittyReply(command, .noEntry) }
-        kittyReply(command, nil)
+        guard let id = graphics.resolveID(id: command.int("i"), number: command.int("I")),
+            placeImage(id, command)
+        else { return kittyReply(command, .noEntry) }
+        kittyReply(command, nil, resolvedID: command.int("I") > 0 ? id : nil)
     }
 
     /// Puts image `id` at the cursor, over the cells its pixels cover (or `c` columns and `r` rows), on its line, and moves

@@ -1,6 +1,8 @@
 extension Screen {
     /// The longest OSC payload acted on; a longer one is dropped whole.
     static let oscLimit = 4096
+    /// The most an OSC 52 or iTerm2 inline image (`1337;File=`) payload may take (16 MiB base64).
+    static let largeOSCLimit = 16 << 20
     /// The most an OSC 52 payload may take: 1 MiB of base64 and its prefix.
     static let clipboardLimit = (1 << 20) + 16
     /// How many saved titles the stack keeps.
@@ -9,30 +11,37 @@ extension Screen {
     mutating func oscStart(_ kind: StringKind) {
         oscActive = kind == .osc
         oscOverflowed = false
-        // A big clipboard payload's buffer is let go, not kept for every later title.
+        // A big clipboard or inline-image payload's buffer is let go, not kept for every later title.
         if oscBuffer.capacity > 1 << 16 { oscBuffer = [] } else { oscBuffer.removeAll(keepingCapacity: true) }
     }
 
     mutating func oscAppend(_ bytes: Span<UInt8>) {
         guard oscActive, !oscOverflowed else { return }
         let total = oscBuffer.count + bytes.count
-        guard total <= Self.oscLimit || (total <= Self.clipboardLimit && startsClipboard(adding: bytes)) else {
+        let allowed =
+            total <= Self.oscLimit
+            || (total <= Self.clipboardLimit && startsWithPrefix([0x35, 0x32, 0x3B], adding: bytes))
+            || (total <= Self.largeOSCLimit && startsWithPrefix(Self.iTermFilePrefix, adding: bytes))
+        guard allowed else {
             oscOverflowed = true
             return
         }
-        for index in bytes.indices { oscBuffer.append(bytes[index]) }
+        bytes.withUnsafeBufferPointer { oscBuffer.append(contentsOf: unsafe $0) }
     }
 
-    /// Whether the string being collected is OSC 52 (`52;`), the one code that may be longer than `oscLimit`.
-    private func startsClipboard(adding bytes: Span<UInt8>) -> Bool {
+    private static let iTermFilePrefix = Array("1337;File=".utf8)
+
+    /// Whether the OSC string being collected begins with `target`.
+    private func startsWithPrefix(_ target: [UInt8], adding bytes: Span<UInt8>) -> Bool {
         var prefix: [UInt8] = []
-        for index in 0 ..< min(oscBuffer.count, 3) { prefix.append(oscBuffer[index]) }
+        prefix.reserveCapacity(target.count)
+        for index in 0 ..< min(oscBuffer.count, target.count) { prefix.append(oscBuffer[index]) }
         var index = 0
-        while prefix.count < 3, index < bytes.count {
+        while prefix.count < target.count, index < bytes.count {
             prefix.append(bytes[index])
             index += 1
         }
-        return prefix == [0x35, 0x32, 0x3B]
+        return prefix == target
     }
 
     mutating func oscEnd(completed: Bool, terminator: StringTerminator) {

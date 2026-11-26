@@ -14,7 +14,7 @@ extension Screen {
             graphics.pending = (command, data)
             return
         }
-        finish(command, data)
+        dispatchTransmitted(command, data)
     }
 
     /// A chunk of a command sent in chunks: its data added; the last one (`m=0`) finishes it.
@@ -33,21 +33,33 @@ extension Screen {
         graphics.pending?.data.append(contentsOf: more)
         guard chunk.int("m") != 1, let whole = graphics.pending else { return }
         graphics.pending = nil
-        finish(whole.command, whole.data)
+        dispatchTransmitted(whole.command, whole.data)
     }
 
-    /// The image read and kept (`t`), put at the cursor too (`T`), or only checked (`q`); then answered.
-    private mutating func finish(_ command: KittyCommand, _ sent: [UInt8]) {
+    private mutating func dispatchTransmitted(_ command: KittyCommand, _ sent: [UInt8]) {
         let data: [UInt8]
         switch inflated(command, sent) {
             case .success(let read): data = read
             case .failure(let error): return kittyReply(command, error)
         }
+        if command.letter("a", or: "t") == UInt8(ascii: "f") {
+            finishFrame(command, data)
+        } else {
+            finish(command, data)
+        }
+    }
+
+    /// The image read and kept (`t`), put at the cursor too (`T`), or only checked (`q`); then answered.
+    private mutating func finish(_ command: KittyCommand, _ data: [UInt8]) {
         let action = command.letter("a", or: "t")
         let given = command.int("i")
-        let id = given > 0 ? UInt32(clamping: given) : UInt32.max - UInt32(truncatingIfNeeded: graphics.stored)
+        let number = command.int("I")
+        // Kitty forbids giving both `i=` and `I=` on transmit.
+        if given > 0, number > 0 { return kittyReply(command, .invalid) }
+        let id = given > 0 ? UInt32(clamping: given) : graphics.nextAnonymousID()
+        let imageNumber = number > 0 ? UInt32(clamping: number) : 0
         let image: TerminalImage
-        switch Self.image(command, data, id: id, order: graphics.nextOrder()) {
+        switch Self.image(command, data, id: id, number: imageNumber, order: graphics.nextOrder()) {
             case .success(let read): image = read
             case .failure(let error): return kittyReply(command, error)
         }
@@ -57,12 +69,18 @@ extension Screen {
         // Placements of the image it replaced, or of those the quota sent away, went with them: their pixels are drawn over.
         if graphics.placements.count != shown { markDirty(0 ... rows - 1) }
         if action == UInt8(ascii: "T") { placeImage(image.id, command) }
-        kittyReply(command, nil)
+        kittyReply(command, nil, resolvedID: number > 0 ? image.id : nil)
     }
 
     /// The image `data` holds, by its format (`f`): RGB (24), RGBA (32, the default) of the size given (`s`, `v`), or PNG
     /// (100) of the size its header says.
-    private static func image(_ command: KittyCommand, _ data: [UInt8], id: UInt32, order: UInt64) -> Result<
+    private static func image(
+        _ command: KittyCommand,
+        _ data: [UInt8],
+        id: UInt32,
+        number: UInt32,
+        order: UInt64
+    ) -> Result<
         TerminalImage, KittyError
     > {
         let sides = 1 ... TerminalGraphics.sideLimit
@@ -76,13 +94,22 @@ extension Screen {
                 let format: TerminalImage.Format = channels == 3 ? .rgb : .rgba
                 let pixels = Array(data.prefix(needed))
                 return .success(
-                    TerminalImage(id: id, format: format, width: width, height: height, pixels: pixels, order: order)
+                    TerminalImage(
+                        id: id,
+                        number: number,
+                        format: format,
+                        width: width,
+                        height: height,
+                        pixels: pixels,
+                        order: order
+                    )
                 )
             case 100:
                 guard let size = PNGHeader.size(data) else { return .failure(.noData) }
                 guard sides.contains(size.width), sides.contains(size.height) else { return .failure(.invalid) }
                 let image = TerminalImage(
                     id: id,
+                    number: number,
                     format: .png,
                     width: size.width,
                     height: size.height,
@@ -97,7 +124,7 @@ extension Screen {
 
     /// The data as sent, or inflated when it came compressed: never past the size raw pixels must have, nor the quota (a
     /// PNG); a size past the quota is refused before any work.
-    private func inflated(_ command: KittyCommand, _ sent: [UInt8]) -> Result<[UInt8], KittyError> {
+    func inflated(_ command: KittyCommand, _ sent: [UInt8]) -> Result<[UInt8], KittyError> {
         guard command.letter("o", or: " ") == UInt8(ascii: "z") else { return .success(sent) }
         guard let inflater = graphics.inflater else { return .failure(.invalid) }
         var limit = graphics.quota

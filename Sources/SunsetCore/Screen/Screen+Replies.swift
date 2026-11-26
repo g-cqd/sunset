@@ -19,7 +19,8 @@ extension Screen {
     }
 
     mutating func reportDeviceAttributes() {
-        reply { $0.text("\u{1B}[?62;22c") }
+        // VT220 (62) + Sixel graphics (4) + ANSI color (22).
+        reply { $0.text("\u{1B}[?62;4;22c") }
     }
 
     mutating func reportSecondaryDeviceAttributes() {

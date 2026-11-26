@@ -17,8 +17,8 @@ func screen(_ input: String, _ columns: Int = 10, _ rows: Int = 4) -> Screen {
 
 @Suite("Replies") struct ScreenRepliesTests {
     @Test func `primary and secondary device attributes`() {
-        #expect(answer("\(esc)[c") == "\(esc)[?62;22c")
-        #expect(answer("\(esc)[0c") == "\(esc)[?62;22c")
+        #expect(answer("\(esc)[c") == "\(esc)[?62;4;22c")
+        #expect(answer("\(esc)[0c") == "\(esc)[?62;4;22c")
         #expect(answer("\(esc)[1c") == "")
         #expect(answer("\(esc)[>c") == "\(esc)[>1;10;0c")
         #expect(answer("\(esc)[>0c") == "\(esc)[>1;10;0c")
@@ -72,7 +72,7 @@ func screen(_ input: String, _ columns: Int = 10, _ rows: Int = 4) -> Screen {
     }
 
     @Test func `replies come in the order of the questions`() {
-        #expect(answer("\(esc)[c\(esc)[5n\(esc)[6n") == "\(esc)[?62;22c\(esc)[0n\(esc)[1;1R")
+        #expect(answer("\(esc)[c\(esc)[5n\(esc)[6n") == "\(esc)[?62;4;22c\(esc)[0n\(esc)[1;1R")
     }
 
     @Test func `a query cut at every byte is answered the same`() {

@@ -3,14 +3,14 @@ extension SettingsOption {
     static var sessionRestore: [Self] {
         [
             Self.makeRestorePolicyOption(),
-            Self.makeRestoreToggle(
+            Self.makeRestoreSwitch(
                 key: "tabs.restoreTerminalHistory",
                 title: "Restore terminal screens & scrollback",
                 keywords: "session terminal scrollback history screen replay divider",
                 note: "Replays saved screen and scrollback lines above a divider line before starting a fresh shell.",
                 path: \.tabs.restoreTerminalHistory
             ),
-            Self.makeRestoreToggle(
+            Self.makeRestoreSwitch(
                 key: "storage.encryptTerminalHistory",
                 title: "Encrypt saved terminal history",
                 keywords: "storage seal keychain encrypt terminal scrollback history at rest",
@@ -37,7 +37,7 @@ extension SettingsOption {
         .grouped("Launch")
     }
 
-    private static func makeRestoreToggle(
+    private static func makeRestoreSwitch(
         key: String,
         title: String,
         keywords: String,

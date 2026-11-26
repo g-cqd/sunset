@@ -107,13 +107,18 @@ extension Screen {
         host.addMark(PromptMark(kind: kind, stableLine: cursorStableLine, exitStatus: status))
     }
 
-    // MARK: iTerm2 (1337): only SetMark and CurrentDir
+    // MARK: iTerm2 (1337): SetMark, CurrentDir, and inline File= images
 
     private mutating func iTerm(from start: Int) {
         let rest = oscBuffer[min(start, oscBuffer.count)...]
         if rest.elementsEqual(Array("SetMark".utf8)) {
             guard !isAlternate else { return }
             host.addMark(PromptMark(kind: .promptStart, stableLine: cursorStableLine))
+            return
+        }
+        let fileKey = Array("File=".utf8)
+        if rest.count > fileKey.count, rest.prefix(fileKey.count).elementsEqual(fileKey) {
+            iTermInlineImage(from: rest.dropFirst(fileKey.count))
             return
         }
         let key = Array("CurrentDir=".utf8)

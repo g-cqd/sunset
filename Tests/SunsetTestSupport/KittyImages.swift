@@ -35,6 +35,19 @@ public enum KittyImages {
         return out
     }
 
+    /// Transmits an extra animation frame (`a=f`) of one colour for image `id`.
+    public static func frame(
+        id: Int,
+        width: Int,
+        height: Int,
+        rgba: [UInt8],
+        options: String = ""
+    ) -> String {
+        let pixels = Array(repeatElement(rgba, count: width * height).joined())
+        let extra = options.isEmpty ? "" : ",\(options)"
+        return chunked("a=f,q=2,f=32,i=\(id),s=\(width),v=\(height)\(extra)", Data(pixels).base64EncodedString())
+    }
+
     /// Sends `file` as PNG image `id` and shows it at the cursor, the cursor left where it was.
     public static func showPNG(id: Int, _ file: [UInt8]) -> String {
         chunked("a=T,C=1,q=2,f=100,i=\(id)", Data(file).base64EncodedString())

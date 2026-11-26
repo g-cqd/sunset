@@ -25,6 +25,7 @@ extension Screen {
         guard n > 0 else { return }
         if saveHistory, first == 0, !isAlternate { Self.save(rows: n, of: grid, into: &scrollback) }
         grid.scrollUp(first ... last, by: n, blank: Cell(scalar: 0, width: .narrow, style: currentEraseID()))
+        shiftAlternateGraphics(first: first, last: last, delta: -n)
         markDirty(last - n + 1 ... last)
     }
 
@@ -33,7 +34,13 @@ extension Screen {
         let n = min(count, last - first + 1)
         guard n > 0 else { return }
         grid.scrollDown(first ... last, by: n, blank: Cell(scalar: 0, width: .narrow, style: currentEraseID()))
+        shiftAlternateGraphics(first: first, last: last, delta: n)
         markDirty(first ... first + n - 1)
+    }
+
+    private mutating func shiftAlternateGraphics(first: Int, last: Int, delta: Int) {
+        guard isAlternate, first == 0, last == rows - 1 else { return }
+        graphics.shiftAlternatePlacements(by: delta, screenTopStable: scrollback.evicted + scrollback.count)
     }
 
     /// Copies the top `count` screen rows into the history (the line feed that is about to push them off the screen). The grid is read and the history

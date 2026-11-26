@@ -180,7 +180,7 @@ extension Screen: VTSink {
     ) {
         joinable = false
         oscStart(kind)
-        graphicsStart(kind)
+        graphicsStart(kind, parameters: parameters, marker: marker, intermediates: intermediates, final: final)
     }
     public mutating func stringBytes(_ bytes: Span<UInt8>) {
         oscAppend(bytes)

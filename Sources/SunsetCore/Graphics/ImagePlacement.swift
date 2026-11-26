@@ -5,7 +5,7 @@ public struct ImagePlacement: Sendable, Equatable {
     public let image: UInt32
     /// The program's own number for it within its image; 0 when it gave none.
     public let placement: UInt32
-    public let stableLine: Int
+    public internal(set) var stableLine: Int
     public let column: Int
     public let columns: Int
     public let rows: Int

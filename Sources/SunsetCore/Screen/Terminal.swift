@@ -11,7 +11,9 @@ public struct Terminal: Sendable {
         palette: Palette = Palette(),
         acceptsC1: Bool = false
     ) {
-        parser = VTParser(acceptsC1: acceptsC1)
+        // An inline image (Sixel DCS or iTerm2 OSC 1337 File=) can exceed 1 MiB; allow up to 16 MiB while
+        // Screen+OSC / Screen+Graphics / Screen+GraphicsInline enforce per-protocol caps.
+        parser = VTParser(maxStringLength: 16 << 20, acceptsC1: acceptsC1)
         screen = Screen(columns: columns, rows: rows, scrollbackLimit: scrollbackLimit, clusterLimit: clusterLimit)
         screen.palette = palette
     }
@@ -74,8 +76,14 @@ extension Terminal {
 
     /// A cell's size in pixels, as the host draws it: an image takes as many cells as its pixels cover (ADR-0117).
     public mutating func setCellPixelSize(width: Int, height: Int) {
-        screen.graphics.cellWidth = max(width, 1)
-        screen.graphics.cellHeight = max(height, 1)
+        let nextWidth = max(width, 1)
+        let nextHeight = max(height, 1)
+        guard nextWidth != screen.graphics.cellWidth || nextHeight != screen.graphics.cellHeight else { return }
+        screen.graphics.cellWidth = nextWidth
+        screen.graphics.cellHeight = nextHeight
+        if !screen.graphics.placements.isEmpty || !screen.graphics.virtualPlacements.isEmpty {
+            screen.markDirty(0 ... screen.rows - 1)
+        }
     }
 
     /// The most a terminal's images may take, in bytes (64 MiB unless said).
