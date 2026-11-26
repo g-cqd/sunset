@@ -8,12 +8,17 @@ internal import OrderedCollections
 /// Decrypts Bitwarden password-protected JSON exports (`encrypted: true`, `passwordProtected: true`,
 /// `encKeyValidation_DO_NOT_EDIT`, `data` — roadmap 0095 E / t104) without leaving any plaintext on disk.
 ///
-/// Format (Bitwarden standard):
-/// - `kdfType == 0`: PBKDF2-HMAC-SHA256 (`kdfIterations`, capped `[1, 2_000_000]`) -> 32-byte key
-/// - `kdfType == 1`: Argon2id (`kdfIterations`, `kdfMemory` in MiB, `kdfParallelism`, bounded) -> 32-byte key
-/// - HKDF-Expand (RFC 5869, `SHA256`, PRK = 32-byte KDF key): `enc` -> 32-byte AES-256-CBC key, `mac` -> 32-byte HMAC-SHA256 key
-/// - CipherString `"2.<base64(iv)>|<base64(ct)>|<base64(mac)>"`: verified with constant-time HMAC-SHA256 over `iv || ct`,
-///   then AES-256-CBC decrypted with PKCS#7 padding removal.
+/// Format, as Bitwarden's own code has it (read 2026-11-26: clients `bitwarden-password-protected-importer.ts`,
+/// `password-protected-kdf-config.ts`, `default-key-generation.service.ts`; sdk-internal `bitwarden-crypto` `kdf.rs`,
+/// `utils.rs`), checked against their published test vectors in `BitwardenEncryptedExportTests`:
+/// - the salt is the `salt` string's UTF-8 bytes;
+/// - `kdfType == 0`: PBKDF2-HMAC-SHA256, `kdfIterations` in 5,000...2,000,000 -> 32 bytes;
+/// - `kdfType == 1`: Argon2id v1.3 over SHA-256(salt), `kdfIterations` 2...10, `kdfMemory` 16...1,024 MiB,
+///   `kdfParallelism` 1...16 -> 32 bytes;
+/// - parameters outside those ranges are refused before any derivation (they are the file's, so an attacker's);
+/// - HKDF-Expand (SHA-256) of that key with info `enc` and `mac` gives the AES-256-CBC and HMAC-SHA256 keys;
+/// - `encKeyValidation_DO_NOT_EDIT` and `data` are type-2 strings `2.<iv>|<ciphertext>|<mac>` (base64): the MAC,
+///   HMAC-SHA256 over iv then ciphertext, is checked in constant time before AES-256-CBC with PKCS#7 is undone.
 enum BitwardenEncryptedExport {
     private typealias Object = OrderedDictionary<String, JSONValue>
 
@@ -41,61 +46,79 @@ enum BitwardenEncryptedExport {
         let masterKey = try deriveMasterKey(
             password: password,
             salt: Data(saltText.utf8),
-            kdfType: Int(clamping: kdfType),
-            iterations: Int(clamping: iterations),
-            top: top
+            kdf: try kdf(type: kdfType, iterations: iterations, top: top)
         )
         let encKey = hkdfExpand32(prk: masterKey, info: Data("enc".utf8))
         let macKey = hkdfExpand32(prk: masterKey, info: Data("mac".utf8))
 
-        if let validation = LoginImport.jsonText(top["encKeyValidation_DO_NOT_EDIT"]), !validation.isEmpty {
-            _ = try openCipherString(validation, encKey: encKey, macKey: macKey)
+        guard let validation = LoginImport.jsonText(top["encKeyValidation_DO_NOT_EDIT"]), !validation.isEmpty else {
+            throw .notAnExport
         }
+        _ = try openCipherString(validation, encKey: encKey, macKey: macKey)
         let plainData = try openCipherString(payload, encKey: encKey, macKey: macKey)
         guard let decoded = String(data: plainData, encoding: .utf8) else { throw .encrypted }
         return decoded
     }
 
-    private static func deriveMasterKey(
-        password: String,
-        salt: Data,
-        kdfType: Int,
-        iterations: Int,
-        top: Object
-    ) throws(LoginImport.Failure) -> Data {
-        switch kdfType {
-            case 0:
-                guard (1 ... 2_000_000).contains(iterations) else { throw .notAnExport }
+    /// A key derivation an export may name, with parameters Bitwarden produces.
+    enum KDF: Equatable {
+        case pbkdf2(iterations: Int)
+        case argon2id(iterations: Int, memoryMiB: Int, parallelism: Int)
+    }
+
+    /// The file's KDF, refused (`notAnExport`) when its type is unknown or a parameter is out of Bitwarden's range.
+    private static func kdf(type: Int64, iterations: Int64, top: Object) throws(LoginImport.Failure) -> KDF {
+        var memory: Int64 = 0
+        var lanes: Int64 = 0
+        if case .int(let value)? = top["kdfMemory"] { memory = value }
+        if case .int(let value)? = top["kdfParallelism"] { lanes = value }
+        return try kdf(type: type, iterations: iterations, memoryMiB: memory, parallelism: lanes)
+    }
+
+    static func kdf(
+        type: Int64,
+        iterations: Int64,
+        memoryMiB: Int64,
+        parallelism: Int64
+    ) throws(LoginImport.Failure) -> KDF {
+        switch type {
+            case 0 where (5_000 ... 2_000_000).contains(iterations):
+                return .pbkdf2(iterations: Int(iterations))
+            case 1
+            where (2 ... 10).contains(iterations) && (16 ... 1_024).contains(memoryMiB)
+                && (1 ... 16).contains(parallelism):
+                return .argon2id(iterations: Int(iterations), memoryMiB: Int(memoryMiB), parallelism: Int(parallelism))
+            default:
+                throw .notAnExport
+        }
+    }
+
+    /// The 32-byte key `password` and `salt` derive to by `kdf`.
+    static func deriveMasterKey(password: String, salt: Data, kdf: KDF) throws(LoginImport.Failure) -> Data {
+        switch kdf {
+            case .pbkdf2(let iterations):
                 guard let key = pbkdf2SHA256(password: Data(password.utf8), salt: salt, iterations: iterations) else {
                     throw .encrypted
                 }
                 return key
-            case 1:
-                guard case .int(let memMiB)? = top["kdfMemory"],
-                    case .int(let lanes)? = top["kdfParallelism"],
-                    (1 ... 16).contains(iterations),
-                    (1 ... 512).contains(memMiB),
-                    (1 ... 16).contains(lanes)
-                else { throw .notAnExport }
+            case .argon2id(let iterations, let memoryMiB, let lanes):
                 let hashedSalt = Data(SHA256.hash(data: salt))
                 guard
                     let params = try? Argon2.Parameters(
                         variant: .id,
-                        memoryKiB: Int(memMiB) * 1024,
+                        memoryKiB: memoryMiB * 1_024,
                         passes: iterations,
-                        lanes: Int(lanes),
+                        lanes: lanes,
                         tagLength: 32
                     ),
                     let tag = try? Argon2.hash(
                         password: Array(password.utf8),
                         salt: Array(hashedSalt),
                         parameters: params,
-                        threads: Int(lanes)
+                        threads: lanes
                     )
                 else { throw .encrypted }
                 return Data(tag)
-            default:
-                throw .notAnExport
         }
     }
 
@@ -127,7 +150,7 @@ enum BitwardenEncryptedExport {
         return status == kCCSuccess ? Data(derived) : nil
     }
 
-    private static func openCipherString(
+    static func openCipherString(
         _ cipher: String,
         encKey: SymmetricKey,
         macKey: SymmetricKey
