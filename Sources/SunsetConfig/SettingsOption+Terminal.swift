@@ -8,7 +8,8 @@ extension SettingsOption {
                 "Font",
                 "font typeface name menlo jetbrains",
                 .optionalText(SettingsValue(\.font.family), prompt: "Menlo, SF Mono, JetBrains Mono\u{2026}")
-            ),
+            )
+            .grouped("Typeface"),
             number(
                 "font.size",
                 "Size",
@@ -17,8 +18,10 @@ extension SettingsOption {
                 4 ... 200,
                 step: 0.5,
                 digits: 1
-            ),
-            toggle("font.ligatures", "Ligatures", "font calt liga arrows", \.font.ligatures),
+            )
+            .grouped("Typeface"),
+            toggle("font.ligatures", "Ligatures", "font calt liga arrows", \.font.ligatures)
+                .grouped("Typeface"),
             text(
                 "font.features",
                 "Font features",
@@ -26,7 +29,8 @@ extension SettingsOption {
                 \.font.features,
                 prompt: "zero, ss01, cv02=3"
             )
-        ]
+            .grouped("OpenType")
+        ] + fontStyling
 
     /// The cursor: its shape, its colour, its blinking.
     static let cursor: [Self] =

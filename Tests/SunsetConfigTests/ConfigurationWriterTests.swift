@@ -6,9 +6,14 @@ import Testing
     private func everythingSet() -> Configuration {
         var configuration = Configuration()
         configuration.font.family = "JetBrains Mono"
+        configuration.font.boldFamily = "JetBrains Mono Bold"
+        configuration.font.italicFamily = "JetBrains Mono Italic"
+        configuration.font.boldItalicFamily = "JetBrains Mono Bold Italic"
+        configuration.font.fallbacks = "Symbols Nerd Font, PingFang SC"
         configuration.font.size = 15.5
         configuration.font.ligatures = false
         configuration.font.features = "zero, ss01, cv02=3"
+        configuration.font.variations = "wght=550, opsz=14"
         configuration.colors.foreground = [0xE0, 0xE1, 0xE2]
         configuration.colors.background = [0x01, 0x02, 0x03]
         configuration.colors.cursor = [0xFF, 0x88, 0x00]
@@ -65,7 +70,7 @@ import Testing
     @Test func `every key the reader knows is in the file, so the file shows what can be set`() throws {
         let text = ConfigurationWriter.text(for: Configuration())
         #expect(
-            ConfigurationKeys.all.count == 206,
+            ConfigurationKeys.all.count == 211,
             "a key was added or removed: the list, the reader and the writer move together"
         )
         for key in ConfigurationKeys.all {

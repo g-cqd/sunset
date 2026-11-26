@@ -2,16 +2,6 @@ public import SunsetMetrics
 
 /// Everything the configuration file sets, with the defaults used for any key it does not mention.
 public struct Configuration: Sendable, Equatable {
-    public struct Font: Sendable, Equatable {
-        /// nil: the app's default monospaced font.
-        public var family: String? = "JetBrains Mono"
-        public var size = 12.0
-        public var ligatures = true
-        /// OpenType features as `tag` or `tag=value`, separated by commas: `zero, ss01, cv02=3`.
-        public var features = ""
-        public init() {}
-    }
-
     public struct Colors: Sendable, Equatable {
         /// `#rrggbb` as red, green, blue. The defaults are the author's (white on black, Kitty's 16 ANSI colours); nil (the cursor, or a colour set to null) keeps the terminal's own.
         public var foreground: [UInt8]? = [0xFF, 0xFF, 0xFF]

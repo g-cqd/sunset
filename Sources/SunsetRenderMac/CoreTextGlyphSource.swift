@@ -21,8 +21,15 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
     public let fullName: String
 
     /// `features` are applied to every style of the font. Ligatures and contextual alternates (`liga`, `clig`, `calt`) are the font's default; pass
-    /// `ligatures: false` (or `FontFeature("liga", 0)` and friends) to turn them off.
-    public init(fontName: String = "Menlo", size: Double = 14, features: [FontFeature] = [], ligatures: Bool = true) {
+    /// `ligatures: false` (or `FontFeature("liga", 0)` and friends) to turn them off. `appearance` supplies optional
+    /// per-style fonts, ordered fallback families, and variable font axes (T-7 / t182).
+    public init(
+        fontName: String = "Menlo",
+        size: Double = 14,
+        features: [FontFeature] = [],
+        ligatures: Bool = true,
+        appearance: FontAppearance = FontAppearance()
+    ) {
         FontServer.lock.lock()
         defer { FontServer.lock.unlock() }
         var settings = features
@@ -31,44 +38,28 @@ public final class CoreTextGlyphSource: GlyphSource, @unchecked Sendable {
         for tag in ["liga", "clig", "calt"] where !settings.contains(where: { $0.tag == tag }) {
             settings.append(FontFeature(tag, ligatures ? 1 : 0))
         }
-        func featured(_ font: CTFont) -> CTFont {
-            let list = settings.map { feature -> [CFString: Any] in
-                [
-                    kCTFontOpenTypeFeatureTag: feature.tag as CFString,
-                    kCTFontOpenTypeFeatureValue: feature.value as CFNumber
-                ]
-            }
-            let descriptor = CTFontDescriptorCreateCopyWithAttributes(
-                CTFontCopyFontDescriptor(font),
-                [kCTFontFeatureSettingsAttribute: list] as CFDictionary
-            )
-            return CTFontCreateWithFontDescriptor(descriptor, CTFontGetSize(font), nil)
-        }
         let plain = FontFallback.font(named: fontName, size: size)
-        let base = featured(plain)
-        fullName = CTFontCopyFullName(base) as String
-        regular = base
-        bold = featured(CTFontCreateCopyWithSymbolicTraits(plain, size, nil, .traitBold, .traitBold) ?? plain)
-        italic = featured(CTFontCreateCopyWithSymbolicTraits(plain, size, nil, .traitItalic, .traitItalic) ?? plain)
-        boldItalic = featured(
-            CTFontCreateCopyWithSymbolicTraits(plain, size, nil, [.traitBold, .traitItalic], [.traitBold, .traitItalic])
-                ?? plain
-        )
-        let ascent = CTFontGetAscent(base)
-        let descent = CTFontGetDescent(base)
-        let leading = CTFontGetLeading(base)
+        let faces = Self.resolveFaces(from: plain, size: size, features: settings, appearance: appearance)
+        regular = faces.regular
+        bold = faces.bold
+        italic = faces.italic
+        boldItalic = faces.boldItalic
+        fullName = CTFontCopyFullName(faces.regular) as String
+        let ascent = CTFontGetAscent(faces.regular)
+        let descent = CTFontGetDescent(faces.regular)
+        let leading = CTFontGetLeading(faces.regular)
         var advance = CGSize.zero
-        var glyph = CTFontGetGlyphWithName(base, "M" as CFString)
-        unsafe CTFontGetAdvancesForGlyphs(base, .horizontal, &glyph, &advance, 1)
+        var glyph = CTFontGetGlyphWithName(faces.regular, "M" as CFString)
+        unsafe CTFontGetAdvancesForGlyphs(faces.regular, .horizontal, &glyph, &advance, 1)
         let width = max(4, Int(advance.width.rounded()))
         let height = max(8, Int((ascent + descent + leading).rounded(.up)))
         var made = RenderMetrics(cellWidth: width, cellHeight: height)
         baseline = Int(descent.rounded(.up) + (leading / 2).rounded(.down))
         // Decorations by the font's own measurements.
-        let underlinePosition = Int(abs(CTFontGetUnderlinePosition(base)).rounded())
+        let underlinePosition = Int(abs(CTFontGetUnderlinePosition(faces.regular)).rounded())
         made.underlineY = min(height - 1, height - baseline + max(1, underlinePosition))
-        made.lineThickness = max(1, Int(CTFontGetUnderlineThickness(base).rounded()))
-        made.strikeY = max(0, height - baseline - Int((CTFontGetXHeight(base) / 2).rounded()))
+        made.lineThickness = max(1, Int(CTFontGetUnderlineThickness(faces.regular).rounded()))
+        made.strikeY = max(0, height - baseline - Int((CTFontGetXHeight(faces.regular) / 2).rounded()))
         made.overlineY = 0
         metrics = made
     }

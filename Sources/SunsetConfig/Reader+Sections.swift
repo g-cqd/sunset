@@ -8,6 +8,18 @@ extension Reader {
             switch key {
                 case "family":
                     if let text = string("font.family", value) { configuration.font.family = text.isEmpty ? nil : text }
+                case "boldFamily":
+                    if let text = string("font.boldFamily", value) {
+                        configuration.font.boldFamily = text.isEmpty ? nil : text
+                    }
+                case "italicFamily":
+                    if let text = string("font.italicFamily", value) {
+                        configuration.font.italicFamily = text.isEmpty ? nil : text
+                    }
+                case "boldItalicFamily":
+                    if let text = string("font.boldItalicFamily", value) {
+                        configuration.font.boldItalicFamily = text.isEmpty ? nil : text
+                    }
                 case "features":
                     if let text = string("font.features", value) { configuration.font.features = text }
                 default: unknown("font.\(key)")

@@ -54,12 +54,11 @@ struct TerminalScene: View {
 
     /// The launch options win, then the configuration (the file, or the defaults).
     var font: FontSettings {
-        let file = configuration.font
-        return FontSettings(
-            name: launch.fontName ?? file.family ?? "Menlo",
-            size: tabs.fontZoom.size(base: launch.fontSize ?? file.size),
-            ligatures: launch.ligatures ?? file.ligatures,
-            featureList: file.features
+        FontSettings(
+            configuration: configuration.font,
+            overrideName: launch.fontName,
+            overrideSize: tabs.fontZoom.size(base: launch.fontSize ?? configuration.font.size),
+            overrideLigatures: launch.ligatures
         )
     }
 

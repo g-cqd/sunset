@@ -17,7 +17,13 @@ extension TerminalModel {
     /// Makes the renderer for the font, the padding and the scale as they are now: the Metal one when it is asked for (`gpu`, or `auto` when the GPU
     /// renders as well as the CPU does) and the machine has a device, else the CPU one.
     package func makeRenderer() {
-        let glyphs = CoreTextGlyphSource(fontName: font.name, size: font.size * scale, features: font.features)
+        let glyphs = CoreTextGlyphSource(
+            fontName: font.name,
+            size: font.size * scale,
+            features: font.features,
+            ligatures: font.ligatures,
+            appearance: font.appearance
+        )
         var metrics = glyphs.metrics
         metrics.paddingX = paddingPixels
         metrics.paddingY = paddingPixels

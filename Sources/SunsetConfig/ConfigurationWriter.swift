@@ -19,6 +19,9 @@ public enum ConfigurationWriter {
         }
         return layout.merging([
             "font.family": string(font.family ?? ""),
+            "font.boldFamily": string(font.boldFamily ?? ""),
+            "font.italicFamily": string(font.italicFamily ?? ""),
+            "font.boldItalicFamily": string(font.boldItalicFamily ?? ""),
             "font.features": string(font.features),
             "colors.foreground": color(colors.foreground),
             "colors.background": color(colors.background),

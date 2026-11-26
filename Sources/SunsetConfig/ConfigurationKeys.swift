@@ -6,6 +6,9 @@ public enum ConfigurationKeys {
     static let byHand: [String] = [
         "theme",
         "font.family",
+        "font.boldFamily",
+        "font.italicFamily",
+        "font.boldItalicFamily",
         "font.features",
         "colors.foreground",
         "colors.background",
