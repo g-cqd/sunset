@@ -16,6 +16,11 @@ public protocol GlyphSource: Sendable {
     /// its characters' bitmaps side by side, pixel for pixel. The renderer then draws the characters and keeps no bitmap of the run (most words are so;
     /// a bitmap a word was 100 MB after a few thousand lines of a log). False when in doubt: the run is then drawn as one piece.
     func runIsPlain(_ text: String, bold: Bool, italic: Bool, metrics: RenderMetrics) -> Bool
+
+    /// O(1) per-character fast check: returns true if `scalar` is guaranteed never to combine or alter shape with any
+    /// other character for which `asciiRunByteIsPlain` also returns true in the given style (t241). When every cell in
+    /// a run satisfies this, `CPURenderer` skips string allocation, hash lookup, and CoreText shaping entirely.
+    func asciiRunByteIsPlain(_ byte: UInt8, bold: Bool, italic: Bool) -> Bool
 }
 
 extension GlyphSource {
@@ -25,6 +30,9 @@ extension GlyphSource {
     public func glyph(forRun text: String, bold: Bool, italic: Bool, cells: Int, metrics: RenderMetrics) -> GlyphBitmap?
     { nil }
     public func runIsPlain(_ text: String, bold: Bool, italic: Bool, metrics: RenderMetrics) -> Bool {
+        false
+    }
+    public func asciiRunByteIsPlain(_ byte: UInt8, bold: Bool, italic: Bool) -> Bool {
         false
     }
 }

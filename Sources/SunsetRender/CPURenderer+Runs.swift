@@ -45,30 +45,25 @@ extension CPURenderer {
         }
         guard length >= 2 else { return nil }
         let style = frame.style(of: first)
-        let bold = style.attributes.contains(.bold)
-        let italic = style.attributes.contains(.italic)
-        let entry = shaped(
-            cells: cells,
-            columns: column ..< column + length,
-            bold: bold,
-            italic: italic,
-            frame: frame,
-            table: &walk.glyphs
-        )
-        for offset in 0 ..< length {
-            let cell = cells[column + offset]
+        let (bold, italic) = (style.attributes.contains(.bold), style.attributes.contains(.italic))
+        let range = column ..< column + length
+        let entry: RunEntry? =
+            isFastPlainASCII(cells: cells, columns: range, bold: bold, italic: italic)
+            ? nil : shaped(cells: cells, columns: range, bold: bold, italic: italic, frame: frame, table: &walk.glyphs)
+        let drawIndividually = entry?.plain ?? true
+        for col in range {
             drawCell(
-                cell,
-                at: Placement(row: row, column: column + offset, span: 1, drawGlyph: entry.plain),
+                cells[col],
+                at: Placement(row: row, column: col, span: 1, drawGlyph: drawIndividually),
                 frame: frame,
                 walk: &walk,
                 surface: &surface
             )
         }
-        if entry.glyph != 0, cellPass.drawsMarks {
+        if let glyph = entry?.glyph, glyph != 0, cellPass.drawsMarks {
             let colors = Self.colors(of: style, frame: frame)
             blit(
-                entry.glyph,
+                glyph,
                 of: walk.glyphs,
                 into: &surface,
                 cell: Box(
@@ -80,6 +75,18 @@ extension CPURenderer {
             )
         }
         return length
+    }
+
+    private func isFastPlainASCII(cells: RowCells, columns: Range<Int>, bold: Bool, italic: Bool) -> Bool {
+        for col in columns {
+            let scalar = cells[col].scalar
+            if scalar >= 128
+                || !glyphs.asciiRunByteIsPlain(UInt8(truncatingIfNeeded: scalar), bold: bold, italic: italic)
+            {
+                return false
+            }
+        }
+        return true
     }
 
     /// The shaped run for these cells, from the cache or made by the glyph source. The lookup compares the cells with the entry's scalars, so it neither

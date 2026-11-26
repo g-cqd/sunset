@@ -77,6 +77,27 @@ import Testing
         #expect(!source.runIsPlain("", bold: false, italic: false, metrics: source.metrics))
     }
 
+    @Test(arguments: ["Menlo", "MapleMono-NF-CN-Regular", "SF Mono", "Monaco", "Courier New"])
+    func `every ASCII run marked fast-plain matches side-by-side rendering pixel for pixel`(font: String) {
+        let source = CoreTextGlyphSource(fontName: font, size: 28)
+        let metrics = source.metrics
+        for run in Self.runs {
+            let bytes = Array(run.utf8)
+            for (bold, italic) in [(false, false), (true, false), (false, true), (true, true)] {
+                let fastPlain =
+                    !bytes.isEmpty
+                    && bytes.allSatisfy { $0 < 128 && source.asciiRunByteIsPlain($0, bold: bold, italic: italic) }
+                guard fastPlain else { continue }
+                #expect(source.runIsPlain(run, bold: bold, italic: italic, metrics: metrics), "\(font): \(run)")
+                let whole = source.glyph(forRun: run, bold: bold, italic: italic, cells: bytes.count, metrics: metrics)
+                #expect(
+                    whole?.coverage == sideBySide(run, source, bold: bold, italic: italic),
+                    "\(source.fullName): fast-plain \(run) differs from side-by-side"
+                )
+            }
+        }
+    }
+
     @Test func `a font feature that changes a character alone keeps its runs plain`() {
         let source = CoreTextGlyphSource(
             fontName: "MapleMono-NF-CN-Regular",

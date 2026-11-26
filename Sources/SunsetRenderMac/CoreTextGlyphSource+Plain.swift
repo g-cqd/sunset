@@ -12,10 +12,17 @@ extension CoreTextGlyphSource {
     /// contextual alternate, a glyph from a fallback font, a character outside the basic plane, and whenever in doubt.
     /// - Complexity: one shaping of the run; each character's own glyph is worked out once and remembered.
     public func runIsPlain(_ text: String, bold isBold: Bool, italic isItalic: Bool, metrics: RenderMetrics) -> Bool {
-        let units = Array(text.utf16)
-        guard !units.isEmpty, units.count == text.unicodeScalars.count else { return false }
         let variant: UInt32 = (isBold ? 1 : 0) | (isItalic ? 2 : 0)
         let font = isBold ? (isItalic ? boldItalic : bold) : (isItalic ? italic : regular)
+        return Self.isPlainShaped(text, font: font) { unit in
+            aloneGlyph(unit, variant: variant, font: font, cellWidth: metrics.cellWidth)
+        }
+    }
+
+    /// Core check shared by `runIsPlain` and startup ASCII fast-path probing (`CoreTextGlyphSource+FastASCII.swift`).
+    static func isPlainShaped(_ text: String, font: CTFont, lookup: (UInt16) -> AloneGlyph) -> Bool {
+        let units = Array(text.utf16)
+        guard !units.isEmpty, units.count == text.unicodeScalars.count else { return false }
         guard let line = Self.line(text, font: font) else { return false }
         var next = 0
         for run in (CTLineGetGlyphRuns(line) as? [CTRun]) ?? [] {
@@ -25,8 +32,11 @@ extension CoreTextGlyphSource {
             for index in 0 ..< count {
                 // One glyph for each character, in the text's order.
                 guard indices[index] == next, next < units.count else { return false }
-                let own = aloneGlyph(units[next], variant: variant, font: font, cellWidth: metrics.cellWidth)
-                guard own.glyph == glyphs[index], own.keepsToItsCell else { return false }
+                let unit = units[next]
+                if unit != 0x20 {
+                    let own = lookup(unit)
+                    guard own.glyph == glyphs[index], own.keepsToItsCell else { return false }
+                }
                 next += 1
             }
         }
@@ -54,7 +64,7 @@ extension CoreTextGlyphSource {
 
     /// What the character `unit` is alone in `font`, shaped as the renderer shapes a single cell (so that a feature that changes it alone, a slashed
     /// zero, is counted in). Worked out once for each style and character.
-    private func aloneGlyph(_ unit: UInt16, variant: UInt32, font: CTFont, cellWidth: Int) -> AloneGlyph {
+    func aloneGlyph(_ unit: UInt16, variant: UInt32, font: CTFont, cellWidth: Int) -> AloneGlyph {
         let key = variant << 16 | UInt32(unit)
         if let known = alone.withLock({ $0[key] }) { return known }
         var made = AloneGlyph(glyph: nil, keepsToItsCell: false)
