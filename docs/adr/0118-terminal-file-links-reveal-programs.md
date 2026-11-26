@@ -17,7 +17,9 @@ The owner, asked (2026-11-22), wanted a setting.
 
 - `terminal.fileLinks`: `revealPrograms` (the default), `open`, `reveal`. Under Privacy and security, with what programs may do.
 - A program is what the system runs, starts or installs when it is opened: an app, an executable file, a script Terminal or
-  Automator runs, an installer, a Java archive (`FileLinkTarget`); a link is followed to what it names first.
+  Automator runs, an installer, a Java archive, and the kinds macOS itself calls unsafe (`LSRiskCategoryUnsafeExecutable`
+  in CoreTypes.bundle) (`FileLinkTarget`). Symbolic links and Finder aliases are followed to what they name first (Launch
+  Services opens an alias's target); a link whose target cannot be found is treated as a program.
 - `revealPrograms`: a program is selected in the Finder; anything else opens as before.
 
 ## Consequences

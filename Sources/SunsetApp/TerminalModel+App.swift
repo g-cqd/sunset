@@ -34,10 +34,12 @@ extension TerminalModel {
                     NSWorkspace.shared.activateFileViewerSelecting([url])
                     return
                 }
-                if AppScopes.current.documents, let self, let tabs, Self.isSunsetDocumentURL(url) {
-                    let descriptor = DocumentContent.descriptor(file: url.path)
+                // What the link names (an alias's target), not the alias file itself.
+                let file = FileLinkTarget.target(of: url) ?? url
+                if AppScopes.current.documents, let self, let tabs, Self.isSunsetDocumentURL(file) {
+                    let descriptor = DocumentContent.descriptor(file: file.path)
                     if let doc = DocumentContent(descriptor, documents: SunsetStore.shared.openDocuments) {
-                        if !tabs.isPrivateWindow { tabs.shelf.noteFile(url.path) }
+                        if !tabs.isPrivateWindow { tabs.shelf.noteFile(file.path) }
                         DocumentWiring.wire(doc, in: tabs)
                         tabs.split(.right, with: doc, beside: self)
                         return
