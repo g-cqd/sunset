@@ -6,7 +6,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/Abysm.git",
       "state" : {
-        "revision" : "f0d7a16957893a4c576f339bee107619c54810bc"
+        "revision" : "7ca712850d3231ebb1db47ffef59843e4bf6db3e"
       }
     },
     {
@@ -14,7 +14,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Aemi-Studio/aemi.git",
       "state" : {
-        "revision" : "04cfb910446f446476c0c853317931f3444b1323"
+        "revision" : "1567137e2c810eb489facf29d90a2c623b75d604"
       }
     },
     {
@@ -22,7 +22,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiHMMML.git",
       "state" : {
-        "revision" : "37aa42a4a121ad2e50177d5310794a44d46bb995"
+        "revision" : "dd439204570a9969612ea009608ec39e455c6a33"
       }
     },
     {
@@ -30,7 +30,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiJSON.git",
       "state" : {
-        "revision" : "a7bb9cc463fd1a7f58a404ce28dbbee6b7ee7fe7"
+        "revision" : "75deac170071149540c436bdab47a5c6d5520a4a"
       }
     },
     {
@@ -38,7 +38,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiMarkdown.git",
       "state" : {
-        "revision" : "4448cefa9eb7fc97e5f3161807631592d6f4ba29"
+        "revision" : "2240dc9329db6a6770cc60ecf5b14084282c17df"
       }
     },
     {
@@ -46,7 +46,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiRegex.git",
       "state" : {
-        "revision" : "2b6cd82b452720dc2cb75cf56a6aa085a260415a"
+        "revision" : "792eebdcdf3a47daf8ba6ae9a1dfd4c6c5833fc4"
       }
     },
     {
@@ -54,7 +54,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Aemi-Studio/AemiSDR.git",
       "state" : {
-        "revision" : "78dff2a56bb814f3758ba956afc3aec9ccf00d5d"
+        "revision" : "82dd09653ad654584d42c080ed2f31b7adc75441"
       }
     },
     {
@@ -62,7 +62,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/CSVCoder.git",
       "state" : {
-        "revision" : "18d9ca3e890d4f6c8155dee009cd49106ec56767"
+        "revision" : "a2185d4b6d0c208523507b47bcdb4706744d9dd2"
       }
     },
     {
@@ -88,8 +88,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "f8fad2f95ad67b45f6340c0960e2396094d67e07",
-        "version" : "5.1.1"
+        "revision" : "b0b1963823fe828065ef49c09c8c9489f43cf7be",
+        "version" : "5.2.0"
       }
     },
     {
@@ -115,7 +115,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/TerminalKit.git",
       "state" : {
-        "revision" : "e9ab0df71a205cd6ed33e9ca6871b13dce91d533"
+        "revision" : "a777029a43269692cac6485c254ff0c1b438789e"
       }
     }
   ],
