@@ -129,17 +129,19 @@ package final class PasswordsModel {
         entries.insert(entry, at: entries.firstIndex { Self.before(entry, $0) } ?? entries.endIndex)
     }
 
-    /// Keeps every entry of `entries` (logins read from a file), each sealed and written alone as `save` does; stops at the first that
-    /// fails, those before it stay kept.
+    /// Keeps every entry of `entries` (logins read from a file) inside one atomic SQLite transaction (`Vault.saveBatch`);
+    /// updates the in-memory list once on success.
     /// - Returns: how many were kept.
     package func importLogins(_ entries: [VaultEntry]) throws -> Int {
-        guard vault != nil else { throw Vault.Refused() }
-        var kept = 0
+        guard let vault else { throw Vault.Refused() }
+        guard !entries.isEmpty else { return 0 }
+        try vault.saveBatch(entries)
         for entry in entries {
-            try save(entry)
-            kept += 1
+            pending[entry.id] = nil
+            self.entries.removeAll { $0.id == entry.id }
+            self.entries.insert(entry, at: self.entries.firstIndex { Self.before(entry, $0) } ?? self.entries.endIndex)
         }
-        return kept
+        return entries.count
     }
 
     /// Exports a sealed `.svault` backup of the vault (works even if locked).

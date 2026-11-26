@@ -165,6 +165,7 @@ struct PasswordEntryPage: View {
 
     private func done() {
         if draft.isChanged {
+            draft.recordSecretHistory(now: Runtime.live.now())
             guard (try? model.save(draft.entry)) != nil else { return }
             draft.saved()
         }
@@ -174,7 +175,9 @@ struct PasswordEntryPage: View {
     /// Keeps the edits when they can be kept (a required field left empty keeps them from it).
     private func keep() {
         keeping?.cancel()
-        guard draft.canSave(now: Runtime.live.now()), (try? model.save(draft.entry)) != nil else { return }
+        guard draft.canSave(now: Runtime.live.now()) else { return }
+        draft.recordSecretHistory(now: Runtime.live.now())
+        guard (try? model.save(draft.entry)) != nil else { return }
         draft.saved()
     }
 

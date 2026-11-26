@@ -50,6 +50,21 @@ final class VaultSQL {
         return rows
     }
 
+    func transaction<T>(_ body: () throws -> T) throws -> T {
+        guard run("BEGIN IMMEDIATE") else { throw VaultFile.Failure.cannotOpen }
+        do {
+            let result = try body()
+            guard run("COMMIT") else {
+                _ = run("ROLLBACK")
+                throw VaultFile.Failure.cannotOpen
+            }
+            return result
+        } catch {
+            _ = run("ROLLBACK")
+            throw error
+        }
+    }
+
     private func prepare(_ sql: String, _ values: [Value]) -> OpaquePointer? {
         SQLiteBinding.prepare(sql, values, on: handle)
     }

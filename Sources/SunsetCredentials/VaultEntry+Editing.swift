@@ -26,6 +26,39 @@ extension VaultEntry {
         change(field) { $0.value = value }
     }
 
+    /// Sets `field`'s value and, if the field is secret and its previous non-empty value differs, appends the previous
+    /// value to `field.history` (capped at `EntryField.historyLimit`, roadmap 0092 D).
+    public mutating func set(_ field: UUID, _ value: String, recordingHistoryAt now: Date) {
+        change(field) { item in
+            let previous = item.value
+            item.value = value
+            guard item.isSecret, !previous.isEmpty, previous != value else { return }
+            var list = item.history ?? []
+            if list.last?.value != previous {
+                list.append(FieldHistoryItem(value: previous, changedAt: now))
+                if list.count > EntryField.historyLimit { list.removeFirst(list.count - EntryField.historyLimit) }
+                item.history = list
+            }
+        }
+    }
+
+    /// Attaches `attachment` (if within `VaultAttachment.maxBytes`); returns false when oversized.
+    @discardableResult
+    public mutating func addAttachment(_ attachment: VaultAttachment) -> Bool {
+        guard attachment.data.count <= VaultAttachment.maxBytes else { return false }
+        var list = attachments ?? []
+        list.removeAll { $0.id == attachment.id }
+        list.append(attachment)
+        attachments = list
+        return true
+    }
+
+    public mutating func removeAttachment(_ id: UUID) {
+        guard var list = attachments else { return }
+        list.removeAll { $0.id == id }
+        attachments = list.isEmpty ? nil : list
+    }
+
     public mutating func constrain(_ field: UUID, _ constraints: [FieldConstraint]) {
         change(field) { $0.constraints = constraints }
     }

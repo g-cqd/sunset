@@ -10,6 +10,12 @@ public struct EntryField: Hashable, Sendable, Codable, Identifiable {
     /// Marked secret, or not, by the person, whatever its kind (n102); nil: as its kind says. Optional so that a record
     /// written before it reads.
     public var markedSecret: Bool?
+    /// Previous values of this field when secret (roadmap 0092 D), newest last, capped at `historyLimit`. Optional so
+    /// older vault records decode seamlessly.
+    public var history: [FieldHistoryItem]?
+
+    /// Maximum previous values retained per field.
+    public static let historyLimit = 20
 
     /// Hidden until shown, monospaced, never searched, copied as a secret: its kind's, or as the person marked it.
     public var isSecret: Bool {

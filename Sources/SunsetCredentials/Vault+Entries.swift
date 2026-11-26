@@ -7,6 +7,20 @@ extension Vault {
         try put(JSONEncoder().encode(VaultRecord.entry(entry)), as: entry.id)
     }
 
+    /// Saves every entry of `entries` inside one atomic SQLite transaction (so bulk imports are all-or-nothing and pay
+    /// one fsync instead of one per entry). Refused while locked.
+    public func saveBatch(_ entries: [VaultEntry]) throws {
+        guard !lock.isLocked else { throw Refused() }
+        guard !entries.isEmpty else { return }
+        let encoder = JSONEncoder()
+        let encoded: [(UUID, Data)] = try entries.map { ($0.id, try encoder.encode(VaultRecord.entry($0))) }
+        try file.transaction {
+            for (id, payload) in encoded {
+                try put(payload, as: id)
+            }
+        }
+    }
+
     public func save(_ template: EntryTemplate) throws {
         try put(JSONEncoder().encode(VaultRecord.template(template)), as: template.id)
     }

@@ -27,6 +27,27 @@ public struct EntryDraft: Equatable, Sendable {
         isChanged && !entry.blocksSave(now: now)
     }
 
+    /// Records previous secret field values into each changed secret field's `history` (comparing `entry` against
+    /// `kept`, roadmap 0092 D) before saving.
+    public mutating func recordSecretHistory(now: Date) {
+        let oldByID = Dictionary(
+            uniqueKeysWithValues: kept.sections.flatMap(\.fields).map { ($0.id, $0) }
+        )
+        for sIdx in entry.sections.indices {
+            for fIdx in entry.sections[sIdx].fields.indices {
+                let field = entry.sections[sIdx].fields[fIdx]
+                guard field.isSecret, let prior = oldByID[field.id], !prior.value.isEmpty, prior.value != field.value
+                else { continue }
+                var list = field.history ?? []
+                if list.last?.value != prior.value {
+                    list.append(FieldHistoryItem(value: prior.value, changedAt: now))
+                    if list.count > EntryField.historyLimit { list.removeFirst(list.count - EntryField.historyLimit) }
+                    entry.sections[sIdx].fields[fIdx].history = list
+                }
+            }
+        }
+    }
+
     /// What is kept is now what was edited.
     public mutating func saved() {
         kept = entry

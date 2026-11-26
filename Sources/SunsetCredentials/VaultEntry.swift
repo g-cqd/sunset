@@ -12,6 +12,8 @@ public struct VaultEntry: Hashable, Sendable, Codable, Identifiable {
     public var tags: [String]
     public var folder: String?
     public var isFavorite: Bool
+    /// Optional sealed file attachments (roadmap 0092 C). Optional so older vault records decode seamlessly.
+    public var attachments: [VaultAttachment]?
 
     public init(
         id: UUID = UUID(),
@@ -21,7 +23,8 @@ public struct VaultEntry: Hashable, Sendable, Codable, Identifiable {
         note: String = "",
         tags: [String] = [],
         folder: String? = nil,
-        isFavorite: Bool = false
+        isFavorite: Bool = false,
+        attachments: [VaultAttachment]? = nil
     ) {
         self.id = id
         self.title = title
@@ -31,6 +34,7 @@ public struct VaultEntry: Hashable, Sendable, Codable, Identifiable {
         self.tags = tags
         self.folder = folder
         self.isFavorite = isFavorite
+        self.attachments = attachments
     }
 
     /// The first field of that name, in section order.

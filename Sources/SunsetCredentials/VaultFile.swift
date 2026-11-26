@@ -60,6 +60,11 @@ public final class VaultFile {
         try putSealed(sealed, as: recordID)
     }
 
+    /// Runs `body` inside a single SQLite write transaction on the vault file.
+    package func transaction<T>(_ body: () throws -> T) throws -> T {
+        try sql.transaction(body)
+    }
+
     /// Writes already-sealed bytes under `recordID` (used when `SunsetVaultService.xpc` seals records out-of-process, N-S5).
     package func putSealed(_ sealed: Data, as recordID: UUID) throws(Failure) {
         guard sql.run("INSERT OR REPLACE INTO records VALUES (?, ?)", [.text(recordID.uuidString), .blob(sealed)])
