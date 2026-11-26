@@ -13,14 +13,16 @@ import Testing
 
     @Test func `OSC 4 sets entries from the X colour forms`() {
         #expect(run("\(esc)]4;1;rgb:ff/00/00\(bel)\(esc)]4;1;?\(bel)").1 == "\(esc)]4;1;rgb:ffff/0000/0000\(bel)")
-        #expect(run("\(esc)]4;2;#0f0\(bel)").0.palette.colors[2] == RGB(0, 255, 0))
+        // The # form puts its digits in the high bits, as Xlib's XParseColor (which xterm uses) does: `r << (16 - 4n)`;
+        // so #0f0 is green 0xf000, 0xf0 in eight bits, unlike rgb:0/f/0 (scaled, 0xff).
+        #expect(run("\(esc)]4;2;#0f0\(bel)").0.palette.colors[2] == RGB(0, 0xF0, 0))
         #expect(run("\(esc)]4;2;#102030\(bel)").0.palette.colors[2] == RGB(0x10, 0x20, 0x30))
         #expect(run("\(esc)]4;2;#101020203030\(bel)").0.palette.colors[2] == RGB(0x10, 0x20, 0x30))
         #expect(run("\(esc)]4;2;rgb:1/2/3\(bel)").0.palette.colors[2] == RGB(0x11, 0x22, 0x33))
         #expect(run("\(esc)]4;2;rgb:1234/5678/9abc\(bel)").0.palette.colors[2] == RGB(0x12, 0x56, 0x9A))
         // Wider components keep their high eight bits (no rounding up).
         #expect(run("\(esc)]4;2;rgb:80ff/fffe/1\(bel)").0.palette.colors[2] == RGB(0x80, 0xFF, 0x11))
-        #expect(run("\(esc)]4;2;#abc\(bel)").0.palette.colors[2] == RGB(0xAA, 0xBB, 0xCC))
+        #expect(run("\(esc)]4;2;#abc\(bel)").0.palette.colors[2] == RGB(0xA0, 0xB0, 0xC0))
         #expect(run("\(esc)]4;2;#abcdefabc\(bel)").0.palette.colors[2] == RGB(0xAB, 0xDE, 0xAB))
     }
 
@@ -42,7 +44,7 @@ import Testing
         #expect(run("\(esc)]4;1;#fff\(bel)\(esc)]104;1\(bel)").0.palette == Palette())
         #expect(run("\(esc)]4;1;#fff\(bel)\(esc)]4;2;#fff\(bel)\(esc)]104\(bel)").0.palette == Palette())
         let (screen, _) = run("\(esc)]4;1;#fff\(bel)\(esc)]4;2;#fff\(bel)\(esc)]104;1\(bel)")
-        #expect(screen.palette.colors[2] == RGB(255, 255, 255))
+        #expect(screen.palette.colors[2] == RGB(0xF0, 0xF0, 0xF0))
         #expect(screen.palette.colors[1] == Palette().colors[1])
     }
 

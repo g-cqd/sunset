@@ -98,7 +98,8 @@ public struct Palette: Sendable, Equatable {
         cursor = seedCursor
     }
 
-    /// Parses an X colour specification: `rgb:R/G/B` with one to four hex digits per component, or `#RGB`, `#RRGGBB`, `#RRRGGGBBB`, `#RRRRGGGGBBBB`.
+    /// Parses an X colour specification: `rgb:R/G/B` with one to four hex digits per component (scaled), or `#RGB`, `#RRGGBB`,
+    /// `#RRRGGGBBB`, `#RRRRGGGGBBBB` (most significant bits).
     /// No allocation.
     static func parse(_ spec: ArraySlice<UInt8>) -> RGB? {
         func hex(_ digit: UInt8) -> Int? {
@@ -125,13 +126,19 @@ public struct Palette: Sendable, Equatable {
                 default: return UInt8(value >> 8)
             }
         }
+        /// The `#` form's component: its digits are the value's most significant bits, not scaled (X11's XParseColor,
+        /// kitty's spec: `#3a7` is `#3000a0007000`), so one digit `3` is `0x30`, where `rgb:3/…` is `0x33`.
+        func leading(_ start: Int, _ count: Int) -> UInt8? {
+            guard count != 1 else { return hex(spec[start]).map { UInt8($0 << 4) } }
+            return component(start, count)
+        }
         let first = spec.startIndex
         if spec.first == 0x23 {
             let length = spec.count - 1
             guard length > 0, length % 3 == 0 else { return nil }
             let width = length / 3
-            guard let red = component(first + 1, width), let green = component(first + 1 + width, width),
-                let blue = component(first + 1 + 2 * width, width)
+            guard let red = leading(first + 1, width), let green = leading(first + 1 + width, width),
+                let blue = leading(first + 1 + 2 * width, width)
             else { return nil }
             return RGB(red, green, blue)
         }
