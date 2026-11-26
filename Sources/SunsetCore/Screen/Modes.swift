@@ -8,6 +8,8 @@ public struct Modes: Sendable, Equatable {
     public var reverseVideo = false
     public var origin = false
     public var autoWrap = true
+    /// xterm reverse-wraparound mode (DECSET 45): BS at column 0 wraps back to the end of the preceding wrapped line.
+    public var reverseWrap = false
     public var cursorVisible = true
     public var mouseTracking = MouseTracking.none
     public var mouseFormat = MouseFormat.x10

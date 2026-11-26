@@ -21,6 +21,7 @@ extension Screen {
             case 7: modes.autoWrap = enabled
             case 12: cursorBlinks = enabled
             case 25: modes.cursorVisible = enabled
+            case 45: modes.reverseWrap = enabled
             case 9: setTracking(.x10, enabled)
             case 1000: setTracking(.normal, enabled)
             case 1002: setTracking(.button, enabled)
@@ -149,6 +150,19 @@ extension Screen {
             case 6: (cursorShape, cursorBlinks) = (.bar, false)
             default: break
         }
+    }
+
+    /// XTSAVE (`CSI ? Pm s`): saves the current boolean state of a recognised DEC private mode.
+    mutating func savePrivateMode(_ mode: Int) {
+        let state = modeState(mode, private: true)
+        guard state == 1 || state == 2 else { return }
+        savedPrivateModes[mode] = (state == 1)
+    }
+
+    /// XTRESTORE (`CSI ? Pm r`): restores a previously saved DEC private mode.
+    mutating func restorePrivateMode(_ mode: Int) {
+        guard let previous = savedPrivateModes[mode] else { return }
+        setPrivateMode(mode, enabled: previous)
     }
 
     /// DECSTR: modes, pen, margins, saved cursor and cursor style go back to their defaults; the text stays.

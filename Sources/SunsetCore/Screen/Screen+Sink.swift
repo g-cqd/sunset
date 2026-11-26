@@ -99,11 +99,15 @@ extension Screen: VTSink {
         }
     }
 
-    /// Sequences with one intermediate byte: `$p` DECRQM, `SP q` DECSCUSR, `! p` DECSTR.
+    /// Sequences with one intermediate byte: `$p` DECRQM, `$v` DECCRA, `$x` DECFRA, `$z` DECERA, `SP q` DECSCUSR,
+    /// `! p` DECSTR.
     private mutating func csiIntermediate(_ parameters: Parameters, marker: UInt8, intermediate: UInt8, final: UInt8) {
         switch (intermediate, final) {
             case (0x24, 0x70) where marker == 0 || marker == 0x3F:
                 reportMode(parameters[0], private: marker == 0x3F)
+            case (0x24, 0x76) where marker == 0: copyRectangle(parameters)
+            case (0x24, 0x78) where marker == 0: fillRectangle(parameters)
+            case (0x24, 0x7A) where marker == 0: eraseRectangle(parameters)
             case (0x20, 0x71) where marker == 0: setCursorStyle(parameters[0])
             case (0x21, 0x70) where marker == 0: softReset()
             default: break
@@ -117,6 +121,16 @@ extension Screen: VTSink {
         }
         if final == 0x75 {
             keyboardQuery()
+            return
+        }
+        if final == 0x73 || final == 0x72 {
+            for index in 0 ..< parameters.count where !parameters.isSubParameter(index) {
+                if final == 0x73 {
+                    savePrivateMode(parameters[index])
+                } else {
+                    restorePrivateMode(parameters[index])
+                }
+            }
             return
         }
         guard final == 0x68 || final == 0x6C else { return }

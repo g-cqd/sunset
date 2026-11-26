@@ -40,6 +40,8 @@ public struct Screen: Sendable {
     var shifted = false
     var saved: SavedCursor?
     var savedBeforeAlternate: SavedCursor?
+    /// Saved DEC private modes for xterm `XTSAVE` (`CSI ? Pm s`) / `XTRESTORE` (`CSI ? Pm r`).
+    var savedPrivateModes: [Int: Bool] = [:]
 
     /// The modes the program has set; the host reads the ones that shape input (`Modes`).
     public internal(set) var modes = Modes()

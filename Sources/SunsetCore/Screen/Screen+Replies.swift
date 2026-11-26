@@ -108,6 +108,7 @@ extension Screen {
             case 9: return flag(modes.mouseTracking == .x10)
             case 12: return flag(cursorBlinks)
             case 25: return flag(modes.cursorVisible)
+            case 45: return flag(modes.reverseWrap)
             case 47, 1047, 1049: return flag(isAlternate)
             case 1000: return flag(modes.mouseTracking == .normal)
             case 1002: return flag(modes.mouseTracking == .button)

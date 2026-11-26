@@ -46,8 +46,18 @@ extension Screen {
     }
 
     mutating func backspace() {
+        if pendingWrap, modes.reverseWrap, modes.autoWrap {
+            // xterm reverse-wraparound mode (DECSET 45): BS on pendingWrap clears pendingWrap, staying at last column.
+            pendingWrap = false
+            return
+        }
         pendingWrap = false
-        column = max(0, column - 1)
+        if column > 0 {
+            column -= 1
+        } else if modes.reverseWrap, modes.autoWrap, row > top, grid.isWrapped(row: row - 1) {
+            row -= 1
+            column = columns - 1
+        }
     }
 
     mutating func tab(forward count: Int) {
