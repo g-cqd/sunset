@@ -1,5 +1,6 @@
 import AppKit
 import Observation
+import SunsetAppCore
 import SunsetShell
 
 /// The windows of the app and their tabs, for the sidebar: with system tabs every tab is a window (`NSWindow.tabGroup` groups them), so the sidebar of any
@@ -81,6 +82,12 @@ final class TabRegistry {
 
     /// The window the menus act on: the key window; while Sunset is not active (driven through accessibility, or by a script), its main window,
     /// else the frontmost of its windows.
+    /// The tab window the editing menus act on (`EditingWindow`): the key window, only when it is a tab window.
+    var editingWindow: NSWindow? {
+        _ = revision
+        return EditingWindow.target(key: NSApp.keyWindow) { entries[ObjectIdentifier($0)] != nil }
+    }
+
     var actingWindow: NSWindow? {
         // Read so that what depends on it (the menus' enabled state) is evaluated again when a window comes or becomes key.
         _ = revision

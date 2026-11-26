@@ -133,7 +133,13 @@ struct TerminalCommands: Commands {
     /// limit on macOS 26.5's SDK (before variadic `buildBlock` existed).
     @CommandsBuilder private func trailingMenus(scopes: Scopes) -> some Commands {
         if scopes.documents {
-            CommandMenu("Format") { MarkdownFormatMenu(document: document) }
+            // Only the key window's document: never one behind a pop-up or a sheet that has the keyboard.
+            CommandMenu("Format") {
+                MarkdownFormatMenu(
+                    document: TabRegistry.shared.tabs(for: TabRegistry.shared.editingWindow)?.selectedContent
+                        as? DocumentContent
+                )
+            }
         }
         // Not there with the web off.
         if scopes.web {
