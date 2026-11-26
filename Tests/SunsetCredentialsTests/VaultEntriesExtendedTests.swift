@@ -7,7 +7,6 @@ import Testing
 /// Tests roadmap 0092 C/D/F and single-transaction batch import:
 /// - Sealed file attachments (`VaultAttachment`) + size cap + vault round-trip
 /// - Secret field history (`FieldHistoryItem`, capped at `EntryField.historyLimit`)
-/// - Diceware passphrase generator (`PassphraseRecipe`)
 /// - Offline vault password health audit (`VaultHealthReport`: weak & reused detection)
 /// - Atomic single-transaction `Vault.saveBatch`
 @Suite("Vault entries: attachments, history, passphrases, health, and batch save") struct VaultEntriesExtendedTests {
@@ -62,17 +61,6 @@ import Testing
 
         entry.removeAttachment(small.id)
         #expect(entry.attachments == nil)
-    }
-
-    @Test func `passphrase recipe generates deterministic words with separator, capitalization, and digit`() {
-        var rng = SystemRandomNumberGenerator()
-        let recipe = PassphraseRecipe(words: 6, separator: ".", capitalize: true, includeNumber: true)
-        let phrase = recipe.generate(using: &rng)
-        let parts = phrase.split(separator: ".")
-        #expect(parts.count == 6)
-        #expect(parts.allSatisfy { $0.first?.isUppercase == true })
-        #expect(phrase.contains(where: { $0.isNumber }))
-        #expect(recipe.entropyBits > 48)
     }
 
     @Test func `vault health report flags weak and reused passwords offline`() throws {

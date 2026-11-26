@@ -113,9 +113,13 @@ public struct EntryDraft: Equatable, Sendable {
         entry.set(field, recipe.generate(using: &random))
     }
 
-    /// A memorable Diceware passphrase made by `recipe`, put into `field` (roadmap 0092 F).
-    public mutating func generatePassphrase(into field: UUID, recipe: PassphraseRecipe) {
+    /// A memorable passphrase made by `recipe` from `words`, with the system's generator, put into `field` (roadmap
+    /// 0092 F). Returns false, leaving the field as it was, when `words` is not a list to draw from.
+    @discardableResult
+    public mutating func generatePassphrase(into field: UUID, recipe: PassphraseRecipe, words: [String]) -> Bool {
         var random = SystemRandomNumberGenerator()
-        entry.set(field, recipe.generate(using: &random))
+        guard let phrase = recipe.generate(from: words, using: &random) else { return false }
+        entry.set(field, phrase)
+        return true
     }
 }

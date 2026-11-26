@@ -9,8 +9,7 @@ extension PasswordManagerResources {
 
     private static let shared: PasswordManagerResources? = {
         func data(_ name: String) -> Data? {
-            Bundle.module.url(forResource: "Resources/\(name)", withExtension: "json")
-                .flatMap { try? Data(contentsOf: $0) }
+            BundledResource.data(name, "json")
         }
         guard let rules = data("password-rules"), let shared = data("shared-credentials"),
             let pages = data("change-password-URLs"), let suffixes = try? PublicSuffixList.bundled()

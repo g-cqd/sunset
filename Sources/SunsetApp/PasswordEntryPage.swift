@@ -2,6 +2,7 @@ import SunsetAppCore
 import SunsetCredentials
 import SunsetRuntime
 import SunsetShell
+import SunsetSiteData
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -28,8 +29,8 @@ struct PasswordEntryPage: View {
 
     /// The generator's recipe: twenty characters of every class.
     static let recipe = PasswordRecipe(length: 20, classes: CharacterClass.allCases)
-    /// Memorable Diceware passphrase recipe: five words separated by hyphens with a digit.
-    static let passphraseRecipe = PassphraseRecipe(words: 5, separator: "-", capitalize: false, includeNumber: true)
+    /// The passphrase recipe: six words of EFF's short list, hyphenated, one with a digit (about 68 bits).
+    static let passphraseRecipe = PassphraseRecipe(words: 6, separator: "-", capitalize: false, includeNumber: true)
 
     var body: some View {
         Form {
@@ -93,7 +94,7 @@ struct PasswordEntryPage: View {
                         problem: problem(field),
                         value: binding(field.id),
                         generate: { draft.generate(into: field.id, recipe: Self.recipe) },
-                        generatePassphrase: { draft.generatePassphrase(into: field.id, recipe: Self.passphraseRecipe) },
+                        generatePassphrase: { makePassphrase(into: field.id) },
                         readCode: { code in draft.setUp(code) },
                         remove: { draft.entry.remove(field.id) },
                         edits: FieldEdits { draft.entry.apply($0, to: field.id) }
@@ -172,6 +173,16 @@ struct PasswordEntryPage: View {
     private func cancel() {
         if let back = draft.cancelEditing(), (try? model.save(back)) != nil { draft.saved() }
         editing = false
+    }
+
+    /// A passphrase from the shipped word list into `field`; said plainly when the list cannot be read.
+    private func makePassphrase(into field: UUID) {
+        guard let words = try? PassphraseWords.bundled(),
+            draft.generatePassphrase(into: field, recipe: Self.passphraseRecipe, words: words)
+        else {
+            Feedback.give(.blocked("The passphrase word list could not be read"))
+            return
+        }
     }
 
     private func done() {

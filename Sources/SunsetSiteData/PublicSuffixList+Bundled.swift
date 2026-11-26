@@ -7,10 +7,8 @@ extension PublicSuffixList {
         return list
     }
 
-    private static let shared: PublicSuffixList? = {
-        guard let url = Bundle.module.url(forResource: "Resources/public_suffix_list", withExtension: "dat"),
-            let text = try? String(contentsOf: url, encoding: .utf8)
-        else { return nil }
-        return PublicSuffixList(text: text)
-    }()
+    private static let shared: PublicSuffixList? = BundledResource.text("public_suffix_list", "dat")
+        .map {
+            PublicSuffixList(text: $0)
+        }
 }
