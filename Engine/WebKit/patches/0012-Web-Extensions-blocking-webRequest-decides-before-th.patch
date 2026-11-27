@@ -12,7 +12,7 @@ The hold moves to startCacheOrNetworkLoad, the one step both of startRequest's p
 or the network (the choice made by the caller as before, kept across the hold).
 
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
-index 8ca5bb5ef..30f6e6a10 100644
+index f26eb91f9..1bd8f8869 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 @@ -306,24 +306,47 @@ void NetworkResourceLoader::startRequest(const ResourceRequest& newRequest)
@@ -100,7 +100,7 @@ index 8ca5bb5ef..30f6e6a10 100644
          std::optional<IPC::FormDataReference> httpBody;
          if (RefPtr formData = request.httpBody()) {
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
-index 5bf129eaa..f51c95635 100644
+index 1ccb674ee..1244b41ee 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 @@ -340,6 +340,7 @@ private:

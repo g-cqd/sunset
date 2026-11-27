@@ -10,7 +10,7 @@ sibling comments took 1.4 s to parse, 1.1 s to append by script and
 1.4 s to remove one by one.
 
 diff --git a/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj b/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
-index 5c24c8d6d..5d6eb0528 100644
+index 870e3eeee..6567f14cb 100644
 --- a/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
 +++ b/Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj
 @@ -610,6 +610,7 @@

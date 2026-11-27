@@ -38,7 +38,7 @@ index d93248a8f..e15e88f7d 100644
      enum class SanitizationType { Redirection, RemoveCookies, CrossOriginSafe };
      WEBCORE_EXPORT void sanitizeHTTPHeaderFields(SanitizationType);
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
-index b9e02ce13..befc572b5 100644
+index f40ef6dd5..0a2cc9430 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 @@ -362,7 +362,11 @@ void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, b
@@ -127,7 +127,7 @@ index b9e02ce13..befc572b5 100644
      if (isCrossOriginPrefetch()) {
          if (CheckedPtr session = protect(NetworkProcess::singleton())->networkSession(sessionID())) {
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
-index 0c14e3418..4cc56bca3 100644
+index ad04dffdb..6b5ef5e78 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 @@ -343,6 +343,7 @@ private:
@@ -180,7 +180,7 @@ index 41ac3b096..c7666dddd 100644
      WebRequestOnSendHeaders,
      WindowsOnCreated,
 diff --git a/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp b/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
-index bd52ef85f..88e7f0cf1 100644
+index 14bc16b2a..156acf89c 100644
 --- a/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
 +++ b/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
 @@ -55,7 +55,7 @@ void WebExtensionContext::addListener(WebCore::FrameIdentifier frameIdentifier,
@@ -202,7 +202,7 @@ index bd52ef85f..88e7f0cf1 100644
  
      if (!isTestEventListener(listenerType) || !hasTestEventListeners(listenerType))
 diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
-index 3ce0dbeee..b718858e5 100644
+index 792dfabdf..e6cbae013 100644
 --- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 +++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 @@ -1944,7 +1944,8 @@ void WebExtensionContext::resourceLoadDidSendRequest(WebPageProxyIdentifier page
@@ -296,7 +296,7 @@ index dc055a9af..6c290482b 100644
          m_webRequestDecisionTimer = makeUnique<RunLoop::Timer>(RunLoop::mainSingleton(), "WebExtensionController::WebRequestDecisionTimer"_s, [weakThis = WeakPtr { *this }] {
              if (RefPtr protectedThis = weakThis.get())
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
-index 9833fa023..f6d28d213 100644
+index bc8035d5e..857bc2e24 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 @@ -70,6 +70,7 @@
@@ -425,10 +425,10 @@ index ac99db510..e687e1397 100644
      Deque<std::pair<MonotonicTime, Ref<WebExtensionWebRequestDecision>>> m_heldWebRequestDecisions;
      std::unique_ptr<RunLoop::Timer> m_webRequestDecisionTimer;
 diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
-index 990e6e0cd..986dc9609 100644
+index 65dd38580..afb2391f2 100644
 --- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
 +++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
-@@ -750,6 +750,17 @@ void NetworkProcessProxy::resourceLoadWillSendRequest(WebPageProxyIdentifier pag
+@@ -752,6 +752,17 @@ void NetworkProcessProxy::resourceLoadWillSendRequest(WebPageProxyIdentifier pag
      page->resourceLoadWillSendRequest(WTF::move(loadInfo), WTF::move(request), WTF::move(completionHandler));
  }
  
@@ -479,10 +479,10 @@ index 33f2e690d..c98d935a0 100644
      ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
      ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
-index 7c2b27aae..230f1e4c9 100644
+index daefcfc27..27028118e 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.cpp
 +++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
-@@ -14933,6 +14933,20 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
+@@ -14970,6 +14970,20 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
      completionHandler(false, { }, { }, { });
  }
  
@@ -504,10 +504,10 @@ index 7c2b27aae..230f1e4c9 100644
  {
  #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
-index 3317820ee..03530c68e 100644
+index 1988cf061..3729ecf4c 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.h
 +++ b/Source/WebKit/UIProcess/WebPageProxy.h
-@@ -176,6 +176,7 @@ class FontAttributeChanges;
+@@ -178,6 +178,7 @@ class FontAttributeChanges;
  class FontChanges;
  class FrameTreeSyncData;
  class GraphicsLayer;
@@ -515,7 +515,7 @@ index 3317820ee..03530c68e 100644
  class ImageBufferBackend;
  class InspectorOverlay;
  class IntPoint;
-@@ -937,6 +938,7 @@ public:
+@@ -943,6 +944,7 @@ public:
  
      void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);
      void resourceLoadWillSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&, CompletionHandler<void(bool cancel, URL&& redirectURL, String&& substituteMIMEType, Vector<uint8_t>&& substituteData)>&&);

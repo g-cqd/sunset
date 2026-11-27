@@ -19,10 +19,10 @@ move onto the text and the node goes; otherwise one at a time as before.
 records checked against the system's WebKit.
 
 diff --git a/Source/WebCore/dom/CollectionIndexCache.h b/Source/WebCore/dom/CollectionIndexCache.h
-index b29df0afe..775c2d51a 100644
+index 51b4376d7..ace875e14 100644
 --- a/Source/WebCore/dom/CollectionIndexCache.h
 +++ b/Source/WebCore/dom/CollectionIndexCache.h
-@@ -68,6 +68,9 @@ private:
+@@ -76,6 +76,9 @@ private:
      bool m_nodeCountValid : 1;
      bool m_listValid : 1;
      bool m_hasValidCache : 1;
@@ -33,10 +33,10 @@ index b29df0afe..775c2d51a 100644
  
  template<class Collection, class Iterator> CollectionIndexCache<Collection, Iterator>::CollectionIndexCache()
 diff --git a/Source/WebCore/dom/CollectionIndexCacheInlines.h b/Source/WebCore/dom/CollectionIndexCacheInlines.h
-index 45ad81ec6..1aae7f51d 100644
+index 95ac6b2cd..240c1c7f0 100644
 --- a/Source/WebCore/dom/CollectionIndexCacheInlines.h
 +++ b/Source/WebCore/dom/CollectionIndexCacheInlines.h
-@@ -137,6 +137,20 @@ inline typename CollectionIndexCache<Collection, Iterator>::NodeType* Collection
+@@ -159,6 +159,20 @@ inline typename CollectionIndexCache<Collection, Iterator>::NodeType* Collection
      if (m_listValid)
          return m_cachedList[index].get();
  
@@ -47,7 +47,7 @@ index 45ad81ec6..1aae7f51d 100644
 +            collection.willValidateIndexCache();
 +            m_hasValidCache = true;
 +        }
-+        m_current = { };
++        m_current = StoredIterator { };
 +        m_cachedList.shrink(0);
 +        m_nodeCount = computeNodeCountUpdatingListCache(collection);
 +        m_nodeCountValid = true;
@@ -57,7 +57,7 @@ index 45ad81ec6..1aae7f51d 100644
      if (m_current) {
          if (index > m_currentIndex)
              return traverseForwardTo(collection, index);
-@@ -185,6 +199,7 @@ void CollectionIndexCache<Collection, Iterator>::invalidate()
+@@ -207,6 +221,7 @@ void CollectionIndexCache<Collection, Iterator>::invalidate()
      m_hasValidCache = false;
      m_nodeCountValid = false;
      m_listValid = false;
@@ -66,7 +66,7 @@ index 45ad81ec6..1aae7f51d 100644
  }
  
 diff --git a/Source/WebCore/dom/Node.cpp b/Source/WebCore/dom/Node.cpp
-index d5ab73b22..1133d2a71 100644
+index e60c05438..5217a3f43 100644
 --- a/Source/WebCore/dom/Node.cpp
 +++ b/Source/WebCore/dom/Node.cpp
 @@ -767,32 +767,55 @@ ExceptionOr<void> Node::normalize()

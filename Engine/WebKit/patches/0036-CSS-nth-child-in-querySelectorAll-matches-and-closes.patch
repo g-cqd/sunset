@@ -120,7 +120,7 @@ index 9be32420e..373d61b33 100644
      static void clearCompiledHasArgumentSelectors();
  
 diff --git a/Source/WebCore/cssjit/SelectorCompiler.cpp b/Source/WebCore/cssjit/SelectorCompiler.cpp
-index 8715b6bdd..0e7e6e23a 100644
+index 8736f81f4..66fcab3c2 100644
 --- a/Source/WebCore/cssjit/SelectorCompiler.cpp
 +++ b/Source/WebCore/cssjit/SelectorCompiler.cpp
 @@ -144,6 +144,7 @@ using PseudoClassesSet = HashSet<CSSSelector::PseudoClass, IntHash<CSSSelector::

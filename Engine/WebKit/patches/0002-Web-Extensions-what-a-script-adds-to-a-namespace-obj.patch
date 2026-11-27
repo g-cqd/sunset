@@ -19,7 +19,7 @@ Measured (release, 10 runs, against the base): 200 000 reads of browser.runtime 
 188.4 MB against 188.5.
 
 diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
-index 04886dea1..e327ce3d5 100644
+index 5f45d1a57..1239974ed 100644
 --- a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
 +++ b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
 @@ -39,6 +39,7 @@
@@ -75,7 +75,7 @@ index b5be9cbc6..68425189f 100644
  
  class WebExtensionCallbackHandler : public RefCounted<WebExtensionCallbackHandler> {
 diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
-index ff03274c9..325c1ba05 100644
+index 59e680087..94d709e79 100644
 --- a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
 +++ b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
 @@ -945,7 +945,7 @@ JSValueRef ${className}::${getterName}(JSContextRef context, JSObjectRef object,

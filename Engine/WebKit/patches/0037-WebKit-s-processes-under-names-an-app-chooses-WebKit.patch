@@ -11,7 +11,7 @@ prefix that takes the place of com.apple.WebKit in the name looked up; the servi
 and its sandbox profile is the one of the name its Info.plist says.
 
 diff --git a/Source/WebKit/Shared/mac/AuxiliaryProcessMac.mm b/Source/WebKit/Shared/mac/AuxiliaryProcessMac.mm
-index 95df84584..dd970411d 100644
+index 3212a908f..c3592a4e8 100644
 --- a/Source/WebKit/Shared/mac/AuxiliaryProcessMac.mm
 +++ b/Source/WebKit/Shared/mac/AuxiliaryProcessMac.mm
 @@ -506,11 +506,22 @@ static inline const NSBundle *webKit2BundleSingleton()
@@ -39,7 +39,7 @@ index 95df84584..dd970411d 100644
          return;
      case SandboxInitializationParameters::ProfileSelectionMode::UseOverrideSandboxProfilePath:
 diff --git a/Source/WebKit/UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm b/Source/WebKit/UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm
-index 3a807a898..eba2e7d69 100644
+index c80485c71..33bc66819 100644
 --- a/Source/WebKit/UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm
 +++ b/Source/WebKit/UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm
 @@ -187,6 +187,28 @@ static ASCIILiteral serviceName(const ProcessLauncher::LaunchOptions& launchOpti
@@ -55,7 +55,7 @@ index 3a807a898..eba2e7d69 100644
 +    static NSString *prefix = dynamic_objc_cast<NSString>([[NSBundle mainBundle] objectForInfoDictionaryKey:@"WebKitXPCServicePrefix"]);
 +    static NeverDestroyed<RetainPtr<NSMutableDictionary<NSString *, NSString *>>> names = adoptNS([[NSMutableDictionary alloc] init]);
 +    constexpr auto webKitPrefix = "com.apple.WebKit"_s;
-+    if (!prefix.length || strncmp(name.characters(), webKitPrefix.characters(), webKitPrefix.length()))
++    if (!prefix.length || !spanHasPrefix(name.span(), webKitPrefix.span()))
 +        return name.characters();
 +    RetainPtr key = adoptNS([[NSString alloc] initWithUTF8String:name.characters()]);
 +    @synchronized (names.get().get()) {

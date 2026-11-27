@@ -20,7 +20,7 @@ comments, text and elements under :first-child, :last-child,
 styles as the system's WebKit and Chrome Canary.
 
 diff --git a/Source/WebCore/dom/ContainerNode.cpp b/Source/WebCore/dom/ContainerNode.cpp
-index fa3955cfe..9f2f5c78e 100644
+index 1cb1bcd53..a6ca29029 100644
 --- a/Source/WebCore/dom/ContainerNode.cpp
 +++ b/Source/WebCore/dom/ContainerNode.cpp
 @@ -219,6 +219,11 @@ static ContainerNode::ChildChange makeChildChangeForRemoval(Node& childToRemove,

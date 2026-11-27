@@ -12,7 +12,7 @@ checker does, so the web process checks it as any other redirect (CORS, CSP, mix
 The replies along the way (extension's process, UI process, network process) carry the URL beside the cancel.
 
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
-index 30f6e6a10..4f84c01d8 100644
+index 1bd8f8869..a52580f58 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 @@ -325,7 +325,7 @@ void NetworkResourceLoader::startCacheOrNetworkLoad(ResourceRequest&& request, b
@@ -43,7 +43,7 @@ index 30f6e6a10..4f84c01d8 100644
          }, 0);
          return;
 diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
-index ca36c1a61..206a7f418 100644
+index cb0016297..6ce012efa 100644
 --- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 +++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 @@ -1969,8 +1969,8 @@ void WebExtensionContext::resourceLoadWillSendRequest(WebPageProxyIdentifier pag
@@ -80,7 +80,7 @@ index ee33f8b54..dcbe6d79d 100644
      if (decision->isFinished())
          return;
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
-index dc9831867..fd82c5b1b 100644
+index 684bf6a7b..c723c53c7 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 @@ -182,11 +182,12 @@ struct WebExtensionMessageTargetParameters;
@@ -149,10 +149,10 @@ index 0d4790193..5b4220a3a 100644
      void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::AuthenticationChallenge&);
      void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&);
 diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
-index ae9fdec96..d99e1df94 100644
+index dbef13701..0b86a4544 100644
 --- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
 +++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
-@@ -739,11 +739,11 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
+@@ -741,11 +741,11 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
          page->logDiagnosticMessageWithValue(message, description, value, significantFigures, shouldSample);
  }
  
@@ -193,10 +193,10 @@ index 5fb2fd5b9..e3fcce76f 100644
      ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
      ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
-index 4dd493b82..30ddc4248 100644
+index 33263e2f3..ce6ac6e88 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.cpp
 +++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
-@@ -14919,7 +14919,7 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
+@@ -14956,7 +14956,7 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
  }
  #endif
  
@@ -205,7 +205,7 @@ index 4dd493b82..30ddc4248 100644
  {
  #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
      if (RefPtr webExtensionController = this->webExtensionController()) {
-@@ -14930,7 +14930,7 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
+@@ -14967,7 +14967,7 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
  #endif
      UNUSED_PARAM(loadInfo);
      UNUSED_PARAM(request);
@@ -215,10 +215,10 @@ index 4dd493b82..30ddc4248 100644
  
  void WebPageProxy::resourceLoadDidSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
-index cc32e93e7..33c309117 100644
+index 9dc2d5d8a..b705183a3 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.h
 +++ b/Source/WebKit/UIProcess/WebPageProxy.h
-@@ -936,7 +936,7 @@ public:
+@@ -942,7 +942,7 @@ public:
      NODELETE GeolocationPermissionRequestManagerProxy& geolocationPermissionRequestManager() LIFETIME_BOUND;
  
      void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);

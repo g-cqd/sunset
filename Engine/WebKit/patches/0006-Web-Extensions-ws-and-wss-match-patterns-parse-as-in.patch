@@ -10,7 +10,7 @@ not a valid scheme. Firefox and Chrome accept WebSocket patterns in filters; uBl
 ws and wss join the valid schemes only: the supported ones (what a host permission can grant) are unchanged.
 
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionMatchPattern.cpp b/Source/WebKit/UIProcess/Extensions/WebExtensionMatchPattern.cpp
-index cac7e4ffa..cd4f3ad4e 100644
+index c4251a87a..7e8277e74 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionMatchPattern.cpp
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionMatchPattern.cpp
 @@ -56,7 +56,7 @@ WebExtensionMatchPattern::URLSchemeSet& WebExtensionMatchPattern::extensionSchem

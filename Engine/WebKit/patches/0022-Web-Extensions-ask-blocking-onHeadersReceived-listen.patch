@@ -13,7 +13,7 @@ Not covered: a 304 to a revalidation the web process makes itself (its
 memory cache) keeps the Content-* headers it has.
 
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
-index befc572b5..38df82dce 100644
+index 0a2cc9430..98954fe56 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 @@ -1481,8 +1481,8 @@ void NetworkResourceLoader::startPreconnectTaskIgnoringContentRuleLists(NetworkL
@@ -93,7 +93,7 @@ index befc572b5..38df82dce 100644
      auto response = entry->response();
  
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
-index 4cc56bca3..8a13d50ef 100644
+index 6b5ef5e78..0ab4c9af6 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 @@ -344,6 +344,7 @@ private:

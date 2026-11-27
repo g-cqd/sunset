@@ -46,7 +46,7 @@ index 662718096..79c8cab23 100644
      WebNavigationOnErrorOccurred,
      WebRequestOnAuthRequired,
 diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
-index 883d89c37..0096dacd0 100644
+index f7be1b527..8f45c8111 100644
 --- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 +++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 @@ -61,6 +61,7 @@
@@ -107,7 +107,7 @@ index 883d89c37..0096dacd0 100644
  
  void WebExtensionContext::didCloseTab(WebExtensionTab& tab, WindowIsClosing windowIsClosing, SuppressEvents suppressEvents)
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
-index 26f13a767..e532b3063 100644
+index 5e0087996..796dadbc0 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 @@ -555,6 +555,7 @@ public:

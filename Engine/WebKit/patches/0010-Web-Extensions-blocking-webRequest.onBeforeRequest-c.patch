@@ -50,7 +50,7 @@ index 8a50b9ac5..49708b54e 100644
  
      bool linkPreconnectEarlyHintsEnabled;
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
-index 91e708627..8ca5bb5ef 100644
+index f9f4ccfaa..f26eb91f9 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 @@ -563,6 +563,26 @@ void NetworkResourceLoader::continueStartNetworkLoad(ResourceRequest&& request,
@@ -81,7 +81,7 @@ index 91e708627..8ca5bb5ef 100644
          std::optional<IPC::FormDataReference> httpBody;
          if (RefPtr formData = request.httpBody()) {
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
-index 9359299d7..5bf129eaa 100644
+index 5dd8f9761..1ccb674ee 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 @@ -392,6 +392,9 @@ private:
@@ -153,7 +153,7 @@ index 79c8cab23..41ac3b096 100644
      WebRequestOnCompleted,
      WebRequestOnErrorOccurred,
 diff --git a/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp b/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
-index bf19b5252..bd52ef85f 100644
+index d8075345b..14bc16b2a 100644
 --- a/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
 +++ b/Source/WebKit/UIProcess/Extensions/API/WebExtensionContextAPIEvent.cpp
 @@ -55,6 +55,9 @@ void WebExtensionContext::addListener(WebCore::FrameIdentifier frameIdentifier,
@@ -177,7 +177,7 @@ index bf19b5252..bd52ef85f 100644
          return;
  
 diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
-index 0096dacd0..ca36c1a61 100644
+index 8f45c8111..cb0016297 100644
 --- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 +++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 @@ -1941,6 +1941,40 @@ void WebExtensionContext::resourceLoadDidSendRequest(WebPageProxyIdentifier page
@@ -277,7 +277,7 @@ index 9f6282f0b..ee33f8b54 100644
  {
      for (Ref context : m_extensionContexts)
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
-index f34258efe..113d86500 100644
+index 4ffa4b7a2..da09ae38e 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
 @@ -1814,7 +1814,8 @@ WebExtensionContextParameters WebExtensionContext::parameters(IncludePrivilegedI
@@ -291,7 +291,7 @@ index f34258efe..113d86500 100644
  }
  
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
-index e532b3063..dc9831867 100644
+index 796dadbc0..684bf6a7b 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 @@ -182,6 +182,45 @@ struct WebExtensionMessageTargetParameters;
@@ -391,10 +391,10 @@ index 47c00c580..0d4790193 100644
      WebPageProxySet m_pages;
      WebProcessPoolSet m_processPools;
 diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
-index 6af1f422d..ae9fdec96 100644
+index 983c2d0c2..dbef13701 100644
 --- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
 +++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
-@@ -739,6 +739,17 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
+@@ -741,6 +741,17 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
          page->logDiagnosticMessageWithValue(message, description, value, significantFigures, shouldSample);
  }
  
@@ -437,10 +437,10 @@ index b84b85dc8..5fb2fd5b9 100644
      ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
      ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
-index 4f355798d..4dd493b82 100644
+index 751018bd0..33263e2f3 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.cpp
 +++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
-@@ -14919,6 +14919,20 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
+@@ -14956,6 +14956,20 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
  }
  #endif
  
@@ -462,10 +462,10 @@ index 4f355798d..4dd493b82 100644
  {
  #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
-index babeeb036..cc32e93e7 100644
+index a07f16956..9dc2d5d8a 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.h
 +++ b/Source/WebKit/UIProcess/WebPageProxy.h
-@@ -936,6 +936,7 @@ public:
+@@ -942,6 +942,7 @@ public:
      NODELETE GeolocationPermissionRequestManagerProxy& geolocationPermissionRequestManager() LIFETIME_BOUND;
  
      void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);

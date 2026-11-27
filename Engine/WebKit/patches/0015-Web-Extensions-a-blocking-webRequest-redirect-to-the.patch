@@ -16,7 +16,7 @@ answer gets. A main resource is never substituted (blocked instead). The bytes g
 process only: listed as NotSentFromWebContent.
 
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
-index 4f84c01d8..b9e02ce13 100644
+index a52580f58..f40ef6dd5 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 @@ -318,6 +318,43 @@ void NetworkResourceLoader::startRequest(const ResourceRequest& newRequest)
@@ -86,7 +86,7 @@ index 4f84c01d8..b9e02ce13 100644
                  // A redirect the web process checks as any other (CORS, CSP, mixed content), as WebKit's own synthetic
                  // redirects are: the load goes on with the new request once the web process agrees.
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
-index f51c95635..0c14e3418 100644
+index 1244b41ee..ad04dffdb 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 @@ -341,6 +341,9 @@ private:
@@ -100,10 +100,10 @@ index f51c95635..0c14e3418 100644
  
      NODELETE bool shouldSendResourceLoadMessages() const;
 diff --git a/Source/WebKit/Scripts/webkit/opaque_ipc_types.tracking.in b/Source/WebKit/Scripts/webkit/opaque_ipc_types.tracking.in
-index 4a83bf813..936df89f1 100644
+index 96d27bd7a..d1b97a49f 100644
 --- a/Source/WebKit/Scripts/webkit/opaque_ipc_types.tracking.in
 +++ b/Source/WebKit/Scripts/webkit/opaque_ipc_types.tracking.in
-@@ -573,6 +573,7 @@
+@@ -571,6 +571,7 @@
      [NotSentFromWebContent] StructureParam WebKit::SecItemRequestData.m_queryDictionary
  }
  [NotSentFromWebContent] AliasParam WebKit::PlistValue Variant<WebKit::CoreIPCPlistArray, WebKit::CoreIPCPlistDictionary, WebKit::CoreIPCString, WebKit::CoreIPCNumber, WebKit::CoreIPCDate, WebKit::CoreIPCData>
@@ -112,7 +112,7 @@ index 4a83bf813..936df89f1 100644
  # GTK Specific
  [Legacy] StructureParam sk_sp<SkColorSpace>.dataReference() std::span<const uint8_t>
 diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
-index 206a7f418..3ce0dbeee 100644
+index 6ce012efa..792dfabdf 100644
 --- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 +++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 @@ -62,6 +62,7 @@
@@ -197,7 +197,7 @@ index dcbe6d79d..dc055a9af 100644
      if (decision->isFinished())
          return;
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
-index fd82c5b1b..9833fa023 100644
+index c723c53c7..bc8035d5e 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 @@ -187,7 +187,7 @@ struct ContentRuleListMatchedRule;
@@ -280,10 +280,10 @@ index 5b4220a3a..ac99db510 100644
      void resourceLoadDidReceiveChallenge(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::AuthenticationChallenge&);
      void resourceLoadDidReceiveResponse(WebPageProxyIdentifier, const ResourceLoadInfo&, const WebCore::ResourceResponse&);
 diff --git a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
-index d99e1df94..990e6e0cd 100644
+index 0b86a4544..65dd38580 100644
 --- a/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
 +++ b/Source/WebKit/UIProcess/Network/NetworkProcessProxy.cpp
-@@ -739,11 +739,11 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
+@@ -741,11 +741,11 @@ void NetworkProcessProxy::logDiagnosticMessageWithValue(WebPageProxyIdentifier p
          page->logDiagnosticMessageWithValue(message, description, value, significantFigures, shouldSample);
  }
  
@@ -324,10 +324,10 @@ index e3fcce76f..33f2e690d 100644
      ResourceLoadDidReceiveChallenge(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::AuthenticationChallenge challenge)
      ResourceLoadDidReceiveResponse(WebKit::WebPageProxyIdentifier pageIdentifier, struct WebKit::ResourceLoadInfo resourceLoadInfo, WebCore::ResourceResponse response)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.cpp b/Source/WebKit/UIProcess/WebPageProxy.cpp
-index 30ddc4248..7c2b27aae 100644
+index ce6ac6e88..daefcfc27 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.cpp
 +++ b/Source/WebKit/UIProcess/WebPageProxy.cpp
-@@ -14919,7 +14919,7 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
+@@ -14956,7 +14956,7 @@ static bool isParentFrameMainFrame(const ResourceLoadInfo& loadInfo, WebFramePro
  }
  #endif
  
@@ -336,7 +336,7 @@ index 30ddc4248..7c2b27aae 100644
  {
  #if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
      if (RefPtr webExtensionController = this->webExtensionController()) {
-@@ -14930,7 +14930,7 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
+@@ -14967,7 +14967,7 @@ void WebPageProxy::resourceLoadWillSendRequest(ResourceLoadInfo&& loadInfo, WebC
  #endif
      UNUSED_PARAM(loadInfo);
      UNUSED_PARAM(request);
@@ -346,10 +346,10 @@ index 30ddc4248..7c2b27aae 100644
  
  void WebPageProxy::resourceLoadDidSendRequest(ResourceLoadInfo&& loadInfo, WebCore::ResourceRequest&& request)
 diff --git a/Source/WebKit/UIProcess/WebPageProxy.h b/Source/WebKit/UIProcess/WebPageProxy.h
-index 33c309117..3317820ee 100644
+index b705183a3..1988cf061 100644
 --- a/Source/WebKit/UIProcess/WebPageProxy.h
 +++ b/Source/WebKit/UIProcess/WebPageProxy.h
-@@ -936,7 +936,7 @@ public:
+@@ -942,7 +942,7 @@ public:
      NODELETE GeolocationPermissionRequestManagerProxy& geolocationPermissionRequestManager() LIFETIME_BOUND;
  
      void resourceLoadDidSendRequest(ResourceLoadInfo&&, WebCore::ResourceRequest&&);

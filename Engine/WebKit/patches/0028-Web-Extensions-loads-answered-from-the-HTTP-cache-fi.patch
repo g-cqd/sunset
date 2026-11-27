@@ -10,7 +10,7 @@ does, fromCache true, as in Chrome; no request-header events, since no
 request was sent. onCompleted for a cache hit now says fromCache too.
 
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
-index 19bffe223..704ae041d 100644
+index 8d183ab96..6d6c4e53e 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 @@ -2827,6 +2827,19 @@ void NetworkResourceLoader::continueDidRetrieveCacheEntryAfterLocalNetworkAccess

@@ -11,7 +11,7 @@ one). At most 20 calls in 10 minutes; past that a call does nothing.
 Needs the webRequest permission.
 
 diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
-index e86cfe009..b2a5e629d 100644
+index 0bdd61e83..6b9177a35 100644
 --- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 +++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 @@ -1942,6 +1942,36 @@ void WebExtensionContext::resourceLoadDidSendRequest(WebPageProxyIdentifier page
@@ -52,7 +52,7 @@ index e86cfe009..b2a5e629d 100644
  {
      return m_eventListenerFrames.contains({ WebExtensionEventListenerType::WebRequestOnBeforeRequestBlocking, WebExtensionContentWorldType::Main });
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
-index 8b1bccaf7..8548954f3 100644
+index 70ebc4fbd..a7cf9ff93 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 @@ -1235,6 +1235,10 @@ private:

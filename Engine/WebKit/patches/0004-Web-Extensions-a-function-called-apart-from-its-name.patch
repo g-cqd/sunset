@@ -18,7 +18,7 @@ Measured (release, 10 runs, against the base): 200 000 getURL calls 485 ms again
 against 79; web content memory unchanged.
 
 diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
-index e327ce3d5..0bc57a704 100644
+index 1239974ed..7391f6892 100644
 --- a/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
 +++ b/Source/WebKit/WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
 @@ -534,6 +534,49 @@ static inline JSValueRef getCachedWrapper(JSContextRef context, JSWeakObjectMapR
@@ -96,7 +96,7 @@ index 68425189f..827702fa6 100644
  
      static void initialize(JSContextRef, JSObjectRef);
 diff --git a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
-index 325c1ba05..0d9f49017 100644
+index 94d709e79..69c9fd9a5 100644
 --- a/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
 +++ b/Source/WebKit/WebProcess/Extensions/Bindings/Scripts/CodeGeneratorExtensions.pm
 @@ -498,6 +498,11 @@ EOF

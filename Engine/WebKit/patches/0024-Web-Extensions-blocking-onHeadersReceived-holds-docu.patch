@@ -41,7 +41,7 @@ index 49708b54e..07ca6c4e5 100644
  
      bool linkPreconnectEarlyHintsEnabled;
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
-index 38df82dce..19bffe223 100644
+index 98954fe56..8d183ab96 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.cpp
 @@ -769,7 +769,7 @@ ResourceLoadInfo NetworkResourceLoader::resourceLoadInfo()
@@ -114,7 +114,7 @@ index 38df82dce..19bffe223 100644
      }, 0);
      return true;
 diff --git a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
-index 8a13d50ef..48f97baf1 100644
+index 0ab4c9af6..cba4d9c19 100644
 --- a/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 +++ b/Source/WebKit/NetworkProcess/NetworkResourceLoader.h
 @@ -402,6 +402,7 @@ private:
@@ -174,7 +174,7 @@ index 890f42a66..26efa2282 100644
 +    bool blockingListenersWereAskedAboutResponse;
  };
 diff --git a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
-index b718858e5..e86cfe009 100644
+index e6cbae013..0bdd61e83 100644
 --- a/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 +++ b/Source/WebKit/UIProcess/Extensions/Cocoa/WebExtensionContextCocoa.mm
 @@ -1944,15 +1944,20 @@ void WebExtensionContext::resourceLoadDidSendRequest(WebPageProxyIdentifier page
@@ -216,7 +216,7 @@ index 6c290482b..f8c2de6f6 100644
      }
      decision->add(false, { }, { }, { });
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
-index 113d86500..f1ef2b3a1 100644
+index da09ae38e..4696ba97c 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.cpp
 @@ -1815,7 +1815,8 @@ WebExtensionContextParameters WebExtensionContext::parameters(IncludePrivilegedI
@@ -230,7 +230,7 @@ index 113d86500..f1ef2b3a1 100644
  }
  
 diff --git a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
-index f6d28d213..8b1bccaf7 100644
+index 857bc2e24..70ebc4fbd 100644
 --- a/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 +++ b/Source/WebKit/UIProcess/Extensions/WebExtensionContext.h
 @@ -638,6 +638,7 @@ public:

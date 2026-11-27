@@ -106,10 +106,29 @@ test_tree() {
     start="$(now)"
     log="$tree.tests"
     : > "$log"
+    # Expand prefix filters that match several Swift Testing suites (such as WKWebExtensionAPI) into one TestWebKitAPI
+    # invocation per suite (or per test for suites listed in WebKit's parallel blocklist, such as WKWebExtensionAPIDevToolsTests)
+    # so hundreds of background XPC WebContent or WebInspector processes never contend inside one runner process.
+    all_listed="$(DYLD_FRAMEWORK_PATH="$release" DYLD_LIBRARY_PATH="$release" "$release/TestWebKitAPI" --list-tests < /dev/null 2> /dev/null || true)"
+    expanded_suites="$(printf '%s\n' "$all_listed" | sed -n 's/^TestWebKitAPI\.\(WKWebExtensionAPI[^/]*\)\/.*/\1/p' | sort -u || true)"
     set -f
     for suite in $api_suites; do
-        DYLD_FRAMEWORK_PATH="$release" DYLD_LIBRARY_PATH="$release" __XPC_DYLD_FRAMEWORK_PATH="$release" \
-            __XPC_DYLD_LIBRARY_PATH="$release" "$release/TestWebKitAPI" --filter "$suite" >> "$log" 2>&1 || true
+        if [ "$suite" = "WKWebExtensionAPI" ] && [ -n "$expanded_suites" ]; then
+            for sub in $expanded_suites; do
+                if [ "$sub" = "WKWebExtensionAPIDevToolsTests" ]; then
+                    for one in $(printf '%s\n' "$all_listed" | sed -n "s/^TestWebKitAPI\.\(${sub}\/.*\)/\1/p"); do
+                        DYLD_FRAMEWORK_PATH="$release" DYLD_LIBRARY_PATH="$release" __XPC_DYLD_FRAMEWORK_PATH="$release" \
+                            __XPC_DYLD_LIBRARY_PATH="$release" "$release/TestWebKitAPI" --filter "$one" < /dev/null >> "$log" 2>&1 || true
+                    done
+                else
+                    DYLD_FRAMEWORK_PATH="$release" DYLD_LIBRARY_PATH="$release" __XPC_DYLD_FRAMEWORK_PATH="$release" \
+                        __XPC_DYLD_LIBRARY_PATH="$release" "$release/TestWebKitAPI" --filter "$sub/" < /dev/null >> "$log" 2>&1 || true
+                fi
+            done
+        else
+            DYLD_FRAMEWORK_PATH="$release" DYLD_LIBRARY_PATH="$release" __XPC_DYLD_FRAMEWORK_PATH="$release" \
+                __XPC_DYLD_LIBRARY_PATH="$release" "$release/TestWebKitAPI" --filter "$suite" < /dev/null >> "$log" 2>&1 || true
+        fi
     done
     set +f
     passed="$(grep -c '^\*\*PASS' "$log" || true)"
