@@ -30,10 +30,14 @@ extension AppActions {
 
     /// The tabs what comes from outside opens in: the window that acts, else any window (one not on screen yet, Sunset
     /// starting or behind, is not the one that acts). None while no window is ready: then one is opened, once for all that
-    /// come before it is there (`alreadyAsked`).
+    /// come before it is there (`alreadyAsked`). A window is ready once it has started, tabs or not: one that showed only
+    /// its Favorites and Pinned tabs (no tab of Today) was taken for one not ready, and every file opened after waited for
+    /// a window that never came (the owner, 2026-11-27: no Markdown or text file opened any more, from anywhere).
     func incomingTabs(alreadyAsked: Bool) -> TabsModel? {
         let acting = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)
-        if let tabs = acting ?? TabRegistry.shared.allWindows().first?.tabs, !tabs.workspace.isEmpty { return tabs }
+        if let tabs = acting ?? TabRegistry.shared.allWindows().first?.tabs, tabs.started || !tabs.workspace.isEmpty {
+            return tabs
+        }
         if !alreadyAsked, TabRegistry.shared.allWindows().isEmpty {
             tabParent = nil
             joinsRemaining = 0
