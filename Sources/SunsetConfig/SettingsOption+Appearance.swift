@@ -33,6 +33,7 @@ extension SettingsOption {
                 \.appearance.accent,
                 [(.system, "System"), (.sunset, "Sunset"), (.neutral, "Neutral"), (.site, "From the website")]
             )
+            .inBothSchemes
             .noted("From the website: the color the page declares, else its icon's; the system's for anything else."),
             color("appearance.tint.color", "Tint", "colour color overlay glass", \.appearance.tintColor, [48, 96, 255]),
             number(
@@ -67,6 +68,7 @@ extension SettingsOption {
                 \.appearance.barTint,
                 [(.scheme, "Follow the color scheme"), (.dark, "Dark"), (.light, "Light")]
             )
+            .inBothSchemes
         ]
 
     /// What the window and its surfaces are made of.
@@ -80,6 +82,7 @@ extension SettingsOption {
                 [(.opaque, "Opaque"), (.material, "Material"), (.glass, "Glass"), (.fill, "Color fill")],
                 label: "Window and sidebar background"
             )
+            .inBothSchemes
             .formerly(["transparent": "fill"])
             .grouped("Window"),
             choice(
@@ -102,6 +105,7 @@ extension SettingsOption {
                 \.appearance.glass,
                 [(.regular, "Regular"), (.clear, "Clear")]
             )
+            .inBothSchemes
             .grouped("Window")
             .shown { $0.window.material == .glass },
             number("window.blur", "Window blur", "radius frosted background", \.window.blur, 0 ... 100, step: 1)

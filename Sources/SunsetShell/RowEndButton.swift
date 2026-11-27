@@ -15,12 +15,7 @@ struct RowEndButton: View {
             Image(systemName: symbol)
                 .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
                 .foregroundStyle(live ? AnyShapeStyle(.red) : AnyShapeStyle(over ? .primary : .secondary))
-                .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-                .background(
-                    RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
-                        .fill(Color.primary.opacity(over ? Design.Fill.selected : 0))
-                )
-                .contentShape(.rect)
+                .rowEndFace(layout, lit: over)
         }
         .buttonStyle(.plain)
         .focusable(false)

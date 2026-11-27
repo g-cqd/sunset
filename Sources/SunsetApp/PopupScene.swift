@@ -35,7 +35,7 @@ struct PopupScene: View {
     private var look: WindowLook {
         let base = WindowLook(configuration, light: config.isLight)
         guard let space = popup?.openerSpace.flatMap({ AppSpaces.all.space($0) }) else { return base }
-        return base.tinted(by: space.space.tint)
+        return base.tinted(by: space.space.tint(light: config.isLight))
     }
     private var windowRadius: Double {
         window.flatMap { WindowCornerRadius.of($0) } ?? ConcentricRadius.standardWindow

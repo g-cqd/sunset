@@ -13,9 +13,10 @@ public enum ConfigurationWriter {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }
         layout.merge(extras(configuration)) { $1 }
-        // A plain value is written by its option's codec.
+        // A plain value is written by its option's codec; with a value of its own in light, both.
         for (key, codec) in SettingCodec.byKey {
-            layout[key] = codec.literal(configuration)
+            let dark = codec.literal(configuration)
+            layout[key] = configuration.lightValues[key].map { "{ \"light\": \($0), \"dark\": \(dark) }" } ?? dark
         }
         return layout.merging([
             "font.family": string(font.family ?? ""),
@@ -23,9 +24,6 @@ public enum ConfigurationWriter {
             "font.italicFamily": string(font.italicFamily ?? ""),
             "font.boldItalicFamily": string(font.boldItalicFamily ?? ""),
             "font.features": string(font.features),
-            "colors.foreground": color(colors.foreground),
-            "colors.background": color(colors.background),
-            "colors.cursor": color(colors.cursor),
             "scrollback.lines": String(configuration.scrollbackLines),
             "cursor.blinkTimeout": configuration.cursorBlinkTimeout.map(number) ?? "null",
             "terminal.directory": string(configuration.terminal.directory),

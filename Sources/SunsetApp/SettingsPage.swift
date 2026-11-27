@@ -154,7 +154,12 @@ struct SettingsPage: View {
     private func rows(_ options: [SettingsOption]) -> some View {
         // A choice that acts only under another is shown under it only.
         ForEach(applying(options)) { option in
-            SettingsRow(option: option, config: store)
+            // A per-profile store sets no light values: only the app's.
+            if option.perScheme, scoped == nil, Configuration.hasSchemeValues(option.id) {
+                SchemeSettingsRow(option: option, config: store)
+            } else {
+                SettingsRow(option: option, config: store)
+            }
             if let scoped, scoped.isOwn(option) { OwnSettingRow(store: scoped, option: option) }
         }
     }

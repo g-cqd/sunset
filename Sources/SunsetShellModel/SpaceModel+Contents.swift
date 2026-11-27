@@ -11,8 +11,9 @@ extension SpaceModel {
     package func setIcon(_ icon: PaneIcon?) {
         space.icon = icon
     }
-    package func setTint(_ tint: IconColor?) {
+    package func setTint(_ tint: IconColor?, light: IconColor? = nil) {
         space.tint = tint
+        space.lightTint = light
     }
     package func setProfile(_ id: Profile.ID?) {
         space.profile = id

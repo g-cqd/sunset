@@ -54,5 +54,8 @@ The file's keys follow the sections. An old key is read, moved to its new place,
 
 1. Sections and topics as above (Settings only; no key changes). Done.
 2. `web.pageScheme`, in Web › Pages ("Page appearance"). Done.
-3. Light and dark values for color settings, and a Space's color for each.
+3. Light and dark values. Done: any plain setting (a switch, a number, a choice, a color) reads `{ "light": …, "dark": … }`
+   (`Configuration.lightValues`, applied where the app is light); Settings offers "Separate for light and dark" on the
+   terminal's foreground, background, cursor and opacity, the accent, the bar tint, the window background and the glass;
+   a Space's editor on its color. The tint keeps its own light keys until step 4.
 4. The file keys, with the old ones migrated.

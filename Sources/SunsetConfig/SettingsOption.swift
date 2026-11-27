@@ -8,7 +8,7 @@ public struct SettingsOption: Sendable, Identifiable {
     public var keys: [String]
     /// The topic that shows it ("terminal.cursor"); set when its topic is made.
     public internal(set) var topic = ""
-    public let title: String
+    public internal(set) var title: String
     /// Words it is found by, separated by spaces.
     public let words: String
     public let control: SettingsControl
@@ -18,6 +18,8 @@ public struct SettingsOption: Sendable, Identifiable {
     public var advanced = false
     /// What it holds is an address, a pattern, a file's name or code: its field is in monospace.
     public var isCode = false
+    /// It can have a value of its own in the light scheme ("Separate for light and dark", design 0009).
+    public var perScheme = false
 
     /// Shown only while this holds (a choice that acts only under another); nil, always.
     public var shownWhen: (@Sendable (Configuration) -> Bool)?
@@ -63,6 +65,27 @@ public struct SettingsOption: Sendable, Identifiable {
     }
 
     /// The same with a sentence under its control.
+    /// The same under another title (its light and dark rows).
+    public func titled(_ title: String) -> Self {
+        var copy = self
+        copy.title = title
+        return copy
+    }
+
+    /// The same without its note (said once, under the first of two rows).
+    public var unnoted: Self {
+        var copy = self
+        copy.note = nil
+        return copy
+    }
+
+    /// The same, with a value of its own in light when asked.
+    public var inBothSchemes: Self {
+        var copy = self
+        copy.perScheme = true
+        return copy
+    }
+
     public func noted(_ note: String) -> Self {
         var copy = self
         copy.note = note

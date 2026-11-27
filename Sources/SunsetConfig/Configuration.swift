@@ -224,6 +224,8 @@ public struct Configuration: Sendable, Equatable {
     public var updates = Updates()
     public var passwords = Passwords()
     public var control = Control()
+    /// The values of plain settings in the light scheme, where they differ: the key and its value as JSON (design 0009).
+    public var lightValues: [String: String] = [:]
     /// Keys given to commands (`keys`): a command's name and its key ("cmd+shift+d", "⇧⌘D"); "" takes its key away.
     public var keys: [String: String] = [:]
 

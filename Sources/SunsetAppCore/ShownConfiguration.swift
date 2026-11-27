@@ -5,11 +5,12 @@ package import SunsetConfig
 package enum ShownConfiguration {
     package static func make(_ configuration: Configuration, light: Bool) -> Configuration {
         guard light else { return configuration }
-        var shown = configuration
+        // The plain settings' light values (design 0009).
+        var shown = configuration.inLight()
         shown.appearance.tintColor = configuration.appearance.lightTintColor
         shown.appearance.tintAlpha = configuration.appearance.lightTintAlpha
         // A dark terminal theme keeps its own background over the light tint: translucent, it washed out to grey under light text.
-        if isDark(configuration.colors.background) { shown.terminal.opacity = 1 }
+        if isDark(shown.colors.background) { shown.terminal.opacity = 1 }
         return shown
     }
 

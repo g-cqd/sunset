@@ -76,7 +76,7 @@ struct TerminalScene: View {
     }
     /// The window's look, tinted by the colour of the Space it shows.
     private var look: WindowLook {
-        WindowLook(configuration, light: config.isLight).tinted(by: tabs.space.space.tint)
+        WindowLook(configuration, light: config.isLight).tinted(by: tabs.space.space.tint(light: config.isLight))
     }
     var colors: DefaultColors {
         DefaultColors(configuration.colors, cursorShape: configuration.cursorShape, blinks: configuration.cursorBlinks)

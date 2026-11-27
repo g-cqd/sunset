@@ -28,7 +28,7 @@ struct Reader {
                 continue
             }
             if let codec = SettingCodec.byKey[key] {
-                codec.read(&self, value)
+                readCodec(codec, value)
                 continue
             }
             switch key {
@@ -64,7 +64,7 @@ struct Reader {
         // A plain value is read by its option's codec; the section's own reading sees the rest.
         for (key, entry) in object {
             if let codec = SettingCodec.byKey["\(path).\(key)"] {
-                codec.read(&self, entry)
+                readCodec(codec, entry)
                 object.removeValue(forKey: key)
             }
         }

@@ -46,31 +46,10 @@ extension Reader {
         }
     }
 
+    /// `colors`: the foreground, background and cursor are their options' (`SettingCodec`); the palette is read here.
     mutating func readColors(_ object: Object) {
         for (key, value) in object {
-            let path = "colors.\(key)"
-            if key == "ansi" {
-                readAnsi(value)
-                continue
-            }
-            guard ["foreground", "background", "cursor"].contains(key) else {
-                unknown(path)
-                continue
-            }
-            // null means "not set": the terminal's own colour.
-            let bytes: [UInt8]?
-            if case .null = value {
-                bytes = nil
-            } else if let read = color(path, value) {
-                bytes = read
-            } else {
-                continue
-            }
-            switch key {
-                case "foreground": configuration.colors.foreground = bytes
-                case "background": configuration.colors.background = bytes
-                default: configuration.colors.cursor = bytes
-            }
+            if key == "ansi" { readAnsi(value) } else { unknown("colors.\(key)") }
         }
     }
 

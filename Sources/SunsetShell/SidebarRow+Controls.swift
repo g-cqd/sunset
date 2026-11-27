@@ -38,12 +38,7 @@ extension SidebarRow {
             slashed: slashed
         )
         .foregroundStyle(slashed ? Color.primary : Color.secondary)
-        .frame(width: layout.closeButtonSize, height: layout.closeButtonSize)
-        .background(
-            RoundedRectangle(cornerRadius: layout.closeButtonRadius, style: .continuous)
-                .fill(Color.primary.opacity(slashed ? Design.Fill.selected : 0))
-        )
-        .contentShape(.rect)
+        .rowEndFace(layout, lit: slashed)
     }
 
     /// The controls at the row's end after the close button, in their order: the cup, the sound, the microphone, the

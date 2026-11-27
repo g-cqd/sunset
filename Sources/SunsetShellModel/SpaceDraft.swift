@@ -9,6 +9,8 @@ package struct SpaceDraft: Equatable, Identifiable {
     package var name: String
     /// The colour that tints the window showing the Space.
     package var tint: IconColor?
+    /// Its colour in light, when it has one of its own; nil: `tint` in both.
+    package var lightTint: IconColor?
     package var icon: PaneIcon?
     /// The profile the Space belongs to; nil: the first.
     package var profile: Profile.ID?
@@ -25,12 +27,14 @@ package struct SpaceDraft: Equatable, Identifiable {
         space: Space.ID?,
         name: String,
         tint: IconColor? = nil,
+        lightTint: IconColor? = nil,
         icon: PaneIcon? = nil,
         profile: Profile.ID? = nil
     ) {
         self.space = space
         self.name = name
         self.tint = tint
+        self.lightTint = lightTint
         self.icon = icon
         self.profile = profile
     }

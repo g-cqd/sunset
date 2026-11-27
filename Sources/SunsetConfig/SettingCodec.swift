@@ -38,6 +38,16 @@ struct SettingCodec: Sendable {
                     parse: { $0.number(key, $1, range: range) },
                     format: ConfigurationWriter.number
                 )
+            case .color(let value, _) where value.isDirect:
+                // null is "not set": the terminal's own colour.
+                return Self(
+                    key: key,
+                    read: { reader, json in
+                        if case .null = json { return value.set(&reader.configuration, nil) }
+                        if let bytes = reader.color(key, json) { value.set(&reader.configuration, bytes) }
+                    },
+                    literal: { ConfigurationWriter.color(value.get($0)) }
+                )
             case .choice(let choice, _):
                 return Self(
                     key: key,

@@ -70,6 +70,7 @@ extension TabsModel {
             space: target.space.id,
             name: target.space.name,
             tint: target.space.tint,
+            lightTint: target.space.lightTint,
             icon: target.space.icon,
             profile: target.space.profile
         )

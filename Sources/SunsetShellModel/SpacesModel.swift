@@ -75,6 +75,7 @@ package final class SpacesModel {
         }
         var named = Space(name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines), icon: draft.icon)
         named.tint = draft.tint
+        named.lightTint = draft.lightTint
         named.profile = draft.profile == Profile.firstID ? nil : draft.profile
         let made = SpaceModel(
             space: named,
@@ -92,7 +93,7 @@ package final class SpacesModel {
         guard draft.canSave else { return }
         space.rename(to: draft.name.trimmingCharacters(in: .whitespacesAndNewlines))
         space.setIcon(draft.icon)
-        space.setTint(draft.tint)
+        space.setTint(draft.tint, light: draft.lightTint)
         setProfile(draft.profile, for: space)
         onChange()
     }

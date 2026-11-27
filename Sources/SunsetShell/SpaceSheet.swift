@@ -41,14 +41,7 @@ struct SpaceSheet: View {
                         }
                     }
                     .popover(isPresented: $pickingTint, arrowEdge: .trailing) {
-                        VStack(alignment: .leading, spacing: Design.Space.m) {
-                            IconColourRow(color: $draft.tint)
-                            Text("Tints the window while it shows this Space.")
-                                .font(Design.Text.detail)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(Design.Space.xl)
-                        .solidPopoverBackground()
+                        SpaceTintPicker(draft: $draft)
                     }
                 }
                 GridRow {
