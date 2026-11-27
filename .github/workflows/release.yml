@@ -116,6 +116,13 @@ jobs:
           printf 'key=%s\nkey_id=%s\nissuer=%s\n' "$secrets/notary.p8" "$NOTARY_KEY_ID" "$NOTARY_ISSUER" > "$HOME/.config/sunset-signing/notary"
           chmod 600 "$HOME/.config/sunset-signing/notary"
           echo "KEYCHAIN=$keychain" >> "$GITHUB_ENV"
+      # The packages resolved on their own first, with every line shown: inside the build xcodebuild says only "Could not
+      # resolve package dependencies" (alpha.19's run).
+      - name: Setup · Resolve Packages
+        run: |
+          xcodegen generate --quiet
+          xcodebuild -resolvePackageDependencies -project Sunset.xcodeproj -scheme Sunset 2>&1 | tail -60
+          exit "${PIPESTATUS[0]}"
       - name: Package · Build, Sign, Notarise, Zip
         env:
           TAG: ${{ github.event_name == 'push' && github.ref_name || 'v0.0.0-check' }}
