@@ -25,6 +25,11 @@ its key (`KeyChord`), its scope and the words that find it. It has no AppKit or 
   issues of the file. Settings › General › Keyboard shortcuts records a key by pressing it (`KeyRecorder`); a key given
   to one command is taken from the one that had it.
 
+- The command bar ranks the commands it finds: those whose title has every typed word first, then by how often each
+  was run from the bar. It learns the command a query ran (`CommandLearning`): typed again, that command is the first
+  row, before the tabs and what the web would do. Only words typed to find a command and the counts are kept, in the
+  app's defaults (at most 200 queries).
+
 Two-key sequences and commands with parameters are not done.
 
 Items whose list is made at run time (the Spaces by name, Tab 1 to 9, the Format menu, history entries, Keep Awake)

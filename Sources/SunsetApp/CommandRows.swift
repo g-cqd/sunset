@@ -8,15 +8,31 @@ enum CommandRows {
     @MainActor static func rows(typed: String?, tabs: TabsModel) -> [ChoiceRow] {
         guard let typed else { return [] }
         let target = AppCommandRunner.Target.acting
-        return AppCommand.matching(typed: typed, scopes: tabs.scopes)
+        return AppCommand.matching(typed: typed, scopes: tabs.scopes, learning: AppCommandLearning.current)
             .filter { AppCommandRunner.isEnabled($0.id, on: target) }
-            .map { row($0, tabs: tabs, target: target) }
+            .map { row($0, typed: typed, tabs: tabs, target: target) }
+    }
+
+    /// The commands' rows put among the bar's `rows`: the one what is typed ran last time first, when it would do something
+    /// now; the others after what was typed.
+    @MainActor static func place(into rows: inout [ChoiceRow], typed: String?, tabs: TabsModel) {
+        let found = self.rows(typed: typed, tabs: tabs)
+        let learnt = typed.flatMap { AppCommandLearning.current.command(for: $0) }.map { "command \($0.rawValue)" }
+        guard let learnt, let first = found.first(where: { $0.id == learnt }) else {
+            rows += found
+            return
+        }
+        rows.insert(first, at: 0)
+        rows += found.filter { $0.id != learnt }
     }
 
     /// A command, run as its menu item runs it.
-    @MainActor private static func row(_ command: AppCommand, tabs: TabsModel, target: AppCommandRunner.Target)
-        -> ChoiceRow
-    {
+    @MainActor private static func row(
+        _ command: AppCommand,
+        typed: String,
+        tabs: TabsModel,
+        target: AppCommandRunner.Target
+    ) -> ChoiceRow {
         let accessory = [command.menu, CommandKeys.shared.key(for: command.id)?.symbols].compactMap(\.self)
             .joined(separator: "  ")
         return ChoiceRow(
@@ -27,6 +43,7 @@ enum CommandRows {
             actions: [
                 ChoiceAction(command.title, symbol: command.symbol) {
                     tabs.bar = nil
+                    AppCommandLearning.ran(command.id, typed: typed)
                     // The Library opened, not closed, from the bar.
                     if command.id == .library {
                         if !tabs.sections.isLibraryOpen { tabs.sections.toggleLibrary() }

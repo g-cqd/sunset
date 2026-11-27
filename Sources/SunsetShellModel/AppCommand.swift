@@ -67,20 +67,32 @@ package struct AppCommand: Identifiable, Equatable, Sendable {
 
     /// Every word that finds it: its title's and its own, lowercased.
     var allWords: [String] {
-        let titleWords = title.lowercased()
-            .split { !$0.isLetter && !$0.isNumber }
-            .map(String.init)
-        return titleWords + words
+        titleWords + words
+    }
+
+    /// Its title's words, lowercased.
+    var titleWords: [String] {
+        title.lowercased().split { !$0.isLetter && !$0.isNumber }.map(String.init)
     }
 
     /// The commands of the scopes that are on that every typed word (two letters at least) starts one word of; none unasked.
-    package static func matching(typed: String, scopes: Scopes) -> [Self] {
+    /// Those whose title has every word first, then by how often each was run from the bar (`learning`), then the table's
+    /// order.
+    package static func matching(typed: String, scopes: Scopes, learning: CommandLearning = CommandLearning()) -> [Self]
+    {
         let typedWords = typed.lowercased().split(whereSeparator: \.isWhitespace).map(String.init)
         guard !typedWords.isEmpty, typedWords.allSatisfy({ $0.count >= 2 }) else { return [] }
-        return table.filter { command in
-            guard command.inBar, command.scope.map({ scopes[$0] }) ?? true else { return false }
-            let words = command.allWords
-            return typedWords.allSatisfy { typed in words.contains { $0.hasPrefix(typed) } }
-        }
+        let found = table.enumerated()
+            .compactMap { index, command -> (Self, rank: Int, index: Int)? in
+                guard command.inBar, command.scope.map({ scopes[$0] }) ?? true else { return nil }
+                let words = command.allWords
+                guard typedWords.allSatisfy({ typed in words.contains { $0.hasPrefix(typed) } }) else { return nil }
+                let titleWords = command.titleWords
+                let byTitle = typedWords.allSatisfy { typed in titleWords.contains { $0.hasPrefix(typed) } }
+                // By title first, whatever the uses; then the more used.
+                let rank = (byTitle ? 0 : 1 << 40) - min(learning.uses(of: command.id), 1 << 39)
+                return (command, rank, index)
+            }
+        return found.sorted { ($0.rank, $0.index) < ($1.rank, $1.index) }.map(\.0)
     }
 }

@@ -37,7 +37,7 @@ import SunsetWeb
         if documents, chip == nil { rows += documentRows(bar, typed: typed, tabs: tabs) }
         // A terminal or a document made as a page is: last, so that Return still does what it did.
         rows += newKindRows(bar, typed: chip == nil ? typed : nil, tabs: tabs)
-        rows += CommandRows.rows(typed: chip == nil ? typed : nil, tabs: tabs)
+        CommandRows.place(into: &rows, typed: chip == nil ? typed : nil, tabs: tabs)
         guard web else { return rows }
         if chip == nil {
             let visited = (history?.suggestions(for: typed) ?? []).filter { $0.url != input?.url?.absoluteString }
