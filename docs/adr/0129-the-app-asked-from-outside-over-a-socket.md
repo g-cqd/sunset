@@ -22,7 +22,11 @@ mean to trust, so each must be asked for.
 - A pane the tool reads, types into or waits on is marked on its tab for ten seconds after the last request
   (`DrivenPanes`); pressing the mark stops it: the tool is refused that pane until the app quits.
 
+- `sunset mcp` is an MCP server on standard input and output (`MCPBridge`): its tools (list_panes, read_pane,
+  type_into_pane, wait_for_text, run_command, list_commands) are these requests, and what the app refuses is the tool's
+  error. An agent is given Sunset by naming `sunset mcp` as a server.
+
 ## Consequences
 
 The tool is built with `swift build --product sunset`; it is not yet inside the app's bundle. Streaming what a pane
-does (observe) and an MCP server over the socket build on this protocol.
+does (observe) is not done.

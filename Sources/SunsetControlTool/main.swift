@@ -7,6 +7,8 @@
 //   sunset run COMMAND                  runs a command of the menus (sunset commands lists them)
 //   sunset commands
 //
+//   sunset mcp                          an MCP server on standard input and output, its tools these requests
+//
 // PANE is an id from `list`, or "shown" (the default): the pane shown in the window in front. --json prints the reply.
 import Foundation
 import SunsetControl
@@ -40,6 +42,14 @@ func unescaped(_ text: String) -> String {
 }
 
 var arguments = Array(CommandLine.arguments.dropFirst())
+if arguments == ["mcp"] {
+    let bridge = MCPBridge(version: "1") { request in try ControlClient.send(request) }
+    while let line = readLine(strippingNewline: true) {
+        guard let reply = bridge.reply(to: Data(line.utf8)) else { continue }
+        FileHandle.standardOutput.write(reply)
+    }
+    exit(0)
+}
 var json = false
 var lines: Int?
 var timeout: Double?
