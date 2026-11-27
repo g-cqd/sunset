@@ -48,7 +48,7 @@ jobs:
       # xcodebuild runs Xcode's own Swift (6.3 on macos-26, which cannot read a 6.4 manifest) unless TOOLCHAINS names
       # another: swift-ci's for-xcode makes the installed one usable by xcodebuild.
       - name: Setup · Install Swift
-        uses: g-cqd/swift-ci/setup-swift@b4bfd024e026b66b0f46b54daa225778b06d72ea # swift-ci b4bfd02
+        uses: g-cqd/swift-ci/setup-swift@66845cc3bbfed0cc39148f0c3f2afbd3777d964f # swift-ci 66845cc
         with:
           swift-version: ${{ env.SWIFT_VERSION }}
           for-xcode: true
