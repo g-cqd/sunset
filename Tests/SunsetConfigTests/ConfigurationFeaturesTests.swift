@@ -16,7 +16,7 @@ import Testing
 
     @Test func `a wrong keyboard value is reported with its path`() throws {
         let result = try ConfigurationParser.parse(#"{ "keyboard": { "optionAsMeta": "yes", "layout": 1 } }"#)
-        #expect(result.issues.map(\.path).sorted() == ["keyboard.layout", "keyboard.optionAsMeta"])
+        #expect(result.issues.map(\.path).sorted() == ["keyboard.layout", "terminal.optionAsMeta"])
     }
 
     @Test func `a keyboard or features change is its own group`() {

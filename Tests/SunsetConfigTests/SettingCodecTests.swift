@@ -40,7 +40,9 @@ struct SettingCodecTests {
 
     @Test func `a key read from its option is spelled once in the configuration's sources`() {
         // The code only: a comment may name a key, and a topic may be called as one (its own names, "web.blocking").
+        // `FileKeys` is the table of where the file has a setting: it names the settings it moves.
         let lines = RepositoryFiles.swiftFiles(in: ["Sources/SunsetConfig"])
+            .filter { $0.name != "FileKeys.swift" }
             .flatMap { $0.text.split(separator: "\n") }
             .filter {
                 let code = $0.trimmingCharacters(in: .whitespaces)

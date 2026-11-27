@@ -35,7 +35,7 @@ import Testing
 
     @Test func `an order that is not one is said, and the default is kept`() throws {
         let result = try read(#"{ "sidebar": { "documentSort": "size", "library": "yes" } }"#)
-        #expect(result.issues.map(\.path).sorted() == ["sidebar.documentSort", "sidebar.library"])
+        #expect(result.issues.map(\.path).sorted() == ["documents.sort", "sidebar.library"])
         #expect(result.configuration.sidebar.documentSort == .changed && result.configuration.sidebar.library)
     }
 

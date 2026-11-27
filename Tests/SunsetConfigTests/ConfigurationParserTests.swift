@@ -18,7 +18,7 @@ import Testing
         #expect(try read(#"{ "scroll": { "inertia": 0.35 } }"#).configuration.scroll.inertia == 0.35)
         #expect(try read(#"{ "scroll": { "inertia": 0 } }"#).configuration.scroll.inertia == 0)
         let bad = try read(#"{ "scroll": { "inertia": -1 } }"#)
-        #expect(bad.issues.map(\.path) == ["scroll.inertia"])
+        #expect(bad.issues.map(\.path) == ["terminal.scroll.inertia"])
         #expect(bad.configuration.scroll.inertia == 0.3)
     }
 
@@ -57,7 +57,7 @@ import Testing
         let result = try read(#"{ "font": { "size": "big" }, "scrollback": { "lines": true } }"#)
         #expect(result.configuration.font.size == 12)
         #expect(result.configuration.scrollbackLines == 100_000)
-        #expect(result.issues.map(\.path).sorted() == ["font.size", "scrollback.lines"])
+        #expect(result.issues.map(\.path).sorted() == ["terminal.font.size", "terminal.scrollback"])
         #expect(result.issues.allSatisfy { !$0.message.isEmpty })
     }
 
@@ -66,15 +66,17 @@ import Testing
         #expect(result.configuration.font.size == 12)
         #expect(result.configuration.scrollbackLines == 100_000)
         #expect(
-            result.issues.contains { $0.path == "font.size" && $0.message.contains("4") && $0.message.contains("200") }
+            result.issues.contains {
+                $0.path == "terminal.font.size" && $0.message.contains("4") && $0.message.contains("200")
+            }
         )
-        #expect(result.issues.contains { $0.path == "scrollback.lines" })
+        #expect(result.issues.contains { $0.path == "terminal.scrollback" })
     }
 
     @Test func `an unknown key is reported and the rest is still read`() throws {
         let result = try read(#"{ "fnot": {}, "font": { "size": 16, "sise": 1 } }"#)
         #expect(result.configuration.font.size == 16)
-        #expect(result.issues.map(\.path).sorted() == ["fnot", "font.sise"])
+        #expect(result.issues.map(\.path).sorted() == ["fnot", "terminal.font.sise"])
         #expect(result.issues.allSatisfy { $0.message.contains("unknown") })
     }
 
@@ -84,7 +86,9 @@ import Testing
         #expect(
             result.configuration.colors.foreground == [0xFF, 0xFF, 0xFF] && result.configuration.colors.cursor == nil
         )
-        #expect(result.issues.map(\.path).sorted() == ["colors.cursor", "colors.foreground", "renderer"])
+        #expect(
+            result.issues.map(\.path).sorted() == ["renderer", "terminal.colors.cursor", "terminal.colors.foreground"]
+        )
         #expect(result.issues.first { $0.path == "renderer" }?.message.contains("auto") == true)
     }
 
@@ -103,12 +107,12 @@ import Testing
         #expect(some.configuration.colors.ansi.count == 16 && some.configuration.colors.ansi[1] == [0x11, 0x11, 0x11])
         #expect(some.configuration.colors.ansi[2] == Configuration.Colors().ansi[2], "the rest keep their defaults")
         let bad = try read(##"{ "colors": { "ansi": ["#000000", "red", "#222222"] } }"##)
-        #expect(bad.issues.map(\.path) == ["colors.ansi[1]"])
+        #expect(bad.issues.map(\.path) == ["terminal.colors.ansi[1]"])
         #expect(bad.configuration.colors.ansi[2] == [0x22, 0x22, 0x22])
-        #expect(try read(##"{ "colors": { "ansi": "#000000" } }"##).issues.map(\.path) == ["colors.ansi"])
+        #expect(try read(##"{ "colors": { "ansi": "#000000" } }"##).issues.map(\.path) == ["terminal.colors.ansi"])
         let entries = [String](repeating: "\"#000000\"", count: 17).joined(separator: ", ")
         let long = try read("{ \"colors\": { \"ansi\": [\(entries)] } }")
-        #expect(long.issues.map(\.path) == ["colors.ansi"], "more than 16")
+        #expect(long.issues.map(\.path) == ["terminal.colors.ansi"], "more than 16")
     }
 
     @Test func `text that is not JSON is an error and says where`() {
@@ -173,7 +177,11 @@ import Testing
 
     @Test func `scroll values out of range or of the wrong kind are reported`() throws {
         let result = try read(#"{ "scroll": { "trackpad": 0, "wheel": "fast", "inertia": true } }"#)
-        #expect(result.issues.map(\.path).sorted() == ["scroll.inertia", "scroll.trackpad", "scroll.wheel"])
+        #expect(
+            result.issues.map(\.path).sorted() == [
+                "terminal.scroll.inertia", "terminal.scroll.trackpad", "terminal.scroll.wheel"
+            ]
+        )
         #expect(result.configuration.scroll == Configuration.Scroll())
     }
 

@@ -72,8 +72,8 @@ import Testing
         )
         #expect(
             result.issues.map(\.path).sorted() == [
-                "appearance.glass", "sidebar.padding", "sidebar.width", "tabs.mode", "terminal.opacity", "window.blur",
-                "window.material", "window.padding"
+                "appearance.blur", "appearance.glass", "appearance.material", "sidebar.padding", "sidebar.width",
+                "tabs.mode", "terminal.opacity", "terminal.padding"
             ]
         )
         #expect(result.configuration.window == Configuration.Window())

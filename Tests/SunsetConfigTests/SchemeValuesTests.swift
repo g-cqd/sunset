@@ -24,7 +24,7 @@ struct SchemeValuesTests {
         let read = try ConfigurationParser.parse(
             ##"{ "colors": { "background": { "light": "pink", "dark": "#101010" } } }"##
         )
-        #expect(read.issues.map(\.path) == ["colors.background"])
+        #expect(read.issues.map(\.path) == ["terminal.colors.background"])
         #expect(read.configuration.colors.background == [0x10, 0x10, 0x10] && read.configuration.lightValues.isEmpty)
     }
 }

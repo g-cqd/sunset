@@ -50,12 +50,12 @@ import Testing
         #expect(result.configuration.colors.cursor == [255, 0, 0])
         #expect(result.configuration.scroll.wheel == 3 && !result.configuration.keyboard.optionAsMeta)
         #expect(result.configuration.theme == "t")
-        #expect(result.issues.map(\.path).sorted() == ["theme:keyboard", "theme:scroll", "theme:theme"])
+        #expect(result.issues.map(\.path).sorted() == ["theme:keyboard", "theme:terminal.scroll", "theme:theme"])
     }
 
     @Test func `a theme with a wrong value reports it under the theme's name`() throws {
         let result = try load(#"{ "theme": "t" }"#, themes: ["t": #"{ "window": { "blur": 500 } }"#])
-        #expect(result.issues.map(\.path) == ["theme:window.blur"])
+        #expect(result.issues.map(\.path) == ["theme:appearance.blur"])
         #expect(result.configuration.window.blur == 0)
     }
 

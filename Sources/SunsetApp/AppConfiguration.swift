@@ -194,8 +194,20 @@ final class AppConfiguration {
             return
         }
         hasFile = true
-        let text = String(decoding: data, as: UTF8.self)
+        var text = String(decoding: data, as: UTF8.self)
         if text == lastWritten { return }
+        // A file with the former keys (`font`, `colors`, …) is written once with the new ones, as it was otherwise
+        // (design 0009); the former one is kept beside it.
+        if (try? ConfigurationParser.parse(text))?.hasFormerKeys == true,
+            let moved = ConfigurationPatcher.movingFormerKeys(text)
+        {
+            try? FileManager.default.removeItem(atPath: path + ".before-keys")
+            try? FileManager.default.copyItem(atPath: path, toPath: path + ".before-keys")
+            if (try? moved.write(toFile: path, atomically: true, encoding: .utf8)) != nil {
+                lastWritten = moved
+                text = moved
+            }
+        }
         do {
             let result = try ConfigurationLoader.load(text) { [path] name in
                 FileManager.default.contents(atPath: ConfigurationLocation.themePath(named: name, besideConfig: path))

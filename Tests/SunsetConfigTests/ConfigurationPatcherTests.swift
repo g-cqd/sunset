@@ -105,7 +105,9 @@ import Testing
             ConfigurationWriter.text(for: Configuration())
         ]
         for start in starts {
-            let result = try #require(ConfigurationPatcher.patch(start, set: ConfigurationWriter.literals(for: target)))
+            let literals = ConfigurationWriter.literals(for: target)
+            let filed = Dictionary(uniqueKeysWithValues: literals.map { (FileKeys.file($0.key), $0.value) })
+            let result = try #require(ConfigurationPatcher.patch(start, set: filed))
             #expect(try ConfigurationParser.parse(result).configuration == target, "starting from \(start.prefix(30))")
         }
     }

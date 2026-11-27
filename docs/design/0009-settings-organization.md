@@ -35,7 +35,7 @@ App sections first, then one section for each feature scope, listed only while i
 
 ## File keys
 
-The file's keys follow the sections. An old key is read, moved to its new place, and the file is rewritten once:
+The file's keys follow the sections. A former key is read, moved to its new place, and the file is rewritten once:
 
 | Old | New |
 |---|---|
@@ -58,4 +58,6 @@ The file's keys follow the sections. An old key is read, moved to its new place,
    (`Configuration.lightValues`, applied where the app is light); Settings offers "Separate for light and dark" on the
    terminal's foreground, background, cursor and opacity, the accent, the bar tint, the window background and the glass;
    a Space's editor on its color. The tint keeps its own light keys until step 4.
-4. The file keys, with the old ones migrated.
+4. The file keys. Done: written under the new keys (`FileKeys`); a file with the former ones is still read, and moved once
+   as it was written, comments kept, the former file beside it as `config.json.before-keys`. Inside, the settings keep
+   their former names (Settings, Help and search use them); a theme may use either.

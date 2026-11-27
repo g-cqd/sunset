@@ -27,7 +27,8 @@ public enum ConfigurationPatcher {
         // Only what the edit changed relative to what was in force, not relative to the file: with a theme the file does not hold everything in force.
         let before = ConfigurationWriter.literals(for: current)
         let wanted = ConfigurationWriter.literals(for: configuration).filter { before[$0.key] != $0.value }
-        return patch(text, set: wanted).flatMap { removing($0, paths: ConfigurationKeys.removed) }
+        let filed = Dictionary(uniqueKeysWithValues: wanted.map { (FileKeys.file($0.key), $0.value) })
+        return patch(text, set: filed).flatMap { removing($0, paths: ConfigurationKeys.removed) }
     }
 
     private struct Edit {

@@ -8,6 +8,8 @@ public enum ConfigurationParser {
     public struct Result: Sendable, Equatable {
         public var configuration: Configuration
         public var issues: [ConfigurationIssue]
+        /// The file has keys in their former places (`font`, `colors`, …): it is to be written again with the new ones.
+        public var hasFormerKeys = false
     }
 
     /// Which keys a file may set: all of them, or only the visual ones (a theme).
@@ -27,8 +29,18 @@ public enum ConfigurationParser {
         }
         guard case .object(let object) = root else { throw ConfigurationError.notAnObject }
         var reader = Reader(configuration: base, scope: scope)
-        reader.read(object)
-        return Result(configuration: reader.configuration, issues: reader.issues)
+        // The file's keys follow the sections; the settings keep their names (design 0009).
+        reader.read(FileKeys.inside(object))
+        let issues = reader.issues.map { issue in
+            var said = issue
+            said.path = FileKeys.file(issue.path)
+            return said
+        }
+        return Result(
+            configuration: reader.configuration,
+            issues: issues,
+            hasFormerKeys: FileKeys.hasFormerKeys(object)
+        )
     }
 
     private static func describe(_ error: JSONError) -> String {

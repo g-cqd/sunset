@@ -16,10 +16,10 @@ import Testing
 
     @Test func `cursor.shape and cursor.blink report what is wrong and keep the default`() throws {
         let shape = try ConfigurationParser.parse(#"{ "cursor": { "shape": "beam" } }"#)
-        #expect(shape.configuration.cursorShape == .bar && shape.issues.map(\.path) == ["cursor.shape"])
+        #expect(shape.configuration.cursorShape == .bar && shape.issues.map(\.path) == ["terminal.cursor.shape"])
         #expect(shape.issues.first?.message.contains("bar") == true)
         let blink = try ConfigurationParser.parse(#"{ "cursor": { "blink": "yes" } }"#)
-        #expect(blink.configuration.cursorBlinks && blink.issues.map(\.path) == ["cursor.blink"])
+        #expect(blink.configuration.cursorBlinks && blink.issues.map(\.path) == ["terminal.cursor.blink"])
         let off = try ConfigurationParser.parse(#"{ "cursor": { "blink": false } }"#)
         #expect(!off.configuration.cursorBlinks && off.issues.isEmpty)
     }

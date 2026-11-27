@@ -73,7 +73,7 @@ import Testing
             ConfigurationKeys.all.count == 217,
             "a key was added or removed: the list, the reader and the writer move together"
         )
-        for key in ConfigurationKeys.all {
+        for key in ConfigurationKeys.all.map(FileKeys.file) {
             let name = key.split(separator: ".").last.map(String.init) ?? key
             #expect(text.contains("\"\(name)\""), "the key \(key) is missing from the written file")
         }

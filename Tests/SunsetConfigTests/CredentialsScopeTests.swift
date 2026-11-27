@@ -15,6 +15,10 @@ struct CredentialsScopeTests {
         var on = Configuration()
         on.features.credentials = true
         let written = ConfigurationWriter.text(for: on)
-        #expect(written.contains("\"credentials\" : true") || written.contains("\"credentials\": true"))
+        // Written as the file names it now (design 0009); the former name is still read.
+        #expect(written.contains("\"passwords\" : true") || written.contains("\"passwords\": true"))
+        #expect(
+            try ConfigurationParser.parse(#"{ "features": { "passwords": true } }"#).configuration.features.credentials
+        )
     }
 }

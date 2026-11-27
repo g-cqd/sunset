@@ -40,10 +40,13 @@ public enum ConfigurationWriter {
 
     /// The whole file, in the order of `ConfigurationKeys.all`.
     public static func text(for configuration: Configuration) -> String {
-        let values = literals(for: configuration)
+        // Written under the file's keys, each section's together (design 0009).
+        let values = Dictionary(
+            uniqueKeysWithValues: literals(for: configuration).map { (FileKeys.file($0.key), $0.value) }
+        )
         var lines: [String] = ["{"]
         var open: [String] = []
-        let keys = ConfigurationKeys.all
+        let keys = FileKeys.grouped(ConfigurationKeys.all.map(FileKeys.file))
         for (index, key) in keys.enumerated() {
             let parts = key.split(separator: ".").map(String.init)
             let sections = Array(parts.dropLast())
