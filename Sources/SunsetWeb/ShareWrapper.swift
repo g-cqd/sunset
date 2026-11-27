@@ -78,7 +78,7 @@ final class ShareWrapper: PageScriptHandler, WKScriptMessageHandlerWithReply {
         }
         switch kind {
             case "ask":
-                switch await content.askShare() {
+                switch await content.askShare(frameHost: message.frameInfo.securityOrigin.host) {
                     // macOS's picker, and Sunset's capture of what is picked: WebKit's own takes a screen or a window
                     // of its choosing, shows no picker, and needs the click Sunset's sheet used up.
                     case .system:

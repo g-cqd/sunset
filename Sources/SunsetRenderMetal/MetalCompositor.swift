@@ -52,7 +52,12 @@ public final class MetalCompositor {
     private static let sharedPipelineLock = NSLock()
     private nonisolated(unsafe) static var sharedPipelines: [ObjectIdentifier: any MTLRenderPipelineState] = [:]
 
+    /// Held while compiling: a pane made while `prepare` compiles waits for it instead of compiling again.
+    private static let compileLock = NSLock()
+
     private static func sharedPipeline(for device: any MTLDevice) -> (any MTLRenderPipelineState)? {
+        compileLock.lock()
+        defer { compileLock.unlock() }
         let key = ObjectIdentifier(device)
         sharedPipelineLock.lock()
         if let cached = sharedPipelines[key] {
@@ -79,9 +84,31 @@ public final class MetalCompositor {
         return built
     }
 
+    /// One command queue per device, for every compositor (audit PERF-01/MEM-02: one a pane before).
+    private nonisolated(unsafe) static var sharedQueues: [ObjectIdentifier: any MTLCommandQueue] = [:]
+
+    private static func sharedQueue(for device: any MTLDevice) -> (any MTLCommandQueue)? {
+        sharedPipelineLock.lock()
+        defer { sharedPipelineLock.unlock() }
+        if let queue = sharedQueues[ObjectIdentifier(device)] { return queue }
+        guard let queue = device.makeCommandQueue() else { return nil }
+        sharedQueues[ObjectIdentifier(device)] = queue
+        return queue
+    }
+
+    /// Compiles the shaders for the default device now, off the main thread, so that the first terminal does not wait the
+    /// ~150 ms of compiling them (audit PERF-01). Called once as the app starts.
+    public static func prepare() {
+        Thread.detachNewThread {
+            guard let device = MTLCreateSystemDefaultDevice() else { return }
+            _ = sharedPipeline(for: device)
+            _ = sharedQueue(for: device)
+        }
+    }
+
     /// nil when there is no Metal device, or its shaders do not compile.
     public init?(device: (any MTLDevice)? = MTLCreateSystemDefaultDevice()) {
-        guard let device, let queue = device.makeCommandQueue(), let atlas = GlyphAtlas(device: device),
+        guard let device, let queue = Self.sharedQueue(for: device), let atlas = GlyphAtlas(device: device),
             let pipeline = Self.sharedPipeline(for: device)
         else { return nil }
         self.device = device

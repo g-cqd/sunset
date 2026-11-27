@@ -20,7 +20,8 @@ extension WebContent {
                 return notificationWord(host)
             case "request":
                 // Asked only from what the person did, and one question at a time: else the site's answer as it stands.
-                guard fields["activated"] as? Bool == true || settings.notificationAskWithoutClick, !notificationAsking,
+                // What the person did is Sunset's to know, not the page's to say (audit MED-05).
+                guard hasRecentUserInput || settings.notificationAskWithoutClick, !notificationAsking,
                     permissions.answer(.notifications, for: host) == .ask, !notificationHosts.contains(host)
                 else { return notificationWord(host) }
                 notificationAsking = true

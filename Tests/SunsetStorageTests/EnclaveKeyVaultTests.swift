@@ -50,6 +50,26 @@ struct EnclaveKeyVaultTests {
         #expect(throws: StorageKeyFailure.vault) { try EnclaveKeyVault(backing: tampered).read() }
     }
 
+    /// Audit HIGH-03: the sealed key is bound to its record; one sealed before the binding opens once and is sealed again bound.
+    @Test func `a key sealed unbound is read, then kept bound`() throws {
+        let backing = MemoryKeyVault()
+        let vault = EnclaveKeyVault(backing: backing)
+        try vault.write(key)
+        var record = try EnclaveWrap.Record(try #require(backing.stored))
+        let wrap = try EnclaveWrap.open(record)
+        record.sealed = try ChaChaPoly.seal(key, using: SymmetricKey(data: wrap)).combined
+        try backing.write(record.bytes)
+        #expect(try vault.read() == key)
+        let rebound = try EnclaveWrap.Record(try #require(backing.stored))
+        let box = try ChaChaPoly.SealedBox(combined: rebound.sealed)
+        let opened = try ChaChaPoly.open(
+            box,
+            using: SymmetricKey(data: try EnclaveWrap.open(rebound)),
+            authenticating: EnclaveKeyVault.binding(rebound)
+        )
+        #expect(opened == key)
+    }
+
     @Test func `nothing kept: nil; the backing refuses (no data-protection keychain): it says so`() throws {
         #expect(try EnclaveKeyVault(backing: MemoryKeyVault()).read() == nil)
         #expect(throws: StorageKeyFailure.vault) {

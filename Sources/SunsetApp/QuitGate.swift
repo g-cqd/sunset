@@ -46,11 +46,16 @@ final class QuitGate {
     private func decide(_ level: Configuration.Tabs.QuitAsk) async {
         let found = await gather()
         guard QuitLoss.asks(level: level.rawValue, losses: found) else { return answer(quit: true) }
-        guard let window = TabRegistry.shared.actingWindow ?? TabRegistry.shared.allWindows().first?.window,
-            let tabs = TabRegistry.shared.tabs(for: window)
-        else { return askWithoutWindow(found) }
+        // A window on screen, brought to the front: the question on a window that was not shown (one closed but kept, a
+        // window ordered out) was never seen, and Sunset waited for its answer until force-quit (the owner, 2026-11-27:
+        // Restart to Update from build 958).
+        let visible = TabRegistry.shared.allWindows().filter { $0.window.isVisible && !$0.window.isMiniaturized }
+        let acting = TabRegistry.shared.actingWindow.flatMap { window in visible.first { $0.window === window } }
+        guard let shown = acting ?? visible.first else { return askWithoutWindow(found) }
+        NSApp.activate()
+        shown.window.makeKeyAndOrderFront(nil)
         losses = found
-        asking = ObjectIdentifier(tabs)
+        asking = ObjectIdentifier(shown.tabs)
     }
 
     func isAsking(_ tabs: TabsModel) -> Bool {

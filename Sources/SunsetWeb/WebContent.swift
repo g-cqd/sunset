@@ -92,6 +92,16 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored var pictureTaken: Duration?
     /// A snapshot was asked for and has not arrived.
     @ObservationIgnored package internal(set) var takingPicture = false
+    /// Its picture is its whole width (another window shows it), not a preview's: pictured again at that width.
+    @ObservationIgnored var pictureIsFull = false
+    /// When the person last clicked or typed in its view, as the system says (`SunsetWebView`).
+    @ObservationIgnored package var lastUserInput: Duration?
+    /// How long after a click or a key the page may ask for what needs one (a notification, sharing the screen), as
+    /// browsers' transient activation.
+    static let userInputLasts = Duration.seconds(5)
+    /// How wide a preview card's picture is, in points: the card is 280; twice that is sharp on any screen.
+    static let previewPictureWidth = 560.0
+
     /// It was on screen at the last `setState`.
     @ObservationIgnored var shown = false
     /// Its video floats because Sunset floated it as the page was left (`web.autoPictureInPicture`).
@@ -205,7 +215,11 @@ package final class WebContent: PaneContent, PaneViewMaking {
         if visible, webView == nil { makeWebView(configuration: nil) }
         if visible { isUnloaded = false }
         // Hidden: its last picture is taken while it is still drawn, for its tab's preview.
-        if !visible, shown { takePicture() }
+        if !visible, shown {
+            // Hidden: a picture for its preview card, small (audit PERF-02/MEM-01).
+            pictureIsFull = false
+            takePicture(width: Self.previewPictureWidth)
+        }
         if visible { hiddenSince = nil } else if hiddenSince == nil, webView != nil { hiddenSince = runtime.now() }
         followPictureInPicture(was: shown, now: visible)
         shown = visible
@@ -214,15 +228,6 @@ package final class WebContent: PaneContent, PaneViewMaking {
     /// Its row is pointed at: a page not made yet is made and starts loading, drawn by the time it is shown.
     package func prepare() {
         if webView == nil { makeWebView(configuration: nil) }
-    }
-
-    /// A snapshot of the page as it is drawn now (J): kept as its `picture` when it arrives.
-    package func takePicture() {
-        guard let webView, webView.window != nil, webView.bounds.width > 0, webView.bounds.height > 0 else { return }
-        takingPicture = true
-        webView.takeSnapshot(with: nil) { [weak self] image, _ in
-            MainActor.assumeIsolated { self?.pictured(image) }
-        }
     }
 
     package func stop() {

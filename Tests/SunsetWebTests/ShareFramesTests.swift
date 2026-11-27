@@ -2,6 +2,7 @@ import AemiTestKit
 import CoreGraphics
 import Foundation
 import SunsetPane
+import SunsetRuntime
 import Testing
 import WebKit
 
@@ -61,6 +62,8 @@ struct ShareFramesTests {
         try await waitForObservedState { !page.isLoading && page.webView?.url?.host() == "call.example" }
         var drawn: Result<Any, any Error>?
         var resume: (() -> Void)?
+        // The person clicked in the page a moment before: only then is the screen asked for.
+        page.lastUserInput = page.runtime.uptime()
         view.callAsyncJavaScript(
             """
             let stage = "asked";

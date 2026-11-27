@@ -13,17 +13,37 @@ public struct EnclaveKeyVault: KeyVault {
 
     public func read() throws(StorageKeyFailure) -> Data? {
         guard let stored = try backing.read() else { return nil }
+        let opened: (key: Data, bound: Bool)
         do {
             let record = try EnclaveWrap.Record(stored)
-            let wrap = try EnclaveWrap.open(record)
-            return try ChaChaPoly.open(ChaChaPoly.SealedBox(combined: record.sealed), using: SymmetricKey(data: wrap))
+            var wrap = try EnclaveWrap.open(record)
+            defer { wrap.resetBytes(in: 0 ..< wrap.count) }
+            let box = try ChaChaPoly.SealedBox(combined: record.sealed)
+            let key = SymmetricKey(data: wrap)
+            if let bound = try? ChaChaPoly.open(box, using: key, authenticating: Self.binding(record)) {
+                opened = (bound, true)
+            } else {
+                // Sealed before the record was bound (audit HIGH-03): opened, then sealed again bound.
+                opened = (try ChaChaPoly.open(box, using: key), false)
+            }
         } catch {
             throw .vault
         }
+        if !opened.bound { try? write(opened.key) }
+        return opened.key
+    }
+
+    /// What the sealed key is bound to: its purpose and its record's own public parts, so that a sealed key moved into
+    /// another record does not open (audit HIGH-03).
+    static func binding(_ record: EnclaveWrap.Record) -> Data {
+        Data("sunset.storage-key.v1".utf8) + record.ephemeral + record.encapsulated
     }
 
     public func write(_ bytes: Data) throws(StorageKeyFailure) {
         guard SecureEnclave.isAvailable,
+            // After the first unlock, not only while unlocked: a Mac app runs in an unlocked session, and what it seals
+            // while the screen is locked (a download ending, the session kept at sleep) must still be sealed. This
+            // device only: never in a backup or on another Mac (audit HIGH-03, decided 2026-11-27).
             let access = SecAccessControlCreateWithFlags(
                 nil,
                 kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
@@ -33,9 +53,16 @@ public struct EnclaveKeyVault: KeyVault {
         else { throw .vault }
         var record: EnclaveWrap.Record
         do {
-            let made = try EnclaveWrap.make(access: access)
+            var made = try EnclaveWrap.make(access: access)
+            defer { made.wrapKey.resetBytes(in: 0 ..< made.wrapKey.count) }
             record = made.record
-            record.sealed = try ChaChaPoly.seal(bytes, using: SymmetricKey(data: made.wrapKey)).combined
+            record.sealed =
+                try ChaChaPoly.seal(
+                    bytes,
+                    using: SymmetricKey(data: made.wrapKey),
+                    authenticating: Self.binding(record)
+                )
+                .combined
         } catch {
             throw .vault
         }

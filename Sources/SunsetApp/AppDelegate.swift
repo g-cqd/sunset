@@ -3,6 +3,7 @@ import SunsetAppCore
 import SunsetConfig
 import SunsetCredentials
 import SunsetDocuments
+import SunsetRenderMetal
 import SunsetRuntime
 import SunsetShell
 import SunsetStorage
@@ -15,6 +16,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // The app's files as they are now: replaced later (an update beside it, a build over it), pages that end say so.
         BundleOnDisk.remember()
         WebContent.restartApp = { AppUpdates.shared.restart() }
+        // The terminal's shaders compiled now, off the main thread, not when the first terminal opens.
+        MetalCompositor.prepare()
         // Each profile's extensions, from its folder, before any page is made.
         ExtensionHosts.shared.root = URL(filePath: StoragePlaces.current.extensions)
         AppExtensionWindows.start()

@@ -1,5 +1,6 @@
 import AppKit
 import SunsetPrivate
+import SunsetRuntime
 import SunsetShell
 import WebKit
 
@@ -48,6 +49,7 @@ extension WebContent {
         view.offersPrivateTab = !isPrivate
         view.onFocus = { [weak self] in self?.onFocusRequest() }
         wireMenu(view)
+        view.onUserInput = { [weak self] in self?.lastUserInput = self?.runtime.uptime() }
         wireSearch(view)
         let coordinator = WebCoordinator(content: self)
         view.navigationDelegate = coordinator
@@ -114,7 +116,7 @@ extension WebContent {
                         self?.progress = nil
                         self?.refreshFavicon()
                         // Pictured once (another window shows its picture, its tab's card): pictured again as it is now.
-                        if self?.picture != nil { self?.takePicture() }
+                        if let self, self.picture != nil { self.takePicture(width: self.repictureWidth) }
                     }
                 }
             },
@@ -145,7 +147,7 @@ extension WebContent {
             let now = ProcessInfo.processInfo.systemUptime
             if lastTitlePicture.map({ now - $0 >= 1 || now < $0 }) ?? true {
                 lastTitlePicture = now
-                takePicture()
+                takePicture(width: repictureWidth)
             }
         }
     }
@@ -156,7 +158,7 @@ extension WebContent {
         guard picture != nil, !isLoading else { return }
         if let last = lastTextPicture, now >= last, now - last < Double(TextWatch.interval) / 1000 { return }
         lastTextPicture = now
-        takePicture()
+        takePicture(width: repictureWidth)
     }
 
     func changed(url new: URL?) {

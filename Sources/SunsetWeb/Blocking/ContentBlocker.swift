@@ -110,7 +110,7 @@ package final class ContentBlocker {
 
     /// Compiles the elements hidden for good again, and puts them on every page.
     package func compileHidden() async {
-        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        makeFolder()
         guard let store = WKContentRuleListStore(url: folder) else { return }
         var lists: [UUID?: WKContentRuleList] = [:]
         for profile in [nil] + hidden.profilesWithOwn.map(Optional.some) {

@@ -48,10 +48,15 @@ struct WebPaneView: View {
                         .transition(.opacity)
                 }
                 if let request = content.shareRequest {
-                    SharePanel(request: request, host: content.url?.host() ?? "This page")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .id(request.id)
-                        .transition(.opacity)
+                    // A frame asking is named, with the page it is in.
+                    SharePanel(
+                        request: request,
+                        host: request.frameHost.map { "\($0), in a frame of \(content.url?.host() ?? "this page")" }
+                            ?? content.url?.host() ?? "This page"
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .id(request.id)
+                    .transition(.opacity)
                 }
                 if let dialog = content.dialog {
                     PageDialogPanel(dialog: dialog) { content.silenceDialogs() }

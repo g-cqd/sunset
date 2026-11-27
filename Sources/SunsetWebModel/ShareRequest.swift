@@ -4,10 +4,13 @@ package import Foundation
 package struct ShareRequest: Identifiable {
     package let id = UUID()
     package let sources: [ShareSource]
+    /// Who asks, as WebKit says it (the asking frame's host), when it is not the page's own site: a frame in it.
+    package let frameHost: String?
     private let reply: (ShareChoice) -> Void
 
-    package init(sources: [ShareSource], reply: @escaping (ShareChoice) -> Void) {
+    package init(sources: [ShareSource], frameHost: String? = nil, reply: @escaping (ShareChoice) -> Void) {
         self.sources = sources
+        self.frameHost = frameHost
         self.reply = reply
     }
 

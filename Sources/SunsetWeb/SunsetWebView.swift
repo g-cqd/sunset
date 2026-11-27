@@ -34,6 +34,19 @@ final class SunsetWebView: WKWebView {
     var runtime = Runtime.live
 
     // Covered by the command bar's backdrop: no hover, no pointer shape.
+    /// The person clicked or typed in it: for what a page may only ask right after (`WebContent.hasRecentUserInput`).
+    var onUserInput: (() -> Void)?
+
+    override func mouseDown(with event: NSEvent) {
+        onUserInput?()
+        super.mouseDown(with: event)
+    }
+
+    override func keyDown(with event: NSEvent) {
+        onUserInput?()
+        super.keyDown(with: event)
+    }
+
     override func mouseMoved(with event: NSEvent) {
         if !PointerShield.isShielded(window) { super.mouseMoved(with: event) }
     }

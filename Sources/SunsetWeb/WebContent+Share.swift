@@ -4,15 +4,18 @@ import WebKit
 /// Sharing a tab into this page: the sheet's question, and the session once a tab is chosen.
 extension WebContent {
     /// Asks the sheet; one question at a time.
-    func askShare() async -> ShareChoice {
-        guard shareRequest == nil, share == nil else { return .cancel }
+    /// The person is asked what to share, the asking frame named when it is not the page's site; only right after the
+    /// person clicked or typed in the page (audit HIGH-05: the page's word that it was clicked is not taken).
+    func askShare(frameHost: String?) async -> ShareChoice {
+        guard shareRequest == nil, share == nil, hasRecentUserInput else { return .cancel }
         let offered = TabShare.offered(
             WebShare.sources(self),
             to: settings.profile,
             otherProfiles: WebShare.otherProfiles
         )
         return await withCheckedContinuation { continuation in
-            shareRequest = ShareRequest(sources: offered) { [weak self] choice in
+            let other = frameHost.flatMap { $0 == url?.host() ? nil : $0 }
+            shareRequest = ShareRequest(sources: offered, frameHost: other) { [weak self] choice in
                 self?.shareRequest = nil
                 continuation.resume(returning: choice)
             }

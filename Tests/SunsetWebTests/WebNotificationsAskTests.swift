@@ -1,6 +1,7 @@
 import AemiTestKit
 import Foundation
 import Observation
+import SunsetRuntime
 import SunsetTestSupport
 import Testing
 
@@ -20,8 +21,17 @@ struct WebNotificationsAskTests {
         return WebContent(url: URL(string: "https://chat.example"), settings: settings)
     }
 
+    /// A request; `activated`: the person clicked in the page a moment before, as the system told Sunset. What the page
+    /// says of it is not taken (audit MED-05): it always says it was clicked here.
     private func request(_ page: WebContent, activated: Bool) async -> String? {
-        await page.notificationAsked("request", ["activated": activated], host: "chat.example", mainFrame: true, at: 0)
+        page.lastUserInput = activated ? page.runtime.uptime() : nil
+        return await page.notificationAsked(
+            "request",
+            ["activated": true],
+            host: "chat.example",
+            mainFrame: true,
+            at: 0
+        )
             as? String
     }
 

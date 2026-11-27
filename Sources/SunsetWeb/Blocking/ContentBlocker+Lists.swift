@@ -42,7 +42,7 @@ extension ContentBlocker {
     /// Looks each list up, or converts and compiles it once; then puts them on every page and removes what no list uses.
     /// A list that does not compile is said in its state and left out; the others are used.
     package func load(_ sources: [Source]) async {
-        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        makeFolder()
         guard let store = WKContentRuleListStore(url: folder) else { return }
         var lists: [WKContentRuleList] = []
         var states: [ListState] = []
@@ -55,12 +55,16 @@ extension ContentBlocker {
                 state.rules = kept.rules
                 state.skipped = kept.skipped
             } else {
-                let made = await Self.prepare(source.text)
+                var made = await Self.prepare(source.text)
                 state.rules = made.rules
                 state.skipped = made.skipped
+                let count = made.parts.count
                 do {
-                    for (index, json) in made.parts.enumerated() {
+                    for index in 0 ..< count {
                         compilations += 1
+                        // Each part's JSON let go once compiled, not kept until the last (audit DYN-MEM-01).
+                        let json = made.parts[index]
+                        made.parts[index] = ""
                         if let list = try await store.compileContentRuleList(
                             forIdentifier: "\(key)-\(index)",
                             encodedContentRuleList: json
@@ -68,7 +72,7 @@ extension ContentBlocker {
                             lists.append(list)
                         }
                     }
-                    writeKept(key, Kept(parts: made.parts.count, rules: made.rules, skipped: made.skipped))
+                    writeKept(key, Kept(parts: count, rules: made.rules, skipped: made.skipped))
                 } catch {
                     state.problem = "WebKit could not compile it: \(error.localizedDescription)"
                 }
@@ -99,6 +103,16 @@ extension ContentBlocker {
             try? await store.removeContentRuleList(forIdentifier: identifier)
             try? FileManager.default.removeItem(at: keptFile(key))
         }
+    }
+
+    /// Its folder, only its user's: what a person blocks and hides says what they browse (audit DYN-MEM-01's 0700).
+    func makeFolder() {
+        try? FileManager.default.createDirectory(
+            at: folder,
+            withIntermediateDirectories: true,
+            attributes: [.posixPermissions: 0o700]
+        )
+        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: folder.path)
     }
 
     private func keptFile(_ key: String) -> URL {

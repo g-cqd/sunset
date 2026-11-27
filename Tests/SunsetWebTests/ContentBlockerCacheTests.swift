@@ -20,6 +20,8 @@ struct ContentBlockerCacheTests {
         let blocker = ContentBlocker(folder: folder, pauses: BlockingPauses())
         await blocker.load([first])
         #expect(blocker.compilations == 1)
+        let mode = try FileManager.default.attributesOfItem(atPath: folder.path)[.posixPermissions] as? Int
+        #expect(mode == 0o700, "its user's only")
         let again = ContentBlocker(folder: folder, pauses: BlockingPauses())
         await again.load([first])
         #expect(again.compilations == 0, "a launch with the same list looks it up")
