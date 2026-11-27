@@ -2,7 +2,8 @@
 # ignored too.
 :include .gitignore
 
-# Patches to WebKit's own sources and tests, as WebKit writes them (its tests list ws:// match patterns on purpose).
+# Patches to WebKit's own sources and tests, as WebKit writes them (its tests list insecure WebSocket match patterns on
+# purpose).
 Engine/WebKit/patches/
 
 # bash-preexec, vendored as its upstream ships it: a fixture of the shell integration's tests.

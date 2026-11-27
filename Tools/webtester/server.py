@@ -95,8 +95,9 @@ class Handler(SimpleHTTPRequestHandler):
                     pass
             return self.json(kept)
         match = re.fullmatch(r"/inventory/([A-Za-z0-9._-]{1,60})\.json", path)
-        kept_file = match and inside(INVENTORY, f"{match.group(1)}.json")
-        if kept_file and kept_file.exists():
+        # The file is one the folder lists, found by its name: the path is never made from what was asked.
+        kept_file = match and next((file for file in INVENTORY.glob("*.json") if file.name == f"{match.group(1)}.json"), None)
+        if kept_file:
             return self.json(json.loads(kept_file.read_text()))
         if path in ("/results", "/results/"):
             kept = []
