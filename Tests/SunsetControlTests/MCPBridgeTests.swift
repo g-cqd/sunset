@@ -52,4 +52,20 @@ struct MCPBridgeTests {
         )
         #expect((typed["result"] as? [String: Any])?["isError"] as? Bool == true)
     }
+
+    @Test func `read_pane with since asks for the lines from there, and says the next`() throws {
+        var asked: ControlRequest?
+        let bridge = MCPBridge(version: "1") { request in
+            asked = request
+            var reply = ControlReply(text: "$ ls")
+            reply.next = 42
+            return reply
+        }
+        let line =
+            #"{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"read_pane","arguments":{"since":40}}}"#
+        let read = try object(bridge.reply(to: Data(line.utf8)))
+        #expect(asked == ControlRequest(.read, pane: "shown", since: 40))
+        let content = (read["result"] as? [String: Any])?["content"] as? [[String: Any]]
+        #expect((content?.first?["text"] as? String)?.hasSuffix("[next: 42]") == true)
+    }
 }

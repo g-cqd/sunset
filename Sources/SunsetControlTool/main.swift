@@ -2,6 +2,7 @@
 //
 //   sunset list                         the panes of every window: id, kind, title
 //   sunset read [PANE] [--lines N]      a terminal's screen (N lines of scrollback before it), a page's address
+//   sunset read [PANE] --since N        a terminal's lines from N on; the next N is printed to standard error
 //   sunset type PANE TEXT               types TEXT into a terminal; \r runs the line, \t \e \n \\ are escapes
 //   sunset wait PANE TEXT [--timeout S] until the terminal shows TEXT (30 s unless given)
 //   sunset run COMMAND                  runs a command of the menus (sunset commands lists them)
@@ -53,6 +54,7 @@ if arguments == ["mcp"] {
 var json = false
 var lines: Int?
 var timeout: Double?
+var since: Int?
 var words: [String] = []
 while !arguments.isEmpty {
     let argument = arguments.removeFirst()
@@ -60,8 +62,11 @@ while !arguments.isEmpty {
         case "--json": json = true
         case "--lines": lines = arguments.isEmpty ? nil : Int(arguments.removeFirst())
         case "--timeout": timeout = arguments.isEmpty ? nil : Double(arguments.removeFirst())
+        case "--since": since = arguments.isEmpty ? nil : Int(arguments.removeFirst())
         case "-h", "--help":
-            print("usage: sunset list | read [PANE] [--lines N] | type PANE TEXT | wait PANE TEXT [--timeout S]")
+            print(
+                "usage: sunset list | read [PANE] [--lines N | --since N] | type PANE TEXT | wait PANE TEXT [--timeout S]"
+            )
             print("       sunset run COMMAND | commands   (--json prints the reply)")
             exit(0)
         default: words.append(argument)
@@ -71,7 +76,7 @@ guard let verbName = words.first, let verb = ControlRequest.Verb(rawValue: verbN
     fail("expected one of: \(ControlRequest.Verb.allCases.map(\.rawValue).joined(separator: ", ")) (--help)")
 }
 let rest = Array(words.dropFirst())
-var request = ControlRequest(verb, lines: lines, timeout: timeout)
+var request = ControlRequest(verb, lines: lines, timeout: timeout, since: since)
 switch verb {
     case .list, .commands: break
     case .read: request.pane = rest.first ?? "shown"
@@ -105,3 +110,4 @@ if let panes = reply.panes {
 }
 if let commands = reply.commands { commands.forEach { print($0) } }
 if let text = reply.text { print(text) }
+if let next = reply.next, since != nil { FileHandle.standardError.write(Data("next: \(next)\n".utf8)) }

@@ -27,6 +27,8 @@ public struct ControlReply: Codable, Sendable, Equatable {
     public var text: String?
     public var panes: [Pane]?
     public var commands: [String]?
+    /// For `read` of a terminal: the line to read from next (`since`) to get only what came after.
+    public var next: Int?
 
     public init(text: String? = nil, panes: [Pane]? = nil, commands: [String]? = nil) {
         ok = true

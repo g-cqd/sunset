@@ -67,6 +67,8 @@ public struct MCPBridge {
         }
         lines += reply.commands ?? []
         if let text = reply.text { lines.append(text) }
+        // A model follows a terminal by reading again from it.
+        if let next = reply.next { lines.append("[next: \(next)]") }
         return lines.isEmpty ? "done" : lines.joined(separator: "\n")
     }
 

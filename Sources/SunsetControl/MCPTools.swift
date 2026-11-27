@@ -47,7 +47,13 @@ enum MCPTools {
             name: "read_pane",
             summary: "Reads a pane: a terminal's screen (and scrollback lines before it), a page's address and title.",
             arguments: [
-                pane, Argument(name: "lines", type: "integer", about: "Scrollback lines before it", required: false)
+                pane, Argument(name: "lines", type: "integer", about: "Scrollback lines before it", required: false),
+                Argument(
+                    name: "since",
+                    type: "integer",
+                    about: "Only lines from this one on (a reply's next)",
+                    required: false
+                )
             ]
         ),
         Tool(
@@ -78,7 +84,13 @@ enum MCPTools {
         switch name {
             case "list_panes": return ControlRequest(.list)
             case "list_commands": return ControlRequest(.commands)
-            case "read_pane": return ControlRequest(.read, pane: pane, lines: arguments["lines"] as? Int)
+            case "read_pane":
+                return ControlRequest(
+                    .read,
+                    pane: pane,
+                    lines: arguments["lines"] as? Int,
+                    since: arguments["since"] as? Int
+                )
             case "type_into_pane": return ControlRequest(.type, pane: pane, text: text)
             case "wait_for_text":
                 return ControlRequest(.wait, pane: pane, text: text, timeout: arguments["timeout"] as? Double)

@@ -35,5 +35,4 @@ mean to trust, so each must be asked for.
 
 The tool is in the app, `Sunset.app/Contents/Helpers/sunset` (the `SunsetTool` target, signed with the app), and
 Settings › General › Control from outside links it as `~/.local/bin/sunset`; `swift build --product sunset` builds it
-too. Streaming what a pane
-does (observe) is not done.
+too. A terminal's output is followed by reading again: `read --since N` gives the lines from N on and the `next` to read from (the screen's lines again, as a program rewrites them); there is no push.

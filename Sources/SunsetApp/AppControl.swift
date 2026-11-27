@@ -102,7 +102,10 @@ import SunsetWeb
         switch content(request.pane) {
             case let terminal as TerminalModel:
                 guard let screen = terminal.lastScreen else { return ControlReply(text: "") }
-                return ControlReply(text: text(of: screen, scrollback: min(max(request.lines ?? 0, 0), 100_000)))
+                if let since = request.since { return following(screen, since: since) }
+                var reply = ControlReply(text: text(of: screen, scrollback: min(max(request.lines ?? 0, 0), 100_000)))
+                reply.next = screen.scrollbackCount + shownRows(of: screen)
+                return reply
             case let page as WebContent:
                 return ControlReply(text: [page.url?.absoluteString ?? "", page.title].joined(separator: "\n"))
             case let other?: return ControlReply(text: [other.title, other.detail ?? ""].joined(separator: "\n"))
@@ -135,6 +138,29 @@ import SunsetWeb
             await runtime.sleep(for: .milliseconds(100))
         }
         return .failure("not shown after \(Int(seconds)) s")
+    }
+
+    /// The lines from `since` on, counted from the first of the history, to the screen's last written row; the next to
+    /// read from. A line still on the screen can be read again, changed, as the program rewrites it.
+    private static func following(_ screen: Screen, since: Int) -> ControlReply {
+        let history = screen.scrollbackCount
+        let end = history + shownRows(of: screen)
+        let start = min(max(since, 0), end)
+        let lines = (start ..< end)
+            .map { line in
+                line < history ? screen.scrollbackText(line: line) : screen.text(row: line - history)
+            }
+        var reply = ControlReply(text: lines.joined(separator: "\n"))
+        // The screen's lines are given again next time: a prompt or a progress line changes in place.
+        reply.next = max(start, history)
+        return reply
+    }
+
+    /// How many of the screen's rows are written: up to the last that is not empty.
+    private static func shownRows(of screen: Screen) -> Int {
+        var rows = screen.rows
+        while rows > 0, screen.text(row: rows - 1).isEmpty { rows -= 1 }
+        return rows
     }
 
     /// The screen's rows as text, `scrollback` lines of history before them; trailing empty rows left out.

@@ -24,12 +24,22 @@ public struct ControlRequest: Codable, Sendable, Equatable {
     public var lines: Int?
     /// For `wait`: seconds.
     public var timeout: Double?
+    /// For `read` of a terminal: only the lines from this one on (the `next` of the reply before), to follow its output.
+    public var since: Int?
 
-    public init(_ verb: Verb, pane: String? = nil, text: String? = nil, lines: Int? = nil, timeout: Double? = nil) {
+    public init(
+        _ verb: Verb,
+        pane: String? = nil,
+        text: String? = nil,
+        lines: Int? = nil,
+        timeout: Double? = nil,
+        since: Int? = nil
+    ) {
         self.verb = verb
         self.pane = pane
         self.text = text
         self.lines = lines
         self.timeout = timeout
+        self.since = since
     }
 }
