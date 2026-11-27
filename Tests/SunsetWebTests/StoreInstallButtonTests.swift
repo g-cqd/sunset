@@ -35,7 +35,7 @@ struct StoreInstallButtonTests {
         return "none"
     }
 
-    @Test func `on a store's page the button is by the title; pressed, the extension asked to be installed`()
+    @Test(.macOS27) func `on a store's page the button is by the title; pressed, the extension asked to be installed`()
         async throws
     {
         var asked: [ExtensionStoreLink] = []

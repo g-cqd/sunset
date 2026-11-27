@@ -103,7 +103,8 @@ struct InspectorDockingTests {
         #expect(abs(moved.webView.frame.union(inspector.frame).height - moved.bounds.height) < 1.5)
     }
 
-    @Test func `closed, the page has its whole pane back; detached, the inspector is in a window and the page whole`()
+    @Test(.macOS27)
+    func `closed, the page has its whole pane back; detached, the inspector is in a window and the page whole`()
         async throws
     {
         let (window, host, page) = try await hosted()

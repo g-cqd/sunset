@@ -260,7 +260,8 @@ rm -f "$notes_tmp"
 prerelease_flag=""
 case "$tag" in *-*) prerelease_flag="--prerelease" ;; esac
 # shellcheck disable=SC2029 # client-side expansion of verified local variables is intentional
-if ! ssh "$sign_host" "cd ~/$vm_subpath && gh release create '$tag' '$remote_dist'/* --repo g-cqd/sunset --title 'Sunset ${tag#v} (build $build)' --notes-file '$remote_notes' --verify-tag $prerelease_flag && rm -rf '$remote_dist' '$remote_notes'" >> "$run_log" 2>&1; then
+# Release.yml may have published the native variant first: then this run's assets (both variants, one index) replace its.
+if ! ssh "$sign_host" "cd ~/$vm_subpath && if gh release view '$tag' --repo g-cqd/sunset > /dev/null 2>&1; then gh release upload '$tag' '$remote_dist'/* --clobber --repo g-cqd/sunset && gh release edit '$tag' --repo g-cqd/sunset --title 'Sunset ${tag#v} (build $build)' --notes-file '$remote_notes' $prerelease_flag; else gh release create '$tag' '$remote_dist'/* --repo g-cqd/sunset --title 'Sunset ${tag#v} (build $build)' --notes-file '$remote_notes' --verify-tag $prerelease_flag; fi && rm -rf '$remote_dist' '$remote_notes'" >> "$run_log" 2>&1; then
     report_failure "publish-release" "gh release create $tag failed (see $run_log)"
     exit 1
 fi

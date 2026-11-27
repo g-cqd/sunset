@@ -1,4 +1,5 @@
 import Foundation
+import SunsetTestSupport
 import SunsetWeb
 import SunsetWebModel
 import Testing
@@ -8,7 +9,7 @@ extension ExtensionHostTests {
     /// to `browser.contentScripts.register`, Firefox's content scripts from code, which WebKit has not: on a second visit
     /// no scriptlet ran. Sunset gives an extension that may read the page's address one, which runs the scripts once a
     /// matching page commits; a page that does not match runs none.
-    @Test(arguments: ["/registered", "/elsewhere"])
+    @Test(.macOS27, arguments: ["/registered", "/elsewhere"])
     func `an extension's content scripts registered from code run on matching pages`(path: String) async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }

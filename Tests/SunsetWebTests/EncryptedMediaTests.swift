@@ -11,7 +11,7 @@ import WebKit
 /// private or not. Widevine is not there, as in Safari.
 @MainActor
 @Suite("Encrypted media: what a page sees") struct EncryptedMediaTests {
-    @Test(arguments: [false, true])
+    @Test(.macOS27, arguments: [false, true])
     func `FairPlay is offered, private or not`(isPrivate: Bool) async throws {
         var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
         if isPrivate { settings.privacy = PagePrivacy() }

@@ -110,7 +110,7 @@ struct ExtensionHostTests {
     /// Seen 2026-11-20 (uBO Lite's popup empty): an extension saw no window and no tab; WebKit asks the controller's delegate
     /// for the windows (probed: answered, uBO Lite's popup draws). The page shown is the active tab of a window the extension
     /// sees.
-    @Test func `an extension sees the window and the page shown as its active tab`() async throws {
+    @Test(.macOS27) func `an extension sees the window and the page shown as its active tab`() async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let folder = root.appending(path: "src")

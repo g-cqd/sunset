@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SunsetTestSupport
 import Testing
 import WebKit
 
@@ -68,7 +69,7 @@ final class PasswordFillFrameTests {
         path.reduce("document") { "\($0).getElementById('\($1)').contentDocument" }
     }
 
-    @Test func `a field of a frame of the page's origin is told at its place in the page, and filled there`()
+    @Test(.macOS27) func `a field of a frame of the page's origin is told at its place in the page, and filled there`()
         async throws
     {
         let (page, view, host) = try await page()

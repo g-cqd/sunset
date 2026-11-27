@@ -1,11 +1,12 @@
 import AppKit
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetShell
 
 /// A Now Playing card's title scrolls only when it is longer than its room, by a Core Animation animation (the render
 /// server's, no frame computed in the app); a layout that changes nothing keeps the same animation going.
-@MainActor @Suite("A title that scrolls")
+@MainActor @Suite("A title that scrolls", .macOS27)
 struct MarqueeTextTests {
     private func view(width: CGFloat, text: String) -> MarqueeTextView {
         let view = MarqueeTextView(frame: NSRect(x: 0, y: 0, width: width, height: 16))

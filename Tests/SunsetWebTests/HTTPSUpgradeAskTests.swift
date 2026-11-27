@@ -11,7 +11,7 @@ import WebKit
 /// machine) loaded nothing, said nothing; the page stayed blank.
 @MainActor @Suite("An http address with HTTPS asked first")
 struct HTTPSUpgradeAskTests {
-    @Test func `this machine's http page loads, or says why not`() async throws {
+    @Test(.macOS27) func `this machine's http page loads, or says why not`() async throws {
         let server = try EchoServer()
         var settings = WebSettings(applicationName: "Version/26.0 Safari/605.1.15")
         settings.httpsUpgrade = .ask

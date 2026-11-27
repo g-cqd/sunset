@@ -1,5 +1,6 @@
 import CoreText
 import Foundation
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetRenderMac
@@ -54,7 +55,7 @@ import Testing
 
     /// A weight set for the regular face of a variable font does not reach bold, which stays bold (measured with the
     /// variable monospaced fonts installed here; none skips the check).
-    @Test(arguments: ["JetBrains Mono", "Geist Mono", "Google Sans Code"])
+    @Test(.macOS27, arguments: ["JetBrains Mono", "Geist Mono", "Google Sans Code"])
     func `a weight for the regular face leaves bold bold`(family: String) throws {
         let probe = CTFontCreateWithName(family as CFString, 14, nil)
         try #require(CTFontCopyFamilyName(probe) as String == family, "\(family) is not installed")

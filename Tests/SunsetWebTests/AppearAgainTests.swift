@@ -38,7 +38,7 @@ struct AppearAgainTests {
         #expect(asked.target(current: elsewhere) == nil, "sent to another site: that one is loaded again")
     }
 
-    @Test func `a site that sent the page away is loaded at the address asked for once it is shown Chrome`()
+    @Test(.macOS27) func `a site that sent the page away is loaded at the address asked for once it is shown Chrome`()
         async throws
     {
         let server = try EchoServer(pages: ["/start": Self.sniffing])

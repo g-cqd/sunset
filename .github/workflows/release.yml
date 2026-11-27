@@ -50,10 +50,22 @@ jobs:
         with:
           swift-version: ${{ env.SWIFT_VERSION }}
       # xcodebuild runs Xcode's own Swift (6.3 on macos-26, which cannot read a 6.4 manifest) unless TOOLCHAINS names another.
+      # A swift.org toolchain has no Apple `ld` (SwiftPM's manifest link then fails: "posix_spawn failed"), nor actool,
+      # tapi and the rest: Xcode's tools it lacks are linked into it. Named alone it also hides Xcode's Metal compiler
+      # (AemiSDR's shaders), so the Metal toolchain and Xcode's own follow it in TOOLCHAINS.
       - name: Setup · Select the Installed Swift for Xcode
         run: |
           plist=$(find "$HOME/Library/Developer/Toolchains" -maxdepth 2 -path "*/swift-$SWIFT_VERSION*.xctoolchain/Info.plist" | head -1)
-          echo "TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw "$plist")" >> "$GITHUB_ENV"
+          swift_bin="$(dirname "$plist")/usr/bin"
+          xcode_bin="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/bin"
+          for tool in "$xcode_bin"/*; do
+            name="$(basename "$tool")"
+            [ "$name" = metal ] || [ -e "$swift_bin/$name" ] || ln -s "$tool" "$swift_bin/$name"
+          done
+          xcrun -f metal > /dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
+          metal_info="$(dirname "$(dirname "$(dirname "$(xcrun -f metal)")")")/ToolchainInfo.plist"
+          metal_id="$(plutil -extract Identifier raw "$metal_info" 2> /dev/null || true)"
+          echo "TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw "$plist") ${metal_id:+$metal_id }com.apple.dt.toolchain.XcodeDefault" >> "$GITHUB_ENV"
       - name: Setup · Install XcodeGen
         run: brew install xcodegen
       - name: Signing · Keychain, Profile and Notary Key
@@ -153,18 +165,25 @@ jobs:
           Scripts/sign-release-index.sh "$TAG" "$(cat .build/dist.build)" "$RUNNER_TEMP/notes.md" .build/dist
           rm -f "$HOME/.config/sunset-signing/release-index-main.pem"
       - name: Release · Publish
+        id: publish
         if: ${{ env.SIGNED == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
+          # A release published from the Mac (both variants, ADR-0125) is the one people get: never replaced from here.
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "::notice::$TAG is already published; its assets are left as they are"
+            exit 0
+          fi
           prerelease=()
           case "$TAG" in *-*) prerelease=(--prerelease) ;; esac
           build="$(cat .build/dist.build)"
           gh release create "$TAG" .build/dist/* --repo "$GITHUB_REPOSITORY" --title "Sunset ${TAG#v} (build $build)" \
             --notes-file "$RUNNER_TEMP/notes.md" --verify-tag "${prerelease[@]}"
+          echo "published=true" >> "$GITHUB_OUTPUT"
       - name: Release · SLSA Build Provenance
-        if: ${{ env.SIGNED == 'true' }}
+        if: ${{ env.SIGNED == 'true' && steps.publish.outputs.published == 'true' }}
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: ".build/dist/*.zip,.build/dist/*.deltas,.build/dist/*.sbom.cdx.json"

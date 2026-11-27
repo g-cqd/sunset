@@ -32,7 +32,7 @@ struct ReloadAsAfterCloseTests {
         return colour.redComponent > 0.8 && colour.greenComponent < 0.2
     }
 
-    @Test func `the new page draws, not black`() async throws {
+    @Test(.macOS27) func `the new page draws, not black`() async throws {
         let profile = UUID()
         let server = try EchoServer(pages: ["/": "<body style='background:#f00;margin:0'>red</body>"])
         let address = try #require(URL(string: "http://127.0.0.1:\(server.port)/"))

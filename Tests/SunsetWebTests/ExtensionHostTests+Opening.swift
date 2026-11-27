@@ -13,7 +13,7 @@ import WebKit
 extension ExtensionHostTests {
     /// WebKit asks the controller's delegate to open a tab (`tabs.create`, a link in a popup, the options page); Sunset
     /// answered nothing. The tab is opened by the app in the extension's profile, and the extension gets it back.
-    @Test func `an extension opens a tab`() async throws {
+    @Test(.macOS27) func `an extension opens a tab`() async throws {
         let root = URL(filePath: NSTemporaryDirectory()).appending(path: "exthost-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let folder = root.appending(path: "src")

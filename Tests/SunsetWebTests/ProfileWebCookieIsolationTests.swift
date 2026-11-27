@@ -64,7 +64,9 @@ struct ProfileWebCookieIsolationTests {
         return (server, login, whoami)
     }
 
-    @Test func `moving a logged-in web tab from Personal Space to Work Space isolates its cookie store`() async throws {
+    @Test(.macOS27) func `moving a logged-in web tab from Personal Space to Work Space isolates its cookie store`()
+        async throws
+    {
         let (profileA, profileB) = (UUID(), UUID())
         let (spaces, spaceA, spaceB) = makeTwoProfileSpaces(profileA: profileA, profileB: profileB)
         let env = try signInServer(cookie: "acct=personal_only")

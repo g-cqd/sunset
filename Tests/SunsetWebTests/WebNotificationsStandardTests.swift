@@ -2,6 +2,7 @@ import AemiTestKit
 import AppKit
 import Foundation
 import Observation
+import SunsetTestSupport
 import Testing
 import WebKit
 
@@ -14,7 +15,7 @@ import WebKit
 @MainActor
 @Suite("A page's notifications: what the standard asks")
 struct WebNotificationsStandardTests {
-    @Test(.timeLimit(.minutes(1)))
+    @Test(.macOS27, .timeLimit(.minutes(1)))
     func `as WebKit's: actions and renotify ignored, silent read back and handed on, no requireInteraction`()
         async throws
     {

@@ -131,7 +131,7 @@ final class NowPlayingPageTests {
         #expect(!page.isMuted && center.stack.front?.isMuted == false, "unmuted from its card")
     }
 
-    @Test func `a short notification chime without a media session never opens or leaves a Now Playing card`()
+    @Test(.macOS27) func `a short notification chime without a media session never opens or leaves a Now Playing card`()
         async throws
     {
         let chimeHTML = """
