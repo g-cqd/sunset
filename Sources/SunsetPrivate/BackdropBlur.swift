@@ -37,6 +37,9 @@ public enum BackdropBlur {
             .takeUnretainedValue() as? NSObject
         else { return nil }
         filter.setValue(Double(min(radius, 100)), forKey: "inputRadius")
+        // The blur's edges kept as dense as its middle: without it, a blur the window's size averages its edges with what
+        // lies outside the layer (nothing), and the window's borders came out nearly clear (the owner, 2026-11-27).
+        filter.setValue(true, forKey: #Interned("inputNormalizeEdges"))
         layer.filters = [filter]
         return layer
     }

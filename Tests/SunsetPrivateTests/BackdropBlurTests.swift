@@ -14,6 +14,8 @@ import Testing
         #expect(filters.count == 1)
         let filter = try #require(filters.first as? NSObject)
         #expect((filter.value(forKey: "inputRadius") as? NSNumber)?.doubleValue == 24)
+        // Its edges as dense as its middle: the window's borders are not left nearly clear.
+        #expect((filter.value(forKey: "inputNormalizeEdges") as? NSNumber)?.boolValue == true)
         let clamped = try #require(BackdropBlur.makeLayer(radius: 5000))
         #expect(((clamped.filters?.first as? NSObject)?.value(forKey: "inputRadius") as? NSNumber)?.doubleValue == 100)
     }
