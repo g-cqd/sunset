@@ -5,6 +5,7 @@ public enum ConfigurationKeys {
     /// themes, the layout's measures); a plain value's key is its option's (`SettingCodec`).
     static let byHand: [String] = [
         "theme",
+        "keys",
         "font.family",
         "font.boldFamily",
         "font.italicFamily",
@@ -80,7 +81,8 @@ public enum ConfigurationKeys {
     /// The file's sections, in the order the written file shows them.
     static let sections: [String] = [
         "theme", "font", "colors", "window", "terminal", "sidebar", "layout", "appearance", "tabs", "scroll",
-        "scrollback", "cursor", "keyboard", "storage", "updates", "passwords", "documents", "spaces", "features", "web"
+        "scrollback", "cursor", "keyboard", "keys", "storage", "updates", "passwords", "documents", "spaces",
+        "features", "web"
     ]
 
     /// Every key: the hand-written ones and the options' own, each section's together (its subsections too), the sections

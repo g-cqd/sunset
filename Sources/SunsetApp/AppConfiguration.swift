@@ -30,6 +30,7 @@ final class AppConfiguration {
             Feedback.taps = configuration.appearance.haptics
             WebShare.otherProfiles = configuration.web.shareOtherProfiles
             if configuration.passwords != AppPasswords.settings { AppPasswords.settings = configuration.passwords }
+            if configuration.keys != oldValue.keys { CommandKeys.shared.take(configuration.keys) }
             refreshShown()
         }
     }
@@ -201,9 +202,13 @@ final class AppConfiguration {
             apply(result.configuration)
             baseline = result.configuration
             watchTheme(result.configuration.theme)
-            issues = result.issues
+            // The commands' keys are the app's to judge: it knows its commands.
+            issues =
+                result.issues
+                + CommandKeys.shared.take(result.configuration.keys)
+                .map { ConfigurationIssue(path: $0.path, message: $0.message) }
             lastError = nil
-            for issue in result.issues { Self.say("\(path): \(issue.path): \(issue.message)") }
+            for issue in issues { Self.say("\(path): \(issue.path): \(issue.message)") }
         } catch {
             lastError = error.description
             Self.say("\(path): \(lastError ?? "unreadable"); the previous configuration stays in force")

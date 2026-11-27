@@ -48,6 +48,7 @@ struct Reader {
                 case "web": section("web", value) { reader, object in reader.readWeb(object) }
                 case "scrollback": section("scrollback", value) { reader, object in reader.readScrollback(object) }
                 case "cursor": section("cursor", value) { reader, object in reader.readCursor(object) }
+                case "keys": readKeys(value)
                 default: unknown(key)
             }
         }

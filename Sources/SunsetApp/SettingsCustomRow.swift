@@ -54,6 +54,7 @@ struct SettingsCustomRow: View {
             case .defaultBrowser: DefaultBrowserRow()
             case .updates: UpdatesCenter()
             case .quickLookMarkdown: QuickLookMarkdownRow()
+            case .keys: KeysSettings(config: config)
             case .textOnlyZoom:
                 if WebTextZoomProbe.isAvailable {
                     LabeledContent {

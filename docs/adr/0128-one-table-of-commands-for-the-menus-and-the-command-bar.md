@@ -19,10 +19,18 @@ its key (`KeyChord`), its scope and the words that find it. It has no AppKit or 
 - The command bar offers every command of a scope that is on whose words start with every typed word (two letters at
   least), enabled now, with its menu and its key beside it (`CommandRows`).
 
+- A command's key can be set (`keys` in the file: a command's name and its key, written "cmd+shift+d" or as the menus
+  write it; "" takes its key away). `CommandKeys` holds the keys in force: the file's, else the table's unless the file
+  gave that key to another command. Names that are not commands and keys without Command or Control are reported as
+  issues of the file. Settings › General › Keyboard shortcuts records a key by pressing it (`KeyRecorder`); a key given
+  to one command is taken from the one that had it.
+
+Two-key sequences and commands with parameters are not done.
+
 Items whose list is made at run time (the Spaces by name, Tab 1 to 9, the Format menu, history entries, Keep Awake)
 stay as they were.
 
 ## Consequences
 
-A command has one title and one key wherever it is offered, and each key is used once (`AppCommandTableTests`). Keys as
-settings, a command bar that ranks and learns, and the outside channels read this table.
+A command has one title and one key wherever it is offered, and each key is used once (`AppCommandTableTests`,
+`CommandKeysTests`). A command bar that ranks and learns, and the outside channels, read this table.

@@ -17,7 +17,8 @@ enum CommandRows {
     @MainActor private static func row(_ command: AppCommand, tabs: TabsModel, target: AppCommandRunner.Target)
         -> ChoiceRow
     {
-        let accessory = [command.menu, command.key?.symbols].compactMap(\.self).joined(separator: "  ")
+        let accessory = [command.menu, CommandKeys.shared.key(for: command.id)?.symbols].compactMap(\.self)
+            .joined(separator: "  ")
         return ChoiceRow(
             id: "command \(command.id.rawValue)",
             glyph: .symbol(command.symbol),

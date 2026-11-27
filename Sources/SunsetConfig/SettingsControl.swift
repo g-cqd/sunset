@@ -26,6 +26,8 @@ public enum SettingsControl: Sendable {
         case updates
         /// Settings, Documents: toggle Sunset's Quick Look preview and thumbnail extensions for Markdown and Mermaid.
         case quickLookMarkdown
+        /// Settings, Keyboard shortcuts: each command's key, recorded.
+        case keys
 
         /// A list that draws a section for each of its things (the profiles): the page does not wrap it.
         public var ownsSections: Bool {
@@ -35,7 +37,8 @@ public enum SettingsControl: Sendable {
         /// A list of things the person added or answered, drawn as a section of its own under its title.
         public var isList: Bool {
             switch self {
-                case .engines, .websites, .siteAgents, .profiles, .blockingLists, .sites, .features, .extensions: true
+                case .engines, .websites, .siteAgents, .profiles, .blockingLists, .sites, .features, .extensions, .keys:
+                    true
                 default: false
             }
         }

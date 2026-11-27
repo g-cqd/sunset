@@ -223,6 +223,8 @@ public struct Configuration: Sendable, Equatable {
     public var renderer = Renderer.auto
     public var updates = Updates()
     public var passwords = Passwords()
+    /// Keys given to commands (`keys`): a command's name and its key ("cmd+shift+d", "⇧⌘D"); "" takes its key away.
+    public var keys: [String: String] = [:]
 
     public init() {}
 }
