@@ -28,7 +28,9 @@ concurrency:
 jobs:
   release:
     name: Release · Sunset.app · macOS
-    runs-on: macos-26
+    # Xcode 27 (Swift 6.4): Xcode 26's package resolution refuses a 6.4 manifest whatever TOOLCHAINS says (alpha.19's run:
+    # "using Swift tools version 6.4.0 but the installed version is 6.3.3").
+    runs-on: xcode-27
     timeout-minutes: 90
     permissions:
       contents: write # the release and its assets
@@ -43,15 +45,11 @@ jobs:
           # The build number is the count of commits.
           fetch-depth: 0
           persist-credentials: false
-      - name: Setup · Read .swift-version
-        run: echo "SWIFT_VERSION=$(cat .swift-version)" >> "$GITHUB_ENV"
-      # xcodebuild runs Xcode's own Swift (6.3 on macos-26, which cannot read a 6.4 manifest) unless TOOLCHAINS names
-      # another: swift-ci's for-xcode makes the installed one usable by xcodebuild.
-      - name: Setup · Install Swift
-        uses: g-cqd/swift-ci/setup-swift@66845cc3bbfed0cc39148f0c3f2afbd3777d964f # swift-ci 66845cc
-        with:
-          swift-version: ${{ env.SWIFT_VERSION }}
-          for-xcode: true
+      - name: Setup · Xcode and its Metal Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+          xcrun -f metal > /dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
       - name: Setup · Install XcodeGen
         run: brew install xcodegen
       - name: Signing · Keychain, Profile and Notary Key

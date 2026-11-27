@@ -27,8 +27,9 @@ a later push cancelled. The owner asked for releases that are not that slow (202
 - **An update package covers the latest release only** (and the other variant at the same build): a Sunset older than
   that downloads the zip.
 - **CI**: the tests in the Release configuration run nightly, on tags and by hand, no longer on every push; a push is
-  checked in Debug (about ten minutes). Making the installed Swift the one `xcodebuild` uses is swift-ci's
-  (`setup-swift`, `for-xcode`), not this repository's.
+  checked in Debug, and a build restored from the cache compiles only what changed (swift-ci keeps the sources' times).
+  The tag's own release build runs on the `xcode-27` image: Xcode 26's package resolution refuses a 6.4 manifest
+  whatever toolchain is named.
 
 ## Consequences
 
