@@ -7,7 +7,9 @@ import Testing
 @Suite("The MCP bridge")
 struct MCPBridgeTests {
     private func object(_ data: Data?) throws -> [String: Any] {
-        try #require(JSONSerialization.jsonObject(with: try #require(data)) as? [String: Any])
+        let line = try #require(data)
+        let parsed = try JSONSerialization.jsonObject(with: line)
+        return try #require(parsed as? [String: Any])
     }
 
     @Test func `it introduces itself, lists its tools, and leaves notifications unanswered`() throws {
