@@ -12,6 +12,11 @@ mean to trust, so each must be asked for.
   read, type, wait, run, commands) and one per reply (`ControlReply`). Lines longer than 1 MiB are not read.
 - The socket is `~/Library/Application Support/Sunset/control.sock`: its folder is made 0700, the socket 0600, and a
   peer whose user is not the app's (`getpeereid`) is closed without an answer.
+- Each session is approved by the person: the first request of a session asks them, in front of everything, whether that
+  program may control Sunset ("Don't Allow" is the default); their answer holds until the session ends, Sunset quits or
+  control is turned off (`ControlApprovals`). A session is the peer's (`LOCAL_PEERPID`) session leader (`getsid`): the
+  shell of a terminal, or the app that started the tool, by its process id and start time, so that a tool run many times
+  in one session asks once and a process id used again asks again.
 - `control.enabled` (off) opens the socket: listing and reading panes, running commands of the table (ADR-0128), waiting
   for a text on a terminal's screen (at most ten minutes). `control.typing` (off) also lets it type into terminals, as
   keys are typed. Both are in Settings › General › Control from outside.

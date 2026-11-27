@@ -71,6 +71,14 @@ final class UnixSocket: Sendable {
         return user == getuid()
     }
 
+    /// The process at the other end; nil when it cannot be read.
+    var peerPID: Int32? {
+        var pid: pid_t = 0
+        var length = socklen_t(MemoryLayout<pid_t>.size)
+        guard unsafe getsockopt(descriptor, SOL_LOCAL, LOCAL_PEERPID, &pid, &length) == 0, pid > 0 else { return nil }
+        return pid
+    }
+
     /// Reads up to a newline (not kept); nil at the end, or past `ControlLine.limit`.
     func readLine() -> Data? {
         var line = Data()

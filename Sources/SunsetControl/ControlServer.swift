@@ -3,9 +3,9 @@ import Foundation
 import Synchronization
 
 /// The app's end of the control socket: each connection sends request lines and is answered, line for line, by
-/// `handle`. Off unless the app starts it (`control.enabled`).
+/// `handle`, told who asks (`ControlPeer`). Off unless the app starts it (`control.enabled`).
 public final class ControlServer: Sendable {
-    public typealias Handler = @Sendable (ControlRequest) async -> ControlReply
+    public typealias Handler = @Sendable (ControlRequest, ControlPeer) async -> ControlReply
 
     private let path: String
     private let listener: Mutex<UnixSocket?> = Mutex(nil)
@@ -37,12 +37,12 @@ public final class ControlServer: Sendable {
 
     /// Answers one connection's lines, one after the other: a peer of another user is closed at once.
     private static func serve(_ connection: UnixSocket, handle: @escaping Handler) {
-        guard connection.peerIsSameUser else { return }
+        guard connection.peerIsSameUser, let pid = connection.peerPID, let peer = ControlPeer.of(pid) else { return }
         while let line = connection.readLine() {
             let reply: ControlReply
             do {
                 let request = try ControlLine.decode(ControlRequest.self, from: line)
-                reply = Self.answer(request, handle: handle)
+                reply = Self.answer(request, from: peer, handle: handle)
             } catch {
                 reply = .failure("not a request: \(error.localizedDescription)")
             }
@@ -51,11 +51,13 @@ public final class ControlServer: Sendable {
     }
 
     /// `handle`'s reply, waited for on this connection's own thread.
-    private static func answer(_ request: ControlRequest, handle: @escaping Handler) -> ControlReply {
+    private static func answer(_ request: ControlRequest, from peer: ControlPeer, handle: @escaping Handler)
+        -> ControlReply
+    {
         let done = DispatchSemaphore(value: 0)
         let reply = Mutex<ControlReply?>(nil)
         Task {
-            let answer = await handle(request)
+            let answer = await handle(request, peer)
             reply.withLock { $0 = answer }
             done.signal()
         }

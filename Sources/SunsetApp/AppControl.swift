@@ -20,7 +20,7 @@ import SunsetWeb
         if new.enabled {
             let started = ControlServer()
             do {
-                try started.start { request in await answer(request) }
+                try started.start { request, peer in await answer(request, from: peer) }
                 server = started
             } catch {
                 FileHandle.standardError.write(Data("sunset: the control socket did not open: \(error)\n".utf8))
@@ -28,11 +28,15 @@ import SunsetWeb
         } else {
             server?.stop()
             server = nil
+            ControlApprovals.forget()
         }
     }
 
-    static func answer(_ request: ControlRequest) async -> ControlReply {
+    static func answer(_ request: ControlRequest, from peer: ControlPeer) async -> ControlReply {
         guard control.enabled else { return .failure("control from outside is off") }
+        guard await ControlApprovals.allows(peer, typing: control.typing) else {
+            return .failure("not allowed: the person refused this session")
+        }
         switch request.verb {
             case .list: return ControlReply(panes: panes())
             case .commands:

@@ -14,8 +14,9 @@ struct ControlSocketTests {
     @Test func `a request is answered by the handler; the socket's folder and file are the user's only`() throws {
         let path = path()
         let server = ControlServer(path: path)
-        try server.start { request in
-            request.verb == .read ? ControlReply(text: "screen of \(request.pane ?? "?")") : .failure("no")
+        try server.start { request, peer in
+            guard peer.pid == getpid(), peer.session.isAlive else { return .failure("who?") }
+            return request.verb == .read ? ControlReply(text: "screen of \(request.pane ?? "?")") : .failure("no")
         }
         defer { server.stop() }
         let reply = try ControlClient.send(ControlRequest(.read, pane: "shown"), path: path)

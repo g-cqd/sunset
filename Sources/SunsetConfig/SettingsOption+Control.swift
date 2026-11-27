@@ -7,7 +7,7 @@ extension SettingsOption {
             "socket sunset tool command line cli automation script mcp",
             label: "Answer the sunset tool",
             note: "Programs you run can list and read the panes and run the menus' commands with the sunset tool, over "
-                + "a socket only your user can open."
+                + "a socket only your user can open. Each session (a terminal, an app) is asked for once."
         ),
         controlSwitch(
             ("control.typing", \.control.typing),
