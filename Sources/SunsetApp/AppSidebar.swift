@@ -89,13 +89,18 @@ struct AppSidebar: View {
     }
 
     /// What plays, above the bar (`web.nowPlaying`; roadmap 0114); Go There shows its tab, in its Space and window.
+    /// Above it, an update found or ready to install (n151).
     private var nowPlaying: AnyView? {
-        guard configuration.web.nowPlaying, !NowPlaying.shared.stack.pages.isEmpty else { return nil }
+        let surface = AnyView(SidebarBackdrop(look: SidebarLook(configuration)))
+        let playing = configuration.web.nowPlaying && !NowPlaying.shared.stack.pages.isEmpty
+        guard playing || UpdateCard.isShown(AppUpdates.shared) else { return nil }
         return AnyView(
-            NowPlayingStack(
-                pictureInPicture: configuration.web.pictureInPicture,
-                surface: AnyView(SidebarBackdrop(look: SidebarLook(configuration)))
-            )
+            VStack(spacing: Design.Space.s) {
+                UpdateCard(updates: AppUpdates.shared, surface: surface)
+                if playing {
+                    NowPlayingStack(pictureInPicture: configuration.web.pictureInPicture, surface: surface)
+                }
+            }
         )
     }
 
