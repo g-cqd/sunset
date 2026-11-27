@@ -57,8 +57,8 @@ extension ProfileOverridesTests {
     @Test func `with a profile chosen, a section opens on its first topic a profile can set`() {
         #expect(SettingsSection.shown(for: SettingsSection.sectionPrefix + "web", profileOnly: true) == "web.search")
         #expect(
-            SettingsSection.shown(for: SettingsSection.sectionPrefix + "privacy", profileOnly: true)
-                == "privacy.browsing"
+            // Privacy and storage has none a profile sets (history and site data moved to Web): its first topic.
+            SettingsSection.shown(for: SettingsSection.sectionPrefix + "privacy", profileOnly: true) == "privacy.kept"
         )
     }
 }

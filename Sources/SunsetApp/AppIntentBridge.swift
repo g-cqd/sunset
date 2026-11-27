@@ -1,7 +1,7 @@
 import SunsetPane
 import SunsetShellModel
 
-/// What the app's App Intents (Shortcuts, Spotlight, Siri; `Sources/SunsetAppMain/SunsetIntents.swift`) reach of the app:
+/// What the app's App Intents (Shortcuts, Spotlight, Siri; `Sources/SunsetAppMain`) reach of the app:
 /// the menus' commands by name, as the command bar runs them. Only these: reading or typing into panes is the control
 /// socket's, behind its switches (ADR-0129).
 public enum AppIntentBridge {

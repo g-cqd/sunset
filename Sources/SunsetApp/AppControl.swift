@@ -3,6 +3,7 @@ import SunsetConfig
 import SunsetControl
 import SunsetCore
 import SunsetPane
+import SunsetRuntime
 import SunsetShellModel
 import SunsetTerminalModel
 import SunsetWeb
@@ -120,10 +121,10 @@ import SunsetWeb
     private static func wait(_ request: ControlRequest) async -> ControlReply {
         guard let wanted = request.text, !wanted.isEmpty else { return .failure("wait for what?") }
         let seconds = min(max(request.timeout ?? 30, 0), 600)
-        let clock = ContinuousClock()
-        let end = clock.now + .seconds(seconds)
+        let runtime = Runtime.live
+        let end = runtime.uptime() + .seconds(seconds)
         var turn = 0
-        while clock.now < end {
+        while runtime.uptime() < end {
             // Marked (and the person's stop heard) every five seconds, not every look.
             let pane = turn % 50 == 0 ? content(request.pane) : found(request.pane)
             turn += 1
@@ -131,7 +132,7 @@ import SunsetWeb
             if let screen = terminal.lastScreen, text(of: screen, scrollback: 0).contains(wanted) {
                 return ControlReply(text: wanted)
             }
-            try? await Task.sleep(for: .milliseconds(100))
+            await runtime.sleep(for: .milliseconds(100))
         }
         return .failure("not shown after \(Int(seconds)) s")
     }

@@ -1,9 +1,11 @@
 internal import Darwin
 import Foundation
+import SunsetRuntime
 import Synchronization
 
 /// The app's end of the control socket: each connection sends request lines and is answered, line for line, by
-/// `handle`, told who asks (`ControlPeer`). Off unless the app starts it (`control.enabled`).
+/// `handle`, told who asks (`ControlPeer`). Off unless the app starts it (`control.enabled`). Its waits (for the next
+/// connection, for a line) block a thread of their own (`DedicatedThread`), never one of the cooperative pool.
 public final class ControlServer: Sendable {
     public typealias Handler = @Sendable (ControlRequest, ControlPeer) async -> ControlReply
 
@@ -19,11 +21,17 @@ public final class ControlServer: Sendable {
         let socket = try UnixSocket.listening(at: path)
         listener.withLock { $0 = socket }
         let path = path
-        Thread.detachNewThread {
+        let accepting = DedicatedThread.start()
+        Runtime.live.detached(executorPreference: accepting) {
             while let connection = socket.accept() {
-                Thread.detachNewThread { Self.serve(connection, handle: handle) }
+                let reading = DedicatedThread.start()
+                Runtime.live.detached(executorPreference: reading) {
+                    await Self.serve(connection, handle: handle)
+                    reading.stop()
+                }
             }
             unlink(path)
+            accepting.stop()
         }
     }
 
@@ -36,32 +44,17 @@ public final class ControlServer: Sendable {
     }
 
     /// Answers one connection's lines, one after the other: a peer of another user is closed at once.
-    private static func serve(_ connection: UnixSocket, handle: @escaping Handler) {
+    private static func serve(_ connection: UnixSocket, handle: Handler) async {
         guard connection.peerIsSameUser, let pid = connection.peerPID, let peer = ControlPeer.of(pid) else { return }
         while let line = connection.readLine() {
             let reply: ControlReply
             do {
                 let request = try ControlLine.decode(ControlRequest.self, from: line)
-                reply = Self.answer(request, from: peer, handle: handle)
+                reply = await handle(request, peer)
             } catch {
                 reply = .failure("not a request: \(error.localizedDescription)")
             }
             guard let data = try? ControlLine.encode(reply), connection.write(data) else { return }
         }
-    }
-
-    /// `handle`'s reply, waited for on this connection's own thread.
-    private static func answer(_ request: ControlRequest, from peer: ControlPeer, handle: @escaping Handler)
-        -> ControlReply
-    {
-        let done = DispatchSemaphore(value: 0)
-        let reply = Mutex<ControlReply?>(nil)
-        Task {
-            let answer = await handle(request, peer)
-            reply.withLock { $0 = answer }
-            done.signal()
-        }
-        done.wait()
-        return reply.withLock { $0 } ?? .failure("no answer")
     }
 }

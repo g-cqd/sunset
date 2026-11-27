@@ -11,6 +11,18 @@ extension HelpCatalog {
                     + "is turned on again. At least one feature stays on."
             ],
             related: [.spaces]
+        ),
+        .controlFromOutside: HelpEntry(
+            title: "Control from outside",
+            summary: "Driven by the sunset tool: click to stop it for this pane.",
+            text: [
+                "With **Settings > General > Control from outside** on, programs you run can list and read the panes "
+                    + "and run the menus' commands with the `sunset` tool, or as an MCP server with `sunset mcp`.",
+                "The first request of each session (a terminal's shell, an app that started the tool) asks you; your "
+                    + "answer holds until that session ends or Sunset quits. Typing into terminals is a switch of its own.",
+                "A pane being driven shows a mark on its tab: click it, and the tool is refused that pane."
+            ],
+            related: [.features]
         )
     ]
 }

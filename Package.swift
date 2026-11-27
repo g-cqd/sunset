@@ -114,7 +114,7 @@ let package = Package(
                 .product(name: "MarkdownLookKit", package: "AemiMarkdown")
             ]
         ),
-        module("SunsetControl", []),
+        module("SunsetControl", ["SunsetRuntime"]),
         tests("SunsetControlTests", ["SunsetControl"]),
         .executableTarget(
             name: "SunsetControlTool",

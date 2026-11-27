@@ -12,7 +12,7 @@ public enum HelpCatalog {
             text: [
                 "The Passwords vault lives in the Library sidebar and seals every record on disk with ChaCha20-Poly1305. "
                     + "It unlocks with your master password, Touch ID (when enabled), or your one-time recovery code, and "
-                    + "locks automatically on sleep, screen lock, quit, or the timeouts set in **Settings > Privacy > Passwords**.",
+                    + "locks automatically on sleep, screen lock, quit, or the timeouts set in **Settings > Passwords**.",
                 "While unlocked, Sunset keeps the window out of screen capture, records prior secret values in each "
                     + "field's history, lets you attach files up to 4 MB per item, generates random passwords or Diceware "
                     + "passphrases, and checks for weak or reused passwords offline in **More > Password Health**.",

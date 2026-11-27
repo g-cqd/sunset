@@ -5,7 +5,7 @@ internal import Synchronization
 /// A thread of its own that runs the jobs of the tasks that prefer it (`Task(executorPreference:)`), so that blocking work (waiting for a pseudo-terminal to
 /// have output, or to take input) ties up this thread and never one of the cooperative pool. There is no Dispatch: the thread waits on a pipe that
 /// enqueuing writes a byte to, and the jobs wait in a list under a mutex.
-final class DedicatedThread: TaskExecutor, Sendable {
+public final class DedicatedThread: TaskExecutor, Sendable {
     private let jobs = Mutex<[UnownedJob]>([])
     private let stopped = Mutex(false)
     private let wakeRead: Int32
@@ -26,20 +26,20 @@ final class DedicatedThread: TaskExecutor, Sendable {
     }
 
     /// Starts the thread. It keeps its executor alive until `stop()`.
-    static func start() -> DedicatedThread {
+    public static func start() -> DedicatedThread {
         let executor = DedicatedThread()
         Thread.detachNewThread { executor.run() }
         return executor
     }
 
-    func enqueue(_ job: consuming ExecutorJob) {
+    public func enqueue(_ job: consuming ExecutorJob) {
         let unowned = UnownedJob(job)
         jobs.withLock { $0.append(unowned) }
         wake()
     }
 
     /// Ends the thread once the jobs already queued have run.
-    func stop() {
+    public func stop() {
         stopped.withLock { $0 = true }
         wake()
     }

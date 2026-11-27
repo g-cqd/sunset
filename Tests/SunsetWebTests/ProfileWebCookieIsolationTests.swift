@@ -95,7 +95,8 @@ struct ProfileWebCookieIsolationTests {
         try? await WKWebsiteDataStore.remove(forIdentifier: profileB)
     }
 
-    @Test func `Space profile change isolates live WebKit cookies across both open tabs and Space-owned Favorites`()
+    @Test(.macOS27)
+    func `Space profile change isolates live WebKit cookies across both open tabs and Space-owned Favorites`()
         async throws
     {
         let (profileA, profileB) = (UUID(), UUID())

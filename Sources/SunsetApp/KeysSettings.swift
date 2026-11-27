@@ -1,5 +1,6 @@
 import SunsetConfig
 import SunsetPane
+import SunsetShell
 import SunsetShellModel
 import SwiftUI
 
@@ -17,14 +18,17 @@ struct KeysSettings: View {
             Section(menu) {
                 ForEach(commands.filter { $0.menu == menu }) { command in
                     LabeledContent {
-                        HStack(spacing: 6) {
+                        HStack(spacing: Design.Space.s) {
                             if keys.isGiven(command.id) {
-                                Button("Put back", systemImage: "arrow.uturn.backward") {
+                                // Its label, read aloud and shown on hover, says the key it puts back.
+                                Button(
+                                    "Put back \(command.key?.symbols ?? "no key")",
+                                    systemImage: "arrow.uturn.backward"
+                                ) {
                                     give(command.key, to: command.id)
                                 }
                                 .labelStyle(.iconOnly)
                                 .buttonStyle(.borderless)
-                                .help("Put back \(command.key?.symbols ?? "no key")")
                             }
                             KeyRecorder(key: keys.key(for: command.id)) { chord in give(chord, to: command.id) }
                         }

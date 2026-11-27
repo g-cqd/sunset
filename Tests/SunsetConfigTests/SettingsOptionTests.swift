@@ -30,7 +30,8 @@ import Testing
             // `profiles.list`: the profiles are kept with the session, not in the file. `features`: three keys under
             // one control. `web.defaultBrowser`: the system's choice, not the file's. `web.extensions`: kept in each
             // profile's folder. `updates.center`: the versions and updates, nothing kept.
-            others == ["documents.quickLook", "features", "file.location", "profiles.list"] + pages + [
+            // `control.tool`: where the tool is, nothing kept.
+            others == ["control.tool", "documents.quickLook", "features", "file.location", "profiles.list"] + pages + [
                 "storage.websiteData", "updates.center", "web.defaultBrowser", "web.extensions", "web.permissions",
                 "web.proxyCheck",
                 "web.sites"
@@ -64,7 +65,7 @@ import Testing
 
     @Test func `the sentences under the controls are kept when options move`() {
         let noted = options.filter { $0.note != nil }.map(\.id)
-        #expect(noted.count == 87, "a sentence was added or lost: \(noted)")
+        #expect(noted.count == 91, "a sentence was added or lost: \(noted)")
         #expect(SettingsOption.named("sidebar.separators") != nil)
         #expect(SettingsOption.named("scrollback.lines")?.note?.contains("opened after the change") == true)
     }

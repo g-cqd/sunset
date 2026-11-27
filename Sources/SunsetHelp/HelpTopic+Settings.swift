@@ -5,8 +5,7 @@ extension HelpTopic {
     public static func explaining(setting id: String) -> HelpTopic? {
         switch id {
             case "tabs.keepAwakeDisplay": .keepAwake
-            case "tabs.keepRunningForFavorites": .favorites
-            case "sidebar.library", "sidebar.documentSort": .library
+            case "sidebar.library": .library
             case "web.address": .sidebarField
             case "web.permissions": .sitePermissions
             case "web.approveRiskyDownloads", "web.askWhereToSave": .downloads
@@ -14,6 +13,7 @@ extension HelpTopic {
             case "web.privateWindowShares": .privateBrowsing
             case "spaces.favorites", "spaces.pinned": .spaces
             case "features": .features
+            case "control.enabled", "control.typing", "control.tool": .controlFromOutside
             case "web.agent", "web.agentScripts": .browserIdentity
             case "web.blocking": .blocking
             case "passwords.lockAfter", "passwords.backupFolder": .passwords

@@ -8,7 +8,7 @@ metadata.
 
 ## Decision
 
-- `RunSunsetCommand` (`Sources/SunsetAppMain/SunsetIntents.swift`) runs one command, a `SunsetCommand` entity, in the
+- `RunSunsetCommand` (`Sources/SunsetAppMain/RunSunsetCommand.swift`) runs one command, a `SunsetCommand` entity, in the
   window in front, as the command bar does; it opens the app. The commands are those of the scopes that are on, found by
   the words of their title. `SunsetShortcuts` offers it to Spotlight and Siri without a shortcut made.
 - The intents reach the app through `AppIntentBridge` alone: the commands' names and titles, and running one. Reading

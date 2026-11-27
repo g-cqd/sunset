@@ -1,4 +1,5 @@
 internal import Darwin
+internal import SunsetRuntime
 internal import Synchronization
 
 /// A child process on a pseudo-terminal: the platform seam of the host (white paper section 9; the core imports none of this). The child is the leader of a

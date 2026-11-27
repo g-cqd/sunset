@@ -1,3 +1,4 @@
+import SunsetTestSupport
 import Testing
 
 @testable import SunsetShellModel
@@ -14,8 +15,7 @@ struct DrivenPanesTests {
         #expect(!panes.isDriven(pane))
         #expect(panes.drive(pane))
         #expect(panes.isDriven(pane))
-        try await Task.sleep(for: .milliseconds(300))
-        #expect(!panes.isDriven(pane))
+        #expect(await RealWait.until { !panes.isDriven(pane) })
     }
 
     @Test func `stopped, the tool is refused that pane and no other`() {

@@ -58,7 +58,7 @@ struct StoreInstallButtonTests {
 
     /// "I can't install from the official buttons" (a German page: "Zu Chrome hinzufügen" was not matched). The store's own
     /// button, in any language, is taken: enabled, "Chrome" said "Sunset", its look kept; pressed, Sunset installs.
-    @Test func `the store's own button is taken in any language`() async throws {
+    @Test(.macOS27) func `the store's own button is taken in any language`() async throws {
         var asked: [ExtensionStoreLink] = []
         ExtensionHosts.shared.installFromStore = { link, _ in asked.append(link) }
         defer { ExtensionHosts.shared.installFromStore = { _, _ in } }

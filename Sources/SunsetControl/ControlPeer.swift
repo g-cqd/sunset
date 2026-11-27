@@ -19,12 +19,12 @@ public struct ControlPeer: Sendable, Equatable {
             Session.started(leader) == started
         }
 
-        /// When `pid` started, in microseconds since 1970; nil when there is no such process.
+        /// When `pid` started, in microseconds since 1970; nil when there is no such process. Read as `ps` reads it
+        /// (`sysctl`), which tells any user's process: a Terminal window's session is led by `login`, which is root's.
         static func started(_ pid: Int32) -> Int64? {
-            var info = proc_bsdinfo()
-            let size = Int32(MemoryLayout<proc_bsdinfo>.size)
-            guard unsafe proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, size) == size else { return nil }
-            return Int64(info.pbi_start_tvsec) * 1_000_000 + Int64(info.pbi_start_tvusec)
+            guard let info = ControlPeer.info(pid) else { return nil }
+            let start = info.kp_proc.p_un.__p_starttime
+            return Int64(start.tv_sec) * 1_000_000 + Int64(start.tv_usec)
         }
     }
 
@@ -55,7 +55,7 @@ public struct ControlPeer: Sendable, Equatable {
             path: path(pid),
             session: Session(leader: leader, started: started),
             leaderName: name(leader),
-            leaderPath: path(leader)
+            leaderPath: path(leader).isEmpty ? name(leader) : path(leader)
         )
     }
 
@@ -68,10 +68,21 @@ public struct ControlPeer: Sendable, Equatable {
         return String(decoding: buffer.prefix(Int(length)).map { UInt8(bitPattern: $0) }, as: UTF8.self)
     }
 
+    /// Its program's name, from `sysctl` (any user's process).
     private static func name(_ pid: Int32) -> String {
-        var buffer = [CChar](repeating: 0, count: 256)
-        let length = buffer.withUnsafeMutableBufferPointer { unsafe proc_name(pid, $0.baseAddress, UInt32($0.count)) }
-        guard length > 0 else { return "process \(pid)" }
-        return String(decoding: buffer.prefix(Int(length)).map { UInt8(bitPattern: $0) }, as: UTF8.self)
+        guard let info = info(pid) else { return "process \(pid)" }
+        let name = withUnsafeBytes(of: info.kp_proc.p_comm) { raw in
+            String(decoding: raw.prefix { $0 != 0 }, as: UTF8.self)
+        }
+        return name.isEmpty ? "process \(pid)" : name
+    }
+
+    /// The kernel's record of `pid`; nil when there is no such process.
+    static func info(_ pid: Int32) -> kinfo_proc? {
+        var info = kinfo_proc()
+        var size = MemoryLayout<kinfo_proc>.stride
+        var query: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, pid]
+        guard unsafe sysctl(&query, 4, &info, &size, nil, 0) == 0, size > 0 else { return nil }
+        return info
     }
 }

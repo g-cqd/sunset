@@ -10,10 +10,13 @@ import Testing
         SettingsSection.topic(topic)?.topic.options.map(\.id) ?? []
     }
 
-    /// n119: Appearance, Window and Tabs and sidebar are one section.
-    @Test func `five sections, each with its topics`() {
+    /// Design 0009: the app's sections, then each feature's own.
+    @Test func `eight sections, each with its topics`() {
         #expect(
-            sections.map(\.title) == ["General", "Appearance and layout", "Terminal", "Web", "Privacy and security"]
+            sections.map(\.title) == [
+                "General", "Look and feel", "Windows and tabs", "Privacy and storage", "Terminal", "Web", "Documents",
+                "Passwords"
+            ]
         )
         #expect(sections.allSatisfy { !$0.symbol.isEmpty && !$0.topics.isEmpty })
         let topics = sections.flatMap(\.topics)
@@ -33,7 +36,7 @@ import Testing
         #expect(!options("appearance.theme").contains("colors.cursor"))
     }
 
-    @Test func `what a program may copy is under Privacy and security, with what the web keeps`() {
+    @Test func `what a program may copy is under Terminal, with the terminal's own`() {
         #expect(
             options("privacy.programs") == [
                 "terminal.clipboardWrite", "terminal.secureKeyboard", "terminal.fileLinks", "terminal.pasteWarning",
@@ -67,8 +70,9 @@ import Testing
         )
         // The sidebar's own (shown, hidden until its edge, its width) are set from the window, not here (n116).
         #expect(["sidebar.enabled", "sidebar.autoHide", "sidebar.width"].allSatisfy { SettingsOption.named($0) == nil })
-        #expect(options("window.titleBar") == ["window.dragStrip", "appearance.haptics"], "n115")
-        #expect(SettingsSection.topic("tabs.placement")?.section.title == "Appearance and layout")
+        #expect(options("window.titleBar") == ["window.dragStrip"], "n115")
+        #expect(options("appearance.feedback") == ["appearance.haptics"])
+        #expect(SettingsSection.topic("tabs.placement")?.section.title == "Windows and tabs")
         #expect(SettingsSection.heading(of: "terminal.cursor") == "Terminal \u{203A} Cursor")
         #expect(SettingsSection.topic("nowhere") == nil && SettingsSection.heading(of: "nowhere") == "nowhere")
     }

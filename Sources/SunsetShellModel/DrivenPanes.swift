@@ -1,4 +1,5 @@
 import Observation
+import SunsetRuntime
 
 /// The panes a program drives from outside (`sunset`, ADR-0129): read, typed into or waited on in the last seconds. Their
 /// tab shows it, with a control that stops it: a pane stopped refuses the tool until the app quits.
@@ -20,8 +21,8 @@ package final class DrivenPanes {
         let turn = (driven[key] ?? 0) + 1
         driven[key] = turn
         let hold = hold
-        Task { [weak self] in
-            try? await Task.sleep(for: hold)
+        Runtime.live.task { [weak self] in
+            await Runtime.live.sleep(for: hold)
             // Only the last request's wait takes the mark away.
             if self?.driven[key] == turn { self?.driven[key] = nil }
         }

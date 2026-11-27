@@ -1,4 +1,6 @@
+import SunsetHelp
 package import SunsetPane
+import SunsetShellModel
 package import SwiftUI
 
 /// What one tab shows: its title, and, as the configuration says, the working directory and the progress the program reported.
@@ -105,7 +107,7 @@ package struct TabLabel: View {
                         .foregroundStyle(.tint)
                 }
                 .buttonStyle(.plain)
-                .help("Driven by the sunset tool: click to stop it")
+                .helpTopic(.controlFromOutside)
                 .accessibilityLabel("Driven by the sunset tool. Stop")
             }
             if let mark = model?.captureMark, model?.devices.isEmpty != false {

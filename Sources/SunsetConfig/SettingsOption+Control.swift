@@ -1,7 +1,8 @@
 extension SettingsOption {
     /// The control socket and what it may do (ADR-0129).
     static let control: [Self] = [
-        custom("control.tool", "The sunset tool", "sunset tool command line cli path link install bin", .controlTool),
+        custom("control.tool", "Command-line tool", "sunset tool command line cli path link install bin", .controlTool)
+            .setting([]),
         controlSwitch(
             ("control.enabled", \.control.enabled),
             "Control from outside",

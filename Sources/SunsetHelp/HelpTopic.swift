@@ -5,6 +5,7 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
     case features
     case sitePermissions, webNotifications, popUps, pageDialogs, downloads, profiles, privateBrowsing, plainHTTP
     case browserIdentity, blocking, passwords
+    case controlFromOutside
 
     public var id: String {
         rawValue
@@ -15,6 +16,7 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
     public var settingsTopic: String {
         switch self {
             case .features: "general.features"
+            case .controlFromOutside: "general.control"
             case .keepAwake: "general.startup"
             case .spaces, .pinned, .favorites: "general.spaces"
             case .tabs, .splitTabs, .bottomBar, .dragAndDrop, .tabLayout: "tabs.placement"

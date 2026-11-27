@@ -36,7 +36,7 @@ import Testing
         // SunsetCoreTests does not import SunsetConfig: the options say it in their sources.
         let sources = RepositoryFiles.swiftFiles(in: ["Sources/SunsetConfig"])
         for (name, id) in [
-            ("SettingsOption+Proxy.swift", "web.proxy"), ("SettingsOption+Appearance.swift", "\"theme\"")
+            ("SettingsOption+Proxy.swift", "web.proxy"), ("SettingsOption+TerminalColors.swift", "\"theme\"")
         ] {
             let text = sources.first { $0.name == name }?.text ?? ""
             let after = text.range(of: id).map { text[$0.upperBound...] } ?? ""

@@ -4,7 +4,7 @@ extension SettingsOption {
         [
             custom(
                 "keys",
-                "Keyboard shortcuts",
+                "Commands' keys",
                 "keys keyboard shortcuts hotkeys bindings commands menus record",
                 .keys
             )

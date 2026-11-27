@@ -13,7 +13,7 @@ import WebKit
 /// in picture window itself: a test does not open one on the screen.)
 @MainActor @Suite("A video in a frame of its own", .timeLimit(.minutes(1)))
 struct VideoFrameTests {
-    @Test func `the frame whose video plays is the one picture in picture works in`() async throws {
+    @Test(.macOS27) func `the frame whose video plays is the one picture in picture works in`() async throws {
         let page = WebContent(url: nil, settings: WebSettings(applicationName: "x"))
         page.setState(focused: false, visible: true)
         defer { page.stop() }
