@@ -95,6 +95,19 @@ package struct TabLabel: View {
                     }
                 }
             }
+            // Driven from outside (`sunset`): pressed, the tool is refused this pane.
+            if let model, DrivenPanes.shared.isDriven(model) {
+                Button {
+                    DrivenPanes.shared.stop(model)
+                } label: {
+                    Image(systemName: "cursorarrow.rays")
+                        .font(.system(size: Design.Symbol.badge, weight: Design.Symbol.weight))
+                        .foregroundStyle(.tint)
+                }
+                .buttonStyle(.plain)
+                .help("Driven by the sunset tool: click to stop it")
+                .accessibilityLabel("Driven by the sunset tool. Stop")
+            }
             if let mark = model?.captureMark, model?.devices.isEmpty != false {
                 Circle().fill(mark.color).frame(width: 7, height: 7).help("Sharing the screen")
             }

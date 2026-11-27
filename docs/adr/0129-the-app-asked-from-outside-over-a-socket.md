@@ -19,7 +19,10 @@ mean to trust, so each must be asked for.
   `wait PANE TEXT [--timeout S]`, `run COMMAND`, `commands`; `--json` prints the reply. A pane is an id from `list`, or
   `shown`.
 
+- A pane the tool reads, types into or waits on is marked on its tab for ten seconds after the last request
+  (`DrivenPanes`); pressing the mark stops it: the tool is refused that pane until the app quits.
+
 ## Consequences
 
 The tool is built with `swift build --product sunset`; it is not yet inside the app's bundle. Streaming what a pane
-does (observe), the mark on a driven pane, and an MCP server over the socket build on this protocol.
+does (observe) and an MCP server over the socket build on this protocol.

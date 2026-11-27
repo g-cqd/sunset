@@ -69,8 +69,14 @@ import SunsetWeb
             }
     }
 
-    /// The pane `name` names: "shown" (the window in front's), else an id from `list`.
+    /// The pane `name` names, marked as driven (`DrivenPanes`); nil when there is none or the person stopped it.
     private static func content(_ name: String?) -> (any PaneContent)? {
+        guard let content = found(name), DrivenPanes.shared.drive(content) else { return nil }
+        return content
+    }
+
+    /// The pane `name` names: "shown" (the window in front's), else an id from `list`.
+    private static func found(_ name: String?) -> (any PaneContent)? {
         let windows = TabRegistry.shared.allWindows()
         if name == nil || name == "shown" {
             guard let tabs = windows.first?.tabs, let pane = tabs.shownPane else { return nil }
@@ -95,7 +101,7 @@ import SunsetWeb
             case let page as WebContent:
                 return ControlReply(text: [page.url?.absoluteString ?? "", page.title].joined(separator: "\n"))
             case let other?: return ControlReply(text: [other.title, other.detail ?? ""].joined(separator: "\n"))
-            case nil: return .failure("no pane \(request.pane ?? "shown") (sunset list)")
+            case nil: return .failure("no pane \(request.pane ?? "shown") (sunset list), or it was stopped")
         }
     }
 
@@ -112,8 +118,12 @@ import SunsetWeb
         let seconds = min(max(request.timeout ?? 30, 0), 600)
         let clock = ContinuousClock()
         let end = clock.now + .seconds(seconds)
+        var turn = 0
         while clock.now < end {
-            guard let terminal = content(request.pane) as? TerminalModel else { return .failure("not a terminal") }
+            // Marked (and the person's stop heard) every five seconds, not every look.
+            let pane = turn % 50 == 0 ? content(request.pane) : found(request.pane)
+            turn += 1
+            guard let terminal = pane as? TerminalModel else { return .failure("not a terminal, or it was stopped") }
             if let screen = terminal.lastScreen, text(of: screen, scrollback: 0).contains(wanted) {
                 return ControlReply(text: wanted)
             }
