@@ -18,9 +18,25 @@ package struct WebFailure: Sendable, Equatable {
         NSURLErrorServerCertificateNotYetValid, NSURLErrorSecureConnectionFailed
     ]
 
+    /// Its process ended because Sunset's files were replaced on disk (`BundleOnDisk`): only opening Sunset again helps.
+    package private(set) var needsRestart = false
+
     /// A page whose process ended.
     package static func processEnded(url: URL?) -> WebFailure {
-        WebFailure(url: url, heading: "This page stopped", reason: "Its process ended. Try Again loads it afresh.")
+        guard BundleOnDisk.changed else {
+            return WebFailure(
+                url: url,
+                heading: "This page stopped",
+                reason: "Its process ended. Try Again loads it afresh."
+            )
+        }
+        var failure = WebFailure(
+            url: url,
+            heading: "Sunset was updated",
+            reason: "Its files changed while it was open, so pages can no longer start. Restart Sunset to go on."
+        )
+        failure.needsRestart = true
+        return failure
     }
 
     private init(url: URL?, heading: String, reason: String) {

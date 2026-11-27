@@ -29,7 +29,11 @@ extension AppUpdates {
     /// As Sunset ends (`applicationWillTerminate`): a ready update checked once more and swapped in; the former app to the
     /// Trash; Sunset opened again when asked to. Anything wrong leaves the running app as it is.
     func installAtQuit() {
-        guard case .ready = phase, let staging, refusal == nil else { return }
+        // Asked to restart with nothing to install (Sunset's files changed under it): opened again all the same.
+        guard case .ready = phase, let staging, refusal == nil else {
+            if restartsAfterInstall { Self.openWhenGone(running.bundle) }
+            return
+        }
         let target = stagedFlavour ?? running.flavour
         do {
             try UpdateTransfer.check(staging, running: running, targetFlavour: target)

@@ -7,10 +7,14 @@ import SunsetRuntime
 import SunsetShell
 import SunsetStorage
 import SunsetWeb
+import SunsetWebModel
 
 /// The few things SwiftUI's `App` does not say: this process is a regular app even when started as a bare executable, and it ends with its last window.
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
+        // The app's files as they are now: replaced later (an update beside it, a build over it), pages that end say so.
+        BundleOnDisk.remember()
+        WebContent.restartApp = { AppUpdates.shared.restart() }
         // Each profile's extensions, from its folder, before any page is made.
         ExtensionHosts.shared.root = URL(filePath: StoragePlaces.current.extensions)
         AppExtensionWindows.start()

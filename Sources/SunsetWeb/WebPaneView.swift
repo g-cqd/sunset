@@ -131,7 +131,11 @@ struct WebPaneView: View {
                     .textSelection(.enabled)
             }
             HStack {
-                Button("Try Again") { content.reload() }.keyboardShortcut(.defaultAction)
+                if failure.needsRestart, let restart = WebContent.restartApp {
+                    Button("Restart Sunset", action: restart).keyboardShortcut(.defaultAction)
+                } else {
+                    Button("Try Again") { content.reload() }.keyboardShortcut(.defaultAction)
+                }
                 if failure.isCertificate, content.settings.allowsCertificateExceptions {
                     Button("Visit Anyway\u{2026}") { warning = true }
                 }
