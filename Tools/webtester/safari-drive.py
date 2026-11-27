@@ -14,13 +14,11 @@ import json
 import subprocess
 import sys
 import time
-import urllib.error
-import urllib.request
+import http.client
 
 BASE = sys.argv[1].rstrip("/")
 EXTENSION = sys.argv[2]
 PORT = int(sys.argv[3]) if len(sys.argv) > 3 else 4447
-DRIVER = f"http://127.0.0.1:{PORT}"
 LABEL = "safari-driven"
 
 # Asks that open what WebDriver cannot answer (a system picker, a sheet, a device chooser): left for a person.
@@ -37,51 +35,19 @@ PROMPTING = {
 
 
 def request(method, path, body=None, timeout=60):
+    """A request to the local safaridriver this script started: 127.0.0.1 and its port, never an address given."""
     data = None if body is None else json.dumps(body).encode()
-    req = urllib.request.Request(DRIVER + path, data=data, method=method, headers={"content-type": "application/json"})
+    connection = http.client.HTTPConnection("127.0.0.1", PORT, timeout=timeout)
     try:
-        # Only the local safaridriver this script started: DRIVER is http://127.0.0.1 and its port, never what is given.
-        with urllib.request.urlopen(req, timeout=timeout) as answer:  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-            return json.loads(answer.read() or b"{}").get("value")
-    except urllib.error.HTTPError as error:
-        value = json.loads(error.read() or b"{}").get("value", {})
-        raise RuntimeError(f"{value.get('error', error.code)}: {value.get('message', '')}") from None
-
-
-def script(session, source, *args):
-    return request("POST", f"/session/{session}/execute/sync", {"script": source, "args": list(args)})
-
-
-def answer_dialog(session):
-    """Accepts a JavaScript dialog if one is open (a prompt gets a text first); whether there was one."""
-    try:
-        text = request("GET", f"/session/{session}/alert/text", timeout=5)
-    except RuntimeError:
-        return False
-    try:
-        request("POST", f"/session/{session}/alert/text", {"text": "driven"}, timeout=5)
-    except RuntimeError:
-        pass
-    request("POST", f"/session/{session}/alert/accept", {}, timeout=5)
-    print(f"    dialog answered: {text!r}")
-    return True
-
-
-def click_and_wait(session, test, wait):
-    element = request("POST", f"/session/{session}/element", {"using": "css selector", "value": f'[data-try="{test}"]'})
-    key = next(iter(element.values()))
-    request("POST", f"/session/{session}/element/{key}/click", {}, timeout=30)
-    deadline = time.time() + wait
-    while time.time() < deadline:
-        answer_dialog(session)
-        try:
-            state = script(session, "return document.querySelector(`[data-test='${arguments[0]}']`).dataset.state", test)
-        except RuntimeError:
-            state = None
-        if state and state not in ("waiting", "running"):
-            return state
-        time.sleep(0.5)
-    return "no answer (a prompt waiting for a person?)"
+        connection.request(method, path, body=data, headers={"content-type": "application/json"})
+        answer = connection.getresponse()
+        value = json.loads(answer.read() or b"{}").get("value")
+    finally:
+        connection.close()
+    if answer.status >= 400:
+        value = value or {}
+        raise RuntimeError(f"{value.get('error', answer.status)}: {value.get('message', '')}")
+    return value
 
 
 def main():
@@ -90,7 +56,7 @@ def main():
     try:
         for _ in range(50):
             try:
-                urllib.request.urlopen(DRIVER + "/status", timeout=1)  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+                request("GET", "/status", timeout=1)
                 break
             except OSError:
                 time.sleep(0.1)
