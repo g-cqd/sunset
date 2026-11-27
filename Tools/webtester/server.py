@@ -14,6 +14,7 @@
 Usage: server.py [port] [results folder] [wpt folder]
 """
 import json
+import os
 import re
 import socket
 import sys
@@ -94,8 +95,9 @@ class Handler(SimpleHTTPRequestHandler):
                     pass
             return self.json(kept)
         match = re.fullmatch(r"/inventory/([A-Za-z0-9._-]{1,60})\.json", path)
-        if match and (INVENTORY / f"{match.group(1)}.json").exists():
-            return self.json(json.loads((INVENTORY / f"{match.group(1)}.json").read_text()))
+        kept_file = match and inside(INVENTORY, f"{match.group(1)}.json")
+        if kept_file and kept_file.exists():
+            return self.json(json.loads(kept_file.read_text()))
         if path in ("/results", "/results/"):
             kept = []
             for file in sorted(RESULTS.glob("*.json")):
@@ -127,7 +129,10 @@ class Handler(SimpleHTTPRequestHandler):
             except ValueError:
                 return self.json({"error": "not JSON"}, 400)
             data["label"] = kept_inventory.group(1)
-            (INVENTORY / f"{kept_inventory.group(1)}.json").write_text(json.dumps(data))
+            target = inside(INVENTORY, f"{kept_inventory.group(1)}.json")
+            if target is None:
+                return self.json({"error": "not here"}, 404)
+            target.write_text(json.dumps(data))
             return self.json({"saved": kept_inventory.group(1)})
         match = re.fullmatch(r"/results/([A-Za-z0-9._-]{1,60})", path)
         if not match:
@@ -137,8 +142,20 @@ class Handler(SimpleHTTPRequestHandler):
         except ValueError:
             return self.json({"error": "not JSON"}, 400)
         report["label"] = match.group(1)
-        (RESULTS / f"{match.group(1)}.json").write_text(json.dumps(report, indent=2))
+        target = inside(RESULTS, f"{match.group(1)}.json")
+        if target is None:
+            return self.json({"error": "not here"}, 404)
+        target.write_text(json.dumps(report, indent=2))
         return self.json({"saved": match.group(1)})
+
+
+def inside(folder, name):
+    """The file `name` in `folder`, or None when it would be anywhere else (`..`, a link out of it)."""
+    base = os.path.realpath(folder)
+    candidate = os.path.realpath(os.path.join(base, name))
+    if os.path.dirname(candidate) != base or not candidate.startswith(base + os.sep):
+        return None
+    return Path(candidate)
 
 
 class IPv6Server(ThreadingHTTPServer):
