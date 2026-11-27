@@ -52,7 +52,7 @@ The file's keys follow the sections. An old key is read, moved to its new place,
 
 ## Order of the work
 
-1. Sections and topics as above (Settings only; no key changes).
-2. `web.pageScheme`.
+1. Sections and topics as above (Settings only; no key changes). Done.
+2. `web.pageScheme`, in Web › Pages ("Page appearance"). Done.
 3. Light and dark values for color settings, and a Space's color for each.
 4. The file keys, with the old ones migrated.

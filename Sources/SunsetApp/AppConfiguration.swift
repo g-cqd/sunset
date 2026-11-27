@@ -48,6 +48,7 @@ final class AppConfiguration {
     /// system follows the Mac.
     func applyScheme() {
         NSApp?.appearance = configuration.appearance.scheme.nsAppearance
+        AppPageScheme.watchSystem()
         if appearanceWatch == nil, let app = NSApp {
             appearanceWatch = app.observe(\.effectiveAppearance) { [runtime] _, _ in
                 runtime.task { @MainActor in

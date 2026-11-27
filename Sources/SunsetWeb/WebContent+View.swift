@@ -57,6 +57,7 @@ extension WebContent {
         isUnloaded = false
         find.attach(view)
         applyZoom()
+        applyPageScheme()
         observe(view)
         soundWatch = WebAudio.watchPlaying(view) { [weak self] playing in
             self?.playsSound = playing

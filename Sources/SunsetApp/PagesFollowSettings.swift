@@ -34,6 +34,7 @@ struct PagesFollowSettings: ViewModifier {
                         privacy: page.settings.privacy
                     )
                     page.applyZoom()
+                    page.applyPageScheme()
                 }
             }
     }
