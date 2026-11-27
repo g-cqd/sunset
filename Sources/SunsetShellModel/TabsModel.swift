@@ -88,6 +88,10 @@ package final class TabsModel {
     /// Whether a mouse button is down: a drag let go where nothing takes it ends when none is (watched by `dragWatch`).
     /// Whether a mouse button is down: the app gives the system's (`NSEvent.pressedMouseButtons`); none by default.
     @ObservationIgnored package var mouseIsDown: @MainActor () -> Bool = { false }
+    /// Whether the pointer is outside every window of the app (a drag let go there opens a new window).
+    @ObservationIgnored package var pointerOutsideWindows: @MainActor () -> Bool = { false }
+    /// Opens a new window of this window's Space showing these tabs of Today, the last selected; the app sets it.
+    @ObservationIgnored package var openInNewWindow: @MainActor ([Workspace.ItemID]) -> Void = { _ in }
     @ObservationIgnored package var dragWatch: Task<Void, Never>?
     /// The command bar when open; what was gone to or searched from it, latest last (Up in its empty field).
     package var bar: CommandBar?

@@ -13,6 +13,8 @@ struct SettingsPage: View {
     @Bindable var content: SettingsContent
     let context: PaneViewContext
     private let config = AppConfiguration.shared
+    /// The pane's width: too narrow for the list beside the page, the list is a menu over it.
+    @State private var width = Design.Size.settingsList + Design.Size.settingsPage
 
     /// The profile chosen at the top, if one is.
     private var scoped: ProfileSettingsStore? {
@@ -43,9 +45,23 @@ struct SettingsPage: View {
         content.tabs?.settingsListInPage(sidebarDocked: config.configuration.sidebarDocked) ?? true
     }
 
+    private var narrow: Bool {
+        width < Design.Size.settingsList + Design.Size.settingsPageMinimum
+    }
+
     var body: some View {
         HStack(spacing: 0) {
-            if ownList {
+            if ownList, narrow {
+                VStack(spacing: Design.Space.s) {
+                    HStack(spacing: Design.Space.s) {
+                        SettingsTopicMenu(content: content, features: config.configuration.features)
+                        TextField("Search Settings", text: $content.query).textFieldStyle(.plain).fieldSurface()
+                    }
+                    .padding(Design.Space.m)
+                    Divider()
+                    page
+                }
+            } else if ownList {
                 VStack(spacing: Design.Space.s) {
                     TextField("Search Settings", text: $content.query).textFieldStyle(.plain).fieldSurface()
                     ScrollView {
@@ -57,9 +73,12 @@ struct SettingsPage: View {
                 .padding(Design.Space.m)
                 .frame(width: Design.Size.settingsList)
                 Divider()
+                page
+            } else {
+                page
             }
-            page
         }
+        .onGeometryChange(for: Double.self, of: { $0.size.width }) { width = $0 }
         .padding(.top, context.topInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         // In Sunset's scheme, not the terminal theme's (the owner, 2026-11-27: they stayed dark in light).

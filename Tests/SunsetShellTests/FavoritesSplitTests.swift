@@ -45,7 +45,8 @@ struct FavoritesSplitTests {
         #expect(tabs.workspace.items.first { $0.id == target.id }?.panes.count == 2)
     }
 
-    @Test func `a pinned tab is not split by drag and drop`() throws {
+    /// The owner, 2026-11-27: a pinned tab dragged over the window is offered the split there; on a row of Today it is not.
+    @Test func `a pinned tab splits with the window's tab, not with a row`() throws {
         let tabs = window()
         tabs.newTab()
         tabs.newTab()
@@ -53,7 +54,10 @@ struct FavoritesSplitTests {
         let target = tabs.workspace.items[0]
         _ = tabs.itemProvider(for: .entry(pinned))
         #expect(!tabs.canDrop(onto: target.id, action: .split(.right)))
-        #expect(!tabs.canDrop(onto: target.focused))
+        #expect(tabs.canDrop(onto: target.focused))
+        #expect(tabs.dropDragged(onto: target.focused, edge: .right))
+        #expect(tabs.pinned?.favorites.entry(pinned) == nil)
+        #expect(tabs.workspace.items.first { $0.id == target.id }?.panes.count == 2)
     }
 
     @Test func `a split tab can be pinned`() throws {

@@ -58,6 +58,8 @@ struct TabPreviewHost: View {
         .onChange(of: tabs.hoveredItem, initial: true) { _, _ in follow() }
         .onChange(of: tabs.hoveredFolder) { _, _ in follow() }
         .onChange(of: tabs.hoveredPreview) { _, _ in follow() }
+        // A drag begun, here or in another window: the card goes at once (the owner, 2026-11-27).
+        .onChange(of: dragging) { _, _ in follow() }
         .onChange(of: tabs.hoveredRowFrame) { _, _ in follow() }
         .onChange(of: tabs.dragged == nil) { _, _ in follow() }
         .onChange(of: kinds) { _, _ in follow() }
@@ -125,8 +127,13 @@ struct TabPreviewHost: View {
     static let pictureAge = Duration.seconds(30)
 
     /// Takes the row under the pointer when its tab has something to show; stays while the pointer is on the card; leaves a moment after there is none.
+    /// A drag of tabs is under way, started here or in another window.
+    private var dragging: Bool {
+        tabs.dragged != nil || TabsModel.dragOrigin != nil
+    }
+
     private func follow() {
-        guard tabs.dragged == nil else {
+        guard !dragging else {
             leaving?.cancel()
             tabs.hoveredPreview = false
             shown = nil

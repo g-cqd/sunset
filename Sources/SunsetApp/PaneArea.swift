@@ -34,6 +34,8 @@ struct PaneArea: View {
     private static let space = "pane-area"
     /// Where a dragged tab or pane would go while it is over the area.
     @State private var dropTarget: DropZone.Target?
+    /// Option is held over the panes: the drop opens what is dragged in a new window.
+    @State private var dropOpensWindow = false
     @Environment(\.accent) private var accent
 
     var body: some View {
@@ -109,7 +111,12 @@ struct PaneArea: View {
                 .coordinateSpace(.named(Self.space))
                 .onDrop(
                     of: [.plainText, .utf8PlainText, .fileURL],
-                    delegate: PaneDropDelegate(tabs: tabs, frames: frames, target: $dropTarget)
+                    delegate: PaneDropDelegate(
+                        tabs: tabs,
+                        frames: frames,
+                        target: $dropTarget,
+                        opensWindow: $dropOpensWindow
+                    )
                 )
                 .anchorPreference(key: PaneCardShape.Key.self, value: .bounds) { bounds in
                     PaneCardShape.Area(
@@ -136,7 +143,18 @@ struct PaneArea: View {
     private func dropPreview(item: Workspace.Item, bounds: CGRect, space: Double, radius: Double, card: Bool)
         -> some View
     {
-        if let target = dropTarget {
+        if dropOpensWindow {
+            // The whole area: the drop opens a new window.
+            let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+            DropVeil(shape: shape)
+                .overlay {
+                    Label("Open in New Window", systemImage: "macwindow.badge.plus")
+                        .font(Design.Text.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                }
+                .frame(width: bounds.width, height: bounds.height)
+                .allowsHitTesting(false)
+        } else if let target = dropTarget {
             let probe = PaneID()
             let frame =
                 item.layout

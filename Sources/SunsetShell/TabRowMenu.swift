@@ -62,8 +62,8 @@ struct TabRowMenu: View {
         closing
     }
 
-    /// A split closes one part; the whole split only with Option held, as macOS keeps its less used items. A tab
-    /// closes; Close Other Tabs with Option.
+    /// A split says what each closes (the owner, 2026-11-27): one part, the panes kept as tabs of their own, or the tab and
+    /// all its panes. A tab closes; Close Other Tabs with Option.
     @ViewBuilder private var closing: some View {
         let shown = tabs.workspace.items.first { $0.id == item }
         if let shown, shown.isSplit {
@@ -71,10 +71,17 @@ struct TabRowMenu: View {
             Button {
                 tabs.requestClose(pane: part)
             } label: {
-                MenuItemLabel("Close Pane", symbol: "xmark")
+                MenuItemLabel("Close This Pane", symbol: "xmark")
             }
-            .modifierKeyAlternate(.option) {
-                Button("Close All \(shown.panes.count) Panes") { tabs.close(item: item) }
+            Button {
+                tabs.separateAll(item: item)
+            } label: {
+                MenuItemLabel("Separate Panes into \(shown.panes.count) Tabs", symbol: "rectangle.split.2x1.slash")
+            }
+            Button(role: .destructive) {
+                tabs.close(item: item)
+            } label: {
+                MenuItemLabel("Close Tab and Its \(shown.panes.count) Panes", symbol: "xmark.square")
             }
         } else {
             Button {

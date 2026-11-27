@@ -17,12 +17,16 @@ package struct DropVeil<S: InsettableShape>: View {
             .allowsHitTesting(false)
     }
 
+    /// Where a drag would go between rows: the ink of the text, not the accent (the owner, 2026-11-27: the targets were blue).
+    package static var line: Color {
+        .primary.opacity(Design.Fill.dropEdge)
+    }
+
     /// Overlay for a kept entry's drop action (`FavoritesSection` rows use `vertical: true`, `PinnedGrid` tiles `vertical: false`).
     @ViewBuilder static func entryOverlay(
         id: Favorites.NodeID,
         active: (owner: Favorites.NodeID, place: TabDropAction)?,
         cornerRadius: Double,
-        accent: Color,
         vertical: Bool,
         gapOffset: Double
     ) -> some View {
@@ -43,7 +47,7 @@ package struct DropVeil<S: InsettableShape>: View {
                     if vertical {
                         VStack {
                             if after { Spacer(minLength: 0) }
-                            Capsule().fill(accent).frame(height: Design.Space.hair)
+                            Capsule().fill(Self.line).frame(height: Design.Space.hair)
                                 .padding(.horizontal, Design.Space.xs)
                             if !after { Spacer(minLength: 0) }
                         }
@@ -53,7 +57,7 @@ package struct DropVeil<S: InsettableShape>: View {
                         HStack {
                             if after { Spacer(minLength: 0) }
                             Capsule()
-                                .fill(accent)
+                                .fill(Self.line)
                                 .frame(width: Design.Space.hair)
                                 .padding(.vertical, Design.Space.xs)
                                 .offset(x: (after ? 1 : -1) * gapOffset)

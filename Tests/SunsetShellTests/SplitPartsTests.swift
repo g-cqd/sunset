@@ -38,6 +38,15 @@ struct SplitPartsTests {
         #expect(tabs.shownEntry?.id == entry && tabs.shownPane == item.panes[0])
     }
 
+    @Test func `Separate Panes into Tabs undoes a split: every pane a tab of its own, running, none closed`() throws {
+        let harness = TabsHarness()
+        let tabs = harness.tabs
+        let item = try split(harness)
+        tabs.separateAll(item: item.id)
+        #expect(tabs.workspace.items.map(\.panes) == item.panes.map { [$0] })
+        #expect(item.panes.allSatisfy { tabs.content($0) != nil })
+    }
+
     @Test func `a pane comes out of a split into a tab of its own, from Today, the Favorites and the grid`() throws {
         let harness = TabsHarness()
         let tabs = harness.tabs

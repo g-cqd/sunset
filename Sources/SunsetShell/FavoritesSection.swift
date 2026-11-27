@@ -14,7 +14,6 @@ struct FavoritesSection: View {
     @State private var sizes: [Favorites.NodeID: CGSize] = [:]
     /// The gap a dragged tab is over: the rows beside it make room, as Today's do.
     @State private var gapRoom: Int?
-    @Environment(\.accent) private var accent
 
     /// One view: the rows, then their line. As two, a modifier on the section (a measure) laid them over each other, the
     /// line across the rows.
@@ -93,7 +92,6 @@ struct FavoritesSection: View {
                         // Before or after: the rows make room (`RowMakingRoom`); no line.
                         active: drop.flatMap { if case .split = $0.place { $0 } else { nil } },
                         cornerRadius: layout.tabRadius,
-                        accent: accent.color,
                         vertical: true,
                         gapOffset: layout.gapMarkOutset
                     )

@@ -24,10 +24,14 @@ extension TabsModel {
                 await runtime.sleep(for: .milliseconds(100))
                 guard let self, !Task.isCancelled else { return }
                 if !mouseIsDown() {
+                    // Let go outside every window: what is dragged opens in a new window, whatever it is (by the window
+                    // it started in only: another that took the drag up only forgets it).
+                    let outside = pointerOutsideWindows() && Self.dragOrigin === self
                     // Dropped where nothing took it; a drop that did take it has cleared it already. A moment more, so
                     // that a drop being done now is not cut short.
                     await runtime.sleep(for: .milliseconds(100))
-                    if !Task.isCancelled { endDrag() }
+                    guard !Task.isCancelled else { return }
+                    if outside, dragged != nil { openDraggedInNewWindow() } else { endDrag() }
                     return
                 }
             }

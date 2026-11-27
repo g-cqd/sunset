@@ -27,9 +27,10 @@ extension TabsModel {
             case .pane(let id): id != pane
             case .document: true
             // When `pane` belongs to a kept entry (Favorite or Pinned), another kept entry splits into it in place.
-            // When `pane` belongs to Today's tabs, a favorite splits with it, while a pinned tab does not.
+            // When `pane` belongs to Today's tabs, a favorite or a pinned tab leaves for Today and splits with it (the
+            // owner, 2026-11-27: a pinned tab offered no split over the window).
             case .entry(let id):
-                if let target = inKeptEntry { target.id != id } else { !isPinned(id) }
+                if let target = inKeptEntry { target.id != id } else { keeper(of: id).favorites.entry(id) != nil }
             case nil: false
         }
     }

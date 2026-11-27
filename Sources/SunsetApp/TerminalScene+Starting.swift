@@ -18,6 +18,14 @@ extension TerminalScene {
         tabs.onEmpty = { dismiss() }
         // The mouse button, from the system: the model knows nothing of AppKit.
         tabs.mouseIsDown = { NSEvent.pressedMouseButtons != 0 }
+        tabs.pointerOutsideWindows = {
+            let point = NSEvent.mouseLocation
+            return !NSApp.windows.contains { $0.isVisible && !($0 is NSPanel) && $0.frame.contains(point) }
+        }
+        tabs.openInNewWindow = { [weak tabs] items in
+            guard let tabs else { return }
+            AppActions.shared.openInNewWindow(items, of: tabs.space)
+        }
         tabs.wireContent = { wire($0) }
         AppDocuments.wire(tabs.shelf)
         tabs.onChange = { SessionStore.shared.scheduleSave() }
@@ -53,6 +61,14 @@ extension TerminalScene {
         }
         // A new window shows the Space of the window it was asked from (the one in front), else the first of the profile
         // `tabs.startProfile` names, else the first.
+        // Tabs taken to a window of their own: their Space, those tabs, the last shown.
+        if let moved = AppActions.shared.pendingWindowTabs, all.contains(moved.space) {
+            AppActions.shared.pendingWindowTabs = nil
+            tabs.show(space: moved.space, in: all)
+            tabs.makeContent = { makeContent($0) }
+            if let last = moved.items.last { tabs.select(item: last) }
+            return
+        }
         let asked = TabRegistry.shared.tabs(for: TabRegistry.shared.actingWindow)?.space
         let space = asked.flatMap { all.contains($0) ? $0 : nil } ?? Self.startSpace(in: all) ?? all.spaces[0]
         let others = space.viewerCount

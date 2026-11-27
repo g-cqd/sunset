@@ -36,7 +36,6 @@ struct PinnedGrid: View {
                                     id: entry.id,
                                     active: tileDrop,
                                     cornerRadius: layout.tabRadius,
-                                    accent: accent.color,
                                     vertical: false,
                                     gapOffset: layout.tabSpacing / 2
                                 )

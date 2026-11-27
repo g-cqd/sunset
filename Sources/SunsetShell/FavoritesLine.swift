@@ -10,7 +10,6 @@ struct FavoritesLine: View {
     let layout: ShellSettings.Layout
     let visible: Bool
     @State private var targeted = false
-    @Environment(\.accent) private var accent
 
     /// A drag under way would be kept in the Favorites: the line opens into a place to drop it, said in words.
     private var takesDrag: Bool {
@@ -22,7 +21,7 @@ struct FavoritesLine: View {
             if takesDrag {
                 Label("Keep in Favorites", systemImage: "star")
                     .font(Design.Text.detail)
-                    .foregroundStyle(targeted ? accent.color : .secondary)
+                    .foregroundStyle(targeted ? .primary : .secondary)
                     .frame(maxWidth: .infinity)
                     // As tall as a tab's row: a row's padding around a line of text.
                     .padding(.vertical, layout.tabPaddingVertical + Design.Space.s)

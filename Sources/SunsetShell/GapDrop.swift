@@ -17,7 +17,6 @@ struct GapDrop: View {
     /// Told when a drop it would take comes over it and leaves.
     var onTargeted: (Bool) -> Void = { _ in }
     @State private var targeted = false
-    @Environment(\.accent) private var accent
 
     /// How far into the rows beside it the gap takes a drop.
     private var reach: Double {
@@ -34,7 +33,7 @@ struct GapDrop: View {
                     .contentShape(.rect)
                     .overlay {
                         if targeted, line {
-                            Capsule().fill(accent.color).frame(height: Design.Space.hair)
+                            Capsule().fill(DropVeil<Rectangle>.line).frame(height: Design.Space.hair)
                                 .padding(.horizontal, Design.Space.xs)
                                 .transition(.opacity)
                         }

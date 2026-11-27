@@ -14,6 +14,13 @@ extension TabsModel {
         focus(pane)
     }
 
+    /// Takes every pane but the first of the split `item` (a tab of Today) out into tabs of their own, running: the split is
+    /// undone, nothing closes.
+    package func separateAll(item: Workspace.ItemID) {
+        guard let split = workspace.items.first(where: { $0.id == item }), split.isSplit else { return }
+        for pane in split.panes.dropFirst().reversed() { detachIntoTab(pane) }
+    }
+
     /// Takes `pane` out of its split into a tab of its own, running: in Today, after its split; out of a kept entry, a tab
     /// of Today after the selected one, the entry keeping its other panes.
     package func separate(pane: PaneID) {

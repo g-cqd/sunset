@@ -38,6 +38,15 @@ final class AppActions {
     var pendingPrivateWindow = false
     /// The next window opens showing the settings (Cmd-, with no window open).
     var pendingSettings = false
+    /// The next window shows these tabs of this Space (tabs dragged out of a window, or dropped with Option).
+    var pendingWindowTabs: (space: SpaceModel, items: [Workspace.ItemID])?
+
+    /// Opens a new window of `space` showing `items`, the last selected.
+    func openInNewWindow(_ items: [Workspace.ItemID], of space: SpaceModel) {
+        guard !items.isEmpty else { return }
+        pendingWindowTabs = (space, items)
+        openTerminalWindow()
+    }
 
     /// Asks which kind of tab to make (Shift-Cmd-T): the command bar with the kinds that are on.
     func chooseKind() {

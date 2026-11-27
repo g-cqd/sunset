@@ -73,6 +73,13 @@ struct KeptEntryMenu: View {
             KeepAwakeMenu(tabs: tabs, entry: entry.id)
         }
         Divider()
-        Button("Delete", role: .destructive) { tabs.delete(entry: entry.id) }
+        // A kept split says it closes its panes (the owner, 2026-11-27).
+        if let open = entry.open, open.isSplit {
+            Button("Delete and Close Its \(open.panes.count) Panes", role: .destructive) {
+                tabs.delete(entry: entry.id)
+            }
+        } else {
+            Button("Delete", role: .destructive) { tabs.delete(entry: entry.id) }
+        }
     }
 }

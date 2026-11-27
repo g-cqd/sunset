@@ -104,7 +104,8 @@ struct FolderRow: View {
     }
 
     private var fill: Color {
-        if targeted { return accent.color.opacity(Design.Fill.target) }
+        // A drop target in the text's ink, as every drop place, not the accent.
+        if targeted { return .primary.opacity(Design.Fill.dropVeil) }
         if tabs.isMarked(.node(folder.id)) { return accent.color.opacity(Design.Fill.marked) }
         return .primary.opacity(hovering ? Design.Fill.hover : 0)
     }
