@@ -68,12 +68,7 @@ struct FavoritesSection: View {
 
     /// How far the row moves to make room where the dragged tab would go (`RowMakingRoom`).
     private func roomOffset(_ id: Favorites.NodeID, rows: [Favorites.NodeID]) -> CGFloat {
-        // A gap under the drag opens as a drop before the row under it would.
-        let drop =
-            gapRoom.flatMap { index in rows.indices.contains(index) ? (rows[index], TabDropAction.moveBefore) : nil }
-            ?? drop.map { ($0.owner, $0.place) }
-        guard let (owner, action) = drop else { return 0 }
-        return RowMakingRoom.offset(of: id, rows: rows, owner: owner, action: action, room: layout.rowMakingRoom)
+        RowMakingRoom.offset(of: id, rows: rows, gap: gapRoom, drop: drop, room: layout.rowMakingRoom)
     }
 
     private func entryRow(_ entry: Favorites.Entry) -> some View {

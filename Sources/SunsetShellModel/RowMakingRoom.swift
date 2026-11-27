@@ -27,4 +27,19 @@ package enum RowMakingRoom {
         if index == above + 1 { return room / 2 }
         return 0
     }
+
+    /// The same for a drag over the gap `gap` (a drop before the row under it) or, when over none, a drop `drop` on a row.
+    package static func offset<ID: Equatable>(
+        of row: ID,
+        rows: [ID],
+        gap: Int?,
+        drop: (owner: ID, place: TabDropAction)?,
+        room: CGFloat
+    ) -> CGFloat {
+        let overGap = gap.flatMap { index in
+            rows.indices.contains(index) ? (rows[index], TabDropAction.moveBefore) : nil
+        }
+        guard let (owner, action) = overGap ?? drop.map({ ($0.owner, $0.place) }) else { return 0 }
+        return offset(of: row, rows: rows, owner: owner, action: action, room: room)
+    }
 }

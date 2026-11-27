@@ -41,13 +41,7 @@ final class UnixSocket: Sendable {
         _ = chmod(folder, 0o700)
         unlink(path)
         let socket = try Self.make()
-        var address = try Self.address(path)
-        let bound = withUnsafePointer(to: &address) {
-            unsafe $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                unsafe bind(socket.descriptor, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
-            }
-        }
-        guard bound == 0 else { throw .system("bind", errno) }
+        guard try socket.at(path, bind) == 0 else { throw .system("bind", errno) }
         _ = chmod(path, 0o600)
         guard listen(socket.descriptor, 8) == 0 else { throw .system("listen", errno) }
         return socket
@@ -56,13 +50,7 @@ final class UnixSocket: Sendable {
     /// Connected to the socket at `path`.
     static func connected(to path: String) throws(Failure) -> UnixSocket {
         let socket = try Self.make()
-        var address = try Self.address(path)
-        let connected = withUnsafePointer(to: &address) {
-            unsafe $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                unsafe connect(socket.descriptor, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
-            }
-        }
-        guard connected == 0 else { throw .system("connect \(path)", errno) }
+        guard try socket.at(path, connect) == 0 else { throw .system("connect \(path)", errno) }
         return socket
     }
 
@@ -117,6 +105,19 @@ final class UnixSocket: Sendable {
     /// Stops `accept` and reads waiting on it.
     func shutDown() {
         Darwin.shutdown(descriptor, SHUT_RDWR)
+    }
+
+    /// `call` (bind or connect) on this socket with the address of `path`.
+    private func at(
+        _ path: String,
+        _ call: (Int32, UnsafePointer<sockaddr>, socklen_t) -> Int32
+    ) throws(Failure) -> Int32 {
+        var address = try Self.address(path)
+        return withUnsafePointer(to: &address) {
+            unsafe $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                unsafe call(descriptor, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
+            }
+        }
     }
 
     private static func make() throws(Failure) -> UnixSocket {

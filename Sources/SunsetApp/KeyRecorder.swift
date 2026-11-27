@@ -53,24 +53,21 @@ struct KeyRecorder: View {
 
     /// The key an event presses, when it has Command or Control.
     static func chord(of event: NSEvent) -> KeyChord? {
-        var modifiers: KeyChord.Modifiers = []
         let flags = event.modifierFlags
-        if flags.contains(.command) { modifiers.insert(.command) }
-        if flags.contains(.shift) { modifiers.insert(.shift) }
-        if flags.contains(.option) { modifiers.insert(.option) }
-        if flags.contains(.control) { modifiers.insert(.control) }
-        guard !modifiers.isDisjoint(with: [.command, .control]) else { return nil }
-        let key: KeyChord.Key
-        switch event.keyCode {
-            case 126: key = .up
-            case 125: key = .down
-            case 123: key = .left
-            case 124: key = .right
-            default:
-                // The key's own character, not the one Shift makes of it: Shift-Command-] is "]" with Shift.
-                guard let character = event.characters(byApplyingModifiers: [])?.lowercased().first else { return nil }
-                key = .character(character)
+        let modifiers = Self.modifiers.reduce(into: KeyChord.Modifiers()) { held, pair in
+            if flags.contains(pair.flag) { held.insert(pair.modifier) }
         }
-        return KeyChord(key, modifiers)
+        guard !modifiers.isDisjoint(with: [.command, .control]) else { return nil }
+        if let arrow = Self.arrows[event.keyCode] { return KeyChord(arrow, modifiers) }
+        // The key's own character, not the one Shift makes of it: Shift-Command-] is "]" with Shift.
+        guard let character = event.characters(byApplyingModifiers: [])?.lowercased().first else { return nil }
+        return KeyChord(.character(character), modifiers)
     }
+
+    private static let modifiers: [(flag: NSEvent.ModifierFlags, modifier: KeyChord.Modifiers)] = [
+        (.command, .command), (.shift, .shift), (.option, .option), (.control, .control)
+    ]
+
+    /// The arrow keys, by key code.
+    private static let arrows: [UInt16: KeyChord.Key] = [126: .up, 125: .down, 123: .left, 124: .right]
 }

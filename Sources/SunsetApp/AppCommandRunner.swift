@@ -20,58 +20,70 @@ import SunsetWeb
         }
     }
 
-    // A dispatch table: one case per command, as long as the table is.
-    // swiftlint:disable:next cyclomatic_complexity function_body_length - one case per command of the table
     static func run(_ id: AppCommand.ID, on target: Target = .acting) {
-        let actions = AppActions.shared
-        let page = target.page
+        if runOnPage(id, target.page) || runOnTabs(id, target) { return }
+        runOnApp(id)
+    }
+
+    /// The History menu's and Print: what the page does.
+    private static func runOnPage(_ id: AppCommand.ID, _ page: WebContent?) -> Bool {
         switch id {
-            case .newWindow: actions.openTerminalWindow()
-            case .newTab: actions.newTab()
-            case .newTabOfKind: actions.chooseKind()
-            case .newPrivateWindow: actions.newPrivateWindow()
-            case .newPrivateTab: actions.newTab(kind: PaneContentKinds.newPrivatePage)
-            case .newDocument: actions.newDocument()
-            case .openFile: actions.openFile()
-            case .closeTab: actions.closeTab()
-            case .closeOtherTabs: actions.closeOtherTabs()
-            case .closeWindow: actions.closeWindow()
-            case .print: page?.printPage()
-            case .importFromBrowser: actions.importFromBrowser()
-            case .commandBar: actions.toggleCommandBar()
-            case .zoomIn: actions.zoomFont(by: 1)
-            case .zoomOut: actions.zoomFont(by: -1)
-            case .actualSize: actions.resetFontZoom()
-            case .previousPrompt: target.terminal?.jumpToPrompt(.previous)
-            case .nextPrompt: target.terminal?.jumpToPrompt(.next)
-            case .library: actions.toggleLibrary()
-            case .documents, .history, .downloads, .passwords: showLibrary(id)
-            case .settings: actions.showSettings()
-            case .help: actions.showHelp()
-            case .splitRight: actions.split(.right)
-            case .splitDown: actions.split(.bottom)
-            case .nextPane: actions.focusNextPane()
-            case .previousPane: actions.focusPreviousPane()
-            case .movePaneToTab: actions.moveFocusedPaneToTab()
-            case .renameTab: actions.renameTab()
-            case .togglePinned: actions.togglePinned()
-            case .toggleFavorite: actions.toggleFavorite()
-            case .nextTab: actions.selectNextTab()
-            case .previousTab: actions.selectPreviousTab()
-            case .newSpace: actions.spaceTabs?.newSpace()
-            case .editSpace: if let tabs = actions.spaceTabs { tabs.edit(space: tabs.space) }
-            case .deleteSpace: actions.spaceTabs?.deleteSpace()
-            case .nextSpace: actions.spaceTabs?.stepSpace(by: 1)
-            case .previousSpace: actions.spaceTabs?.stepSpace(by: -1)
             case .back: page?.goBack()
             case .forward: page?.goForward()
-            case .reload: page?.reload()
-            case .reloadWithoutCache: page?.reload(fromOrigin: true)
+            case .reload, .reloadWithoutCache: page?.reload(fromOrigin: id == .reloadWithoutCache)
             case .forceReload: page?.forceReload()
             case .toggleMute: page?.toggleMuted()
             case .stop: page?.stopLoading()
             case .openAddress: page?.wantsAddress = true
             case .toggleInspector: page?.toggleInspector()
+            case .print: page?.printPage()
+            default: return false
+        }
+        return true
+    }
+
+    /// What a window's tabs, panes, Spaces and terminal do.
+    private static func runOnTabs(_ id: AppCommand.ID, _ target: Target) -> Bool {
+        let actions = AppActions.shared
+        switch id {
+            case .previousPrompt, .nextPrompt: target.terminal?.jumpToPrompt(id == .nextPrompt ? .next : .previous)
+            case .splitRight, .splitDown: actions.split(id == .splitDown ? .bottom : .right)
+            case .nextPane, .previousPane: id == .nextPane ? actions.focusNextPane() : actions.focusPreviousPane()
+            case .nextTab, .previousTab: id == .nextTab ? actions.selectNextTab() : actions.selectPreviousTab()
+            case .nextSpace, .previousSpace: actions.spaceTabs?.stepSpace(by: id == .nextSpace ? 1 : -1)
+            case .newSpace: actions.spaceTabs?.newSpace()
+            case .editSpace: if let tabs = actions.spaceTabs { tabs.edit(space: tabs.space) }
+            case .deleteSpace: actions.spaceTabs?.deleteSpace()
+            case .zoomIn, .zoomOut: actions.zoomFont(by: id == .zoomIn ? 1 : -1)
+            case .documents, .history, .downloads, .passwords: showLibrary(id)
+            case .movePaneToTab: actions.moveFocusedPaneToTab()
+            case .renameTab: actions.renameTab()
+            case .togglePinned: actions.togglePinned()
+            case .toggleFavorite: actions.toggleFavorite()
+            default: return false
+        }
+        return true
+    }
+
+    /// What the app does: windows, tabs made and closed, its places.
+    private static func runOnApp(_ id: AppCommand.ID) {
+        let actions = AppActions.shared
+        switch id {
+            case .newWindow: actions.openTerminalWindow()
+            case .newTab, .newPrivateTab: actions.newTab(kind: id == .newTab ? nil : PaneContentKinds.newPrivatePage)
+            case .newTabOfKind: actions.chooseKind()
+            case .newPrivateWindow: actions.newPrivateWindow()
+            case .newDocument: actions.newDocument()
+            case .openFile: actions.openFile()
+            case .closeTab, .closeOtherTabs: id == .closeTab ? actions.closeTab() : actions.closeOtherTabs()
+            case .closeWindow: actions.closeWindow()
+            case .importFromBrowser: actions.importFromBrowser()
+            case .commandBar: actions.toggleCommandBar()
+            case .actualSize: actions.resetFontZoom()
+            case .library: actions.toggleLibrary()
+            case .settings: actions.showSettings()
+            case .help: actions.showHelp()
+            default: break
         }
     }
 
