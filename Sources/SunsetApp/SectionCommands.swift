@@ -9,8 +9,7 @@ struct SectionCommands: View {
 
     var body: some View {
         if SidebarSection.rail(for: scopes).count > 1 {
-            Button("Library") { AppActions.shared.toggleLibrary() }
-                .disabled(!AppConfiguration.shared.configuration.sidebar.library)
+            CommandItem(.library)
         }
         if scopes.documents { Button("Documents") { AppActions.shared.toggleOpposite(.documents) } }
         if scopes.web { Button("Downloads") { AppActions.shared.toggleOpposite(.downloads) } }

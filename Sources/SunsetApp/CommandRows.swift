@@ -1,49 +1,39 @@
 import SunsetShell
 import SunsetShellModel
 
-/// The menus' commands the command bar offers when what is typed names one: after what was typed, so that Return still
-/// does what it did.
+/// The menus' commands the command bar offers when what is typed names one (`AppCommand.table`): after what was typed,
+/// so that Return still does what it did. Each says its menu and its key.
 enum CommandRows {
-    /// The rows for `typed` (none with an engine's chip: nil).
+    /// The rows for `typed` (none with an engine's chip: nil): the commands that would do something now.
     @MainActor static func rows(typed: String?, tabs: TabsModel) -> [ChoiceRow] {
         guard let typed else { return [] }
-        return AppCommandChoices.commands(typed: typed, scopes: tabs.scopes).map { row($0, tabs: tabs) }
+        let target = AppCommandRunner.Target.acting
+        return AppCommand.matching(typed: typed, scopes: tabs.scopes)
+            .filter { AppCommandRunner.isEnabled($0.id, on: target) }
+            .map { row($0, tabs: tabs, target: target) }
     }
 
     /// A command, run as its menu item runs it.
-    @MainActor private static func row(_ command: AppCommandChoices.Command, tabs: TabsModel) -> ChoiceRow {
-        let (title, symbol, accessory) = look(command)
+    @MainActor private static func row(_ command: AppCommand, tabs: TabsModel, target: AppCommandRunner.Target)
+        -> ChoiceRow
+    {
+        let accessory = [command.menu, command.key?.symbols].compactMap(\.self).joined(separator: "  ")
         return ChoiceRow(
-            id: "command \(title)",
-            glyph: .symbol(symbol),
-            title: title,
+            id: "command \(command.id.rawValue)",
+            glyph: .symbol(command.symbol),
+            title: command.title,
             accessory: accessory,
             actions: [
-                ChoiceAction(title, symbol: symbol) {
+                ChoiceAction(command.title, symbol: command.symbol) {
                     tabs.bar = nil
-                    run(command, tabs: tabs)
+                    // The Library opened, not closed, from the bar.
+                    if command.id == .library {
+                        if !tabs.sections.isLibraryOpen { tabs.sections.toggleLibrary() }
+                    } else {
+                        AppCommandRunner.run(command.id, on: target)
+                    }
                 }
             ]
         )
-    }
-
-    private static func look(_ command: AppCommandChoices.Command) -> (String, String, String) {
-        if let section = command.librarySection { return (section.title, section.symbol, "Library") }
-        switch command {
-            case .importFromBrowser: return ("Import from Another Browser\u{2026}", "square.and.arrow.down", "File")
-            case .settings: return ("Settings", "gearshape", "Sunset")
-            case .library: return ("Library", "books.vertical", "Sidebar")
-            default: return ("Sunset Help", "questionmark.circle", "Help")
-        }
-    }
-
-    @MainActor private static func run(_ command: AppCommandChoices.Command, tabs: TabsModel) {
-        if let section = command.librarySection { return tabs.sections.show(library: section) }
-        switch command {
-            case .importFromBrowser: AppActions.shared.importFromBrowser()
-            case .settings: AppSettings.show(in: tabs)
-            case .library: if !tabs.sections.isLibraryOpen { tabs.sections.toggleLibrary() }
-            default: AppHelp.show(in: tabs)
-        }
     }
 }
