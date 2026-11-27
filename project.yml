@@ -51,6 +51,13 @@ targets:
         embed: true
       - target: SunsetVaultService
         embed: true
+      # The command-line end of the control socket (ADR-0129): Contents/Helpers/sunset.
+      - target: SunsetTool
+        embed: true
+        codeSign: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Helpers
     info:
       path: App/Info.plist
       properties:
@@ -260,4 +267,27 @@ targets:
           CODE_SIGN_ENTITLEMENTS: App/VaultService/VaultService.entitlements
         Release:
           CODE_SIGN_ENTITLEMENTS: App/VaultService/VaultService.entitlements
+          PROVISIONING_PROFILE_SPECIFIER: ""
+  # `sunset` (ADR-0129): the control socket's command-line end, in Contents/Helpers. No entitlements, no profile, no
+  # Info.plist (a helper's own would not be the bundle's).
+  SunsetTool:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Sources/SunsetControlTool
+    dependencies:
+      - package: Sunset
+        product: SunsetControl
+    settings:
+      base:
+        PRODUCT_NAME: sunset
+        PRODUCT_BUNDLE_IDENTIFIER: studio.aemi.sunset.tool
+        GENERATE_INFOPLIST_FILE: NO
+        CREATE_INFOPLIST_SECTION_IN_BINARY: NO
+        CODE_SIGN_ENTITLEMENTS: ""
+        PROVISIONING_PROFILE_SPECIFIER: ""
+        SKIP_INSTALL: YES
+      configs:
+        Release:
+          CODE_SIGN_ENTITLEMENTS: ""
           PROVISIONING_PROFILE_SPECIFIER: ""

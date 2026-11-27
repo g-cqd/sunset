@@ -32,7 +32,7 @@ let package = Package(
     products: [
         "SunsetCore", "SunsetHost", "SunsetPane", "SunsetShell", "SunsetTerminal", "SunsetWeb", "SunsetConfig",
         "SunsetStorage", "SunsetDocuments", "SunsetQuickLookKit", "SunsetPrivate", "SunsetRender", "SunsetRenderMac",
-        "SunsetRenderMetal", "SunsetCredentials"
+        "SunsetRenderMetal", "SunsetCredentials", "SunsetControl"
     ]
     .map { Product.library(name: $0, targets: [$0]) } + [
         .executable(name: "sunset-run", targets: ["SunsetRun"]),

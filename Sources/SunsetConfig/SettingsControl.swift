@@ -28,6 +28,8 @@ public enum SettingsControl: Sendable {
         case quickLookMarkdown
         /// Settings, Keyboard shortcuts: each command's key, recorded.
         case keys
+        /// Settings, Control from outside: where the sunset tool is, and its link in ~/.local/bin.
+        case controlTool
 
         /// A list that draws a section for each of its things (the profiles): the page does not wrap it.
         public var ownsSections: Bool {

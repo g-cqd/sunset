@@ -33,5 +33,7 @@ mean to trust, so each must be asked for.
 
 ## Consequences
 
-The tool is built with `swift build --product sunset`; it is not yet inside the app's bundle. Streaming what a pane
+The tool is in the app, `Sunset.app/Contents/Helpers/sunset` (the `SunsetTool` target, signed with the app), and
+Settings › General › Control from outside links it as `~/.local/bin/sunset`; `swift build --product sunset` builds it
+too. Streaming what a pane
 does (observe) is not done.

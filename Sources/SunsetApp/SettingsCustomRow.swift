@@ -55,6 +55,7 @@ struct SettingsCustomRow: View {
             case .updates: UpdatesCenter()
             case .quickLookMarkdown: QuickLookMarkdownRow()
             case .keys: KeysSettings(config: config)
+            case .controlTool: ControlToolRow(title: option.title)
             case .textOnlyZoom:
                 if WebTextZoomProbe.isAvailable {
                     LabeledContent {
