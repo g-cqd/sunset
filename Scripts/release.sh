@@ -72,8 +72,9 @@ dist="$work/.build/dist-$tag"
 logs="$work/.build/release-logs"
 rm -rf "$dist" "$logs" .build/app-package .build/app-webkit-release .build/app-native-copy
 mkdir -p "$dist" "$logs"
-version="${tag#v}"
-version="${version%%-*}"
+# The marketing version (1.2.3) for the app; the whole one (1.2.3-alpha.1) for the SBOM, as the release is named.
+full="${tag#v}"
+version="${full%%-*}"
 
 # Each job in the background, its output in its log; a failure says which, with the end of its log.
 pids=()
@@ -102,7 +103,7 @@ finish() {
 }
 
 phase "build (the release build, incremental) · SBOM · the delta tool"
-start sbom Scripts/generate-sbom.sh "$version" "$dist/Sunset-$version.sbom.cdx.json"
+start sbom Scripts/generate-sbom.sh "$full" "$dist/Sunset-$full.sbom.cdx.json"
 start delta-tool swift build -c release --product SunsetDeltaTool
 SUNSET_VERSION="$version" SUNSET_DERIVED="$work/.build/release-derived" Scripts/make-app.sh release .build/app-package \
     > "$logs/build.log" 2>&1 || { tail -40 "$logs/build.log" >&2; exit 1; }
@@ -134,7 +135,7 @@ webkit_variant() {
 start native native_variant
 start webkit webkit_variant
 finish
-for file in "$nativeZip" "$webkitZip" "$dist/Sunset-$version.sbom.cdx.json"; do
+for file in "$nativeZip" "$webkitZip" "$dist/Sunset-$full.sbom.cdx.json"; do
     (cd "$dist" && shasum -a 256 "$(basename "$file")" > "$(basename "$file").sha256")
 done
 
@@ -169,7 +170,8 @@ ssh "$host" "cd ~/$vm_repo &&
     else
         gh release create '$tag' '$remote'/* --repo $repo --title '$title' --notes-file '$remote.md' --verify-tag $prerelease
     fi && rm -rf '$remote' '$remote.md' &&
-    gh api repos/$repo/releases/tags/'$tag' --jq '.assets | length'" | {
+    gh api repos/$repo/releases/tags/'$tag' --jq '.assets | length'" | tail -1 | {
+    # gh prints the release's address first: the count is the last line.
     read -r count
     [ "$count" -ge 12 ] || { echo "release: the release has $count assets, not 12" >&2; exit 1; }
     echo "published: $count assets" >&2
