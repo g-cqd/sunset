@@ -38,7 +38,8 @@ let package = Package(
         .executable(name: "sunset-run", targets: ["SunsetRun"]),
         .executable(name: "sunset-app", targets: ["SunsetAppMain"]),
         .library(name: "SunsetAppLibrary", targets: ["SunsetApp"]),
-        .executable(name: "sunset-render", targets: ["SunsetRenderTool"])
+        .executable(name: "sunset-render", targets: ["SunsetRenderTool"]),
+        .executable(name: "sunset", targets: ["SunsetControlTool"])
     ],
     dependencies: [
         .package(url: "https://github.com/Aemi-Studio/aemi.git", revision: "9f8d1a3eafed0ad23919b9c68d33606632ce0659"),
@@ -109,9 +110,17 @@ let package = Package(
                 "SunsetPrivate", "SunsetRender", "SunsetStorage", "SunsetDocuments", "SunsetRenderMac",
                 "SunsetRenderMetal", "SunsetShell", "SunsetShellBridge", "SunsetTerminal", "SunsetWeb",
                 "SunsetMarkdown", "SunsetMetrics", "SunsetImport", "SunsetCredentials", "SunsetSiteData",
-                "SunsetUpdate", .product(name: "AemiSDR", package: "AemiSDR"),
+                "SunsetUpdate", "SunsetControl", .product(name: "AemiSDR", package: "AemiSDR"),
                 .product(name: "MarkdownLookKit", package: "AemiMarkdown")
             ]
+        ),
+        module("SunsetControl", []),
+        tests("SunsetControlTests", ["SunsetControl"]),
+        .executableTarget(
+            name: "SunsetControlTool",
+            dependencies: ["SunsetControl"],
+            path: "Sources/SunsetControlTool",
+            swiftSettings: strictSettings
         ),
         .executableTarget(
             name: "SunsetRenderTool",

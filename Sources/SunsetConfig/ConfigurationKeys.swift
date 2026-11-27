@@ -82,7 +82,7 @@ public enum ConfigurationKeys {
     static let sections: [String] = [
         "theme", "font", "colors", "window", "terminal", "sidebar", "layout", "appearance", "tabs", "scroll",
         "scrollback", "cursor", "keyboard", "keys", "storage", "updates", "passwords", "documents", "spaces",
-        "features", "web"
+        "features", "control", "web"
     ]
 
     /// Every key: the hand-written ones and the options' own, each section's together (its subsections too), the sections

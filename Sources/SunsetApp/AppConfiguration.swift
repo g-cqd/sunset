@@ -31,6 +31,7 @@ final class AppConfiguration {
             WebShare.otherProfiles = configuration.web.shareOtherProfiles
             if configuration.passwords != AppPasswords.settings { AppPasswords.settings = configuration.passwords }
             if configuration.keys != oldValue.keys { CommandKeys.shared.take(configuration.keys) }
+            if configuration.control != oldValue.control { AppControl.apply(configuration.control) }
             refreshShown()
         }
     }

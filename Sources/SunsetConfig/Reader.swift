@@ -32,7 +32,7 @@ struct Reader {
                 continue
             }
             switch key {
-                case "keyboard", "storage", "updates", "passwords", "documents", "scroll":
+                case "keyboard", "storage", "updates", "passwords", "documents", "scroll", "control":
                     section(key, value) { reader, object in reader.readPlain(key, object) }
                 case "font": section("font", value) { reader, object in reader.readFont(object) }
                 case "colors": section("colors", value) { reader, object in reader.readColors(object) }

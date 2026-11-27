@@ -13,6 +13,7 @@ extension SettingsSection {
             SettingsTopic("general.documents", "Documents", SettingsOption.documents),
             SettingsTopic("general.spaces", "Spaces", SettingsOption.spaces),
             SettingsTopic("general.keys", "Keyboard shortcuts", SettingsOption.keys),
+            SettingsTopic("general.control", "Control from outside", SettingsOption.control),
             SettingsTopic("general.updates", "Updates", SettingsOption.updates),
             SettingsTopic("general.file", "Configuration file", SettingsOption.configurationFile)
         ]
