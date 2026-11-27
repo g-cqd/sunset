@@ -12,6 +12,8 @@ struct FavoritesSection: View {
     /// The row a drag is over, and whether it would land after it.
     @State private var drop: (owner: Favorites.NodeID, place: TabDropAction)?
     @State private var sizes: [Favorites.NodeID: CGSize] = [:]
+    /// The gap a dragged tab is over: the rows beside it make room, as Today's do.
+    @State private var gapRoom: Int?
     @Environment(\.accent) private var accent
 
     /// One view: the rows, then their line. As two, a modifier on the section (a measure) laid them over each other, the
@@ -36,7 +38,15 @@ struct FavoritesSection: View {
                 }
             VStack(spacing: 0) {
                 ForEach(Array(shown.enumerated()), id: \.element.id) { index, row in
-                    GapDrop(tabs: tabs, layout: layout, place: tabs.favoritesGap(index), between: index > 0)
+                    GapDrop(
+                        tabs: tabs,
+                        layout: layout,
+                        place: tabs.favoritesGap(index),
+                        between: index > 0,
+                        line: false
+                    ) { targeted in
+                        if targeted { gapRoom = index } else if gapRoom == index { gapRoom = nil }
+                    }
                     Group {
                         switch favorites.node(row.id) {
                             case .entry(let entry): entryRow(entry)
@@ -45,6 +55,8 @@ struct FavoritesSection: View {
                         }
                     }
                     .padding(.leading, Double(row.level) * Design.Space.l)
+                    .offset(y: roomOffset(row.id, rows: shown.map(\.id)))
+                    .animation(layout.smooth, value: roomOffset(row.id, rows: shown.map(\.id)))
                     // A folder's rows slide out from under it as it unfolds, back as it folds.
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
@@ -52,6 +64,16 @@ struct FavoritesSection: View {
             }
         }
         FavoritesLine(tabs: tabs, layout: layout, visible: tabs.linesShown.afterFavorites)
+    }
+
+    /// How far the row moves to make room where the dragged tab would go (`RowMakingRoom`).
+    private func roomOffset(_ id: Favorites.NodeID, rows: [Favorites.NodeID]) -> CGFloat {
+        // A gap under the drag opens as a drop before the row under it would.
+        let drop =
+            gapRoom.flatMap { index in rows.indices.contains(index) ? (rows[index], TabDropAction.moveBefore) : nil }
+            ?? drop.map { ($0.owner, $0.place) }
+        guard let (owner, action) = drop else { return 0 }
+        return RowMakingRoom.offset(of: id, rows: rows, owner: owner, action: action, room: layout.rowMakingRoom)
     }
 
     private func entryRow(_ entry: Favorites.Entry) -> some View {
@@ -73,7 +95,8 @@ struct FavoritesSection: View {
                 DropVeil<RoundedRectangle>
                     .entryOverlay(
                         id: entry.id,
-                        active: drop,
+                        // Before or after: the rows make room (`RowMakingRoom`); no line.
+                        active: drop.flatMap { if case .split = $0.place { $0 } else { nil } },
                         cornerRadius: layout.tabRadius,
                         accent: accent.color,
                         vertical: true,

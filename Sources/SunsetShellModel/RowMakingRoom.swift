@@ -6,10 +6,10 @@ package import SunsetPane
 /// room; nothing for a split, nothing for the others.
 package enum RowMakingRoom {
     /// The vertical offset of the row `row` for a drop `action` on `owner`, making `room` points between two rows.
-    package static func offset(
-        of row: Workspace.ItemID,
-        rows: [Workspace.ItemID],
-        owner: Workspace.ItemID,
+    package static func offset<ID: Equatable>(
+        of row: ID,
+        rows: [ID],
+        owner: ID,
         action: TabDropAction,
         room: CGFloat
     )
