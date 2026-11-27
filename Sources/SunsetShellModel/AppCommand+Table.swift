@@ -50,6 +50,7 @@ extension AppCommand {
         deleteSpace | Delete Space\u{2026} | trash | Spaces | | - | remove workspace
         nextSpace | Show Next Space | arrow.right.circle | Spaces | opt+cmd+right | - | workspace
         previousSpace | Show Previous Space | arrow.left.circle | Spaces | opt+cmd+left | - | workspace
+        moveTabToSpace | Move Tab to Space\u{2026} | arrow.right.to.line.square | Spaces | | - | send workspace
         """
 
     private static let history = """

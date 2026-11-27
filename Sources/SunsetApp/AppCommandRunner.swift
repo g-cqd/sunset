@@ -52,6 +52,11 @@ import SunsetWeb
             case .nextTab, .previousTab: id == .nextTab ? actions.selectNextTab() : actions.selectPreviousTab()
             case .nextSpace, .previousSpace: actions.spaceTabs?.stepSpace(by: id == .nextSpace ? 1 : -1)
             case .newSpace: actions.spaceTabs?.newSpace()
+            case .moveTabToSpace:
+                // A second step: the bar lists the Spaces to move the tab to.
+                if let tabs = actions.spaceTabs, let item = tabs.workspace.selectedItem?.id {
+                    tabs.bar = CommandBar(purpose: .moveToSpace(item))
+                }
             case .editSpace: if let tabs = actions.spaceTabs { tabs.edit(space: tabs.space) }
             case .deleteSpace: actions.spaceTabs?.deleteSpace()
             case .zoomIn, .zoomOut: actions.zoomFont(by: id == .zoomIn ? 1 : -1)
@@ -95,6 +100,7 @@ import SunsetWeb
             case .print, .reload, .reloadWithoutCache, .forceReload: return page?.url != nil
             case .previousPrompt, .nextPrompt: return target.terminal != nil
             case .editSpace, .deleteSpace, .nextSpace, .previousSpace: return manySpaces
+            case .moveTabToSpace: return manySpaces && AppActions.shared.spaceTabs?.workspace.selectedItem != nil
             case .back: return page?.canGoBack == true
             case .forward: return page?.canGoForward == true
             case .toggleMute: return page?.sound != nil

@@ -166,6 +166,13 @@ extension TabsModel {
     // MARK: The command bar
 
     /// The other Spaces whose name holds what is typed; none for nothing typed, or when the bar picks a tab to split.
+    /// The Spaces a tab can move to: every other one, those whose name has what is typed.
+    package func moveTargets(_ bar: CommandBar) -> [SpaceModel] {
+        let typed = bar.query.trimmingCharacters(in: .whitespaces)
+        return (spaces?.spaces ?? [])
+            .filter { $0 !== space && (typed.isEmpty || $0.space.name.localizedCaseInsensitiveContains(typed)) }
+    }
+
     package func barSpaces(_ bar: CommandBar) -> [SpaceModel] {
         let typed = bar.query.trimmingCharacters(in: .whitespaces)
         guard bar.purpose == .search, !typed.isEmpty, let spaces, spaces.spaces.count > 1 else { return [] }

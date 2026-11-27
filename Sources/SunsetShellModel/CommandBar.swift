@@ -1,3 +1,5 @@
+package import SunsetPane
+
 /// The state of the command bar of one window: what it was opened for, what has been typed and which row is selected.
 package struct CommandBar: Equatable {
     package enum Purpose: Equatable {
@@ -7,6 +9,8 @@ package struct CommandBar: Equatable {
         case splitWith(SplitChoice)
         /// Which kind of tab to make (Shift-Cmd-T).
         case newTab
+        /// The Space to move a tab to (Move Tab to Space…).
+        case moveToSpace(Workspace.ItemID)
     }
 
     package let purpose: Purpose
@@ -34,6 +38,7 @@ package struct CommandBar: Equatable {
             case .search: forNewPage ? "Search or enter an address…" : "Go to a tab…"
             case .splitWith: "Split with…"
             case .newTab: "New tab: a terminal, a page, a document…"
+            case .moveToSpace: "Move the tab to a Space…"
         }
     }
 }

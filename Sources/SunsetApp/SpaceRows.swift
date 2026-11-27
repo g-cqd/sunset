@@ -7,19 +7,10 @@ import SunsetShell
     static func rows(_ bar: CommandBar, tabs: TabsModel) -> [ChoiceRow] {
         let spaces = tabs.barSpaces(bar)
             .map { space in
-                ChoiceRow(
-                    id: "space \(space.space.id)",
-                    glyph: glyph(space.space),
-                    title: space.space.name,
-                    subtitle: space.tabs.count == 1 ? "1 tab" : "\(space.tabs.count) tabs",
-                    accessory: "Space",
-                    actions: [
-                        ChoiceAction("Show Space", symbol: "arrow.right.square") {
-                            tabs.bar = nil
-                            tabs.show(spaceInOrder: space)
-                        }
-                    ]
-                )
+                row(space, id: "space", action: "Show Space") {
+                    tabs.bar = nil
+                    tabs.show(spaceInOrder: space)
+                }
             }
         let elsewhere = tabs.barTabsElsewhere(bar)
             .map { found in
@@ -39,6 +30,34 @@ import SunsetShell
                 )
             }
         return spaces + elsewhere
+    }
+
+    /// The Spaces the tab `item` can move to (Move Tab to Space…): chosen, it goes there, still running.
+    static func moveTargets(_ item: Workspace.ItemID, bar: CommandBar, tabs: TabsModel) -> [ChoiceRow] {
+        tabs.moveTargets(bar)
+            .map { space in
+                row(space, id: "move", action: "Move Tab Here") {
+                    tabs.bar = nil
+                    tabs.move(rows: [.tab(item)], to: space)
+                }
+            }
+    }
+
+    /// A Space as a row: its name, its glyph and how many tabs it has; `action` is what Return does.
+    private static func row(
+        _ space: SpaceModel,
+        id: String,
+        action: String,
+        perform: @escaping @MainActor () -> Void
+    ) -> ChoiceRow {
+        ChoiceRow(
+            id: "\(id) \(space.space.id)",
+            glyph: glyph(space.space),
+            title: space.space.name,
+            subtitle: space.tabs.count == 1 ? "1 tab" : "\(space.tabs.count) tabs",
+            accessory: "Space",
+            actions: [ChoiceAction(action, symbol: "arrow.right.square", perform: perform)]
+        )
     }
 
     private static func glyph(_ space: Space) -> PaneGlyph {

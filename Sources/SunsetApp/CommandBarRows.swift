@@ -65,6 +65,7 @@ import SunsetWeb
 
     /// The tabs that match; opened to make a new tab (Shift-Cmd-T), its kinds instead.
     private static func purposeRows(_ bar: CommandBar, tabs: TabsModel) -> [ChoiceRow] {
+        if case .moveToSpace(let item) = bar.purpose { return SpaceRows.moveTargets(item, bar: bar, tabs: tabs) }
         guard bar.purpose == .newTab else { return tabs.barResults(bar).map { tab($0, bar: bar, tabs: tabs) } }
         return NewKindChoices.newTab(typed: bar.query, scopes: tabs.scopes).map { newKind($0, bar: bar, tabs: tabs) }
     }

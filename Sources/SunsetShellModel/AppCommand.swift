@@ -10,7 +10,7 @@ package struct AppCommand: Identifiable, Equatable, Sendable {
         case library, documents, history, downloads, passwords, settings, help
         case splitRight, splitDown, nextPane, previousPane, movePaneToTab, renameTab, togglePinned, toggleFavorite
         case nextTab, previousTab
-        case newSpace, editSpace, deleteSpace, nextSpace, previousSpace
+        case newSpace, editSpace, deleteSpace, nextSpace, previousSpace, moveTabToSpace
         case back, forward, reload, reloadWithoutCache, forceReload, toggleMute, stop, openAddress, toggleInspector
 
         /// The Library's section it shows, for those that show one.

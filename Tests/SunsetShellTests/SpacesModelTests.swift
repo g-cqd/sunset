@@ -109,6 +109,19 @@ struct SpacesModelTests {
         #expect(work.tabs.isEmpty && spaces.spaces[0].tabs.count == 1)
     }
 
+    @Test func `Move Tab to Space lists every other Space, those named as typed`() {
+        let (spaces, made) = (spaces(), MadeContents())
+        let window = window(on: spaces, made: made)
+        let work = spaces.add(from: spaces.spaces[0])
+        work.rename(to: "Work")
+        let play = spaces.add(from: spaces.spaces[0])
+        play.rename(to: "Play")
+        var bar = CommandBar(purpose: .moveToSpace(Workspace.ItemID()))
+        #expect(window.moveTargets(bar).map(\.space.name) == ["Work", "Play"])
+        bar.query = "wo"
+        #expect(window.moveTargets(bar).map(\.space.name) == ["Work"])
+    }
+
     @Test
     func `a Space is deleted: what it held closes, or goes to another Space running; its windows go to the neighbour`()
         throws

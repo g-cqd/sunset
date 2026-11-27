@@ -30,7 +30,8 @@ its key (`KeyChord`), its scope and the words that find it. It has no AppKit or 
   row, before the tabs and what the web would do. Only words typed to find a command and the counts are kept, in the
   app's defaults (at most 200 queries).
 
-Two-key sequences and commands with parameters are not done.
+A command can take a second step in the command bar: Move Tab to Space… lists the other Spaces, the one chosen gets the
+tab, still running (`CommandBar.Purpose.moveToSpace`). Two-key sequences are not done.
 
 Items whose list is made at run time (the Spaces by name, Tab 1 to 9, the Format menu, history entries, Keep Awake)
 stay as they were.

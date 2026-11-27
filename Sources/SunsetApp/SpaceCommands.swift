@@ -17,6 +17,8 @@ struct SpaceCommands: Commands {
             CommandItem(.nextSpace)
             CommandItem(.previousSpace)
             Divider()
+            CommandItem(.moveTabToSpace)
+            Divider()
             ForEach(Array(spaces.spaces.enumerated()), id: \.element.space.id) { index, space in
                 let name = space.space.shownName
                 if index < 9 {
