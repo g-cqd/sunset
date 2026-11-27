@@ -17,13 +17,13 @@ permissions:
 jobs:
   ci:
     name: Checks
-    uses: g-cqd/swift-ci/.github/workflows/swift-ci.yml@07936b09eef98d5fcef4eac36a7c3f97de133e19 # swift-ci 07936b0
+    uses: g-cqd/swift-ci/.github/workflows/swift-ci.yml@b4bfd024e026b66b0f46b54daa225778b06d72ea # swift-ci b4bfd02
     permissions:
       contents: write # reusable publish permission; this package publishes no archives
 
   scan:
     name: Code Scanning
-    uses: g-cqd/swift-ci/.github/workflows/code-scanning.yml@07936b09eef98d5fcef4eac36a7c3f97de133e19 # swift-ci 07936b0
+    uses: g-cqd/swift-ci/.github/workflows/code-scanning.yml@b4bfd024e026b66b0f46b54daa225778b06d72ea # swift-ci b4bfd02
     permissions:
       contents: read
       security-events: write

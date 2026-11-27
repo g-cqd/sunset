@@ -45,27 +45,13 @@ jobs:
           persist-credentials: false
       - name: Setup · Read .swift-version
         run: echo "SWIFT_VERSION=$(cat .swift-version)" >> "$GITHUB_ENV"
+      # xcodebuild runs Xcode's own Swift (6.3 on macos-26, which cannot read a 6.4 manifest) unless TOOLCHAINS names
+      # another: swift-ci's for-xcode makes the installed one usable by xcodebuild.
       - name: Setup · Install Swift
-        uses: g-cqd/swift-ci/setup-swift@07936b09eef98d5fcef4eac36a7c3f97de133e19 # swift-ci 07936b0
+        uses: g-cqd/swift-ci/setup-swift@b4bfd024e026b66b0f46b54daa225778b06d72ea # swift-ci b4bfd02
         with:
           swift-version: ${{ env.SWIFT_VERSION }}
-      # xcodebuild runs Xcode's own Swift (6.3 on macos-26, which cannot read a 6.4 manifest) unless TOOLCHAINS names another.
-      # A swift.org toolchain has no Apple `ld` (SwiftPM's manifest link then fails: "posix_spawn failed"), nor actool,
-      # tapi and the rest: Xcode's tools it lacks are linked into it. Named alone it also hides Xcode's Metal compiler
-      # (AemiSDR's shaders), so the Metal toolchain and Xcode's own follow it in TOOLCHAINS.
-      - name: Setup · Select the Installed Swift for Xcode
-        run: |
-          plist=$(find "$HOME/Library/Developer/Toolchains" -maxdepth 2 -path "*/swift-$SWIFT_VERSION*.xctoolchain/Info.plist" | head -1)
-          swift_bin="$(dirname "$plist")/usr/bin"
-          xcode_bin="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/bin"
-          for tool in "$xcode_bin"/*; do
-            name="$(basename "$tool")"
-            [ "$name" = metal ] || [ -e "$swift_bin/$name" ] || ln -s "$tool" "$swift_bin/$name"
-          done
-          xcrun -f metal > /dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
-          metal_info="$(dirname "$(dirname "$(dirname "$(xcrun -f metal)")")")/ToolchainInfo.plist"
-          metal_id="$(plutil -extract Identifier raw "$metal_info" 2> /dev/null || true)"
-          echo "TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw "$plist") ${metal_id:+$metal_id }com.apple.dt.toolchain.XcodeDefault" >> "$GITHUB_ENV"
+          for-xcode: true
       - name: Setup · Install XcodeGen
         run: brew install xcodegen
       - name: Signing · Keychain, Profile and Notary Key
