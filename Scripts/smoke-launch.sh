@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # Launches a test copy of the built app with no accessibility needed: is it alive after ten seconds, and how many windows
 # it has. Its own folder (SUNSET_CONFIG, SUNSET_SESSION); the person's saved window frame is put back after.
 # Usage: Scripts/smoke-launch.sh [path to Sunset.app]

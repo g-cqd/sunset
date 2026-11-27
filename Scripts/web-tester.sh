@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/bash
+#!/usr/bin/env bash
 # The web tester (Tools/webtester): what each browser can do, the same tests in Sunset, Safari, Chrome and Firefox.
 #
 #   Scripts/web-tester.sh                    serve it on http://localhost:8767 (Ctrl-C stops)
