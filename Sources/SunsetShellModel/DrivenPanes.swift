@@ -1,5 +1,5 @@
 import Observation
-import SunsetRuntime
+package import SunsetRuntime
 
 /// The panes a program drives from outside (`sunset`, ADR-0129): read, typed into or waited on in the last seconds. Their
 /// tab shows it, with a control that stops it: a pane stopped refuses the tool until the app quits.
@@ -9,6 +9,8 @@ package final class DrivenPanes {
 
     /// How long a pane stays marked after the tool last asked about it.
     @ObservationIgnored package var hold: Duration = .seconds(10)
+    /// Where its waits run; `.live` unless a test sets another.
+    @ObservationIgnored package var runtime = Runtime.live
     private var driven: [ObjectIdentifier: Int] = [:]
     @ObservationIgnored private var refused: Set<ObjectIdentifier> = []
 
@@ -20,9 +22,9 @@ package final class DrivenPanes {
         guard !refused.contains(key) else { return false }
         let turn = (driven[key] ?? 0) + 1
         driven[key] = turn
-        let hold = hold
-        Runtime.live.task { [weak self] in
-            await Runtime.live.sleep(for: hold)
+        let (hold, runtime) = (hold, runtime)
+        runtime.task { [weak self] in
+            await runtime.sleep(for: hold)
             // Only the last request's wait takes the mark away.
             if self?.driven[key] == turn { self?.driven[key] = nil }
         }

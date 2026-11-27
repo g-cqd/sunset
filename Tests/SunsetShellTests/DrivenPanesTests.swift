@@ -9,13 +9,16 @@ struct DrivenPanesTests {
     private final class Pane {}
 
     @Test func `marked while driven, unmarked after the hold`() async throws {
+        let time = TestTime()
         let panes = DrivenPanes()
-        panes.hold = .milliseconds(50)
+        panes.runtime = time.runtime
         let pane = Pane()
         #expect(!panes.isDriven(pane))
+        let mark = time.mark()
         #expect(panes.drive(pane))
         #expect(panes.isDriven(pane))
-        #expect(await RealWait.until { !panes.isDriven(pane) })
+        try await time.release(after: .seconds(10), since: mark)
+        #expect(!panes.isDriven(pane))
     }
 
     @Test func `stopped, the tool is refused that pane and no other`() {
