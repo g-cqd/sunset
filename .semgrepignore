@@ -1,0 +1,12 @@
+# What Semgrep does not scan, each with its reason. A file here replaces Semgrep's defaults: what git ignores is
+# ignored too.
+:include .gitignore
+
+# Patches to WebKit's own sources and tests, as WebKit writes them (its tests list ws:// match patterns on purpose).
+Engine/WebKit/patches/
+
+# bash-preexec, vendored as its upstream ships it: a fixture of the shell integration's tests.
+Tests/SunsetHostTests/Fixtures/bash-preexec/
+
+# Pages served on 127.0.0.1 to drive the app in tests: their links are to that local server.
+Tools/axdrive/Fixtures/

@@ -40,7 +40,8 @@ def request(method, path, body=None, timeout=60):
     data = None if body is None else json.dumps(body).encode()
     req = urllib.request.Request(DRIVER + path, data=data, method=method, headers={"content-type": "application/json"})
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as answer:
+        # Only the local safaridriver this script started: DRIVER is http://127.0.0.1 and its port, never what is given.
+        with urllib.request.urlopen(req, timeout=timeout) as answer:  # nosemgrep: dynamic-urllib-use-detected
             return json.loads(answer.read() or b"{}").get("value")
     except urllib.error.HTTPError as error:
         value = json.loads(error.read() or b"{}").get("value", {})
@@ -89,7 +90,7 @@ def main():
     try:
         for _ in range(50):
             try:
-                urllib.request.urlopen(DRIVER + "/status", timeout=1)
+                urllib.request.urlopen(DRIVER + "/status", timeout=1)  # nosemgrep: dynamic-urllib-use-detected
                 break
             except OSError:
                 time.sleep(0.1)

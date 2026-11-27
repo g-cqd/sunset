@@ -29,7 +29,8 @@ struct OneTimeCodeURITests {
     }
 
     @Test func `every parameter, percent-encoded labels, HOTP's counter`() throws {
-        let uri =
+        // The Key URI Format's own example secret, not a credential.
+        let uri =  // nosemgrep: detected-generic-secret
             "otpauth://hotp/ACME%20Co:john.doe%40email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA256&digits=8&counter=7"
         let code = try OneTimeCodeURI(uri)
         #expect(code.kind == .hotp && code.issuer == "ACME Co" && code.account == "john.doe@email.com")
