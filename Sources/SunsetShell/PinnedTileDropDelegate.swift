@@ -1,24 +1,39 @@
 import SunsetPane
 import SwiftUI
 
-/// What is dragged over a tile of the Pinned grid: its leading half puts it before the tile, its trailing half after; a
-/// tile moves in the grid, a tab, a split or a favourite is pinned there.
+/// What is dragged over a tile of the Pinned grid: its leading and trailing quarters put it before or after the tile;
+/// its middle half splits in place inside the pinned tile (`TabDropAction`). When splitting is not possible (for instance,
+/// dragging a multi-row selection or dragging a tile onto itself), the leading and trailing halves reorder.
 enum PinnedTileDropDelegate {
     @MainActor
     static func make(
         tabs: TabsModel,
-        index: Int,
+        entry: Favorites.NodeID,
         width: Double,
-        active: Binding<(owner: Int, place: Bool)?>
-    ) -> PlacedDropDelegate<Int, Bool> {
+        active: Binding<(owner: Favorites.NodeID, place: TabDropAction)?>
+    ) -> PlacedDropDelegate<Favorites.NodeID, TabDropAction> {
         PlacedDropDelegate(
-            owner: index,
-            accepts: { tabs.canPinDragged },
+            owner: entry,
+            accepts: { tabs.hasDrag },
             place: { point in
-                tabs.canPinDragged ? point.x > width / 2 : nil
+                let w = max(width, 1)
+                let rx = point.x / w
+                let proposed: TabDropAction =
+                    if rx < 0.25 {
+                        .moveBefore
+                    } else if rx > 0.75 {
+                        .moveAfter
+                    } else {
+                        rx < 0.5 ? .split(.left) : .split(.right)
+                    }
+                if case .split = proposed, tabs.canDrop(onEntry: entry, action: proposed) {
+                    return proposed
+                }
+                let fallback: TabDropAction = rx > 0.5 ? .moveAfter : .moveBefore
+                return tabs.canDrop(onEntry: entry, action: fallback) ? fallback : nil
             },
-            drop: { after in
-                tabs.dropDragged(in: .pinned(at: index + (after ? 1 : 0)))
+            drop: { action in
+                tabs.dropDragged(onEntry: entry, action: action)
             },
             active: active
         )

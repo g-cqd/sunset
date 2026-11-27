@@ -6,10 +6,10 @@ import WebKit
 @testable import SunsetWeb
 @testable import SunsetWebModel
 
-/// "open in split and other open options on link in web tabs don't work". WebKit runs a menu item's action, and asks for
-/// the new page, before the view hears that the menu closed (probed: `/tmp/linkmenu`), so a placement read when it closes
-/// came too late and every link opened as a tab. Each item says where it goes as it is chosen.
-@MainActor @Suite("A page's link menu")
+/// "open in split and other open options on link in web tabs don't work", and keeping link options compact:
+/// top-level "Open Link in New Tab" plus an "Open Link In" submenu (Split Right, Split Down, New Window, Private Tab),
+/// while filling in missing page-level actions (Back, Forward, Copy Page Address, Print Page…) and collapsing stray separators.
+@MainActor @Suite("A page's link and context menus")
 struct LinkMenuTests {
     final class WebKitItem: NSObject {
         var hits: [NSMenuItem] = []
@@ -18,7 +18,7 @@ struct LinkMenuTests {
         }
     }
 
-    @Test func `each item sets its placement, then runs WebKit's own action with its represented object`() throws {
+    @Test func `Open Link in New Tab is top-level and the remaining placements live in Open Link In submenu`() throws {
         let view = SunsetWebView(frame: .zero, configuration: WKWebViewConfiguration())
         let webKit = WebKitItem()
         let original = NSMenuItem(
@@ -28,28 +28,61 @@ struct LinkMenuTests {
         )
         original.target = webKit
         original.representedObject = "the link"
-        // WebKit tells its actions apart by the item's tag (`forwardContextMenuAction:`; seen 2026-11-20: 1 for Open Link
-        // in New Window): an item that sends it another tag runs another action, or none.
         original.tag = 1
         let items = view.linkItems(replacing: original)
-        #expect(
-            items.map(\.title) == [
-                "Open Link in Split Right", "Open Link in Split Down", "Open Link in New Tab",
-                "Open Link in New Window",
-                "Open Link in Private Tab"
-            ]
-        )
-        let down = items[1]
-        let action = try #require(down.action)
-        _ = view.perform(action, with: down)
+        #expect(items.map(\.title) == ["Open Link in New Tab", "Open Link In"])
+        let newTab = items[0]
+        #expect(newTab.tag == 1)
+        _ = view.perform(newTab.action, with: newTab)
+        #expect(view.pendingPlacement == .tabAfter)
+
+        let submenu = try #require(items[1].submenu)
+        #expect(submenu.items.map(\.title) == ["Split Right", "Split Down", "New Window", "Private Tab"])
+        let down = submenu.items[1]
+        _ = view.perform(down.action, with: down)
         #expect(view.pendingPlacement == .splitDown)
-        #expect(webKit.hits.count == 1 && webKit.hits.first?.representedObject as? String == "the link")
-        #expect(items.allSatisfy { $0.tag == 1 }, "each item keeps WebKit's tag")
+        #expect(webKit.hits.count == 2 && webKit.hits.allSatisfy { $0.representedObject as? String == "the link" })
+        #expect(submenu.items.allSatisfy { $0.tag == 1 }, "each submenu item keeps WebKit's tag")
+
+        view.offersPrivateTab = false
+        let privateItems = view.linkItems(replacing: original)
+        #expect(privateItems[1].submenu?.items.map(\.title) == ["Split Right", "Split Down", "New Window"])
     }
 
-    /// WebKit's Open Image in New Window opens the picture in a tab, shown; its title says where. WebKit marks the page it
-    /// asks for as not opened by the person (probed 2026-11-20, `/tmp/n64probe/menu.swift`): the item says it was chosen, so
-    /// that the pop-up rule does not stop it.
+    @Test
+    func `page background menu adds Back, Forward, Copy Page Address and Print Page, collapsing stray separators`()
+        throws
+    {
+        let view = SunsetWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        var navigatedBack = false
+        var copied = false
+        view.pageNavState = { (canGoBack: true, canGoForward: false, hasURL: true) }
+        view.onNavigateBack = { navigatedBack = true }
+        view.onCopyPageAddress = { copied = true }
+
+        let menu = NSMenu()
+        let reload = NSMenuItem(title: "Reload", action: nil, keyEquivalent: "")
+        reload.identifier = NSUserInterfaceItemIdentifier("WKMenuItemIdentifierReload")
+        menu.addItem(reload)
+        menu.addItem(.separator())
+        menu.addItem(.separator())
+        let inspect = NSMenuItem(title: "Inspect Element", action: nil, keyEquivalent: "")
+        inspect.identifier = NSUserInterfaceItemIdentifier("WKMenuItemIdentifierInspectElement")
+        menu.addItem(inspect)
+        menu.addItem(.separator())
+
+        view.addPageItems(to: menu)
+        view.collapseSeparators(in: menu)
+        #expect(
+            menu.items.map { $0.isSeparatorItem ? "---" : $0.title } == [
+                "Back", "Reload", "---", "Copy Page Address", "Print Page\u{2026}", "---", "Inspect Element"
+            ]
+        )
+        _ = menu.items[0].target?.perform(menu.items[0].action, with: menu.items[0])
+        _ = menu.items[3].target?.perform(menu.items[3].action, with: menu.items[3])
+        #expect(navigatedBack && copied)
+    }
+
     @Test func `WebKit's image and video items say they open a tab, and that they were chosen; others are left`() throws
     {
         let view = SunsetWebView(frame: .zero, configuration: WKWebViewConfiguration())
@@ -74,15 +107,12 @@ struct LinkMenuTests {
         #expect(menu.items[2].target === webKit, "Download Image left as it is")
     }
 
-    /// A page WebKit asks for after a menu item was chosen is let through; one asked without is the pop-up rule's.
     @Test func `a chosen item's page skips the pop-up rule`() {
         #expect(WebCoordinator.skipsPopupRule(chosen: .opened))
         #expect(WebCoordinator.skipsPopupRule(chosen: .splitRight))
         #expect(!WebCoordinator.skipsPopupRule(chosen: nil))
     }
 
-    /// Seen on screen 2026-11-20: the text menu's Search with Google opened Safari (WebKit gives the words to the system's
-    /// default browser). In Sunset it searches with Sunset's engine, in a tab after the page, shown, titled with its name.
     @Test func `WebKit's Search the web searches with Sunset's engine in a tab`() async throws {
         var settings = WebSettings(applicationName: "x")
         settings.engine = SearchEngine.builtIn.first { $0.name == "DuckDuckGo" } ?? settings.engine

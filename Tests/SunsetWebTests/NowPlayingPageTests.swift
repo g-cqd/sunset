@@ -130,4 +130,47 @@ final class NowPlayingPageTests {
         center.toggleMuted(id)
         #expect(!page.isMuted && center.stack.front?.isMuted == false, "unmuted from its card")
     }
+
+    @Test func `a short notification chime without a media session never opens or leaves a Now Playing card`()
+        async throws
+    {
+        let chimeHTML = """
+            <audio id="ding"></audio>
+            <script>
+            const rate = 8000, n = rate * 1, b = new ArrayBuffer(44 + n * 2), v = new DataView(b);
+            const s = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+            s(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); s(8, 'WAVE'); s(12, 'fmt '); v.setUint32(16, 16, true);
+            v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
+            v.setUint16(32, 2, true); v.setUint16(34, 16, true); s(36, 'data'); v.setUint32(40, n * 2, true);
+            for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.sin(i * 2 * Math.PI * 660 / rate) * 300, true);
+            document.getElementById('ding').src = URL.createObjectURL(new Blob([b], {type: 'audio/wav'}));
+            </script>
+            """
+        let settings = WebSettings(applicationName: "x")
+        let page = WebContent(url: URL(string: "https://slack.example/"), settings: settings)
+        page.permissions.set(.allow, .autoplay, for: "slack.example")
+        let center = NowPlaying()
+        page.nowPlaying = center
+        page.setState(focused: false, visible: true)
+        defer { page.stop() }
+        let view = try #require(page.webView)
+        view.frame = CGRect(x: 0, y: 0, width: 200, height: 100)
+        let window = NSWindow(contentRect: view.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        window.contentView = view
+        windows.append(window)
+        view.loadHTMLString(chimeHTML, baseURL: URL(string: "https://slack.example/"))
+        await until { !page.isLoading && page.webView?.url?.host() == "slack.example" }
+
+        // Play the 1-second chime and report immediately: no card should appear!
+        _ = try await view.callAsyncJavaScript("await document.getElementById('ding').play()", contentWorld: .page)
+        page.playsSound = true
+        await center.report(page)
+        #expect(center.stack.pages.isEmpty, "short chime without MediaSession does not open Now Playing")
+
+        // Sound stops before the sustained-sound threshold: still empty, and any card without a paused track is cleared.
+        page.playsSound = false
+        await center.report(page)
+        #expect(center.stack.pages.isEmpty)
+    }
 }

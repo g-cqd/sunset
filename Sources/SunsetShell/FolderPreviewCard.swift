@@ -48,7 +48,6 @@ package struct FolderPreviewCard: View {
         .padding(.vertical, Design.Space.m)
         .frame(width: Self.width, alignment: .leading)
         .surface(shape, shadow: .popover, shaded: true)
-        .allowsHitTesting(false)
     }
 
     /// A tab of the folder: its icon and name; one not open is dimmed, as its row is.

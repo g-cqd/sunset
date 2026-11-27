@@ -1,6 +1,5 @@
 extension SettingsOption {
-    /// When the vault locks (the owner, 2026-11-23); sleep, the screen locking, quitting and the last window closing lock
-    /// it whatever these say.
+    /// When the vault locks (the owner, 2026-11-23), how web sign-in fields fill, and automatic backups.
     static let passwords: [Self] = [
         number(
             "passwords.lockAfter",
@@ -12,7 +11,8 @@ extension SettingsOption {
             unit: "min",
             digits: 0
         )
-        .noted("Minutes without use. 0: only when the Mac sleeps, the screen locks, or Sunset quits."),
+        .noted("Minutes without use. 0: only when the Mac sleeps, the screen locks, or Sunset quits.")
+        .grouped("Locking"),
         lockSwitch(
             "passwords.lockOnLeavingTab",
             \.passwords.lockOnLeavingTab,
@@ -25,18 +25,24 @@ extension SettingsOption {
             "Lock with the window",
             "window focus blur"
         ),
-        toggle(
+        fillSwitch(
             "passwords.autoFill",
-            "Fill on load",
-            "vault passwords autofill automatic fill load sign in login",
             \.passwords.autoFill,
-            label: "Fill a sign-in form as its page loads"
-        )
-        .noted(
-            "Only over HTTPS, only when the site has one login, saved for that very address. Never in a private window."
+            "Fill on load",
+            "autofill automatic fill load",
+            label: "Fill a sign-in form as its page loads",
+            note: "Only over HTTPS, only when the site has one login, saved for that very address."
         ),
-        backupFolderOption,
-        backupKeepOption
+        fillSwitch(
+            "passwords.offerUnlock",
+            \.passwords.offerUnlock,
+            "Offer to unlock on fields",
+            "unlock prompt field email totp",
+            label: "Offer to unlock Passwords when clicking a sign-in, email or code field",
+            note: "Shows an unlock row under the field while Passwords are locked, then lists matching entries."
+        ),
+        backupFolderOption.grouped("Backups"),
+        backupKeepOption.grouped("Backups")
     ]
 
     private static let backupFolderOption = text(
@@ -66,5 +72,19 @@ extension SettingsOption {
     private static func lockSwitch(_ key: String, _ path: Path<Bool>, _ title: String, _ words: String) -> Self {
         let when = key.hasSuffix("Tab") ? "another tab of the window is chosen" : "its window is no longer in front"
         return toggle(key, title, "vault passwords lock " + words, path, label: "Lock when " + when)
+            .grouped("Locking")
+    }
+
+    private static func fillSwitch(
+        _ key: String,
+        _ path: Path<Bool>,
+        _ title: String,
+        _ words: String,
+        label: String,
+        note: String
+    ) -> Self {
+        toggle(key, title, "vault passwords sign in login " + words, path, label: label)
+            .noted(note + " Never in a private window.")
+            .grouped("Filling in pages")
     }
 }

@@ -6,25 +6,25 @@ internal import InternedStrings
 public enum WebInspector {
     @MainActor
     public static func show(_ view: NSView) {
-        send(#Interned("show"), to: view)
+        send("show", to: view)
     }
 
     /// Docked in the page's pane, or in a window of its own. Asked before WebKit has the inspector up, it is dropped
     /// (2026-11-20): `WebContent.showInspector` waits for it.
     @MainActor
     public static func dock(_ view: NSView, _ docked: Bool) {
-        send(docked ? #Interned("attach") : #Interned("detach"), to: view)
+        send(docked ? "attach" : "detach", to: view)
     }
 
     @MainActor
     public static func close(_ view: NSView) {
-        send(#Interned("close"), to: view)
+        send("close", to: view)
     }
 
     @MainActor
     public static func isVisible(_ view: NSView) -> Bool {
         guard let inspector = inspector(of: view) else { return false }
-        let selector = NSSelectorFromString(#Interned("isVisible"))
+        let selector = NSSelectorFromString("isVisible")
         guard inspector.responds(to: selector) else { return false }
         typealias Getter = @convention(c) (NSObject, Selector) -> Bool
         return unsafe unsafeBitCast(inspector.method(for: selector), to: Getter.self)(inspector, selector)

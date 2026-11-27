@@ -3,19 +3,30 @@ import SunsetWebModel
 import WebKit
 
 /// What a page's media is, read by Sunset's own world (ADR-0115): its media session's title, artist and largest artwork,
-/// whether a video or a sound of its main frame plays. Nothing is added to the page; it cannot see the reading.
+/// whether a video or a sound of its main frame plays, and whether it has any sustained media or paused track rather than
+/// a transient notification chime. Nothing is added to the page; it cannot see the reading.
 @MainActor
 enum MediaReading {
+    /// Minimum finite duration (seconds) for an `<audio>` / `<video>` element without `MediaSession` metadata to count
+    /// as Now Playing media rather than a short UI / notification chime (e.g. Slack's ~1 s ding).
+    static let minimumMediaDuration = 5.0
+
     static let script = """
         const media = [...document.querySelectorAll('video, audio')];
         const meta = navigator.mediaSession && navigator.mediaSession.metadata;
+        const hasSession = !!(meta && (meta.title || meta.artist || (meta.artwork && meta.artwork.length)));
+        const state = navigator.mediaSession && navigator.mediaSession.playbackState || 'none';
         const art = meta && meta.artwork && meta.artwork.length ? meta.artwork[meta.artwork.length - 1].src : '';
-        const playing = media.filter(m => !m.paused && !m.ended);
-        const main = playing[0] || media[0];
+        const substantial = m => m.loop || !isFinite(m.duration) || m.duration >= \(minimumMediaDuration) || (m.tagName === 'VIDEO' && m.videoWidth > 0);
+        const playing = media.filter(m => !m.paused && !m.ended && (hasSession || substantial(m)));
+        const pausedTrack = media.some(m => m.paused && !m.ended && m.currentTime > 0 && (hasSession || substantial(m))) || state === 'paused';
+        const main = playing[0] || media.find(substantial) || media[0];
         return {
             title: meta && meta.title || '', artist: meta && meta.artist || '', artwork: art || '',
+            hasSession,
             video: (playing.length ? playing : media).some(m => m.tagName === 'VIDEO' && m.videoWidth > 0),
             playing: playing.length > 0,
+            pausedTrack,
             ended: media.length > 0 && media.every(m => m.ended),
             seekable: !!main && isFinite(main.duration) && main.duration > 0 && main.seekable.length > 0
         };
@@ -26,8 +37,11 @@ enum MediaReading {
         var title: String
         var artist: String
         var artwork: URL?
+        var hasSession = false
         var video: Bool
         var playing: Bool
+        /// True when a substantial media element or `MediaSession` is paused mid-playback (keeps its card while paused).
+        var pausedTrack = false
         /// Every media of the page has played to its end (n131: its card goes).
         var ended = false
         /// Its media has a length and can be moved in (not a live stream): ±10 s on its card.
@@ -42,8 +56,10 @@ enum MediaReading {
             title: answer["title"] as? String ?? "",
             artist: answer["artist"] as? String ?? "",
             artwork: (answer["artwork"] as? String).flatMap { $0.isEmpty ? nil : URL(string: $0) },
+            hasSession: answer["hasSession"] as? Bool ?? false,
             video: answer["video"] as? Bool ?? false,
             playing: answer["playing"] as? Bool ?? false,
+            pausedTrack: answer["pausedTrack"] as? Bool ?? false,
             ended: answer["ended"] as? Bool ?? false,
             seekable: answer["seekable"] as? Bool ?? false
         )

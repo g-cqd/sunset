@@ -23,7 +23,7 @@ final class KeyWatch: NSObject {
         object?.removeObserver(self, forKeyPath: key)
     }
 
-    // swiftlint:disable:next block_based_kvo
+    // swiftlint:disable:next block_based_kvo - dynamic private key paths have no Swift KeyPath literal
     override func observeValue(
         forKeyPath keyPath: String?,
         of object: Any?,

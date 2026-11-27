@@ -110,6 +110,10 @@ package final class TabsModel {
     package var sidebarFrame: CGRect?
     /// The folder of the Favorites under the pointer: its card lists its tabs.
     package var hoveredFolder: Favorites.NodeID?
+    /// Whether the pointer is currently over the tab or folder preview card (`TabPreviewHost`), holding a floating sidebar open.
+    package var hoveredPreview = false
+    /// Count of active popovers presented inside this window's sidebar (Site Settings, Downloads, Help, PrivateMark, Icon, Rename).
+    package var sidebarPopoverCount = 0
     /// The tab being renamed (`RenameTabAlert`) and the kept entry whose command is edited (`CommandSheet`).
     package var renaming: Workspace.ItemID?
     package var editingCommand: Favorites.NodeID?

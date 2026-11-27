@@ -24,13 +24,28 @@ struct TabsRevealTests {
     @Test func `a content of a kept entry is shown as the entry; one held elsewhere is not found`() throws {
         let harness = TabsHarness()
         let tabs = harness.tabs
+        let grid = FavoritesModel()
+        tabs.pinned = grid
         tabs.newTab()
         let kept = try #require(harness.made.last)
         let id = try #require(tabs.workspace.selectedID)
         let entry = try #require(tabs.keep(item: id, show: false))
         tabs.newTab()
-        #expect(tabs.reveal(kept))
-        #expect(tabs.shownEntry?.id == entry)
+        let pinnedFirst = try #require(harness.made.last)
+        let pinTab = try #require(tabs.workspace.selectedID)
+        let pinEntry = try #require(tabs.pin(item: pinTab, show: true))
+        tabs.newSplit(.right)
+        let pinnedSecond = try #require(harness.made.last)
+        tabs.newTab()
+        #expect(tabs.reveal(kept) && tabs.shownEntry?.id == entry && kept.focused)
+        #expect(
+            tabs.reveal(pinnedFirst) && tabs.shownEntry?.id == pinEntry && tabs.selectedContent === pinnedFirst
+                && pinnedFirst.focused
+        )
+        #expect(
+            tabs.reveal(pinnedSecond) && tabs.shownEntry?.id == pinEntry && tabs.selectedContent === pinnedSecond
+                && pinnedSecond.focused
+        )
         #expect(!tabs.reveal(FakeContent()))
     }
 }

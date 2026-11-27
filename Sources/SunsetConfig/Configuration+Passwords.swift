@@ -10,6 +10,8 @@ extension Configuration {
         public var lockOnWindowBlur = false
         /// A sign-in form is filled as its page loads when the site's one login is for the page's very origin (https).
         public var autoFill = false
+        /// A sign-in, email or one-time code field focused while the vault is locked offers to unlock and show matching logins.
+        public var offerUnlock = true
         /// Folder path for automatic sealed `.svault` backups at quit (empty: off).
         public var backupFolder = ""
         /// How many recent automatic `.svault` backups to keep in `backupFolder`.

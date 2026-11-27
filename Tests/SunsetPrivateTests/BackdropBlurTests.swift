@@ -29,4 +29,18 @@ import Testing
         BackdropBlur.setRadius(40, on: layer)
         #expect(((layer.filters?.first as? NSObject)?.value(forKey: "inputRadius") as? NSNumber)?.doubleValue == 40)
     }
+
+    @Test func `withinWindow clears windowServerAware on CABackdropLayers`() throws {
+        let behind = try #require(BackdropBlur.makeLayer(radius: 16, withinWindow: false))
+        #expect(behind.value(forKey: "windowServerAware") as? Bool == true)
+        let inside = try #require(BackdropBlur.makeLayer(radius: 16, withinWindow: true))
+        #expect(inside.value(forKey: "windowServerAware") as? Bool == false)
+
+        let root = CALayer()
+        root.addSublayer(behind)
+        BackdropBlur.setWithinWindow(true, in: root)
+        #expect(behind.value(forKey: "windowServerAware") as? Bool == false)
+        BackdropBlur.setWithinWindow(false, in: root)
+        #expect(behind.value(forKey: "windowServerAware") as? Bool == true)
+    }
 }

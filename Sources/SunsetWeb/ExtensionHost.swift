@@ -180,6 +180,11 @@ package import WebKit
         return store.installed.first { $0.id == id }?.name
     }
 
+    /// Whether any extension action popup panel is currently open (`ExtensionPopupPanel`).
+    package static var isShowingPopup: Bool {
+        ExtensionPopupPanel.isShowingPopup
+    }
+
     func contextWith(identifier: String) -> WKWebExtensionContext? {
         contexts.values.first { $0.uniqueIdentifier == identifier }
     }

@@ -43,7 +43,6 @@ struct TabPreviewCard: View {
             .frame(width: Self.width + 2 * Design.Space.s)
             .surface(shape, shadow: .popover, shaded: true)
             .animation(Design.Preview.swap, value: item.id)
-            .allowsHitTesting(false)
     }
 
     private func content(_ custom: (name: String?, icon: PaneIcon?)) -> some View {

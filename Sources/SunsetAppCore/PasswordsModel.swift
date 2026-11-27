@@ -3,6 +3,7 @@ import LocalAuthentication
 package import Observation
 package import SunsetCredentials
 package import SunsetRuntime
+package import SunsetWeb
 
 /// What the Library's Passwords section shows and does (roadmap 0091 E, ADR-0116): the person's vault, at `path`. No
 /// vault: it is set up (a master password typed twice, Touch ID first when this Mac has it, the recovery code shown once).
@@ -42,6 +43,23 @@ package final class PasswordsModel {
     /// The recovery code of the vault just made, until the person says they kept it (t333: the window that showed it was
     /// seen closing by itself, and the code, shown once, was lost). In memory only.
     package private(set) var unkeptCode: RecoveryCode?
+
+    /// Whether focusing a field of `role` may offer to unlock a locked vault (`passwords.offerUnlock`):
+    /// only when credentials are enabled, the vault exists and is locked, `offerUnlock` is on, the page is not private,
+    /// and the field is a username/email, password, or one-time code field.
+    package static func offersUnlock(
+        enabled: Bool,
+        state: State,
+        offerSetting: Bool,
+        isPrivate: Bool,
+        role: LoginField.Role
+    ) -> Bool {
+        guard enabled, state == .locked, offerSetting, !isPrivate else { return false }
+        return switch role {
+            case .username, .password, .oneTimeCode: true
+            case .newPassword, .card, .identity: false
+        }
+    }
 
     package init(path: String, cost: MasterPassword.Cost = .standard, runtime: Runtime, locks: VaultLocks = .shared) {
         self.path = path

@@ -17,7 +17,9 @@ asked.
 ## Decision
 
 - **What a card shows** is read per page from Sunset's content world (`navigator.mediaSession.metadata`, the media
-  elements), never from the process-wide session, and never by a script in the page's world (ADR-0089).
+  elements), never from the process-wide session, and never by a script in the page's world (ADR-0089). Short UI or
+  notification chimes (audio under 5 seconds without `MediaSession` metadata, or Web Audio bursts under 3 seconds) are
+  ignored, and a card with no paused track is removed as soon as sound stops.
 - **Play, pause** go through WebKit's session calls, so the page's own handlers run; **mute** is the page's.
 - **Previous and next** pause and play the card's media from Sunset's world, which makes the page the system's now
   playing again, then send the command through MediaRemote. Chosen by the owner, with the gap of a moment it makes.

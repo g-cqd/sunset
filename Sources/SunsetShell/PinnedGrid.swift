@@ -13,9 +13,8 @@ struct PinnedGrid: View {
     let tabs: TabsModel
     let layout: ShellSettings.Layout
     @State private var targeted = false
-    /// The tile a drag is over, and on which side of it it would land. The tile a drag is over, and whether it would
-    /// land after it.
-    @State private var tileDrop: (owner: Int, place: Bool)?
+    /// The tile a drag is over, and how a drop on it would land (before, after, or split left/right).
+    @State private var tileDrop: (owner: Favorites.NodeID, place: TabDropAction)?
     @State private var tileWidths: [Favorites.NodeID: Double] = [:]
     @Environment(\.accent) private var accent
 
@@ -28,17 +27,25 @@ struct PinnedGrid: View {
         let entries = tabs.pinnedEntries
         if !entries.isEmpty || takesDrag {
             PinnedTiles(gap: layout.tabSpacing) {
-                ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+                ForEach(entries) { entry in
                     tile(entry)
                         .onGeometryChange(for: Double.self, of: { Double($0.size.width) }) { tileWidths[entry.id] = $0 }
-                        .overlay(alignment: tileDrop?.place == true ? .trailing : .leading) {
-                            if tileDrop?.owner == index { dropMark }
+                        .overlay {
+                            DropVeil<RoundedRectangle>
+                                .entryOverlay(
+                                    id: entry.id,
+                                    active: tileDrop,
+                                    cornerRadius: layout.tabRadius,
+                                    accent: accent.color,
+                                    vertical: false,
+                                    gapOffset: layout.tabSpacing / 2
+                                )
                         }
                         .onDrop(
                             of: [.plainText, .utf8PlainText],
                             delegate: PinnedTileDropDelegate.make(
                                 tabs: tabs,
-                                index: index,
+                                entry: entry.id,
                                 width: tileWidths[entry.id] ?? PinnedLayout.widths.lowerBound,
                                 active: $tileDrop
                             )
@@ -77,16 +84,6 @@ struct PinnedGrid: View {
             .accessibilityElement(children: .contain)
             .accessibilityLabel("Pinned")
         }
-    }
-
-    /// Where a dragged tile or tab would land: a line at the side of the tile, in the gap between two.
-    private var dropMark: some View {
-        Capsule()
-            .fill(accent.color)
-            .frame(width: Design.Space.hair)
-            .padding(.vertical, Design.Space.xs)
-            .offset(x: (tileDrop?.place == true ? 1 : -1) * layout.tabSpacing / 2)
-            .allowsHitTesting(false)
     }
 
     private func tile(_ entry: Favorites.Entry) -> some View {

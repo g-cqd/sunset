@@ -5,13 +5,19 @@ import SunsetRuntime
 package import SunsetWebModel
 
 /// What plays in Sunset's pages, for the Now Playing cards (roadmap 0114, ADR-0115): each page reports itself when it
-/// starts or stops playing, changes its title, or goes; a card's actions go back to its page.
+/// starts or stops playing, changes its title, or goes; a card's actions go back to its page. Short notification chimes
+/// (such as Slack's Web Audio or < 5 s `<audio>` beeps without a MediaSession) do not create or leave permanent cards.
 @MainActor @Observable
 package final class NowPlaying {
     package static let shared = NowPlaying()
+    /// Grace period before sound without a DOM media element or `MediaSession` (e.g. sub-frame / Web Audio stream) is
+    /// promoted to a Now Playing card, filtering out transient notification chimes.
+    static let sustainedSoundThreshold: Duration = .seconds(3)
 
     package private(set) var stack = MediaStack()
     @ObservationIgnored private var pages: [MediaPage.ID: Weak] = [:]
+    @ObservationIgnored private var soundGateTasks: [MediaPage.ID: Task<Void, Never>] = [:]
+    @ObservationIgnored private var sustainedSoundIDs: Set<MediaPage.ID> = []
     /// Shows a page's tab, in its Space and window (the app's): a card's Go There, and picture in picture's way back.
     @ObservationIgnored package var goThere: @MainActor (WebContent) -> Void = { _ in }
 
@@ -26,12 +32,30 @@ package final class NowPlaying {
         pages[id]?.page
     }
 
-    /// Reads `page` again and updates its card: a page that never played has none.
+    /// Reads `page` again and updates its card: a page that never played has none, and transient chimes are ignored or
+    /// cleared as soon as sound stops.
     func report(_ page: WebContent) async {
+        if !page.playsSound {
+            soundGateTasks[page.mediaID]?.cancel()
+            soundGateTasks[page.mediaID] = nil
+            sustainedSoundIDs.remove(page.mediaID)
+        }
         guard let view = page.webView, let media = await MediaReading.read(view) else { return }
-        // Played to its end: its card goes (n131).
-        if media.ended, !media.playing, !page.playsSound {
-            stack.remove(page.mediaID)
+        // Played to its end, or sound stopped with no paused media track to resume (e.g. Web Audio / iframe / short sound):
+        // remove any card instead of leaving a stuck card behind.
+        if !media.playing, !page.playsSound {
+            if media.ended || !media.pausedTrack {
+                pages[page.mediaID] = nil
+                stack.remove(page.mediaID)
+                return
+            }
+        }
+        // Sound is playing without a substantial main-frame media element or MediaSession metadata: wait for the grace
+        // period before creating a card so notification dings (Slack) never open Now Playing.
+        let activelyPlayingMedia =
+            media.playing || (page.playsSound && (media.hasSession || sustainedSoundIDs.contains(page.mediaID)))
+        if page.playsSound, !activelyPlayingMedia, stack.pages.first(where: { $0.id == page.mediaID }) == nil {
+            armSustainedSoundCheck(for: page)
             return
         }
         let host = page.url?.host() ?? ""
@@ -42,7 +66,7 @@ package final class NowPlaying {
             host: host,
             artwork: media.artwork,
             hasVideo: media.video,
-            isPlaying: media.playing || page.playsSound,
+            isPlaying: activelyPlayingMedia,
             isMuted: page.isMuted
         )
         card.canSeek = media.seekable
@@ -50,8 +74,25 @@ package final class NowPlaying {
         stack.update(card)
     }
 
+    private func armSustainedSoundCheck(for page: WebContent) {
+        let id = page.mediaID
+        guard soundGateTasks[id] == nil else { return }
+        let runtime = page.runtime
+        soundGateTasks[id] = runtime.task { @MainActor [weak self, weak page] in
+            await runtime.sleep(for: Self.sustainedSoundThreshold)
+            guard !Task.isCancelled, let self else { return }
+            self.soundGateTasks[id] = nil
+            guard let page, page.playsSound else { return }
+            self.sustainedSoundIDs.insert(id)
+            await self.report(page)
+        }
+    }
+
     /// The page went: its card goes.
     func gone(_ page: WebContent) {
+        soundGateTasks[page.mediaID]?.cancel()
+        soundGateTasks[page.mediaID] = nil
+        sustainedSoundIDs.remove(page.mediaID)
         pages[page.mediaID] = nil
         stack.remove(page.mediaID)
     }
@@ -60,7 +101,6 @@ package final class NowPlaying {
     package func togglePlaying(_ id: MediaPage.ID) async {
         guard let page = page(id), let view = page.webView else { return }
         if stack.pages.first(where: { $0.id == id })?.isPlaying == true {
-            // The page's own handler first; a page whose handler does not pause is paused by WebKit.
             await WebNowPlaying.pause(view)
             if await MediaReading.read(view)?.playing == true { await MediaReading.pause(view) }
         } else {
@@ -93,7 +133,6 @@ package final class NowPlaying {
     package func pictureInPicture(_ id: MediaPage.ID) {
         guard let page = page(id), let view = page.webView else { return }
         if WebNowPlaying.togglePictureInPicture(view) { return }
-        // In the frame that plays a video when one does (a player in a frame of its own), else the page.
         let frame = page.videoFrame
         runtimeTask { await MediaReading.pictureInPicture(view, in: frame) }
     }

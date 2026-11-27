@@ -31,18 +31,45 @@ extension AppWebNotifications {
         runtime.task { await TerminalModel.show(title: title, subtitle: subtitle, body: body, identifier: identifier) }
     }
 
-    /// Shows the tab that holds `content` in front: in a window that holds it, else in a window of the app's Spaces that
-    /// goes to its Space first.
+    /// Shows the tab that holds `content` in front: in a window that holds it, in a pop-up window when it is one, else in a
+    /// window of the app's Spaces that goes to its Space first (opening one when no window is open).
     func reveal(_ content: any PaneContent) {
+        if let popup = PopupWindowStore.shared.popups.values.first(where: { $0.page === content }),
+            let window = popup.window
+        {
+            activateAndBringFront(window)
+            return
+        }
         let windows = TabRegistry.shared.allWindows()
-        var found = windows.first { $0.tabs.reveal(content) }
-        if found == nil, let space = AppSpaces.all.space(holding: content),
+        let space = AppSpaces.all.space(holding: content)
+        // Prefer a window already on the content's Space before revealing in another Space that shares a profile's Favorites/Pinned.
+        var found =
+            space.flatMap { target in windows.first { $0.tabs.space === target && $0.tabs.reveal(content) } }
+            ?? windows.first { $0.tabs.reveal(content) }
+        if found == nil, let space,
             let other = windows.first(where: { !$0.tabs.isPrivateWindow && AppSpaces.all.contains($0.tabs.space) })
         {
             other.tabs.show(space: space, in: AppSpaces.all)
             if other.tabs.reveal(content) { found = other }
         }
-        guard let (window, _) = found else { return }
+        if let (window, _) = found {
+            activateAndBringFront(window)
+            return
+        }
+        guard let space else { return }
+        AppActions.shared.openTerminalWindow()
+        runtime.task { @MainActor in
+            await self.runtime.yieldTurn()
+            guard let entry = TabRegistry.shared.allWindows().first(where: { !$0.tabs.isPrivateWindow }) else { return }
+            if entry.tabs.space !== space, AppSpaces.all.contains(entry.tabs.space) {
+                entry.tabs.show(space: space, in: AppSpaces.all)
+            }
+            if entry.tabs.reveal(content) { self.activateAndBringFront(entry.window) }
+        }
+    }
+
+    private func activateAndBringFront(_ window: NSWindow) {
+        if window.isMiniaturized { window.deminiaturize(nil) }
         NSApp.activate()
         TabRegistry.shared.select(window)
         window.makeKeyAndOrderFront(nil)

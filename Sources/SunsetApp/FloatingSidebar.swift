@@ -66,6 +66,7 @@ struct FloatingSidebar: View {
             panelRadius: radius,
             accessory: accessory
         )
+        .environment(\.sidebarPopoverHost, tabs)
         // The panel ends where the docked column does, and its tabs are as wide and as far from the edge as the docked ones: pinning moves
         // nothing. The Library's rail widens it.
         .frame(width: settings.sidebar.width - margin + library)

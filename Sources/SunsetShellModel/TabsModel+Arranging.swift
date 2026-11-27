@@ -24,8 +24,8 @@ extension TabsModel {
         change { $0.move(item: item, to: index) }
     }
     package func focus(_ pane: PaneID) {
-        if let entry = favorites.favorites.entry(containing: pane) {
-            favorites.edit { $0.focus(pane: pane) }
+        if let keeper = keeper(ofPane: pane), let entry = keeper.favorites.entry(containing: pane) {
+            keeper.edit { $0.focus(pane: pane) }
             showEntry(entry.id)
         } else {
             change { $0.focus(pane: pane) }

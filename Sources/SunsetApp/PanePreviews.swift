@@ -19,6 +19,5 @@ struct PanePreviews: View {
                     .offset(x: area.minX - here.minX, y: area.minY - here.minY)
             }
         }
-        .allowsHitTesting(false)
     }
 }

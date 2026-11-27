@@ -8,12 +8,25 @@ public enum SafariParity {
     @MainActor
     public static func turnOn(on preferences: NSObject) {
         for key in [
-            #Interned("RequestIdleCallbackEnabled"), #Interned("MediaSessionCoordinatorEnabled"),
-            #Interned("MediaSessionPlaylistEnabled"),
+            "RequestIdleCallbackEnabled",
+            "MediaSessionCoordinatorEnabled",
+            "MediaSessionPlaylistEnabled",
             // `VideoPlaybackQuality.displayCompositedVideoFrames` (2026-11-20).
-            #Interned("VideoQualityIncludesDisplayCompositingEnabled")
+            "VideoQualityIncludesDisplayCompositingEnabled",
+            "ContextMenuQRCodeDetectionEnabled"
         ] {
             WebFeature.set(key, enabled: true, on: preferences)
         }
+        PrivateSetter.set(#Interned("_setServiceControlsEnabled:"), to: true, on: preferences)
+        PrivateSetter.set(#Interned("_setFullScreenEnabled:"), to: true, on: preferences)
+    }
+
+    /// Enables WebKit's image controls / Live Text / QR detection on `configuration` when WebKit supports them, so
+    /// image and page context menus include Copy Subject, Look Up (Visual Look Up), QR actions, and Services.
+    @MainActor
+    public static func configure(_ configuration: NSObject) {
+        PrivateSetter.set(#Interned("_setImageControlsEnabled:"), to: true, on: configuration)
+        PrivateSetter.set(#Interned("_setSystemTextExtractionEnabled:"), to: true, on: configuration)
+        PrivateSetter.set(#Interned("_setContextMenuQRCodeDetectionEnabled:"), to: true, on: configuration)
     }
 }

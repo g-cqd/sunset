@@ -16,21 +16,60 @@ extension TabsModel {
     /// (`choice`).
     package func canDrop(onto pane: PaneID) -> Bool {
         adoptDrag()
+        let inKeptEntry = keeper(ofPane: pane)?.favorites.entry(containing: pane)
         return switch dragged {
-            case .item(let id): workspace.item(containing: pane)?.id != id || workspace.count > 1
+            case .item(let id):
+                if inKeptEntry != nil {
+                    true
+                } else {
+                    workspace.item(containing: pane)?.id != id || workspace.count > 1
+                }
             case .pane(let id): id != pane
             case .document: true
-            // A favorite splits with a pane; a pinned tab does not.
-            case .entry(let id): !isPinned(id)
+            // When `pane` belongs to a kept entry (Favorite or Pinned), another kept entry splits into it in place.
+            // When `pane` belongs to Today's tabs, a favorite splits with it, while a pinned tab does not.
+            case .entry(let id):
+                if let target = inKeptEntry { target.id != id } else { !isPinned(id) }
             case nil: false
         }
     }
 
-    /// Drops what is dragged on `edge` of a pane (the tab joins that pane's tab, or the pane moves beside it).
+    /// Drops what is dragged on `edge` of a pane (the tab joins that pane's tab or kept entry, or the pane moves beside it).
     @discardableResult
     package func dropDragged(onto pane: PaneID, edge: PaneEdge) -> Bool {
         guard canDrop(onto: pane) else { return false }
         bringDraggedHere()
+        // If `pane` is inside an open Favorite or Pinned entry, split in place inside that entry instead of releasing to Today!
+        if let targetModel = keeper(ofPane: pane), let targetEntry = targetModel.favorites.entry(containing: pane) {
+            if case .pane(let draggedPane) = dragged, targetEntry.open?.panes.contains(draggedPane) == true {
+                guard let content = targetModel.separate(pane: draggedPane) else { return false }
+                dragged = nil
+                guard
+                    targetModel.insertLayout(
+                        .pane(draggedPane),
+                        focused: draggedPane,
+                        beside: pane,
+                        edge: edge,
+                        contents: [draggedPane: content]
+                    )
+                else { return false }
+                showEntry(targetEntry.id)
+                return true
+            }
+            guard let extracted = takeDraggedForEntrySplit(excluding: targetEntry.id) else { return false }
+            dragged = nil
+            guard
+                targetModel.insertLayout(
+                    extracted.layout,
+                    focused: extracted.focused,
+                    beside: pane,
+                    edge: edge,
+                    contents: extracted.contents
+                )
+            else { return false }
+            showEntry(targetEntry.id)
+            return true
+        }
         takeDocumentDrag()
         guard var drag = dragged else { return false }
         dragged = nil

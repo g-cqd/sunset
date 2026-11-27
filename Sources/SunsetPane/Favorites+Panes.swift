@@ -20,6 +20,25 @@ extension Favorites {
         return pane
     }
 
+    /// Inserts `layout` on `edge` of `target`, in the open entry that holds `target`, focusing `focused`. False when no
+    /// open entry holds `target` or when `layout` shares a pane with the entry already.
+    @discardableResult
+    public mutating func insertLayout(
+        _ layout: SplitLayout,
+        focused: PaneID,
+        beside target: PaneID,
+        edge: PaneEdge
+    ) -> Bool {
+        guard let id = entry(containing: target)?.id, let existing = entry(id)?.open,
+            Set(existing.panes).isDisjoint(with: layout.panes)
+        else { return false }
+        updateEntry(id) { entry in
+            entry.open?.insert(layout, beside: target, edge: edge)
+            entry.open?.focused = focused
+        }
+        return true
+    }
+
     /// Closes one pane of an open entry. With its only pane the entry is unloaded, and kept: true then.
     @discardableResult
     public mutating func close(pane: PaneID) -> Bool {

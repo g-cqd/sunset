@@ -54,34 +54,6 @@ struct FavoritesSection: View {
         FavoritesLine(tabs: tabs, layout: layout, visible: tabs.linesShown.afterFavorites)
     }
 
-    /// Where a drop on the row a drag is over lands: an insertion line at its top or bottom, or the half of it a split would
-    /// take, as on a tab's row.
-    @ViewBuilder private func dropMark(_ id: Favorites.NodeID) -> some View {
-        if let drop, drop.owner == id {
-            switch drop.place {
-                case .split(let edge):
-                    GeometryReader { proxy in
-                        let half = proxy.size.width / 2
-                        DropVeil(shape: RoundedRectangle(cornerRadius: layout.tabRadius, style: .continuous))
-                            .frame(width: half, height: proxy.size.height)
-                            .offset(x: edge == .right ? half : 0)
-                    }
-                    .allowsHitTesting(false)
-                case .moveBefore, .moveAfter:
-                    // In the gap beside the row, where a drop there would land, not on the row's edge.
-                    let after = drop.place == .moveAfter
-                    VStack {
-                        if after { Spacer(minLength: 0) }
-                        Capsule().fill(accent.color).frame(height: Design.Space.hair)
-                            .padding(.horizontal, Design.Space.xs)
-                        if !after { Spacer(minLength: 0) }
-                    }
-                    .padding(.vertical, -layout.gapMarkOutset)
-                    .allowsHitTesting(false)
-            }
-        }
-    }
-
     private func entryRow(_ entry: Favorites.Entry) -> some View {
         entryLook(entry)
             .overlay(alignment: .topLeading) {
@@ -97,7 +69,17 @@ struct FavoritesSection: View {
             .awayDot(tabs.isAway(entry: entry), iconCentre: layout.tabPaddingLeading + Design.Size.glyphFrame / 2)
             .onGeometryChange(for: CGSize.self, of: \.size) { sizes[entry.id] = $0 }
             .hoverPreview(tabs, entry: entry.id)
-            .overlay { dropMark(entry.id) }
+            .overlay {
+                DropVeil<RoundedRectangle>
+                    .entryOverlay(
+                        id: entry.id,
+                        active: drop,
+                        cornerRadius: layout.tabRadius,
+                        accent: accent.color,
+                        vertical: true,
+                        gapOffset: layout.gapMarkOutset
+                    )
+            }
             .rowDragAndDrop(tabs, row: .node(entry.id), owner: entry.id, size: sizes[entry.id], active: $drop)
             .inkedContextMenu { entryMenu(entry) }
     }

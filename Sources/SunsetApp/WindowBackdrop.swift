@@ -73,17 +73,24 @@ final class WindowBackdrop {
         }
     }
 
-    /// A backdrop layer of its own radius over the material, under the tint and the content, as the sidebar has.
-    private func installBlur(_ radius: Double, in window: NSWindow) {
-        guard let frame = window.contentView?.superview, let backdrop,
-            let layer = BackdropBlur.makeLayer(radius: radius)
-        else { return }
-        let view = NSView(frame: frame.bounds)
+    /// A full-bounds `NSView` hosting a `BackdropBlur` layer for `WindowBackdrop` and `SidebarBackdropView`.
+    @MainActor
+    static func makeBlurHostView(in bounds: NSRect, radius: Double, withinWindow: Bool = false) -> NSView? {
+        guard let layer = BackdropBlur.makeLayer(radius: radius, withinWindow: withinWindow) else { return nil }
+        let view = NSView(frame: bounds)
         view.autoresizingMask = [.width, .height]
         view.wantsLayer = true
         layer.frame = view.bounds
         layer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
         view.layer?.addSublayer(layer)
+        return view
+    }
+
+    /// A backdrop layer of its own radius over the material, under the tint and the content, as the sidebar has.
+    private func installBlur(_ radius: Double, in window: NSWindow) {
+        guard let frame = window.contentView?.superview, let backdrop,
+            let view = Self.makeBlurHostView(in: frame.bounds, radius: radius)
+        else { return }
         frame.addSubview(view, positioned: .above, relativeTo: backdrop)
         blurView = view
     }

@@ -7,6 +7,7 @@ import WebKit
 /// clicked. Closed when it loses the keyboard or on Escape.
 @MainActor final class ExtensionPopupPanel: NSPanel {
     private static var shown: ExtensionPopupPanel?
+    static var isShowingPopup = false
     private let action: WKWebExtension.Action
     private var sizeWatch: NSKeyValueObservation?
     private weak var anchor: NSView?
@@ -16,6 +17,7 @@ import WebKit
         guard let content = action.popupPopover?.contentViewController, anchor.window != nil else { return }
         let panel = ExtensionPopupPanel(action: action, content: content, anchor: anchor)
         shown = panel
+        isShowingPopup = true
         panel.place(size: content.preferredContentSize)
         panel.makeKeyAndOrderFront(nil)
     }
@@ -83,7 +85,10 @@ import WebKit
     override func close() {
         sizeWatch = nil
         action.closePopup()
-        if Self.shown === self { Self.shown = nil }
+        if Self.shown === self {
+            Self.shown = nil
+            Self.isShowingPopup = false
+        }
         super.close()
     }
 }

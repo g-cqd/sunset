@@ -8,11 +8,10 @@ import SunsetSiteData
 import SunsetWeb
 import SwiftUI
 
-/// Filling and saving in pages (roadmap 0094, ADR-0094), as quiet as macOS's own AutoFill: when a sign-in field takes the
-/// keyboard and the vault has logins for the page's site, a small popover under the field lists them, and never takes
-/// the keyboard; one chosen fills the form. A password sent that the vault does not have is offered to save in a small
-/// popover at the page's top. Either goes when clicked away. Nothing while Passwords is off or the vault locked, in a
-/// private window, or on a page that is not http or https.
+/// Filling and saving in pages (roadmap 0094, ADR-0094), in a borderless panel with concentric corners: when a sign-in,
+/// email or one-time code field takes the keyboard and the vault has logins for the page's site, the panel under the
+/// field lists them without taking keyboard focus; when the vault is locked and `passwords.offerUnlock` is on, it offers
+/// an inline unlock row and immediately shows matching entries once unlocked.
 @MainActor
 final class AppPasswordFill: PasswordFillHost {
     static let shared = AppPasswordFill()
@@ -26,8 +25,12 @@ final class AppPasswordFill: PasswordFillHost {
         AppPasswords.model
     }
 
+    private var isEnabled: Bool {
+        AppConfiguration.shared.configuration.features.credentials
+    }
+
     private var isOn: Bool {
-        AppConfiguration.shared.configuration.features.credentials && model.state == .unlocked
+        isEnabled && model.state == .unlocked
     }
 
     /// A host's site (`LoginSite`), by the Public Suffix List.
@@ -43,14 +46,34 @@ final class AppPasswordFill: PasswordFillHost {
     }
 
     func loginField(focused field: LoginField, in page: WebContent) {
-        guard isOn, let view = page.webView else { return popover.close() }
+        guard let view = page.webView else { return popover.close() }
+        let config = AppConfiguration.shared.configuration
+        if PasswordsModel.offersUnlock(
+            enabled: config.features.credentials,
+            state: model.state,
+            offerSetting: config.passwords.offerUnlock,
+            isPrivate: page.isPrivate,
+            role: field.role
+        ) {
+            let unlockView = VaultUnlockOffer(
+                model: model,
+                requestKeyFocus: { [weak self] in self?.popover.makeKey() },
+                unlocked: { [weak self, weak page] in
+                    guard let self, let page else { return }
+                    self.popover.close()
+                    self.loginField(focused: field, in: page)
+                }
+            )
+            popover.show(unlockView, at: field.frame, of: view, edge: .maxY, suggestions: true)
+            return
+        }
+        guard isOn else { return popover.close() }
         let content: AnyView? =
             switch field.role {
                 case .newPassword: newPassword(for: field, in: page)
                 case .oneTimeCode: codes(for: field, in: page)
                 case .card: cards(for: field, in: page)
                 case .identity: identities(for: field, in: page)
-                // A sign-in form's field: the site's logins; the one clicked fills the form.
                 case .username, .password:
                     shown(LoginMatch.offered(model.entries, for: field.origin, site: Self.site)) { logins in
                         PasswordSuggestions(logins: logins, isInsecureOrigin: Self.isInsecure(field.origin)) {
@@ -90,15 +113,12 @@ final class AppPasswordFill: PasswordFillHost {
             PasswordSaveOffer(site: site, username: login.username, isUpdate: offer != .save) { [weak self] answer in
                 self?.answer(answer, offer: offer, sent: sent, site: site)
             },
-            // At the password field sent, as the suggestions are at theirs; the page's top when it is not known.
             at: login.frame.isEmpty ? CGRect(x: view.bounds.midX, y: 0, width: 1, height: 1) : login.frame,
             of: view,
             edge: .maxY
         )
     }
 
-    /// A sign-up form's password field: a strong password made for the page (its rules, else its site's), filled into
-    /// the password and its confirmation when clicked; saved after the form is sent.
     private func newPassword(for field: LoginField, in page: WebContent) -> AnyView? {
         let site = field.origin.host().flatMap { (try? PasswordManagerResources.bundled())?.passwordRules(for: $0) }
         let password = NewPassword.make(rules: NewPassword.rules(page: field.rules, site: site))
@@ -109,8 +129,6 @@ final class AppPasswordFill: PasswordFillHost {
         )
     }
 
-    /// A one-time code's field: the codes of the site's entries that have one; the one clicked is filled as it is then.
-    /// For HOTP entries, advances and saves the persisted counter immediately after filling (roadmap 0093 E / t102).
     private func codes(for field: LoginField, in page: WebContent) -> AnyView? {
         shown(CodeOffer.offered(model.entries, for: field.origin, site: Self.site)) { offers in
             CodeSuggestions(offers: offers) { [weak self] offer in
@@ -130,8 +148,6 @@ final class AppPasswordFill: PasswordFillHost {
         try? model.save(updated)
     }
 
-    /// A card's field: the vault's cards; the one clicked is filled once the person has said it is them (Touch ID or the
-    /// Mac's password, as Safari asks for a card), its security code with it (ADR-0094).
     private func cards(for field: LoginField, in page: WebContent) -> AnyView? {
         suggest(CardOffer.offered(model.entries), symbol: "creditcard.fill", entry: \.entry) { offer in
             "\u{2022}\u{2022}\u{2022}\u{2022} \(offer.lastFour)"
@@ -146,15 +162,12 @@ final class AppPasswordFill: PasswordFillHost {
         }
     }
 
-    /// A contact or address field: the vault's identities; the one clicked fills the form's contact and address fields.
-    /// No Touch ID: what an identity holds is what the person gives every shop (Safari's contact AutoFill asks none).
     private func identities(for field: LoginField, in page: WebContent) -> AnyView? {
         suggest(IdentityOffer.offered(model.entries), symbol: "person.crop.circle.fill", entry: \.entry, \.detail) {
             offer in _ = await page.fillIdentity(offer.values, for: field.origin)
         }
     }
 
-    /// `offers` as rows (`EntrySuggestions`), none when there are none; the one clicked closes the popover and `fill`s.
     private func suggest<Offer>(
         _ offers: [Offer],
         symbol: String,
@@ -171,7 +184,6 @@ final class AppPasswordFill: PasswordFillHost {
         }
     }
 
-    /// The person at the Mac says it is them: Touch ID, else its password.
     static func isOwner(reason: String) async -> Bool {
         (try? await LAContext().evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)) ?? false
     }
@@ -181,12 +193,10 @@ final class AppPasswordFill: PasswordFillHost {
         filling { _ = await page.fill(username: credentials.username, password: credentials.password, for: origin) }
     }
 
-    /// `content` of `items`; none when there are none.
     private func shown<Item>(_ items: [Item], _ content: ([Item]) -> some View) -> AnyView? {
         items.isEmpty ? nil : AnyView(content(items))
     }
 
-    /// What a click on a suggestion does: the popover goes, then the page is filled.
     private func filling(_ work: @escaping @MainActor () async -> Void) {
         popover.close()
         Runtime.live.task { @MainActor in await work() }

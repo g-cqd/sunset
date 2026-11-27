@@ -8,8 +8,7 @@ public enum WebDeveloperExtras {
     public static func set(_ enabled: Bool, on preferences: NSObject) {
         // WebKit's accessors carry an underscore (`_setDeveloperExtrasEnabled:`); key-value coding finds them under the plain
         // key. Checked for the plain getter, the preference was never set (no Inspect Element).
-        let key = #Interned("developerExtrasEnabled")
         guard preferences.responds(to: NSSelectorFromString(#Interned("_setDeveloperExtrasEnabled:"))) else { return }
-        preferences.setValue(enabled, forKey: key)
+        preferences.setValue(enabled, forKey: "developerExtrasEnabled")
     }
 }

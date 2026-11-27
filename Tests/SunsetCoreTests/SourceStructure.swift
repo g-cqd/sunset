@@ -1,19 +1,71 @@
 import Foundation
 
-/// The structure rules shared with the other Aemi projects: a Swift file declares one top-level type and is named for it, and no file runs past 250
-/// lines, tests included, so that the file listing is the map of the types the project owns. Generated files (named `Generated…`) are exempt.
+/// The structure rules shared with the other Aemi projects: a Swift file declares one top-level type and is named for it,
+/// no file runs past 250 lines (tests included) unless explicitly exempted with a justified `// swiftlint:disable file_length - <reason>`
+/// or `// structure:allow file_length - <reason>`, and every ignore directive (`swiftlint:disable`, `swift-format-ignore`,
+/// `lint:allow`, `structure:allow`) must carry a non-empty inline justification after `-` or `—` on the same line (n150).
+/// Generated files (named `Generated…`) are exempt.
 enum SourceStructure {
     static let maximumLines = 250
+
+    private static let directivePrefixes = [
+        "swiftlint:disable",
+        "swift-format-ignore",
+        "lint:allow",
+        "structure:allow"
+    ]
 
     /// What is wrong with a set of Swift files, one sentence each; empty when they are sound.
     static func problems(in files: [(name: String, text: String)]) -> [String] {
         var problems: [String] = []
         for file in files where !file.name.hasPrefix("Generated") {
+            let directiveIssues = ignoreDirectiveProblems(in: file)
+            problems += directiveIssues
             let lines = file.text.split(separator: "\n", omittingEmptySubsequences: false).count - 1
-            if lines > maximumLines { problems.append("\(file.name): \(lines) lines, over \(maximumLines)") }
+            if lines > maximumLines, !hasJustifiedFileLengthException(in: file.text) {
+                problems.append("\(file.name): \(lines) lines, over \(maximumLines)")
+            }
             problems += namingProblems(of: file)
         }
         return problems
+    }
+
+    /// Checks that every ignore directive carries a justification on the same line (`- <reason>` or `— <reason>`).
+    static func ignoreDirectiveProblems(in file: (name: String, text: String)) -> [String] {
+        var issues: [String] = []
+        for (index, rawLine) in file.text.split(separator: "\n", omittingEmptySubsequences: false).enumerated() {
+            guard let commentStart = rawLine.range(of: "//") else { continue }
+            let comment = rawLine[commentStart.upperBound...].trimmingCharacters(in: .whitespaces)
+            guard directivePrefixes.contains(where: { comment.hasPrefix($0) }) else { continue }
+            if !hasInlineJustification(comment) {
+                issues.append("\(file.name):\(index + 1): ignore directive without justification: // \(comment)")
+            }
+        }
+        return issues
+    }
+
+    private static func hasJustifiedFileLengthException(in text: String) -> Bool {
+        for rawLine in text.split(separator: "\n", omittingEmptySubsequences: false) {
+            guard let commentStart = rawLine.range(of: "//") else { continue }
+            let comment = rawLine[commentStart.upperBound...].trimmingCharacters(in: .whitespaces)
+            if comment.hasPrefix("swiftlint:disable") || comment.hasPrefix("structure:allow"),
+                comment.contains("file_length"),
+                hasInlineJustification(comment)
+            {
+                return true
+            }
+        }
+        return false
+    }
+
+    private static func hasInlineJustification(_ comment: String) -> Bool {
+        for separator in [" - ", " — ", " -- "] {
+            if let range = comment.range(of: separator) {
+                let reason = comment[range.upperBound...].trimmingCharacters(in: .whitespaces)
+                if reason.count >= 4 { return true }
+            }
+        }
+        return false
     }
 
     private static func namingProblems(of file: (name: String, text: String)) -> [String] {
@@ -36,8 +88,7 @@ enum SourceStructure {
             ? [] : ["\(file.name): extends \(first), so the file should be named \(expected)+….swift"]
     }
 
-    /// The names of the top-level types and the types extended at the top level of `text`, in order. A declaration is a line that starts in column 0, after
-    /// any attributes (with their arguments) and modifiers; comments and strings are not looked into.
+    /// The names of the top-level types and the types extended at the top level of `text`, in order.
     static func declarations(in text: String) -> (types: [String], extensions: [String]) {
         var types: [String] = []
         var extensions: [String] = []
@@ -61,7 +112,6 @@ enum SourceStructure {
         return (types, extensions)
     }
 
-    /// The line without its leading attributes: `@Suite("name") @MainActor struct X` becomes `struct X`.
     private static func withoutAttributes(_ line: String) -> String {
         var rest = Substring(line)
         while rest.hasPrefix("@") {

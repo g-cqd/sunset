@@ -36,10 +36,24 @@ import Testing
         #expect(SourceStructure.problems(in: file("Mixed+More.swift", "extension A {}\nextension B {}\n")).count == 1)
     }
 
-    @Test func `a file over the line cap is reported, and one exactly at it is not`() {
+    @Test
+    func
+        `a file over the line cap is reported unless exempted with a justified directive; unjustified directives fail`()
+    {
         let at = "struct Long {}\n" + String(repeating: "// x\n", count: SourceStructure.maximumLines - 1)
         #expect(SourceStructure.problems(in: file("Long.swift", at)).isEmpty)
         #expect(SourceStructure.problems(in: file("Long.swift", at + "// x\n")).count == 1)
+
+        // Justified file_length exemption passes, while an unjustified one fails both directive & length checks.
+        let disable = "swiftlint:" + "disable"
+        let justified = "// \(disable) file_length - cohesive state machine\n" + at + "// x\n"
+        #expect(SourceStructure.problems(in: file("Long.swift", justified)).isEmpty)
+        let unjustified = "// \(disable) file_length\n" + at
+        #expect(SourceStructure.problems(in: file("Long.swift", unjustified)).count == 2)
+        let bareDisable = "struct Quiet {\n    // \(disable):next force_cast\n}\n"
+        #expect(SourceStructure.problems(in: file("Quiet.swift", bareDisable)).count == 1)
+        let justifiedDisable = "struct Quiet {\n    // \(disable):next force_cast - bridged ObjC type\n}\n"
+        #expect(SourceStructure.problems(in: file("Quiet.swift", justifiedDisable)).isEmpty)
     }
 
     @Test func `a generated file is exempt, and a type named in a comment is not a declaration`() {

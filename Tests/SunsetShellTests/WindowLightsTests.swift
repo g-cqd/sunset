@@ -149,4 +149,81 @@ struct WindowLightsTests {
         await settle()
         #expect(corners(window) == own)
     }
+
+    @Test
+    func
+        `when sharing a window, macOS's 66x20 sharing pill stays inside the window when docked, floating or collapsed`()
+        async throws
+    {
+        let window = window(width: 600)
+        defer { window.close() }
+        for button in buttons(window) { button.wantsLayer = true }
+        let lights = WindowLights(window: window)
+
+        // Attach AppKit's real NSLocalWindowSharingWindowController if available on this macOS version,
+        // and verify its 66x20 child window stays strictly inside `window.frame` across every sidebar state!
+        var sharingWindow: NSWindow?
+        var controller: NSWindowController?
+        if let cls = NSClassFromString("NSLocalWindowSharingWindowController") as? NSWindowController.Type,
+            cls.instancesRespond(to: NSSelectorFromString("initWithSharedWindow:"))
+        {
+            let alloc = cls.perform(NSSelectorFromString("alloc"))?.takeUnretainedValue()
+            if let made = alloc?.perform(NSSelectorFromString("initWithSharedWindow:"), with: window)?
+                .takeUnretainedValue() as? NSWindowController
+            {
+                controller = made
+                sharingWindow = made.window
+            }
+        }
+        _ = controller
+        lights.sharingOverride = true
+
+        func checkInside(_ label: String) {
+            let closeInWindow = buttons(window)[0].convert(buttons(window)[0].bounds, to: nil)
+            // Pill extends 3 pt left/bottom of closeButton, width 66, height 20:
+            let pillInWindow = CGRect(
+                x: closeInWindow.minX - 3,
+                y: closeInWindow.minY - 3,
+                width: 66,
+                height: 20
+            )
+            let bounds = CGRect(origin: .zero, size: window.frame.size)
+            #expect(bounds.contains(pillInWindow), "\(label): pill \(pillInWindow) outside \(bounds)")
+            if let sharingWindow {
+                #expect(
+                    window.frame.contains(sharingWindow.frame),
+                    "\(label): real NSLocalWindowSharingWindow \(sharingWindow.frame) outside \(window.frame)"
+                )
+            }
+        }
+
+        // 1. Right-side docked / floating shown (inset 8, top 8)
+        lights.placement = place(8, 8, fromRight: true, visible: true)
+        await settle()
+        checkInside("right docked/floating")
+
+        // 2. Right-side floating collapsed (visible: false — previously parked at -200!)
+        lights.placement = place(8, 8, fromRight: true, visible: false)
+        await settle()
+        checkInside("right floating collapsed")
+
+        // 3. Left-side docked / floating with tight padding (inset 4, top 4 — previously stuck out 3 pt!)
+        lights.placement = place(4, 4, fromRight: false, visible: true)
+        await settle()
+        checkInside("left tight inset")
+
+        // 4. Left-side floating collapsed (visible: false)
+        lights.placement = place(12, 12, fromRight: false, visible: false)
+        await settle()
+        checkInside("left floating collapsed")
+
+        // Ending sharing restores normal off-screen parking when collapsed!
+        let time = TestTime()
+        lights.runtime = time.runtime
+        let stopping = time.mark()
+        if let sharingWindow { window.removeChildWindow(sharingWindow) }
+        lights.sharingOverride = false
+        try await time.release(after: .milliseconds(200), since: stopping, count: buttons(window).count)
+        #expect(corners(window).allSatisfy { $0.x < 0 }, "unshared collapsed parks again: \(corners(window))")
+    }
 }

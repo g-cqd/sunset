@@ -2,6 +2,7 @@ import Foundation
 import SunsetCredentials
 import SunsetRuntime
 import SunsetTestSupport
+import SunsetWeb
 import Testing
 
 @testable import SunsetAppCore
@@ -76,5 +77,31 @@ struct PasswordsRulesTests {
         #expect(model.unkeptCode == code, "not lost by locking")
         model.codeKept()
         #expect(model.unkeptCode == nil)
+    }
+
+    @Test func `offerUnlock triggers only on username, password and oneTimeCode while locked and non-private`() {
+        func check(
+            enabled: Bool = true,
+            state: PasswordsModel.State = .locked,
+            offer: Bool = true,
+            privately: Bool = false,
+            role: LoginField.Role = .password
+        ) -> Bool {
+            PasswordsModel.offersUnlock(
+                enabled: enabled,
+                state: state,
+                offerSetting: offer,
+                isPrivate: privately,
+                role: role
+            )
+        }
+        for role in [LoginField.Role.username, .password, .oneTimeCode] {
+            #expect(check(role: role))
+        }
+        for role in [LoginField.Role.newPassword, .card, .identity] {
+            #expect(!check(role: role))
+        }
+        #expect(!check(state: .unlocked) && !check(state: .none))
+        #expect(!check(offer: false) && !check(privately: true) && !check(enabled: false))
     }
 }

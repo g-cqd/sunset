@@ -50,9 +50,10 @@ excluded:
   - "**/ADSQLBench/**"  # ADDB's SQL benchmark executable harness (scenario tables), like Benchmarks/ — not a shipped library
   - "**/Generated/**"   # machine-generated sources (e.g. ADHTML's DOM codegen) — not hand-authored, regenerate at the source
   - "**/GeneratedUnicodeTables.swift"  # generated Unicode tables (ADFoundation) — not hand-authored
+  - Package.swift       # SwiftPM package manifest listing every target in the workspace
 
 file_length:
-  warning: 300
+  warning: 250
   error: 500
   ignore_comment_only_lines: true
 

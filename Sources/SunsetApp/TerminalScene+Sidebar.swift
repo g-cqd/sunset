@@ -89,10 +89,23 @@ extension TerminalScene {
         }
     }
 
-    /// The floating sidebar's field is typed in as the docked one's is: out while the command bar is open in it, or while
-    /// it holds the page's address and that is asked for (Open Address, a new page) or typed in.
+    /// The floating sidebar's field is typed in as the docked one's is: out while the command bar is open in it, while any
+    /// sidebar popover or context menu is open, while the pointer hovers a tab/folder preview card, or while the sidebar's
+    /// address field is requested or typed in.
     var holdsFloatingSidebar: Bool {
-        if tabs.bar?.inSidebar == true { return true }
+        if tabs.bar?.inSidebar == true
+            || tabs.sidebarPopoverCount > 0
+            || tabs.hoveredPreview
+            || tabs.hoveredItem != nil
+            || tabs.hoveredFolder != nil
+            || tabs.iconRow != nil
+            || tabs.renamingRow != nil
+            || MenuTracking.shared.isOpen
+            || ExtensionHost.isShowingPopup
+        {
+            return true
+        }
+        if focusedPage?.showsSiteSettings == true { return true }
         guard addressPlace == .sidebar, let page = focusedPage else { return false }
         return page.wantsAddress || addressTyping.page === page
     }

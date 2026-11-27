@@ -1,19 +1,14 @@
 package import AppKit
 package import SunsetRuntime
 
-/// Keeps a window's three buttons (close, minimise, zoom) where Sunset wants them.
+/// Keeps a window's three buttons (close, minimise, zoom) where Sunset wants them, including during a macOS screen-sharing
+/// session where AppKit attaches a 66×20 `NSLocalWindowSharingWindow` pill anchored at `(closeButton.minX - 3, closeButton.minY - 3)`.
 ///
-/// They stay AppKit's own, in its title bar: they are moved within it, never taken out. AppKit lays its title bar out again
-/// whenever it sees fit (a resize, the window becoming key, full screen, the window shown while the screen is recorded) and
-/// puts each button back at its own place; so the buttons, their bar and its container are watched, and every time one of them
-/// moves the buttons are put back. Taken out of the title bar, as Sunset did before, AppKit took them back in and nothing
-/// noticed: they stayed at its place, the top left, whatever side the sidebar was on. The way of the Search browser by Office
-/// Commun (its `Lights.swift`, read for this; none of its code is here).
-///
-/// A button cannot be moved while it says that it moved: AppKit's `-[_NSThemeWidget setFrameOrigin:ignoreRentry:]` drops the
-/// call. Each button was so put back while the next one said it had moved, and the last, the zoom button, never: a new title
-/// left it at the top left. So a button that moves is put back again once AppKit is done: at once when it is the title that
-/// changed (the window's title is watched), else on the run loop's next turn, before anything is drawn.
+/// While `hasActiveWindowSharingSession` (or a sharing child window) is active:
+/// - hidden buttons (floating sidebar collapsed) are NOT parked at `-200`, keeping the sharing pill inside the window;
+/// - right-side buttons keep left-to-right order (`close` at the inner start of the 3-button slot instead of the outer edge)
+///   and clamp `inset` and `top` by the pill's 3 pt overhang (`minSharingMargin` = 10 pt) so the 66×20 pill stays cleanly
+///   inside the window bounds in docked, floating, and collapsed states.
 @MainActor
 package final class WindowLights {
     /// Where its tasks run, the clock it waits on, the time it reads; `.live` unless a test sets another.
@@ -45,49 +40,62 @@ package final class WindowLights {
             if placement != oldValue { place() }
         }
     }
-    /// From one button's left edge to the next's: AppKit's own, read once from its first layout. Read at each pass it could be
-    /// caught while AppKit was half way through moving them.
+    /// Override for tests when simulating a screen-sharing session without private window-server state; nil queries the window.
+    package var sharingOverride: Bool? {
+        didSet {
+            if sharingOverride != oldValue { place() }
+        }
+    }
+    /// From one button's left edge to the next's: AppKit's own, read once from its first layout.
     package let spacing: Double
     /// How many times something had moved and the buttons were put back (for tests and probes).
     package private(set) var placements = 0
     /// The buttons have been moved at least once: going back to AppKit's layout needs its title bar made again.
     package private(set) var hasPlaced = false
 
-    private weak var window: NSWindow?
+    weak var window: NSWindow?
     private var placing = false
     private var observers: [any NSObjectProtocol] = []
     private var watched: [ObjectIdentifier] = []
     private var viewObservers: [any NSObjectProtocol] = []
     private var titleObserver: NSKeyValueObservation?
+    var sharingContextToken: UnsafeMutableRawPointer?
     /// A pass is waiting for the run loop's next turn.
     private var pending = false
     private static let types: [NSWindow.ButtonType] = [.closeButton, .miniaturizeButton, .zoomButton]
-    /// Where a hidden button is parked: outside the window, with nothing to click.
+    /// Where a hidden button is parked when not sharing: outside the window, with nothing to click.
     private static let parked = -200.0
+    /// `NSLocalWindowSharingWindow` is 66×20 pt, extending 3 pt past `closeButton`'s left and top edges; 10 pt keeps ≥7 pt margin.
+    private static let minSharingMargin = 10.0
+    private static let sharingPillWidth = 66.0
 
     package init(window: NSWindow) {
         self.window = window
         let row = Self.types.prefix(2).compactMap { window.standardWindowButton($0) }
         let measured = row.count == 2 ? Double(row[1].frame.minX - row[0].frame.minX) : 0
         spacing = (16 ... 32).contains(measured) ? measured : Design.System.lightsPitch
+        // Watch both child-window additions/removals (AppKit attaches `NSLocalWindowSharingWindow` on screen-share)
+        // and any window-level appearance/occlusion updates so `place()` adapts immediately when sharing begins or ends.
         let names: [Notification.Name] = [
             NSWindow.didResizeNotification, NSWindow.didEndLiveResizeNotification, NSWindow.didBecomeKeyNotification,
             NSWindow.didResignKeyNotification, NSWindow.didBecomeMainNotification,
-            NSWindow.didExitFullScreenNotification, NSWindow.didChangeScreenNotification
+            NSWindow.didExitFullScreenNotification, NSWindow.didChangeScreenNotification,
+            NSWindow.didChangeOcclusionStateNotification
         ]
         observers = names.map { name in
             NotificationCenter.default.addObserver(forName: name, object: window, queue: nil) { [weak self] _ in
                 MainActor.assumeIsolated { self?.place() }
             }
         }
-        // Told when AppKit is done with a new title, its title bar tiled: every button can be moved then.
         titleObserver = window.observe(\.title) { [weak self] _, _ in
             MainActor.assumeIsolated { self?.place() }
         }
+        observeSharing(of: window)
     }
 
     isolated deinit {
         titleObserver?.invalidate()
+        stopObservingSharing()
         (observers + viewObservers).forEach { NotificationCenter.default.removeObserver($0) }
     }
 
@@ -95,8 +103,6 @@ package final class WindowLights {
         Self.types.compactMap { window?.standardWindowButton($0) }
     }
 
-    /// The buttons, their bar and its container are watched for any move: the surest sign that AppKit has just laid them out
-    /// again. Watched anew when they are not the views watched before (AppKit makes its title bar again at times).
     private func watch(_ views: [NSView]) {
         let ids = views.map(ObjectIdentifier.init)
         guard ids != watched else { return }
@@ -111,15 +117,13 @@ package final class WindowLights {
             ) { [weak self] _ in
                 MainActor.assumeIsolated {
                     self?.place()
-                    // The view that says it moved may not be moved now: once more when AppKit is done.
                     self?.placeLater()
                 }
             }
         }
     }
 
-    /// Another pass on the run loop's next turn, which comes before the window is drawn; one however many ask.
-    private func placeLater() {
+    func placeLater() {
         guard !pending else { return }
         pending = true
         RunLoop.main.perform(inModes: [.common]) { [weak self] in
@@ -130,9 +134,8 @@ package final class WindowLights {
         }
     }
 
-    /// Puts the buttons where `placement` says, when they are not there. Cheap when nothing moved: three comparisons.
+    /// Puts the buttons where `placement` says, keeping macOS's 66×20 sharing pill inside the window when shared.
     package func place() {
-        // Full screen keeps its title bar in a window of its own, laid out by macOS: it is left to it.
         guard !placing, let placement, let window, !window.styleMask.contains(.fullScreen) else { return }
         let buttons = self.buttons
         guard buttons.count == 3, let bar = buttons[0].superview, let container = bar.superview else { return }
@@ -140,9 +143,12 @@ package final class WindowLights {
         defer { placing = false }
         watch([container, bar] + buttons)
         var moved = false
-        // A title bar tall enough for the buttons to sit as low as asked; never shorter than AppKit made it.
+        let sharing = isSharingWindow
+        let effectiveVisible = placement.visible || sharing
         let size = buttons[0].frame.size
-        let top = placement.centred ? placement.top - size.height / 2 : placement.top
+        let rawTop = placement.centred ? placement.top - size.height / 2 : placement.top
+        let top = sharing ? max(rawTop, Self.minSharingMargin) : rawTop
+        let inset = sharing ? max(placement.inset, Self.minSharingMargin) : placement.inset
         let needed = top + size.height + max(top, 0)
         if container.frame.height < needed {
             var frame = container.frame
@@ -151,11 +157,22 @@ package final class WindowLights {
             container.frame = frame
             moved = true
         }
+        // When sharing on the right side, `NSLocalWindowSharingWindow` extends 63 pt to the right of `closeButton.minX`
+        // (total pill width 66 pt, starting at `closeButton.minX - 3`). Placing `closeButton` at the inner edge of the
+        // 3-button group (`2 * spacing` in from the right, clamped so `closeX + 63 <= width - minSharingMargin`) keeps
+        // the entire sharing pill inside the window!
+        let rightSpan = max(2 * spacing + size.width, Self.sharingPillWidth - 3)
         for (index, button) in buttons.enumerated() {
             let offset = Double(index) * spacing
-            let x =
-                placement.fromRight
-                ? window.frame.width - placement.inset - size.width - offset : placement.inset + offset
+            let x: Double
+            if placement.fromRight {
+                x =
+                    sharing
+                    ? max(Self.minSharingMargin, window.frame.width - inset - rightSpan) + offset
+                    : window.frame.width - inset - size.width - offset
+            } else {
+                x = inset + offset
+            }
             let inWindow = NSRect(
                 x: x,
                 y: window.frame.height - top - size.height,
@@ -163,9 +180,8 @@ package final class WindowLights {
                 height: size.height
             )
             var origin = bar.convert(inWindow, from: nil).origin
-            // Parked once its fade is over; at once when it has no layer to fade.
-            if !placement.visible, Self.isFaded(button) { origin.x = Self.parked }
-            if fade(button, visible: placement.visible, to: origin) { moved = true }
+            if !effectiveVisible, Self.isFaded(button) { origin.x = Self.parked }
+            if fade(button, visible: effectiveVisible, to: origin) { moved = true }
         }
         if moved {
             placements += 1
@@ -173,20 +189,15 @@ package final class WindowLights {
         }
     }
 
-    /// Nothing of it shows: faded out, or with no layer to fade.
     private static func isFaded(_ button: NSButton) -> Bool {
         button.layer.map { $0.opacity == 0 } ?? true
     }
 
-    /// The buttons are AppKit's to lay out again (`placement` is nil): shown, and counted as never moved.
     package func released() {
         hasPlaced = false
         for button in buttons { button.layer?.opacity = 1 }
     }
 
-    /// Moves a button to `origin` and fades its layer in or out; whether anything changed. The layer's opacity is animated, not
-    /// the view's `alphaValue` or `isHidden`: changing those made AppKit lay the buttons out again at its own spot. A button
-    /// that fades out is parked outside the window when the fade is over.
     private func fade(_ button: NSButton, visible: Bool, to origin: NSPoint) -> Bool {
         var changed = false
         if visible || Self.isFaded(button), button.frame.origin != origin {

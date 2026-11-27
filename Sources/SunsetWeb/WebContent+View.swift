@@ -1,5 +1,6 @@
 import AppKit
 import SunsetPrivate
+import SunsetShell
 import WebKit
 
 /// The page's view: made the first time the page is shown, with what Sunset sets on every page, and watched for what the page says of
@@ -29,6 +30,7 @@ extension WebContent {
         if !isPrivate { shareWrapper = ShareWrapper.install(on: configuration, for: self) }
         if settings.agentScripts { AgentScript.install(on: configuration) }
         setPreferences(configuration.preferences)
+        configurePageFeatures(on: configuration)
         configuration.defaultWebpagePreferences = WebProtection.preferences(for: settings)
         if given == nil {
             let host = url?.host()
@@ -45,6 +47,7 @@ extension WebContent {
         view.allowsMagnification = true
         view.offersPrivateTab = !isPrivate
         view.onFocus = { [weak self] in self?.onFocusRequest() }
+        wireMenu(view)
         wireSearch(view)
         let coordinator = WebCoordinator(content: self)
         view.navigationDelegate = coordinator
@@ -70,6 +73,13 @@ extension WebContent {
     }
 
     /// What Sunset sets on every page's preferences, from its settings.
+    private func configurePageFeatures(on configuration: WKWebViewConfiguration) {
+        SafariParity.configure(configuration)
+        configuration.writingToolsBehavior = .complete
+        configuration.allowsInlinePredictions = true
+        configuration.supportsAdaptiveImageGlyph = true
+    }
+
     private func setPreferences(_ preferences: WKPreferences) {
         WebDeveloperExtras.set(settings.developer, on: preferences)
         WebPermissionHooks.enable(on: preferences)
@@ -77,6 +87,7 @@ extension WebContent {
         WebAttribution.turnOff(on: preferences)
         SafariParity.turnOn(on: preferences)
         if settings.mediaDevices { WebFeature.set("MediaDevicesEnabled", enabled: true, on: preferences) }
+        preferences.shouldPrintBackgrounds = true
         // Pop-ups without a click reach Sunset, which decides by the site's answer; sound does not play on its own unless the site may.
         preferences.javaScriptCanOpenWindowsAutomatically = true
         // A video, or an element the page asks to, can fill the screen; and float in picture in picture.
@@ -153,6 +164,21 @@ extension WebContent {
         url = new
         if otherSite { siteChanged() }
         onChange()
+    }
+
+    /// Wires page-level context menu actions (Back, Forward, Copy Page Address, Print Page) onto `view`.
+    private func wireMenu(_ view: SunsetWebView) {
+        view.pageNavState = { [weak self] in
+            (
+                canGoBack: self?.canGoBack ?? false,
+                canGoForward: self?.canGoForward ?? false,
+                hasURL: self?.url != nil || self?.webView?.url != nil
+            )
+        }
+        view.onNavigateBack = { [weak self] in self?.webView?.goBack() }
+        view.onNavigateForward = { [weak self] in self?.webView?.goForward() }
+        view.onCopyPageAddress = { [weak self] in if let self { Feedback.give(copyAddress()) } }
+        view.onPrintPage = { [weak self] in self?.printPage() }
     }
 
     /// The text menu's Search the Web: Sunset's engine, the page's selection, a page the page opened.
