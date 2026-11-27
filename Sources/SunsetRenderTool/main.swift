@@ -18,31 +18,25 @@ var ligatures = false
 var disableLigatures = false
 var features: [FontFeature] = []
 var output = "/tmp/sunset-render.png"
-var command: [String] = []
-var arguments = Array(CommandLine.arguments.dropFirst())
-while let argument = arguments.first {
-    arguments.removeFirst()
+var arguments = ToolArguments(Array(CommandLine.arguments.dropFirst()))
+while let argument = arguments.next() {
     switch argument {
-        case "--cols": columns = Int(arguments.removeFirst()) ?? columns
-        case "--rows": rows = Int(arguments.removeFirst()) ?? rows
-        case "--font": fontName = arguments.removeFirst()
-        case "--size": fontSize = Double(arguments.removeFirst()) ?? fontSize
-        case "--wait": waitMilliseconds = Int(arguments.removeFirst()) ?? waitMilliseconds
-        case "--keys": keys = arguments.removeFirst()
+        case "--cols": columns = arguments.int(or: columns)
+        case "--rows": rows = arguments.int(or: rows)
+        case "--font": fontName = arguments.value()
+        case "--size": fontSize = Double(arguments.value()) ?? fontSize
+        case "--wait": waitMilliseconds = arguments.int(or: waitMilliseconds)
+        case "--keys": keys = arguments.value()
         case "--ligatures": ligatures = true
         case "--no-font-ligatures": disableLigatures = true
         case "--feature":
-            let pair = arguments.removeFirst().split(separator: "=")
+            let pair = arguments.value().split(separator: "=")
             features.append(FontFeature(String(pair[0]), pair.count > 1 ? Int(pair[1]) ?? 1 : 1))
-        case "--out": output = arguments.removeFirst()
-        case "--":
-            command = arguments
-            arguments = []
-        default:
-            command = [argument] + arguments
-            arguments = []
+        case "--out": output = arguments.value()
+        default: arguments.commandStarts(with: argument)
     }
 }
+let command = arguments.command
 guard !command.isEmpty else {
     print(
         "usage: sunset-render [--cols N] [--rows N] [--font NAME] [--size PT] [--ligatures] [--no-font-ligatures] [--feature TAG[=N]] [--wait MS] [--keys TEXT] [--out FILE] -- command [args...]"

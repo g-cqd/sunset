@@ -1,4 +1,4 @@
-/// The options of General > Documents.
+/// The options of Documents > Editing.
 extension SettingsOption {
     /// Saving, source appearance, Quick Look integration, and Markdown rendering (brought over from MarkdownLook).
     static let documents: [Self] =
@@ -53,6 +53,18 @@ extension SettingsOption {
             .setting([])
             .grouped("Quick Look")
         ] + markdownOptions
+
+    /// Documents › Library: how the Library lists documents.
+    static let documentsLibrary: [Self] =
+        [
+            choice(
+                "sidebar.documentSort",
+                "Order of documents",
+                "sort latest name kind changed",
+                \.sidebar.documentSort,
+                [(.changed, "Last changed"), (.made, "Last created"), (.name, "Name"), (.kind, "Kind")]
+            )
+        ]
 
     private static let markdownOptions: [Self] = {
         let textSize = number(

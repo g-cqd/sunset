@@ -1,4 +1,4 @@
-/// Privacy and security > Protection on the web.
+/// Web > Protection.
 extension SettingsOption {
     static let webProtection: [Self] =
         [

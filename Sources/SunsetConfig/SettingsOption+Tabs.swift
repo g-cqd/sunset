@@ -162,13 +162,6 @@ extension SettingsOption {
                 \.sidebar.spaces,
                 [(.auto, "Icons, dots when many"), (.dots, "Dots")]
             )
-            .noted("As dots, the Space shown is the one that stands out."),
-            choice(
-                "sidebar.documentSort",
-                "Order of documents",
-                "sort latest name kind changed",
-                \.sidebar.documentSort,
-                [(.changed, "Last changed"), (.made, "Last created"), (.name, "Name"), (.kind, "Kind")]
-            )
+            .noted("As dots, the Space shown is the one that stands out.")
         ]
 }

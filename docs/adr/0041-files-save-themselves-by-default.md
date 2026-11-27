@@ -19,7 +19,7 @@ its owner says so. It was decided while the owner was away. Asked on his return 
 - Everything else of ADR-0038 stands, and matters more now that it is the default: a save nobody asked for never writes
   over a file changed on disk, never makes a deleted file again, never writes a file that was not read; a failure is said
   in the pane and tried again after the next edit.
-- `0` and `false` in the configuration file, or in Settings > General > Documents, give back a file written by Cmd-S only.
+- `0` and `false` in the configuration file, or in Settings > Documents > Editing, give back a file written by Cmd-S only.
   The field steps by 1 s (it stepped by 5).
 - `DocumentAutosave()` in `SunsetDocuments`, with no settings given, still saves no file by itself: the default is the
   app's, not the library's.

@@ -1,4 +1,4 @@
-/// Privacy and security › Browsing: history, what the web keeps between runs, private windows, sharing a tab.
+/// Web › History and site data: history, what the web keeps between runs, private windows, sharing a tab.
 extension SettingsOption {
     /// What is kept of the web.
     static let browsing: [Self] =

@@ -5,7 +5,7 @@ import SunsetShell
 import SunsetStorage
 import SwiftUI
 
-/// The rows of Settings, Storage (topics of Privacy and security): what is sealed, the website data, the files set
+/// The rows of Settings, Storage (topics of Privacy and storage): what is sealed, the website data, the files set
 /// aside; the key and its recovery code; exporting.
 struct StorageRows: View {
     @Environment(\.runtime) var runtime

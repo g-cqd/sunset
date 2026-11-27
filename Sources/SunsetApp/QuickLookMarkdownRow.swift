@@ -3,7 +3,7 @@ import SunsetRuntime
 import SunsetShell
 import SwiftUI
 
-/// Settings > General > Documents > Quick Look: toggles Sunset's bundled Quick Look preview and thumbnail extensions for
+/// Settings > Documents > Editing > Quick Look: toggles Sunset's bundled Quick Look preview and thumbnail extensions for
 /// Markdown and Mermaid files, and links straight to macOS System Settings › Extensions.
 struct QuickLookMarkdownRow: View {
     @Environment(\.runtime) private var runtime

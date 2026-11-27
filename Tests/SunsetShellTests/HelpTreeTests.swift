@@ -27,8 +27,9 @@ import Testing
     @Test func `Help from a settings page opens on its topic, else its section's`() {
         #expect(HelpTree.topic(about: "web.downloads") == .downloads)
         #expect(HelpTree.topic(about: "web.proxy")?.settingsSection == "web")
-        // Appearance and layout holds the tabs' topics (n119): its section's first.
-        #expect(HelpTree.topic(about: "appearance.theme") == .tabs)
+        // Windows and tabs holds the tabs' topics (design 0009): its section's first.
+        #expect(HelpTree.topic(about: "tabs.labels") == .folders)
+        #expect(HelpTree.topic(about: "window.titleBar")?.settingsSection == "windows")
         #expect(HelpTree.topic(about: nil) == nil)
     }
 

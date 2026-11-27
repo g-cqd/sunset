@@ -76,7 +76,7 @@ extension HelpCatalog {
             text: [
                 "Open one from +'s menu (New Private Tab) or in a private window. A private tab of a normal window shares "
                     + "nothing with other pages.",
-                "**Settings > Privacy and security** sets whether the pages of one private window share their data."
+                "**Settings > Web > History and site data** sets whether the pages of one private window share their data."
             ],
             related: [.profiles]
         ),

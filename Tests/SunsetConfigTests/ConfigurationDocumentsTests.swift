@@ -45,11 +45,7 @@ import Testing
             ]
         )
         #expect(
-            SettingsSection.all.first?.topics.map(\.id)
-                == [
-                    "general.features", "general.startup", "general.documents", "general.spaces", "general.updates",
-                    "general.file"
-                ]
+            SettingsSection.documents.topics.map(\.id) == ["general.documents", "documents.library"]
         )
     }
 

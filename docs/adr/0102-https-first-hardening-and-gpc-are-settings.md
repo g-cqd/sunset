@@ -18,7 +18,7 @@ Measured (diary 2026-11-19-11):
 
 ## Decision
 
-Under Privacy and security › Protection on the web, each page's navigations carry:
+Under Web › Protection, each page's navigations carry:
 - `web.httpsUpgrade`: try HTTPS first, then HTTP (the default), ask before HTTP, HTTPS only, or as the address says;
 - `web.hardening`: off (the default), or without JIT;
 - `web.globalPrivacyControl`: in private windows (the default), always, or never.

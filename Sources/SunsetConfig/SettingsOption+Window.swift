@@ -6,7 +6,12 @@ extension SettingsOption {
     /// with the sidebar 8 points in; the drag strip's height and haptic feedback stay).
     static let window: [Self] =
         [
-            number("window.dragStrip", "Drag strip height", "move drag top", \.window.dragStrip, 0 ... 64, step: 1),
+            number("window.dragStrip", "Drag strip height", "move drag top", \.window.dragStrip, 0 ... 64, step: 1)
+        ]
+
+    /// How Sunset answers a click.
+    static let feedback: [Self] =
+        [
             toggle(
                 "appearance.haptics",
                 "Haptic feedback",

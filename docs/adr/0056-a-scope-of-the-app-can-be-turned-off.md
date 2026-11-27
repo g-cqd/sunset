@@ -36,7 +36,7 @@ Decided by the builder, to be said:
    | --- | --- |
    | Terminals | New Terminal Tab, the kind chooser, Previous/Next Prompt, Settings > Terminal and "Programs in a terminal". A split asks, through the command bar, which tab goes beside |
    | The web | New Web Page, private windows and tabs, the History menu, Print, page Find, the command bar's addresses, searches, history and suggestions, the Library's History and Downloads, Settings > Web and "Browsing". Links go to the default browser |
-   | Documents | New Document, Open File…, Save, the document items of View, the Library's Documents, the command bar's files and stored documents, Settings > General > Documents. A file opened with Sunset goes to its default app (or the Finder, when that app is Sunset); a file dropped on a terminal still types its path |
+   | Documents | New Document, Open File…, Save, the document items of View, the Library's Documents, the command bar's files and stored documents, Settings > Documents. A file opened with Sunset goes to its default app (or the Finder, when that app is Sunset); a file dropped on a terminal still types its path |
 
 5. **With no section left**, the Library's glyph is not shown, and the panel opposite the tabs closes.
 

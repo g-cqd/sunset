@@ -27,6 +27,16 @@ struct SettingsTopicList: View {
                 SettingsSection.sections(for: AppConfiguration.shared.configuration.features)
                     .filter { content?.scope == nil || $0.topics.contains(where: \.hasProfileSettings) }
             ) { section in
+                // The feature scopes' sections after the app's, under a heading of their own.
+                if section.id == firstScope {
+                    Text("Features")
+                        .font(Design.Text.detail.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, Design.Space.m)
+                        .padding(.leading, layout.tabPaddingLeading)
+                        .accessibilityAddTraits(.isHeader)
+                }
                 row(
                     section.title,
                     symbol: section.symbol,
@@ -51,6 +61,11 @@ struct SettingsTopicList: View {
             }
         }
         .animation(layout.smooth, value: shown?.section.id)
+    }
+
+    /// The first scope's section listed now.
+    private var firstScope: String? {
+        SettingsSection.sections(for: AppConfiguration.shared.configuration.features).first(where: \.isScope)?.id
     }
 
     private func row(_ title: String, symbol: String?, selected: Bool, tag: String) -> some View {

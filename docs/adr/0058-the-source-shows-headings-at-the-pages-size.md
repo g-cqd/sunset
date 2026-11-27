@@ -16,7 +16,7 @@ written with what will be the rendered version", behind a toggle, defaults left 
 - `documents.largerHeadings`, on by default: a heading's text in the source takes the page's scale for its level (1.9,
   1.45, 1.15 em, then 1), bold, in the accent colour; its `#` stay at the body's size, dimmed. On by default because the
   request was for the source to look like its page; off, every line has one height, for those who want columns to line up.
-  Settings > General > Documents.
+  Settings > Documents > Editing.
 - No setting for code: a fence whose language a scanner knows is coloured as the page colours it; any other code (another
   fence, an indented block, a code span) is in the text's colour; no code has a background (AemiMarkdown e8640c9).
 

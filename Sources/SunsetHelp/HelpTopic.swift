@@ -36,10 +36,18 @@ public enum HelpTopic: String, CaseIterable, Sendable, Identifiable {
         Self.section(ofTopic: settingsTopic)
     }
 
-    /// The section a settings' topic is in: its id's first part, but for the window's and the tabs' topics, which are in
-    /// Appearance and layout (n119).
+    /// The section a settings' topic is in (design 0009): its id's first part, but for the topics that kept their ids when
+    /// they moved to another section.
     public static func section(ofTopic topic: String) -> String {
-        let first = String(topic.prefix { $0 != "." })
-        return first == "tabs" || first == "window" ? "appearance" : first
+        switch topic {
+            case "general.spaces": return "windows"
+            case "general.documents": return "documents"
+            case "privacy.programs": return "terminal"
+            case "privacy.browsing", "privacy.protection": return "web"
+            case "privacy.passwords": return "passwords"
+            default:
+                let first = String(topic.prefix { $0 != "." })
+                return first == "tabs" || first == "window" ? "windows" : first
+        }
     }
 }

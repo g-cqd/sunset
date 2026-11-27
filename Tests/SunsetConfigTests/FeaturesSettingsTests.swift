@@ -28,6 +28,12 @@ struct FeaturesSettingsTests {
 
     @Test func `the settings of a scope that is off are not shown; the switches always are`() {
         var features = Configuration.Features()
+        // Passwords is off unless turned on: every section but its own.
+        #expect(
+            SettingsSection.sections(for: features).map(\.id)
+                == SettingsSection.all.map(\.id).filter { $0 != "passwords" }
+        )
+        features.credentials = true
         #expect(SettingsSection.sections(for: features).map(\.id) == SettingsSection.all.map(\.id))
         #expect(SettingsSection.general.topics.map(\.id).first == "general.features")
         features.web = false

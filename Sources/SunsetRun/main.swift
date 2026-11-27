@@ -18,35 +18,29 @@ var cells = false
 var untilExit = 0
 var resizeTo: (columns: Int, rows: Int)?
 var environment: [String: String] = [:]
-var command: [String] = []
-var arguments = Array(CommandLine.arguments.dropFirst())
-while let argument = arguments.first {
-    arguments.removeFirst()
+var arguments = ToolArguments(Array(CommandLine.arguments.dropFirst()))
+while let argument = arguments.next() {
     switch argument {
-        case "--cols": columns = Int(arguments.removeFirst()) ?? columns
-        case "--rows": rows = Int(arguments.removeFirst()) ?? rows
-        case "--wait": waitFirst = Int(arguments.removeFirst()) ?? waitFirst
-        case "--then-wait": waitThen = Int(arguments.removeFirst()) ?? waitThen
-        case "--keys": keys = arguments.removeFirst()
+        case "--cols": columns = arguments.int(or: columns)
+        case "--rows": rows = arguments.int(or: rows)
+        case "--wait": waitFirst = arguments.int(or: waitFirst)
+        case "--then-wait": waitThen = arguments.int(or: waitThen)
+        case "--keys": keys = arguments.value()
         case "--plain": plain = true
         case "--cells": cells = true
-        case "--until-exit": untilExit = Int(arguments.removeFirst()) ?? 0
+        case "--until-exit": untilExit = arguments.int(or: 0)
         case "--resize":
-            let parts = arguments.removeFirst().split(separator: "x").compactMap { Int($0) }
+            let parts = arguments.value().split(separator: "x").compactMap { Int($0) }
             if parts.count == 2 { resizeTo = (parts[0], parts[1]) }
         case "--env":
-            let pair = arguments.removeFirst()
+            let pair = arguments.value()
             if let split = pair.firstIndex(of: "=") {
                 environment[String(pair[..<split])] = String(pair[pair.index(after: split)...])
             }
-        case "--":
-            command = arguments
-            arguments = []
-        default:
-            command = [argument] + arguments
-            arguments = []
+        default: arguments.commandStarts(with: argument)
     }
 }
+let command = arguments.command
 guard !command.isEmpty else {
     print("usage: sunset-run [--cols N] [--rows N] [--wait MS] [--keys TEXT] [--then-wait MS] -- command [args...]")
     exit(2)

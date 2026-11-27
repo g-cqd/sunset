@@ -10,12 +10,18 @@ extension SettingsSection {
         }
     }
 
+    /// Whether it is a feature scope's own section (Terminal, Web, Documents, Passwords), listed after the app's.
+    public var isScope: Bool {
+        ["terminal", "web", "documents", "passwords"].contains(id)
+    }
+
     /// Whether a section, or a topic, is of a scope that is on.
     static func shows(_ id: String, _ features: Configuration.Features) -> Bool {
         switch id {
-            case "terminal", "privacy.programs": features.terminal
-            case "web", "privacy.browsing": features.web
-            case "general.documents": features.documents
+            case "terminal": features.terminal
+            case "web": features.web
+            case "documents": features.documents
+            case "passwords": features.credentials
             default: true
         }
     }

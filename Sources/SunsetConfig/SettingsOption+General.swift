@@ -1,4 +1,4 @@
-/// The options of General, and of Privacy and security.
+/// The options of General, of Privacy and storage, and of Terminal › Programs.
 extension SettingsOption {
     /// Startup, closing and quitting.
     static let startup: [Self] =

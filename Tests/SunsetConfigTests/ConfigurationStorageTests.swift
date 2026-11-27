@@ -13,16 +13,13 @@ import Testing
         #expect(wrong.configuration.storage.importedFiles == .trash)
     }
 
-    @Test func `what is written reads back, and Settings have it under Privacy and security`() throws {
+    @Test func `what is written reads back, and Settings have it under Privacy and storage`() throws {
         var configuration = Configuration()
         configuration.storage.importedFiles = .delete
         let back = try ConfigurationParser.parse(ConfigurationWriter.text(for: configuration))
         #expect(back.issues.isEmpty && back.configuration.storage == configuration.storage)
         #expect(
-            SettingsSection.all.last?.topics.map(\.title) == [
-                "Programs in a terminal", "Browsing", "Protection on the web", "What is kept", "Key and recovery",
-                "Passwords", "Export"
-            ]
+            SettingsSection.privacy.topics.map(\.title) == ["What is kept", "Key and recovery", "Export"]
         )
         #expect(
             SettingsSection.topic("privacy.export")?.topic.options.map(\.id) == [
