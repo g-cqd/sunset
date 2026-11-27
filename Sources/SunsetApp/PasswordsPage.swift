@@ -43,7 +43,8 @@ struct PasswordsPage: View {
         }
         .padding(.top, context.topInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .paneBackdrop(context.backdrop)
+        // In Sunset's scheme, not the terminal theme's (the owner, 2026-11-27: they stayed dark in light).
+        .paneBackdrop(context.backdrop.forApp(light: AppConfiguration.shared.isLight))
         // Its window no longer in front: locked when `passwords.lockOnWindowBlur` says so.
         .onChange(of: appearsActive) { _, active in if !active { model.left(.window) } }
         .background(CaptureExclusion(excluded: model.state == .unlocked))

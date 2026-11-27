@@ -31,8 +31,8 @@ struct HelpPage: View {
         }
         .padding(.top, context.topInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // On the terminal's background, as Settings and every pane.
-        .paneBackdrop(context.backdrop)
+        // In Sunset's scheme, not the terminal theme's (the owner, 2026-11-27: they stayed dark in light).
+        .paneBackdrop(context.backdrop.forApp(light: AppConfiguration.shared.isLight))
     }
 
     private var list: some View {

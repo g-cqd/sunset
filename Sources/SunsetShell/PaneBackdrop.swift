@@ -46,6 +46,15 @@ package struct PaneBackdrop: Sendable, Equatable {
         0.2126 * Double(red) + 0.7152 * Double(green) + 0.0722 * Double(blue) < 128
     }
 
+    /// For the app's own pages (Settings, Help, Passwords), which follow Sunset's scheme and not the terminal's theme: the
+    /// terminal's background when it is of that scheme, else a neutral one of it, as opaque.
+    package func forApp(light: Bool) -> Self {
+        guard isDark == light else { return self }
+        return light
+            ? Self(red: 0xF5, green: 0xF5, blue: 0xF7, alpha: alpha)
+            : Self(red: 0x1E, green: 0x1E, blue: 0x20, alpha: alpha)
+    }
+
     /// The scheme text is read in over it: the window may be light around a dark terminal, and its labels would be dark on dark.
     package var scheme: ColorScheme {
         isDark ? .dark : .light
