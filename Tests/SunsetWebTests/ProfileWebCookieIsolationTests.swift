@@ -15,7 +15,7 @@ import WebKit
 /// and that moving a live `WebContent` tab across Spaces (`move(rows:to:)`, cross-window drag, Space profile change)
 /// reloads into the destination profile's store so the source profile's account session is never visible.
 @MainActor
-@Suite("WebKit cookie isolation across Spaces and profiles", .serialized, .timeLimit(.minutes(2)))
+@Suite("WebKit cookie isolation across Spaces and profiles", .serialized, .timeLimit(.minutes(2)), .macOS27)
 struct ProfileWebCookieIsolationTests {
     private func makeWindow(on space: SpaceModel, in spaces: SpacesModel) -> TabsModel {
         let tabs = TabsModel()
@@ -64,7 +64,7 @@ struct ProfileWebCookieIsolationTests {
         return (server, login, whoami)
     }
 
-    @Test(.macOS27) func `moving a logged-in web tab from Personal Space to Work Space isolates its cookie store`()
+    @Test func `moving a logged-in web tab from Personal Space to Work Space isolates its cookie store`()
         async throws
     {
         let (profileA, profileB) = (UUID(), UUID())
@@ -95,7 +95,7 @@ struct ProfileWebCookieIsolationTests {
         try? await WKWebsiteDataStore.remove(forIdentifier: profileB)
     }
 
-    @Test(.macOS27)
+    @Test
     func `Space profile change isolates live WebKit cookies across both open tabs and Space-owned Favorites`()
         async throws
     {

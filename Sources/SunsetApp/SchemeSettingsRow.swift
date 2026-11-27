@@ -24,7 +24,7 @@ struct SchemeSettingsRow: View {
                 SettingsRow(option: option, config: config)
             }
             Toggle("Separate for light and dark", isOn: binding)
-                .toggleStyle(.checkbox)
+                .choiceBox()
                 .font(Design.Text.detail)
                 .foregroundStyle(.secondary)
         }

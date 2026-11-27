@@ -24,7 +24,7 @@ struct SpaceTintPicker: View {
                 Text("In light").font(Design.Text.detail).foregroundStyle(.secondary)
                 IconColourRow(color: $draft.lightTint)
             }
-            Toggle("Separate for light and dark", isOn: separate).toggleStyle(.checkbox)
+            Toggle("Separate for light and dark", isOn: separate).choiceBox()
             Text("Tints the window while it shows this Space.")
                 .font(Design.Text.detail)
                 .foregroundStyle(.secondary)
