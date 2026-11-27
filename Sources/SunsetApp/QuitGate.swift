@@ -73,7 +73,10 @@ final class QuitGate {
         if dontAskAgain { AppConfiguration.shared.update { $0.tabs.askBeforeQuit = .never } }
         asking = nil
         losses = []
-        guard quit else { return NSApp.reply(toApplicationShouldTerminate: false) }
+        guard quit else {
+            AppUpdates.shared.quitCancelled()
+            return NSApp.reply(toApplicationShouldTerminate: false)
+        }
         runtime.task { await finishThenQuit() }
     }
 

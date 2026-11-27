@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import SunsetRuntime
 import SunsetUpdate
 
 extension AppUpdates {
@@ -10,10 +11,19 @@ extension AppUpdates {
         restart()
     }
 
-    /// Quits and opens again: what waits for it (an update or an engine switch) is swapped in between.
+    /// Quits and opens again: what waits for it (an update or an engine switch) is swapped in between. The update window
+    /// goes first, and the quit is asked for once the button's action has returned: AppKit waits for the quit's answer
+    /// (the question, a sheet on a window) inside `terminate`, and asked from within a SwiftUI action the question never
+    /// came up and Sunset hung until force-quit (the owner, 2026-11-27).
     func restart() {
         restartsAfterInstall = true
-        NSApp.terminate(nil)
+        UpdateWindow.close()
+        Runtime.live.task { @MainActor in NSApp.terminate(nil) }
+    }
+
+    /// The person kept Sunset open when asked about quitting: it is no longer to open again at its next quit.
+    func quitCancelled() {
+        restartsAfterInstall = false
     }
 
     /// As Sunset ends (`applicationWillTerminate`): a ready update checked once more and swapped in; the former app to the

@@ -18,4 +18,10 @@ enum UpdateWindow {
         shown.makeKeyAndOrderFront(nil)
         window = shown
     }
+
+    /// Closes it, when it is shown.
+    static func close() {
+        window?.close()
+        window = nil
+    }
 }
