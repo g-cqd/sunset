@@ -29,21 +29,25 @@ struct AppBundleTests {
         #expect(tags["public.filename-extension"] as? [String] == ["mmd", "mermaid"])
     }
 
-    /// The app's icon is the Icon Composer bundle `App/Sunset.icon` (light, dark, tinted), compiled by Xcode into the
-    /// asset catalog and into `Sunset.icns` for `CFBundleIconFile`; Twilight, Dawn and Dusk go in as alternates.
-    @Test func `the icon is Sunset.icon, with Twilight, Dawn and Dusk as alternates`() throws {
+    /// The app's icon is the Icon Composer bundle `App/Sunset.icon` (the sky, the same in light and dark, and tinted),
+    /// compiled by Xcode into the asset catalog and into `Sunset.icns` for `CFBundleIconFile`; the other skies go in as
+    /// alternates (ADR-0084).
+    @Test func `the icon is Sunset.icon, with the other skies as alternates`() throws {
         let project = try String(contentsOf: RepositoryFiles.root.appending(path: "project.yml"), encoding: .utf8)
         #expect(project.contains("ASSETCATALOG_COMPILER_APPICON_NAME: Sunset"))
-        #expect(project.contains("ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: Twilight Dawn Dusk"))
+        let alternates = ["Twilight", "Dawn", "Dusk", "Sunrise", "Morning", "Noon", "Afternoon", "Night"]
+        #expect(project.contains("ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: " + alternates.joined(separator: " ")))
         #expect(try plist()["CFBundleIconFile"] as? String == "Sunset")
         let files = FileManager.default
-        for name in ["Sunset", "Twilight", "Dawn", "Dusk"] {
+        for name in ["Sunset"] + alternates {
             let icon = RepositoryFiles.root.appending(path: "App/\(name).icon")
             #expect(files.fileExists(atPath: icon.appending(path: "icon.json").path), "\(name).icon")
-            for suffix in ["", "-dark", "-tinted"] {
+            for suffix in ["", "-tinted"] {
                 let image = icon.appending(path: "Assets/\(name.lowercased())\(suffix).png")
                 #expect(files.fileExists(atPath: image.path), "\(image.lastPathComponent)")
             }
+            // No darker sky for dark mode: the sun does not darken with the system's appearance.
+            #expect(!files.fileExists(atPath: icon.appending(path: "Assets/\(name.lowercased())-dark.png").path))
         }
         // The icns is made by Xcode from Sunset.icon: a hand-made one beside it would be a second file of the same name.
         #expect(!files.fileExists(atPath: RepositoryFiles.root.appending(path: "App/Sunset.icns").path))
