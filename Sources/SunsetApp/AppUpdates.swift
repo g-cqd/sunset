@@ -4,6 +4,7 @@ import Observation
 import SunsetAppCore
 import SunsetConfig
 import SunsetRuntime
+import SunsetShellModel
 import SunsetStorage
 import SunsetUpdate
 
@@ -76,6 +77,7 @@ final class AppUpdates {
     /// At launch: a first check soon, then every `interval`. A copy that cannot update itself does not check on its own.
     static func start() {
         let updates = shared
+        updates.sayFailedInstall()
         guard updates.refusal == nil, updates.schedule == nil else { return }
         updates.schedule = Runtime.live.task(role: .observation) { [weak updates] in
             guard await Runtime.live.sleep(for: .seconds(20)) else { return }
@@ -84,6 +86,26 @@ final class AppUpdates {
                 guard await Runtime.live.sleep(for: interval) else { return }
             }
         }
+    }
+
+    /// At launch: an install that failed at the last quit is said (an alert, the update centre, the security log), once.
+    func sayFailedInstall() {
+        guard let said = UserDefaults.standard.string(forKey: Self.failedInstall) else { return }
+        UserDefaults.standard.removeObject(forKey: Self.failedInstall)
+        phase = .failed(said)
+        SunsetStore.shared.securityLog.record(
+            .update("install"),
+            outcome: "failed",
+            attributes: ["reason": said],
+            at: Runtime.live.now()
+        )
+        let alert = SunsetAlert(
+            title: "Sunset was not updated",
+            message: said,
+            buttons: [.plain("OK")],
+            defaultButton: 0
+        )
+        Runtime.live.task { @MainActor in _ = await SunsetAlerts.ask(alert) }
     }
 
     /// Reads the releases and decides: nothing, an offer, or (automatic) the download.

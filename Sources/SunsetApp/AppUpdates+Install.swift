@@ -27,7 +27,9 @@ extension AppUpdates {
     }
 
     /// As Sunset ends (`applicationWillTerminate`): a ready update checked once more and swapped in; the former app to the
-    /// Trash; Sunset opened again when asked to. Anything wrong leaves the running app as it is.
+    /// Trash; Sunset opened again when asked to. Anything wrong leaves the app as it is, kept to be said at the next launch
+    /// (`sayFailedInstall`), and Sunset opens again all the same when it was to restart: it said nothing and stayed closed
+    /// (the owner, 2026-11-28, from /Applications).
     func installAtQuit() {
         // Asked to restart with nothing to install (Sunset's files changed under it): opened again all the same.
         guard case .ready = phase, let staging, refusal == nil else {
@@ -39,12 +41,20 @@ extension AppUpdates {
             try UpdateTransfer.check(staging, running: running, targetFlavour: target)
             try BundleSwap.swap(running: running.bundle, staging: staging)
         } catch {
-            restartsAfterInstall = false
+            let build = if case .ready(let offer) = phase { " to build \(offer.release.build)" } else { "" }
+            UserDefaults.standard.set(
+                "The update\(build) was not put in place. \(error.localizedDescription)",
+                forKey: Self.failedInstall
+            )
+            if restartsAfterInstall { Self.openWhenGone(running.bundle) }
             return
         }
         try? FileManager.default.trashItem(at: staging, resultingItemURL: nil)
         if restartsAfterInstall { Self.openWhenGone(running.bundle) }
     }
+
+    /// Why the last install at quit did not happen, for the next launch.
+    static let failedInstall = "updateInstallFailed"
 
     /// Opens `app` once this process has ended (a shell that waits on its identifier: no program of ours outlives it),
     /// with Sunset's own variables of this process (a test copy's folders stay its own).

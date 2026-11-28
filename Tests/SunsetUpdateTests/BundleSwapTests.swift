@@ -28,4 +28,14 @@ struct BundleSwapTests {
             }
         }
     }
+
+    /// What the person is told: the system's words, and where macOS refused, what to do (the owner, 2026-11-28: from
+    /// /Applications the update did not go in, and nothing said why).
+    @Test func saysWhyAndWhatToDo() {
+        let missing = BundleSwap.Failure.refused(ENOENT).localizedDescription
+        #expect(missing.contains("No such file or directory") && !missing.contains("App Management"))
+        for denied in [EPERM, EACCES] {
+            #expect(BundleSwap.Failure.refused(denied).localizedDescription.contains("App Management"))
+        }
+    }
 }
