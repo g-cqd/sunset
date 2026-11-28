@@ -8,6 +8,16 @@ struct Reader {
     let scope: ConfigurationParser.Scope
     /// `terminal.opacity` was given: the old `window.opacity` no longer applies after it.
     var terminalOpacitySet = false
+    /// The look settings given a value per scheme (`{ "light": …, "dark": … }`), which the former light keys do not change.
+    var schemeObjects: Set<String> = []
+    /// The light values the former keys gave (`appearance.tint.light`, `…lightAlpha`), by the setting they are now of.
+    var formerLight: [String: String] = [:]
+    /// `window.material` was `opaque`, in light and in dark.
+    var formerlyOpaque = (light: false, dark: false)
+    /// `web.pageScheme`, become `appearance.contentFollows`.
+    var formerPageScheme: String?
+    /// A former key or value was read: the file is written again with the present ones (`ConfigurationPatcher`).
+    var migrated = false
 
     /// The top-level keys a theme may set: everything visual.
     private static let themeKeys: Set<String> = [

@@ -29,6 +29,10 @@ extension Reader {
                         configuration.web.autoPictureInPicture = flag
                     }
                 case "engines": readEngines(value)
+                // Become `appearance.contentFollows` (`finish`).
+                case "pageScheme":
+                    migrated = true
+                    formerPageScheme = string("web.pageScheme", value)
                 case "blockingLists": readBlockingLists(value)
                 case "proxy": readProxy(value)
                 case "keep": section("web.keep", value) { reader, object in reader.readKeep(object) }

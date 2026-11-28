@@ -26,16 +26,15 @@ final class WindowBackdrop {
         applied = look
         appliedWindowNumber = window.windowNumber
         window.isOpaque = look.isOpaque
-        window.backgroundColor = look.isOpaque ? .windowBackgroundColor : .clear
+        window.backgroundColor = look.isOpaque ? look.opaqueColor : .clear
         remove()
         switch look.material {
-            case .opaque: break
+            // A colour: opaque (the window's background colour), or the tint's colour and alpha with nothing under it.
+            case .color: if !look.isOpaque { install(nil, in: window, tint: look.tintColor) }
             case .material: install(material(look.thickness), in: window, tint: look.tintColor)
             case .glass: install(glass(look), in: window, tint: look.light ? look.tintColor : nil)
-            // The tint's colour and alpha, nothing under it; the desktop is not blurred (that "never really worked").
-            case .fill: install(nil, in: window, tint: look.tintColor)
         }
-        if look.material == .material || look.material == .glass { installBlur(look.blur, in: window) }
+        if !look.isOpaque { installBlur(look.blur, in: window) }
         WindowBlur.setRadius(0, forWindowNumber: window.windowNumber)
         window.invalidateShadow()
     }
@@ -86,12 +85,17 @@ final class WindowBackdrop {
         return view
     }
 
-    /// A backdrop layer of its own radius over the material, under the tint and the content, as the sidebar has.
+    /// A backdrop layer of its own radius over the material (with a colour, nothing), under the tint and the content, as
+    /// the sidebar has.
     private func installBlur(_ radius: Double, in window: NSWindow) {
-        guard let frame = window.contentView?.superview, let backdrop,
+        guard let frame = window.contentView?.superview, let content = window.contentView,
             let view = Self.makeBlurHostView(in: frame.bounds, radius: radius)
         else { return }
-        frame.addSubview(view, positioned: .above, relativeTo: backdrop)
+        if let backdrop {
+            frame.addSubview(view, positioned: .above, relativeTo: backdrop)
+        } else {
+            frame.addSubview(view, positioned: .below, relativeTo: tintView ?? content)
+        }
         blurView = view
     }
 

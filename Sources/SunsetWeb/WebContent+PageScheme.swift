@@ -2,7 +2,7 @@ import AppKit
 import SunsetWebModel
 
 extension WebContent {
-    /// Its page in the scheme its settings ask for (`web.pageScheme`): its window's, the system's, light or dark. A page
+    /// Its page in the scheme its settings ask for (`appearance.contentFollows`): its window's, the system's, light or dark. A page
     /// with a dark mode of its own (`prefers-color-scheme`) follows it; WebKit leaves the others as they are.
     package func applyPageScheme() {
         guard let webView else { return }

@@ -18,10 +18,8 @@ public struct SettingsOption: Sendable, Identifiable {
     public var advanced = false
     /// What it holds is an address, a pattern, a file's name or code: its field is in monospace.
     public var isCode = false
-    /// It can have a value of its own in the light scheme ("Separate for light and dark", design 0009).
+    /// A look setting: a value in light and one in dark, each macOS's until changed in that scheme (design 0009).
     public var perScheme = false
-    /// The option that holds its value in the light scheme, always apart (the tint's): shown in its row, not on its own.
-    public var lightTwin: String?
 
     /// Shown only while this holds (a choice that acts only under another); nil, always.
     public var shownWhen: (@Sendable (Configuration) -> Bool)?
@@ -81,17 +79,7 @@ public struct SettingsOption: Sendable, Identifiable {
         return copy
     }
 
-    /// The same, with `id` its value in the light scheme, shown beside its own.
-    public func withLightTwin(_ id: String) -> Self {
-        var copy = self
-        copy.lightTwin = id
-        return copy
-    }
-
-    /// The options shown in another's row as its light value.
-    public static let lightTwins = Set(all.compactMap(\.lightTwin))
-
-    /// The same, with a value of its own in light when asked.
+    /// The same, as a look setting: a value in light and one in dark, each macOS's until changed (design 0009).
     public var inBothSchemes: Self {
         var copy = self
         copy.perScheme = true

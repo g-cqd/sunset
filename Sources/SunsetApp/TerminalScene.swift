@@ -72,7 +72,7 @@ struct TerminalScene: View {
     /// sidebar is shown; otherwise the terminal covers it edge to edge.
     private var rootColor: Color {
         guard look.isOpaque else { return .clear }
-        return configuration.sidebarDocked ? Color(nsColor: .windowBackgroundColor) : .black
+        return configuration.sidebarDocked ? Color(nsColor: look.opaqueColor) : .black
     }
     /// The window's look, tinted by the colour of the Space it shows.
     private var look: WindowLook {

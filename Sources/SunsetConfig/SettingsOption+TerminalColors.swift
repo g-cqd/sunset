@@ -1,6 +1,6 @@
 /// Terminal › Colors: the theme, the terminal's colors and how much of the window shows through it.
 extension SettingsOption {
-    /// The keys of the terminal's colours, which have light values of their own by default (`defaultLightValues`).
+    /// The keys of the terminal's colours, whose light values are not their dark ones by default (`nativeLight`).
     static let foregroundKey = "colors.foreground"
     static let backgroundKey = "colors.background"
     static let ansiKey = "colors.ansi"
@@ -22,7 +22,8 @@ extension SettingsOption {
                 .inBothSchemes,
             color(backgroundKey, "Background", "color colour theme", \.colors.background, [0, 0, 0])
                 .inBothSchemes,
-            custom(ansiKey, "ANSI colors", "palette 16 red green blue terminal colors kitty", .ansiPalette),
+            custom(ansiKey, "ANSI colors", "palette 16 red green blue terminal colors kitty", .ansiPalette)
+                .inBothSchemes,
             number(
                 "terminal.opacity",
                 "Background opacity",
@@ -34,6 +35,5 @@ extension SettingsOption {
             )
             .inBothSchemes
             .noted("How opaque the terminal screen's own background is; the sidebar follows the window's settings.")
-            .shown { $0.window.material != .opaque }
         ]
 }

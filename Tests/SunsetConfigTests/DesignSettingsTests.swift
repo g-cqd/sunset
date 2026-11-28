@@ -80,15 +80,14 @@ import Testing
         #expect(read.configuration.terminal.directory == "~/Code" && read.issues.isEmpty)
     }
 
-    @Test func `the light scheme has its own tint, white by default; a colour and none are read`() throws {
-        #expect(Configuration().appearance.lightTintColor == [255, 255, 255])
-        #expect(Configuration().appearance.lightTintAlpha == 0.8)
+    @Test func `the tint's former light keys are its light values, and the file is to be written again`() throws {
+        #expect(Configuration().appearance.tintColor == nil, "macOS's: no tint")
         let strength = try ConfigurationParser.parse(#"{ "appearance": { "tint": { "lightAlpha": 0.6 } } }"#)
-        #expect(strength.configuration.appearance.lightTintAlpha == 0.6 && strength.issues.isEmpty)
+        #expect(strength.configuration.inLight().appearance.tintAlpha == 0.6 && strength.issues.isEmpty)
+        #expect(strength.hasFormerValues)
         let read = try ConfigurationParser.parse(##"{ "appearance": { "tint": { "light": "#ffeedd" } } }"##)
-        #expect(read.configuration.appearance.lightTintColor == [0xFF, 0xEE, 0xDD] && read.issues.isEmpty)
-        let none = try ConfigurationParser.parse(#"{ "appearance": { "tint": { "light": null } } }"#)
-        #expect(none.configuration.appearance.lightTintColor == nil && none.issues.isEmpty)
+        #expect(read.configuration.inLight().appearance.tintColor == [0xFF, 0xEE, 0xDD] && read.issues.isEmpty)
+        #expect(read.configuration.appearance.tintColor == nil, "dark keeps macOS's")
     }
 
     @Test func `focusOpenedTabOrPeek and showOpenInCollapsedFolders parse and default as specified`() throws {

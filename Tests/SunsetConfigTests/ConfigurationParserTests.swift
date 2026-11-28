@@ -84,7 +84,7 @@ import Testing
         let result = try read(##"{ "renderer": "metal", "colors": { "foreground": "red", "cursor": "#12345" } }"##)
         #expect(result.configuration.renderer == .auto)
         #expect(
-            result.configuration.colors.foreground == [0xFF, 0xFF, 0xFF] && result.configuration.colors.cursor == nil
+            result.configuration.colors.foreground == [0xDD, 0xDD, 0xDD] && result.configuration.colors.cursor == nil
         )
         #expect(
             result.issues.map(\.path).sorted() == ["renderer", "terminal.colors.cursor", "terminal.colors.foreground"]
@@ -92,9 +92,10 @@ import Testing
         #expect(result.issues.first { $0.path == "renderer" }?.message.contains("auto") == true)
     }
 
-    @Test func `the colours default to the Kitty set: white on black with the 16 ANSI colours`() throws {
+    @Test func `the colours default to macOS's text on its dark text background, with Kitty's 16 ANSI colours`() throws
+    {
         let colors = try read("{}").configuration.colors
-        #expect(colors.foreground == [0xFF, 0xFF, 0xFF] && colors.background == [0x00, 0x00, 0x00])
+        #expect(colors.foreground == [0xDD, 0xDD, 0xDD] && colors.background == [0x1E, 0x1E, 0x1E])
         #expect(colors.cursor == nil)
         #expect(colors.ansi.count == 16)
         #expect(colors.ansi[0] == [0x1D, 0x1F, 0x21] && colors.ansi[1] == [0xCC, 0x66, 0x66])

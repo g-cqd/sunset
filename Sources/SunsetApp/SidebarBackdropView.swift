@@ -77,7 +77,8 @@ final class SidebarBackdropView: NSView {
         view.frame = bounds
         view.autoresizingMask = [.width, .height]
         addSubview(view)
-        if look.material == .material || look.material == .glass,
+        // A blur of its own over any background but an opaque colour.
+        if !(look.material == .color && (look.tint == nil || look.tintAlpha >= 1)),
             look.blur > 0,
             let blur = WindowBackdrop.makeBlurHostView(in: bounds, radius: look.blur, withinWindow: look.withinWindow)
         {
@@ -103,8 +104,10 @@ final class SidebarBackdropView: NSView {
 
     private func makeMaterialView(for look: SidebarLook) -> NSView {
         switch look.material {
-            case .opaque:
+            // A colour: the tint (laid over by `apply`), or with none the window's own colour, raised.
+            case .color:
                 let view = NSView()
+                guard look.tint == nil else { return view }
                 view.wantsLayer = true
                 var raised = NSColor.windowBackgroundColor.cgColor
                 effectiveAppearance.performAsCurrentDrawingAppearance {
@@ -125,8 +128,6 @@ final class SidebarBackdropView: NSView {
                 glass.style = look.glass == .clear ? .clear : .regular
                 glass.cornerRadius = 0
                 return glass
-            case .fill:
-                return NSView()
         }
     }
 

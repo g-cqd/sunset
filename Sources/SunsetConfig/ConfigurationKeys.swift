@@ -50,8 +50,6 @@ public enum ConfigurationKeys {
         "layout.animation",
         "layout.terminalRadius",
         "layout.panelRadius",
-        "appearance.tint.color",
-        "appearance.tint.light",
         "scrollback.lines",
         "cursor.blinkTimeout",
         "features.terminal",

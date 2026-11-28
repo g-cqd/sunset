@@ -48,7 +48,7 @@ struct PopupScene: View {
         }
         .padding([.horizontal, .bottom], layout.margin)
         // Behind everything the window's material, as a window of tabs: its colour only where the look is opaque.
-        .background(look.isOpaque ? Color(nsColor: .windowBackgroundColor) : .clear)
+        .background(look.isOpaque ? Color(nsColor: look.opaqueColor) : .clear)
         .ignoresSafeArea(edges: .top)
         .environment(\.surfaceStyle, SurfaceStyle(configuration))
         .background(

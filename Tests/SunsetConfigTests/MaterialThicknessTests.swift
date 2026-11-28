@@ -11,7 +11,7 @@ struct MaterialThicknessTests {
         #expect(read.window.materialThickness == .ultraThick)
         var written = Configuration()
         written.window.materialThickness = .ultraThin
-        #expect(ConfigurationWriter.text(for: written).contains(#""materialThickness": "ultraThin""#))
+        #expect(ConfigurationWriter.text(for: written).contains(#""materialThickness": { "dark": "ultraThin" }"#))
         #expect(
             SettingsOption.named("window.materialThickness")?.topic == SettingsOption.named("window.material")?.topic
         )

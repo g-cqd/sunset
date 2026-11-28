@@ -5,11 +5,11 @@ extension Configuration.Colors {
         0x666666, 0xD54E53, 0xB9CA4A, 0xE7C557, 0x7AA6DA, 0xC397D8, 0x70C0B1, 0xEAEAEA
     ])
 
-    /// The terminal's colours in the light scheme unless the file says otherwise: dark text on a near-white screen, and
-    /// ANSI colours dark enough to read on it (the normal ones at least 4.5:1, the bright ones 3:1). Tomorrow's hues, as
-    /// the dark palette is Tomorrow Night's (Kitty's).
-    public static let lightForeground: [UInt8] = [0x2A, 0x2C, 0x2E]
-    public static let lightBackground: [UInt8] = [0xFA, 0xFA, 0xFA]
+    /// The terminal's colours in light unless changed there: macOS's text (its label colour, black at 85%, over white)
+    /// on its text background, and ANSI colours dark enough to read on it (the normal ones at least 4.5:1, the bright ones
+    /// 3:1). Tomorrow's hues, as the dark palette is Tomorrow Night's (Kitty's).
+    public static let lightForeground: [UInt8] = [0x27, 0x27, 0x27]
+    public static let lightBackground: [UInt8] = [0xFF, 0xFF, 0xFF]
     public static let lightAnsi = palette([
         0x1D1F21,
         0xC62828,

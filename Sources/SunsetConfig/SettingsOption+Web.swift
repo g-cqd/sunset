@@ -128,21 +128,6 @@ extension SettingsOption {
                 ]
             )
             .noted("Per page, the zoom is saved with the page's tab."),
-            pageScheme,
             custom("web.textOnlyZoom", "Zoom text only", "zoom text font", .textOnlyZoom)
         ]
-
-    /// The pages' scheme, apart from Sunset's own (design 0009).
-    private static let pageScheme = choice(
-        "web.pageScheme",
-        "Page appearance",
-        "dark light mode scheme appearance pages sites color",
-        \.web.pageScheme,
-        Configuration.Web.PageScheme.allCases.map { ($0, pageSchemeNames[$0] ?? "") }
-    )
-    .noted("A site with a dark mode of its own uses it; others are shown as they are.")
-
-    private static let pageSchemeNames: [Configuration.Web.PageScheme: String] = [
-        .app: "Same as Sunset", .system: "Follow the system", .light: "Light", .dark: "Dark"
-    ]
 }

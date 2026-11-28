@@ -13,9 +13,9 @@ import Testing
         throws
     {
         let configuration = try read("{}").configuration
-        #expect(configuration.window.material == .glass)
+        #expect(configuration.window.material == .material)
         #expect(
-            configuration.window.padding == 4 && configuration.window.blur == 0 && configuration.terminal.opacity == 0.2
+            configuration.window.padding == 4 && configuration.window.blur == 0 && configuration.terminal.opacity == 1
         )
         #expect(
             configuration.sidebar.enabled && configuration.sidebar.width == 229 && configuration.sidebar.padding == 4
@@ -25,7 +25,7 @@ import Testing
             "docked beside the terminal"
         )
         #expect(configuration.appearance.glass == .regular)
-        #expect(configuration.appearance.tintColor == [0, 0, 0] && configuration.appearance.tintAlpha == 0.5)
+        #expect(configuration.appearance.tintColor == nil && configuration.appearance.tintAlpha == 0.25)
         #expect(configuration.tabs.mode == .native)
         #expect(configuration.tabs.restore, "tabs come back at launch")
         #expect(configuration.tabs.bar == Configuration.Tabs.Bar())
@@ -47,7 +47,7 @@ import Testing
         )
         #expect(result.issues.isEmpty)
         let configuration = result.configuration
-        #expect(configuration.window.material == .fill && configuration.terminal.opacity == 0.6)
+        #expect(configuration.window.material == .color && configuration.terminal.opacity == 0.6)
         #expect(configuration.window.blur == 40 && configuration.window.padding == 6)
         #expect(
             configuration.sidebar.enabled && configuration.sidebar.width == 240 && configuration.sidebar.padding == 4
@@ -104,13 +104,13 @@ import Testing
         #expect(try read(#"{ "window": { "opacity": 5 } }"#).issues.map(\.path) == ["window.opacity"])
     }
 
-    @Test func `the terminal windows are locked to the dark scheme unless the file says otherwise`() throws {
-        #expect(Configuration().appearance.scheme == .dark)
-        #expect(try read(#"{ "appearance": { "scheme": "system" } }"#).configuration.appearance.scheme == .system)
+    @Test func `the app follows macOS's scheme unless the file forces one`() throws {
+        #expect(Configuration().appearance.scheme == .system)
+        #expect(try read(#"{ "appearance": { "scheme": "dark" } }"#).configuration.appearance.scheme == .dark)
         #expect(try read(#"{ "appearance": { "scheme": "light" } }"#).configuration.appearance.scheme == .light)
         let bad = try read(#"{ "appearance": { "scheme": "sepia" } }"#)
         #expect(bad.issues.map(\.path) == ["appearance.scheme"])
-        #expect(bad.configuration.appearance.scheme == .dark)
+        #expect(bad.configuration.appearance.scheme == .system)
     }
 
     @Test func `groups: the window look, the sidebar, the tabs and the theme are separate changes`() {

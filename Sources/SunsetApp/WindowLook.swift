@@ -2,9 +2,9 @@ import AppKit
 import SunsetConfig
 import SunsetPane
 
-/// What is behind a window's terminal, as the configuration says: a material, glass, nothing (with a blur radius), and the tint over it.
+/// What is behind a window's terminal, as the configuration says: a colour, a material or glass, a blur radius, and the tint.
 struct WindowLook: Equatable {
-    var material = Configuration.Material.opaque
+    var material = Configuration.Material.material
     var thickness = Configuration.MaterialThickness.regular
     var glass = Configuration.Appearance.Glass.regular
     var tint: [UInt8]?
@@ -56,7 +56,13 @@ struct WindowLook: Equatable {
 
     static let spaceShare = 1.0 / 3
 
+    /// Nothing shows through: a colour with no tint (the window's own) or a tint at full strength.
     var isOpaque: Bool {
-        material == .opaque
+        material == .color && (tint == nil || tintAlpha >= 1)
+    }
+
+    /// The colour of an opaque window: the tint, or the window's own.
+    var opaqueColor: NSColor {
+        tintColor ?? .windowBackgroundColor
     }
 }

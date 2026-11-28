@@ -71,8 +71,12 @@ extension AppDecisionsTests {
             !configuration.sidebarDocked && configuration.terminalPadding == 2,
             "floating: the window's own padding"
         )
-        configuration.window.material = .opaque
-        #expect(configuration.backgroundAlpha == 255)
+        configuration.window.material = .color
+        #expect(configuration.backgroundAlpha == 255, "a colour with no tint is the window's own, opaque")
+        configuration.appearance.tintColor = [10, 20, 30]
+        configuration.appearance.tintAlpha = 0.5
+        configuration.terminal.opacity = 0.5
+        #expect(configuration.backgroundAlpha == 128, "a tint at half strength shows the desktop")
         configuration.window.material = .glass
         configuration.terminal.opacity = 0.5
         #expect(configuration.backgroundAlpha == 128)

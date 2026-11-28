@@ -161,19 +161,14 @@ struct SettingsPage: View {
     /// The options that act under the configuration now; a group left empty is not shown.
     private func applying(_ options: [SettingsOption]) -> [SettingsOption] {
         // With a profile chosen, only what a profile can set.
-        // An option shown as another's light value is in that one's row.
-        options.filter {
-            $0.isShown(in: store.configuration) && (scoped == nil || $0.isProfileSetting)
-                && !SettingsOption.lightTwins.contains($0.id)
-        }
+        options.filter { $0.isShown(in: store.configuration) && (scoped == nil || $0.isProfileSetting) }
     }
 
     private func rows(_ options: [SettingsOption]) -> some View {
         // A choice that acts only under another is shown under it only.
         ForEach(applying(options)) { option in
             // A per-profile store sets no light values: only the app's.
-            if scoped == nil, option.lightTwin != nil || (option.perScheme && Configuration.hasSchemeValues(option.id))
-            {
+            if scoped == nil, Configuration.hasSchemeValues(option.id) {
                 SchemeSettingsRow(option: option, config: store)
             } else {
                 SettingsRow(option: option, config: store)

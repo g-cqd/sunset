@@ -15,15 +15,20 @@ package struct PageSettingsMaker: Sendable {
 
     /// The settings of a page of `own` (nil: all profiles'), from `app`, the configuration of all profiles.
     package func settings(app: Configuration, own: Profile?) -> WebSettings {
-        guard let own, !own.overrides.isEmpty else {
-            return settings(from: app.web)
+        var settings: WebSettings
+        if let own, !own.overrides.isEmpty {
+            let web = ProfileOverrides.apply(own.overrides, to: app).web
+            settings = self.settings(from: web)
+            settings.proxy = WebProxy(web.proxy)
+            settings.permissionDefaults = Self.permissionDefaults(web)
+            settings.downloadFolder = Self.folder(web)
+            settings.askWhereToSave = web.askWhereToSave
+        } else {
+            settings = self.settings(from: app.web)
         }
-        let web = ProfileOverrides.apply(own.overrides, to: app).web
-        var settings = settings(from: web)
-        settings.proxy = WebProxy(web.proxy)
-        settings.permissionDefaults = Self.permissionDefaults(web)
-        settings.downloadFolder = Self.folder(web)
-        settings.askWhereToSave = web.askWhereToSave
+        // In the window's scheme, unless the app's is forced and content does not follow it: macOS's then.
+        let follows = app.appearance.scheme == .system || app.appearance.contentFollows
+        settings.pageScheme = follows ? .window : .system
         return settings
     }
 
@@ -49,7 +54,6 @@ package struct PageSettingsMaker: Sendable {
         settings.notificationAskWithoutClick = web.notificationsWithoutClick
         settings.workerNotifications = web.workerNotifications
         settings.pictureInPicture = web.pictureInPicture
-        settings.pageScheme = PageScheme(rawValue: web.pageScheme.rawValue) ?? .window
         settings.autoPictureInPicture = web.autoPictureInPicture
         settings.blocking = web.blocking
         settings.httpsUpgrade = HTTPSUpgrade(rawValue: web.httpsUpgrade.rawValue) ?? .fallback

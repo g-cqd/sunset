@@ -20,14 +20,15 @@ struct LightTerminalColorsTests {
         return (light + 0.05) / (dark + 0.05)
     }
 
-    @Test func `by default the terminal is dark in dark and light in light, its colours readable on its screen`() throws
-    {
+    @Test func `by default the terminal has macOS's colours in each scheme, readable on its screen`() throws {
         let light = Configuration().inLight().colors
         #expect(light.background == Configuration.Colors.lightBackground)
         #expect(
             light.foreground == Configuration.Colors.lightForeground && light.ansi == Configuration.Colors.lightAnsi
         )
-        #expect(Configuration().colors.background == [0, 0, 0])
+        let dark = Configuration().colors
+        #expect(dark.background == [0x1E, 0x1E, 0x1E] && dark.foreground == [0xDD, 0xDD, 0xDD])
+        #expect(Self.contrast(try #require(dark.foreground), try #require(dark.background)) >= 7)
         let screen = try #require(light.background)
         #expect(Self.contrast(try #require(light.foreground), screen) >= 7)
         for (index, colour) in light.ansi.enumerated() where index != 15 {
@@ -35,24 +36,19 @@ struct LightTerminalColorsTests {
         }
     }
 
-    @Test func `a file that keeps the default colours gets the light ones; a colour chosen is both schemes'`() throws {
+    @Test func `a file that says nothing keeps macOS's; a colour in a file of before is both schemes'`() throws {
         let written = ConfigurationWriter.text(for: Configuration())
         #expect(try ConfigurationParser.parse(written).configuration == Configuration())
-        let former = try ConfigurationParser.parse(
-            ##"{ "colors": { "foreground": "#ffffff", "background": "#000000", "ansi": [] } }"##
-        )
-        #expect(former.configuration.inLight().colors.background == Configuration.Colors.lightBackground)
         let chosen = try ConfigurationParser.parse(##"{ "colors": { "background": "#202830" } }"##).configuration
         #expect(chosen.inLight().colors.background == [0x20, 0x28, 0x30])
-        #expect(chosen.inLight().colors.ansi == Configuration.Colors.lightAnsi, "the rest keep their light defaults")
+        #expect(chosen.inLight().colors.ansi == Configuration.Colors.lightAnsi, "the rest keep macOS's light")
     }
 
-    @Test func `the palette can differ in light, written as a pair and read back; one for both stays one`() throws {
+    @Test func `the palette changed in dark keeps its light one; a pair is read and written back`() throws {
         var configuration = Configuration()
         configuration.colors.ansi[1] = [0xFF, 0x00, 0x00]
-        configuration.lightValues["colors.ansi"] = nil
-        let one = try ConfigurationParser.parse(ConfigurationWriter.text(for: configuration)).configuration
-        #expect(one == configuration && one.inLight().colors.ansi[1] == [0xFF, 0x00, 0x00])
+        let dark = try ConfigurationParser.parse(ConfigurationWriter.text(for: configuration)).configuration
+        #expect(dark == configuration && dark.inLight().colors.ansi[1] == Configuration.Colors.lightAnsi[1])
         let pair = try ConfigurationParser.parse(
             ##"{ "colors": { "ansi": { "light": ["#000000", "#aa0000"], "dark": ["#111111", "#ff5555"] } } }"##
         )

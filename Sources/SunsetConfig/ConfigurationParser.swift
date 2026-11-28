@@ -10,6 +10,9 @@ public enum ConfigurationParser {
         public var issues: [ConfigurationIssue]
         /// The file has keys in their former places (`font`, `colors`, …): it is to be written again with the new ones.
         public var hasFormerKeys = false
+        /// The file has settings or values of before the look settings had one per scheme (the tint's light keys,
+        /// `web.pageScheme`, an opaque or filled window): it is to be written again with the present ones.
+        public var hasFormerValues = false
     }
 
     /// Which keys a file may set: all of them, or only the visual ones (a theme).
@@ -31,6 +34,7 @@ public enum ConfigurationParser {
         var reader = Reader(configuration: base, scope: scope)
         // The file's keys follow the sections; the settings keep their names (design 0009).
         reader.read(FileKeys.inside(object))
+        reader.finish()
         let issues = reader.issues.map { issue in
             var said = issue
             said.path = FileKeys.file(issue.path)
@@ -39,7 +43,8 @@ public enum ConfigurationParser {
         return Result(
             configuration: reader.configuration,
             issues: issues,
-            hasFormerKeys: FileKeys.hasFormerKeys(object)
+            hasFormerKeys: FileKeys.hasFormerKeys(object),
+            hasFormerValues: reader.migrated
         )
     }
 

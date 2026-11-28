@@ -1,5 +1,12 @@
 /// The options of Appearance.
 extension SettingsOption {
+    /// Keys the reader also names: the tint's, which former keys give light values (`Reader.finish`), the window's
+    /// background, of which `opaque` was a value, and the setting `web.pageScheme` became.
+    static let tintColorKey = "appearance.tint.color"
+    static let tintAlphaKey = "appearance.tint.alpha"
+    static let materialKey = "window.material"
+    static let contentFollowsKey = "appearance.contentFollows"
+
     /// Sunset's scheme and its icon.
     static let appearance: [Self] =
         [
@@ -8,9 +15,18 @@ extension SettingsOption {
                 "Color scheme",
                 "dark light system appearance mode lock",
                 \.appearance.scheme,
-                [(.dark, "Dark"), (.light, "Light"), (.system, "Follow the system")]
+                [(.system, "Follow the system"), (.dark, "Dark"), (.light, "Light")]
             )
-            .noted("For the whole app. Light has its own tint; a dark terminal theme stays dark and opaque in it."),
+            .noted("For the whole app."),
+            toggle(
+                contentFollowsKey,
+                "Content follows",
+                "pages web documents dark light mode scheme appearance sites",
+                \.appearance.contentFollows,
+                label: "Pages and documents use this scheme too"
+            )
+            .shown { $0.appearance.scheme != .system }
+            .noted("Off, they follow the system's. A site with no dark mode of its own is shown as it is."),
             choice(
                 "appearance.icon",
                 "App icon",
@@ -35,13 +51,10 @@ extension SettingsOption {
             )
             .inBothSchemes
             .noted("From the website: the color the page declares, else its icon's; the system's for anything else."),
-            color("appearance.tint.color", "Tint", "colour color overlay glass", \.appearance.tintColor, [48, 96, 255])
-                .withLightTwin("appearance.tint.light"),
-            strength("appearance.tint.alpha", "Tint strength", \.appearance.tintAlpha)
-                .withLightTwin(lightTintAlphaKey),
-            // The tint's light values: shown in the tint's rows, beside its own (`lightTwin`).
-            color("appearance.tint.light", "Tint in light", "light", \.appearance.lightTintColor, [255, 255, 255]),
-            strength(Self.lightTintAlphaKey, "Tint strength in light", \.appearance.lightTintAlpha),
+            color(tintColorKey, "Tint", "colour color overlay glass fill", \.appearance.tintColor, [48, 96, 255])
+                .inBothSchemes
+                .noted("Over the window's background; with Color, the background itself."),
+            strength(tintAlphaKey, "Tint strength", \.appearance.tintAlpha).inBothSchemes,
             choice(
                 "appearance.barTint",
                 "Bar appearance",
@@ -49,22 +62,24 @@ extension SettingsOption {
                 \.appearance.barTint,
                 [(.scheme, "Follow the color scheme"), (.dark, "Dark"), (.light, "Light")]
             )
-            .inBothSchemes
         ]
 
     /// What the window and its surfaces are made of.
     static let materials: [Self] =
         [
             choice(
-                "window.material",
+                materialKey,
                 "Window background",
                 "material glass transparent opaque blur vibrancy",
                 \.window.material,
-                [(.opaque, "Opaque"), (.material, "Material"), (.glass, "Glass"), (.fill, "Color fill")],
+                [(.color, "Color"), (.material, "Material"), (.glass, "Glass")],
                 label: "Window and sidebar background"
             )
             .inBothSchemes
-            .formerly(["transparent": "fill"])
+            .noted(
+                "Color is the tint at its strength (the window's own color with no tint); the others are tinted by it."
+            )
+            .formerly(["transparent": "color", "fill": "color", "opaque": "color"])
             .grouped("Window"),
             choice(
                 "window.materialThickness",
@@ -76,6 +91,7 @@ extension SettingsOption {
                     (.ultraThick, "Ultra thick")
                 ]
             )
+            .inBothSchemes
             .noted("How much of what is behind the window shows through.")
             .grouped("Window")
             .shown { $0.window.material == .material },
@@ -90,8 +106,9 @@ extension SettingsOption {
             .grouped("Window")
             .shown { $0.window.material == .glass },
             number("window.blur", "Window blur", "radius frosted background", \.window.blur, 0 ... 100, step: 1)
-                .grouped("Window")
-                .shown { $0.window.material == .material || $0.window.material == .glass },
+                .inBothSchemes
+                .noted("A blur of its own of what is behind the window, over any background.")
+                .grouped("Window"),
             choice(
                 "appearance.ends",
                 "Ends of lists and titles",
@@ -110,9 +127,6 @@ extension SettingsOption {
             )
             .grouped("Bar appearance")
         ]
-
-    /// The tint's strength in light: its own setting, shown beside the tint's (`lightTwin`).
-    private static let lightTintAlphaKey = "appearance.tint.lightAlpha"
 
     /// A tint's strength: 0 to 1 by twentieths.
     private static func strength(_ id: String, _ title: String, _ path: Path<Double>) -> Self {

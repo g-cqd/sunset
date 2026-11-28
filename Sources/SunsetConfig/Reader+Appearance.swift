@@ -41,20 +41,22 @@ extension Reader {
         }
     }
 
+    /// The tint's keys that are not settings: its light colour and strength from before the tint had a value per scheme,
+    /// kept as its light values (`finish`).
     private mutating func readTint(_ object: Object) {
         for (key, value) in object {
             switch key {
-                case "color":
-                    if case .null = value {
-                        configuration.appearance.tintColor = nil
-                    } else if let bytes = color("appearance.tint.color", value) {
-                        configuration.appearance.tintColor = bytes
-                    }
                 case "light":
+                    migrated = true
                     if case .null = value {
-                        configuration.appearance.lightTintColor = nil
+                        formerLight[SettingsOption.tintColorKey] = "null"
                     } else if let bytes = color("appearance.tint.light", value) {
-                        configuration.appearance.lightTintColor = bytes
+                        formerLight[SettingsOption.tintColorKey] = ConfigurationWriter.color(bytes)
+                    }
+                case "lightAlpha":
+                    migrated = true
+                    if let alpha = number("appearance.tint.lightAlpha", value, range: 0 ... 1) {
+                        formerLight[SettingsOption.tintAlphaKey] = ConfigurationWriter.number(alpha)
                     }
                 default: unknown("appearance.tint.\(key)")
             }

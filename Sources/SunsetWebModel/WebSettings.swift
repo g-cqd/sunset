@@ -23,7 +23,7 @@ package struct WebSettings: Sendable, Equatable {
     package var hardening = Hardening.off
     package var globalPrivacyControl = GlobalPrivacyControl.privateWindows
     package var zoomScope: ZoomScope
-    /// The scheme its pages are shown in (`web.pageScheme`).
+    /// The scheme its pages are shown in (`appearance.contentFollows`).
     package var pageScheme = PageScheme.window
     package var textOnlyZoom: Bool
     /// A private page's store; nil for a page of the persistent store. Pages it opens inherit it.

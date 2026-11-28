@@ -3,9 +3,10 @@ public import SunsetMetrics
 /// Everything the configuration file sets, with the defaults used for any key it does not mention.
 public struct Configuration: Sendable, Equatable {
     public struct Colors: Sendable, Equatable {
-        /// `#rrggbb` as red, green, blue. The defaults are the author's (white on black, Kitty's 16 ANSI colours); nil (the cursor, or a colour set to null) keeps the terminal's own.
-        public var foreground: [UInt8]? = [0xFF, 0xFF, 0xFF]
-        public var background: [UInt8]? = [0x00, 0x00, 0x00]
+        /// `#rrggbb` as red, green, blue. The defaults are macOS's in dark (its text and text background, design 0009) and
+        /// Kitty's 16 ANSI colours; nil (the cursor, or a colour set to null) keeps the terminal's own.
+        public var foreground: [UInt8]? = [0xDD, 0xDD, 0xDD]
+        public var background: [UInt8]? = [0x1E, 0x1E, 0x1E]
         public var cursor: [UInt8]?
         /// The 16 ANSI colours, black to white then their bright variants (Kitty's `color0` to `color15`).
         public var ansi: [[UInt8]] = Colors.kittyAnsi
@@ -44,25 +45,23 @@ public struct Configuration: Sendable, Equatable {
         public var dragStrip = 16.0
         /// Space between the window's edge and the terminal, in points (0: the text reaches the edge).
         public var padding = 4.0
-        public var material = Material.glass
+        public var material = Material.material
         /// How thick the `material` background is.
         public var materialThickness = MaterialThickness.regular
-        /// The radius of the blur behind a `transparent` window, in points (0 to 100).
+        /// The radius of a blur of its own behind the window, in points (0 to 100), whatever `material` is.
         public var blur = 0.0
         public init() {}
     }
 
-    /// What is behind the terminal (and the sidebar).
+    /// What is behind the terminal (and the sidebar). Each is tinted by `appearance.tint` at its strength.
     public enum Material: String, Sendable, Equatable, CaseIterable {
-        /// A solid colour.
-        case opaque
+        /// A colour: the tint at its strength, the desktop showing through below full strength; with no tint, the window's
+        /// own colour, opaque. Read also as `opaque`, `fill` and `transparent`, its names before.
+        case color
         /// A system material (`NSVisualEffectView`) that blurs what is behind the window.
         case material
         /// Liquid Glass (`NSGlassEffectView`, macOS 26).
         case glass
-        /// A colour with alpha: the tint (`appearance.tint`), the desktop showing through it, nothing blurred. Read also as
-        /// `transparent`, its name before.
-        case fill
     }
 
     /// An edge of the window.
@@ -76,19 +75,18 @@ public struct Configuration: Sendable, Equatable {
             case regular, clear
         }
 
-        /// The colour scheme of the terminal windows (the sidebar, the glass, the controls): locked to dark by default; `system` follows macOS.
+        /// The app's colour scheme: macOS's by default, or always dark or light.
         public enum Scheme: String, Sendable, Equatable, CaseIterable {
             case dark, light, system
         }
 
-        public var scheme = Scheme.dark
+        public var scheme = Scheme.system
+        /// Pages and documents are shown in `scheme` too; off, they follow macOS's.
+        public var contentFollows = true
         public var glass = Glass.regular
-        /// `#rrggbb`; nil for no tint. One tint for the window and the sidebar.
-        public var tintColor: [UInt8]? = [0x00, 0x00, 0x00]
-        /// The tint while the scheme is light, and its strength (black text on the dark tint did not read).
-        public var lightTintColor: [UInt8]? = [0xFF, 0xFF, 0xFF]
-        public var lightTintAlpha = 0.8
-        public var tintAlpha = 0.5
+        /// `#rrggbb`; nil for no tint (macOS's look). One tint for the window and the sidebar.
+        public var tintColor: [UInt8]?
+        public var tintAlpha = 0.25
         /// The colour that marks a selection, a focus, a filled control (design 0003 §3.5): the system's accent, Sunset's (`tint.color`, the
         /// system's when unset), neutral shades of the scheme, or the shown site's colour.
         public var accent = Accent.system
@@ -219,9 +217,9 @@ public struct Configuration: Sendable, Equatable {
     public var updates = Updates()
     public var passwords = Passwords()
     public var control = Control()
-    /// The values of plain settings in the light scheme, where they differ: the key and its value as JSON (design 0009);
-    /// the terminal's colours have light ones until the file says otherwise.
-    public var lightValues = Configuration.defaultLightValues
+    /// The look settings' values in the light scheme where they are not macOS's (`nativeLight`): the key and its value as
+    /// JSON (design 0009). Their values in dark are the configuration's own.
+    public var lightValues: [String: String] = [:]
     /// Keys given to commands (`keys`): a command's name and its key ("cmd+shift+d", "⇧⌘D"); "" takes its key away.
     public var keys: [String: String] = [:]
 

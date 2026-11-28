@@ -3,7 +3,7 @@ extension Configuration {
     public struct Terminal: Sendable, Equatable {
         /// How opaque the terminal's default background is when the window is not opaque: 1 shows only the terminal's colour, less lets the window's
         /// material show through.
-        public var opacity = 0.2
+        public var opacity = 1.0
         /// A program may put text on the clipboard (OSC 52); it can never read it.
         public var clipboardWrite = true
         /// Keys typed in the terminal are kept from other apps' event taps (keyloggers): while a program asks for a password,

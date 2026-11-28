@@ -9,24 +9,17 @@ import Testing
 /// The decisions the `App*` singletons made in the app target, where nothing tested them, made here from the state
 /// given to them.
 extension AppDecisionsTests {
-    /// `AppConfiguration`: the configuration the windows are drawn with in the light scheme.
-    @Test func `light, the light tint is used and a dark terminal theme stays opaque; dark, nothing changes`() {
+    /// `AppConfiguration`: the configuration the windows are drawn with in a scheme (design 0009).
+    @Test func `light, each look setting's light value or macOS's; dark, the configuration's own`() {
         var configuration = Configuration()
         configuration.appearance.tintColor = [10, 20, 30]
-        configuration.appearance.lightTintColor = [200, 210, 220]
-        configuration.appearance.lightTintAlpha = 0.3
+        configuration.setLight("appearance.tint.color", "\"#c8d2dc\"")
         configuration.terminal.opacity = 0.7
-        configuration.colors.background = [20, 20, 20]
         #expect(ShownConfiguration.make(configuration, light: false) == configuration)
         let light = ShownConfiguration.make(configuration, light: true)
-        #expect(light.appearance.tintColor == [200, 210, 220] && light.appearance.tintAlpha == 0.3)
-        #expect(light.terminal.opacity == 1, "a dark theme over the light tint washed out to grey")
-        configuration.colors.background = [250, 250, 250]
-        #expect(
-            ShownConfiguration.make(configuration, light: true).terminal.opacity == 0.7,
-            "a light theme keeps its own"
-        )
-        #expect(ShownConfiguration.isDark(nil), "the terminal's default is black")
+        #expect(light.appearance.tintColor == [200, 210, 220])
+        #expect(light.terminal.opacity == 1, "not changed in light: macOS's, opaque")
+        #expect(light.colors.background == Configuration.Colors.lightBackground)
     }
 
     /// `AppScopes`: what the question says before a scope with open tabs is turned off.

@@ -11,13 +11,9 @@ public enum ConfigurationWriter {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }
         layout.merge(extras(configuration)) { $1 }
-        // A plain value is written by its option's codec; with a value of its own in light, both. One for both that would
-        // read back as its light default (`keepsLightDefault`) is written in both too.
+        // A plain value is written by its option's codec; a look setting by scheme (`scheme`).
         for (key, codec) in SettingCodec.byKey {
-            let dark = codec.literal(configuration)
-            let same = Configuration.keepsLightDefault(key, literal: dark) ? dark : nil
-            layout[key] =
-                (configuration.lightValues[key] ?? same).map { "{ \"light\": \($0), \"dark\": \(dark) }" } ?? dark
+            layout[key] = Configuration.isSchemeKey(key) ? scheme(key, configuration) : codec.literal(configuration)
         }
         return layout.merging([
             "font.family": string(font.family ?? ""),
@@ -32,11 +28,20 @@ public enum ConfigurationWriter {
             "sidebar.enabled": String(configuration.sidebar.enabled),
             "sidebar.autoHide": String(configuration.sidebar.autoHide),
             "sidebar.width": number(configuration.sidebar.width),
-            "appearance.tint.color": color(configuration.appearance.tintColor),
             "layout.terminalRadius": configuration.layout.terminalRadius.map(number) ?? "null",
             "layout.panelRadius": configuration.layout.panelRadius.map(number) ?? "null",
             "theme": configuration.theme.map(string) ?? "null"
         ]) { first, _ in first }
+    }
+
+    /// A look setting (design 0009): what was changed in each scheme, `{}` for macOS's in both; one value when it is the
+    /// same in both.
+    static func scheme(_ key: String, _ configuration: Configuration) -> String {
+        let light = configuration.lightValues[key]
+        let dark = configuration.changes(key, light: false) ? Configuration.literal(of: key, in: configuration) : nil
+        if let light, light == dark { return light }
+        let parts = [light.map { "\"light\": \($0)" }, dark.map { "\"dark\": \($0)" }].compactMap(\.self)
+        return parts.isEmpty ? "{}" : "{ " + parts.joined(separator: ", ") + " }"
     }
 
     /// The 16 ANSI colours as a JSON array.

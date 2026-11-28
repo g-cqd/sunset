@@ -27,7 +27,13 @@ extension Configuration {
 
     /// How opaque the terminal's default background is: fully, with an opaque window, else as `terminal.opacity` says.
     package var backgroundAlpha: UInt8 {
-        window.material == .opaque ? 255 : UInt8((terminal.opacity * 255).rounded())
+        windowOpaque ? 255 : UInt8((terminal.opacity * 255).rounded())
+    }
+
+    /// Nothing shows through the window: a colour background with no tint (the window's own colour) or a tint at full
+    /// strength.
+    package var windowOpaque: Bool {
+        window.material == .color && (appearance.tintColor == nil || appearance.tintAlpha >= 1)
     }
 
     /// How the tabs are shown.

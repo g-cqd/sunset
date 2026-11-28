@@ -196,11 +196,9 @@ final class AppConfiguration {
         hasFile = true
         var text = String(decoding: data, as: UTF8.self)
         if text == lastWritten { return }
-        // A file with the former keys (`font`, `colors`, …) is written once with the new ones, as it was otherwise
-        // (design 0009); the former one is kept beside it.
-        if (try? ConfigurationParser.parse(text))?.hasFormerKeys == true,
-            let moved = ConfigurationPatcher.movingFormerKeys(text)
-        {
+        // A file with the former keys (`font`, `colors`, …) or values (the tint's light keys, `web.pageScheme`) is written
+        // once with the present ones, as it was otherwise (design 0009); the former one is kept beside it.
+        if let moved = ConfigurationPatcher.upgraded(text) {
             try? FileManager.default.removeItem(atPath: path + ".before-keys")
             try? FileManager.default.copyItem(atPath: path, toPath: path + ".before-keys")
             if (try? moved.write(toFile: path, atomically: true, encoding: .utf8)) != nil {

@@ -1,7 +1,7 @@
 import AppKit
 import SunsetWeb
 
-/// Pages that follow the system's scheme (`web.pageScheme`) change with it, whatever Sunset's own scheme is.
+/// Pages that follow the system's scheme (`appearance.contentFollows` off) change with it, whatever Sunset's own scheme is.
 @MainActor enum AppPageScheme {
     private static var watching = false
 
