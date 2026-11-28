@@ -45,3 +45,11 @@ hidden), group path as folder, tags, attachments up to 4 MiB, one-time codes and
 bin's are left out. Checked against databases pykeepass wrote. KDBX 3 is refused (saved again by KeePass, it is 4); KDBX
 out is not built.
 
+By the 1Password import (2026-11-28): `.1pux` is read in (`LoginImport.readOnePassword`), its zip read in memory (stored or
+DEFLATE members, each checked by its CRC-32; Zip64 and encrypted members refused; what inflates bounded). Logins and
+passwords, cards, identities, secure notes, documents and SSH keys become entries of their template, any other category a
+secure note with every field kept; section fields fill the template's fields where 1Password's ids match, else fields of
+their own of the value's kind; the one-time code, the password's history, tags, favourites, files, and the vault as the
+folder when there are several. Archived items are left out. Checked against an export written to 1Password's documented
+format, not one 1Password wrote.
+

@@ -16,19 +16,29 @@ enum PasswordsImport {
         let panel = NSOpenPanel()
         panel.allowedContentTypes =
             [.commaSeparatedText, .plainText, .json]
-            + ["2fas", "kdbx"]
+            + ["2fas", "kdbx", "1pux"]
             .compactMap {
                 UTType(filenameExtension: $0)
             }
         panel.message =
             "Choose the file your browser, password manager, or authenticator exported: CSV, Bitwarden, Aegis, 2FAS, or "
-            + "andOTP JSON, or a KeePass database (.kdbx)."
+            + "andOTP JSON, a 1Password export (.1pux), or a KeePass database (.kdbx)."
         panel.prompt = "Read"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         if let data = try? Data(contentsOf: url, options: .mappedIfSafe), LoginImport.isKeePass(data) {
             Runtime.live.task { @MainActor in
                 guard let imported = await PasswordsKeePassImport.read(data, against: model.entries) else { return }
                 add(imported, from: url, into: model, inTheClear: false)
+            }
+            return
+        }
+        if let data = try? Data(contentsOf: url, options: .mappedIfSafe), LoginImport.isOnePasswordExport(data) {
+            let site: @Sendable (String) -> String? = { AppPasswordFill.site($0) }
+            do throws(LoginImport.Failure) {
+                let read = try LoginImport.readOnePassword(data, site: site).leavingOut(held: model.entries, site: site)
+                add(read, from: url, into: model, inTheClear: true)
+            } catch {
+                say("This 1Password export could not be read", "It may be damaged. Export it again from 1Password.")
             }
             return
         }

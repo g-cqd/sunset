@@ -10,3 +10,11 @@ read back by pykeepass before being kept:
 - `keepass-aeskdf-chacha20.kdbx`: the same database with ChaCha20 and AES-KDF (6,000 rounds).
 - `keepass-argon2id-keyfile.kdbx`: KDBX 4.0, Argon2id (1 MiB, 2 passes), password `pw` and the key file
   `keepass-keyfile.hex` (64 hex digits); one entry "Keyed".
+
+# 1Password fixture
+
+`onepassword.1pux`: a zip (Python's `zipfile`, DEFLATE) of `export.attributes`, `export.data` and
+`files/docid1__scan.txt`, written as 1Password documents the format ("1Password Unencrypted Export (.1PUX) format",
+support.1password.com): two vaults (Personal: a login with a TOTP, a concealed field, a date, two earlier passwords, tags,
+a favourite; a card; an identity with an address; a secure note; a document with its file; an archived login; Work: a
+server). Not a file 1Password wrote.
