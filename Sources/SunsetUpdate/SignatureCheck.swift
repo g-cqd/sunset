@@ -42,8 +42,21 @@ public enum SignatureCheck {
         }
     }
 
-    /// The team that signed the running process, nil when it has none (a development build: no updates).
+    /// The team that signed the running process, nil when it has none (a development build: no updates). Read as Sunset
+    /// starts (`rememberTeam`): read later from the files on disk, it failed once they were replaced while Sunset ran (an
+    /// install beside it), and every update was refused as having "no readable signature" (the owner, 2026-11-28).
     public static func runningTeam() -> String? {
+        teamAtLaunch
+    }
+
+    /// Reads the running process's team now, before anything could replace its files.
+    public static func rememberTeam() {
+        _ = teamAtLaunch
+    }
+
+    private static let teamAtLaunch: String? = readTeam()
+
+    private static func readTeam() -> String? {
         var code: SecCode?
         guard unsafe SecCodeCopySelf([], &code) == errSecSuccess, let code else { return nil }
         var staticCode: SecStaticCode?

@@ -7,6 +7,7 @@ import SunsetRenderMetal
 import SunsetRuntime
 import SunsetShell
 import SunsetStorage
+import SunsetUpdate
 import SunsetWeb
 import SunsetWebModel
 
@@ -15,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
         // The app's files as they are now: replaced later (an update beside it, a build over it), pages that end say so.
         BundleOnDisk.remember()
+        SignatureCheck.rememberTeam()
         WebContent.restartApp = { AppUpdates.shared.restart() }
         // The terminal's shaders compiled now, off the main thread, not when the first terminal opens.
         MetalCompositor.prepare()
