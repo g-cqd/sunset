@@ -25,6 +25,15 @@ struct TabsOpenFilesTests {
         #expect(harness.tabs.shownPane.flatMap(harness.content)?.descriptor.documentFile == "/tmp/b.txt")
     }
 
+    @Test func `a PDF, a picture or a film opens in its viewer, and is shown again rather than opened twice`() {
+        let harness = TabsHarness()
+        harness.tabs.open(files: ["/tmp/report.pdf", "/tmp/notes.md"])
+        #expect(harness.made.map(\.descriptor.kind) == [PaneDescriptor.fileViewKind, PaneDescriptor.documentKind])
+        harness.tabs.open(files: ["/tmp/report.pdf"])
+        #expect(harness.made.count == 2)
+        #expect(harness.tabs.shownPane.flatMap(harness.content)?.descriptor.documentFile == "/tmp/report.pdf")
+    }
+
     @Test func `a file this window already shows is shown, however its path was written`() {
         let harness = TabsHarness()
         harness.tabs.open(files: ["/tmp/a.md"])

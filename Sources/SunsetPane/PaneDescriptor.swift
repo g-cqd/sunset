@@ -62,9 +62,9 @@ public struct PaneDescriptor: Sendable, Equatable, Codable {
         PaneDescriptor(kind: documentKind, state: ["file": path])
     }
 
-    /// The file this brings back; nil for a document of the store and for any other kind.
+    /// The file this brings back, as a document or in its viewer; nil for a document of the store and for any other kind.
     public var documentFile: String? {
-        kind == Self.documentKind ? state["file"] : nil
+        kind == Self.documentKind || kind == Self.fileViewKind ? state["file"] : nil
     }
 
     /// The stored document this brings back; nil for a file's document and for any other kind.

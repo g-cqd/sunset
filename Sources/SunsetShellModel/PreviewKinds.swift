@@ -17,7 +17,7 @@ package struct PreviewKinds: Sendable, Equatable {
                 switch kind {
                     case "web": pages
                     case PaneDescriptor.terminalKind: terminals
-                    case PaneDescriptor.documentKind: documents
+                    case PaneDescriptor.documentKind, PaneDescriptor.fileViewKind: documents
                     default: true
                 }
             }

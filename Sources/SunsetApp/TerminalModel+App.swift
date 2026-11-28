@@ -28,7 +28,8 @@ extension TerminalModel {
         }
         openURL = { [weak self, weak tabs] url in
             // A file of this Mac: a program is shown in the Finder, not run (ADR-0118). What Sunset opens (drawn: Markdown,
-            // Mermaid, HTML, SVG; text) opens beside the terminal in a document pane when documents are on (M-h / t211).
+            // Mermaid, HTML, SVG; text; looked at: PDF, pictures, sound, film) opens beside the terminal when documents are
+            // on (M-h / t211).
             let links = AppConfiguration.shared.configuration.terminal.fileLinks
             if url.isFileURL {
                 if links.reveals(program: FileLinkTarget.isProgram(url)) {
@@ -38,11 +39,11 @@ extension TerminalModel {
                 // What the link names (an alias's target), not the alias file itself.
                 let file = FileLinkTarget.target(of: url) ?? url
                 if AppScopes.current.documents, let self, let tabs, Self.isSunsetDocumentURL(file) {
-                    let descriptor = DocumentContent.descriptor(file: file.path)
-                    if let doc = DocumentContent(descriptor, documents: SunsetStore.shared.openDocuments) {
+                    let made = PaneContentKinds.make(.forFile(file.path)) { SessionStore.shared.scheduleSave() }
+                    if !(made is UnknownContent) {
                         if !tabs.isPrivateWindow { tabs.shelf.noteFile(file.path) }
-                        DocumentWiring.wire(doc, in: tabs)
-                        tabs.split(.right, with: doc, beside: self)
+                        if let document = made as? DocumentContent { DocumentWiring.wire(document, in: tabs) }
+                        tabs.split(.right, with: made, beside: self)
                         return
                     }
                 }
@@ -62,6 +63,6 @@ extension TerminalModel {
     }
 
     private static func isSunsetDocumentURL(_ url: URL) -> Bool {
-        DocumentKind.opens(path: url.path)
+        DocumentKind.opens(path: url.path) || PaneDescriptor.isViewed(path: url.path)
     }
 }

@@ -80,9 +80,11 @@ public struct Scopes: Sendable, Equatable {
         Scope.allCases.filter { !on.contains($0) }
     }
 
-    /// Whether a pane of this kind can be: a kind that is none of the scopes' (the settings) always can.
+    /// Whether a pane of this kind can be: a kind that is none of the scopes' (the settings) always can. A file only looked
+    /// at is the documents'.
     public func allows(kind: String) -> Bool {
-        Scope.allCases.first { $0.kind == kind }.map(on.contains) ?? true
+        let owner = kind == PaneDescriptor.fileViewKind ? PaneDescriptor.documentKind : kind
+        return Scope.allCases.first { $0.kind == owner }.map(on.contains) ?? true
     }
 
     /// Whether what `descriptor` says can be made; no descriptor is a terminal.

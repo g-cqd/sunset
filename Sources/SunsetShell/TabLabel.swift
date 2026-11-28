@@ -144,6 +144,7 @@ package struct TabLabel: View {
             let rendered = saved.state["view"] == "rendered"
             return .symbol(rendered ? PaneDescriptor.renderedDocumentSymbol : PaneDescriptor.documentSymbol)
         }
+        if saved.kind == PaneDescriptor.fileViewKind { return .symbol("doc.richtext") }
         if saved.kind == PaneDescriptor.settingsKind { return .symbol(PaneDescriptor.settingsSymbol) }
         if saved.kind == PaneDescriptor.passwordsKind { return .symbol("key") }
         guard saved.kind == PaneDescriptor.terminalKind else { return .symbol("square.dashed") }

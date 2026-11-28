@@ -6,7 +6,7 @@ extension Scopes.Scope {
     private static let table = """
         terminal|Terminals|terminals|terminal|Shells in tabs and panes, with sessions kept.
         web|Web|the web|globe|Pages, Spaces and extensions, with ads and trackers blocked.
-        document|Documents|documents|doc.text|Markdown and text files, read and edited.
+        document|Documents|documents|doc.text|Markdown, web pages and text files read and edited; PDFs, pictures and films.
         passwords|Passwords|passwords|key|Passwords, cards and notes in a vault of your own, sealed on this Mac.
         """
         .split(separator: "\n")

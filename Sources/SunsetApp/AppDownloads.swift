@@ -46,7 +46,9 @@ import UserNotifications
         center.approve = { name, origin in await approve(name, origin: origin) }
         // What Sunset opens (drawn or as text) opens in a tab, with documents on; the rest in the Mac's app for it.
         center.open = { file in
-            if AppScopes.current.documents, DocumentKind.opens(path: file.path) {
+            if AppScopes.current.documents,
+                DocumentKind.opens(path: file.path) || PaneDescriptor.isViewed(path: file.path)
+            {
                 AppActions.shared.open(files: [file.path])
             } else {
                 NSWorkspace.shared.open(file)

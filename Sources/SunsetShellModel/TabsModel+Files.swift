@@ -17,7 +17,7 @@ extension TabsModel {
                 select(item: item.id)
                 focus(pane)
             } else {
-                newTab(.document(file: wanted))
+                newTab(.forFile(wanted))
             }
         }
     }

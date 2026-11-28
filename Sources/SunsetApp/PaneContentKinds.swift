@@ -39,6 +39,8 @@ import SunsetWeb
                 }
                 document.onChange = changed
                 return document
+            case FileViewContent.kind:
+                return FileViewContent(descriptor) ?? UnknownContent(descriptor)
             case SettingsContent.kind:
                 let settings = SettingsContent(descriptor)
                 settings.onChange = changed

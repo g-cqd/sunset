@@ -31,6 +31,12 @@ can.
   to it) and opened as a document's link is (`documents.linksOpen`, the keys held): another page or file as a document, an
   address in a tab. Any other navigation of the page is handed over the same way; a jump within it stays.
 
+- **A file only looked at opens in the system's viewer for it**, not as a document (it has no text): a PDF in PDFKit's
+  (zoom, search, selection), a picture in WebKit (no script, only the file readable), a sound or a film in AVKit's player
+  (`PaneDescriptor.forFile`, `FileViewContent`). It is the documents' scope, and is found again by its file.
+- **Every way a file reaches Sunset uses the same rule** (`DocumentKind.opens`, `PaneDescriptor.isViewed`): the Open panel,
+  Finder, a drop, a terminal's file link, a download opened. `documents.opensAs` makes what can be drawn open as source.
+
 ## Consequences
 
 - A link that opens a window (`target="_blank"`) or a script that does is not followed yet.
