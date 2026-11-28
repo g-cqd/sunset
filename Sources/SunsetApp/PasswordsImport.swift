@@ -16,16 +16,29 @@ enum PasswordsImport {
         let panel = NSOpenPanel()
         panel.allowedContentTypes =
             [.commaSeparatedText, .plainText, .json]
-            + ["2fas"]
+            + ["2fas", "kdbx"]
             .compactMap {
                 UTType(filenameExtension: $0)
             }
         panel.message =
-            "Choose the file your browser, password manager, or authenticator exported: CSV, Bitwarden, Aegis, 2FAS, or andOTP JSON."
+            "Choose the file your browser, password manager, or authenticator exported: CSV, Bitwarden, Aegis, 2FAS, or "
+            + "andOTP JSON, or a KeePass database (.kdbx)."
         panel.prompt = "Read"
         guard panel.runModal() == .OK, let url = panel.url else { return }
+        if let data = try? Data(contentsOf: url, options: .mappedIfSafe), LoginImport.isKeePass(data) {
+            Runtime.live.task { @MainActor in
+                guard let imported = await PasswordsKeePassImport.read(data, against: model.entries) else { return }
+                add(imported, from: url, into: model, inTheClear: false)
+            }
+            return
+        }
         guard let text = read(url) else { return }
         guard let imported = decodeImport(text, against: model.entries) else { return }
+        add(imported, from: url, into: model, inTheClear: true)
+    }
+
+    /// The person told what `imported` holds, and asked; the entries kept. A file in the clear is said to be one.
+    private static func add(_ imported: LoginImport, from url: URL, into model: PasswordsModel, inTheClear: Bool) {
         guard !imported.entries.isEmpty else {
             say(
                 "Nothing to add",
@@ -38,12 +51,17 @@ enum PasswordsImport {
         ask.messageText = "Add the logins from \(imported.sourceName)?"
         ask.informativeText =
             imported.report.joined(separator: "\n")
-            + "\n\nThe file holds passwords in the clear. Sunset leaves it where it is: delete it when you are done."
+            + (inTheClear
+                ? "\n\nThe file holds passwords in the clear. Sunset leaves it where it is: delete it when you are done."
+                : "")
         ask.addButton(withTitle: "Add")
         ask.addButton(withTitle: "Cancel")
         guard ask.runModal() == .alertFirstButtonReturn else { return }
         do {
             let kept = try model.importLogins(imported.entries)
+            guard inTheClear else {
+                return say(kept == 1 ? "1 entry added" : "\(kept) entries added", "The database is left as it was.")
+            }
             PasswordsBackup.confirmReveal(
                 title: kept == 1 ? "1 login added" : "\(kept) logins added",
                 detail:

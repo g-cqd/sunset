@@ -179,7 +179,12 @@ ssh "$host" "cd ~/$vm_repo &&
 
 if [ "$install" = 1 ]; then
     phase "installing"
-    Scripts/install-app.sh .build/app-webkit-release/Sunset.app >&2
+    # Never under a Sunset that runs: its files replaced, it could no longer read its own signature (alpha.21).
+    if pgrep -f "/Applications/Sunset.app/Contents/MacOS/Sunset" > /dev/null; then
+        echo "Sunset is running: quit it, then Scripts/install-app.sh $work/.build/app-webkit-release/Sunset.app" >&2
+    else
+        Scripts/install-app.sh .build/app-webkit-release/Sunset.app >&2
+    fi
 fi
 phase "released $tag (build $build)"
 echo "https://github.com/$repo/releases/tag/$tag"

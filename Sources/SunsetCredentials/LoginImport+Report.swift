@@ -14,6 +14,7 @@ extension LoginImport {
             case .aegis: "Aegis Authenticator"
             case .twoFAS: "2FAS Authenticator"
             case .andOTP: "andOTP"
+            case .keePass: "KeePass"
             case .generic: "a CSV file"
         }
     }

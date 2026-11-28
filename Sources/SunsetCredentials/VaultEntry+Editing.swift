@@ -42,6 +42,11 @@ extension VaultEntry {
         }
     }
 
+    /// Sets `field`'s earlier values as they were elsewhere (an import keeps a password's history).
+    mutating func setHistory(of field: UUID, _ history: [FieldHistoryItem]) {
+        change(field) { $0.history = history.isEmpty ? nil : history }
+    }
+
     /// Attaches `attachment` (if within `VaultAttachment.maxBytes`); returns false when oversized.
     @discardableResult
     public mutating func addAttachment(_ attachment: VaultAttachment) -> Bool {

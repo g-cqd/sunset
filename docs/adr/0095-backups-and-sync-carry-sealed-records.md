@@ -37,3 +37,11 @@ CloudKit and iCloud Keychain need t49 (probed −34018).
 ## Amended
 
 By ADR-0104 (2026-11-19): every key exchange here is hybrid post-quantum (Secure Enclave P-256 and ML-KEM-1024; X-Wing HPKE between devices); symmetric hardware-key factors first.
+
+By the KeePass import (2026-11-28): KDBX 4 is read in (`LoginImport.readKeePass`): AES-256 or ChaCha20, AES-KDF or
+Argon2d/id (version 1.3, its cost bounded before deriving), gzip, a password and an optional key file (XML 1.0/2.0, 32
+raw bytes, 64 hex digits, else its SHA-256). Entries become logins or secure notes with their custom fields (protected ones
+hidden), group path as folder, tags, attachments up to 4 MiB, one-time codes and their password's history; the recycle
+bin's are left out. Checked against databases pykeepass wrote. KDBX 3 is refused (saved again by KeePass, it is 4); KDBX
+out is not built.
+

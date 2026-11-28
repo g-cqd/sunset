@@ -33,8 +33,8 @@ final class AppPasswordFill: PasswordFillHost {
         isEnabled && model.state == .unlocked
     }
 
-    /// A host's site (`LoginSite`), by the Public Suffix List.
-    static func site(_ host: String) -> String? {
+    /// A host's site (`LoginSite`), by the Public Suffix List; from any thread (an import reads off the main one).
+    nonisolated static func site(_ host: String) -> String? {
         LoginSite.of(host) { (try? PublicSuffixList.bundled())?.registrableDomain(of: $0) }
     }
 
