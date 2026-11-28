@@ -35,32 +35,13 @@ extension SettingsOption {
             )
             .inBothSchemes
             .noted("From the website: the color the page declares, else its icon's; the system's for anything else."),
-            color("appearance.tint.color", "Tint", "colour color overlay glass", \.appearance.tintColor, [48, 96, 255]),
-            number(
-                "appearance.tint.alpha",
-                "Tint strength",
-                "alpha opacity overlay",
-                \.appearance.tintAlpha,
-                0 ... 1,
-                step: 0.05,
-                unit: ""
-            ),
-            color(
-                "appearance.tint.light",
-                "Tint in the light scheme",
-                "colour color overlay glass light",
-                \.appearance.lightTintColor,
-                [255, 255, 255]
-            ),
-            number(
-                "appearance.tint.lightAlpha",
-                "Tint strength in the light scheme",
-                "alpha opacity light",
-                \.appearance.lightTintAlpha,
-                0 ... 1,
-                step: 0.05,
-                unit: ""
-            ),
+            color("appearance.tint.color", "Tint", "colour color overlay glass", \.appearance.tintColor, [48, 96, 255])
+                .withLightTwin("appearance.tint.light"),
+            strength("appearance.tint.alpha", "Tint strength", \.appearance.tintAlpha)
+                .withLightTwin("appearance.tint.lightAlpha"),
+            // The tint's light values: shown in the tint's rows, beside its own (`lightTwin`).
+            color("appearance.tint.light", "Tint in light", "light", \.appearance.lightTintColor, [255, 255, 255]),
+            strength("appearance.tint.lightAlpha", "Tint strength in light", \.appearance.lightTintAlpha),
             choice(
                 "appearance.barTint",
                 "Bar appearance",
@@ -129,4 +110,9 @@ extension SettingsOption {
             )
             .grouped("Bar appearance")
         ]
+
+    /// A tint's strength: 0 to 1 by twentieths.
+    private static func strength(_ id: String, _ title: String, _ path: Path<Double>) -> Self {
+        number(id, title, "alpha opacity overlay", path, 0 ... 1, step: 0.05, unit: "")
+    }
 }

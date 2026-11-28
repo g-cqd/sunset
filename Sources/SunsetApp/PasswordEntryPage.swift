@@ -97,10 +97,10 @@ struct PasswordEntryPage: View {
                         generatePassphrase: { makePassphrase(into: field.id) },
                         readCode: { code in draft.setUp(code) },
                         remove: { draft.entry.remove(field.id) },
-                        edits: FieldEdits { draft.entry.apply($0, to: field.id) }
+                        edits: FieldEdits { draft.entry.apply($0, to: field.id) },
+                        moveHere: { moved in withAnimation(.smooth) { draft.entry.move(moved, onto: field.id) } }
                     )
                 }
-                .onMove(perform: editing ? { draft.move(in: section.id, from: $0, to: $1) } : nil)
             }
         }
     }

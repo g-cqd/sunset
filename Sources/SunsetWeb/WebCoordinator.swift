@@ -93,7 +93,7 @@ import WebKit
         if let url = webView.url, ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
             // A restored page has its title before WebKit gives it again: that one is kept with the visit.
             let title = (webView.title ?? "").isEmpty ? (content?.pageTitle ?? "") : (webView.title ?? "")
-            content?.history?.visit(url.absoluteString, title: title)
+            content?.history?.visit(url.absoluteString, title: title, profile: content?.historyProfile())
         }
     }
 

@@ -53,3 +53,8 @@ their own of the value's kind; the one-time code, the password's history, tags, 
 folder when there are several. Archived items are left out. Checked against an export written to 1Password's documented
 format, not one 1Password wrote.
 
+By the KeePass export (2026-11-28): the vault is written as KDBX 4.0 (`KeePassWriter`): ChaCha20, Argon2id (64 MiB, 4
+passes, 2 lanes), no compression, under a master password asked twice after the owner's check; secret fields protected,
+folders as nested groups, tags, the one-time code as `otp`, attachments in the inner header; the file only the user's.
+Checked by reading it back, and by pykeepass (outside the suite).
+

@@ -9,6 +9,9 @@ import SunsetWeb
     static func wire(_ page: WebContent, in tabs: TabsModel) {
         page.onChange = { SessionStore.shared.scheduleSave() }
         page.history = page.isPrivate ? nil : AppHistory.shared
+        page.historyProfile = { [weak tabs] in
+            tabs.map { AppSpaces.all.profiles.profile(of: $0.space.space).profile.id.uuidString }
+        }
         page.onNotify = { [weak page] note in
             if let page { AppWebNotifications.shared.post(note, from: page) }
         }

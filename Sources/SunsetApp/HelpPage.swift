@@ -16,23 +16,53 @@ struct HelpPage: View {
     private let config = AppConfiguration.shared
 
     var body: some View {
-        HStack(spacing: 0) {
-            VStack(spacing: Design.Space.s) {
-                TextField("Search Help", text: $content.query).textFieldStyle(.plain).fieldSurface()
-                ScrollView { list }
-                    .bouncesOnlyWhenScrolling()
-                    .scrollIndicators(.never)
+        // Too narrow for the list beside the topic, the list is a menu over it, as Settings'.
+        ListBesidePage(context: context) { narrow in laidOut(narrow: narrow) }
+    }
+
+    @ViewBuilder private func laidOut(narrow: Bool) -> some View {
+        let shown = ScrollView { HelpTopicView(topic: content.topic) { content.topic = $0 } }.bouncesOnlyWhenScrolling()
+        if narrow {
+            VStack(spacing: 0) {
+                HStack(spacing: Design.Space.s) {
+                    topicMenu
+                    TextField("Search Help", text: $content.query).textFieldStyle(.plain).fieldSurface()
+                }
+                .padding(Design.Space.m)
+                Divider()
+                shown
             }
-            .padding(Design.Space.m)
-            .frame(width: Design.Size.settingsList)
-            Divider()
-            ScrollView { HelpTopicView(topic: content.topic) { content.topic = $0 } }
-                .bouncesOnlyWhenScrolling()
+        } else {
+            HStack(spacing: 0) {
+                VStack(spacing: Design.Space.s) {
+                    TextField("Search Help", text: $content.query).textFieldStyle(.plain).fieldSurface()
+                    ScrollView { list }
+                        .bouncesOnlyWhenScrolling()
+                        .scrollIndicators(.never)
+                }
+                .padding(Design.Space.m)
+                .frame(width: Design.Size.settingsList)
+                Divider()
+                shown
+            }
         }
-        .padding(.top, context.topInset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // In Sunset's scheme, not the terminal theme's (the owner, 2026-11-27: they stayed dark in light).
-        .paneBackdrop(context.backdrop.forApp(light: AppConfiguration.shared.isLight))
+    }
+
+    /// The sections and their topics as a menu, for a narrow pane.
+    private var topicMenu: some View {
+        Menu {
+            ForEach(HelpTree.sections(content.listed)) { section in
+                Section(SettingsSection.all.first { $0.id == section.id }?.title ?? section.id) {
+                    ForEach(section.topics) { topic in
+                        Button(HelpCatalog.entry(topic).title) { content.topic = topic }
+                    }
+                }
+            }
+        } label: {
+            Label(HelpCatalog.entry(content.topic).title, systemImage: "list.bullet").lineLimit(1)
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private var list: some View {

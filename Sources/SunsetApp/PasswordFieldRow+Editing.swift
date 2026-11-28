@@ -5,13 +5,39 @@ import SwiftUI
 /// A field's row while its entry is edited: its name and its value (a secret one masked until its eye is pressed), and its
 /// menu: generate, set up a code, Edit Field (its name, kind and secrecy, in a sheet: t334), remove.
 extension PasswordFieldRow {
+    /// Its name typed in place (the owner, 2026-11-28: not in a sheet), its kind shown when it has none; a handle to drag
+    /// it to another place.
     var edited: some View {
-        LabeledContent(field.name) {
+        LabeledContent {
             editedValue
+        } label: {
+            HStack(spacing: Design.Space.s) {
+                Image(systemName: "line.3.horizontal")
+                    .foregroundStyle(.tertiary)
+                    .draggable(field.id.uuidString)
+                    .accessibilityLabel("Move \(shownName)")
+                TextField("Name", text: name, prompt: Text(kindName))
+                    .labelsHidden()
+                    .textFieldStyle(.plain)
+                    .fixedSize()
+            }
+        }
+        .dropDestination(for: String.self) { ids, _ in
+            guard let id = ids.first.flatMap(UUID.init(uuidString:)) else { return false }
+            moveHere(id)
+            return true
         }
         .sheet(isPresented: $editingField) {
             FieldEditSheet(field: field, save: edits.apply)
         }
+    }
+
+    /// The name as typed: kept as it is, empty too (the kind is then shown).
+    private var name: Binding<String> {
+        Binding(
+            get: { field.name },
+            set: { edits.apply(FieldChange(name: $0, kind: field.kind, secret: field.isSecret)) }
+        )
     }
 
     private var editedValue: some View {
@@ -23,6 +49,8 @@ extension PasswordFieldRow {
                     TextField(field.name, text: $value, prompt: Text(prompt), axis: axis)
                 }
             }
+            // Its name is the row's own, typed in place: not said again beside the value.
+            .labelsHidden()
             .font(field.isSecret ? Design.Text.body.monospaced() : Design.Text.body)
             if field.isSecret { revealButton }
             if let history = field.history, !history.isEmpty { historyButton(history) }
@@ -40,7 +68,7 @@ extension PasswordFieldRow {
                     Button("Password History (\(history.count))\u{2026}") { showingHistory = true }
                 }
                 Divider()
-                Button("Edit Field\u{2026}") { editingField = true }
+                Button("Kind and Secrecy\u{2026}") { editingField = true }
                 Divider()
                 Button("Remove Field", role: .destructive, action: remove)
             } label: {

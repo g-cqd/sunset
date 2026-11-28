@@ -27,16 +27,22 @@ extension HistoryStore {
         package let entry: HistoryEntry
         package let hay: [UInt8]
 
-        /// The record's bytes are the address, a line break and the title.
+        /// The record's bytes are the address, a line break and the title; then, when the page has them, a unit separator
+        /// and the ids of the profiles it was visited in, comma-separated.
         package init?(_ row: SealedTable.Row) {
             guard let line = row.payload.firstIndex(of: 10) else { return nil }
+            let rest = row.payload[(line + 1)...]
+            let unit = rest.firstIndex(of: 0x1F)
+            let title = rest[..<(unit ?? rest.endIndex)]
+            let profiles = unit.map { String(decoding: rest[($0 + 1)...], as: UTF8.self) } ?? ""
             entry = HistoryEntry(
                 url: String(decoding: row.payload[..<line], as: UTF8.self),
-                title: String(decoding: row.payload[(line + 1)...], as: UTF8.self),
+                title: String(decoding: title, as: UTF8.self),
                 visits: row.count,
-                lastVisit: Date(timeIntervalSince1970: row.sort)
+                lastVisit: Date(timeIntervalSince1970: row.sort),
+                profiles: profiles.split(separator: ",").map(String.init)
             )
-            hay = HistoryStore.folded(Array(row.payload))
+            hay = HistoryStore.folded(Array(row.payload[..<(unit ?? row.payload.endIndex)]))
         }
     }
 

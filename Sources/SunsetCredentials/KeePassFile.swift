@@ -43,7 +43,7 @@ enum KeePassFile {
         let header = try KeePassHeader(file)
         var reader = ByteReader(Array(file[header.end...]))
         let hash = try reader.take(32)
-        let mac = try reader.take(32)
+        let headerMAC = try reader.take(32)
         guard Array(SHA256.hash(data: header.bytes)) == hash else { throw .damaged }
 
         var parts = [UInt8](SHA256.hash(data: Data(password.utf8)))
@@ -52,7 +52,7 @@ enum KeePassFile {
         let transformed = try derive(composite, header.derivation)
         let master = [UInt8](SHA256.hash(data: header.masterSeed + transformed))
         let macBase = [UInt8](SHA512.hash(data: header.masterSeed + transformed + [1]))
-        guard Array(blockMAC(index: .max, base: macBase, data: header.bytes, indexed: false)) == mac else {
+        guard Array(Self.mac(index: .max, base: macBase, data: header.bytes, indexed: false)) == headerMAC else {
             throw .wrongKey
         }
 
@@ -63,7 +63,7 @@ enum KeePassFile {
             let lengthBytes = try reader.take(4)
             let length = Int(lengthBytes.reversed().reduce(UInt32(0)) { $0 << 8 | UInt32($1) })
             let block = try reader.take(length)
-            guard Array(Self.blockMAC(index: index, base: macBase, data: lengthBytes + block)) == blockMAC else {
+            guard Array(Self.mac(index: index, base: macBase, data: lengthBytes + block)) == blockMAC else {
                 throw .damaged
             }
             if length == 0 { break }
@@ -152,8 +152,7 @@ enum KeePassFile {
 
     /// A block's HMAC-SHA256 over its index then its data, keyed by SHA-512 of its index and the HMAC base key; the
     /// header's (`indexed` false: over its bytes alone) has the largest index.
-    private static func blockMAC(index: UInt64, base: [UInt8], data: [UInt8], indexed: Bool = true) -> HMAC<SHA256>.MAC
-    {
+    static func mac(index: UInt64, base: [UInt8], data: [UInt8], indexed: Bool = true) -> HMAC<SHA256>.MAC {
         let indexBytes = (0 ..< 8).map { UInt8(truncatingIfNeeded: index >> (8 * $0)) }
         let key = SymmetricKey(data: Array(SHA512.hash(data: indexBytes + base)))
         return HMAC<SHA256>.authenticationCode(for: indexed ? indexBytes + data : data, using: key)

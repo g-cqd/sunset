@@ -141,6 +141,8 @@ package final class WebContent: PaneContent, PaneViewMaking {
     @ObservationIgnored package var openInSpace: (URL, UUID) -> Void = { _, _ in }
     /// The history visits are written to; nil keeps none (tests, and private pages).
     @ObservationIgnored package var history: HistoryStore?
+    /// The profile its visits are noted in (its id); the app sets it.
+    @ObservationIgnored package var historyProfile: () -> String? = { nil }
     /// Something the session file holds changed (the address, the title).
     @ObservationIgnored package var onChange: () -> Void = {}
 

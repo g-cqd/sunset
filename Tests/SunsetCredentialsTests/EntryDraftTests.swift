@@ -55,13 +55,15 @@ struct EntryDraftTests {
         )
     }
 
-    @Test func `fields reordered within their section, as a list's move gives them`() throws {
+    @Test func `a field dropped on another takes its place: after it dragged down, before it dragged up`() throws {
         var draft = EntryDraft(EntryTemplate.login.makeEntry(title: "Bank"))
-        let section = try #require(draft.entry.sections.first?.id)
-        draft.move(in: section, from: IndexSet(integer: 1), to: 0)
-        #expect(draft.entry.sections[0].fields.map(\.name) == ["Password", "Username", "Website", "One-Time Code"])
-        draft.move(in: section, from: IndexSet([0, 1]), to: 4)
-        #expect(draft.entry.sections[0].fields.map(\.name) == ["Website", "One-Time Code", "Password", "Username"])
+        let ids = try #require(draft.entry.sections.first).fields.map(\.id)
+        draft.entry.move(ids[0], onto: ids[2])
+        #expect(draft.entry.sections[0].fields.map(\.name) == ["Password", "Website", "Username", "One-Time Code"])
+        draft.entry.move(ids[3], onto: ids[1])
+        #expect(draft.entry.sections[0].fields.map(\.name) == ["One-Time Code", "Password", "Website", "Username"])
+        draft.entry.move(ids[0], onto: ids[0])
+        #expect(draft.entry.sections[0].fields.count == 4)
         #expect(draft.isChanged)
     }
 

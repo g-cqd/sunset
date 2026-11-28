@@ -1,7 +1,10 @@
 import SunsetHelp
 import SunsetMetrics
+import SunsetPane
 import SunsetShell
+import SunsetShellModel
 import SunsetWeb
+import SunsetWebModel
 import SwiftUI
 
 /// The rows of a section under their headings: the pages of the history by day, the documents in the chosen order, the
@@ -13,6 +16,7 @@ struct SectionList: View {
     let sort: DocumentSort
     let query: String
     private var changes = HistoryChanges.shared
+    @AppStorage("history.profiles") private var historyProfiles = HistoryProfiles.all.rawValue
 
     init(tabs: TabsModel, section: SidebarSection, layout: LayoutMetrics, sort: DocumentSort, query: String) {
         self.tabs = tabs
@@ -31,8 +35,7 @@ struct SectionList: View {
             case .history:
                 let _ = changes.generation
                 let pages = AppHistory.shared?.entries(matching: query) ?? []
-                groups(ListGroup.days(pages, by: \.lastVisit), none: "No pages visited yet", noMatch: "No page matches")
-                {
+                groups(historyGroups(pages), none: "No pages visited yet", noMatch: "No page matches") {
                     HistoryRow(entry: $0, layout: layout, profile: PaneContentKinds.profile(of: tabs))
                 }
             case .documents:
@@ -63,6 +66,22 @@ struct SectionList: View {
                 PasswordsSection(layout: layout, query: query, tabs: tabs)
             case .tabs:
                 EmptyView()
+        }
+    }
+
+    /// The history by day: every profile's, this window's profile's only, or under each profile (`HistoryProfiles`).
+    private func historyGroups(_ pages: [HistoryEntry]) -> [ListGroup<HistoryEntry>] {
+        let profiles = AppSpaces.all.profiles.profiles.map(\.profile)
+        guard profiles.count > 1 else { return ListGroup.days(pages, by: \.lastVisit) }
+        let current = AppSpaces.all.profiles.profile(of: tabs.space.space).profile.id.uuidString
+        switch HistoryProfiles(rawValue: historyProfiles) ?? .all {
+            case .all: return ListGroup.days(pages, by: \.lastVisit)
+            case .current: return ListGroup.days(pages.filter { $0.isVisited(in: current) }, by: \.lastVisit)
+            case .grouped:
+                return profiles.compactMap { profile in
+                    let visited = pages.filter { $0.isVisited(in: profile.id.uuidString) }
+                    return visited.isEmpty ? nil : ListGroup(title: profile.name, elements: visited)
+                }
         }
     }
 

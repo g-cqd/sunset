@@ -55,7 +55,8 @@ extension SectionPanel {
                     .disabled(DownloadCenter.shared.items.allSatisfy { $0.state == .running })
             case .passwords:
                 PasswordsActions(model: AppPasswords.model, tabs: tabs)
-            case .history, .tabs, .settings:
+            case .history: HistoryActions(tabs: tabs)
+            case .tabs, .settings:
                 EmptyView()
         }
     }

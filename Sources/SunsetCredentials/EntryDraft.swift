@@ -83,18 +83,6 @@ public struct EntryDraft: Equatable, Sendable {
         return entry.add(EntryField(name: name, kind: kind), to: section)
     }
 
-    /// Moves the fields at `offsets` of `section` to `destination`, as a list's move gives them.
-    public mutating func move(in section: UUID, from offsets: IndexSet, to destination: Int) {
-        guard let index = entry.sections.firstIndex(where: { $0.id == section }) else { return }
-        let fields = entry.sections[index].fields
-        let moved = offsets.filter(fields.indices.contains).map { fields[$0] }
-        var rest = fields.enumerated().filter { !offsets.contains($0.offset) }.map(\.element)
-        // The destination counts the moved fields still in place before it.
-        let before = offsets.count { $0 < destination }
-        rest.insert(contentsOf: moved, at: min(max(destination - before, 0), rest.count))
-        entry.sections[index].fields = rest
-    }
-
     /// Sets the entry up from a code read (a QR code): its first One-Time Code field (one is made when there is none)
     /// holds the code's link; a title or a username left empty takes the code's issuer or account.
     public mutating func setUp(_ code: OneTimeCodeURI) {

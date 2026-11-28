@@ -121,7 +121,7 @@ enum PasswordsImport {
         return text
     }
 
-    private static func say(_ message: String, _ detail: String) {
+    static func say(_ message: String, _ detail: String) {
         let alert = NSAlert()
         alert.messageText = message
         alert.informativeText = detail

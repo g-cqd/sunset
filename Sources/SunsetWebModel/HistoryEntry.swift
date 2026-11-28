@@ -6,16 +6,24 @@ package struct HistoryEntry: Sendable, Equatable, Identifiable {
     package var title: String
     package var visits: Int
     package var lastVisit: Date
+    /// The profiles it was visited in (their ids), in the order first visited; none for a page kept before they were.
+    package var profiles: [String] = []
 
     package var id: String {
         url
     }
 
-    package init(url: String, title: String, visits: Int, lastVisit: Date) {
+    package init(url: String, title: String, visits: Int, lastVisit: Date, profiles: [String] = []) {
         self.url = url
         self.title = title
         self.visits = visits
         self.lastVisit = lastVisit
+        self.profiles = profiles
+    }
+
+    /// Whether it was visited in `profile`; a page kept before profiles were noted is every profile's.
+    package func isVisited(in profile: String) -> Bool {
+        profiles.isEmpty || profiles.contains(profile)
     }
 
     /// The order of the lists (frecency): visits weighted by how recent the last one is, halving every week.

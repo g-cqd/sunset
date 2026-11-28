@@ -85,14 +85,16 @@ package final class HistoryStore {
         byAddress.count
     }
 
-    /// A visit to `url` at `time`: counted, its title kept when it has one.
-    package func visit(_ url: String, title: String, at time: Date = Runtime.live.now()) {
+    /// A visit to `url` at `time`, in `profile` (its id) when it is known: counted, its title kept when it has one.
+    package func visit(_ url: String, title: String, at time: Date = Runtime.live.now(), profile: String? = nil) {
         var entry = HistoryEntry(url: url, title: title, visits: 1, lastVisit: time)
         if let page = byAddress[url] {
             entry.visits = page.entry.visits + 1
+            entry.profiles = page.entry.profiles
             if title.isEmpty { entry.title = page.entry.title }
             drop(page)
         }
+        if let profile, !entry.profiles.contains(profile) { entry.profiles.append(profile) }
         place(Page(entry))
         onChange()
     }
@@ -107,6 +109,7 @@ package final class HistoryStore {
                 let ours = page.entry.lastVisit > entry.lastVisit
                 merged.lastVisit = max(page.entry.lastVisit, entry.lastVisit)
                 if ours && !page.entry.title.isEmpty || merged.title.isEmpty { merged.title = page.entry.title }
+                merged.profiles = page.entry.profiles + entry.profiles.filter { !page.entry.profiles.contains($0) }
                 drop(page)
             }
             place(Page(merged))
@@ -199,7 +202,11 @@ package final class HistoryStore {
         table?
             .put(
                 page.entry.url,
-                payload: Data((page.entry.url + "\n" + page.entry.title).utf8),
+                payload: Data(
+                    (page.entry.url + "\n" + page.entry.title.filter { $0 != "\u{1F}" }
+                        + (page.entry.profiles.isEmpty ? "" : "\u{1F}" + page.entry.profiles.joined(separator: ",")))
+                        .utf8
+                ),
                 sort: page.entry.lastVisit.timeIntervalSince1970,
                 count: page.entry.visits
             )

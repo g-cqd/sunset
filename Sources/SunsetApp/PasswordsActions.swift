@@ -39,6 +39,9 @@ struct PasswordsActions: View {
                 Button("Export Logins to CSV…", systemImage: "square.and.arrow.up") {
                     PasswordsImport.export(from: model)
                 }
+                Button("Export as KeePass Database…", systemImage: "square.and.arrow.up.on.square") {
+                    PasswordsKeePassExport.run(from: model)
+                }
             }
             .sheet(isPresented: $showingHealth) {
                 VaultHealthSheet(model: model) { id in

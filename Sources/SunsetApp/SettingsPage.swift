@@ -13,8 +13,6 @@ struct SettingsPage: View {
     @Bindable var content: SettingsContent
     let context: PaneViewContext
     private let config = AppConfiguration.shared
-    /// The pane's width: too narrow for the list beside the page, the list is a menu over it.
-    @State private var width = Design.Size.settingsList + Design.Size.settingsPage
 
     /// The profile chosen at the top, if one is.
     private var scoped: ProfileSettingsStore? {
@@ -45,11 +43,13 @@ struct SettingsPage: View {
         content.tabs?.settingsListInPage(sidebarDocked: config.configuration.sidebarDocked) ?? true
     }
 
-    private var narrow: Bool {
-        width < Design.Size.settingsList + Design.Size.settingsPageMinimum
+    var body: some View {
+        // Too narrow for the list beside the page, the list is a menu over it.
+        ListBesidePage(context: context) { narrow in laidOut(narrow: narrow) }
+            .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
     }
 
-    var body: some View {
+    private func laidOut(narrow: Bool) -> some View {
         HStack(spacing: 0) {
             if ownList, narrow {
                 VStack(spacing: Design.Space.s) {
@@ -78,12 +78,6 @@ struct SettingsPage: View {
                 page
             }
         }
-        .onGeometryChange(for: Double.self, of: { $0.size.width }) { width = $0 }
-        .padding(.top, context.topInset)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // In Sunset's scheme, not the terminal theme's (the owner, 2026-11-27: they stayed dark in light).
-        .paneBackdrop(context.backdrop.forApp(light: AppConfiguration.shared.isLight))
-        .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
     }
 
     private var page: some View {
@@ -167,14 +161,19 @@ struct SettingsPage: View {
     /// The options that act under the configuration now; a group left empty is not shown.
     private func applying(_ options: [SettingsOption]) -> [SettingsOption] {
         // With a profile chosen, only what a profile can set.
-        options.filter { $0.isShown(in: store.configuration) && (scoped == nil || $0.isProfileSetting) }
+        // An option shown as another's light value is in that one's row.
+        options.filter {
+            $0.isShown(in: store.configuration) && (scoped == nil || $0.isProfileSetting)
+                && !SettingsOption.lightTwins.contains($0.id)
+        }
     }
 
     private func rows(_ options: [SettingsOption]) -> some View {
         // A choice that acts only under another is shown under it only.
         ForEach(applying(options)) { option in
             // A per-profile store sets no light values: only the app's.
-            if option.perScheme, scoped == nil, Configuration.hasSchemeValues(option.id) {
+            if scoped == nil, option.lightTwin != nil || (option.perScheme && Configuration.hasSchemeValues(option.id))
+            {
                 SchemeSettingsRow(option: option, config: store)
             } else {
                 SettingsRow(option: option, config: store)

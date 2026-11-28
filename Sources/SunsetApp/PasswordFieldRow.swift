@@ -17,6 +17,8 @@ struct PasswordFieldRow: View {
     let readCode: @MainActor (OneTimeCodeURI) -> Void
     let remove: () -> Void
     let edits: FieldEdits
+    /// Another field dropped on it: moved here.
+    let moveHere: (UUID) -> Void
     /// A secret shown in clear by its eye button, until the page is left (n101).
     @State var revealed = false
     /// Its name, kind and secrecy being edited in a sheet (t334).
@@ -37,7 +39,7 @@ struct PasswordFieldRow: View {
     }
 
     private var read: some View {
-        LabeledContent(field.name) {
+        LabeledContent(shownName) {
             HStack(spacing: Design.Space.s) {
                 if field.kind == .oneTimeCode {
                     OneTimeCodeValue(field: OneTimeCodeField(value))
@@ -75,6 +77,16 @@ struct PasswordFieldRow: View {
         Runtime.live.task { @MainActor in
             if let code = await QRCodeImages.code(in: image) { readCode(code) }
         }
+    }
+
+    /// Its name, else its kind's (a field named nothing shows what it is).
+    var shownName: String {
+        field.name.trimmingCharacters(in: .whitespaces).isEmpty ? kindName : field.name
+    }
+
+    /// What its kind is called, as Add Field lists them.
+    var kindName: String {
+        EntryDraft.addable.first { $0.kind == field.kind }?.name ?? "Field"
     }
 
     /// "Required" for a field that must be filled, else "Optional".

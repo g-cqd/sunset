@@ -39,13 +39,13 @@ enum PasswordsKeePassImport {
                         case .cancel: return nil
                     }
                 case .failure(.oldVersion):
-                    say(
+                    PasswordsImport.say(
                         "This database is in an older format",
                         "Sunset reads KDBX 4. Open it in KeePassXC or KeePass and save it again: it is then KDBX 4."
                     )
                     return nil
                 case .failure(.unreadable):
-                    say(
+                    PasswordsImport.say(
                         "This database could not be read",
                         "It may be damaged, or use a cipher or key derivation KeePass does not. Nothing was imported."
                     )
@@ -83,12 +83,5 @@ enum PasswordsKeePassImport {
                 return .keyFile(data)
             default: return .cancel
         }
-    }
-
-    private static func say(_ message: String, _ detail: String) {
-        let alert = NSAlert()
-        alert.messageText = message
-        alert.informativeText = detail
-        alert.runModal()
     }
 }

@@ -87,6 +87,17 @@ extension VaultEntry {
         sections[target].fields.insert(moved, at: min(max(position, 0), fields.count))
     }
 
+    /// Moves `field` to where `target` is (dropped on it): dragged down within a section it lands after the target, dragged
+    /// up or from another section, before it.
+    public mutating func move(_ field: UUID, onto target: UUID) {
+        guard field != target,
+            let section = sections.firstIndex(where: { $0.fields.contains { $0.id == target } }),
+            let to = sections[section].fields.firstIndex(where: { $0.id == target })
+        else { return }
+        // Taken out first: the target's place is then after it when the field came from above, before it otherwise.
+        move(field, to: to, in: sections[section].id)
+    }
+
     private mutating func change(_ field: UUID, _ body: (inout EntryField) -> Void) {
         for section in sections.indices {
             guard let index = sections[section].fields.firstIndex(where: { $0.id == field }) else { continue }
