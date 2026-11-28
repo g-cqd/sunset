@@ -25,12 +25,13 @@ struct KeysSettings: View {
                                     "Put back \(command.key?.symbols ?? "no key")",
                                     systemImage: "arrow.uturn.backward"
                                 ) {
-                                    give(command.key, to: command.id)
+                                    give(command.key.map { KeySequence($0) }, to: command.id)
                                 }
                                 .labelStyle(.iconOnly)
                                 .buttonStyle(.borderless)
                             }
-                            KeyRecorder(key: keys.key(for: command.id)) { chord in give(chord, to: command.id) }
+                            KeyRecorder(keys: keys.sequence(for: command.id)) { pressed in give(pressed, to: command.id)
+                            }
                         }
                     } label: {
                         Label(command.title, systemImage: command.symbol)
@@ -40,7 +41,7 @@ struct KeysSettings: View {
         }
     }
 
-    private func give(_ chord: KeyChord?, to id: AppCommand.ID) {
-        config.update { $0.keys = keys.giving(chord, to: id, in: $0.keys) }
+    private func give(_ pressed: KeySequence?, to id: AppCommand.ID) {
+        config.update { $0.keys = keys.giving(pressed, to: id, in: $0.keys) }
     }
 }

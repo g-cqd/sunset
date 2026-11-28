@@ -10,7 +10,8 @@ extension SettingsOption {
             )
             .setting(["keys"])
             .noted(
-                "Click a key and press the new one; Delete takes it away. A key another command has is moved to this one."
+                "Click a key and press the new one, then a second for two keys or Return for one; Delete takes it away. "
+                    + "A key another command has is moved to this one."
             )
         ]
 }

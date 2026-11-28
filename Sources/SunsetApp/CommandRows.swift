@@ -33,7 +33,7 @@ enum CommandRows {
         tabs: TabsModel,
         target: AppCommandRunner.Target
     ) -> ChoiceRow {
-        let accessory = [command.menu, CommandKeys.shared.key(for: command.id)?.symbols].compactMap(\.self)
+        let accessory = [command.menu, CommandKeys.shared.sequence(for: command.id)?.symbols].compactMap(\.self)
             .joined(separator: "  ")
         return ChoiceRow(
             id: "command \(command.id.rawValue)",

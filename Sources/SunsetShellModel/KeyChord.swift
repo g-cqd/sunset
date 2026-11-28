@@ -48,8 +48,9 @@ package struct KeyChord: Hashable, Sendable {
 }
 
 extension KeyChord {
-    /// A key as the file writes it: "cmd+shift+d", "cmd+opt+up"; also read as the menus write it ("⇧⌘D").
-    package init?(text: String) {
+    /// A key as the file writes it: "cmd+shift+d", "cmd+opt+up"; also read as the menus write it ("⇧⌘D"). With Command
+    /// or Control unless `alone` (the second of two keys may be a plain one: "cmd+k t").
+    package init?(text: String, alone: Bool = false) {
         let lowered = text.lowercased().filter { $0 != " " }
         var modifiers: Modifiers = []
         var rest = Substring(lowered)
@@ -86,7 +87,7 @@ extension KeyChord {
                 key = .character(character)
         }
         // A key alone would be taken from what is typed.
-        guard !modifiers.isDisjoint(with: [.command, .control]) else { return nil }
+        guard alone || !modifiers.isDisjoint(with: [.command, .control]) else { return nil }
         self.init(key, modifiers)
     }
 

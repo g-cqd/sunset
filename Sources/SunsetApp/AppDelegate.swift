@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         WebContent.restartApp = { AppUpdates.shared.restart() }
         // The terminal's shaders compiled now, off the main thread, not when the first terminal opens.
         MetalCompositor.prepare()
+        KeySequenceMonitor.start()
         // Each profile's extensions, from its folder, before any page is made.
         ExtensionHosts.shared.root = URL(filePath: StoragePlaces.current.extensions)
         AppExtensionWindows.start()

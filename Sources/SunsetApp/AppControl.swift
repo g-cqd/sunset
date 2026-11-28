@@ -44,7 +44,7 @@ import SunsetWeb
                 return ControlReply(
                     commands: AppCommand.table.filter(\.inBar)
                         .map { command in
-                            let key = CommandKeys.shared.key(for: command.id)?.symbols ?? ""
+                            let key = CommandKeys.shared.sequence(for: command.id)?.symbols ?? ""
                             return "\(command.id.rawValue)\t\(command.title)\t\(key)"
                         }
                 )

@@ -31,7 +31,13 @@ its key (`KeyChord`), its scope and the words that find it. It has no AppKit or 
   app's defaults (at most 200 queries).
 
 A command can take a second step in the command bar: Move Tab to Space… lists the other Spaces, the one chosen gets the
-tab, still running (`CommandBar.Purpose.moveToSpace`). Two-key sequences are not done.
+tab, still running (`CommandBar.Purpose.moveToSpace`).
+
+A command's keys can be two pressed one after the other (`KeySequence`, "cmd+k cmd+t" or "cmd+k t" in `keys`; the first
+with Command or Control, the second any key). The first key is taken before the menus and the panes see it
+(`KeySequenceMonitor`); the window says it waits; the second runs the command, and Escape, a click or another key stops
+waiting. A command whose one key is the first of another's two loses it. Menu items show one key only: a two-key command's
+keys are shown in the command bar and in Settings, which records them (a key, then a second or Return for one).
 
 Items whose list is made at run time (the Spaces by name, Tab 1 to 9, the Format menu, history entries, Keep Awake)
 stay as they were.

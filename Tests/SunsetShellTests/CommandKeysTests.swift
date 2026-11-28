@@ -28,10 +28,10 @@ struct CommandKeysTests {
 
     @Test func `a key given to a command is taken from the one that had it; the table's key is left out of the file`() {
         let keys = CommandKeys()
-        let given = keys.giving(KeyChord("n"), to: .splitRight, in: [:])
+        let given = keys.giving(KeySequence(KeyChord("n")), to: .splitRight, in: [:])
         #expect(given == ["splitRight": "cmd+n", "newWindow": ""])
         keys.take(given)
         #expect(keys.key(for: .newWindow) == nil)
-        #expect(keys.giving(KeyChord("d"), to: .splitRight, in: ["splitRight": "cmd+n"]) == [:])
+        #expect(keys.giving(KeySequence(KeyChord("d")), to: .splitRight, in: ["splitRight": "cmd+n"]) == [:])
     }
 }

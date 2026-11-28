@@ -126,6 +126,7 @@ struct TerminalScene: View {
                 )
             }
         }
+        .overlay(alignment: .bottom) { PendingKeysHint() }
         .background(rootColor)
         .environment(\.webAddressRow, addressPlace == .pane)
         // Docked, the sidebar asks the pages' questions under its field.
