@@ -1,16 +1,11 @@
-/// A file's kind, by its name (Markdown, Mermaid, a page, and any other file as text).
+/// A file's kind, by its name (`byExtension`; any other file is text).
 extension DocumentKind {
     /// - Parameter path: the file's path or name.
     public init(path: String) {
         let name = path.split(separator: "/").last.map(String.init) ?? path
         let parts = name.split(separator: ".", omittingEmptySubsequences: false)
         let last = parts.count > 1 ? parts[parts.count - 1].lowercased() : ""
-        switch last {
-            case "md", "markdown", "mdown", "mkd", "mkdn", "mdwn": self = .markdown
-            case "mmd", "mermaid": self = .mermaid
-            case "html", "htm", "xhtml", "svg": self = .page
-            default: self = .text
-        }
+        self = Self.byExtension.first { $0.key == last }?.value ?? .text
     }
 
     /// Whether Sunset opens the file at `path` as a document rather than handing it to the Mac: what it draws (Markdown,

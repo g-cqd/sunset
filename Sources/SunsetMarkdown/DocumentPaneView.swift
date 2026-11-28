@@ -30,6 +30,12 @@ struct DocumentPaneView: View {
                 // Each conflict on its block; the page is whole again once they are answered.
                 ConflictedPageView(content: content)
                     .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
+            } else if content.mode == .rendered, document.kind == .table {
+                TableDocumentView(content: content)
+                    .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
+            } else if content.mode == .rendered, document.kind == .data {
+                DataDocumentView(content: content)
+                    .simultaneousGesture(TapGesture().onEnded { content.onFocusRequest() })
             } else if content.mode == .rendered, !content.hasNativePage, let page = DocumentContent.pageView {
                 // A page (HTML, SVG): WebKit draws the text as it is typed.
                 page(content)

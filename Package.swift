@@ -160,7 +160,7 @@ let package = Package(
                 "SunsetRuntime",
                 "SunsetStorage", "SunsetHost", .product(name: "MarkdownLookKit", package: "AemiMarkdown"),
                 .product(name: "AemiMarkdown", package: "AemiMarkdown"),
-                .product(name: "AemiIO", package: "aemi")
+                .product(name: "AemiIO", package: "aemi"), .product(name: "AemiJSONCore", package: "AemiJSON")
             ],
             path: "Sources/SunsetDocuments",
             swiftSettings: strictSettings

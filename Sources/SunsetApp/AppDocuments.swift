@@ -71,7 +71,7 @@ extension ShelfDocument {
             switch stored.kind {
                 case .markdown: .markdown
                 case .mermaid: .diagram
-                case .page, .text: .text
+                case .page, .table, .data, .text: .text
             }
         self.init(id: stored.id, title: stored.title, kind: kind, created: stored.created, modified: stored.modified)
     }
