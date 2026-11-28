@@ -106,7 +106,9 @@ struct PaneArea: View {
                     // While a drag the panes would take is under way, and none is under the pointer: each outlined.
                 }
                 // The tabs' previews are drawn by the window, over a floating sidebar too (`PanePreviews`).
-                .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { tabs.paneAreaFrame = $0 }
+                .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frame in
+                    tabs.laidOut(\.paneAreaFrame, frame)
+                }
                 .overlay { if !tabs.showsLive { elsewhere } }
                 .coordinateSpace(.named(Self.space))
                 .onDrop(

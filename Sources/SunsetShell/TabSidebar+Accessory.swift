@@ -42,7 +42,7 @@ extension TabSidebar {
                 .environment(\.controlHeight, accessoryHeight)
                 .frame(height: accessoryHeight)
                 .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { frame in
-                    if !isPreview { tabs.sidebarField = frame }
+                    if !isPreview { tabs.laidOut(\.sidebarField, frame) }
                 }
                 .onDisappear { if !isPreview { tabs.sidebarField = nil } }
                 .padding(
