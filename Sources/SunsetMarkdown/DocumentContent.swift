@@ -6,7 +6,8 @@ package import SunsetPane
 package import SunsetShell
 package import SwiftUI
 
-/// A document in a pane: Markdown or a Mermaid diagram drawn natively or shown as source, any other text as source. The pane
+/// A document in a pane: Markdown or a Mermaid diagram drawn natively, a page (HTML, SVG) drawn by WebKit, or shown as
+/// source; any other text as source. The pane
 /// holds no text: it is a view of the app's one `OpenDocument` for the file, so a second pane on the same file shows the
 /// same text, edits and undo history.
 @MainActor @Observable
@@ -135,6 +136,15 @@ package final class DocumentContent: PaneContent, PaneViewMaking {
         document.kind != .text
     }
 
+    /// Its page is drawn here from the text (Markdown, Mermaid); a page's (HTML) is drawn by WebKit (`pageView`).
+    var hasNativePage: Bool {
+        document.kind == .markdown || document.kind == .mermaid
+    }
+
+    /// What draws a page document (HTML, XHTML, SVG) rendered: WebKit's view, which the app gives (this module has no
+    /// WebKit). Nil: its source.
+    package static var pageView: (@MainActor (DocumentContent) -> AnyView)?
+
     /// From the page to the source and back (Cmd-Shift-E).
     package func toggleMode() {
         guard canRender else { return }
@@ -145,7 +155,7 @@ package final class DocumentContent: PaneContent, PaneViewMaking {
 
     /// The page is wanted while this pane shows it: made while it is on screen, kept while its tab is not.
     private func tellPage() {
-        document.page.setInterest(mode == .rendered && canRender ? isVisible : nil, of: self)
+        document.page.setInterest(mode == .rendered && hasNativePage ? isVisible : nil, of: self)
     }
 
     /// Bigger or smaller text, in the page and in the source.

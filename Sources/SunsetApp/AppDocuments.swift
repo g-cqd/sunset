@@ -3,8 +3,10 @@ import MarkdownLookKit
 import SunsetAppCore
 import SunsetConfig
 import SunsetDocuments
+import SunsetMarkdown
 import SunsetShell
 import SunsetStorage
+import SwiftUI
 
 /// The documents of the store as the sidebars reach them: the shell lists, makes and deletes them through a
 /// `DocumentShelf`, which is filled here from `SunsetStore`.
@@ -12,6 +14,8 @@ import SunsetStorage
 enum AppDocuments {
     /// Says to `shelf` how the store's documents are listed, made and deleted.
     static func wire(_ shelf: DocumentShelf) {
+        // A page document (HTML, SVG) is drawn by WebKit.
+        DocumentContent.pageView = { AnyView(PageDocumentView(content: $0)) }
         shelf.available = { SunsetStore.shared.documents != nil }
         shelf.list = { (SunsetStore.shared.documents?.documents ?? []).map(ShelfDocument.init) }
         shelf.create = { try? SunsetStore.shared.documents?.create().id }
@@ -66,7 +70,7 @@ extension ShelfDocument {
             switch stored.kind {
                 case .markdown: .markdown
                 case .mermaid: .diagram
-                case .text: .text
+                case .page, .text: .text
             }
         self.init(id: stored.id, title: stored.title, kind: kind, created: stored.created, modified: stored.modified)
     }

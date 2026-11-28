@@ -10,6 +10,8 @@ extension Configuration {
         public var largerHeadings = true
         /// Where a plain click on a document's link opens it.
         public var linksOpen = LinksOpen.tab
+        /// A page document (HTML, SVG) drawn as a page may load what is not in its folder: off, it reads only its folder.
+        public var pagesReachNetwork = false
 
         // MARK: Markdown rendering (shared with Quick Look)
 

@@ -1,4 +1,4 @@
-/// A file's kind, by its name (Markdown, Mermaid, and any other file as text).
+/// A file's kind, by its name (Markdown, Mermaid, a page, and any other file as text).
 extension DocumentKind {
     /// - Parameter path: the file's path or name.
     public init(path: String) {
@@ -8,6 +8,7 @@ extension DocumentKind {
         switch last {
             case "md", "markdown", "mdown", "mkd", "mkdn", "mdwn": self = .markdown
             case "mmd", "mermaid": self = .mermaid
+            case "html", "htm", "xhtml", "svg": self = .page
             default: self = .text
         }
     }

@@ -14,7 +14,7 @@ struct DocumentPicture: View {
 
     var body: some View {
         Group {
-            if content.mode == .rendered {
+            if content.mode == .rendered, content.hasNativePage {
                 NativeDocumentColumn(document: content.document.page.shown, settings: content.document.source.settings)
             } else {
                 Text(

@@ -12,6 +12,12 @@ extension DocumentContent {
         return URL(fileURLWithPath: (path as NSString).deletingLastPathComponent, isDirectory: true)
     }
 
+    /// The file itself; a stored document has none.
+    package var file: URL? {
+        guard case .file(let path) = document.place else { return nil }
+        return URL(fileURLWithPath: path)
+    }
+
     /// Writes the document where it lives (Cmd-S). A failure is said in the pane and the edits stay. While a block changed
     /// here and on disk waits for an answer nothing is written: the first of them is shown instead.
     package func save() {

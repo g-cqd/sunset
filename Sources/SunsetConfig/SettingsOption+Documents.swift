@@ -44,6 +44,15 @@ extension SettingsOption {
             .noted(
                 "⌘-click opens a link in a tab behind, ⇧⌘-click in a tab shown, ⇧-click in a new window, ⌥-click beside."
             ),
+            toggle(
+                "documents.pagesReachNetwork",
+                "Pages reach the network",
+                "html svg web page file local internet load fonts scripts styles offline",
+                \.documents.pagesReachNetwork,
+                label: "HTML and SVG files may load from the internet"
+            )
+            .noted("Off, a file drawn as a page reads only its own folder. It keeps no website data either way.")
+            .grouped("Pages"),
             custom(
                 "documents.quickLook",
                 "Quick Look for Markdown",

@@ -6,7 +6,7 @@ A native macOS workspace combining a terminal emulator, WebKit browser tabs, and
 
 - **Terminal:** platform-free VT parser, screen model, and pseudo-terminal host with CPU and Metal GPU renderers and C/NEON pixel kernels.
 - **Web:** system WebKit tabs with history, downloads, per-site permissions, content blocking, private windows, and WebKit extensions.
-- **Documents:** native Markdown, Mermaid, and text viewing/editing for disk files or encrypted local notes with block-level disk merge.
+- **Documents:** native Markdown, Mermaid, and text viewing/editing for disk files or encrypted local notes with block-level disk merge; HTML, XHTML and SVG files drawn by WebKit as their source is edited (ADR-0132).
 - **Workspace:** sidebar or tab bar, splits, Spaces with isolated profiles, Favorites and Pinned grids, Library, and command bar.
 - **Encrypted local store:** state database, local documents, and at-rest WebKit storage sealed with keys protected by the macOS Data Protection Keychain and Secure Enclave.
 
