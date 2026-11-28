@@ -17,7 +17,8 @@ extension SettingsSection {
 
     /// Whether a section, or a topic, is of a scope that is on.
     static func shows(_ id: String, _ features: Configuration.Features) -> Bool {
-        switch id {
+        // A topic of a scope, wherever it is (the terminal's colors are in Look and feel): its scope's.
+        switch id.split(separator: ".").first.map(String.init) ?? id {
             case "terminal": features.terminal
             case "web": features.web
             case "documents": features.documents

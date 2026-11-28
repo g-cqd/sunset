@@ -1,19 +1,30 @@
 import Foundation
 import SunsetConfig
 
-/// Settings in the light scheme for one look setting (design 0009): what it shows is the configuration as it is in light;
-/// an edit is kept as that setting's light value (`lightValues`; none when it is macOS's), its own value left as it is.
+/// Settings in a scheme for the look settings (design 0009): macOS's values in a scheme, read only (Settings' System), or
+/// the light scheme for one setting, where what it shows is the configuration as it is in light and an edit is kept as
+/// that setting's light value (`lightValues`; none when it is macOS's), its own value left as it is.
 @MainActor final class LightSettingsStore: SettingsStore {
-    let base: any SettingsStore
-    let key: String
+    enum Values {
+        /// macOS's, in light or in dark.
+        case native(light: Bool)
+        /// The light ones; edits go to the light value of `key`.
+        case light(key: String)
+    }
 
-    init(base: any SettingsStore, key: String) {
+    let base: any SettingsStore
+    let values: Values
+
+    init(base: any SettingsStore, _ values: Values) {
         self.base = base
-        self.key = key
+        self.values = values
     }
 
     var configuration: Configuration {
-        base.configuration.inLight()
+        switch values {
+            case .native(let light): base.configuration.withNativeLooks(light: light)
+            case .light: base.configuration.inLight()
+        }
     }
 
     var profileID: UUID? {
@@ -21,6 +32,7 @@ import SunsetConfig
     }
 
     func update(_ edit: (inout Configuration) -> Void) {
+        guard case .light(let key) = values else { return }
         var light = configuration
         edit(&light)
         guard let literal = Configuration.literal(of: key, in: light) else { return }

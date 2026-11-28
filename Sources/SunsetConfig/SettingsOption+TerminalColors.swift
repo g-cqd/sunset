@@ -1,4 +1,4 @@
-/// Terminal › Colors: the theme, the terminal's colors and how much of the window shows through it.
+/// Look and feel › Terminal colors: the theme, the terminal's colors and how much of the window shows through it.
 extension SettingsOption {
     /// The keys of the terminal's colours, whose light values are not their dark ones by default (`nativeLight`).
     static let foregroundKey = "colors.foreground"
@@ -21,6 +21,8 @@ extension SettingsOption {
             color(foregroundKey, "Foreground", "text color colour theme", \.colors.foreground, [229, 229, 229])
                 .inBothSchemes,
             color(backgroundKey, "Background", "color colour theme", \.colors.background, [0, 0, 0])
+                .inBothSchemes,
+            color("colors.cursor", "Cursor color", "caret color colour", \.colors.cursor, [229, 229, 229])
                 .inBothSchemes,
             custom(ansiKey, "ANSI colors", "palette 16 red green blue terminal colors kitty", .ansiPalette)
                 .inBothSchemes,

@@ -80,4 +80,31 @@ struct SchemeValuesTests {
         let read = try ConfigurationParser.parse(former).configuration
         #expect(!again.hasFormerValues && again.configuration == read)
     }
+
+    @Test func `a scheme is copied to the other, or put back to the system's whole; System shows macOS's`() {
+        var configuration = Configuration()
+        configuration.colors.background = [0x10, 0x10, 0x10]
+        configuration.appearance.tintColor = [1, 2, 3]
+        #expect(configuration.withNativeLooks(light: false).colors.background == [0x1E, 0x1E, 0x1E])
+        #expect(configuration.withNativeLooks(light: true).colors.background == Configuration.Colors.lightBackground)
+        configuration.copyLooks(toLight: true)
+        #expect(configuration.inLight().colors.background == [0x10, 0x10, 0x10])
+        #expect(configuration.inLight().appearance.tintColor == [1, 2, 3])
+        configuration.resetLooks(light: false)
+        #expect(configuration.colors.background == [0x1E, 0x1E, 0x1E] && configuration.appearance.tintColor == nil)
+        configuration.copyLooks(toLight: false)
+        #expect(configuration.colors.background == [0x10, 0x10, 0x10], "dark from light")
+        configuration.resetLooks(light: true)
+        configuration.resetLooks(light: false)
+        #expect(configuration == Configuration())
+    }
+
+    @Test func `the terminal's colors are in Look and feel, shown while the terminal is on`() {
+        #expect(SettingsSection.topic("terminal.colors")?.section.id == "appearance")
+        var features = Configuration.Features()
+        #expect(SettingsSection.showsTopic("terminal.colors", features))
+        features.terminal = false
+        #expect(!SettingsSection.showsTopic("terminal.colors", features))
+        #expect(SettingsSection.showsTopic("appearance.tint", features))
+    }
 }

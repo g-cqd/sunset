@@ -45,6 +45,37 @@ extension Configuration {
         lightValues[key] = literal == Self.nativeLiteral(of: key, light: true) ? nil : literal
     }
 
+    /// The same with every look setting macOS's, as it is in a scheme: what Settings shows for System.
+    public func withNativeLooks(light: Bool) -> Self {
+        var reader = Reader(configuration: self)
+        for key in Self.schemeKeys {
+            guard let codec = SettingCodec.byKey[key], let literal = Self.nativeLiteral(of: key, light: light),
+                let json = try? JSONValue(parsing: literal)
+            else { continue }
+            codec.read(&reader, json)
+        }
+        return reader.configuration
+    }
+
+    /// Every look setting of one scheme made the other's: light's from dark's, or dark's from light's.
+    public mutating func copyLooks(toLight: Bool) {
+        let light = inLight()
+        for key in Self.schemeKeys {
+            if toLight {
+                setLight(key, Self.literal(of: key, in: self))
+            } else if let codec = SettingCodec.byKey[key], let json = try? JSONValue(parsing: codec.literal(light)) {
+                var reader = Reader(configuration: self)
+                codec.read(&reader, json)
+                self = reader.configuration
+            }
+        }
+    }
+
+    /// Every look setting of a scheme back to macOS's.
+    public mutating func resetLooks(light: Bool) {
+        for key in Self.schemeKeys { resetToNative(key, light: light) }
+    }
+
     /// Whether the setting `key` is a look setting, which has a value per scheme.
     public static func hasSchemeValues(_ key: String) -> Bool {
         isSchemeKey(key)

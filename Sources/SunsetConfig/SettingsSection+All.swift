@@ -19,7 +19,8 @@ extension SettingsSection {
         ]
     )
 
-    /// What the whole app looks and feels like; a scope's own look (the terminal's colors) is in its scope's section.
+    /// What the whole app looks and feels like, in light and in dark: the terminal's colors too (shown while the terminal
+    /// is on).
     static let look = Self(
         id: "appearance",
         title: "Look and feel",
@@ -28,6 +29,7 @@ extension SettingsSection {
             SettingsTopic("appearance.theme", "Appearance", SettingsOption.appearance),
             SettingsTopic("appearance.tint", "Accent and tint", SettingsOption.tint),
             SettingsTopic("appearance.materials", "Materials", SettingsOption.materials),
+            SettingsTopic("terminal.colors", "Terminal colors", SettingsOption.terminalColors),
             SettingsTopic("appearance.feedback", "Feedback", SettingsOption.feedback)
         ]
     )
@@ -70,7 +72,6 @@ extension SettingsSection {
         symbol: "terminal",
         topics: [
             SettingsTopic("terminal.text", "Text", SettingsOption.text + SettingsOption.spacing),
-            SettingsTopic("terminal.colors", "Colors", SettingsOption.terminalColors),
             SettingsTopic("terminal.cursor", "Cursor", SettingsOption.cursor),
             SettingsTopic("terminal.scrolling", "Scrolling and history", SettingsOption.scrolling),
             SettingsTopic("terminal.shell", "Shell", SettingsOption.shell),

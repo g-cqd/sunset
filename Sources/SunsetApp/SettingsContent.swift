@@ -21,6 +21,8 @@ final class SettingsContent: PaneContent, PaneViewMaking {
     var query = ""
     /// The profile whose own settings are shown; nil: all profiles'.
     var scope: UUID?
+    /// Which scheme the look settings show: macOS's, light's or dark's; nil, the one on screen (design 0009).
+    var editing: SchemeEditing?
     /// The topic's More is open.
     var showsMore = false {
         didSet {

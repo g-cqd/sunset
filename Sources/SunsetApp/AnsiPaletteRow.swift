@@ -4,18 +4,16 @@ import SunsetShell
 import SwiftUI
 
 /// The 16 ANSI colours as rows of colour wells: the normal colours above, their bright variants below; eight a row, or
-/// four in a narrow pane. In light and in dark, each its palette under its symbol (design 0009).
+/// four in a narrow pane. `config` is the scheme Settings shows (`SchemeSettingsRow.store`, design 0009).
 struct AnsiPaletteRow: View {
     let config: any SettingsStore
 
-    private static let key = "colors.ansi"
     private static let names = ["Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "White"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.s) {
             Text("ANSI colors")
-            SchemeLabeled(light: true) { wells(LightSettingsStore(base: config, key: Self.key)) }
-            SchemeLabeled(light: false) { wells(config) }
+            wells(config)
         }
     }
 

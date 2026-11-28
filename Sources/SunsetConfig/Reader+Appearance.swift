@@ -80,19 +80,18 @@ extension Reader {
     mutating func readTabs(_ object: Object) {
         for (key, value) in object {
             switch key {
-                case _ where Self.tabFlags[key] != nil:
-                    if let path = Self.tabFlags[key], let flag = bool("tabs.\(key)", value) {
-                        configuration.tabs[keyPath: path] = flag
-                    }
+                case _ where Self.tabFlags[key] != nil: setTab(Self.tabFlags[key], bool("tabs.\(key)", value))
                 case "bar": section("tabs.bar", value) { reader, bar in reader.readTabBar(bar) }
                 // What opens with no tab: texts, read as written.
-                case _ where Self.tabTexts[key] != nil:
-                    if let path = Self.tabTexts[key], let text = string("tabs.\(key)", value) {
-                        configuration.tabs[keyPath: path] = text
-                    }
+                case _ where Self.tabTexts[key] != nil: setTab(Self.tabTexts[key], string("tabs.\(key)", value))
                 default: unknown("tabs.\(key)")
             }
         }
+    }
+
+    /// A tab setting read, when it was one.
+    private mutating func setTab<Value>(_ path: WritableKeyPath<Configuration.Tabs, Value>?, _ value: Value?) {
+        if let path, let value { configuration.tabs[keyPath: path] = value }
     }
 
     private mutating func readTabBar(_ object: Object) {

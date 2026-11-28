@@ -47,8 +47,6 @@ extension SettingsOption {
                     + "ask for the default."
             )
             .grouped("Shape and color"),
-            color("colors.cursor", "Cursor color", "caret color colour", \.colors.cursor, [229, 229, 229]).inBothSchemes
-                .grouped("Shape and color"),
             toggle("cursor.blink", "Cursor blinks", "blink steady caret", \.cursorBlinks)
                 .grouped("Blinking"),
             custom("cursor.blinkTimeout", "Stop blinking after", "blink caret idle seconds for ever", .blinkTimeout)

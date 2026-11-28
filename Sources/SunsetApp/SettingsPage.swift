@@ -39,6 +39,18 @@ struct SettingsPage: View {
             // The settings of a scope that is off are not found.
             .filter { SettingsSection.showsTopic($0.topic, features) }
     }
+    /// The scheme the look settings show (design 0009): the one chosen, else the one on screen.
+    private var editing: SchemeEditing {
+        content.editing ?? (config.isLight ? .light : .dark)
+    }
+    private var editingLight: Bool {
+        editing.isLight(onScreen: config.isLight)
+    }
+    /// The topic shown has look settings: the scheme switch is over them.
+    private var showsSchemes: Bool {
+        scoped == nil && !content.isSearching
+            && (SettingsSection.topic(content.topic)?.topic.options.contains { $0.perScheme } ?? false)
+    }
     private var ownList: Bool {
         content.tabs?.settingsListInPage(sidebarDocked: config.configuration.sidebarDocked) ?? true
     }
@@ -83,6 +95,17 @@ struct SettingsPage: View {
     private var page: some View {
         Form {
             ScopeRow(content: content)
+            if showsSchemes {
+                Section {
+                    SchemeSwitch(
+                        content: content,
+                        config: store,
+                        editing: editing,
+                        light: editingLight,
+                        layout: ShellSettings(config.configuration).layout
+                    )
+                }
+            }
             if content.isSearching {
                 // Searched once a keystroke, then grouped: the results were searched again for each topic shown.
                 let found = results
@@ -160,8 +183,19 @@ struct SettingsPage: View {
 
     /// The options that act under the configuration now; a group left empty is not shown.
     private func applying(_ options: [SettingsOption]) -> [SettingsOption] {
-        // With a profile chosen, only what a profile can set.
-        options.filter { $0.isShown(in: store.configuration) && (scoped == nil || $0.isProfileSetting) }
+        // With a profile chosen, only what a profile can set; a look setting as it is in the scheme shown.
+        let shown = scoped == nil ? Self.inScheme(store.configuration, editing, editingLight) : store.configuration
+        return options.filter { $0.isShown(in: shown) && (scoped == nil || $0.isProfileSetting) }
+    }
+
+    private static func inScheme(_ configuration: Configuration, _ editing: SchemeEditing, _ light: Bool)
+        -> Configuration
+    {
+        switch editing {
+            case .system: configuration.withNativeLooks(light: light)
+            case .light: configuration.inLight()
+            case .dark: configuration
+        }
     }
 
     private func rows(_ options: [SettingsOption]) -> some View {
@@ -169,7 +203,7 @@ struct SettingsPage: View {
         ForEach(applying(options)) { option in
             // A per-profile store sets no light values: only the app's.
             if scoped == nil, Configuration.hasSchemeValues(option.id) {
-                SchemeSettingsRow(option: option, config: store)
+                SchemeSettingsRow(option: option, config: store, editing: editing, light: editingLight)
             } else {
                 SettingsRow(option: option, config: store)
             }

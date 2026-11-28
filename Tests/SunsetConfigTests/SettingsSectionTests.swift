@@ -31,9 +31,9 @@ import Testing
         #expect(Set(placed).count == placed.count, "an option is in two topics")
     }
 
-    @Test func `the cursor has its colour, with its shape and its blinking`() {
-        #expect(options("terminal.cursor") == ["cursor.shape", "colors.cursor", "cursor.blink", "cursor.blinkTimeout"])
-        #expect(!options("appearance.theme").contains("colors.cursor"))
+    @Test func `the cursor's colour is with the terminal's colours, in light and dark; its shape and blinking apart`() {
+        #expect(options("terminal.cursor") == ["cursor.shape", "cursor.blink", "cursor.blinkTimeout"])
+        #expect(options("terminal.colors").contains("colors.cursor"))
     }
 
     @Test func `what a program may copy is under Terminal, with the terminal's own`() {
