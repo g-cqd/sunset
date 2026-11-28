@@ -5,7 +5,7 @@
 #   Scripts/release.sh TAG [COMMIT] [--no-install]
 #
 # COMMIT: the commit to release; by default the newest on main whose CI passed (a release never waits on CI: it takes
-# what CI already passed). Its docs/releases/TAG.md is the release's notes.
+# what CI already passed). Its docs/releases/TAG.md is the release's changes (Scripts/release-notes.sh adds the rest).
 #
 # Fast because:
 # - it builds in a release worktree and a build folder that stay between releases (sunset-release in the Shared folder beside the users' homes): the
@@ -146,7 +146,7 @@ finish
 
 phase "the signed index"
 notes="$logs/notes.md"
-{ printf 'Build %s.\n\n' "$build"; cat "$notes_source"; } > "$notes"
+Scripts/release-notes.sh "$tag" "$build" "$work" > "$notes"
 Scripts/sign-release-index.sh "$tag" "$build" "$notes" "$dist" "$host" > "$logs/index.log" 2>&1 ||
     { tail -20 "$logs/index.log" >&2; exit 1; }
 (cd "$dist" && shasum -a 256 -c ./*.sha256 > /dev/null)

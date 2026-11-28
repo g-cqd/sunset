@@ -194,23 +194,9 @@ tag="$(next_tag "$latest_tag")"
 if [ "$do_release" -eq 1 ]; then
     notes_file="docs/releases/$tag.md"
     cat > "$notes_file" <<EOF
-Automated WebKit engine update ($reason). Expect rough edges, and settings or saved state that a later build may not read.
+WebKit engine update ($reason).
 
-**What changed since ${latest_tag#v}.**
-- **WebKit engine updated** from \`$short_old\` ($old_patches patches) to \`$short_new\` ($new_patches patches). All
-  TestWebKitAPI and layout test suites passed against \`Engine/WebKit/known-failures\`.
-
-**Two variants of one app.**
-- **Sunset** (\`Sunset-$tag-…\`): pages on the system's WebKit, the one Safari uses.
-- **Sunset with its own WebKit** (\`Sunset-WebKit-$tag-…\`): the same app with WebKit's main branch at $short_new
-  and $new_patches patches of ours. Switch between them in Settings › General › Updates › Web engine.
-
-**Install.** Unzip, move the app to Applications, open it. Both are signed with a Developer ID and notarised by Apple. They
-need macOS 26 or later and a Mac with Apple silicon.
-
-**Check the download.** \`shasum -a 256 -c NAME.zip.sha256\` in the folder holding both files.
-
-Report what breaks in the repository's issues.
+- WebKit \`$short_old\` ($old_patches patches) → \`$short_new\` ($new_patches patches); WebKit's test suites passed.
 EOF
     git add "$notes_file"
     git -c user.name=Gigi -c user.email=42325924+g-cqd@users.noreply.github.com commit -q \
@@ -242,7 +228,7 @@ if ! Scripts/package-release.sh "$tag" "$dist" >> "$run_log" 2>&1; then
 fi
 
 notes_tmp="$(mktemp)"
-{ printf 'Build %s.\n\n' "$build"; cat "docs/releases/$tag.md"; } > "$notes_tmp"
+Scripts/release-notes.sh "$tag" "$build" > "$notes_tmp"
 if ! SUNSET_SIGN_HOST="$sign_host" Scripts/package-variants.sh "$tag" "$dist" "$notes_tmp" >> "$run_log" 2>&1; then
     rm -f "$notes_tmp"
     report_failure "package-variants" "Scripts/package-variants.sh $tag failed (see $run_log)"

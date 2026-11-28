@@ -19,7 +19,9 @@ command-line tools, not apps (its README: an app ships through the project's own
 - **A tag `v*` publishes** (`.github/workflows/release.yml`): the secrets go into a temporary keychain and files under the
   runner's temporary folder, removed at the end whatever happens; the built app must launch (`Scripts/smoke-launch.sh`) and pass
   Gatekeeper before `gh release create` attaches the zip and its checksum. A tag with a suffix (`-alpha.1`) is a pre-release.
-  The note is `docs/releases/<tag>.md`, written before the tag; the job fails without it.
+  The note is `docs/releases/<tag>.md`, written before the tag (the job fails without it): that release's changes only.
+  `Scripts/release-notes.sh` adds the build line and, after a `---` line, `docs/releases/footer.md` (variants, install,
+  checksum); the update window shows each release between the running build and the offer up to that line.
 - **By hand**, the same job builds ad hoc without any secret, as a check that the app still builds on a runner.
 - **The signature is the Developer ID of the team behind g-cqd** (the owner, 2026-11-20), not one of a company's teams.
 - **A release built on a Mac comes from a clone in a neutral folder** (`/tmp`): a build records the absolute paths of its

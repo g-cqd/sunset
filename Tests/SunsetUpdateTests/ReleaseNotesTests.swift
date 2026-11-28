@@ -49,4 +49,18 @@ struct ReleaseNotesTests {
             ]
         )
     }
+
+    /// Over several releases, each one's changes, not the footer every release has (`Scripts/release-notes.sh`).
+    @Test func stopsAtTheFooterEveryReleaseHas() {
+        let notes = """
+            Build 990.
+
+            - Light terminal.
+
+            ---
+
+            **Two variants.** Sunset shows pages with the system's WebKit.
+            """
+        #expect(ReleaseNotes.blocks(notes) == [.item(level: 0, "Light terminal.")])
+    }
 }

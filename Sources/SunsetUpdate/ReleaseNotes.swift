@@ -1,7 +1,8 @@
 /// A release's notes, as the update window shows them: the blocks of the Markdown our notes are written in (paragraphs,
 /// headings, list items nested by two spaces, lines wrapped at 120 columns joined), inline Markdown left to the view.
 /// What is about installing by hand (`**Install.**`, `**Check the download.**`) and GitHub's `Build N.` line are left out:
-/// an update does those itself.
+/// an update does those itself. So is everything after a `---` line, what every release says (`Scripts/release-notes.sh`):
+/// over several releases, the window shows each one's changes, not the same footer each time.
 public enum ReleaseNotes {
     public enum Block: Equatable, Sendable {
         case heading(String)
@@ -17,6 +18,7 @@ public enum ReleaseNotes {
         for line in notes.split(separator: "\n", omittingEmptySubsequences: false) {
             let text = line.drop { $0 == " " }
             let indent = line.count - text.count
+            if text == "---" { break }
             if text.isEmpty {
                 open = false
             } else if let marker = ["- ", "* "].first(where: text.hasPrefix) {

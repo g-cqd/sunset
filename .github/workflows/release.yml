@@ -133,7 +133,7 @@ jobs:
           [ -f "$notes" ] || { echo "::error::no release note at $notes"; exit 1; }
           # The build package-release.sh read from the app (its count of commits): in the title and atop the note.
           build="$(cat .build/dist.build)"
-          { printf 'Build %s.\n\n' "$build"; cat "$notes"; } > "$RUNNER_TEMP/notes.md"
+          Scripts/release-notes.sh "$TAG" "$build" > "$RUNNER_TEMP/notes.md"
       - name: Release · CycloneDX SBOM
         if: ${{ env.SIGNED == 'true' }}
         env:
