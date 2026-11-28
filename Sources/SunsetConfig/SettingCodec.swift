@@ -19,8 +19,16 @@ struct SettingCodec: Sendable {
                 codecs[option.id] = codec
             }
         }
+        codecs[SettingsOption.ansiKey] = ansi
         return codecs
     }()
+
+    /// The 16 ANSI colours: a list of at most 16 (the rest keep theirs), written whole.
+    private static let ansi = Self(
+        key: SettingsOption.ansiKey,
+        read: { reader, json in reader.readAnsi(SettingsOption.ansiKey, json) },
+        literal: { ConfigurationWriter.palette($0.colors.ansi) }
+    )
 
     /// The codecs' keys in the order their options are declared.
     static let ordered: [String] = SettingsOption.all.map(\.id).filter { byKey[$0] != nil }

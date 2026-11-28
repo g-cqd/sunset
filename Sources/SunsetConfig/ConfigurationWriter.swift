@@ -6,17 +6,18 @@ public enum ConfigurationWriter {
     /// Every key of the file with its value as a JSON literal, by dotted path.
     public static func literals(for configuration: Configuration) -> [String: String] {
         let font = configuration.font
-        let colors = configuration.colors
         var layout: [String: String] = [:]
-        layout["colors.ansi"] = "[" + colors.ansi.map { color($0) }.joined(separator: ", ") + "]"
         for field in Configuration.Layout.fields {
             layout["layout.\(field.key)"] = number(configuration.layout[keyPath: field.path])
         }
         layout.merge(extras(configuration)) { $1 }
-        // A plain value is written by its option's codec; with a value of its own in light, both.
+        // A plain value is written by its option's codec; with a value of its own in light, both. One for both that would
+        // read back as its light default (`keepsLightDefault`) is written in both too.
         for (key, codec) in SettingCodec.byKey {
             let dark = codec.literal(configuration)
-            layout[key] = configuration.lightValues[key].map { "{ \"light\": \($0), \"dark\": \(dark) }" } ?? dark
+            let same = Configuration.keepsLightDefault(key, literal: dark) ? dark : nil
+            layout[key] =
+                (configuration.lightValues[key] ?? same).map { "{ \"light\": \($0), \"dark\": \(dark) }" } ?? dark
         }
         return layout.merging([
             "font.family": string(font.family ?? ""),
@@ -36,6 +37,11 @@ public enum ConfigurationWriter {
             "layout.panelRadius": configuration.layout.panelRadius.map(number) ?? "null",
             "theme": configuration.theme.map(string) ?? "null"
         ]) { first, _ in first }
+    }
+
+    /// The 16 ANSI colours as a JSON array.
+    static func palette(_ colours: [[UInt8]]) -> String {
+        "[" + colours.map { color($0) }.joined(separator: ", ") + "]"
     }
 
     /// The whole file, in the order of `ConfigurationKeys.all`.

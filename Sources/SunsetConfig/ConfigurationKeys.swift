@@ -11,7 +11,6 @@ public enum ConfigurationKeys {
         "font.italicFamily",
         "font.boldItalicFamily",
         "font.features",
-        "colors.ansi",
         "terminal.directory",
         "tabs.startAddress",
         "tabs.startFile",

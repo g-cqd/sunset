@@ -46,10 +46,10 @@ extension Reader {
         }
     }
 
-    /// `colors`: the foreground, background and cursor are their options' (`SettingCodec`); the palette is read here.
+    /// `colors`: every key is its option's (`SettingCodec`, the palette's too); anything else is not one.
     mutating func readColors(_ object: Object) {
-        for (key, value) in object {
-            if key == "ansi" { readAnsi(value) } else { unknown("colors.\(key)") }
+        for key in object.keys {
+            unknown("colors.\(key)")
         }
     }
 

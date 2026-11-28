@@ -1,7 +1,6 @@
 import Foundation
 import Observation
 import SunsetTestSupport
-import Synchronization
 import Testing
 
 @testable import SunsetShellModel
@@ -16,7 +15,7 @@ struct LaidOutGeometryTests {
         #expect(tabs.slide.width == 0, "not during the pass")
         await RealWait.pass(.milliseconds(50))
         #expect(tabs.slide.width == 240 && tabs.slide.duration == 0.25)
-        let notified = Flag()
+        let notified = ChangeFlag()
         withObservationTracking {
             _ = tabs.slide
         } onChange: {
@@ -29,11 +28,4 @@ struct LaidOutGeometryTests {
         await RealWait.pass(.milliseconds(50))
         #expect(notified.isRaised && tabs.slide.width == 300)
     }
-}
-
-/// Raised once a change is noticed, from whichever thread notices it.
-private final class Flag: Sendable {
-    private let raised = Mutex(false)
-    var isRaised: Bool { raised.withLock { $0 } }
-    func raise() { raised.withLock { $0 = true } }
 }

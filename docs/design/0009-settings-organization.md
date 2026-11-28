@@ -30,8 +30,12 @@ App sections first, then one section for each feature scope, listed only while i
 - `web.pageScheme`: the pages' (follow Sunset, follow the system, light, dark). A page with a dark mode of its own uses it;
   the others are left as they are.
 - A color setting can have one value, or one for light and one for dark: in Settings, a "Separate for light and dark"
-  switch shows two wells; in the file, a value or `{ "light": …, "dark": … }`. Tint, accent color, bar tint, the
-  terminal's colors and a Space's color work this way.
+  button beside the control shows two, under a sun and a moon; in the file, a value or `{ "light": …, "dark": … }`. Tint,
+  accent color, bar tint, the terminal's colors (the 16 ANSI colors too) and a Space's color work this way.
+- The terminal has a light scheme by default (`Configuration.defaultLightValues`): dark text on a near-white screen,
+  ANSI colors of Tomorrow's hues dark enough to read on it (the normal ones at least 4.5:1, the bright ones 3:1, but
+  bright white). A file that holds the default colors keeps them; a color chosen is both schemes' unless split; the
+  writer writes a default color as a pair, so it reads back the same.
 
 ## File keys
 

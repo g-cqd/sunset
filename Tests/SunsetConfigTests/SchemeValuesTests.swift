@@ -7,7 +7,8 @@ import Testing
 struct SchemeValuesTests {
     @Test func `one value is both schemes'; a pair gives each its own, read back the same`() throws {
         let one = try ConfigurationParser.parse(##"{ "colors": { "background": "#101010" } }"##)
-        #expect(one.configuration.lightValues.isEmpty && one.configuration.inLight() == one.configuration)
+        #expect(one.configuration.lightValues["colors.background"] == nil)
+        #expect(one.configuration.inLight().colors.background == [0x10, 0x10, 0x10])
         let pair = try ConfigurationParser.parse(
             ##"{ "colors": { "background": { "light": "#fafafa", "dark": "#101010" } }, "appearance": { "barTint": { "light": "light", "dark": "dark" } } }"##
         )
@@ -25,6 +26,9 @@ struct SchemeValuesTests {
             ##"{ "colors": { "background": { "light": "pink", "dark": "#101010" } } }"##
         )
         #expect(read.issues.map(\.path) == ["terminal.colors.background"])
-        #expect(read.configuration.colors.background == [0x10, 0x10, 0x10] && read.configuration.lightValues.isEmpty)
+        #expect(
+            read.configuration.colors.background == [0x10, 0x10, 0x10]
+                && read.configuration.lightValues["colors.background"] == nil
+        )
     }
 }

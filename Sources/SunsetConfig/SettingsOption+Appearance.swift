@@ -38,10 +38,10 @@ extension SettingsOption {
             color("appearance.tint.color", "Tint", "colour color overlay glass", \.appearance.tintColor, [48, 96, 255])
                 .withLightTwin("appearance.tint.light"),
             strength("appearance.tint.alpha", "Tint strength", \.appearance.tintAlpha)
-                .withLightTwin("appearance.tint.lightAlpha"),
+                .withLightTwin(lightTintAlphaKey),
             // The tint's light values: shown in the tint's rows, beside its own (`lightTwin`).
             color("appearance.tint.light", "Tint in light", "light", \.appearance.lightTintColor, [255, 255, 255]),
-            strength("appearance.tint.lightAlpha", "Tint strength in light", \.appearance.lightTintAlpha),
+            strength(Self.lightTintAlphaKey, "Tint strength in light", \.appearance.lightTintAlpha),
             choice(
                 "appearance.barTint",
                 "Bar appearance",
@@ -110,6 +110,9 @@ extension SettingsOption {
             )
             .grouped("Bar appearance")
         ]
+
+    /// The tint's strength in light: its own setting, shown beside the tint's (`lightTwin`).
+    private static let lightTintAlphaKey = "appearance.tint.lightAlpha"
 
     /// A tint's strength: 0 to 1 by twentieths.
     private static func strength(_ id: String, _ title: String, _ path: Path<Double>) -> Self {

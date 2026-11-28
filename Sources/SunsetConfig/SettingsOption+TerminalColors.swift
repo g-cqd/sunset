@@ -1,5 +1,10 @@
 /// Terminal › Colors: the theme, the terminal's colors and how much of the window shows through it.
 extension SettingsOption {
+    /// The keys of the terminal's colours, which have light values of their own by default (`defaultLightValues`).
+    static let foregroundKey = "colors.foreground"
+    static let backgroundKey = "colors.background"
+    static let ansiKey = "colors.ansi"
+
     static let terminalColors: [Self] =
         [
             Self(
@@ -13,11 +18,11 @@ extension SettingsOption {
                 "A file `themes/<name>.json` beside the configuration file; it can set the font, colors, window, sidebar and "
                     + "appearance. Your own keys win."
             ),
-            color("colors.foreground", "Foreground", "text color colour theme", \.colors.foreground, [229, 229, 229])
+            color(foregroundKey, "Foreground", "text color colour theme", \.colors.foreground, [229, 229, 229])
                 .inBothSchemes,
-            color("colors.background", "Background", "color colour theme", \.colors.background, [0, 0, 0])
+            color(backgroundKey, "Background", "color colour theme", \.colors.background, [0, 0, 0])
                 .inBothSchemes,
-            custom("colors.ansi", "ANSI colors", "palette 16 red green blue terminal colors kitty", .ansiPalette),
+            custom(ansiKey, "ANSI colors", "palette 16 red green blue terminal colors kitty", .ansiPalette),
             number(
                 "terminal.opacity",
                 "Background opacity",

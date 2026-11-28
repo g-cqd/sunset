@@ -24,14 +24,14 @@ struct SchemeSettingsRow: View {
                 HStack(spacing: Design.Space.m) {
                     if separate {
                         // Light first, as the system lists them.
-                        scheme(light: true) {
+                        SchemeLabeled(light: true) {
                             if let twin { control(twin, config) } else { control(option, lightStore) }
                         }
-                        scheme(light: false) { control(option, config) }
+                        SchemeLabeled(light: false) { control(option, config) }
                     } else {
                         control(option, config)
                     }
-                    if twin == nil { splitButton }
+                    if twin == nil { SchemeSplitButton(key: option.id, config: config, separate: separate) }
                 }
             } label: {
                 SettingsLabel(option.title, help: HelpTopic.explaining(setting: option.id))
@@ -49,35 +49,5 @@ struct SchemeSettingsRow: View {
     /// The option's control alone: its row with its title hidden.
     private func control(_ option: SettingsOption, _ store: any SettingsStore) -> some View {
         SettingsRow(option: option.unnoted, config: store).labelsHidden().fixedSize()
-    }
-
-    /// A control under the scheme it sets: a sun for light, a moon for dark.
-    private func scheme(light: Bool, @ViewBuilder content: () -> some View) -> some View {
-        HStack(spacing: Design.Space.xs) {
-            Image(systemName: light ? "sun.max" : "moon")
-                .font(Design.Text.detail)
-                .foregroundStyle(.secondary)
-                .accessibilityHidden(true)
-            content()
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(light ? "In light" : "In dark")
-    }
-
-    /// One value for both, or one each: the light value starts as the current one; one for both keeps the dark one.
-    private var splitButton: some View {
-        Button {
-            let key = option.id
-            let on = !separate
-            config.update { configuration in
-                configuration.lightValues[key] = on ? Configuration.literal(of: key, in: configuration) : nil
-            }
-        } label: {
-            Image(systemName: "circle.lefthalf.filled")
-                .foregroundStyle(separate ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
-        }
-        .buttonStyle(.borderless)
-        .accessibilityLabel("Separate for light and dark")
-        .accessibilityValue(separate ? "On" : "Off")
     }
 }

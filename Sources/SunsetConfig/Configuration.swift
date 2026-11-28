@@ -10,13 +10,6 @@ public struct Configuration: Sendable, Equatable {
         /// The 16 ANSI colours, black to white then their bright variants (Kitty's `color0` to `color15`).
         public var ansi: [[UInt8]] = Colors.kittyAnsi
         public init() {}
-
-        static let kittyAnsi: [[UInt8]] = [
-            [0x1D, 0x1F, 0x21], [0xCC, 0x66, 0x66], [0xB5, 0xBD, 0x68], [0xF0, 0xC6, 0x74],
-            [0x81, 0xA2, 0xBE], [0xB2, 0x94, 0xB7], [0x8A, 0xBE, 0xB7], [0xC5, 0xC8, 0xC6],
-            [0x66, 0x66, 0x66], [0xD5, 0x4E, 0x53], [0xB9, 0xCA, 0x4A], [0xE7, 0xC5, 0x57],
-            [0x7A, 0xA6, 0xDA], [0xC3, 0x97, 0xD8], [0x70, 0xC0, 0xB1], [0xEA, 0xEA, 0xEA]
-        ]
     }
 
     public struct Window: Sendable, Equatable {
@@ -224,8 +217,9 @@ public struct Configuration: Sendable, Equatable {
     public var updates = Updates()
     public var passwords = Passwords()
     public var control = Control()
-    /// The values of plain settings in the light scheme, where they differ: the key and its value as JSON (design 0009).
-    public var lightValues: [String: String] = [:]
+    /// The values of plain settings in the light scheme, where they differ: the key and its value as JSON (design 0009);
+    /// the terminal's colours have light ones until the file says otherwise.
+    public var lightValues = Configuration.defaultLightValues
     /// Keys given to commands (`keys`): a command's name and its key ("cmd+shift+d", "⇧⌘D"); "" takes its key away.
     public var keys: [String: String] = [:]
 
