@@ -2,12 +2,21 @@ public import Foundation
 
 extension Configuration.Appearance {
     /// The app's icon (n142): Auto by default, following the time of day through the four skies built into the asset
-    /// catalog (`App/<assetName>.icon`), or one of the four chosen directly.
+    /// catalog (`App/<assetName>.icon`), or one of them chosen directly. The proposed skies (`proposed`) can be chosen
+    /// too, shown in the picker only while Option is held; Auto does not use them.
     public enum Icon: String, Sendable, Equatable, CaseIterable {
-        case auto, sunset, twilight, dawn, dusk
+        case auto, sunset, twilight, dawn, dusk, sunrise, morning, noon, afternoon, night
 
         /// The four skies, in the order of the day (dawn, sunset, twilight, dusk).
         public static let skies: [Self] = [.dawn, .sunset, .twilight, .dusk]
+
+        /// The skies proposed on 2026-11-28, not yet approved: in the order of the day.
+        public static let proposed: [Self] = [.sunrise, .morning, .noon, .afternoon, .night]
+
+        /// Its name in the picker.
+        public var title: String {
+            self == .morning ? "Later morning" : assetName
+        }
 
         /// The icon's name in the asset catalog (the bundle's own for `sunset`, an alternate for the others; `auto`
         /// resolves to one of `skies` first).

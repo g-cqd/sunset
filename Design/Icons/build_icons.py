@@ -4,10 +4,11 @@
    python3 Design/Icons/build_icons.py [masters] [output]       (defaults: .build/icons/masters, .build/icons)
    then copy .build/icons/<variant>/<Name>.icon to App/ (the app builds with those).
 For each variant (sunset, twilight, dawn, dusk):
-  <Name>.icon               Icon Composer bundle: iOS/iPadOS/macOS 26+, light, dark and tinted; Xcode 26+ also
+  <Name>.icon               Icon Composer bundle: iOS/iPadOS/macOS 26+, one sky for light and dark (the sun is as it
+                            is, whatever the system's appearance: the owner, 2026-11-28) and tinted; Xcode 26+ also
                             derives the images for older systems from it when the deployment target is lower.
   pre-26/Assets.xcassets    AppIcon.appiconset for an Xcode or a target that does not take .icon: iOS 12+ single 1024
-                            (with iOS 18 dark and tinted), and every macOS size (macOS 11+).
+                            (with iOS 18 tinted; dark is the same sky), and every macOS size (macOS 11+).
   <Name>.icns               for a bundle that names its icon file (CFBundleIconFile).
   previews/                 ictool's own rendering of the .icon for each platform and appearance.
 Each output is compiled by actool for what it is for; the script stops if one fails."""
@@ -16,7 +17,7 @@ REPO = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 MASTERS = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(REPO, ".build", "icons", "masters")
 ROOT = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else os.path.join(REPO, ".build", "icons")
 IC = "/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool"
-VARIANTS = ["sunset", "twilight", "dawn", "dusk"]
+VARIANTS = ["sunset", "twilight", "dawn", "dusk", "sunrise", "morning", "noon", "afternoon", "night"]
 
 def run(cmd, **kw):
     r = subprocess.run(cmd, capture_output=True, text=True, **kw)
@@ -30,18 +31,14 @@ def build(name):
     shutil.rmtree(base, ignore_errors=True)
     icon = os.path.join(base, f"{Name}.icon")
     os.makedirs(os.path.join(icon, "Assets"))
-    for v in ["", "-dark", "-tinted"]:
+    for v in ["", "-tinted"]:
         shutil.copy(os.path.join(MASTERS, f"{name}{v}.png"), os.path.join(icon, "Assets", f"{name}{v}.png"))
     layer = {"name": "Sky", "glass": False, "image-name-specializations": [
-        {"value": f"{name}.png"}, {"appearance": "dark", "value": f"{name}-dark.png"},
-        {"appearance": "tinted", "value": f"{name}-tinted.png"}]}
+        {"value": f"{name}.png"}, {"appearance": "tinted", "value": f"{name}-tinted.png"}]}
     # The fill, under the image: the image's own colour at its bottom edge, should any of it show.
     px = run(["magick", os.path.join(MASTERS, f"{name}.png"), "-crop", "1024x24+0+1000", "-resize", "1x1!", "-format",
               "%[fx:r],%[fx:g],%[fx:b]", "info:"]).stdout.strip()
-    pxd = run(["magick", os.path.join(MASTERS, f"{name}-dark.png"), "-crop", "1024x24+0+1000", "-resize", "1x1!", "-format",
-               "%[fx:r],%[fx:g],%[fx:b]", "info:"]).stdout.strip()
-    doc = {"fill-specializations": [{"value": {"solid": f"srgb:{px},1.0"}},
-                                    {"appearance": "dark", "value": {"solid": f"srgb:{pxd},1.0"}}],
+    doc = {"fill-specializations": [{"value": {"solid": f"srgb:{px},1.0"}}],
            "groups": [{"layers": [layer], "specular": False, "shadow": {"kind": "none", "opacity": 0},
                        "translucency": {"enabled": False, "value": 0}}],
            "supported-platforms": {"squares": ["iOS", "macOS"]}}
@@ -60,9 +57,8 @@ def build(name):
     json.dump({"info": {"author": "xcode", "version": 1}}, open(os.path.join(base, "pre-26", "Assets.xcassets", "Contents.json"), "w"))
     images = [
         {"filename": "ios.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"},
-        {"appearances": [{"appearance": "luminosity", "value": "dark"}], "filename": "ios-dark.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"},
         {"appearances": [{"appearance": "luminosity", "value": "tinted"}], "filename": "ios-tinted.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"}]
-    for v in ["", "-dark", "-tinted"]:
+    for v in ["", "-tinted"]:
         shutil.copy(os.path.join(MASTERS, f"{name}{v}.png"), os.path.join(cat, f"ios{v}.png"))
     # macOS before 26: the sky in macOS's rounded square with its margin, as ictool draws the .icon for macOS.
     mac = os.path.join(base, "macOS-1024.png")

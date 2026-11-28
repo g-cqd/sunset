@@ -4,12 +4,6 @@
       "value": {
         "solid": "srgb:0.782086,0.414643,0.529704,1.0"
       }
-    },
-    {
-      "appearance": "dark",
-      "value": {
-        "solid": "srgb:0.623278,0.273431,0.383183,1.0"
-      }
     }
   ],
   "groups": [
@@ -21,10 +15,6 @@
           "image-name-specializations": [
             {
               "value": "twilight.png"
-            },
-            {
-              "appearance": "dark",
-              "value": "twilight-dark.png"
             },
             {
               "appearance": "tinted",

@@ -33,6 +33,7 @@ extension SettingsOption {
                 "icon dock app sky auto time day sunset twilight dawn dusk alternate",
                 \.appearance.icon,
                 [(.auto, "Auto"), (.dawn, "Dawn"), (.sunset, "Sunset"), (.twilight, "Twilight"), (.dusk, "Dusk")]
+                    + Configuration.Appearance.Icon.proposed.map { ($0, $0.title) }
             )
             .noted(
                 "Auto follows the time of day while Sunset runs; Finder and a Dock kept icon show Sunset's own when it is not running."

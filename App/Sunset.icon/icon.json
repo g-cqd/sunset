@@ -4,12 +4,6 @@
       "value": {
         "solid": "srgb:0.785229,0.467493,0.48468,1.0"
       }
-    },
-    {
-      "appearance": "dark",
-      "value": {
-        "solid": "srgb:0.619705,0.310432,0.328693,1.0"
-      }
     }
   ],
   "groups": [
@@ -21,10 +15,6 @@
           "image-name-specializations": [
             {
               "value": "sunset.png"
-            },
-            {
-              "appearance": "dark",
-              "value": "sunset-dark.png"
             },
             {
               "appearance": "tinted",

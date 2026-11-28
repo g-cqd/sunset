@@ -6,16 +6,24 @@ import SunsetShell
 import SwiftUI
 
 /// Settings › Appearance › App icon (n142): previews of each icon (Auto showing the current sky of the day with a small
-/// clock badge, plus Dawn, Sunset, Twilight and Dusk) instead of a text dropdown.
+/// clock badge, plus Dawn, Sunset, Twilight and Dusk) instead of a text dropdown. The proposed skies (`Icon.proposed`) show
+/// while Option is held, or while one of them is the one chosen.
 struct AppIconPickerRow: View {
     let title: String
     let help: HelpTopic?
     let config: any SettingsStore
     @Environment(\.runtime) private var runtime
+    @State private var option = false
 
     private static let choices: [(icon: Configuration.Appearance.Icon, label: String)] = [
         (.auto, "Auto"), (.dawn, "Dawn"), (.sunset, "Sunset"), (.twilight, "Twilight"), (.dusk, "Dusk")
     ]
+
+    private var proposed: [Configuration.Appearance.Icon] {
+        let chosen = config.configuration.appearance.icon
+        return option || Configuration.Appearance.Icon.proposed.contains(chosen)
+            ? Configuration.Appearance.Icon.proposed : []
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Design.Space.m) {
@@ -25,7 +33,18 @@ struct AppIconPickerRow: View {
                     tile(for: item.icon, label: item.label)
                 }
             }
+            if !proposed.isEmpty {
+                ScrollView(.horizontal) {
+                    HStack(spacing: Design.Space.l) {
+                        ForEach(proposed, id: \.self) { icon in tile(for: icon, label: icon.title) }
+                    }
+                }
+                .scrollIndicators(.hidden)
+                .transition(.opacity)
+            }
         }
+        .animation(Design.Welcome.change, value: proposed)
+        .onModifierKeysChanged(mask: .option, initial: true) { _, keys in option = keys.contains(.option) }
     }
 
     private func tile(for icon: Configuration.Appearance.Icon, label: String) -> some View {

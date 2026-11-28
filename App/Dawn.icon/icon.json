@@ -4,12 +4,6 @@
       "value": {
         "solid": "srgb:0.875257,0.612561,0.723649,1.0"
       }
-    },
-    {
-      "appearance": "dark",
-      "value": {
-        "solid": "srgb:0.741422,0.412829,0.537832,1.0"
-      }
     }
   ],
   "groups": [
@@ -21,10 +15,6 @@
           "image-name-specializations": [
             {
               "value": "dawn.png"
-            },
-            {
-              "appearance": "dark",
-              "value": "dawn-dark.png"
             },
             {
               "appearance": "tinted",

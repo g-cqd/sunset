@@ -12,7 +12,7 @@ struct IconUniforms {
     float ozoneStrength;
     float chromaticStrength;
     float grainStrength;
-    float sunDrop; float coreSize; float curve; float mistSoft; float pale; float burn; float airy; int layerMode; // 0 = full composite (default), 1 = solar aureole layer (alpha PNG for Icon Composer), 2 = dark mode composite, 3 = tinted/mono, 4 = soft horizon haze layer (alpha PNG for Icon Composer)
+    float sunDrop; float coreSize; float curve; float mistSoft; float pale; float burn; float airy; float day; float gold; float night; int layerMode; // 0 = full composite (default), 1 = solar aureole layer (alpha PNG for Icon Composer), 2 = dark mode composite, 3 = tinted/mono, 4 = soft horizon haze layer (alpha PNG for Icon Composer)
 };
 
 static inline float hash12(float2 p) {
@@ -130,7 +130,7 @@ static float3 evalPureAtmosphere(float3 dir, float sunElevRad, float turbidity, 
 }
 
 static float3 sampleDiffusedSunsetIcon(float2 p, float elevRad, float turbidity, float ozoneStrength, float darkFactor,
-                                       float sunDrop, float coreSize, float curve, float mistSoft, float pale, float burn, float airy) {
+                                       float sunDrop, float coreSize, float curve, float mistSoft, float pale, float burn, float airy, float day, float gold, float night) {
     // No ground and no line: the sky goes on down into a thick low haze that darkens over a large part of the icon,
     // as a sunset seen through haze or sea mist does. Everything below is continuous (no mirror, no kink).
     float dx = p.x - 0.5f;
@@ -155,18 +155,37 @@ static float3 sampleDiffusedSunsetIcon(float2 p, float elevRad, float turbidity,
     float3 cCore = mix(mix(float3(3.0f, 2.05f, 0.85f), float3(2.7f, 2.05f, 1.85f), pale), float3(2.9f, 1.05f, 0.30f), burn);
     float3 cCor = mix(mix(float3(1.8f, 0.60f, 0.18f), float3(1.55f, 0.62f, 0.62f), pale), float3(1.6f, 0.30f, 0.07f), burn);
     float3 cBloom = mix(mix(float3(0.9f, 0.25f, 0.16f), float3(0.85f, 0.34f, 0.44f), pale), float3(0.85f, 0.14f, 0.06f), burn);
+    // Daylight: a white-gold sun, a pale blue haze; gold warms it toward the afternoon's.
+    float3 dCore = mix(float3(2.6f, 2.5f, 2.3f), float3(2.9f, 2.4f, 1.6f), gold);
+    float3 dCor = mix(float3(1.05f, 0.98f, 0.86f), float3(1.30f, 0.95f, 0.55f), gold);
+    float3 dBloom = mix(float3(0.40f, 0.46f, 0.56f), float3(0.62f, 0.50f, 0.40f), gold);
+    cCore = mix(cCore, dCore, day); cCor = mix(cCor, dCor, day); cBloom = mix(cBloom, dBloom, day);
+    // Night: the moon's cool silver light in the sun's place.
+    cCore = mix(cCore, float3(1.55f, 1.70f, 2.05f), night); cCor = mix(cCor, float3(0.42f, 0.52f, 0.78f), night);
+    cBloom = mix(cBloom, float3(0.12f, 0.18f, 0.36f), night);
     s += cCore * core * mix(0.9f, 0.7f, pale) * hide;
     s += cCor * corona * 0.6f * (0.45f + 0.55f * hide);
-    s += cBloom * bloom * 0.45f;
+    s += cBloom * bloom * 0.45f * (1.0f - 0.45f * day);
 
     // The haze band: warm, wide, brightest just above where the horizon would be.
-    s += mix(mix(float3(0.95f, 0.42f, 0.26f), float3(0.95f, 0.55f, 0.58f), pale), float3(0.80f, 0.22f, 0.08f), burn) * exp(-pow((dy + mistSoft * 0.3f) / (mistSoft * 2.4f), 2.0f)) * 0.30f;
+    s += mix(mix(mix(float3(0.95f, 0.42f, 0.26f), float3(0.95f, 0.55f, 0.58f), pale), float3(0.80f, 0.22f, 0.08f), burn), mix(float3(0.78f, 0.88f, 1.0f), float3(1.0f, 0.86f, 0.70f), gold), day) * exp(-pow((dy + mistSoft * 0.3f) / (mistSoft * 2.4f), 2.0f)) * 0.30f;
     // Pale: the sky lifted toward a cool lavender-blue; burn: the sky's blue drained, the whole deeper.
     // Twilight: a clear blue overhead, a true pink low down (not lavender: the red is taken out above, the blue out below).
     float up = smoothstep(0.04f, 0.42f, above);
     float3 paleTint = mix(float3(1.06f, 0.80f, 0.88f), float3(0.62f, 0.86f, 1.18f), up);
     s = mix(s, s * paleTint + mix(float3(0.020f, 0.008f, 0.012f), float3(0.004f, 0.012f, 0.030f), up), pale);
     s = mix(s, s * float3(0.82f, 0.56f, 0.42f), burn);
+    // Daylight: the sky cleared toward a clean blue overhead, a bright pale haze low down instead of the dark.
+    float3 dayTint = mix(float3(1.04f, 1.0f, 0.97f), float3(0.74f, 0.95f, 1.26f), up);
+    s = mix(s, s * dayTint * 1.1f, day);
+    // Gold: the afternoon's (and the sunrise's) warmth, low down most.
+    s = mix(s, s * mix(float3(1.16f, 1.0f, 0.78f), float3(1.06f, 1.0f, 0.92f), up), gold * day);
+    // Night: a deep blue overhead, a little lighter toward the horizon, a few soft stars high up.
+    float3 nightSky = mix(float3(0.030f, 0.045f, 0.095f), float3(0.006f, 0.010f, 0.032f), up);
+    float2 cell = floor(p * 46.0f);
+    float star = step(0.985f, hash12(cell)) * exp(-pow(length(fract(p * 46.0f) - 0.5f) / 0.09f, 2.0f));
+    star *= smoothstep(0.10f, 0.45f, above) * (0.5f + 0.5f * hash12(cell + 7.0f));
+    s = mix(s, s * float3(0.30f, 0.40f, 0.80f) + nightSky + float3(0.55f, 0.60f, 0.75f) * star, night);
     // Dawn (airy): halfway (dawnMix) between two looks the owner picked on 2026-11-19:
     //  - "sheet 9": twilight pushed along its own direction (bluer above, pinker below), lifted toward white where dark;
     //  - "sheet 11": a white pastel sky, pink low down, white around the sun, powder blue above, light everywhere.
@@ -189,7 +208,8 @@ static float3 sampleDiffusedSunsetIcon(float2 p, float elevRad, float turbidity,
     // Darkening below, over a long distance, warmer under the sun.
     float fall = smoothstep(-mistSoft * 0.5f, mistSoft * 7.0f, dy);
     float under = exp(-pow(dx / 0.26f, 2.0f));
-    s *= mix(1.0f, mix(0.22f, 0.42f, under), fall);
+    s *= mix(1.0f, mix(mix(0.22f, 0.42f, under), mix(0.86f, 0.94f, under), day), fall);
+    s += mix(float3(0.42f, 0.48f, 0.58f), float3(0.52f, 0.42f, 0.30f), gold) * fall * day * 0.35f;
 
     s *= mix(1.0f, 0.54f, darkFactor);
     return s;
@@ -254,9 +274,9 @@ fragment float4 icon_fragment(VertexOut in [[stage_in]], constant IconUniforms &
     float elevRad = u.sunElevationDeg * (3.14159265f / 180.0f);
     float darkF = (u.layerMode == 2) ? 1.0f : 0.0f;
 
-    float r = sampleDiffusedSunsetIcon(uv + off, elevRad, u.turbidity, u.ozoneStrength, darkF, u.sunDrop, u.coreSize, u.curve, u.mistSoft, u.pale, u.burn, u.airy).r;
-    float g = sampleDiffusedSunsetIcon(uv,       elevRad, u.turbidity, u.ozoneStrength, darkF, u.sunDrop, u.coreSize, u.curve, u.mistSoft, u.pale, u.burn, u.airy).g;
-    float b = sampleDiffusedSunsetIcon(uv - off, elevRad, u.turbidity, u.ozoneStrength, darkF, u.sunDrop, u.coreSize, u.curve, u.mistSoft, u.pale, u.burn, u.airy).b;
+    float r = sampleDiffusedSunsetIcon(uv + off, elevRad, u.turbidity, u.ozoneStrength, darkF, u.sunDrop, u.coreSize, u.curve, u.mistSoft, u.pale, u.burn, u.airy, u.day, u.gold, u.night).r;
+    float g = sampleDiffusedSunsetIcon(uv,       elevRad, u.turbidity, u.ozoneStrength, darkF, u.sunDrop, u.coreSize, u.curve, u.mistSoft, u.pale, u.burn, u.airy, u.day, u.gold, u.night).g;
+    float b = sampleDiffusedSunsetIcon(uv - off, elevRad, u.turbidity, u.ozoneStrength, darkF, u.sunDrop, u.coreSize, u.curve, u.mistSoft, u.pale, u.burn, u.airy, u.day, u.gold, u.night).b;
 
     // A slight lift for every variant: 5% more light, 8% more saturation around each pixel's own luminance (linear light).
     float3 lit = float3(r, g, b) * u.exposure * 1.05f;

@@ -18,7 +18,7 @@ struct ConfigurationIconTests {
         }
         let read = try ConfigurationParser.parse(#"{"appearance":{"icon":"dusk"}}"#)
         #expect(read.configuration.appearance.icon == .dusk)
-        #expect(!(try ConfigurationParser.parse(#"{"appearance":{"icon":"noon"}}"#).issues.isEmpty))
+        #expect(!(try ConfigurationParser.parse(#"{"appearance":{"icon":"midnight"}}"#).issues.isEmpty))
         #expect(ConfigurationKeys.all.contains("appearance.icon") && SettingsOption.named("appearance.icon") != nil)
     }
 

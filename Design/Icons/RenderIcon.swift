@@ -1,8 +1,11 @@
-// Draws Sunset's icon masters (roadmap 0084, ADR-0084): four skies, each light, dark and tinted, with the shader in
+// Draws Sunset's icon masters (roadmap 0084, ADR-0084): the skies, each as it is and tinted (no darker one for dark
+// mode: the sun is as it is whatever the system's appearance, the owner 2026-11-28), with the shader in
 // Sky.metal beside this file.
 //   swift Design/Icons/RenderIcon.swift <output folder>      then python3 Design/Icons/build_icons.py
 // The owner's choices, 2026-11-19: candidate F (the sun half hidden, soft haze; no disc, no line, no clouds), Twilight bluer
 // and pinker, Dawn the palest (halfway between two looks: `dawnMix` in Sky.metal), Dusk burnt and darker.
+// Proposed 2026-11-28, hidden behind Option in the picker until approved: Sunrise, Later morning, Noon, Afternoon (`day`,
+// `gold`: the same sun a little higher, a clearer sky) and Night (`night`: the moon, a few stars).
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -26,10 +29,13 @@ struct IconUniforms {
     var pale: Float = 0
     var burn: Float = 0
     var airy: Float = 0
+    var day: Float = 0
+    var gold: Float = 0
+    var night: Float = 0
     var layerMode: Int32
 }
 
-/// One master: its file name, and how the shader draws it (layer mode 0 light, 2 dark, 3 tinted).
+/// One master: its file name, and how the shader draws it (layer mode 0 the sky, 3 tinted).
 struct Master {
     let name: String
     let mode: Int32
@@ -38,22 +44,95 @@ struct Master {
     var pale: Float = 0
     var burn: Float = 0
     var airy: Float = 0
+    var day: Float = 0
+    var gold: Float = 0
+    var night: Float = 0
+    var sunDrop: Float = 0.5
+    var core: Float = 0.13
+    var turbidity: Float = 2.35
 }
 
-let masters: [Master] = [
-    Master(name: "sunset", mode: 0, elevation: -0.4, exposure: 0.92),
-    Master(name: "sunset-dark", mode: 2, elevation: -1.6, exposure: 0.98),
-    Master(name: "sunset-tinted", mode: 3, elevation: -0.4, exposure: 0.92),
-    Master(name: "twilight", mode: 0, elevation: 0.2, exposure: 0.80, pale: 1),
-    Master(name: "twilight-dark", mode: 2, elevation: -0.8, exposure: 0.86, pale: 1),
-    Master(name: "twilight-tinted", mode: 3, elevation: 0.2, exposure: 0.80, pale: 1),
-    Master(name: "dawn", mode: 0, elevation: 0.6, exposure: 0.85, pale: 1, airy: 1),
-    Master(name: "dawn-dark", mode: 2, elevation: -0.4, exposure: 0.90, pale: 1, airy: 0.75),
-    Master(name: "dawn-tinted", mode: 3, elevation: 0.6, exposure: 0.85, pale: 1, airy: 1),
-    Master(name: "dusk", mode: 0, elevation: -3.0, exposure: 0.95, burn: 1),
-    Master(name: "dusk-dark", mode: 2, elevation: -4.0, exposure: 1.0, burn: 1),
-    Master(name: "dusk-tinted", mode: 3, elevation: -3.0, exposure: 0.95, burn: 1)
+/// The proposed skies (2026-11-28), as they are and tinted.
+let proposed: [Master] = [
+    Master(name: "sunrise", mode: 0, elevation: 3.0, exposure: 0.86, day: 0.3, gold: 1, sunDrop: 0.2, turbidity: 2.2),
+    Master(
+        name: "sunrise-tinted",
+        mode: 3,
+        elevation: 3.0,
+        exposure: 0.86,
+        day: 0.3,
+        gold: 1,
+        sunDrop: 0.2,
+        turbidity: 2.2
+    ),
+    Master(
+        name: "morning",
+        mode: 0,
+        elevation: 10,
+        exposure: 0.66,
+        day: 0.75,
+        sunDrop: -0.6,
+        core: 0.12,
+        turbidity: 1.9
+    ),
+    Master(
+        name: "morning-tinted",
+        mode: 3,
+        elevation: 10,
+        exposure: 0.66,
+        day: 0.75,
+        sunDrop: -0.6,
+        core: 0.12,
+        turbidity: 1.9
+    ),
+    Master(name: "noon", mode: 0, elevation: 30, exposure: 0.56, day: 1, sunDrop: -1.4, core: 0.115, turbidity: 1.7),
+    Master(
+        name: "noon-tinted",
+        mode: 3,
+        elevation: 30,
+        exposure: 0.56,
+        day: 1,
+        sunDrop: -1.4,
+        core: 0.115,
+        turbidity: 1.7
+    ),
+    Master(
+        name: "afternoon",
+        mode: 0,
+        elevation: 14,
+        exposure: 0.64,
+        day: 0.75,
+        gold: 1,
+        sunDrop: -0.9,
+        core: 0.12,
+        turbidity: 2.1
+    ),
+    Master(
+        name: "afternoon-tinted",
+        mode: 3,
+        elevation: 14,
+        exposure: 0.64,
+        day: 0.75,
+        gold: 1,
+        sunDrop: -0.9,
+        core: 0.12,
+        turbidity: 2.1
+    ),
+    Master(name: "night", mode: 0, elevation: -6.0, exposure: 0.85, night: 1),
+    Master(name: "night-tinted", mode: 3, elevation: -6.0, exposure: 0.85, night: 1)
 ]
+
+let masters: [Master] =
+    [
+        Master(name: "sunset", mode: 0, elevation: -0.4, exposure: 0.92),
+        Master(name: "sunset-tinted", mode: 3, elevation: -0.4, exposure: 0.92),
+        Master(name: "twilight", mode: 0, elevation: 0.2, exposure: 0.80, pale: 1),
+        Master(name: "twilight-tinted", mode: 3, elevation: 0.2, exposure: 0.80, pale: 1),
+        Master(name: "dawn", mode: 0, elevation: 0.6, exposure: 0.85, pale: 1, airy: 1),
+        Master(name: "dawn-tinted", mode: 3, elevation: 0.6, exposure: 0.85, pale: 1, airy: 1),
+        Master(name: "dusk", mode: 0, elevation: -3.0, exposure: 0.95, burn: 1),
+        Master(name: "dusk-tinted", mode: 3, elevation: -3.0, exposure: 0.95, burn: 1)
+    ] + proposed
 
 enum RenderError: Error {
     case noMetal, noPipeline
@@ -106,9 +185,15 @@ struct Renderer {
             resolution: SIMD2(Float(size), Float(size)),
             sunElevationDeg: master.elevation,
             exposure: master.exposure,
+            turbidity: master.turbidity,
+            sunDrop: master.sunDrop,
+            coreSize: master.core,
             pale: master.pale,
             burn: master.burn,
             airy: master.airy,
+            day: master.day,
+            gold: master.gold,
+            night: master.night,
             layerMode: master.mode
         )
         encoder.setRenderPipelineState(pipeline)
