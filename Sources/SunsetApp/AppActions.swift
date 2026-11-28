@@ -182,9 +182,17 @@ final class AppActions {
 
     // MARK: Splits (the panes of the key window's selected tab)
 
-    /// A new terminal beside the focused one, on `edge`.
+    /// A new pane beside the focused one, on `edge`: of the kind `tabs.newSplit` says (a terminal by default).
     func split(_ edge: PaneEdge) {
-        keyTabs?.newSplit(edge)
+        guard let tabs = keyTabs else { return }
+        let setting = AppConfiguration.shared.configuration.tabs.newSplit
+        switch NewTabKind.resolve(setting, focused: Self.kind(of: tabs.selectedContent)) {
+            case .page(let isPrivate):
+                tabs.newSplit(edge, isPrivate ? PaneContentKinds.newPrivatePage : PaneContentKinds.newPage)
+            case .document where tabs.scopes.documents:
+                tabs.newSplit(edge, tabs.shelf.create().map { PaneDescriptor.document(stored: $0) })
+            case .document, .terminal, .other: tabs.newSplit(edge)
+        }
     }
 
     func focusNextPane() {

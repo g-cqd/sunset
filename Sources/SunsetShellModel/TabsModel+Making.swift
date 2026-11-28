@@ -18,30 +18,38 @@ extension TabsModel {
             let index = workspace.selectedIndex.map { $0 + 1 } ?? workspace.count
             register(made, as: workspace.addTab(at: index, show: false))
         }
-        // A page with nowhere to go yet: the command bar, to type an address or a search. Asking is this action's; a
-        // page's view asks for nothing by itself.
-        if made.isBlankPage, bar == nil {
-            toggleBar()
-            bar?.forNewPage = true
-        }
+        asksAddress(made)
     }
 
-    /// A new terminal beside the focused pane, in the same tab, with the keyboard; nothing when there is no focused pane.
-    package func newSplit(_ edge: PaneEdge) {
-        guard scopes.terminal else {
-            // No terminal to put there: the bar asks which tab goes beside.
+    /// What `descriptor` says (a terminal by default) beside the focused pane, in the same tab, with the keyboard; nothing
+    /// when there is no focused pane. A page with nowhere to go asks for its address, as a new tab's does.
+    package func newSplit(_ edge: PaneEdge, _ descriptor: PaneDescriptor? = nil) {
+        guard scopes.allows(descriptor) else {
+            // Nothing of that kind to put there: the bar asks which tab goes beside.
             if let target = shownPane { bar = CommandBar(purpose: .splitWith(SplitChoice(pane: target, edge: edge))) }
             return
         }
         if shownEntry != nil, let target = shownPane {
-            if keeper(ofPane: target)?.addPane(beside: target, edge: edge, content: makeContent(nil)) == true {
+            let made = makeContent(descriptor)
+            if keeper(ofPane: target)?.addPane(beside: target, edge: edge, content: made) == true {
                 syncStates()
+                asksAddress(made)
             }
             return
         }
         guard let target = workspace.selectedPane, let pane = workspace.addPane(beside: target, edge: edge) else {
             return
         }
-        register(makeContent(nil), as: pane)
+        let made = makeContent(descriptor)
+        register(made, as: pane)
+        asksAddress(made)
+    }
+
+    /// A page with nowhere to go yet: the command bar, to type an address or a search. Asking is the action's that made
+    /// it; a page's view asks for nothing by itself.
+    private func asksAddress(_ made: any PaneContent) {
+        guard made.isBlankPage, bar == nil else { return }
+        toggleBar()
+        bar?.forNewPage = true
     }
 }

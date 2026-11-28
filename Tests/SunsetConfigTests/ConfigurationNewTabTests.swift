@@ -18,4 +18,16 @@ struct ConfigurationNewTabTests {
         )
         #expect(SettingsOption.named("tabs.newTab") != nil)
     }
+
+    /// "A split makes a pane of the same kind, by a setting": a terminal by default, as before.
+    @Test func `a new split is a terminal by default; each kind read, written and offered`() throws {
+        #expect(try ConfigurationParser.parse("{}").configuration.tabs.newSplit == .terminal)
+        for variant in Configuration.Tabs.NewTab.allCases {
+            var configuration = Configuration()
+            configuration.tabs.newSplit = variant
+            let back = try ConfigurationParser.parse(ConfigurationWriter.text(for: configuration))
+            #expect(back.issues.isEmpty && back.configuration.tabs.newSplit == variant)
+        }
+        #expect(SettingsOption.named("tabs.newSplit") != nil)
+    }
 }

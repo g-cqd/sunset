@@ -125,6 +125,8 @@ public struct Configuration: Sendable, Equatable {
         public var mode = Mode.native
         /// What Command-T makes.
         public var newTab = NewTab.focused
+        /// What Split Right and Split Down make beside the focused pane: a terminal unless set otherwise.
+        public var newSplit = NewTab.terminal
         /// What opens with no tab: nothing, a kind of tab, `startAddress`, `startFile`; `startProfile` names the
         /// profile whose first Space a new window opens on (empty: as before).
         public var start = Start.nothing

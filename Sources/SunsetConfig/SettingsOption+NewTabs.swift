@@ -16,6 +16,17 @@ extension SettingsOption {
             )
             .noted("Command-Shift-T asks which kind each time."),
             choice(
+                "tabs.newSplit",
+                "New split",
+                "split right down pane beside kind terminal web page document same",
+                \.tabs.newSplit,
+                [
+                    (.terminal, "Terminal"), (.focused, "Focused pane's kind"),
+                    (.web, "Web page"), (.document, "Document")
+                ]
+            )
+            .noted("What Split Right and Split Down put beside the focused pane."),
+            choice(
                 "tabs.start",
                 "Opening with no tab",
                 "start launch open empty startup first tab window terminal page address document file",
