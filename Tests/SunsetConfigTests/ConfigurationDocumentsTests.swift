@@ -35,7 +35,8 @@ import Testing
         #expect(
             SettingsSection.topic("general.documents")?.topic.options.map(\.id) == [
                 "documents.saveAfter", "documents.saveOnFocusLoss", "documents.largerHeadings", "documents.linksOpen",
-                "documents.pagesReachNetwork", "documents.quickLook", "documents.textSize", "documents.fullWidth",
+                "documents.opensAs", "documents.pagesReachNetwork", "documents.quickLook", "documents.textSize",
+                "documents.fullWidth",
                 "documents.alignsLeft",
                 "documents.smartPunctuation", "documents.textFont", "documents.headingFont", "documents.codeFont",
                 "documents.diagramFont", "documents.fontFeatures", "documents.highlightsCode",

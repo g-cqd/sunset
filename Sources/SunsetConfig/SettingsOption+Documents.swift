@@ -44,6 +44,14 @@ extension SettingsOption {
             .noted(
                 "⌘-click opens a link in a tab behind, ⇧⌘-click in a tab shown, ⇧-click in a new window, ⌥-click beside."
             ),
+            choice(
+                "documents.opensAs",
+                "Open files",
+                "open file drawn rendered source html markdown svg mermaid edit view",
+                \.documents.opensAs,
+                [(.rendered, "Drawn"), (.source, "As source")]
+            )
+            .noted("Markdown, Mermaid, HTML and SVG. View › Show Source switches a document either way."),
             toggle(
                 "documents.pagesReachNetwork",
                 "Pages reach the network",

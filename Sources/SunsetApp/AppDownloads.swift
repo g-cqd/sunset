@@ -1,6 +1,8 @@
 import AppKit
 import SunsetAppCore
 import SunsetConfig
+import SunsetDocuments
+import SunsetPane
 import SunsetRuntime
 import SunsetShellModel
 import SunsetStorage
@@ -42,6 +44,14 @@ import UserNotifications
             )
         }
         center.approve = { name, origin in await approve(name, origin: origin) }
+        // What Sunset opens (drawn or as text) opens in a tab, with documents on; the rest in the Mac's app for it.
+        center.open = { file in
+            if AppScopes.current.documents, DocumentKind.opens(path: file.path) {
+                AppActions.shared.open(files: [file.path])
+            } else {
+                NSWorkspace.shared.open(file)
+            }
+        }
         center.choose = { name in choose(name) }
         center.onFinished = { finished($0) }
     }
@@ -89,7 +99,7 @@ import UserNotifications
         let settings = DownloadCenter.shared.settings
         if settings.notify { notify(item) }
         if settings.openSafe, DownloadNaming.isSafe(item.name), let file = item.destination {
-            NSWorkspace.shared.open(file)
+            DownloadCenter.shared.open(file)
         }
     }
 

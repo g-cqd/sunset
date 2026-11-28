@@ -10,6 +10,11 @@ extension Configuration {
         public var largerHeadings = true
         /// Where a plain click on a document's link opens it.
         public var linksOpen = LinksOpen.tab
+        /// What a file that can be drawn (Markdown, Mermaid, HTML, SVG) opens as: drawn, or its source.
+        public var opensAs = OpensAs.rendered
+        public enum OpensAs: String, Sendable, Equatable, CaseIterable {
+            case rendered, source
+        }
         /// A page document (HTML, SVG) drawn as a page may load what is not in its folder: off, it reads only its folder.
         public var pagesReachNetwork = false
 

@@ -34,4 +34,36 @@ struct PageDocumentTests {
         #expect(pane.mode == .source)
         pane.stop()
     }
+
+    @Test func `Sunset opens what it draws and the text people read; the rest goes to the Mac`() {
+        for name in ["a.md", "b.mmd", "c.html", "d.svg", "e.swift", "f.json", "g.log", "h.csv"] {
+            #expect(DocumentKind.opens(path: "/x/" + name), "\(name)")
+        }
+        for name in ["a.pdf", "b.zip", "c.app", "README", ".zshrc", "d.docx"] {
+            #expect(!DocumentKind.opens(path: "/x/" + name), "\(name)")
+        }
+    }
+
+    @Test func `with documents.opensAs on source, a file that could be drawn opens as its source`() throws {
+        let root = NSTemporaryDirectory() + "page-\(UUID().uuidString)"
+        try FileManager.default.createDirectory(atPath: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(atPath: root) }
+        let path = root + "/notes.md"
+        try "# Notes".write(toFile: path, atomically: true, encoding: .utf8)
+        let documents = OpenDocuments(store: nil)
+        documents.look.opensSource = true
+        let pane = try #require(
+            DocumentContent(PaneDescriptor(kind: DocumentContent.kind, state: ["file": path]), documents: documents)
+        )
+        #expect(pane.mode == .source)
+        pane.stop()
+        let asked = try #require(
+            DocumentContent(
+                PaneDescriptor(kind: DocumentContent.kind, state: ["file": path, "view": "rendered"]),
+                documents: documents
+            )
+        )
+        #expect(asked.mode == .rendered, "a tab that comes back keeps its view")
+        asked.stop()
+    }
 }

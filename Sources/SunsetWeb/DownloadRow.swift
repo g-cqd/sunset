@@ -28,7 +28,7 @@ package struct DownloadRow: View {
         .padding(.vertical, Design.Space.xs)
         .inkedContextMenu {
             if item.state == .finished, let file = item.destination {
-                Button("Open") { NSWorkspace.shared.open(file) }
+                Button("Open") { center.open(file) }
                 Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([file]) }
             }
             if let source = item.source {

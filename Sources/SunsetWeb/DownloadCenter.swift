@@ -1,3 +1,4 @@
+internal import AppKit
 package import Foundation
 package import Observation
 package import SunsetRuntime
@@ -28,6 +29,8 @@ package final class DownloadCenter: NSObject {
     @ObservationIgnored package var approve: (String, URL?) async -> Bool = { _, _ in true }
     /// Asked for the place of a file when the settings say to ask; nil: the download is given up.
     @ObservationIgnored package var choose: (String) async -> URL? = { _ in nil }
+    /// Opens a finished download: in Sunset what it opens (the app says), else with the Mac's app for it.
+    @ObservationIgnored package var open: @MainActor (URL) -> Void = { NSWorkspace.shared.open($0) }
     @ObservationIgnored package var onFinished: (DownloadItem) -> Void = { _ in }
     /// A page that is never shown, for resuming (WebKit resumes through a web view).
     @ObservationIgnored private lazy var resumer = WKWebView(frame: .zero)

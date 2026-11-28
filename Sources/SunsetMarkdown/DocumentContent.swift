@@ -66,8 +66,9 @@ package final class DocumentContent: PaneContent, PaneViewMaking {
     init(document: OpenDocument, mode: DocumentMode?, documents: OpenDocuments) {
         self.document = document
         self.documents = documents
-        // With no view asked for: an empty document has nothing to draw, it opens ready to type.
-        let unasked: DocumentMode = document.source.storage.length == 0 ? .source : .rendered
+        // With no view asked for: as `documents.opensAs` says; an empty document has nothing to draw, it opens ready to type.
+        let source = documents.look.opensSource || document.source.storage.length == 0
+        let unasked: DocumentMode = source ? .source : .rendered
         self.mode = document.kind == .text ? .source : (mode ?? unasked)
     }
 

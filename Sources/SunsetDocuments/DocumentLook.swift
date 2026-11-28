@@ -9,6 +9,8 @@ public final class DocumentLook {
     public var largerHeadings = true
     /// A plain click on a link opens it beside the document, not in a new tab (`documents.linksOpen`).
     public var linksBeside = false
+    /// A file that can be drawn opens as its source (`documents.opensAs`); by default it opens drawn.
+    public var opensSource = false
     /// Markdown rendering settings (`documents.*`), mirrored to `OpenDocument.source.settings` and to the shared
     /// Quick Look preferences domain.
     public var viewer = ViewerSettings()

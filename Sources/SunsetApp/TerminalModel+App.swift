@@ -1,6 +1,7 @@
 import AppKit
 import SunsetAppCore
 import SunsetConfig
+import SunsetDocuments
 import SunsetHost
 import SunsetMarkdown
 import SunsetPane
@@ -26,8 +27,8 @@ extension TerminalModel {
             return (terminal.secureKeyboard, terminal.pasteWarning)
         }
         openURL = { [weak self, weak tabs] url in
-            // A file of this Mac: a program is shown in the Finder, not run (ADR-0118). Markdown/Mermaid/text files
-            // open beside the terminal in a Sunset document pane when documents are enabled (M-h / t211).
+            // A file of this Mac: a program is shown in the Finder, not run (ADR-0118). What Sunset opens (drawn: Markdown,
+            // Mermaid, HTML, SVG; text) opens beside the terminal in a document pane when documents are on (M-h / t211).
             let links = AppConfiguration.shared.configuration.terminal.fileLinks
             if url.isFileURL {
                 if links.reveals(program: FileLinkTarget.isProgram(url)) {
@@ -60,13 +61,7 @@ extension TerminalModel {
         }
     }
 
-    private static let documentExtensions: Set<String> = Set(
-        "md markdown mdown mkd mmd mermaid txt swift json toml yaml yml sh zsh bash py js ts css html xml rs c h cpp hpp go rb log"
-            .split(separator: " ")
-            .map(String.init)
-    )
-
     private static func isSunsetDocumentURL(_ url: URL) -> Bool {
-        documentExtensions.contains(url.pathExtension.lowercased())
+        DocumentKind.opens(path: url.path)
     }
 }

@@ -58,6 +58,7 @@ enum AppDocuments {
         SunsetStore.shared.openDocuments.autosave.onFocusLoss = asked.onFocusLoss
         SunsetStore.shared.openDocuments.look.largerHeadings = settings.largerHeadings
         SunsetStore.shared.openDocuments.look.linksBeside = settings.linksOpen == .beside
+        SunsetStore.shared.openDocuments.look.opensSource = settings.opensAs == .source
         let viewer = ViewerSettings(settings)
         SunsetStore.shared.openDocuments.applyViewer(viewer)
         viewer.writeToQuickLookDomain()
