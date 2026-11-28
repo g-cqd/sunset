@@ -51,6 +51,11 @@ let package = Package(
             revision: "7310d84c3e05708940d5954888b26eb24b9e6a82"
         ),
         .package(url: "https://github.com/g-cqd/AemiJSON.git", revision: "fb4478051725c95614e76b15ac11e9a5c6a502a3"),
+        .package(
+            url: "https://github.com/g-cqd/AemiMCP.git",
+            revision: "04299f30204abe94f0e81492e6d0e723d1690849",
+            traits: []
+        ),
         .package(url: "https://github.com/g-cqd/AemiRegex.git", revision: "1b58215ac7266f8c847065f0cb63ab1cc75b3bc9"),
         .package(url: "https://github.com/g-cqd/CSVCoder.git", revision: "a2ad1a682f140aa0fc7c3b1108d388b73b4354d6"),
         .package(
@@ -116,7 +121,13 @@ let package = Package(
                 .product(name: "MarkdownLookKit", package: "AemiMarkdown")
             ]
         ),
-        module("SunsetControl", ["SunsetRuntime"]),
+        module(
+            "SunsetControl",
+            [
+                "SunsetRuntime", .product(name: "AemiMCP", package: "AemiMCP"),
+                .product(name: "AemiJSONCore", package: "AemiJSON")
+            ]
+        ),
         tests("SunsetControlTests", ["SunsetControl"]),
         .executableTarget(
             name: "SunsetControlTool",

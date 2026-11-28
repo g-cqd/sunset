@@ -1,5 +1,5 @@
 {
-  "originHash" : "cc0d78cc9d9dac438ea6e6e0eac1237772eaacbd67884f9bf7abed232cc028cf",
+  "originHash" : "51188baadf6dc0b1456725bf04bbf9d2c416e60d1ecee75ac348a2baa4f8e3fc",
   "pins" : [
     {
       "identity" : "abysm",
@@ -42,6 +42,22 @@
       }
     },
     {
+      "identity" : "aemimcp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiMCP.git",
+      "state" : {
+        "revision" : "04299f30204abe94f0e81492e6d0e723d1690849"
+      }
+    },
+    {
+      "identity" : "aemimermaid",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiMermaid.git",
+      "state" : {
+        "revision" : "48652014a0b545080194610af09458325e5fb709"
+      }
+    },
+    {
       "identity" : "aemiregex",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/g-cqd/AemiRegex.git",
@@ -55,6 +71,14 @@
       "location" : "https://github.com/Aemi-Studio/AemiSDR.git",
       "state" : {
         "revision" : "9ae4c7748c0d6179a527dd76e5bad2544ef408f9"
+      }
+    },
+    {
+      "identity" : "aemitextui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/g-cqd/AemiTextUI.git",
+      "state" : {
+        "revision" : "aebc2c6341367ee06f6fdc4a91fe81d41a12deee"
       }
     },
     {
@@ -99,6 +123,15 @@
       "state" : {
         "revision" : "c7413d967b97aae67c46452bf7645bdb7b200e8e",
         "version" : "1.17.2"
+      }
+    },
+    {
+      "identity" : "swift-subprocess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-subprocess.git",
+      "state" : {
+        "revision" : "dbe21bd7dfd4ffef8c32588918542a8abfa1b54c",
+        "version" : "1.0.2"
       }
     },
     {

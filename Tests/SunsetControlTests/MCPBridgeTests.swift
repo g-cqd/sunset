@@ -68,4 +68,37 @@ struct MCPBridgeTests {
         let content = (read["result"] as? [String: Any])?["content"] as? [[String: Any]]
         #expect((content?.first?["text"] as? String)?.hasSuffix("[next: 42]") == true)
     }
+
+    @Test func `it speaks the protocol strictly: versions negotiated, bad lines answered, blank lines ignored`() throws
+    {
+        let bridge = MCPBridge(version: "1") { _ in ControlReply() }
+        let old = try object(
+            bridge.reply(
+                to: Data(
+                    #"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05"}}"#.utf8
+                )
+            )
+        )
+        #expect((old["result"] as? [String: Any])?["protocolVersion"] as? String == "2024-11-05")
+        let unknown = try object(
+            bridge.reply(
+                to: Data(
+                    #"{"jsonrpc":"2.0","id":2,"method":"initialize","params":{"protocolVersion":"1999-01-01"}}"#.utf8
+                )
+            )
+        )
+        #expect((unknown["result"] as? [String: Any])?["protocolVersion"] as? String == "2025-11-25")
+        let garbage = try object(bridge.reply(to: Data("{not json".utf8)))
+        #expect((garbage["error"] as? [String: Any])?["code"] as? Int == -32700)
+        #expect(bridge.reply(to: Data("  ".utf8)) == nil)
+        let wrongType = try object(
+            bridge.reply(
+                to: Data(
+                    #"{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"read_pane","arguments":{"lines":"five"}}}"#
+                        .utf8
+                )
+            )
+        )
+        #expect((wrongType["result"] as? [String: Any])?["isError"] as? Bool == true)
+    }
 }
