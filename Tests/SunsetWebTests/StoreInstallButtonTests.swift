@@ -22,7 +22,8 @@ struct StoreInstallButtonTests {
         page.setState(focused: true, visible: true)
         let view = try #require(page.webView)
         view.loadHTMLString(html, baseURL: URL(string: address))
-        try await waitUntil(timeout: .seconds(10), label: "loaded") { !view.isLoading && view.url != nil }
+        // A loaded CI runner takes over 10 seconds for a first page (seen 2026-11-28); a fast one returns at once.
+        try await waitUntil(timeout: .seconds(30), label: "loaded") { !view.isLoading && view.url != nil }
         return (page, view)
     }
 
@@ -84,6 +85,7 @@ struct StoreInstallButtonTests {
     /// button of Sunset's there.
     @Test func `Firefox Add-ons sees Firefox and keeps its own button`() async throws {
         let page = WebContent(url: nil, settings: WebSettings(applicationName: "Version/26.0 Safari/605.1.15"))
+        defer { page.stop() }
         let firefox = try #require(URL(string: "https://addons.mozilla.org/de/firefox/addon/ublock-origin/"))
         #expect(page.agent(for: firefox) == .firefox)
         let (other, view) = try await load(
