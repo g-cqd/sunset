@@ -60,7 +60,7 @@ let package = Package(
         .package(url: "https://github.com/g-cqd/CSVCoder.git", revision: "a2ad1a682f140aa0fc7c3b1108d388b73b4354d6"),
         .package(
             url: "https://github.com/Aemi-Studio/AemiSDR.git",
-            revision: "9ae4c7748c0d6179a527dd76e5bad2544ef408f9"
+            revision: "3de2845b01a57cda3615ebe5bf140b9497d7f89a"
         )
     ],
     targets: [

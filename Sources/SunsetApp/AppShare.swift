@@ -201,10 +201,16 @@ import WebKit
         return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
     }
 
+    /// `surface` as the type the SDK's `CIImage(ioSurface:)` takes: `IOSurface` in macOS 27's SDK, `IOSurfaceRef` in 26's
+    /// (CI's runner failed to build so). They are one object, toll-free bridged: the cast changes only its static type.
+    private static func sameSurface<Surface: AnyObject>(_ surface: IOSurface) -> Surface {
+        unsafe unsafeBitCast(surface, to: Surface.self)
+    }
+
     /// A terminal's frame as an image, on its background made opaque: the frame leaves the background to the window
     /// (its material shows through), and alone it was a few glyphs on nothing (seen in the share panel).
     private static func image(of surface: IOSurface, on background: CGColor) -> CGImage? {
-        let frame = CIImage(ioSurface: surface)
+        let frame = CIImage(ioSurface: sameSurface(surface))
         let opaque = background.copy(alpha: 1) ?? background
         let ground = CIImage(color: CIColor(cgColor: opaque)).cropped(to: frame.extent)
         return images.createCGImage(frame.composited(over: ground), from: frame.extent)
